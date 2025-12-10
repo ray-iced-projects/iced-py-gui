@@ -817,7 +817,7 @@ pub fn table_dataframe_update(
 {
     let update = try_extract_table_update(item);
     if update == IpgTableParam::PolarsDf {
-         let df = Into::<DataFrame>::into(value.clone());
+         let df: DataFrame = value.as_ref().clone();
          table.df= df;
      }
 }

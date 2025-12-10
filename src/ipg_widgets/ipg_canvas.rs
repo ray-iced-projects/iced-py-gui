@@ -34,7 +34,7 @@ impl IpgCanvas {
     }
 }
 
-pub fn construct_canvas(canvas_state: &IpgCanvasState) -> Element<Message> {
+pub fn construct_canvas(canvas_state: &IpgCanvasState) -> Element<'_, Message> {
     let draw: Element<CanvasMessage> = container(
         canvas_state
             .view(

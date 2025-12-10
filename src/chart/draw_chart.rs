@@ -273,7 +273,7 @@ impl DrawCurve {
                         build_grid(gd, frame);
                     }, 
                     GuiComponent::Legend(leg) => {
-                        build_legend(leg, frame),
+                        build_legend(leg, frame);
                     },
                     GuiComponent::Line(line) => {
                         build_line(line, frame);

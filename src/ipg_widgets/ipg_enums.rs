@@ -5,7 +5,6 @@ use pyo3::pyclass;
 use super::ipg_button::{IpgButton, IpgButtonStyle};
 use super::ipg_canvas::IpgCanvas;
 use super::ipg_card::{IpgCard, IpgCardStyle};
-use super::ipg_chart::{IpgChartId, IpgChartLegend, IpgChartSeries, IpgChartTitle, IpgChartXAxis, IpgChartYAxis};
 use super::ipg_checkbox::{IpgCheckBox, IpgCheckboxStyle};
 use super::ipg_color_picker::{IpgColorPicker, IpgColorPickerStyle};
 // use super::ipg_color_picker::IpgColorPicker;
@@ -46,7 +45,6 @@ use super::ipg_window::IpgWindow;
 #[derive(Debug, Clone)]
 pub enum IpgContainers {
     IpgCanvas(IpgCanvas),
-    IpgChartId(IpgChartId),
     IpgColumn(IpgColumn),
     IpgContainer(IpgContainer),
     IpgMenu(IpgMenu),
@@ -69,11 +67,6 @@ pub enum IpgWidgets {
     IpgButtonStyle(IpgButtonStyle),
     IpgCard(IpgCard),
     IpgCardStyle(IpgCardStyle),
-    IpgChartTitle(IpgChartTitle),
-    IpgChartLegend(IpgChartLegend),
-    IpgChartXAxis(IpgChartXAxis),
-    IpgChartYAxis(IpgChartYAxis),
-    IpgChartSeries(IpgChartSeries),
     IpgCheckBox(IpgCheckBox),
     IpgCheckboxStyle(IpgCheckboxStyle),
     IpgColorPicker(IpgColorPicker),

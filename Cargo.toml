@@ -8,7 +8,7 @@ description = "Python wrapper for Rust Iced"
 readme = "README.md"
 
 [lib]
-name = "iced-py-gui"
+name = "icedpygui"
 crate-type = ["cdylib"]
 
 
@@ -17,7 +17,6 @@ pyo3 = { version = "0.23.3", features = ["extension-module"] }
 iced = { version = "0.13.1", features = ["canvas", "debug", "highlighter", "image", 
                                         "lazy", "smol", "svg", "tokio", "multi-window", "auto-detect-theme"] }
 iced_aw = {git = "https://github.com/iced-rs/iced_aw", rev = "3485f3a"}
-charts-rs-mod = { path = "../charts-rs-mod", features = ["resvg", "image", "image-encoder"] }
 
 polars = { version="0.46.0", features=["strings", "lazy"]}
 pyo3-polars = "0.20.0"

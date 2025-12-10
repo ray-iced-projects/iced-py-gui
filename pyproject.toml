@@ -1,0 +1,28 @@
+[build-system]
+requires = ["maturin>=1.2,<2.0"]
+build-backend = "maturin"
+
+[project]
+name = "IcedPyGui"
+description = "Python wrapper for Rust Iced"
+version = "0.4.0"
+authors = [
+    {name = 'Charles Ray', email = 'icedpygui@gmail.com'}
+]
+readme = "README.md"
+# PyO3 doesn't support python 3.13 yet.
+requires-python = ">=3.10, < 3.13"
+keywords = ["iced", "iced_aw", "gui", "rust", "python"]
+
+classifiers = [
+    "Programming Language :: Rust",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: Implementation :: PyPy",
+]
+
+[project.urls]
+Homepage = "https://github.com/icedpygui/IcedPyGui"
+Issues = "https://github.com/icedpygui/IcedPyGui/issues"
+
+[tool.maturin]
+features = ["pyo3/extension-module"]

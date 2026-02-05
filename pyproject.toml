@@ -10,8 +10,8 @@ authors = [
     {name = 'Charles Ray', email = 'ray-iced-projects@gmail.com'}
 ]
 readme = "README.md"
-# PyO3 doesn't support python 3.13 yet.
-requires-python = ">=3.10, < 3.13"
+# PyO3 0.26 supports Python 3.14
+requires-python = ">=3.10, < 3.15"
 keywords = ["iced", "iced_aw", "gui", "rust", "python"]
 
 classifiers = [

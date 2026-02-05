@@ -5,7 +5,10 @@ use iced::widget::Text;
 use crate::app::Message;
 use crate::graphics::colors::get_color;
 
-use pyo3::{pyclass, PyObject, Python};
+use pyo3::{pyclass, Py, PyAny, Python};
+
+// Type alias to replace deprecated PyObject
+type PyObject = Py<PyAny>;
 
 use super::helpers::{get_height, get_horizontal_alignment, 
     get_vertical_alignment, get_width, try_extract_boolean, 
@@ -175,7 +178,7 @@ pub fn text_item_update(txt: &mut IpgText,
 
 fn try_extract_text_update(update_obj: &PyObject) -> IpgTextParam {
 
-    Python::with_gil(|py| {
+    Python::attach(|py| {
         let res = update_obj.extract::<IpgTextParam>(py);
         match res {
             Ok(update) => update,
@@ -186,7 +189,7 @@ fn try_extract_text_update(update_obj: &PyObject) -> IpgTextParam {
 
 fn try_extract_hor_alignment(update_obj: &PyObject) -> IpgHorizontalAlignment {
 
-    Python::with_gil(|py| {
+    Python::attach(|py| {
         let res = update_obj.extract::<IpgHorizontalAlignment>(py);
         match res {
             Ok(update) => update,
@@ -197,7 +200,7 @@ fn try_extract_hor_alignment(update_obj: &PyObject) -> IpgHorizontalAlignment {
 
 fn try_extract_vert_alignment(update_obj: &PyObject) -> IpgVerticalAlignment {
 
-    Python::with_gil(|py| {
+    Python::attach(|py| {
         let res = update_obj.extract::<IpgVerticalAlignment>(py);
         match res {
             Ok(update) => update,

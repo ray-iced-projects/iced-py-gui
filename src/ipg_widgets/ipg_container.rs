@@ -1,7 +1,10 @@
 //! ipg_container
 use iced::{Border, Color, Element, Length, Padding, Shadow, Theme, Vector};
 use iced::widget::{container, horizontal_space, Container};
-use pyo3::{pyclass, PyObject, Python};
+use pyo3::{pyclass, Py, PyAny, Python};
+
+// Type alias to replace deprecated PyObject
+type PyObject = Py<PyAny>;
 
 use crate::app::Message;
 use crate::graphics::colors::get_color;
@@ -199,7 +202,7 @@ pub fn container_item_update(cont: &mut IpgContainer,
 
 pub fn try_extract_container_update(update_obj: &PyObject) -> IpgContainerParam {
 
-    Python::with_gil(|py| {
+    Python::attach(|py| {
         let res = update_obj.extract::<IpgContainerParam>(py);
         match res {
             Ok(update) => update,
@@ -329,7 +332,7 @@ pub fn container_style_update_item(style: &mut IpgContainerStyle,
 
 pub fn try_extract_container_style_update(update_obj: &PyObject) -> IpgContainerStyleParam {
 
-    Python::with_gil(|py| {
+    Python::attach(|py| {
         let res = update_obj.extract::<IpgContainerStyleParam>(py);
         match res {
             Ok(update) => update,

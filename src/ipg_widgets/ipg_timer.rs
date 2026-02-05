@@ -11,7 +11,10 @@ use iced::widget::button::{self, Status};
 use iced::widget::{Button, Text};
 use iced::{Border, Color, Element, Length, Padding, Shadow, Theme, Vector};
 
-use pyo3::{pyclass, PyObject, Python};
+use pyo3::{pyclass, Py, PyAny, Python};
+
+// Type alias to replace deprecated PyObject
+type PyObject = Py<PyAny>;
 
 #[derive(Debug, Clone)]
 pub struct IpgTimer {
@@ -208,13 +211,13 @@ fn process_callback(
 
     // Retrieve the callback
     let callback = match app_cbs.callbacks.get(&(id, event_name.clone())) {
-        Some(cb) => Python::with_gil(|py| cb.clone_ref(py)),
+        Some(cb) => Python::attach(|py| cb.clone_ref(py)),
         None => return,
     };
 
     drop(app_cbs);
 
-    Python::with_gil(|py| {
+    Python::attach(|py| {
         
         let name_bool = if event_name == "on_start".to_string() {
             true
@@ -321,7 +324,7 @@ pub fn timer_item_update(tim: &mut IpgTimer,
 
 pub fn try_extract_timer_update(update_obj: &PyObject) -> IpgTimerParam {
 
-    Python::with_gil(|py| {
+    Python::attach(|py| {
         let res = update_obj.extract::<IpgTimerParam>(py);
         match res {
             Ok(update) => update,
@@ -497,7 +500,7 @@ fn get_timer_style(style: Option<&IpgWidgets>) -> Option<IpgTimerStyle>{
 
 fn try_extract_timer_style_update(update_obj: &PyObject) -> IpgTimerStyleParam {
 
-    Python::with_gil(|py| {
+    Python::attach(|py| {
         let res = update_obj.extract::<IpgTimerStyleParam>(py);
         match res {
             Ok(update) => update,

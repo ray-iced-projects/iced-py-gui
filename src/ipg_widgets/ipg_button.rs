@@ -7,7 +7,10 @@ use super::helpers::{get_height, get_horizontal_alignment, get_padding_f64, get_
 use super::ipg_enums::IpgWidgets;
 
 use iced::widget::button::{self, Status, Style};
-use pyo3::{pyclass, PyObject, Python};
+use pyo3::{pyclass, Py, PyAny, Python};
+
+// Type alias to replace deprecated PyObject
+type PyObject = Py<PyAny>;
 
 use iced::widget::{text, Button, Text};
 use iced::{alignment, Border, Color, Element, Length, Padding, Shadow, Theme, Vector };
@@ -180,7 +183,7 @@ pub fn process_callback(
 
     // Retrieve the callback
     let callback = match app_cbs.callbacks.get(&(id, event_name)) {
-        Some(cb) => Python::with_gil(|py| cb.clone_ref(py)),
+        Some(cb) => Python::attach(|py| cb.clone_ref(py)),
         None => return,
     };
 
@@ -188,7 +191,7 @@ pub fn process_callback(
 
     // Check user data from ud1
     if let Some(user_data) = ud1.user_data.get(&id) {
-        Python::with_gil(|py| {
+        Python::attach(|py| {
             if let Err(err) = callback.call1(py, (id, user_data)) {
                 panic!("Button callback error: {err}");
             }
@@ -201,7 +204,7 @@ pub fn process_callback(
     // Check user data from ud2
     let ud2 = access_user_data2();
     if let Some(user_data) = ud2.user_data.get(&id) {
-        Python::with_gil(|py| {
+        Python::attach(|py| {
             if let Err(err) = callback.call1(py, (id, user_data)) {
                 panic!("Button callback error: {err}");
             }
@@ -212,7 +215,7 @@ pub fn process_callback(
     drop(ud2); // Drop ud2 if no user data is found
 
     // If no user data is found in both ud1 and ud2, call the callback with only the id
-    Python::with_gil(|py| {
+    Python::attach(|py| {
         if let Err(err) = callback.call1(py, (id,)) {
             panic!("Button callback error: {err}");
         }
@@ -523,7 +526,7 @@ fn disabled(style: Style) -> Style {
 
 pub fn try_extract_button_update(update_obj: &PyObject) -> IpgButtonParam {
 
-    Python::with_gil(|py| {
+    Python::attach(|py| {
         let res = update_obj.extract::<IpgButtonParam>(py);
         match res {
             Ok(update) => update,
@@ -534,7 +537,7 @@ pub fn try_extract_button_update(update_obj: &PyObject) -> IpgButtonParam {
 
 pub fn try_extract_button_arrow(update_obj: &PyObject) -> IpgButtonArrow {
 
-    Python::with_gil(|py| {
+    Python::attach(|py| {
         let res = update_obj.extract::<IpgButtonArrow>(py);
         match res {
             Ok(update) => update,
@@ -545,7 +548,7 @@ pub fn try_extract_button_arrow(update_obj: &PyObject) -> IpgButtonArrow {
 
 pub fn try_extract_button_style_update(update_obj: &PyObject) -> IpgButtonStyleParam {
 
-    Python::with_gil(|py| {
+    Python::attach(|py| {
         let res = update_obj.extract::<IpgButtonStyleParam>(py);
         match res {
             Ok(update) => update,

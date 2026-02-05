@@ -17,7 +17,10 @@ use iced::alignment::{self, Alignment};
 use iced::widget::{Button, Column, Container, PickList, Row, Space, Text};
 
 use chrono::prelude::*;
-use pyo3::{pyclass, PyObject, Python};
+use pyo3::{pyclass, Py, PyAny, Python};
+
+// Type alias to replace deprecated PyObject
+type PyObject = Py<PyAny>;
 
 
 #[derive(Debug, Clone)]
@@ -547,7 +550,7 @@ pub fn process_callback(id: usize, event_name: String, selected_date: Option<Str
 
     // Retrieve the callback
     let callback = match app_cbs.callbacks.get(&(id, event_name)) {
-        Some(cb) => Python::with_gil(|py| cb.clone_ref(py)),
+        Some(cb) => Python::attach(|py| cb.clone_ref(py)),
         None => return,
     };
 
@@ -555,7 +558,7 @@ pub fn process_callback(id: usize, event_name: String, selected_date: Option<Str
 
     // Check user data from ud1
     if let Some(user_data) = ud1.user_data.get(&id) {
-        Python::with_gil(|py| {
+        Python::attach(|py| {
             if let Some(date) = &selected_date {
                 if let Err(err) = callback.call1(py, (id, date.clone(), user_data)) {
                     panic!("DatePicker callback error: {err}");
@@ -574,7 +577,7 @@ pub fn process_callback(id: usize, event_name: String, selected_date: Option<Str
     // Check user data from ud2
     let ud2 = access_user_data2();
     if let Some(user_data) = ud2.user_data.get(&id) {
-        Python::with_gil(|py| {
+        Python::attach(|py| {
             if let Some(date) = &selected_date {
                 if let Err(err) = callback.call1(py, (id, date.clone(), user_data)) {
                     panic!("DatePicker callback error: {err}");
@@ -591,7 +594,7 @@ pub fn process_callback(id: usize, event_name: String, selected_date: Option<Str
     drop(ud2); // Drop ud2 if no user data is found
 
     // If no user data is found in both ud1 and ud2, call the callback with only id and selected_date
-    Python::with_gil(|py| {
+    Python::attach(|py| {
         if let Some(date) = selected_date {
             if let Err(err) = callback.call1(py, (id, date)) {
                 panic!("DatePicker callback error: {err}");
@@ -640,7 +643,7 @@ pub fn date_picker_item_update(dp: &mut IpgDatePicker,
 
 pub fn try_extract_date_picker_update(update_obj: &PyObject) -> IpgDatePickerParam {
 
-    Python::with_gil(|py| {
+    Python::attach(|py| {
         let res = update_obj.extract::<IpgDatePickerParam>(py);
         match res {
             Ok(update) => update,

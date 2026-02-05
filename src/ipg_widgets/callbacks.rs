@@ -7,7 +7,10 @@ use super::{helpers::{format_date, MONTH_NAMES}, ipg_enums::IpgWidgets, ipg_radi
 use iced::widget::scrollable;
 use iced::{Color, Point};
 
-use pyo3::PyObject;
+use pyo3::{Py, PyAny};
+
+// Type alias to replace deprecated PyObject
+type PyObject = Py<PyAny>;
 
 
 #[derive(Default, Debug)]

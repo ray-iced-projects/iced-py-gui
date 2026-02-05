@@ -13,7 +13,10 @@ use iced::{Element, Renderer, Theme};
 use iced::widget::{column, container, Space, row, scrollable, stack, text};
 
 use polars::frame::DataFrame;
-use pyo3::{pyclass, PyObject, Python};
+use pyo3::{pyclass, Py, PyAny, Python};
+
+// Type alias to replace deprecated PyObject
+type PyObject = Py<PyAny>;
 use pyo3_polars::PyDataFrame;
 
 use super::callbacks::{set_or_get_widget_callback_data, WidgetCallbackIn};
@@ -560,7 +563,7 @@ pub fn process_callback1(
 
     // Retrieve the callback
     let callback = match app_cbs.callbacks.get(&(id, event_name)) {
-        Some(cb) => Python::with_gil(|py| cb.clone_ref(py)),
+        Some(cb) => Python::attach(|py| cb.clone_ref(py)),
         None => return,
     };
 
@@ -568,7 +571,7 @@ pub fn process_callback1(
 
     // Check user data from ud1
     if let Some(user_data) = ud1.user_data.get(&id) {
-        Python::with_gil(|py| {
+        Python::attach(|py| {
             if let Err(err) = callback.call1(py, (id, index, value, user_data)) {
                 panic!("Table callback error: {err}");
             }
@@ -581,7 +584,7 @@ pub fn process_callback1(
     // Check user data from ud2
     let ud2 = access_user_data2();
     if let Some(user_data) = ud2.user_data.get(&id) {
-        Python::with_gil(|py| {
+        Python::attach(|py| {
             if let Err(err) = callback.call1(py, (id, index, value, user_data)) {
                 panic!("Table callback error: {err}");
             }
@@ -592,7 +595,7 @@ pub fn process_callback1(
     drop(ud2); // Drop ud2 if no user data is found
 
     // If no user data is found in both ud1 and ud2, call the callback with only the id, index, and value
-    Python::with_gil(|py| {
+    Python::attach(|py| {
         if let Err(err) = callback.call1(py, (id, index, value)) {
             panic!("Table callback error: {err}");
         }
@@ -610,7 +613,7 @@ pub fn process_callback2(
 
     // Retrieve the callback
     let callback = match app_cbs.callbacks.get(&(id, event_name)) {
-        Some(cb) => Python::with_gil(|py| cb.clone_ref(py)),
+        Some(cb) => Python::attach(|py| cb.clone_ref(py)),
         None => return,
     };
 
@@ -618,7 +621,7 @@ pub fn process_callback2(
 
     // Check user data from ud1
     if let Some(user_data) = ud1.user_data.get(&id) {
-        Python::with_gil(|py| {
+        Python::attach(|py| {
             if let Err(err) = callback.call1(py, (id, user_data)) {
                 panic!("Table Divider release callback error: {err}");
             }
@@ -631,7 +634,7 @@ pub fn process_callback2(
     // Check user data from ud2
     let ud2 = access_user_data2();
     if let Some(user_data) = ud2.user_data.get(&id) {
-        Python::with_gil(|py| {
+        Python::attach(|py| {
             if let Err(err) = callback.call1(py, (id, user_data)) {
                 panic!("Table Divider release callback error: {err}");
             }
@@ -642,7 +645,7 @@ pub fn process_callback2(
     drop(ud2); // Drop ud2 if no user data is found
 
     // If no user data is found in both ud1 and ud2, call the callback with only the id
-    Python::with_gil(|py| {
+    Python::attach(|py| {
         if let Err(err) = callback.call1(py, (id,)) {
             panic!("Table Divider release callback error: {err}");
         }
@@ -823,7 +826,7 @@ pub fn table_dataframe_update(
 }
 pub fn try_extract_table_update(update_obj: &PyObject) -> IpgTableParam {
 
-    Python::with_gil(|py| {
+    Python::attach(|py| {
         let res = update_obj.extract::<IpgTableParam>(py);
         match res {
             Ok(update) => update,
@@ -1460,7 +1463,7 @@ pub fn table_style_update_item(
 
 pub fn try_extract_table_style_update(update_obj: &PyObject) -> IpgTableStyleParam {
 
-    Python::with_gil(|py| {
+    Python::attach(|py| {
         let res = update_obj.extract::<IpgTableStyleParam>(py);
         match res {
             Ok(update) => update,

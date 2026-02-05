@@ -20,7 +20,10 @@ use iced::widget::{MouseArea, Text};
 use iced::mouse::Interaction;
 
 use pyo3::pyclass;
-use pyo3::{PyObject, Python};
+use pyo3::{Py, PyAny, Python};
+
+// Type alias to replace deprecated PyObject
+type PyObject = Py<PyAny>;
 
 
 #[derive(Debug, Clone)]
@@ -183,12 +186,12 @@ fn process_callback(
         None => return,
     };
 
-    let cb = Python::with_gil(|py| callback.clone_ref(py));
+    let cb = Python::attach(|py| callback.clone_ref(py));
     drop(app_cbs);
 
     // Execute the callback with user data from ud1
     if let Some(user_data) = ud_opt {
-        Python::with_gil(|py| {
+        Python::attach(|py| {
             let res = match points_opt {
                 Some(ref points) => cb.call1(py, (id, points.clone(), user_data)),
                 None => cb.call1(py, (id, user_data)),
@@ -208,7 +211,7 @@ fn process_callback(
     let ud2 = access_user_data2();
     
     if let Some(user_data) = ud2.user_data.get(&id) {
-        Python::with_gil(|py| {
+        Python::attach(|py| {
             let res = match points_opt {
                 Some(ref points) => cb.call1(py, (id, points.clone(), user_data)),
                 None => cb.call1(py, (id, user_data)),
@@ -225,7 +228,7 @@ fn process_callback(
     drop(ud2); // Drop ud2 if no user data is found
 
     // Execute the callback without user data
-    Python::with_gil(|py| {
+    Python::attach(|py| {
         let res = match points_opt {
                 Some(ref points) => cb.call1(py, (id, points.clone())),
                 None => cb.call1(py, (id,)),
@@ -314,7 +317,7 @@ pub fn selectable_text_item_update(st: &mut IpgSelectableText,
 
 fn try_extract_selectable_update(update_obj: &PyObject) -> IpgSelectableTextParam {
 
-    Python::with_gil(|py| {
+    Python::attach(|py| {
         let res = update_obj.extract::<IpgSelectableTextParam>(py);
         match res {
             Ok(update) => update,
@@ -325,7 +328,7 @@ fn try_extract_selectable_update(update_obj: &PyObject) -> IpgSelectableTextPara
 
 fn try_extract_hor_align(value: &PyObject) -> IpgHorizontalAlignment {
     
-    Python::with_gil(|py| {
+    Python::attach(|py| {
         let res = value.extract::<IpgHorizontalAlignment>(py);
         match res {
             Ok(h_align) => h_align,
@@ -336,7 +339,7 @@ fn try_extract_hor_align(value: &PyObject) -> IpgHorizontalAlignment {
 
 fn try_extract_vert_align(value: &PyObject) -> IpgVerticalAlignment {
     
-    Python::with_gil(|py| {
+    Python::attach(|py| {
         let res = value.extract::<IpgVerticalAlignment>(py);
         match res {
             Ok(v_align) => v_align,

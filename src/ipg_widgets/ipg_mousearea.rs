@@ -9,7 +9,10 @@ use iced::widget::Column;
 use iced::mouse::Interaction;
 
 use pyo3::pyclass;
-use pyo3::{PyObject, Python};
+use pyo3::{Py, PyAny, Python};
+
+// Type alias to replace deprecated PyObject
+type PyObject = Py<PyAny>;
 
 
 #[derive(Debug, Clone)]
@@ -131,12 +134,12 @@ fn process_callback(
         None => return,
     };
 
-    let cb = Python::with_gil(|py| callback.clone_ref(py));
+    let cb = Python::attach(|py| callback.clone_ref(py));
     drop(app_cbs);
 
     // Execute the callback with user data from ud1
     if let Some(user_data) = ud_opt {
-        Python::with_gil(|py| {
+        Python::attach(|py| {
             let res = match points_opt {
                 Some(ref points) => cb.call1(py, (id, points.clone(), user_data)),
                 None => cb.call1(py, (id, user_data)),
@@ -156,7 +159,7 @@ fn process_callback(
     let ud2 = access_user_data2();
     
     if let Some(user_data) = ud2.user_data.get(&id) {
-        Python::with_gil(|py| {
+        Python::attach(|py| {
             let res = match points_opt {
                 Some(ref points) => cb.call1(py, (id, points.clone(), user_data)),
                 None => cb.call1(py, (id, user_data)),
@@ -173,7 +176,7 @@ fn process_callback(
     drop(ud2); // Drop ud2 if no user data is found
 
     // Execute the callback without user data
-    Python::with_gil(|py| {
+    Python::attach(|py| {
         let res = match points_opt {
                 Some(ref points) => cb.call1(py, (id, points.clone())),
                 None => cb.call1(py, (id,)),
@@ -212,7 +215,7 @@ pub fn mousearea_item_update(img: &mut IpgMouseArea,
 
 pub fn try_extract_mousearea_update(update_obj: &PyObject) -> IpgMouseAreaParam {
 
-    Python::with_gil(|py| {
+    Python::attach(|py| {
         let res = update_obj.extract::<IpgMouseAreaParam>(py);
         match res {
             Ok(update) => update,

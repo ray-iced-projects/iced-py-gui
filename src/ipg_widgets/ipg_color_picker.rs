@@ -12,7 +12,10 @@ use iced::widget::{button, text, Button};
 use iced::{Border, Color, Element, Length, Padding, Shadow, Theme, Vector};
 use iced_aw::ColorPicker;
 
-use pyo3::{pyclass, PyObject, Python};
+use pyo3::{pyclass, Py, PyAny, Python};
+
+// Type alias to replace deprecated PyObject
+type PyObject = Py<PyAny>;
 
 
 #[derive(Debug, Clone)]
@@ -189,7 +192,7 @@ pub fn process_callback(id: usize, event_name: String, color: Option<Vec<f64>>)
 
     // Retrieve the callback
     let callback = match app_cbs.callbacks.get(&(id, event_name.clone())) {
-        Some(cb) => Python::with_gil(|py| cb.clone_ref(py)),
+        Some(cb) => Python::attach(|py| cb.clone_ref(py)),
         None => return,
     };
 
@@ -197,7 +200,7 @@ pub fn process_callback(id: usize, event_name: String, color: Option<Vec<f64>>)
 
     // Check user data from ud1
     if let Some(user_data) = ud1.user_data.get(&id) {
-        Python::with_gil(|py| {
+        Python::attach(|py| {
             if event_name == "on_submit".to_string() {
                 if let Err(err) = callback.call1(py, (id, color, user_data)) {
                     panic!("ColorPicker callback error: {err}");
@@ -217,7 +220,7 @@ pub fn process_callback(id: usize, event_name: String, color: Option<Vec<f64>>)
     // Check user data from ud2
     let ud2 = access_user_data2();
     if let Some(user_data) = ud2.user_data.get(&id) {
-        Python::with_gil(|py| {
+        Python::attach(|py| {
             if event_name == "on_submit".to_string() {
                 if let Err(err) = callback.call1(py, (id, color, user_data)) {
                     panic!("ColorPicker callback error: {err}");
@@ -236,7 +239,7 @@ pub fn process_callback(id: usize, event_name: String, color: Option<Vec<f64>>)
     // If no user data is found in both ud1 and ud2, call the 
     // callback with only the id and color except for on_pressed
     // which has only an id.
-    Python::with_gil(|py| {
+    Python::attach(|py| {
         if event_name == "on_submit".to_string() {
             if let Err(err) = callback.call1(py, (id, color)) {
                 panic!("ColorPicker callback error: {err}");
@@ -324,7 +327,7 @@ pub fn color_picker_update(cp: &mut IpgColorPicker,
 
 pub fn try_extract_cp_update(update_obj: &PyObject) -> IpgColorPickerParam {
 
-    Python::with_gil(|py| {
+    Python::attach(|py| {
         let res = update_obj.extract::<IpgColorPickerParam>(py);
         match res {
             Ok(update) => update,
@@ -416,7 +419,7 @@ pub fn color_picker_style_update_item(style: &mut IpgColorPickerStyle,
 
 pub fn try_extract_color_picker_style_update(update_obj: &PyObject) -> IpgColorPickerStyleParam {
 
-    Python::with_gil(|py| {
+    Python::attach(|py| {
         let res = update_obj.extract::<IpgColorPickerStyleParam>(py);
         match res {
             Ok(update) => update,

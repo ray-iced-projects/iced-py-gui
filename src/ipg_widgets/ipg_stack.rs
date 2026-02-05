@@ -1,7 +1,10 @@
 //! ipg_stack
 use iced::{Element, Length};
 use iced::widget::Stack;
-use pyo3::{pyclass, PyObject, Python};
+use pyo3::{pyclass, Py, PyAny, Python};
+
+// Type alias to replace deprecated PyObject
+type PyObject = Py<PyAny>;
 
 use crate::app::Message;
 
@@ -98,7 +101,7 @@ pub fn stack_item_update(stk: &mut IpgStack,
 
 pub fn try_extract_stack_update(update_obj: &PyObject) -> IpgStackParam {
 
-    Python::with_gil(|py| {
+    Python::attach(|py| {
         let res = update_obj.extract::<IpgStackParam>(py);
         match res {
             Ok(update) => update,

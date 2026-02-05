@@ -1,7 +1,10 @@
 //! ipg_column
 use iced::{Element, Length, Padding};
 use iced::widget::Column;
-use pyo3::{pyclass, PyObject, Python};
+use pyo3::{pyclass, Py, PyAny, Python};
+
+// Type alias to replace deprecated PyObject
+type PyObject = Py<PyAny>;
 
 use crate::app::Message;
 
@@ -117,7 +120,7 @@ pub fn column_item_update(col: &mut IpgColumn,
 
 pub fn try_extract_column_update(update_obj: &PyObject) -> IpgColumnParam {
 
-    Python::with_gil(|py| {
+    Python::attach(|py| {
         let res = update_obj.extract::<IpgColumnParam>(py);
         match res {
             Ok(update) => update,

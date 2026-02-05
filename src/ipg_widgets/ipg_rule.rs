@@ -2,7 +2,10 @@
 use iced::widget::rule::{self, FillMode, Style};
 use iced::{Color, Element, Length, Theme};
 use iced::widget::{Container, Rule};
-use pyo3::{pyclass, PyObject, Python};
+use pyo3::{pyclass, Py, PyAny, Python};
+
+// Type alias to replace deprecated PyObject
+type PyObject = Py<PyAny>;
 use crate::app;
 use crate::graphics::colors::get_color;
 
@@ -229,7 +232,7 @@ pub fn rule_style_update_item(style: &mut IpgRuleStyle,
 
 pub fn try_extract_rule_style_update(update_obj: &PyObject) -> IpgRuleStyleParam {
 
-    Python::with_gil(|py| {
+    Python::attach(|py| {
         let res = update_obj.extract::<IpgRuleStyleParam>(py);
         match res {
             Ok(update) => update,

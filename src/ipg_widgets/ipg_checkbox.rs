@@ -18,7 +18,10 @@ use iced::widget::text::{LineHeight, Shaping};
 use iced::widget::Checkbox;
 use iced::widget::checkbox::{self, Status};
 
-use pyo3::{pyclass, PyObject, Python};
+use pyo3::{pyclass, Py, PyAny, Python};
+
+// Type alias to replace deprecated PyObject
+type PyObject = Py<PyAny>;
 
 
 #[derive(Debug, Clone)]
@@ -199,7 +202,7 @@ pub fn process_callback(
 
     // Retrieve the callback
     let callback = match app_cbs.callbacks.get(&(id, event_name)) {
-        Some(cb) => Python::with_gil(|py| cb.clone_ref(py)),
+        Some(cb) => Python::attach(|py| cb.clone_ref(py)),
         None => return,
     };
 
@@ -207,7 +210,7 @@ pub fn process_callback(
 
     // Check user data from ud1
     if let Some(user_data) = ud1.user_data.get(&id) {
-        Python::with_gil(|py| {
+        Python::attach(|py| {
             if let Err(err) = callback.call1(py, (id, is_checked, user_data)) {
                 panic!("Checkbox callback error: {err}");
             }
@@ -220,7 +223,7 @@ pub fn process_callback(
     // Check user data from ud2
     let ud2 = access_user_data2();
     if let Some(user_data) = ud2.user_data.get(&id) {
-        Python::with_gil(|py| {
+        Python::attach(|py| {
             if let Err(err) = callback.call1(py, (id, is_checked, user_data)) {
                 panic!("Checkbox callback error: {err}");
             }
@@ -231,7 +234,7 @@ pub fn process_callback(
     drop(ud2); // Drop ud2 if no user data is found
 
     // If no user data is found in both ud1 and ud2, call the callback with only the id and is_checked
-    Python::with_gil(|py| {
+    Python::attach(|py| {
         if let Err(err) = callback.call1(py, (id, is_checked)) {
             panic!("Checkbox callback error: {err}");
         }
@@ -405,7 +408,7 @@ pub fn checkbox_style_update_item(style: &mut IpgCheckboxStyle,
 
 pub fn try_extract_checkbox_update(update_obj: &PyObject) -> IpgCheckboxParam {
 
-    Python::with_gil(|py| {
+    Python::attach(|py| {
         let res = update_obj.extract::<IpgCheckboxParam>(py);
 
         match res {
@@ -513,7 +516,7 @@ pub fn get_styling(theme: &Theme, status: Status,
 
 pub fn try_extract_checkbox_style_update(update_obj: &PyObject) -> IpgCheckboxStyleParam {
 
-    Python::with_gil(|py| {
+    Python::attach(|py| {
         let res = update_obj.extract::<IpgCheckboxStyleParam>(py);
         match res {
             Ok(update) => update,

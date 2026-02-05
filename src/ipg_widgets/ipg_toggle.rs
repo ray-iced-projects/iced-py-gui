@@ -9,7 +9,10 @@ use super::callbacks::{set_or_get_widget_callback_data, WidgetCallbackIn};
 use super::ipg_enums::{IpgHorizontalAlignment, IpgWidgets};
 use iced::widget::text::LineHeight;
 use iced::widget::toggler::{self, Status};
-use pyo3::{pyclass, PyObject, Python};
+use pyo3::{pyclass, Py, PyAny, Python};
+
+// Type alias to replace deprecated PyObject
+type PyObject = Py<PyAny>;
 
 use iced::widget::Toggler;
 use iced::{alignment, Color, Element, Length, Theme};
@@ -173,7 +176,7 @@ pub fn process_callback(
 
     // Retrieve the callback
     let callback = match app_cbs.callbacks.get(&(id, event_name)) {
-        Some(cb) => Python::with_gil(|py| cb.clone_ref(py)),
+        Some(cb) => Python::attach(|py| cb.clone_ref(py)),
         None => return,
     };
 
@@ -181,7 +184,7 @@ pub fn process_callback(
 
     // Check user data from ud1
     if let Some(user_data) = ud1.user_data.get(&id) {
-        Python::with_gil(|py| {
+        Python::attach(|py| {
             if let Err(err) = callback.call1(py, (id, toggled, user_data)) {
                 panic!("Toggler callback error: {err}");
             }
@@ -194,7 +197,7 @@ pub fn process_callback(
     // Check user data from ud2
     let ud2 = access_user_data2();
     if let Some(user_data) = ud2.user_data.get(&id) {
-        Python::with_gil(|py| {
+        Python::attach(|py| {
             if let Err(err) = callback.call1(py, (id, toggled, user_data)) {
                 panic!("Toggler callback error: {err}");
             }
@@ -205,7 +208,7 @@ pub fn process_callback(
     drop(ud2); // Drop ud2 if no user data is found
 
     // If no user data is found in both ud1 and ud2, call the callback with the id and toggled
-    Python::with_gil(|py| {
+    Python::attach(|py| {
         if let Err(err) = callback.call1(py, (id, toggled)) {
             panic!("Toggler callback error: {err}");
         }
@@ -276,7 +279,7 @@ pub fn toggler_item_update(tog: &mut IpgToggler,
 
 pub fn try_extract_toggler_update(update_obj: &PyObject) -> IpgTogglerParam {
 
-    Python::with_gil(|py| {
+    Python::attach(|py| {
         let res = update_obj.extract::<IpgTogglerParam>(py);
         match res {
             Ok(update) => update,
@@ -474,7 +477,7 @@ pub fn get_toggler_style(style: Option<&IpgWidgets>) -> Option<IpgTogglerStyle>{
 
 pub fn try_extract_toggler_style_update(update_obj: &PyObject) -> IpgTogglerStyleParam {
 
-    Python::with_gil(|py| {
+    Python::attach(|py| {
         let res = update_obj.extract::<IpgTogglerStyleParam>(py);
         match res {
             Ok(update) => update,

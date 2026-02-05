@@ -6,7 +6,10 @@ use std::path::Path;
 
 use iced::widget::container;
 use iced::{Color, Element, Point, Radians};
-use pyo3::{pyclass, PyObject, Python};
+use pyo3::{pyclass, Py, PyAny, Python};
+
+// Type alias to replace deprecated PyObject
+type PyObject = Py<PyAny>;
 
 use crate::app::Message;
 use crate::canvas::draw_canvas::{IpgCanvasState, IpgDrawMode, 
@@ -241,7 +244,7 @@ pub fn canvas_item_update(canvas_state: &mut IpgCanvasState,
 }
 
 pub fn try_extract_canvas_update(update_obj: &PyObject) -> IpgCanvasParam {
-    Python::with_gil(|py| {
+    Python::attach(|py| {
         let res = update_obj.extract::<IpgCanvasParam>(py);
         match res {
             Ok(update) => update,
@@ -251,7 +254,7 @@ pub fn try_extract_canvas_update(update_obj: &PyObject) -> IpgCanvasParam {
 }
 
 fn try_extract_mode(update_obj: &PyObject) -> IpgDrawMode {
-    Python::with_gil(|py| {
+    Python::attach(|py| {
         let res = update_obj.extract::<IpgDrawMode>(py);
         match res {
             Ok(update) => update,
@@ -261,7 +264,7 @@ fn try_extract_mode(update_obj: &PyObject) -> IpgDrawMode {
 }
 
 fn try_extract_widget(update_obj: &PyObject) -> IpgCanvasWidget {
-    Python::with_gil(|py| {
+    Python::attach(|py| {
         let res = update_obj.extract::<IpgCanvasWidget>(py);
         match res {
             Ok(update) => update,
@@ -402,7 +405,7 @@ pub fn match_canvas_widget(widget: &mut IpgWidget, item: &PyObject, value: &PyOb
 }
 
 pub fn try_extract_geometry_update(update_obj: &PyObject) -> IpgCanvasGeometryParam {
-    Python::with_gil(|py| {
+    Python::attach(|py| {
         let res = update_obj.extract::<IpgCanvasGeometryParam>(py);
         match res {
             Ok(update) => update,

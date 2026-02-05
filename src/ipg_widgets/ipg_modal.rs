@@ -9,7 +9,10 @@ use iced::{event, Padding, Renderer, Theme};
 use iced::mouse;
 use iced::widget::{center, container, mouse_area, opaque, Button, Column};
 use iced::{Color, Element, Event, Length, Point, Rectangle, Size, Vector};
-use pyo3::{PyObject, Python};
+use pyo3::{Py, PyAny, Python};
+
+// Type alias to replace deprecated PyObject
+type PyObject = Py<PyAny>;
 
 use crate::{access_callbacks, IpgState};
 use crate::app::{self, Message};
@@ -157,7 +160,7 @@ pub fn process_callback(wco: WidgetCallbackOut)
         None => panic!("Modal callback could not be found with id {}", wco.id),
     };
 
-    Python::with_gil(|py| {
+    Python::attach(|py| {
             if wco.user_data.is_some() {
                 let user_data = match wco.user_data {
                     Some(ud) => ud,

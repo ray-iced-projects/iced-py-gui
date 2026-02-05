@@ -1,7 +1,10 @@
 //! ipg_row
 use iced::{Alignment, Padding, Length, Element};
 use iced::widget::Row;
-use pyo3::{pyclass, PyObject, Python};
+use pyo3::{pyclass, Py, PyAny, Python};
+
+// Type alias to replace deprecated PyObject
+type PyObject = Py<PyAny>;
 
 use crate::app::Message;
 
@@ -126,7 +129,7 @@ pub fn row_item_update(col: &mut IpgRow,
 
 pub fn try_extract_row_update(update_obj: &PyObject) -> IpgRowParam {
 
-    Python::with_gil(|py| {
+    Python::attach(|py| {
         let res = update_obj.extract::<IpgRowParam>(py);
         match res {
             Ok(update) => update,

@@ -2,7 +2,10 @@
 use iced::{Border, Color, Element, Shadow, Theme, Vector};
 use iced::widget::{container, text, Column, Tooltip};
 use iced::widget::tooltip::Position;
-use pyo3::{pyclass, PyObject, Python};
+use pyo3::{pyclass, Py, PyAny, Python};
+
+// Type alias to replace deprecated PyObject
+type PyObject = Py<PyAny>;
 use crate::app::Message;
 use crate::graphics::colors::get_color;
 
@@ -172,7 +175,7 @@ pub fn tooltip_item_update(tt: &mut IpgToolTip,
 
 pub fn try_extract_tooltip_update(update_obj: &PyObject) -> IpgToolTipParam {
 
-    Python::with_gil(|py| {
+    Python::attach(|py| {
         let res = update_obj.extract::<IpgToolTipParam>(py);
 
         match res {
@@ -183,7 +186,7 @@ pub fn try_extract_tooltip_update(update_obj: &PyObject) -> IpgToolTipParam {
 }
 
 pub fn try_extract_position(value: &PyObject, name: String) -> IpgToolTipPosition {
-    Python::with_gil(|py| {
+    Python::attach(|py| {
         let res = value.extract::<IpgToolTipPosition>(py);
         match res {
             Ok(val) => val,
@@ -314,7 +317,7 @@ pub fn tool_tip_style_update_item(
 
 pub fn try_extract_container_style_update(update_obj: &PyObject) -> IpgToolTipStyleParam {
 
-    Python::with_gil(|py| {
+    Python::attach(|py| {
         let res = update_obj.extract::<IpgToolTipStyleParam>(py);
         match res {
             Ok(update) => update,

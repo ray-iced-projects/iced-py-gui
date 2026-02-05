@@ -15,7 +15,10 @@ use iced::{Color, Element, Length, Padding, Pixels, Theme};
 use iced::widget::TextInput;
 
 use pyo3::pyclass;
-use pyo3::{PyObject, Python};
+use pyo3::{Py, PyAny, Python};
+
+// Type alias to replace deprecated PyObject
+type PyObject = Py<PyAny>;
 
 
 #[derive(Debug, Clone)]
@@ -196,7 +199,7 @@ pub fn process_callback(
 
     // Retrieve the callback
     let callback = match app_cbs.callbacks.get(&(id, event_name)) {
-        Some(cb) => Python::with_gil(|py| cb.clone_ref(py)),
+        Some(cb) => Python::attach(|py| cb.clone_ref(py)),
         None => return,
     };
 
@@ -204,7 +207,7 @@ pub fn process_callback(
 
     // Check user data from ud1
     if let Some(user_data) = ud1.user_data.get(&id) {
-        Python::with_gil(|py| {
+        Python::attach(|py| {
             if let Err(err) = callback.call1(py, (id, value, user_data)) {
                 panic!("TextInput callback error: {err}");
             }
@@ -217,7 +220,7 @@ pub fn process_callback(
     // Check user data from ud2
     let ud2 = access_user_data2();
     if let Some(user_data) = ud2.user_data.get(&id) {
-        Python::with_gil(|py| {
+        Python::attach(|py| {
             if let Err(err) = callback.call1(py, (id, value, user_data)) {
                 panic!("TextInput callback error: {err}");
             }
@@ -228,7 +231,7 @@ pub fn process_callback(
     drop(ud2); // Drop ud2 if no user data is found
 
     // If no user data is found in both ud1 and ud2, call the callback with the id and value
-    Python::with_gil(|py| {
+    Python::attach(|py| {
         if let Err(err) = callback.call1(py, (id, value)) {
             panic!("TextInput callback error: {err}");
         }
@@ -296,7 +299,7 @@ pub fn text_input_item_update(ti: &mut IpgTextInput,
 
 fn try_extract_text_input_update(update_obj: &PyObject) -> IpgTextInputParam {
 
-    Python::with_gil(|py| {
+    Python::attach(|py| {
         let res = update_obj.extract::<IpgTextInputParam>(py);
         match res {
             Ok(update) => update,
@@ -479,7 +482,7 @@ pub fn text_input_style_update_item(style: &mut IpgTextInputStyle,
 
 fn try_extract_text_input_style_update(update_obj: &PyObject) -> IpgTextInputStyleParam {
 
-    Python::with_gil(|py| {
+    Python::attach(|py| {
         let res = update_obj.extract::<IpgTextInputStyleParam>(py);
         match res {
             Ok(update) => update,

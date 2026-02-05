@@ -388,13 +388,13 @@ fn process_window_callback(
 
     let app_event = access_events();
     let event = match app_event.events.get(&(event_id, name.clone())) {
-        Some(cb) => Python::with_gil(|py| cb.clone_ref(py)),
+        Some(cb) => Python::attach(|py| cb.clone_ref(py)),
         None => return,
     };
 
     drop(app_event);
 
-    Python::with_gil(|py| {
+    Python::attach(|py| {
         let res = match (user_data_opt, hmap_s_f, hmap_s_s) {
             (Some(user_data), Some(hmap_f), Some(hmap_s)) => {
                 event.call1(py, (win_id, name, hmap_f, hmap_s, user_data))
@@ -489,13 +489,13 @@ fn process_keyboard_callback(
         };
     
     let cb = 
-        Python::with_gil(|py| {
+        Python::attach(|py| {
             event.clone_ref(py)
         });
     
     drop(app_event);
     
-    Python::with_gil(|py| {
+    Python::attach(|py| {
         let res = match user_data_opt {
             Some(user_data) => cb.call1(py, (id, hmap_s_s, user_data)),
             None => cb.call1(py, (id, hmap_s_s)),
@@ -520,13 +520,13 @@ fn process_mouse_callback(
 
     let app_event = access_events();
     let event = match app_event.events.get(&(id, event_name)) {
-        Some(cb) => Python::with_gil(|py| cb.clone_ref(py)),
+        Some(cb) => Python::attach(|py| cb.clone_ref(py)),
         None => return,
     };
 
     drop(app_event);
 
-    Python::with_gil(|py| {
+    Python::attach(|py| {
         let res = match (user_data_opt, hmap_s_f) {
             (Some(user_data), Some(hmap)) => event.call1(py, (id, hmap, user_data)),
             (None, Some(hmap)) => event.call1(py, (id, hmap)),
@@ -553,13 +553,13 @@ fn process_touch_callback(
 
     let app_event = access_events();
     let event = match app_event.events.get(&(id, event_name)) {
-        Some(cb) => Python::with_gil(|py| cb.clone_ref(py)),
+        Some(cb) => Python::attach(|py| cb.clone_ref(py)),
         None => return,
     };
 
     drop(app_event);
 
-    Python::with_gil(|py| {
+    Python::attach(|py| {
         let res = match user_data_opt {
             Some(user_data) => event.call1(py, (id, hmap_s_fg, hmap_s_pt, user_data)),
             None => event.call1(py, (id, hmap_s_fg, hmap_s_pt)),

@@ -1,7 +1,10 @@
 //! ipg_divider
 
 use iced::{Background, Color, Element, Length, Theme};
-use pyo3::{pyclass, PyObject, Python};
+use pyo3::{pyclass, Py, PyAny, Python};
+
+// Type alias to replace deprecated PyObject
+type PyObject = Py<PyAny>;
 
 use crate::{access_callbacks, access_user_data1, access_user_data2, app, graphics::colors::get_color, IpgState};
 
@@ -280,7 +283,7 @@ pub fn process_callback(id: usize, event_name: String, index: usize, value: f32)
 
     // Retrieve the callback
     let callback = match app_cbs.callbacks.get(&(id, event_name)) {
-        Some(cb) => Python::with_gil(|py| cb.clone_ref(py)),
+        Some(cb) => Python::attach(|py| cb.clone_ref(py)),
         None => return,
     };
 
@@ -288,7 +291,7 @@ pub fn process_callback(id: usize, event_name: String, index: usize, value: f32)
 
     // Check user data from ud1
     if let Some(user_data) = ud1.user_data.get(&id) {
-        Python::with_gil(|py| {
+        Python::attach(|py| {
             let res = callback.call1(py, (id, index, value, user_data));
             if let Err(err) = res {
                 panic!("Divider callback error: {err}");
@@ -302,7 +305,7 @@ pub fn process_callback(id: usize, event_name: String, index: usize, value: f32)
     // Check user data from ud2
     let ud2 = access_user_data2();
     if let Some(user_data) = ud2.user_data.get(&id) {
-        Python::with_gil(|py| {
+        Python::attach(|py| {
             let res = callback.call1(py, (id, index, value, user_data));
             if let Err(err) = res {
                 panic!("Divider callback error: {err}");
@@ -314,7 +317,7 @@ pub fn process_callback(id: usize, event_name: String, index: usize, value: f32)
     drop(ud2); // Drop ud2 if no user data is found
 
     // If no user data is found in both ud1 and ud2, call the callback with only id, index, and value
-    Python::with_gil(|py| {
+    Python::attach(|py| {
         let res = callback.call1(py, (id, index, value));
         if let Err(err) = res {
             panic!("Divider callback error: {err}");
@@ -397,7 +400,7 @@ pub fn divider_vertical_item_update(
 
 fn try_extract_divider_update(update_obj: &PyObject) -> IpgDividerParam {
 
-    Python::with_gil(|py| {
+    Python::attach(|py| {
         let res = update_obj.extract::<IpgDividerParam>(py);
         match res {
             Ok(update) => update,
@@ -500,7 +503,7 @@ pub fn divider_style_update_item(
 
 pub fn try_extract_divider_style_update(update_obj: &PyObject) -> IpgDividerStyleParam {
 
-    Python::with_gil(|py| {
+    Python::attach(|py| {
         let res = update_obj.extract::<IpgDividerStyleParam>(py);
         match res {
             Ok(update) => update,

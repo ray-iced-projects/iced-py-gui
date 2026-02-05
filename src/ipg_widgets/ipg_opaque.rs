@@ -2,7 +2,10 @@
 use iced::mouse::Interaction;
 use iced::{Color, Element, Length};
 use iced::widget::{horizontal_space, mouse_area, opaque, Container};
-use pyo3::{pyclass, PyObject, Python};
+use pyo3::{pyclass, Py, PyAny, Python};
+
+// Type alias to replace deprecated PyObject
+type PyObject = Py<PyAny>;
 
 use crate::graphics::colors::get_color;
 use crate::{access_callbacks, access_user_data1, IpgState};
@@ -124,7 +127,7 @@ pub fn opaque_item_update(op: &mut IpgOpaque,
 
 pub fn try_extract_stack_update(update_obj: &PyObject) -> IpgOpaqueParam {
 
-    Python::with_gil(|py| {
+    Python::attach(|py| {
         let res = update_obj.extract::<IpgOpaqueParam>(py);
         match res {
             Ok(update) => update,
@@ -155,13 +158,13 @@ fn process_callback(id: usize, event_name: String)
     };
 
     let cb = 
-        Python::with_gil(|py| {
+        Python::attach(|py| {
             callback.clone_ref(py)
         });
 
     drop(app_cbs);
               
-    Python::with_gil(|py| {
+    Python::attach(|py| {
         if user_data_opt.is_some() {
             let res = cb.call1(py, (
                                                         id,
@@ -216,7 +219,7 @@ pub fn opaque_style_update_item(style: &mut IpgOpaqueStyle,
 
 pub fn try_extract_opaque_style_update(update_obj: &PyObject) -> IpgOpaqueStyleParam {
 
-    Python::with_gil(|py| {
+    Python::attach(|py| {
         let res = update_obj.extract::<IpgOpaqueStyleParam>(py);
         match res {
             Ok(update) => update,

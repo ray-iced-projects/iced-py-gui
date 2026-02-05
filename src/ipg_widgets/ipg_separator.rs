@@ -14,7 +14,10 @@ use super::ipg_enums::IpgWidgets;
 use iced::border::Radius;
 
 
-use pyo3::{pyclass, PyObject, Python};
+use pyo3::{pyclass, Py, PyAny, Python};
+
+// Type alias to replace deprecated PyObject
+type PyObject = Py<PyAny>;
 
 use iced::widget::{row, Row, Text};
 use iced::{Background, Border, Color, Element, 
@@ -323,7 +326,7 @@ pub fn separator_item_update(sep: &mut IpgSeparator,
 
 fn try_extract_separator_update(update_obj: &PyObject) -> IpgSeparatorParam {
 
-    Python::with_gil(|py| {
+    Python::attach(|py| {
         let res = update_obj.extract::<IpgSeparatorParam>(py);
         match res {
             Ok(update) => update,
@@ -367,7 +370,7 @@ pub fn separator_style_update_item(style: &mut IpgSeparatorStyle,
 
 fn try_extract_separator_style_update(update_obj: &PyObject) -> IpgSeparatorStyleParam {
 
-    Python::with_gil(|py| {
+    Python::attach(|py| {
         let res = update_obj.extract::<IpgSeparatorStyleParam>(py);
         match res {
             Ok(update) => update,

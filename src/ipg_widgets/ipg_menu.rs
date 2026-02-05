@@ -17,7 +17,10 @@ use super::helpers::{get_height, get_padding_f64, get_radius, get_width, try_ext
 use super::ipg_enums::IpgWidgets;
 
 
-use pyo3::{pyclass, PyObject, Python};
+use pyo3::{pyclass, Py, PyAny, Python};
+
+// Type alias to replace deprecated PyObject
+type PyObject = Py<PyAny>;
 
 #[derive(Debug, Clone)]
 pub struct IpgMenu {
@@ -431,7 +434,7 @@ pub fn menu_item_update(mn: &mut IpgMenu,
 
 pub fn try_extract_menu_update(update_obj: &PyObject) -> IpgMenuParam {
 
-    Python::with_gil(|py| {
+    Python::attach(|py| {
         let res = update_obj.extract::<IpgMenuParam>(py);
         match res {
             Ok(update) => update,
@@ -509,7 +512,7 @@ fn get_menu_bar_style(style: Option<&IpgWidgets>) -> Option<IpgMenuBarStyle>{
 
 pub fn try_extract_menu_bar_style_update(update_obj: &PyObject) -> IpgMenuBarStyleParam {
 
-    Python::with_gil(|py| {
+    Python::attach(|py| {
         let res = update_obj.extract::<IpgMenuBarStyleParam>(py);
         match res {
             Ok(update) => update,
@@ -613,7 +616,7 @@ fn get_menu_style(style: Option<&IpgWidgets>) -> Option<IpgMenuStyle>{
 
 pub fn try_extract_menu_style_update(update_obj: &PyObject) -> IpgMenuStyleParam {
 
-    Python::with_gil(|py| {
+    Python::attach(|py| {
         let res = update_obj.extract::<IpgMenuStyleParam>(py);
         match res {
             Ok(update) => update,

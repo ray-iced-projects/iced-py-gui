@@ -21,8 +21,11 @@ use ipg_widgets::ipg_timer_canvas::{canvas_timer_item_update, canvas_timer_style
 use polars::frame::DataFrame;
 use pyo3::prelude::*;
 use pyo3::types::PyModule;
-use pyo3::PyObject;
+use pyo3::{Py, PyAny};
 use pyo3_polars::PyDataFrame;
+
+// Type alias to replace deprecated PyObject
+type PyObject = Py<PyAny>;
 
 use iced::window::{self, Position};
 use iced::{Color, Font, Length, Point, Radians, Rectangle, Size, Theme, Vector};

@@ -16,7 +16,10 @@ use super::ipg_enums::IpgWidgets;
 use iced::widget::{button, Button, Text};
 use iced::{Border, Color, Element, Length, Padding, Shadow, Theme, Vector};
 
-use pyo3::{pyclass, PyObject, Python};
+use pyo3::{pyclass, Py, PyAny, Python};
+
+// Type alias to replace deprecated PyObject
+type PyObject = Py<PyAny>;
 
 #[derive(Debug, Clone)]
 pub struct IpgCanvasTimer {
@@ -209,13 +212,13 @@ fn process_callback(
 
     // Retrieve the callback
     let callback = match app_cbs.callbacks.get(&(id, event_name.clone())) {
-        Some(cb) => Python::with_gil(|py| cb.clone_ref(py)),
+        Some(cb) => Python::attach(|py| cb.clone_ref(py)),
         None => return,
     };
 
     drop(app_cbs);
 
-    Python::with_gil(|py| {
+    Python::attach(|py| {
         
         let name_bool = if event_name == "on_start".to_string() {
             true
@@ -322,7 +325,7 @@ pub fn canvas_timer_item_update(ctim: &mut IpgCanvasTimer,
 
 pub fn try_extract_timer_update(update_obj: &PyObject) -> IpgCanvasTimerParam {
 
-    Python::with_gil(|py| {
+    Python::attach(|py| {
         let res = update_obj.extract::<IpgCanvasTimerParam>(py);
         match res {
             Ok(update) => update,
@@ -498,7 +501,7 @@ fn get_canvas_timer_style(style: Option<&IpgWidgets>) -> Option<IpgCanvasTimerSt
 
 fn try_extract_canvas_timer_style_update(update_obj: &PyObject) -> IpgCanvasTimerStyleParam {
 
-    Python::with_gil(|py| {
+    Python::attach(|py| {
         let res = update_obj.extract::<IpgCanvasTimerStyleParam>(py);
         match res {
             Ok(update) => update,

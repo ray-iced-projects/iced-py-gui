@@ -1,7 +1,10 @@
 //! ipg_progress_bar
 use iced::{Color, Element, Length, Theme};
 use iced::widget::{progress_bar, ProgressBar};
-use pyo3::{pyclass, PyObject, Python};
+use pyo3::{pyclass, Py, PyAny, Python};
+
+// Type alias to replace deprecated PyObject
+type PyObject = Py<PyAny>;
 use crate::graphics::colors::get_color;
 use crate::style::styling::IpgStyleStandard;
 use crate::app;
@@ -168,7 +171,7 @@ pub fn progress_bar_item_update(pb: &mut IpgProgressBar,
 
 pub fn try_extract_progress_bar_update(update_obj: &PyObject) -> IpgProgressBarParam {
 
-    Python::with_gil(|py| {
+    Python::attach(|py| {
         let res = update_obj.extract::<IpgProgressBarParam>(py);
         match res {
             Ok(update) => update,
@@ -308,7 +311,7 @@ fn get_progress_bar_style(style: Option<&IpgWidgets>) -> Option<IpgProgressBarSt
 
 pub fn try_extract_progress_bar_style_update(update_obj: &PyObject) -> IpgProgressBarStyleParam {
 
-    Python::with_gil(|py| {
+    Python::attach(|py| {
         let res = update_obj.extract::<IpgProgressBarStyleParam>(py);
         match res {
             Ok(update) => update,

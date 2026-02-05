@@ -7,7 +7,10 @@ use iced::window;
 use iced::{Element, Task, Theme, Size};
 use iced::widget::Column;
 
-use pyo3::{pyclass, PyObject, Python};
+use pyo3::{pyclass, Py, PyAny, Python};
+
+// Type alias to replace deprecated PyObject
+type PyObject = Py<PyAny>;
 
 use super::helpers::{try_extract_boolean, try_extract_f64, try_extract_u64, try_extract_vec_f32};
 
@@ -176,7 +179,7 @@ fn extract_theme(theme_opt: Option<PyObject>) -> IpgWindowTheme {
         None => return IpgWindowTheme::Dark,
     };
 
-    Python::with_gil(|py| {
+    Python::attach(|py| {
         let res = theme.extract::<IpgWindowTheme>(py);
             
         match res {
@@ -287,7 +290,7 @@ pub fn window_item_update(wnd: &mut IpgWindow,
 
 fn try_extract_window_update(update_obj: &PyObject) -> IpgWindowParam {
 
-    Python::with_gil(|py| {
+    Python::attach(|py| {
         let res = update_obj.extract::<IpgWindowParam>(py);
         match res {
             Ok(update) => update,
@@ -298,7 +301,7 @@ fn try_extract_window_update(update_obj: &PyObject) -> IpgWindowParam {
 
 fn try_extract_ipg_theme(theme: &PyObject) -> IpgWindowTheme {
 
-    Python::with_gil(|py| {
+    Python::attach(|py| {
         let res = theme.extract::<IpgWindowTheme>(py);
         match res {
             Ok(theme) => theme,
@@ -308,7 +311,7 @@ fn try_extract_ipg_theme(theme: &PyObject) -> IpgWindowTheme {
 }
 
 fn try_extract_mode(mode: &PyObject) -> IpgWindowMode {
-    Python::with_gil(|py| {
+    Python::attach(|py| {
         let res = mode.extract::<IpgWindowMode>(py);
         match res {
             Ok(mode) => mode,
@@ -318,7 +321,7 @@ fn try_extract_mode(mode: &PyObject) -> IpgWindowMode {
 }
 
 fn try_extract_level(level: &PyObject) -> IpgWindowLevel {
-    Python::with_gil(|py| {
+    Python::attach(|py| {
         let res = level.extract::<IpgWindowLevel>(py);
         match res {
             Ok(level) => level,

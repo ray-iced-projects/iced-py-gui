@@ -12,7 +12,10 @@ use iced::widget::{Column, Space, Text};
 
 use crate::iced_aw_widgets::card::{self, Card, CardStyles};
 
-use pyo3::{pyclass, PyObject, Python};
+use pyo3::{pyclass, Py, PyAny, Python};
+
+// Type alias to replace deprecated PyObject
+type PyObject = Py<PyAny>;
 
 
 #[derive(Debug, Clone)]
@@ -205,7 +208,7 @@ pub fn process_callback(id: usize, event_name: String) {
 
     // Retrieve the callback
     let callback = match app_cbs.callbacks.get(&(id, event_name)) {
-        Some(cb) => Python::with_gil(|py| cb.clone_ref(py)),
+        Some(cb) => Python::attach(|py| cb.clone_ref(py)),
         None => return,
     };
 
@@ -213,7 +216,7 @@ pub fn process_callback(id: usize, event_name: String) {
 
     // Check user data from ud1
     if let Some(user_data) = ud1.user_data.get(&id) {
-        Python::with_gil(|py| {
+        Python::attach(|py| {
             if let Err(err) = callback.call1(py, (id, user_data)) {
                 panic!("Card callback error: {err}");
             }
@@ -226,7 +229,7 @@ pub fn process_callback(id: usize, event_name: String) {
     // Check user data from ud2
     let ud2 = access_user_data2();
     if let Some(user_data) = ud2.user_data.get(&id) {
-        Python::with_gil(|py| {
+        Python::attach(|py| {
             if let Err(err) = callback.call1(py, (id, user_data)) {
                 panic!("Card callback error: {err}");
             }
@@ -237,7 +240,7 @@ pub fn process_callback(id: usize, event_name: String) {
     drop(ud2); // Drop ud2 if no user data is found
 
     // If no user data is found in both ud1 and ud2, call the callback with only the id
-    Python::with_gil(|py| {
+    Python::attach(|py| {
         if let Err(err) = callback.call1(py, (id,)) {
             panic!("Card callback error: {err}");
         }
@@ -349,7 +352,7 @@ fn custom_style(ipg_style_opt: Option<IpgCardStyle>) -> CardStyles {
 
 
 pub fn try_extract_card_update(update_obj: &PyObject) -> IpgCardParam {
-    Python::with_gil(|py| {
+    Python::attach(|py| {
         let res = update_obj.extract::<IpgCardParam>(py);
         match res {
             Ok(update) => update,
@@ -465,7 +468,7 @@ pub fn card_style_update(style: &mut IpgCardStyle,
 
 fn try_extract_card_style_update(update_obj: &PyObject) -> IpgCardStyleParam {
 
-    Python::with_gil(|py| {
+    Python::attach(|py| {
         let res = update_obj.extract::<IpgCardStyleParam>(py);
         match res {
             Ok(update) => update,

@@ -14,7 +14,10 @@ use iced::widget::slider::{self, HandleShape, Status, Style};
 use iced::{Background, Color, Element, Length, Theme};
 use iced::widget::Slider;
 
-use pyo3::{PyObject, pyclass, Python};
+use pyo3::{Py, PyAny, pyclass, Python};
+
+// Type alias to replace deprecated PyObject
+type PyObject = Py<PyAny>;
 
 
 #[derive(Debug, Clone)]
@@ -168,7 +171,7 @@ pub fn process_callback(
 
     // Retrieve the callback
     let callback = match app_cbs.callbacks.get(&(id, event_name)) {
-        Some(cb) => Python::with_gil(|py| cb.clone_ref(py)),
+        Some(cb) => Python::attach(|py| cb.clone_ref(py)),
         None => return,
     };
 
@@ -176,7 +179,7 @@ pub fn process_callback(
 
     // Check user data from ud1
     if let Some(user_data) = ud1.user_data.get(&id) {
-        Python::with_gil(|py| {
+        Python::attach(|py| {
             if let Err(err) = callback.call1(py, (id, value, user_data)) {
                 panic!("Slider callback error: {err}");
             }
@@ -189,7 +192,7 @@ pub fn process_callback(
     // Check user data from ud2
     let ud2 = access_user_data2();
     if let Some(user_data) = ud2.user_data.get(&id) {
-        Python::with_gil(|py| {
+        Python::attach(|py| {
             if let Err(err) = callback.call1(py, (id, value, user_data)) {
                 panic!("Slider callback error: {err}");
             }
@@ -200,7 +203,7 @@ pub fn process_callback(
     drop(ud2); // Drop ud2 if no user data is found
 
     // If no user data is found in both ud1 and ud2, call the callback with only the id and value
-    Python::with_gil(|py| {
+    Python::attach(|py| {
         if let Err(err) = callback.call1(py, (id, value)) {
             panic!("Slider callback error: {err}");
         }
@@ -264,7 +267,7 @@ pub fn slider_item_update(sldr: &mut IpgSlider,
 
 fn try_extract_slider_update(update_obj: &PyObject) -> IpgSliderParam {
 
-    Python::with_gil(|py| {
+    Python::attach(|py| {
         let res = update_obj.extract::<IpgSliderParam>(py);
         match res {
             Ok(update) => update,
@@ -427,7 +430,7 @@ pub fn slider_style_update_item(style: &mut IpgSliderStyle,
 
 pub fn try_extract_slider_style_update(update_obj: &PyObject) -> IpgSliderStyleParam {
 
-    Python::with_gil(|py| {
+    Python::attach(|py| {
         let res = update_obj.extract::<IpgSliderStyleParam>(py);
         match res {
             Ok(update) => update,

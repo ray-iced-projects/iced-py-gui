@@ -1,0 +1,13 @@
+[package]
+name = "ipg-widgets"
+version = "0.4.0"
+edition = "2021"
+license = "GNU"
+description = "Widget implementations for IcedPyGui"
+
+[dependencies]
+# Internal dependencies
+
+# External dependencies
+iced = { workspace = true }
+pyo3 = { workspace = true }

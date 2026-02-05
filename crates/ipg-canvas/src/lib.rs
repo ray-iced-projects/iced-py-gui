@@ -11,7 +11,7 @@ use pyo3::{pyclass, Py, PyAny, Python};
 // Type alias to replace deprecated PyObject
 type PyObject = Py<PyAny>;
 
-use crate::app::Message;
+use crate::app_message::Message;
 use crate::canvas::draw_canvas::{IpgCanvasState, IpgDrawMode, 
     IpgDrawStatus, IpgWidget};
 use crate::canvas::geometries::{

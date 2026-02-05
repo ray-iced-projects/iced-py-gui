@@ -1,5 +1,5 @@
 //! ipg_timer
-use crate::graphics::colors::get_color;
+use graphics::colors::get_color;
 use crate::style::styling::IpgStyleStandard;
 use crate::{access_callbacks, access_user_data1, access_user_data2, app, IpgState};
 use super::callbacks::{set_or_get_widget_callback_data, WidgetCallbackIn, WidgetCallbackOut};

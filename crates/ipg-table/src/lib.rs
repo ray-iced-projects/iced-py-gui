@@ -1,10 +1,6 @@
 //! ipg_table
 #![allow(clippy::unit_arg)]
 
-use crate::app::Message;
-use crate::graphics::colors::get_color;
-use crate::{access_callbacks, access_user_data1, access_user_data2, IpgState};
-
 use iced::border::Radius;
 use iced::widget::scrollable::Scrollbar;
 use iced::{alignment, border, Background, Border, Color};
@@ -15,6 +11,10 @@ use iced::widget::{column, container, Space, row, scrollable, stack, text};
 use polars::frame::DataFrame;
 use pyo3::{pyclass, Py, PyAny, Python};
 
+
+use crate::app::Message;
+use crate::graphics::colors::get_color;
+use crate::{access_callbacks, access_user_data1, access_user_data2, IpgState};
 // Type alias to replace deprecated PyObject
 type PyObject = Py<PyAny>;
 use pyo3_polars::PyDataFrame;

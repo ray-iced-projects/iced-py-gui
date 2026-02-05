@@ -19,8 +19,8 @@ use once_cell::sync::Lazy;
 use polars::frame::DataFrame;
 
 
-use crate::canvas::draw_canvas::IpgCanvasState;
-use crate::ipg_widgets::ipg_canvas::match_canvas_widget;
+use crate::ipg_canvas::canvas::draw_canvas::IpgCanvasState;
+use crate::ipg_canvas::ipg_canvas::match_canvas_widget;
 use crate::ipg_widgets::ipg_color_picker::{color_picker_callback, 
     construct_color_picker, ColPikMessage};
 use crate::ipg_widgets::ipg_divider::{construct_divider_horizontal, construct_divider_vertical, divider_callback, DivMessage};
@@ -69,58 +69,7 @@ use ipg_widgets::ipg_tool_tip::construct_tool_tip;
 use ipg_widgets::ipg_window::{WndMessage, IpgWindow, add_windows, construct_window};
 use ipg_widgets::ipg_window::IpgWindowMode;
 use crate::{access_state, IpgIds};
-
-
-
-#[derive(Debug, Clone)]
-pub enum Message {
-    Button(usize, BTNMessage),
-    Canvas(CanvasMessage),
-    Card(usize, CardMessage),
-    CheckBox(usize, CHKMessage),
-    ColorPicker(usize, ColPikMessage),
-    DatePicker(usize, DPMessage),
-    Divider(usize, DivMessage),
-    EventKeyboard(Event),
-    EventMouse(Event),
-    EventWindow((window::Id, Event)),
-    EventTouch(Event),
-    Image(usize, ImageMessage),
-    // Modal(usize, ModalMessage),
-    PickList(usize, PLMessage),
-    Radio(usize, RDMessage),
-    Scrolled(scrollable::Viewport, usize),
-    SelectableText(usize, SLTXTMessage),
-    Slider(usize, SLMessage),
-    Svg(usize, SvgMessage),
-
-    TableSync(scrollable::AbsoluteOffset, usize),
-    TableDividerChanged((usize, usize, f32)),
-    TableDividerReleased(usize),
-
-    TextInput(usize, TIMessage),
-    Toggler(usize, TOGMessage),
-    CanvasTextBlink,
-    Tick,
-    CanvasTick,
-    Timer(usize, TIMMessage),
-    CanvasTimer(usize, CanvasTimerMessage),
-    FontLoaded(Result<(), font::Error>),
-    WindowOpened(window::Id, Option<Point>, Size),
-
-    MouseAreaOnPress(usize),
-    MouseAreaOnRelease(usize),
-    MouseAreaOnRightPress(usize),
-    MouseAreaOnRightRelease(usize),
-    MouseAreaOnMiddlePress(usize),
-    MouseAreaOnMiddleRelease(usize),
-    MouseAreaOnEnter(usize),
-    MouseAreaOnMove(Point, usize),
-    MouseAreaOnExit(usize),
-
-    OpaqueOnPress(usize),
-}
-
+use crate::app_message::Message;
 
 pub struct App {
     state: IpgState,

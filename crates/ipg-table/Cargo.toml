@@ -1,0 +1,15 @@
+[package]
+name = "ipg-table"
+version = "0.4.0"
+edition = "2021"
+license = "GNU"
+description = "Table implementation for IcedPyGui"
+
+[dependencies]
+# Internal depencies
+
+
+# External dependencies
+iced = { workspace = true }
+polars = { workspace = true }
+pyo3 = { workspace = true }

@@ -1,7 +1,7 @@
 //! ipg_button
 
-use crate::graphics::colors::get_color;
-use crate::style::styling::IpgStyleStandard;
+use crate::ipg_core::graphics::colors::get_color;
+use crate::ipg_core::style::styling::IpgStyleStandard;
 use crate::{access_callbacks, access_user_data2, access_user_data1, app};
 use super::helpers::{get_height, get_horizontal_alignment, get_padding_f64, get_radius, get_vertical_alignment, get_width, try_extract_boolean, try_extract_f32, try_extract_f64, try_extract_ipg_color, try_extract_ipg_horizontal_alignment, try_extract_ipg_vertical_alignment, try_extract_rgba_color, try_extract_string, try_extract_style_standard, try_extract_vec_f32, try_extract_vec_f64};
 use super::ipg_enums::IpgWidgets;

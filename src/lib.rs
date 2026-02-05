@@ -36,14 +36,11 @@ use std::collections::HashMap;
 
 
 mod app;
+mod graphics;
+
 use app::App;
 
-mod ipg_widgets;
-mod iced_widgets;
-mod iced_aw_widgets;
-mod graphics;
-mod style;
-mod canvas;
+
 
 use ipg_widgets::ipg_button::{button_item_update, button_style_update_item, 
     IpgButton, IpgButtonArrow, IpgButtonParam, IpgButtonStyle, IpgButtonStyleParam};

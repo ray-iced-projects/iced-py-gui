@@ -1,16 +1,4 @@
 //! ipg_checkbox
-use crate::graphics::colors::get_color;
-use crate::style::styling::IpgStyleStandard;
-use crate::{access_callbacks, access_user_data1, access_user_data2, IpgState};
-use crate::app;
-use super::helpers::{get_radius, get_shaping, get_width, try_extract_boolean, 
-    try_extract_f64, try_extract_ipg_color, try_extract_rgba_color, 
-    try_extract_string, try_extract_style_standard, try_extract_vec_f32};
-use super::callbacks::{set_or_get_widget_callback_data, WidgetCallbackIn};
-use super::ipg_enums::IpgWidgets;
-
-use crate::graphics::BOOTSTRAP_FONT;
-use crate::graphics::bootstrap_icon::{Icon, icon_to_char};
 
 use iced::advanced::text;
 use iced::{Color, Element, Length, Theme};
@@ -18,10 +6,17 @@ use iced::widget::text::{LineHeight, Shaping};
 use iced::widget::Checkbox;
 use iced::widget::checkbox::{self, Status};
 
+use ipg_styling::{try_extract_rgba_color, try_extract_style_standard};
 use pyo3::{pyclass, Py, PyAny, Python};
-
-// Type alias to replace deprecated PyObject
 type PyObject = Py<PyAny>;
+
+use super::ipg_enums::IpgWidgets;
+use ipg_helpers::{get_radius, get_shaping, get_width, try_extract_boolean, 
+    try_extract_f64, try_extract_string, try_extract_vec_f32};
+use ipg_fonts::BOOTSTRAP_FONT;
+use ipg_fonts::bootstrap_icon::{Icon, icon_to_char};
+use ipg_types::{CHKMessage, Message};
+use ipg_styling::{colors::get_color, IpgStyleStandard, try_extract_ipg_color};
 
 
 #[derive(Debug, Clone)]
@@ -125,14 +120,10 @@ impl IpgCheckboxStyle {
     }
 }
 
-#[derive(Debug, Clone)]
-pub enum CHKMessage {
-    OnToggle(bool),
-}
 
 pub fn construct_checkbox<'a>(chk: &'a IpgCheckBox, 
                         style_opt: Option<&IpgWidgets>) 
-                        -> Option<Element<'a, app::Message>> {
+                        -> Option<Element<'a, Message>> {
 
     if !chk.show {
         return None
@@ -176,69 +167,7 @@ pub fn construct_checkbox<'a>(chk: &'a IpgCheckBox,
                                 })
                             .into();
 
-    Some(ipg_chk.map(move |message| app::Message::CheckBox(chk.id, message)))
-}
-
-pub fn checkbox_callback(state: &mut IpgState, id: usize, message: CHKMessage) {
-
-    match message {
-        CHKMessage::OnToggle(on_toggle) => {
-            let mut wci: WidgetCallbackIn = WidgetCallbackIn{id, ..Default::default()};
-            wci.on_toggle = Some(on_toggle);
-            let _ = set_or_get_widget_callback_data(state, wci);
-
-            process_callback(id, on_toggle, "on_toggle".to_string());
-        }
-    }
-}
-
-pub fn process_callback(
-        id: usize, 
-        is_checked: bool, 
-        event_name: String) 
-{
-    let ud1 = access_user_data1();
-    let app_cbs = access_callbacks();
-
-    // Retrieve the callback
-    let callback = match app_cbs.callbacks.get(&(id, event_name)) {
-        Some(cb) => Python::attach(|py| cb.clone_ref(py)),
-        None => return,
-    };
-
-    drop(app_cbs);
-
-    // Check user data from ud1
-    if let Some(user_data) = ud1.user_data.get(&id) {
-        Python::attach(|py| {
-            if let Err(err) = callback.call1(py, (id, is_checked, user_data)) {
-                panic!("Checkbox callback error: {err}");
-            }
-        });
-        drop(ud1); // Drop ud1 before processing ud2
-        return;
-    }
-    drop(ud1); // Drop ud1 if no user data is found
-
-    // Check user data from ud2
-    let ud2 = access_user_data2();
-    if let Some(user_data) = ud2.user_data.get(&id) {
-        Python::attach(|py| {
-            if let Err(err) = callback.call1(py, (id, is_checked, user_data)) {
-                panic!("Checkbox callback error: {err}");
-            }
-        });
-        drop(ud2); // Drop ud2 after processing
-        return;
-    }
-    drop(ud2); // Drop ud2 if no user data is found
-
-    // If no user data is found in both ud1 and ud2, call the callback with only the id and is_checked
-    Python::attach(|py| {
-        if let Err(err) = callback.call1(py, (id, is_checked)) {
-            panic!("Checkbox callback error: {err}");
-        }
-    });
+    Some(ipg_chk.map(move |message| Message::CheckBox(chk.id, message)))
 }
 
 

@@ -4,16 +4,18 @@
 
 use iced::{Color, Element, Length, Padding, Renderer, Theme, Vector};
 
-use crate::graphics::colors::get_color;
-use crate::iced_aw_widgets::menu::menu_tree::{Item, Menu};
-use crate::iced_aw_widgets::menu::menu_bar::MenuBar;
-use crate::iced_aw_widgets::menu::common::DrawPath;
-use crate::iced_aw_widgets::menu::style_status::Status;
-use crate::iced_aw_widgets::menu::menu_bar_style::{primary, Style};
 
+use iced_aw_widgets::menu_tree::{Item, Menu};
+use iced_aw_widgets::menu_bar::MenuBar;
+use iced_aw_widgets::common::DrawPath;
+use iced_aw_widgets::style_status::Status;
+use iced_aw_widgets::menu_bar_style::{primary, Style};
 
-use crate::app;
-use super::helpers::{get_height, get_padding_f64, get_radius, get_width, try_extract_array_2, try_extract_boolean, try_extract_f64, try_extract_ipg_color, try_extract_rgba_color, try_extract_vec_f32, try_extract_vec_f64};
+use ipg_helpers::{get_height, get_padding_f64, get_radius, get_width, 
+    try_extract_array_2, try_extract_boolean, try_extract_f64, 
+    try_extract_vec_f32, try_extract_vec_f64};
+use ipg_styling::{colors::get_color, try_extract_ipg_color, try_extract_rgba_color};
+use ipg_types::Message;
 use super::ipg_enums::IpgWidgets;
 
 
@@ -169,10 +171,10 @@ impl IpgMenuStyle {
 
 
 pub fn construct_menu<'a>(mn: &'a IpgMenu, 
-                        mut content: Vec<Element<'a, app::Message>>,
+                        mut content: Vec<Element<'a, Message>>,
                         bar_style_opt: Option<&IpgWidgets>,
                         menu_style_opt: Option<&IpgWidgets>)
-                        -> Element<'a, app::Message, Theme, Renderer> {
+                        -> Element<'a, Message, Theme, Renderer> {
     
     let mut item_spacings = vec![0.0; mn.bar_items];
     if mn.item_spacing.is_some() {
@@ -206,9 +208,7 @@ pub fn construct_menu<'a>(mn: &'a IpgMenu,
         }
     }
 
-    
-
-    let mut bar_items: Vec<Item<app::Message, Theme, Renderer>> = vec![];
+    let mut bar_items: Vec<Item<Message, Theme, Renderer>> = vec![];
 
     for bar_index in 0..mn.bar_items {
 
@@ -238,7 +238,7 @@ pub fn construct_menu<'a>(mn: &'a IpgMenu,
     let bar_style = get_menu_bar_style(bar_style_opt);
     let menu_style: Option<IpgMenuStyle> = get_menu_style(menu_style_opt);
 
-    let mb: MenuBar<'a, app::Message, Theme, Renderer> = MenuBar::new(bar_items)
+    let mb: MenuBar<'a, Message, Theme, Renderer> = MenuBar::new(bar_items)
                 .draw_path(DrawPath::Backdrop)
                 .style(move|theme:&iced::Theme, status: Status | 
                     get_mb_styling(theme, status, 

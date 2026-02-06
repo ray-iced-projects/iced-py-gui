@@ -2,17 +2,16 @@
 use iced::{Border, Color, Element, Shadow, Theme, Vector};
 use iced::widget::{container, text, Column, Tooltip};
 use iced::widget::tooltip::Position;
+
 use pyo3::{pyclass, Py, PyAny, Python};
-
-// Type alias to replace deprecated PyObject
 type PyObject = Py<PyAny>;
-use crate::app::Message;
-use crate::graphics::colors::get_color;
 
-use super::helpers::{get_radius, try_extract_array_2, 
-    try_extract_boolean, try_extract_f32, try_extract_ipg_color, 
-    try_extract_rgba_color, try_extract_string, try_extract_u16, 
-    try_extract_usize, try_extract_vec_f32};
+use ipg_helpers::{get_radius, try_extract_array_2, 
+    try_extract_boolean, try_extract_f32, try_extract_string, 
+    try_extract_u16, try_extract_usize, try_extract_vec_f32};
+use ipg_styling::{colors::get_color, try_extract_ipg_color, 
+    try_extract_rgba_color};
+use ipg_types::Message;
 use super::ipg_enums::IpgWidgets;
 
 

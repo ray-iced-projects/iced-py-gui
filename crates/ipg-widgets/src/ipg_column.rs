@@ -1,16 +1,14 @@
 //! ipg_column
 use iced::{Element, Length, Padding};
 use iced::widget::Column;
-use pyo3::{pyclass, Py, PyAny, Python};
 
-// Type alias to replace deprecated PyObject
+use pyo3::{pyclass, Py, PyAny, Python};
 type PyObject = Py<PyAny>;
 
-use crate::app::Message;
-
-use super::helpers::{get_alignment, get_height, get_padding_f64, get_width, try_extract_boolean, try_extract_f64, try_extract_ipg_alignment, try_extract_vec_f64};
-use super::ipg_enums::IpgAlignment;
-
+use ipg_alignment::{IpgAlignment, get_alignment, try_extract_ipg_alignment};
+use ipg_helpers::{get_height, get_padding_f64, get_width, try_extract_boolean, 
+    try_extract_f64, try_extract_vec_f64};
+use ipg_types::Message;
 
 #[derive(Debug, Clone)]
 pub struct IpgColumn {

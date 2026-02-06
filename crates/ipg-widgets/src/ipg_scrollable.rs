@@ -1,28 +1,27 @@
 //! ipg_scrollable
-use std::collections::HashMap;
-
-use crate::graphics::colors::get_color;
-use crate::{access_callbacks, access_user_data1, access_user_data2, app, IpgState};
-use super::helpers::{get_height, get_radius, get_width, try_extract_f32, 
-    try_extract_ipg_color, try_extract_rgba_color, try_extract_vec_f32};
-use super::ipg_enums::IpgWidgets;
-
 use iced::widget::container;
 use iced::widget::scrollable;
 use iced::widget::scrollable::Anchor;
 use iced::widget::scrollable::Rail;
 use iced::widget::scrollable::Scrollbar;
 use iced::widget::scrollable::Scroller;
-use iced::widget::scrollable::{Direction, Scrollable, Viewport, Status, Style};
+use iced::widget::scrollable::{Direction, Scrollable, 
+    Status, Style};
 use iced::Rectangle;
-use iced::{Border, Color, Element, Length, Shadow, Vector, Theme};
+use iced::{Border, Color, Element, Length, Shadow, 
+    Vector, Theme};
 use iced::widget::Column;
 
 use pyo3::pyclass;
 use pyo3::{Py, PyAny, Python};
-
-// Type alias to replace deprecated PyObject
 type PyObject = Py<PyAny>;
+
+use ipg_helpers::{get_height, get_radius, get_width, try_extract_f32, 
+    try_extract_vec_f32};
+use ipg_styling::{colors::get_color, try_extract_ipg_color, 
+    try_extract_rgba_color};
+use ipg_types::Message;
+use super::ipg_enums::IpgWidgets;
 
 
 #[derive(Debug, Clone)]
@@ -175,13 +174,13 @@ pub enum IpgScrollableAlignment {
 
 
 pub fn construct_scrollable<'a>(scroll: &'a IpgScrollable, 
-                            content: Vec<Element<'a, app::Message>>,
+                            content: Vec<Element<'a, Message>>,
                             style_opt: Option<&IpgWidgets> ) 
-                            -> Element<'a, app::Message> {
+                            -> Element<'a, Message> {
     
     let style = get_scroll_style(style_opt);
 
-    let content: Element<'a, app::Message> = Column::with_children(content).into();
+    let content: Element<'a, Message> = Column::with_children(content).into();
 
     let direction: Direction = 
         get_direction(scroll.direction.clone(),
@@ -200,7 +199,7 @@ pub fn construct_scrollable<'a>(scroll: &'a IpgScrollable,
     Scrollable::with_direction(content, direction)
                     .width(scroll.width)
                     .height(scroll.height)
-                    .on_scroll(move|vp| app::Message::Scrolled(vp, scroll.id))
+                    .on_scroll(move|vp| Message::Scrolled(vp, scroll.id))
                     .style(move|theme, status| {
                         get_styling(theme, status,
                                     style.clone(),
@@ -255,68 +254,6 @@ fn get_direction(direction: IpgScrollableDirection,
         IpgScrollableDirection::Both => Direction::Both { vertical: v_properties, 
                             horizontal: h_properties },
     }
-
-}
-
-pub fn scrollable_callback(_state: &mut IpgState, id: usize, vp: Viewport) {
-    let mut hmap = HashMap::new();
-    hmap.insert("abs_x".to_string(), vp.absolute_offset().x);
-    hmap.insert("abs_y".to_string(), vp.absolute_offset().y);
-    hmap.insert("rel_x".to_string(), vp.relative_offset().x);
-    hmap.insert("rel_y".to_string(), vp.relative_offset().y);
-    hmap.insert("rev_x".to_string(), vp.absolute_offset_reversed().x);
-    hmap.insert("rev_y".to_string(), vp.absolute_offset_reversed().y);
-    
-    process_callback(id, "on_scroll".to_string(), hmap);
-}
-
-
-pub fn process_callback(id: usize, 
-                        event_name: String, 
-                        hmap: HashMap<String, f32>) 
-{
-let ud1 = access_user_data1();
-    let app_cbs = access_callbacks();
-
-    // Retrieve the callback
-    let callback = match app_cbs.callbacks.get(&(id, event_name)) {
-        Some(cb) => Python::attach(|py| cb.clone_ref(py)),
-        None => return,
-    };
-
-    drop(app_cbs);
-
-    // Check user data from ud1
-    if let Some(user_data) = ud1.user_data.get(&id) {
-        Python::attach(|py| {
-            if let Err(err) = callback.call1(py, (id, hmap, user_data)) {
-                panic!("Scollable callback error: {err}");
-            }
-        });
-        drop(ud1); // Drop ud1 before processing ud2
-        return;
-    }
-    drop(ud1); // Drop ud1 if no user data is found
-
-    // Check user data from ud2
-    let ud2 = access_user_data2();
-    if let Some(user_data) = ud2.user_data.get(&id) {
-        Python::attach(|py| {
-            if let Err(err) = callback.call1(py, (id, hmap, user_data)) {
-                panic!("Scrollable callback error: {err}");
-            }
-        });
-        drop(ud2); // Drop ud2 after processing
-        return;
-    }
-    drop(ud2); // Drop ud2 if no user data is found
-
-    // If no user data is found in both ud1 and ud2, call the callback with the id and hmap
-    Python::attach(|py| {
-        if let Err(err) = callback.call1(py, (id, hmap)) {
-            panic!("Scollable callback error: {err}");
-        }
-    });
 
 }
 

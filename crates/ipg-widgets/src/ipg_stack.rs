@@ -1,14 +1,13 @@
 //! ipg_stack
 use iced::{Element, Length};
 use iced::widget::Stack;
-use pyo3::{pyclass, Py, PyAny, Python};
 
-// Type alias to replace deprecated PyObject
+use pyo3::{pyclass, Py, PyAny, Python};
 type PyObject = Py<PyAny>;
 
-use crate::app::Message;
+use ipg_helpers::{get_height, get_width, try_extract_boolean, try_extract_f32};
+use ipg_types::Message;
 
-use super::helpers::{get_height, get_width, try_extract_boolean, try_extract_f32};
 
 #[derive(Debug, Clone)]
 pub struct IpgStack {

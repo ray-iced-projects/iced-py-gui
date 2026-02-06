@@ -10,7 +10,7 @@ use super::{canvas_helpers::{build_polygon, get_angle_of_vectors,
     get_horizontal_angle_of_vector, get_line_from_slope_intercept, 
     get_linear_regression, get_mid_point, rotate_geometry, to_degrees, 
     to_radians, translate_geometry}, 
-    draw_canvas::{IpgDrawMode, IpgDrawStatus, IpgWidget}};
+    draw_canvas::{IpgDrawMode, IpgDrawStatus, CanvasWidget}};
 
 
 
@@ -217,8 +217,8 @@ pub enum IpgCanvasWidget {
     FreeHand,
 }
 
-pub fn check_if_text_widget(canvas_widget: &IpgWidget) -> bool {
-    matches!(canvas_widget, IpgWidget::Text(_))
+pub fn check_if_text_widget(canvas_widget: &CanvasWidget) -> bool {
+    matches!(canvas_widget, CanvasWidget::Text(_))
 }
 
 pub fn add_new_widget(widget: IpgCanvasWidget, 
@@ -230,13 +230,13 @@ pub fn add_new_widget(widget: IpgCanvasWidget,
                         h_alignment: alignment::Horizontal,
                         v_alignment: alignment::Vertical,
                         ) 
-                        -> IpgWidget {
+                        -> CanvasWidget {
     match widget {
         IpgCanvasWidget::None => {
-            IpgWidget::None
+            CanvasWidget::None
         },
         IpgCanvasWidget::Arc => {
-            IpgWidget::Arc(
+            CanvasWidget::Arc(
                 IpgArc {
                     id: 0,
                     points: vec![],
@@ -255,7 +255,7 @@ pub fn add_new_widget(widget: IpgCanvasWidget,
         
         },
         IpgCanvasWidget::Bezier => {
-            IpgWidget::Bezier(
+            CanvasWidget::Bezier(
                 IpgBezier { 
                     id: 0,
                     points: vec![],
@@ -272,7 +272,7 @@ pub fn add_new_widget(widget: IpgCanvasWidget,
             )
         },
         IpgCanvasWidget::Circle => {
-            IpgWidget::Circle(
+            CanvasWidget::Circle(
                 IpgCircle {
                     id: 0,
                     center: Point::default(),
@@ -289,7 +289,7 @@ pub fn add_new_widget(widget: IpgCanvasWidget,
             )
         },
         IpgCanvasWidget::Ellipse => {
-            IpgWidget::Ellipse(
+            CanvasWidget::Ellipse(
                 IpgEllipse {
                     id: 0,
                     points: vec![],
@@ -307,7 +307,7 @@ pub fn add_new_widget(widget: IpgCanvasWidget,
             )
         },
         IpgCanvasWidget::Line => {
-            IpgWidget::Line(
+            CanvasWidget::Line(
                 IpgLine {
                     id: 0,
                     points: vec![],
@@ -323,7 +323,7 @@ pub fn add_new_widget(widget: IpgCanvasWidget,
             )
         },
         IpgCanvasWidget::PolyLine => {
-            IpgWidget::PolyLine(
+            CanvasWidget::PolyLine(
                 IpgPolyLine {
                     id: 0,
                     points: vec![],
@@ -341,7 +341,7 @@ pub fn add_new_widget(widget: IpgCanvasWidget,
             )
         },
         IpgCanvasWidget::Polygon => {
-            IpgWidget::Polygon(
+            CanvasWidget::Polygon(
                 IpgPolygon {
                     id: 0,
                     points: vec![],
@@ -360,7 +360,7 @@ pub fn add_new_widget(widget: IpgCanvasWidget,
             )
         },
         IpgCanvasWidget::Rectangle => {
-            IpgWidget::Rectangle(
+            CanvasWidget::Rectangle(
                 IpgRectangle{ 
                     id: 0, 
                     top_left: Point::default(), 
@@ -378,7 +378,7 @@ pub fn add_new_widget(widget: IpgCanvasWidget,
             )
         },
         IpgCanvasWidget::RightTriangle => {
-            IpgWidget::RightTriangle(
+            CanvasWidget::RightTriangle(
                 IpgRightTriangle {
                     id: 0,
                     points: vec![],
@@ -396,7 +396,7 @@ pub fn add_new_widget(widget: IpgCanvasWidget,
             )
         },
         IpgCanvasWidget::FreeHand => {
-            IpgWidget::FreeHand(
+            CanvasWidget::FreeHand(
                 IpgFreeHand {
                     id: 0,
                     points: vec![],
@@ -411,7 +411,7 @@ pub fn add_new_widget(widget: IpgCanvasWidget,
             )
         }
         IpgCanvasWidget::Text => {
-            IpgWidget::Text(
+            CanvasWidget::Text(
                 IpgText {
                     id: 0,
                     content: String::new(),
@@ -432,31 +432,31 @@ pub fn add_new_widget(widget: IpgCanvasWidget,
     }
 }
 
-pub fn complete_new_widget(widget: IpgWidget, cursor: Point) -> Option<IpgWidget> {
+pub fn complete_new_widget(widget: CanvasWidget, cursor: Point) -> Option<CanvasWidget> {
     match widget {
-        IpgWidget::Arc(arc) => {
-            Some(IpgWidget::Arc(arc))
+        CanvasWidget::Arc(arc) => {
+            Some(CanvasWidget::Arc(arc))
         },
-        IpgWidget::Bezier(mut bz) => {
+        CanvasWidget::Bezier(mut bz) => {
             bz.mid_point = 
                 get_mid_point(
                     bz.points[0], 
                     bz.points[1]
                 );
-            Some(IpgWidget::Bezier(bz))
+            Some(CanvasWidget::Bezier(bz))
         },
-        IpgWidget::Circle(cir) => { 
-            Some(IpgWidget::Circle(cir))
+        CanvasWidget::Circle(cir) => { 
+            Some(CanvasWidget::Circle(cir))
         },
-        IpgWidget::Ellipse(mut ell) => {
+        CanvasWidget::Ellipse(mut ell) => {
             ell.center = ell.points[0];
             let vx = ell.points[1].distance(ell.center);
             let new_pt = Point{ x: ell.center.x, y: cursor.y };
             let vy = new_pt.distance(ell.center);
             ell.radii = Vector{ x: vx, y: vy };
-            Some(IpgWidget::Ellipse(ell))
+            Some(CanvasWidget::Ellipse(ell))
         },
-        IpgWidget::Line(mut ln) => {
+        CanvasWidget::Line(mut ln) => {
             // degree is angle rotation around mid point 
             let degrees = 
                 get_horizontal_angle_of_vector(
@@ -465,9 +465,9 @@ pub fn complete_new_widget(widget: IpgWidget, cursor: Point) -> Option<IpgWidget
                 );
             ln.rotation = degrees;
 
-            Some(IpgWidget::Line(ln))
+            Some(CanvasWidget::Line(ln))
         },
-        IpgWidget::Polygon(mut pg) => {
+        CanvasWidget::Polygon(mut pg) => {
             pg.pg_point = cursor;
             let degrees = 
                 get_horizontal_angle_of_vector(
@@ -484,9 +484,9 @@ pub fn complete_new_widget(widget: IpgWidget, cursor: Point) -> Option<IpgWidget
                     pg.rotation,
                 );
             
-            Some(IpgWidget::Polygon(pg))
+            Some(CanvasWidget::Polygon(pg))
         },
-        IpgWidget::PolyLine(mut pl) => {
+        CanvasWidget::PolyLine(mut pl) => {
             let (slope, intercept) =
                 get_linear_regression(&pl.points);
             
@@ -511,9 +511,9 @@ pub fn complete_new_widget(widget: IpgWidget, cursor: Point) -> Option<IpgWidget
                     pl.pl_point,
                 );
             
-            Some(IpgWidget::PolyLine(pl))
+            Some(CanvasWidget::PolyLine(pl))
         },
-        IpgWidget::RightTriangle(mut tr) => {
+        CanvasWidget::RightTriangle(mut tr) => {
             tr.mid_point = tr.points[1];
             let trans_pts = translate_geometry(&tr.points, Point::default(), tr.points[1]);
             let opp = Point::new(-trans_pts[2].x, -trans_pts[2].y);
@@ -524,16 +524,16 @@ pub fn complete_new_widget(widget: IpgWidget, cursor: Point) -> Option<IpgWidget
                 tr.rotation = 0.0;
             }
             
-            Some(IpgWidget::RightTriangle(tr))
+            Some(CanvasWidget::RightTriangle(tr))
         },
-        IpgWidget::FreeHand(mut fh) => {
+        CanvasWidget::FreeHand(mut fh) => {
             fh.points.push(cursor);
-            Some(IpgWidget::FreeHand(fh))
+            Some(CanvasWidget::FreeHand(fh))
         }
-        IpgWidget::Text(mut txt) => {
+        CanvasWidget::Text(mut txt) => {
             txt.rotation = 0.0;
             txt.status = IpgDrawStatus::Completed;
-            Some(IpgWidget::Text(txt))
+            Some(CanvasWidget::Text(txt))
         },
         _ => {
             None
@@ -541,15 +541,15 @@ pub fn complete_new_widget(widget: IpgWidget, cursor: Point) -> Option<IpgWidget
     }
 }
 
-pub fn update_edited_widget(widget: IpgWidget,
+pub fn update_edited_widget(widget: CanvasWidget,
                         cursor: Point, 
                         index: Option<usize>, 
                         mid_point: bool,
                         other_point: bool,
                         status: IpgDrawStatus,
-                    ) -> IpgWidget {
+                    ) -> CanvasWidget {
     match widget {
-        IpgWidget::Arc(mut arc) => {
+        CanvasWidget::Arc(mut arc) => {
             if index.is_some() {
                 arc.points[index.unwrap()] = cursor;
                 if index.unwrap() == 1 {
@@ -588,9 +588,9 @@ pub fn update_edited_widget(widget: IpgWidget,
                 arc.mid_point = cursor;
             }
             arc.status = status;
-            IpgWidget::Arc(arc)
+            CanvasWidget::Arc(arc)
         },
-        IpgWidget::Bezier(mut bz) => {
+        CanvasWidget::Bezier(mut bz) => {
             if index.is_some() {
                 bz.points[index.unwrap()] = cursor;
                 bz.mid_point = get_mid_point(bz.points[0], bz.points[1]);
@@ -610,9 +610,9 @@ pub fn update_edited_widget(widget: IpgWidget,
                 );
             bz.rotation = degrees;
             bz.status = status;
-            IpgWidget::Bezier(bz)
+            CanvasWidget::Bezier(bz)
         },
-        IpgWidget::Circle(mut cir) => {
+        CanvasWidget::Circle(mut cir) => {
             if index.is_some() {
                 cir.circle_point = cursor;
                 cir.radius = cir.center.distance(cursor);
@@ -628,9 +628,9 @@ pub fn update_edited_widget(widget: IpgWidget,
                 cir.circle_point = points[0];
             }
             cir.status = status;
-            IpgWidget::Circle(cir)
+            CanvasWidget::Circle(cir)
         },
-        IpgWidget::Ellipse(mut ell) => {
+        CanvasWidget::Ellipse(mut ell) => {
            if mid_point {
                 let points = 
                     translate_geometry(
@@ -656,9 +656,9 @@ pub fn update_edited_widget(widget: IpgWidget,
             }
 
             ell.status = status;
-            IpgWidget::Ellipse(ell)
+            CanvasWidget::Ellipse(ell)
         },
-        IpgWidget::Line(mut line) => {
+        CanvasWidget::Line(mut line) => {
             if index.is_some() {
                 line.points[index.unwrap()] = cursor;
                 line.mid_point = get_mid_point(line.points[0], line.points[1]);
@@ -679,9 +679,9 @@ pub fn update_edited_widget(widget: IpgWidget,
                 );
             line.rotation = degrees;
             line.status = status;
-            IpgWidget::Line(line)
+            CanvasWidget::Line(line)
         },
-        IpgWidget::Polygon(mut pg) => {
+        CanvasWidget::Polygon(mut pg) => {
             if other_point {
                 pg.pg_point = cursor;
                 pg.rotation = get_horizontal_angle_of_vector(pg.mid_point, cursor);
@@ -710,9 +710,9 @@ pub fn update_edited_widget(widget: IpgWidget,
                 pg.pg_point = trans_pts[0];
             }
             pg.status = status;
-            IpgWidget::Polygon(pg)
+            CanvasWidget::Polygon(pg)
         },
-        IpgWidget::PolyLine(mut pl) => {
+        CanvasWidget::PolyLine(mut pl) => {
             if index.is_some() {
                 pl.points[index.unwrap()] = cursor;
                 let mid_point = 
@@ -752,9 +752,9 @@ pub fn update_edited_widget(widget: IpgWidget,
                 pl.rotation = degrees;
             }
             pl.status = status;
-            IpgWidget::PolyLine(pl)
+            CanvasWidget::PolyLine(pl)
         },
-        IpgWidget::RightTriangle(mut tr) => {
+        CanvasWidget::RightTriangle(mut tr) => {
             if index.is_some() {
                 let index = index.unwrap();
                 if index == 0 {
@@ -790,32 +790,32 @@ pub fn update_edited_widget(widget: IpgWidget,
                 tr.rotation = degrees;
             }
             tr.status = status;
-            IpgWidget::RightTriangle(tr)
+            CanvasWidget::RightTriangle(tr)
         },
-        IpgWidget::FreeHand(mut fh) => {
+        CanvasWidget::FreeHand(mut fh) => {
             if index.is_some() {
                 fh.points[index.unwrap()] = cursor;
             }
             fh.status = status;
-            IpgWidget::FreeHand(fh)
+            CanvasWidget::FreeHand(fh)
         },
-        IpgWidget::Text(mut txt) => {
+        CanvasWidget::Text(mut txt) => {
             txt.position = cursor;
             txt.status = status;
-            IpgWidget::Text(txt)
+            CanvasWidget::Text(txt)
         },
         _ => {
-            IpgWidget::None
+            CanvasWidget::None
         },
     }
 }
 
-pub fn update_rotated_widget(widget: &mut IpgWidget, 
+pub fn update_rotated_widget(widget: &mut CanvasWidget, 
                         step_degrees: f32,
                         status: Option<IpgDrawStatus>,
-                    ) -> (IpgWidget, f32) {
+                    ) -> (CanvasWidget, f32) {
     match widget {
-        IpgWidget::Arc(arc) => {
+        CanvasWidget::Arc(arc) => {
             arc.points = rotate_geometry(&arc.points, &arc.mid_point, &step_degrees, IpgCanvasWidget::Arc);
             arc.start_angle = 
                 get_angle_of_vectors(
@@ -838,45 +838,45 @@ pub fn update_rotated_widget(widget: &mut IpgWidget,
             if status.is_some() {
                 arc.status = status.unwrap();
             }
-            (IpgWidget::Arc(arc.clone()), Radians::into(arc.start_angle))
+            (CanvasWidget::Arc(arc.clone()), Radians::into(arc.start_angle))
         },
-        IpgWidget::Bezier(bz) => {
+        CanvasWidget::Bezier(bz) => {
             bz.points = rotate_geometry(&bz.points, &bz.mid_point, &step_degrees, IpgCanvasWidget::Bezier);
             bz.rotation = get_horizontal_angle_of_vector(bz.mid_point, bz.points[1]);
             if status.is_some() {
                 bz.status = status.unwrap();
             }
-            (IpgWidget::Bezier(bz.clone()), bz.rotation)
+            (CanvasWidget::Bezier(bz.clone()), bz.rotation)
         },
-        IpgWidget::Circle(cir) => {
-            (IpgWidget::Circle(cir.clone()), 0.0)
+        CanvasWidget::Circle(cir) => {
+            (CanvasWidget::Circle(cir.clone()), 0.0)
         },
-        IpgWidget::Ellipse(ell) => {
+        CanvasWidget::Ellipse(ell) => {
             let rads = to_radians(&step_degrees) + ell.rotation.0;
             ell.rotation = Radians(rads);
             if status.is_some() {
                 ell.status = status.unwrap();
             }
-            (IpgWidget::Ellipse(ell.clone()), to_degrees(&rads))
+            (CanvasWidget::Ellipse(ell.clone()), to_degrees(&rads))
         },
-        IpgWidget::Line(ln) => {
+        CanvasWidget::Line(ln) => {
             ln.points = rotate_geometry(&ln.points, &ln.mid_point, &step_degrees, IpgCanvasWidget::Line);
             ln.rotation = get_horizontal_angle_of_vector(ln.mid_point, ln.points[1]);
             if status.is_some() {
                 ln.status = status.unwrap();
             }
-            (IpgWidget::Line(ln.clone()), ln.rotation)
+            (CanvasWidget::Line(ln.clone()), ln.rotation)
         },
-        IpgWidget::Polygon(pg) => {
+        CanvasWidget::Polygon(pg) => {
             pg.points = rotate_geometry(&pg.points, &pg.mid_point, &step_degrees, IpgCanvasWidget::Polygon);
             pg.pg_point = rotate_geometry(&[pg.pg_point], &pg.mid_point, &step_degrees, IpgCanvasWidget::Line)[0];
             pg.rotation = get_horizontal_angle_of_vector(pg.mid_point, pg.pg_point);
             if status.is_some() {
                 pg.status = status.unwrap();
             }
-            (IpgWidget::Polygon(pg.clone()), pg.rotation)
+            (CanvasWidget::Polygon(pg.clone()), pg.rotation)
         },
-        IpgWidget::PolyLine(pl) => {
+        CanvasWidget::PolyLine(pl) => {
             let mut pts = pl.points.clone();
             pts.push(pl.pl_point);
             pts = rotate_geometry(&pts, &pl.mid_point, &step_degrees, IpgCanvasWidget::PolyLine);
@@ -886,9 +886,9 @@ pub fn update_rotated_widget(widget: &mut IpgWidget,
             if status.is_some() {
                 pl.status = status.unwrap();
             }
-            (IpgWidget::PolyLine(pl.clone()), pl.rotation)
+            (CanvasWidget::PolyLine(pl.clone()), pl.rotation)
         },
-        IpgWidget::RightTriangle(tr) => {
+        CanvasWidget::RightTriangle(tr) => {
             let mut pts = tr.points.clone();
             pts.push(tr.tr_point);
             pts = rotate_geometry(&pts, &tr.mid_point, &step_degrees, IpgCanvasWidget::RightTriangle);
@@ -898,26 +898,26 @@ pub fn update_rotated_widget(widget: &mut IpgWidget,
             if status.is_some() {
                 tr.status = status.unwrap();
             }
-            (IpgWidget::RightTriangle(tr.clone()), tr.rotation)
+            (CanvasWidget::RightTriangle(tr.clone()), tr.rotation)
         },
-        IpgWidget::FreeHand(fh) => {
-            (IpgWidget::FreeHand(fh.clone()), 0.0)
+        CanvasWidget::FreeHand(fh) => {
+            (CanvasWidget::FreeHand(fh.clone()), 0.0)
         },
-        IpgWidget::Text(txt) => {
+        CanvasWidget::Text(txt) => {
             txt.rotation += step_degrees;
             if status.is_some() {
                 txt.status = status.unwrap();
             }
-            (IpgWidget::Text(txt.clone()), txt.rotation)
+            (CanvasWidget::Text(txt.clone()), txt.rotation)
         },
-        _ => (IpgWidget::None, 0.0),
+        _ => (CanvasWidget::None, 0.0),
     }
 }
 
-pub fn add_keypress(widget: &mut IpgWidget, modified: Key) -> (Option<IpgWidget>, bool) {
+pub fn add_keypress(widget: &mut CanvasWidget, modified: Key) -> (Option<CanvasWidget>, bool) {
     let mut escape = false;
     match widget {
-        IpgWidget::Text(txt) => {
+        CanvasWidget::Text(txt) => {
             match modified.as_ref() {
                 Key::Named(named) => {
                     match named {
@@ -947,17 +947,17 @@ pub fn add_keypress(widget: &mut IpgWidget, modified: Key) -> (Option<IpgWidget>
             if escape {
                 (None, false)
             } else {
-                (Some(IpgWidget::Text(txt.clone())), false)
+                (Some(CanvasWidget::Text(txt.clone())), false)
             }
         },
-        IpgWidget::FreeHand(fh) => {
+        CanvasWidget::FreeHand(fh) => {
             if let Key::Named(named) = modified.as_ref() {
                 if named == iced::keyboard::key::Named::Enter {
                     fh.completed = true;
                 }
             }
             
-           (Some(IpgWidget::FreeHand(fh.clone())), fh.completed)
+           (Some(CanvasWidget::FreeHand(fh.clone())), fh.completed)
             
         }
         _ => (None, false)
@@ -973,13 +973,13 @@ pub fn get_del_key(modified: Key) -> bool {
     }
 }
 
-pub fn set_widget_mode_or_status_or_id(widget: IpgWidget, 
+pub fn set_widget_mode_or_status_or_id(widget: CanvasWidget, 
                     mode: Option<IpgDrawMode>,
                     status: Option<IpgDrawStatus>,
                     id: Option<usize>,
-                    ) -> IpgWidget {
+                    ) -> CanvasWidget {
     match widget {
-        IpgWidget::Arc(mut arc) => {
+        CanvasWidget::Arc(mut arc) => {
             if mode.is_some() {
                 arc.draw_mode = mode.unwrap();
             }
@@ -989,9 +989,9 @@ pub fn set_widget_mode_or_status_or_id(widget: IpgWidget,
             if id.is_some() {
                 arc.id = id.unwrap();
             }
-            IpgWidget::Arc(arc)
+            CanvasWidget::Arc(arc)
         },
-        IpgWidget::Bezier(mut bz) => {
+        CanvasWidget::Bezier(mut bz) => {
             if mode.is_some() {
                 bz.draw_mode = mode.unwrap();
             }
@@ -1001,9 +1001,9 @@ pub fn set_widget_mode_or_status_or_id(widget: IpgWidget,
             if id.is_some() {
                 bz.id = id.unwrap();
             }
-            IpgWidget::Bezier(bz)
+            CanvasWidget::Bezier(bz)
         },
-        IpgWidget::Circle(mut cir) => {
+        CanvasWidget::Circle(mut cir) => {
             if mode.is_some() {
                 cir.draw_mode = mode.unwrap();
             }
@@ -1013,9 +1013,9 @@ pub fn set_widget_mode_or_status_or_id(widget: IpgWidget,
             if id.is_some() {
                 cir.id = id.unwrap();
             }
-            IpgWidget::Circle(cir)
+            CanvasWidget::Circle(cir)
         },
-        IpgWidget::Ellipse(mut ell) => {
+        CanvasWidget::Ellipse(mut ell) => {
             if mode.is_some() {
                 ell.draw_mode = mode.unwrap();
             }
@@ -1025,9 +1025,9 @@ pub fn set_widget_mode_or_status_or_id(widget: IpgWidget,
             if id.is_some() {
                 ell.id = id.unwrap();
             }
-            IpgWidget::Ellipse(ell)
+            CanvasWidget::Ellipse(ell)
         },
-        IpgWidget::Image(mut img) => {
+        CanvasWidget::Image(mut img) => {
             if mode.is_some() {
                 img.draw_mode = mode.unwrap();
             }
@@ -1037,9 +1037,9 @@ pub fn set_widget_mode_or_status_or_id(widget: IpgWidget,
             if id.is_some() {
                 img.id = id.unwrap();
             }
-            IpgWidget::Image(img)
+            CanvasWidget::Image(img)
         },
-        IpgWidget::Line(mut ln) => {
+        CanvasWidget::Line(mut ln) => {
             if mode.is_some() {
                 ln.draw_mode = mode.unwrap();
             }
@@ -1049,9 +1049,9 @@ pub fn set_widget_mode_or_status_or_id(widget: IpgWidget,
             if id.is_some() {
                 ln.id = id.unwrap();
             }
-            IpgWidget::Line(ln)
+            CanvasWidget::Line(ln)
         },
-        IpgWidget::PolyLine(mut pl) => {
+        CanvasWidget::PolyLine(mut pl) => {
             if mode.is_some() {
                 pl.draw_mode = mode.unwrap();
             }
@@ -1061,9 +1061,9 @@ pub fn set_widget_mode_or_status_or_id(widget: IpgWidget,
             if id.is_some() {
                 pl.id = id.unwrap();
             }
-            IpgWidget::PolyLine(pl)
+            CanvasWidget::PolyLine(pl)
         },
-        IpgWidget::Polygon(mut pg) => {
+        CanvasWidget::Polygon(mut pg) => {
             if mode.is_some() {
                 pg.draw_mode = mode.unwrap();
             }
@@ -1073,9 +1073,9 @@ pub fn set_widget_mode_or_status_or_id(widget: IpgWidget,
             if id.is_some() {
                 pg.id = id.unwrap();
             }
-            IpgWidget::Polygon(pg)
+            CanvasWidget::Polygon(pg)
         },
-        IpgWidget::Rectangle(mut rect) => {
+        CanvasWidget::Rectangle(mut rect) => {
             if mode.is_some() {
                 rect.draw_mode = mode.unwrap();
             }
@@ -1085,9 +1085,9 @@ pub fn set_widget_mode_or_status_or_id(widget: IpgWidget,
             if id.is_some() {
                 rect.id = id.unwrap();
             }
-            IpgWidget::Rectangle(rect)
+            CanvasWidget::Rectangle(rect)
         },
-        IpgWidget::RightTriangle(mut tr) => {
+        CanvasWidget::RightTriangle(mut tr) => {
             if mode.is_some() {
                 tr.draw_mode = mode.unwrap();
             }
@@ -1097,9 +1097,9 @@ pub fn set_widget_mode_or_status_or_id(widget: IpgWidget,
             if id.is_some() {
                 tr.id = id.unwrap();
             }
-            IpgWidget::RightTriangle(tr)
+            CanvasWidget::RightTriangle(tr)
         },
-        IpgWidget::FreeHand(mut fh) => {
+        CanvasWidget::FreeHand(mut fh) => {
             if mode.is_some() {
                 fh.draw_mode = mode.unwrap();
             }
@@ -1109,9 +1109,9 @@ pub fn set_widget_mode_or_status_or_id(widget: IpgWidget,
             if id.is_some() {
                 fh.id = id.unwrap();
             }
-            IpgWidget::FreeHand(fh)
+            CanvasWidget::FreeHand(fh)
         },
-        IpgWidget::Text(mut txt) => {
+        CanvasWidget::Text(mut txt) => {
             if mode.is_some() {
                 txt.draw_mode = mode.unwrap();
             }
@@ -1121,19 +1121,19 @@ pub fn set_widget_mode_or_status_or_id(widget: IpgWidget,
             if id.is_some() {
                 txt.id = id.unwrap();
             }
-            IpgWidget::Text(txt)
+            CanvasWidget::Text(txt)
         },
-        IpgWidget::None => {
-            IpgWidget::None
+        CanvasWidget::None => {
+            CanvasWidget::None
         },
     }
 }
 
 // Adds a cursor position to the points then determines 
 // if finish by returning the widget and the boolean
-pub fn set_widget_point(widget: &IpgWidget, cursor: Point) -> (IpgWidget, bool) {
+pub fn set_widget_point(widget: &CanvasWidget, cursor: Point) -> (CanvasWidget, bool) {
     match widget {
-        IpgWidget::Arc(arc) => {
+        CanvasWidget::Arc(arc) => {
             let mut arc = arc.clone();
             arc.points.push(cursor);
 
@@ -1167,9 +1167,9 @@ pub fn set_widget_point(widget: &IpgWidget, cursor: Point) -> (IpgWidget, bool) 
                 _ => false
             };
 
-            (IpgWidget::Arc(arc), finished)
+            (CanvasWidget::Arc(arc), finished)
         },
-        IpgWidget::Bezier(bezier) => {
+        CanvasWidget::Bezier(bezier) => {
             let mut bz = bezier.clone();
             let mut finished = false;
             bz.points.push(cursor);
@@ -1181,9 +1181,9 @@ pub fn set_widget_point(widget: &IpgWidget, cursor: Point) -> (IpgWidget, bool) 
                 finished = true;
             }
             
-            (IpgWidget::Bezier(bz), finished)
+            (CanvasWidget::Bezier(bz), finished)
         },
-        IpgWidget::Circle(circle) => {
+        CanvasWidget::Circle(circle) => {
             let mut cir = circle.clone();
             let finished = if cir.center == Point::default() {
                 cir.center = cursor;
@@ -1194,9 +1194,9 @@ pub fn set_widget_point(widget: &IpgWidget, cursor: Point) -> (IpgWidget, bool) 
                 true
             };
             
-            (IpgWidget::Circle(cir), finished)
+            (CanvasWidget::Circle(cir), finished)
         },
-        IpgWidget::Ellipse(ell) => {
+        CanvasWidget::Ellipse(ell) => {
             let mut ell = ell.clone();
             let finished = if ell.points.is_empty() {
                 ell.points.push(cursor);
@@ -1213,9 +1213,9 @@ pub fn set_widget_point(widget: &IpgWidget, cursor: Point) -> (IpgWidget, bool) 
                 false
             };
             
-            (IpgWidget::Ellipse(ell), finished)
+            (CanvasWidget::Ellipse(ell), finished)
         },
-        IpgWidget::Line(line) => {
+        CanvasWidget::Line(line) => {
             let mut ln = line.clone();
             ln.points.push(cursor);
 
@@ -1226,9 +1226,9 @@ pub fn set_widget_point(widget: &IpgWidget, cursor: Point) -> (IpgWidget, bool) 
                 false
             };
             
-            (IpgWidget::Line(ln), finished)
+            (CanvasWidget::Line(ln), finished)
         },
-        IpgWidget::PolyLine(poly_line) => {
+        CanvasWidget::PolyLine(poly_line) => {
             let mut pl = poly_line.clone();
             pl.points.push(cursor);
             let finished = if pl.points.len() == pl.poly_points {
@@ -1238,9 +1238,9 @@ pub fn set_widget_point(widget: &IpgWidget, cursor: Point) -> (IpgWidget, bool) 
                 false
             };
             
-            (IpgWidget::PolyLine(pl), finished)
+            (CanvasWidget::PolyLine(pl), finished)
         },
-        IpgWidget::Polygon(polygon) => {
+        CanvasWidget::Polygon(polygon) => {
             let mut pg = polygon.clone();
             let finished = if pg.mid_point == Point::default() {
                 pg.mid_point = cursor;
@@ -1252,9 +1252,9 @@ pub fn set_widget_point(widget: &IpgWidget, cursor: Point) -> (IpgWidget, bool) 
             if finished {
                 pg.rotation = get_horizontal_angle_of_vector(pg.mid_point, pg.pg_point)
             }
-            (IpgWidget::Polygon(pg), finished)
+            (CanvasWidget::Polygon(pg), finished)
         },
-        IpgWidget::RightTriangle(right_triangle) => {
+        CanvasWidget::RightTriangle(right_triangle) => {
             let mut rt = right_triangle.clone();
             rt.points.push(cursor);
             if rt.points.len() > 1 {
@@ -1272,16 +1272,16 @@ pub fn set_widget_point(widget: &IpgWidget, cursor: Point) -> (IpgWidget, bool) 
                 false
             };
             
-            (IpgWidget::RightTriangle(rt), finished)
+            (CanvasWidget::RightTriangle(rt), finished)
         },
-        IpgWidget::FreeHand(fh) => {
+        CanvasWidget::FreeHand(fh) => {
             let mut fh = fh.clone();
             fh.points.push(cursor);
             let finished = fh.completed;
             
-            (IpgWidget::FreeHand(fh), finished)
+            (CanvasWidget::FreeHand(fh), finished)
         },
-        IpgWidget::Text(text) => {
+        CanvasWidget::Text(text) => {
             let mut txt = text.clone();
             
             let finished = if txt.position == Point::default() {
@@ -1293,17 +1293,17 @@ pub fn set_widget_point(widget: &IpgWidget, cursor: Point) -> (IpgWidget, bool) 
                 true
             };
             
-            (IpgWidget::Text(txt), finished)
+            (CanvasWidget::Text(txt), finished)
         },
-        _ => (IpgWidget::None, true),
+        _ => (CanvasWidget::None, true),
     }
 }
 
-pub fn find_closest_widget(curves: &HashMap<usize, IpgWidget>, 
-                            text_curves: &HashMap<usize, IpgWidget>,
+pub fn find_closest_widget(curves: &HashMap<usize, CanvasWidget>, 
+                            text_curves: &HashMap<usize, CanvasWidget>,
                             cursor: Point,
                             draw_mode: IpgDrawMode) 
-                            -> Option<IpgWidget> {
+                            -> Option<CanvasWidget> {
     let mut closest = f32::INFINITY;
     let mut closest_id = None;
     for (id, wid) in curves.iter() {
@@ -1347,7 +1347,7 @@ pub fn find_closest_widget(curves: &HashMap<usize, IpgWidget>,
 
 // returns a bool if mid_point and an optional usize 
 // if a point in points.
-pub fn find_closest_point_index(widget: &IpgWidget,
+pub fn find_closest_point_index(widget: &CanvasWidget,
                             cursor: Point, 
                             ) -> (Option<usize>, bool, bool) {
 
@@ -1355,7 +1355,7 @@ pub fn find_closest_point_index(widget: &IpgWidget,
     let mut point_index = 0;
 
     match widget {
-        IpgWidget::Arc(arc) => {
+        CanvasWidget::Arc(arc) => {
             for (idx, point) in arc.points.iter().enumerate() {
                 // skip first point since its a mid_point too.
                 if idx == 0 {
@@ -1377,7 +1377,7 @@ pub fn find_closest_point_index(widget: &IpgWidget,
                 (Some(point_index), false, false)
             }
         },
-        IpgWidget::Bezier(bezier) => {
+        CanvasWidget::Bezier(bezier) => {
             for (idx, point) in bezier.points.iter().enumerate() {
                 let dist = cursor.distance(*point);
                 if  dist < point_dist {
@@ -1394,7 +1394,7 @@ pub fn find_closest_point_index(widget: &IpgWidget,
                 (Some(point_index), false, false)
             }
         },
-        IpgWidget::Circle(cir) => {
+        CanvasWidget::Circle(cir) => {
             let center_dist = cursor.distance(cir.center);
             let point_dist = cursor.distance(cir.circle_point);
             if center_dist < point_dist {
@@ -1403,7 +1403,7 @@ pub fn find_closest_point_index(widget: &IpgWidget,
                 (Some(1), false, false)
             }
         }
-        IpgWidget::Ellipse(ell) => {
+        CanvasWidget::Ellipse(ell) => {
             let center_dist = cursor.distance(ell.center);
             let point_1_dist = cursor.distance(ell.points[1]);
             let point_2_dist = cursor.distance(ell.points[2]);
@@ -1415,7 +1415,7 @@ pub fn find_closest_point_index(widget: &IpgWidget,
                 (Some(2), false, false)
             }
         }
-        IpgWidget::Line(line) => {
+        CanvasWidget::Line(line) => {
             for (idx, point) in line.points.iter().enumerate() {
                 let dist = cursor.distance(*point);
                 if  dist < point_dist {
@@ -1432,7 +1432,7 @@ pub fn find_closest_point_index(widget: &IpgWidget,
                 (Some(point_index), false, false)
             }
         },
-        IpgWidget::Polygon(pg) => {
+        CanvasWidget::Polygon(pg) => {
             let pg_center = cursor.distance(pg.mid_point);
             let pg_point = cursor.distance(pg.pg_point);
             if pg_center <= pg_point {
@@ -1441,7 +1441,7 @@ pub fn find_closest_point_index(widget: &IpgWidget,
                 (None, false, true)
             }
         },
-        IpgWidget::PolyLine(pl) => {
+        CanvasWidget::PolyLine(pl) => {
             for (idx, point) in pl.points.iter().enumerate() {
                 let dist = cursor.distance(*point);
                 if  dist < point_dist {
@@ -1461,7 +1461,7 @@ pub fn find_closest_point_index(widget: &IpgWidget,
                 (None, false, true)
             }
         },
-        IpgWidget::RightTriangle(tr) => {
+        CanvasWidget::RightTriangle(tr) => {
             for (idx, point) in tr.points.iter().enumerate() {
                 let dist = cursor.distance(*point);
                 if  dist < point_dist {
@@ -1481,7 +1481,7 @@ pub fn find_closest_point_index(widget: &IpgWidget,
                 (None, false, true)
             }
         },
-        IpgWidget::FreeHand(fh) => {
+        CanvasWidget::FreeHand(fh) => {
             for (idx, point) in fh.points.iter().enumerate() {
                 let dist = cursor.distance(*point);
                 if  dist < point_dist {
@@ -1491,7 +1491,7 @@ pub fn find_closest_point_index(widget: &IpgWidget,
             };
             (Some(point_index), false, false)
         },
-        IpgWidget::Text(_) => {
+        CanvasWidget::Text(_) => {
             // just using the edit_other_point to indicate the position point
             (None, false, true)
         },
@@ -1501,91 +1501,91 @@ pub fn find_closest_point_index(widget: &IpgWidget,
 }
 
 
-pub fn get_widget_id(widget: &IpgWidget) -> usize {
+pub fn get_widget_id(widget: &CanvasWidget) -> usize {
     match widget {
-        IpgWidget::Arc(arc) => arc.id,
-        IpgWidget::Bezier(bz) => bz.id,
-        IpgWidget::Circle(cir) => cir.id,
-        IpgWidget::Ellipse(ell) => ell.id,
-        IpgWidget::Image(img) => img.id,
-        IpgWidget::Line(line) => line.id,
-        IpgWidget::PolyLine(pl) => pl.id,
-        IpgWidget::Polygon(pg) => pg.id,
-        IpgWidget::Rectangle(rect) => rect.id,
-        IpgWidget::RightTriangle(tr) => tr.id,
-        IpgWidget::FreeHand(fh) => fh.id,
-        IpgWidget::Text(txt) => txt.id,
-        IpgWidget::None => 0,
+        CanvasWidget::Arc(arc) => arc.id,
+        CanvasWidget::Bezier(bz) => bz.id,
+        CanvasWidget::Circle(cir) => cir.id,
+        CanvasWidget::Ellipse(ell) => ell.id,
+        CanvasWidget::Image(img) => img.id,
+        CanvasWidget::Line(line) => line.id,
+        CanvasWidget::PolyLine(pl) => pl.id,
+        CanvasWidget::Polygon(pg) => pg.id,
+        CanvasWidget::Rectangle(rect) => rect.id,
+        CanvasWidget::RightTriangle(tr) => tr.id,
+        CanvasWidget::FreeHand(fh) => fh.id,
+        CanvasWidget::Text(txt) => txt.id,
+        CanvasWidget::None => 0,
     }
 }
 
-pub fn get_widget_degrees(widget: &IpgWidget) -> Option<f32> {
+pub fn get_widget_degrees(widget: &CanvasWidget) -> Option<f32> {
     match widget {
-        IpgWidget::None => Some(0.0),
-        IpgWidget::Arc(arc) => Some(Radians::into(arc.start_angle)),
-        IpgWidget::Bezier(bezier) => Some(bezier.rotation),
-        IpgWidget::Circle(_circle) => Some(0.0),
-        IpgWidget::Ellipse(_ell) => Some(0.0),
-        IpgWidget::Image(image) => Some(image.rotation),
-        IpgWidget::Line(line) => Some(line.rotation),
-        IpgWidget::PolyLine(pl) => Some(pl.rotation),
-        IpgWidget::Polygon(pg) => Some(pg.rotation),
-        IpgWidget::Rectangle(rect) => Some(rect.rotation),
-        IpgWidget::RightTriangle(tr) => Some(tr.rotation),
-        IpgWidget::FreeHand(_) => None,
-        IpgWidget::Text(txt) => Some(txt.rotation),
+        CanvasWidget::None => Some(0.0),
+        CanvasWidget::Arc(arc) => Some(Radians::into(arc.start_angle)),
+        CanvasWidget::Bezier(bezier) => Some(bezier.rotation),
+        CanvasWidget::Circle(_circle) => Some(0.0),
+        CanvasWidget::Ellipse(_ell) => Some(0.0),
+        CanvasWidget::Image(image) => Some(image.rotation),
+        CanvasWidget::Line(line) => Some(line.rotation),
+        CanvasWidget::PolyLine(pl) => Some(pl.rotation),
+        CanvasWidget::Polygon(pg) => Some(pg.rotation),
+        CanvasWidget::Rectangle(rect) => Some(rect.rotation),
+        CanvasWidget::RightTriangle(tr) => Some(tr.rotation),
+        CanvasWidget::FreeHand(_) => None,
+        CanvasWidget::Text(txt) => Some(txt.rotation),
     }
 }
 
-pub fn get_draw_mode_and_status(widget: &IpgWidget) -> (IpgDrawMode, IpgDrawStatus) {
+pub fn get_draw_mode_and_status(widget: &CanvasWidget) -> (IpgDrawMode, IpgDrawStatus) {
     match widget {
-        IpgWidget::None => (IpgDrawMode::Display, IpgDrawStatus::Completed),
-        IpgWidget::Arc(arc) => (arc.draw_mode, arc.status),
-        IpgWidget::Bezier(bz) => (bz.draw_mode, bz.status),
-        IpgWidget::Circle(cir) => (cir.draw_mode, cir.status),
-        IpgWidget::Ellipse(ell) => (ell.draw_mode, ell.status),
-        IpgWidget::Image(image) => (image.draw_mode, image.status),
-        IpgWidget::Line(ln) => (ln.draw_mode, ln.status),
-        IpgWidget::PolyLine(pl) => (pl.draw_mode, pl.status),
-        IpgWidget::Polygon(pg) => (pg.draw_mode, pg.status),
-        IpgWidget::Rectangle(rect) => (rect.draw_mode, rect.status),
-        IpgWidget::RightTriangle(tr) => (tr.draw_mode, tr.status),
-        IpgWidget::FreeHand(fh) => (fh.draw_mode, fh.status),
-        IpgWidget::Text(txt) => (txt.draw_mode, txt.status),
+        CanvasWidget::None => (IpgDrawMode::Display, IpgDrawStatus::Completed),
+        CanvasWidget::Arc(arc) => (arc.draw_mode, arc.status),
+        CanvasWidget::Bezier(bz) => (bz.draw_mode, bz.status),
+        CanvasWidget::Circle(cir) => (cir.draw_mode, cir.status),
+        CanvasWidget::Ellipse(ell) => (ell.draw_mode, ell.status),
+        CanvasWidget::Image(image) => (image.draw_mode, image.status),
+        CanvasWidget::Line(ln) => (ln.draw_mode, ln.status),
+        CanvasWidget::PolyLine(pl) => (pl.draw_mode, pl.status),
+        CanvasWidget::Polygon(pg) => (pg.draw_mode, pg.status),
+        CanvasWidget::Rectangle(rect) => (rect.draw_mode, rect.status),
+        CanvasWidget::RightTriangle(tr) => (tr.draw_mode, tr.status),
+        CanvasWidget::FreeHand(fh) => (fh.draw_mode, fh.status),
+        CanvasWidget::Text(txt) => (txt.draw_mode, txt.status),
     }
 }
 
-pub fn get_distance_to_mid_point(widget: &IpgWidget, cursor: Point) -> f32 {
+pub fn get_distance_to_mid_point(widget: &CanvasWidget, cursor: Point) -> f32 {
 
         match &widget {
-            IpgWidget::Arc(arc) => {
+            CanvasWidget::Arc(arc) => {
                 cursor.distance(arc.mid_point)
             },
-            IpgWidget::Bezier(bz) => {
+            CanvasWidget::Bezier(bz) => {
                 cursor.distance(bz.mid_point)
             },
-            IpgWidget::Circle(cir) => {
+            CanvasWidget::Circle(cir) => {
                 cursor.distance(cir.center)
             },
-            IpgWidget::Ellipse(ell) => {
+            CanvasWidget::Ellipse(ell) => {
                 cursor.distance(ell.center)
             },
-            IpgWidget::Line(line) => {
+            CanvasWidget::Line(line) => {
                 cursor.distance(line.mid_point)
             },
-            IpgWidget::Polygon(pg) => {
+            CanvasWidget::Polygon(pg) => {
                 cursor.distance(pg.mid_point)
             },
-            IpgWidget::PolyLine(pl) => {
+            CanvasWidget::PolyLine(pl) => {
                 cursor.distance(pl.mid_point)
             },
-            IpgWidget::RightTriangle(tr) => {
+            CanvasWidget::RightTriangle(tr) => {
                 cursor.distance(tr.mid_point)
             },
-            IpgWidget::FreeHand(fh) => {
+            CanvasWidget::FreeHand(fh) => {
                 cursor.distance(fh.points[0])
             },
-            IpgWidget::Text(txt) => {
+            CanvasWidget::Text(txt) => {
                 cursor.distance(txt.position)
             },
             _ => f32::INFINITY,
@@ -1644,20 +1644,20 @@ pub fn get_mid_geometry(pts: &[Point], curve_type: IpgCanvasWidget) -> Point {
     
 }
 
-fn match_ipg_widget(widget: &IpgWidget) -> IpgCanvasWidget {
+fn match_ipg_widget(widget: &CanvasWidget) -> IpgCanvasWidget {
     match widget {
-        IpgWidget::None => IpgCanvasWidget::None,
-        IpgWidget::Arc(_) => IpgCanvasWidget::Arc,
-        IpgWidget::Bezier(_) => IpgCanvasWidget::Bezier,
-        IpgWidget::Circle(_) => IpgCanvasWidget::Circle,
-        IpgWidget::Ellipse(_) => IpgCanvasWidget::Ellipse,
-        IpgWidget::Image(_) => IpgCanvasWidget::None,
-        IpgWidget::Line(_) => IpgCanvasWidget::Line,
-        IpgWidget::PolyLine(_) => IpgCanvasWidget::PolyLine,
-        IpgWidget::Polygon(_) => IpgCanvasWidget::Polygon,
-        IpgWidget::Rectangle(_) => IpgCanvasWidget::Rectangle,
-        IpgWidget::RightTriangle(_) => IpgCanvasWidget::RightTriangle,
-        IpgWidget::Text(_) => IpgCanvasWidget::Text,
-        IpgWidget::FreeHand(_) => IpgCanvasWidget::FreeHand,
+        CanvasWidget::None => IpgCanvasWidget::None,
+        CanvasWidget::Arc(_) => IpgCanvasWidget::Arc,
+        CanvasWidget::Bezier(_) => IpgCanvasWidget::Bezier,
+        CanvasWidget::Circle(_) => IpgCanvasWidget::Circle,
+        CanvasWidget::Ellipse(_) => IpgCanvasWidget::Ellipse,
+        CanvasWidget::Image(_) => IpgCanvasWidget::None,
+        CanvasWidget::Line(_) => IpgCanvasWidget::Line,
+        CanvasWidget::PolyLine(_) => IpgCanvasWidget::PolyLine,
+        CanvasWidget::Polygon(_) => IpgCanvasWidget::Polygon,
+        CanvasWidget::Rectangle(_) => IpgCanvasWidget::Rectangle,
+        CanvasWidget::RightTriangle(_) => IpgCanvasWidget::RightTriangle,
+        CanvasWidget::Text(_) => IpgCanvasWidget::Text,
+        CanvasWidget::FreeHand(_) => IpgCanvasWidget::FreeHand,
     }
 }

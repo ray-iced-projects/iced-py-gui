@@ -1,17 +1,15 @@
 //! ipg_progress_bar
 use iced::{Color, Element, Length, Theme};
 use iced::widget::{progress_bar, ProgressBar};
+
 use pyo3::{pyclass, Py, PyAny, Python};
-
-// Type alias to replace deprecated PyObject
 type PyObject = Py<PyAny>;
-use crate::graphics::colors::get_color;
-use crate::style::styling::IpgStyleStandard;
-use crate::app;
 
-use super::helpers::{get_height, get_radius, get_width, try_extract_boolean,
-    try_extract_f64, try_extract_ipg_color, try_extract_rgba_color, 
-    try_extract_style_standard, try_extract_vec_f32};
+use ipg_helpers::{get_height, get_radius, get_width, try_extract_boolean,
+    try_extract_f64, try_extract_vec_f32};
+use ipg_styling::{IpgStyleStandard, colors::get_color, try_extract_ipg_color, 
+    try_extract_rgba_color, try_extract_style_standard};
+use ipg_types::Message;
 use super::ipg_enums::IpgWidgets;
 
 
@@ -91,7 +89,7 @@ impl IpgProgressBarStyle {
 
 pub fn construct_progress_bar<'a>(bar: &'a IpgProgressBar, 
                             style_opt: Option<&'a IpgWidgets>) 
-                            -> Option<Element<'a, app::Message>> {
+                            -> Option<Element<'a, Message>> {
     
     if !bar.show {
         return None

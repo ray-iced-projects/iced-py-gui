@@ -18,7 +18,7 @@ use iced::{
 
 use super::{common::*, menu_bar::MenuBarState, menu_tree::*};
 use super::style_status::Status;
-use crate::iced_aw_widgets::menu::menu_bar_style::{Catalog, Style};
+use crate::menu_bar_style::{Catalog, Style};
 
 pub(super) struct MenuBarOverlay<'a, 'b, Message, Theme, Renderer>
 where

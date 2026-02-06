@@ -1,0 +1,6 @@
+[package]
+name = "ipg-divider"
+version = "0.4.0"
+edition = "2021"
+license = "GNU"
+description = "Divider implementation for IcedPyGui"

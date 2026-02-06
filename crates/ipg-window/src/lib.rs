@@ -1,19 +1,19 @@
 #![allow(dead_code)]
-
-use crate::app::{self, Message};
-use crate::{access_window_actions, IpgState};
-
 use iced::window;
-use iced::{Element, Task, Theme, Size};
+use iced::{Element, Theme, Size};
 use iced::widget::Column;
 
 use pyo3::{pyclass, Py, PyAny, Python};
-
-// Type alias to replace deprecated PyObject
 type PyObject = Py<PyAny>;
 
-use super::helpers::{try_extract_boolean, try_extract_f64, try_extract_u64, try_extract_vec_f32};
+use ipg_helpers::{try_extract_boolean, try_extract_f64, 
+    try_extract_u64, try_extract_vec_f32};
+use ipg_types::Message;
 
+mod actions;
+use actions::access_window_actions;
+
+use crate::actions::{IpgWindowLevel, IpgWindowMode, get_iced_mode, get_level};
 
 #[derive(Debug, Clone)]
 pub struct IpgWindow {
@@ -73,73 +73,7 @@ impl IpgWindow {
 }
 
 
-#[derive(Debug, Clone)]
-pub enum WndMessage {
-    TitleChanged(window::Id, String),
-    NewWindow,
-    ScaleInputChanged(window::Id, String),
-    ScaleChanged(window::Id, String), 
-}
-
-pub fn add_windows(state: &mut IpgState) -> Vec<Task<app::Message>> {
-
-    let mut modes: Vec<(usize, window::Mode)> = vec![];
-
-    let mut spawn_window: Vec<Task<app::Message>> = vec![];
-
-    for i in 0..state.windows.len() {
-        let visible = match state.windows[i].mode {
-            IpgWindowMode::Windowed => {
-                modes.push((state.windows[i].id, window::Mode::Windowed));
-                true
-            },
-            IpgWindowMode::FullScreen => {
-                modes.push((state.windows[i].id, window::Mode::Fullscreen));
-                true
-            },
-            IpgWindowMode::Closed => {
-                modes.push((state.windows[i].id, window::Mode::Hidden));
-                false
-            },
-        };
-        let (iced_id, open) = window::open(window::Settings {
-            size: state.windows[i].size,
-            min_size: state.windows[i].min_size,
-            max_size: state.windows[i].max_size,
-            position: state.windows[i].position,
-            visible,
-            resizable: state.windows[i].resizable,
-            decorations: state.windows[i].decorations,
-            transparent: state.windows[i].transparent,
-            level: get_level(&state.windows[i].level),
-            exit_on_close_request: state.windows[i].exit_on_close_request,
-            ..Default::default()
-        });
-        let id = state.windows[i].id;
-        let debug = state.windows[i].debug;
-        let theme = state.windows[i].theme.clone();
-        let mode = state.windows[i].mode.clone();
-
-        state.window_debug.insert(iced_id, (id, debug));
-        state.window_theme.insert(iced_id, (id, theme));
-        state.window_mode.insert(iced_id, (id, get_iced_mode(&mode)));
-        state.windows_opened.push(iced_id);
-        if !visible {
-            state.windows_hidden.push(iced_id);
-        }
-
-        let ipg_id = state.windows[i].id;
-        state.windows_iced_ipg_ids.insert(iced_id, ipg_id);
-        let size = state.windows[i].size;
-        spawn_window.push(open.map(move|_|Message::WindowOpened(iced_id, None, size)));
-        
-    }
-
-    spawn_window
-
-}
-
-pub fn construct_window(content: Vec<Element<app::Message>>) -> Element<app::Message> {
+pub fn construct_window(content: Vec<Element<Message>>) -> Element<Message> {
     Column::with_children(content).into()
 }
 
@@ -330,42 +264,3 @@ fn try_extract_level(level: &PyObject) -> IpgWindowLevel {
     })
 }
 
-#[derive(Debug, Clone, PartialEq)]
-#[pyclass(eq, eq_int)]
-pub enum IpgWindowLevel {
-    Normal,
-    AlwaysOnBottom,
-    AlwaysOnTop,
-}
-
-fn get_level(level: &IpgWindowLevel) -> iced::window::Level {
-    match level {
-        IpgWindowLevel::Normal => window::Level::Normal,
-        IpgWindowLevel::AlwaysOnBottom => window::Level::AlwaysOnBottom,
-        IpgWindowLevel::AlwaysOnTop => window::Level::AlwaysOnTop,
-    }
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-#[pyclass(eq, eq_int)]
-pub enum IpgWindowMode {
-    Windowed,
-    FullScreen,
-    Closed,
-}
-
-pub fn get_iced_mode(mode: &IpgWindowMode) -> window::Mode {
-    match mode {
-        IpgWindowMode::Windowed => window::Mode::Windowed,
-        IpgWindowMode::FullScreen => window::Mode::Fullscreen,
-        IpgWindowMode::Closed => window::Mode::Hidden,
-    }
-}
-
-pub fn get_ipg_mode(mode: window::Mode) -> IpgWindowMode {
-    match mode {
-        window::Mode::Windowed => IpgWindowMode::Windowed,
-        window::Mode::Fullscreen => IpgWindowMode::FullScreen,
-        window::Mode::Hidden => IpgWindowMode::Closed,
-    }
-}

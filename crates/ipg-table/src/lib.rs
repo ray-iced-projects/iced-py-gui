@@ -10,19 +10,10 @@ use iced::widget::{column, container, Space, row, scrollable, stack, text};
 
 use polars::frame::DataFrame;
 use pyo3::{pyclass, Py, PyAny, Python};
-
-
-use crate::app::Message;
-use crate::graphics::colors::get_color;
-use crate::{access_callbacks, access_user_data1, access_user_data2, IpgState};
-// Type alias to replace deprecated PyObject
 type PyObject = Py<PyAny>;
-use pyo3_polars::PyDataFrame;
 
-use super::callbacks::{set_or_get_widget_callback_data, WidgetCallbackIn};
-use super::divider::{self, divider_horizontal};
-use super::helpers::{try_extract_boolean, try_extract_f32, try_extract_f64, try_extract_ipg_color, try_extract_rgba_color, try_extract_usize, try_extract_vec_f32, try_extract_vec_usize};
-use super::ipg_enums::IpgWidgets;
+use ipg_types::Message;
+use crate::ipg_enums::IpgWidgets;
 
 
 #[derive(Debug, Clone)]

@@ -1,26 +1,24 @@
 //! ipg_date_picker
-use crate::app::{Message, self};
-use crate::{access_callbacks, access_user_data1, access_user_data2, IpgState};
-use crate::style::styling::IpgStyleStandard;
-use super::callbacks::{set_or_get_widget_callback_data, WidgetCallbackIn};
-use super::ipg_enums::IpgWidgets;
-use crate::ICON_FONT_BOOT;
-use super::helpers::{get_padding_f64, try_extract_boolean, 
-    try_extract_f64, try_extract_string, try_extract_vec_f64, 
-    DATE_FORMATS, DAYS, MONTH_NAMES, WEEKDAYS};
-use super::ipg_button::{self, get_standard_style, IpgButtonStyle};
-
 use iced::advanced::graphics::core::Element;
 use iced::widget::{button, text};
-use iced::{Length, Padding, Renderer, Theme};
+use iced::{Font, Length, Padding, Renderer, Theme};
 use iced::alignment::{self, Alignment};
 use iced::widget::{Button, Column, Container, PickList, Row, Space, Text};
 
 use chrono::prelude::*;
 use pyo3::{pyclass, Py, PyAny, Python};
-
-// Type alias to replace deprecated PyObject
 type PyObject = Py<PyAny>;
+
+use ipg_helpers::{get_padding_f64, try_extract_boolean, 
+    try_extract_f64, try_extract_string, try_extract_vec_f64, 
+    DATE_FORMATS, DAYS, MONTH_NAMES, WEEKDAYS};
+use ipg_styling::IpgStyleStandard;
+use ipg_types::{DPMessage, Message};    
+use super::ipg_button::{self, get_standard_style, IpgButtonStyle};
+use super::ipg_enums::IpgWidgets;
+
+
+const ICON_FONT_BOOT: Font = Font::with_name("bootstrap-icons");
 
 
 #[derive(Debug, Clone)]
@@ -87,20 +85,6 @@ impl IpgDatePicker {
         }
     }
 }
-
-
-#[derive(Debug, Clone)]
-pub enum DPMessage {
-    ShowModal,
-    HideModal,
-    DayPressed(usize),
-    MonthLeftPressed(usize),
-    MonthRightPressed(usize),
-    YearLeftPressed,
-    YearRightPressed,
-    DatePickerFormat(String),
-    OnSubmit,
-}   
 
 pub fn construct_date_picker<'a>(dp: &'a IpgDatePicker, 
                                 btn_style_opt: Option<&'a IpgWidgets>) 
@@ -450,7 +434,7 @@ fn create_select_row(id: usize,
                                             .into();
     
     let mapped_pl: Element<Message, Theme, Renderer> = 
-                    picklist.map(move |message| app::Message::DatePicker(id, message));
+                    picklist.map(move |message| Message::DatePicker(id, message));
 
     Row::with_children(vec![
         Row::with_children(vec![
@@ -472,7 +456,7 @@ fn create_submit_row(id: usize, size_factor: f32, selected_date: String) -> Elem
                                                     .style(move|theme, status| button::primary(theme, status))
                                                     .into();
     let submit_btn_mapped: Element<Message, Theme, Renderer> = 
-                                submit_btn.map(move |message| app::Message::DatePicker(id, message));
+                                submit_btn.map(move |message| Message::DatePicker(id, message));
 
     Row::new()
         .push(submit_btn_mapped)
@@ -481,132 +465,6 @@ fn create_submit_row(id: usize, size_factor: f32, selected_date: String) -> Elem
         .spacing(10.0*size_factor)
         .into()
 }
-
-
-pub fn date_picker_update(state: &mut IpgState, id: usize, message: DPMessage) {
-    let mut wci: WidgetCallbackIn = WidgetCallbackIn{id, ..Default::default()};
-
-    match message {
-        DPMessage::ShowModal => {
-            // Non callback just sending the values.
-            wci.show = Some(true);
-            wci.is_submitted = Some(false);
-            let _ = set_or_get_widget_callback_data(state, wci);
-        }
-        DPMessage::HideModal => {
-            // Non callback just sending the values.
-            wci.show = Some(false);
-            let _ = set_or_get_widget_callback_data(state, wci);
-        }
-        DPMessage::DayPressed(day) => {
-            // Non callback just sending the values.
-            wci.selected_day = Some(day);
-            let _ = set_or_get_widget_callback_data(state, wci);
-        }
-        DPMessage::DatePickerFormat(date_format) => {
-            // Non callback just sending the values.
-            wci.date_format = Some(date_format);
-            let _ = set_or_get_widget_callback_data(state, wci);
-        }
-        DPMessage::MonthRightPressed(index) => {
-            // Non callback just sending the values.
-            wci.index = Some(index);
-            wci.increment_value = Some(1);
-            wci.is_submitted = Some(false);
-            let _ = set_or_get_widget_callback_data(state, wci);
-        }
-        DPMessage::MonthLeftPressed(index) => {
-            // Non callback just sending the values.
-            wci.index = Some(index);
-            wci.increment_value = Some(-1);
-            wci.is_submitted = Some(false);
-            let _ = set_or_get_widget_callback_data(state, wci);
-        }
-        DPMessage::YearRightPressed => {
-            // Non callback just sending the values.
-            wci.selected_year = Some(1);
-            wci.is_submitted = Some(false);
-            let _ = set_or_get_widget_callback_data(state, wci);
-        }
-        DPMessage::YearLeftPressed => {
-            // Non callback just sending the values.
-            wci.selected_year = Some(-1);
-            wci.is_submitted = Some(false);
-            let _ = set_or_get_widget_callback_data(state, wci);
-        }
-        DPMessage::OnSubmit => {
-            wci.is_submitted = Some(true);
-            let wco = set_or_get_widget_callback_data(state, wci);
-
-            process_callback(id, "on_submit".to_string(), wco.selected_date);
-        }
-    }
-}
-
-
-pub fn process_callback(id: usize, event_name: String, selected_date: Option<String>) {
-    let ud1 = access_user_data1();
-    let app_cbs = access_callbacks();
-
-    // Retrieve the callback
-    let callback = match app_cbs.callbacks.get(&(id, event_name)) {
-        Some(cb) => Python::attach(|py| cb.clone_ref(py)),
-        None => return,
-    };
-
-    drop(app_cbs);
-
-    // Check user data from ud1
-    if let Some(user_data) = ud1.user_data.get(&id) {
-        Python::attach(|py| {
-            if let Some(date) = &selected_date {
-                if let Err(err) = callback.call1(py, (id, date.clone(), user_data)) {
-                    panic!("DatePicker callback error: {err}");
-                }
-            } else {
-                if let Err(err) = callback.call1(py, (id, user_data)) {
-                    panic!("DatePicker callback error: {err}");
-                }
-            }
-        });
-        drop(ud1); // Drop ud1 before processing ud2
-        return;
-    }
-    drop(ud1); // Drop ud1 if no user data is found
-
-    // Check user data from ud2
-    let ud2 = access_user_data2();
-    if let Some(user_data) = ud2.user_data.get(&id) {
-        Python::attach(|py| {
-            if let Some(date) = &selected_date {
-                if let Err(err) = callback.call1(py, (id, date.clone(), user_data)) {
-                    panic!("DatePicker callback error: {err}");
-                }
-            } else {
-                if let Err(err) = callback.call1(py, (id, user_data)) {
-                    panic!("DatePicker callback error: {err}");
-                }
-            }
-        });
-        drop(ud2); // Drop ud2 after processing
-        return;
-    }
-    drop(ud2); // Drop ud2 if no user data is found
-
-    // If no user data is found in both ud1 and ud2, call the callback with only id and selected_date
-    Python::attach(|py| {
-        if let Some(date) = selected_date {
-            if let Err(err) = callback.call1(py, (id, date)) {
-                panic!("DatePicker callback error: {err}");
-            }
-        } else {
-            if let Err(err) = callback.call1(py, (id,)) {
-                panic!("DatePicker callback error: {err}");
-            }
-        }
-    });
-}      
-
 
 #[derive(Debug, Clone, PartialEq)]
 #[pyclass(eq)]

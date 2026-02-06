@@ -1,23 +1,17 @@
 //! ipg_slider
-use crate::graphics::colors::get_color;
-use crate::{access_callbacks, access_user_data1, access_user_data2, app, IpgState};
-use super::callbacks::{set_or_get_widget_callback_data, 
-    WidgetCallbackIn};
-
-use super::helpers::{get_radius, get_width, try_extract_ipg_color, 
-    try_extract_rgba_color, try_extract_u16, try_extract_vec_f32, 
-    try_extract_boolean, try_extract_f64};
-use super::ipg_enums::IpgWidgets;
-
 use iced::border::Radius;
 use iced::widget::slider::{self, HandleShape, Status, Style};
 use iced::{Background, Color, Element, Length, Theme};
 use iced::widget::Slider;
 
 use pyo3::{Py, PyAny, pyclass, Python};
-
-// Type alias to replace deprecated PyObject
 type PyObject = Py<PyAny>;
+
+use ipg_helpers::{get_radius, get_width, try_extract_boolean, 
+    try_extract_f64, try_extract_u16, try_extract_vec_f32};
+use ipg_styling::{colors::get_color, try_extract_ipg_color, try_extract_rgba_color};
+use ipg_types::{Message, SLMessage};
+use super::ipg_enums::IpgWidgets;
 
 
 #[derive(Debug, Clone)]
@@ -108,16 +102,9 @@ impl IpgSliderStyle {
     }
 }
 
-
-#[derive(Debug, Clone)]
-pub enum SLMessage {
-    OnChange(f32),
-    OnRelease,
-}
-
 pub fn construct_slider<'a>(slider: &'a IpgSlider, 
                         style_opt: Option<&IpgWidgets>) 
-                        -> Option<Element<'a, app::Message>> {
+                        -> Option<Element<'a, Message>> {
 
     if !slider.show {
         return None
@@ -140,75 +127,7 @@ pub fn construct_slider<'a>(slider: &'a IpgSlider,
                     ))
                     .into();
 
-    Some(sld.map(move |message| app::Message::Slider(slider.id, message)))
-}
-
-pub fn slider_callback(state: &mut IpgState, id: usize, message: SLMessage) {
-
-    let mut wci: WidgetCallbackIn = WidgetCallbackIn{id, ..Default::default()};
-           
-    match message {
-        SLMessage::OnChange(value) => {
-            wci.value_f64 = Some(value as f64);
-            let _ = set_or_get_widget_callback_data(state, wci);
-            process_callback(id, "on_change".to_string(), value);
-        },
-        SLMessage::OnRelease => {
-            // to be consistent, returning value for both
-            let wco = set_or_get_widget_callback_data(state, wci);
-            process_callback(id, "on_release".to_string(), wco.value_f32.unwrap());
-        },
-    }
-}
-
-pub fn process_callback(
-        id: usize, 
-        event_name: String, 
-        value: f32) 
-{
-    let ud1 = access_user_data1();
-    let app_cbs = access_callbacks();
-
-    // Retrieve the callback
-    let callback = match app_cbs.callbacks.get(&(id, event_name)) {
-        Some(cb) => Python::attach(|py| cb.clone_ref(py)),
-        None => return,
-    };
-
-    drop(app_cbs);
-
-    // Check user data from ud1
-    if let Some(user_data) = ud1.user_data.get(&id) {
-        Python::attach(|py| {
-            if let Err(err) = callback.call1(py, (id, value, user_data)) {
-                panic!("Slider callback error: {err}");
-            }
-        });
-        drop(ud1); // Drop ud1 before processing ud2
-        return;
-    }
-    drop(ud1); // Drop ud1 if no user data is found
-
-    // Check user data from ud2
-    let ud2 = access_user_data2();
-    if let Some(user_data) = ud2.user_data.get(&id) {
-        Python::attach(|py| {
-            if let Err(err) = callback.call1(py, (id, value, user_data)) {
-                panic!("Slider callback error: {err}");
-            }
-        });
-        drop(ud2); // Drop ud2 after processing
-        return;
-    }
-    drop(ud2); // Drop ud2 if no user data is found
-
-    // If no user data is found in both ud1 and ud2, call the callback with only the id and value
-    Python::attach(|py| {
-        if let Err(err) = callback.call1(py, (id, value)) {
-            panic!("Slider callback error: {err}");
-        }
-    });
-
+    Some(sld.map(move |message| Message::Slider(slider.id, message)))
 }
 
 #[derive(Debug, Clone, PartialEq)]

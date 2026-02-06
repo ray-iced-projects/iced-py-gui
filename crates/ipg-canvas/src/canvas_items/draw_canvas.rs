@@ -8,17 +8,17 @@ use iced::widget::canvas::{self, stroke, Canvas, Frame, Geometry, LineDash, Path
 use iced::{Element, Point, Renderer, Theme};
 use pyo3::pyclass;
 
-use crate::canvas::canvas_helpers::to_degrees;
-use crate::canvas::path_builds::{build_arc_path, build_bezier_path, build_circle_path, 
+
+use super::path_builds::{build_arc_path, build_bezier_path, build_circle_path, 
     build_ellipse_path, build_free_hand_path, build_line_path, 
     build_polygon_path, build_polyline_path, build_right_triangle_path, build_text_path};
 
-use super::canvas_helpers::to_radians;
+use super::canvas_helpers::{to_degrees, to_radians};
 use super::geometries::{add_keypress, add_new_widget, check_if_text_widget, complete_new_widget, find_closest_point_index, find_closest_widget, get_del_key, get_widget_degrees, set_widget_mode_or_status_or_id, set_widget_point, update_edited_widget, update_rotated_widget, IpgArc, IpgBezier, IpgCanvasImage, IpgCanvasWidget, IpgCircle, IpgEllipse, IpgFreeHand, IpgLine, IpgPolyLine, IpgPolygon, IpgRectangle, IpgRightTriangle, IpgText};
 
 
 #[derive(Debug, Clone, PartialEq, Default)]
-pub enum IpgWidget {
+pub enum CanvasWidget {
     #[default]
     None,
     Arc(IpgArc),
@@ -35,6 +35,10 @@ pub enum IpgWidget {
     FreeHand(IpgFreeHand),
 }
 
+#[derive(Debug, Clone)]
+pub enum CanvasMessage {
+    WidgetDraw(CanvasWidget),
+}
 
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq,)]
 #[pyclass(eq, eq_int)]
@@ -60,9 +64,9 @@ pub struct IpgCanvasState {
     background_cache: canvas::Cache,
     text_cache: Vec<canvas::Cache>,
     image_cache: Vec<canvas::Cache>,
-    pub curves: HashMap<usize, IpgWidget>,
-    pub text_curves: HashMap<usize, IpgWidget>,
-    pub image_curves: HashMap<usize, IpgWidget>,
+    pub curves: HashMap<usize, CanvasWidget>,
+    pub text_curves: HashMap<usize, CanvasWidget>,
+    pub image_curves: HashMap<usize, CanvasWidget>,
     pub draw_mode: IpgDrawMode,
     pub width: Length,
     pub height: Length,
@@ -131,10 +135,10 @@ impl Default for IpgCanvasState {
 
 impl IpgCanvasState {
     pub fn view<'a>(&'a self, 
-                    curves: &'a HashMap<usize, IpgWidget>, 
-                    text_curves: &'a HashMap<usize, IpgWidget>,
-                    image_curves: &'a HashMap<usize, IpgWidget>,
-                    ) -> Element<'a, IpgWidget> {
+                    curves: &'a HashMap<usize, CanvasWidget>, 
+                    text_curves: &'a HashMap<usize, CanvasWidget>,
+                    image_curves: &'a HashMap<usize, CanvasWidget>,
+                    ) -> Element<'a, CanvasWidget> {
         Canvas::new(DrawPending {
             state: self,
             curves,
@@ -178,12 +182,12 @@ impl IpgCanvasState {
 
 struct DrawPending<'a> {
     state: &'a IpgCanvasState,
-    curves: &'a HashMap<usize, IpgWidget>,
-    text_curves: &'a HashMap<usize, IpgWidget>,
-    image_curves: &'a HashMap<usize, IpgWidget>,
+    curves: &'a HashMap<usize, CanvasWidget>,
+    text_curves: &'a HashMap<usize, CanvasWidget>,
+    image_curves: &'a HashMap<usize, CanvasWidget>,
 }
 
-impl canvas::Program<IpgWidget> for DrawPending<'_> {
+impl canvas::Program<CanvasWidget> for DrawPending<'_> {
     type State = Option<Pending>;
 
     fn update(
@@ -192,7 +196,7 @@ impl canvas::Program<IpgWidget> for DrawPending<'_> {
         event: Event,
         bounds: iced::Rectangle,
         cursor: mouse::Cursor,
-    ) -> (event::Status, Option<IpgWidget>) {
+    ) -> (event::Status, Option<CanvasWidget>) {
         let Some(cursor_position) = cursor.position_in(bounds) else {
             return (event::Status::Ignored, None);
         };
@@ -285,7 +289,7 @@ impl canvas::Program<IpgWidget> for DrawPending<'_> {
                                         edit_other_point, 
                                     }) => {
 
-                                        let edited_widget: IpgWidget = 
+                                        let edited_widget: CanvasWidget = 
                                                 update_edited_widget(
                                                     widget.clone(), 
                                                     cursor_position, 
@@ -629,7 +633,7 @@ pub struct DrawCurve {
 }
 
 impl DrawCurve {
-    fn draw_all(curves: &HashMap<usize, IpgWidget>, frame: &mut Frame, _theme: &Theme) {
+    fn draw_all(curves: &HashMap<usize, CanvasWidget>, frame: &mut Frame, _theme: &Theme) {
         // This draw only occurs at the completion of the 
         // widget(update occurs) and cache is cleared
         for (_id, widget) in curves.iter() {
@@ -645,7 +649,7 @@ impl DrawCurve {
                 line_dash,
                 ) = 
                 match &widget {
-                    IpgWidget::Arc(arc) => {
+                    CanvasWidget::Arc(arc) => {
                         // skip if being editied or rotated
                         if arc.status == IpgDrawStatus::Inprogress {
                             (None, None, None, 0, None)
@@ -664,7 +668,7 @@ impl DrawCurve {
                             (Some(path), Some(arc.color), Some(arc.width), 0, None)
                         }
                     },
-                    IpgWidget::Bezier(bz) => {
+                    CanvasWidget::Bezier(bz) => {
                         // skip if being editied or rotated
                         if bz.status == IpgDrawStatus::Inprogress {
                             (None, None, None, 0, None)
@@ -684,7 +688,7 @@ impl DrawCurve {
                             (Some(path), Some(bz.color), Some(bz.width), 0, None)
                         }
                     },
-                    IpgWidget::Circle(cir) => {
+                    CanvasWidget::Circle(cir) => {
                         // skip if being editied or rotated
                         if cir.status== IpgDrawStatus::Inprogress {
                             (None, None, None, 0, None)
@@ -703,7 +707,7 @@ impl DrawCurve {
                             (Some(path), Some(cir.color), Some(cir.width), cir.stroke_dash_offset, cir.stroke_dash_segments.clone())
                         }
                     },
-                    IpgWidget::Ellipse(ell) => {
+                    CanvasWidget::Ellipse(ell) => {
                         // skip if being editied or rotated
                         if ell.status == IpgDrawStatus::Inprogress {
                             (None, None, None, 0, None)
@@ -722,7 +726,7 @@ impl DrawCurve {
                             (Some(path), Some(ell.color), Some(ell.width), 0, None)
                         }
                     },
-                    IpgWidget::Line(line) => {
+                    CanvasWidget::Line(line) => {
                         // skip if being editied or rotated
                         if line.status == IpgDrawStatus::Inprogress {
                             (None, None, None, 0, None)
@@ -740,7 +744,7 @@ impl DrawCurve {
                             (Some(path), Some(line.color), Some(line.width), 0, None)
                         }
                     },
-                    IpgWidget::PolyLine(pl) => {
+                    CanvasWidget::PolyLine(pl) => {
                         // skip if being editied or rotated
                         if pl.status == IpgDrawStatus::Inprogress {
                             (None, None, None, 0, None)
@@ -758,7 +762,7 @@ impl DrawCurve {
                             (Some(path), Some(pl.color), Some(pl.width), 0, None)
                         }
                     },
-                    IpgWidget::Polygon(pg) => {
+                    CanvasWidget::Polygon(pg) => {
                         // skip if being editied or rotated
                         if pg.status == IpgDrawStatus::Inprogress {
                             (None, None, None, 0, None)
@@ -778,7 +782,7 @@ impl DrawCurve {
                             (Some(path), Some(pg.color), Some(pg.width), 0, None)
                         }
                     },
-                    IpgWidget::Rectangle(rect) => {
+                    CanvasWidget::Rectangle(rect) => {
                         let path =  Path::new(|p| {
                             p.rectangle(rect.top_left, rect.size)});
                             if rect.fill_color.is_some() {
@@ -786,7 +790,7 @@ impl DrawCurve {
                             }    
                             (Some(path), Some(rect.color), Some(rect.width), 0, None)
                     },
-                    IpgWidget::RightTriangle(tr) => {
+                    CanvasWidget::RightTriangle(tr) => {
                         // skip if being editied or rotated
                         if tr.status == IpgDrawStatus::Inprogress {
                             (None, None, None, 0, None)
@@ -807,7 +811,7 @@ impl DrawCurve {
                             (Some(path), Some(tr.color), Some(tr.width), 0, None)
                         }
                     },
-                    IpgWidget::FreeHand(fh) => {
+                    CanvasWidget::FreeHand(fh) => {
                         // skip if being editied or rotated
                         if fh.status == IpgDrawStatus::Inprogress {
                             (None, None, None, 0, None)
@@ -852,10 +856,10 @@ impl DrawCurve {
 
     }
 
-    fn draw_text(text_curve: &IpgWidget, mut blink: bool, frame: &mut Frame, _theme: &Theme) {
+    fn draw_text(text_curve: &CanvasWidget, mut blink: bool, frame: &mut Frame, _theme: &Theme) {
         let (path, color, width) = 
             match &text_curve {
-                IpgWidget::Text(txt) => {
+                CanvasWidget::Text(txt) => {
                     // During edit or rotate, pending draws the text,
                     // so skip drawing here.  If completed, always draw here.
                     if txt.draw_mode == IpgDrawMode::Display || 
@@ -890,8 +894,8 @@ impl DrawCurve {
         
     }
 
-    fn draw_image(image_curve: &IpgWidget, frame: &mut Frame, _theme: &Theme) {
-        if let IpgWidget::Image(img) = &image_curve {
+    fn draw_image(image_curve: &CanvasWidget, frame: &mut Frame, _theme: &Theme) {
+        if let CanvasWidget::Image(img) = &image_curve {
              frame.translate(Vector::new(img.position.x, img.position.y));
              frame.rotate(to_radians(&img.rotation));
              frame.draw_image(
@@ -909,19 +913,19 @@ impl DrawCurve {
 #[derive(Debug, Clone)]
 enum Pending {
     New {
-        widget: IpgWidget, 
+        widget: CanvasWidget, 
     },
     EditSecond {
-        widget: IpgWidget, 
+        widget: CanvasWidget, 
         },
     EditThird {
-        widget: IpgWidget, 
+        widget: CanvasWidget, 
         edit_point_index: Option<usize>,
         edit_mid_point: bool,
         edit_other_point: bool,
         },
     Rotate {
-        widget: IpgWidget,
+        widget: CanvasWidget,
         step_degrees: f32,
         degrees: Option<f32>,
     },
@@ -952,7 +956,7 @@ impl Pending {
                         degrees_center,
                         ) = 
                     match widget {
-                        IpgWidget::Arc(arc) => {
+                        CanvasWidget::Arc(arc) => {
                             let (path, _, 
                                 _, 
                                 _, 
@@ -970,7 +974,7 @@ impl Pending {
                             }
                             (path, arc.color, arc.width, Some(arc.points[0]), degrees_left, degrees_center)
                         },
-                        IpgWidget::Bezier(bz) => {
+                        CanvasWidget::Bezier(bz) => {
                             let (path, degrees, _) = 
                                 build_bezier_path(
                                     bz, 
@@ -985,7 +989,7 @@ impl Pending {
                             }   
                             (path, bz.color, bz.width, Some(bz.points[0]), None, Some(degrees))
                         },
-                        IpgWidget::Circle(cir) => {
+                        CanvasWidget::Circle(cir) => {
                             let path = 
                                 build_circle_path(
                                     cir, 
@@ -999,7 +1003,7 @@ impl Pending {
                             }
                             (path, cir.color, cir.width, None, None, None)
                         },
-                        IpgWidget::Ellipse(ell) => {
+                        CanvasWidget::Ellipse(ell) => {
                             let path = 
                                 build_ellipse_path(
                                     ell, 
@@ -1013,7 +1017,7 @@ impl Pending {
                             }
                             (path, ell.color, ell.width, Some(ell.points[0]), None, None)
                         }
-                        IpgWidget::Line(line) => {
+                        CanvasWidget::Line(line) => {
                             let (path, degrees, _) = 
                                 build_line_path(
                                     line, 
@@ -1025,7 +1029,7 @@ impl Pending {
                                 );
                             (path, line.color, line.width, Some(line.points[0]), Some(degrees), None)
                         },
-                        IpgWidget::Polygon(pg) => {
+                        CanvasWidget::Polygon(pg) => {
                             let (path, degrees, mid_point) = 
                                 build_polygon_path(
                                     pg,
@@ -1041,7 +1045,7 @@ impl Pending {
                             (path, pg.color, pg.width, Some(mid_point), Some(degrees), None)
                         },
                         // return points as they are set
-                        IpgWidget::PolyLine(pl) => {
+                        CanvasWidget::PolyLine(pl) => {
                             let (path, degrees, mid_point) = 
                                 build_polyline_path(
                                     pl, 
@@ -1054,7 +1058,7 @@ impl Pending {
                                 );
                             (path, pl.color, pl.width, Some(mid_point), Some(degrees), None)
                         },
-                        IpgWidget::RightTriangle(r_tr) => {
+                        CanvasWidget::RightTriangle(r_tr) => {
                             let (path, degrees, mid_point, _) = 
                                 build_right_triangle_path(
                                     r_tr, 
@@ -1070,7 +1074,7 @@ impl Pending {
                             }
                             (path, r_tr.color, r_tr.width, Some(mid_point), Some(degrees), None)
                         },
-                        IpgWidget::FreeHand(fh) => {
+                        CanvasWidget::FreeHand(fh) => {
                             let path = 
                                 build_free_hand_path(
                                     fh, 
@@ -1126,7 +1130,7 @@ impl Pending {
                 } => {
                     let (path, color, width) = 
                         match widget {
-                            IpgWidget::Arc(arc) => {
+                            CanvasWidget::Arc(arc) => {
                                 let (path, _, _, _,_,_) = 
                                 build_arc_path(
                                     arc, 
@@ -1138,7 +1142,7 @@ impl Pending {
 
                                 (path, arc.color, arc.width)
                             },
-                            IpgWidget::Bezier(bz) => {
+                            CanvasWidget::Bezier(bz) => {
                                 let (path, _, _) = 
                                 build_bezier_path(
                                     bz, 
@@ -1151,7 +1155,7 @@ impl Pending {
                            
                                 (path, bz.color, bz.width)
                             },
-                            IpgWidget::Circle(cir) => {
+                            CanvasWidget::Circle(cir) => {
                                 let path = 
                                 build_circle_path(
                                     cir,
@@ -1162,7 +1166,7 @@ impl Pending {
                                 );
                                 (path, cir.color, cir.width)
                             },
-                            IpgWidget::Ellipse(ell) => {
+                            CanvasWidget::Ellipse(ell) => {
                                 let path = 
                                 build_ellipse_path(
                                     ell, 
@@ -1173,7 +1177,7 @@ impl Pending {
                                 );
                                 (path, ell.color, ell.width)
                             },
-                            IpgWidget::Line(line) => {
+                            CanvasWidget::Line(line) => {
                                 let (path, _, _) = 
                                 build_line_path(
                                     line, 
@@ -1186,7 +1190,7 @@ impl Pending {
                             
                                 (path, line.color, line.width)
                             },
-                            IpgWidget::Polygon(pg) => {
+                            CanvasWidget::Polygon(pg) => {
                                 let (path, _, _) = 
                                 build_polygon_path(
                                     pg, 
@@ -1198,7 +1202,7 @@ impl Pending {
                                 );
                                 (path, pg.color, pg.width)
                             },
-                            IpgWidget::PolyLine(pl) => {
+                            CanvasWidget::PolyLine(pl) => {
                                 let (path, _, _) = 
                                     build_polyline_path(
                                         pl, 
@@ -1211,7 +1215,7 @@ impl Pending {
                                     );
                                 (path, pl.color, pl.width)
                             },
-                            IpgWidget::RightTriangle(tr) => {
+                            CanvasWidget::RightTriangle(tr) => {
                                 let (path, _, _, _) = 
                                 build_right_triangle_path(
                                     tr, 
@@ -1224,7 +1228,7 @@ impl Pending {
                                 );
                                 (path, tr.color, tr.width)
                             },
-                            IpgWidget::FreeHand(fh) => {
+                            CanvasWidget::FreeHand(fh) => {
                                 let path = 
                                     build_free_hand_path(
                                         fh, 
@@ -1234,7 +1238,7 @@ impl Pending {
                                     );
                                 (path, fh.color, fh.width)
                             },
-                            IpgWidget::Text(txt) => {
+                            CanvasWidget::Text(txt) => {
 				                frame.translate(Vector::new(txt.position.x, txt.position.y));
                                 let (text, path) = build_text_path (
                                         txt,
@@ -1273,7 +1277,7 @@ impl Pending {
                         degrees_center,
                         ) = match widget {
 
-                        IpgWidget::Arc(arc) => {
+                        CanvasWidget::Arc(arc) => {
                             let (path, 
                                 mid_point, 
                                 _, 
@@ -1291,7 +1295,7 @@ impl Pending {
 
                             (path, arc.color, arc.width, mid_point, degrees_left, degrees_center)
                         },
-                        IpgWidget::Bezier(bz) => {
+                        CanvasWidget::Bezier(bz) => {
                             let (path, degrees, mid_point) = 
                                 build_bezier_path(
                                     bz, 
@@ -1304,7 +1308,7 @@ impl Pending {
                            
                             (path, bz.color, bz.width, mid_point, None, Some(degrees))
                         },
-                        IpgWidget::Circle(cir) => {
+                        CanvasWidget::Circle(cir) => {
                             let path = 
                                 build_circle_path(
                                     cir,
@@ -1315,7 +1319,7 @@ impl Pending {
                                 );
                             (path, cir.color, cir.width, cir.center, None, None)
                         },
-                        IpgWidget::Ellipse(ell) => {
+                        CanvasWidget::Ellipse(ell) => {
                             let path = 
                                 build_ellipse_path(
                                     ell, 
@@ -1326,7 +1330,7 @@ impl Pending {
                                 );
                             (path, ell.color, ell.width, ell.center, None, None)
                         },
-                        IpgWidget::Line(line) => {
+                        CanvasWidget::Line(line) => {
                             let (path, degrees, mid_point) = 
                                 build_line_path(
                                     line, 
@@ -1339,7 +1343,7 @@ impl Pending {
                             
                             (path, line.color, line.width, mid_point, None, Some(degrees))
                         },
-                        IpgWidget::Polygon(pg) => {
+                        CanvasWidget::Polygon(pg) => {
                             let (path, degrees, mid_point) = 
                                 build_polygon_path(
                                     pg, 
@@ -1351,7 +1355,7 @@ impl Pending {
                                 );
                             (path, pg.color, pg.width, mid_point, None, Some(degrees))
                         },
-                        IpgWidget::PolyLine(pl) => {
+                        CanvasWidget::PolyLine(pl) => {
                             let (path, degrees, mid_point) = 
                                 build_polyline_path(
                                     pl, 
@@ -1364,7 +1368,7 @@ impl Pending {
                                 );
                             (path, pl.color, pl.width, mid_point, None, Some(degrees))
                         },
-                        IpgWidget::RightTriangle(tr) => {
+                        CanvasWidget::RightTriangle(tr) => {
                             let (path, degrees, mid_point, _) = 
                                 build_right_triangle_path(
                                     tr, 
@@ -1377,7 +1381,7 @@ impl Pending {
                                 );
                             (path, tr.color, tr.width, mid_point, None, Some(degrees))
                         },
-                        IpgWidget::FreeHand(fh) => {
+                        CanvasWidget::FreeHand(fh) => {
                             let path= 
                                 build_free_hand_path(
                                     fh, 
@@ -1387,7 +1391,7 @@ impl Pending {
                                 );
                             (path, fh.color, fh.width, Point::default(), None, None)
                         },
-                        IpgWidget::Text(txt) => {
+                        CanvasWidget::Text(txt) => {
                             frame.translate(Vector::new(cursor.x, cursor.y));
                             let (text, path) = build_text_path (
                                         txt,
@@ -1452,7 +1456,7 @@ impl Pending {
                         degrees_left,
                         degrees_center,
                     ) = match widget {
-                        IpgWidget::Arc(arc) => {
+                        CanvasWidget::Arc(arc) => {
                             let (path, 
                                 _, 
                                 _, 
@@ -1469,7 +1473,7 @@ impl Pending {
 
                             (path, arc.color, arc.width, arc.mid_point, degrees_left, degrees_center)
                         },
-                        IpgWidget::Bezier(bz) => {
+                        CanvasWidget::Bezier(bz) => {
                             let (path, pending_degrees, _) = 
                                 build_bezier_path(
                                     bz, 
@@ -1481,7 +1485,7 @@ impl Pending {
                                 );
                             (path, bz.color, bz.width, bz.mid_point, None, Some(pending_degrees))
                         },
-                        IpgWidget::Circle(cir) => {
+                        CanvasWidget::Circle(cir) => {
                         let path = 
                             build_circle_path(
                                 cir,
@@ -1492,7 +1496,7 @@ impl Pending {
                             );
                             (path, cir.color, cir.width, cir.center, None, None)
                         },
-                        IpgWidget::Ellipse(ell) => {
+                        CanvasWidget::Ellipse(ell) => {
                             let path = 
                                 build_ellipse_path(
                                     ell, 
@@ -1503,7 +1507,7 @@ impl Pending {
                                 );
                                 (path, ell.color, ell.width, ell.center, None, Some(to_degrees(&ell.rotation.0)))
                             },
-                        IpgWidget::Line(line) => {
+                        CanvasWidget::Line(line) => {
                             let (path, pending_degrees, _) = 
                                 build_line_path(
                                     line, 
@@ -1515,7 +1519,7 @@ impl Pending {
                                 );
                             (path, line.color, line.width, line.mid_point, None, Some(pending_degrees))
                         },
-                        IpgWidget::Polygon(pg) => {
+                        CanvasWidget::Polygon(pg) => {
                             let (path, pending_degrees, _) = 
                                 build_polygon_path(
                                     pg, 
@@ -1527,7 +1531,7 @@ impl Pending {
                                 );
                             (path, pg.color, pg.width, pg.mid_point, None, Some(pending_degrees))
                         },
-                        IpgWidget::PolyLine(pl) => {
+                        CanvasWidget::PolyLine(pl) => {
                             let (path, pending_degrees, _) = 
                                 build_polyline_path(
                                     pl, 
@@ -1540,7 +1544,7 @@ impl Pending {
                                 );
                             (path, pl.color, pl.width, pl.mid_point, None, Some(pending_degrees))
                         },
-                        IpgWidget::RightTriangle(tr) => {
+                        CanvasWidget::RightTriangle(tr) => {
                             let (path, pending_degrees, _, _) = 
                                 build_right_triangle_path(
                                     tr, 
@@ -1553,7 +1557,7 @@ impl Pending {
                                 );
                             (path, tr.color, tr.width, tr.mid_point, None, Some(pending_degrees))
                         },
-                        IpgWidget::FreeHand(fh) => {
+                        CanvasWidget::FreeHand(fh) => {
                             let path = 
                                 build_free_hand_path(
                                     fh, 
@@ -1563,7 +1567,7 @@ impl Pending {
                                 );
                             (path, fh.color, fh.width, Point::default(), None, None)
                         },
-                        IpgWidget::Text(txt) => {
+                        CanvasWidget::Text(txt) => {
                             frame.translate(Vector::new(txt.position.x, txt.position.y));
                             let (text, path) = 
                                 build_text_path (

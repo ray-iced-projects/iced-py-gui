@@ -3,8 +3,8 @@
 #![allow(clippy::enum_variant_names)]
 use std::collections::HashMap;
 
-use crate::{access_events, access_user_data1, access_window_actions, IpgState};
-
+use crate::{access_events, access_user_data1, IpgState};
+use ipg_windows::actions::access_window_actions;
 use iced::event::Event;
 use iced::keyboard::Event::{KeyPressed, KeyReleased, ModifiersChanged};
 use iced::keyboard::{Key, Location, Modifiers};

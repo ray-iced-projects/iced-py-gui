@@ -1,13 +1,4 @@
 //! ipg_text_input
-#![allow(clippy::enum_variant_names)]
-use crate::graphics::colors::get_color;
-use crate::{access_callbacks, access_user_data1, access_user_data2, app, IpgState};
-use super::callbacks::{set_or_get_widget_callback_data, WidgetCallbackIn};
-use super::helpers::{get_padding_f64, get_radius, get_width, try_extract_ipg_color, try_extract_rgba_color, try_extract_vec_f32};
-use super::helpers::{try_extract_boolean, try_extract_f64, 
-    try_extract_string, try_extract_u16, try_extract_vec_f64};
-use super::ipg_enums::IpgWidgets;
-
 use iced::widget::text::LineHeight;
 use iced::widget::text_input;
 use iced::widget::text_input::{Style, Status};
@@ -16,10 +7,14 @@ use iced::widget::TextInput;
 
 use pyo3::pyclass;
 use pyo3::{Py, PyAny, Python};
-
-// Type alias to replace deprecated PyObject
 type PyObject = Py<PyAny>;
 
+use ipg_helpers::{get_padding_f64, get_radius, get_width, try_extract_vec_f32, 
+    try_extract_boolean, try_extract_f64, try_extract_string, try_extract_u16, 
+    try_extract_vec_f64};
+use ipg_styling::{colors::get_color, try_extract_ipg_color, try_extract_rgba_color};
+use ipg_types::{Message, TIMessage};
+use super::ipg_enums::IpgWidgets;
 
 #[derive(Debug, Clone)]
 pub struct IpgTextInput {
@@ -116,17 +111,9 @@ impl IpgTextInputStyle {
     }
 }
 
-
-#[derive(Debug, Clone)]
-pub enum TIMessage {
-    OnInput(String),
-    OnSubmit(String),
-    OnPaste(String),
-}
-
 pub fn construct_text_input<'a>(input: &'a IpgTextInput, 
                             style_opt: Option<&IpgWidgets>) 
-                            -> Option<Element<'a, app::Message>> {
+                            -> Option<Element<'a, Message>> {
     
     if !input.show {
         return None
@@ -158,84 +145,7 @@ pub fn construct_text_input<'a>(input: &'a IpgTextInput,
                                                 ))
                                             .into();
 
-    Some(txt.map(move |message| app::Message::TextInput(input.id, message)))
-
-}
-
-pub fn text_input_callback(state: &mut IpgState, id: usize, message: TIMessage) {
-    // During the input, the widget is assigned the value so that it shows
-    // during typing.  On submit, the text box is cleared, so no value.
-    // However, in both cases the value is passed to the callback.
-    let mut wci: WidgetCallbackIn = WidgetCallbackIn{id, ..Default::default()};
-           
-    match message {
-        TIMessage::OnInput(value) => {
-            wci.value_str = Some(value.clone());
-            let wco = set_or_get_widget_callback_data(state, wci);
-            process_callback(id, "on_input".to_string(), wco.value_str.unwrap());
-        },
-        TIMessage::OnSubmit(value) => {
-            wci.value_str = Some(value.clone());
-            let wco = set_or_get_widget_callback_data(state, wci);
-            process_callback(id, "on_submit".to_string(), wco.value_str.unwrap());
-        }
-        TIMessage::OnPaste(value) => {
-            wci.value_str = Some(value.clone());
-            let _ = set_or_get_widget_callback_data(state, wci);
-
-            process_callback(id, "on_paste".to_string(), value);
-        }
-            
-    }
-}
-
-pub fn process_callback(
-        id: usize, 
-        event_name: String, 
-        value: String) 
-{
-    let ud1 = access_user_data1();
-    let app_cbs = access_callbacks();
-
-    // Retrieve the callback
-    let callback = match app_cbs.callbacks.get(&(id, event_name)) {
-        Some(cb) => Python::attach(|py| cb.clone_ref(py)),
-        None => return,
-    };
-
-    drop(app_cbs);
-
-    // Check user data from ud1
-    if let Some(user_data) = ud1.user_data.get(&id) {
-        Python::attach(|py| {
-            if let Err(err) = callback.call1(py, (id, value, user_data)) {
-                panic!("TextInput callback error: {err}");
-            }
-        });
-        drop(ud1); // Drop ud1 before processing ud2
-        return;
-    }
-    drop(ud1); // Drop ud1 if no user data is found
-
-    // Check user data from ud2
-    let ud2 = access_user_data2();
-    if let Some(user_data) = ud2.user_data.get(&id) {
-        Python::attach(|py| {
-            if let Err(err) = callback.call1(py, (id, value, user_data)) {
-                panic!("TextInput callback error: {err}");
-            }
-        });
-        drop(ud2); // Drop ud2 after processing
-        return;
-    }
-    drop(ud2); // Drop ud2 if no user data is found
-
-    // If no user data is found in both ud1 and ud2, call the callback with the id and value
-    Python::attach(|py| {
-        if let Err(err) = callback.call1(py, (id, value)) {
-            panic!("TextInput callback error: {err}");
-        }
-    });
+    Some(txt.map(move |message| Message::TextInput(input.id, message)))
 
 }
 

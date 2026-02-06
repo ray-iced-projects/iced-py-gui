@@ -2,18 +2,17 @@
 use iced::mouse::Interaction;
 use iced::{Color, Element, Length};
 use iced::widget::{horizontal_space, mouse_area, opaque, Container};
-use pyo3::{pyclass, Py, PyAny, Python};
 
-// Type alias to replace deprecated PyObject
+use ipg_styling::colors::get_color;
+use pyo3::{pyclass, Py, PyAny, Python};
 type PyObject = Py<PyAny>;
 
-use crate::graphics::colors::get_color;
-use crate::{access_callbacks, access_user_data1, IpgState};
-use crate::app::Message;
-
-use super::helpers::{get_horizontal_alignment, get_vertical_alignment, try_extract_boolean, try_extract_ipg_color, try_extract_rgba_color};
+use ipg_alignment::{get_horizontal_alignment, get_vertical_alignment, IpgHorizontalAlignment, IpgVerticalAlignment};
+use ipg_helpers::try_extract_boolean;
+use ipg_types::Message;
+use ipg_styling::{try_extract_ipg_color, try_extract_rgba_color};
 use super::ipg_container::{self, get_cont_style};
-use super::ipg_enums::{IpgHorizontalAlignment, IpgVerticalAlignment, IpgWidgets};
+use super::ipg_enums::IpgWidgets;
 
 
 #[derive(Debug, Clone)]
@@ -134,63 +133,6 @@ pub fn try_extract_stack_update(update_obj: &PyObject) -> IpgOpaqueParam {
             Err(_) => panic!("Opaque update extraction failed"),
         }
     })
-}
-
-pub fn opaque_callback(_state: &mut IpgState, id: usize, event_name: String) {
-    
-    process_callback(id, event_name);
-}
-
-
-fn process_callback(id: usize, event_name: String) 
-{
-    let ud = access_user_data1();
-    let user_data_opt = ud.user_data.get(&id);
-
-    let app_cbs = access_callbacks();
-
-    let callback_present = 
-        app_cbs.callbacks.get(&(id, event_name));
-    
-    let callback = match callback_present {
-        Some(cb) => cb,
-        None => return,
-    };
-
-    let cb = 
-        Python::attach(|py| {
-            callback.clone_ref(py)
-        });
-
-    drop(app_cbs);
-              
-    Python::attach(|py| {
-        if user_data_opt.is_some() {
-            let res = cb.call1(py, (
-                                                        id,
-                                                        user_data_opt.unwrap()  
-                                                        ));
-            match res {
-                Ok(_) => (),
-                Err(er) => panic!("Opaque: Only 2 parameter (id, user_data) 
-                                    is required or a python error in this function. {er}"),
-            }
-        } else {
-            let res = cb.call1(py, (
-                                                        id,  
-                                                        ));
-            match res {
-                Ok(_) => (),
-                Err(er) => panic!("Opaque: Only 1 parameter (id) 
-                                    is required or a python error in this function. {er}"),
-            }
-        }
-        
-        
-    });
-    
-    drop(ud);   
-
 }
 
 #[derive(Debug, Clone, PartialEq)]

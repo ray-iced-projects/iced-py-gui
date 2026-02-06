@@ -1,15 +1,23 @@
 //! ipg_button
 
-use super::ipg_enums::IpgWidgets;
-
 use iced::widget::button::{self, Status, Style};
-use pyo3::{pyclass, Py, PyAny, Python};
-
-// Type alias to replace deprecated PyObject
-type PyObject = Py<PyAny>;
-
 use iced::widget::{text, Button, Text};
 use iced::{alignment, Border, Color, Element, Length, Padding, Shadow, Theme, Vector };
+use pyo3::{pyclass, Py, PyAny, Python};
+
+use ipg_alignment::{get_horizontal_alignment, get_vertical_alignment,
+    try_extract_ipg_horizontal_alignment, try_extract_ipg_vertical_alignment};
+use crate::ipg_enums::IpgWidgets;
+use ipg_fonts::bootstrap::{self, icon_to_char, icon_to_string};
+use ipg_helpers::{get_height, get_padding_f64, get_radius, get_width, 
+    try_extract_boolean,try_extract_f32, try_extract_f64, try_extract_string, 
+    try_extract_vec_f32, try_extract_vec_f64};
+use ipg_styling::{IpgStyleStandard, try_extract_ipg_color, try_extract_rgba_color,
+    try_extract_style_standard, colors::get_color};
+use ipg_types::{BTNMessage, Message};
+
+type PyObject = Py<PyAny>;
+
 
 #[derive(Debug, Clone)]
 pub struct IpgButton {
@@ -112,15 +120,10 @@ impl IpgButtonStyle {
     }
 }
 
-#[derive(Debug, Clone)]
-pub enum BTNMessage {
-    OnPress,
-}
-
 
 pub fn construct_button<'a>(btn: &'a IpgButton, 
                         style_opt: Option<&IpgWidgets>) 
-                        -> Option<Element<'a, app::Message>> {
+                        -> Option<Element<'a, Message>> {
 
     if !btn.show {
         return None
@@ -152,19 +155,11 @@ pub fn construct_button<'a>(btn: &'a IpgButton,
                                     })
                                 .into();
 
-    Some(ipg_btn.map(move |message| app::Message::Button(btn.id, message)))
+    Some(ipg_btn.map(move |message| Message::Button(btn.id, message)))
     
 }
 
 
-pub fn button_callback(id: usize, message: BTNMessage) {
-
-    match message {
-        BTNMessage::OnPress => {
-            process_button_callback(id, "on_press".to_string());
-        }
-    }
-}
 
 
 #[derive(Debug, Clone, PartialEq)]

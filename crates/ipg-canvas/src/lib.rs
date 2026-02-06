@@ -6,25 +6,21 @@ use std::path::Path;
 
 use iced::widget::container;
 use iced::{Color, Element, Point, Radians};
-use pyo3::{pyclass, Py, PyAny, Python};
 
-// Type alias to replace deprecated PyObject
+
+use pyo3::{pyclass, Py, PyAny, Python};
 type PyObject = Py<PyAny>;
 
-use crate::app_message::Message;
-use crate::canvas::draw_canvas::{IpgCanvasState, IpgDrawMode, 
-    IpgDrawStatus, IpgWidget};
-use crate::canvas::geometries::{
-    get_draw_mode_and_status, get_widget_id,
-    set_widget_mode_or_status_or_id, IpgCanvasWidget
-};
-use crate::canvas::import_export::{convert_to_export, import_widgets, save};
-use crate::IpgState;
+mod canvas_items;
+use crate::canvas_items::draw_canvas::{IpgCanvasState, IpgDrawMode, IpgDrawStatus, CanvasWidget};
+use crate::canvas_items::geometries::{IpgCanvasWidget, get_draw_mode_and_status, get_widget_id};
+use crate::canvas_items::geometries::set_widget_mode_or_status_or_id;
+use crate::canvas_items::import_export::{convert_to_export, import_widgets, save};
 
-use super::helpers::{
-    get_horizontal_alignment, get_vertical_alignment, try_extract_f64, try_extract_ipg_horizontal_alignment,
-    try_extract_ipg_vertical_alignment, try_extract_point, try_extract_rgba_color, try_extract_string,
-};
+use ipg_alignment::{get_horizontal_alignment, get_vertical_alignment, try_extract_ipg_horizontal_alignment, try_extract_ipg_vertical_alignment};
+use ipg_helpers::{try_extract_f64, try_extract_point, try_extract_string};
+use ipg_styling::try_extract_rgba_color;
+use ipg_types::{Message};
 
 #[derive(Debug, Clone)]
 pub struct IpgCanvas {
@@ -51,11 +47,6 @@ pub fn construct_canvas(canvas_state: &IpgCanvasState) -> Element<'_, Message> {
     draw.map(move |message| Message::Canvas(message))
 }
 
-#[derive(Debug, Clone)]
-pub enum CanvasMessage {
-    WidgetDraw(IpgWidget),
-}
-
 pub fn canvas_callback(canvas_message: CanvasMessage, app_state: &mut IpgState, canvas_state: &mut IpgCanvasState) {
     match canvas_message {
         CanvasMessage::WidgetDraw(mut widget) => {
@@ -64,7 +55,7 @@ pub fn canvas_callback(canvas_message: CanvasMessage, app_state: &mut IpgState, 
             // Therefore, the pending has to return the curve also at each change so that
             // the curves can be updated.  The subscription clears the text cache at each tick.
             match widget {
-                IpgWidget::Text(_) => {
+                CanvasWidget::Text(_) => {
                     let (draw_mode, draw_status) = get_draw_mode_and_status(&widget);
                     let id = get_widget_id(&widget);
                     match draw_status {
@@ -114,10 +105,13 @@ pub fn canvas_callback(canvas_message: CanvasMessage, app_state: &mut IpgState, 
                     if draw_mode == IpgDrawMode::New {
                         app_state.last_id += 1;
                         let id = app_state.last_id;
-                        let widget = set_widget_mode_or_status_or_id(widget.clone(), 
-                                                                                Some(IpgDrawMode::Display), 
-                                                                                Some(IpgDrawStatus::Completed), 
-                                                                                Some(id));
+                        let widget = 
+                            set_widget_mode_or_status_or_id(
+                                widget.clone(), 
+                                Some(IpgDrawMode::Display), 
+                                Some(IpgDrawStatus::Completed), 
+                                Some(id)
+                            );
                         canvas_state.curves.insert(id, widget);
                     } else {
                         // if not new must be in edit or rotate mode so modify.
@@ -280,12 +274,12 @@ pub enum IpgCanvasGeometryParam {
     Rotation,
 }
 
-pub fn match_canvas_widget(widget: &mut IpgWidget, item: &PyObject, value: &PyObject) {
+pub fn match_canvas_widget(widget: &mut CanvasWidget, item: &PyObject, value: &PyObject) {
     let update_item = try_extract_geometry_update(item);
     let name = "CanvasGeometry".to_string();
     match widget {
-        IpgWidget::None => (),
-        IpgWidget::Arc(arc) => match update_item {
+        CanvasWidget::None => (),
+        CanvasWidget::Arc(arc) => match update_item {
             IpgCanvasGeometryParam::Position => {
                 let val = try_extract_point(value, name);
                 arc.mid_point = Point::from(val);
@@ -294,7 +288,7 @@ pub fn match_canvas_widget(widget: &mut IpgWidget, item: &PyObject, value: &PyOb
                 panic!("Arc has no rotation property")
             }
         },
-        IpgWidget::Bezier(bz) => match update_item {
+        CanvasWidget::Bezier(bz) => match update_item {
             IpgCanvasGeometryParam::Position => {
                 let val = try_extract_point(value, name);
                 bz.mid_point = Point::from(val);
@@ -304,7 +298,7 @@ pub fn match_canvas_widget(widget: &mut IpgWidget, item: &PyObject, value: &PyOb
                 bz.rotation = val;
             }
         },
-        IpgWidget::Circle(cir) => match update_item {
+        CanvasWidget::Circle(cir) => match update_item {
             IpgCanvasGeometryParam::Position => {
                 let val = try_extract_point(value, name);
                 cir.center = Point::from(val);
@@ -313,7 +307,7 @@ pub fn match_canvas_widget(widget: &mut IpgWidget, item: &PyObject, value: &PyOb
                 panic!("Circle update has no rotation property")
             }
         },
-        IpgWidget::Ellipse(ell) => match update_item {
+        CanvasWidget::Ellipse(ell) => match update_item {
             IpgCanvasGeometryParam::Position => {
                 let val = try_extract_point(value, name);
                 ell.center = Point::from(val);
@@ -323,7 +317,7 @@ pub fn match_canvas_widget(widget: &mut IpgWidget, item: &PyObject, value: &PyOb
                 ell.rotation = Radians(val);
             }
         },
-        IpgWidget::Image(img) => match update_item {
+        CanvasWidget::Image(img) => match update_item {
             IpgCanvasGeometryParam::Position => {
                 let val = try_extract_point(value, name);
                 img.position = Point::from(val);
@@ -333,7 +327,7 @@ pub fn match_canvas_widget(widget: &mut IpgWidget, item: &PyObject, value: &PyOb
                 img.rotation = val;
             }
         },
-        IpgWidget::Line(line) => match update_item {
+        CanvasWidget::Line(line) => match update_item {
             IpgCanvasGeometryParam::Position => {
                 let val = try_extract_point(value, name);
                 line.mid_point = Point::from(val);
@@ -343,7 +337,7 @@ pub fn match_canvas_widget(widget: &mut IpgWidget, item: &PyObject, value: &PyOb
                 line.rotation = val;
             }
         },
-        IpgWidget::PolyLine(pl) => match update_item {
+        CanvasWidget::PolyLine(pl) => match update_item {
             IpgCanvasGeometryParam::Position => {
                 let val = try_extract_point(value, name);
                 pl.mid_point = Point::from(val);
@@ -353,7 +347,7 @@ pub fn match_canvas_widget(widget: &mut IpgWidget, item: &PyObject, value: &PyOb
                 pl.rotation = val;
             }
         },
-        IpgWidget::Polygon(pg) => match update_item {
+        CanvasWidget::Polygon(pg) => match update_item {
             IpgCanvasGeometryParam::Position => {
                 let val = try_extract_point(value, name);
                 pg.mid_point = Point::from(val);
@@ -363,7 +357,7 @@ pub fn match_canvas_widget(widget: &mut IpgWidget, item: &PyObject, value: &PyOb
                 pg.rotation = val;
             }
         },
-        IpgWidget::Rectangle(rect) => match update_item {
+        CanvasWidget::Rectangle(rect) => match update_item {
             IpgCanvasGeometryParam::Position => {
                 let val = try_extract_point(value, name);
                 rect.mid_point = Point::from(val);
@@ -372,7 +366,7 @@ pub fn match_canvas_widget(widget: &mut IpgWidget, item: &PyObject, value: &PyOb
                 panic!("Rectangle has no rotation property use polygon with 4 sides")
             }
         },
-        IpgWidget::RightTriangle(tr) => match update_item {
+        CanvasWidget::RightTriangle(tr) => match update_item {
             IpgCanvasGeometryParam::Position => {
                 let val = try_extract_point(value, name);
                 tr.mid_point = Point::from(val);
@@ -382,7 +376,7 @@ pub fn match_canvas_widget(widget: &mut IpgWidget, item: &PyObject, value: &PyOb
                 tr.rotation = val;
             }
         },
-        IpgWidget::Text(txt) => match update_item {
+        CanvasWidget::Text(txt) => match update_item {
             IpgCanvasGeometryParam::Position => {
                 let val = try_extract_point(value, name);
                 txt.position = Point::from(val);
@@ -392,7 +386,7 @@ pub fn match_canvas_widget(widget: &mut IpgWidget, item: &PyObject, value: &PyOb
                 txt.rotation = val;
             }
         },
-        IpgWidget::FreeHand(fh) => match update_item {
+        CanvasWidget::FreeHand(fh) => match update_item {
             IpgCanvasGeometryParam::Position => {
                 let val = try_extract_point(value, name);
                 fh.points[0] = Point::from(val);

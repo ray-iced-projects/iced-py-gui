@@ -1,11 +1,14 @@
 [workspace]
 members = [
-    "crates/ipg-core",
+    "crates/iced-aw-widgets",
+    "crates/ipg-alignment",
     "crates/ipg-canvas",
     "crates/ipg-helpers",
     "crates/ipg-styling",
     "crates/ipg-table",
+    "crates/ipg-types",
     "crates/ipg-widgets",
+    "crates/ipg-window",
     "ipg-fonts",
 ]
 resolver = "2"
@@ -41,13 +44,16 @@ regex = "1.11.1"
 resvg = "0.45.1"
 
 # Internal crates
-ipg-core = { path = "crates/ipg-core" }
+iced-aw-widgets = { path = "crates/iced-aw-widgets" }
+ipg-alignment = { path = "crates/ipg-alignment" }
 ipg-canvas = { path = "crates/ipg-canvas" }
 ipg-fonts = { path = "ipg-fonts" }
 ipg-helpers = { path = "crates/ipg-helpers" }
 ipg-styling = { path = "crates/ipg-styling" }
 ipg-table = { path = "crates/ipg-table" }
+ipg-types = { path = "crates/ipg-types" }
 ipg-widgets = { path = "crates/ipg-widgets" }
+ipg-window = { path = "crates/ipg-window" }
 
 [package]
 authors = ["Charles Ray <ray-iced-projects@gmail.com>"]
@@ -64,13 +70,15 @@ crate-type = ["cdylib"]
 
 [dependencies]
 # Internal crates
-ipg-core = { workspace = true }
+iced-aw-widgets = { workspace = true }
+ipg-alignment = { workspace = true }
 ipg-canvas = { workspace = true, optional = true }
 ipg-helpers = { workspace = true }
 ipg-styling = { workspace = true }
 ipg-table = { workspace = true, optional = true }
+ipg-types = { workspace = true }
 ipg-widgets = { workspace = true }
-
+ipg-window ={ workspace = true }
 
 
 # External dependencies

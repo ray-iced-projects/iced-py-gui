@@ -2,19 +2,17 @@
 use iced::{Color, Element, Font, Length};
 use iced::widget::text::{LineHeight, Shaping, Style};
 use iced::widget::Text;
-use crate::app::Message;
-use crate::graphics::colors::get_color;
 
 use pyo3::{pyclass, Py, PyAny, Python};
-
-// Type alias to replace deprecated PyObject
 type PyObject = Py<PyAny>;
 
-use super::helpers::{get_height, get_horizontal_alignment, 
-    get_vertical_alignment, get_width, try_extract_boolean, 
-    try_extract_f64, try_extract_ipg_color, try_extract_string, 
-    try_extract_vec_f32};
-use super::ipg_enums::{IpgHorizontalAlignment, IpgVerticalAlignment};
+use ipg_alignment::{IpgHorizontalAlignment, IpgVerticalAlignment, 
+    get_horizontal_alignment, get_vertical_alignment};
+use ipg_helpers::{get_height, get_width, try_extract_boolean, 
+    try_extract_f64, try_extract_string, try_extract_vec_f32};
+use ipg_styling::{colors::get_color, try_extract_ipg_color};
+use ipg_types::Message;
+
 
 #[derive(Debug, Clone)]
 pub struct IpgText {

@@ -6,8 +6,8 @@ license = "GNU"
 description = "Table implementation for IcedPyGui"
 
 [dependencies]
-# Internal depencies
-ipg-core ={ workspace = true }
+# Internal dependencies
+ipg-types = { workspace = true }
 
 # External dependencies
 iced = { workspace = true }

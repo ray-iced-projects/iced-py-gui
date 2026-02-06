@@ -9,18 +9,10 @@ use iced::{event, Padding, Renderer, Theme};
 use iced::mouse;
 use iced::widget::{center, container, mouse_area, opaque, Button, Column};
 use iced::{Color, Element, Event, Length, Point, Rectangle, Size, Vector};
-use pyo3::{Py, PyAny, Python};
 
-// Type alias to replace deprecated PyObject
-type PyObject = Py<PyAny>;
+use ipg_alignment::{IpgAlignment, get_alignment};
+use ipg_types::{Message, ModalMessage};
 
-use crate::{access_callbacks, IpgState};
-use crate::app::{self, Message};
-
-use super::callbacks::{set_or_get_widget_callback_data, 
-    WidgetCallbackIn, WidgetCallbackOut};
-use super::helpers::get_alignment;
-use super::ipg_enums::IpgAlignment;
 
 
 #[derive(Debug)]
@@ -65,13 +57,6 @@ impl IpgModal {
     }
 }
 
-
-#[derive(Debug, Clone)]
-pub enum ModalMessage {
-    OnOpen,
-}
-
-
 pub fn construct_modal<'a>(mdl: &'a IpgModal, 
                             content: Vec<Element<'a, Message>> ) 
                             -> Element<'a, Message, Theme, Renderer> {
@@ -83,7 +68,7 @@ pub fn construct_modal<'a>(mdl: &'a IpgModal,
 
 
     let btn: Element<Message, Theme, Renderer> = button.map(move |message| 
-                                                    app::Message::Modal(mdl.id, message));
+                                                    Message::Modal(mdl.id, message));
                                                                              
     if mdl.show {
         let align_items = get_alignment(mdl.align_items.clone());
@@ -125,70 +110,6 @@ pub fn construct_modal<'a>(mdl: &'a IpgModal,
     }            
 
 }
-
-
-pub fn modal_callback(state: &mut IpgState, 
-                        id: usize, 
-                        message: ModalMessage) {
-
-    let wci = WidgetCallbackIn{id, ..Default::default()};
-
-    match message {
-        ModalMessage::OnOpen => {
-            let mut wco = set_or_get_widget_callback_data(state, wci);
-            wco.id = id;
-            wco.event_name = "on_open".to_string();
-            process_callback(wco);
-        }
-    }
-}
-
-pub fn process_callback(wco: WidgetCallbackOut) 
-{
-    let app_cbs = access_callbacks();
-
-    let callback_present = 
-        app_cbs.callbacks.get(&(wco.id, wco.event_name.clone()));
-
-    let callback_opt = match callback_present {
-        Some(cb) => cb,
-        None => return,
-    };
-
-    let callback = match callback_opt {
-        Some(cb) => cb,
-        None => panic!("Modal callback could not be found with id {}", wco.id),
-    };
-
-    Python::attach(|py| {
-            if wco.user_data.is_some() {
-                let user_data = match wco.user_data {
-                    Some(ud) => ud,
-                    None => panic!("User Data could not be found in Modal callback"),
-                };
-                let res = callback.call1(py, (
-                                                                    wco.id,  
-                                                                    user_data
-                                                                    ));
-                match res {
-                    Ok(_) => (),
-                    Err(er) => panic!("Modal: 2 parameters (id, user_data) are required or a python error in this function. {er}"),
-                }
-            } else {
-                let res = callback.call1(py, (
-                                                                    wco.id,  
-                                                                    ));
-                match res {
-                    Ok(_) => (),
-                    Err(er) => panic!("Modal: 1 parameter (id) is required or possibly a python error in this function. {er}"),
-                }
-            } 
-    });
-    
-    drop(app_cbs);
-         
-}
-
 
 /// A widget that centers a modal element over some base element
 pub struct Modal<'a, Message, Theme, Renderer> {

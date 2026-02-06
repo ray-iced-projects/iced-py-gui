@@ -1,7 +1,7 @@
 //! Displays a [`Card`].
 #![allow(clippy::large_enum_variant)]
-// use crate::graphics::bootstrap::{icon_to_string, Bootstrap};
-use crate::graphics::BOOTSTRAP_FONT;
+
+use ipg_fonts::BOOTSTRAP_FONT;
 
 use iced::{
     advanced::{
@@ -945,7 +945,7 @@ where
 }
 
 
-use crate::graphics::colors;
+use ipg_styling::colors;
 use iced::{Background, Theme};
 
 /// The appearance of a [`Card`](crate::native::card::Card).

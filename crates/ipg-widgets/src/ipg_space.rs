@@ -1,7 +1,8 @@
 //! ipg_space
 use iced::{Element, Length};
 use iced::widget::Space;
-use crate::app;
+
+use ipg_types::Message;
 
 
 #[derive(Debug, Clone)]
@@ -30,8 +31,7 @@ impl IpgSpace {
     }
 }
 
-
-pub fn construct_space(sp: &IpgSpace) -> Option<Element<'_, app::Message>> {
+pub fn construct_space(sp: &IpgSpace) -> Option<Element<'_, Message>> {
 
     if sp.show {
         Some(Space::new(sp.width, sp.height).into())

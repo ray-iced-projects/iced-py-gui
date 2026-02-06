@@ -5,8 +5,6 @@ use iced::{Length, Padding};
 use iced::widget::text::{Shaping, LineHeight};
 
 use pyo3::{Py, PyAny, Python};
-
-// Type alias to replace deprecated PyObject
 type PyObject = Py<PyAny>;
 
 
@@ -327,9 +325,6 @@ pub fn try_extract_boolean(value: &PyObject, name: String) -> bool {
         }
     })  
 }
-
-
-
 
 
 pub fn try_extract_point(value: &PyObject, name: String) -> [f32; 2] {

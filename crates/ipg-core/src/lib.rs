@@ -1,55 +1,13 @@
+//! Core state management for IcedPyGui
+use std::collections::HashMap;
+use std::sync::{Mutex, MutexGuard};
 
+use iced::{window, Color, Length, Point, Theme};
+use iced::widget::scrollable;
+use once_cell::sync::Lazy;
 
-
-
-#[derive(Debug, Clone)]
-pub enum Message {
-    Button(usize, BTNMessage),
-    Canvas(CanvasMessage),
-    Card(usize, CardMessage),
-    CheckBox(usize, CHKMessage),
-    ColorPicker(usize, ColPikMessage),
-    DatePicker(usize, DPMessage),
-    Divider(usize, DivMessage),
-    EventKeyboard(Event),
-    EventMouse(Event),
-    EventWindow((window::Id, Event)),
-    EventTouch(Event),
-    Image(usize, ImageMessage),
-    // Modal(usize, ModalMessage),
-    PickList(usize, PLMessage),
-    Radio(usize, RDMessage),
-    Scrolled(scrollable::Viewport, usize),
-    SelectableText(usize, SLTXTMessage),
-    Slider(usize, SLMessage),
-    Svg(usize, SvgMessage),
-
-    TableSync(scrollable::AbsoluteOffset, usize),
-    TableDividerChanged((usize, usize, f32)),
-    TableDividerReleased(usize),
-
-    TextInput(usize, TIMessage),
-    Toggler(usize, TOGMessage),
-    CanvasTextBlink,
-    Tick,
-    CanvasTick,
-    Timer(usize, TIMMessage),
-    CanvasTimer(usize, CanvasTimerMessage),
-    FontLoaded(Result<(), font::Error>),
-    WindowOpened(window::Id, Option<Point>, Size),
-
-    MouseAreaOnPress(usize),
-    MouseAreaOnRelease(usize),
-    MouseAreaOnRightPress(usize),
-    MouseAreaOnRightRelease(usize),
-    MouseAreaOnMiddlePress(usize),
-    MouseAreaOnMiddleRelease(usize),
-    MouseAreaOnEnter(usize),
-    MouseAreaOnMove(Point, usize),
-    MouseAreaOnExit(usize),
-
-    OpaqueOnPress(usize),
-}
+// Re-export all message types from ipg-types
+pub use ipg_types::*;
 
 #[derive(Debug)]
 pub struct State {
@@ -270,6 +228,63 @@ impl IpgState {
     }
 }
 
+pub fn add_windows(state: &mut IpgState) -> Vec<Task<Message>> {
+
+    let mut modes: Vec<(usize, window::Mode)> = vec![];
+
+    let mut spawn_window: Vec<Task<Message>> = vec![];
+
+    for i in 0..state.windows.len() {
+        let visible = match state.windows[i].mode {
+            IpgWindowMode::Windowed => {
+                modes.push((state.windows[i].id, window::Mode::Windowed));
+                true
+            },
+            IpgWindowMode::FullScreen => {
+                modes.push((state.windows[i].id, window::Mode::Fullscreen));
+                true
+            },
+            IpgWindowMode::Closed => {
+                modes.push((state.windows[i].id, window::Mode::Hidden));
+                false
+            },
+        };
+        let (iced_id, open) = window::open(window::Settings {
+            size: state.windows[i].size,
+            min_size: state.windows[i].min_size,
+            max_size: state.windows[i].max_size,
+            position: state.windows[i].position,
+            visible,
+            resizable: state.windows[i].resizable,
+            decorations: state.windows[i].decorations,
+            transparent: state.windows[i].transparent,
+            level: get_level(&state.windows[i].level),
+            exit_on_close_request: state.windows[i].exit_on_close_request,
+            ..Default::default()
+        });
+        let id = state.windows[i].id;
+        let debug = state.windows[i].debug;
+        let theme = state.windows[i].theme.clone();
+        let mode = state.windows[i].mode.clone();
+
+        state.window_debug.insert(iced_id, (id, debug));
+        state.window_theme.insert(iced_id, (id, theme));
+        state.window_mode.insert(iced_id, (id, get_iced_mode(&mode)));
+        state.windows_opened.push(iced_id);
+        if !visible {
+            state.windows_hidden.push(iced_id);
+        }
+
+        let ipg_id = state.windows[i].id;
+        state.windows_iced_ipg_ids.insert(iced_id, ipg_id);
+        let size = state.windows[i].size;
+        spawn_window.push(open.map(move|_|Message::WindowOpened(iced_id, None, size)));
+        
+    }
+
+    spawn_window
+
+}
 
 pub fn check_for_dup_container_ids(id: usize, container_id: Option<String>) {
 
@@ -747,6 +762,14 @@ pub fn container_callback_data(state: &mut IpgState, wci: WidgetCallbackIn) -> W
         
 }
 
+pub fn button_callback(id: usize, message: BTNMessage) {
+
+    match message {
+        BTNMessage::OnPress => {
+            process_button_callback(id, "on_press".to_string());
+        }
+    }
+}
 
 pub fn process_button_callback(
         id: usize, 
@@ -794,4 +817,1625 @@ pub fn process_button_callback(
             panic!("Button callback error: {err}");
         }
     });
+}
+
+pub fn card_callback(_state: &mut IpgState, id: usize, message: CardMessage) {
+    match message {
+        CardMessage::OnClose => {
+            let _ = 
+                WidgetCallbackIn{
+                    id,
+                    value_bool: Some(false),
+                    ..Default::default()
+                };
+            process_card_callback(id, "on_close".to_string());
+        }
+    }
+}
+
+pub fn process_card_callback(id: usize, event_name: String) {
+    let ud1 = access_user_data1();
+    let app_cbs = access_callbacks();
+
+    // Retrieve the callback
+    let callback = match app_cbs.callbacks.get(&(id, event_name)) {
+        Some(cb) => Python::attach(|py| cb.clone_ref(py)),
+        None => return,
+    };
+
+    drop(app_cbs);
+
+    // Check user data from ud1
+    if let Some(user_data) = ud1.user_data.get(&id) {
+        Python::attach(|py| {
+            if let Err(err) = callback.call1(py, (id, user_data)) {
+                panic!("Card callback error: {err}");
+            }
+        });
+        drop(ud1); // Drop ud1 before processing ud2
+        return;
+    }
+    drop(ud1); // Drop ud1 if no user data is found
+
+    // Check user data from ud2
+    let ud2 = access_user_data2();
+    if let Some(user_data) = ud2.user_data.get(&id) {
+        Python::attach(|py| {
+            if let Err(err) = callback.call1(py, (id, user_data)) {
+                panic!("Card callback error: {err}");
+            }
+        });
+        drop(ud2); // Drop ud2 after processing
+        return;
+    }
+    drop(ud2); // Drop ud2 if no user data is found
+
+    // If no user data is found in both ud1 and ud2, call the callback with only the id
+    Python::attach(|py| {
+        if let Err(err) = callback.call1(py, (id,)) {
+            panic!("Card callback error: {err}");
+        }
+    });
+}
+
+pub fn checkbox_callback(state: &mut IpgState, id: usize, message: CHKMessage) {
+
+    match message {
+        CHKMessage::OnToggle(on_toggle) => {
+            let mut wci: WidgetCallbackIn = WidgetCallbackIn{id, ..Default::default()};
+            wci.on_toggle = Some(on_toggle);
+            let _ = set_or_get_widget_callback_data(state, wci);
+
+            process_chkbox_callback(id, on_toggle, "on_toggle".to_string());
+        }
+    }
+}
+
+pub fn process_chkbox_callback(
+        id: usize, 
+        is_checked: bool, 
+        event_name: String) 
+{
+    let ud1 = access_user_data1();
+    let app_cbs = access_callbacks();
+
+    // Retrieve the callback
+    let callback = match app_cbs.callbacks.get(&(id, event_name)) {
+        Some(cb) => Python::attach(|py| cb.clone_ref(py)),
+        None => return,
+    };
+
+    drop(app_cbs);
+
+    // Check user data from ud1
+    if let Some(user_data) = ud1.user_data.get(&id) {
+        Python::attach(|py| {
+            if let Err(err) = callback.call1(py, (id, is_checked, user_data)) {
+                panic!("Checkbox callback error: {err}");
+            }
+        });
+        drop(ud1); // Drop ud1 before processing ud2
+        return;
+    }
+    drop(ud1); // Drop ud1 if no user data is found
+
+    // Check user data from ud2
+    let ud2 = access_user_data2();
+    if let Some(user_data) = ud2.user_data.get(&id) {
+        Python::attach(|py| {
+            if let Err(err) = callback.call1(py, (id, is_checked, user_data)) {
+                panic!("Checkbox callback error: {err}");
+            }
+        });
+        drop(ud2); // Drop ud2 after processing
+        return;
+    }
+    drop(ud2); // Drop ud2 if no user data is found
+
+    // If no user data is found in both ud1 and ud2, call the callback with only the id and is_checked
+    Python::attach(|py| {
+        if let Err(err) = callback.call1(py, (id, is_checked)) {
+            panic!("Checkbox callback error: {err}");
+        }
+    });
+}
+
+pub fn color_picker_callback(state: &mut IpgState, id: usize, message: ColPikMessage) {
+    let mut wci: WidgetCallbackIn = WidgetCallbackIn::default();
+    match message {
+        ColPikMessage::OnCancel => {
+            wci.id = id;
+            wci.value_bool = Some(false);
+            let _ = set_or_get_widget_callback_data(state, wci);
+            process_color_picker_callback(id, "on_cancel".to_string(), None);
+        },
+        ColPikMessage::OnSubmit(color) => {
+            wci.id = id;
+            wci.value_bool = Some(false);
+            wci.color = Some(convert_color_to_list(color));
+            let _ = set_or_get_widget_callback_data(state, wci);
+            process_color_picker_callback(id, "on_submit".to_string(), Some(convert_color_to_list(color)));
+        },
+        ColPikMessage::OnPress => {
+            wci.id = id;
+            wci.value_bool = Some(true);
+            let _ = set_or_get_widget_callback_data(state, wci);
+            process_color_picker_callback(id, "on_press".to_string(), None);
+        },
+    }
+}
+
+
+pub fn process_color_picker_callback(id: usize, event_name: String, color: Option<Vec<f64>>) 
+{
+    let ud1 = access_user_data1();
+    let app_cbs = access_callbacks();
+
+    // Retrieve the callback
+    let callback = match app_cbs.callbacks.get(&(id, event_name.clone())) {
+        Some(cb) => Python::attach(|py| cb.clone_ref(py)),
+        None => return,
+    };
+
+    drop(app_cbs);
+
+    // Check user data from ud1
+    if let Some(user_data) = ud1.user_data.get(&id) {
+        Python::attach(|py| {
+            if event_name == "on_submit".to_string() {
+                if let Err(err) = callback.call1(py, (id, color, user_data)) {
+                    panic!("ColorPicker callback error: {err}");
+                }
+            } else {
+                if let Err(err) = callback.call1(py, (id, user_data)) {
+                    panic!("ColorPicker callback error: {err}");
+                }
+            }
+            
+        });
+        drop(ud1); // Drop ud1 before processing ud2
+        return;
+    }
+    drop(ud1); // Drop ud1 if no user data is found
+
+    // Check user data from ud2
+    let ud2 = access_user_data2();
+    if let Some(user_data) = ud2.user_data.get(&id) {
+        Python::attach(|py| {
+            if event_name == "on_submit".to_string() {
+                if let Err(err) = callback.call1(py, (id, color, user_data)) {
+                    panic!("ColorPicker callback error: {err}");
+                }
+            } else {
+                if let Err(err) = callback.call1(py, (id, user_data)) {
+                    panic!("ColorPicker callback error: {err}");
+                }
+            }
+        });
+        drop(ud2); // Drop ud2 after processing
+        return;
+    }
+    drop(ud2); // Drop ud2 if no user data is found
+
+    // If no user data is found in both ud1 and ud2, call the 
+    // callback with only the id and color except for on_pressed
+    // which has only an id.
+    Python::attach(|py| {
+        if event_name == "on_submit".to_string() {
+            if let Err(err) = callback.call1(py, (id, color)) {
+                panic!("ColorPicker callback error: {err}");
+            }
+        } else {
+            if let Err(err) = callback.call1(py, (id,)) {
+                panic!("ColorPicker callback error: {err}");
+            }
+        }
+    });
+}
+
+pub fn date_picker_callback(state: &mut IpgState, id: usize, message: DPMessage) {
+    let mut wci: WidgetCallbackIn = WidgetCallbackIn{id, ..Default::default()};
+
+    match message {
+        DPMessage::ShowModal => {
+            // Non callback just sending the values.
+            wci.show = Some(true);
+            wci.is_submitted = Some(false);
+            let _ = set_or_get_widget_callback_data(state, wci);
+        }
+        DPMessage::HideModal => {
+            // Non callback just sending the values.
+            wci.show = Some(false);
+            let _ = set_or_get_widget_callback_data(state, wci);
+        }
+        DPMessage::DayPressed(day) => {
+            // Non callback just sending the values.
+            wci.selected_day = Some(day);
+            let _ = set_or_get_widget_callback_data(state, wci);
+        }
+        DPMessage::DatePickerFormat(date_format) => {
+            // Non callback just sending the values.
+            wci.date_format = Some(date_format);
+            let _ = set_or_get_widget_callback_data(state, wci);
+        }
+        DPMessage::MonthRightPressed(index) => {
+            // Non callback just sending the values.
+            wci.index = Some(index);
+            wci.increment_value = Some(1);
+            wci.is_submitted = Some(false);
+            let _ = set_or_get_widget_callback_data(state, wci);
+        }
+        DPMessage::MonthLeftPressed(index) => {
+            // Non callback just sending the values.
+            wci.index = Some(index);
+            wci.increment_value = Some(-1);
+            wci.is_submitted = Some(false);
+            let _ = set_or_get_widget_callback_data(state, wci);
+        }
+        DPMessage::YearRightPressed => {
+            // Non callback just sending the values.
+            wci.selected_year = Some(1);
+            wci.is_submitted = Some(false);
+            let _ = set_or_get_widget_callback_data(state, wci);
+        }
+        DPMessage::YearLeftPressed => {
+            // Non callback just sending the values.
+            wci.selected_year = Some(-1);
+            wci.is_submitted = Some(false);
+            let _ = set_or_get_widget_callback_data(state, wci);
+        }
+        DPMessage::OnSubmit => {
+            wci.is_submitted = Some(true);
+            let wco = set_or_get_widget_callback_data(state, wci);
+
+            process_datepicker_callback(id, "on_submit".to_string(), wco.selected_date);
+        }
+    }
+}
+
+
+pub fn process_datepicker_callback(id: usize, event_name: String, selected_date: Option<String>) {
+    let ud1 = access_user_data1();
+    let app_cbs = access_callbacks();
+
+    // Retrieve the callback
+    let callback = match app_cbs.callbacks.get(&(id, event_name)) {
+        Some(cb) => Python::attach(|py| cb.clone_ref(py)),
+        None => return,
+    };
+
+    drop(app_cbs);
+
+    // Check user data from ud1
+    if let Some(user_data) = ud1.user_data.get(&id) {
+        Python::attach(|py| {
+            if let Some(date) = &selected_date {
+                if let Err(err) = callback.call1(py, (id, date.clone(), user_data)) {
+                    panic!("DatePicker callback error: {err}");
+                }
+            } else {
+                if let Err(err) = callback.call1(py, (id, user_data)) {
+                    panic!("DatePicker callback error: {err}");
+                }
+            }
+        });
+        drop(ud1); // Drop ud1 before processing ud2
+        return;
+    }
+    drop(ud1); // Drop ud1 if no user data is found
+
+    // Check user data from ud2
+    let ud2 = access_user_data2();
+    if let Some(user_data) = ud2.user_data.get(&id) {
+        Python::attach(|py| {
+            if let Some(date) = &selected_date {
+                if let Err(err) = callback.call1(py, (id, date.clone(), user_data)) {
+                    panic!("DatePicker callback error: {err}");
+                }
+            } else {
+                if let Err(err) = callback.call1(py, (id, user_data)) {
+                    panic!("DatePicker callback error: {err}");
+                }
+            }
+        });
+        drop(ud2); // Drop ud2 after processing
+        return;
+    }
+    drop(ud2); // Drop ud2 if no user data is found
+
+    // If no user data is found in both ud1 and ud2, call the callback with only id and selected_date
+    Python::attach(|py| {
+        if let Some(date) = selected_date {
+            if let Err(err) = callback.call1(py, (id, date)) {
+                panic!("DatePicker callback error: {err}");
+            }
+        } else {
+            if let Err(err) = callback.call1(py, (id,)) {
+                panic!("DatePicker callback error: {err}");
+            }
+        }
+    });
+}
+
+pub fn divider_callback(state: &mut IpgState, id: usize, message: DivMessage) {
+
+    let mut wci: WidgetCallbackIn = WidgetCallbackIn{id, ..Default::default()};
+           
+    match message {
+        DivMessage::OnChange((id, index, value)) => {
+            wci.value_f32 = Some(value);
+            wci.value_usize = Some(index);
+            wci.value_str = Some("on_change".to_string());
+            let _ = set_or_get_widget_callback_data(state, wci);
+            process_divider_callback(
+                id, 
+                "on_change".to_string(), 
+                index, 
+                value);
+        },
+        DivMessage::OnRelease => {
+            // to be consistent, returning values for both
+            wci.value_str = Some("on_release".to_string());
+            let wco = set_or_get_widget_callback_data(state, wci);
+            process_divider_callback(
+                id, 
+                "on_release".to_string(), 
+                wco.value_usize.unwrap(), 
+                wco.value_f32.unwrap());
+        },
+    }
+}
+
+pub fn process_divider_callback(id: usize, event_name: String, index: usize, value: f32) {
+    let ud1 = access_user_data1();
+    let app_cbs = access_callbacks();
+
+    // Retrieve the callback
+    let callback = match app_cbs.callbacks.get(&(id, event_name)) {
+        Some(cb) => Python::attach(|py| cb.clone_ref(py)),
+        None => return,
+    };
+
+    drop(app_cbs);
+
+    // Check user data from ud1
+    if let Some(user_data) = ud1.user_data.get(&id) {
+        Python::attach(|py| {
+            let res = callback.call1(py, (id, index, value, user_data));
+            if let Err(err) = res {
+                panic!("Divider callback error: {err}");
+            }
+        });
+        drop(ud1); // Drop ud1 before processing ud2
+        return;
+    }
+    drop(ud1); // Drop ud1 if no user data is found
+
+    // Check user data from ud2
+    let ud2 = access_user_data2();
+    if let Some(user_data) = ud2.user_data.get(&id) {
+        Python::attach(|py| {
+            let res = callback.call1(py, (id, index, value, user_data));
+            if let Err(err) = res {
+                panic!("Divider callback error: {err}");
+            }
+        });
+        drop(ud2); // Drop ud2 after processing
+        return;
+    }
+    drop(ud2); // Drop ud2 if no user data is found
+
+    // If no user data is found in both ud1 and ud2, call the callback with only id, index, and value
+    Python::attach(|py| {
+        let res = callback.call1(py, (id, index, value));
+        if let Err(err) = res {
+            panic!("Divider callback error: {err}");
+        }
+    });
+}
+
+pub fn image_callback(id: usize, message: ImageMessage) {
+
+    match message {
+        ImageMessage::OnPress => {
+            process_callback(id, "on_press".to_string(), None);
+        },
+        ImageMessage::OnRelease => {
+            process_callback(id, "on_release".to_string(), None);
+        },
+        ImageMessage::OnRightPress => {
+            process_callback(id, "on_right_press".to_string(), None);
+        },
+        ImageMessage::OnRightRelease => {
+            process_callback(id, "on_right_release".to_string(), None);
+        },
+        ImageMessage::OnMiddlePress => {
+            process_callback(id, "on_middle_press".to_string(), None);
+        },
+        ImageMessage::OnMiddleRelease => {
+            process_callback(id, "on_middle_release".to_string(), None);
+        },
+        ImageMessage::OnEnter => {
+            process_callback(id, "on_enter".to_string(), None);
+        },
+        ImageMessage::OnMove(point) => {
+            let points: Option<HashMap<String, f32>> = Some(HashMap::from([
+                ("x".to_string(), point.x),
+                ("y".to_string(), point.y)
+            ]));
+            
+            process_image_callback(id, "on_move".to_string(), points);
+        },
+        ImageMessage::OnExit => {
+            process_image_callback(id, "on_exit".to_string(), None);
+        },
+    }
+}
+
+fn process_image_callback(
+    id: usize,
+    event_name: String,
+    points_opt: Option<HashMap<String, f32>>,
+) {
+    let ud1 = access_user_data1();
+    let ud_opt = ud1.user_data.get(&id);
+
+    let app_cbs = access_callbacks();
+    let callback = match app_cbs.callbacks.get(&(id, event_name)) {
+        Some(cb) => cb,
+        None => return,
+    };
+
+    let cb = Python::attach(|py| callback.clone_ref(py));
+    drop(app_cbs);
+
+    // Execute the callback with user data from ud1
+    if let Some(user_data) = ud_opt {
+        Python::attach(|py| {
+            let res = match points_opt {
+                Some(ref points) => cb.call1(py, (id, points.clone(), user_data)),
+                None => cb.call1(py, (id, user_data)),
+            };
+
+            match res {
+                Ok(_) => (),
+                Err(err) => panic!("Image callback error with user_data from ud1: {err}")
+            }
+        });
+        drop(ud1); // Drop ud1 after processing
+        return;
+    }
+    drop(ud1); // Drop ud1 if no user data is found
+
+    // Execute the callback with user data from ud2
+    let ud2 = access_user_data2();
+    
+    if let Some(user_data) = ud2.user_data.get(&id) {
+        Python::attach(|py| {
+            let res = match points_opt {
+                Some(ref points) => cb.call1(py, (id, points.clone(), user_data)),
+                None => cb.call1(py, (id, user_data)),
+            };
+
+            match res {
+                Ok(_) => (),
+                Err(err) => panic!("Image callback error with user_data from ud2: {err}")
+            }
+        });
+        drop(ud2); // Drop ud2 after processing
+        return;
+    }
+    drop(ud2); // Drop ud2 if no user data is found
+
+    // Execute the callback without user data
+    Python::attach(|py| {
+        let res = match points_opt {
+                Some(ref points) => cb.call1(py, (id, points.clone())),
+                None => cb.call1(py, (id,)),
+            };
+
+            match res {
+                Ok(_) => (),
+                Err(err) => panic!("Image callback error without user_data: {err}")
+            }
+    });
+}
+
+pub fn modal_callback(state: &mut IpgState, 
+                        id: usize, 
+                        message: ModalMessage) {
+
+    let wci = WidgetCallbackIn{id, ..Default::default()};
+
+    match message {
+        ModalMessage::OnOpen => {
+            let mut wco = set_or_get_widget_callback_data(state, wci);
+            wco.id = id;
+            wco.event_name = "on_open".to_string();
+            process_modal_callback(wco);
+        }
+    }
+}
+
+pub fn process_modal_callback(wco: WidgetCallbackOut) 
+{
+    let app_cbs = access_callbacks();
+
+    let callback_present = 
+        app_cbs.callbacks.get(&(wco.id, wco.event_name.clone()));
+
+    let callback_opt = match callback_present {
+        Some(cb) => cb,
+        None => return,
+    };
+
+    let callback = match callback_opt {
+        Some(cb) => cb,
+        None => panic!("Modal callback could not be found with id {}", wco.id),
+    };
+
+    Python::attach(|py| {
+            if wco.user_data.is_some() {
+                let user_data = match wco.user_data {
+                    Some(ud) => ud,
+                    None => panic!("User Data could not be found in Modal callback"),
+                };
+                let res = callback.call1(py, (
+                                                                    wco.id,  
+                                                                    user_data
+                                                                    ));
+                match res {
+                    Ok(_) => (),
+                    Err(er) => panic!("Modal: 2 parameters (id, user_data) are required or a python error in this function. {er}"),
+                }
+            } else {
+                let res = callback.call1(py, (
+                                                                    wco.id,  
+                                                                    ));
+                match res {
+                    Ok(_) => (),
+                    Err(er) => panic!("Modal: 1 parameter (id) is required or possibly a python error in this function. {er}"),
+                }
+            } 
+    });
+    
+    drop(app_cbs);    
+}
+
+pub fn mousearea_callback(_state: &mut IpgState, id: usize, event_name: String) {
+    
+    process_mousearea_callback(id, event_name, None);
+
+}
+
+pub fn mousearea_callback_point(_state: &mut IpgState, 
+                                id: usize, 
+                                point: Point, 
+                                event_name: String,
+                                ) {
+
+    let points: Option<(String, f32, String, f32)> = Some(
+                ("x".to_string(), point.x,
+                "y".to_string(), point.y));
+
+    process_mousearea_callback(id, event_name, points);
+}
+
+
+fn process_mousearea_callback(
+    id: usize, 
+    event_name: String, 
+    points_opt: Option<(String, f32, String, f32)>) 
+{
+    let ud1 = access_user_data1();
+    let ud_opt = ud1.user_data.get(&id);
+
+    let app_cbs = access_callbacks();
+    let callback = match app_cbs.callbacks.get(&(id, event_name)) {
+        Some(cb) => cb,
+        None => return,
+    };
+
+    let cb = Python::attach(|py| callback.clone_ref(py));
+    drop(app_cbs);
+
+    // Execute the callback with user data from ud1
+    if let Some(user_data) = ud_opt {
+        Python::attach(|py| {
+            let res = match points_opt {
+                Some(ref points) => cb.call1(py, (id, points.clone(), user_data)),
+                None => cb.call1(py, (id, user_data)),
+            };
+
+            match res {
+                Ok(_) => (),
+                Err(err) => panic!("MouseArea callback error with user_data from ud1: {err}")
+            }
+        });
+        drop(ud1); // Drop ud1 after processing
+        return;
+    }
+    drop(ud1); // Drop ud1 if no user data is found
+
+    // Execute the callback with user data from ud2
+    let ud2 = access_user_data2();
+    
+    if let Some(user_data) = ud2.user_data.get(&id) {
+        Python::attach(|py| {
+            let res = match points_opt {
+                Some(ref points) => cb.call1(py, (id, points.clone(), user_data)),
+                None => cb.call1(py, (id, user_data)),
+            };
+
+            match res {
+                Ok(_) => (),
+                Err(err) => panic!("MouseArea callback error with user_data from ud2: {err}")
+            }
+        });
+        drop(ud2); // Drop ud2 after processing
+        return;
+    }
+    drop(ud2); // Drop ud2 if no user data is found
+
+    // Execute the callback without user data
+    Python::attach(|py| {
+        let res = match points_opt {
+                Some(ref points) => cb.call1(py, (id, points.clone())),
+                None => cb.call1(py, (id,)),
+            };
+
+            match res {
+                Ok(_) => (),
+                Err(err) => panic!("MouseArea callback error without user_data: {err}")
+            }
+    });
+
+}
+
+pub fn opaque_callback(_state: &mut IpgState, id: usize, event_name: String) {
+    
+    process_opaque_callback(id, event_name);
+}
+
+
+fn process_opaque_callback(id: usize, event_name: String) 
+{
+    let ud = access_user_data1();
+    let user_data_opt = ud.user_data.get(&id);
+
+    let app_cbs = access_callbacks();
+
+    let callback_present = 
+        app_cbs.callbacks.get(&(id, event_name));
+    
+    let callback = match callback_present {
+        Some(cb) => cb,
+        None => return,
+    };
+
+    let cb = 
+        Python::attach(|py| {
+            callback.clone_ref(py)
+        });
+
+    drop(app_cbs);
+              
+    Python::attach(|py| {
+        if user_data_opt.is_some() {
+            let res = cb.call1(py, (
+                                                        id,
+                                                        user_data_opt.unwrap()  
+                                                        ));
+            match res {
+                Ok(_) => (),
+                Err(er) => panic!("Opaque: Only 2 parameter (id, user_data) 
+                                    is required or a python error in this function. {er}"),
+            }
+        } else {
+            let res = cb.call1(py, (
+                                                        id,  
+                                                        ));
+            match res {
+                Ok(_) => (),
+                Err(er) => panic!("Opaque: Only 1 parameter (id) 
+                                    is required or a python error in this function. {er}"),
+            }
+        }
+        
+        
+    });
+    
+    drop(ud);   
+
+}
+
+pub fn pick_list_callback(state: &mut IpgState, id: usize, message: PLMessage) {
+
+    let mut wci: WidgetCallbackIn = WidgetCallbackIn{id, ..Default::default()};
+
+    match message {
+        PLMessage::OnSelect(selected) => {
+            wci.value_str = Some(selected.clone());
+            let _ = set_or_get_widget_callback_data(state, wci);
+            
+            process_pick_list_callback(id, "on_select".to_string(), selected);
+        },
+    }
+ }
+
+
+ fn process_pick_list_callback(
+        id: usize, 
+        event_name: String, 
+        selected: String) 
+ {
+    let ud1 = access_user_data1();
+    let app_cbs = access_callbacks();
+
+    // Retrieve the callback
+    let callback = match app_cbs.callbacks.get(&(id, event_name)) {
+        Some(cb) => Python::attach(|py| cb.clone_ref(py)),
+        None => return,
+    };
+
+    drop(app_cbs);
+
+    // Check user data from ud1
+    if let Some(user_data) = ud1.user_data.get(&id) {
+        Python::attach(|py| {
+            if let Err(err) = callback.call1(py, (id, selected, user_data)) {
+                panic!("PickList callback error: {err}");
+            }
+        });
+        drop(ud1); // Drop ud1 before processing ud2
+        return;
+    }
+    drop(ud1); // Drop ud1 if no user data is found
+
+    // Check user data from ud2
+    let ud2 = access_user_data2();
+    if let Some(user_data) = ud2.user_data.get(&id) {
+        Python::attach(|py| {
+            if let Err(err) = callback.call1(py, (id, selected, user_data)) {
+                panic!("PickList callback error: {err}");
+            }
+        });
+        drop(ud2); // Drop ud2 after processing
+        return;
+    }
+    drop(ud2); // Drop ud2 if no user data is found
+
+    // If no user data is found in both ud1 and ud2, call the callback with only the id and selected
+    Python::attach(|py| {
+        if let Err(err) = callback.call1(py, (id, selected)) {
+            panic!("PickList callback error: {err}");
+        }
+    });
+
+ }
+
+ use crate::choice_enums::Choice;
+ pub fn radio_callback(state: &mut IpgState, id: usize, message: RDMessage) {
+
+    let widget_opt = state.widgets.get_mut(&id);
+
+    let widgets = match widget_opt {
+        Some(rd) => rd,
+        None => panic!("Radio callback with id {} could not be found", id),
+    };
+
+    let radio: &mut IpgRadio = match_widgets(widgets);
+
+    let ch_usize = match message {
+        RDMessage::RadioSelected(choice) => {
+            match choice {
+                Choice::Choice0(ch) => {
+                    ch as usize
+                },
+                Choice::Choice1(ch) => {
+                    ch as usize
+                },
+                Choice::Choice2(ch) => {
+                    ch as usize
+                },
+                Choice::Choice3(ch) => {
+                    ch as usize
+                },
+                Choice::Choice4(ch) => {
+                    ch as usize
+                },
+                Choice::Choice5(ch) => {
+                    ch as usize
+                },
+                Choice::Choice6(ch) => {
+                    ch as usize
+                },
+                Choice::Choice7(ch) => {
+                    ch as usize
+                },
+                Choice::Choice8(ch) => {
+                    ch as usize
+                },
+                Choice::Choice9(ch) => {
+                    ch as usize
+                },
+                Choice::Choice10(ch) => {
+                    ch as usize
+                },
+                Choice::Choice11(ch) => {
+                    ch as usize
+                },
+                Choice::Choice12(ch) => {
+                    ch as usize
+                },
+                Choice::Choice13(ch) => {
+                    ch as usize
+                },
+                Choice::Choice14(ch) => {
+                    ch as usize
+                },
+                Choice::Choice15(ch) => {
+                    ch as usize
+                },
+                Choice::Choice16(ch) => {
+                    ch as usize
+                },
+                Choice::Choice17(ch) => {
+                    ch as usize
+                },
+                Choice::Choice18(ch) => {
+                    ch as usize
+                },
+                Choice::Choice19(ch) => {
+                    ch as usize
+                },
+                Choice::Choice20(ch) => {
+                    ch as usize
+                },
+                Choice::Choice21(ch) => {
+                    ch as usize
+                },
+                Choice::Choice22(ch) => {
+                    ch as usize
+                },
+                Choice::Choice23(ch) => {
+                    ch as usize
+                },
+                Choice::Choice24(ch) => {
+                    ch as usize
+                },
+                Choice::Choice25(ch) => {
+                    ch as usize
+                },
+            }
+        }, 
+        
+    };
+
+    radio.is_selected = Some(ch_usize);
+
+    process_radio_callback(id, "on_select".to_string(), ch_usize, radio.labels[ch_usize].clone());
+    
+}
+
+fn process_radio_callback(
+    id: usize, 
+    event_name: String, 
+    index: usize, 
+    label: String) 
+{
+let ud1 = access_user_data1();
+    let app_cbs = access_callbacks();
+
+    // Retrieve the callback
+    let callback = match app_cbs.callbacks.get(&(id, event_name)) {
+        Some(cb) => Python::attach(|py| cb.clone_ref(py)),
+        None => return,
+    };
+
+    drop(app_cbs);
+
+    // Check user data from ud1
+    if let Some(user_data) = ud1.user_data.get(&id) {
+        Python::attach(|py| {
+            if let Err(err) = callback.call1(py, (id, (index, label), user_data)) {
+                panic!("Radio callback error: {err}");
+            }
+        });
+        drop(ud1); // Drop ud1 before processing ud2
+        return;
+    }
+    drop(ud1); // Drop ud1 if no user data is found
+
+    // Check user data from ud2
+    let ud2 = access_user_data2();
+    if let Some(user_data) = ud2.user_data.get(&id) {
+        Python::attach(|py| {
+            if let Err(err) = callback.call1(py, (id, (index, label), user_data)) {
+                panic!("Radio callback error: {err}");
+            }
+        });
+        drop(ud2); // Drop ud2 after processing
+        return;
+    }
+    drop(ud2); // Drop ud2 if no user data is found
+
+    // If no user data is found in both ud1 and ud2, call the callback with the id, index, and label
+    Python::attach(|py| {
+        if let Err(err) = callback.call1(py, (id, (index, label))) {
+            panic!("Radio callback error: {err}");
+        }
+    });
+}
+
+pub fn scrollable_callback(_state: &mut IpgState, id: usize, vp: Viewport) {
+    let mut hmap = HashMap::new();
+    hmap.insert("abs_x".to_string(), vp.absolute_offset().x);
+    hmap.insert("abs_y".to_string(), vp.absolute_offset().y);
+    hmap.insert("rel_x".to_string(), vp.relative_offset().x);
+    hmap.insert("rel_y".to_string(), vp.relative_offset().y);
+    hmap.insert("rev_x".to_string(), vp.absolute_offset_reversed().x);
+    hmap.insert("rev_y".to_string(), vp.absolute_offset_reversed().y);
+    
+    process_scrollable_callback(id, "on_scroll".to_string(), hmap);
+}
+
+
+pub fn process_scrollable_callback(id: usize, 
+                        event_name: String, 
+                        hmap: HashMap<String, f32>) 
+{
+let ud1 = access_user_data1();
+    let app_cbs = access_callbacks();
+
+    // Retrieve the callback
+    let callback = match app_cbs.callbacks.get(&(id, event_name)) {
+        Some(cb) => Python::attach(|py| cb.clone_ref(py)),
+        None => return,
+    };
+
+    drop(app_cbs);
+
+    // Check user data from ud1
+    if let Some(user_data) = ud1.user_data.get(&id) {
+        Python::attach(|py| {
+            if let Err(err) = callback.call1(py, (id, hmap, user_data)) {
+                panic!("Scollable callback error: {err}");
+            }
+        });
+        drop(ud1); // Drop ud1 before processing ud2
+        return;
+    }
+    drop(ud1); // Drop ud1 if no user data is found
+
+    // Check user data from ud2
+    let ud2 = access_user_data2();
+    if let Some(user_data) = ud2.user_data.get(&id) {
+        Python::attach(|py| {
+            if let Err(err) = callback.call1(py, (id, hmap, user_data)) {
+                panic!("Scrollable callback error: {err}");
+            }
+        });
+        drop(ud2); // Drop ud2 after processing
+        return;
+    }
+    drop(ud2); // Drop ud2 if no user data is found
+
+    // If no user data is found in both ud1 and ud2, call the callback with the id and hmap
+    Python::attach(|py| {
+        if let Err(err) = callback.call1(py, (id, hmap)) {
+            panic!("Scollable callback error: {err}");
+        }
+    });
+
+}
+
+pub fn selectable_text_callback(id: usize, message: SLTXTMessage) {
+
+    match message {
+        SLTXTMessage::OnPress => {
+            process_selectable_texr_callback(id, "on_press".to_string(), None);
+        },
+        SLTXTMessage::OnRelease => {
+            process_selectable_texr_callback(id, "on_release".to_string(), None);
+        },
+        SLTXTMessage::OnRightPress => {
+            process_selectable_texr_callback(id, "on_right_press".to_string(), None);
+        },
+        SLTXTMessage::OnRightRelease => {
+            process_selectable_texr_callback(id, "on_right_release".to_string(), None);
+        },
+        SLTXTMessage::OnMiddlePress => {
+            process_selectable_texr_callback(id, "on_middle_press".to_string(), None);
+        },
+        SLTXTMessage::OnMiddleRelease => {
+            process_selectable_texr_callback(id, "on_middle_release".to_string(), None);
+        },
+        SLTXTMessage::OnEnter => {
+            process_selectable_texr_callback(id, "on_enter".to_string(), None);
+        },
+        SLTXTMessage::OnMove(point) => {
+            let points: Option<(String, f32, String, f32)> = Some(
+                ("x".to_string(), point.x,
+                "y".to_string(), point.y));
+            
+            process_selectable_texr_callback(id, "on_move".to_string(), points);
+        },
+        SLTXTMessage::OnExit => {
+            process_selectable_texr_callback(id, "on_exit".to_string(), None);
+        },
+    }
+}
+
+
+fn process_selectable_texr_callback(
+    id: usize, 
+    event_name: String, 
+    points_opt: Option<(String, f32, String, f32)>) 
+{
+    let ud1 = access_user_data1();
+    let ud_opt = ud1.user_data.get(&id);
+
+    let app_cbs = access_callbacks();
+    let callback = match app_cbs.callbacks.get(&(id, event_name)) {
+        Some(cb) => cb,
+        None => return,
+    };
+
+    let cb = Python::attach(|py| callback.clone_ref(py));
+    drop(app_cbs);
+
+    // Execute the callback with user data from ud1
+    if let Some(user_data) = ud_opt {
+        Python::attach(|py| {
+            let res = match points_opt {
+                Some(ref points) => cb.call1(py, (id, points.clone(), user_data)),
+                None => cb.call1(py, (id, user_data)),
+            };
+
+            match res {
+                Ok(_) => (),
+                Err(err) => panic!("SelectableText callback error with user_data from ud1: {err}")
+            }
+        });
+        drop(ud1); // Drop ud1 after processing
+        return;
+    }
+    drop(ud1); // Drop ud1 if no user data is found
+
+    // Execute the callback with user data from ud2
+    let ud2 = access_user_data2();
+    
+    if let Some(user_data) = ud2.user_data.get(&id) {
+        Python::attach(|py| {
+            let res = match points_opt {
+                Some(ref points) => cb.call1(py, (id, points.clone(), user_data)),
+                None => cb.call1(py, (id, user_data)),
+            };
+
+            match res {
+                Ok(_) => (),
+                Err(err) => panic!("SelectableText callback error with user_data from ud2: {err}")
+            }
+        });
+        drop(ud2); // Drop ud2 after processing
+        return;
+    }
+    drop(ud2); // Drop ud2 if no user data is found
+
+    // Execute the callback without user data
+    Python::attach(|py| {
+        let res = match points_opt {
+                Some(ref points) => cb.call1(py, (id, points.clone())),
+                None => cb.call1(py, (id,)),
+            };
+
+            match res {
+                Ok(_) => (),
+                Err(err) => panic!("SelectableText callback error without user_data: {err}")
+            }
+    });
+
+}
+
+pub fn slider_callback(state: &mut IpgState, id: usize, message: SLMessage) {
+
+    let mut wci: WidgetCallbackIn = WidgetCallbackIn{id, ..Default::default()};
+           
+    match message {
+        SLMessage::OnChange(value) => {
+            wci.value_f64 = Some(value as f64);
+            let _ = set_or_get_widget_callback_data(state, wci);
+            process_slider_callback(id, "on_change".to_string(), value);
+        },
+        SLMessage::OnRelease => {
+            // to be consistent, returning value for both
+            let wco = set_or_get_widget_callback_data(state, wci);
+            process_slider_callback(id, "on_release".to_string(), wco.value_f32.unwrap());
+        },
+    }
+}
+
+pub fn process_slider_callback(
+        id: usize, 
+        event_name: String, 
+        value: f32) 
+{
+    let ud1 = access_user_data1();
+    let app_cbs = access_callbacks();
+
+    // Retrieve the callback
+    let callback = match app_cbs.callbacks.get(&(id, event_name)) {
+        Some(cb) => Python::attach(|py| cb.clone_ref(py)),
+        None => return,
+    };
+
+    drop(app_cbs);
+
+    // Check user data from ud1
+    if let Some(user_data) = ud1.user_data.get(&id) {
+        Python::attach(|py| {
+            if let Err(err) = callback.call1(py, (id, value, user_data)) {
+                panic!("Slider callback error: {err}");
+            }
+        });
+        drop(ud1); // Drop ud1 before processing ud2
+        return;
+    }
+    drop(ud1); // Drop ud1 if no user data is found
+
+    // Check user data from ud2
+    let ud2 = access_user_data2();
+    if let Some(user_data) = ud2.user_data.get(&id) {
+        Python::attach(|py| {
+            if let Err(err) = callback.call1(py, (id, value, user_data)) {
+                panic!("Slider callback error: {err}");
+            }
+        });
+        drop(ud2); // Drop ud2 after processing
+        return;
+    }
+    drop(ud2); // Drop ud2 if no user data is found
+
+    // If no user data is found in both ud1 and ud2, call the callback with only the id and value
+    Python::attach(|py| {
+        if let Err(err) = callback.call1(py, (id, value)) {
+            panic!("Slider callback error: {err}");
+        }
+    });
+
+}
+
+pub fn svg_callback(_state: &mut IpgState, id: usize, message: SvgMessage) {
+
+    match message {
+        SvgMessage::OnPress => {
+            process_svg_callback(id, "on_press".to_string(), None);
+        },
+        SvgMessage::OnRelease => {
+            process_svg_callback(id, "on_release".to_string(), None);
+        },
+        SvgMessage::OnRightPress => {
+            process_svg_callback(id, "on_right_press".to_string(), None);
+        },
+        SvgMessage::OnRightRelease => {
+            process_svg_callback(id, "on_right_release".to_string(), None);
+        },
+        SvgMessage::OnMiddlePress => {
+            process_svg_callback(id, "on_middle_press".to_string(), None);
+        },
+        SvgMessage::OnMiddleRelease => {
+            process_svg_callback(id, "on_middle_release".to_string(), None);
+        },
+        SvgMessage::OnEnter => {
+            process_svg_callback(id, "on_enter".to_string(), None);
+        },
+        SvgMessage::OnMove(point) => {
+            let points: Option<HashMap<String, f32>> = Some(HashMap::from([
+                ("x".to_string(), point.x),
+                ("y".to_string(), point.y)
+            ]));
+            
+            process_svg_callback(id, "on_move".to_string(), points);
+        },
+        SvgMessage::OnExit => {
+            process_svg_callback(id, "on_exit".to_string(), None);
+        },
+    }
+}
+
+
+fn process_svg_callback(
+    id: usize,
+    event_name: String,
+    points_opt: Option<HashMap<String, f32>>,
+) {
+    let ud1 = access_user_data1();
+    let ud_opt = ud1.user_data.get(&id);
+
+    let app_cbs = access_callbacks();
+    let callback = match app_cbs.callbacks.get(&(id, event_name)) {
+        Some(cb) => cb,
+        None => return,
+    };
+
+    let cb = Python::attach(|py| callback.clone_ref(py));
+    drop(app_cbs);
+
+    // Execute the callback with user data from ud1
+    if let Some(user_data) = ud_opt {
+        Python::attach(|py| {
+            let res = match points_opt {
+                Some(ref points) => cb.call1(py, (id, points.clone(), user_data)),
+                None => cb.call1(py, (id, user_data)),
+            };
+
+            match res {
+                Ok(_) => (),
+                Err(err) => panic!("SVG callback error with user_data from ud1: {err}")
+            }
+        });
+        drop(ud1); // Drop ud1 after processing
+        return;
+    }
+    drop(ud1); // Drop ud1 if no user data is found
+
+    // Execute the callback with user data from ud2
+    let ud2 = access_user_data2();
+    
+    if let Some(user_data) = ud2.user_data.get(&id) {
+        Python::attach(|py| {
+            let res = match points_opt {
+                Some(ref points) => cb.call1(py, (id, points.clone(), user_data)),
+                None => cb.call1(py, (id, user_data)),
+            };
+
+            match res {
+                Ok(_) => (),
+                Err(err) => panic!("SVG callback error with user_data from ud2: {err}")
+            }
+        });
+        drop(ud2); // Drop ud2 after processing
+        return;
+    }
+    drop(ud2); // Drop ud2 if no user data is found
+
+    // Execute the callback without user data
+    Python::attach(|py| {
+        let res = match points_opt {
+                Some(ref points) => cb.call1(py, (id, points.clone())),
+                None => cb.call1(py, (id,)),
+            };
+
+            match res {
+                Ok(_) => (),
+                Err(err) => panic!("SVG callback error without user_data: {err}")
+            }
+    });
+
+}
+
+pub fn text_input_callback(state: &mut IpgState, id: usize, message: TIMessage) {
+    // During the input, the widget is assigned the value so that it shows
+    // during typing.  On submit, the text box is cleared, so no value.
+    // However, in both cases the value is passed to the callback.
+    let mut wci: WidgetCallbackIn = WidgetCallbackIn{id, ..Default::default()};
+           
+    match message {
+        TIMessage::OnInput(value) => {
+            wci.value_str = Some(value.clone());
+            let wco = set_or_get_widget_callback_data(state, wci);
+            process_text_input_callback(id, "on_input".to_string(), wco.value_str.unwrap());
+        },
+        TIMessage::OnSubmit(value) => {
+            wci.value_str = Some(value.clone());
+            let wco = set_or_get_widget_callback_data(state, wci);
+            process_text_input_callback(id, "on_submit".to_string(), wco.value_str.unwrap());
+        }
+        TIMessage::OnPaste(value) => {
+            wci.value_str = Some(value.clone());
+            let _ = set_or_get_widget_callback_data(state, wci);
+
+            process_text_input_callback(id, "on_paste".to_string(), value);
+        }
+            
+    }
+}
+
+pub fn process_text_input_callback(
+        id: usize, 
+        event_name: String, 
+        value: String) 
+{
+    let ud1 = access_user_data1();
+    let app_cbs = access_callbacks();
+
+    // Retrieve the callback
+    let callback = match app_cbs.callbacks.get(&(id, event_name)) {
+        Some(cb) => Python::attach(|py| cb.clone_ref(py)),
+        None => return,
+    };
+
+    drop(app_cbs);
+
+    // Check user data from ud1
+    if let Some(user_data) = ud1.user_data.get(&id) {
+        Python::attach(|py| {
+            if let Err(err) = callback.call1(py, (id, value, user_data)) {
+                panic!("TextInput callback error: {err}");
+            }
+        });
+        drop(ud1); // Drop ud1 before processing ud2
+        return;
+    }
+    drop(ud1); // Drop ud1 if no user data is found
+
+    // Check user data from ud2
+    let ud2 = access_user_data2();
+    if let Some(user_data) = ud2.user_data.get(&id) {
+        Python::attach(|py| {
+            if let Err(err) = callback.call1(py, (id, value, user_data)) {
+                panic!("TextInput callback error: {err}");
+            }
+        });
+        drop(ud2); // Drop ud2 after processing
+        return;
+    }
+    drop(ud2); // Drop ud2 if no user data is found
+
+    // If no user data is found in both ud1 and ud2, call the callback with the id and value
+    Python::attach(|py| {
+        if let Err(err) = callback.call1(py, (id, value)) {
+            panic!("TextInput callback error: {err}");
+        }
+    });
+
+}
+
+pub fn timer_callback(state: &mut IpgState, id: usize, started: bool) -> u64 {
+    let mut wci = WidgetCallbackIn{id, ..Default::default()};
+    wci.value_bool = Some(started);
+    let mut wco: WidgetCallbackOut = set_or_get_widget_callback_data(state, wci);
+    wco.id = id;
+    // duration is the event time not total time
+    let duration = wco.duration.unwrap_or(1);
+    let (event_name, counter) = if started {
+        ("on_start".to_string(), None)
+    } else {
+        ("on_stop".to_string(), wco.counter) // the counter is set by the tick cb
+    };
+    
+    process_timer_callback(id, event_name, counter);
+    // After the start, the duratiob is sent back 
+    // to set the timer event duration
+    duration
+}
+
+pub fn tick_callback(state: &mut IpgState)
+{
+    let id= state.timer_event_id_enabled.0;
+    let mut wci = WidgetCallbackIn{id, ..Default::default()};
+    wci.value_str = Some("on_tick".to_string());
+    let wco: WidgetCallbackOut = set_or_get_widget_callback_data(state, wci);
+    process_timer_callback(id, "on_tick".to_string(), wco.counter);
+}
+
+fn process_timer_callback(
+        id: usize, 
+        event_name: String, 
+        counter: Option<u64>)
+{
+    let ud1 = access_user_data1();
+    let app_cbs = access_callbacks();
+
+    // Retrieve the callback
+    let callback = match app_cbs.callbacks.get(&(id, event_name.clone())) {
+        Some(cb) => Python::attach(|py| cb.clone_ref(py)),
+        None => return,
+    };
+
+    drop(app_cbs);
+
+    Python::attach(|py| {
+        
+        let name_bool = if event_name == "on_start".to_string() {
+            true
+        } else {
+            false
+        };
+
+        if let Some(user_data) = ud1.user_data.get(&id) {
+            let res = match name_bool {
+                    true => callback.call1(py, (id, user_data)),
+                    false => callback.call1(py, (id, counter, user_data)),
+            };
+            if let Err(err) = res {
+                panic!("CanvasTimer callback error: {err}");
+            } else {
+                drop(ud1);
+                return
+            }
+        }
+        drop(ud1); // Drop ud1 if no user data is found
+
+        // Check user data from ud2
+        let ud2 = access_user_data2();
+
+        if let Some(user_data) = ud2.user_data.get(&id) {
+            let res = match name_bool {
+                    true => callback.call1(py, (id, user_data)),
+                    false => callback.call1(py, (id, counter, user_data)),
+            };
+            if let Err(err) = res {
+                panic!("CanvasTimer callback error: {err}");
+            } else {
+                drop(ud2);
+                return
+            }
+        }
+        drop(ud2); // Drop ud1 if no user data is found
+
+        let res = match name_bool {
+            true => callback.call1(py, (id, )),
+            false => callback.call1(py, (id, counter)),
+        };
+        if let Err(err) = res {
+            panic!("CanvasTimer callback error: {err}");
+        }
+    });
+}
+
+pub fn canvas_timer_callback(state: &mut IpgState, id: usize, started: bool) -> u64 {
+
+    let mut wci = WidgetCallbackIn{id, ..Default::default()};
+    wci.value_bool = Some(started);
+    let mut wco: WidgetCallbackOut = set_or_get_widget_callback_data(state, wci);
+    wco.id = id;
+    // duration is the event time not total time
+    let duration = wco.duration.unwrap_or(1);
+    let (event_name, counter) = if started {
+        ("on_start".to_string(), None)
+    } else {
+        ("on_stop".to_string(), wco.counter)
+    };
+    
+    process_canvas_timer_callback(id, event_name, counter);
+    duration 
+}
+
+pub fn canvas_tick_callback(state: &mut IpgState) 
+{
+    let id= state.canvas_timer_event_id_enabled.0;
+    let mut wci = WidgetCallbackIn{id, ..Default::default()};
+    wci.value_str = Some("on_tick".to_string());
+    let wco: WidgetCallbackOut = set_or_get_widget_callback_data(state, wci);
+    process_canvas_timer_callback(id, "on_tick".to_string(), wco.counter);
+}
+
+fn process_canvas_timer_callback(
+        id: usize, 
+        event_name: String, 
+        counter: Option<u64>)
+{
+    let ud1 = access_user_data1();
+    let app_cbs = access_callbacks();
+
+    // Retrieve the callback
+    let callback = match app_cbs.callbacks.get(&(id, event_name.clone())) {
+        Some(cb) => Python::attach(|py| cb.clone_ref(py)),
+        None => return,
+    };
+
+    drop(app_cbs);
+
+    Python::attach(|py| {
+        
+        let name_bool = if event_name == "on_start".to_string() {
+            true
+        } else {
+            false
+        };
+
+        if let Some(user_data) = ud1.user_data.get(&id) {
+            let res = match name_bool {
+                    true => callback.call1(py, (id, user_data)),
+                    false => callback.call1(py, (id, counter, user_data)),
+            };
+            if let Err(err) = res {
+                panic!("CanvasTimer callback error: {err}");
+            } else {
+                drop(ud1);
+                return
+            }
+        }
+        drop(ud1); // Drop ud1 if no user data is found
+
+        // Check user data from ud2
+        let ud2 = access_user_data2();
+
+        if let Some(user_data) = ud2.user_data.get(&id) {
+            let res = match name_bool {
+                    true => callback.call1(py, (id, user_data)),
+                    false => callback.call1(py, (id, counter, user_data)),
+            };
+            if let Err(err) = res {
+                panic!("CanvasTimer callback error: {err}");
+            } else {
+                drop(ud2);
+                return
+            }
+        }
+        drop(ud2); // Drop ud1 if no user data is found
+
+        let res = match name_bool {
+            true => callback.call1(py, (id, )),
+            false => callback.call1(py, (id, counter)),
+        };
+        if let Err(err) = res {
+            panic!("CanvasTimer callback error: {err}");
+        }
+    });
+}
+
+pub fn toggle_callback(state: &mut IpgState, id: usize, message: TOGMessage) {
+
+    let mut wci = WidgetCallbackIn{id, ..Default::default()};
+
+    match message {
+        TOGMessage::Toggled(on_toggle) => {
+            wci.on_toggle = Some(on_toggle);
+            let _ = set_or_get_widget_callback_data(state, wci);
+            process_toggle_callback(id, "toggled".to_string(), on_toggle);
+        }
+    }
+}
+
+pub fn process_toggle_callback(
+    id: usize, 
+    event_name: String, 
+    toggled: bool) 
+{
+    let ud1 = access_user_data1();
+    let app_cbs = access_callbacks();
+
+    // Retrieve the callback
+    let callback = match app_cbs.callbacks.get(&(id, event_name)) {
+        Some(cb) => Python::attach(|py| cb.clone_ref(py)),
+        None => return,
+    };
+
+    drop(app_cbs);
+
+    // Check user data from ud1
+    if let Some(user_data) = ud1.user_data.get(&id) {
+        Python::attach(|py| {
+            if let Err(err) = callback.call1(py, (id, toggled, user_data)) {
+                panic!("Toggler callback error: {err}");
+            }
+        });
+        drop(ud1); // Drop ud1 before processing ud2
+        return;
+    }
+    drop(ud1); // Drop ud1 if no user data is found
+
+    // Check user data from ud2
+    let ud2 = access_user_data2();
+    if let Some(user_data) = ud2.user_data.get(&id) {
+        Python::attach(|py| {
+            if let Err(err) = callback.call1(py, (id, toggled, user_data)) {
+                panic!("Toggler callback error: {err}");
+            }
+        });
+        drop(ud2); // Drop ud2 after processing
+        return;
+    }
+    drop(ud2); // Drop ud2 if no user data is found
+
+    // If no user data is found in both ud1 and ud2, call the callback with the id and toggled
+    Python::attach(|py| {
+        if let Err(err) = callback.call1(py, (id, toggled)) {
+            panic!("Toggler callback error: {err}");
+        }
+    });
+         
 }

@@ -5,7 +5,7 @@ use std::{collections::HashMap, fs::File, io::{BufWriter, Write}, path::Path};
 use iced::{alignment, widget::text::{LineHeight, Shaping}, Color, Font, Pixels, Point, Radians, Size, Vector};
 use serde::{Deserialize, Serialize};
 
-use super::{draw_canvas::{IpgDrawMode, IpgDrawStatus, IpgWidget}, 
+use super::{draw_canvas::{IpgDrawMode, IpgDrawStatus, CanvasWidget}, 
     geometries::{IpgArc, IpgBezier, IpgCanvasWidget, IpgCircle, IpgEllipse, IpgFreeHand, IpgLine, IpgPolyLine, IpgPolygon, IpgRectangle, IpgRightTriangle, IpgText}};
 
 
@@ -119,10 +119,10 @@ pub struct ExportWidget {
 
 #[allow(clippy::redundant_closure)]
 pub fn import_widgets(widgets: Vec<ExportWidget>, mut last_id: usize) 
-                        -> (HashMap<usize, IpgWidget>, HashMap<usize, IpgWidget>, usize) {
+                        -> (HashMap<usize, CanvasWidget>, HashMap<usize, CanvasWidget>, usize) {
     
-    let mut curves: HashMap<usize, IpgWidget> = HashMap::new();
-    let mut text_curves: HashMap<usize, IpgWidget> = HashMap::new();
+    let mut curves: HashMap<usize, CanvasWidget> = HashMap::new();
+    let mut text_curves: HashMap<usize, CanvasWidget> = HashMap::new();
 
     for widget in widgets.iter() {
         let points: Vec<Point> = widget.points.iter().map(|p| convert_to_point(p)).collect();
@@ -162,7 +162,7 @@ pub fn import_widgets(widgets: Vec<ExportWidget>, mut last_id: usize)
                     status,
                 };
                 
-                curves.insert(last_id, IpgWidget::Arc(arc));
+                curves.insert(last_id, CanvasWidget::Arc(arc));
             },
             IpgCanvasWidget::Bezier => {
                 last_id += 1;
@@ -180,7 +180,7 @@ pub fn import_widgets(widgets: Vec<ExportWidget>, mut last_id: usize)
                     status
                 };
                 
-                curves.insert(last_id, IpgWidget::Bezier(bz));
+                curves.insert(last_id, CanvasWidget::Bezier(bz));
             },
             IpgCanvasWidget::Circle => {
                 last_id += 1;
@@ -198,7 +198,7 @@ pub fn import_widgets(widgets: Vec<ExportWidget>, mut last_id: usize)
                     status,
                 };
                 
-                curves.insert(last_id, IpgWidget::Circle(cir));
+                curves.insert(last_id, CanvasWidget::Circle(cir));
             },
             IpgCanvasWidget::Ellipse => {
                 last_id += 1;
@@ -219,7 +219,7 @@ pub fn import_widgets(widgets: Vec<ExportWidget>, mut last_id: usize)
                     status,
                 };
                 
-                curves.insert(last_id, IpgWidget::Ellipse(ell));
+                curves.insert(last_id, CanvasWidget::Ellipse(ell));
             },
             IpgCanvasWidget::Line => {
                 last_id += 1;
@@ -235,7 +235,7 @@ pub fn import_widgets(widgets: Vec<ExportWidget>, mut last_id: usize)
                     draw_mode,
                     status,
                 };
-                curves.insert(last_id, IpgWidget::Line(ln));
+                curves.insert(last_id, CanvasWidget::Line(ln));
             },
             IpgCanvasWidget::Polygon => {
                 last_id += 1;
@@ -254,7 +254,7 @@ pub fn import_widgets(widgets: Vec<ExportWidget>, mut last_id: usize)
                     draw_mode,
                     status,
                 };
-                curves.insert(last_id, IpgWidget::Polygon(pg));
+                curves.insert(last_id, CanvasWidget::Polygon(pg));
             },
             IpgCanvasWidget::PolyLine => {
                 last_id += 1;
@@ -272,7 +272,7 @@ pub fn import_widgets(widgets: Vec<ExportWidget>, mut last_id: usize)
                     draw_mode,
                     status,
                 };
-                curves.insert(last_id, IpgWidget::PolyLine(pl));
+                curves.insert(last_id, CanvasWidget::PolyLine(pl));
             },
             IpgCanvasWidget::Rectangle => {
                 last_id += 1;
@@ -290,7 +290,7 @@ pub fn import_widgets(widgets: Vec<ExportWidget>, mut last_id: usize)
                     draw_mode, 
                     status,
                 };
-                curves.insert(last_id, IpgWidget::Rectangle(rect));
+                curves.insert(last_id, CanvasWidget::Rectangle(rect));
             }
             IpgCanvasWidget::RightTriangle => {
                 last_id += 1;
@@ -308,7 +308,7 @@ pub fn import_widgets(widgets: Vec<ExportWidget>, mut last_id: usize)
                     draw_mode,
                     status,
                 };
-                curves.insert(last_id, IpgWidget::RightTriangle(tr));
+                curves.insert(last_id, CanvasWidget::RightTriangle(tr));
             },
             IpgCanvasWidget::FreeHand => {
                 last_id += 1;
@@ -323,7 +323,7 @@ pub fn import_widgets(widgets: Vec<ExportWidget>, mut last_id: usize)
                     status,
                     completed: true,
                 };
-                curves.insert(last_id, IpgWidget::FreeHand(fh));
+                curves.insert(last_id, CanvasWidget::FreeHand(fh));
             }
             IpgCanvasWidget::Text => {
                 last_id += 1;
@@ -342,7 +342,7 @@ pub fn import_widgets(widgets: Vec<ExportWidget>, mut last_id: usize)
                     draw_mode,
                     status,
                 };
-                text_curves.insert(last_id, IpgWidget::Text(txt));
+                text_curves.insert(last_id, CanvasWidget::Text(txt));
             }
         }
     }
@@ -351,8 +351,8 @@ pub fn import_widgets(widgets: Vec<ExportWidget>, mut last_id: usize)
 
 }
 
-pub fn convert_to_export(widgets: &HashMap<usize, IpgWidget>, 
-                        text: &HashMap<usize, IpgWidget>) 
+pub fn convert_to_export(widgets: &HashMap<usize, CanvasWidget>, 
+                        text: &HashMap<usize, CanvasWidget>) 
                         -> Vec<ExportWidget> {
 
     let mut curves = widgets.clone();
@@ -379,44 +379,44 @@ pub fn convert_to_export(widgets: &HashMap<usize, IpgWidget>,
             vertical_alignment,
             ) = 
             match widget {
-                IpgWidget::Arc(arc) => {
+                CanvasWidget::Arc(arc) => {
                     let other_point = Point{ x: arc.start_angle.0, y: arc.end_angle.0 };
                     (IpgCanvasWidget::Arc, &arc.points, arc.mid_point, other_point, 0, 0.0, arc.radius, 
                         arc.color, arc.fill_color, arc.width, String::new(), ExportHorizontal::None, ExportVertical::None)
                 },
-                IpgWidget::Bezier(bz) => {
+                CanvasWidget::Bezier(bz) => {
                     (IpgCanvasWidget::Bezier, &bz.points, bz.mid_point, Point::default(), 0, bz.rotation, 0.0, 
                     bz.color, bz.fill_color, bz.width, String::new(), ExportHorizontal::None, ExportVertical::None)
                 },
-                IpgWidget::Circle(cir) => {
+                CanvasWidget::Circle(cir) => {
                     (IpgCanvasWidget::Circle, &vec![cir.circle_point], cir.center, cir.circle_point, 0, 0.0, cir.radius, 
                         cir.color, cir.fill_color, cir.width, String::new(), ExportHorizontal::None, ExportVertical::None)
                 },
-                IpgWidget::Ellipse(ell) => {
+                CanvasWidget::Ellipse(ell) => {
                     (IpgCanvasWidget::Ellipse, &ell.points, ell.center, Point::default(), 0, ell.rotation.0, 0.0, 
                     ell.color, ell.fill_color, ell.width, String::new(), ExportHorizontal::None, ExportVertical::None)
                 },
-                IpgWidget::Line(ln) => {
+                CanvasWidget::Line(ln) => {
                     (IpgCanvasWidget::Line, &ln.points, ln.mid_point, Point::default(), 0, ln.rotation, 0.0, 
                     ln.color, Some(Color::TRANSPARENT), ln.width, String::new(), ExportHorizontal::None, ExportVertical::None)
                 },
-                IpgWidget::Polygon(pg) => {
+                CanvasWidget::Polygon(pg) => {
                     (IpgCanvasWidget::Polygon, &pg.points, pg.mid_point, pg.pg_point, pg.poly_points, pg.rotation, 0.0, 
                         pg.color, pg.fill_color, pg.width, String::new(), ExportHorizontal::None, ExportVertical::None)
                 },
-                IpgWidget::PolyLine(pl) => {
+                CanvasWidget::PolyLine(pl) => {
                     (IpgCanvasWidget::PolyLine, &pl.points, pl.mid_point, pl.pl_point, pl.poly_points, pl.rotation, 0.0, 
                         pl.color, Some(Color::TRANSPARENT), pl.width, String::new(), ExportHorizontal::None, ExportVertical::None)
                 },
-                IpgWidget::RightTriangle(tr) => {
+                CanvasWidget::RightTriangle(tr) => {
                     (IpgCanvasWidget::RightTriangle, &tr.points, tr.mid_point, tr.tr_point, 3, tr.rotation, 0.0, 
                         tr.color, tr.fill_color, tr.width, String::new(), ExportHorizontal::None, ExportVertical::None)
                 },
-                IpgWidget::FreeHand(fh) => {
+                CanvasWidget::FreeHand(fh) => {
                     (IpgCanvasWidget::FreeHand, &fh.points, Point::default(), Point::default(), 0, 0.0, 0.0, 
                     fh.color, Some(Color::TRANSPARENT), fh.width, String::new(), ExportHorizontal::None, ExportVertical::None)
                 }
-                IpgWidget::Text(txt) => {
+                CanvasWidget::Text(txt) => {
                     (IpgCanvasWidget::Text, &vec![], Point::default(), txt.position, 0, txt.rotation, 0.0, 
                     txt.color, Some(Color::TRANSPARENT), 0.0, txt.content.clone(), 
                     convert_to_export_horizontal(txt.horizontal_alignment), convert_to_export_vertical(txt.vertical_alignment))

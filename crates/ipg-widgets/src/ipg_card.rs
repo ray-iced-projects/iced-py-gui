@@ -1,23 +1,15 @@
 //! ipg_card
-use crate::app::Message;
-use crate::graphics::colors::get_color;
-use crate::ipg_widgets::helpers::{try_extract_boolean, try_extract_string};
-use crate::{access_callbacks, access_user_data1, access_user_data2, IpgState};
-use super::callbacks::WidgetCallbackIn;
-use super::helpers::{try_extract_f64, try_extract_ipg_color, try_extract_rgba_color, try_extract_u64};
-use super::ipg_enums::IpgWidgets;
-
 use iced::{Color, Element, Length, Padding};
 use iced::widget::{Column, Space, Text};
-
-use crate::iced_aw_widgets::card::{self, Card, CardStyles};
+use iced_aw_widgets::card::{self, Card, CardStyles};
 
 use pyo3::{pyclass, Py, PyAny, Python};
-
-// Type alias to replace deprecated PyObject
 type PyObject = Py<PyAny>;
 
-
+use ipg_types::{CardMessage, Message};
+use ipg_styling::{colors::get_color, try_extract_ipg_color, try_extract_rgba_color};
+use ipg_helpers::{try_extract_boolean, try_extract_string, try_extract_f64, try_extract_u64};
+use super::ipg_enums::IpgWidgets;
 #[derive(Debug, Clone)]
 pub struct IpgCard {
     pub id: usize,
@@ -80,11 +72,6 @@ impl IpgCard {
             show,
         }
     }
-}
-
-#[derive(Debug, Clone)]
-pub enum CardMessage {
-    OnClose,
 }
 
 #[derive(Debug, Clone)]
@@ -187,66 +174,6 @@ pub fn construct_card<'a>(crd: &'a IpgCard,
     Some(card.map(move |message: CardMessage| Message::Card(crd.id, message)))
     
 }
-
-pub fn card_callback(_state: &mut IpgState, id: usize, message: CardMessage) {
-    match message {
-        CardMessage::OnClose => {
-            let _ = 
-                WidgetCallbackIn{
-                    id,
-                    value_bool: Some(false),
-                    ..Default::default()
-                };
-            process_callback(id, "on_close".to_string());
-        }
-    }
-}
-
-pub fn process_callback(id: usize, event_name: String) {
-    let ud1 = access_user_data1();
-    let app_cbs = access_callbacks();
-
-    // Retrieve the callback
-    let callback = match app_cbs.callbacks.get(&(id, event_name)) {
-        Some(cb) => Python::attach(|py| cb.clone_ref(py)),
-        None => return,
-    };
-
-    drop(app_cbs);
-
-    // Check user data from ud1
-    if let Some(user_data) = ud1.user_data.get(&id) {
-        Python::attach(|py| {
-            if let Err(err) = callback.call1(py, (id, user_data)) {
-                panic!("Card callback error: {err}");
-            }
-        });
-        drop(ud1); // Drop ud1 before processing ud2
-        return;
-    }
-    drop(ud1); // Drop ud1 if no user data is found
-
-    // Check user data from ud2
-    let ud2 = access_user_data2();
-    if let Some(user_data) = ud2.user_data.get(&id) {
-        Python::attach(|py| {
-            if let Err(err) = callback.call1(py, (id, user_data)) {
-                panic!("Card callback error: {err}");
-            }
-        });
-        drop(ud2); // Drop ud2 after processing
-        return;
-    }
-    drop(ud2); // Drop ud2 if no user data is found
-
-    // If no user data is found in both ud1 and ud2, call the callback with only the id
-    Python::attach(|py| {
-        if let Err(err) = callback.call1(py, (id,)) {
-            panic!("Card callback error: {err}");
-        }
-    });
-}
-
 
 #[derive(Debug, Clone, PartialEq)]
 #[pyclass(eq, eq_int)]

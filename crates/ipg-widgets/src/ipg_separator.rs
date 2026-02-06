@@ -1,27 +1,20 @@
 //! ipg_separator
 #![allow(clippy::enum_variant_names)]
-use crate::app::Message;
-use crate::graphics::colors::{get_color, IpgColor};
-use crate::iced_aw_widgets::menu::quad::{InnerBounds, Quad};
-
-use crate::app;
-use super::helpers::{get_height, get_width, 
-    try_extract_boolean, try_extract_f64, try_extract_i64, 
-    try_extract_ipg_color, try_extract_rgba_color, 
-    try_extract_string};
-use super::ipg_enums::IpgWidgets;
-
 use iced::border::Radius;
-
-
-use pyo3::{pyclass, Py, PyAny, Python};
-
-// Type alias to replace deprecated PyObject
-type PyObject = Py<PyAny>;
-
 use iced::widget::{row, Row, Text};
 use iced::{Background, Border, Color, Element, 
     Length, Renderer, Theme };
+
+use pyo3::{pyclass, Py, PyAny, Python};
+type PyObject = Py<PyAny>;
+
+use ipg_helpers::{get_height, get_width, try_extract_boolean, try_extract_f64, 
+    try_extract_i64, try_extract_string};
+use ipg_styling::{colors::{get_color, IpgColor}, try_extract_ipg_color, 
+    try_extract_rgba_color};
+use ipg_types::Message;
+use iced_aw_widgets::quad::{InnerBounds, Quad};
+use crate::ipg_enums::IpgWidgets;
 
 
 #[derive(Debug, Clone)]
@@ -112,7 +105,7 @@ pub enum IpgSeparatorType {
 
 pub fn construct_separator<'a>(sep: &'a IpgSeparator, 
                             style_opt: Option<&IpgWidgets>) 
-                            -> Option<Element<'a, app::Message>> {
+                            -> Option<Element<'a, Message>> {
 
     if !sep.show {
         return None
@@ -127,7 +120,7 @@ pub fn construct_separator<'a>(sep: &'a IpgSeparator,
                                     false).unwrap();
     let mut border = Border::default();
     
-    let separator: Element<'a, app::Message>  = if style_opt.is_some() {
+    let separator: Element<'a, Message>  = if style_opt.is_some() {
         let style = style_opt.unwrap();
 
         sep_color = if style.color.is_some() {
@@ -174,7 +167,7 @@ pub fn construct_separator<'a>(sep: &'a IpgSeparator,
 fn get_dot(sep: &IpgSeparator, 
             sep_color: Color,
             border: Border) 
-            -> Element<'_, app::Message>{
+            -> Element<'_, Message>{
     
     let color = if sep.dot_fill {
         sep_color
@@ -216,7 +209,7 @@ fn get_dot(sep: &IpgSeparator,
 
 fn get_label(sep: &IpgSeparator,
             sep_color: Color) 
-            -> Element<'_, app::Message> {
+            -> Element<'_, Message> {
 
     let q_1: Element<Message, Theme, Renderer> = Quad {
         width: Length::Fixed(sep.label_left_width),
@@ -245,7 +238,7 @@ fn get_label(sep: &IpgSeparator,
 
 fn get_line(sep: &IpgSeparator,
             sep_color: Color) 
-            -> Element<'_, app::Message> {
+            -> Element<'_, Message> {
     Quad {
         width: sep.width,
         height: sep.height,

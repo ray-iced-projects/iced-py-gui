@@ -3,10 +3,10 @@
 use std::f32::consts::PI;
 
 use iced::{widget::canvas::{self, path::arc::Elliptical, Path}, Point, Radians, Vector};
-use crate::canvas::geometries::{IpgArc, IpgBezier, IpgCircle, IpgEllipse, IpgFreeHand, 
+use super::geometries::{IpgArc, IpgBezier, IpgCircle, IpgEllipse, IpgFreeHand, 
     IpgLine, IpgPolyLine, IpgPolygon, IpgRightTriangle, IpgText, IpgCanvasWidget};
-use crate::{canvas::draw_canvas::IpgDrawMode, 
-canvas::canvas_helpers::{build_polygon, get_angle_of_vectors, 
+use super::{draw_canvas::IpgDrawMode, 
+    canvas_helpers::{build_polygon, get_angle_of_vectors, 
     get_horizontal_angle_of_vector, get_mid_point, rotate_geometry, to_degrees, 
     translate_geometry}};
 

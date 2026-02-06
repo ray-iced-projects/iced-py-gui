@@ -1,20 +1,21 @@
 //! ipg_timer
-use graphics::colors::get_color;
-use crate::style::styling::IpgStyleStandard;
-use crate::{access_callbacks, access_user_data1, access_user_data2, app, IpgState};
-use super::callbacks::{set_or_get_widget_callback_data, WidgetCallbackIn, WidgetCallbackOut};
-use super::helpers::{get_height, get_padding_f64, get_radius, get_width, try_extract_boolean, try_extract_f64, try_extract_i64, try_extract_ipg_color, try_extract_rgba_color, try_extract_string, try_extract_style_standard, try_extract_u64, try_extract_vec_f32, try_extract_vec_f64};
-use super::ipg_button::{get_bootstrap_arrow, get_standard_style, try_extract_button_arrow, IpgButtonArrow};
-use super::ipg_enums::IpgWidgets;
-
 use iced::widget::button::{self, Status};
 use iced::widget::{Button, Text};
 use iced::{Border, Color, Element, Length, Padding, Shadow, Theme, Vector};
 
 use pyo3::{pyclass, Py, PyAny, Python};
-
-// Type alias to replace deprecated PyObject
 type PyObject = Py<PyAny>;
+
+use ipg_helpers::{get_height, get_padding_f64, get_radius, get_width, 
+    try_extract_boolean, try_extract_f64, try_extract_i64, try_extract_string, 
+    try_extract_u64, try_extract_vec_f32, try_extract_vec_f64};
+use ipg_styling::{colors::get_color, IpgStyleStandard, try_extract_style_standard, 
+    try_extract_ipg_color, try_extract_rgba_color};
+use ipg_types::{Message, TIMMessage};
+use super::ipg_button::{get_bootstrap_arrow, get_standard_style, 
+    try_extract_button_arrow, IpgButtonArrow};
+use super::ipg_enums::IpgWidgets;
+
 
 #[derive(Debug, Clone)]
 pub struct IpgTimer {
@@ -115,11 +116,6 @@ impl IpgTimerStyle {
     }
 }
 
-#[derive(Debug, Clone)]
-pub enum TIMMessage {
-    OnStartStop,
-}
-
 
 #[derive(Debug, Clone, PartialEq)]
 #[pyclass(eq, eq_int)]
@@ -141,7 +137,7 @@ pub enum IpgTimerParam {
 
 pub fn construct_timer<'a>(tim: &'a IpgTimer, 
                         style_opt: Option<&IpgWidgets>) 
-                        -> Option<Element<'a, app::Message>> {
+                        -> Option<Element<'a, Message>> {
 
     if !tim.show {
         return None
@@ -168,104 +164,10 @@ pub fn construct_timer<'a>(tim: &'a IpgTimer,
                                     )  })
                                 .into();
     
-    Some(timer_btn.map(move |message: TIMMessage| app::Message::Timer(tim.id, message)))
+    Some(timer_btn.map(move |message: TIMMessage| Message::Timer(tim.id, message)))
 
     
 }
-
-pub fn timer_callback(state: &mut IpgState, id: usize, started: bool) -> u64 {
-    let mut wci = WidgetCallbackIn{id, ..Default::default()};
-    wci.value_bool = Some(started);
-    let mut wco: WidgetCallbackOut = set_or_get_widget_callback_data(state, wci);
-    wco.id = id;
-    // duration is the event time not total time
-    let duration = wco.duration.unwrap_or(1);
-    let (event_name, counter) = if started {
-        ("on_start".to_string(), None)
-    } else {
-        ("on_stop".to_string(), wco.counter) // the counter is set by the tick cb
-    };
-    
-    process_callback(id, event_name, counter);
-    // After the start, the duratiob is sent back 
-    // to set the timer event duration
-    duration
-}
-
-pub fn tick_callback(state: &mut IpgState)
-{
-    let id= state.timer_event_id_enabled.0;
-    let mut wci = WidgetCallbackIn{id, ..Default::default()};
-    wci.value_str = Some("on_tick".to_string());
-    let wco: WidgetCallbackOut = set_or_get_widget_callback_data(state, wci);
-    process_callback(id, "on_tick".to_string(), wco.counter);
-}
-
-fn process_callback(
-        id: usize, 
-        event_name: String, 
-        counter: Option<u64>)
-{
-    let ud1 = access_user_data1();
-    let app_cbs = access_callbacks();
-
-    // Retrieve the callback
-    let callback = match app_cbs.callbacks.get(&(id, event_name.clone())) {
-        Some(cb) => Python::attach(|py| cb.clone_ref(py)),
-        None => return,
-    };
-
-    drop(app_cbs);
-
-    Python::attach(|py| {
-        
-        let name_bool = if event_name == "on_start".to_string() {
-            true
-        } else {
-            false
-        };
-
-        if let Some(user_data) = ud1.user_data.get(&id) {
-            let res = match name_bool {
-                    true => callback.call1(py, (id, user_data)),
-                    false => callback.call1(py, (id, counter, user_data)),
-            };
-            if let Err(err) = res {
-                panic!("CanvasTimer callback error: {err}");
-            } else {
-                drop(ud1);
-                return
-            }
-        }
-        drop(ud1); // Drop ud1 if no user data is found
-
-        // Check user data from ud2
-        let ud2 = access_user_data2();
-
-        if let Some(user_data) = ud2.user_data.get(&id) {
-            let res = match name_bool {
-                    true => callback.call1(py, (id, user_data)),
-                    false => callback.call1(py, (id, counter, user_data)),
-            };
-            if let Err(err) = res {
-                panic!("CanvasTimer callback error: {err}");
-            } else {
-                drop(ud2);
-                return
-            }
-        }
-        drop(ud2); // Drop ud1 if no user data is found
-
-        let res = match name_bool {
-            true => callback.call1(py, (id, )),
-            false => callback.call1(py, (id, counter)),
-        };
-        if let Err(err) = res {
-            panic!("CanvasTimer callback error: {err}");
-        }
-    });
-}
-
 
 pub fn timer_item_update(tim: &mut IpgTimer,
                         item: &PyObject,

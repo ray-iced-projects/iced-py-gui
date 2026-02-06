@@ -1,28 +1,18 @@
 //! ipg_svg
 #![allow(clippy::enum_variant_names)]
-use std::collections::HashMap;
-
-use crate::access_user_data1;
-use crate::access_user_data2;
-use crate::app;
-use crate::access_callbacks;
-use crate::IpgState;
-use super::helpers::{get_height, get_width};
-use super::helpers::{try_extract_boolean, try_extract_f64, 
-    try_extract_string};
-use super::ipg_mousearea::get_interaction;
-use super::ipg_mousearea::IpgMousePointer;
-
-use iced::{Length, Element, Point, Radians, Rotation};
+use iced::{Length, Element, Radians, Rotation};
 use iced::widget::{Svg, MouseArea};
 use iced::mouse::Interaction;
 use iced::advanced::svg;
 
 use pyo3::pyclass;
 use pyo3::{Py, PyAny, Python};
-
-// Type alias to replace deprecated PyObject
 type PyObject = Py<PyAny>;
+
+use ipg_helpers::{get_height, get_width, try_extract_boolean, 
+    try_extract_f64, try_extract_string};
+use ipg_types::{Message, SvgMessage};
+use super::ipg_mousearea::{IpgMousePointer, get_interaction};
 
 
 #[derive(Debug, Clone)]
@@ -70,19 +60,6 @@ impl IpgSvg {
     }
 }
 
-#[derive(Debug, Clone)]
-pub enum SvgMessage {
-    OnPress,
-    OnRelease,
-    OnRightPress,
-    OnRightRelease,
-    OnMiddlePress,
-    OnMiddleRelease,
-    OnEnter,
-    OnMove(Point),
-    OnExit,
-}
-
 #[derive(Debug, Clone, PartialEq)]
 #[pyclass(eq, eq_int)]
 pub enum IpgSvgContentFit {
@@ -101,7 +78,7 @@ pub enum IpgSvgRotation {
 }
 
 pub fn construct_svg(sg: &IpgSvg) 
-                    -> Option<Element<'_, app::Message>> {
+                    -> Option<Element<'_, Message>> {
 
     if !sg.show {
         return None
@@ -134,7 +111,7 @@ pub fn construct_svg(sg: &IpgSvg)
                     .interaction(pointer)
                     .into();
 
-    Some(widget.map(move |message| app::Message::Svg(sg.id, message)))
+    Some(widget.map(move |message| Message::Svg(sg.id, message)))
 
 }
 
@@ -155,115 +132,6 @@ fn match_rotation(rot: IpgSvgRotation, radians: Radians) -> Rotation {
     }
 }
 
-pub fn svg_callback(_state: &mut IpgState, id: usize, message: SvgMessage) {
-
-    match message {
-        SvgMessage::OnPress => {
-            process_callback(id, "on_press".to_string(), None);
-        },
-        SvgMessage::OnRelease => {
-            process_callback(id, "on_release".to_string(), None);
-        },
-        SvgMessage::OnRightPress => {
-            process_callback(id, "on_right_press".to_string(), None);
-        },
-        SvgMessage::OnRightRelease => {
-            process_callback(id, "on_right_release".to_string(), None);
-        },
-        SvgMessage::OnMiddlePress => {
-            process_callback(id, "on_middle_press".to_string(), None);
-        },
-        SvgMessage::OnMiddleRelease => {
-            process_callback(id, "on_middle_release".to_string(), None);
-        },
-        SvgMessage::OnEnter => {
-            process_callback(id, "on_enter".to_string(), None);
-        },
-        SvgMessage::OnMove(point) => {
-            let points: Option<HashMap<String, f32>> = Some(HashMap::from([
-                ("x".to_string(), point.x),
-                ("y".to_string(), point.y)
-            ]));
-            
-            process_callback(id, "on_move".to_string(), points);
-        },
-        SvgMessage::OnExit => {
-            process_callback(id, "on_exit".to_string(), None);
-        },
-    }
-}
-
-
-fn process_callback(
-    id: usize,
-    event_name: String,
-    points_opt: Option<HashMap<String, f32>>,
-) {
-    let ud1 = access_user_data1();
-    let ud_opt = ud1.user_data.get(&id);
-
-    let app_cbs = access_callbacks();
-    let callback = match app_cbs.callbacks.get(&(id, event_name)) {
-        Some(cb) => cb,
-        None => return,
-    };
-
-    let cb = Python::attach(|py| callback.clone_ref(py));
-    drop(app_cbs);
-
-    // Execute the callback with user data from ud1
-    if let Some(user_data) = ud_opt {
-        Python::attach(|py| {
-            let res = match points_opt {
-                Some(ref points) => cb.call1(py, (id, points.clone(), user_data)),
-                None => cb.call1(py, (id, user_data)),
-            };
-
-            match res {
-                Ok(_) => (),
-                Err(err) => panic!("SVG callback error with user_data from ud1: {err}")
-            }
-        });
-        drop(ud1); // Drop ud1 after processing
-        return;
-    }
-    drop(ud1); // Drop ud1 if no user data is found
-
-    // Execute the callback with user data from ud2
-    let ud2 = access_user_data2();
-    
-    if let Some(user_data) = ud2.user_data.get(&id) {
-        Python::attach(|py| {
-            let res = match points_opt {
-                Some(ref points) => cb.call1(py, (id, points.clone(), user_data)),
-                None => cb.call1(py, (id, user_data)),
-            };
-
-            match res {
-                Ok(_) => (),
-                Err(err) => panic!("SVG callback error with user_data from ud2: {err}")
-            }
-        });
-        drop(ud2); // Drop ud2 after processing
-        return;
-    }
-    drop(ud2); // Drop ud2 if no user data is found
-
-    // Execute the callback without user data
-    Python::attach(|py| {
-        let res = match points_opt {
-                Some(ref points) => cb.call1(py, (id, points.clone())),
-                None => cb.call1(py, (id,)),
-            };
-
-            match res {
-                Ok(_) => (),
-                Err(err) => panic!("SVG callback error without user_data: {err}")
-            }
-    });
-
-}
-
 
 #[derive(Debug, Clone, PartialEq)]
 #[pyclass(eq, eq_int)]
@@ -277,7 +145,6 @@ pub enum IpgSvgParam {
     RotationRadians,
     Opacity,
 }
-
 
 pub fn svg_item_update(img: &mut IpgSvg,
                             item: &PyObject,

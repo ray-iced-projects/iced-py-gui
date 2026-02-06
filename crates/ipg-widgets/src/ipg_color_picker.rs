@@ -1,22 +1,19 @@
 //! ipg_color_picker
-use crate::graphics::colors::get_color;
-use crate::{access_callbacks, access_user_data1, access_user_data2, IpgState};
-use crate::app::Message;
-use crate::style::styling::IpgStyleStandard;
-use super::helpers::{get_height, get_padding_f64, get_radius, get_width, try_extract_boolean, try_extract_f64, try_extract_ipg_color, try_extract_rgba_color, try_extract_string, try_extract_style_standard, try_extract_vec_f32, try_extract_vec_f64};
-use super::ipg_button::{get_standard_style, try_extract_button_arrow, IpgButtonArrow};
-use super::callbacks::{set_or_get_widget_callback_data, WidgetCallbackIn};
-use super::ipg_enums::IpgWidgets;
-
 use iced::widget::{button, text, Button};
 use iced::{Border, Color, Element, Length, Padding, Shadow, Theme, Vector};
 use iced_aw::ColorPicker;
 
 use pyo3::{pyclass, Py, PyAny, Python};
-
-// Type alias to replace deprecated PyObject
 type PyObject = Py<PyAny>;
 
+use ipg_helpers::{get_height, get_padding_f64, get_radius, get_width, 
+    try_extract_boolean, try_extract_f64, try_extract_string, 
+    try_extract_vec_f32, try_extract_vec_f64};
+use ipg_styling::{colors::get_color, IpgStyleStandard, 
+    try_extract_ipg_color, try_extract_rgba_color, try_extract_style_standard};
+use ipg_types::{ColPikMessage, Message};
+use super::ipg_button::{get_standard_style, try_extract_button_arrow, IpgButtonArrow};
+use super::ipg_enums::IpgWidgets;
 
 #[derive(Debug, Clone)]
 pub struct IpgColorPicker {
@@ -114,15 +111,6 @@ impl IpgColorPickerStyle {
     }
 }
 
-#[allow(clippy::enum_variant_names)]
-#[derive(Debug, Clone)]
-pub enum ColPikMessage {
-    OnPress,
-    OnCancel,
-    OnSubmit(Color),
-}
-
-
 pub fn construct_color_picker<'a>(cp: &'a IpgColorPicker,
                                 style_opt: Option<&IpgWidgets>,
                                 ) -> Option<Element<'a, Message>> {
@@ -135,7 +123,7 @@ pub fn construct_color_picker<'a>(cp: &'a IpgColorPicker,
                                     .height(cp.height)
                                     .padding(cp.padding)
                                     .width(cp.width)
-                                    .on_press(ColPikMessage::OnPress)
+                                    .on_press(ColPikMessage::ChooseColor)
                                     .style(move|theme: &Theme, status| {   
                                         get_styling(theme, status,
                                             style.clone(),
@@ -151,107 +139,13 @@ pub fn construct_color_picker<'a>(cp: &'a IpgColorPicker,
                                     cp.show,
                                     cp.color,
                                     btn,
-                                    ColPikMessage::OnCancel,
-                                    ColPikMessage::OnSubmit,
-                                ).into();
+                                    ColPikMessage::CancelColor,
+                                    ColPikMessage::SubmitColor)
+                                .into();
 
     Some(color_picker.map(move |message| Message::ColorPicker(cp.id, message)))
 
 }
-
-pub fn color_picker_callback(state: &mut IpgState, id: usize, message: ColPikMessage) {
-    let mut wci: WidgetCallbackIn = WidgetCallbackIn::default();
-    match message {
-        ColPikMessage::OnCancel => {
-            wci.id = id;
-            wci.value_bool = Some(false);
-            let _ = set_or_get_widget_callback_data(state, wci);
-            process_callback(id, "on_cancel".to_string(), None);
-        },
-        ColPikMessage::OnSubmit(color) => {
-            wci.id = id;
-            wci.value_bool = Some(false);
-            wci.color = Some(convert_color_to_list(color));
-            let _ = set_or_get_widget_callback_data(state, wci);
-            process_callback(id, "on_submit".to_string(), Some(convert_color_to_list(color)));
-        },
-        ColPikMessage::OnPress => {
-            wci.id = id;
-            wci.value_bool = Some(true);
-            let _ = set_or_get_widget_callback_data(state, wci);
-            process_callback(id, "on_press".to_string(), None);
-        },
-    }
-}
-
-
-pub fn process_callback(id: usize, event_name: String, color: Option<Vec<f64>>) 
-{
-    let ud1 = access_user_data1();
-    let app_cbs = access_callbacks();
-
-    // Retrieve the callback
-    let callback = match app_cbs.callbacks.get(&(id, event_name.clone())) {
-        Some(cb) => Python::attach(|py| cb.clone_ref(py)),
-        None => return,
-    };
-
-    drop(app_cbs);
-
-    // Check user data from ud1
-    if let Some(user_data) = ud1.user_data.get(&id) {
-        Python::attach(|py| {
-            if event_name == "on_submit".to_string() {
-                if let Err(err) = callback.call1(py, (id, color, user_data)) {
-                    panic!("ColorPicker callback error: {err}");
-                }
-            } else {
-                if let Err(err) = callback.call1(py, (id, user_data)) {
-                    panic!("ColorPicker callback error: {err}");
-                }
-            }
-            
-        });
-        drop(ud1); // Drop ud1 before processing ud2
-        return;
-    }
-    drop(ud1); // Drop ud1 if no user data is found
-
-    // Check user data from ud2
-    let ud2 = access_user_data2();
-    if let Some(user_data) = ud2.user_data.get(&id) {
-        Python::attach(|py| {
-            if event_name == "on_submit".to_string() {
-                if let Err(err) = callback.call1(py, (id, color, user_data)) {
-                    panic!("ColorPicker callback error: {err}");
-                }
-            } else {
-                if let Err(err) = callback.call1(py, (id, user_data)) {
-                    panic!("ColorPicker callback error: {err}");
-                }
-            }
-        });
-        drop(ud2); // Drop ud2 after processing
-        return;
-    }
-    drop(ud2); // Drop ud2 if no user data is found
-
-    // If no user data is found in both ud1 and ud2, call the 
-    // callback with only the id and color except for on_pressed
-    // which has only an id.
-    Python::attach(|py| {
-        if event_name == "on_submit".to_string() {
-            if let Err(err) = callback.call1(py, (id, color)) {
-                panic!("ColorPicker callback error: {err}");
-            }
-        } else {
-            if let Err(err) = callback.call1(py, (id,)) {
-                panic!("ColorPicker callback error: {err}");
-            }
-        }
-    });
-}
-
 
 #[derive(Debug, Clone, PartialEq)]
 #[pyclass(eq, eq_int)]
@@ -516,19 +410,4 @@ fn disabled(style: button::Style) -> button::Style {
         text_color: style.text_color.scale_alpha(0.5),
         ..style
     }
-}
-
-fn convert_color_to_list(color: Color) -> Vec<f64> {
-
-    vec![
-        rnd_2(color.r),
-        rnd_2(color.g),
-        rnd_2(color.b),
-        rnd_2(color.a),
-    ]
-}
-
-fn rnd_2(rgba: f32) -> f64 {
-    let num = rgba as f64 * 100.0;
-    num.round()/100.0
 }

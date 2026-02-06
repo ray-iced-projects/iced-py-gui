@@ -6,12 +6,15 @@ use pyo3::{pyclass, Py, PyAny, Python};
 // Type alias to replace deprecated PyObject
 type PyObject = Py<PyAny>;
 
-use crate::app::Message;
-use crate::graphics::colors::get_color;
 
-use super::helpers::{get_height, get_horizontal_alignment, get_padding_f64, get_radius, get_vertical_alignment, get_width, try_extract_array_2, try_extract_boolean, try_extract_f64, try_extract_ipg_color, try_extract_ipg_horizontal_alignment, try_extract_ipg_vertical_alignment, try_extract_rgba_color, try_extract_vec_f32, try_extract_vec_f64};
-use super::ipg_enums::{IpgHorizontalAlignment, IpgVerticalAlignment, IpgWidgets};
-
+use ipg_alignment::{get_horizontal_alignment, get_vertical_alignment, 
+    try_extract_ipg_horizontal_alignment, try_extract_ipg_vertical_alignment, 
+    IpgHorizontalAlignment, IpgVerticalAlignment};
+use super::ipg_enums::IpgWidgets;
+use ipg_helpers::{get_height, get_padding_f64, get_radius, get_width, try_extract_array_2, 
+    try_extract_boolean, try_extract_f64, try_extract_vec_f32, try_extract_vec_f64};
+use ipg_styling::{colors::get_color, {try_extract_ipg_color, try_extract_rgba_color}};
+use ipg_types::Message;
 
 #[derive(Debug, Clone)]
 pub struct IpgContainer {

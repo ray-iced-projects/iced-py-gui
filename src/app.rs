@@ -37,7 +37,7 @@ use ipg_widgets::ipg_card::{CardMessage, construct_card, card_callback};
 use ipg_widgets::ipg_checkbox::{CHKMessage, construct_checkbox, checkbox_callback};
 use ipg_widgets::ipg_column::construct_column;
 use ipg_widgets::ipg_container::construct_container;
-use ipg_widgets::ipg_date_picker::{DPMessage, construct_date_picker, date_picker_update};
+use ipg_widgets::ipg_date_picker::{DPMessage, construct_date_picker, date_picker_callback};
 use ipg_widgets::ipg_enums::{IpgContainers, IpgWidgets};
 use ipg_widgets::ipg_events::{IpgKeyBoardEvent, process_keyboard_events, 
     process_mouse_events, process_touch_events, process_window_event};
@@ -145,7 +145,7 @@ impl App {
                 Task::none()
             }
             Message::DatePicker(id, message) => {
-                date_picker_update(&mut self.state, id, message);
+                date_picker_callback(&mut self.state, id, message);
                 process_updates(&mut self.state, &mut self.canvas_state);
                 Task::none()
             },
@@ -728,7 +728,7 @@ fn get_widget<'a>(state: &'a IpgState, id: &usize) -> Option<Element<'a, Message
                         None => None,
                     };
                     
-                    construct_button(btn, style_opt)
+                    construct_button(&btn, style_opt)
                 },
                 IpgWidgets::IpgCard(crd) => {
                     let style_opt = match crd.style_id {
@@ -737,7 +737,7 @@ fn get_widget<'a>(state: &'a IpgState, id: &usize) -> Option<Element<'a, Message
                         },
                         None => None,
                     };
-                    construct_card(crd, style_opt)
+                    construct_card(&crd, style_opt)
                 },
                 IpgWidgets::IpgCheckBox(chk) => {
                     let style_opt = match chk.style_id {
@@ -746,7 +746,7 @@ fn get_widget<'a>(state: &'a IpgState, id: &usize) -> Option<Element<'a, Message
                         },
                         None => None,
                     };
-                    construct_checkbox(chk, style_opt)
+                    construct_checkbox(&chk, style_opt)
                 },
                 IpgWidgets::IpgColorPicker(cp) => {
                     let style_opt = match cp.style_id {
@@ -776,7 +776,7 @@ fn get_widget<'a>(state: &'a IpgState, id: &usize) -> Option<Element<'a, Message
                     construct_divider_vertical(div, style_opt)
                 },
                 IpgWidgets::IpgImage(image) => {
-                    construct_image(image)
+                    construct_image(&image)
                 },
                 // IpgWidgets::IpgMenu(menu) => {
                 //     Some(construct_menu(menu.clone(), state))
@@ -788,7 +788,7 @@ fn get_widget<'a>(state: &'a IpgState, id: &usize) -> Option<Element<'a, Message
                         },
                         None => None,
                     };
-                    construct_date_picker(dp, style_opt)
+                    construct_date_picker(&dp, style_opt)
                 },
                 IpgWidgets::IpgPickList(pick) => {
                     let style_opt = match pick.style_id {
@@ -797,7 +797,7 @@ fn get_widget<'a>(state: &'a IpgState, id: &usize) -> Option<Element<'a, Message
                         },
                         None => None,
                     };
-                    construct_picklist(pick, style_opt)
+                    construct_picklist(&pick, style_opt)
                 },
                 IpgWidgets::IpgProgressBar(bar) => {
                     let style_opt = match bar.style_id {
@@ -806,7 +806,7 @@ fn get_widget<'a>(state: &'a IpgState, id: &usize) -> Option<Element<'a, Message
                         },
                         None => None,
                     };
-                    construct_progress_bar(bar, style_opt)
+                    construct_progress_bar(&bar, style_opt)
                 },
                 IpgWidgets::IpgRadio(radio) => {
                     let style_opt = match radio.style_id {
@@ -815,7 +815,7 @@ fn get_widget<'a>(state: &'a IpgState, id: &usize) -> Option<Element<'a, Message
                         },
                         None => None,
                     };
-                    construct_radio(radio, style_opt)
+                    construct_radio(&radio, style_opt)
                 },
                 IpgWidgets::IpgRule(rule) => {
                     let style_opt = match rule.style_id {
@@ -824,10 +824,10 @@ fn get_widget<'a>(state: &'a IpgState, id: &usize) -> Option<Element<'a, Message
                         },
                         None => None,
                     };
-                    construct_rule(rule, style_opt)
+                    construct_rule(&rule, style_opt)
                 },
                 IpgWidgets::IpgSelectableText(sltxt) => {
-                    construct_selectable_text(sltxt)
+                    construct_selectable_text(&sltxt)
                 },
                 IpgWidgets::IpgSeparator(sep) => {
                     let style_opt = match sep.style_id {
@@ -845,16 +845,16 @@ fn get_widget<'a>(state: &'a IpgState, id: &usize) -> Option<Element<'a, Message
                         },
                         None => None,
                     };
-                    construct_slider(slider, style_opt)
+                    construct_slider(&slider, style_opt)
                 },
                 IpgWidgets::IpgSpace(sp) => {
-                    construct_space(sp)
+                    construct_space(&sp)
                 },
                 IpgWidgets::IpgSvg(svg) => {
-                    construct_svg(svg)
+                    construct_svg(&svg)
                 },
                 IpgWidgets::IpgText(text) => {
-                    construct_text(text)
+                    construct_text(&text)
                 },
                 IpgWidgets::IpgTextInput(input) => {
                     let style_opt = match input.style_id {
@@ -863,7 +863,7 @@ fn get_widget<'a>(state: &'a IpgState, id: &usize) -> Option<Element<'a, Message
                         },
                         None => None,
                     };
-                    construct_text_input(input, style_opt)       
+                    construct_text_input(&input, style_opt)       
                 },
                 IpgWidgets::IpgTimer(timer) => {
                     let style_opt = match timer.style_id {
@@ -872,7 +872,7 @@ fn get_widget<'a>(state: &'a IpgState, id: &usize) -> Option<Element<'a, Message
                         },
                         None => None,
                     };
-                    construct_timer(timer, style_opt)
+                    construct_timer(&timer, style_opt)
                 },
                 IpgWidgets::IpgCanvasTimer(ctimer) => {
                     let style_opt = match ctimer.style_id {
@@ -890,7 +890,7 @@ fn get_widget<'a>(state: &'a IpgState, id: &usize) -> Option<Element<'a, Message
                         },
                         None => None,
                     };
-                    construct_toggler(tog, style_opt)   
+                    construct_toggler(&tog, style_opt)   
                 },
                 _ => None,
 

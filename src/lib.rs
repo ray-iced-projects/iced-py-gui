@@ -208,28 +208,6 @@ pub fn access_canvas_update_items() -> MutexGuard<'static, UpdateCanvasItems> {
     UPDATE_CANVAS_ITEMS.lock().unwrap()
 }
 
-#[derive(Debug)]
-pub struct WindowActions {
-    pub mode: Vec<(usize, window::Mode)>,
-    pub decorations: Vec<usize>,
-    pub resize: Vec<(usize, f32, f32)>,
-    pub position: Vec<(usize, f32, f32)>,
-    pub level: Vec<(usize, window::Level)>,
-}
-
-pub static WINDOW_ACTIONS: Mutex<WindowActions> = Mutex::new(WindowActions {
-    mode: vec![],
-    decorations: vec![],
-    resize: vec![],
-    position: vec![],
-    level: vec![],
-});
-
-pub fn access_window_actions() -> MutexGuard<'static, WindowActions> {
-    WINDOW_ACTIONS.lock().unwrap()
-}
-
-
 #[derive(Debug, Clone)]
 pub enum IpgUpdateType {
     Add,

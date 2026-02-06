@@ -2,17 +2,17 @@
 use iced::widget::rule::{self, FillMode, Style};
 use iced::{Color, Element, Length, Theme};
 use iced::widget::{Container, Rule};
+
 use pyo3::{pyclass, Py, PyAny, Python};
-
-// Type alias to replace deprecated PyObject
 type PyObject = Py<PyAny>;
-use crate::app;
-use crate::graphics::colors::get_color;
 
-use super::helpers::{get_radius, try_extract_f64, try_extract_ipg_color, 
-    try_extract_rgba_color, try_extract_u16, try_extract_vec_f32, 
-    try_extract_vec_u16};
+use ipg_helpers::{get_radius, try_extract_f64, try_extract_u16, 
+    try_extract_vec_f32, try_extract_vec_u16};
+use ipg_styling::{colors::get_color, try_extract_ipg_color, 
+    try_extract_rgba_color};
+use ipg_types::Message;
 use super::ipg_enums::IpgWidgets;
+
 
 #[derive(Debug, Clone)]
 pub struct IpgRule {
@@ -85,7 +85,7 @@ impl IpgRuleStyle {
 // To control the other dimension, need to put into a container.
 pub fn construct_rule<'a>(rule: &'a IpgRule, 
                         style_opt: Option<&IpgWidgets>) 
-                        -> Option<Element<'a, app::Message>> {
+                        -> Option<Element<'a, Message>> {
 
     if !rule.show {
         return None
@@ -101,11 +101,11 @@ pub fn construct_rule<'a>(rule: &'a IpgRule,
 // The width or height parameters seems to have no effect so set to 0.
 pub fn construct_horizontal<'a>(rule: &'a IpgRule, 
                             style_opt: Option<&IpgWidgets>) 
-                            -> Element<'a, app::Message>{
+                            -> Element<'a, Message>{
 
     let style = get_rule_style(style_opt);
 
-    let rule_h: Element<app::Message> = Rule::horizontal(1)
+    let rule_h: Element<Message> = Rule::horizontal(1)
                                             .style(move|theme: &Theme| {   
                                                 get_styling(theme,
                                                     style.clone(),
@@ -120,11 +120,11 @@ pub fn construct_horizontal<'a>(rule: &'a IpgRule,
 
 fn construct_rule_vertical<'a>(rule: &'a IpgRule, 
                             style_opt: Option<&IpgWidgets>) 
-                            -> Element<'a, app::Message> {
+                            -> Element<'a, Message> {
 
     let style = get_rule_style(style_opt);
 
-    let rule_v: Element<app::Message> = Rule::vertical(1)
+    let rule_v: Element<Message> = Rule::vertical(1)
                                             .style(move|theme: &Theme| {   
                                                 get_styling(theme,
                                                     style.clone(), 

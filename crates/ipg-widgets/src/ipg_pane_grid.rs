@@ -2,7 +2,7 @@
 use iced::widget::{container, Container, Column, pane_grid::State, text};
 use iced::{Element, Length, Padding};
 
-use crate::app::Message;
+use ipg_types::Message;
 
 #[derive(Debug)]
 pub struct IpgPaneGrid {

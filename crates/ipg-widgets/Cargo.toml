@@ -7,7 +7,9 @@ description = "Widget implementations for IcedPyGui"
 
 [dependencies]
 # Internal dependencies
-
+ipg-fonts = { workspace = true }
+ipg-helpers = { workspace = true }
+ipg-styling = { workspace = true }
 # External dependencies
 iced = { workspace = true }
 pyo3 = { workspace = true }

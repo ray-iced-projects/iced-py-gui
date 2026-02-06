@@ -1,9 +1,12 @@
 [workspace]
 members = [
-    "crates/app-message",
-    "crates/ipg-widgets",
-    "crates/ipg-table",
+    "crates/ipg-core",
     "crates/ipg-canvas",
+    "crates/ipg-helpers",
+    "crates/ipg-styling",
+    "crates/ipg-table",
+    "crates/ipg-widgets",
+    "ipg-fonts",
 ]
 resolver = "2"
 
@@ -38,10 +41,13 @@ regex = "1.11.1"
 resvg = "0.45.1"
 
 # Internal crates
-app-message = { path = "crates/app-message" }
-ipg-widgets = { path = "crates/ipg-widgets" }
-ipg-table = { path = "crates/ipg-table" }
+ipg-core = { path = "crates/ipg-core" }
 ipg-canvas = { path = "crates/ipg-canvas" }
+ipg-fonts = { path = "ipg-fonts" }
+ipg-helpers = { path = "crates/ipg-helpers" }
+ipg-styling = { path = "crates/ipg-styling" }
+ipg-table = { path = "crates/ipg-table" }
+ipg-widgets = { path = "crates/ipg-widgets" }
 
 [package]
 authors = ["Charles Ray <ray-iced-projects@gmail.com>"]
@@ -58,10 +64,14 @@ crate-type = ["cdylib"]
 
 [dependencies]
 # Internal crates
-app-message = { workspace = true }
-ipg-widgets = { workspace = true }
-ipg-table = { workspace = true, optional = true }
+ipg-core = { workspace = true }
 ipg-canvas = { workspace = true, optional = true }
+ipg-helpers = { workspace = true }
+ipg-styling = { workspace = true }
+ipg-table = { workspace = true, optional = true }
+ipg-widgets = { workspace = true }
+
+
 
 # External dependencies
 pyo3 = { workspace = true }

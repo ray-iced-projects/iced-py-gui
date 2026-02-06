@@ -7,7 +7,7 @@ description = "Table implementation for IcedPyGui"
 
 [dependencies]
 # Internal depencies
-
+ipg-core ={ workspace = true }
 
 # External dependencies
 iced = { workspace = true }

@@ -1,16 +1,310 @@
-//! callbacks
-#![allow(dead_code)]
-use crate::IpgState;
-use super::ipg_enums::IpgContainers;
-use super::{helpers::{format_date, MONTH_NAMES}, ipg_enums::IpgWidgets, ipg_radio::Choice};
 
-use iced::widget::scrollable;
-use iced::{Color, Point};
 
-use pyo3::{Py, PyAny};
 
-// Type alias to replace deprecated PyObject
-type PyObject = Py<PyAny>;
+
+#[derive(Debug, Clone)]
+pub enum Message {
+    Button(usize, BTNMessage),
+    Canvas(CanvasMessage),
+    Card(usize, CardMessage),
+    CheckBox(usize, CHKMessage),
+    ColorPicker(usize, ColPikMessage),
+    DatePicker(usize, DPMessage),
+    Divider(usize, DivMessage),
+    EventKeyboard(Event),
+    EventMouse(Event),
+    EventWindow((window::Id, Event)),
+    EventTouch(Event),
+    Image(usize, ImageMessage),
+    // Modal(usize, ModalMessage),
+    PickList(usize, PLMessage),
+    Radio(usize, RDMessage),
+    Scrolled(scrollable::Viewport, usize),
+    SelectableText(usize, SLTXTMessage),
+    Slider(usize, SLMessage),
+    Svg(usize, SvgMessage),
+
+    TableSync(scrollable::AbsoluteOffset, usize),
+    TableDividerChanged((usize, usize, f32)),
+    TableDividerReleased(usize),
+
+    TextInput(usize, TIMessage),
+    Toggler(usize, TOGMessage),
+    CanvasTextBlink,
+    Tick,
+    CanvasTick,
+    Timer(usize, TIMMessage),
+    CanvasTimer(usize, CanvasTimerMessage),
+    FontLoaded(Result<(), font::Error>),
+    WindowOpened(window::Id, Option<Point>, Size),
+
+    MouseAreaOnPress(usize),
+    MouseAreaOnRelease(usize),
+    MouseAreaOnRightPress(usize),
+    MouseAreaOnRightRelease(usize),
+    MouseAreaOnMiddlePress(usize),
+    MouseAreaOnMiddleRelease(usize),
+    MouseAreaOnEnter(usize),
+    MouseAreaOnMove(Point, usize),
+    MouseAreaOnExit(usize),
+
+    OpaqueOnPress(usize),
+}
+
+#[derive(Debug)]
+pub struct State {
+    pub ids_ipd_ids: Lazy<HashMap<usize, Vec<IpgIds>>>,  // <window_id=usize, Vec<IpgIds=structure>>
+    pub last_id: usize,
+    pub gen_ids: Vec<usize>,
+
+    pub containers: Lazy<HashMap<usize, IpgContainers>>,
+    pub container_ids: Lazy<HashMap<usize, Vec<usize>>>,  // <window_id=usize, vec<container_id=usize>>
+    pub container_str_ids: Lazy<HashMap<String, usize>>, // get container usize id based on container string
+    pub container_wnd_str_ids: Lazy<HashMap<String, String>>, // get window string id based on container string id
+    pub container_window_usize_ids: Lazy<HashMap<usize, usize>>, //get window usize id based on container usize id
+    
+    pub widgets: Lazy<HashMap<usize, IpgWidgets>>,
+    pub widget_container_ids: Lazy<HashMap<usize, String>>, //widget_id=usize, container_id=String
+    
+    pub windows: Vec<IpgWindow>,
+    pub windows_iced_ipg_ids: Lazy<HashMap<window::Id, usize>>, // <iced id, ipg id>
+    pub windows_str_ids: Lazy<HashMap<String, usize>>,  // <ipg_id=str, ipg id>
+    pub window_debug: Lazy<HashMap<window::Id, (usize, bool)>>, // (wid, debug)
+    pub window_theme: Lazy<HashMap<window::Id, (usize, Theme)>>, // (wid, window Theme)
+    pub window_mode: Lazy<HashMap<window::Id, (usize, window::Mode)>>,
+
+    pub events: Vec<IpgEvents>,
+    pub keyboard_event_id_enabled: (usize, bool),
+    pub mouse_event_id_enabled: (usize, bool),
+    pub timer_event_id_enabled: (usize, bool),
+    pub canvas_timer_event_id_enabled: (usize, bool),
+    pub window_event_id_enabled: (usize, bool),
+    pub touch_event_id_enabled: (usize, bool),
+    pub timer_duration: u64,
+    pub canvas_timer_duration: u64,
+
+}
+
+pub static STATE: Mutex<State> = Mutex::new(
+    State {
+        ids_ipd_ids: Lazy::new(||HashMap::new()),
+        last_id: 0,
+        gen_ids: vec![],
+
+        containers: Lazy::new(||HashMap::new()),
+        container_ids: Lazy::new(||HashMap::new()),
+        container_str_ids: Lazy::new(||HashMap::new()),
+        container_wnd_str_ids: Lazy::new(||HashMap::new()),
+        container_window_usize_ids: Lazy::new(||HashMap::new()),
+
+        widgets: Lazy::new(||HashMap::new()),
+        widget_container_ids: Lazy::new(||HashMap::new()),
+
+        windows: vec![],
+        windows_iced_ipg_ids: Lazy::new(||HashMap::new()),
+        windows_str_ids: Lazy::new(||HashMap::new()),
+        window_debug: Lazy::new(||HashMap::new()),
+        window_theme: Lazy::new(||HashMap::new()),
+        window_mode: Lazy::new(||HashMap::new()),
+        
+        events: vec![],
+        keyboard_event_id_enabled: (0, false),
+        mouse_event_id_enabled: (0, false), 
+        timer_event_id_enabled: (0, false),
+        canvas_timer_event_id_enabled: (0, false),
+        window_event_id_enabled: (0, false),
+        touch_event_id_enabled: (0, false),
+        timer_duration: 0,
+        canvas_timer_duration: 0,
+
+    }
+);
+
+pub fn access_state() -> MutexGuard<'static, State> {
+    STATE.lock().unwrap()
+}
+
+#[derive(Debug)]
+pub struct CanvasState {
+    pub canvas_ids_str: Lazy<HashMap<String, usize>>,
+    pub curves: Lazy<HashMap<usize, IpgWidget>>,
+    pub text_curves: Lazy<HashMap<usize, IpgWidget>>,
+    pub image_curves: Lazy<HashMap<usize, IpgWidget>>,
+    pub width: Length,
+    pub height: Length,
+    pub background: Option<Color>,
+    pub border_color: Option<Color>,
+    pub border_width: Option<f32>,
+}
+
+pub static CANVAS_STATE: Mutex<CanvasState> = Mutex::new(
+    CanvasState {
+        canvas_ids_str: Lazy::new(||HashMap::new()),
+        curves: Lazy::new(||HashMap::new()),
+        text_curves: Lazy::new(||HashMap::new()),
+        image_curves: Lazy::new(||HashMap::new()),
+        width: Length::Fill,
+        height: Length::Fill,
+        background: None,
+        border_color: None,
+        border_width: None,
+        },
+);
+
+pub fn access_canvas_state() -> MutexGuard<'static, CanvasState> {
+    CANVAS_STATE.lock().unwrap()
+}
+
+#[derive(Default, Debug, Clone)]
+pub struct IpgState {
+    pub ids: HashMap<usize, Vec<IpgIds>>,  // <window_id=usize, Vec<IpgIds=structure>>
+    pub last_id: usize,
+
+    pub containers: HashMap<usize, IpgContainers>,
+    pub container_ids: HashMap<usize, Vec<usize>>,  // <window_id=usize, vec<container_id=usize>>
+    pub container_wnd_str_ids: HashMap<String, String>, // get window string id based on container string id
+    pub container_str_ids: HashMap<String, usize>, // get container usize id based on container string
+    pub container_window_usize_ids: HashMap<usize, usize>, //get window usize id based on container usize id
+    
+    pub widgets: HashMap<usize, IpgWidgets>,
+    pub widget_container_ids: HashMap<usize, String>, //widget_id=usize, container_id=String
+    
+    pub windows_iced_ipg_ids: HashMap<window::Id, usize>, // <iced id, ipg id>
+    pub windows_str_ids: HashMap<String, usize>,  // <ipg_id=str, ipg id>
+    pub windows: Vec<IpgWindow>,
+    pub window_debug: HashMap<window::Id, (usize, bool)>, // (wid, debug)
+    pub window_theme: HashMap<window::Id, (usize, Theme)>, // (wid, window Theme)
+    pub window_mode: HashMap<window::Id, (usize, window::Mode)>,
+    pub windows_opened: Vec<window::Id>,
+    pub windows_hidden: Vec<window::Id>,
+
+    pub container_style: HashMap<String, IpgContainerStyle>,
+    pub button_style: HashMap<String, IpgButtonStyle>,
+    pub checkbox_style: HashMap<String, IpgCheckboxStyle>,
+    pub color_picker_style: HashMap<String, IpgColorPickerStyle>,
+    // pub menu_bar_style: HashMap<String, IpgMenuBarStyle>,
+    // pub menu_style: HashMap<String, IpgMenuStyle>,
+    // pub menu_separator_style: HashMap<String, IpgMenuSeparatorStyle>,
+    pub opaque_style: HashMap<String, IpgOpaqueStyle>,
+    pub pick_list_style: HashMap<String, IpgPickListStyle>,
+    pub progress_bar_style: HashMap<String, IpgProgressBarStyle>,
+    pub radio_style:  HashMap<String, IpgRadioStyle>,
+    pub rule_style:  HashMap<String, IpgRuleStyle>,
+    pub slider_style:  HashMap<String, IpgSliderStyle>,
+    pub text_input_style: HashMap<String, IpgTextInputStyle>,
+    pub toggler_style: HashMap<String, IpgTogglerStyle>,
+    pub scrollable_style: HashMap<String, IpgScrollableStyle>,
+
+    pub keyboard_event_id_enabled: (usize, bool),
+    pub mouse_event_id_enabled: (usize, bool),
+    pub timer_event_id_enabled: (usize, bool),
+    pub canvas_timer_event_id_enabled: (usize, bool),
+    pub window_event_id_enabled: (usize, bool),
+    pub touch_event_id_enabled: (usize, bool),
+    pub timer_duration: u64,
+    pub canvas_timer_duration: u64,
+
+    pub mode: Vec<(usize, window::Mode)>,
+    pub decorations: Vec<usize>,
+    pub resize: Vec<(usize, f32, f32)>,
+    pub position: Vec<(usize, f32, f32)>,
+    pub level: Vec<(usize, window::Level)>,
+}
+
+impl IpgState {
+    pub fn new() -> Self {
+        IpgState {
+            ids: HashMap::new(),
+            last_id: 0,
+
+            containers: HashMap::new(),
+            container_ids: HashMap::new(),
+            container_wnd_str_ids: HashMap::new(),
+            container_str_ids: HashMap::new(),
+            container_window_usize_ids: HashMap::new(),
+
+            widgets: HashMap::new(),
+            widget_container_ids: HashMap::new(),
+
+            windows_iced_ipg_ids: HashMap::new(),
+            windows_str_ids: HashMap::new(),
+            windows: vec![],
+            window_debug: HashMap::new(),
+            window_theme: HashMap::new(),
+            window_mode: HashMap::new(),
+            windows_opened: vec![],
+            windows_hidden: vec![],
+
+            container_style: HashMap::new(),
+            button_style: HashMap::new(),
+            checkbox_style: HashMap::new(),
+            color_picker_style: HashMap::new(),
+            // menu_bar_style: HashMap::new(),
+            // menu_style: HashMap::new(),
+            // menu_separator_style: HashMap::new(),
+            opaque_style: HashMap::new(),
+            pick_list_style: HashMap::new(),
+            progress_bar_style: HashMap::new(),
+            radio_style: HashMap::new(),
+            rule_style: HashMap::new(),
+            slider_style: HashMap::new(),
+            text_input_style: HashMap::new(),
+            toggler_style: HashMap::new(),
+            scrollable_style: HashMap::new(),
+
+            keyboard_event_id_enabled: (0, false),
+            mouse_event_id_enabled: (0, false), 
+            timer_event_id_enabled: (0, false),
+            canvas_timer_event_id_enabled: (0, false),
+            window_event_id_enabled: (0, false),
+            touch_event_id_enabled: (0, false),
+            timer_duration: 0,
+            canvas_timer_duration: 0,
+
+            mode: vec![],
+            decorations: vec![],
+            resize: vec![],
+            position: vec![],
+            level: vec![],
+        }
+    }
+}
+
+
+pub fn check_for_dup_container_ids(id: usize, container_id: Option<String>) {
+
+    let state = access_state();
+    
+    let parents = match state.ids_ipd_ids.get(&id) {
+        Some(ids) => ids,
+        None => panic!("Ids in check_for_dup_container_ids not found")
+    };
+
+    for parent in parents {
+        if container_id == parent.container_id {
+            panic!("Container Id {:?} is not unique", container_id);
+        }
+    }
+    
+    drop(state);
+}
+
+pub fn find_key_for_value(ids: HashMap<window::Id, usize>, value: usize) -> window::Id {
+    let state = access_state();
+    let map = &ids;
+    let id = map.iter()
+        .find_map(|(key, &val)| if val == value { Some(key) } else { None });
+    
+    match id {
+        Some(id) => {
+            let iced_id = *id;
+            drop(state);
+            iced_id
+        },
+        None => panic!("Unable to find the iced id via the ipg id {}.", value)
+    }
+}
+
 
 
 #[derive(Default, Debug)]
@@ -451,4 +745,53 @@ pub fn container_callback_data(state: &mut IpgState, wci: WidgetCallbackIn) -> W
         }
     }
         
+}
+
+
+pub fn process_button_callback(
+        id: usize, 
+        event_name: String) 
+{
+    let ud1 = access_user_data1();
+    let app_cbs = access_callbacks();
+
+    // Retrieve the callback
+    let callback = match app_cbs.callbacks.get(&(id, event_name)) {
+        Some(cb) => Python::attach(|py| cb.clone_ref(py)),
+        None => return,
+    };
+
+    drop(app_cbs);
+
+    // Check user data from ud1
+    if let Some(user_data) = ud1.user_data.get(&id) {
+        Python::attach(|py| {
+            if let Err(err) = callback.call1(py, (id, user_data)) {
+                panic!("Button callback error: {err}");
+            }
+        });
+        drop(ud1); // Drop ud1 before processing ud2
+        return;
+    }
+    drop(ud1); // Drop ud1 if no user data is found
+
+    // Check user data from ud2
+    let ud2 = access_user_data2();
+    if let Some(user_data) = ud2.user_data.get(&id) {
+        Python::attach(|py| {
+            if let Err(err) = callback.call1(py, (id, user_data)) {
+                panic!("Button callback error: {err}");
+            }
+        });
+        drop(ud2); // Drop ud2 after processing
+        return;
+    }
+    drop(ud2); // Drop ud2 if no user data is found
+
+    // If no user data is found in both ud1 and ud2, call the callback with only the id
+    Python::attach(|py| {
+        if let Err(err) = callback.call1(py, (id,)) {
+            panic!("Button callback error: {err}");
+        }
+    });
 }

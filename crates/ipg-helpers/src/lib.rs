@@ -1,12 +1,7 @@
 //! helpers
-use std::collections::HashMap;
-
-use crate::graphics::colors::IpgColor;
-use crate::style::styling::IpgStyleStandard;
-use crate::access_state;
 use iced::border::Radius;
-use iced::{window, Alignment, Pixels};
-use iced::{alignment::{Horizontal, Vertical}, Length, Padding};
+use iced::Pixels;
+use iced::{Length, Padding};
 use iced::widget::text::{Shaping, LineHeight};
 
 use pyo3::{Py, PyAny, Python};
@@ -14,69 +9,8 @@ use pyo3::{Py, PyAny, Python};
 // Type alias to replace deprecated PyObject
 type PyObject = Py<PyAny>;
 
-use super::ipg_enums::{IpgAlignment, IpgHorizontalAlignment, IpgVerticalAlignment};
-
-pub fn check_for_dup_container_ids(id: usize, container_id: Option<String>) {
-
-    let state = access_state();
-    
-    let parents = match state.ids_ipd_ids.get(&id) {
-        Some(ids) => ids,
-        None => panic!("Ids in check_for_dup_container_ids not found")
-    };
-
-    for parent in parents {
-        if container_id == parent.container_id {
-            panic!("Container Id {:?} is not unique", container_id);
-        }
-    }
-    
-    drop(state);
-}
-
-pub fn find_key_for_value(ids: HashMap<window::Id, usize>, value: usize) -> window::Id {
-    let state = access_state();
-    let map = &ids;
-    let id = map.iter()
-        .find_map(|(key, &val)| if val == value { Some(key) } else { None });
-    
-    match id {
-        Some(id) => {
-            let iced_id = *id;
-            drop(state);
-            iced_id
-        },
-        None => panic!("Unable to find the iced id via the ipg id {}.", value)
-    }
-}
 
 
-pub fn get_alignment(align: IpgAlignment) -> Alignment {
-
-    match align {
-        IpgAlignment::Start => Alignment::Start,
-        IpgAlignment::Center => Alignment::Center,
-        IpgAlignment::End => Alignment::End,
-    }
-}
-
-pub fn get_horizontal_alignment(h_align: &IpgHorizontalAlignment) -> Horizontal {
-
-    match h_align {
-        IpgHorizontalAlignment::Left => Horizontal::Left,
-        IpgHorizontalAlignment::Center => Horizontal::Center,
-        IpgHorizontalAlignment::Right => Horizontal::Right,
-    }
-}
-
-pub fn get_vertical_alignment(v_align: &IpgVerticalAlignment) -> Vertical {
-    
-    match v_align {
-        IpgVerticalAlignment::Top => Vertical::Top,
-        IpgVerticalAlignment::Center => Vertical::Center,
-        IpgVerticalAlignment::Bottom => Vertical::Bottom,
-    }
-}
 
 // Standard method for Length using Width
 pub fn get_width(width: Option<f32>, width_fill: bool)-> Length {
@@ -394,72 +328,9 @@ pub fn try_extract_boolean(value: &PyObject, name: String) -> bool {
     })  
 }
 
-// These alignments return options so that only the canvas text alignment needs one py value type
-pub fn try_extract_ipg_horizontal_alignment(value: &PyObject) -> Option<IpgHorizontalAlignment> {
-    Python::attach(|py| {
 
-        let res = value.extract::<IpgHorizontalAlignment>(py);
-        match res {
-            Ok(val) => Some(val),
-            Err(_) => None,
-        }
-    })
-}
 
-pub fn try_extract_ipg_vertical_alignment(value: &PyObject) -> Option<IpgVerticalAlignment> {
-    Python::attach(|py| {
 
-        let res = value.extract::<IpgVerticalAlignment>(py);
-        match res {
-            Ok(val) => Some(val),
-            Err(_) => None,
-        }
-    })
-}
-
-pub fn try_extract_ipg_alignment(value: &PyObject) -> Option<IpgAlignment> {
-    Python::attach(|py| {
-
-        let res = value.extract::<IpgAlignment>(py);
-        match res {
-            Ok(val) => Some(val),
-            Err(_) => None,
-        }
-    })
-}
-
-pub fn try_extract_style_standard(value: &PyObject, name: String) -> IpgStyleStandard {
-    Python::attach(|py| {
-
-        let res = value.extract::<IpgStyleStandard>(py);
-        match res {
-            Ok(val) => val,
-            Err(_) => panic!("{}-Unable to extract python object for StyleStandard", name),
-        }
-    })
-}
-
-pub fn try_extract_ipg_color(value: &PyObject, name: String) -> IpgColor {
-    Python::attach(|py| {
-
-        let res = value.extract::<IpgColor>(py);
-        match res {
-            Ok(val) => val,
-            Err(_) => panic!("{}-Unable to extract python object for IpgColor", name),
-        }
-    })
-}
-
-pub fn try_extract_rgba_color(value: &PyObject, name: String) -> [f32; 4] {
-    Python::attach(|py| {
-
-        let res = value.extract::<[f32; 4]>(py);
-        match res {
-            Ok(val) => val,
-            Err(_) => panic!("{}-Unable to extract python object for RGBA color", name),
-        }
-    })
-}
 
 pub fn try_extract_point(value: &PyObject, name: String) -> [f32; 2] {
     Python::attach(|py| {

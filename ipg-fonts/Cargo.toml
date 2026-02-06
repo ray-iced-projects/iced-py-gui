@@ -1,0 +1,9 @@
+[package]
+name = "ipg-fonts"
+version = "0.4.0"
+edition = "2021"
+license = "GNU"
+description = "Font assets and helpers for IcedPyGui"
+
+[dependencies]
+iced = { workspace = true }

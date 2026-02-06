@@ -8,4 +8,5 @@ description = "Chart implementation for IcedPyGui"
 [dependencies]
 # External dependencies
 iced = { workspace = true }
+palette = { workspace = true }
 pyo3 = { workspace = true }

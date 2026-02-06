@@ -1,9 +1,5 @@
 //! ipg_button
 
-use crate::ipg_core::graphics::colors::get_color;
-use crate::ipg_core::style::styling::IpgStyleStandard;
-use crate::{access_callbacks, access_user_data2, access_user_data1, app};
-use super::helpers::{get_height, get_horizontal_alignment, get_padding_f64, get_radius, get_vertical_alignment, get_width, try_extract_boolean, try_extract_f32, try_extract_f64, try_extract_ipg_color, try_extract_ipg_horizontal_alignment, try_extract_ipg_vertical_alignment, try_extract_rgba_color, try_extract_string, try_extract_style_standard, try_extract_vec_f32, try_extract_vec_f64};
 use super::ipg_enums::IpgWidgets;
 
 use iced::widget::button::{self, Status, Style};
@@ -14,9 +10,6 @@ type PyObject = Py<PyAny>;
 
 use iced::widget::{text, Button, Text};
 use iced::{alignment, Border, Color, Element, Length, Padding, Shadow, Theme, Vector };
-
-use crate::graphics::bootstrap::{self, icon_to_char, icon_to_string};
-
 
 #[derive(Debug, Clone)]
 pub struct IpgButton {
@@ -168,58 +161,9 @@ pub fn button_callback(id: usize, message: BTNMessage) {
 
     match message {
         BTNMessage::OnPress => {
-            process_callback(id, "on_press".to_string());
+            process_button_callback(id, "on_press".to_string());
         }
     }
-}
-
-
-pub fn process_callback(
-        id: usize, 
-        event_name: String) 
-{
-    let ud1 = access_user_data1();
-    let app_cbs = access_callbacks();
-
-    // Retrieve the callback
-    let callback = match app_cbs.callbacks.get(&(id, event_name)) {
-        Some(cb) => Python::attach(|py| cb.clone_ref(py)),
-        None => return,
-    };
-
-    drop(app_cbs);
-
-    // Check user data from ud1
-    if let Some(user_data) = ud1.user_data.get(&id) {
-        Python::attach(|py| {
-            if let Err(err) = callback.call1(py, (id, user_data)) {
-                panic!("Button callback error: {err}");
-            }
-        });
-        drop(ud1); // Drop ud1 before processing ud2
-        return;
-    }
-    drop(ud1); // Drop ud1 if no user data is found
-
-    // Check user data from ud2
-    let ud2 = access_user_data2();
-    if let Some(user_data) = ud2.user_data.get(&id) {
-        Python::attach(|py| {
-            if let Err(err) = callback.call1(py, (id, user_data)) {
-                panic!("Button callback error: {err}");
-            }
-        });
-        drop(ud2); // Drop ud2 after processing
-        return;
-    }
-    drop(ud2); // Drop ud2 if no user data is found
-
-    // If no user data is found in both ud1 and ud2, call the callback with only the id
-    Python::attach(|py| {
-        if let Err(err) = callback.call1(py, (id,)) {
-            panic!("Button callback error: {err}");
-        }
-    });
 }
 
 

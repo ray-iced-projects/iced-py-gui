@@ -7,7 +7,7 @@ description = "Canvas implementation for IcedPyGui"
 
 [dependencies]
 # Internal dependencies
-app-message = { workspace = true }
+ipg-core = { workspace = true }
 # External dependencies
 iced = { workspace = true }
 pyo3 = { workspace = true }

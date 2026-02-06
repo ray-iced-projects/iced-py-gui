@@ -3,8 +3,13 @@ use iced::Color;
 // use palette::{FromColor, Hsl};
 use palette::rgb::Rgb;
 use palette::color_difference::Wcag21RelativeContrast;
-use pyo3::pyclass;
+use pyo3::{pyclass, Py, PyAny, Python};
+use pyo3::types::PyAnyMethods;
 
+type PyObject = Py<PyAny>;
+
+pub mod colors;
+use crate::colors::IpgColor;
 
 #[derive(Debug, Clone, PartialEq)]
 #[pyclass(eq, eq_int)]
@@ -84,4 +89,37 @@ fn relative_contrast(a: Color, b: Color) -> f32 {
     let b_srgb = Rgb::from(b);
 
     a_srgb.relative_contrast(b_srgb)
+}
+
+pub fn try_extract_style_standard(value: &PyObject, name: String) -> IpgStyleStandard {
+    Python::attach(|py| {
+
+        let res = value.bind(py).extract::<IpgStyleStandard>();
+        match res {
+            Ok(val) => val,
+            Err(_) => panic!("{}-Unable to extract python object for StyleStandard", name),
+        }
+    })
+}
+
+pub fn try_extract_ipg_color(value: &PyObject, name: String) -> IpgColor {
+    Python::attach(|py| {
+
+        let res = value.bind(py).extract::<IpgColor>();
+        match res {
+            Ok(val) => val,
+            Err(_) => panic!("{}-Unable to extract python object for IpgColor", name),
+        }
+    })
+}
+
+pub fn try_extract_rgba_color(value: &PyObject, name: String) -> [f32; 4] {
+    Python::attach(|py| {
+
+        let res = value.bind(py).extract::<[f32; 4]>();
+        match res {
+            Ok(val) => val,
+            Err(_) => panic!("{}-Unable to extract python object for RGBA color", name),
+        }
+    })
 }

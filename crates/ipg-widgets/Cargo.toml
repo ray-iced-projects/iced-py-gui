@@ -1,21 +1,22 @@
 [package]
 name = "ipg-widgets"
 version = "0.4.0"
-edition = "2021"
+edition = "2024"
 license = "GNU"
 description = "Widget implementations for IcedPyGui"
 
 [dependencies]
 # Internal dependencies
-iced-aw-widgets = { workspace = true }
+divider = { workspace = true }
 ipg-alignment = { workspace = true }
 ipg-fonts = { workspace = true }
 ipg-helpers = { workspace = true }
 ipg-styling = { workspace = true }
 ipg-types = { workspace = true }
 ipg-window = { workspace = true }
+
 # External dependencies
 iced = { workspace = true }
-pyo3 = { workspace = true }
 iced_aw = { workspace = true }
+pyo3 = { workspace = true }
 chrono = { workspace = true }

@@ -129,7 +129,7 @@ pub fn construct_button<'a>(btn: &'a IpgButton,
         return None
     }
 
-    let style = get_btn_style(style_opt);
+    let style_opt = get_btn_style(style_opt);
 
     let mut label = text(btn.label.clone())
                                                         .align_x(btn.text_align_x)
@@ -149,7 +149,7 @@ pub fn construct_button<'a>(btn: &'a IpgButton,
                                 .clip(btn.clip)
                                 .style(move|theme: &Theme, status| {   
                                     get_styling(theme, status,
-                                        style.clone(),
+                                        style_opt.clone(),
                                         btn.style_standard.clone(),
                                     )  
                                     })

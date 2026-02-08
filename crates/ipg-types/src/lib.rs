@@ -140,7 +140,6 @@ pub enum WndMessage {
 #[derive(Debug, Clone)]
 pub enum Message {
     Button(usize, BTNMessage),
-    Canvas(CanvasMessage),
     Card(usize, CardMessage),
     CheckBox(usize, CHKMessage),
     ColorPicker(usize, ColPikMessage),

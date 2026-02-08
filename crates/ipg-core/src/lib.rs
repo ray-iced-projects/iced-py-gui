@@ -2115,6 +2115,146 @@ fn process_svg_callback(
 
 }
 
+pub fn table_callback(
+        state: &mut IpgState,  
+        id: usize,  
+        message: TableMessage) 
+        -> (Option<scrollable::Id>, Option<scrollable::Id>, Option<scrollable::Id>){
+
+    let mut wci: WidgetCallbackIn = WidgetCallbackIn{id, ..Default::default()};
+
+    match message {
+        TableMessage::DivDragging((index, value)) => {
+            wci.value_f32 = Some(value);
+            wci.value_usize = Some(index);
+            wci.value_str = Some("dragging".to_string());
+            let wco = set_or_get_widget_callback_data(state, wci);
+            process_table_callback1(
+                id, 
+                "dragging".to_string(), 
+                index, 
+                wco.vec_f32);
+            return (None, None, None)
+        },
+        TableMessage::DivOnRelease=> {
+            process_table_callback2(
+                id, 
+                "released".to_string()
+            );
+            return (None, None, None)
+        },
+        TableMessage::SyncScrollables(id) => {
+            wci.id = id;
+            wci.value_str = Some("sync".to_string());
+            let wco = set_or_get_widget_callback_data(state, wci);
+
+            return wco.scroller_ids.unwrap();
+        }
+    }
+}
+
+// Table Divider dragging
+pub fn process_table_callback1(
+        id: usize, 
+        event_name: String, 
+        index: usize, 
+        value: Vec<f32>) 
+{
+    let ud1 = access_user_data1();
+    let app_cbs = access_callbacks();
+
+    // Retrieve the callback
+    let callback = match app_cbs.callbacks.get(&(id, event_name)) {
+        Some(cb) => Python::attach(|py| cb.clone_ref(py)),
+        None => return,
+    };
+
+    drop(app_cbs);
+
+    // Check user data from ud1
+    if let Some(user_data) = ud1.user_data.get(&id) {
+        Python::attach(|py| {
+            if let Err(err) = callback.call1(py, (id, index, value, user_data)) {
+                panic!("Table callback error: {err}");
+            }
+        });
+        drop(ud1); // Drop ud1 before processing ud2
+        return;
+    }
+    drop(ud1); // Drop ud1 if no user data is found
+
+    // Check user data from ud2
+    let ud2 = access_user_data2();
+    if let Some(user_data) = ud2.user_data.get(&id) {
+        Python::attach(|py| {
+            if let Err(err) = callback.call1(py, (id, index, value, user_data)) {
+                panic!("Table callback error: {err}");
+            }
+        });
+        drop(ud2); // Drop ud2 after processing
+        return;
+    }
+    drop(ud2); // Drop ud2 if no user data is found
+
+    // If no user data is found in both ud1 and ud2, call the callback with only the id, index, and value
+    Python::attach(|py| {
+        if let Err(err) = callback.call1(py, (id, index, value)) {
+            panic!("Table callback error: {err}");
+        }
+    });
+
+}
+
+// Table Divider released
+pub fn process_table_callback2(
+        id: usize, 
+        event_name: String) 
+{
+     let ud1 = access_user_data1();
+    let app_cbs = access_callbacks();
+
+    // Retrieve the callback
+    let callback = match app_cbs.callbacks.get(&(id, event_name)) {
+        Some(cb) => Python::attach(|py| cb.clone_ref(py)),
+        None => return,
+    };
+
+    drop(app_cbs);
+
+    // Check user data from ud1
+    if let Some(user_data) = ud1.user_data.get(&id) {
+        Python::attach(|py| {
+            if let Err(err) = callback.call1(py, (id, user_data)) {
+                panic!("Table Divider release callback error: {err}");
+            }
+        });
+        drop(ud1); // Drop ud1 before processing ud2
+        return;
+    }
+    drop(ud1); // Drop ud1 if no user data is found
+
+    // Check user data from ud2
+    let ud2 = access_user_data2();
+    if let Some(user_data) = ud2.user_data.get(&id) {
+        Python::attach(|py| {
+            if let Err(err) = callback.call1(py, (id, user_data)) {
+                panic!("Table Divider release callback error: {err}");
+            }
+        });
+        drop(ud2); // Drop ud2 after processing
+        return;
+    }
+    drop(ud2); // Drop ud2 if no user data is found
+
+    // If no user data is found in both ud1 and ud2, call the callback with only the id
+    Python::attach(|py| {
+        if let Err(err) = callback.call1(py, (id,)) {
+            panic!("Table Divider release callback error: {err}");
+        }
+    });
+
+}
+
 pub fn text_input_callback(state: &mut IpgState, id: usize, message: TIMessage) {
     // During the input, the widget is assigned the value so that it shows
     // during typing.  On submit, the text box is cleared, so no value.

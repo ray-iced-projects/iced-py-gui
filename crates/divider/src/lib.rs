@@ -1,19 +1,18 @@
-//! Display an interactive selector of a single value from a range of values to resize containers.
+//! A divider for resizing containers.
 use iced::border::{Border, Radius};
-use iced::event::{self, Event};
-use iced::advanced::layout;
-use iced::{mouse, Background};
+use iced::event::Event;
+use iced::advanced::{Clipboard, layout};
+use iced::{Background, Element};
 use iced::advanced::renderer;
 use iced::touch;
 use iced::advanced::widget::tree::{self, Tree};
 use iced::{
-    self, Color, Element, Length, 
+    self, Color, Length, 
     Rectangle, Size, Theme,
 };
-use iced::advanced::{Clipboard, Layout, Shell, Widget};
+use iced::advanced::{mouse, Layout, Shell, Widget};
 
-// divider version 0.3.1
-// modified added id to Fn
+
 pub fn divider_horizontal<'a, Message, Theme>(
     id: usize,
     widths: Vec<f32>,
@@ -27,14 +26,15 @@ where
 {
     let mut handle_offsets = vec![-handle_width/2.0; widths.len()-1];
         handle_offsets.extend([-handle_width]);
+    
     Divider::new(
-            id,
-            widths, 
-            handle_width, 
-            handle_height,
-            handle_offsets,
-            Direction::Horizontal,
-            on_change)
+        id,
+        widths, 
+        handle_width, 
+        handle_height,
+        handle_offsets,
+        Direction::Horizontal,
+        on_change)
 }
 
 pub fn divider_vertical<'a, Message, Theme>(
@@ -54,17 +54,15 @@ where
         handle_offsets.extend([-handle_height]);
         
     Divider::new(
-            id,
-            widths, 
-            handle_width, 
-            handle_height,
-            handle_offsets,
-            Direction::Vertical,
-            on_change)
+        id,
+        widths, 
+        handle_width, 
+        handle_height,
+        handle_offsets,
+        Direction::Vertical,
+        on_change)
 }
 
-
-#[allow(missing_debug_implementations)]
 pub struct Divider<'a, Message, Theme = iced::Theme>
 where
     Theme: Catalog,
@@ -85,41 +83,8 @@ where
 
 impl<'a, Message, Theme> Divider<'a, Message, Theme>
 where
-    Message: Clone,
     Theme: Catalog,
 {
-    /// The default height of a [`Divider`].
-    pub const DEFAULT_HEIGHT: f32 = 21.0;
-
-    /// Creates a new [`Divider`].
-    pub fn new<F>(
-        id: usize,
-        widths: Vec<f32>,
-        handle_width: f32,
-        handle_height: f32,
-        handle_offsets: Vec<f32>,
-        direction: Direction, 
-        on_change: F) 
-        -> Self
-    where
-        F: 'a + Fn((usize, usize, f32)) -> Message,
-    {
-        Divider {
-            id,
-            widths,
-            handle_width,
-            handle_height,
-            on_change: Box::new(on_change),
-            on_release: None,
-            width: Length::Fill,
-            height: Length::Fill,
-            handle_offsets,
-            include_last_handle: true,
-            direction,
-            class: Theme::default(),
-        }
-    }
-
     /// Sets the release message of the [`Divider`].
     /// This is called when the mouse is released from the Divider.
     ///
@@ -179,12 +144,57 @@ where
     }
 }
 
+#[derive(Default)]
+struct State {
+    is_dragging: bool,
+    index: usize,
+    handle_bounds: Vec<Rectangle>,
+    width_height_bounds: Vec<Rectangle>,
+}
+
+impl<'a, Message, Theme> Divider<'a, Message, Theme>
+where
+    Theme: Catalog,
+{
+    /// The default height of a [`Divider`].
+    pub const DEFAULT_HEIGHT: f32 = 21.0;
+
+    /// Creates a new [`Divider`].
+    pub fn new<F>(
+        id: usize,
+        widths: Vec<f32>,
+        handle_width: f32,
+        handle_height: f32,
+        handle_offsets: Vec<f32>,
+        direction: Direction, 
+        on_change: F) 
+        -> Self
+    where
+        F: 'a + Fn((usize, usize, f32)) -> Message,
+    {
+        Divider {
+            id,
+            widths,
+            handle_width,
+            handle_height,
+            on_change: Box::new(on_change),
+            on_release: None,
+            width: Length::Fill,
+            height: Length::Fill,
+            handle_offsets,
+            include_last_handle: true,
+            direction,
+            class: Theme::default(),
+        }
+    }
+}
+
 impl<Message, Theme, Renderer> Widget<Message, Theme, Renderer>
     for Divider<'_, Message, Theme>
 where
-    Message: Clone,
     Theme: Catalog,
-    Renderer: iced::advanced::Renderer,
+    Renderer: renderer::Renderer,
+    Message: Clone,
 {
     fn tag(&self) -> tree::Tag {
         tree::Tag::of::<State>()
@@ -202,196 +212,61 @@ where
     }
 
     fn layout(
-        &self,
+        &mut self,
         _tree: &mut Tree,
         _renderer: &Renderer,
         limits: &layout::Limits,
     ) -> layout::Node {
+        // self.content
+        //     .as_widget_mut()
+        //     .layout(&mut tree.children[0], renderer, limits)
         layout::atomic(limits, self.width, self.height)
     }
 
-    fn on_event(
+    fn update(
         &mut self,
         tree: &mut Tree,
-        event: Event,
+        event: &Event,
         layout: Layout<'_>,
         cursor: mouse::Cursor,
         _renderer: &Renderer,
         _clipboard: &mut dyn Clipboard,
         shell: &mut Shell<'_, Message>,
         _viewport: &Rectangle,
-    ) -> event::Status {
-        let state = tree.state.downcast_mut::<State>();
-        let is_dragging = state.is_dragging;
-        let total_bounds = layout.bounds();
-        
-        // stores the state
-        let mut widths = vec![];
-        for width in self.widths.iter() {
-            match self.direction {
-                Direction::Horizontal => {
-                    widths.push(*width);
-                },
-                Direction::Vertical => {
-                    widths.push(*width);
-                },
-            }
-        }
-        state.handle_bounds = 
-            get_handle_bounds(
-                total_bounds,
-                &widths,
-                self.handle_width, 
-                self.handle_height,
-                &self.handle_offsets,
-                self.include_last_handle,
-                self.direction);
-
-        state.width_height_bounds =
-            get_width_height_bounds(
-                total_bounds,
-                &widths,
-                self.handle_width, 
-                self.handle_height, 
-                self.direction);
-
-        match event {
-            Event::Mouse(mouse::Event::ButtonPressed(mouse::Button::Left))
-            | Event::Touch(touch::Event::FingerPressed { .. }) => {
-                let index = 
-                    find_mouse_over_handle_bounds(
-                        &state.handle_bounds, cursor);
-                
-                if index.is_some() {
-                    state.is_dragging = true;
-                    state.index = index.unwrap();
-                    return event::Status::Captured;
-                }
-            }
-            Event::Mouse(mouse::Event::ButtonReleased(mouse::Button::Left))
-            | Event::Touch(touch::Event::FingerLifted { .. })
-            | Event::Touch(touch::Event::FingerLost { .. }) => {
-                if is_dragging {
-                    if let Some(on_release) = self.on_release.clone() {
-                        shell.publish(on_release);
-                    }
-                    state.is_dragging = false;
-                    state.handle_bounds = vec![];
-                    state.width_height_bounds = vec![];
-                    state.index = 0;
-
-                    return event::Status::Captured;
-                }
-            }
-            Event::Mouse(mouse::Event::CursorMoved { position })
-            | Event::Touch(touch::Event::FingerMoved { id: _, position }) => {
-                if is_dragging {
-                    let end_x = total_bounds.x+total_bounds.width;
-                    let end_y = total_bounds.y+total_bounds.height;
-                    let handle_bounds = state.handle_bounds[state.index];
-                    let w_h_bounds = state.width_height_bounds[state.index];
-                    let handle_count = state.handle_bounds.len();
-                    let w_h_count = state.width_height_bounds.len();
-
-                    match self.direction {
-                        Direction::Horizontal => {
-                            if (position.x - handle_bounds.x + handle_bounds.width/2.0).abs() > 0.99 {
-                                let new_value = 
-                                    // Moving left
-                                    if position.x < w_h_bounds.x && state.index == 0 {
-
-                                        state.handle_bounds[state.index].x = w_h_bounds.x;
-                                        (state.index, 0.0)
-                                    } else 
-                                    // Moving left stopping at next divider
-                                    if state.index > 0 && position.x < state.handle_bounds[state.index-1].x {
-
-                                        state.handle_bounds[state.index].x = state.handle_bounds[state.index-1].x;
-                                        (state.index, 0.0)
-                                    } else
-                                    // Moving right: stop at next divider
-                                    if  state.index < handle_count-1 && (state.index < handle_count) && 
-                                        (position.x > state.handle_bounds[state.index+1].x) {
-
-                                        state.handle_bounds[state.index].x = state.handle_bounds[state.index+1].x;
-                                        (state.index, 0.0)
-                                    } else 
-                                    // Moving right: last index and no divider at end
-                                    if (handle_count < w_h_count) && 
-                                        (position.x > end_x-handle_bounds.width/2.0) {
-
-                                        state.handle_bounds[state.index].x = end_x-handle_bounds.width/2.0;
-                                        let new_value = (end_x-handle_bounds.width/2.0-w_h_bounds.x).round();
-                                        (state.index, new_value)
-                                    }
-                                     else {
-                                        // moving
-                                        state.handle_bounds[state.index].x = position.x;
-                                        let new_value = (position.x - w_h_bounds.x).round();
-                                        (state.index, new_value)
-                                    };
-                                let new_value = (self.id, new_value.0, new_value.1);
-                                shell.publish((self.on_change)(new_value));
-                                return event::Status::Captured;
-                            }
-                        },
-                        Direction::Vertical => {
-                            if (position.y - handle_bounds.y + handle_bounds.height/2.0).abs() > 0.99 {
-                                let new_value = 
-                                    // Moving up
-                                    if position.y < w_h_bounds.y && state.index == 0 {
-
-                                        state.handle_bounds[state.index].y = w_h_bounds.y;
-                                        (state.index, 0.0)
-                                    } else 
-                                    // Moving left stopping at next divider
-                                    if state.index > 0 && position.y < state.handle_bounds[state.index-1].y {
-
-                                        state.handle_bounds[state.index].y = state.handle_bounds[state.index-1].y;
-                                        (state.index, 0.0)
-                                    } else
-                                    // Moving right: stop at next divider
-                                    if  state.index < handle_count-1 && (state.index < handle_count) && 
-                                        (position.y > state.handle_bounds[state.index+1].y) {
-
-                                        state.handle_bounds[state.index].y = state.handle_bounds[state.index+1].y;
-                                        (state.index, 0.0)
-                                    } else 
-                                    // Moving right: last index and no divider at end
-                                    if (handle_count < w_h_count) && 
-                                        (position.y > end_y-handle_bounds.height/2.0) {
-                                            
-                                        state.handle_bounds[state.index].y = end_y-handle_bounds.height/2.0;
-                                        let new_value = (end_y-handle_bounds.height/2.0-w_h_bounds.y).round();
-                                        (state.index, new_value)
-                                    }
-                                     else {
-                                        // moving
-                                        state.handle_bounds[state.index].y = position.y;
-                                        let new_value = (position.y - w_h_bounds.y).round();
-                                        (state.index, new_value)
-                                    };
-                                let new_value = (self.id, new_value.0, new_value.1);
-                                shell.publish((self.on_change)(new_value));
-                                return event::Status::Captured;
-                            }
-                        },
-                    }
-                }
-            },
-            _ => {}
-        }
-
-        event::Status::Ignored
-
+    ) {
+        update::<Message, Theme, Renderer>(self, tree, event, layout, cursor, shell);
     }
-    
+
+    fn mouse_interaction(
+        &self,
+        tree: &Tree,
+        _layout: Layout<'_>,
+        cursor: mouse::Cursor,
+        _viewport: &Rectangle,
+        _renderer: &Renderer,
+    ) -> mouse::Interaction {
+        let state = tree.state.downcast_ref::<State>();
+        let is_mouse_over = 
+            find_mouse_over_handle_bounds(
+                &state.handle_bounds,  
+                cursor);
+
+        if state.is_dragging || is_mouse_over.is_some(){
+            match self.direction {
+                Direction::Horizontal => mouse::Interaction::ResizingHorizontally,
+                Direction::Vertical => mouse::Interaction::ResizingVertically,
+            }
+        } else {
+            mouse::Interaction::default()
+        }
+    }
+
     fn draw(
         &self,
         tree: &Tree,
         renderer: &mut Renderer,
         theme: &Theme,
-        _style: &renderer::Style,
+        _renderer_style: &renderer::Style,
         _layout: Layout<'_>,
         cursor: mouse::Cursor,
         _viewport: &Rectangle,
@@ -433,32 +308,8 @@ where
                 style.background,
             );
         }
-
     }
 
-    fn mouse_interaction(
-        &self,
-        tree: &Tree,
-        _layout: Layout<'_>,
-        cursor: mouse::Cursor,
-        _viewport: &Rectangle,
-        _renderer: &Renderer,
-    ) -> mouse::Interaction {
-        let state = tree.state.downcast_ref::<State>();
-        let is_mouse_over = 
-            find_mouse_over_handle_bounds(
-                &state.handle_bounds,  
-                cursor);
-
-        if state.is_dragging || is_mouse_over.is_some(){
-            match self.direction {
-                Direction::Horizontal => mouse::Interaction::ResizingHorizontally,
-                Direction::Vertical => mouse::Interaction::ResizingVertically,
-            }
-        } else {
-            mouse::Interaction::default()
-        }
-    }
 }
 
 impl<'a, Message, Theme, Renderer> From<Divider<'a, Message, Theme>>
@@ -473,6 +324,185 @@ where
     ) -> Element<'a, Message, Theme, Renderer> {
         Element::new(divider)
     }
+}
+
+/// Processes the given [`Event`] and updates the [`State`] of an [`Divider`]
+/// accordingly.
+fn update<Message: Clone, Theme, Renderer>(
+    widget: &mut Divider<'_, Message, Theme>,
+    tree: &mut Tree,
+    event: &Event,
+    layout: Layout<'_>,
+    cursor: mouse::Cursor,
+    shell: &mut Shell<'_, Message>,
+) 
+where
+    Theme: Catalog,
+    Renderer: iced::advanced::Renderer,
+{
+    
+    let state = tree.state.downcast_mut::<State>();
+    let is_dragging = state.is_dragging;
+    let total_bounds = layout.bounds();
+    
+    // stores the state
+    let mut widths = vec![];
+    for width in widget.widths.iter() {
+        match widget.direction {
+            Direction::Horizontal => {
+                widths.push(*width);
+            },
+            Direction::Vertical => {
+                widths.push(*width);
+            },
+        }
+    }
+    state.handle_bounds = 
+        get_handle_bounds(
+            total_bounds,
+            &widths,
+            widget.handle_width, 
+            widget.handle_height,
+            &widget.handle_offsets,
+            widget.include_last_handle,
+            widget.direction);
+
+    state.width_height_bounds =
+        get_width_height_bounds(
+            total_bounds,
+            &widths,
+            widget.handle_width, 
+            widget.handle_height, 
+            widget.direction);
+
+    match event {
+        Event::Mouse(mouse::Event::ButtonPressed(mouse::Button::Left))
+        | Event::Touch(touch::Event::FingerPressed { .. }) => {
+            let index = 
+                find_mouse_over_handle_bounds(
+                    &state.handle_bounds, cursor);
+            
+            if index.is_some() {
+                state.is_dragging = true;
+                state.index = index.unwrap();
+                shell.capture_event();
+            }
+        }
+        Event::Mouse(mouse::Event::ButtonReleased(mouse::Button::Left))
+        | Event::Touch(touch::Event::FingerLifted { .. })
+        | Event::Touch(touch::Event::FingerLost { .. }) => {
+            if is_dragging {
+                if let Some(on_release) = widget.on_release.clone() {
+                    shell.publish(on_release);
+                }
+                state.is_dragging = false;
+                state.handle_bounds = vec![];
+                state.width_height_bounds = vec![];
+                state.index = 0;
+
+                shell.capture_event();
+            }
+        }
+        Event::Mouse(mouse::Event::CursorMoved { position })
+        | Event::Touch(touch::Event::FingerMoved { id: _, position }) => {
+            if is_dragging {
+                let end_x = total_bounds.x+total_bounds.width;
+                let end_y = total_bounds.y+total_bounds.height;
+                let handle_bounds = state.handle_bounds[state.index];
+                let w_h_bounds = state.width_height_bounds[state.index];
+                let handle_count = state.handle_bounds.len();
+                let w_h_count = state.width_height_bounds.len();
+
+                match widget.direction {
+                    Direction::Horizontal => {
+                        if (position.x - handle_bounds.x + handle_bounds.width/2.0).abs() > 0.99 {
+                            let new_value = 
+                                // Moving left
+                                if position.x < w_h_bounds.x && state.index == 0 {
+
+                                    state.handle_bounds[state.index].x = w_h_bounds.x;
+                                    (state.index, 0.0)
+                                } else 
+                                // Moving left stopping at next divider
+                                if state.index > 0 && position.x < state.handle_bounds[state.index-1].x {
+
+                                    state.handle_bounds[state.index].x = state.handle_bounds[state.index-1].x;
+                                    (state.index, 0.0)
+                                } else
+                                // Moving right: stop at next divider
+                                if  state.index < handle_count-1 && (state.index < handle_count) && 
+                                    (position.x > state.handle_bounds[state.index+1].x) {
+
+                                    state.handle_bounds[state.index].x = state.handle_bounds[state.index+1].x;
+                                    (state.index, 0.0)
+                                } else 
+                                // Moving right: last index and no divider at end
+                                if (handle_count < w_h_count) && 
+                                    (position.x > end_x-handle_bounds.width/2.0) {
+
+                                    state.handle_bounds[state.index].x = end_x-handle_bounds.width/2.0;
+                                    let new_value = (end_x-handle_bounds.width/2.0-w_h_bounds.x).round();
+                                    (state.index, new_value)
+                                }
+                                    else {
+                                    // moving
+                                    state.handle_bounds[state.index].x = position.x;
+                                    let new_value = (position.x - w_h_bounds.x).round();
+                                    (state.index, new_value)
+                                };
+                            let new_value = (widget.id, new_value.0, new_value.1);
+                            shell.publish((widget.on_change)(new_value));
+                            shell.capture_event();
+                        }
+                    },
+                    Direction::Vertical => {
+                        if (position.y - handle_bounds.y + handle_bounds.height/2.0).abs() > 0.99 {
+                            let new_value = 
+                                // Moving up
+                                if position.y < w_h_bounds.y && state.index == 0 {
+
+                                    state.handle_bounds[state.index].y = w_h_bounds.y;
+                                    (state.index, 0.0)
+                                } else 
+                                // Moving left stopping at next divider
+                                if state.index > 0 && position.y < state.handle_bounds[state.index-1].y {
+
+                                    state.handle_bounds[state.index].y = state.handle_bounds[state.index-1].y;
+                                    (state.index, 0.0)
+                                } else
+                                // Moving right: stop at next divider
+                                if  state.index < handle_count-1 && (state.index < handle_count) && 
+                                    (position.y > state.handle_bounds[state.index+1].y) {
+
+                                    state.handle_bounds[state.index].y = state.handle_bounds[state.index+1].y;
+                                    (state.index, 0.0)
+                                } else 
+                                // Moving right: last index and no divider at end
+                                if (handle_count < w_h_count) && 
+                                    (position.y > end_y-handle_bounds.height/2.0) {
+                                        
+                                    state.handle_bounds[state.index].y = end_y-handle_bounds.height/2.0;
+                                    let new_value = (end_y-handle_bounds.height/2.0-w_h_bounds.y).round();
+                                    (state.index, new_value)
+                                }
+                                    else {
+                                    // moving
+                                    state.handle_bounds[state.index].y = position.y;
+                                    let new_value = (position.y - w_h_bounds.y).round();
+                                    (state.index, new_value)
+                                };
+                            let new_value = (widget.id, new_value.0, new_value.1);
+                            shell.publish((widget.on_change)(new_value));
+                            shell.capture_event();
+                        }
+                    },
+                }
+            }
+        },
+        _ => {}
+    }
+
+    shell.capture_event();
 }
 
 fn get_handle_bounds(
@@ -587,7 +617,7 @@ fn find_mouse_over_handle_bounds(
         None
 }
 
-/// The direction of [`Scrollable`].
+/// The direction of [`Divider`].
 #[derive(Debug, Clone, Copy, PartialEq, Default)]
 pub enum Direction {
     /// Horizontal resizing
@@ -595,14 +625,6 @@ pub enum Direction {
     Horizontal,
     /// Vertical resizing
     Vertical,
-}
-
-#[derive(Debug, Clone, PartialEq, Default)]
-struct State {
-    is_dragging: bool,
-    index: usize,
-    handle_bounds: Vec<Rectangle>,
-    width_height_bounds: Vec<Rectangle>,
 }
 
 /// The possible status of a [`Divider`].

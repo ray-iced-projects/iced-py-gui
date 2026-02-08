@@ -40,8 +40,6 @@ use app::App;
 
 use ipg_widgets::ipg_button::{button_item_update, button_style_update_item, 
     IpgButton, IpgButtonArrow, IpgButtonParam, IpgButtonStyle, IpgButtonStyleParam};
-use ipg_widgets::ipg_canvas::{canvas_item_update, IpgCanvas, 
-    IpgCanvasGeometryParam, IpgCanvasParam};
 use ipg_widgets::ipg_card::{card_item_update, card_style_update, IpgCard, 
     IpgCardParam, IpgCardStyle, IpgCardStyleParam};
 use ipg_widgets::ipg_checkbox::{checkbox_item_update, checkbox_style_update_item, 

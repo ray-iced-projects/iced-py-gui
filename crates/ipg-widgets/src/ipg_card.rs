@@ -1,8 +1,9 @@
 //! ipg_card
-use iced::{Color, Element, Length, Padding};
+use iced::{Color, Element, Length, Padding, Theme};
 use iced::widget::{Column, Space, Text};
-use iced_aw_widgets::card::{self, Card, CardStyles};
+use iced_aw::card::Card;
 
+use ipg_styling::IpgStyleStandard;
 use pyo3::{pyclass, Py, PyAny, Python};
 type PyObject = Py<PyAny>;
 
@@ -10,6 +11,8 @@ use ipg_types::{CardMessage, Message};
 use ipg_styling::{colors::get_color, try_extract_ipg_color, try_extract_rgba_color};
 use ipg_helpers::{try_extract_boolean, try_extract_string, try_extract_f64, try_extract_u64};
 use super::ipg_enums::IpgWidgets;
+
+
 #[derive(Debug, Clone)]
 pub struct IpgCard {
     pub id: usize,
@@ -129,14 +132,12 @@ pub fn construct_card<'a>(crd: &'a IpgCard,
 
     if !crd.show {return None}
     if !crd.is_open {
-        let sp: Element<CardMessage> = Space::new(0.0, 0.0).into();
+        let sp: Element<CardMessage> = Space::default().into();
         let sp_mapped: Element<Message> = sp.map(move |message| Message::Card(crd.id, message));
         return Some(sp_mapped)
     }
 
-    let card_style = get_card_style(style_opt);
-
-    let style = custom_style(card_style);
+    let style = get_card_style(style_opt);
 
     let head: Element<CardMessage> = Text::new(crd.head.clone())
                                                 .width(Length::Fill)
@@ -168,7 +169,12 @@ pub fn construct_card<'a>(crd: &'a IpgCard,
                                                 .padding_foot(crd.padding_foot)
                                                 .close_size(crd.close_size)
                                                 .on_close(CardMessage::OnClose)
-                                                .style(style)
+                                                .style(move|theme: &Theme, status|{   
+                                                    get_styling(theme, status,
+                                                        style.clone(),
+                                                        crd.style_standard.clone(),
+                                                        )  
+                                                    })
                                                 .into();
 
     Some(card.map(move |message: CardMessage| Message::Card(crd.id, message)))
@@ -225,7 +231,21 @@ pub fn get_card_style(style: Option<&IpgWidgets>) -> Option<IpgCardStyle>{
     }
 }
 
-fn custom_style(ipg_style_opt: Option<IpgCardStyle>) -> CardStyles {
+use iced_aw::style::{self, card};
+pub fn get_styling(
+        theme: &Theme, status: style::Status,
+        style_opt: Option<IpgCardStyle>,
+        style_standard: Option<IpgStyleStandard>,
+        ) -> card::Style 
+{
+    if style_standard.is_none() && style_opt.is_none() {
+        return card::primary(theme, status)
+    }
+
+    if style_opt.is_none() && style_standard.is_some() {
+            return get_standard_style(theme, status, style_standard)
+    }
+
 
     let ipg_style = if let Some(style) = ipg_style_opt {
             style
@@ -258,7 +278,7 @@ fn custom_style(ipg_style_opt: Option<IpgCardStyle>) -> CardStyles {
     let foot_text_color = ipg_style.foot_text_color.unwrap_or(Color::BLACK);
     let close_color = ipg_style.close_color.unwrap_or(Color::BLACK);
 
-    let custom= card::Appearance{ 
+    let custom = card::Appearance{ 
         background, 
         border_radius, 
         border_width, 
@@ -277,6 +297,20 @@ fn custom_style(ipg_style_opt: Option<IpgCardStyle>) -> CardStyles {
 
 }
 
+fn get_standard_style(
+        theme: &Theme, status: style::Status, 
+        std_style: Option<IpgStyleStandard>)
+        -> card::Style {
+
+    match std_style {
+        Some(IpgStyleStandard::Primary) => card::primary(theme, status),
+        Some(IpgStyleStandard::Success) => card::success(theme, status),
+        Some(IpgStyleStandard::Danger) => card::danger(theme, status),
+        Some(IpgStyleStandard::Warning) => card::warning(theme, status),
+        Some(IpgStyleStandard::Text) => card::warning(theme, status),
+        None => card::primary(theme, status)
+    }
+}
 
 pub fn try_extract_card_update(update_obj: &PyObject) -> IpgCardParam {
     Python::attach(|py| {

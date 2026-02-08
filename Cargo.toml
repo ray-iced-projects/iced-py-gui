@@ -1,11 +1,9 @@
 [workspace]
 members = [
-    "crates/iced-aw-widgets",
+    "crates/divider",
     "crates/ipg-alignment",
-    "crates/ipg-canvas",
     "crates/ipg-helpers",
     "crates/ipg-styling",
-    "crates/ipg-table",
     "crates/ipg-types",
     "crates/ipg-widgets",
     "crates/ipg-window",
@@ -16,9 +14,9 @@ resolver = "2"
 # Shared dependencies - use with { workspace = true } in member crates
 [workspace.dependencies]
 pyo3 = { version = "0.26", features = ["extension-module"] }
-iced = { version = "0.13.1", features = ["canvas", "debug", "highlighter", "image", 
-"lazy", "smol", "svg", "tokio", "multi-window", "auto-detect-theme"] }
-iced_aw = { git = "https://github.com/iced-rs/iced_aw", rev = "3485f3a" }
+iced = { version = "0.14", features = ["advanced", "canvas", "debug", "highlighter", "image", 
+"lazy", "smol", "svg", "tokio"] }
+iced_aw = { version = "0.13.0", features = ["full"] }
 polars = { version = "0.52", default-features = false, features = [
     "csv",
     "dtype-date",
@@ -44,13 +42,11 @@ regex = "1.11.1"
 resvg = "0.45.1"
 
 # Internal crates
-iced-aw-widgets = { path = "crates/iced-aw-widgets" }
+divider = { path = "crates/divider"}
 ipg-alignment = { path = "crates/ipg-alignment" }
-ipg-canvas = { path = "crates/ipg-canvas" }
 ipg-fonts = { path = "ipg-fonts" }
 ipg-helpers = { path = "crates/ipg-helpers" }
 ipg-styling = { path = "crates/ipg-styling" }
-ipg-table = { path = "crates/ipg-table" }
 ipg-types = { path = "crates/ipg-types" }
 ipg-widgets = { path = "crates/ipg-widgets" }
 ipg-window = { path = "crates/ipg-window" }
@@ -59,7 +55,7 @@ ipg-window = { path = "crates/ipg-window" }
 authors = ["Charles Ray <ray-iced-projects@gmail.com>"]
 name = "icedpygui"
 version = "0.4.0"
-edition = "2021"
+edition = "2024"
 license = "GNU"
 description = "Python wrapper for Rust Iced"
 readme = "README.md"
@@ -70,12 +66,10 @@ crate-type = ["cdylib"]
 
 [dependencies]
 # Internal crates
-iced-aw-widgets = { workspace = true }
+divider = { workspace = true }
 ipg-alignment = { workspace = true }
-ipg-canvas = { workspace = true, optional = true }
 ipg-helpers = { workspace = true }
 ipg-styling = { workspace = true }
-ipg-table = { workspace = true, optional = true }
 ipg-types = { workspace = true }
 ipg-widgets = { workspace = true }
 ipg-window ={ workspace = true }
@@ -99,10 +93,6 @@ phf = { workspace = true }
 regex = { workspace = true }
 resvg = { workspace = true }
 
-[features]
-default = ["table", "canvas"]
-table = ["dep:ipg-table"]
-canvas = ["dep:ipg-canvas"]
 
 [build-dependencies]
 pyo3-build-config = { version = "0.26", features = ["resolve-config"] }

@@ -8,13 +8,17 @@ use iced::Length::Fill;
 use iced::{Element, Renderer, Theme};
 use iced::widget::{column, container, Space, row, scrollable, stack, text};
 
+use ipg_styling::colors::get_color;
+use ipg_styling::{try_extract_ipg_color, try_extract_rgba_color};
 use polars::frame::DataFrame;
 use pyo3::{pyclass, Py, PyAny, Python};
 type PyObject = Py<PyAny>;
 
-use ipg_types::Message;
-use crate::ipg_enums::IpgWidgets;
+use ipg_helpers::{try_extract_boolean, try_extract_f32, try_extract_f64, try_extract_usize, try_extract_vec_f32, try_extract_vec_usize};
 
+use ipg_types::Message;
+use ipg_enums::IpgWidgets;
+use super::divider::horizontal;
 
 #[derive(Debug, Clone)]
 pub struct IpgTable {
@@ -467,11 +471,17 @@ pub fn construct_table<'a>(tbl: IpgTable,
             let header_stk = 
                 stack([header.unwrap(), div_header.into()]).into();
             main_col.push(header_stk);
-            main_col.push(Space::new(5.0, tbl.header_body_spacing).into());
+            main_col.push(Space::new()
+                            .width(5.0)
+                            .height(tbl.header_body_spacing)
+                            .into());
 
         } else if header.is_some() && !tbl.resize_columns_enabled {
             main_col.push(header.unwrap());
-            main_col.push(Space::new(5.0, tbl.header_body_spacing).into());
+            main_col.push(Space::new()
+                            .width(5.0)
+                            .height(tbl.header_body_spacing)
+                            .into());
         }
         
         if tbl.resize_columns_enabled {
@@ -481,7 +491,10 @@ pub fn construct_table<'a>(tbl: IpgTable,
         }
 
         if footer.is_some() {
-            main_col.push(Space::new(5.0, tbl.body_footer_spacing).into());
+            main_col.push(Space::new()
+                            .width(5.0)
+                            .height(tbl.body_footer_spacing)
+                            .into());
         }
 
         if footer.is_some() && tbl.resize_columns_enabled {
@@ -502,146 +515,6 @@ pub enum TableMessage {
     DivDragging((usize, f32)),
     DivOnRelease,
     SyncScrollables(usize),
-}
-
-pub fn table_callback(
-        state: &mut IpgState,  
-        id: usize,  
-        message: TableMessage) 
-        -> (Option<scrollable::Id>, Option<scrollable::Id>, Option<scrollable::Id>){
-
-    let mut wci: WidgetCallbackIn = WidgetCallbackIn{id, ..Default::default()};
-
-    match message {
-        TableMessage::DivDragging((index, value)) => {
-            wci.value_f32 = Some(value);
-            wci.value_usize = Some(index);
-            wci.value_str = Some("dragging".to_string());
-            let wco = set_or_get_widget_callback_data(state, wci);
-            process_callback1(
-                id, 
-                "dragging".to_string(), 
-                index, 
-                wco.vec_f32);
-            return (None, None, None)
-        },
-        TableMessage::DivOnRelease=> {
-            process_callback2(
-                id, 
-                "released".to_string()
-            );
-            return (None, None, None)
-        },
-        TableMessage::SyncScrollables(id) => {
-            wci.id = id;
-            wci.value_str = Some("sync".to_string());
-            let wco = set_or_get_widget_callback_data(state, wci);
-
-            return wco.scroller_ids.unwrap();
-        }
-    }
-}
-
-// Table Divider dragging
-pub fn process_callback1(
-        id: usize, 
-        event_name: String, 
-        index: usize, 
-        value: Vec<f32>) 
-{
-    let ud1 = access_user_data1();
-    let app_cbs = access_callbacks();
-
-    // Retrieve the callback
-    let callback = match app_cbs.callbacks.get(&(id, event_name)) {
-        Some(cb) => Python::attach(|py| cb.clone_ref(py)),
-        None => return,
-    };
-
-    drop(app_cbs);
-
-    // Check user data from ud1
-    if let Some(user_data) = ud1.user_data.get(&id) {
-        Python::attach(|py| {
-            if let Err(err) = callback.call1(py, (id, index, value, user_data)) {
-                panic!("Table callback error: {err}");
-            }
-        });
-        drop(ud1); // Drop ud1 before processing ud2
-        return;
-    }
-    drop(ud1); // Drop ud1 if no user data is found
-
-    // Check user data from ud2
-    let ud2 = access_user_data2();
-    if let Some(user_data) = ud2.user_data.get(&id) {
-        Python::attach(|py| {
-            if let Err(err) = callback.call1(py, (id, index, value, user_data)) {
-                panic!("Table callback error: {err}");
-            }
-        });
-        drop(ud2); // Drop ud2 after processing
-        return;
-    }
-    drop(ud2); // Drop ud2 if no user data is found
-
-    // If no user data is found in both ud1 and ud2, call the callback with only the id, index, and value
-    Python::attach(|py| {
-        if let Err(err) = callback.call1(py, (id, index, value)) {
-            panic!("Table callback error: {err}");
-        }
-    });
-
-}
-
-// Table Divider released
-pub fn process_callback2(
-        id: usize, 
-        event_name: String) 
-{
-     let ud1 = access_user_data1();
-    let app_cbs = access_callbacks();
-
-    // Retrieve the callback
-    let callback = match app_cbs.callbacks.get(&(id, event_name)) {
-        Some(cb) => Python::attach(|py| cb.clone_ref(py)),
-        None => return,
-    };
-
-    drop(app_cbs);
-
-    // Check user data from ud1
-    if let Some(user_data) = ud1.user_data.get(&id) {
-        Python::attach(|py| {
-            if let Err(err) = callback.call1(py, (id, user_data)) {
-                panic!("Table Divider release callback error: {err}");
-            }
-        });
-        drop(ud1); // Drop ud1 before processing ud2
-        return;
-    }
-    drop(ud1); // Drop ud1 if no user data is found
-
-    // Check user data from ud2
-    let ud2 = access_user_data2();
-    if let Some(user_data) = ud2.user_data.get(&id) {
-        Python::attach(|py| {
-            if let Err(err) = callback.call1(py, (id, user_data)) {
-                panic!("Table Divider release callback error: {err}");
-            }
-        });
-        drop(ud2); // Drop ud2 after processing
-        return;
-    }
-    drop(ud2); // Drop ud2 if no user data is found
-
-    // If no user data is found in both ud1 and ud2, call the callback with only the id
-    Python::attach(|py| {
-        if let Err(err) = callback.call1(py, (id,)) {
-            panic!("Table Divider release callback error: {err}");
-        }
-    });
-
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -1095,8 +968,8 @@ pub fn default_scrollable_style(theme: &Theme, status: scrollable::Status) -> sc
         background: Some(ROW_COLOR.into()),
         border: border::rounded(2),
         scroller: scrollable::Scroller {
-            color: ROW_CONTRAST_COLOR,
             border: border::rounded(2),
+            background: ROW_CONTRAST_COLOR.into(),
         },
     };
 
@@ -1106,14 +979,22 @@ pub fn default_scrollable_style(theme: &Theme, status: scrollable::Status) -> sc
             vertical_rail: scrollbar,
             horizontal_rail: scrollbar,
             gap: None,
+            auto_scroll: scrollable::AutoScroll {
+                background: todo!(),
+                border: todo!(),
+                shadow: todo!(),
+                icon: todo!(),
+            },
         },
         scrollable::Status::Hovered {
             is_horizontal_scrollbar_hovered,
             is_vertical_scrollbar_hovered,
+            is_horizontal_scrollbar_disabled,
+            is_vertical_scrollbar_disabled,
         } => {
             let hovered_scrollbar = scrollable::Rail {
                 scroller: scrollable::Scroller {
-                    color: palette.primary.strong.color,
+                    background: palette.primary.strong.color.into(),
                     ..scrollbar.scroller
                 },
                 ..scrollbar
@@ -1132,15 +1013,23 @@ pub fn default_scrollable_style(theme: &Theme, status: scrollable::Status) -> sc
                     scrollbar
                 },
                 gap: None,
+                auto_scroll: scrollable::AutoScroll {
+                    background: todo!(),
+                    border: todo!(),
+                    shadow: todo!(),
+                    icon: todo!(),
+                },
             }
         }
         scrollable::Status::Dragged {
             is_horizontal_scrollbar_dragged,
             is_vertical_scrollbar_dragged,
+            is_horizontal_scrollbar_disabled,
+            is_vertical_scrollbar_disabled,
         } => {
             let dragged_scrollbar = scrollable::Rail {
                 scroller: scrollable::Scroller {
-                    color: palette.primary.base.color,
+                    background: palette.primary.base.color.into(),
                     ..scrollbar.scroller
                 },
                 ..scrollbar
@@ -1159,6 +1048,12 @@ pub fn default_scrollable_style(theme: &Theme, status: scrollable::Status) -> sc
                     scrollbar
                 },
                 gap: None,
+                auto_scroll: scrollable::AutoScroll {
+                    background: todo!(),
+                    border: todo!(),
+                    shadow: todo!(),
+                    icon: todo!(),
+                },
             }
         }
     }

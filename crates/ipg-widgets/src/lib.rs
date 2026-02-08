@@ -1,4 +1,4 @@
-pub mod divider;
+
 pub mod ipg_button;
 pub mod ipg_card;
 pub mod ipg_checkbox;
@@ -26,6 +26,7 @@ pub mod ipg_slider;
 pub mod ipg_space;
 pub mod ipg_stack;
 pub mod ipg_svg;
+pub mod ipg_table;
 pub mod ipg_text;
 pub mod ipg_text_input;
 // pub mod ipg_text_rich;

@@ -1,13 +1,16 @@
 //! ipg_divider
-
 use iced::{Background, Color, Element, Length, Theme};
 use pyo3::{pyclass, Py, PyAny, Python};
 type PyObject = Py<PyAny>;
 
-use ipg_helpers::{get_radius, try_extract_boolean, try_extract_f32, try_extract_f64, try_extract_vec_f32};
-use ipg_styling::{colors::get_color, try_extract_ipg_color, try_extract_rgba_color};
+use ipg_helpers::{get_radius, try_extract_boolean, try_extract_f32,
+     try_extract_f64, try_extract_vec_f32};
+use ipg_styling::{colors::get_color, try_extract_ipg_color,
+     try_extract_rgba_color};
 use ipg_types::{DivMessage, Message};
-use crate::{divider::{self, Direction, Status, Style, divider_horizontal, divider_vertical}, ipg_enums::IpgWidgets};
+use divider::{self, Direction, Status, Style, 
+    divider_horizontal, divider_vertical};
+use super::ipg_enums::IpgWidgets;
 
 
 #[derive(Debug, Clone, PartialEq)]

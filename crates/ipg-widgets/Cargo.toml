@@ -18,5 +18,7 @@ ipg-window = { workspace = true }
 # External dependencies
 iced = { workspace = true }
 iced_aw = { workspace = true }
+polars = { workspace = true }
 pyo3 = { workspace = true }
+pyo3-polars = { workspace = true }
 chrono = { workspace = true }

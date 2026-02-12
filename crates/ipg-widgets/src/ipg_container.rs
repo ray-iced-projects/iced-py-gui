@@ -1,6 +1,6 @@
 //! ipg_container
 use iced::{Border, Color, Element, Length, Padding, Shadow, Theme, Vector};
-use iced::widget::{container, horizontal_space, Container};
+use iced::widget::{Container, Space, container};
 use pyo3::{pyclass, Py, PyAny, Python};
 
 // Type alias to replace deprecated PyObject
@@ -107,7 +107,7 @@ pub fn construct_container<'a>(con: &'a IpgContainer,
                             style_opt: Option<&'a IpgWidgets> ) 
                             -> Element<'a, Message> {
     
-    if !con.show {return horizontal_space().into()}
+    if !con.show {return Space::new().into()}
 
     let align_h = get_horizontal_alignment(&con.align_x);
     let align_v = get_vertical_alignment(&con.align_y);
@@ -117,7 +117,7 @@ pub fn construct_container<'a>(con: &'a IpgContainer,
     // the process sends a vec then if empty container, put in a
     // space or remove the element in the vec.
     let new_content: Element<Message> = if content.is_empty() {
-        horizontal_space().into()
+        Space::new().into()
     } else {
         content.remove(0)
     };
@@ -261,6 +261,7 @@ pub fn get_styling(theme: &Theme,
         border,
         shadow,
         text_color: style.text_color,
+        ..Default::default()
     }
     
 }

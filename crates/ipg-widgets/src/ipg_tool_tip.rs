@@ -6,9 +6,7 @@ use iced::widget::tooltip::Position;
 use pyo3::{pyclass, Py, PyAny, Python};
 type PyObject = Py<PyAny>;
 
-use ipg_helpers::{get_radius, try_extract_array_2, 
-    try_extract_boolean, try_extract_f32, try_extract_string, 
-    try_extract_u16, try_extract_usize, try_extract_vec_f32};
+use ipg_helpers::{get_radius, try_extract_array_2, try_extract_boolean, try_extract_f32, try_extract_string, try_extract_u32, try_extract_usize, try_extract_vec_f32};
 use ipg_styling::{colors::get_color, try_extract_ipg_color, 
     try_extract_rgba_color};
 use ipg_types::Message;
@@ -20,7 +18,7 @@ pub struct IpgToolTip {
     pub id: usize,
     pub position: IpgToolTipPosition,
     pub text_to_display: String,
-    pub gap: u16,
+    pub gap: u32,
     pub padding: f32,
     pub snap_within_viewport: bool,
     pub style_id: Option<usize>,
@@ -31,7 +29,7 @@ impl IpgToolTip {
             id: usize,
             position: IpgToolTipPosition,
             text_to_display: String,
-            gap: u16,
+            gap: u32,
             padding: f32,
             snap_within_viewport: bool,
             style_id: Option<usize>,
@@ -59,6 +57,7 @@ pub struct IpgToolTipStyle {
     pub shadow_offset_xy: [f32; 2],
     pub shadow_blur_radius: f32,
     pub text_color: Option<Color>,
+    pub snap: bool,
 }
 
 impl IpgToolTipStyle {
@@ -72,6 +71,7 @@ impl IpgToolTipStyle {
         shadow_offset_xy: [f32; 2],
         shadow_blur_radius: f32,
         text_color: Option<Color>,
+        snap: bool,
     ) -> Self {
         Self {
             id,
@@ -83,6 +83,7 @@ impl IpgToolTipStyle {
             shadow_offset_xy,
             shadow_blur_radius,
             text_color,
+            snap,
         }
     }
 }
@@ -158,7 +159,7 @@ pub fn tooltip_item_update(tt: &mut IpgToolTip,
             tt.text_to_display = try_extract_string(value, name);
         },
         IpgToolTipParam::Gap => {
-            tt.gap = try_extract_u16(value, name);
+            tt.gap = try_extract_u32(value, name);
         },
         IpgToolTipParam::Padding => {
             tt.padding = try_extract_f32(value, name);
@@ -241,6 +242,7 @@ pub fn get_styling(theme: &Theme,
         border,
         shadow,
         text_color: style.text_color,
+        snap: style.snap,
     }
     
 }

@@ -2,23 +2,26 @@
 #![allow(clippy::unit_arg)]
 
 use iced::border::Radius;
-use iced::widget::scrollable::Scrollbar;
-use iced::{alignment, border, Background, Border, Color};
+use iced::widget::scrollable::{AutoScroll, Scrollbar};
+use iced::{Background, Border, Color, Shadow, Vector, alignment, border};
 use iced::Length::Fill;
 use iced::{Element, Renderer, Theme};
 use iced::widget::{column, container, Space, row, scrollable, stack, text};
+use iced::widget::Id;
 
 use ipg_styling::colors::get_color;
 use ipg_styling::{try_extract_ipg_color, try_extract_rgba_color};
 use polars::frame::DataFrame;
 use pyo3::{pyclass, Py, PyAny, Python};
+use pyo3_polars::PyDataFrame;
 type PyObject = Py<PyAny>;
 
 use ipg_helpers::{try_extract_boolean, try_extract_f32, try_extract_f64, try_extract_usize, try_extract_vec_f32, try_extract_vec_usize};
 
 use ipg_types::Message;
-use ipg_enums::IpgWidgets;
-use super::divider::horizontal;
+use divider::divider_horizontal;
+
+use crate::ipg_enums::IpgWidgets;
 
 #[derive(Debug, Clone)]
 pub struct IpgTable {
@@ -62,9 +65,9 @@ pub struct IpgTable {
         pub table_width_fixed: bool,
         pub style_id: Option<usize>,
         pub released: bool,
-        pub header_scroller_id: scrollable::Id,
-        pub body_scroller_id: scrollable::Id,
-        pub footer_scroller_id: scrollable::Id,  
+        pub header_scroller_id: Id,
+        pub body_scroller_id: Id,
+        pub footer_scroller_id: Id,  
 }
 
 impl IpgTable {
@@ -149,9 +152,9 @@ impl IpgTable {
             table_width_fixed,
             style_id,
             released,
-            header_scroller_id: scrollable::Id::unique(),
-            body_scroller_id: scrollable::Id::unique(),
-            footer_scroller_id: scrollable::Id::unique(),
+            header_scroller_id: Id::unique(),
+            body_scroller_id: Id::unique(),
+            footer_scroller_id: Id::unique(),
         }
     }
 }
@@ -973,24 +976,35 @@ pub fn default_scrollable_style(theme: &Theme, status: scrollable::Status) -> sc
         },
     };
 
+    let auto_scroll = 
+        AutoScroll {
+            background: palette.background.base.color.scale_alpha(0.9).into(),
+            border: border::rounded(u32::MAX)
+                .width(1)
+                .color(palette.background.base.text.scale_alpha(0.8)),
+            shadow: Shadow {
+                color: Color::BLACK.scale_alpha(0.7),
+                offset: Vector::ZERO,
+                blur_radius: 2.0,
+            },
+            icon: palette.background.base.text.scale_alpha(0.8),
+        };
+    
     match status {
-        scrollable::Status::Active => scrollable::Style {
+        scrollable::Status::Active { 
+            is_horizontal_scrollbar_disabled: _, 
+            is_vertical_scrollbar_disabled: _ } => scrollable::Style {
             container: container::Style::default(),
             vertical_rail: scrollbar,
             horizontal_rail: scrollbar,
             gap: None,
-            auto_scroll: scrollable::AutoScroll {
-                background: todo!(),
-                border: todo!(),
-                shadow: todo!(),
-                icon: todo!(),
-            },
+            auto_scroll,
         },
         scrollable::Status::Hovered {
             is_horizontal_scrollbar_hovered,
             is_vertical_scrollbar_hovered,
-            is_horizontal_scrollbar_disabled,
-            is_vertical_scrollbar_disabled,
+            is_horizontal_scrollbar_disabled: _,
+            is_vertical_scrollbar_disabled: _,
         } => {
             let hovered_scrollbar = scrollable::Rail {
                 scroller: scrollable::Scroller {
@@ -1013,19 +1027,14 @@ pub fn default_scrollable_style(theme: &Theme, status: scrollable::Status) -> sc
                     scrollbar
                 },
                 gap: None,
-                auto_scroll: scrollable::AutoScroll {
-                    background: todo!(),
-                    border: todo!(),
-                    shadow: todo!(),
-                    icon: todo!(),
-                },
+                auto_scroll,
             }
         }
         scrollable::Status::Dragged {
             is_horizontal_scrollbar_dragged,
             is_vertical_scrollbar_dragged,
-            is_horizontal_scrollbar_disabled,
-            is_vertical_scrollbar_disabled,
+            is_horizontal_scrollbar_disabled: _,
+            is_vertical_scrollbar_disabled: _,
         } => {
             let dragged_scrollbar = scrollable::Rail {
                 scroller: scrollable::Scroller {
@@ -1048,12 +1057,7 @@ pub fn default_scrollable_style(theme: &Theme, status: scrollable::Status) -> sc
                     scrollbar
                 },
                 gap: None,
-                auto_scroll: scrollable::AutoScroll {
-                    background: todo!(),
-                    border: todo!(),
-                    shadow: todo!(),
-                    icon: todo!(),
-                },
+                auto_scroll,
             }
         }
     }
@@ -1078,33 +1082,32 @@ fn get_scrollable_style(
         style.vertical_rail.background = Some(rail.into());
     }
 
-    let scroller_color = match (style_opt.scroller.is_some(), style_opt.scroller_hover.is_some()) {
+    let (h_bkg, v_bkg) = match (style_opt.scroller.is_some(), style_opt.scroller_hover.is_some()) {
         (true, true) => {
             match status {
-                scrollable::Status::Active => style_opt.scroller.unwrap(),
-                _ => style_opt.scroller_hover.unwrap().into(),
+                _ => (style_opt.scroller.unwrap().into(), style_opt.scroller.unwrap().into())
             }
         },
         (true, false) => {
             match status {
-                scrollable::Status::Active => style_opt.scroller.unwrap(),
-                _ => style.horizontal_rail.scroller.color,
+                _ => (style_opt.scroller.unwrap().into(), style.auto_scroll.background)
             }
         },
         (false, true) => {
             match status {
-                scrollable::Status::Active => style.horizontal_rail.scroller.color,
-                _ => style_opt.scroller_hover.unwrap()
+                _ => (style.auto_scroll.background, style_opt.scroller.unwrap().into())
             }
         },
         (false, false) => {
-            style.horizontal_rail.scroller.color
+            match status {
+                _ => (style.auto_scroll.background, style.auto_scroll.background)
+            }
         }
         
     };
 
-    style.horizontal_rail.scroller.color = scroller_color;
-    style.vertical_rail.scroller.color = scroller_color;
+    style.horizontal_rail.scroller.background = h_bkg;
+    style.vertical_rail.scroller.background = v_bkg;
     
     style
 }

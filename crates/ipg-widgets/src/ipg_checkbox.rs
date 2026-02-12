@@ -131,8 +131,8 @@ pub fn construct_checkbox<'a>(chk: &'a IpgCheckBox,
 
     let style = get_chk_style(style_opt);
 
-    let ipg_chk: Element<'_, CHKMessage> = Checkbox::new(chk.label.clone(), 
-                            chk.is_checked)
+    let ipg_chk: Element<'_, CHKMessage> = Checkbox::new(chk.is_checked)
+                            .label(chk.label.clone(),)
                             .on_toggle(CHKMessage::OnToggle)
                             .size(chk.size)
                             .spacing(chk.spacing)
@@ -371,6 +371,9 @@ pub fn get_styling(theme: &Theme, status: Status,
             IpgStyleStandard::Danger => {
                 checkbox::danger(theme, status)
             },
+            IpgStyleStandard::Warning => {
+                checkbox::primary(theme, status)
+            }
             IpgStyleStandard::Text => panic!("StandardStyle::Text not valid for checkbox"),
         };
 

@@ -1,15 +1,9 @@
 //! ipg_menu
 // #![allow(dead_code, unused_variables)]
 #![allow(clippy::enum_variant_names)]
-
 use iced::{Color, Element, Length, Padding, Renderer, Theme, Vector};
-
-
-use iced_aw_widgets::menu_tree::{Item, Menu};
-use iced_aw_widgets::menu_bar::MenuBar;
-use iced_aw_widgets::common::DrawPath;
-use iced_aw_widgets::style_status::Status;
-use iced_aw_widgets::menu_bar_style::{primary, Style};
+use iced_aw::{Menu, MenuBar, menu::{DrawPath, Item, primary}, style::menu_bar::Style};
+use iced_aw::style::status::Status;
 
 use ipg_helpers::{get_height, get_padding_f64, get_radius, get_width, 
     try_extract_array_2, try_extract_boolean, try_extract_f64, 
@@ -34,7 +28,7 @@ pub struct IpgMenu {
     pub bar_spacing: f32,
     pub bar_padding: Padding,
     pub bar_height: Length,
-    pub check_bounds_width: f32,
+    pub safe_bounds_margin: f32,
     pub item_spacing: Option<Vec<f32>>,
     pub item_offset: Option<Vec<f32>>,
     pub menu_bar_style_id: Option<usize>, // style_id of add_menu_bar_style()
@@ -72,7 +66,7 @@ impl IpgMenu {
             bar_spacing,
             bar_padding,
             bar_height,
-            check_bounds_width,
+            safe_bounds_margin: check_bounds_width,
             item_spacing,
             item_offset,
             menu_bar_style_id,
@@ -250,7 +244,7 @@ pub fn construct_menu<'a>(mn: &'a IpgMenu,
                 .padding(mn.bar_padding)
                 .width(mn.bar_width)
                 .height(mn.bar_height)
-                .check_bounds_width(mn.check_bounds_width);
+                .safe_bounds_margin(mn.safe_bounds_margin);
 
     mb.into()
 }
@@ -423,7 +417,7 @@ pub fn menu_item_update(mn: &mut IpgMenu,
             mn.bar_width = width;
         },
         IpgMenuParam::CheckBoundsWidth => {
-            mn.check_bounds_width = try_extract_f64(value, name) as f32;
+            mn.safe_bounds_margin = try_extract_f64(value, name) as f32;
         },
         IpgMenuParam::Show => {
             mn.show = try_extract_boolean(value, name);

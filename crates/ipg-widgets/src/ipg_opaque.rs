@@ -1,7 +1,7 @@
 //! ipg_opaque
 use iced::mouse::Interaction;
 use iced::{Color, Element, Length};
-use iced::widget::{horizontal_space, mouse_area, opaque, Container};
+use iced::widget::{mouse_area, opaque, Container, Space};
 
 use ipg_styling::colors::get_color;
 use pyo3::{pyclass, Py, PyAny, Python};
@@ -74,7 +74,7 @@ pub fn construct_opaque<'a>(op: &'a IpgOpaque,
                         style_opt: Option<&'a IpgWidgets> ) 
                         -> Element<'a, Message> {
 
-    if !op.show {return horizontal_space().into()}
+    if !op.show {return Space::new().into()}
 
     let new_content = content.remove(0);
     

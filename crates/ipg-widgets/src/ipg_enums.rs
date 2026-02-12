@@ -30,7 +30,7 @@ use super::ipg_slider::{IpgSlider, IpgSliderStyle};
 use super::ipg_space::IpgSpace;
 use super::ipg_stack::IpgStack;
 use super::ipg_svg::IpgSvg;
-// use super::ipg_table::{IpgTable, IpgTableStyle};
+use super::ipg_table::IpgTableStyle;
 use super::ipg_text::IpgText;
 // use super::ipg_text_editor::IpgTextEditor;
 use super::ipg_text_input::{IpgTextInput, IpgTextInputStyle};
@@ -96,7 +96,7 @@ pub enum IpgWidgets {
     IpgSliderStyle(IpgSliderStyle),
     IpgSpace(IpgSpace),
     IpgSvg(IpgSvg),
-    // IpgTableStyle(IpgTableStyle),
+    IpgTableStyle(IpgTableStyle),
     IpgText(IpgText),
     // IpgRichText(IpgRichText),
     // IpgTextEditor(IpgTextEditor),

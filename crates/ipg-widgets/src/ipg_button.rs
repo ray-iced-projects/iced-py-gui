@@ -369,6 +369,16 @@ pub fn get_standard_style(theme: &Theme, status: Status,
         Some(IpgStyleStandard::Text) => {
             button::text(theme, status)
         },
+        Some(IpgStyleStandard::Warning) => {
+            let mut style = button::warning(theme, status);
+            if border.is_some() {
+                style.border = border.unwrap();
+            }
+            if shadow.is_some() {
+                style.shadow = shadow.unwrap();
+            }
+            style
+        }
         None => {
             let mut style = button::primary(theme, status);
             if border.is_some() {

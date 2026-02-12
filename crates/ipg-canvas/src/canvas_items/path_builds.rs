@@ -2,18 +2,14 @@
 
 use std::f32::consts::PI;
 
-use iced::{widget::canvas::{self, path::arc::Elliptical, Path}, Point, Radians, Vector};
-use super::geometries::{IpgArc, IpgBezier, IpgCircle, IpgEllipse, IpgFreeHand, 
-    IpgLine, IpgPolyLine, IpgPolygon, IpgRightTriangle, IpgText, IpgCanvasWidget};
-use super::{draw_canvas::IpgDrawMode, 
-    canvas_helpers::{build_polygon, get_angle_of_vectors, 
-    get_horizontal_angle_of_vector, get_mid_point, rotate_geometry, to_degrees, 
-    translate_geometry}};
+use iced::{widget::canvas::{self, path::arc::Elliptical, Path}, Point, Radians, Renderer, Vector};
 
-use super::geometries::get_mid_geometry;
+use super::draw_canvas::{Arc, Bezier, Circle, DrawMode, Ellipse, FreeHand, Line, PolyLine, Polygon, RightTriangle, Text, Widget, get_mid_geometry}; 
 
-pub fn build_arc_path(arc: &IpgArc, 
-                    draw_mode: IpgDrawMode, 
+use super::helpers::{build_polygon, get_angle_of_vectors, get_horizontal_angle_of_vector, get_mid_point, rotate_geometry, to_degrees, to_radians, translate_geometry};
+
+pub fn build_arc_path(arc: &Arc, 
+                    draw_mode: DrawMode, 
                     pending_cursor: Option<Point>,
                     edit_point_index: Option<usize>, 
                     edit_mid_point: bool,
@@ -29,7 +25,7 @@ pub fn build_arc_path(arc: &IpgArc,
 
     let path = Path::new(|p| {
         match draw_mode {
-            IpgDrawMode::Display => {
+            DrawMode::DrawAll => {
                 let new_arc = 
                     canvas::path::Arc{ 
                         center: arc.mid_point, 
@@ -39,7 +35,7 @@ pub fn build_arc_path(arc: &IpgArc,
                     };
                 p.arc(new_arc);
             },
-            IpgDrawMode::Edit => {
+            DrawMode::Edit => {
                 pts = arc.points.clone();
                 let cursor = pending_cursor.unwrap();
 
@@ -102,7 +98,7 @@ pub fn build_arc_path(arc: &IpgArc,
                                         };
                 p.arc(edit_arc);
             },
-            IpgDrawMode::New => {
+            DrawMode::New => {
                 let cursor = pending_cursor.unwrap();
                 let pts_len = arc.points.len();
                 
@@ -146,7 +142,7 @@ pub fn build_arc_path(arc: &IpgArc,
                     degrees_center = Some(to_degrees(&(end_angle.0-start_angle.0)));
                 };
             },
-            IpgDrawMode::Rotate => {
+            DrawMode::Rotate => {
                 let rotated_arc = 
                     canvas::path::Arc{ 
                         center: arc.points[0], 
@@ -175,8 +171,8 @@ pub fn build_arc_path(arc: &IpgArc,
 
 }
 
-pub fn build_bezier_path(bz: &IpgBezier, 
-                    draw_mode: IpgDrawMode, 
+pub fn build_bezier_path(bz: &Bezier, 
+                    draw_mode: DrawMode, 
                     pending_cursor: Option<Point>,
                     edit_point_index: Option<usize>, 
                     edit_mid_point: bool,
@@ -185,17 +181,17 @@ pub fn build_bezier_path(bz: &IpgBezier,
 
     let mut degrees = match degrees {
         Some(d) => d,
-        None => bz.rotation,
+        None => bz.degrees,
     };
     let mut mid_point = bz.mid_point;
 
     let path = Path::new(|p| {
         match draw_mode {
-            IpgDrawMode::Display => {
+            DrawMode::DrawAll => {
                 p.move_to(bz.points[0]);
                 p.quadratic_curve_to(bz.points[2], bz.points[1]);
             },
-            IpgDrawMode::Edit => {
+            DrawMode::Edit => {
                 let mut pts = bz.points.clone();
 
                 if edit_mid_point {
@@ -226,7 +222,7 @@ pub fn build_bezier_path(bz: &IpgBezier,
 
                 p.circle(mid_point, 3.0);
             },
-            IpgDrawMode::New => {
+            DrawMode::New => {
                 if bz.points.len() == 1 {
                     mid_point = 
                         get_mid_point(
@@ -246,7 +242,7 @@ pub fn build_bezier_path(bz: &IpgBezier,
                     p.quadratic_curve_to(pending_cursor.unwrap(), bz.points[1]);
                 }
             },
-            IpgDrawMode::Rotate => {
+            DrawMode::Rotate => {
                 p.move_to(bz.points[0]);
                 p.quadratic_curve_to(bz.points[2], bz.points[1]);
                 p.move_to(bz.points[0]);
@@ -260,18 +256,18 @@ pub fn build_bezier_path(bz: &IpgBezier,
 
 }
 
-pub fn build_circle_path(cir: &IpgCircle, 
-                    draw_mode: IpgDrawMode, 
+pub fn build_circle_path(cir: &Circle, 
+                    draw_mode: DrawMode, 
                     pending_cursor: Option<Point>,
                     edit_point_index: Option<usize>, 
                     edit_mid_point: bool,
                 ) -> Path {
     Path::new(|p| {
         match draw_mode {
-            IpgDrawMode::Display => {
+            DrawMode::DrawAll => {
                 p.circle(cir.center, cir.radius);
             },
-            IpgDrawMode::Edit => {
+            DrawMode::Edit => {
                 let mut center = cir.center;
                 let mut cir_point = cir.circle_point;
                 let mut radius = cir.radius;
@@ -294,31 +290,29 @@ pub fn build_circle_path(cir: &IpgCircle,
                 p.circle(center, 3.0);
                 p.circle(cir_point, 3.0);
             },
-            IpgDrawMode::New => {
+            DrawMode::New => {
                 let circle_point = pending_cursor.unwrap();
                 let radius = cir.center.distance(circle_point);
                 p.move_to(cir.center);
                 p.line_to(circle_point);
                 p.circle(cir.center, radius);
-                
             },
-            IpgDrawMode::Rotate => {
+            DrawMode::Rotate => {
                 p.circle(cir.center, cir.radius);
             },
         }
     })
-
 }
 
-pub fn build_ellipse_path(ell: &IpgEllipse, 
-                        draw_mode: IpgDrawMode, 
+pub fn build_ellipse_path(ell: &Ellipse, 
+                        draw_mode: DrawMode, 
                         pending_cursor: Option<Point>,
                         edit_point_index: Option<usize>, 
                         edit_mid_point: bool,
                     ) -> Path {
     Path::new(|p| {
         match draw_mode {
-            IpgDrawMode::Display => {
+            DrawMode::DrawAll => {
                 p.ellipse(Elliptical{ 
                     center: ell.center, 
                     radii: ell.radii, 
@@ -327,11 +321,12 @@ pub fn build_ellipse_path(ell: &IpgEllipse,
                     end_angle: Radians(2.0*PI) 
                 });
             },
-            IpgDrawMode::Edit => {
+            DrawMode::Edit => {
                 let mut center = ell.center;
                 let mut radii = ell.radii;
                 let mut p1 = ell.points[1];
                 let mut p2 = ell.points[2];
+                let mut rotation = ell.rotation;
 
                 if edit_mid_point {
                     let points = translate_geometry(
@@ -349,13 +344,19 @@ pub fn build_ellipse_path(ell: &IpgEllipse,
                     if edit_point_index == Some(1) {
                         let vx = cursor.distance(center);
                         let vy = ell.points[2].distance(center);
-                        p1 = Point::new(cursor.x, center.y);
+                        p1 = Point::new(cursor.x, cursor.y);
                         radii = Vector{x: vx, y: vy};
+                        // Recalculate rotation based on new point position
+                        let rotation_degrees = get_horizontal_angle_of_vector(center, cursor);
+                        rotation = Radians(to_radians(&rotation_degrees));
                     } else {
                         let vx = ell.points[1].distance(center);
                         let vy = cursor.distance(center);
-                        p2 = Point::new(center.x, cursor.y);
+                        p2 = Point::new(cursor.x, cursor.y);
                         radii = Vector{x: vx, y: vy};
+                        // Recalculate rotation based on new point position
+                        let rotation_degrees = get_horizontal_angle_of_vector(center, cursor);
+                        rotation = Radians(to_radians(&rotation_degrees));
                     }
                 }
 
@@ -365,41 +366,40 @@ pub fn build_ellipse_path(ell: &IpgEllipse,
                 p.ellipse(Elliptical{ 
                     center, 
                     radii, 
-                    rotation: ell.rotation, 
+                    rotation, 
                     start_angle: Radians(0.0), 
                     end_angle: Radians(2.0*PI) 
                 });
             },
-            IpgDrawMode::New => {
+            DrawMode::New => {
                 let cursor = pending_cursor.unwrap();
                 if !ell.points.is_empty(){
                     p.move_to(ell.points[0]);
 
                 }
-                if ell.points.is_empty() {
-                    p.circle(cursor, 3.0);
-                } else if ell.points.len() == 1 {
-                    let p1 = Point::new(cursor.x, ell.points[0].y);
+                if ell.points.len() == 1 {
+                    let p1 = Point::new(cursor.x, cursor.y);
                     p.line_to(p1);
                     let radius = p1.distance(ell.points[0]);
                     p.circle(ell.points[0], radius);
                 } else if ell.points.len() == 2 {
-                    p.line_to(ell.points[1]);
-                    let p2 = Point::new(ell.points[0].x, cursor.y);
-                    p.line_to(p2);
                     let vx = ell.points[1].distance(ell.points[0]);
-                    let vy = Point::new(ell.points[0].x, cursor.y).distance(ell.points[0]);
+                    let vy = Point::new(cursor.x, cursor.y).distance(ell.points[0]);
+                    
+                    // Calculate rotation based on cursor position relative to center
+                    let rotation_degrees = get_horizontal_angle_of_vector(ell.points[0], cursor);
+                    let rotation = Radians(to_radians(&rotation_degrees));
+                    
                     p.ellipse(Elliptical{ 
                         center: ell.points[0], 
                         radii: Vector{x: vx, y: vy}, 
-                        rotation: Radians(0.0), 
+                        rotation, 
                         start_angle: Radians(0.0), 
                         end_angle: Radians(2.0*PI) 
                     });
                 }
-                
             },
-            IpgDrawMode::Rotate => {
+            DrawMode::Rotate => {
                 let vx = ell.points[1].distance(ell.center);
                 let vy = ell.points[2].distance(ell.center);
                 p.ellipse(Elliptical{ 
@@ -415,8 +415,8 @@ pub fn build_ellipse_path(ell: &IpgEllipse,
     })
 }
 
-pub fn build_line_path(line: &IpgLine, 
-                    draw_mode: IpgDrawMode, 
+pub fn build_line_path(line: &Line, 
+                    draw_mode: DrawMode, 
                     pending_cursor: Option<Point>,
                     edit_point_index: Option<usize>, 
                     edit_mid_point: bool,
@@ -425,17 +425,17 @@ pub fn build_line_path(line: &IpgLine,
 
     let mut degrees = match degrees {
         Some(d) => d,
-        None => line.rotation,
+        None => line.degrees,
     };
     let mut mid_point = line.mid_point;
 
     let path = Path::new(|p| {
         match draw_mode {
-            IpgDrawMode::Display => {
+            DrawMode::DrawAll => {
                 p.move_to(line.points[0]);
                 p.line_to(line.points[1]);
             },
-            IpgDrawMode::Edit => {
+            DrawMode::Edit => {
                 let mut pts = line.points.clone();
 
                 if edit_mid_point {
@@ -464,7 +464,7 @@ pub fn build_line_path(line: &IpgLine,
                 p.circle(pts[1], 3.0);
                 p.circle(mid_point, 3.0);
             },
-            IpgDrawMode::New => {
+            DrawMode::New => {
                 p.move_to(line.points[0]);
                 p.line_to(pending_cursor.unwrap());
 
@@ -474,7 +474,7 @@ pub fn build_line_path(line: &IpgLine,
                         pending_cursor.unwrap(), 
                     );
             },
-            IpgDrawMode::Rotate => {
+            DrawMode::Rotate => {
                 p.move_to(line.points[0]);
                 p.line_to(line.points[1]);
                 p.circle(mid_point, 3.0);
@@ -486,8 +486,8 @@ pub fn build_line_path(line: &IpgLine,
 
 }
 
-pub fn build_polygon_path(pg: &IpgPolygon, 
-                        draw_mode: IpgDrawMode, 
+pub fn build_polygon_path(pg: &Polygon, 
+                        draw_mode: DrawMode, 
                         pending_cursor: Option<Point>,
                         edit_mid_point: bool,
                         edit_other_point: bool,
@@ -496,14 +496,14 @@ pub fn build_polygon_path(pg: &IpgPolygon,
 
     let mut degrees = match degrees {
         Some(d) => d,
-        None => pg.rotation,
+        None => pg.degrees,
     };
     let mut mid_point = pg.mid_point;
     let mut pg_point = pg.pg_point;
 
     let path = Path::new(|p| {
         match draw_mode {
-            IpgDrawMode::Display => {
+            DrawMode::DrawAll => {
                 let points = &pg.points;
                 for (index, point) in points.iter().enumerate() {
                     if index == 0 {
@@ -514,7 +514,7 @@ pub fn build_polygon_path(pg: &IpgPolygon,
                 }
                 p.line_to(points[0]);
             },
-            IpgDrawMode::Edit => {
+            DrawMode::Edit => {
                 if edit_mid_point {
                     pg_point = translate_geometry(
                         &[pg.pg_point], 
@@ -549,7 +549,7 @@ pub fn build_polygon_path(pg: &IpgPolygon,
                 p.circle(mid_point, 3.0);
                 p.circle(pg_point, 3.0);
             },
-            IpgDrawMode::New => {
+            DrawMode::New => {
                 degrees = get_horizontal_angle_of_vector(pg.mid_point, pending_cursor.unwrap());
 
                 let points = 
@@ -571,7 +571,7 @@ pub fn build_polygon_path(pg: &IpgPolygon,
                 p.line_to(pending_cursor.unwrap());
                 p.circle(points[0], 3.0);
             },
-            IpgDrawMode::Rotate => {
+            DrawMode::Rotate => {
                 for (index, point) in pg.points.iter().enumerate() {
                     if index == 0 {
                         p.move_to(*point);
@@ -589,8 +589,8 @@ pub fn build_polygon_path(pg: &IpgPolygon,
 
 }
 
-pub fn build_polyline_path(pl: &IpgPolyLine, 
-                        draw_mode: IpgDrawMode, 
+pub fn build_polyline_path(pl: &PolyLine, 
+                        draw_mode: DrawMode, 
                         pending_cursor: Option<Point>,
                         edit_point_index: Option<usize>, 
                         edit_mid_point: bool,
@@ -600,7 +600,7 @@ pub fn build_polyline_path(pl: &IpgPolyLine,
 
     let mut degrees = match degrees {
         Some(d) => d,
-        None => pl.rotation,
+        None => pl.degrees,
     };
     let mut pts = pl.points.clone();
     let mut mid_point = pl.mid_point;
@@ -608,7 +608,7 @@ pub fn build_polyline_path(pl: &IpgPolyLine,
 
     let path = Path::new(|p| {
         match draw_mode {
-            IpgDrawMode::Display => {
+            DrawMode::DrawAll => {
                 for (index, point) in pl.points.iter().enumerate() {
                     if index == 0 {
                         p.move_to(*point);
@@ -617,7 +617,7 @@ pub fn build_polyline_path(pl: &IpgPolyLine,
                     }
                 }
             },
-            IpgDrawMode::Edit => {
+            DrawMode::Edit => {
                 if edit_mid_point {
                     pts.push(pl_point);
                     pts = translate_geometry(
@@ -630,7 +630,7 @@ pub fn build_polyline_path(pl: &IpgPolyLine,
                 } 
                 if edit_point_index.is_some() {
                     pts[edit_point_index.unwrap()] = pending_cursor.unwrap();
-                    mid_point = get_mid_geometry(&pts, IpgCanvasWidget::PolyLine);
+                    mid_point = get_mid_geometry(&pts, Widget::PolyLine);
                     pl_point = translate_geometry(
                                     &[pl_point], 
                                     mid_point, 
@@ -639,8 +639,8 @@ pub fn build_polyline_path(pl: &IpgPolyLine,
                 }
                 if edit_other_point {
                     degrees = get_horizontal_angle_of_vector(pl.mid_point, pending_cursor.unwrap());
-                    let step_degrees = degrees-pl.rotation;
-                    pts = rotate_geometry(&pts, &mid_point, &step_degrees, IpgCanvasWidget::PolyLine);
+                    let step_degrees = degrees-pl.degrees;
+                    pts = rotate_geometry(&pts, &mid_point, &step_degrees, Widget::PolyLine);
                     pl_point = pending_cursor.unwrap();
 
                 }
@@ -660,7 +660,7 @@ pub fn build_polyline_path(pl: &IpgPolyLine,
                 p.line_to(pl_point);
                 p.circle(pl_point, 3.0);
             },
-            IpgDrawMode::New => {
+            DrawMode::New => {
                 for (index, point) in pl.points.iter().enumerate() {
                     if index == 0 {
                         p.move_to(*point);
@@ -670,7 +670,7 @@ pub fn build_polyline_path(pl: &IpgPolyLine,
                 }
                 p.line_to(pending_cursor.unwrap());
             },
-            IpgDrawMode::Rotate => {
+            DrawMode::Rotate => {
                 for (index, point) in pl.points.iter().enumerate() {
                     if index == 0 {
                         p.move_to(*point);
@@ -693,9 +693,8 @@ pub fn build_polyline_path(pl: &IpgPolyLine,
 
 }
 
-
-pub fn build_right_triangle_path(tr: &IpgRightTriangle, 
-                            draw_mode: IpgDrawMode, 
+pub fn build_right_triangle_path(tr: &RightTriangle, 
+                            draw_mode: DrawMode, 
                             pending_cursor: Option<Point>,
                             edit_point_index: Option<usize>, 
                             edit_mid_point: bool,
@@ -708,18 +707,18 @@ pub fn build_right_triangle_path(tr: &IpgRightTriangle,
     let mut tr_point = tr.tr_point;
     let mut degrees = match degrees {
         Some(d) => d,
-        None => tr.rotation,
+        None => tr.degrees,
     };
 
     let path = Path::new(|p| {
         match draw_mode {
-            IpgDrawMode::Display => {
+            DrawMode::DrawAll => {
                 p.move_to(tr.points[0]);
                 p.line_to(tr.points[1]);
                 p.line_to(tr.points[2]);
                 p.line_to(tr.points[0]);
             },
-            IpgDrawMode::Edit => {
+            DrawMode::Edit => {
                 pts.push(tr_point);
                 if edit_mid_point {
                     pts = translate_geometry(
@@ -755,12 +754,12 @@ pub fn build_right_triangle_path(tr: &IpgRightTriangle,
                             tr.mid_point, 
                             pending_cursor.unwrap()
                         );
-                    let step_degrees = degrees-tr.rotation;
+                    let step_degrees = degrees-tr.degrees;
                     pts = rotate_geometry(
                             &pts, 
                             &mid_point, 
                             &step_degrees, 
-                            IpgCanvasWidget::RightTriangle
+                            Widget::RightTriangle
                         );
                     tr_point = pending_cursor.unwrap();
                 }
@@ -778,7 +777,7 @@ pub fn build_right_triangle_path(tr: &IpgRightTriangle,
                 p.circle(mid_point, 3.0);
                 p.circle(tr_point, 3.0);
             },
-            IpgDrawMode::New => {
+            DrawMode::New => {
                 let mut cursor = pending_cursor.unwrap();
                 p.move_to(tr.points[0]);
                 if tr.points.len() == 1 {
@@ -790,7 +789,7 @@ pub fn build_right_triangle_path(tr: &IpgRightTriangle,
                     p.line_to(cursor);
                 }
             },
-            IpgDrawMode::Rotate => {
+            DrawMode::Rotate => {
                 p.move_to(tr.points[0]);
                 p.line_to(tr.points[1]);
                 p.line_to(tr.points[2]);
@@ -810,8 +809,8 @@ pub fn build_right_triangle_path(tr: &IpgRightTriangle,
 }
 
 
-pub fn build_free_hand_path(fh: &IpgFreeHand, 
-                        draw_mode: IpgDrawMode, 
+pub fn build_free_hand_path(fh: &FreeHand, 
+                        draw_mode: DrawMode, 
                         pending_cursor: Option<Point>,
                         edit_point_index: Option<usize>,
                         ) -> Path {
@@ -820,7 +819,7 @@ pub fn build_free_hand_path(fh: &IpgFreeHand,
 
     Path::new(|p| {
         match draw_mode {
-            IpgDrawMode::Display => {
+            DrawMode::DrawAll => {
                 for (index, point) in fh.points.iter().enumerate() {
                     if index == 0 {
                         p.move_to(*point);
@@ -829,7 +828,7 @@ pub fn build_free_hand_path(fh: &IpgFreeHand,
                     }
                 }
             },
-            IpgDrawMode::Edit => {
+            DrawMode::Edit => {
                 if edit_point_index.is_some() {
                     pts[edit_point_index.unwrap()] = pending_cursor.unwrap();
                 }
@@ -845,7 +844,7 @@ pub fn build_free_hand_path(fh: &IpgFreeHand,
                     p.circle(*pt, 3.0);
                 }
             },
-            IpgDrawMode::New => {
+            DrawMode::New => {
                 for (index, point) in fh.points.iter().enumerate() {
                     if index == 0 {
                         p.move_to(*point);
@@ -855,7 +854,7 @@ pub fn build_free_hand_path(fh: &IpgFreeHand,
                 }
                 p.line_to(pending_cursor.unwrap());
             },
-            IpgDrawMode::Rotate => {
+            DrawMode::Rotate => {
                 p.move_to(Point::new(0.0,0.0));
             },
         }
@@ -863,48 +862,60 @@ pub fn build_free_hand_path(fh: &IpgFreeHand,
 
 }
 
-pub fn build_text_path (txt: &IpgText, 
-                    draw_mode: IpgDrawMode, 
-                    blink: bool,
-                    ) -> (canvas::Text, Option<Path>) {
+pub fn build_text_path (
+    txt: &Text, 
+    draw_mode: DrawMode, 
+    blink: bool,
+    _renderer: &Renderer,
+    ) -> (canvas::Text, Option<Path>) {
 
-        let mut text = canvas::Text {
-                    content: txt.content.clone(),
-                    position: Point::ORIGIN,
-                    color: txt.color,
-                    size: txt.size,
-                    line_height: txt.line_height,
-                    font: txt.font,
-                    horizontal_alignment: txt.horizontal_alignment,
-                    vertical_alignment: txt.vertical_alignment,
-                    shaping: txt.shaping,
-                };
+    let mut text = canvas::Text {
+                content: txt.content.clone(),
+                position: Point::ORIGIN,
+                color: txt.color,
+                size: txt.size,
+                line_height: txt.line_height,
+                font: txt.font,
+                shaping: txt.shaping,
+                align_x: txt.align_x,
+                align_y: txt.align_y,
+                ..Default::default()
+            };
 
-        match draw_mode {
-            IpgDrawMode::Display => { 
-                (text, None)
-            },
-            IpgDrawMode::Edit => {
-                let path = Some(Path::new(|p| {
-                    p.circle(Point::new(0.0, 0.0), 3.0);
-                }));
-                (text, path)
-            },
-            IpgDrawMode::New => {
-                let mut text_cont = txt.content.clone();
-                if blink {
-                    text_cont.push('|');
-                }
-                text.content = text_cont;
-                (text, None)
-            },
-            IpgDrawMode::Rotate => {
-                let path = Some(Path::new(|p| {
-                    p.circle(Point::new(0.0, 0.0), 3.0);
-                }));
-                (text, path)
-            },
-        }
-
-                  
+    match draw_mode {
+        DrawMode::DrawAll => { 
+            (text, None)
+        },
+        DrawMode::Edit => {
+            let path = Some(Path::new(|p| {
+                p.circle(Point::new(0.0, -10.0), 3.0);
+            }));
+            (text, path)
+        },
+        DrawMode::New => {
+            text.content = txt.content.clone();
+            
+            // Draw cursor as a separate line instead of text character
+            let path = if blink {
+                let cursor_x = text.content.len() as f32 * text.size.0 * 0.26;
+                let cursor_height = text.size.0;
+                
+                Some(Path::new(|p| {
+                    p.move_to(Point::new(cursor_x, -cursor_height * 0.6));
+                    p.line_to(Point::new(cursor_x, cursor_height * 0.5));
+                }))
+            } else {
+                None
+            };
+            
+            (text, path)
+        },
+        DrawMode::Rotate => {
+            let path = Some(Path::new(|p| {
+                p.circle(Point::new(0.0, -10.0), 3.0);
+            }));
+            (text, path)
+        },
+    }
+         
 }

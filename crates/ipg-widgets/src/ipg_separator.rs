@@ -5,6 +5,9 @@ use iced::widget::{row, Row, Text};
 use iced::{Background, Border, Color, Element, 
     Length, Renderer, Theme };
 
+use iced_aw::Quad;
+use iced_aw::widget::InnerBounds;
+
 use pyo3::{pyclass, Py, PyAny, Python};
 type PyObject = Py<PyAny>;
 
@@ -13,7 +16,6 @@ use ipg_helpers::{get_height, get_width, try_extract_boolean, try_extract_f64,
 use ipg_styling::{colors::{get_color, IpgColor}, try_extract_ipg_color, 
     try_extract_rgba_color};
 use ipg_types::Message;
-use iced_aw_widgets::quad::{InnerBounds, Quad};
 use crate::ipg_enums::IpgWidgets;
 
 

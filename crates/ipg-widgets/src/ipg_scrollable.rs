@@ -1,7 +1,9 @@
 //! ipg_scrollable
+use iced::border;
 use iced::widget::container;
 use iced::widget::scrollable;
 use iced::widget::scrollable::Anchor;
+use iced::widget::scrollable::AutoScroll;
 use iced::widget::scrollable::Rail;
 use iced::widget::scrollable::Scrollbar;
 use iced::widget::scrollable::Scroller;
@@ -110,6 +112,7 @@ pub struct IpgScrollableStyle {
     pub scroller_color: Option<Color>,
     pub scroller_color_hovered: Option<Color>,
     pub scroller_color_dragged: Option<Color>,
+    pub snap: bool,
 }
 
 impl IpgScrollableStyle {
@@ -132,6 +135,7 @@ impl IpgScrollableStyle {
         scroller_color: Option<Color>,
         scroller_color_hovered: Option<Color>,
         scroller_color_dragged: Option<Color>,
+        snap: bool,
     ) -> Self {
         Self {
             id,
@@ -152,6 +156,7 @@ impl IpgScrollableStyle {
             scroller_color,
             scroller_color_hovered,
             scroller_color_dragged,
+            snap,
         }
     }
 }
@@ -392,6 +397,7 @@ fn get_styling(theme: &Theme, status: Status,
             border,
             shadow,
             text_color: style.text_color,
+            snap: style.snap,
         };
 
     let palette = theme.extended_palette();
@@ -432,25 +438,44 @@ fn get_styling(theme: &Theme, status: Status,
         background: Some(scrollbar_color),
         border,
         scroller: Scroller {
-            color: scroller_color,
+            background: scroller_color.into(),
             border,
         },
     };
+    let auto_scroll = AutoScroll {
+        background: palette.background.base.color.scale_alpha(0.9).into(),
+        border: border::rounded(u32::MAX)
+            .width(1)
+            .color(palette.background.base.text.scale_alpha(0.8)),
+        shadow: Shadow {
+            color: Color::BLACK.scale_alpha(0.7),
+            offset: Vector::ZERO,
+            blur_radius: 2.0,
+        },
+        icon: palette.background.base.text.scale_alpha(0.8),
+    };
 
     match status {
-        Status::Active => Style {
+        Status::Active{
+            is_horizontal_scrollbar_disabled: _,
+            is_vertical_scrollbar_disabled: _,
+        } => Style {
             container: container_style,
             vertical_rail: scrollbar,
             horizontal_rail: scrollbar,
             gap: None,
+            auto_scroll,
+            
         },
         Status::Hovered {
             is_horizontal_scrollbar_hovered,
             is_vertical_scrollbar_hovered,
+            is_horizontal_scrollbar_disabled: _,
+            is_vertical_scrollbar_disabled: _,
         } => {
             let hovered_scrollbar = Rail {
                 scroller: Scroller {
-                    color: scroller_color_hovered,
+                    background: scroller_color_hovered.into(),
                     ..scrollbar.scroller
                 },
                 ..scrollbar
@@ -469,15 +494,18 @@ fn get_styling(theme: &Theme, status: Status,
                     scrollbar
                 },
                 gap: None,
+                auto_scroll,
             }
         }
         Status::Dragged {
             is_horizontal_scrollbar_dragged,
             is_vertical_scrollbar_dragged,
+            is_horizontal_scrollbar_disabled: _,
+            is_vertical_scrollbar_disabled: _,
         } => {
             let dragged_scrollbar = Rail {
                 scroller: Scroller {
-                    color: scroller_color_dragged,
+                    background: scroller_color_dragged.into(),
                     ..scrollbar.scroller
                 },
                 ..scrollbar
@@ -496,6 +524,7 @@ fn get_styling(theme: &Theme, status: Status,
                     scrollbar
                 },
                 gap: None,
+                auto_scroll,
             }
         }
     }

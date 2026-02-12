@@ -4,7 +4,7 @@
 use std::collections::HashMap;
 use std::mem;
 
-use iced::widget::container::Id;
+use iced::widget::Id;
 use iced::widget::scrollable::Viewport;
 use iced::window::Position;
 use iced::{font, window, Size};
@@ -12,24 +12,24 @@ use iced::event::{Event, Status};
 use iced::{Element, Point, Subscription, Task, Theme};
 use iced::widget::{scrollable, Space};
 use iced::executor;
-use iced::widget::{focus_next, horizontal_space, Canvas, Column};
+use iced::widget::{focus_next, Space, Canvas, Column};
 use iced::time;
 use iced::Color;
 use once_cell::sync::Lazy;
 use polars::frame::DataFrame;
 
 
-use crate::ipg_canvas::canvas::draw_canvas::IpgCanvasState;
-use crate::ipg_canvas::ipg_canvas::match_canvas_widget;
-use crate::ipg_widgets::ipg_color_picker::{color_picker_callback, 
+use ipg_canvas::canvas_items::canvas::draw_canvas::IpgCanvasState;
+use ipg_canvas::ipg_canvas::match_canvas_widget;
+use ipg_widgets::ipg_color_picker::{color_picker_callback, 
     construct_color_picker, ColPikMessage};
-use crate::ipg_widgets::ipg_divider::{construct_divider_horizontal, construct_divider_vertical, divider_callback, DivMessage};
-use crate::ipg_widgets::ipg_menu::{IpgMenuBarStyle, IpgMenuStyle};
-use crate::ipg_widgets::ipg_separator::construct_separator;
-use crate::ipg_widgets::ipg_table::{table_callback, TableMessage};
-use crate::ipg_widgets::ipg_timer_canvas::{canvas_tick_callback, 
+use ipg_widgets::ipg_divider::{construct_divider_horizontal, construct_divider_vertical, divider_callback, DivMessage};
+use ipg_widgets::ipg_menu::{IpgMenuBarStyle, IpgMenuStyle};
+use ipg_widgets::ipg_separator::construct_separator;
+use ipg_widgets::ipg_table::{table_callback, TableMessage};
+use ipg_widgets::ipg_timer_canvas::{canvas_tick_callback, 
     canvas_timer_callback, construct_canvas_timer, CanvasTimerMessage};
-use crate::ipg_widgets::ipg_tool_tip;
+use ipg_widgets::ipg_tool_tip;
 use crate::{access_canvas_state, access_canvas_update_items, access_update_items, access_user_data1, access_user_data2, access_window_actions, ipg_widgets, match_container, match_container_for_df, match_widget, set_state_of_widget_running_state, IpgState};
 use ipg_widgets::ipg_button::{BTNMessage, construct_button, button_callback};
 use ipg_widgets::ipg_canvas::{canvas_callback, construct_canvas, CanvasMessage};

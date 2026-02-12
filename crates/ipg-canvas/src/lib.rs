@@ -12,9 +12,9 @@ use pyo3::{pyclass, Py, PyAny, Python};
 type PyObject = Py<PyAny>;
 
 mod canvas_items;
-use crate::canvas_items::draw_canvas::{IpgCanvasState, IpgDrawMode, IpgDrawStatus, CanvasWidget};
-use crate::canvas_items::geometries::{IpgCanvasWidget, get_draw_mode_and_status, get_widget_id};
-use crate::canvas_items::geometries::set_widget_mode_or_status_or_id;
+use crate::canvas_items::draw_canvas::{CanvasWidget, DrawMode, DrawStatus, CanvasState, DrawMode, DrawStatus, set_widget_mode_or_status};
+use crate::canvas_items::draw_canvas::{CanvasWidget, get_draw_mode_and_status, get_widget_id};
+use crate::canvas_items::draw_canvas::set_widget_mode_or_status_or_id;
 use crate::canvas_items::import_export::{convert_to_export, import_widgets, save};
 
 use ipg_alignment::{get_horizontal_alignment, get_vertical_alignment, try_extract_ipg_horizontal_alignment, try_extract_ipg_vertical_alignment};
@@ -33,7 +33,12 @@ impl IpgCanvas {
     }
 }
 
-pub fn construct_canvas(canvas_state: &IpgCanvasState) -> Element<'_, Message> {
+#[derive(Debug, Clone)]
+enum CanvasMessage {
+    WidgetDraw(CanvasWidget),
+}
+
+pub fn construct_canvas(canvas_state: &CanvasState) -> Element<'_, Message> {
     let draw: Element<CanvasMessage> = container(
         canvas_state
             .view(
@@ -47,7 +52,7 @@ pub fn construct_canvas(canvas_state: &IpgCanvasState) -> Element<'_, Message> {
     draw.map(move |message| Message::Canvas(message))
 }
 
-pub fn canvas_callback(canvas_message: CanvasMessage, app_state: &mut IpgState, canvas_state: &mut IpgCanvasState) {
+pub fn canvas_callback(canvas_message: CanvasMessage, app_state: &mut IpgState, canvas_state: &mut CanvasState) {
     match canvas_message {
         CanvasMessage::WidgetDraw(mut widget) => {
             // Since the text widget may have a blinking cursor, the only way to use a timer
@@ -59,17 +64,17 @@ pub fn canvas_callback(canvas_message: CanvasMessage, app_state: &mut IpgState, 
                     let (draw_mode, draw_status) = get_draw_mode_and_status(&widget);
                     let id = get_widget_id(&widget);
                     match draw_status {
-                        IpgDrawStatus::Completed => {
-                            widget = set_widget_mode_or_status_or_id(widget, Some(IpgDrawMode::Display), None, None);
+                        DrawStatus::Completed => {
+                            widget = set_widget_mode_or_status(widget, Some(DrawMode::DrawAll), None);
                             canvas_state.text_curves.entry(id).and_modify(|k| *k= widget.clone());
                             canvas_state.timer_event_enabled = false;
-                            canvas_state.draw_mode = IpgDrawMode::Display;
+                            canvas_state.draw_mode = DrawMode::DrawAll;
                         },
-                        IpgDrawStatus::Delete => {
+                        DrawStatus::Delete => {
                             canvas_state.text_curves.remove(&id);
                             canvas_state.timer_event_enabled = false;
                         },
-                        IpgDrawStatus::Inprogress => {
+                        DrawStatus::Inprogress => {
                             // Since the text always returns a new curve or updated curve,
                             // a check for the first return is need to see if a text is present. 
                             let present = canvas_state.text_curves.get(&id);
@@ -81,9 +86,9 @@ pub fn canvas_callback(canvas_message: CanvasMessage, app_state: &mut IpgState, 
                         },
                     }
                     match draw_mode {
-                        IpgDrawMode::Edit | IpgDrawMode::Rotate => {
+                        DrawMode::Edit | DrawMode::Rotate => {
                             let id = get_widget_id(&widget);
-                            canvas_state.edit_widget_id = Some(id);
+                            canvas_state.edit_widget_id = Some(id.clone());
                             canvas_state.text_curves.entry(id).and_modify(|k| *k= widget);
                         },
                         _ => (),
@@ -93,30 +98,23 @@ pub fn canvas_callback(canvas_message: CanvasMessage, app_state: &mut IpgState, 
                 _ => {
                     let (draw_mode, draw_status) = get_draw_mode_and_status(&widget);
                     match draw_status {
-                        IpgDrawStatus::Completed => {
-                            widget = set_widget_mode_or_status_or_id(widget, Some(IpgDrawMode::Display), None, None);
+                        DrawStatus::Completed => {
+                            widget = set_widget_mode_or_status(widget, Some(DrawMode::DrawAll), None);
                         },
-                        IpgDrawStatus::Delete => {
+                        DrawStatus::Delete => {
                             let id = get_widget_id(&widget);
                             canvas_state.curves.remove(&id);
                         },  
                         _ => (),
                     }
-                    if draw_mode == IpgDrawMode::New {
-                        app_state.last_id += 1;
-                        let id = app_state.last_id;
-                        let widget = 
-                            set_widget_mode_or_status_or_id(
-                                widget.clone(), 
-                                Some(IpgDrawMode::Display), 
-                                Some(IpgDrawStatus::Completed), 
-                                Some(id)
-                            );
+                    if draw_mode == DrawMode::New {
+                        let id = get_widget_id(&widget);
+                        let widget = set_widget_mode_or_status(widget.clone(), Some(DrawMode::DrawAll), Some(DrawStatus::Completed));
                         canvas_state.curves.insert(id, widget);
                     } else {
                         // if not new must be in edit or rotate mode so modify.
                         let id = get_widget_id(&widget);
-                        canvas_state.edit_widget_id = Some(id);
+                        canvas_state.edit_widget_id = Some(id.clone());
                         canvas_state.curves.entry(id).and_modify(|k| *k= widget);
                     }
                     

@@ -2,9 +2,8 @@
 
 use std::f32::consts::PI;
 
-use iced::{Point, Radians};
-
-use super::geometries::IpgCanvasWidget;
+use iced::{alignment, Point, Radians};
+use super::draw_canvas::{HTextAlignment, VTextAlignment, Widget};
 
 
 pub fn build_polygon(mid_point: Point, pg_point: Point, poly_points: usize, mut degrees: f32) -> Vec<Point> {
@@ -19,7 +18,7 @@ pub fn build_polygon(mid_point: Point, pg_point: Point, poly_points: usize, mut 
     }
     
     degrees += 180.0;
-    let mut pts = rotate_geometry(&points, &mid_point, &degrees, IpgCanvasWidget::Polygon);
+    let mut pts = rotate_geometry(&points, &mid_point, &degrees, Widget::Polygon);
     pts.push(pts[0]);
     pts
 
@@ -102,10 +101,10 @@ pub fn rotate_geometry(
                     points: &[Point], 
                     mid_point: &Point, 
                     step_degrees: &f32, 
-                    widget: IpgCanvasWidget,
+                    widget: Widget,
                     ) -> Vec<Point> {
     match widget {
-        IpgCanvasWidget::None => vec![],
+        Widget::None => vec![],
         _ => {
             let theta = to_radians(step_degrees);
             let mut new_points = vec![];
@@ -178,6 +177,22 @@ pub fn to_radians(degrees: &f32) -> f32 {
     degrees * PI/180.0
 }
 
+pub fn iced_h_text_alignment(align: HTextAlignment) -> alignment::Horizontal {
+    match align {
+        HTextAlignment::Left => alignment::Horizontal::Left,
+        HTextAlignment::Center => alignment::Horizontal::Center,
+        HTextAlignment::Right => alignment::Horizontal::Right,
+    }
+}
+
+pub fn iced_v_text_alignment(align: VTextAlignment) -> alignment::Vertical {
+    match align {
+        VTextAlignment::Top => alignment::Vertical::Top,
+        VTextAlignment::Center => alignment::Vertical::Center,
+        VTextAlignment::Bottom => alignment::Vertical::Bottom,
+    }
+}
+
 
 #[test]
 fn test_get_linear_regression() {
@@ -242,7 +257,7 @@ fn test_rotate_geometry() {
     let mid_point = Point::new(0.0, 0.0);
     let degrees = &6.0;
     for _ in 0..2 {
-        points = rotate_geometry(&points.clone(), &mid_point, degrees, IpgCanvasWidget::Line);
+        points = rotate_geometry(&points.clone(), &mid_point, degrees, Widget::Line);
         dbg!(&points);
     }
 }

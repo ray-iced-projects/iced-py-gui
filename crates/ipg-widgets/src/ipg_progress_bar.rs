@@ -98,8 +98,8 @@ pub fn construct_progress_bar<'a>(bar: &'a IpgProgressBar,
     let style = get_progress_bar_style(style_opt);
 
     Some(ProgressBar::new(bar.min..=bar.max, bar.value)
-                            .width(bar.width)
-                            .height(bar.height)
+                            .girth(bar.height)
+                            .length(bar.width)
                             .style(move|theme: &Theme | {   
                                 get_styling(theme, 
                                     bar.style_standard.clone(), 
@@ -199,6 +199,9 @@ pub fn get_styling(theme: &Theme,
             },
             IpgStyleStandard::Danger => {
                 progress_bar::danger(theme)
+            },
+            IpgStyleStandard::Warning => {
+                progress_bar::warning(theme)
             },
             IpgStyleStandard::Text => panic!("IpgStandardStyle.Text is not valid for progress bar"),
         };

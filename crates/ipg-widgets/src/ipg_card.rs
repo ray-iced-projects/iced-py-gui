@@ -1,9 +1,9 @@
 //! ipg_card
-use iced::{Color, Element, Length, Padding, Theme};
+use iced::{Background, Color, Element, Length, Padding, Theme};
 use iced::widget::{Column, Space, Text};
-use iced_aw::card::Card;
+use iced_aw::card::{Card, Status};
+use iced_aw::style::card;
 
-use ipg_styling::IpgStyleStandard;
 use pyo3::{pyclass, Py, PyAny, Python};
 type PyObject = Py<PyAny>;
 
@@ -32,6 +32,7 @@ pub struct IpgCard {
     pub body: String,
     pub foot: Option<String>,
     pub style_id: Option<usize>,
+    pub style_standard: Option<IpgCardStyleStandard>,
     pub show: bool,
 }
 
@@ -53,6 +54,7 @@ impl IpgCard {
         body: String,
         foot: Option<String>,
         style_id: Option<usize>,
+        style_standard: Option<IpgCardStyleStandard>,
         show: bool,
         ) -> Self {
         Self {
@@ -72,6 +74,7 @@ impl IpgCard {
             body,
             foot,
             style_id,
+            style_standard,
             show,
         }
     }
@@ -81,8 +84,8 @@ impl IpgCard {
 pub struct IpgCardStyle {
     pub id: usize,
     pub background: Option<Color>, 
-    pub border_radius: f32, 
-    pub border_width: f32, 
+    pub border_radius: Option<f32>, 
+    pub border_width: Option<f32>, 
     pub border_color: Option<Color>, 
     pub head_background: Option<Color>, 
     pub head_text_color: Option<Color>, 
@@ -97,8 +100,8 @@ impl IpgCardStyle {
     pub fn new(
         id: usize,
         background: Option<Color>, 
-        border_radius: f32, 
-        border_width: f32, 
+        border_radius: Option<f32>, 
+        border_width: Option<f32>, 
         border_color: Option<Color>, 
         head_background: Option<Color>, 
         head_text_color: Option<Color>, 
@@ -222,6 +225,20 @@ pub fn card_item_update(crd: &mut IpgCard,
     }
 }
 
+#[derive(Debug, Clone, PartialEq)]
+#[pyclass(eq, eq_int)]
+pub enum IpgCardStyleStandard {
+    Primary,
+    Secondary,
+    Success,
+    Danger,
+    Warning,
+    Info,
+    Light,
+    Dark,
+    White,
+}
+
 pub fn get_card_style(style: Option<&IpgWidgets>) -> Option<IpgCardStyle>{
     match style {
         Some(IpgWidgets::IpgCardStyle(style)) => {
@@ -231,85 +248,71 @@ pub fn get_card_style(style: Option<&IpgWidgets>) -> Option<IpgCardStyle>{
     }
 }
 
-use iced_aw::style::{self, card};
 pub fn get_styling(
-        theme: &Theme, status: style::Status,
+        theme: &Theme, status: Status,
         style_opt: Option<IpgCardStyle>,
-        style_standard: Option<IpgStyleStandard>,
+        style_standard: Option<IpgCardStyleStandard>,
         ) -> card::Style 
 {
+    // if no systles defined
     if style_standard.is_none() && style_opt.is_none() {
         return card::primary(theme, status)
     }
 
-    if style_opt.is_none() && style_standard.is_some() {
+    if style_standard.is_some() {
             return get_standard_style(theme, status, style_standard)
     }
 
 
-    let ipg_style = if let Some(style) = ipg_style_opt {
-            style
+    if let Some(ipg_style) = style_opt {
+        let mut style = card::Style::default();
+        style.background = ipg_style.background.unwrap_or(Color::WHITE).into();
+        style.border_radius = ipg_style.border_radius.unwrap_or(10.0);
+        style.border_width = ipg_style.border_width.unwrap_or(1.0);
+        style.border_color = ipg_style.border_color.unwrap_or([0.87, 0.87, 0.87].into());
+        style.head_background = if let Some(color) = ipg_style.head_background {
+            color.into()
         } else {
-        IpgCardStyle{
-            id: 0,
-            background: None,
-            border_radius: 10.0,
-            border_width: 1.0,
-            border_color: None,
-            head_background: None,
-            head_text_color: None,
-            body_background: None,
-            body_text_color: None,
-            foot_background: None,
-            foot_text_color: None,
-            close_color: None,
-        }
-    };
+            Background::Color([0.87, 0.87, 0.87].into())
+        };
+        style.head_text_color = ipg_style.head_text_color.unwrap_or(Color::BLACK);
+        style.body_background = if let Some(color) = ipg_style.body_background {
+            color.into()
+        } else {
+            Color::TRANSPARENT.into()
+        };
+        style.body_text_color = ipg_style.body_text_color.unwrap_or(Color::BLACK);
+        style.foot_background = if let Some(color) = ipg_style.foot_background {
+            color.into()
+        } else {
+            Color::TRANSPARENT.into()
+        };
+        style.foot_text_color = ipg_style.foot_text_color.unwrap_or(Color::BLACK);
+        style.close_color = ipg_style.close_color.unwrap_or(Color::BLACK);
 
-    let background = ipg_style.background.unwrap_or(Color::WHITE).into();
-    let border_radius = ipg_style.border_radius;
-    let border_width = ipg_style.border_width;
-    let border_color = ipg_style.border_color.unwrap_or([0.87, 0.87, 0.87].into());
-    let head_background = ipg_style.head_background.unwrap_or([0.87, 0.87, 0.87].into()).into();
-    let head_text_color = ipg_style.head_text_color.unwrap_or(Color::BLACK);
-    let body_background = ipg_style.body_background.unwrap_or(Color::TRANSPARENT).into();
-    let body_text_color = ipg_style.body_text_color.unwrap_or(Color::BLACK);
-    let foot_background = ipg_style.foot_background.unwrap_or(Color::TRANSPARENT).into();
-    let foot_text_color = ipg_style.foot_text_color.unwrap_or(Color::BLACK);
-    let close_color = ipg_style.close_color.unwrap_or(Color::BLACK);
-
-    let custom = card::Appearance{ 
-        background, 
-        border_radius, 
-        border_width, 
-        border_color, 
-        head_background, 
-        head_text_color, 
-        body_background, 
-        body_text_color, 
-        foot_background, 
-        foot_text_color, 
-        close_color 
-    };
-
-
-    CardStyles::Custom(custom)
+        style
+    } else {
+        card::Style::default()
+    }
 
 }
 
 fn get_standard_style(
-        theme: &Theme, status: style::Status, 
-        std_style: Option<IpgStyleStandard>)
+        theme: &Theme, status: Status, 
+        std_style: Option<IpgCardStyleStandard>)
         -> card::Style {
 
-    match std_style {
-        Some(IpgStyleStandard::Primary) => card::primary(theme, status),
-        Some(IpgStyleStandard::Success) => card::success(theme, status),
-        Some(IpgStyleStandard::Danger) => card::danger(theme, status),
-        Some(IpgStyleStandard::Warning) => card::warning(theme, status),
-        Some(IpgStyleStandard::Text) => card::warning(theme, status),
-        None => card::primary(theme, status)
-    }
+    match std_style.unwrap() {
+        IpgCardStyleStandard::Primary => card::primary(theme, status),
+        IpgCardStyleStandard::Secondary => card::secondary(theme, status),
+        IpgCardStyleStandard::Success => card::success(theme, status),
+        IpgCardStyleStandard::Danger => card::danger(theme, status),
+        IpgCardStyleStandard::Warning => card::warning(theme, status),
+        IpgCardStyleStandard::Info => card::info(theme, status),
+        IpgCardStyleStandard::Light => card::light(theme, status),
+        IpgCardStyleStandard::Dark => card::danger(theme, status),
+        IpgCardStyleStandard::White => card::white(theme, status),
+            }
 }
 
 pub fn try_extract_card_update(update_obj: &PyObject) -> IpgCardParam {
@@ -370,10 +373,10 @@ pub fn card_style_update(style: &mut IpgCardStyle,
             style.border_color = Some(Color::from(try_extract_rgba_color(value, name)));
         },
         IpgCardStyleParam::BorderRadius => {
-            style.border_radius = try_extract_f64(value, name) as f32;
+            style.border_radius = Some(try_extract_f64(value, name) as f32);
         },
         IpgCardStyleParam::BorderWidth => {
-            style.border_width = try_extract_f64(value, name) as f32;
+            style.border_width = Some(try_extract_f64(value, name) as f32);
         },
         IpgCardStyleParam::HeadBackgroundIpgColor => {
             let color = try_extract_ipg_color(value, name);

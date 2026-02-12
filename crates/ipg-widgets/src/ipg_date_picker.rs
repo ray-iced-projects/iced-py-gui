@@ -111,12 +111,12 @@ pub fn construct_date_picker<'a>(dp: &'a IpgDatePicker,
                                     dp.size_factor),
             
             // Column titles S M T W T F S
-            Row::with_children(vec![Space::with_width(7.0*dp.size_factor).into(), 
+            Row::with_children(vec![Space::new().width(7.0*dp.size_factor).into(), 
                                     create_day_row(dp.size_factor)])
                                 .width(Length::Fill).into(),
             
             // days of the month
-            Row::with_children(vec![Space::with_width(5.0*dp.size_factor).into(), 
+            Row::with_children(vec![Space::new().width(5.0*dp.size_factor).into(), 
                                     get_calendar_days(dp.id, 
                                                         dp.selected_year,
                                                         dp.selected_month_index,
@@ -126,7 +126,7 @@ pub fn construct_date_picker<'a>(dp: &'a IpgDatePicker,
                                     .width(Length::Fill).into(),
 
             // close btn and format picklist
-            Row::with_children(vec![Space::with_width(5.0*dp.size_factor).into(), 
+            Row::with_children(vec![Space::new().width(5.0*dp.size_factor).into(), 
                                     create_select_row(dp.id, 
                                                         dp.selected_format.clone(), 
                                                         dp.size_factor),
@@ -134,7 +134,7 @@ pub fn construct_date_picker<'a>(dp: &'a IpgDatePicker,
                                     .width(Length::Fill).into(),
             
             // bottom submit btn and selected date, if any
-            Row::with_children(vec![Space::with_width(5.0*dp.size_factor).into(),
+            Row::with_children(vec![Space::new().width(5.0*dp.size_factor).into(),
                                     create_submit_row(dp.id, 
                                                         dp.size_factor, 
                                                         dp.selected_date.clone())
@@ -354,7 +354,7 @@ fn get_calendar_days(id: usize, selected_year: i32,
                     day -= start_correction;
                     
                 } else {
-                    row.push(Space::new(15.0*size_factor, 15.0*size_factor).into());
+                    row.push(Space::new().width(15.0*size_factor).height(15.0*size_factor).into());
                 }
             }
             if day <= days as usize && start_weekday {

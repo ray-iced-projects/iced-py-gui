@@ -34,7 +34,7 @@ impl IpgSpace {
 pub fn construct_space(sp: &IpgSpace) -> Option<Element<'_, Message>> {
 
     if sp.show {
-        Some(Space::new(sp.width, sp.height).into())
+        Some(Space::new().width(sp.width).height(sp.height).into())
     } else {
         None
     }

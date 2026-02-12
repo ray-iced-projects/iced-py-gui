@@ -2,6 +2,7 @@
 members = [
     "crates/divider",
     "crates/ipg-alignment",
+    "crates/ipg-canvas",
     "crates/ipg-helpers",
     "crates/ipg-styling",
     "crates/ipg-types",
@@ -44,6 +45,7 @@ resvg = "0.45.1"
 # Internal crates
 divider = { path = "crates/divider"}
 ipg-alignment = { path = "crates/ipg-alignment" }
+ipg-canvas = { path = "crates/ipg-canvas" }
 ipg-fonts = { path = "ipg-fonts" }
 ipg-helpers = { path = "crates/ipg-helpers" }
 ipg-styling = { path = "crates/ipg-styling" }
@@ -68,6 +70,7 @@ crate-type = ["cdylib"]
 # Internal crates
 divider = { workspace = true }
 ipg-alignment = { workspace = true }
+ipg-canvas = { workspace = true }
 ipg-helpers = { workspace = true }
 ipg-styling = { workspace = true }
 ipg-types = { workspace = true }

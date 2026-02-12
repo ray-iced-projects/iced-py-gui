@@ -276,8 +276,8 @@ fn get_styling(theme: &Theme,
             }
             style_base
         },
-        Status::Focused => {
-            if style.border_color_focused.is_some() {
+        Status::Focused { is_hovered} => {
+            if style.border_color_focused.is_some() && is_hovered {
                 style_base.border.color = style.border_color_focused.unwrap();
             } else {
                 style_base.border.color = palette.primary.strong.color;

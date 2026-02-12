@@ -11,8 +11,7 @@ use pyo3::{Py, PyAny, Python};
 type PyObject = Py<PyAny>;
 
 use ipg_helpers::{get_padding_f64, get_radius, get_width, try_extract_boolean, 
-    try_extract_f64, try_extract_string, try_extract_vec_f32, try_extract_vec_f64, 
-    try_extract_vec_str};
+    try_extract_f64, try_extract_string, try_extract_vec_f32, try_extract_vec_f64, try_extract_vec_str};
 use ipg_styling::colors::get_color;
 use ipg_styling::{try_extract_ipg_color, try_extract_rgba_color};
 use ipg_types::{Message, PLMessage};
@@ -445,7 +444,14 @@ pub fn get_styling(theme: &Theme, status: Status,
     if style_opt.is_none() {
         return match status {
                 Status::Active => active_style,
-                Status::Hovered | Status::Opened => pick_list::default(theme, Status::Hovered),
+                Status::Opened {is_hovered} => {
+                    if is_hovered {
+                        pick_list::default(theme, Status::Opened { is_hovered })
+                    } else {
+                        pick_list::default(theme, Status::Active)
+                    }
+                }
+                Status::Hovered => pick_list::default(theme, Status::Hovered)
             }
     }
 
@@ -483,7 +489,14 @@ pub fn get_styling(theme: &Theme, status: Status,
     
     match status {
         Status::Active => active_style,
-        Status::Hovered | Status::Opened => hover_opened_style,
+        Status::Opened {is_hovered} => {
+            if is_hovered {
+                hover_opened_style
+            } else {
+                active_style
+            }
+        },
+        Status::Hovered => active_style,
     }
 
 }

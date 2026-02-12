@@ -1,9 +1,9 @@
 //!lib for all of the python callable functions using pyo3
 #![allow(clippy::too_many_arguments, clippy::redundant_closure)]
 #![allow(clippy::type_complexity)]
-use canvas::canvas_helpers::{build_polygon, get_mid_point, to_radians};
-use canvas::draw_canvas::{IpgCanvasState, IpgDrawMode, IpgDrawStatus, IpgWidget};
-use canvas::geometries::{IpgArc, IpgBezier, IpgCanvasImage, IpgCanvasWidget, 
+use crates::ipg_canvas::canvas_items::canvas_helpers::{build_polygon, get_mid_point, to_radians};
+use crates::ipg_canvas::canvas_items::draw_canvas::{IpgCanvasState, IpgDrawMode, IpgDrawStatus, IpgWidget};
+use crates::ipg_canvas::canvas_items::geometries::{IpgArc, IpgBezier, IpgCanvasImage, IpgCanvasWidget, 
     IpgCircle, IpgEllipse, IpgLine, IpgPolyLine, IpgPolygon, IpgRectangle};
 
 use iced::widget::image;

@@ -5221,17 +5221,33 @@ class IpgMousePointer:
     """
     Pointer types for the mouse interactions
     """
-    Idle=''
-    Pointer=''
-    Grab=''
-    Text=''
+    IpgNone=''
+    Alias=''
+    AllScroll=''
+    Cell=''
+    ContextMenu=''
+    Copy=''
     Crosshair=''
-    Working=''
+    Grab=''
     Grabbing=''
-    ResizingHorizontally=''
-    ResizingVertically=''
+    Help=''
+    Hidden=''
+    Idle=''
+    Move=''
+    NoDrop=''
     NotAllowed=''
+    Pointer=''
+    ResizingColumn=''
+    ResizingDiagonallyDown=''
+    ResizingDiagonallyUp=''
+    ResizingHorizontally=''
+    ResizingRow=''
+    ResizingVertically=''
+    Text=''
+    Wait=''
     ZoomIn=''
+    ZoomOut=''
+
 
 class IpgOpaqueParam:
     """

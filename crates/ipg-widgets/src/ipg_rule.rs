@@ -1,7 +1,7 @@
 //! ipg_rule
 use iced::widget::rule::{self, FillMode, Style};
 use iced::{Color, Element, Length, Theme};
-use iced::widget::{Container, Rule};
+use iced::widget::Container;
 
 use pyo3::{pyclass, Py, PyAny, Python};
 type PyObject = Py<PyAny>;
@@ -105,11 +105,10 @@ pub fn construct_horizontal<'a>(rule: &'a IpgRule,
 
     let style = get_rule_style(style_opt);
 
-    let rule_h: Element<Message> = Rule::horizontal(1)
+    let rule_h: Element<Message> = rule::horizontal(1)
                                             .style(move|theme: &Theme| {   
                                                 get_styling(theme,
-                                                    style.clone(),
-                                                    rule.thickness, 
+                                                    style.clone(), 
                                                     )  
                                                 })
                                             .into();
@@ -124,11 +123,10 @@ fn construct_rule_vertical<'a>(rule: &'a IpgRule,
 
     let style = get_rule_style(style_opt);
 
-    let rule_v: Element<Message> = Rule::vertical(1)
+    let rule_v: Element<Message> = rule::vertical(1)
                                             .style(move|theme: &Theme| {   
                                                 get_styling(theme,
                                                     style.clone(), 
-                                                    rule.thickness,
                                                     )  
                                                 })
                                                 .into();
@@ -149,11 +147,9 @@ fn get_rule_style(style: Option<&IpgWidgets>) -> Option<IpgRuleStyle>{
 
 fn get_styling(theme: &Theme,
                 style_opt: Option<IpgRuleStyle>, 
-                thickness: u16,
                 ) -> Style {
 
     let mut base_style = rule::default(theme);
-    base_style.width = thickness;
 
     if style_opt.is_none() {
         return  base_style

@@ -242,11 +242,11 @@ pub fn get_styling(theme: &Theme, status: Status,
     // Untoggled: bg=color.strong & fg=color.base
     // Toggled: bg=color & fg=contrasting color  
     if style.background_color.is_some() {
-        tog_style.background = style.background_color.unwrap();
+        tog_style.background = style.background_color.unwrap().into();
     }
 
     if style.foreground_color.is_some() {
-        tog_style.foreground = style.foreground_color.unwrap();
+        tog_style.foreground = style.foreground_color.unwrap().into();
     }
     
     // background and foreground border color is the same for active, hover and toggled
@@ -269,16 +269,16 @@ pub fn get_styling(theme: &Theme, status: Status,
     match status {
         Status::Active { is_toggled } | Status::Hovered { is_toggled } => {
             if is_toggled && style.background_color_toggled.is_some() {
-                tog_style.background = style.background_color_toggled.unwrap();
+                tog_style.background = style.background_color_toggled.unwrap().into();
             }
         }
-        Status::Disabled => (),
+        _ => ()
     }
 
     match status {
         Status::Active { is_toggled } => {
             if is_toggled && style.foreground_color_toggled.is_some() {
-                tog_style.foreground = style.foreground_color_toggled.unwrap();
+                tog_style.foreground = style.foreground_color_toggled.unwrap().into();
             }
         }
         Status::Hovered { is_toggled } => {
@@ -287,10 +287,10 @@ pub fn get_styling(theme: &Theme, status: Status,
                     Color {
                         a: 0.5,
                         ..style.foreground_color_toggled.unwrap()
-                    };
-                } 
+                    }.into();
+                }
         }
-        Status::Disabled => (),
+        _ => (),
     }
 
     tog_style

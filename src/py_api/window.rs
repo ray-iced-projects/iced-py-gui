@@ -81,7 +81,7 @@ pub fn add_window(
     let mut window_position = Position::Default;
     let size = Size::new(width, height);
 
-    let mut max_size = Size::INFINITY;
+    let mut max_size = Size::INFINITE;
     if let Some(mw) = max_width {
         max_size.width = mw;
     }
@@ -116,6 +116,11 @@ pub fn add_window(
 
     // Store window string -> usize mapping
     state.windows_str_ids.insert(window_id.clone(), id);
+
+    // Register the window as a container so widgets can find their parent
+    // The window's container_id maps to its own window_id
+    state.container_wnd_str_ids.insert(window_id.clone(), window_id.clone());
+    state.container_str_ids.insert(window_id.clone(), id);
 
     // Initialize the IpgIds for this window
     state.ids.insert(

@@ -14,20 +14,19 @@ crate-type = ["cdylib"]
 
 [dependencies]
 pyo3 = { version = "0.26", features = ["extension-module"] }
-iced = { version = "0.13.1", features = ["canvas", "debug", "highlighter", "image", 
-                                        "lazy", "smol", "svg", "tokio", "multi-window", "auto-detect-theme"] }
-iced_aw = {git = "https://github.com/iced-rs/iced_aw", rev = "3485f3a"}
-
+iced = { version = "0.14", features = ["advanced", "canvas", "debug", "highlighter", "image", 
+"lazy", "smol", "svg", "tokio"] }
+iced_aw = { version = "0.13.0", features = ["full"] }
 polars = { version = "0.52", default-features = false, features = [
-    "csv",           # For CSV file reading
-    "dtype-date",    # For date type support
-    "dtype-datetime", # For datetime support
-    "fmt",           # For DataFrame display
-    "lazy",          # For lazy evaluation
-    "temporal",      # For temporal/datetime operations
-    "strings",       # For string operations
-    "timezones",     # For timezone support
-    "performant",    # Performance optimizations
+    "csv",
+    "dtype-date",
+    "dtype-datetime",
+    "fmt",
+    "lazy",
+    "temporal",
+    "strings",
+    "timezones",
+    "performant",
 ] }
 pyo3-polars = "0.25.0"
 

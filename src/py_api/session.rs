@@ -12,13 +12,12 @@ use crate::state::access_state;
 /// It will block until all windows are closed.
 #[pyfunction]
 pub fn start_session() -> PyResult<()> {
-    let _ = iced::daemon(App::title, App::update, App::view)
+    let _ = iced::daemon(App::new, App::update, App::view)
         .subscription(App::subscription)
         .theme(App::theme)
         .font(include_bytes!("../fonts/Roboto.ttf"))
         .scale_factor(App::scale_factor)
-        .antialiasing(true)
-        .run_with(|| App::new());
+        .run();
     
     Ok(())
 }

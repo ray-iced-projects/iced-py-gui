@@ -2,15 +2,14 @@
 
 use iced::widget::button::{Status, Style};
 use iced::widget::{text, Button};
-use iced::{alignment, Border, Color, Element, Length, Padding, Shadow, Theme, Vector};
-use pyo3::{pyclass, Py, PyAny, Python};
+use iced::{alignment, Border, Color, Element, Length, Padding, Shadow, Theme};
+use pyo3::{pyclass, Python};
 
 use crate::access_callbacks;
 use crate::access_user_data;
 use crate::app::Message;
 use super::styling::IpgStyleStandard;
 
-type PyObject = Py<PyAny>;
 
 #[derive(Debug, Clone)]
 pub struct IpgButton {
@@ -153,6 +152,7 @@ fn get_styling(theme: &Theme, status: Status, style_standard: Option<IpgStyleSta
                     text_color: Color::WHITE,
                     border: Border::default().rounded(4.0),
                     shadow: Shadow::default(),
+                    snap: false,
                 }
             }
             Status::Hovered => {
@@ -161,6 +161,7 @@ fn get_styling(theme: &Theme, status: Status, style_standard: Option<IpgStyleSta
                     text_color: Color::WHITE,
                     border: Border::default().rounded(4.0),
                     shadow: Shadow::default(),
+                    snap: false,
                 }
             }
             Status::Disabled => {
@@ -169,6 +170,7 @@ fn get_styling(theme: &Theme, status: Status, style_standard: Option<IpgStyleSta
                     text_color: Color::from_rgb(0.7, 0.7, 0.7),
                     border: Border::default().rounded(4.0),
                     shadow: Shadow::default(),
+                    snap: false,
                 }
             }
         },
@@ -179,6 +181,7 @@ fn get_styling(theme: &Theme, status: Status, style_standard: Option<IpgStyleSta
                     text_color: Color::WHITE,
                     border: Border::default().rounded(4.0),
                     shadow: Shadow::default(),
+                    snap: false,
                 }
             }
             Status::Hovered => {
@@ -187,6 +190,7 @@ fn get_styling(theme: &Theme, status: Status, style_standard: Option<IpgStyleSta
                     text_color: Color::WHITE,
                     border: Border::default().rounded(4.0),
                     shadow: Shadow::default(),
+                    snap: false,
                 }
             }
             Status::Disabled => {
@@ -195,6 +199,7 @@ fn get_styling(theme: &Theme, status: Status, style_standard: Option<IpgStyleSta
                     text_color: Color::from_rgb(0.7, 0.7, 0.7),
                     border: Border::default().rounded(4.0),
                     shadow: Shadow::default(),
+                    snap: false,
                 }
             }
         },
@@ -205,6 +210,7 @@ fn get_styling(theme: &Theme, status: Status, style_standard: Option<IpgStyleSta
                     text_color: Color::WHITE,
                     border: Border::default().rounded(4.0),
                     shadow: Shadow::default(),
+                    snap: false,
                 }
             }
             Status::Hovered => {
@@ -213,6 +219,7 @@ fn get_styling(theme: &Theme, status: Status, style_standard: Option<IpgStyleSta
                     text_color: Color::WHITE,
                     border: Border::default().rounded(4.0),
                     shadow: Shadow::default(),
+                    snap: false,
                 }
             }
             Status::Disabled => {
@@ -221,6 +228,7 @@ fn get_styling(theme: &Theme, status: Status, style_standard: Option<IpgStyleSta
                     text_color: Color::from_rgb(0.7, 0.7, 0.7),
                     border: Border::default().rounded(4.0),
                     shadow: Shadow::default(),
+                    snap: false,
                 }
             }
         },

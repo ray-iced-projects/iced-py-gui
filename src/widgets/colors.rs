@@ -23,7 +23,7 @@ pub enum IpgColor {
     CYAN,
     MAGENTA,
     GRAY,
-    DODGER_BLUE,
+    DODGERBLUE,
 }
 
 impl IpgColor {
@@ -46,7 +46,7 @@ impl IpgColor {
             IpgColor::CYAN => Color::from_rgb(0.0, 1.0, 1.0),
             IpgColor::MAGENTA => Color::from_rgb(1.0, 0.0, 1.0),
             IpgColor::GRAY => Color::from_rgb(0.5, 0.5, 0.5),
-            IpgColor::DODGER_BLUE => Color::from_rgb(0.118, 0.565, 1.0),
+            IpgColor::DODGERBLUE => Color::from_rgb(0.118, 0.565, 1.0),
         }
     }
 }

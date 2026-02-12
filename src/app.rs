@@ -19,6 +19,7 @@ pub enum Message {
     EventWindow((window::Id, iced::Event)),
 }
 
+#[derive(Debug, Clone)]
 pub struct App {
     state: IpgState,
 }
@@ -106,7 +107,7 @@ impl App {
         ipg_window.theme.clone()
     }
 
-    pub fn scale_factor(&self, iced_window_id: window::Id) -> f64 {
+    pub fn scale_factor(&self, iced_window_id: window::Id) -> f32 {
         let ipg_window_id_opt = self.state.windows_iced_ipg_ids.get(&iced_window_id);
         let ipg_window_id = match ipg_window_id_opt {
             Some(id) => *id,
@@ -119,7 +120,7 @@ impl App {
         let window_opt = self.state.containers.get(&ipg_window_id);
         let ipg_window = get_window_container(window_opt);
 
-        ipg_window.scale_factor
+        ipg_window.scale_factor as f32
     }
 }
 

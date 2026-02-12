@@ -7,7 +7,7 @@ use ipg_types::Widget;
 use super::draw_canvas::{HTextAlignment, VTextAlignment};
 
 
-pub fn build_polygon(mid_point: Point, pg_point: Point, poly_points: usize, mut degrees: f32) -> Vec<Point> {
+pub fn build_polygon(mid_point: Point, pg_point: Point, poly_points: usize, mut rotation: f32) -> Vec<Point> {
     
     let angle = 2.0 * PI / poly_points as f32;
     let radius = mid_point.distance(pg_point);
@@ -18,8 +18,8 @@ pub fn build_polygon(mid_point: Point, pg_point: Point, poly_points: usize, mut 
         points.push(Point::new(x, y));
     }
     
-    degrees += 180.0;
-    let mut pts = rotate_geometry(&points, &mid_point, &degrees, Widget::Polygon);
+    rotation += 180.0;
+    let mut pts = rotate_geometry(&points, &mid_point, &rotation, Widget::Polygon);
     pts.push(pts[0]);
     pts
 

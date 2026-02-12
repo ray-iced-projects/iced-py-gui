@@ -12,68 +12,64 @@ use iced::event::{Event, Status};
 use iced::{Element, Point, Subscription, Task, Theme};
 use iced::widget::{scrollable, Space};
 use iced::executor;
-use iced::widget::{focus_next, Space, Canvas, Column};
+use iced::widget::{Canvas, Column};
 use iced::time;
 use iced::Color;
 use once_cell::sync::Lazy;
 use polars::frame::DataFrame;
 
 
-use ipg_canvas::canvas_items::canvas::draw_canvas::IpgCanvasState;
-use ipg_canvas::ipg_canvas::match_canvas_widget;
-use ipg_widgets::ipg_color_picker::{color_picker_callback, 
-    construct_color_picker, ColPikMessage};
-use ipg_widgets::ipg_divider::{construct_divider_horizontal, construct_divider_vertical, divider_callback, DivMessage};
+use canvas::draw_canvas::CanvasState;
+use ipg_widgets::ipg_color_picker::construct_color_picker;
+use ipg_widgets::ipg_divider::{construct_divider_horizontal, 
+    construct_divider_vertical};
 use ipg_widgets::ipg_menu::{IpgMenuBarStyle, IpgMenuStyle};
 use ipg_widgets::ipg_separator::construct_separator;
-use ipg_widgets::ipg_table::{table_callback, TableMessage};
-use ipg_widgets::ipg_timer_canvas::{canvas_tick_callback, 
-    canvas_timer_callback, construct_canvas_timer, CanvasTimerMessage};
+use ipg_widgets::ipg_table::TableMessage;
+use ipg_widgets::ipg_timer_canvas::construct_canvas_timer;
 use ipg_widgets::ipg_tool_tip;
-use crate::{access_canvas_state, access_canvas_update_items, access_update_items, access_user_data1, access_user_data2, access_window_actions, ipg_widgets, match_container, match_container_for_df, match_widget, set_state_of_widget_running_state, IpgState};
-use ipg_widgets::ipg_button::{BTNMessage, construct_button, button_callback};
-use ipg_widgets::ipg_canvas::{canvas_callback, construct_canvas, CanvasMessage};
-use ipg_widgets::ipg_card::{CardMessage, construct_card, card_callback};
-use ipg_widgets::ipg_checkbox::{CHKMessage, construct_checkbox, checkbox_callback};
+use crate::{access_canvas_update_items, access_update_items, 
+    access_user_data1, access_user_data2, match_container, 
+    match_container_for_df, match_widget, set_state_of_widget_running_state};
+use ipg_widgets::ipg_button::construct_button;
+use ipg_widgets::ipg_canvas::construct_canvas;
+use ipg_widgets::ipg_card::construct_card;
+use ipg_widgets::ipg_checkbox::construct_checkbox;
 use ipg_widgets::ipg_column::construct_column;
 use ipg_widgets::ipg_container::construct_container;
-use ipg_widgets::ipg_date_picker::{DPMessage, construct_date_picker, date_picker_callback};
+use ipg_widgets::ipg_date_picker::construct_date_picker;
 use ipg_widgets::ipg_enums::{IpgContainers, IpgWidgets};
-use ipg_widgets::ipg_events::{IpgKeyBoardEvent, process_keyboard_events, 
+use ipg_events::{IpgKeyBoardEvent, process_keyboard_events, 
     process_mouse_events, process_touch_events, process_window_event};
-use ipg_widgets::helpers::find_key_for_value;
-use ipg_widgets::ipg_image::{ImageMessage, construct_image, image_callback};
+use helpers::find_key_for_value;
+use ipg_widgets::ipg_image::construct_image;
 use ipg_widgets::ipg_menu::construct_menu;
 // use ipg_widgets::ipg_modal::{construct_modal, modal_callback, ModalMessage};
-use ipg_widgets::ipg_mousearea::{mousearea_callback, mousearea_callback_point, 
-    construct_mousearea};
-use ipg_widgets::ipg_opaque::{construct_opaque, opaque_callback};
-use ipg_widgets::ipg_pick_list::{PLMessage, construct_picklist, pick_list_callback};
+use ipg_widgets::ipg_mousearea::construct_mousearea;
+use ipg_widgets::ipg_opaque::construct_opaque;
+use ipg_widgets::ipg_pick_list::construct_picklist;
 use ipg_widgets::ipg_progress_bar::construct_progress_bar;
-use ipg_widgets::ipg_radio::{RDMessage, construct_radio, radio_callback};
+use ipg_widgets::ipg_radio::construct_radio;
 use ipg_widgets::ipg_row::construct_row;
 use ipg_widgets::ipg_rule::construct_rule;
-use ipg_widgets::ipg_scrollable::{construct_scrollable, scrollable_callback};
-use ipg_widgets::ipg_selectable_text::{SLTXTMessage, construct_selectable_text, 
-    selectable_text_callback};
-use ipg_widgets::ipg_slider::{SLMessage, construct_slider, slider_callback};
+use ipg_widgets::ipg_scrollable::construct_scrollable;
+use ipg_widgets::ipg_selectable_text::construct_selectable_text;
+use ipg_widgets::ipg_slider::construct_slider;
 use ipg_widgets::ipg_space::construct_space;
 use ipg_widgets::ipg_stack::construct_stack;
-use ipg_widgets::ipg_svg::{SvgMessage, construct_svg, svg_callback};
+use ipg_widgets::ipg_svg::construct_svg;
 use ipg_widgets::ipg_table::{construct_table};
 use ipg_widgets::ipg_text::construct_text;
-use ipg_widgets::ipg_text_input::{TIMessage, construct_text_input, text_input_callback};
-use ipg_widgets::ipg_timer::{construct_timer, timer_callback, TIMMessage, tick_callback};
-use ipg_widgets::ipg_toggle::{construct_toggler, toggle_callback, TOGMessage};
+use ipg_widgets::ipg_text_input::construct_text_input;
+use ipg_widgets::ipg_timer::construct_timer;
+use ipg_widgets::ipg_toggle::construct_toggler;
 use ipg_widgets::ipg_tool_tip::construct_tool_tip;
-use ipg_widgets::ipg_window::{WndMessage, IpgWindow, add_windows, construct_window};
-use ipg_widgets::ipg_window::IpgWindowMode;
-use crate::{access_state, IpgIds};
-use crate::app_message::Message;
+use crate::IpgIds;
+
 
 pub struct App {
     state: IpgState,
-    canvas_state: IpgCanvasState,
+    canvas_state: CanvasState,
 }
 
 impl App {
@@ -82,7 +78,7 @@ impl App {
         let mut state = IpgState::new();
         clone_state(&mut state);
 
-        let mut canvas_state = IpgCanvasState::default();
+        let mut canvas_state = CanvasState::default();
         clone_canvas_state(&mut canvas_state);
 
         let mut open = add_windows(&mut state);
@@ -499,7 +495,7 @@ fn get_tasks(ipg_state: &mut IpgState) -> Task<Message> {
 fn create_content<'a>(
     iced_id: window::Id, 
     state: &'a IpgState, 
-    canvas_state: &'a IpgCanvasState) 
+    canvas_state: &'a CanvasState) 
     -> Element<'a, Message> {
     
     let ipg_window_id_opt = state.windows_iced_ipg_ids.get(&iced_id);
@@ -575,7 +571,7 @@ fn get_children<'a>(parents: &Vec<ParentChildIds>,
                 index: &usize, 
                 parent_ids: &Vec<usize>, 
                 state: &'a IpgState,
-                canvas_state: &'a IpgCanvasState,
+                canvas_state: &'a CanvasState,
                 ) -> Element<'a, Message> 
 {
 
@@ -602,7 +598,7 @@ fn get_children<'a>(parents: &Vec<ParentChildIds>,
 fn get_container<'a>(state: &'a IpgState, 
                     id: &usize, 
                     content: Vec<Element<'a, Message>>,
-                    canvas_state: &'a IpgCanvasState,
+                    canvas_state: &'a CanvasState,
                     ) -> Element<'a, Message> {
 
     let container_opt: Option<&IpgContainers> = state.containers.get(id);
@@ -755,7 +751,7 @@ fn get_widget<'a>(state: &'a IpgState, id: &usize) -> Option<Element<'a, Message
                         },
                         None => None,
                     };
-                    construct_color_picker(cp, style_opt)
+                    construct_color_picker(&cp, style_opt)
                 },
                 IpgWidgets::IpgDividerHorizontal(div) => {
                     let style_opt = match div.style_id {
@@ -764,7 +760,7 @@ fn get_widget<'a>(state: &'a IpgState, id: &usize) -> Option<Element<'a, Message
                         },
                         None => None,
                     };
-                    construct_divider_horizontal(div, style_opt)
+                    construct_divider_horizontal(&div, style_opt)
                 },
                 IpgWidgets::IpgDividerVertical(div) => {
                     let style_opt = match div.style_id {
@@ -773,7 +769,7 @@ fn get_widget<'a>(state: &'a IpgState, id: &usize) -> Option<Element<'a, Message
                         },
                         None => None,
                     };
-                    construct_divider_vertical(div, style_opt)
+                    construct_divider_vertical(&div, style_opt)
                 },
                 IpgWidgets::IpgImage(image) => {
                     construct_image(&image)
@@ -836,7 +832,7 @@ fn get_widget<'a>(state: &'a IpgState, id: &usize) -> Option<Element<'a, Message
                         },
                         None => None,
                     };
-                    construct_separator(sep, style_opt)
+                    construct_separator(&sep, style_opt)
                 }
                 IpgWidgets::IpgSlider(slider) => {
                     let style_opt = match slider.style_id {
@@ -881,7 +877,7 @@ fn get_widget<'a>(state: &'a IpgState, id: &usize) -> Option<Element<'a, Message
                         },
                         None => None,
                     };
-                    construct_canvas_timer(ctimer, style_opt)
+                    construct_canvas_timer(&ctimer, style_opt)
                 },
                 IpgWidgets::IpgToggler(tog) => {
                     let style_opt = match tog.style_id {
@@ -945,7 +941,7 @@ fn get_window_container(container_opt: Option<&IpgContainers>) -> &IpgWindow {
 
 fn process_updates(
     state: &mut IpgState, 
-    canvas_state: &mut IpgCanvasState) {
+    canvas_state: &mut CanvasState) {
     
     let mut all_updates = access_update_items();
 
@@ -1113,24 +1109,24 @@ fn process_updates(
 
 }
 
-fn process_canvas_updates(cs: &mut IpgCanvasState) {
-    let mut canvas_items = access_canvas_update_items();
+// fn process_canvas_updates(cs: &mut CanvasState) {
+//     let mut canvas_items = access_canvas_update_items();
 
-    for ((wid, item, value)) in canvas_items.updates.iter() {
-        let mut canvas_widget = if cs.curves.get_mut(wid).is_some(){
-            cs.curves.get_mut(wid).unwrap()
-        } else if cs.image_curves.get_mut(wid).is_some() {
-            cs.image_curves.get_mut(wid).unwrap()
-        } else if cs.text_curves.get_mut(wid).is_some() {
-            cs.text_curves.get_mut(wid).unwrap()
-        } else {
-           panic!("canvas_item_update: canvas item with id, {} not found", wid);
-        };
-        match_canvas_widget(canvas_widget, item, value);
-    }
-    canvas_items.updates = vec![];
+//     for ((wid, item, value)) in canvas_items.updates.iter() {
+//         let mut canvas_widget = if cs.curves.get_mut(wid).is_some(){
+//             cs.curves.get_mut(wid).unwrap()
+//         } else if cs.image_curves.get_mut(wid).is_some() {
+//             cs.image_curves.get_mut(wid).unwrap()
+//         } else if cs.text_curves.get_mut(wid).is_some() {
+//             cs.text_curves.get_mut(wid).unwrap()
+//         } else {
+//            panic!("canvas_item_update: canvas item with id, {} not found", wid);
+//         };
+//         match_canvas_widget(canvas_widget, item, value);
+//     }
+//     canvas_items.updates = vec![];
 
-}
+// }
 
 fn show_widget(state: &mut IpgState, ids: &[(usize, bool)]) {
     
@@ -1256,7 +1252,7 @@ fn clone_state(state: &mut IpgState) {
     drop(mutex_state);
 }
 
-fn clone_canvas_state(canvas_state: &mut IpgCanvasState) {
+fn clone_canvas_state(canvas_state: &mut CanvasState) {
     let mut mutex_cs = access_canvas_state();
     canvas_state.curves = mutex_cs.curves.to_owned();
     canvas_state.text_curves = mutex_cs.text_curves.to_owned();

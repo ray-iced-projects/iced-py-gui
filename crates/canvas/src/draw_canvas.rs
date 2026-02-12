@@ -8,6 +8,7 @@ use iced::{Color, Pixels, Radians, Vector, mouse};
 use iced::widget::canvas::Event;
 use iced::widget::canvas::{self, Canvas, Frame, Geometry, Path, Stroke};
 use iced::{Element, Fill, Point, Renderer, Theme};
+use ipg_alignment::{IpgHorizontalAlignment, IpgVerticalAlignment};
 
 use super::helpers::{build_polygon, get_angle_of_vectors, get_horizontal_angle_of_vector,
     get_line_from_slope_intercept, get_linear_regression, get_mid_point, iced_h_text_alignment, 
@@ -27,7 +28,7 @@ pub enum HTextAlignment {
 }
 
 impl HTextAlignment {
-    pub fn string(&self) -> Option<String> {
+    pub fn to_string(&self) -> Option<String> {
         match &self {
             HTextAlignment::Left => Some("H_Left".to_string()),
             HTextAlignment::Center => Some("H_Center".to_string()),
@@ -35,7 +36,15 @@ impl HTextAlignment {
         }
     }
 
-    pub fn to_enum(s: String) -> Self {
+    pub fn from_ipg(align: &IpgHorizontalAlignment) -> Self {
+        match align {
+            IpgHorizontalAlignment::Left => HTextAlignment::Left,
+            IpgHorizontalAlignment::Center => HTextAlignment::Center ,
+            IpgHorizontalAlignment::Right => HTextAlignment::Right ,
+        }
+    }
+
+    pub fn from_string(s: String) -> Self {
         match s.as_str() {
             "H_Left" => HTextAlignment::Left,
             "H_Center" => HTextAlignment::Center,
@@ -56,7 +65,7 @@ pub enum VTextAlignment {
 }
 
 impl VTextAlignment {
-    pub fn string(&self) -> Option<String> {
+    pub fn to_string(&self) -> Option<String> {
         match &self {
             VTextAlignment::Top => Some("V_Top".to_string()),
             VTextAlignment::Center => Some("V_Center".to_string()),
@@ -64,7 +73,15 @@ impl VTextAlignment {
         }
     }
 
-    pub fn to_enum(s: String) -> Self {
+    pub fn from_ipg(align: &IpgVerticalAlignment) -> Self {
+        match align {
+            IpgVerticalAlignment::Top => VTextAlignment::Top,
+            IpgVerticalAlignment::Center => VTextAlignment::Center,
+            IpgVerticalAlignment::Bottom => VTextAlignment::Bottom,
+        }
+    }
+
+    pub fn from_string(s: String) -> Self {
         match s.as_str() {
             "V_Top" => VTextAlignment::Top,
             "V_Center" => VTextAlignment::Center,
@@ -72,6 +89,7 @@ impl VTextAlignment {
             _ => VTextAlignment::Center,
         }
     }
+
     pub fn options() -> Vec<String> {
         vec!["V_Top".to_string(), "V_Center".to_string(), "V_Bottom".to_string()]
     }
@@ -359,7 +377,7 @@ impl<'a> canvas::Program<CanvasWidget> for DrawPending<'a> {
                                         *program_state = Some(Pending::Rotate {
                                             widget: widget.clone(),
                                             step_degrees: self.state.step_degrees,
-                                            degrees: get_widget_degrees(&widget),
+                                            degrees: get_widget_rotation(&widget),
                                         });
 
                                         Some(canvas::Action::request_redraw())
@@ -777,7 +795,7 @@ impl DrawCurve {
                                 blink,
                                 renderer,
                             );
-                        frame.rotate(to_radians(&txt.degrees));
+                        frame.rotate(to_radians(&txt.rotation));
                         frame.fill_text(text);
                         
                         (path, Some(txt.color), Some(1.0))
@@ -896,7 +914,7 @@ impl Pending {
                                     false,
                                 );
                             (path, ell.color, ell.width, Some(ell.points[0]), None, None)
-                        }
+                        },
                         CanvasWidget::Line(line) => {
                             let (path, degrees, _) = 
                                 build_line_path(
@@ -958,13 +976,13 @@ impl Pending {
                                     None,
                                 );
                             (path, fh.color, fh.width, None, None, None)
-                        }
+                        },
                         CanvasWidget::Text(_txt) => {
                             (Path::new(|_| {}), Color::TRANSPARENT, 0.0, None, None, None)  
-                        }
-                        CanvasWidget::None => {
+                        },
+                        _ => {
                             (Path::new(|_| {}), Color::TRANSPARENT, 0.0, None, None, None)
-                        }
+                        },
                     };
 
                     if degrees_center.is_some() {
@@ -1129,10 +1147,29 @@ impl Pending {
                                         renderer,
                                     );
                                     
-                                frame.rotate(to_radians(&txt.degrees));
+                                frame.rotate(to_radians(&txt.rotation));
                                 frame.fill_text(text);
                                 (path.unwrap(), txt.color, 2.0)
-                            }
+                            },
+                            // placeholder for image later
+                            _ => { let path = 
+                                build_circle_path(
+                                    &Circle {
+                                        id: Id::unique(),
+                                        center: Point::ORIGIN,
+                                        circle_point: Point::ORIGIN,
+                                        radius: 0.0,
+                                        color: Color::TRANSPARENT,
+                                        width: 0.0,
+                                        draw_mode: DrawMode::DrawAll,
+                                        status: DrawStatus::Completed,
+                                    }, 
+                                    DrawMode::Edit, 
+                                    Some(Point::ORIGIN),
+                                    None, 
+                                    false,
+                                );
+                                (path, Color::TRANSPARENT, 0.0)}
                         };
 
                     frame.stroke(
@@ -1213,6 +1250,9 @@ impl Pending {
                                 );
                             (path, ell.color, ell.width, ell.center, None, None)
                         },
+                        CanvasWidget::Image(_) => {
+                            (Path::new(|_| {}), Color::TRANSPARENT, 0.0, Point::default(), None, None)
+                        },
                         CanvasWidget::Line(line) => {
                             let (path, degrees, mid_point) = 
                                 build_line_path(
@@ -1284,7 +1324,7 @@ impl Pending {
                                         renderer,
                                     );
 
-                            frame.rotate(to_radians(&txt.degrees));
+                            frame.rotate(to_radians(&txt.rotation));
                             frame.fill_text(text);
                             (path.unwrap(), Color::TRANSPARENT, 0.0, Point::default(), None, None)
                         }
@@ -1388,7 +1428,10 @@ impl Pending {
                                     false,
                                 );
                                 (path, ell.color, ell.width, ell.center, None, Some(to_degrees(&ell.rotation.0)))
-                            },
+                        },
+                        CanvasWidget::Image(_) => {
+                            (Path::new(|_| {}), Color::TRANSPARENT, 0.0, Point::default(), None, None)
+                        },
                         CanvasWidget::Line(line) => {
                             let (path, pending_degrees, _) = 
                                 build_line_path(
@@ -1547,7 +1590,7 @@ fn add_new_widget(widget: Widget,
                     mid_point: Point::default(),
                     color, 
                     width, 
-                    degrees: 0.0, 
+                    rotation: 0.0, 
                     draw_mode,
                     status: DrawStatus::Inprogress,
                 }
@@ -1582,6 +1625,9 @@ fn add_new_widget(widget: Widget,
                 }
             )
         },
+        Widget::Image => {
+            CanvasWidget::None
+        },
         Widget::Line => {
             CanvasWidget::Line(
                 Line {
@@ -1590,7 +1636,7 @@ fn add_new_widget(widget: Widget,
                     mid_point: Point::default(),
                     color,
                     width,
-                    degrees: 0.0,
+                    rotation: 0.0,
                     draw_mode,
                     status: DrawStatus::Inprogress,
                 }
@@ -1606,7 +1652,7 @@ fn add_new_widget(widget: Widget,
                     pl_point: Point::default(),
                     color,
                     width,
-                    degrees: 0.0,
+                    rotation: 0.0,
                     draw_mode,
                     status: DrawStatus::Inprogress,
                 }
@@ -1622,7 +1668,7 @@ fn add_new_widget(widget: Widget,
                     pg_point: Point::default(),
                     color,
                     width,
-                    degrees: 0.0,
+                    rotation: 0.0,
                     draw_mode,
                     status: DrawStatus::Inprogress,
                 }
@@ -1637,7 +1683,7 @@ fn add_new_widget(widget: Widget,
                     tr_point: Point::default(),
                     color,
                     width,
-                    degrees: 0.0,
+                    rotation: 0.0,
                     draw_mode,
                     status: DrawStatus::Inprogress,
                 }
@@ -1671,7 +1717,7 @@ fn add_new_widget(widget: Widget,
                     align_x: h_align.into(),
                     align_y: v_align.into(),
                     shaping: Shaping::Basic,
-                    degrees: 0.0,
+                    rotation: 0.0,
                     draw_mode,
                     status: DrawStatus::Inprogress,
                 }
@@ -1707,37 +1753,38 @@ fn complete_new_widget(widget: CanvasWidget, cursor: Point) -> Option<CanvasWidg
             ell.radii = Vector{ x: vx, y: vy };
             
             // Calculate rotation based on cursor position
-            let rotation_degrees = get_horizontal_angle_of_vector(ell.center, cursor);
-            ell.rotation = Radians(to_radians(&rotation_degrees));
+            let rotation = get_horizontal_angle_of_vector(ell.center, cursor);
+            ell.rotation = Radians(to_radians(&rotation));
             
             Some(CanvasWidget::Ellipse(ell))
         },
+        CanvasWidget::Image(_) => {
+            None
+        },
         CanvasWidget::Line(mut ln) => {
             // degree is angle rotation around mid point 
-            let degrees = 
+            ln.rotation = 
                 get_horizontal_angle_of_vector(
                     ln.points[0],
                     ln.points[1], 
                 );
-            ln.degrees = degrees;
 
             Some(CanvasWidget::Line(ln))
         },
         CanvasWidget::Polygon(mut pg) => {
             pg.pg_point = cursor;
-            let degrees = 
+            pg.rotation = 
                 get_horizontal_angle_of_vector(
                     pg.mid_point, 
                     cursor, 
                     );
 
-            pg.degrees = degrees;
             pg.points = 
                 build_polygon(
                     pg.mid_point, 
                     pg.pg_point, 
                     pg.poly_points,
-                    pg.degrees,
+                    pg.rotation,
                 );
             
             Some(CanvasWidget::Polygon(pg))
@@ -1761,7 +1808,7 @@ fn complete_new_widget(widget: CanvasWidget, cursor: Point) -> Option<CanvasWidg
                     pl.mid_point.x + 100.0, 
                     pl.mid_point.y
                 );
-            pl.degrees = 
+            pl.rotation = 
                 get_horizontal_angle_of_vector(
                     pl.mid_point,
                     pl.pl_point,
@@ -1775,9 +1822,9 @@ fn complete_new_widget(widget: CanvasWidget, cursor: Point) -> Option<CanvasWidg
             let opp = Point::new(-trans_pts[2].x, -trans_pts[2].y);
             tr.tr_point = Point::new(opp.x+tr.points[1].x, opp.y+tr.points[1].y);
             if tr.points[1].x > tr.points[2].x {
-                tr.degrees = 180.0;
+                tr.rotation = 180.0;
             } else {
-                tr.degrees = 0.0;
+                tr.rotation = 0.0;
             }
             
             Some(CanvasWidget::RightTriangle(tr))
@@ -1787,7 +1834,7 @@ fn complete_new_widget(widget: CanvasWidget, cursor: Point) -> Option<CanvasWidg
             Some(CanvasWidget::FreeHand(fh))
         }
         CanvasWidget::Text(mut txt) => {
-            txt.degrees = 0.0;
+            txt.rotation = 0.0;
             txt.status = DrawStatus::Completed;
             Some(CanvasWidget::Text(txt))
         }
@@ -1859,12 +1906,12 @@ fn update_edited_widget(widget: CanvasWidget,
                         );
                 bz.mid_point = cursor;
             }
-            let degrees = 
+            bz.rotation  = 
                 get_horizontal_angle_of_vector(
                     bz.points[0],
                     bz.points[1], 
                 );
-            bz.degrees = degrees;
+
             bz.status = status;
             CanvasWidget::Bezier(bz)
         },
@@ -1920,6 +1967,9 @@ fn update_edited_widget(widget: CanvasWidget,
             ell.status = status;
             CanvasWidget::Ellipse(ell)
         },
+        CanvasWidget::Image(_) => {
+            CanvasWidget::None
+        },
         CanvasWidget::Line(mut line) => {
             if index.is_some() {
                 line.points[index.unwrap()] = cursor;
@@ -1934,25 +1984,25 @@ fn update_edited_widget(widget: CanvasWidget,
                 line.mid_point = cursor;
             }
 
-            let degrees = 
+            line.rotation = 
                 get_horizontal_angle_of_vector(
                     line.points[0],  
                     line.points[1], 
                 );
-            line.degrees = degrees;
+
             line.status = status;
             CanvasWidget::Line(line)
         },
         CanvasWidget::Polygon(mut pg) => {
             if other_point {
                 pg.pg_point = cursor;
-                pg.degrees = get_horizontal_angle_of_vector(pg.mid_point, cursor);
+                pg.rotation = get_horizontal_angle_of_vector(pg.mid_point, cursor);
                 pg.points = 
                     build_polygon(
                         pg.mid_point, 
                         pg.pg_point, 
                         pg.poly_points,
-                        pg.degrees,
+                        pg.rotation,
                 );
             } else if mid_point {
                 let trans_pts = 
@@ -1966,7 +2016,7 @@ fn update_edited_widget(widget: CanvasWidget,
                         cursor, 
                         trans_pts[0], 
                         pg.poly_points,
-                        pg.degrees,
+                        pg.rotation,
                     );
                 pg.mid_point = cursor;
                 pg.pg_point = trans_pts[0];
@@ -1989,7 +2039,7 @@ fn update_edited_widget(widget: CanvasWidget,
                         pl.mid_point
                     )[0];
                 pl.mid_point = mid_point;
-                pl.degrees = 
+                pl.rotation = 
                     get_horizontal_angle_of_vector(
                         pl.mid_point, 
                         pl.pl_point
@@ -2007,11 +2057,11 @@ fn update_edited_widget(widget: CanvasWidget,
                 pl.pl_point = pts.pop().unwrap();
                 pl.points = pts;
             } else if other_point {
-                let degrees = get_horizontal_angle_of_vector(pl.mid_point, cursor);
-                let step_degrees = degrees-pl.degrees;
-                pl.points = rotate_geometry(&pl.points, &pl.mid_point, &step_degrees, Widget::PolyLine);
+                let rotation = get_horizontal_angle_of_vector(pl.mid_point, cursor);
+                let step = rotation-pl.rotation;
+                pl.points = rotate_geometry(&pl.points, &pl.mid_point, &step, Widget::PolyLine);
                 pl.pl_point = cursor;
-                pl.degrees = degrees;
+                pl.rotation = rotation;
             }
             pl.status = status;
             CanvasWidget::PolyLine(pl)
@@ -2045,11 +2095,11 @@ fn update_edited_widget(widget: CanvasWidget,
                 tr.tr_point = pts.pop().unwrap();
                 tr.points = pts;
             } else if other_point {
-                let degrees = get_horizontal_angle_of_vector(tr.mid_point, cursor);
-                let step_degrees = degrees-tr.degrees;
-                tr.points = rotate_geometry(&tr.points, &tr.mid_point, &step_degrees, Widget::RightTriangle);
+                let rotation = get_horizontal_angle_of_vector(tr.mid_point, cursor);
+                let step = rotation-tr.rotation;
+                tr.points = rotate_geometry(&tr.points, &tr.mid_point, &step, Widget::RightTriangle);
                 tr.tr_point = cursor;
-                tr.degrees = degrees;
+                tr.rotation = rotation;
             }
             tr.status = status;
             CanvasWidget::RightTriangle(tr)
@@ -2071,13 +2121,13 @@ fn update_edited_widget(widget: CanvasWidget,
 }
 
 fn update_rotated_widget(widget: &mut CanvasWidget, 
-                        step_degrees: f32,
+                        step: f32,
                         status: Option<DrawStatus>,
                     ) -> (CanvasWidget, f32) {
     match widget {
         CanvasWidget::None => (CanvasWidget::None, 0.0),
         CanvasWidget::Arc(arc) => {
-            arc.points = rotate_geometry(&arc.points, &arc.mid_point, &step_degrees, Widget::Arc);
+            arc.points = rotate_geometry(&arc.points, &arc.mid_point, &step, Widget::Arc);
             arc.start_angle = 
                 get_angle_of_vectors(
                     arc.points[0], 
@@ -2102,74 +2152,75 @@ fn update_rotated_widget(widget: &mut CanvasWidget,
             (CanvasWidget::Arc(arc.clone()), Radians::into(arc.start_angle))
         },
         CanvasWidget::Bezier(bz) => {
-            bz.points = rotate_geometry(&bz.points, &bz.mid_point, &step_degrees, Widget::Bezier);
-            bz.degrees = get_horizontal_angle_of_vector(bz.mid_point, bz.points[1]);
+            bz.points = rotate_geometry(&bz.points, &bz.mid_point, &step, Widget::Bezier);
+            bz.rotation = get_horizontal_angle_of_vector(bz.mid_point, bz.points[1]);
             if status.is_some() {
                 bz.status = status.unwrap();
             }
-            (CanvasWidget::Bezier(bz.clone()), bz.degrees)
+            (CanvasWidget::Bezier(bz.clone()), bz.rotation)
         },
         CanvasWidget::Circle(cir) => {
             (CanvasWidget::Circle(cir.clone()), 0.0)
         },
         CanvasWidget::Ellipse(ell) => {
-            let rads = to_radians(&step_degrees) + ell.rotation.0;
+            let rads = to_radians(&step) + ell.rotation.0;
             ell.rotation = Radians(rads);
             if status.is_some() {
                 ell.status = status.unwrap();
             }
             (CanvasWidget::Ellipse(ell.clone()), to_degrees(&rads))
         },
+        CanvasWidget::Image(_) => (CanvasWidget::None, 0.0),
         CanvasWidget::Line(ln) => {
-            ln.points = rotate_geometry(&ln.points, &ln.mid_point, &step_degrees, Widget::Line);
-            ln.degrees = get_horizontal_angle_of_vector(ln.mid_point, ln.points[1]);
+            ln.points = rotate_geometry(&ln.points, &ln.mid_point, &step, Widget::Line);
+            ln.rotation = get_horizontal_angle_of_vector(ln.mid_point, ln.points[1]);
             if status.is_some() {
                 ln.status = status.unwrap();
             }
-            (CanvasWidget::Line(ln.clone()), ln.degrees)
+            (CanvasWidget::Line(ln.clone()), ln.rotation)
         },
         CanvasWidget::Polygon(pg) => {
-            pg.points = rotate_geometry(&pg.points, &pg.mid_point, &step_degrees, Widget::Polygon);
-            pg.pg_point = rotate_geometry(&[pg.pg_point], &pg.mid_point, &step_degrees, Widget::Line)[0];
-            pg.degrees = get_horizontal_angle_of_vector(pg.mid_point, pg.pg_point);
+            pg.points = rotate_geometry(&pg.points, &pg.mid_point, &step, Widget::Polygon);
+            pg.pg_point = rotate_geometry(&[pg.pg_point], &pg.mid_point, &step, Widget::Line)[0];
+            pg.rotation = get_horizontal_angle_of_vector(pg.mid_point, pg.pg_point);
             if status.is_some() {
                 pg.status = status.unwrap();
             }
-            (CanvasWidget::Polygon(pg.clone()), pg.degrees)
+            (CanvasWidget::Polygon(pg.clone()), pg.rotation)
         },
         CanvasWidget::PolyLine(pl) => {
             let mut pts = pl.points.clone();
             pts.push(pl.pl_point);
-            pts = rotate_geometry(&pts, &pl.mid_point, &step_degrees, Widget::PolyLine);
+            pts = rotate_geometry(&pts, &pl.mid_point, &step, Widget::PolyLine);
             pl.pl_point = pts.pop().unwrap();
             pl.points = pts;
-            pl.degrees = get_horizontal_angle_of_vector(pl.mid_point, pl.pl_point);
+            pl.rotation = get_horizontal_angle_of_vector(pl.mid_point, pl.pl_point);
             if status.is_some() {
                 pl.status = status.unwrap();
             }
-            (CanvasWidget::PolyLine(pl.clone()), pl.degrees)
+            (CanvasWidget::PolyLine(pl.clone()), pl.rotation)
         },
         CanvasWidget::RightTriangle(tr) => {
             let mut pts = tr.points.clone();
             pts.push(tr.tr_point);
-            pts = rotate_geometry(&pts, &tr.mid_point, &step_degrees, Widget::RightTriangle);
+            pts = rotate_geometry(&pts, &tr.mid_point, &step, Widget::RightTriangle);
             tr.tr_point = pts.pop().unwrap();
             tr.points = pts;
-            tr.degrees = get_horizontal_angle_of_vector(tr.mid_point, tr.tr_point);
+            tr.rotation = get_horizontal_angle_of_vector(tr.mid_point, tr.tr_point);
             if status.is_some() {
                 tr.status = status.unwrap();
             }
-            (CanvasWidget::RightTriangle(tr.clone()), tr.degrees)
+            (CanvasWidget::RightTriangle(tr.clone()), tr.rotation)
         },
         CanvasWidget::FreeHand(fh) => {
             (CanvasWidget::FreeHand(fh.clone()), 0.0)
         },
         CanvasWidget::Text(txt) => {
-            txt.degrees += step_degrees;
+            txt.rotation += step;
             if status.is_some() {
                 txt.status = status.unwrap();
             }
-            (CanvasWidget::Text(txt.clone()), txt.degrees)
+            (CanvasWidget::Text(txt.clone()), txt.rotation)
         }
     }
 }
@@ -2277,6 +2328,9 @@ pub fn set_widget_mode_or_status(widget: CanvasWidget,
             }
             CanvasWidget::Ellipse(ell)
         },
+        CanvasWidget::Image(_) => {
+            CanvasWidget::None
+        },
         CanvasWidget::Line(mut ln) => {
             if mode.is_some() {
                 ln.draw_mode = mode.unwrap();
@@ -2381,7 +2435,7 @@ fn set_widget_point(widget: &CanvasWidget, cursor: Point) -> (CanvasWidget, bool
             bz.points.push(cursor);
 
             if bz.points.len() == 2 {
-                bz.degrees = get_horizontal_angle_of_vector(bz.points[0], bz.points[1]);
+                bz.rotation = get_horizontal_angle_of_vector(bz.points[0], bz.points[1]);
             }
             if bz.points.len() == 3 {
                 finished = true;
@@ -2416,6 +2470,7 @@ fn set_widget_point(widget: &CanvasWidget, cursor: Point) -> (CanvasWidget, bool
             
             (CanvasWidget::Ellipse(ell), finished)
         },
+        CanvasWidget::Image(_) => (CanvasWidget::None, true),
         CanvasWidget::Line(line) => {
             let mut ln = line.clone();
             ln.points.push(cursor);
@@ -2451,7 +2506,7 @@ fn set_widget_point(widget: &CanvasWidget, cursor: Point) -> (CanvasWidget, bool
                 true
             };
             if finished {
-                pg.degrees = get_horizontal_angle_of_vector(pg.mid_point, pg.pg_point)
+                pg.rotation = get_horizontal_angle_of_vector(pg.mid_point, pg.pg_point)
             }
             (CanvasWidget::Polygon(pg), finished)
         },
@@ -2598,7 +2653,8 @@ fn find_closest_point_index(widget: &CanvasWidget,
             } else {
                 (Some(1), false, false)
             }
-        }
+        },
+        CanvasWidget::Image(_) => (None, false, false),
         CanvasWidget::Ellipse(ell) => {
             let center_dist = cursor.distance(ell.center);
             let point_1_dist = cursor.distance(ell.points[1]);
@@ -2610,7 +2666,7 @@ fn find_closest_point_index(widget: &CanvasWidget,
             } else {
                 (Some(2), false, false)
             }
-        }
+        },
         CanvasWidget::Line(line) => {
             for (idx, point) in line.points.iter().enumerate() {
                 let dist = cursor.distance(*point);
@@ -2703,6 +2759,7 @@ pub fn get_widget_id(widget: &CanvasWidget) -> Id {
         CanvasWidget::Bezier(bz) => bz.id.clone(),
         CanvasWidget::Circle(cir) => cir.id.clone(),
         CanvasWidget::Ellipse(ell) => ell.id.clone(),
+        CanvasWidget::Image(_) => Id::new("None"),
         CanvasWidget::Line(line) => line.id.clone(),
         CanvasWidget::PolyLine(pl) => pl.id.clone(),
         CanvasWidget::Polygon(pg) => pg.id.clone(),
@@ -2712,19 +2769,20 @@ pub fn get_widget_id(widget: &CanvasWidget) -> Id {
     }
 }
 
-fn get_widget_degrees(widget: &CanvasWidget) -> Option<f32> {
+fn get_widget_rotation(widget: &CanvasWidget) -> Option<f32> {
     match widget {
         CanvasWidget::None => Some(0.0),
         CanvasWidget::Arc(arc) => Some(Radians::into(arc.start_angle)),
-        CanvasWidget::Bezier(bezier) => Some(bezier.degrees),
+        CanvasWidget::Bezier(_) => None,
         CanvasWidget::Circle(_circle) => Some(0.0),
         CanvasWidget::Ellipse(_ell) => Some(0.0),
-        CanvasWidget::Line(line) => Some(line.degrees),
-        CanvasWidget::PolyLine(poly_line) => Some(poly_line.degrees),
-        CanvasWidget::Polygon(polygon) => Some(polygon.degrees),
-        CanvasWidget::RightTriangle(right_triangle) => Some(right_triangle.degrees),
+        CanvasWidget::Image(_) => Some(0.0),
+        CanvasWidget::Line(line) => Some(line.rotation),
+        CanvasWidget::PolyLine(poly_line) => Some(poly_line.rotation),
+        CanvasWidget::Polygon(polygon) => Some(polygon.rotation),
+        CanvasWidget::RightTriangle(right_triangle) => Some(right_triangle.rotation),
         CanvasWidget::FreeHand(_) => None,
-        CanvasWidget::Text(txt) => Some(txt.degrees),
+        CanvasWidget::Text(txt) => Some(txt.rotation),
     }
 }
 
@@ -2735,6 +2793,7 @@ pub fn get_draw_mode_and_status(widget: &CanvasWidget) -> (DrawMode, DrawStatus)
         CanvasWidget::Bezier(bz) => (bz.draw_mode, bz.status),
         CanvasWidget::Circle(cir) => (cir.draw_mode, cir.status),
         CanvasWidget::Ellipse(ell) => (ell.draw_mode, ell.status),
+        CanvasWidget::Image(_) => (DrawMode::DrawAll, DrawStatus::Completed),
         CanvasWidget::Line(ln) => (ln.draw_mode, ln.status),
         CanvasWidget::PolyLine(pl) => (pl.draw_mode, pl.status),
         CanvasWidget::Polygon(pg) => (pg.draw_mode, pg.status),
@@ -2760,6 +2819,7 @@ fn get_distance_to_mid_point(widget: &CanvasWidget, cursor: Point) -> f32 {
             CanvasWidget::Ellipse(ell) => {
                 cursor.distance(ell.center)
             },
+            CanvasWidget::Image(_) => f32::INFINITY,
             CanvasWidget::Line(line) => {
                 cursor.distance(line.mid_point)
             },
@@ -2797,7 +2857,11 @@ pub fn get_mid_geometry(pts: &[Point], curve_type: Widget) -> Point {
         Widget::Ellipse => {
             // return the center point
             pts[0]
-        }
+        },
+        Widget::Image => {
+            // return the center point
+            pts[0]
+        },
         Widget::Line => {
             get_mid_point(pts[0], pts[1])
         },

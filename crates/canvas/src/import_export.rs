@@ -161,7 +161,7 @@ pub fn import_widgets(widgets: Vec<ExportWidget>) -> (HashMap<Id, CanvasWidget>,
                     mid_point,
                     color,
                     width,
-                    degrees: widget.rotation,
+                    rotation: widget.rotation,
                     draw_mode,
                     status: DrawStatus::Completed
                 };
@@ -201,6 +201,8 @@ pub fn import_widgets(widgets: Vec<ExportWidget>) -> (HashMap<Id, CanvasWidget>,
                 
                 curves.insert(id, CanvasWidget::Ellipse(ell));
             },
+            Widget::Image => {
+            },
             Widget::Line => {
                 let id = Id::unique();
                 let ln = Line {
@@ -209,7 +211,7 @@ pub fn import_widgets(widgets: Vec<ExportWidget>) -> (HashMap<Id, CanvasWidget>,
                     mid_point,
                     color,
                     width,
-                    degrees: widget.rotation,
+                    rotation: widget.rotation,
                     draw_mode,
                     status: DrawStatus::Completed,
                 };
@@ -225,7 +227,7 @@ pub fn import_widgets(widgets: Vec<ExportWidget>) -> (HashMap<Id, CanvasWidget>,
                     pg_point: other_point,
                     color,
                     width,
-                    degrees: widget.rotation,
+                    rotation: widget.rotation,
                     draw_mode,
                     status: DrawStatus::Completed,
                 };
@@ -241,7 +243,7 @@ pub fn import_widgets(widgets: Vec<ExportWidget>) -> (HashMap<Id, CanvasWidget>,
                     pl_point: other_point,
                     color,
                     width,
-                    degrees: widget.rotation,
+                    rotation: widget.rotation,
                     draw_mode,
                     status: DrawStatus::Completed,
                 };
@@ -256,7 +258,7 @@ pub fn import_widgets(widgets: Vec<ExportWidget>) -> (HashMap<Id, CanvasWidget>,
                     tr_point: other_point,
                     color,
                     width,
-                    degrees: widget.rotation,
+                    rotation: widget.rotation,
                     draw_mode,
                     status: DrawStatus::Completed,
                 };
@@ -288,7 +290,7 @@ pub fn import_widgets(widgets: Vec<ExportWidget>) -> (HashMap<Id, CanvasWidget>,
                     align_x: convert_to_iced_horizontal(widget.align_x),
                     align_y: convert_to_iced_vertical(widget.align_y),
                     shaping: Shaping::Basic,
-                    degrees: widget.rotation,
+                    rotation: widget.rotation,
                     draw_mode,
                     status: DrawStatus::Completed,
                 };
@@ -336,31 +338,35 @@ pub fn convert_to_export(widgets: &HashMap<Id, CanvasWidget>, text: &HashMap<Id,
                         arc.color, arc.width, String::new(), None, None)
                 },
                 CanvasWidget::Bezier(bz) => {
-                    (Widget::Bezier, &bz.points, bz.mid_point, Point::default(), 0, bz.degrees, 0.0, 
+                    (Widget::Bezier, &bz.points, bz.mid_point, Point::default(), 0, bz.rotation, 0.0, 
                     bz.color, bz.width, String::new(), None, None)
                 },
                 CanvasWidget::Circle(cir) => {
                     (Widget::Circle, &vec![cir.circle_point], cir.center, cir.circle_point, 0, 0.0, cir.radius, 
                         cir.color, cir.width, String::new(), None, None)
                 },
+                CanvasWidget::Image(_) => {
+                    (Widget::None, &vec![], Point::default(), Point::default(), 0, 0.0, 0.0, 
+                    Color::TRANSPARENT, 0.0, String::new(), None, None)
+                },
                 CanvasWidget::Ellipse(ell) => {
                     (Widget::Ellipse, &ell.points, ell.center, Point::default(), 0, ell.rotation.0, 0.0, 
                     ell.color, ell.width, String::new(), None, None)
                 },
                 CanvasWidget::Line(ln) => {
-                    (Widget::Line, &ln.points, ln.mid_point, Point::default(), 0, ln.degrees, 0.0, 
+                    (Widget::Line, &ln.points, ln.mid_point, Point::default(), 0, ln.rotation, 0.0, 
                     ln.color, ln.width, String::new(), None, None)
                 },
                 CanvasWidget::Polygon(pg) => {
-                    (Widget::Polygon, &pg.points, pg.mid_point, pg.pg_point, pg.poly_points, pg.degrees, 0.0, 
+                    (Widget::Polygon, &pg.points, pg.mid_point, pg.pg_point, pg.poly_points, pg.rotation, 0.0, 
                         pg.color, pg.width, String::new(), None, None)
                 },
                 CanvasWidget::PolyLine(pl) => {
-                    (Widget::PolyLine, &pl.points, pl.mid_point, pl.pl_point, pl.poly_points, pl.degrees, 0.0, 
+                    (Widget::PolyLine, &pl.points, pl.mid_point, pl.pl_point, pl.poly_points, pl.rotation, 0.0, 
                         pl.color, pl.width, String::new(), None, None)
                 },
                 CanvasWidget::RightTriangle(tr) => {
-                    (Widget::RightTriangle, &tr.points, tr.mid_point, tr.tr_point, 3, tr.degrees, 0.0, 
+                    (Widget::RightTriangle, &tr.points, tr.mid_point, tr.tr_point, 3, tr.rotation, 0.0, 
                         tr.color, tr.width, String::new(), None, None)
                 },
                 CanvasWidget::FreeHand(fh) => {
@@ -368,7 +374,7 @@ pub fn convert_to_export(widgets: &HashMap<Id, CanvasWidget>, text: &HashMap<Id,
                     fh.color, fh.width, String::new(), None, None)
                 }
                 CanvasWidget::Text(txt) => {
-                    (Widget::Text, &vec![], Point::default(), txt.position, 0, txt.degrees, 0.0, 
+                    (Widget::Text, &vec![], Point::default(), txt.position, 0, txt.rotation, 0.0, 
                     txt.color, 0.0, txt.content.clone(), 
                     Some(convert_to_export_horizontal(txt.align_x)), 
                     Some(convert_to_export_vertical(txt.align_y)))

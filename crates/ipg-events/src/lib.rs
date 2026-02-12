@@ -2,9 +2,9 @@
 #![allow(unused_assignments)]
 #![allow(clippy::enum_variant_names)]
 use std::collections::HashMap;
+use std::sync::{Mutex, MutexGuard};
+use once_cell::sync::Lazy;
 
-use crate::{access_events, access_user_data1, IpgState};
-use ipg_windows::actions::access_window_actions;
 use iced::event::Event;
 use iced::keyboard::Event::{KeyPressed, KeyReleased, ModifiersChanged};
 use iced::keyboard::{Key, Location, Modifiers};
@@ -12,10 +12,23 @@ use iced::mouse::Event::{ButtonPressed, ButtonReleased, CursorEntered,
                         CursorLeft, CursorMoved, WheelScrolled};
 use iced::mouse::Button::{Left, Right, Middle, Back, Forward, Other,};
 use iced::mouse::ScrollDelta;
-
 use iced::window;
-use pyo3::Python;
 
+use pyo3::{Py, PyAny, Python};
+type PyObject = Py<PyAny>;
+
+#[derive(Debug)]
+pub struct Events {
+    events: Lazy<HashMap<(usize, String), PyObject>>,
+}
+
+pub static EVENTS: Mutex<Events> = Mutex::new(Events {
+    events:  Lazy::new(||HashMap::new()),
+});
+
+pub fn access_events() -> MutexGuard<'static, Events> {
+    EVENTS.lock().unwrap()
+}
 
 #[derive(Debug, Clone, Eq, PartialEq, Default)]
 pub struct IpgKeyBoardEvent {
@@ -80,18 +93,19 @@ pub enum IpgEvents {
 
 pub fn process_keyboard_events(event: Event, event_id: usize) 
 {   
-    match event {    
+    match event {
         Event::Keyboard(KeyPressed { key, 
                                     location, 
                                     modifiers, 
                                     text: _ ,
                                     physical_key: _, 
-                                    modified_key: _ }) => {
+                                    modified_key: _,
+                                    repeat: _, }) => {
 
             let event_name = "key pressed".to_string();
-            
+    
             let key_str: String = process_key(key.as_ref());
-            
+    
             let mod_key = process_modifier(modifiers);
 
             let location_str: String = process_location(location);
@@ -108,12 +122,18 @@ pub fn process_keyboard_events(event: Event, event_id: usize)
                                         event_name,
                                         hmap_s_s, 
                                         );
-            
+    
         },
-        Event::Keyboard(KeyReleased { key, location, modifiers, }) => {
+        Event::Keyboard(
+            KeyReleased { 
+                key, 
+                location, 
+                modifiers, 
+                modified_key: _, 
+                physical_key: _ }) => {
 
             let event_name = "key released".to_string();
-            
+    
             let key_str: String = process_key(key.as_ref());
 
             let mod_key = process_modifier(modifiers);
@@ -131,14 +151,13 @@ pub fn process_keyboard_events(event: Event, event_id: usize)
                                         event_name, 
                                         hmap_s_s, 
                                         );
-            
+    
         },
-        // This event occurs when command keys are pressed but these 
-        // also show up under key pressed and release so not sure any advantage on using this.
         Event::Keyboard(ModifiersChanged(_)) => (),
         Event::Mouse(_) => (),
         Event::Window(_) => (),
         Event::Touch(_) => (),
+        Event::InputMethod(_) => (),
     }
 }
 
@@ -231,6 +250,7 @@ pub fn process_mouse_events(event: Event, event_id: usize)
         Event::Keyboard(_) => (),
         Event::Window(_) => (),
         Event::Touch(_) => (),
+        Event::InputMethod(_) => (),
     }
         
 }
@@ -270,11 +290,12 @@ pub fn process_touch_events(event: Event, event_id: usize) {
                                 hmap_s_fg,
                                 hmap_s_pt,
                                 )
-            
+    
         },
         Event::Window(_) => (),
         Event::Keyboard(_) => (),
         Event::Mouse(_) => (),
+        Event::InputMethod(_) => (),
     }
 }
 
@@ -360,8 +381,8 @@ pub fn process_window_event(state: &mut IpgState,
         },
         Event::Keyboard(_) => None,
         Event::Mouse(_) => None,
-
         Event::Touch(_) => None,
+        Event::InputMethod(_) => None,
     };
 
     if event_name.is_some() {

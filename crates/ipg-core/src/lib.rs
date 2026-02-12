@@ -1,10 +1,11 @@
 //! Core state management for IcedPyGui
 use std::collections::HashMap;
 use std::sync::{Mutex, MutexGuard};
+use once_cell::sync::Lazy;
 
 use iced::{window, Color, Length, Point, Theme};
 use iced::widget::scrollable;
-use once_cell::sync::Lazy;
+
 
 // Re-export all message types from ipg-types
 pub use ipg_types::*;

@@ -4,6 +4,8 @@ use iced::widget::text::{LineHeight, Shaping};
 use iced::widget::{Id, scrollable};
 use iced::{Color, Event, Font, Pixels, Point, Radians, Size, Vector, font, window};
 
+use pyo3::pyclass;
+
 use serde::{Deserialize, Serialize};
 
 
@@ -201,6 +203,7 @@ pub enum CanvasWidget {
     Bezier(Bezier),
     Circle(Circle),
     Ellipse(Ellipse),
+    Image(Image),
     Line(Line),
     PolyLine(PolyLine),
     Polygon(Polygon),
@@ -210,12 +213,14 @@ pub enum CanvasWidget {
 }
 
 #[derive(Clone, Copy, Debug, Serialize, Deserialize, PartialEq, Eq,)]
+#[pyclass(eq, eq_int)]
 pub enum Widget {
     None,
     Arc,
     Bezier,
     Circle,
     Ellipse,
+    Image,
     Line,
     PolyLine,
     Polygon,
@@ -244,7 +249,7 @@ pub struct Bezier {
     pub mid_point: Point,
     pub color: Color,
     pub width: f32,
-    pub degrees: f32,
+    pub rotation: f32,
     pub draw_mode: DrawMode,
     pub status: DrawStatus,
 }
@@ -275,13 +280,25 @@ pub struct Ellipse {
 }
 
 #[derive(Debug, Clone)]
+pub struct Image {
+    pub id: Id,
+    pub center: Point,
+    pub rotation: Radians,
+    pub color: Color,
+    pub width: f32,
+    pub height: f32,
+    pub draw_mode: DrawMode,
+    pub status: DrawStatus,
+}
+
+#[derive(Debug, Clone)]
 pub struct Line {
     pub id: Id,
     pub points: Vec<Point>,
     pub mid_point: Point,
     pub color: Color,
     pub width: f32,
-    pub degrees: f32,
+    pub rotation: f32,
     pub draw_mode: DrawMode,
     pub status: DrawStatus,
 }
@@ -295,7 +312,7 @@ pub struct PolyLine {
     pub pl_point: Point,
     pub color: Color,
     pub width: f32,
-    pub degrees: f32,
+    pub rotation: f32,
     pub draw_mode: DrawMode,
     pub status: DrawStatus,
 }
@@ -309,7 +326,7 @@ pub struct Polygon {
     pub pg_point: Point,
     pub color: Color,
     pub width: f32,
-    pub degrees: f32,
+    pub rotation: f32,
     pub draw_mode: DrawMode,
     pub status: DrawStatus,
 }
@@ -322,7 +339,7 @@ pub struct RightTriangle {
     pub tr_point: Point,
     pub color: Color,
     pub width: f32,
-    pub degrees: f32,
+    pub rotation: f32,
     pub draw_mode: DrawMode,
     pub status: DrawStatus,
 }
@@ -339,7 +356,7 @@ pub struct Text {
     pub align_x: iced::advanced::text::Alignment,
     pub align_y: iced::alignment::Vertical,
     pub shaping: Shaping,
-    pub degrees: f32,
+    pub rotation: f32,
     pub draw_mode: DrawMode,
     pub status: DrawStatus,
 }
@@ -356,6 +373,7 @@ pub struct FreeHand {
 }
 
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq,)]
+#[pyclass(eq, eq_int)]
 pub enum DrawMode {
     #[default]
     DrawAll,
@@ -365,6 +383,7 @@ pub enum DrawMode {
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq,)]
+#[pyclass(eq, eq_int)]
 pub enum DrawStatus {
     Inprogress,
     Completed,

@@ -8,4 +8,5 @@ description = "Shared message types for IcedPyGui - no internal dependencies"
 [dependencies]
 # Only external dependencies - NO internal crates to avoid circular deps
 iced = { workspace = true }
+pyo3 = {workspace = true }
 serde ={ workspace = true }

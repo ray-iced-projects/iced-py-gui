@@ -1,10 +1,6 @@
 //!lib for all of the python callable functions using pyo3
 #![allow(clippy::too_many_arguments, clippy::redundant_closure)]
 #![allow(clippy::type_complexity)]
-use crates::ipg_canvas::canvas_items::canvas_helpers::{build_polygon, get_mid_point, to_radians};
-use crates::ipg_canvas::canvas_items::draw_canvas::{IpgCanvasState, IpgDrawMode, IpgDrawStatus, IpgWidget};
-use crates::ipg_canvas::canvas_items::geometries::{IpgArc, IpgBezier, IpgCanvasImage, IpgCanvasWidget, 
-    IpgCircle, IpgEllipse, IpgLine, IpgPolyLine, IpgPolygon, IpgRectangle};
 
 use iced::widget::image;
 
@@ -20,11 +16,9 @@ use ipg_widgets::ipg_timer_canvas::{canvas_timer_item_update, canvas_timer_style
 
 use polars::frame::DataFrame;
 use pyo3::prelude::*;
+use pyo3_polars::PyDataFrame;
 use pyo3::types::PyModule;
 use pyo3::{Py, PyAny};
-use pyo3_polars::PyDataFrame;
-
-// Type alias to replace deprecated PyObject
 type PyObject = Py<PyAny>;
 
 use iced::window::{self, Position};
@@ -49,7 +43,7 @@ use ipg_widgets::ipg_container::{container_item_update, container_style_update_i
     IpgContainer, IpgContainerParam, IpgContainerStyle, IpgContainerStyleParam};
 use ipg_widgets::ipg_date_picker::{date_picker_item_update, 
         IpgDatePicker, IpgDatePickerParam};
-use ipg_widgets::ipg_events::IpgEvents;
+use ipg_events::IpgEvents;
 use ipg_widgets::ipg_image::{image_item_update, IpgImage, 
         IpgImageContentFit, IpgImageFilterMethod, 
         IpgImageParam, IpgImageRotation};
@@ -93,8 +87,7 @@ use ipg_widgets::ipg_tool_tip::{tool_tip_style_update_item, tooltip_item_update,
 use ipg_widgets::ipg_window::{get_iced_window_theme, 
         window_item_update, IpgWindow, IpgWindowLevel, IpgWindowMode, 
         IpgWindowParam, IpgWindowTheme};
-use ipg_widgets::ipg_enums::{IpgAlignment, IpgContainers, IpgHorizontalAlignment, 
-    IpgVerticalAlignment, IpgWidgets};
+use ipg_widgets::ipg_enums::{IpgContainers, IpgWidgets};
 
 use ipg_widgets::helpers::{check_for_dup_container_ids, get_height, 
     get_horizontal_alignment, get_line_height, get_padding_f32, 
@@ -108,18 +101,6 @@ const ICON_FONT_BOOT: Font = Font::with_name("bootstrap-icons");
 use std::sync::{Mutex, MutexGuard};
 use once_cell::sync::Lazy;
 
-#[derive(Debug)]
-pub struct Events {
-    events: Lazy<HashMap<(usize, String), PyObject>>,
-}
-
-pub static EVENTS: Mutex<Events> = Mutex::new(Events {
-    events:  Lazy::new(||HashMap::new()),
-});
-
-pub fn access_events() -> MutexGuard<'static, Events> {
-    EVENTS.lock().unwrap()
-}
 
 #[derive(Debug)]
 pub struct Callbacks {
@@ -186,25 +167,25 @@ pub fn access_update_items() -> MutexGuard<'static, UpdateItems> {
     UPDATE_ITEMS.lock().unwrap()
 }
 
-#[derive(Debug)]
-pub struct UpdateCanvasItems {
-    // wid, (item, value)
-    pub updates: Vec<(usize, PyObject, PyObject)>, 
-    // window_id_widget_id, (window_id, wid, target_container_str_id, move_after(wid), move_before(wid))
-    pub moves: Vec<(String, usize, String, Option<usize>, Option<usize>)>,
-    // window_id, wid
-    pub deletes: Vec<(String, usize)>,
-}
+// #[derive(Debug)]
+// pub struct UpdateCanvasItems {
+//     // wid, (item, value)
+//     pub updates: Vec<(usize, PyObject, PyObject)>, 
+//     // window_id_widget_id, (window_id, wid, target_container_str_id, move_after(wid), move_before(wid))
+//     pub moves: Vec<(String, usize, String, Option<usize>, Option<usize>)>,
+//     // window_id, wid
+//     pub deletes: Vec<(String, usize)>,
+// }
 
-pub static UPDATE_CANVAS_ITEMS: Mutex<UpdateCanvasItems> = Mutex::new(UpdateCanvasItems {
-    updates: vec![],
-    moves: vec![],
-    deletes: vec![],
-});
+// pub static UPDATE_CANVAS_ITEMS: Mutex<UpdateCanvasItems> = Mutex::new(UpdateCanvasItems {
+//     updates: vec![],
+//     moves: vec![],
+//     deletes: vec![],
+// });
 
-pub fn access_canvas_update_items() -> MutexGuard<'static, UpdateCanvasItems> {
-    UPDATE_CANVAS_ITEMS.lock().unwrap()
-}
+// pub fn access_canvas_update_items() -> MutexGuard<'static, UpdateCanvasItems> {
+//     UPDATE_CANVAS_ITEMS.lock().unwrap()
+// }
 
 #[derive(Debug, Clone)]
 pub enum IpgUpdateType {
@@ -1472,6 +1453,7 @@ impl IPG {
                 scroller_color,
                 scroller_color_hovered,
                 scroller_color_dragged,
+                snap,
                 )));
 
         drop(state);
@@ -1839,7 +1821,7 @@ impl IPG {
         text_to_display: String,
         position: IpgToolTipPosition,
         parent_id: Option<String>,
-        gap: u16,
+        gap: u32,
         padding: f32,
         snap_within_viewport: bool,
         style_id: Option<usize>,
@@ -1931,6 +1913,7 @@ impl IPG {
                 shadow_offset_xy,
                 shadow_blur_radius,
                 text_color,
+                snap,
                 )));
 
         drop(state);
@@ -2116,7 +2099,8 @@ impl IPG {
         padding_head=vec![5.0], 
         padding_body=vec![5.0], 
         padding_foot=vec![5.0],
-        style_id=None, 
+        style_id=None,
+        style_standard=None, 
         show=true, 
         user_data=None
         ))]
@@ -2142,6 +2126,7 @@ impl IPG {
         padding_body: Vec<f64>,
         padding_foot: Vec<f64>,
         style_id: Option<usize>,
+        style_standard: Option<IpgStyleStandard>,
         show: bool,
         user_data: Option<PyObject>, 
         ) -> PyResult<usize> 
@@ -2185,6 +2170,7 @@ impl IPG {
                 body,
                 foot,
                 style_id,
+                style_standard,
                 show,
                 )));
 
@@ -2196,8 +2182,8 @@ impl IPG {
     #[pyo3(signature = ( 
         background_color=None, 
         background_rgba=None,
-        border_radius=10.0, 
-        border_width=1.0,
+        border_radius=Some(10.0), 
+        border_width=Some(1.0),
         border_color=None,
         border_rgba=None, 
         head_background_color=None,
@@ -2220,8 +2206,8 @@ impl IPG {
         &self,
         background_color: Option<IpgColor>, 
         background_rgba: Option<[f32; 4]>,
-        border_radius: f32, 
-        border_width: f32, 
+        border_radius: Option<f32>, 
+        border_width: Option<f32>, 
         border_color: Option<IpgColor>,
         border_rgba: Option<[f32; 4]>, 
         head_background_color: Option<IpgColor>,

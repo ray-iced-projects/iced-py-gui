@@ -178,12 +178,12 @@ pub fn build_bezier_path(bz: &Bezier,
                     pending_cursor: Option<Point>,
                     edit_point_index: Option<usize>, 
                     edit_mid_point: bool,
-                    degrees: Option<f32>,
+                    rotation: Option<f32>,
                     ) -> (Path, f32, Point) {
 
-    let mut degrees = match degrees {
+    let mut rotation = match rotation {
         Some(d) => d,
-        None => bz.degrees,
+        None => bz.rotation,
     };
     let mut mid_point = bz.mid_point;
 
@@ -208,7 +208,7 @@ pub fn build_bezier_path(bz: &Bezier,
                     pts[edit_point_index.unwrap()] = pending_cursor.unwrap();
                     mid_point = get_mid_point(pts[0], pts[1]);
                     
-                    degrees = 
+                    rotation = 
                         get_horizontal_angle_of_vector(
                             mid_point, 
                             pts[1], 
@@ -231,7 +231,7 @@ pub fn build_bezier_path(bz: &Bezier,
                             bz.points[0], 
                             pending_cursor.unwrap()
                         );
-                    degrees = 
+                    rotation = 
                         get_horizontal_angle_of_vector(
                             bz.points[0],  
                             pending_cursor.unwrap(),
@@ -254,7 +254,7 @@ pub fn build_bezier_path(bz: &Bezier,
         }
     });
 
-    (path, degrees, mid_point)
+    (path, rotation, mid_point)
 
 }
 
@@ -422,12 +422,12 @@ pub fn build_line_path(line: &Line,
                     pending_cursor: Option<Point>,
                     edit_point_index: Option<usize>, 
                     edit_mid_point: bool,
-                    degrees: Option<f32>,
+                    rotation: Option<f32>,
                     ) -> (Path, f32, Point) {
 
-    let mut degrees = match degrees {
+    let mut rotation = match rotation {
         Some(d) => d,
-        None => line.degrees,
+        None => line.rotation,
     };
     let mut mid_point = line.mid_point;
 
@@ -454,7 +454,7 @@ pub fn build_line_path(line: &Line,
                     mid_point = get_mid_point(pts[0], pts[1])
                 }
 
-                degrees = 
+                rotation = 
                     get_horizontal_angle_of_vector(
                         pts[0],  
                         pts[1], 
@@ -470,7 +470,7 @@ pub fn build_line_path(line: &Line,
                 p.move_to(line.points[0]);
                 p.line_to(pending_cursor.unwrap());
 
-                degrees = 
+                rotation = 
                     get_horizontal_angle_of_vector(
                         line.points[0], 
                         pending_cursor.unwrap(), 
@@ -484,7 +484,7 @@ pub fn build_line_path(line: &Line,
         }
     });
 
-    (path, degrees, mid_point)
+    (path, rotation, mid_point)
 
 }
 
@@ -493,12 +493,12 @@ pub fn build_polygon_path(pg: &Polygon,
                         pending_cursor: Option<Point>,
                         edit_mid_point: bool,
                         edit_other_point: bool,
-                        degrees: Option<f32>,
+                        rotation: Option<f32>,
                         ) -> (Path, f32, Point) {
 
-    let mut degrees = match degrees {
+    let mut rotation = match rotation {
         Some(d) => d,
-        None => pg.degrees,
+        None => pg.rotation,
     };
     let mut mid_point = pg.mid_point;
     let mut pg_point = pg.pg_point;
@@ -527,7 +527,7 @@ pub fn build_polygon_path(pg: &Polygon,
                 } 
                 if edit_other_point {
                     pg_point = pending_cursor.unwrap();
-                    degrees = get_horizontal_angle_of_vector(pg.mid_point, pending_cursor.unwrap());
+                    rotation = get_horizontal_angle_of_vector(pg.mid_point, pending_cursor.unwrap());
                 }
                 
                 let pts = 
@@ -535,7 +535,7 @@ pub fn build_polygon_path(pg: &Polygon,
                         mid_point, 
                         pg_point, 
                         pg.poly_points,
-                        degrees
+                        rotation,
                     );
                 
                 for (index, pt) in pts.iter().enumerate() {
@@ -552,14 +552,14 @@ pub fn build_polygon_path(pg: &Polygon,
                 p.circle(pg_point, 3.0);
             },
             DrawMode::New => {
-                degrees = get_horizontal_angle_of_vector(pg.mid_point, pending_cursor.unwrap());
+                rotation = get_horizontal_angle_of_vector(pg.mid_point, pending_cursor.unwrap());
 
                 let points = 
                     build_polygon(
                         pg.mid_point, 
                         pending_cursor.unwrap(), 
                         pg.poly_points,
-                        degrees,
+                        rotation,
                     );
                 
                 for (index, point) in points.iter().enumerate() {
@@ -587,7 +587,7 @@ pub fn build_polygon_path(pg: &Polygon,
         }
     });
 
-    (path, degrees, mid_point)
+    (path, rotation, mid_point)
 
 }
 
@@ -597,12 +597,12 @@ pub fn build_polyline_path(pl: &PolyLine,
                         edit_point_index: Option<usize>, 
                         edit_mid_point: bool,
                         edit_other_point: bool,
-                        degrees: Option<f32>,
+                        rotation: Option<f32>,
                         ) -> (Path, f32, Point) {
 
-    let mut degrees = match degrees {
+    let mut rotation = match rotation {
         Some(d) => d,
-        None => pl.degrees,
+        None => pl.rotation,
     };
     let mut pts = pl.points.clone();
     let mut mid_point = pl.mid_point;
@@ -640,9 +640,9 @@ pub fn build_polyline_path(pl: &PolyLine,
                                 )[0];
                 }
                 if edit_other_point {
-                    degrees = get_horizontal_angle_of_vector(pl.mid_point, pending_cursor.unwrap());
-                    let step_degrees = degrees-pl.degrees;
-                    pts = rotate_geometry(&pts, &mid_point, &step_degrees, Widget::PolyLine);
+                    rotation = get_horizontal_angle_of_vector(pl.mid_point, pending_cursor.unwrap());
+                    let step = rotation-pl.rotation;
+                    pts = rotate_geometry(&pts, &mid_point, &step, Widget::PolyLine);
                     pl_point = pending_cursor.unwrap();
 
                 }
@@ -683,7 +683,7 @@ pub fn build_polyline_path(pl: &PolyLine,
                 // let (slope, intercept) = get_linear_regression(&pl.points);
                 // let(p1, p2) = get_line_from_slope_intercept(&pl.points, slope, intercept);
                 // mid_point = get_mid_point(p1, p2);
-                // degrees = get_vertical_angle_of_vector(mid_point, p2);
+                // rotation = get_vertical_angle_of_vector(mid_point, p2);
                 p.move_to(pl.mid_point);
                 p.line_to(pl.pl_point);
                 p.circle(mid_point, 3.0);
@@ -691,7 +691,7 @@ pub fn build_polyline_path(pl: &PolyLine,
         }
     });
 
-    (path, degrees, mid_point)
+    (path, rotation, mid_point)
 
 }
 
@@ -701,15 +701,16 @@ pub fn build_right_triangle_path(tr: &RightTriangle,
                             edit_point_index: Option<usize>, 
                             edit_mid_point: bool,
                             edit_other_point: bool,
-                            degrees: Option<f32>,
+                            rotation: Option<f32>,
                         ) -> (Path, f32, Point, Point) {
 
     let mut pts = tr.points.clone();
     let mut mid_point = tr.mid_point;
     let mut tr_point = tr.tr_point;
-    let mut degrees = match degrees {
+    
+    let mut rotation = match rotation {
         Some(d) => d,
-        None => tr.degrees,
+        None => tr.rotation,
     };
 
     let path = Path::new(|p| {
@@ -751,16 +752,16 @@ pub fn build_right_triangle_path(tr: &RightTriangle,
                                     tr.points[2].y+dist_b_mid.y);
                 }
                 if edit_other_point {
-                    degrees = 
+                    rotation = 
                         get_horizontal_angle_of_vector(
                             tr.mid_point, 
                             pending_cursor.unwrap()
                         );
-                    let step_degrees = degrees-tr.degrees;
+                    let step = rotation-tr.rotation;
                     pts = rotate_geometry(
                             &pts, 
                             &mid_point, 
-                            &step_degrees, 
+                            &step, 
                             Widget::RightTriangle
                         );
                     tr_point = pending_cursor.unwrap();
@@ -806,7 +807,7 @@ pub fn build_right_triangle_path(tr: &RightTriangle,
         }
     });
 
-    (path, degrees, mid_point, tr_point)
+    (path, rotation, mid_point, tr_point)
 
 }
 

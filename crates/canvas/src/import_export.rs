@@ -8,7 +8,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 
-use super::draw_canvas::{Arc, Bezier, CanvasWidget, Circle, DrawMode, DrawStatus, Ellipse, FreeHand, Line, PolyLine, Polygon, RightTriangle, Text, Widget};
+use ipg_types::{Arc, Bezier, CanvasWidget, Circle, DrawMode, DrawStatus, Ellipse, FreeHand, Line, PolyLine, Polygon, RightTriangle, Text, Widget};
 
 // iced Point does not derive any serialization 
 // so had to use own version for saving data.

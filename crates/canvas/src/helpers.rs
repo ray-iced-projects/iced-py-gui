@@ -3,7 +3,8 @@
 use std::f32::consts::PI;
 
 use iced::{alignment, Point, Radians};
-use super::draw_canvas::{HTextAlignment, VTextAlignment, Widget};
+use ipg_types::Widget;
+use super::draw_canvas::{HTextAlignment, VTextAlignment};
 
 
 pub fn build_polygon(mid_point: Point, pg_point: Point, poly_points: usize, mut degrees: f32) -> Vec<Point> {

@@ -1,17 +1,13 @@
 [package]
-name = "ipg-canvas"
+name = "canvas"
 version = "0.4.0"
 edition = "2024"
 license = "GNU"
 description = "Canvas implementation for IcedPyGui"
 
 [dependencies]
-# Internal dependencies
-ipg-alignment = { workspace = true }
-ipg-helpers = { workspace = true }
-ipg-styling = { workspace = true }
+# Internal Dependencies
 ipg-types = { workspace = true }
-
 # External dependencies
 iced = { workspace = true }
 pyo3 = { workspace = true }

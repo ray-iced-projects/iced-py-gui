@@ -7,6 +7,7 @@ description = "Widget implementations for IcedPyGui"
 
 [dependencies]
 # Internal dependencies
+canvas = { workspace = true }
 divider = { workspace = true }
 ipg-alignment = { workspace = true }
 ipg-fonts = { workspace = true }

@@ -4,7 +4,9 @@ use std::f32::consts::PI;
 
 use iced::{widget::canvas::{self, path::arc::Elliptical, Path}, Point, Radians, Renderer, Vector};
 
-use super::draw_canvas::{Arc, Bezier, Circle, DrawMode, Ellipse, FreeHand, Line, PolyLine, Polygon, RightTriangle, Text, Widget, get_mid_geometry}; 
+use ipg_types::{Arc, Bezier, Circle, DrawMode, Ellipse, FreeHand, Line, PolyLine, Polygon, RightTriangle, Text, Widget}; 
+
+use crate::draw_canvas::get_mid_geometry;
 
 use super::helpers::{build_polygon, get_angle_of_vectors, get_horizontal_angle_of_vector, get_mid_point, rotate_geometry, to_degrees, to_radians, translate_geometry};
 

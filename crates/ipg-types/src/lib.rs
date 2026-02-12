@@ -1,13 +1,20 @@
 //! Shared message types for IcedPyGui
 
-use iced::widget::scrollable;
-use iced::{font, window, Event, Point, Size};
+use iced::widget::text::{LineHeight, Shaping};
+use iced::widget::{Id, scrollable};
+use iced::{Color, Event, Font, Pixels, Point, Radians, Size, Vector, font, window};
 
+use serde::{Deserialize, Serialize};
 
 
 #[derive(Debug, Clone)]
 pub enum BTNMessage {
     OnPress,
+}
+
+#[derive(Debug, Clone)]
+pub enum CanvasMessage {
+    WidgetDraw(CanvasWidget),
 }
 
 #[derive(Debug, Clone)]
@@ -140,6 +147,7 @@ pub enum WndMessage {
 #[derive(Debug, Clone)]
 pub enum Message {
     Button(usize, BTNMessage),
+    Canvas(CanvasMessage),
     Card(usize, CardMessage),
     CheckBox(usize, CHKMessage),
     ColorPicker(usize, ColPikMessage),
@@ -185,6 +193,208 @@ pub enum Message {
     OpaqueOnPress(usize),
 }
 
+#[derive(Debug, Clone, Default)]
+pub enum CanvasWidget {
+    #[default]
+    None,
+    Arc(Arc),
+    Bezier(Bezier),
+    Circle(Circle),
+    Ellipse(Ellipse),
+    Line(Line),
+    PolyLine(PolyLine),
+    Polygon(Polygon),
+    RightTriangle(RightTriangle),
+    Text(Text),
+    FreeHand(FreeHand),
+}
+
+#[derive(Clone, Copy, Debug, Serialize, Deserialize, PartialEq, Eq,)]
+pub enum Widget {
+    None,
+    Arc,
+    Bezier,
+    Circle,
+    Ellipse,
+    Line,
+    PolyLine,
+    Polygon,
+    RightTriangle,
+    Text,
+    FreeHand,
+}
+#[derive(Debug, Clone)]
+pub struct Arc {
+    pub id: Id,
+    pub points: Vec<Point>,
+    pub mid_point: Point,
+    pub radius: f32,
+    pub color: Color,
+    pub width: f32,
+    pub start_angle: Radians,
+    pub end_angle: Radians,
+    pub draw_mode: DrawMode,
+    pub status: DrawStatus,
+}
+
+#[derive(Debug, Clone)]
+pub struct Bezier {
+    pub id: Id,
+    pub points: Vec<Point>,
+    pub mid_point: Point,
+    pub color: Color,
+    pub width: f32,
+    pub degrees: f32,
+    pub draw_mode: DrawMode,
+    pub status: DrawStatus,
+}
+
+#[derive(Debug, Clone)]
+pub struct Circle {
+    pub id: Id,
+    pub center: Point,
+    pub circle_point: Point,
+    pub radius: f32,
+    pub color: Color,
+    pub width: f32,
+    pub draw_mode: DrawMode,
+    pub status: DrawStatus,
+}
+
+#[derive(Debug, Clone)]
+pub struct Ellipse {
+    pub id: Id,
+    pub points: Vec<Point>,
+    pub center: Point,
+    pub radii: Vector,
+    pub rotation: Radians,
+    pub color: Color,
+    pub width: f32,
+    pub draw_mode: DrawMode,
+    pub status: DrawStatus,
+}
+
+#[derive(Debug, Clone)]
+pub struct Line {
+    pub id: Id,
+    pub points: Vec<Point>,
+    pub mid_point: Point,
+    pub color: Color,
+    pub width: f32,
+    pub degrees: f32,
+    pub draw_mode: DrawMode,
+    pub status: DrawStatus,
+}
+
+#[derive(Debug, Clone)]
+pub struct PolyLine {
+    pub id: Id,
+    pub points: Vec<Point>,
+    pub poly_points: usize,
+    pub mid_point: Point,
+    pub pl_point: Point,
+    pub color: Color,
+    pub width: f32,
+    pub degrees: f32,
+    pub draw_mode: DrawMode,
+    pub status: DrawStatus,
+}
+
+#[derive(Debug, Clone)]
+pub struct Polygon {
+    pub id: Id,
+    pub points: Vec<Point>,
+    pub poly_points: usize,
+    pub mid_point: Point,
+    pub pg_point: Point,
+    pub color: Color,
+    pub width: f32,
+    pub degrees: f32,
+    pub draw_mode: DrawMode,
+    pub status: DrawStatus,
+}
+
+#[derive(Debug, Clone)]
+pub struct RightTriangle {
+    pub id: Id,
+    pub points: Vec<Point>,
+    pub mid_point: Point,
+    pub tr_point: Point,
+    pub color: Color,
+    pub width: f32,
+    pub degrees: f32,
+    pub draw_mode: DrawMode,
+    pub status: DrawStatus,
+}
+
+#[derive(Debug, Clone)]
+pub struct Text {
+    pub id: Id,
+    pub content: String,
+    pub position: Point,
+    pub color: Color,
+    pub size: Pixels,
+    pub line_height: LineHeight,
+    pub font: Font,
+    pub align_x: iced::advanced::text::Alignment,
+    pub align_y: iced::alignment::Vertical,
+    pub shaping: Shaping,
+    pub degrees: f32,
+    pub draw_mode: DrawMode,
+    pub status: DrawStatus,
+}
+
+#[derive(Debug, Clone)]
+pub struct FreeHand {
+    pub id: Id,
+    pub points: Vec<Point>,
+     pub color: Color,
+    pub width: f32,
+    pub draw_mode: DrawMode,
+    pub status: DrawStatus,
+    pub completed: bool,
+}
+
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq,)]
+pub enum DrawMode {
+    #[default]
+    DrawAll,
+    Edit,
+    New,
+    Rotate,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq,)]
+pub enum DrawStatus {
+    Inprogress,
+    Completed,
+    Delete,
+}
+
+// used to display text widget
+impl DrawMode {
+    pub fn string(&self) -> Option<String> {
+        match &self {
+            DrawMode::DrawAll => Some("DrawAll".to_string()),
+            DrawMode::New => Some("New".to_string()),
+            DrawMode::Edit => Some("Edit".to_string()),
+            DrawMode::Rotate => Some("Rotate".to_string()),
+        }
+    }
+
+    pub fn to_enum(s: String) -> Self {
+        match s.as_str() {
+            "DrawAll" => DrawMode::DrawAll,
+            "Edit" => DrawMode::Edit,
+            "New" => DrawMode::New,
+            "Rotate" => DrawMode::Rotate,
+            _ => DrawMode::DrawAll,
+        }
+    }
+    pub fn options() -> Vec<String> {
+        vec!["DrawAll".to_string(), "New".to_string(), "Edit".to_string(), "Rotate".to_string(),]
+    }
+}
 
 // The number of radio buttons per group is based on the number of Choices.
 // Therefore, they are currently limited to 26 per group, but can easily be extended

@@ -4,11 +4,10 @@ use std::collections::HashMap;
 use iced::keyboard::Key;
 use iced::widget::Id;
 use iced::widget::text::{LineHeight, Shaping};
-use iced::{Color, Font, Pixels, Radians, Vector, mouse};
+use iced::{Color, Pixels, Radians, Vector, mouse};
 use iced::widget::canvas::Event;
 use iced::widget::canvas::{self, Canvas, Frame, Geometry, Path, Stroke};
 use iced::{Element, Fill, Point, Renderer, Theme};
-use serde::{Deserialize, Serialize};
 
 use super::helpers::{build_polygon, get_angle_of_vectors, get_horizontal_angle_of_vector,
     get_line_from_slope_intercept, get_linear_regression, get_mid_point, iced_h_text_alignment, 
@@ -17,64 +16,8 @@ use super::path_builds::{build_arc_path, build_bezier_path, build_circle_path,
     build_ellipse_path, build_free_hand_path, build_line_path, 
     build_polygon_path, build_polyline_path, build_right_triangle_path, build_text_path};
 
+use ipg_types::{Arc, Bezier, CanvasWidget, Circle, DrawMode, DrawStatus, Ellipse, FreeHand, Line, PolyLine, Polygon, RightTriangle, Text, Widget};
 
-
-#[derive(Debug, Clone, Default)]
-pub enum CanvasWidget {
-    #[default]
-    None,
-    Arc(Arc),
-    Bezier(Bezier),
-    Circle(Circle),
-    Ellipse(Ellipse),
-    Line(Line),
-    PolyLine(PolyLine),
-    Polygon(Polygon),
-    RightTriangle(RightTriangle),
-    Text(Text),
-    FreeHand(FreeHand),
-}
-
-#[derive(Clone, Copy, Debug, Default, PartialEq, Eq,)]
-pub enum DrawMode {
-    #[default]
-    DrawAll,
-    Edit,
-    New,
-    Rotate,
-}
-
-#[derive(Clone, Copy, Debug, PartialEq, Eq,)]
-pub enum DrawStatus {
-    Inprogress,
-    Completed,
-    Delete,
-}
-
-// used to display text widget
-impl DrawMode {
-    pub fn string(&self) -> Option<String> {
-        match &self {
-            DrawMode::DrawAll => Some("DrawAll".to_string()),
-            DrawMode::New => Some("New".to_string()),
-            DrawMode::Edit => Some("Edit".to_string()),
-            DrawMode::Rotate => Some("Rotate".to_string()),
-        }
-    }
-
-    pub fn to_enum(s: String) -> Self {
-        match s.as_str() {
-            "DrawAll" => DrawMode::DrawAll,
-            "Edit" => DrawMode::Edit,
-            "New" => DrawMode::New,
-            "Rotate" => DrawMode::Rotate,
-            _ => DrawMode::DrawAll,
-        }
-    }
-    pub fn options() -> Vec<String> {
-        vec!["DrawAll".to_string(), "New".to_string(), "Edit".to_string(), "Rotate".to_string(),]
-    }
-}
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum HTextAlignment {
@@ -143,17 +86,18 @@ pub struct CanvasState {
     pub text_curves: HashMap<Id, CanvasWidget>,
     pub draw_mode: DrawMode,
     pub edit_widget_id: Option<Id>,
+    pub selected_widget: Option<Widget>,
     pub escape_pressed: bool,
-    pub selected_radio_widget: Option<Widget>,
-    pub selected_draw_color: Color,
-    pub selected_canvas_color: Color,
-    pub selected_poly_points: usize,
-    pub selected_poly_points_str: String,
-    pub selected_step_degrees: f32,
-    pub selected_width: f32,
-    pub selected_width_str: String,
-    pub selected_h_text_alignment: HTextAlignment,
-    pub selected_v_text_alignment: VTextAlignment,
+    pub draw_color: Color,
+    pub fill_color: Option<Color>,
+    pub canvas_color: Color,
+    pub poly_points: usize,
+    pub poly_points_str: String,
+    pub step_degrees: f32,
+    pub draw_width: f32,
+    pub draw_width_str: String,
+    pub h_text_alignment: HTextAlignment,
+    pub v_text_alignment: VTextAlignment,
     pub timer_event_enabled: bool,
     pub timer_duration: u64,
     pub elapsed_time: u64,
@@ -173,17 +117,18 @@ impl Default for CanvasState {
             text_curves: HashMap::new(),
             draw_mode: DrawMode::DrawAll,
             edit_widget_id: None,
+            selected_widget: None,
             escape_pressed: false,
-            selected_radio_widget: None,
-            selected_draw_color: Color::from_rgb(0.961, 0.871, 0.702),
-            selected_canvas_color: Color::from_rgb(0.0, 0.502, 0.502),
-            selected_poly_points: 3,
-            selected_poly_points_str: String::new(),
-            selected_step_degrees: 6.0,
-            selected_width: 2.0,
-            selected_width_str: String::new(),
-            selected_h_text_alignment: HTextAlignment::Center,
-            selected_v_text_alignment: VTextAlignment::Center,
+            draw_color: Color::from_rgb(0.961, 0.871, 0.702),
+            fill_color: None,
+            canvas_color: Color::from_rgb(0.0, 0.502, 0.502),
+            poly_points: 3,
+            poly_points_str: String::new(),
+            step_degrees: 6.0,
+            draw_width: 2.0,
+            draw_width_str: String::new(),
+            h_text_alignment: HTextAlignment::Center,
+            v_text_alignment: VTextAlignment::Center,
             timer_event_enabled: false,
             timer_duration: 750,
             elapsed_time: 0,
@@ -255,18 +200,18 @@ impl<'a> canvas::Program<CanvasWidget> for DrawPending<'a> {
                                     None => {
                                         // in case the poly points, color, and width have changed since 
                                         // the widget selected
-                                        if self.state.selected_radio_widget.is_none() {
+                                        if self.state.selected_widget.is_none() {
                                             return None
                                         }
                                         let selected_widget = 
                                             add_new_widget(
-                                                self.state.selected_radio_widget.unwrap(), 
-                                                self.state.selected_poly_points,
-                                                self.state.selected_draw_color,
-                                                self.state.selected_width,
+                                                self.state.selected_widget.unwrap(), 
+                                                self.state.poly_points,
+                                                self.state.draw_color,
+                                                self.state.draw_width,
                                                 self.state.draw_mode,
-                                                self.state.selected_h_text_alignment,
-                                                self.state.selected_v_text_alignment,
+                                                self.state.h_text_alignment,
+                                                self.state.v_text_alignment,
                                             );
 
                                         let (widget, _) = 
@@ -413,7 +358,7 @@ impl<'a> canvas::Program<CanvasWidget> for DrawPending<'a> {
                                         // until its finsihed.
                                         *program_state = Some(Pending::Rotate {
                                             widget: widget.clone(),
-                                            step_degrees: self.state.selected_step_degrees,
+                                            step_degrees: self.state.step_degrees,
                                             degrees: get_widget_degrees(&widget),
                                         });
 
@@ -580,7 +525,7 @@ impl<'a> canvas::Program<CanvasWidget> for DrawPending<'a> {
                             |frame| {
 
                 let background = Path::rectangle(Point::ORIGIN, frame.size());
-                frame.fill(&background, self.state.selected_canvas_color);
+                frame.fill(&background, self.state.canvas_color);
 
                 DrawCurve::draw_all(self.curves, frame, theme);
 
@@ -1563,153 +1508,6 @@ impl Pending {
         
         frame.into_geometry()
     }
-}
-
-#[derive(Debug, Clone)]
-pub struct Arc {
-    pub id: Id,
-    pub points: Vec<Point>,
-    pub mid_point: Point,
-    pub radius: f32,
-    pub color: Color,
-    pub width: f32,
-    pub start_angle: Radians,
-    pub end_angle: Radians,
-    pub draw_mode: DrawMode,
-    pub status: DrawStatus,
-}
-
-#[derive(Debug, Clone)]
-pub struct Bezier {
-    pub id: Id,
-    pub points: Vec<Point>,
-    pub mid_point: Point,
-    pub color: Color,
-    pub width: f32,
-    pub degrees: f32,
-    pub draw_mode: DrawMode,
-    pub status: DrawStatus,
-}
-
-#[derive(Debug, Clone)]
-pub struct Circle {
-    pub id: Id,
-    pub center: Point,
-    pub circle_point: Point,
-    pub radius: f32,
-    pub color: Color,
-    pub width: f32,
-    pub draw_mode: DrawMode,
-    pub status: DrawStatus,
-}
-
-#[derive(Debug, Clone)]
-pub struct Ellipse {
-    pub id: Id,
-    pub points: Vec<Point>,
-    pub center: Point,
-    pub radii: Vector,
-    pub rotation: Radians,
-    pub color: Color,
-    pub width: f32,
-    pub draw_mode: DrawMode,
-    pub status: DrawStatus,
-}
-
-#[derive(Debug, Clone)]
-pub struct Line {
-    pub id: Id,
-    pub points: Vec<Point>,
-    pub mid_point: Point,
-    pub color: Color,
-    pub width: f32,
-    pub degrees: f32,
-    pub draw_mode: DrawMode,
-    pub status: DrawStatus,
-}
-
-#[derive(Debug, Clone)]
-pub struct PolyLine {
-    pub id: Id,
-    pub points: Vec<Point>,
-    pub poly_points: usize,
-    pub mid_point: Point,
-    pub pl_point: Point,
-    pub color: Color,
-    pub width: f32,
-    pub degrees: f32,
-    pub draw_mode: DrawMode,
-    pub status: DrawStatus,
-}
-
-#[derive(Debug, Clone)]
-pub struct Polygon {
-    pub id: Id,
-    pub points: Vec<Point>,
-    pub poly_points: usize,
-    pub mid_point: Point,
-    pub pg_point: Point,
-    pub color: Color,
-    pub width: f32,
-    pub degrees: f32,
-    pub draw_mode: DrawMode,
-    pub status: DrawStatus,
-}
-
-#[derive(Debug, Clone)]
-pub struct RightTriangle {
-    pub id: Id,
-    pub points: Vec<Point>,
-    pub mid_point: Point,
-    pub tr_point: Point,
-    pub color: Color,
-    pub width: f32,
-    pub degrees: f32,
-    pub draw_mode: DrawMode,
-    pub status: DrawStatus,
-}
-
-#[derive(Debug, Clone)]
-pub struct Text {
-    pub id: Id,
-    pub content: String,
-    pub position: Point,
-    pub color: Color,
-    pub size: Pixels,
-    pub line_height: LineHeight,
-    pub font: Font,
-    pub align_x: iced::advanced::text::Alignment,
-    pub align_y: iced::alignment::Vertical,
-    pub shaping: Shaping,
-    pub degrees: f32,
-    pub draw_mode: DrawMode,
-    pub status: DrawStatus,
-}
-
-#[derive(Debug, Clone)]
-pub struct FreeHand {
-    pub id: Id,
-    pub points: Vec<Point>,
-     pub color: Color,
-    pub width: f32,
-    pub draw_mode: DrawMode,
-    pub status: DrawStatus,
-    pub completed: bool,
-}
-
-#[derive(Clone, Copy, Debug, Serialize, Deserialize, PartialEq, Eq,)]
-pub enum Widget {
-    None,
-    Arc,
-    Bezier,
-    Circle,
-    Ellipse,
-    Line,
-    PolyLine,
-    Polygon,
-    RightTriangle,
-    Text,
-    FreeHand,
 }
 
 fn add_new_widget(widget: Widget, 

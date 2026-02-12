@@ -1,26 +1,19 @@
 //! ipg_canvas
 
-// #![allow(dead_code)]
-use std::fs;
-use std::path::Path;
-
 use iced::widget::container;
 use iced::{Color, Element, Point, Radians};
-
 
 use pyo3::{pyclass, Py, PyAny, Python};
 type PyObject = Py<PyAny>;
 
-mod canvas_items;
-use crate::canvas_items::draw_canvas::{CanvasWidget, DrawMode, DrawStatus, CanvasState, DrawMode, DrawStatus, set_widget_mode_or_status};
-use crate::canvas_items::draw_canvas::{CanvasWidget, get_draw_mode_and_status, get_widget_id};
-use crate::canvas_items::draw_canvas::set_widget_mode_or_status_or_id;
-use crate::canvas_items::import_export::{convert_to_export, import_widgets, save};
-
+use ipg_types::{CanvasWidget, DrawMode, DrawStatus};
+use canvas::draw_canvas::{CanvasState, get_draw_mode_and_status, get_widget_id, set_widget_mode_or_status};
 use ipg_alignment::{get_horizontal_alignment, get_vertical_alignment, try_extract_ipg_horizontal_alignment, try_extract_ipg_vertical_alignment};
 use ipg_helpers::{try_extract_f64, try_extract_point, try_extract_string};
 use ipg_styling::try_extract_rgba_color;
-use ipg_types::{Message};
+use ipg_types::{CanvasMessage, Message};
+
+
 
 #[derive(Debug, Clone)]
 pub struct IpgCanvas {
@@ -33,18 +26,12 @@ impl IpgCanvas {
     }
 }
 
-#[derive(Debug, Clone)]
-enum CanvasMessage {
-    WidgetDraw(CanvasWidget),
-}
-
 pub fn construct_canvas(canvas_state: &CanvasState) -> Element<'_, Message> {
     let draw: Element<CanvasMessage> = container(
         canvas_state
             .view(
                 &canvas_state.curves,
                 &canvas_state.text_curves,
-                &canvas_state.image_curves,
             )
             .map(CanvasMessage::WidgetDraw),
     )
@@ -133,18 +120,15 @@ pub enum IpgCanvasParam {
     DrawColor,
     FillColor,
     DrawWidth,
-    FilePath,
     Mode,
     PolyPoints,
     Widget,
-    Load,
-    Save,
     TextAlignment,
 }
 
 // update only the canvas, not the propterties of the canvas widgets.
 // see canvas_geometry_update
-pub fn canvas_item_update(canvas_state: &mut IpgCanvasState, 
+pub fn canvas_item_update(canvas_state: &mut CanvasState, 
                             item: &PyObject, 
                             value: &PyObject,
                             mut last_id: usize,) 
@@ -154,82 +138,57 @@ pub fn canvas_item_update(canvas_state: &mut IpgCanvasState,
     let name = "Canvas".to_string();
     match update {
         IpgCanvasParam::Clear => {
-            canvas_state.clear_curves();
+            canvas_state.request_redraw();
             None
-        }
+        },
         IpgCanvasParam::CanvasColor => {
             let rgba = try_extract_rgba_color(value, name);
-            canvas_state.selected_canvas_color = Some(Color::from(rgba));
-            canvas_state.clear_background_cache();
+            canvas_state.canvas_color = Color::from(rgba);
+            canvas_state.request_redraw();
             None
-        }
+        },
         IpgCanvasParam::DrawColor => {
             let rgba = try_extract_rgba_color(value, name);
-            canvas_state.selected_draw_color = Color::from(rgba);
+            canvas_state.draw_color = Color::from(rgba);
             None
-        }
-        IpgCanvasParam::FilePath => {
-            canvas_state.file_path = try_extract_string(value, name);
-            None
-        }
+        },
         IpgCanvasParam::FillColor => {
             let rgba = try_extract_rgba_color(value, name);
-            canvas_state.selected_fill_color = Some(Color::from(rgba));
+            canvas_state.fill_color = Some(Color::from(rgba));
             None
-        }
+        },
         IpgCanvasParam::DrawWidth => {
             let width = try_extract_f64(value, name) as f32;
-            canvas_state.selected_width = width;
+            canvas_state.draw_width = width;
             None
-        }
+        },
         IpgCanvasParam::Mode => {
             canvas_state.draw_mode = try_extract_mode(value);
             None
-        }
+        },
         IpgCanvasParam::PolyPoints => {
             let input = try_extract_string(value, name);
-            canvas_state.selected_poly_points = match input.parse::<usize>() {
+            canvas_state.poly_points = match input.parse::<usize>() {
                 Ok(int) => int,
                 Err(e) => panic!("PolyPoint input must be an integer, {}", e),
             };
             None
-        }
-        IpgCanvasParam::Load => {
-            let path = Path::new(&canvas_state.file_path);
-            let data = fs::read_to_string(path).expect("Unable to read file");
-            let widgets = serde_json::from_str(&data).expect("Unable to parse file");
-            canvas_state.clear_curves();
-            (canvas_state.curves, canvas_state.text_curves, last_id) =
-                import_widgets(widgets, last_id);
-            canvas_state.request_redraw();
-            canvas_state.request_text_redraw();
-            Some(last_id)
-        }
-        IpgCanvasParam::Save => {
-            let path = Path::new(&canvas_state.file_path);
-            let widgets = convert_to_export(&canvas_state.curves, &canvas_state.text_curves);
-            let result = save(path, &widgets);
-            match result {
-                Ok(_) => (),
-                Err(e) => println!("Unable to save file, {}", e),
-            }
-            None
-        }
+        },
         IpgCanvasParam::TextAlignment => {
             let align = try_extract_ipg_horizontal_alignment(value);
             if align.is_some() {
-                canvas_state.selected_h_text_alignment = get_horizontal_alignment(&align.unwrap())
+                canvas_state.h_text_alignment = get_horizontal_alignment(&align.unwrap())
             }
             let align = try_extract_ipg_vertical_alignment(value);
             if align.is_some() {
-                canvas_state.selected_v_text_alignment = get_vertical_alignment(&align.unwrap());
+                canvas_state.v_text_alignment = get_vertical_alignment(&align.unwrap());
             }
             None
         }
         IpgCanvasParam::Widget => {
             let selected_widget = Some(try_extract_widget(value));
             canvas_state.selected_widget = selected_widget;
-            canvas_state.timer_event_enabled = selected_widget == Some(IpgCanvasWidget::Text);
+            canvas_state.timer_event_enabled = selected_widget == Some(CanvasWidget::Text);
             None
         }
     }
@@ -245,9 +204,9 @@ pub fn try_extract_canvas_update(update_obj: &PyObject) -> IpgCanvasParam {
     })
 }
 
-fn try_extract_mode(update_obj: &PyObject) -> IpgDrawMode {
+fn try_extract_mode(update_obj: &PyObject) -> DrawMode {
     Python::attach(|py| {
-        let res = update_obj.extract::<IpgDrawMode>(py);
+        let res = update_obj.extract::<DrawMode>(py);
         match res {
             Ok(update) => update,
             Err(_) => panic!("Canvas mode update extraction failed"),
@@ -255,9 +214,9 @@ fn try_extract_mode(update_obj: &PyObject) -> IpgDrawMode {
     })
 }
 
-fn try_extract_widget(update_obj: &PyObject) -> IpgCanvasWidget {
+fn try_extract_widget(update_obj: &PyObject) -> CanvasWidget {
     Python::attach(|py| {
-        let res = update_obj.extract::<IpgCanvasWidget>(py);
+        let res = update_obj.extract::<CanvasWidget>(py);
         match res {
             Ok(update) => update,
             Err(_) => panic!("Canvas widget update extraction failed"),

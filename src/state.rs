@@ -2,7 +2,7 @@
 //! 
 //! This module provides the shared state that Python interacts with before Iced starts,
 //! and that Iced copies/clones when it begins running.
-
+#![allow(unused)]
 use std::collections::HashMap;
 use std::sync::{Mutex, MutexGuard};
 
@@ -11,8 +11,11 @@ use iced::Theme;
 use once_cell::sync::Lazy;
 use pyo3::{Py, PyAny};
 
+use crate::widgets::column::IpgColumn;
+use crate::widgets::container::{IpgContainer, IpgContainerStyle};
+use crate::widgets::row::IpgRow;
 use crate::widgets::window::IpgWindow;
-use crate::widgets::button::IpgButton;
+use crate::widgets::button::{IpgButton, IpgButtonStyle};
 
 // Type alias to replace deprecated PyObject
 type PyObject = Py<PyAny>;
@@ -24,13 +27,16 @@ type PyObject = Py<PyAny>;
 #[derive(Debug, Clone)]
 pub enum IpgContainers {
     IpgWindow(IpgWindow),
-    // Add more containers as needed
+    IpgColumn(IpgColumn),
+    IpgContainer(IpgContainer),
+    IpgRow(IpgRow),
 }
 
 #[derive(Debug, Clone)]
 pub enum IpgWidgets {
     IpgButton(IpgButton),
-    // Add more widgets as needed
+    IpgButtonStyle(IpgButtonStyle),
+    IpgContainerStyle(IpgContainerStyle),
 }
 
 // ============================================================================
@@ -78,19 +84,42 @@ impl Callbacks {
 // ============================================================================
 
 #[derive(Debug)]
-pub struct UserData {
+pub struct UserData1 {
     user_data: Lazy<HashMap<usize, PyObject>>,
 }
 
-pub static USERDATA: Mutex<UserData> = Mutex::new(UserData {
+pub static USERDATA1: Mutex<UserData1> = Mutex::new(UserData1 {
     user_data: Lazy::new(|| HashMap::new()),
 });
 
-pub fn access_user_data() -> MutexGuard<'static, UserData> {
-    USERDATA.lock().unwrap()
+pub fn access_user_data1() -> MutexGuard<'static, UserData1> {
+    USERDATA1.lock().unwrap()
 }
 
-impl UserData {
+impl UserData1 {
+    pub fn insert(&mut self, id: usize, data: PyObject) {
+        self.user_data.insert(id, data);
+    }
+    
+    pub fn get(&self, id: usize) -> Option<&PyObject> {
+        self.user_data.get(&id)
+    }
+}
+
+#[derive(Debug)]
+pub struct UserData2 {
+    user_data: Lazy<HashMap<usize, PyObject>>,
+}
+
+pub static USERDATA2: Mutex<UserData2> = Mutex::new(UserData2 {
+    user_data: Lazy::new(|| HashMap::new()),
+});
+
+pub fn access_user_data2() -> MutexGuard<'static, UserData2> {
+    USERDATA2.lock().unwrap()
+}
+
+impl UserData2 {
     pub fn insert(&mut self, id: usize, data: PyObject) {
         self.user_data.insert(id, data);
     }
@@ -206,14 +235,142 @@ pub fn clone_state_to_runtime(runtime_state: &mut IpgState) {
 // Helper functions for adding callbacks/user data
 // ============================================================================
 
-pub fn add_callback(id: usize, event_name: String, callback: PyObject) {
+/// Find the parent container's usize ID from its string ID
+fn find_parent_uid(ipg_ids: &[IpgIds], parent_id: String) -> usize {
+    for id_info in ipg_ids.iter() {
+        if id_info.container_id == Some(parent_id.clone()) {
+            return id_info.id;
+        }
+    }
+    panic!("Parent id {:?} not found in find_parent_uid()", parent_id)
+}
+
+/// Set up widget state - registers the widget with its parent container
+pub fn set_state_of_widget(id: usize, parent_id: String) {
+    let state = access_state();
+
+    // Find the window string ID from the container string ID
+    let wnd_id_str = match state.container_wnd_str_ids.get(&parent_id) {
+        Some(id) => id.clone(),
+        None => panic!(
+            "The main window id could not be found using parent_id {}, check that your parent_id matches a container",
+            parent_id
+        ),
+    };
+
+    // Find the window usize ID
+    let wnd_id_usize = match state.windows_str_ids.get(&wnd_id_str) {
+        Some(id) => *id,
+        None => panic!("window id {} could not be found in set_state_of_widget", wnd_id_str),
+    };
+
+    drop(state);
+
+    let mut state = access_state();
+
+    // Find the parent's usize ID
+    let parent_uid = find_parent_uid(state.ids.get(&wnd_id_usize).unwrap(), parent_id.clone());
+
+    // Register this widget with the window's ID tracking
+    state.ids.get_mut(&wnd_id_usize).unwrap().push(IpgIds {
+        id,
+        parent_uid,
+        container_id: None,
+        parent_id,
+        is_container: false,
+    });
+
+    drop(state);
+}
+
+pub fn set_state_of_container(
+    id: usize, 
+    window_id: String, 
+    container_id: Option<String>, 
+    parent_id: String) 
+{
+    let state = access_state();
+
+    let wnd_id_usize = match state.windows_str_ids.get(&window_id) {
+        Some(id) => *id,
+        None => panic!("The main window id could not be found using window_id {}", window_id)
+    };
+    drop(state);
+
+    let mut state = access_state();
+
+    match container_id.clone() {
+        Some(container_id_str) => state.container_wnd_str_ids.insert(container_id_str, window_id),
+        None => None,
+    };
+    
+    let parent_uid = find_parent_uid(state.ids.get(&wnd_id_usize).unwrap(), parent_id.clone());
+    
+    state.ids.get_mut(&wnd_id_usize).unwrap().push(IpgIds{id, parent_uid, container_id,
+                                                        parent_id, is_container: true});
+
+    state.container_ids.get_mut(&wnd_id_usize).unwrap().push(id);
+
+    drop(state);
+
+}
+
+pub fn set_state_cont_wnd_ids(
+    state: &mut State, 
+    wnd_id: &String, 
+    cnt_str_id: String, 
+    cnt_id: usize, name: String) 
+{
+    state.container_str_ids.insert(cnt_str_id.clone(), cnt_id);
+
+    let wnd_id_usize_opt = state.windows_str_ids.get(wnd_id);
+
+    let wnd_id_usize = match wnd_id_usize_opt {
+        Some(id) => *id,
+        None => panic!("{}: could not get window usize id", name),
+    };
+
+    state.container_str_ids.insert(cnt_str_id, cnt_id);
+
+    state.container_window_usize_ids.insert(cnt_id, wnd_id_usize);
+}
+
+pub fn get_id(gen_id: Option<usize>) -> usize {
+    
+    let mut state = access_state();
+
+    // Get or generate ID
+    let id = match gen_id {
+        Some(gid) => gid,
+        None => {
+            state.last_id += 1;
+            state.last_id
+        }
+    };
+
+    drop(state);
+
+    id
+}
+
+pub fn add_callback_to_mutex(id: usize, event_name: String, callback: PyObject) {
     let mut callbacks = access_callbacks();
     callbacks.insert(id, event_name, callback);
     drop(callbacks);
 }
 
-pub fn add_user_data(id: usize, data: PyObject) {
-    let mut user_data = access_user_data();
-    user_data.insert(id, data);
-    drop(user_data);
+pub fn add_user_data_to_mutex(
+    id: usize, 
+    user_data: PyObject) 
+{
+    let mut lock = USERDATA1.try_lock();
+    if let Ok(ref mut ud) = lock {
+        ud.user_data.insert(id, user_data);
+        
+    } else {
+        let mut temp_ud = access_user_data2();
+        temp_ud.user_data.insert(id, user_data);
+        drop(temp_ud);
+    }
+    drop(lock);
 }

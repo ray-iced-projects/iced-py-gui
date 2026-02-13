@@ -10,8 +10,5 @@ pub enum IpgStyleStandard {
     Success,
     Danger,
     Warning,
-    Info,
-    Light,
-    Dark,
     Text,
 }

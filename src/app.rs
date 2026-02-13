@@ -9,6 +9,9 @@ use iced::{font, Element, Point, Size, Subscription, Task, Theme};
 
 use crate::state::{access_state, clone_state_to_runtime, IpgIds, IpgState, IpgContainers, IpgWidgets};
 use crate::widgets::button::{button_callback, construct_button, BTNMessage};
+use crate::widgets::column::construct_column;
+use crate::widgets::container::construct_container;
+use crate::widgets::row::construct_row;
 use crate::widgets::window::{IpgWindow, IpgWindowMode};
 
 #[derive(Debug, Clone)]
@@ -311,8 +314,26 @@ fn get_container<'a>(
                 // Window just wraps content in a column
                 Column::with_children(content).into()
             }
-            // Add other containers as needed
-            _ => Column::with_children(content).into(),
+            IpgContainers::IpgColumn(col) => {
+                construct_column(col, content)
+            },
+            IpgContainers::IpgContainer(con) => {
+                if content.len() > 1 {
+                        panic!("A container can have only one widget, place your multiple widgets into a column or row")
+                    }
+                    let style_opt = 
+                        match con.style_id {
+                            Some(id) => {
+                                state.widgets.get(&id)
+                            },
+                            None => None,
+                        };
+
+                    construct_container(con, content, style_opt)
+            },
+            IpgContainers::IpgRow(row) => {
+                construct_row(row, content)
+            },
         },
         None => panic!("Container not found in fn get_container id={}", id),
     }

@@ -1,0 +1,159 @@
+//! Container module - provides add_containern pyfunction
+#![allow(unused)]
+
+use iced::Color;
+use pyo3::prelude::*;
+use pyo3::{Py, PyAny, pyfunction};
+type PyObject = Py<PyAny>;
+
+use crate::graphics::colors::{IpgColor, get_color};
+use crate::py_api::helpers::{get_height, get_padding_f64, get_width};
+use crate::state::{IpgContainers, IpgWidgets, access_state, get_id, set_state_cont_wnd_ids, set_state_of_container};
+use crate::widgets::container::{IpgContainer, IpgContainerStyle};
+use crate::widgets::enums::{IpgHorizontalAlignment, IpgVerticalAlignment};
+
+/// Add a container widget.
+///
+/// Returns the widget ID.
+#[pyfunction]
+#[pyo3(signature = (
+    window_id, 
+    container_id, 
+    parent_id=None,
+    width=None, 
+    width_fill=false, 
+    height=None, 
+    height_fill=false, 
+    clip=false, 
+    centered=true,
+    max_height=f32::INFINITY, 
+    max_width=f32::INFINITY,
+    align_x=IpgHorizontalAlignment::Left, 
+    align_y=IpgVerticalAlignment::Top,
+    padding=vec![0.0], 
+    show=true, 
+    style_id=None, 
+    ))]
+pub fn add_container(
+    window_id: String,
+    container_id: String,
+    // **above required
+    parent_id: Option<String>,
+    width: Option<f32>,
+    width_fill: bool,
+    height: Option<f32>,
+    height_fill: bool,
+    clip: bool,
+    centered: bool,
+    max_height: f32,
+    max_width: f32,
+    mut align_x: IpgHorizontalAlignment,
+    mut align_y: IpgVerticalAlignment, 
+    padding: Vec<f64>, 
+    show: bool,
+    style_id: Option<usize>,
+    ) -> PyResult<usize>
+{
+    let id = get_id(None);
+
+    let width = get_width(width, width_fill);
+    let height = get_height(height, height_fill);
+    let padding = get_padding_f64(padding);
+    
+    let prt_id = match parent_id {
+        Some(id) => id,
+        None => window_id.clone(),
+    };
+
+    if centered {
+        align_x = IpgHorizontalAlignment::Center;
+        align_y = IpgVerticalAlignment::Center;
+    };
+
+    set_state_of_container(id, window_id.clone(), Some(container_id.clone()), prt_id);
+
+    let mut state = access_state();
+
+    set_state_cont_wnd_ids(&mut state, &window_id, container_id, id, "add_container".to_string());
+
+    state.containers.insert(id, IpgContainers::IpgContainer(
+        IpgContainer::new(
+            id,
+            show,
+            padding,
+            width,
+            height,
+            max_width,
+            max_height,
+            align_x,
+            align_y,
+            clip,
+            style_id, 
+        )));
+
+    drop(state);
+    Ok(id)
+
+}
+
+#[pyfunction]
+#[pyo3(signature = (
+    background_color=None, 
+    background_rgba=None,
+    border_color=None, 
+    border_rgba=None,
+    border_radius = vec![0.0], 
+    border_width=0.0,
+    shadow_color=None, 
+    shadow_rgba=None,
+    shadow_offset_xy=[0.0, 0.0],
+    shadow_blur_radius=0.0,
+    text_color=None, 
+    text_rgba=None,
+    gen_id=None
+    ))]
+pub fn add_container_style(
+    background_color: Option<IpgColor>,
+    background_rgba: Option<[f32; 4]>,
+    border_color: Option<IpgColor>,
+    border_rgba: Option<[f32; 4]>,
+    border_radius: Vec<f32>,
+    border_width: f32,
+    shadow_color: Option<IpgColor>,
+    shadow_rgba: Option<[f32; 4]>,
+    shadow_offset_xy: [f32; 2],
+    shadow_blur_radius: f32,
+    text_color: Option<IpgColor>,
+    text_rgba: Option<[f32; 4]>,
+    gen_id: Option<usize>,
+    ) -> PyResult<usize>
+{
+    let id = get_id(gen_id);
+
+    let background_color: Option<Color> = 
+        get_color(background_rgba, background_color, 1.0, false);
+    let border_color: Option<Color> = 
+        get_color(border_rgba, border_color, 1.0, false);
+    let shadow: Option<Color> = 
+        get_color(shadow_rgba, shadow_color, 1.0, false);
+    let text_color: Option<Color> = 
+        get_color(text_rgba, text_color, 1.0, false);
+
+    let mut state = access_state();
+
+    state.widgets.insert(id, IpgWidgets::IpgContainerStyle(
+        IpgContainerStyle::new( 
+            id,
+            background_color,
+            border_color,
+            border_radius,
+            border_width,
+            shadow,
+            shadow_offset_xy,
+            shadow_blur_radius,
+            text_color,
+            )));
+
+    drop(state);
+    Ok(id)
+}

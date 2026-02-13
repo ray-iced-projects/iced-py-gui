@@ -1,9 +1,11 @@
 //! helpers
+#![allow(unused)]
 use std::collections::HashMap;
 
-use crate::widgets::colors::IpgColor;
+use crate::graphics::colors::IpgColor;
 use crate::widgets::styling::IpgStyleStandard;
 use crate::access_state;
+
 use iced::border::Radius;
 use iced::{window, Alignment, Pixels};
 use iced::{alignment::{Horizontal, Vertical}, Length, Padding};
@@ -16,23 +18,6 @@ type PyObject = Py<PyAny>;
 
 use crate::widgets::enums::{IpgAlignment, IpgHorizontalAlignment, IpgVerticalAlignment};
 
-pub fn check_for_dup_container_ids(id: usize, container_id: Option<String>) {
-
-    let state = access_state();
-    
-    let parents = match state.ids_ipd_ids.get(&id) {
-        Some(ids) => ids,
-        None => panic!("Ids in check_for_dup_container_ids not found")
-    };
-
-    for parent in parents {
-        if container_id == parent.container_id {
-            panic!("Container Id {:?} is not unique", container_id);
-        }
-    }
-    
-    drop(state);
-}
 
 pub fn find_key_for_value(ids: HashMap<window::Id, usize>, value: usize) -> window::Id {
     let state = access_state();

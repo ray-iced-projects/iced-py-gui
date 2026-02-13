@@ -1,16 +1,17 @@
 //! Window module - provides add_window pyfunction
-
+#![allow(unused)]
 use iced::window::Position;
 use iced::{Point, Size};
 use pyo3::prelude::*;
-use pyo3::{Py, PyAny, pyfunction};
+use pyo3::{pyfunction, Py, PyAny};
+type PyObject = Py<PyAny>;
 
-use crate::state::{access_state, add_callback_to_mutex, add_user_data_to_mutex, IpgIds, IpgContainers};
+use crate::state::{IpgContainers, IpgIds, access_state, 
+    add_callback_to_mutex, add_user_data_to_mutex, get_id};
 use crate::widgets::window::{
     IpgWindow, IpgWindowLevel, IpgWindowMode, IpgWindowTheme,
 };
 
-type PyObject = Py<PyAny>;
 
 /// Add a window to the application.
 /// 
@@ -68,14 +69,7 @@ pub fn add_window(
 ) -> PyResult<usize> {
     let mut state = access_state();
     
-    // Get or generate ID
-    let id = match gen_id {
-        Some(gid) => gid,
-        None => {
-            state.last_id += 1;
-            state.last_id
-        }
-    };
+    let id = get_id(gen_id);
 
     // Build window position
     let mut window_position = Position::Default;

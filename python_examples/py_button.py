@@ -1,6 +1,6 @@
-from icedpygui import add_window, add_button, start_session
+from icedpygui import add_window, add_container, add_column, add_row, add_button, start_session
 from icedpygui import IpgColor, IpgWindowTheme, IpgAlignment
-from icedpygui import IpgStyleStandard, IpgButtonArrow
+from icedpygui import IpgStyleStandard, IpgButtonArrow, add_button_style
 from icedpygui import IpgHorizontalAlignment, IpgVerticalAlignment
 
 

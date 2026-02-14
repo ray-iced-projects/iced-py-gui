@@ -345,7 +345,13 @@ fn get_widget<'a>(state: &'a IpgState, id: &usize) -> Option<Element<'a, Message
     match widget_opt {
         Some(widget) => match widget {
             IpgWidgets::IpgButton(btn) => {
-                construct_button(btn)
+                let style_opt = match btn.style_id {
+                        Some(id) => {
+                            state.widgets.get(&id)
+                        },
+                        None => None,
+                    };
+                construct_button(btn, style_opt)
             }
             // Add other widgets as needed
             _ => None,

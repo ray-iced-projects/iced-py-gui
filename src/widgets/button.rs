@@ -1,8 +1,7 @@
 //! Button widget definition
 #![allow(unused)]
-use iced::widget::button::{Status, Style};
-use iced::widget::{text, Button};
-use iced::{alignment, Border, Color, Element, Length, Padding, Shadow, Theme};
+use iced::widget::{button, text, Button};
+use iced::{alignment, Border, Color, Element, Length, Padding, Shadow, Theme, Vector};
 use pyo3::{Py, PyAny, Python, pyclass};
 type PyObject = Py<PyAny>;
 
@@ -10,11 +9,11 @@ use crate::access_callbacks;
 use crate::access_user_data1;
 use crate::app::Message;
 use crate::graphics::bootstrap::{self, icon_to_char, icon_to_string};
-use crate::graphics::colors::get_color;
+use crate::graphics::colors::{IpgColor, get_color};
 use crate::py_api::ipg_column;
 use crate::state::IpgWidgets;
 use super::styling::IpgStyleStandard;
-use crate::py_api::helpers::{get_height, get_horizontal_alignment, get_padding_f64, get_vertical_alignment, get_width, try_extract_boolean, try_extract_f32, try_extract_f64, try_extract_ipg_color, try_extract_ipg_horizontal_alignment, try_extract_ipg_vertical_alignment, try_extract_rgba_color, try_extract_string, try_extract_style_standard, try_extract_vec_f32, try_extract_vec_f64};
+use crate::py_api::helpers::{get_height, get_horizontal_alignment, get_padding_f64, get_radius, get_vertical_alignment, get_width, try_extract_boolean, try_extract_f32, try_extract_f64, try_extract_f64_option, try_extract_ipg_color, try_extract_ipg_horizontal_alignment, try_extract_ipg_vertical_alignment, try_extract_rgba_color, try_extract_string, try_extract_style_standard, try_extract_vec_f32, try_extract_vec_f64};
 
 #[derive(Debug, Clone)]
 pub struct IpgButton {
@@ -30,7 +29,7 @@ pub struct IpgButton {
     pub text_size: f32,
     pub clip: bool,
     pub style_id: Option<usize>,
-    pub style_standard: Option<IpgStyleStandard>,
+    pub style_standard: Option<IpgButtonStyleStandard>,
     pub style_arrow: Option<IpgButtonArrow>,
 }
 
@@ -48,7 +47,7 @@ impl IpgButton {
         text_size: f32,
         clip: bool,
         style_id: Option<usize>,
-        style_standard: Option<IpgStyleStandard>,
+        style_standard: Option<IpgButtonStyleStandard>,
         style_arrow: Option<IpgButtonArrow>,
     ) -> Self {
         Self {
@@ -75,10 +74,16 @@ pub enum BTNMessage {
     OnPress,
 }
 
-pub fn construct_button(btn: &IpgButton) -> Option<Element<'_, Message>> {
+pub fn construct_button<'a>(
+    btn: &'a IpgButton, 
+    style_widget: Option<&IpgWidgets>,
+    ) -> Option<Element<'a, Message>> {
+    
     if !btn.show {
         return None;
     }
+
+    let style_opt = extract_btn_style(style_widget);
 
     let label = if btn.style_arrow.is_some() {
         let arrow = get_bootstrap_arrow(&btn.style_arrow);
@@ -90,20 +95,28 @@ pub fn construct_button(btn: &IpgButton) -> Option<Element<'_, Message>> {
         .size(btn.text_size)
     };
 
-    let style_standard = btn.style_standard.clone();
-    
-    let ipg_btn: Element<BTNMessage> = Button::new(label)
-        .height(btn.height)
-        .padding(btn.padding)
-        .width(btn.width)
-        .on_press(BTNMessage::OnPress)
-        .clip(btn.clip)
-        .style(move |theme: &Theme, status| {
-            get_styling(theme, status, style_standard.clone())
-        })
-        .into();
+    let ipg_btn: Element<BTNMessage> = 
+        Button::new(label)
+            .height(btn.height)
+            .padding(btn.padding)
+            .width(btn.width)
+            .on_press(BTNMessage::OnPress)
+            .clip(btn.clip)
+            .style(move |theme: &Theme, status| {
+                get_styling(theme, status, &style_opt, &btn.style_standard)
+            })
+            .into();
 
     Some(ipg_btn.map(move |message| Message::Button(btn.id, message)))
+}
+
+pub fn extract_btn_style(style: Option<&IpgWidgets>) -> Option<IpgButtonStyle>{
+    match style {
+        Some(IpgWidgets::IpgButtonStyle(style)) => {
+            Some(style.clone())
+        }
+        _ => None,
+    }
 }
 
 pub fn button_callback(id: usize, message: BTNMessage) {
@@ -113,7 +126,6 @@ pub fn button_callback(id: usize, message: BTNMessage) {
         }
     }
 }
-
 
 fn process_callback(id: usize, event_name: String) {
     
@@ -170,13 +182,14 @@ pub struct IpgButtonStyle {
     pub id: usize,
     pub background_color: Option<Color>,
     pub background_color_hovered: Option<Color>,
+    background_color_disabled: Option<Color>,
     pub border_color: Option<Color>,
-    pub border_radius: Vec<f32>,
-    pub border_width: f32,
+    pub border_radius: Option<Vec<f32>>,
+    pub border_width: Option<f32>,
     pub shadow_color: Option<Color>,
-    pub shadow_offset_x: f32,
-    pub shadow_offset_y: f32,
-    pub shadow_blur_radius: f32,
+    pub shadow_offset_x: Option<f32>,
+    pub shadow_offset_y: Option<f32>,
+    pub shadow_blur_radius: Option<f32>,
     pub text_color: Option<Color>,
 }
 
@@ -185,19 +198,21 @@ impl IpgButtonStyle {
         id: usize,
         background_color: Option<Color>,
         background_color_hovered: Option<Color>,
+        background_color_disabled: Option<Color>,
         border_color: Option<Color>,
-        border_radius: Vec<f32>,
-        border_width: f32,
+        border_radius: Option<Vec<f32>>,
+        border_width: Option<f32>,
         shadow_color: Option<Color>,
-        shadow_offset_x: f32,
-        shadow_offset_y: f32,
-        shadow_blur_radius: f32,
+        shadow_offset_x: Option<f32>,
+        shadow_offset_y: Option<f32>,
+        shadow_blur_radius: Option<f32>,
         text_color: Option<Color>,
     ) -> Self {
         Self {
             id,
             background_color,
             background_color_hovered,
+            background_color_disabled,
             border_color,
             border_radius,
             border_width,
@@ -210,99 +225,132 @@ impl IpgButtonStyle {
     }
 }
 
-fn get_styling(theme: &Theme, status: Status, style_standard: Option<IpgStyleStandard>) -> Style {
-    match style_standard {
-        Some(IpgStyleStandard::Primary) => match status {
-            Status::Active | Status::Pressed => {
-                Style {
-                    background: Some(iced::Background::Color(Color::from_rgb(0.0, 0.478, 1.0))),
-                    text_color: Color::WHITE,
-                    border: Border::default().rounded(4.0),
-                    shadow: Shadow::default(),
-                    snap: false,
+pub fn get_styling(theme: &Theme, status: button::Status,
+                    style_opt: &Option<IpgButtonStyle>,
+                    style_standard: &Option<IpgButtonStyleStandard>,
+                    ) -> button::Style 
+{
+
+    match (style_standard.is_some(), style_opt.is_some()) {
+        (false, false) => button::primary(theme, status),
+        (true, false) => get_standard_style(theme, status, &style_standard),
+        // user modified primary standard | user modified a selected standard
+        (false, true) | (true, true) => {
+
+            let mut style = if let Some(_) = style_standard {
+                get_standard_style(theme, status, &style_standard)
+            } else {
+                button::primary(theme, status)
+            };
+
+            let user_style = style_opt.clone().unwrap();
+
+            if let Some(color) = user_style.background_color {
+                if status == button::Status::Active || status == button::Status::Pressed {
+                    style.background = Some(color.into());
                 }
             }
-            Status::Hovered => {
-                Style {
-                    background: Some(iced::Background::Color(Color::from_rgb(0.0, 0.4, 0.8))),
-                    text_color: Color::WHITE,
-                    border: Border::default().rounded(4.0),
-                    shadow: Shadow::default(),
-                    snap: false,
+
+            if let Some(color) = user_style.background_color_hovered {
+                if status == button::Status::Hovered {
+                    style.background = Some(color.into());
                 }
             }
-            Status::Disabled => {
-                Style {
-                    background: Some(iced::Background::Color(Color::from_rgb(0.5, 0.5, 0.5))),
-                    text_color: Color::from_rgb(0.7, 0.7, 0.7),
-                    border: Border::default().rounded(4.0),
-                    shadow: Shadow::default(),
-                    snap: false,
+
+            if let Some(color) = user_style.background_color_disabled {
+                if status == button::Status::Disabled {
+                    style.background = Some(color.into());
                 }
             }
-        },
-        Some(IpgStyleStandard::Success) => match status {
-            Status::Active | Status::Pressed => {
-                Style {
-                    background: Some(iced::Background::Color(Color::from_rgb(0.157, 0.655, 0.271))),
-                    text_color: Color::WHITE,
-                    border: Border::default().rounded(4.0),
-                    shadow: Shadow::default(),
-                    snap: false,
-                }
+        
+            if let Some(color) = user_style.border_color {
+                style.border.color = color;
             }
-            Status::Hovered => {
-                Style {
-                    background: Some(iced::Background::Color(Color::from_rgb(0.1, 0.5, 0.2))),
-                    text_color: Color::WHITE,
-                    border: Border::default().rounded(4.0),
-                    shadow: Shadow::default(),
-                    snap: false,
-                }
+
+            if let Some(radius) = user_style.border_radius.clone() {
+                style.border.radius = get_radius(radius, "Button".to_string());
             }
-            Status::Disabled => {
-                Style {
-                    background: Some(iced::Background::Color(Color::from_rgb(0.5, 0.5, 0.5))),
-                    text_color: Color::from_rgb(0.7, 0.7, 0.7),
-                    border: Border::default().rounded(4.0),
-                    shadow: Shadow::default(),
-                    snap: false,
-                }
+
+            if let Some(width) = user_style.border_width {
+                style.border.width = width;
             }
-        },
-        Some(IpgStyleStandard::Danger) => match status {
-            Status::Active | Status::Pressed => {
-                Style {
-                    background: Some(iced::Background::Color(Color::from_rgb(0.863, 0.208, 0.271))),
-                    text_color: Color::WHITE,
-                    border: Border::default().rounded(4.0),
-                    shadow: Shadow::default(),
-                    snap: false,
-                }
+
+            if let Some(color) = user_style.shadow_color {
+                style.shadow.color = color;
             }
-            Status::Hovered => {
-                Style {
-                    background: Some(iced::Background::Color(Color::from_rgb(0.7, 0.15, 0.2))),
-                    text_color: Color::WHITE,
-                    border: Border::default().rounded(4.0),
-                    shadow: Shadow::default(),
-                    snap: false,
-                }
+
+            if let Some(offset_x) = user_style.shadow_offset_x {
+                style.shadow.offset = Vector::new(
+                    offset_x,
+                    user_style.shadow_offset_y.unwrap_or(style.shadow.offset.y),
+                );
             }
-            Status::Disabled => {
-                Style {
-                    background: Some(iced::Background::Color(Color::from_rgb(0.5, 0.5, 0.5))),
-                    text_color: Color::from_rgb(0.7, 0.7, 0.7),
-                    border: Border::default().rounded(4.0),
-                    shadow: Shadow::default(),
-                    snap: false,
-                }
+
+            if let Some(offset_y) = user_style.shadow_offset_y {
+                style.shadow.offset = Vector::new(
+                    user_style.shadow_offset_x.unwrap_or(style.shadow.offset.x),
+                    offset_y,
+                );
             }
-        },
-        _ => {
-            // Default styling from theme
-            iced::widget::button::primary(theme, status)
+
+            if let Some(blur_radius) = user_style.shadow_blur_radius {
+                style.shadow.blur_radius = blur_radius;
+            }
+
+            if let Some(color) = user_style.text_color {
+                style.text_color = color;
+            }
+
+            style
         }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq)]
+#[pyclass(eq, eq_int)]
+pub enum IpgButtonStyleStandard {
+    Background,
+    Danger,
+    Primary,
+    Secondary,
+    Subtle,
+    Success,
+    Warning,
+    Text,
+}
+
+fn get_standard_style(
+    theme: &Theme, 
+    status: button::Status, 
+    style_standard: &Option<IpgButtonStyleStandard>
+    ) -> button::Style {
+    
+    match style_standard {
+        Some(IpgButtonStyleStandard::Background) => {
+            button::background(theme, status)
+        },
+        Some(IpgButtonStyleStandard::Danger) => {
+            button::danger(theme, status)
+        },
+        Some(IpgButtonStyleStandard::Primary) => {
+            button::primary(theme, status)
+        },
+        Some(IpgButtonStyleStandard::Secondary) => {
+            button::secondary(theme, status)
+        },
+        Some(IpgButtonStyleStandard::Subtle) => {
+            button::subtle(theme, status)
+        },
+        Some(IpgButtonStyleStandard::Success) => {
+            button::success(theme, status)
+        },
+        Some(IpgButtonStyleStandard::Warning) => {
+            button::warning(theme, status)
+        },
+        Some(IpgButtonStyleStandard::Text) => {
+            button::text(theme, status)
+        },
+        None => button::primary(theme, status),
     }
 }
 
@@ -360,7 +408,7 @@ pub fn button_item_update(btn: &mut IpgButton,
             btn.style_id = Some(try_extract_f64(value, name) as usize);
         },
         IpgButtonParam::StyleStandard => {
-            btn.style_standard = Some(try_extract_style_standard(value, name));
+            btn.style_standard = Some(try_extract_button_style_standard(value, name));
         },
         IpgButtonParam::TextAlignX => {
             let h_align = try_extract_ipg_horizontal_alignment(value).unwrap();
@@ -385,6 +433,21 @@ pub fn button_item_update(btn: &mut IpgButton,
 
 }
 
+fn try_extract_button_style_standard(
+    value: &PyObject, 
+    name: String,
+    ) -> IpgButtonStyleStandard {
+    
+    Python::attach(|py| {
+
+        let res = 
+            value.extract::<IpgButtonStyleStandard>(py);
+        match res {
+            Ok(val) => val,
+            Err(_) => panic!("{}-Unable to extract python object for ButtonStyleStandard", name),
+        }
+    })
+}
 #[derive(Debug, Clone, PartialEq)]
 #[pyclass(eq, eq_int)]
 pub enum IpgButtonStyleParam {
@@ -436,10 +499,10 @@ pub fn button_style_update_item(style: &mut IpgButtonStyle,
         },
         IpgButtonStyleParam::BorderRadius => {
             dbg!(&value);
-            style.border_radius = try_extract_vec_f32(value, name);
+            style.border_radius = Some(try_extract_vec_f32(value, name));
         },
         IpgButtonStyleParam::BorderWidth => {
-            style.border_width = try_extract_f64(value, name) as f32;
+            style.border_width = Some(try_extract_f64(value, name) as f32);
         },
         IpgButtonStyleParam::ShadowIpgColor => {
             let color = try_extract_ipg_color(value, name);
@@ -449,13 +512,13 @@ pub fn button_style_update_item(style: &mut IpgButtonStyle,
             style.border_color = Some(Color::from(try_extract_rgba_color(value, name)));
         },
         IpgButtonStyleParam::ShadowOffsetX => {
-            style.shadow_offset_x = try_extract_f64(value, name) as f32;
+            style.shadow_offset_x = Some(try_extract_f64(value, name) as f32);
         },
         IpgButtonStyleParam::ShadowOffsetY => {
-            style.shadow_offset_y = try_extract_f64(value, name) as f32;
+            style.shadow_offset_y = Some(try_extract_f64(value, name) as f32);
         },
         IpgButtonStyleParam::ShadowBlurRadius => {
-            style.shadow_blur_radius = try_extract_f64(value, name) as f32;
+            style.shadow_blur_radius = Some(try_extract_f64(value, name) as f32);
         },
         IpgButtonStyleParam::TextIpgColor => {
             let color = try_extract_ipg_color(value, name);
@@ -464,96 +527,6 @@ pub fn button_style_update_item(style: &mut IpgButtonStyle,
         IpgButtonStyleParam::TextRgbaColor => {
             style.text_color = Some(Color::from(try_extract_rgba_color(value, name)));
         },
-    }
-}
-
-pub fn get_btn_style(style: Option<&IpgWidgets>) -> Option<IpgButtonStyle>{
-    match style {
-        Some(IpgWidgets::IpgButtonStyle(style)) => {
-            Some(style.clone())
-        }
-        _ => None,
-    }
-}
-
-pub fn get_standard_style(theme: &Theme, status: Status, 
-                            std_style: Option<IpgStyleStandard>,
-                            border: Option<Border>, shadow: Option<Shadow>) -> Style {
-
-    match std_style {
-        Some(IpgStyleStandard::Primary) => {
-            let mut style = iced::widget::button::primary(theme, status);
-            if border.is_some() {
-                style.border = border.unwrap();
-            }
-            if shadow.is_some() {
-                style.shadow = shadow.unwrap();
-            }
-            style
-        },
-        Some(IpgStyleStandard::Secondary) => {
-            let mut style = iced::widget::button::secondary(theme, status);
-            if border.is_some() {
-                style.border = border.unwrap();
-            }
-            if shadow.is_some() {
-                style.shadow = shadow.unwrap();
-            }
-            style
-        },
-        Some(IpgStyleStandard::Success) => {
-            let mut style = iced::widget::button::success(theme, status);
-            if border.is_some() {
-                style.border = border.unwrap();
-            }
-            if shadow.is_some() {
-                style.shadow = shadow.unwrap();
-            }
-            style
-        },
-        Some(IpgStyleStandard::Danger) => {
-            let mut style = iced::widget::button::danger(theme, status);
-            if border.is_some() {
-                style.border = border.unwrap();
-            }
-            if shadow.is_some() {
-                style.shadow = shadow.unwrap();
-            }
-            style
-        },
-        Some(IpgStyleStandard::Warning) => {
-            let mut style = iced::widget::button::warning(theme, status);
-            if border.is_some() {
-                style.border = border.unwrap();
-            }
-            if shadow.is_some() {
-                style.shadow = shadow.unwrap();
-            }
-            style
-        },
-        Some(IpgStyleStandard::Text) => {
-            iced::widget::button::text(theme, status)
-        },
-        None => {
-            let mut style = iced::widget::button::primary(theme, status);
-            if border.is_some() {
-                style.border = border.unwrap();
-            }
-            if shadow.is_some() {
-                style.shadow = shadow.unwrap();
-            }
-            style
-        }
-    }
-}
-
-fn disabled(style: Style) -> Style {
-    Style {
-        background: style
-            .background
-            .map(|background| background.scale_alpha(0.5)),
-        text_color: style.text_color.scale_alpha(0.5),
-        ..style
     }
 }
 

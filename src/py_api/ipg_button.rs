@@ -11,7 +11,7 @@ use crate::graphics::colors::{IpgColor, get_color};
 use crate::py_api::helpers::{get_height, get_padding_f64, get_width};
 use crate::state::{IpgWidgets, access_state, add_callback_to_mutex, get_id, set_state_of_widget};
 use crate::widgets::enums::{IpgHorizontalAlignment, IpgVerticalAlignment};
-use crate::widgets::button::{IpgButton, IpgButtonArrow, IpgButtonStyle};
+use crate::widgets::button::{IpgButton, IpgButtonArrow, IpgButtonStyle, IpgButtonStyleStandard};
 use crate::widgets::styling::IpgStyleStandard;
 
 
@@ -54,7 +54,7 @@ pub fn add_button(
     text_size: f32,
     clip: bool,
     style_id: Option<usize>,
-    style_standard: Option<IpgStyleStandard>,
+    style_standard: Option<IpgButtonStyleStandard>,
     style_arrow: Option<IpgButtonArrow>,
     user_data: Option<PyObject>,
     show: bool,
@@ -115,6 +115,8 @@ pub fn add_button(
         background_rgba=None,
         background_color_hovered=None, 
         background_rgba_hovered=None,
+        background_color_disabled=None, 
+        background_rgba_disabled=None,
         border_color=None, 
         border_rgba=None,
         border_radius=vec![0.0], 
@@ -133,15 +135,17 @@ pub fn add_button_style(
     background_rgba: Option<[f32; 4]>,
     background_color_hovered: Option<IpgColor>,
     background_rgba_hovered: Option<[f32; 4]>,
+    background_color_disabled: Option<IpgColor>,
+    background_rgba_disabled: Option<[f32; 4]>,
     border_color: Option<IpgColor>,
     border_rgba: Option<[f32; 4]>,
-    border_radius: Vec<f32>,
-    border_width: f32,
+    border_radius: Option<Vec<f32>>,
+    border_width: Option<f32>,
     shadow_color: Option<IpgColor>,
     shadow_rgba: Option<[f32; 4]>,
-    shadow_offset_x: f32,
-    shadow_offset_y: f32,
-    shadow_blur_radius: f32,
+    shadow_offset_x: Option<f32>,
+    shadow_offset_y: Option<f32>,
+    shadow_blur_radius: Option<f32>,
     text_color: Option<IpgColor>,
     text_rgba: Option<[f32; 4]>,
     gen_id: Option<usize>,
@@ -153,6 +157,8 @@ pub fn add_button_style(
         get_color(background_rgba, background_color, 1.0, false);
     let background_color_hovered: Option<Color> = 
         get_color(background_rgba_hovered, background_color_hovered, 1.0, false);
+    let background_color_disabled: Option<Color> = 
+        get_color(background_rgba_disabled, background_color_disabled, 1.0, false);
     let border_color: Option<Color> = 
         get_color(border_rgba, border_color, 1.0, false);
     let shadow_color: Option<Color> = 
@@ -167,6 +173,7 @@ pub fn add_button_style(
             id,
             background_color,
             background_color_hovered,
+            background_color_disabled,
             border_color,
             border_radius,
             border_width,

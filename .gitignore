@@ -16,3 +16,6 @@ Cargo.lock
 icedpygui/__pycache__/__init__.cpython-314.pyc
 icedpygui/icedpygui.cpython-314-x86_64-linux-gnu.so
 py_example/__pycache__/callbacks.cpython-314.pyc
+icedpygui/__pycache__/__init__.cpython-312.pyc
+icedpygui/icedpygui.cpython-312-x86_64-linux-gnu.so
+py_example/__pycache__/callbacks.cpython-312.pyc

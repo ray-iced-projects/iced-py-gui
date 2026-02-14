@@ -223,6 +223,65 @@ impl IpgButtonStyle {
             text_color,
         }
     }
+
+    /// Apply user-defined style overrides to an existing iced button::Style
+    pub fn apply_to(&self, style: &mut button::Style, status: button::Status) {
+        if let Some(color) = self.background_color {
+            if status == button::Status::Active || status == button::Status::Pressed {
+                style.background = Some(color.into());
+            }
+        }
+
+        if let Some(color) = self.background_color_hovered {
+            if status == button::Status::Hovered {
+                style.background = Some(color.into());
+            }
+        }
+
+        if let Some(color) = self.background_color_disabled {
+            if status == button::Status::Disabled {
+                style.background = Some(color.into());
+            }
+        }
+
+        if let Some(color) = self.border_color {
+            style.border.color = color;
+        }
+
+        if let Some(ref radius) = self.border_radius {
+            style.border.radius = get_radius(radius.clone(), "Button".to_string());
+        }
+
+        if let Some(width) = self.border_width {
+            style.border.width = width;
+        }
+
+        if let Some(color) = self.shadow_color {
+            style.shadow.color = color;
+        }
+
+        if let Some(offset_x) = self.shadow_offset_x {
+            style.shadow.offset = Vector::new(
+                offset_x,
+                self.shadow_offset_y.unwrap_or(style.shadow.offset.y),
+            );
+        }
+
+        if let Some(offset_y) = self.shadow_offset_y {
+            style.shadow.offset = Vector::new(
+                self.shadow_offset_x.unwrap_or(style.shadow.offset.x),
+                offset_y,
+            );
+        }
+
+        if let Some(blur_radius) = self.shadow_blur_radius {
+            style.shadow.blur_radius = blur_radius;
+        }
+
+        if let Some(color) = self.text_color {
+            style.text_color = color;
+        }
+    }
 }
 
 pub fn get_styling(theme: &Theme, status: button::Status,
@@ -230,80 +289,16 @@ pub fn get_styling(theme: &Theme, status: button::Status,
                     style_standard: &Option<IpgButtonStyleStandard>,
                     ) -> button::Style 
 {
+    let mut style = match style_standard {
+        Some(_) => get_standard_style(theme, status, style_standard),
+        None => button::primary(theme, status),
+    };
 
-    match (style_standard.is_some(), style_opt.is_some()) {
-        (false, false) => button::primary(theme, status),
-        (true, false) => get_standard_style(theme, status, &style_standard),
-        // user modified primary standard | user modified a selected standard
-        (false, true) | (true, true) => {
-
-            let mut style = if let Some(_) = style_standard {
-                get_standard_style(theme, status, &style_standard)
-            } else {
-                button::primary(theme, status)
-            };
-
-            let user_style = style_opt.clone().unwrap();
-
-            if let Some(color) = user_style.background_color {
-                if status == button::Status::Active || status == button::Status::Pressed {
-                    style.background = Some(color.into());
-                }
-            }
-
-            if let Some(color) = user_style.background_color_hovered {
-                if status == button::Status::Hovered {
-                    style.background = Some(color.into());
-                }
-            }
-
-            if let Some(color) = user_style.background_color_disabled {
-                if status == button::Status::Disabled {
-                    style.background = Some(color.into());
-                }
-            }
-        
-            if let Some(color) = user_style.border_color {
-                style.border.color = color;
-            }
-
-            if let Some(radius) = user_style.border_radius.clone() {
-                style.border.radius = get_radius(radius, "Button".to_string());
-            }
-
-            if let Some(width) = user_style.border_width {
-                style.border.width = width;
-            }
-
-            if let Some(color) = user_style.shadow_color {
-                style.shadow.color = color;
-            }
-
-            if let Some(offset_x) = user_style.shadow_offset_x {
-                style.shadow.offset = Vector::new(
-                    offset_x,
-                    user_style.shadow_offset_y.unwrap_or(style.shadow.offset.y),
-                );
-            }
-
-            if let Some(offset_y) = user_style.shadow_offset_y {
-                style.shadow.offset = Vector::new(
-                    user_style.shadow_offset_x.unwrap_or(style.shadow.offset.x),
-                    offset_y,
-                );
-            }
-
-            if let Some(blur_radius) = user_style.shadow_blur_radius {
-                style.shadow.blur_radius = blur_radius;
-            }
-
-            if let Some(color) = user_style.text_color {
-                style.text_color = color;
-            }
-
-            style
-        }
+    if let Some(user_style) = style_opt {
+        user_style.apply_to(&mut style, status);
     }
+
+    style
 }
 
 #[derive(Debug, Clone, PartialEq)]

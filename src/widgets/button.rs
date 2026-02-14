@@ -33,42 +33,6 @@ pub struct IpgButton {
     pub style_arrow: Option<IpgButtonArrow>,
 }
 
-impl IpgButton {
-    pub fn new(
-        id: usize,
-        parent_id: String,
-        show: bool,
-        label: String,
-        width: Length,
-        height: Length,
-        padding: Padding,
-        text_align_x: alignment::Horizontal,
-        text_align_y: alignment::Vertical,
-        text_size: f32,
-        clip: bool,
-        style_id: Option<usize>,
-        style_standard: Option<IpgButtonStyleStandard>,
-        style_arrow: Option<IpgButtonArrow>,
-    ) -> Self {
-        Self {
-            id,
-            parent_id,
-            show,
-            label,
-            width,
-            height,
-            padding,
-            text_align_x,
-            text_align_y,
-            text_size,
-            clip,
-            style_id,
-            style_standard,
-            style_arrow,
-        }
-    }
-}
-
 #[derive(Debug, Clone)]
 pub enum BTNMessage {
     OnPress,
@@ -182,7 +146,7 @@ pub struct IpgButtonStyle {
     pub id: usize,
     pub background_color: Option<Color>,
     pub background_color_hovered: Option<Color>,
-    background_color_disabled: Option<Color>,
+    pub background_color_disabled: Option<Color>,
     pub border_color: Option<Color>,
     pub border_radius: Option<Vec<f32>>,
     pub border_width: Option<f32>,
@@ -194,36 +158,6 @@ pub struct IpgButtonStyle {
 }
 
 impl IpgButtonStyle {
-    pub fn new(
-        id: usize,
-        background_color: Option<Color>,
-        background_color_hovered: Option<Color>,
-        background_color_disabled: Option<Color>,
-        border_color: Option<Color>,
-        border_radius: Option<Vec<f32>>,
-        border_width: Option<f32>,
-        shadow_color: Option<Color>,
-        shadow_offset_x: Option<f32>,
-        shadow_offset_y: Option<f32>,
-        shadow_blur_radius: Option<f32>,
-        text_color: Option<Color>,
-    ) -> Self {
-        Self {
-            id,
-            background_color,
-            background_color_hovered,
-            background_color_disabled,
-            border_color,
-            border_radius,
-            border_width,
-            shadow_color,
-            shadow_offset_x,
-            shadow_offset_y,
-            shadow_blur_radius,
-            text_color,
-        }
-    }
-
     /// Apply user-defined style overrides to an existing iced button::Style
     pub fn apply_to(&self, style: &mut button::Style, status: button::Status) {
         if let Some(color) = self.background_color {

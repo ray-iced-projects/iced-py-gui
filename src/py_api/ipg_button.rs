@@ -87,7 +87,7 @@ pub fn add_button(
     let mut state = access_state();
     state.widgets.insert(
         id,
-        IpgWidgets::IpgButton(IpgButton::new(
+        IpgWidgets::IpgButton(IpgButton {
             id,
             parent_id,
             show,
@@ -95,14 +95,14 @@ pub fn add_button(
             width,
             height,
             padding,
-            align_x,
-            align_y,
+            text_align_x: align_x,
+            text_align_y: align_y,
             text_size,
             clip,
             style_id,
             style_standard,
             style_arrow,
-        )),
+        }),
     );
     drop(state);
 
@@ -169,7 +169,7 @@ pub fn add_button_style(
     let mut state = access_state();
 
     state.widgets.insert(id, IpgWidgets::IpgButtonStyle(
-        IpgButtonStyle::new( 
+        IpgButtonStyle {
             id,
             background_color,
             background_color_hovered,
@@ -182,7 +182,7 @@ pub fn add_button_style(
             shadow_offset_y,
             shadow_blur_radius,
             text_color,
-            )));
+        }));
 
     drop(state);
     Ok(id)

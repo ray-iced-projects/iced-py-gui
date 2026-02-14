@@ -77,7 +77,7 @@ pub fn add_container(
     set_state_cont_wnd_ids(&mut state, &window_id, container_id, id, "add_container".to_string());
 
     state.containers.insert(id, IpgContainers::IpgContainer(
-        IpgContainer::new(
+        IpgContainer {
             id,
             show,
             padding,
@@ -89,7 +89,7 @@ pub fn add_container(
             align_y,
             clip,
             style_id, 
-        )));
+        }));
 
     drop(state);
     Ok(id)
@@ -142,7 +142,7 @@ pub fn add_container_style(
     let mut state = access_state();
 
     state.widgets.insert(id, IpgWidgets::IpgContainerStyle(
-        IpgContainerStyle::new( 
+        IpgContainerStyle {
             id,
             background_color,
             border_color,
@@ -152,7 +152,7 @@ pub fn add_container_style(
             shadow_offset_xy,
             shadow_blur_radius,
             text_color,
-            )));
+        }));
 
     drop(state);
     Ok(id)

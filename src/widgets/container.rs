@@ -33,37 +33,6 @@ pub struct IpgContainer {
     pub clip: bool,
     pub style_id: Option<usize>, 
 }
-
-impl IpgContainer {
-    pub fn new(
-        id: usize,
-        show: bool,
-        padding: Padding,
-        width: Length,
-        height: Length,
-        max_width: f32,
-        max_height: f32,
-        align_x: IpgHorizontalAlignment,
-        align_y: IpgVerticalAlignment,
-        clip: bool,
-        style_id: Option<usize>,
-    ) -> Self {
-        Self {
-            id,
-            show,
-            padding,
-            width,
-            height,
-            max_width,
-            max_height,
-            align_x,
-            align_y,
-            clip,
-            style_id, 
-        }
-    }
-}
-
 #[derive(Debug, Clone)]
 pub struct IpgContainerStyle {
     pub id: usize,

@@ -27,32 +27,6 @@ pub struct IpgColumn {
     pub clip: bool,
 }
 
-impl IpgColumn {
-    pub fn new(
-        id: usize,
-        show: bool,
-        spacing: f32,
-        padding: Padding,
-        width: Length,
-        height: Length,
-        max_width: f32,
-        align: IpgAlignment,
-        clip: bool,
-    ) -> Self {
-        Self {
-            id,
-            show,
-            spacing,
-            padding,
-            width,
-            height,
-            max_width,
-            align,
-            clip,
-        }
-    }
-}
-
 #[derive(Debug, Clone, PartialEq)]
 #[pyclass(eq, eq_int)]
 pub enum IpgColumnParam {

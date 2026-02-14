@@ -65,7 +65,7 @@ pub fn add_column(
 
     state.containers
         .insert(id, IpgContainers::IpgColumn(
-            IpgColumn::new(
+            IpgColumn {
                 id,  
                 show, 
                 spacing, 
@@ -75,7 +75,7 @@ pub fn add_column(
                 max_width, 
                 align,
                 clip,
-            )));
+            }));
 
 drop(state);
 Ok(id)

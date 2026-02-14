@@ -28,6 +28,7 @@ use py_api::ipg_column::add_column;
 use py_api::ipg_container::add_container;
 use py_api::ipg_row::add_row;
 use py_api::session::{start_session, generate_id};
+use py_api::update::update_widget;
 
 // Import enums from widgets module
 use widgets::enums::{IpgAlignment, IpgHorizontalAlignment, IpgVerticalAlignment};
@@ -36,6 +37,7 @@ use widgets::button::IpgButtonArrow;
 use widgets::styling::IpgStyleStandard;
 
 use crate::graphics::colors::IpgColor;
+use crate::widgets::button::{IpgButtonParam, IpgButtonStyleParam};
 
 /// Python module definition
 #[pymodule]
@@ -50,6 +52,7 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(add_column, m)?)?;
     m.add_function(wrap_pyfunction!(add_container, m)?)?;
     m.add_function(wrap_pyfunction!(add_row, m)?)?;
+    m.add_function(wrap_pyfunction!(update_widget, m)?)?;
     
     // styles
     m.add_function(wrap_pyfunction!(add_button_style, m)?)?;
@@ -61,6 +64,8 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<IpgWindowMode>()?;
     m.add_class::<IpgWindowTheme>()?;
     m.add_class::<IpgButtonArrow>()?;
+    m.add_class::<IpgButtonParam>()?;
+    m.add_class::<IpgButtonStyleParam>()?;
     m.add_class::<IpgColor>()?;
     m.add_class::<IpgStyleStandard>()?;
     

@@ -11,6 +11,7 @@ use crate::access_user_data1;
 use crate::app::Message;
 use crate::graphics::bootstrap::{self, icon_to_char, icon_to_string};
 use crate::graphics::colors::get_color;
+use crate::py_api::ipg_column;
 use crate::state::IpgWidgets;
 use super::styling::IpgStyleStandard;
 use crate::py_api::helpers::{get_height, get_horizontal_alignment, get_padding_f64, get_vertical_alignment, get_width, try_extract_boolean, try_extract_f32, try_extract_f64, try_extract_ipg_color, try_extract_ipg_horizontal_alignment, try_extract_ipg_vertical_alignment, try_extract_rgba_color, try_extract_string, try_extract_style_standard, try_extract_vec_f32, try_extract_vec_f64};
@@ -115,21 +116,22 @@ pub fn button_callback(id: usize, message: BTNMessage) {
 
 
 fn process_callback(id: usize, event_name: String) {
+    
     let app_cbs = access_callbacks();
-
+    
     // Retrieve the callback
     let callback = match app_cbs.get(id, &event_name) {
         Some(cb) => Python::attach(|py| cb.clone_ref(py)),
         None => return,
     };
-
+    
     drop(app_cbs);
-
+    
     // Check user data 1
     let user_data_1_lock = access_user_data1();
     let user_data_1_opt = user_data_1_lock.get(id).map(|ud| Python::attach(|py| ud.clone_ref(py)));
     drop(user_data_1_lock);
-
+    
     // Call the callback
     Python::attach(|py| {
         let result = if let Some(user_data) = user_data_1_opt {
@@ -407,6 +409,7 @@ pub fn button_style_update_item(style: &mut IpgButtonStyle,
                                 item: &PyObject,
                                 value: &PyObject,) 
 {
+    dbg!("button_style_update_item");
     let update = try_extract_button_style_update(item);
     let name = "ButtonStyle".to_string();
     match update {
@@ -432,6 +435,7 @@ pub fn button_style_update_item(style: &mut IpgButtonStyle,
             style.border_color = Some(Color::from(try_extract_rgba_color(value, name)));
         },
         IpgButtonStyleParam::BorderRadius => {
+            dbg!(&value);
             style.border_radius = try_extract_vec_f32(value, name);
         },
         IpgButtonStyleParam::BorderWidth => {

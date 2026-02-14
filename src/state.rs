@@ -129,6 +129,32 @@ impl UserData2 {
     }
 }
 
+#[derive(Debug)]
+pub struct UpdateWidgets {
+    // wid, (item, value)
+    pub updates: Vec<(usize, PyObject, PyObject)>, 
+    // window_id_widget_id, (window_id, wid, target_container_str_id, move_after(wid), move_before(wid))
+    pub moves: Vec<(String, usize, String, Option<usize>, Option<usize>)>,
+    // window_id, wid
+    pub deletes: Vec<(String, usize)>,
+    pub shows: Vec<(String, Vec<(usize, bool)>)>,
+    pub dataframes: Vec<(usize, PyObject)>, // PyDataFrame for polar later
+    pub new_widgets: Lazy<HashMap<usize, IpgWidgets>>,
+}
+
+pub static UPDATE_WIDGETS: Mutex<UpdateWidgets> = Mutex::new(UpdateWidgets {
+    updates: vec![],
+    moves: vec![],
+    deletes: vec![],
+    shows: vec![],
+    dataframes: vec![],
+    new_widgets: Lazy::new(||HashMap::new()),
+});
+
+pub fn access_update_widgets() -> MutexGuard<'static, UpdateWidgets> {
+    UPDATE_WIDGETS.lock().unwrap()
+}
+
 // ============================================================================
 // Main State - stores all widget/container definitions before Iced starts
 // ============================================================================

@@ -4382,7 +4382,7 @@ class IPG:
         None
         """
            
-    def update_item(self,
+    def update_widget(self,
                     wid: int, 
                     param: str, 
                     value: any,

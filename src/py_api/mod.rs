@@ -11,3 +11,4 @@ pub mod ipg_row;
 pub mod ipg_window;
 pub mod session;
 pub mod helpers;
+pub mod update;

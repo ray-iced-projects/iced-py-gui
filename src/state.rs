@@ -11,11 +11,11 @@ use iced::Theme;
 use once_cell::sync::Lazy;
 use pyo3::{Py, PyAny};
 
-use crate::widgets::column::IpgColumn;
-use crate::widgets::container::{IpgContainer, IpgContainerStyle};
-use crate::widgets::row::IpgRow;
-use crate::widgets::window::IpgWindow;
-use crate::widgets::button::{IpgButton, IpgButtonStyle};
+use crate::widgets::ipg_column::IpgColumn;
+use crate::widgets::ipg_container::{IpgContainer, IpgContainerStyle};
+use crate::widgets::ipg_row::IpgRow;
+use crate::widgets::ipg_window::IpgWindow;
+use crate::widgets::ipg_button::{IpgButton, IpgButtonStyle};
 
 // Type alias to replace deprecated PyObject
 type PyObject = Py<PyAny>;

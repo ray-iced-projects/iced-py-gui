@@ -1,5 +1,5 @@
 from icedpygui import IPG, IpgColor
-from icedpygui import IpgStyleStandard, IpgSeparatorType
+from icedpygui import IpgButtonStyleStandard, IpgSeparatorType
 from icedpygui import IpgMenuStyleParam, IpgMenuBarStyleParam
 
 
@@ -104,7 +104,7 @@ for i in range(0, 4):
         
     ipg.add_button(parent_id="menu",
                     label=label,
-                    style_standard=IpgStyleStandard.Text,
+                    style_standard=IpgButtonStyleStandard.Text,
                     user_data=[1, i],
                     on_press=cb)
     
@@ -129,7 +129,7 @@ for i in range(0, 4):
     else:
         ipg.add_button(parent_id="menu",
                         label=f"Text{i}",
-                        style_standard=IpgStyleStandard.Text,
+                        style_standard=IpgButtonStyleStandard.Text,
                         user_data=[2, i],
                         on_press=menu_button_pressed)
 

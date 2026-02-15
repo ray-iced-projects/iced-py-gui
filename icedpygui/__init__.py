@@ -4,5 +4,5 @@ from .icedpygui import IpgAlignment, IpgHorizontalAlignment, IpgVerticalAlignmen
 from .icedpygui import add_container, add_column, add_row
 from .icedpygui import add_button, add_button_style, IpgButtonArrow, IpgButtonParam
 from .icedpygui import IpgColor
-from .icedpygui import IpgStyleStandard, IpgButtonStyleParam
+from .icedpygui import IpgButtonStyleStandard, IpgButtonStyleParam
 from .icedpygui import IpgWindowLevel, IpgWindowMode, IpgWindowTheme

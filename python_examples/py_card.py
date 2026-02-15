@@ -1,5 +1,5 @@
 from icedpygui import IPG, IpgCardParam, IpgCardStyleParam
-from icedpygui import IpgAlignment, IpgColor, IpgStyleStandard
+from icedpygui import IpgAlignment, IpgColor, IpgButtonStyleStandard
 
 
 # Needed first, see other demos for using a class
@@ -122,7 +122,7 @@ ipg.add_row(
 ipg.add_button(
     parent_id="bottom_row", 
     label="Card 1", 
-    style_standard=IpgStyleStandard.Primary,
+    style_standard=IpgButtonStyleStandard.Primary,
     on_press=maximize_card)
 
 # define the head and body of the cards.

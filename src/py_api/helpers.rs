@@ -3,7 +3,7 @@
 use std::collections::HashMap;
 
 use crate::graphics::colors::IpgColor;
-use crate::widgets::button::IpgButtonStyleStandard;
+use crate::widgets::ipg_button::IpgButtonStyleStandard;
 use crate::widgets::styling::IpgStyleStandard;
 use crate::access_state;
 

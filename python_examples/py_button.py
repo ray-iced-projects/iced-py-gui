@@ -1,7 +1,9 @@
-from icedpygui import add_window, add_container, add_column, add_row, add_button, start_session
-from icedpygui import IpgColor, IpgWindowTheme, IpgAlignment
-from icedpygui import IpgStyleStandard, IpgButtonArrow, add_button_style
-from icedpygui import IpgHorizontalAlignment, IpgVerticalAlignment
+from icedpygui import (
+    add_window, add_container, add_column, add_row, add_button, start_session,
+    IpgColor, IpgWindowTheme, IpgAlignment,
+    IpgButtonStyleStandard, IpgButtonArrow, add_button_style,
+    IpgHorizontalAlignment, IpgVerticalAlignment
+)
 
 
 
@@ -39,25 +41,25 @@ def add_buttons(window: str):
             parent_id="row_btn", 
             label="Primary", 
             on_press=on_press,
-            style_standard=IpgStyleStandard.Primary)
+            style_standard=IpgButtonStyleStandard.Primary)
 
     add_button(
             parent_id="row_btn", 
             label="Success", 
             on_press=on_press,
-            style_standard=IpgStyleStandard.Success)
+            style_standard=IpgButtonStyleStandard.Success)
 
     add_button(
             parent_id="row_btn", 
             label="Danger", 
             on_press=on_press,
-            style_standard=IpgStyleStandard.Danger)
+            style_standard=IpgButtonStyleStandard.Danger)
 
     add_button(
             parent_id="row_btn", 
             label="Text", 
             on_press=on_press,
-            style_standard=IpgStyleStandard.Text)
+            style_standard=IpgButtonStyleStandard.Text)
     
     add_button(
             parent_id="row_btn", 
@@ -116,7 +118,7 @@ def add_buttons(window: str):
             parent_id="row_btn3", 
             label="Standard with Border and shadow",
             style_id=std_border,
-            style_standard=IpgStyleStandard.Success)
+            style_standard=IpgButtonStyleStandard.Success)
     
     if window == "main1":
         add_button(

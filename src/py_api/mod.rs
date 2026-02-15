@@ -4,11 +4,10 @@
 //! Each widget type has its own submodule.
 
 pub mod window;
-pub mod ipg_button;
-pub mod ipg_column;
-pub mod ipg_container;
-pub mod ipg_row;
-pub mod ipg_window;
+pub mod button;
+pub mod column;
+pub mod container;
+pub mod row;
 pub mod session;
 pub mod helpers;
 pub mod update;

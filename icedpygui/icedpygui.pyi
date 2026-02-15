@@ -198,7 +198,7 @@ class IPG:
                         clip: bool=False,
                         show: bool=True,
                         style_id: Optional[str]=None,
-                        style_standard: Optional[IpgStyleStandard]=None
+                        style_standard: Optional[IpgButtonStyleStandard]=None
                         ) -> int:
         """
         Adds a generic container to the gui
@@ -820,7 +820,7 @@ class IPG:
                     text_size: float=16.0,
                     clip: bool=False, 
                     style_id: Optional[int]=None,
-                    style_standard: Optional[IpgStyleStandard]=None,
+                    style_standard: Optional[IpgButtonStyleStandard]=None,
                     style_arrow: Optional[IpgButtonArrow]=None,
                     user_data: Optional[any]=None,
                     show: bool=True, 
@@ -1094,7 +1094,7 @@ class IPG:
                     icon_x: bool=False,
                     icon_size: float=25.0,
                     style_id: Optional[int]=None,
-                    style_standard: Optional[IpgStyleStandard]=None,
+                    style_standard: Optional[IpgButtonStyleStandard]=None,
                     user_data: Optional[Any]=None,
                     show: bool=True,
                     ) -> int:
@@ -1210,7 +1210,7 @@ class IPG:
                         padding: List=[10.0],
                         clip: bool=False,
                         style_id: Optional[int]=None,
-                        style_standard: Optional[IpgStyleStandard]=None,
+                        style_standard: Optional[IpgButtonStyleStandard]=None,
                         style_arrow: Optional[IpgButtonArrow]=None,
                         user_data: Optional[Any]=None,
                         show: bool=True, 
@@ -1963,7 +1963,7 @@ class IPG:
                         width: Optional[float]=None,
                         width_fill: bool=False,
                         height: float=1.0,
-                        style_standard: Optional[IpgStyleStandard]=None,
+                        style_standard: Optional[IpgButtonStyleStandard]=None,
                         style_id: Union[None, int]=None,
                         user_data: Union[None, any]=None,
                         show: bool=True,
@@ -3146,7 +3146,7 @@ class IPG:
                     padding: list[float]=[10.0],
                     clip: bool=False,
                     style_id: Optional[str],
-                    style_standard: Optional[IpgStyleStandard]=None,
+                    style_standard: Optional[IpgButtonStyleStandard]=None,
                     style_arrow: Optional[IpgButtonArrow]=None,
                     user_data: any=None,
                     show: bool=True,
@@ -3269,7 +3269,7 @@ class IPG:
                         padding: list[float]=[10.0],
                         clip: bool=False,
                         style_id: Optional[str],
-                        style_standard: Optional[IpgStyleStandard]=None,
+                        style_standard: Optional[IpgButtonStyleStandard]=None,
                         style_arrow: Optional[IpgButtonArrow]=None,
                         user_data: any=None,
                         show: bool=True,
@@ -4526,7 +4526,7 @@ class IpgButtonParam:
     Clip: bool
     Show: bool
     StyleId: int
-    StyleStandard: IpgStyleStandard
+    StyleStandard: IpgButtonStyleStandard
     Width: float
     WidthFill: bool
 
@@ -4746,7 +4746,7 @@ class IpgCheckboxParam:
     Size: float
     Spacing: float
     StyleId: int
-    StyleStandard: IpgStyleStandard
+    StyleStandard: IpgButtonStyleStandard
     TextLineHeight: float
     TextSize: float
     Width: float
@@ -4841,7 +4841,7 @@ class IpgColorPickerParam:
     Clip: bool
     Show: bool
     StyleId: int
-    StyleStandard: IpgStyleStandard
+    StyleStandard: IpgButtonStyleStandard
     Width: float
     WidthFill: bool
 
@@ -5815,7 +5815,7 @@ class IpgStackParam:
     """
     ShowStack: bool
 
-class IpgStyleStandard:
+class IpgButtonStyleStandard:
     """
     Standard styles for widgets
     """

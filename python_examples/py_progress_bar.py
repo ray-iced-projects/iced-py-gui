@@ -1,5 +1,5 @@
 from icedpygui import IPG, IpgProgressBarParam, IpgTextParam
-from icedpygui import IpgAlignment, IpgColor, IpgStyleStandard
+from icedpygui import IpgAlignment, IpgColor, IpgButtonStyleStandard
 
 
 ipg = IPG()
@@ -222,7 +222,7 @@ ipg.add_progress_bar(
         min=0.0, 
         max=100.0, 
         value=50.0,
-        style_standard=IpgStyleStandard.Danger)
+        style_standard=IpgButtonStyleStandard.Danger)
 
 ipg.add_text(
         parent_id="col2", 

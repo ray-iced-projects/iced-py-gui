@@ -1,5 +1,5 @@
 from icedpygui import IPG, IpgTextParam, IpgButtonParam, IpgDatePickerParam
-from icedpygui import IpgAlignment, IpgStyleStandard
+from icedpygui import IpgAlignment, IpgButtonStyleStandard
 
 ipg = IPG()
 
@@ -99,7 +99,7 @@ dp2_id = ipg.add_date_picker(
     size_factor=1.2,
     on_submit=date_selected_with_ud,
     user_data="Some user data",
-    button_style_standard=IpgStyleStandard.Success
+    button_style_standard=IpgButtonStyleStandard.Success
 )
 
 # Text widget id needed for callback.

@@ -4,9 +4,9 @@
 //! complex existing module system.
 
 pub mod enums;
-pub mod window;
-pub mod button;
-pub mod column;
-pub mod container;
-pub mod row;
+pub mod ipg_window;
+pub mod ipg_button;
+pub mod ipg_column;
+pub mod ipg_container;
+pub mod ipg_row;
 pub mod styling;

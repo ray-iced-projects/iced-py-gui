@@ -10,7 +10,7 @@ use crate::access_user_data1;
 use crate::app::Message;
 use crate::graphics::bootstrap::{self, icon_to_char, icon_to_string};
 use crate::graphics::colors::{IpgColor, get_color};
-use crate::py_api::ipg_column;
+use crate::py_api::column;
 use crate::state::IpgWidgets;
 use super::styling::IpgStyleStandard;
 use crate::py_api::helpers::{get_height, get_horizontal_alignment, get_padding_f64, get_radius, get_vertical_alignment, get_width, try_extract_boolean, try_extract_f32, try_extract_f64, try_extract_f64_option, try_extract_ipg_color, try_extract_ipg_horizontal_alignment, try_extract_ipg_vertical_alignment, try_extract_rgba_color, try_extract_string, try_extract_style_standard, try_extract_vec_f32, try_extract_vec_f64};

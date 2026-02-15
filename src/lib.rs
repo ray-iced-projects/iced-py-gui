@@ -23,21 +23,21 @@ pub use state::{
 
 // Import pyfunctions from py_api modules
 use py_api::window::add_window;
-use py_api::ipg_button::{add_button, add_button_style};
-use py_api::ipg_column::add_column;
-use py_api::ipg_container::add_container;
-use py_api::ipg_row::add_row;
+use py_api::button::{add_button, add_button_style};
+use py_api::column::add_column;
+use py_api::container::add_container;
+use py_api::row::add_row;
 use py_api::session::{start_session, generate_id};
 use py_api::update::update_widget;
 
 // Import enums from widgets module
 use widgets::enums::{IpgAlignment, IpgHorizontalAlignment, IpgVerticalAlignment};
-use widgets::window::{IpgWindowLevel, IpgWindowMode, IpgWindowTheme};
-use widgets::button::IpgButtonArrow;
+use widgets::ipg_window::{IpgWindowLevel, IpgWindowMode, IpgWindowTheme};
+use widgets::ipg_button::IpgButtonArrow;
 use widgets::styling::IpgStyleStandard;
 
 use crate::graphics::colors::IpgColor;
-use crate::widgets::button::{IpgButtonParam, IpgButtonStyleParam};
+use crate::widgets::ipg_button::{IpgButtonParam, IpgButtonStyleParam, IpgButtonStyleStandard};
 
 /// Python module definition
 #[pymodule]
@@ -66,6 +66,7 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<IpgButtonArrow>()?;
     m.add_class::<IpgButtonParam>()?;
     m.add_class::<IpgButtonStyleParam>()?;
+    m.add_class::<IpgButtonStyleStandard>()?;
     m.add_class::<IpgColor>()?;
     m.add_class::<IpgStyleStandard>()?;
     

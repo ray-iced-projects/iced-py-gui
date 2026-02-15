@@ -11,7 +11,7 @@ use crate::graphics::colors::{IpgColor, get_color};
 use crate::py_api::helpers::{get_height, get_padding_f64, get_width};
 use crate::state::{IpgWidgets, access_state, add_callback_to_mutex, get_id, set_state_of_widget};
 use crate::widgets::enums::{IpgHorizontalAlignment, IpgVerticalAlignment};
-use crate::widgets::button::{IpgButton, IpgButtonArrow, IpgButtonStyle, IpgButtonStyleStandard};
+use crate::widgets::ipg_button::{IpgButton, IpgButtonArrow, IpgButtonStyle, IpgButtonStyleStandard};
 use crate::widgets::styling::IpgStyleStandard;
 
 

@@ -9,7 +9,7 @@ type PyObject = Py<PyAny>;
 use crate::graphics::colors::{IpgColor, get_color};
 use crate::py_api::helpers::{get_height, get_padding_f64, get_width};
 use crate::state::{IpgContainers, IpgWidgets, access_state, get_id, set_state_cont_wnd_ids, set_state_of_container};
-use crate::widgets::container::{IpgContainer, IpgContainerStyle};
+use crate::widgets::ipg_container::{IpgContainer, IpgContainerStyle};
 use crate::widgets::enums::{IpgHorizontalAlignment, IpgVerticalAlignment};
 
 /// Add a container widget.
@@ -134,7 +134,7 @@ pub fn add_container_style(
         get_color(background_rgba, background_color, 1.0, false);
     let border_color: Option<Color> = 
         get_color(border_rgba, border_color, 1.0, false);
-    let shadow: Option<Color> = 
+    let shadow_color: Option<Color> = 
         get_color(shadow_rgba, shadow_color, 1.0, false);
     let text_color: Option<Color> = 
         get_color(text_rgba, text_color, 1.0, false);
@@ -148,7 +148,7 @@ pub fn add_container_style(
             border_color,
             border_radius,
             border_width,
-            shadow,
+            shadow_color,
             shadow_offset_xy,
             shadow_blur_radius,
             text_color,

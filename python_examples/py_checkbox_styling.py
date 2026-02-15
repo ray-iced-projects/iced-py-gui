@@ -1,5 +1,5 @@
 from icedpygui import IPG, IpgAlignment, IpgColor
-from icedpygui import IpgWindowTheme, IpgStyleStandard
+from icedpygui import IpgWindowTheme, IpgButtonStyleStandard
 
 #  Required to instantiate IPG
 ipg = IPG()
@@ -9,17 +9,17 @@ def add_checkboxes():
     ipg.add_checkbox(
             parent_id="row", 
             label="Primary",
-            style_standard=IpgStyleStandard.Primary)
+            style_standard=IpgButtonStyleStandard.Primary)
 
     ipg.add_checkbox(
             parent_id="row", 
             label="Success",
-            style_standard=IpgStyleStandard.Success)
+            style_standard=IpgButtonStyleStandard.Success)
 
     ipg.add_checkbox(
             parent_id="row", 
             label="Danger",
-            style_standard=IpgStyleStandard.Danger)
+            style_standard=IpgButtonStyleStandard.Danger)
     
     # Add a checkbox with custom styling.
     ipg.add_checkbox(

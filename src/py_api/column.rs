@@ -1,5 +1,4 @@
-//! Row module - provides add_row pyfunction
-
+//! Column module - provides add_column pyfunction
 use pyo3::prelude::*;
 use pyo3::pyfunction;
 
@@ -7,37 +6,39 @@ use crate::access_state;
 use crate::py_api::helpers::{get_height, get_padding_f64, get_width};
 use crate::state::{IpgContainers, get_id, set_state_cont_wnd_ids, set_state_of_container};
 use crate::widgets::enums::IpgAlignment;
-use crate::widgets::row::IpgRow;
+use crate::widgets::ipg_column::IpgColumn;
 
 
-/// Add a row widget.
+/// Add a column widget.
 ///
 /// Returns the widget ID.
+
 #[pyfunction]
 #[pyo3(signature = (
         window_id, 
         container_id, 
         parent_id=None,
         align=IpgAlignment::Start, 
-        width=None, 
-        height=None, 
+        width=None, height=None,
         width_fill=false, 
         height_fill=false,
+        max_width=f32::INFINITY, 
         padding=vec![0.0], 
         spacing=10.0, 
-        clip=false,
+        clip=false, 
         show=true,
         ))]
-pub fn add_row(
+pub fn add_column(
     window_id: String,
     container_id: String,
-    // required above
+    // **above required
     parent_id: Option<String>,
     align: IpgAlignment,
     width: Option<f32>,
     height: Option<f32>,
     width_fill: bool,
     height_fill: bool,
+    max_width: f32,
     padding: Vec<f64>,
     spacing: f32,
     clip: bool,
@@ -45,7 +46,7 @@ pub fn add_row(
     ) -> PyResult<usize> 
 {
     let id = get_id(None);
-
+    
     let width = get_width(width, width_fill);
     let height = get_height(height, height_fill);
 
@@ -60,22 +61,24 @@ pub fn add_row(
 
     let mut state = access_state();
 
-    set_state_cont_wnd_ids(&mut state, &window_id, container_id, id, "add_row".to_string());
+    set_state_cont_wnd_ids(&mut state, &window_id, container_id, id, "add_column".to_string());
 
-    state.containers.
-        insert(id, IpgContainers::IpgRow(IpgRow::new(
-            id,  
-            show, 
-            spacing, 
-            padding, 
-            width, 
-            height, 
-            align,
-            clip,
-        )));
+    state.containers
+        .insert(id, IpgContainers::IpgColumn(
+            IpgColumn {
+                id,  
+                show, 
+                spacing, 
+                padding, 
+                width, 
+                height, 
+                max_width, 
+                align,
+                clip,
+            }));
 
-    drop(state);         
-    Ok(id)
+drop(state);
+Ok(id)
 
 }
-    
+

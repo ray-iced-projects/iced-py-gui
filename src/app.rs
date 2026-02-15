@@ -8,11 +8,11 @@ use iced::window::{self, Position};
 use iced::{font, Element, Point, Size, Subscription, Task, Theme};
 
 use crate::state::{access_state, clone_state_to_runtime, IpgIds, IpgState, IpgContainers, IpgWidgets};
-use crate::widgets::button::{button_callback, construct_button, BTNMessage};
-use crate::widgets::column::construct_column;
-use crate::widgets::container::construct_container;
-use crate::widgets::row::construct_row;
-use crate::widgets::window::{IpgWindow, IpgWindowMode};
+use crate::widgets::ipg_button::{button_callback, construct_button, BTNMessage};
+use crate::widgets::ipg_column::construct_column;
+use crate::widgets::ipg_container::construct_container;
+use crate::widgets::ipg_row::construct_row;
+use crate::widgets::ipg_window::{IpgWindow, IpgWindowMode};
 
 #[derive(Debug, Clone)]
 pub enum Message {
@@ -184,8 +184,8 @@ fn add_windows(state: &mut IpgState) -> Vec<Task<Message>> {
     spawn_window
 }
 
-fn get_level(level: &crate::widgets::window::IpgWindowLevel) -> window::Level {
-    use crate::widgets::window::IpgWindowLevel;
+fn get_level(level: &crate::widgets::ipg_window::IpgWindowLevel) -> window::Level {
+    use crate::widgets::ipg_window::IpgWindowLevel;
     match level {
         IpgWindowLevel::Normal => window::Level::Normal,
         IpgWindowLevel::AlwaysOnBottom => window::Level::AlwaysOnBottom,

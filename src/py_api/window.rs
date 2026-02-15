@@ -6,7 +6,7 @@ use pyo3::prelude::*;
 use pyo3::{Py, PyAny, pyfunction};
 
 use crate::state::{access_state, add_callback_to_mutex, add_user_data_to_mutex, IpgIds, IpgContainers};
-use crate::widgets::window::{
+use crate::widgets::ipg_window::{
     IpgWindow, IpgWindowLevel, IpgWindowMode, IpgWindowTheme,
 };
 

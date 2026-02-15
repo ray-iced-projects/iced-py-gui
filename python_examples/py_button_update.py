@@ -1,7 +1,8 @@
-from icedpygui import add_window, add_container, add_column, start_session
-from icedpygui import add_button, IpgButtonParam, IpgButtonStyleParam
-from icedpygui import IpgAlignment, update_widget
-from icedpygui import IpgButtonStyleStandard, IpgButtonArrow, add_button_style
+from icedpygui import (add_window, add_container, add_column, start_session,
+    add_button, IpgButtonParam, IpgButtonStyleParam,
+    IpgAlignment, update_widget,
+    IpgButtonStyleStandard, IpgButtonArrow, add_button_style
+)
 
 # In this example, we'll use a timer to update the buuton style.
 # This demonstratesusing a timer to doing something and how to update

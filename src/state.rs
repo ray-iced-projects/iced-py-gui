@@ -155,6 +155,28 @@ pub fn access_update_widgets() -> MutexGuard<'static, UpdateWidgets> {
     UPDATE_WIDGETS.lock().unwrap()
 }
 
+#[derive(Debug)]
+pub struct WindowActions {
+    pub mode: Vec<(usize, window::Mode)>,
+    pub decorations: Vec<usize>,
+    pub resize: Vec<(usize, f32, f32)>,
+    pub position: Vec<(usize, f32, f32)>,
+    pub level: Vec<(usize, window::Level)>,
+}
+
+pub static WINDOW_ACTIONS: Mutex<WindowActions> = Mutex::new(WindowActions {
+    mode: vec![],
+    decorations: vec![],
+    resize: vec![],
+    position: vec![],
+    level: vec![],
+});
+
+pub fn access_window_actions() -> MutexGuard<'static, WindowActions> {
+    WINDOW_ACTIONS.lock().unwrap()
+}
+
+
 // ============================================================================
 // Main State - stores all widget/container definitions before Iced starts
 // ============================================================================
@@ -377,6 +399,28 @@ pub fn get_id(gen_id: Option<usize>) -> usize {
     drop(state);
 
     id
+}
+
+pub fn set_state_of_widget_running_state(
+    state: &mut IpgState,
+    id: usize,  
+    parent_id: String)
+{
+    let wnd_id_str = match state.container_wnd_str_ids.get(&parent_id) {
+        Some(id) => id.clone(),
+        None => panic!("The main window id could not be found using parent_id {}, check that your parent_id matches a container ", parent_id)
+    };
+
+    let wnd_id_usize = match state.windows_str_ids.get(&wnd_id_str) {
+        Some(id) => *id,
+        None => panic!("window id {} could not be found in set_state_of_widget", wnd_id_str),
+    };
+
+    let parent_uid = find_parent_uid(state.ids.get(&wnd_id_usize).unwrap(), parent_id.clone());
+    
+    state.ids.get_mut(&wnd_id_usize).unwrap().push(IpgIds{id, parent_uid, container_id: None,
+                                                        parent_id, is_container: false});
+
 }
 
 pub fn add_callback_to_mutex(id: usize, event_name: String, callback: PyObject) {

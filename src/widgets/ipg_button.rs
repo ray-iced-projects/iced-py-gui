@@ -302,13 +302,15 @@ pub enum IpgButtonParam {
     WidthFill,
 }
 
-pub fn button_item_update(btn: &mut IpgButton,
-                            item: &PyObject,
-                            value: &PyObject,
-                            )
+pub fn button_param_update(
+        btn: &mut IpgButton,
+        item: &PyObject,
+        value: &PyObject,
+    )
 {
-    let update = try_extract_button_update(item);
+    let update = try_extract_button_param_update(item);
     let name = "Button".to_string();
+    dbg!(&update);
     match update {
        IpgButtonParam::ArrowStyle => {
             btn.style_arrow = Some(try_extract_button_arrow(value));
@@ -397,7 +399,7 @@ pub enum IpgButtonStyleParam {
     TextRgbaColor,
 }
 
-pub fn button_style_update_item(style: &mut IpgButtonStyle,
+pub fn button_style_update(style: &mut IpgButtonStyle,
                                 item: &PyObject,
                                 value: &PyObject,) 
 {
@@ -459,13 +461,13 @@ pub fn button_style_update_item(style: &mut IpgButtonStyle,
     }
 }
 
-pub fn try_extract_button_update(update_obj: &PyObject) -> IpgButtonParam {
+pub fn try_extract_button_param_update(update_obj: &PyObject) -> IpgButtonParam {
 
     Python::attach(|py| {
         let res = update_obj.extract::<IpgButtonParam>(py);
         match res {
             Ok(update) => update,
-            Err(_) => panic!("Button update extraction failed"),
+            Err(err) => panic!("Button update extraction failed {}", err),
         }
     })
 }
@@ -476,7 +478,7 @@ pub fn try_extract_button_arrow(update_obj: &PyObject) -> IpgButtonArrow {
         let res = update_obj.extract::<IpgButtonArrow>(py);
         match res {
             Ok(update) => update,
-            Err(_) => panic!("Button arrow extraction failed"),
+            Err(err) => panic!("Button arrow extraction failed {}", err),
         }
     })
 }
@@ -487,7 +489,9 @@ pub fn try_extract_button_style_update(update_obj: &PyObject) -> IpgButtonStyleP
         let res = update_obj.extract::<IpgButtonStyleParam>(py);
         match res {
             Ok(update) => update,
-            Err(_) => panic!("Button style update extraction failed"),
+            Err(err) => panic!(
+                "Button style update extraction failed, 
+                 are you using the style_id? {}", err),
         }
     })
 }

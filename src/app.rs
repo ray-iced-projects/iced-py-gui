@@ -10,7 +10,7 @@ use pyo3::{Py, PyAny};
 type PyObject = Py<PyAny>;
 
 use crate::state::{IpgContainers, IpgIds, IpgState, IpgWidgets, access_state, access_update_widgets, clone_state_to_runtime, set_state_of_widget_running_state};
-use crate::widgets::ipg_button::{BTNMessage, button_callback, button_item_update, button_style_update_item, construct_button};
+use crate::widgets::ipg_button::{BTNMessage, button_callback, button_param_update, button_style_update, construct_button};
 use crate::widgets::ipg_column::{column_item_update, construct_column};
 use crate::widgets::ipg_container::{construct_container, container_item_update};
 use crate::widgets::ipg_row::{construct_row, row_item_update};
@@ -59,6 +59,7 @@ impl App {
             Message::FontLoaded(_) => Task::none(),
             Message::Button(id, message) => {
                 button_callback(id, message);
+                process_updates(&mut self.state);
                 Task::none()
             }
             Message::WindowOpened(_, _, _) => Task::none(),
@@ -586,10 +587,10 @@ fn match_widget(
 {
     match widget {
         IpgWidgets::IpgButton(btn) => {
-            button_item_update(btn, item, value);
+            button_param_update(btn, item, value);
         },
         IpgWidgets::IpgButtonStyle(style) => {
-            button_style_update_item(style, item, value);
+            button_style_update(style, item, value);
         },
         // IpgWidgets::IpgCard(card) => {
         //         card_item_update(card, item, value);

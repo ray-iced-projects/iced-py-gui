@@ -310,7 +310,7 @@ pub fn button_param_update(
 {
     let update = try_extract_button_param_update(item);
     let name = "Button".to_string();
-    dbg!(&update);
+
     match update {
        IpgButtonParam::ArrowStyle => {
             btn.style_arrow = Some(try_extract_button_arrow(value));

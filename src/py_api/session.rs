@@ -15,7 +15,6 @@ pub fn start_session() -> PyResult<()> {
     let _ = iced::daemon(App::new, App::update, App::view)
         .subscription(App::subscription)
         .theme(App::theme)
-        .font(include_bytes!("../fonts/Roboto.ttf"))
         .scale_factor(App::scale_factor)
         .run();
     

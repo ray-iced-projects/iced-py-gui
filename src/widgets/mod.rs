@@ -8,5 +8,6 @@ pub mod ipg_window;
 pub mod ipg_button;
 pub mod ipg_column;
 pub mod ipg_container;
+pub mod ipg_events;
 pub mod ipg_row;
 pub mod styling;

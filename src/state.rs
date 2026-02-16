@@ -13,6 +13,7 @@ use pyo3::{Py, PyAny};
 
 use crate::widgets::ipg_column::IpgColumn;
 use crate::widgets::ipg_container::{IpgContainer, IpgContainerStyle};
+use crate::widgets::ipg_events::IpgEvents;
 use crate::widgets::ipg_row::IpgRow;
 use crate::widgets::ipg_window::IpgWindow;
 use crate::widgets::ipg_button::{IpgButton, IpgButtonStyle};
@@ -80,12 +81,29 @@ impl Callbacks {
 }
 
 // ============================================================================
+// Event storage
+// ============================================================================
+
+#[derive(Debug)]
+pub struct Events {
+    pub events: Lazy<HashMap<(usize, String), PyObject>>,
+}
+
+pub static EVENTS: Mutex<Events> = Mutex::new(Events {
+    events:  Lazy::new(||HashMap::new()),
+});
+
+pub fn access_events() -> MutexGuard<'static, Events> {
+    EVENTS.lock().unwrap()
+}
+
+// ============================================================================
 // User data storage
 // ============================================================================
 
 #[derive(Debug)]
 pub struct UserData1 {
-    user_data: Lazy<HashMap<usize, PyObject>>,
+    pub user_data: Lazy<HashMap<usize, PyObject>>,
 }
 
 pub static USERDATA1: Mutex<UserData1> = Mutex::new(UserData1 {
@@ -183,37 +201,72 @@ pub fn access_window_actions() -> MutexGuard<'static, WindowActions> {
 
 #[derive(Debug)]
 pub struct State {
-    pub ids: Lazy<HashMap<usize, Vec<IpgIds>>>,  // <window_id, Vec<IpgIds>>
+    pub ids: Lazy<HashMap<usize, Vec<IpgIds>>>,  // <window_id=usize, Vec<IpgIds=structure>>
     pub last_id: usize,
     pub gen_ids: Vec<usize>,
 
     pub containers: Lazy<HashMap<usize, IpgContainers>>,
-    pub container_ids: Lazy<HashMap<usize, Vec<usize>>>,  // <window_id, vec<container_id>>
-    pub container_str_ids: Lazy<HashMap<String, usize>>,  // container string -> usize id
-    pub container_wnd_str_ids: Lazy<HashMap<String, String>>,  // container string -> window string
-    pub container_window_usize_ids: Lazy<HashMap<usize, usize>>,  // container usize -> window usize
-
+    pub container_ids: Lazy<HashMap<usize, Vec<usize>>>,  // <window_id=usize, vec<container_id=usize>>
+    pub container_str_ids: Lazy<HashMap<String, usize>>, // get container usize id based on container string
+    pub container_wnd_str_ids: Lazy<HashMap<String, String>>, // get window string id based on container string id
+    pub container_window_usize_ids: Lazy<HashMap<usize, usize>>, //get window usize id based on container usize id
+    
     pub widgets: Lazy<HashMap<usize, IpgWidgets>>,
-    pub widget_container_ids: Lazy<HashMap<usize, String>>,  // widget_id -> container_id string
-
+    pub widget_container_ids: Lazy<HashMap<usize, String>>, //widget_id=usize, container_id=String
+    
     pub windows: Vec<IpgWindow>,
-    pub windows_str_ids: Lazy<HashMap<String, usize>>,  // window string -> usize id
+    pub windows_iced_ipg_ids: Lazy<HashMap<window::Id, usize>>, // <iced id, ipg id>
+    pub windows_str_ids: Lazy<HashMap<String, usize>>,  // <ipg_id=str, ipg id>
+    pub window_debug: Lazy<HashMap<window::Id, (usize, bool)>>, // (wid, debug)
+    pub window_theme: Lazy<HashMap<window::Id, (usize, Theme)>>, // (wid, window Theme)
+    pub window_mode: Lazy<HashMap<window::Id, (usize, window::Mode)>>,
+
+    pub events: Vec<IpgEvents>,
+    pub keyboard_event_id_enabled: (usize, bool),
+    pub mouse_event_id_enabled: (usize, bool),
+    pub timer_event_id_enabled: (usize, bool),
+    pub canvas_timer_event_id_enabled: (usize, bool),
+    pub window_event_id_enabled: (usize, bool),
+    pub touch_event_id_enabled: (usize, bool),
+    pub timer_duration: u64,
+    pub canvas_timer_duration: u64,
+
 }
 
-pub static STATE: Mutex<State> = Mutex::new(State {
-    ids: Lazy::new(|| HashMap::new()),
-    last_id: 0,
-    gen_ids: vec![],
-    containers: Lazy::new(|| HashMap::new()),
-    container_ids: Lazy::new(|| HashMap::new()),
-    container_str_ids: Lazy::new(|| HashMap::new()),
-    container_wnd_str_ids: Lazy::new(|| HashMap::new()),
-    container_window_usize_ids: Lazy::new(|| HashMap::new()),
-    widgets: Lazy::new(|| HashMap::new()),
-    widget_container_ids: Lazy::new(|| HashMap::new()),
-    windows: vec![],
-    windows_str_ids: Lazy::new(|| HashMap::new()),
-});
+pub static STATE: Mutex<State> = Mutex::new(
+    State {
+        ids: Lazy::new(||HashMap::new()),
+        last_id: 0,
+        gen_ids: vec![],
+
+        containers: Lazy::new(||HashMap::new()),
+        container_ids: Lazy::new(||HashMap::new()),
+        container_str_ids: Lazy::new(||HashMap::new()),
+        container_wnd_str_ids: Lazy::new(||HashMap::new()),
+        container_window_usize_ids: Lazy::new(||HashMap::new()),
+
+        widgets: Lazy::new(||HashMap::new()),
+        widget_container_ids: Lazy::new(||HashMap::new()),
+
+        windows: vec![],
+        windows_iced_ipg_ids: Lazy::new(||HashMap::new()),
+        windows_str_ids: Lazy::new(||HashMap::new()),
+        window_debug: Lazy::new(||HashMap::new()),
+        window_theme: Lazy::new(||HashMap::new()),
+        window_mode: Lazy::new(||HashMap::new()),
+        
+        events: vec![],
+        keyboard_event_id_enabled: (0, false),
+        mouse_event_id_enabled: (0, false), 
+        timer_event_id_enabled: (0, false),
+        canvas_timer_event_id_enabled: (0, false),
+        window_event_id_enabled: (0, false),
+        touch_event_id_enabled: (0, false),
+        timer_duration: 0,
+        canvas_timer_duration: 0,
+
+    }
+);
 
 pub fn access_state() -> MutexGuard<'static, State> {
     STATE.lock().unwrap()
@@ -252,6 +305,16 @@ pub struct IpgState {
     pub window_debug: HashMap<window::Id, (usize, bool)>,
     pub window_theme: HashMap<window::Id, (usize, Theme)>,
     pub window_mode: HashMap<window::Id, (usize, window::Mode)>,
+
+    pub events: Vec<IpgEvents>,
+    pub keyboard_event_id_enabled: (usize, bool),
+    pub mouse_event_id_enabled: (usize, bool),
+    pub timer_event_id_enabled: (usize, bool),
+    pub canvas_timer_event_id_enabled: (usize, bool),
+    pub window_event_id_enabled: (usize, bool),
+    pub touch_event_id_enabled: (usize, bool),
+    pub timer_duration: u64,
+    pub canvas_timer_duration: u64,
 }
 
 impl IpgState {
@@ -275,6 +338,16 @@ pub fn clone_state_to_runtime(runtime_state: &mut IpgState) {
     runtime_state.widget_container_ids = state.widget_container_ids.clone();
     runtime_state.windows = state.windows.clone();
     runtime_state.windows_str_ids = state.windows_str_ids.clone();
+
+    runtime_state.events = state.events.clone();
+    runtime_state.keyboard_event_id_enabled = state.keyboard_event_id_enabled;
+    runtime_state.mouse_event_id_enabled = state.mouse_event_id_enabled; 
+    runtime_state.timer_event_id_enabled = state.timer_event_id_enabled;
+    runtime_state.canvas_timer_event_id_enabled = state.canvas_timer_event_id_enabled;
+    runtime_state.window_event_id_enabled = state.window_event_id_enabled;
+    runtime_state.touch_event_id_enabled = state.touch_event_id_enabled;
+    runtime_state.timer_duration = state.timer_duration;
+    runtime_state.canvas_timer_duration = state.canvas_timer_duration;
 
     // Zero out transferred data so process_updates won't re-process them
     state.widgets = Lazy::new(|| HashMap::new());

@@ -403,7 +403,6 @@ pub fn button_style_update(style: &mut IpgButtonStyle,
                                 item: &PyObject,
                                 value: &PyObject,) 
 {
-    dbg!("button_style_update_item");
     let update = try_extract_button_style_update(item);
     let name = "ButtonStyle".to_string();
     match update {
@@ -429,7 +428,6 @@ pub fn button_style_update(style: &mut IpgButtonStyle,
             style.border_color = Some(Color::from(try_extract_rgba_color(value, name)));
         },
         IpgButtonStyleParam::BorderRadius => {
-            dbg!(&value);
             style.border_radius = Some(try_extract_vec_f32(value, name));
         },
         IpgButtonStyleParam::BorderWidth => {

@@ -171,52 +171,34 @@ pub enum IpgWindowTheme {
     TokyoNightLight,
 }
 
-
-fn extract_theme(theme_opt: Option<PyObject>) -> IpgWindowTheme {
-
-    let theme = match theme_opt {
-        Some(th) => th,
-        None => return IpgWindowTheme::Dark,
-    };
-
-    Python::attach(|py| {
-        let res = theme.extract::<IpgWindowTheme>(py);
-            
-        match res {
-            Ok(theme) => theme,
-            Err(_) => panic!("Window theme extraction failed."),
+impl IpgWindowTheme {
+    pub fn to_iced(theme: IpgWindowTheme) -> Theme {
+        match theme {
+            IpgWindowTheme::Dark => Theme::Dark,
+            IpgWindowTheme::Light => Theme::Light,
+            IpgWindowTheme::CatppuccinLatte => Theme::CatppuccinLatte,
+            IpgWindowTheme::CatppuccinFrappe => Theme::CatppuccinFrappe,
+            IpgWindowTheme::CatppuccinMacchiato => Theme::CatppuccinMacchiato,
+            IpgWindowTheme::CatppuccinMocha => Theme::CatppuccinMocha,
+            IpgWindowTheme::Dracula => Theme::Dracula,
+            IpgWindowTheme::Ferra => Theme::Ferra,
+            IpgWindowTheme::GruvboxLight => Theme::GruvboxLight,
+            IpgWindowTheme::GruvboxDark => Theme::GruvboxDark,
+            IpgWindowTheme::KanagawaWave => Theme::KanagawaWave,
+            IpgWindowTheme::KanagawaDragon => Theme::KanagawaDragon,
+            IpgWindowTheme::KanagawaLotus => Theme::KanagawaLotus,
+            IpgWindowTheme::Moonfly => Theme::Moonfly,
+            IpgWindowTheme::Nightfly => Theme::Nightfly,
+            IpgWindowTheme::Nord => Theme::Nord,
+            IpgWindowTheme::Oxocarbon => Theme::Oxocarbon,
+            IpgWindowTheme::SolarizedDark => Theme::SolarizedDark,
+            IpgWindowTheme::SolarizedLight => Theme::SolarizedLight,
+            IpgWindowTheme::TokyoNight => Theme::TokyoNight,
+            IpgWindowTheme::TokyoNightLight => Theme::TokyoNightLight,
+            IpgWindowTheme::TokyoNightStorm => Theme::TokyoNightStorm,
         }
-    }) 
-}
-
-pub fn get_iced_window_theme(theme: IpgWindowTheme) -> Theme {
-
-    match theme {
-        IpgWindowTheme::Dark => Theme::Dark,
-        IpgWindowTheme::Light => Theme::Light,
-        IpgWindowTheme::CatppuccinLatte => Theme::CatppuccinLatte,
-        IpgWindowTheme::CatppuccinFrappe => Theme::CatppuccinFrappe,
-        IpgWindowTheme::CatppuccinMacchiato => Theme::CatppuccinMacchiato,
-        IpgWindowTheme::CatppuccinMocha => Theme::CatppuccinMocha,
-        IpgWindowTheme::Dracula => Theme::Dracula,
-        IpgWindowTheme::Ferra => Theme::Ferra,
-        IpgWindowTheme::GruvboxLight => Theme::GruvboxLight,
-        IpgWindowTheme::GruvboxDark => Theme::GruvboxDark,
-        IpgWindowTheme::KanagawaWave => Theme::KanagawaWave,
-        IpgWindowTheme::KanagawaDragon => Theme::KanagawaDragon,
-        IpgWindowTheme::KanagawaLotus => Theme::KanagawaLotus,
-        IpgWindowTheme::Moonfly => Theme::Moonfly,
-        IpgWindowTheme::Nightfly => Theme::Nightfly,
-        IpgWindowTheme::Nord => Theme::Nord,
-        IpgWindowTheme::Oxocarbon => Theme::Oxocarbon,
-        IpgWindowTheme::SolarizedDark => Theme::SolarizedDark,
-        IpgWindowTheme::SolarizedLight => Theme::SolarizedLight,
-        IpgWindowTheme::TokyoNight => Theme::TokyoNight,
-        IpgWindowTheme::TokyoNightLight => Theme::TokyoNightLight,
-        IpgWindowTheme::TokyoNightStorm => Theme::TokyoNightStorm,
     }
 }
-
 
 #[derive(Debug, Clone, PartialEq)]
 #[pyclass(eq, eq_int)]
@@ -287,6 +269,22 @@ pub fn window_item_update(wnd: &mut IpgWindow,
 
 }
 
+fn extract_theme(theme_opt: Option<PyObject>) -> IpgWindowTheme {
+
+    let theme = match theme_opt {
+        Some(th) => th,
+        None => return IpgWindowTheme::Dark,
+    };
+
+    Python::attach(|py| {
+        let res = theme.extract::<IpgWindowTheme>(py);
+            
+        match res {
+            Ok(theme) => theme,
+            Err(_) => panic!("Window theme extraction failed."),
+        }
+    }) 
+}
 
 fn try_extract_window_update(update_obj: &PyObject) -> IpgWindowParam {
 
@@ -338,11 +336,13 @@ pub enum IpgWindowLevel {
     AlwaysOnTop,
 }
 
-fn get_level(level: &IpgWindowLevel) -> iced::window::Level {
-    match level {
-        IpgWindowLevel::Normal => window::Level::Normal,
-        IpgWindowLevel::AlwaysOnBottom => window::Level::AlwaysOnBottom,
-        IpgWindowLevel::AlwaysOnTop => window::Level::AlwaysOnTop,
+impl IpgWindowLevel { 
+    fn to_iced(&self) -> iced::window::Level {
+        match self {
+            IpgWindowLevel::Normal => window::Level::Normal,
+            IpgWindowLevel::AlwaysOnBottom => window::Level::AlwaysOnBottom,
+            IpgWindowLevel::AlwaysOnTop => window::Level::AlwaysOnTop,
+        }
     }
 }
 
@@ -354,18 +354,20 @@ pub enum IpgWindowMode {
     Closed,
 }
 
-pub fn get_iced_mode(mode: &IpgWindowMode) -> window::Mode {
-    match mode {
-        IpgWindowMode::Windowed => window::Mode::Windowed,
-        IpgWindowMode::FullScreen => window::Mode::Fullscreen,
-        IpgWindowMode::Closed => window::Mode::Hidden,
+impl IpgWindowMode {
+    pub fn to_iced(&self) -> window::Mode {
+        match self {
+            IpgWindowMode::Windowed => window::Mode::Windowed,
+            IpgWindowMode::FullScreen => window::Mode::Fullscreen,
+            IpgWindowMode::Closed => window::Mode::Hidden,
+        }
     }
-}
 
-pub fn get_ipg_mode(mode: window::Mode) -> IpgWindowMode {
-    match mode {
-        window::Mode::Windowed => IpgWindowMode::Windowed,
-        window::Mode::Fullscreen => IpgWindowMode::FullScreen,
-        window::Mode::Hidden => IpgWindowMode::Closed,
+    pub fn to_ipg(mode: &window::Mode) -> IpgWindowMode {
+        match mode {
+            window::Mode::Windowed => IpgWindowMode::Windowed,
+            window::Mode::Fullscreen => IpgWindowMode::FullScreen,
+            window::Mode::Hidden => IpgWindowMode::Closed,
+        }
     }
 }

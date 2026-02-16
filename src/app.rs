@@ -14,7 +14,7 @@ use crate::widgets::ipg_button::{BTNMessage, button_callback, button_param_updat
 use crate::widgets::ipg_column::{column_item_update, construct_column};
 use crate::widgets::ipg_container::{construct_container, container_item_update};
 use crate::widgets::ipg_row::{construct_row, row_item_update};
-use crate::widgets::ipg_window::{IpgWindow, IpgWindowMode, window_item_update};
+use crate::widgets::ipg_window::{IpgWindow, IpgWindowLevel, IpgWindowMode, window_item_update};
 
 #[derive(Debug, Clone)]
 pub enum Message {
@@ -60,7 +60,7 @@ impl App {
             Message::Button(id, message) => {
                 button_callback(id, message);
                 process_updates(&mut self.state);
-                Task::none()
+                get_tasks(&mut self.state)
             }
             Message::WindowOpened(_, _, _) => Task::none(),
             Message::EventWindow((window_id, event)) => {
@@ -149,7 +149,7 @@ fn add_windows(state: &mut IpgState) -> Vec<Task<Message>> {
             resizable: state.windows[i].resizable,
             decorations: state.windows[i].decorations,
             transparent: state.windows[i].transparent,
-            level: get_level(&state.windows[i].level),
+            level: IpgWindowLevel::to_iced(&state.windows[i].level),
             exit_on_close_request: state.windows[i].exit_on_close_request,
             ..Default::default()
         });
@@ -185,15 +185,6 @@ fn add_windows(state: &mut IpgState) -> Vec<Task<Message>> {
     );
 
     spawn_window
-}
-
-fn get_level(level: &crate::widgets::ipg_window::IpgWindowLevel) -> window::Level {
-    use crate::widgets::ipg_window::IpgWindowLevel;
-    match level {
-        IpgWindowLevel::Normal => window::Level::Normal,
-        IpgWindowLevel::AlwaysOnBottom => window::Level::AlwaysOnBottom,
-        IpgWindowLevel::AlwaysOnTop => window::Level::AlwaysOnTop,
-    }
 }
 
 fn get_window_container(container_opt: Option<&IpgContainers>) -> &IpgWindow {

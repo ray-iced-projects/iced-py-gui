@@ -262,7 +262,7 @@ impl IpgState {
 
 /// Clone data from the static mutex state into IpgState for Iced runtime
 pub fn clone_state_to_runtime(runtime_state: &mut IpgState) {
-    let state = access_state();
+    let mut state = access_state();
     
     runtime_state.ids = state.ids.clone();
     runtime_state.last_id = state.last_id;
@@ -275,6 +275,11 @@ pub fn clone_state_to_runtime(runtime_state: &mut IpgState) {
     runtime_state.widget_container_ids = state.widget_container_ids.clone();
     runtime_state.windows = state.windows.clone();
     runtime_state.windows_str_ids = state.windows_str_ids.clone();
+
+    // Zero out transferred data so process_updates won't re-process them
+    state.widgets = Lazy::new(|| HashMap::new());
+    state.widget_container_ids = Lazy::new(|| HashMap::new());
+    state.windows = vec![];
     
     drop(state);
 }

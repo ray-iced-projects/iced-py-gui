@@ -36,6 +36,7 @@ use widgets::ipg_window::{IpgWindowLevel, IpgWindowMode, IpgWindowTheme};
 use widgets::ipg_button::IpgButtonArrow;
 use widgets::styling::IpgStyleStandard;
 
+use crate::graphics::bootstrap_icon::Icon;
 use crate::graphics::colors::IpgColor;
 use crate::widgets::ipg_button::{IpgButtonParam, IpgButtonStyleParam, IpgButtonStyleStandard};
 
@@ -69,6 +70,7 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<IpgButtonStyleStandard>()?;
     m.add_class::<IpgColor>()?;
     m.add_class::<IpgStyleStandard>()?;
+    m.add_class::<Icon>()?;
     
     Ok(())
 }

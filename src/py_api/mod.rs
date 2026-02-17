@@ -5,6 +5,7 @@
 
 pub mod window;
 pub mod button;
+pub mod checkbox;
 pub mod column;
 pub mod container;
 pub mod row;

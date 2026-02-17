@@ -1,8 +1,11 @@
 #![allow(dead_code)]
 //! Bootstrap icons.
 
+use pyo3::pyclass;
+
 /// Bootstrap icons
-#[derive(Copy, Clone, Debug, Hash)]
+#[derive(Debug, Clone, Copy, Hash, PartialEq)]
+#[pyclass(eq, eq_int)]
 pub enum Icon {
     /// alarm
     Alarm,

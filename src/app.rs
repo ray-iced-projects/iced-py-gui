@@ -10,7 +10,8 @@ type PyObject = Py<PyAny>;
 
 use crate::py_api::helpers::find_key_for_value;
 use crate::state::{IpgContainers, IpgIds, IpgState, IpgWidgets, access_state, access_update_widgets, access_window_actions, clone_state_to_runtime, set_state_of_widget_running_state};
-use crate::widgets::ipg_button::{BTNMessage, button_callback, button_param_update, button_style_update, construct_button};
+use crate::widgets::ipg_button::{BtnMessage, button_callback, button_param_update, button_style_update, construct_button};
+use crate::widgets::ipg_checkbox::{ChkMessage, checkbox_callback, checkbox_param_update, checkbox_style_update};
 use crate::widgets::ipg_column::{column_item_update, construct_column};
 use crate::widgets::ipg_container::{construct_container, container_item_update, container_style_update_item};
 use crate::widgets::ipg_events::process_window_event;
@@ -20,10 +21,10 @@ use crate::widgets::ipg_window::{IpgWindow, IpgWindowLevel, IpgWindowMode, add_w
 
 #[derive(Debug, Clone)]
 pub enum Message {
-    Button(usize, BTNMessage),
+    Button(usize, BtnMessage),
 //     Canvas(CanvasMessage),
 //     Card(usize, CardMessage),
-//     CheckBox(usize, CHKMessage),
+    CheckBox(usize, ChkMessage),
 //     ColorPicker(usize, ColPikMessage),
 //     DatePicker(usize, DPMessage),
 //     Divider(usize, DivMessage),
@@ -132,11 +133,12 @@ impl App {
             //     process_updates(&mut self.state, &mut self.canvas_state);
             //     Task::none()
             // },
-            // Message::CheckBox(id, message) => {
-            //     checkbox_callback(&mut self.state, id, message);
-            //     process_updates(&mut self.state, &mut self.canvas_state);
-            //     get_tasks(&mut self.state)
-            // },
+            Message::CheckBox(id, message) => {
+                checkbox_callback(&mut self.state, id, message);
+                // process_updates(&mut self.state, &mut self.canvas_state);
+                process_updates(&mut self.state);
+                get_tasks(&mut self.state)
+            },
             // Message::ColorPicker(id, message ) => {
             //     color_picker_callback(&mut self.state, id, message);
             //     process_updates(&mut self.state, &mut self.canvas_state);
@@ -1178,8 +1180,8 @@ fn get_widget_parent_id(widget: &IpgWidgets) -> String {
         IpgWidgets::IpgButtonStyle(ipg_button_style) => todo!(),
         // IpgWidgets::IpgCard(ipg_card) => ipg_card.parent_id.clone(),
         // IpgWidgets::IpgCardStyle(ipg_card_style) => todo!(),
-        // IpgWidgets::IpgCheckBox(ipg_check_box) => todo!(),
-        // IpgWidgets::IpgCheckboxStyle(ipg_checkbox_style) => todo!(),
+        IpgWidgets::IpgCheckBox(ipg_check_box) => todo!(),
+        IpgWidgets::IpgCheckboxStyle(ipg_checkbox_style) => todo!(),
         // IpgWidgets::IpgColorPicker(ipg_color_picker) => todo!(),
         // IpgWidgets::IpgColorPickerStyle(ipg_color_picker_style) => todo!(),
         IpgWidgets::IpgContainerStyle(ipg_container_style) => todo!(),
@@ -1279,12 +1281,12 @@ fn match_widget(
         // IpgWidgets::IpgCardStyle(style) => {
         //         card_style_update(style, item, value);
         //     },
-        // IpgWidgets::IpgCheckBox(chk) => {
-        //         checkbox_item_update(chk, item, value);
-        //     },
-        // IpgWidgets::IpgCheckboxStyle(style) => {
-        //         checkbox_style_update_item(style, item, value);
-        //     },
+        IpgWidgets::IpgCheckBox(chk) => {
+                checkbox_param_update(chk, item, value);
+            },
+        IpgWidgets::IpgCheckboxStyle(style) => {
+                checkbox_style_update(style, item, value);
+            },
         // IpgWidgets::IpgColorPicker(cp) => {
         //         color_picker_update(cp, item, value);
         //     },

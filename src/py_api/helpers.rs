@@ -112,11 +112,7 @@ pub fn get_padding_f64(padding: Vec<f64>)-> Padding {
     }
 }
 
-pub fn get_padding_f32(padding: Option<Vec<f32>>)-> Padding {
-    let padding = match padding {
-        None => return Padding::ZERO,
-        Some(p) => p,
-    };
+pub fn get_padding_f32(padding: &Vec<f32>)-> Padding {
     let len = padding.len();
     match len {
     0 => panic!("Padding must have at List of at least 1, 2 or 4 items"),

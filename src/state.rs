@@ -11,6 +11,7 @@ use iced::Theme;
 use once_cell::sync::Lazy;
 use pyo3::{Py, PyAny};
 
+use crate::widgets::ipg_checkbox::{IpgCheckBox, IpgCheckboxStyle};
 use crate::widgets::ipg_column::IpgColumn;
 use crate::widgets::ipg_container::{IpgContainer, IpgContainerStyle};
 use crate::widgets::ipg_events::IpgEvents;
@@ -37,6 +38,8 @@ pub enum IpgContainers {
 pub enum IpgWidgets {
     IpgButton(IpgButton),
     IpgButtonStyle(IpgButtonStyle),
+    IpgCheckBox(IpgCheckBox),
+    IpgCheckboxStyle(IpgCheckboxStyle),
     IpgContainerStyle(IpgContainerStyle),
 }
 
@@ -59,7 +62,7 @@ pub struct IpgIds {
 
 #[derive(Debug)]
 pub struct Callbacks {
-    callbacks: Lazy<HashMap<(usize, String), PyObject>>,
+    pub(crate) callbacks: Lazy<HashMap<(usize, String), PyObject>>,
 }
 
 pub static CALLBACKS: Mutex<Callbacks> = Mutex::new(Callbacks {
@@ -126,7 +129,7 @@ impl UserData1 {
 
 #[derive(Debug)]
 pub struct UserData2 {
-    user_data: Lazy<HashMap<usize, PyObject>>,
+    pub user_data: Lazy<HashMap<usize, PyObject>>,
 }
 
 pub static USERDATA2: Mutex<UserData2> = Mutex::new(UserData2 {

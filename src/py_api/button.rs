@@ -1,5 +1,4 @@
 //! Button module - provides add_button pyfunction
-#![allow(unused)]
 
 use iced::Color;
 use pyo3::prelude::*;
@@ -8,11 +7,10 @@ type PyObject = Py<PyAny>;
 
 use crate::add_user_data_to_mutex;
 use crate::graphics::colors::{IpgColor, get_color};
-use crate::py_api::helpers::{get_height, get_padding_f64, get_width};
+use crate::py_api::helpers::{get_height, get_width};
 use crate::state::{IpgWidgets, access_state, add_callback_to_mutex, get_id, set_state_of_widget};
 use crate::widgets::enums::{IpgHorizontalAlignment, IpgVerticalAlignment};
 use crate::widgets::ipg_button::{IpgButton, IpgButtonArrow, IpgButtonStyle, IpgButtonStyleStandard};
-use crate::widgets::styling::IpgStyleStandard;
 
 
 /// Add a button widget.
@@ -21,18 +19,18 @@ use crate::widgets::styling::IpgStyleStandard;
 #[pyfunction]
 #[pyo3(signature = (
     parent_id,
-    label,
+    label=None,
     gen_id=None,
     on_press=None,
     width=None,
     height=None,
     width_fill=false,
     height_fill=false,
-    padding=vec![5.0],
-    text_align_x=IpgHorizontalAlignment::Center,
-    text_align_y=IpgVerticalAlignment::Center,
-    text_size=16.0,
-    clip=false,
+    padding=None,
+    text_align_x=None,
+    text_align_y=None,
+    text_size=None,
+    clip=None,
     style_id=None,
     style_standard=None,
     style_arrow=None,
@@ -41,18 +39,18 @@ use crate::widgets::styling::IpgStyleStandard;
 ))]
 pub fn add_button(
     parent_id: String,
-    label: String,
+    label: Option<String>,
     gen_id: Option<usize>,
     on_press: Option<PyObject>,
     width: Option<f32>,
     height: Option<f32>,
     width_fill: bool,
     height_fill: bool,
-    padding: Vec<f64>,
-    text_align_x: IpgHorizontalAlignment,
-    text_align_y: IpgVerticalAlignment,
-    text_size: f32,
-    clip: bool,
+    padding: Option<Vec<f32>>,
+    text_align_x: Option<IpgHorizontalAlignment>,
+    text_align_y: Option<IpgVerticalAlignment>,
+    text_size: Option<f32>,
+    clip: Option<bool>,
     style_id: Option<usize>,
     style_standard: Option<IpgButtonStyleStandard>,
     style_arrow: Option<IpgButtonArrow>,
@@ -65,10 +63,6 @@ pub fn add_button(
     // Calculate dimensions
     let width = get_width(width, width_fill);
     let height = get_height(height, height_fill);
-    let padding = get_padding_f64(padding);
-
-    let align_x = text_align_x.to_iced();
-    let align_y = text_align_y.to_iced();
 
     // Register widget with parent
     set_state_of_widget(id, parent_id.clone());
@@ -95,8 +89,8 @@ pub fn add_button(
             width,
             height,
             padding,
-            text_align_x: align_x,
-            text_align_y: align_y,
+            text_align_x,
+            text_align_y,
             text_size,
             clip,
             style_id,

@@ -8,8 +8,6 @@ use iced::widget::scrollable;
 use iced::{Color, Point};
 
 use pyo3::{Py, PyAny};
-
-// Type alias to replace deprecated PyObject
 type PyObject = Py<PyAny>;
 
 

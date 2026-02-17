@@ -5,7 +5,7 @@ use pyo3::{Py, PyAny, pyfunction};
 type PyObject = Py<PyAny>;
 
 use crate::add_user_data_to_mutex;
-use crate::graphics::bootstrap_icon::Icon;
+use crate::graphics::bootstrap_icon::IpgIcon;
 use crate::graphics::colors::{IpgColor, get_color};
 use crate::py_api::helpers::get_width;
 use crate::state::{IpgWidgets, access_state, 
@@ -32,7 +32,6 @@ use crate::widgets::styling::IpgStyleStandard;
     text_line_height=None,
     text_shaping=None,
     text_font=None,
-    icon_x= false,
     icon_font= None,
     icon=None,
     icon_size=None,
@@ -43,7 +42,7 @@ use crate::widgets::styling::IpgStyleStandard;
     style_id=None, 
     style_standard=None, 
     ))] 
-fn add_checkbox(
+pub fn add_checkbox(
     parent_id: String,
     // ** above required
     gen_id: Option<usize>,
@@ -58,9 +57,8 @@ fn add_checkbox(
     text_line_height: Option<f32>,
     text_shaping: Option<IpgShaping>,
     text_font: Option<String>,
-    icon_x: bool,
     icon_font: Option<String>,
-    icon: Option<Icon>,
+    icon: Option<IpgIcon>,
     icon_size: Option<f32>,
     icon_line_height: Option<f32>,
     icon_shaping: Option<IpgShaping>,
@@ -100,7 +98,6 @@ fn add_checkbox(
             text_line_height,
             text_shaping,
             text_font,
-            icon_x,
             icon_font,
             icon,
             icon_size,

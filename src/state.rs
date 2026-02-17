@@ -15,6 +15,7 @@ use crate::widgets::ipg_checkbox::{IpgCheckBox, IpgCheckboxStyle};
 use crate::widgets::ipg_column::IpgColumn;
 use crate::widgets::ipg_container::{IpgContainer, IpgContainerStyle};
 use crate::widgets::ipg_events::IpgEvents;
+use crate::widgets::ipg_font::IpgFont;
 use crate::widgets::ipg_row::IpgRow;
 use crate::widgets::ipg_window::IpgWindow;
 use crate::widgets::ipg_button::{IpgButton, IpgButtonStyle};
@@ -41,6 +42,7 @@ pub enum IpgWidgets {
     IpgCheckBox(IpgCheckBox),
     IpgCheckboxStyle(IpgCheckboxStyle),
     IpgContainerStyle(IpgContainerStyle),
+    IpgFont(IpgFont),
 }
 
 // ============================================================================

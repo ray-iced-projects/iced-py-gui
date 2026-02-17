@@ -1,8 +1,13 @@
-# Minimal prototype - module-level functions instead of IPG class
-from .icedpygui import add_window, start_session, generate_id, update_widget
-from .icedpygui import IpgAlignment, IpgHorizontalAlignment, IpgVerticalAlignment
-from .icedpygui import add_container, add_column, add_row
-from .icedpygui import add_button, add_button_style, IpgButtonArrow, IpgButtonParam
-from .icedpygui import IpgColor
-from .icedpygui import IpgButtonStyleStandard, IpgButtonStyleParam
-from .icedpygui import IpgWindowLevel, IpgWindowMode, IpgWindowTheme
+# Ipg functions
+from .icedpygui import (
+    add_window, start_session, generate_id, update_widget,
+    IpgWindowLevel, IpgWindowMode, IpgWindowTheme,
+    IpgAlignment, IpgHorizontalAlignment, IpgVerticalAlignment,
+    add_container, add_column, add_row,
+    add_button, add_button_style, IpgButtonArrow, 
+    IpgButtonParam,IpgButtonStyleStandard, IpgButtonStyleParam, 
+    add_checkbox, add_checkbox_style,
+    IpgCheckboxParam, IpgCheckboxStyleParam,
+    IpgIcon,                       
+    IpgColor              
+)

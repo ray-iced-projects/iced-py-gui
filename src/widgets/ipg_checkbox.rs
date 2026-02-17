@@ -2,14 +2,20 @@
 use crate::graphics::colors::get_color;
 use crate::widgets::enums::IpgShaping;
 use super::styling::IpgStyleStandard;
-use crate::state::{access_callbacks, access_user_data1, access_user_data2, IpgState};
+use crate::state::{access_callbacks, access_user_data1, 
+    access_user_data2, IpgState};
 use crate::app::Message;
-use crate::py_api::helpers::{get_radius, get_shaping, get_width, try_extract_boolean, try_extract_f32, try_extract_f64, try_extract_ipg_color, try_extract_rgba_color, try_extract_string, try_extract_style_standard, try_extract_vec_f32};
-use crate::widgets::callbacks::{set_or_get_widget_callback_data, WidgetCallbackIn};
+use crate::py_api::helpers::{get_radius, get_width, 
+    try_extract_boolean, try_extract_f32, try_extract_f64, 
+    try_extract_ipg_color, try_extract_rgba_color, 
+    try_extract_string, try_extract_style_standard, 
+    try_extract_vec_f32};
+use crate::widgets::callbacks::{set_or_get_widget_callback_data, 
+    WidgetCallbackIn};
 use crate::state::IpgWidgets;
 
 use crate::graphics::BOOTSTRAP_FONT;
-use crate::graphics::bootstrap_icon::{Icon, icon_to_char};
+use crate::graphics::bootstrap_icon::{IpgIcon, icon_to_char};
 
 use iced::advanced::text;
 use iced::{Element, Color, Length, Theme};
@@ -35,9 +41,8 @@ pub struct IpgCheckBox {
     pub text_line_height: Option<f32>,
     pub text_shaping: Option<IpgShaping>,
     pub text_font: Option<String>,
-    pub icon_x: bool,
     pub icon_font: Option<String>,
-    pub icon: Option<Icon>,
+    pub icon: Option<IpgIcon>,
     pub icon_size: Option<f32>,
     pub icon_line_height: Option<f32>,
     pub icon_shaping: Option<IpgShaping>,
@@ -67,19 +72,76 @@ pub enum ChkMessage {
 pub fn construct_checkbox<'a>(
     ipg_chk: &'a IpgCheckBox, 
     style_opt: Option<&IpgWidgets>) 
-    -> Option<Element<'a, ChkMessage>> {
+    -> Option<Element<'a, Message>> {
 
     if !ipg_chk.show {
         return None
     };
 
     let style = get_chk_style(style_opt);
+
+    // Icon related
+    let code_point = 
+        if let Some(ic) = ipg_chk.icon {
+            icon_to_char(ic)
+        } else {
+            icon_to_char(IpgIcon::Check)
+        };
+
+    let size = 
+        if let Some(sz) = ipg_chk.size {
+            Some(iced::Pixels(sz))
+        } else {
+            None
+        };
+
+    let shaping = 
+        if let Some(sh) = &ipg_chk.icon_shaping {
+            IpgShaping::to_iced(sh)
+        } else {
+            Shaping::default()
+        };
+
+    let line_height = 
+        if let Some(lh) = ipg_chk.icon_line_height {
+            LineHeight::Relative(lh)
+        } else {
+            LineHeight::default()
+        };
+
+    let icon = 
+        checkbox::Icon {
+            font: BOOTSTRAP_FONT,
+            code_point,
+            size,
+            line_height,
+            shaping,
+        };
     
-    let chk = 
+    // Text related
+    let text_line_height = 
+        if let Some(lh) = ipg_chk.text_line_height {
+            text::LineHeight::Relative(lh)
+        } else {
+            text::LineHeight::default()
+        };
+
+    let text_shaping = 
+        if let Some(ts) = &ipg_chk.text_shaping {
+            IpgShaping::to_iced(ts)
+        } else {
+            Shaping::default()
+        };
+
+   let chk = 
         Checkbox::new(ipg_chk.is_checked)
             .on_toggle(ChkMessage::OnToggle)
             .width(ipg_chk.width)
+            .text_line_height(text_line_height)
+            .text_shaping(text_shaping)
             .font(BOOTSTRAP_FONT)
+            .icon(icon)
+            .label("label".to_string())
             .style(move|theme: &Theme, status| {   
                 get_styling(theme, status,
                     style.clone(), 
@@ -87,10 +149,10 @@ pub fn construct_checkbox<'a>(
                     ipg_chk.is_checked,
                     )  
                 });
-
+    
     let chk = 
-        if let Some(lb) = ipg_chk.label {
-            chk.label(lb)
+        if let Some(lb) = &ipg_chk.label {
+            chk.label(lb.clone())
         } else { chk };
 
     let chk = 
@@ -98,57 +160,13 @@ pub fn construct_checkbox<'a>(
             chk.size(sz)
         } else { chk };
 
-    let chk = 
+    let chk: Element<'_, ChkMessage> = 
         if let Some(sp) = ipg_chk.spacing {
-            chk.spacing(sp)
-        } else { chk };
+            chk.spacing(sp).into()
+        } else { chk.into() };
 
-    let code_point = if let Some(ic) = ipg_chk.icon {
-        icon_to_char(ic)
-    } else {
-        icon_to_char(Icon::X)
-    };
+    Some(chk.map(move |message| Message::CheckBox(ipg_chk.id, message)))
 
-    let size = if let Some(sz) = ipg_chk.size {
-        Some(iced::Pixels(sz))
-    } else {
-        None
-    };
-
-    let shaping = if let Some(sh) = &ipg_chk.icon_shaping {
-        IpgShaping::to_iced(sh)
-    } else {
-        Shaping::default()
-    };
-
-    let line_height = if let Some(lh) = ipg_chk.icon_line_height {
-        text::LineHeight::Relative(lh)
-    } else {
-        text::LineHeight::default()
-    };
-
-    let icon = if ipg_chk.icon_x {
-            checkbox::Icon {
-                font: BOOTSTRAP_FONT,
-                code_point,
-                size,
-                line_height,
-                shaping,
-            }
-        } else {
-            checkbox::Icon {
-                font: BOOTSTRAP_FONT,
-                code_point,
-                size,
-                line_height,
-                shaping
-            }
-        };
-    
-    let chk: Element<'_, ChkMessage> = chk.icon(icon).into();
-                            
-    
-    Some(chk.map(move |message| Message::CheckBox(chk.id, message)))
 }
 
 pub fn checkbox_callback(state: &mut IpgState, id: usize, message: ChkMessage) {
@@ -217,20 +235,23 @@ pub fn process_callback(
 #[derive(Debug, Clone, PartialEq)]
 #[pyclass(eq, eq_int)]
 pub enum IpgCheckboxParam {
+    Icon,
+    IconFont,
+    IconLineHeight,
     IconSize,
-    IconX,
+    IconShaping,
     IsChecked,
     Label,
-    Show,
-    Size,
     Spacing,
     Style,
     StyleStandard,
+    TextFont,
     TextLineHeight,
     TextShaping,
     TextSize,
     Width,
     WidthFill,
+    Show,
 }
 
 pub fn checkbox_param_update(chk: &mut IpgCheckBox,
@@ -241,11 +262,14 @@ pub fn checkbox_param_update(chk: &mut IpgCheckBox,
     let update = try_extract_checkbox_update(item);
     let name = "Checkbox".to_string();
     match update {
+        IpgCheckboxParam::Icon => {
+            chk.icon = Some(IpgIcon::extract(value));
+        },
+        IpgCheckboxParam::IconFont => todo!(),
+        IpgCheckboxParam::IconLineHeight => todo!(),
+        IpgCheckboxParam::IconShaping => todo!(),
         IpgCheckboxParam::IconSize => {
             chk.icon_size = Some(try_extract_f32(value, name));
-        },
-        IpgCheckboxParam::IconX => {
-            chk.icon_x = try_extract_boolean(value, name);
         },
         IpgCheckboxParam::IsChecked => {
             chk.is_checked = try_extract_boolean(value, name);
@@ -256,9 +280,6 @@ pub fn checkbox_param_update(chk: &mut IpgCheckBox,
         IpgCheckboxParam::Show => {
             chk.show = try_extract_boolean(value, name);
         },
-        IpgCheckboxParam::Size => {
-            chk.size = Some(try_extract_f32(value, name));
-        },
         IpgCheckboxParam::Spacing => {
             chk.spacing = Some(try_extract_f32(value, name));
         },
@@ -266,8 +287,7 @@ pub fn checkbox_param_update(chk: &mut IpgCheckBox,
             chk.text_line_height =  Some(try_extract_f32(value, name));
         },
         IpgCheckboxParam::TextShaping => {
-            let ts =try_extract_string(value, name);
-            chk.text_shaping = get_shaping(ts); 
+            chk.text_shaping = IpgShaping::extract(value);
         },
         IpgCheckboxParam::TextSize => {
             chk.text_size = Some(try_extract_f64(value, name) as f32);
@@ -287,6 +307,8 @@ pub fn checkbox_param_update(chk: &mut IpgCheckBox,
             let wd = try_extract_boolean(value, name);
             chk.width =  get_width(None, wd);
         },
+        
+        IpgCheckboxParam::TextFont => todo!(),
     }
 }
 
@@ -454,7 +476,9 @@ pub fn get_styling(theme: &Theme, status: Status,
         border_style.radius = get_radius(r, "Checkbox".to_string());
     }
     
-    border_style.width = style.border_width;
+    if let Some(bw) = style.border_width {
+        border_style.width = bw;
+    }
 
     match status {
         Status::Active { is_checked } => {
@@ -468,9 +492,8 @@ pub fn get_styling(theme: &Theme, status: Status,
                 active_style.icon_color = ic;
             }
 
-            if let Some(tc) = style.text_color {
-                active_style.text_color = tc;
-            }
+            active_style.text_color = style.text_color;
+            
             active_style.border = border_style;
 
             active_style
@@ -486,9 +509,8 @@ pub fn get_styling(theme: &Theme, status: Status,
                 hovered_style.icon_color = ic;
             }
 
-            if let Some(tc) = style.text_color {
-                hovered_style.text_color = tc;
-            }
+            hovered_style.text_color = style.text_color;
+            
             hovered_style.border = border_style;
 
             hovered_style

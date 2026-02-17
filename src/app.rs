@@ -11,10 +11,11 @@ type PyObject = Py<PyAny>;
 use crate::py_api::helpers::find_key_for_value;
 use crate::state::{IpgContainers, IpgIds, IpgState, IpgWidgets, access_state, access_update_widgets, access_window_actions, clone_state_to_runtime, set_state_of_widget_running_state};
 use crate::widgets::ipg_button::{BtnMessage, button_callback, button_param_update, button_style_update, construct_button};
-use crate::widgets::ipg_checkbox::{ChkMessage, checkbox_callback, checkbox_param_update, checkbox_style_update};
+use crate::widgets::ipg_checkbox::{ChkMessage, checkbox_callback, checkbox_param_update, checkbox_style_update, construct_checkbox};
 use crate::widgets::ipg_column::{column_item_update, construct_column};
 use crate::widgets::ipg_container::{construct_container, container_item_update, container_style_update_item};
 use crate::widgets::ipg_events::process_window_event;
+use crate::widgets::ipg_font::font_param_update;
 use crate::widgets::ipg_row::{construct_row, row_item_update};
 use crate::widgets::ipg_window::{IpgWindow, IpgWindowLevel, IpgWindowMode, add_windows, construct_window, window_item_update};
 
@@ -744,15 +745,15 @@ fn get_widget<'a>(state: &'a IpgState, id: &usize) -> Option<Element<'a, Message
                 //     };
                 //     construct_card(crd, style_opt)
                 // },
-                // IpgWidgets::IpgCheckBox(chk) => {
-                //     let style_opt = match chk.style_id {
-                //         Some(id) => {
-                //             state.widgets.get(&id)
-                //         },
-                //         None => None,
-                //     };
-                //     construct_checkbox(chk, style_opt)
-                // },
+                IpgWidgets::IpgCheckBox(chk) => {
+                    let style_opt = match chk.style_id {
+                        Some(id) => {
+                            state.widgets.get(&id)
+                        },
+                        None => None,
+                    };
+                    construct_checkbox(chk, style_opt)
+                },
                 // IpgWidgets::IpgColorPicker(cp) => {
                 //     let style_opt = match cp.style_id {
                 //         Some(id) => {
@@ -1105,17 +1106,17 @@ fn process_updates(
     //     }
     // }
     // transfer any widgets or containers over
-    let mut mutex_state = access_state();
-    let widgets = mutex_state.widgets.to_owned();
+    // let mut mutex_state = access_state();
+    // let widgets = mutex_state.widgets.to_owned();
 
-    for key in widgets.keys() {
-        let value = mutex_state.widgets.remove(key).unwrap();
-        let parent_id = get_widget_parent_id(&value);
-        set_state_of_widget_running_state(state, *key, parent_id);
-        state.widgets.insert(*key, value);
-    }
+    // for key in widgets.keys() {
+    //     let value = mutex_state.widgets.remove(key).unwrap();
+    //     let parent_id = get_widget_parent_id(&value);
+    //     set_state_of_widget_running_state(state, *key, parent_id);
+    //     state.widgets.insert(*key, value);
+    // }
 
-    drop(mutex_state);
+    // drop(mutex_state);
 
 }
 
@@ -1151,7 +1152,7 @@ fn show_widget(state: &mut IpgState, ids: &[(usize, bool)]) {
         match widget {
             IpgWidgets::IpgButton(ipg_button) => ipg_button.show= *value,
             // IpgWidgets::IpgCard(ipg_card) => ipg_card.show= *value,
-            // IpgWidgets::IpgCheckBox(ipg_check_box) => ipg_check_box.show= *value,
+            IpgWidgets::IpgCheckBox(ipg_check_box) => ipg_check_box.show= *value,
             // IpgWidgets::IpgColorPicker(ipg_color_picker) => ipg_color_picker.show= *value,
             // IpgWidgets::IpgDatePicker(ipg_date_picker) => ipg_date_picker.show= *value,
             // IpgWidgets::IpgImage(ipg_image) => ipg_image.show= *value,
@@ -1174,54 +1175,54 @@ fn show_widget(state: &mut IpgState, ids: &[(usize, bool)]) {
     
 }
 
-fn get_widget_parent_id(widget: &IpgWidgets) -> String {
-    match widget {
-        IpgWidgets::IpgButton(ipg_button) => ipg_button.parent_id.clone(),
-        IpgWidgets::IpgButtonStyle(ipg_button_style) => todo!(),
-        // IpgWidgets::IpgCard(ipg_card) => ipg_card.parent_id.clone(),
-        // IpgWidgets::IpgCardStyle(ipg_card_style) => todo!(),
-        IpgWidgets::IpgCheckBox(ipg_check_box) => todo!(),
-        IpgWidgets::IpgCheckboxStyle(ipg_checkbox_style) => todo!(),
-        // IpgWidgets::IpgColorPicker(ipg_color_picker) => todo!(),
-        // IpgWidgets::IpgColorPickerStyle(ipg_color_picker_style) => todo!(),
-        IpgWidgets::IpgContainerStyle(ipg_container_style) => todo!(),
-        // IpgWidgets::IpgDatePicker(ipg_date_picker) => todo!(),
-        // IpgWidgets::IpgDividerHorizontal(_) => todo!(),
-        // IpgWidgets::IpgDividerVertical(_) => todo!(),
-        // IpgWidgets::IpgDividerStyle(_) => todo!(),
-        // IpgWidgets::IpgImage(ipg_image) => todo!(),
-        // IpgWidgets::IpgMenuStyle(ipg_menu_style) => todo!(),
-        // IpgWidgets::IpgMenuBarStyle(ipg_menu_bar_style) => todo!(),
-        // IpgWidgets::IpgOpaqueStyle(ipg_opaque_style) => todo!(),
-        // IpgWidgets::IpgPickList(ipg_pick_list) => todo!(),
-        // IpgWidgets::IpgPickListStyle(ipg_pick_list_style) => todo!(),
-        // IpgWidgets::IpgProgressBar(ipg_progress_bar) => todo!(),
-        // IpgWidgets::IpgProgressBarStyle(ipg_progress_bar_style) => todo!(),
-        // IpgWidgets::IpgRadio(ipg_radio) => todo!(),
-        // IpgWidgets::IpgRadioStyle(ipg_radio_style) => todo!(),
-        // IpgWidgets::IpgRule(ipg_rule) => todo!(),
-        // IpgWidgets::IpgRuleStyle(ipg_rule_style) => todo!(),
-        // IpgWidgets::IpgScrollableStyle(ipg_scrollable_style) => todo!(),
-        // IpgWidgets::IpgSelectableText(ipg_selectable_text) => todo!(),
-        // IpgWidgets::IpgSeparator(ipg_separator) => todo!(),
-        // IpgWidgets::IpgSeparatorStyle(ipg_separator_style) => todo!(),
-        // IpgWidgets::IpgSlider(ipg_slider) => todo!(),
-        // IpgWidgets::IpgSliderStyle(ipg_slider_style) => todo!(),
-        // IpgWidgets::IpgSpace(ipg_space) => todo!(),
-        // IpgWidgets::IpgSvg(ipg_svg) => todo!(),
-        // IpgWidgets::IpgTableStyle(ipg_table_style) => todo!(),
-        // IpgWidgets::IpgText(text) => text.parent_id.clone(),
-        // IpgWidgets::IpgTextInput(ipg_text_input) => todo!(),
-        // IpgWidgets::IpgTextInputStyle(ipg_text_input_style) => todo!(),
-        // IpgWidgets::IpgTimer(ipg_timer) => todo!(),
-        // IpgWidgets::IpgTimerStyle(ipg_timer_style) => todo!(),
-        // IpgWidgets::IpgCanvasTimer(ipg_canvas_timer) => todo!(),
-        // IpgWidgets::IpgCanvasTimerStyle(ipg_canvas_timer_style) => todo!(),
-        // IpgWidgets::IpgToggler(ipg_toggler) => todo!(),
-        // IpgWidgets::IpgTogglerStyle(ipg_toggler_style) => todo!(),
-        // IpgWidgets::IpgToolTipStyle(ipg_tool_tip) => todo!(),
-    }
-}
+// fn get_widget_parent_id(widget: &IpgWidgets) -> String {
+//     match widget {
+//         IpgWidgets::IpgButton(ipg_button) => ipg_button.parent_id.clone(),
+//         IpgWidgets::IpgButtonStyle(ipg_button_style) => todo!(),
+//         // IpgWidgets::IpgCard(ipg_card) => ipg_card.parent_id.clone(),
+//         // IpgWidgets::IpgCardStyle(ipg_card_style) => todo!(),
+//         IpgWidgets::IpgCheckBox(ipg_check_box) => todo!(),
+//         IpgWidgets::IpgCheckboxStyle(ipg_checkbox_style) => todo!(),
+//         // IpgWidgets::IpgColorPicker(ipg_color_picker) => todo!(),
+//         // IpgWidgets::IpgColorPickerStyle(ipg_color_picker_style) => todo!(),
+//         IpgWidgets::IpgContainerStyle(ipg_container_style) => todo!(),
+//         // IpgWidgets::IpgDatePicker(ipg_date_picker) => todo!(),
+//         // IpgWidgets::IpgDividerHorizontal(_) => todo!(),
+//         // IpgWidgets::IpgDividerVertical(_) => todo!(),
+//         // IpgWidgets::IpgDividerStyle(_) => todo!(),
+//         // IpgWidgets::IpgImage(ipg_image) => todo!(),
+//         // IpgWidgets::IpgMenuStyle(ipg_menu_style) => todo!(),
+//         // IpgWidgets::IpgMenuBarStyle(ipg_menu_bar_style) => todo!(),
+//         // IpgWidgets::IpgOpaqueStyle(ipg_opaque_style) => todo!(),
+//         // IpgWidgets::IpgPickList(ipg_pick_list) => todo!(),
+//         // IpgWidgets::IpgPickListStyle(ipg_pick_list_style) => todo!(),
+//         // IpgWidgets::IpgProgressBar(ipg_progress_bar) => todo!(),
+//         // IpgWidgets::IpgProgressBarStyle(ipg_progress_bar_style) => todo!(),
+//         // IpgWidgets::IpgRadio(ipg_radio) => todo!(),
+//         // IpgWidgets::IpgRadioStyle(ipg_radio_style) => todo!(),
+//         // IpgWidgets::IpgRule(ipg_rule) => todo!(),
+//         // IpgWidgets::IpgRuleStyle(ipg_rule_style) => todo!(),
+//         // IpgWidgets::IpgScrollableStyle(ipg_scrollable_style) => todo!(),
+//         // IpgWidgets::IpgSelectableText(ipg_selectable_text) => todo!(),
+//         // IpgWidgets::IpgSeparator(ipg_separator) => todo!(),
+//         // IpgWidgets::IpgSeparatorStyle(ipg_separator_style) => todo!(),
+//         // IpgWidgets::IpgSlider(ipg_slider) => todo!(),
+//         // IpgWidgets::IpgSliderStyle(ipg_slider_style) => todo!(),
+//         // IpgWidgets::IpgSpace(ipg_space) => todo!(),
+//         // IpgWidgets::IpgSvg(ipg_svg) => todo!(),
+//         // IpgWidgets::IpgTableStyle(ipg_table_style) => todo!(),
+//         // IpgWidgets::IpgText(text) => text.parent_id.clone(),
+//         // IpgWidgets::IpgTextInput(ipg_text_input) => todo!(),
+//         // IpgWidgets::IpgTextInputStyle(ipg_text_input_style) => todo!(),
+//         // IpgWidgets::IpgTimer(ipg_timer) => todo!(),
+//         // IpgWidgets::IpgTimerStyle(ipg_timer_style) => todo!(),
+//         // IpgWidgets::IpgCanvasTimer(ipg_canvas_timer) => todo!(),
+//         // IpgWidgets::IpgCanvasTimerStyle(ipg_canvas_timer_style) => todo!(),
+//         // IpgWidgets::IpgToggler(ipg_toggler) => todo!(),
+//         // IpgWidgets::IpgTogglerStyle(ipg_toggler_style) => todo!(),
+//         // IpgWidgets::IpgToolTipStyle(ipg_tool_tip) => todo!(),
+//     }
+// }
 
 use once_cell::sync::Lazy;
 fn clone_state(state: &mut IpgState) {
@@ -1271,7 +1272,7 @@ fn match_widget(
     match widget {
         IpgWidgets::IpgButton(btn) => {
             button_param_update(btn, item, value);
-            },
+        },
         IpgWidgets::IpgButtonStyle(style) => {
             button_style_update(style, item, value);
         },
@@ -1283,10 +1284,13 @@ fn match_widget(
         //     },
         IpgWidgets::IpgCheckBox(chk) => {
                 checkbox_param_update(chk, item, value);
-            },
+        },
         IpgWidgets::IpgCheckboxStyle(style) => {
                 checkbox_style_update(style, item, value);
-            },
+        },
+        IpgWidgets::IpgFont(font) => {
+                font_param_update(font, item, value);
+        },
         // IpgWidgets::IpgColorPicker(cp) => {
         //         color_picker_update(cp, item, value);
         //     },

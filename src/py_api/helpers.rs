@@ -36,34 +36,6 @@ pub fn find_key_for_value(ids: HashMap<window::Id, usize>, value: usize) -> wind
     }
 }
 
-
-pub fn get_alignment(align: IpgAlignment) -> Alignment {
-
-    match align {
-        IpgAlignment::Start => Alignment::Start,
-        IpgAlignment::Center => Alignment::Center,
-        IpgAlignment::End => Alignment::End,
-    }
-}
-
-pub fn get_horizontal_alignment(h_align: &IpgHorizontalAlignment) -> Horizontal {
-
-    match h_align {
-        IpgHorizontalAlignment::Left => Horizontal::Left,
-        IpgHorizontalAlignment::Center => Horizontal::Center,
-        IpgHorizontalAlignment::Right => Horizontal::Right,
-    }
-}
-
-pub fn get_vertical_alignment(v_align: &IpgVerticalAlignment) -> Vertical {
-    
-    match v_align {
-        IpgVerticalAlignment::Top => Vertical::Top,
-        IpgVerticalAlignment::Center => Vertical::Center,
-        IpgVerticalAlignment::Bottom => Vertical::Bottom,
-    }
-}
-
 // Standard method for Length using Width
 pub fn get_width(width: Option<f32>, width_fill: bool)-> Length {
     // width overrides width_fill
@@ -154,13 +126,6 @@ fn vec_to_array2_f32(arr: &[f32]) -> [f32; 2] {
     [arr[0], arr[1]]
 }
 
-pub fn get_shaping(shape: String) -> Shaping {
-    match shape.as_str() {
-        "basic" => Shaping::Basic,
-        "advanced" => Shaping::Advanced,
-        _ => panic!("The shape {shape} is not allowed, used either 'basic' or 'advanced'")
-    }
-}
 
 pub fn get_line_height(pixels: Option<u16>, relative: Option<f32>) -> LineHeight {
     if let Some(pixs) =  pixels {

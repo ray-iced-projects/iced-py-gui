@@ -1,7 +1,8 @@
 //! Button widget definition
 #![allow(unused)]
 use iced::widget::{button, text, Button};
-use iced::{alignment, Border, Color, Element, Length, Padding, Shadow, Theme, Vector};
+use iced::{alignment, Border, Color, Element, Length, 
+    Padding, Shadow, Theme, Vector};
 use pyo3::{Py, PyAny, Python, pyclass};
 type PyObject = Py<PyAny>;
 
@@ -12,9 +13,16 @@ use crate::graphics::bootstrap::{self, icon_to_char, icon_to_string};
 use crate::graphics::colors::{IpgColor, get_color};
 use crate::py_api::column;
 use crate::state::IpgWidgets;
-use crate::widgets::enums::{IpgHorizontalAlignment, IpgVerticalAlignment};
+use crate::widgets::enums::{IpgHorizontalAlignment, 
+    IpgVerticalAlignment};
 use super::styling::IpgStyleStandard;
-use crate::py_api::helpers::{get_height, get_horizontal_alignment, get_padding_f32, get_padding_f64, get_radius, get_vertical_alignment, get_width, try_extract_boolean, try_extract_f32, try_extract_f64, try_extract_f64_option, try_extract_ipg_color, try_extract_ipg_horizontal_alignment, try_extract_ipg_vertical_alignment, try_extract_rgba_color, try_extract_string, try_extract_style_standard, try_extract_vec_f32, try_extract_vec_f64};
+use crate::py_api::helpers::{get_height, get_padding_f32, 
+    get_padding_f64, get_radius, get_width, try_extract_boolean, 
+    try_extract_f32, try_extract_f64, try_extract_f64_option, 
+    try_extract_ipg_color, try_extract_ipg_horizontal_alignment, 
+    try_extract_ipg_vertical_alignment, try_extract_rgba_color, 
+    try_extract_string, try_extract_style_standard, 
+    try_extract_vec_f32, try_extract_vec_f64};
 
 #[derive(Debug, Clone)]
 pub struct IpgButton {
@@ -40,22 +48,22 @@ pub enum BtnMessage {
 }
 
 pub fn construct_button<'a>(
-    btn: &'a IpgButton, 
+    ipg_btn: &'a IpgButton, 
     style_widget: Option<&IpgWidgets>,
     ) -> Option<Element<'a, Message>> {
     
-    if !btn.show {
+    if !ipg_btn.show {
         return None;
     }
 
     let style_opt = extract_btn_style(style_widget);
 
-    let text = 
-        if let Some(sa) = btn.style_arrow.clone() {
+    let txt = 
+        if let Some(sa) = ipg_btn.style_arrow.clone() {
             let arrow = get_bootstrap_arrow(&sa);
             text(arrow).font(iced::Font::with_name("bootstrap-icons"))
         } else {
-            let label = if let Some(lb) = &btn.label {
+            let label = if let Some(lb) = &ipg_btn.label {
                 lb.clone()
             } else {
                 String::new()
@@ -63,39 +71,41 @@ pub fn construct_button<'a>(
             text(label.clone())
         };
 
-    let text = 
-        if let Some(align) = &btn.text_align_x {
-            text.align_x(align.to_iced())
-        } else {text};
+    let txt = 
+        if let Some(align) = &ipg_btn.text_align_x {
+            txt.align_x(align.to_iced())
+        } else {txt};
 
-    let text = 
-        if let Some(align) = &btn.text_align_y {
-            text.align_y(align.to_iced())
-        } else {text};
+    let txt = 
+        if let Some(align) = &ipg_btn.text_align_y {
+            txt.align_y(align.to_iced())
+        } else {txt};
     
-    let text = if let Some(size) = btn.text_size {
-        text.size(size)
-    } else {text};
+    let txt = if let Some(size) = ipg_btn.text_size {
+        txt.size(size)
+    } else {txt};
     
-    let button = 
-        Button::new(text)
-            .width(btn.width)
-            .height(btn.height)
+    let btn=
+        Button::new(txt)
+            .on_press(BtnMessage::OnPress)
+            .width(ipg_btn.width)
+            .height(ipg_btn.height)
             .style(move |theme: &Theme, status| {
-                get_styling(theme, status, &style_opt, &btn.style_standard)
+                get_styling(theme, status, &style_opt, &ipg_btn.style_standard)
         });
 
-    let button = 
-        if let Some(pd) = &btn.padding {
-            button.padding(get_padding_f32(pd))
-        } else { button };
+    let btn = 
+        if let Some(pd) = &ipg_btn.padding {
+            btn.padding(get_padding_f32(pd))
+        } else { btn };
 
-    let button: Element<'_, BtnMessage> = 
-        if let Some(cp) = btn.clip {
-            button.clip(cp).into()
-        } else { button.into() };
+    let btn: Element<'_, BtnMessage> = 
+        if let Some(cp) = ipg_btn.clip {
+            btn.clip(cp).into()
+        } else { btn.into() };
 
-    Some(button.map(move |message| Message::Button(btn.id, message)))
+    Some(btn.map(move |message| Message::Button(ipg_btn.id, message)))
+
 }
 
 pub fn extract_btn_style(style: Option<&IpgWidgets>) -> Option<IpgButtonStyle>{

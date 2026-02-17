@@ -8,9 +8,9 @@ type PyObject = Py<PyAny>;
 
 use crate::app::Message;
 use crate::graphics::colors::get_color;
-use crate::py_api::helpers::{get_height, get_horizontal_alignment, 
-    get_padding_f64, get_radius, get_vertical_alignment, get_width, 
-    try_extract_array_2, try_extract_boolean, try_extract_f64, 
+use crate::py_api::helpers::{get_height, get_padding_f64, 
+    get_radius, get_width, try_extract_array_2, 
+    try_extract_boolean, try_extract_f64, 
     try_extract_ipg_color, try_extract_ipg_horizontal_alignment, 
     try_extract_ipg_vertical_alignment, try_extract_rgba_color, 
     try_extract_vec_f32, try_extract_vec_f64};
@@ -80,8 +80,9 @@ pub fn construct_container<'a>(con: &'a IpgContainer,
     
     if !con.show {return Space::new().into()}
 
-    let align_h = get_horizontal_alignment(&con.align_x);
-    let align_v = get_vertical_alignment(&con.align_y);
+    let align_h = IpgHorizontalAlignment::to_iced(&con.align_x);
+    let align_v = IpgVerticalAlignment::to_iced(&con.align_y);
+    
     let style = get_cont_style(style_opt);
 
     // Since a container can have only one element and the 

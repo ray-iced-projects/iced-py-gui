@@ -1,6 +1,8 @@
 //! Common enums used across widgets
 
-use pyo3::pyclass;
+use pyo3::{Python, pyclass, Py, PyAny};
+type PyObject = Py<PyAny>;
+
 use iced::{self, widget::text::Shaping, alignment, Alignment};
 
 #[derive(Debug, Clone, PartialEq)]
@@ -18,6 +20,26 @@ impl IpgShaping {
             IpgShaping::Basic => Shaping::Basic,
             IpgShaping::Advanced => Shaping::Advanced,
         }
+    }
+
+    pub fn extract_to_iced(value: &PyObject) -> Shaping {
+        Python::attach(|py| {
+            let res = value.extract::<IpgShaping>(py);
+            match res {
+                Ok(val) => val.to_iced(),
+                Err(_) => panic!("Unable to extract python IpgShaping"),
+            }
+        })  
+    }
+
+    pub fn extract(value: &PyObject) -> Option<IpgShaping> {
+        Python::attach(|py| {
+            let res = value.extract::<IpgShaping>(py);
+            match res {
+                Ok(val) => Some(val),
+                Err(_) => panic!("Unable to extract python IpgShaping"),
+            }
+        })  
     }
 }
 

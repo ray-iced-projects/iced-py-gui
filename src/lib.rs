@@ -24,8 +24,10 @@ pub use state::{
 // Import pyfunctions from py_api modules
 use py_api::window::add_window;
 use py_api::button::{add_button, add_button_style};
+use py_api::checkbox::{add_checkbox, add_checkbox_style};
 use py_api::column::add_column;
 use py_api::container::add_container;
+use py_api::font::add_font;
 use py_api::row::add_row;
 use py_api::session::{start_session, generate_id};
 use py_api::update::update_widget;
@@ -36,9 +38,10 @@ use widgets::ipg_window::{IpgWindowLevel, IpgWindowMode, IpgWindowTheme};
 use widgets::ipg_button::IpgButtonArrow;
 use widgets::styling::IpgStyleStandard;
 
-use crate::graphics::bootstrap_icon::Icon;
+use crate::graphics::bootstrap_icon::IpgIcon;
 use crate::graphics::colors::IpgColor;
 use crate::widgets::ipg_button::{IpgButtonParam, IpgButtonStyleParam, IpgButtonStyleStandard};
+use crate::widgets::ipg_checkbox::{IpgCheckboxParam, IpgCheckboxStyleParam};
 
 /// Python module definition
 #[pymodule]
@@ -50,13 +53,17 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     // Widget functions
     m.add_function(wrap_pyfunction!(add_window, m)?)?;
     m.add_function(wrap_pyfunction!(add_button, m)?)?;
+    m.add_function(wrap_pyfunction!(add_checkbox, m)?)?;
     m.add_function(wrap_pyfunction!(add_column, m)?)?;
     m.add_function(wrap_pyfunction!(add_container, m)?)?;
+    m.add_function(wrap_pyfunction!(add_font, m)?)?;
     m.add_function(wrap_pyfunction!(add_row, m)?)?;
     m.add_function(wrap_pyfunction!(update_widget, m)?)?;
     
     // styles
     m.add_function(wrap_pyfunction!(add_button_style, m)?)?;
+    m.add_function(wrap_pyfunction!(add_checkbox_style, m)?)?;
+
     // Enums
     m.add_class::<IpgAlignment>()?;
     m.add_class::<IpgHorizontalAlignment>()?;
@@ -68,9 +75,11 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<IpgButtonParam>()?;
     m.add_class::<IpgButtonStyleParam>()?;
     m.add_class::<IpgButtonStyleStandard>()?;
+    m.add_class::<IpgCheckboxParam>()?;
+    m.add_class::<IpgCheckboxStyleParam>()?;
     m.add_class::<IpgColor>()?;
     m.add_class::<IpgStyleStandard>()?;
-    m.add_class::<Icon>()?;
+    m.add_class::<IpgIcon>()?;
     
     Ok(())
 }

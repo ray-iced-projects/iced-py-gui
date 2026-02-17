@@ -13,7 +13,7 @@ import argparse
 
 # The enums you want to auto-generate stubs for
 ENUMS_TO_GENERATE = [
-    "Icon",
+    "IpgIcon",
     # Add more enum names here as needed, e.g.:
     # "IpgColor",
 ]

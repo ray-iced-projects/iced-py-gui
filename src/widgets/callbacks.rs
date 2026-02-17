@@ -216,6 +216,9 @@ pub fn set_or_get_widget_callback_data(state: &mut IpgState, wci: WidgetCallback
             //         ..Default::default()
             //     }
             // },
+            IpgWidgets::IpgFont(_) => {
+                return WidgetCallbackOut::default();
+            }
             // IpgWidgets::IpgImage(_) => {
             //     return WidgetCallbackOut::default();
             // },

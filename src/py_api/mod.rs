@@ -1,13 +1,13 @@
 //! Python-facing API functions
 //! 
-//! This module contains module-level pyfunctions that users call from Python.
-//! Each widget type has its own submodule.
+//! Pyfunctions modules that users call from Python.
 
 pub mod window;
 pub mod button;
 pub mod checkbox;
 pub mod column;
 pub mod container;
+pub mod font;
 pub mod row;
 pub mod session;
 pub mod helpers;

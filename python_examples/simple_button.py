@@ -1,6 +1,6 @@
 from icedpygui import (
     add_window, add_column, start_session, update_widget, 
-    IpgButtonStyleParam, IpgButtonParam,
+    IpgButtonParam,
     add_button, add_button_style
     )
 
@@ -21,7 +21,7 @@ add_column(window_id="main", container_id="col", width_fill=True)
 
 add_button(
     parent_id="col", 
-    label="Click Me", 
+    label="Click Me",
     on_press=print_id, 
     style_id=style_id)
 

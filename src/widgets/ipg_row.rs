@@ -9,9 +9,7 @@ type PyObject = Py<PyAny>;
 
 use crate::app::Message;
 
-use crate::py_api::helpers::{get_height, get_padding_f64, get_width, 
-    try_extract_boolean, try_extract_f64, try_extract_ipg_alignment, 
-    try_extract_vec_f64};
+use crate::py_api::helpers::{get_height, get_padding_f32, get_width, try_extract_boolean, try_extract_f32, try_extract_vec_f32, try_extract_vec_f64};
 use crate::widgets::enums::IpgAlignment;
 
 
@@ -21,61 +19,47 @@ pub struct IpgRow {
     pub id: usize,
     pub show: bool,
 
-    pub spacing: f32,
-    pub padding: Padding,
+    pub spacing: Option<f32>,
+    pub padding: Option<Vec<f32>>,
     pub width: Length,
     pub height: Length,
-    pub align: IpgAlignment,
-    pub clip: bool,
+    pub align: Option<IpgAlignment>,
+    pub clip: Option<bool>,
 }
 
-impl IpgRow {
-    pub fn new(
-        id: usize,
-        show: bool,
-        spacing: f32,
-        padding: Padding,
-        width: Length,
-        height: Length,
-        align: IpgAlignment,
-        clip: bool,
-    ) -> Self {
-        Self {
-            id,
-            show,
-            spacing,
-            padding,
-            width,
-            height,
-            align,
-            clip
-        }
-    }
+pub fn construct_row<'a>(
+    ipg_row: &IpgRow, 
+    content: Vec<Element<'a, Message>>,
+    ) -> Element<'a, Message> {
+
+    let row = 
+        Row::with_children(content)
+            .width(ipg_row.width)
+            .height(ipg_row.height);
+                        
+    let row = 
+        if let Some(align) = &ipg_row.align {
+            row.align_y(IpgAlignment::to_iced(align))
+        } else { row };
+
+    let row = 
+        if let Some(pd) = &ipg_row.padding {
+            row.padding(get_padding_f32(pd))
+        } else { row };
+
+    let row = 
+        if let Some(sp) = ipg_row.spacing {
+            row.spacing(sp)
+        } else { row };
+
+    let row = 
+        if let Some(cp) = ipg_row.clip {
+            row.clip(cp)
+        } else { row };
+
+    row.into()
 }
 
-pub fn construct_row<'a>(row: &IpgRow, content: Vec<Element<'a, Message>>) -> Element<'a, Message> {
-
-    let align = get_alignment(row.align.clone());
-
-    Row::with_children(content)
-                        .align_y(align)
-                        .height(row.height)
-                        .padding(row.padding)
-                        .spacing(row.spacing)
-                        .width(row.width)
-                        .clip(row.clip)
-                        .into()
-}
-
-
-fn get_alignment(align: IpgAlignment) -> Alignment {
-
-    match align {
-        IpgAlignment::Start => Alignment::Start,
-        IpgAlignment::Center => Alignment::Center,
-        IpgAlignment::End => Alignment::End,
-    }
-}
 
 #[derive(Debug, Clone, PartialEq)]
 #[pyclass(eq, eq_int)]
@@ -90,7 +74,7 @@ pub enum IpgRowParam {
     Spacing,
 }
 
-pub fn row_item_update(col: &mut IpgRow,
+pub fn row_item_update(ipg_row: &mut IpgRow,
                             item: &PyObject,
                             value: &PyObject,
                             )
@@ -99,32 +83,32 @@ pub fn row_item_update(col: &mut IpgRow,
     let name = "Row".to_string();
     match update {
         IpgRowParam::Align => {
-            col.align = try_extract_ipg_alignment(value).unwrap();
+            ipg_row.align = IpgAlignment::extract(value);
         },
         IpgRowParam::Clip => {
-            col.clip = try_extract_boolean(value, name);
+            ipg_row.clip = Some(try_extract_boolean(value, name));
         },
         IpgRowParam::Padding => {
-            col.padding =  get_padding_f64(try_extract_vec_f64(value, name));
+            ipg_row.padding =  Some(try_extract_vec_f32(value, name));
         },
         IpgRowParam::Width => {
-            let val = try_extract_f64(value, name);
-            col.width = get_width(Some(val as f32), false);
+            let val = try_extract_f32(value, name);
+            ipg_row.width = get_width(Some(val), false);
         },
         IpgRowParam::WidthFill => {
             let val = try_extract_boolean(value, name);
-            col.width = get_width(None, val);
+            ipg_row.width = get_width(None, val);
         },
         IpgRowParam::Height => {
-            let val = try_extract_f64(value, name);
-            col.height = get_height(Some(val as f32), false);
+            let val = try_extract_f32(value, name);
+            ipg_row.height = get_height(Some(val), false);
         },
         IpgRowParam::HeightFill => {
             let val = try_extract_boolean(value, name);
-            col.height = get_height(None, val);
+            ipg_row.height = get_height(None, val);
         },
         IpgRowParam::Spacing => {
-            col.spacing = try_extract_f64(value, name) as f32;
+            ipg_row.spacing = Some(try_extract_f32(value, name));
         },
     }
 }

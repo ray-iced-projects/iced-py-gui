@@ -3,9 +3,10 @@ use pyo3::prelude::*;
 use pyo3::pyfunction;
 
 use crate::access_state;
-use crate::py_api::helpers::{get_height, get_padding_f64, get_width};
-use crate::state::{IpgContainers, get_id, set_state_cont_wnd_ids, set_state_of_container};
-use crate::widgets::enums::IpgAlignment;
+use crate::py_api::helpers::{get_height, get_width};
+use crate::state::{IpgContainers, get_id, set_state_cont_wnd_ids, 
+    set_state_of_container};
+use crate::widgets::enums::IpgHorizontalAlignment;
 use crate::widgets::ipg_column::IpgColumn;
 
 
@@ -18,14 +19,14 @@ use crate::widgets::ipg_column::IpgColumn;
         window_id, 
         container_id, 
         parent_id=None,
-        align=IpgAlignment::Start, 
+        align_x=None,
         width=None, height=None,
         width_fill=false, 
         height_fill=false,
-        max_width=f32::INFINITY, 
-        padding=vec![0.0], 
-        spacing=10.0, 
-        clip=false, 
+        max_width=None,
+        padding=None,
+        spacing=None, 
+        clip=None, 
         show=true,
         ))]
 pub fn add_column(
@@ -33,15 +34,15 @@ pub fn add_column(
     container_id: String,
     // **above required
     parent_id: Option<String>,
-    align: IpgAlignment,
+    align_x: Option<IpgHorizontalAlignment>,
     width: Option<f32>,
     height: Option<f32>,
     width_fill: bool,
     height_fill: bool,
-    max_width: f32,
-    padding: Vec<f64>,
-    spacing: f32,
-    clip: bool,
+    max_width: Option<f32>,
+    padding: Option<Vec<f32>>,
+    spacing: Option<f32>,
+    clip: Option<bool>,
     show: bool,
     ) -> PyResult<usize> 
 {
@@ -49,8 +50,6 @@ pub fn add_column(
     
     let width = get_width(width, width_fill);
     let height = get_height(height, height_fill);
-
-    let padding = get_padding_f64(padding);
 
     let prt_id = match parent_id {
         Some(id) => id,
@@ -73,7 +72,7 @@ pub fn add_column(
                 width, 
                 height, 
                 max_width, 
-                align,
+                align_x,
                 clip,
             }));
 

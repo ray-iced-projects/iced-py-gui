@@ -17,12 +17,8 @@ use crate::widgets::enums::{IpgHorizontalAlignment,
     IpgVerticalAlignment};
 use super::styling::IpgStyleStandard;
 use crate::py_api::helpers::{get_height, get_padding_f32, 
-    get_padding_f64, get_radius, get_width, try_extract_boolean, 
-    try_extract_f32, try_extract_f64, try_extract_f64_option, 
-    try_extract_ipg_color, try_extract_ipg_horizontal_alignment, 
-    try_extract_ipg_vertical_alignment, 
-    try_extract_string, try_extract_style_standard, 
-    try_extract_vec_f32, try_extract_vec_f64};
+    get_radius, get_width, try_extract_boolean, try_extract_f32, 
+    try_extract_string, try_extract_style_standard, try_extract_vec_f32};
 
 #[derive(Debug, Clone)]
 pub struct IpgButton {
@@ -81,9 +77,10 @@ pub fn construct_button<'a>(
             txt.align_y(align.to_iced())
         } else {txt};
     
-    let txt = if let Some(size) = ipg_btn.text_size {
-        txt.size(size)
-    } else {txt};
+    let txt = 
+        if let Some(size) = ipg_btn.text_size {
+            txt.size(size)
+        } else {txt};
     
     let btn=
         Button::new(txt)
@@ -354,8 +351,8 @@ pub fn button_param_update(
             btn.label = Some(try_extract_string(value, name));
         },
         IpgButtonParam::Height => {
-            let val = try_extract_f64(value, name);
-            btn.height = get_height(Some(val as f32), false);
+            let val = try_extract_f32(value, name);
+            btn.height = get_height(Some(val), false);
         },
         IpgButtonParam::HeightFill => {
             let val = try_extract_boolean(value, name);
@@ -371,23 +368,23 @@ pub fn button_param_update(
             btn.show = try_extract_boolean(value, name);
         },
         IpgButtonParam::StyleId => {
-            btn.style_id = Some(try_extract_f64(value, name) as usize);
+            btn.style_id = Some(try_extract_f32(value, name) as usize);
         },
         IpgButtonParam::StyleStandard => {
             btn.style_standard = Some(try_extract_button_style_standard(value, name));
         },
         IpgButtonParam::TextAlignX => {
-            btn.text_align_x = try_extract_ipg_horizontal_alignment(value);
+            btn.text_align_x = IpgHorizontalAlignment::extract(value);
         },
         IpgButtonParam::TextAlignY => {
-            btn.text_align_y= try_extract_ipg_vertical_alignment(value);
+            btn.text_align_y= IpgVerticalAlignment::extract(value);
         },
         IpgButtonParam::TextSize => {
             btn.text_size = Some(try_extract_f32(value, name));
         },
         IpgButtonParam::Width => {
-            let val = try_extract_f64(value, name);
-            btn.width = get_width(Some(val as f32), false);
+            let val = try_extract_f32(value, name);
+            btn.width = get_width(Some(val), false);
         },
         IpgButtonParam::WidthFill => {
             let val = try_extract_boolean(value, name);
@@ -440,7 +437,7 @@ pub fn button_style_update(style: &mut IpgButtonStyle,
     let name = "ButtonStyle".to_string();
     match update {
         IpgButtonStyleParam::BackgroundIpgColor => {
-            let color = try_extract_ipg_color(value, name);
+            let color = IpgColor::extract(value, name);
             style.background_color = 
                 IpgColor::rgba_ipg_color_to_iced(None, Some(color), 1.0, false);
         },
@@ -448,7 +445,7 @@ pub fn button_style_update(style: &mut IpgButtonStyle,
             style.background_color = Some(Color::from(IpgColor::extract_rgba_color(value, name)));
         },
         IpgButtonStyleParam::BackgroundIpgColorHovered => {
-            let color = try_extract_ipg_color(value, name);
+            let color = IpgColor::extract(value, name);
             style.background_color_hovered = 
                 IpgColor::rgba_ipg_color_to_iced(None, Some(color), 1.0, false);
         },
@@ -456,7 +453,7 @@ pub fn button_style_update(style: &mut IpgButtonStyle,
             style.background_color_hovered = Some(Color::from(IpgColor::extract_rgba_color(value, name)));
         },
         IpgButtonStyleParam::BorderIpgColor => {
-            let color = try_extract_ipg_color(value, name);
+            let color = IpgColor::extract(value, name);
             style.border_color = 
                 IpgColor::rgba_ipg_color_to_iced(None, Some(color), 1.0, false);
         },
@@ -467,10 +464,10 @@ pub fn button_style_update(style: &mut IpgButtonStyle,
             style.border_radius = Some(try_extract_vec_f32(value, name));
         },
         IpgButtonStyleParam::BorderWidth => {
-            style.border_width = Some(try_extract_f64(value, name) as f32);
+            style.border_width = Some(try_extract_f32(value, name));
         },
         IpgButtonStyleParam::ShadowIpgColor => {
-            let color = try_extract_ipg_color(value, name);
+            let color = IpgColor::extract(value, name);
             style.shadow_color = 
                 IpgColor::rgba_ipg_color_to_iced(None, Some(color), 1.0, false);
         },
@@ -478,16 +475,16 @@ pub fn button_style_update(style: &mut IpgButtonStyle,
             style.border_color = Some(Color::from(IpgColor::extract_rgba_color(value, name)));
         },
         IpgButtonStyleParam::ShadowOffsetX => {
-            style.shadow_offset_x = Some(try_extract_f64(value, name) as f32);
+            style.shadow_offset_x = Some(try_extract_f32(value, name));
         },
         IpgButtonStyleParam::ShadowOffsetY => {
-            style.shadow_offset_y = Some(try_extract_f64(value, name) as f32);
+            style.shadow_offset_y = Some(try_extract_f32(value, name));
         },
         IpgButtonStyleParam::ShadowBlurRadius => {
-            style.shadow_blur_radius = Some(try_extract_f64(value, name) as f32);
+            style.shadow_blur_radius = Some(try_extract_f32(value, name));
         },
         IpgButtonStyleParam::TextIpgColor => {
-            let color = try_extract_ipg_color(value, name);
+            let color = IpgColor::extract(value, name);
             style.text_color = 
                 IpgColor::rgba_ipg_color_to_iced(None, Some(color), 1.0, false);
         },

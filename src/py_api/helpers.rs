@@ -65,25 +65,6 @@ pub fn get_height(height: Option<f32>, height_fill: bool)-> Length {
 }
 
 // Standard method for padding
-pub fn get_padding_f64(padding: Vec<f64>)-> Padding {
-    let len = padding.len();
-    match len {
-    0 => panic!("Padding must have at List of at least 1, 2 or 4 items"),
-    1 => Padding::from(padding[0] as f32),
-    2 => Padding::from(vec_to_array2_f64(&padding)),
-    3 => panic!("Padding must have a List of 1, 2, or 4 items"),
-    4 => {
-        let mut pad = Padding::default();
-        pad = pad.top(padding[0] as f32);
-        pad = pad.right(padding[1] as f32);
-        pad = pad.bottom(padding[2] as f32);
-        pad = pad.left(padding[3] as f32);
-        pad
-    },
-    _ => panic!("Padding must have a List of less than 4 items"),
-    }
-}
-
 pub fn get_padding_f32(padding: &Vec<f32>)-> Padding {
     let len = padding.len();
     match len {
@@ -341,39 +322,6 @@ pub fn try_extract_boolean(value: &PyObject, name: String) -> bool {
     })  
 }
 
-// These alignments return options so that only the canvas text alignment needs one py value type
-pub fn try_extract_ipg_horizontal_alignment(value: &PyObject) -> Option<IpgHorizontalAlignment> {
-    Python::attach(|py| {
-
-        let res = value.extract::<IpgHorizontalAlignment>(py);
-        match res {
-            Ok(val) => Some(val),
-            Err(_) => None,
-        }
-    })
-}
-
-pub fn try_extract_ipg_vertical_alignment(value: &PyObject) -> Option<IpgVerticalAlignment> {
-    Python::attach(|py| {
-
-        let res = value.extract::<IpgVerticalAlignment>(py);
-        match res {
-            Ok(val) => Some(val),
-            Err(_) => None,
-        }
-    })
-}
-
-pub fn try_extract_ipg_alignment(value: &PyObject) -> Option<IpgAlignment> {
-    Python::attach(|py| {
-
-        let res = value.extract::<IpgAlignment>(py);
-        match res {
-            Ok(val) => Some(val),
-            Err(_) => None,
-        }
-    })
-}
 
 pub fn try_extract_style_standard(value: &PyObject, name: String) -> IpgStyleStandard {
     Python::attach(|py| {
@@ -382,17 +330,6 @@ pub fn try_extract_style_standard(value: &PyObject, name: String) -> IpgStyleSta
         match res {
             Ok(val) => val,
             Err(_) => panic!("{}-Unable to extract python object for StyleStandard", name),
-        }
-    })
-}
-
-pub fn try_extract_ipg_color(value: &PyObject, name: String) -> IpgColor {
-    Python::attach(|py| {
-
-        let res = value.extract::<IpgColor>(py);
-        match res {
-            Ok(val) => val,
-            Err(_) => panic!("{}-Unable to extract python object for IpgColor", name),
         }
     })
 }

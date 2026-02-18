@@ -7,10 +7,13 @@ use pyo3::{Py, PyAny, pyfunction};
 type PyObject = Py<PyAny>;
 
 use crate::graphics::colors::IpgColor;
-use crate::py_api::helpers::{get_height, get_padding_f64, get_width};
-use crate::state::{IpgContainers, IpgWidgets, access_state, get_id, set_state_cont_wnd_ids, set_state_of_container};
-use crate::widgets::ipg_container::{IpgContainer, IpgContainerStyle};
-use crate::widgets::enums::{IpgHorizontalAlignment, IpgVerticalAlignment};
+use crate::py_api::helpers::{get_height, get_width};
+use crate::state::{IpgContainers, IpgWidgets, access_state, 
+    get_id, set_state_cont_wnd_ids, set_state_of_container};
+use crate::widgets::ipg_container::{IpgContainer, 
+    IpgContainerStyle};
+use crate::widgets::enums::{IpgHorizontalAlignment, 
+    IpgVerticalAlignment};
 
 /// Add a container widget.
 ///
@@ -24,13 +27,20 @@ use crate::widgets::enums::{IpgHorizontalAlignment, IpgVerticalAlignment};
     width_fill=false, 
     height=None, 
     height_fill=false, 
-    clip=false, 
-    centered=true,
-    max_height=f32::INFINITY, 
-    max_width=f32::INFINITY,
-    align_x=IpgHorizontalAlignment::Left, 
-    align_y=IpgVerticalAlignment::Top,
-    padding=vec![0.0], 
+    clip=None, 
+    centered=None,
+    max_height=None, 
+    max_width=None,
+    align_x=None, 
+    align_y=None,
+    center_x=None,
+    center_y=None,
+    center=None,
+    align_left=None,
+    align_right=None,
+    align_top=None,
+    align_botton=None,
+    padding=None, 
     show=true, 
     style_id=None, 
     ))]
@@ -43,13 +53,20 @@ pub fn add_container(
     width_fill: bool,
     height: Option<f32>,
     height_fill: bool,
-    clip: bool,
-    centered: bool,
-    max_height: f32,
-    max_width: f32,
-    mut align_x: IpgHorizontalAlignment,
-    mut align_y: IpgVerticalAlignment, 
-    padding: Vec<f64>, 
+    clip: Option<bool>,
+    centered: Option<bool>,
+    max_height: Option<f32>,
+    max_width: Option<f32>,
+    align_x: Option<IpgHorizontalAlignment>,
+    align_y: Option<IpgVerticalAlignment>,
+    center_x: Option<bool>,
+    center_y: Option<bool>,
+    center: Option<bool>,
+    align_left: Option<bool>,
+    align_right: Option<bool>,
+    align_top: Option<bool>,
+    align_botton: Option<bool>, 
+    padding: Option<Vec<f32>>, 
     show: bool,
     style_id: Option<usize>,
     ) -> PyResult<usize>
@@ -58,16 +75,10 @@ pub fn add_container(
 
     let width = get_width(width, width_fill);
     let height = get_height(height, height_fill);
-    let padding = get_padding_f64(padding);
     
     let prt_id = match parent_id {
         Some(id) => id,
         None => window_id.clone(),
-    };
-
-    if centered {
-        align_x = IpgHorizontalAlignment::Center;
-        align_y = IpgVerticalAlignment::Center;
     };
 
     set_state_of_container(id, window_id.clone(), Some(container_id.clone()), prt_id);
@@ -87,6 +98,13 @@ pub fn add_container(
             max_height,
             align_x,
             align_y,
+            center_x,
+            center_y,
+            center,
+            align_left,
+            align_right,
+            align_top,
+            align_botton,
             clip,
             style_id, 
         }));

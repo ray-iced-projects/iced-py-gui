@@ -8,12 +8,7 @@ type PyObject = Py<PyAny>;
 
 use crate::app::Message;
 use crate::graphics::colors::IpgColor;
-use crate::py_api::helpers::{get_height, get_padding_f64, 
-    get_radius, get_width, try_extract_array_2, 
-    try_extract_boolean, try_extract_f64, 
-    try_extract_ipg_color, try_extract_ipg_horizontal_alignment, 
-    try_extract_ipg_vertical_alignment, 
-    try_extract_vec_f32, try_extract_vec_f64};
+use crate::py_api::helpers::{get_height, get_padding_f32, get_radius, get_width, try_extract_array_2, try_extract_boolean, try_extract_f32, try_extract_vec_f32};
 use crate::state::IpgWidgets;
 use crate::widgets::enums::{IpgHorizontalAlignment, IpgVerticalAlignment};
 
@@ -23,14 +18,21 @@ pub struct IpgContainer {
     pub id: usize,
     pub show: bool,
 
-    pub padding: Padding,
+    pub padding: Option<Vec<f32>>,
     pub width: Length,
     pub height: Length,
-    pub max_width: f32,
-    pub max_height: f32,
-    pub align_x: IpgHorizontalAlignment,
-    pub align_y: IpgVerticalAlignment,
-    pub clip: bool,
+    pub max_width: Option<f32>,
+    pub max_height: Option<f32>,
+    pub align_x: Option<IpgHorizontalAlignment>,
+    pub align_y: Option<IpgVerticalAlignment>,
+    pub center_x: Option<bool>,
+    pub center_y: Option<bool>,
+    pub center: Option<bool>,
+    pub align_left: Option<bool>,
+    pub align_right: Option<bool>,
+    pub align_top: Option<bool>,
+    pub align_botton: Option<bool>,
+    pub clip: Option<bool>,
     pub style_id: Option<usize>, 
 }
 #[derive(Debug, Clone)]
@@ -46,43 +48,14 @@ pub struct IpgContainerStyle {
     pub text_color: Option<Color>,
 }
 
-impl IpgContainerStyle {
-    pub fn new(
-        id: usize,
-        background_color: Option<Color>,
-        border_color: Option<Color>,
-        border_radius: Vec<f32>,
-        border_width: f32,
-        shadow: Option<Color>,
-        shadow_offset_xy: [f32; 2],
-        shadow_blur_radius: f32,
-        text_color: Option<Color>,
-    ) -> Self {
-        Self {
-            id,
-            background_color,
-            border_color,
-            border_radius,
-            border_width,
-            shadow_color: shadow,
-            shadow_offset_xy,
-            shadow_blur_radius,
-            text_color,
-        }
-    }
-}
-
-
-pub fn construct_container<'a>(con: &'a IpgContainer, 
-                            mut content: Vec<Element<'a, Message>>,
-                            style_opt: Option<&'a IpgWidgets> ) 
-                            -> Element<'a, Message> {
+pub fn construct_container<'a>(
+    ipg_cont: &'a IpgContainer, 
+    mut content: Vec<Element<'a, Message>>,
+    style_opt: Option<&'a IpgWidgets>,
+    ) -> Element<'a, Message> {
     
-    if !con.show {return Space::new().into()}
+    if !ipg_cont.show {return Space::new().into()}
 
-    let align_h = IpgHorizontalAlignment::to_iced(&con.align_x);
-    let align_v = IpgVerticalAlignment::to_iced(&con.align_y);
-    
     let style = get_cont_style(style_opt);
 
     // Since a container can have only one element and the 
@@ -94,33 +67,60 @@ pub fn construct_container<'a>(con: &'a IpgContainer,
         content.remove(0)
     };
 
-    Container::new(new_content)
-                .padding(con.padding)
-                .width(con.width)
-                .height(con.height)
-                .align_x(align_h)
-                .align_y(align_v)
-                .clip(con.clip)
-                .style(move|theme|
-                    get_styling(theme, 
-                        style.clone(),
-                        ))
-                .into()
+    let cont = 
+        Container::new(new_content)
+            .width(ipg_cont.width)
+            .height(ipg_cont.height)
+            .style(move|theme|
+                get_styling(theme, 
+                    style.clone(),
+                )
+            );
+
+    let cont = 
+        if let Some(align) = &ipg_cont.align_x {
+            cont.align_x(align.to_iced())
+        } else { cont };
+
+
+        // max_width,
+        //     max_height,
+        //     align_x,
+        //     align_y,
+        //     center_x,
+        //     center_y,
+        //     center,
+        //     align_left,
+        //     align_right,
+        //     align_top,
+        //     align_botton,
+        //     clip,
+
+
+    cont.into()            
     
 }
 
 #[derive(Debug, Clone, PartialEq)]
 #[pyclass(eq, eq_int)]
 pub enum IpgContainerParam {
-    AlignX,
-    AlignY,
-    Centered,
+    MaxWidth,
+    MaxHeight,
     Padding,
     Width,
     WidthFill,
     Height,
     HeightFill,
     Clip,
+    AlignX,
+    AlignY,
+    CenterX,
+    CenterY,
+    Center,
+    AlignLeft,
+    AlignRight,
+    AlignTop,
+    AlignBotton,
     Show,
 }
 
@@ -132,42 +132,58 @@ pub fn container_item_update(cont: &mut IpgContainer,
     let update = try_extract_container_update(item);
     let name = "Container".to_string();
     match update {
-        IpgContainerParam::AlignX => {
-            cont.align_x = try_extract_ipg_horizontal_alignment(value).unwrap();
-        },
-        IpgContainerParam::AlignY => {
-            cont.align_y = try_extract_ipg_vertical_alignment(value).unwrap();
-        },
-        IpgContainerParam::Centered => {
-            let centered = try_extract_boolean(value, name);
-            if centered {
-                cont.align_x = IpgHorizontalAlignment::Center;
-                cont.align_y = IpgVerticalAlignment::Center;
-            } else {
-                cont.align_x = IpgHorizontalAlignment::Left;
-                cont.align_y = IpgVerticalAlignment::Top;
-            }
-        },
         IpgContainerParam::Padding => {
-            let pad = try_extract_vec_f64(value, name);
-            cont.padding = get_padding_f64(pad);
+            cont.padding = Some(try_extract_vec_f32(value, name));
         },
         IpgContainerParam::Width => {
-            let w = Some(try_extract_f64(value, name) as f32);
+            let w = Some(try_extract_f32(value, name));
             cont.width = get_width(w, false)
         },
         IpgContainerParam::WidthFill => {
             cont.width = get_width(None, try_extract_boolean(value, name));
         },
         IpgContainerParam::Height => {
-            let h = Some(try_extract_f64(value, name) as f32);
+            let h = Some(try_extract_f32(value, name));
             cont.height = get_height(h, false)
         },
         IpgContainerParam::HeightFill => {
             cont.height = get_height(None, try_extract_boolean(value, name));
         },
         IpgContainerParam::Clip => {
-            cont.clip = try_extract_boolean(value, name);
+            cont.clip = Some(try_extract_boolean(value, name));
+        },
+        IpgContainerParam::AlignX => {
+            cont.align_x = IpgHorizontalAlignment::extract(value);
+        },
+        IpgContainerParam::AlignY => {
+            cont.align_y = IpgVerticalAlignment::extract(value);
+        },
+        IpgContainerParam::MaxWidth => {
+            cont.max_width = Some(try_extract_f32(value, name));
+        },
+        IpgContainerParam::MaxHeight => {
+            cont.max_height = Some(try_extract_f32(value, name));
+        },
+        IpgContainerParam::CenterX => {
+            cont.center_x = Some(try_extract_boolean(value, name));
+        },
+        IpgContainerParam::CenterY => {
+            cont.center_y = Some(try_extract_boolean(value, name));
+        },
+        IpgContainerParam::Center => {
+            cont.center = Some(try_extract_boolean(value, name));
+        },
+        IpgContainerParam::AlignLeft => {
+            cont.align_left = Some(try_extract_boolean(value, name));
+        },
+        IpgContainerParam::AlignRight => {
+            cont.align_right = Some(try_extract_boolean(value, name));
+        },
+        IpgContainerParam::AlignTop => {
+            cont.align_top = Some(try_extract_boolean(value, name));
+        },
+        IpgContainerParam::AlignBotton => {
+            cont.align_botton = Some(try_extract_boolean(value, name));
         },
         IpgContainerParam::Show => {
             cont.show = try_extract_boolean(value, name);
@@ -263,7 +279,7 @@ pub fn container_style_update_item(style: &mut IpgContainerStyle,
     let name = "ContainerStyle".to_string();
     match update {
         IpgContainerStyleParam::BackgroundIpgColor => {
-            let color = try_extract_ipg_color(value, name);
+            let color = IpgColor::extract(value, name);
             style.background_color = 
                 IpgColor::rgba_ipg_color_to_iced(None, Some(color), 1.0, false);
         },
@@ -271,7 +287,7 @@ pub fn container_style_update_item(style: &mut IpgContainerStyle,
             style.background_color = Some(Color::from(IpgColor::extract_rgba_color(value, name)));
         },
         IpgContainerStyleParam::BorderIpgColor => {
-            let color = try_extract_ipg_color(value, name);
+            let color = IpgColor::extract(value, name);
             style.border_color = 
                 IpgColor::rgba_ipg_color_to_iced(None, Some(color), 1.0, false);
         },
@@ -282,10 +298,10 @@ pub fn container_style_update_item(style: &mut IpgContainerStyle,
             style.border_radius = try_extract_vec_f32(value, name);
         },
         IpgContainerStyleParam::BorderWidth => {
-            style.border_width = try_extract_f64(value, name) as f32;
+            style.border_width = try_extract_f32(value, name);
         },
         IpgContainerStyleParam::ShadowIpgColor => {
-            let color = try_extract_ipg_color(value, name);
+            let color = IpgColor::extract(value, name);
             style.shadow_color = 
                 IpgColor::rgba_ipg_color_to_iced(None, Some(color), 1.0, false);
         },
@@ -296,10 +312,10 @@ pub fn container_style_update_item(style: &mut IpgContainerStyle,
             style.shadow_offset_xy = try_extract_array_2(value, name);
         },
         IpgContainerStyleParam::ShadowBlurRadius => {
-            style.shadow_blur_radius = try_extract_f64(value, name) as f32;
+            style.shadow_blur_radius = try_extract_f32(value, name);
         },
         IpgContainerStyleParam::TextIpgColor => {
-            let color = try_extract_ipg_color(value, name);
+            let color = IpgColor::extract(value, name);
             style.text_color = 
                 IpgColor::rgba_ipg_color_to_iced(None, Some(color), 1.0, false);
         },

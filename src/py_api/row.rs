@@ -4,8 +4,9 @@ use pyo3::prelude::*;
 use pyo3::pyfunction;
 
 use crate::access_state;
-use crate::py_api::helpers::{get_height, get_padding_f64, get_width};
-use crate::state::{IpgContainers, get_id, set_state_cont_wnd_ids, set_state_of_container};
+use crate::py_api::helpers::{get_height, get_width};
+use crate::state::{IpgContainers, get_id, 
+    set_state_cont_wnd_ids, set_state_of_container};
 use crate::widgets::enums::IpgAlignment;
 use crate::widgets::ipg_row::IpgRow;
 
@@ -33,14 +34,14 @@ pub fn add_row(
     container_id: String,
     // required above
     parent_id: Option<String>,
-    align: IpgAlignment,
+    align: Option<IpgAlignment>,
     width: Option<f32>,
     height: Option<f32>,
     width_fill: bool,
     height_fill: bool,
-    padding: Vec<f64>,
-    spacing: f32,
-    clip: bool,
+    padding: Option<Vec<f32>>,
+    spacing: Option<f32>,
+    clip: Option<bool>,
     show: bool,
     ) -> PyResult<usize> 
 {
@@ -48,8 +49,6 @@ pub fn add_row(
 
     let width = get_width(width, width_fill);
     let height = get_height(height, height_fill);
-
-    let padding = get_padding_f64(padding);
 
     let prt_id = match parent_id {
         Some(id) => id,
@@ -63,7 +62,8 @@ pub fn add_row(
     set_state_cont_wnd_ids(&mut state, &window_id, container_id, id, "add_row".to_string());
 
     state.containers.
-        insert(id, IpgContainers::IpgRow(IpgRow::new(
+        insert(id, IpgContainers::IpgRow(
+            IpgRow {
             id,  
             show, 
             spacing, 
@@ -72,7 +72,7 @@ pub fn add_row(
             height, 
             align,
             clip,
-        )));
+        }));
 
     drop(state);         
     Ok(id)

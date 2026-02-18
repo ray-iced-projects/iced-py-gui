@@ -205,6 +205,17 @@ impl IpgColor {
         })
     }
 
+    pub fn extract(value: &PyObject, name: String) -> IpgColor {
+        Python::attach(|py| {
+
+            let res = value.extract::<IpgColor>(py);
+            match res {
+                Ok(val) => val,
+                Err(_) => panic!("{}-Unable to extract python object for IpgColor color", name),
+            }
+        })
+    }
+
     fn to_iced(&self) -> Color {
         match self {
             IpgColor::PRIMARY => PRIMARY,

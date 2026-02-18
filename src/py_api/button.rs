@@ -8,9 +8,12 @@ type PyObject = Py<PyAny>;
 use crate::add_user_data_to_mutex;
 use crate::graphics::colors::IpgColor;
 use crate::py_api::helpers::{get_height, get_width};
-use crate::state::{IpgWidgets, access_state, add_callback_to_mutex, get_id, set_state_of_widget};
-use crate::widgets::enums::{IpgHorizontalAlignment, IpgVerticalAlignment};
-use crate::widgets::ipg_button::{IpgButton, IpgButtonArrow, IpgButtonStyle, IpgButtonStyleStandard};
+use crate::state::{IpgWidgets, access_state, add_callback_to_mutex, 
+    get_id, set_state_of_widget};
+use crate::widgets::enums::{IpgHorizontalAlignment, 
+    IpgVerticalAlignment};
+use crate::widgets::ipg_button::{IpgButton, IpgButtonArrow, 
+    IpgButtonStyle, IpgButtonStyleStandard};
 
 
 /// Add a button widget.
@@ -81,23 +84,24 @@ pub fn add_button(
     let mut state = access_state();
     state.widgets.insert(
         id,
-        IpgWidgets::IpgButton(IpgButton {
-            id,
-            parent_id,
-            show,
-            label,
-            width,
-            height,
-            padding,
-            text_align_x,
-            text_align_y,
-            text_size,
-            clip,
-            style_id,
-            style_standard,
-            style_arrow,
-        }),
-    );
+        IpgWidgets::IpgButton(
+            IpgButton {
+                id,
+                parent_id,
+                show,
+                label,
+                width,
+                height,
+                padding,
+                text_align_x,
+                text_align_y,
+                text_size,
+                clip,
+                style_id,
+                style_standard,
+                style_arrow,
+            }),
+        );
     drop(state);
 
     Ok(id)

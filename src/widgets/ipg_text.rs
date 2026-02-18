@@ -8,8 +8,8 @@ type PyObject = Py<PyAny>;
 
 use crate::graphics::colors::IpgColor;
 use crate::py_api::helpers::{get_height, get_width, 
-    try_extract_boolean, try_extract_f32, try_extract_f64, 
-    try_extract_ipg_color, try_extract_string, try_extract_vec_f32};
+    try_extract_boolean, try_extract_f32, 
+    try_extract_string, try_extract_vec_f32};
 use crate::app::Message;
 use crate::widgets::enums::{IpgHorizontalAlignment, 
     IpgShaping, IpgVerticalAlignment, h_v_centered};
@@ -129,18 +129,18 @@ pub fn text_widget_update(txt: &mut IpgText,
             txt.font = Some(try_extract_string(value, name));
         },
         IpgTextParam::Height => {
-            let val = try_extract_f64(value, name);
-            txt.height = get_height(Some(val as f32), false); 
+            let val = try_extract_f32(value, name);
+            txt.height = get_height(Some(val), false); 
         },
         IpgTextParam::HeightFill => {
             let val = try_extract_boolean(value, name);
             txt.height = get_height(None, val);
         },
         IpgTextParam::AlignX => {
-            txt.align_x = Some(try_extract_hor_alignment(value));
+            txt.align_x = IpgHorizontalAlignment::extract(value);
         },
         IpgTextParam::AlignY => {
-            txt.align_y = Some(try_extract_vert_alignment(value));
+            txt.align_y = IpgVerticalAlignment::extract(value);
         },
         IpgTextParam::LineHeight => {
             txt.line_height = Some(try_extract_f32(value, name));
@@ -155,7 +155,7 @@ pub fn text_widget_update(txt: &mut IpgText,
             txt.size = Some(try_extract_f32(value, name));
         },
         IpgTextParam::TextColor => {
-            let ipg_color = Some(try_extract_ipg_color(value, name));
+            let ipg_color = Some(IpgColor::extract(value, name));
             txt.style = 
                 IpgColor::rgba_ipg_color_to_iced(None, ipg_color, 1.0, false);
         },
@@ -166,8 +166,8 @@ pub fn text_widget_update(txt: &mut IpgText,
                 IpgColor::rgba_ipg_color_to_iced(color_rgba, None, 1.0, false);
         },
         IpgTextParam::Width => {
-            let val = try_extract_f64(value, name);
-            txt.width = get_width(Some(val as f32), false);
+            let val = try_extract_f32(value, name);
+            txt.width = get_width(Some(val), false);
         },
         IpgTextParam::WidthFill => {
             let val = try_extract_boolean(value, name);
@@ -184,28 +184,6 @@ fn try_extract_text_update(update_obj: &PyObject) -> IpgTextParam {
         match res {
             Ok(update) => update,
             Err(_) => panic!("Text update extraction failed"),
-        }
-    })
-}
-
-fn try_extract_hor_alignment(update_obj: &PyObject) -> IpgHorizontalAlignment {
-
-    Python::attach(|py| {
-        let res = update_obj.extract::<IpgHorizontalAlignment>(py);
-        match res {
-            Ok(update) => update,
-            Err(_) => panic!("Text HorizontalAlignment extraction failed"),
-        }
-    })
-}
-
-fn try_extract_vert_alignment(update_obj: &PyObject) -> IpgVerticalAlignment {
-
-    Python::attach(|py| {
-        let res = update_obj.extract::<IpgVerticalAlignment>(py);
-        match res {
-            Ok(update) => update,
-            Err(_) => panic!("Text VerticalAlignment extraction failed"),
         }
     })
 }

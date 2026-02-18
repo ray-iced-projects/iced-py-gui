@@ -8,23 +8,21 @@ type PyObject = Py<PyAny>;
 
 use crate::app::Message;
 
-use crate::py_api::helpers::{get_height, 
-    get_padding_f64, get_width, try_extract_boolean, 
-    try_extract_f64, try_extract_ipg_alignment, try_extract_vec_f64};
-use crate::widgets::enums::IpgAlignment;
+use crate::py_api::helpers::{get_height, get_padding_f32, get_width, try_extract_boolean, try_extract_f32, try_extract_f64, try_extract_vec_f32};
+use crate::widgets::enums::{IpgAlignment, IpgHorizontalAlignment};
 
 
 #[derive(Debug, Clone)]
 pub struct IpgColumn {
     pub id: usize,
     pub show: bool,
-    pub spacing: f32,
-    pub padding: Padding,
+    pub spacing: Option<f32>,
+    pub padding: Option<Vec<f32>>,
     pub width: Length,
     pub height: Length,
-    pub max_width: f32,
-    pub align: IpgAlignment,
-    pub clip: bool,
+    pub max_width: Option<f32>,
+    pub align_x: Option<IpgHorizontalAlignment>,
+    pub clip: Option<bool>,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -41,20 +39,37 @@ pub enum IpgColumnParam {
 }
 
 pub fn construct_column<'a>(
-    col: &IpgColumn, 
+    ipg_col: &IpgColumn, 
     content: Vec<Element<'a, Message>> 
     ) -> Element<'a, Message> {
 
-    let align_x = IpgAlignment::to_iced(&col.align);
+    let col = 
+        Column::with_children(content)
+            .width(ipg_col.width)
+            .height(ipg_col.height);
+    
+    let col = 
+    if let Some(align) = &ipg_col.align_x {
+            col.align_x(align.to_iced())
+        } else { col };
 
-    Column::with_children(content)
-        .align_x(align_x)
-        .height(col.height)
-        .padding(col.padding)
-        .spacing(col.spacing)
-        .width(col.width)
-        .clip(col.clip)
-        .into()
+    let col = 
+        if let Some(cp) = ipg_col.clip {
+            col.clip(cp)
+        } else { col };
+
+    let col = 
+        if let Some(pd) = &ipg_col.padding {
+            col.padding(get_padding_f32(pd))
+        } else { col };
+
+    let col = 
+        if let Some(sp) = ipg_col.spacing {
+            col.spacing(sp)
+        } else { col };
+
+    col.into()
+
 }
 
 
@@ -68,32 +83,32 @@ pub fn column_item_update(
     let name = "Column".to_string();
     match update {
         IpgColumnParam::Align => {
-            col.align = try_extract_ipg_alignment(value).unwrap();
+            col.align_x = Some(IpgHorizontalAlignment::extract(value).unwrap());
         },
         IpgColumnParam::Clip => {
-            col.clip = try_extract_boolean(value, name);
+            col.clip = Some(try_extract_boolean(value, name));
         },
         IpgColumnParam::Padding => {
-            col.padding =  get_padding_f64(try_extract_vec_f64(value, name));
+            col.padding =  Some(try_extract_vec_f32(value, name));
         },
         IpgColumnParam::Width => {
-            let val = try_extract_f64(value, name);
-            col.width = get_width(Some(val as f32), false);
+            let val = try_extract_f32(value, name);
+            col.width = get_width(Some(val), false);
         },
         IpgColumnParam::WidthFill => {
             let val = try_extract_boolean(value, name);
             col.width = get_width(None, val);
         },
         IpgColumnParam::Height => {
-            let val = try_extract_f64(value, name);
-            col.height = get_height(Some(val as f32), false);
+            let val = try_extract_f32(value, name);
+            col.height = get_height(Some(val), false);
         },
         IpgColumnParam::HeightFill => {
             let val = try_extract_boolean(value, name);
             col.height = get_height(None, val);
         },
         IpgColumnParam::Spacing => {
-            col.spacing = try_extract_f64(value, name) as f32;
+            col.spacing = Some(try_extract_f32(value, name));
         },
     }
 }

@@ -397,16 +397,6 @@ pub fn try_extract_ipg_color(value: &PyObject, name: String) -> IpgColor {
     })
 }
 
-pub fn try_extract_rgba_color(value: &PyObject, name: String) -> [f32; 4] {
-    Python::attach(|py| {
-
-        let res = value.extract::<[f32; 4]>(py);
-        match res {
-            Ok(val) => val,
-            Err(_) => panic!("{}-Unable to extract python object for RGBA color", name),
-        }
-    })
-}
 
 pub fn try_extract_point(value: &PyObject, name: String) -> [f32; 2] {
     Python::attach(|py| {

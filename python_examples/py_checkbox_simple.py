@@ -59,7 +59,7 @@ add_checkbox(
 # so that you can see the Icon.
 x_id = add_checkbox(
     parent_id="col", 
-    label="See my check check change to an x",
+    label="See my check change to an Asterisk",
     icon=IpgIcon.X,
     icon_size=16.0,
     is_checked=True)

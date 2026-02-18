@@ -17,6 +17,7 @@ use crate::widgets::ipg_container::{IpgContainer, IpgContainerStyle};
 use crate::widgets::ipg_events::IpgEvents;
 use crate::widgets::ipg_font::IpgFont;
 use crate::widgets::ipg_row::IpgRow;
+use crate::widgets::ipg_text::IpgText;
 use crate::widgets::ipg_window::IpgWindow;
 use crate::widgets::ipg_button::{IpgButton, IpgButtonStyle};
 
@@ -40,6 +41,8 @@ pub enum IpgWidgets {
     IpgButton(IpgButton),
     IpgButtonStyle(IpgButtonStyle),
     IpgCheckBox(IpgCheckBox),
+    IpgText(IpgText),
+
     IpgCheckboxStyle(IpgCheckboxStyle),
     IpgContainerStyle(IpgContainerStyle),
     IpgFont(IpgFont),

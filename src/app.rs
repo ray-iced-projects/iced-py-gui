@@ -17,6 +17,7 @@ use crate::widgets::ipg_container::{construct_container, container_item_update, 
 use crate::widgets::ipg_events::process_window_event;
 use crate::widgets::ipg_font::font_param_update;
 use crate::widgets::ipg_row::{construct_row, row_item_update};
+use crate::widgets::ipg_text::{construct_text, text_widget_update};
 use crate::widgets::ipg_window::{IpgWindow, IpgWindowLevel, IpgWindowMode, add_windows, construct_window, window_item_update};
 
 
@@ -859,9 +860,9 @@ fn get_widget<'a>(state: &'a IpgState, id: &usize) -> Option<Element<'a, Message
                 // IpgWidgets::IpgSvg(svg) => {
                 //     construct_svg(svg)
                 // },
-                // IpgWidgets::IpgText(text) => {
-                //     construct_text(text)
-                // },
+                IpgWidgets::IpgText(text) => {
+                    construct_text(text)
+                },
                 // IpgWidgets::IpgTextInput(input) => {
                 //     let style_opt = match input.style_id {
                 //         Some(id) => {
@@ -1165,7 +1166,7 @@ fn show_widget(state: &mut IpgState, ids: &[(usize, bool)]) {
             // IpgWidgets::IpgSlider(ipg_slider) => ipg_slider.show= *value,
             // IpgWidgets::IpgSpace(ipg_space) => ipg_space.show= *value,
             // IpgWidgets::IpgSvg(ipg_svg) => ipg_svg.show= *value,
-            // IpgWidgets::IpgText(ipg_text) => ipg_text.show= *value,
+            IpgWidgets::IpgText(ipg_text) => ipg_text.show= *value,
             // IpgWidgets::IpgTextInput(ipg_text_input) => ipg_text_input.show= *value,
             // IpgWidgets::IpgTimer(ipg_timer) => ipg_timer.show= *value,
             // IpgWidgets::IpgToggler(ipg_toggler) => ipg_toggler.show= *value,
@@ -1371,9 +1372,9 @@ fn match_widget(
         // IpgWidgets::IpgTableStyle(style) => {
         //         table_style_update_item(style, item, value);
         //     }
-        // IpgWidgets::IpgText(txt) => {
-        //         text_item_update(txt, item, value);
-        //     },
+        IpgWidgets::IpgText(txt) => {
+                text_widget_update(txt, item, value);
+            },
         // IpgWidgets::IpgTextInput(ti) => {
         //         text_input_item_update(ti, item, value);
         //     },

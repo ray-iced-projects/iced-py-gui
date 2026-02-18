@@ -6,7 +6,7 @@ use pyo3::prelude::*;
 use pyo3::{Py, PyAny, pyfunction};
 type PyObject = Py<PyAny>;
 
-use crate::graphics::colors::{IpgColor, get_color};
+use crate::graphics::colors::IpgColor;
 use crate::py_api::helpers::{get_height, get_padding_f64, get_width};
 use crate::state::{IpgContainers, IpgWidgets, access_state, get_id, set_state_cont_wnd_ids, set_state_of_container};
 use crate::widgets::ipg_container::{IpgContainer, IpgContainerStyle};
@@ -131,13 +131,13 @@ pub fn add_container_style(
     let id = get_id(gen_id);
 
     let background_color: Option<Color> = 
-        get_color(background_rgba, background_color, 1.0, false);
+        IpgColor::rgba_ipg_color_to_iced(background_rgba, background_color, 1.0, false);
     let border_color: Option<Color> = 
-        get_color(border_rgba, border_color, 1.0, false);
+        IpgColor::rgba_ipg_color_to_iced(border_rgba, border_color, 1.0, false);
     let shadow_color: Option<Color> = 
-        get_color(shadow_rgba, shadow_color, 1.0, false);
+        IpgColor::rgba_ipg_color_to_iced(shadow_rgba, shadow_color, 1.0, false);
     let text_color: Option<Color> = 
-        get_color(text_rgba, text_color, 1.0, false);
+        IpgColor::rgba_ipg_color_to_iced(text_rgba, text_color, 1.0, false);
 
     let mut state = access_state();
 

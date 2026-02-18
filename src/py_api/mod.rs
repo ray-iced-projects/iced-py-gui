@@ -10,5 +10,7 @@ pub mod container;
 pub mod font;
 pub mod row;
 pub mod session;
+pub mod text;
+
 pub mod helpers;
 pub mod update;

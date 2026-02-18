@@ -7,12 +7,12 @@ use pyo3::{pyclass, Py, PyAny, Python};
 type PyObject = Py<PyAny>;
 
 use crate::app::Message;
-use crate::graphics::colors::get_color;
+use crate::graphics::colors::IpgColor;
 use crate::py_api::helpers::{get_height, get_padding_f64, 
     get_radius, get_width, try_extract_array_2, 
     try_extract_boolean, try_extract_f64, 
     try_extract_ipg_color, try_extract_ipg_horizontal_alignment, 
-    try_extract_ipg_vertical_alignment, try_extract_rgba_color, 
+    try_extract_ipg_vertical_alignment, 
     try_extract_vec_f32, try_extract_vec_f64};
 use crate::state::IpgWidgets;
 use crate::widgets::enums::{IpgHorizontalAlignment, IpgVerticalAlignment};
@@ -264,17 +264,19 @@ pub fn container_style_update_item(style: &mut IpgContainerStyle,
     match update {
         IpgContainerStyleParam::BackgroundIpgColor => {
             let color = try_extract_ipg_color(value, name);
-            style.background_color = get_color(None, Some(color), 1.0, false);
+            style.background_color = 
+                IpgColor::rgba_ipg_color_to_iced(None, Some(color), 1.0, false);
         },
         IpgContainerStyleParam::BackgroundRgbaColor => {
-            style.background_color = Some(Color::from(try_extract_rgba_color(value, name)));
+            style.background_color = Some(Color::from(IpgColor::extract_rgba_color(value, name)));
         },
         IpgContainerStyleParam::BorderIpgColor => {
             let color = try_extract_ipg_color(value, name);
-            style.border_color = get_color(None, Some(color), 1.0, false);
+            style.border_color = 
+                IpgColor::rgba_ipg_color_to_iced(None, Some(color), 1.0, false);
         },
         IpgContainerStyleParam::BorderRgbaColor => {
-            style.border_color = Some(Color::from(try_extract_rgba_color(value, name)));
+            style.border_color = Some(Color::from(IpgColor::extract_rgba_color(value, name)));
         },
         IpgContainerStyleParam::BorderRadius => {
             style.border_radius = try_extract_vec_f32(value, name);
@@ -284,10 +286,11 @@ pub fn container_style_update_item(style: &mut IpgContainerStyle,
         },
         IpgContainerStyleParam::ShadowIpgColor => {
             let color = try_extract_ipg_color(value, name);
-            style.shadow_color = get_color(None, Some(color), 1.0, false);
+            style.shadow_color = 
+                IpgColor::rgba_ipg_color_to_iced(None, Some(color), 1.0, false);
         },
         IpgContainerStyleParam::ShadowRgbaColor => {
-            style.border_color = Some(Color::from(try_extract_rgba_color(value, name)));
+            style.border_color = Some(Color::from(IpgColor::extract_rgba_color(value, name)));
         },
         IpgContainerStyleParam::ShadowOffsetXY => {
             style.shadow_offset_xy = try_extract_array_2(value, name);
@@ -297,10 +300,11 @@ pub fn container_style_update_item(style: &mut IpgContainerStyle,
         },
         IpgContainerStyleParam::TextIpgColor => {
             let color = try_extract_ipg_color(value, name);
-            style.text_color = get_color(None, Some(color), 1.0, false);
+            style.text_color = 
+                IpgColor::rgba_ipg_color_to_iced(None, Some(color), 1.0, false);
         },
         IpgContainerStyleParam::TextRgbaColor => {
-            style.text_color = Some(Color::from(try_extract_rgba_color(value, name)));
+            style.text_color = Some(Color::from(IpgColor::extract_rgba_color(value, name)));
         },
     }
 

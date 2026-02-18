@@ -286,9 +286,9 @@ pub fn set_or_get_widget_callback_data(state: &mut IpgState, wci: WidgetCallback
             // IpgWidgets::IpgTableStyle(_) => {
             //     return WidgetCallbackOut::default();
             // },
-            // IpgWidgets::IpgText(_) => {
-            //     return WidgetCallbackOut::default()
-            // },
+            IpgWidgets::IpgText(_) => {
+                return WidgetCallbackOut::default()
+            },
             // // IpgWidgets::IpgRichText(_) => {
             // //     return WidgetCallbackOut::default()
             // // },

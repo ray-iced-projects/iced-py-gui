@@ -29,6 +29,7 @@ use py_api::column::add_column;
 use py_api::container::add_container;
 use py_api::font::add_font;
 use py_api::row::add_row;
+use py_api::text::add_text;
 use py_api::session::{start_session, generate_id};
 use py_api::update::update_widget;
 
@@ -58,6 +59,7 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(add_container, m)?)?;
     m.add_function(wrap_pyfunction!(add_font, m)?)?;
     m.add_function(wrap_pyfunction!(add_row, m)?)?;
+    m.add_function(wrap_pyfunction!(add_text, m)?)?;
     m.add_function(wrap_pyfunction!(update_widget, m)?)?;
     
     // styles

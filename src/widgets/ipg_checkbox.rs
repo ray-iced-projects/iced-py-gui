@@ -1,5 +1,5 @@
 //! ipg_checkbox
-use crate::graphics::colors::get_color;
+use crate::graphics::colors::IpgColor;
 use crate::widgets::enums::IpgShaping;
 use super::styling::IpgStyleStandard;
 use crate::state::{access_callbacks, access_user_data1, 
@@ -7,7 +7,7 @@ use crate::state::{access_callbacks, access_user_data1,
 use crate::app::Message;
 use crate::py_api::helpers::{get_radius, get_width, 
     try_extract_boolean, try_extract_f32, try_extract_f64, 
-    try_extract_ipg_color, try_extract_rgba_color, 
+    try_extract_ipg_color, 
     try_extract_string, try_extract_style_standard, 
     try_extract_vec_f32};
 use crate::widgets::callbacks::{set_or_get_widget_callback_data, 
@@ -341,38 +341,43 @@ pub fn checkbox_style_update(style: &mut IpgCheckboxStyle,
     match update {
         IpgCheckboxStyleParam::BackgroundIpgColor => {
             let color = try_extract_ipg_color(value, name);
-            style.background_color = get_color(None, Some(color), 1.0, false);
+            style.background_color = 
+                IpgColor::rgba_ipg_color_to_iced(None, Some(color), 1.0, false);
         },
         IpgCheckboxStyleParam::BackgroundRgbaColor => {
-            style.background_color = Some(Color::from(try_extract_rgba_color(value, name)));
+            style.background_color = Some(Color::from(IpgColor::extract_rgba_color(value, name)));
         },
         IpgCheckboxStyleParam::BackgroundIpgColorHovered => {
             let color = try_extract_ipg_color(value, name);
-            style.background_color_hovered = get_color(None, Some(color), 1.0, false);
+            style.background_color_hovered = 
+                IpgColor::rgba_ipg_color_to_iced(None, Some(color), 1.0, false);
         },
         IpgCheckboxStyleParam::BackgroundRgbaColorHovered => {
-            style.background_color_hovered = Some(Color::from(try_extract_rgba_color(value, name)));
+            style.background_color_hovered = Some(Color::from(IpgColor::extract_rgba_color(value, name)));
         },
         IpgCheckboxStyleParam::AccentIpgColor => {
             let color = try_extract_ipg_color(value, name);
-            style.accent_color = get_color(None, Some(color), 1.0, false);
+            style.accent_color = 
+                IpgColor::rgba_ipg_color_to_iced(None, Some(color), 1.0, false);
         },
         IpgCheckboxStyleParam::AccentRgbaColor => {
-            style.accent_color = Some(Color::from(try_extract_rgba_color(value, name)));
+            style.accent_color = Some(Color::from(IpgColor::extract_rgba_color(value, name)));
         },
         IpgCheckboxStyleParam::AccentIpgColorHovered => {
             let color = try_extract_ipg_color(value, name);
-            style.accent_color_hovered = get_color(None, Some(color), 1.0, false);
+            style.accent_color_hovered = 
+                IpgColor::rgba_ipg_color_to_iced(None, Some(color), 1.0, false);
         },
         IpgCheckboxStyleParam::AccentRgbaColorHovered => {
-            style.accent_color_hovered = Some(Color::from(try_extract_rgba_color(value, name)));
+            style.accent_color_hovered = Some(Color::from(IpgColor::extract_rgba_color(value, name)));
         },
         IpgCheckboxStyleParam::BorderIpgColor => {
             let color = try_extract_ipg_color(value, name);
-            style.border_color = get_color(None, Some(color), 1.0, false);
+            style.border_color = 
+                IpgColor::rgba_ipg_color_to_iced(None, Some(color), 1.0, false);
         },
         IpgCheckboxStyleParam::BorderRgbaColor => {
-            style.border_color = Some(Color::from(try_extract_rgba_color(value, name)));
+            style.border_color = Some(Color::from(IpgColor::extract_rgba_color(value, name)));
         },
         IpgCheckboxStyleParam::BorderRadius => {
             style.border_radius = Some(try_extract_vec_f32(value, name));
@@ -382,17 +387,19 @@ pub fn checkbox_style_update(style: &mut IpgCheckboxStyle,
         },
         IpgCheckboxStyleParam::IconIpgColor => {
             let color = try_extract_ipg_color(value, name);
-            style.icon_color = get_color(None, Some(color), 1.0, false);
+            style.icon_color = 
+                IpgColor::rgba_ipg_color_to_iced(None, Some(color), 1.0, false);
         },
         IpgCheckboxStyleParam::IconRgbaColor => {
-            style.icon_color = Some(Color::from(try_extract_rgba_color(value, name)));
+            style.icon_color = Some(Color::from(IpgColor::extract_rgba_color(value, name)));
         },
         IpgCheckboxStyleParam::TextIpgColor => {
             let color = try_extract_ipg_color(value, name);
-            style.text_color = get_color(None, Some(color), 1.0, false);
+            style.text_color = 
+                IpgColor::rgba_ipg_color_to_iced(None, Some(color), 1.0, false);
         },
         IpgCheckboxStyleParam::TextRgbaColor => {
-            style.text_color = Some(Color::from(try_extract_rgba_color(value, name)));
+            style.text_color = Some(Color::from(IpgColor::extract_rgba_color(value, name)));
         },
     }
 }

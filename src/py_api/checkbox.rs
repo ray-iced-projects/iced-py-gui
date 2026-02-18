@@ -6,7 +6,7 @@ type PyObject = Py<PyAny>;
 
 use crate::add_user_data_to_mutex;
 use crate::graphics::bootstrap_icon::IpgIcon;
-use crate::graphics::colors::{IpgColor, get_color};
+use crate::graphics::colors::IpgColor;
 use crate::py_api::helpers::get_width;
 use crate::state::{IpgWidgets, access_state, 
     add_callback_to_mutex, get_id, set_state_of_widget};
@@ -158,19 +158,19 @@ pub fn add_checkbox_style(
     let id = get_id(gen_id);
 
     let background_color: Option<Color> = 
-        get_color(background_rgba, background_color, 1.0, false);
+        IpgColor::rgba_ipg_color_to_iced(background_rgba, background_color, 1.0, false);
     let background_color_hovered: Option<Color> = 
-        get_color(background_rgba_hovered, background_color_hovered, 1.0, false);
+        IpgColor::rgba_ipg_color_to_iced(background_rgba_hovered, background_color_hovered, 1.0, false);
     let accent_color: Option<Color> = 
-        get_color(accent_rgba, accent_color, 1.0, false);
+        IpgColor::rgba_ipg_color_to_iced(accent_rgba, accent_color, 1.0, false);
     let accent_color_hovered: Option<Color> = 
-        get_color(accent_rgba_hovered, accent_color_hovered, 1.0, false);
+        IpgColor::rgba_ipg_color_to_iced(accent_rgba_hovered, accent_color_hovered, 1.0, false);
     let border_color: Option<Color> = 
-        get_color(border_rgba, border_color, 1.0, false);
+        IpgColor::rgba_ipg_color_to_iced(border_rgba, border_color, 1.0, false);
     let icon_color: Option<Color> = 
-        get_color(icon_rgba, icon_color, 1.0, false);
+        IpgColor::rgba_ipg_color_to_iced(icon_rgba, icon_color, 1.0, false);
     let text_color: Option<Color> = 
-        get_color(text_rgba, text_color, 1.0, false);
+        IpgColor::rgba_ipg_color_to_iced(text_rgba, text_color, 1.0, false);
 
     let mut state = access_state();
 

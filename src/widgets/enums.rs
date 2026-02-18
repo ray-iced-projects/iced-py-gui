@@ -22,16 +22,6 @@ impl IpgShaping {
         }
     }
 
-    pub fn extract_to_iced(value: &PyObject) -> Shaping {
-        Python::attach(|py| {
-            let res = value.extract::<IpgShaping>(py);
-            match res {
-                Ok(val) => val.to_iced(),
-                Err(_) => panic!("Unable to extract python IpgShaping"),
-            }
-        })  
-    }
-
     pub fn extract(value: &PyObject) -> Option<IpgShaping> {
         Python::attach(|py| {
             let res = value.extract::<IpgShaping>(py);
@@ -59,6 +49,16 @@ impl IpgAlignment {
             IpgAlignment::End => Alignment::End,
         }
     }
+
+    pub fn extract(value: &PyObject) -> Option<IpgAlignment> {
+        Python::attach(|py| {
+            let res = value.extract::<IpgAlignment>(py);
+            match res {
+                Ok(val) => Some(val),
+                Err(_) => panic!("Unable to extract python IpgAlignment"),
+            }
+        })  
+    }
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -76,6 +76,16 @@ impl IpgHorizontalAlignment {
             IpgHorizontalAlignment::Center => alignment::Horizontal::Center,
             IpgHorizontalAlignment::Right => alignment::Horizontal::Right,
         }
+    }
+
+    pub fn extract(value: &PyObject) -> Option<IpgHorizontalAlignment> {
+        Python::attach(|py| {
+            let res = value.extract::<IpgHorizontalAlignment>(py);
+            match res {
+                Ok(val) => Some(val),
+                Err(_) => panic!("Unable to extract python IpgHorizontalAlignment"),
+            }
+        })  
     }
 }
 
@@ -95,4 +105,18 @@ impl IpgVerticalAlignment {
             IpgVerticalAlignment::Bottom => alignment::Vertical::Bottom,
         }
     }
+
+    pub fn extract(value: &PyObject) -> Option<IpgVerticalAlignment> {
+        Python::attach(|py| {
+            let res = value.extract::<IpgVerticalAlignment>(py);
+            match res {
+                Ok(val) => Some(val),
+                Err(_) => panic!("Unable to extract python IpgVerticalAlignment"),
+            }
+        })  
+    }
+}
+
+pub fn h_v_centered() -> (alignment::Horizontal, alignment::Vertical) {
+    (alignment::Horizontal::Center, alignment::Vertical::Center)
 }

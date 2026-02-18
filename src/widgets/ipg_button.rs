@@ -10,7 +10,7 @@ use crate::access_callbacks;
 use crate::access_user_data1;
 use crate::app::Message;
 use crate::graphics::bootstrap::{self, icon_to_char, icon_to_string};
-use crate::graphics::colors::{IpgColor, get_color};
+use crate::graphics::colors::IpgColor;
 use crate::py_api::column;
 use crate::state::IpgWidgets;
 use crate::widgets::enums::{IpgHorizontalAlignment, 
@@ -20,7 +20,7 @@ use crate::py_api::helpers::{get_height, get_padding_f32,
     get_padding_f64, get_radius, get_width, try_extract_boolean, 
     try_extract_f32, try_extract_f64, try_extract_f64_option, 
     try_extract_ipg_color, try_extract_ipg_horizontal_alignment, 
-    try_extract_ipg_vertical_alignment, try_extract_rgba_color, 
+    try_extract_ipg_vertical_alignment, 
     try_extract_string, try_extract_style_standard, 
     try_extract_vec_f32, try_extract_vec_f64};
 
@@ -441,24 +441,27 @@ pub fn button_style_update(style: &mut IpgButtonStyle,
     match update {
         IpgButtonStyleParam::BackgroundIpgColor => {
             let color = try_extract_ipg_color(value, name);
-            style.background_color = get_color(None, Some(color), 1.0, false);
+            style.background_color = 
+                IpgColor::rgba_ipg_color_to_iced(None, Some(color), 1.0, false);
         },
         IpgButtonStyleParam::BackgroundRbgaColor => {
-            style.background_color = Some(Color::from(try_extract_rgba_color(value, name)));
+            style.background_color = Some(Color::from(IpgColor::extract_rgba_color(value, name)));
         },
         IpgButtonStyleParam::BackgroundIpgColorHovered => {
             let color = try_extract_ipg_color(value, name);
-            style.background_color_hovered = get_color(None, Some(color), 1.0, false);
+            style.background_color_hovered = 
+                IpgColor::rgba_ipg_color_to_iced(None, Some(color), 1.0, false);
         },
         IpgButtonStyleParam::BackgroundIpgRgbaHovered => {
-            style.background_color_hovered = Some(Color::from(try_extract_rgba_color(value, name)));
+            style.background_color_hovered = Some(Color::from(IpgColor::extract_rgba_color(value, name)));
         },
         IpgButtonStyleParam::BorderIpgColor => {
             let color = try_extract_ipg_color(value, name);
-            style.border_color = get_color(None, Some(color), 1.0, false);
+            style.border_color = 
+                IpgColor::rgba_ipg_color_to_iced(None, Some(color), 1.0, false);
         },
         IpgButtonStyleParam::BorderRgbaColor => {
-            style.border_color = Some(Color::from(try_extract_rgba_color(value, name)));
+            style.border_color = Some(Color::from(IpgColor::extract_rgba_color(value, name)));
         },
         IpgButtonStyleParam::BorderRadius => {
             style.border_radius = Some(try_extract_vec_f32(value, name));
@@ -468,10 +471,11 @@ pub fn button_style_update(style: &mut IpgButtonStyle,
         },
         IpgButtonStyleParam::ShadowIpgColor => {
             let color = try_extract_ipg_color(value, name);
-            style.shadow_color = get_color(None, Some(color), 1.0, false);
+            style.shadow_color = 
+                IpgColor::rgba_ipg_color_to_iced(None, Some(color), 1.0, false);
         },
         IpgButtonStyleParam::ShadowRgbaColor => {
-            style.border_color = Some(Color::from(try_extract_rgba_color(value, name)));
+            style.border_color = Some(Color::from(IpgColor::extract_rgba_color(value, name)));
         },
         IpgButtonStyleParam::ShadowOffsetX => {
             style.shadow_offset_x = Some(try_extract_f64(value, name) as f32);
@@ -484,10 +488,11 @@ pub fn button_style_update(style: &mut IpgButtonStyle,
         },
         IpgButtonStyleParam::TextIpgColor => {
             let color = try_extract_ipg_color(value, name);
-            style.text_color = get_color(None, Some(color), 1.0, false);
+            style.text_color = 
+                IpgColor::rgba_ipg_color_to_iced(None, Some(color), 1.0, false);
         },
         IpgButtonStyleParam::TextRgbaColor => {
-            style.text_color = Some(Color::from(try_extract_rgba_color(value, name)));
+            style.text_color = Some(Color::from(IpgColor::extract_rgba_color(value, name)));
         },
     }
 }

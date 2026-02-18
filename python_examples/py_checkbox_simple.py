@@ -5,23 +5,18 @@ from icedpygui import (
     )
 
 
-# A technique explored in another demo where the
-# id is generated ahead of time.  Useful in some cases.
-x_id = generate_id()
-
-
-# The callback used for the checkbox.
-# This callback id for this is not used since we are
+# The callback used for the first checkbox.
+# The callback id for this is not used since we are
 # changing the other checkbox.  Therefore we needed to know
 # its id.  Normally you would probably use a class to store theses
 # needed ids for later use.
-# The is_checked is a boolean which will toggle each time the
-# checkbox is clicked.
+# The is_checked is a boolean which will toggle ther first 
+# checkbox when you want todo something, in this case change the Icon.
 def on_toggle(_chkbx_id: int, is_checked: bool, user_data: any):
     update_widget(
             wid=x_id, 
-            param=IpgCheckboxParam.IconX, 
-            value=is_checked)
+            param=IpgCheckboxParam.Icon, 
+            value=IpgIcon.Asterisk)
 
 
 # Add a window first
@@ -33,6 +28,7 @@ add_window(
     pos_centered=True)
 
 # Add a container to center the widgets in the middle
+# Centering is the default behavior.
 add_container(
     window_id="main", 
     container_id="cont", 
@@ -50,18 +46,22 @@ add_column(
     align=IpgAlignment.Start)
 
 # Add the first checkbox with the callback on_toggle.
+# The user data is optional, we just sow it here.
 add_checkbox(
     parent_id="col", 
     label="Check Me!!!",
     on_toggle=on_toggle,
     user_data="Something") # not used in this demo
 
-# Add the second checkbox.  This has no callback since it not used.
-add_checkbox(
+# Add the second checkbox.  This has no callback since it not needed.
+# We need it's id, so we will equate it and use it in the callback
+# to change the icon to an Asterisk.  We set the is_check to true
+# so that you can see the Icon.
+x_id = add_checkbox(
     parent_id="col", 
-    gen_id=x_id, 
     label="See my check check change to an x",
     icon=IpgIcon.X,
+    icon_size=16.0,
     is_checked=True)
 
 # Required to be the last widget sent to Iced,  If you start the program

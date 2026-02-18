@@ -40,8 +40,8 @@ pub struct IpgCheckBox {
     pub text_size: Option<f32>,
     pub text_line_height: Option<f32>,
     pub text_shaping: Option<IpgShaping>,
-    pub text_font: Option<String>,
-    pub icon_font: Option<String>,
+    pub text_font_id: Option<usize>,
+    pub icon_font_id: Option<usize>,
     pub icon: Option<IpgIcon>,
     pub icon_size: Option<f32>,
     pub icon_line_height: Option<f32>,
@@ -89,7 +89,7 @@ pub fn construct_checkbox<'a>(
         };
 
     let size = 
-        if let Some(sz) = ipg_chk.size {
+        if let Some(sz) = ipg_chk.icon_size {
             Some(iced::Pixels(sz))
         } else {
             None
@@ -139,9 +139,7 @@ pub fn construct_checkbox<'a>(
             .width(ipg_chk.width)
             .text_line_height(text_line_height)
             .text_shaping(text_shaping)
-            .font(BOOTSTRAP_FONT)
             .icon(icon)
-            .label("label".to_string())
             .style(move|theme: &Theme, status| {   
                 get_styling(theme, status,
                     style.clone(), 
@@ -419,6 +417,7 @@ pub fn get_styling(theme: &Theme, status: Status,
 {
 
     if style_standard.is_none() && style_opt.is_none() {
+        dbg!(&status);
         return checkbox::primary(theme, status)
     }
     

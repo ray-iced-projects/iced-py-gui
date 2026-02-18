@@ -13,8 +13,6 @@ use iced::{alignment::{Horizontal, Vertical}, Length, Padding};
 use iced::widget::text::{Shaping, LineHeight};
 
 use pyo3::{Py, PyAny, Python};
-
-// Type alias to replace deprecated PyObject
 type PyObject = Py<PyAny>;
 
 use crate::widgets::enums::{IpgAlignment, IpgHorizontalAlignment, IpgVerticalAlignment};
@@ -160,26 +158,6 @@ fn convert_to_len_two(value: usize) -> String {
     }
 }
 
-pub fn try_extract_i64(value: &PyObject, name: String) -> i64 {
-    Python::attach(|py| {
-        let res = value.extract::<i64>(py);
-        match res {
-            Ok(val) => val,
-            Err(_) => panic!("{}-Unable to extract python integer", name),
-        }
-    })  
-}
-
-pub fn try_extract_f64(value: &PyObject, name: String) -> f64 {
-    Python::attach(|py| {
-        let res = value.extract::<f64>(py);
-        match res {
-            Ok(val) => val,
-            Err(_) => panic!("{}-Unable to extract python float", name),
-        }
-    })  
-}
-
 pub fn try_extract_f32(value: &PyObject, name: String) -> f32 {
     Python::attach(|py| {
         let res = value.extract::<f32>(py);
@@ -191,9 +169,9 @@ pub fn try_extract_f32(value: &PyObject, name: String) -> f32 {
 }
 
 
-pub fn try_extract_i64_option(value: &PyObject) -> Option<i64> {
+pub fn try_extract_i32_option(value: &PyObject) -> Option<i32> {
     Python::attach(|py| {
-        let res = value.extract::<i64>(py);
+        let res = value.extract::<i32>(py);
         match res {
             Ok(val) => Some(val),
             Err(_) => None,
@@ -211,12 +189,12 @@ pub fn try_extract_u16(value: &PyObject, name: String) -> u16 {
     })  
 }
 
-pub fn try_extract_u64(value: &PyObject, name: String) -> u64 {
+pub fn try_extract_u32(value: &PyObject, name: String) -> u32 {
     Python::attach(|py| {
-        let res = value.extract::<u64>(py);
+        let res = value.extract::<u32>(py);
         match res {
             Ok(val) => val,
-            Err(_) => panic!("{}-Unable to extract u64", name),
+            Err(_) => panic!("{}-Unable to extract u32", name),
         }
     })  
 }
@@ -227,26 +205,6 @@ pub fn try_extract_usize(value: &PyObject, name: String) -> usize {
         match res {
             Ok(val) => val,
             Err(_) => panic!("{}-Unable to extract usize", name),
-        }
-    })  
-}
-
-pub fn try_extract_f64_option(value: &PyObject) -> Option<f64> {
-    Python::attach(|py| {
-        let res = value.extract::<f64>(py);
-        match res {
-            Ok(val) => Some(val),
-            Err(_) => None,
-        }
-    })  
-}
-
-pub fn try_extract_vec_f64(value: &PyObject, name: String) -> Vec<f64> {
-    Python::attach(|py| {
-        let res = value.extract::<Vec<f64>>(py);
-        match res {
-            Ok(val) => val,
-            Err(_) => panic!("{}-Unable to extract python list[float]", name),
         }
     })  
 }

@@ -78,24 +78,64 @@ pub fn construct_container<'a>(
             );
 
     let cont = 
+        if let Some(mw) = ipg_cont.max_width {
+            cont.max_width(mw)
+        } else { cont };
+
+    let cont = 
+        if let Some(mh) = ipg_cont.max_height {
+            cont.max_width(mh)
+        } else { cont };
+
+    let cont = 
         if let Some(align) = &ipg_cont.align_x {
             cont.align_x(align.to_iced())
         } else { cont };
 
+    let cont = 
+        if let Some(align) = &ipg_cont.align_y {
+            cont.align_y(align.to_iced())
+        } else { cont };
 
-        // max_width,
-        //     max_height,
-        //     align_x,
-        //     align_y,
-        //     center_x,
-        //     center_y,
-        //     center,
-        //     align_left,
-        //     align_right,
-        //     align_top,
-        //     align_botton,
-        //     clip,
+    let cont = 
+        if ipg_cont.center == Some(true) {
+            cont.center(ipg_cont.width)
+        } else { cont };
 
+    let cont = 
+        if ipg_cont.center_x == Some(true) {
+            cont.center_x(ipg_cont.width)
+        } else { cont };
+
+    let cont = 
+        if ipg_cont.center_y == Some(true) {
+            cont.center_y(ipg_cont.height)
+        } else { cont };
+
+    let cont = 
+        if ipg_cont.align_left == Some(true) {
+            cont.align_left(ipg_cont.width)
+        } else { cont };
+
+    let cont = 
+        if ipg_cont.align_right == Some(true) {
+            cont.align_right(ipg_cont.width)
+        } else { cont };
+
+    let cont = 
+        if ipg_cont.align_top == Some(true) {
+            cont.align_top(ipg_cont.height)
+        } else { cont };
+
+    let cont = 
+        if ipg_cont.align_botton == Some(true) {
+            cont.align_bottom(ipg_cont.height)
+        } else { cont };
+    
+    let cont = 
+        if ipg_cont.clip == Some(true) {
+            cont.clip(true)
+        } else { cont };
 
     cont.into()            
     

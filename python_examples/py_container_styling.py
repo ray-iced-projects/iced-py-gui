@@ -1,52 +1,51 @@
-from icedpygui import IPG, IpgColor, IpgContainerStyleParam
+from imports import *
 
 # To change the style of the container, 
 # use the style id, not the container id.
 def change_container_styling(btn_id):
-    ipg.update_item(
+    update_widget(
             wid=cont_style, 
             param=IpgContainerStyleParam.BackgroundIpgColor, 
             value=IpgColor.RED)
     
-    ipg.update_item(
+    update_widget(
             wid=cont_style, 
             param=IpgContainerStyleParam.BorderIpgColor, 
             value=IpgColor.LIGHT_SALMON)
     
-    ipg.update_item(
+    update_widget(
             wid=cont_style, 
             param=IpgContainerStyleParam.BorderRadius, 
             value=[5.0])
     
-    ipg.update_item(
+    update_widget(
             wid=cont_style, 
             param=IpgContainerStyleParam.BorderWidth, 
             value=5.0)
     
-    ipg.update_item(
+    update_widget(
             wid=cont_style, 
             param=IpgContainerStyleParam.ShadowBlurRadius, 
             value=10.0)
     
-    ipg.update_item(
+    update_widget(
             wid=cont_style, 
             param=IpgContainerStyleParam.ShadowIpgColor, 
             value=IpgColor.RED)
     
-    ipg.update_item(
+    update_widget(
             wid=cont_style, 
             param=IpgContainerStyleParam.ShadowOffsetXY, 
             value=[0.0, 0.0])
     
-    ipg.update_item(
+    update_widget(
             wid=cont_style, 
             param=IpgContainerStyleParam.TextIpgColor, 
             value=IpgColor.WHITE)
 
-ipg = IPG()
 
 # Add the styling container widget
-cont_style = ipg.add_container_style(
+cont_style = add_container_style(
                     background_color=IpgColor.AQUA,
                     border_color=IpgColor.BLUE,
                     border_radius=[10.0],
@@ -57,38 +56,40 @@ cont_style = ipg.add_container_style(
                     text_color=IpgColor.BLACK)
 
 # Add the windows
-ipg.add_window(
-        window_id="main", 
-        title="Container Styling", 
-        width=500, 
-        height=600,  
-        pos_centered=True)
+add_window(
+    window_id="main", 
+    title="Container Styling", 
+    size=(500, 600),  
+    centered=True)
 
 # add a container to hold the demo container 
 # in the middle of the window
-ipg.add_container(
-        window_id="main",
-        container_id="cont1",
-        width_fill=True,
-        height_fill=True,
-        centered=True)
+add_container(
+    window_id="main",
+    container_id="cont1",
+    width_fill=True,
+    height_fill=True,
+    centered=True)
 
 # add the container to work on
-ipg.add_container(
-        window_id="main",
-        container_id="cont2",
-        parent_id="cont1",
-        width=200.0,
-        height=200.0,
-        style_id=cont_style)
+add_container(
+    window_id="main",
+    container_id="cont2",
+    parent_id="cont1",
+    width=200.0, 
+    height=200.0,
+    style_id=cont_style,
+    centered=True)
 
 # Add a column to hold the widgets
 # the column has an transparent background
 # so the container style shows through
-ipg.add_column(
-        window_id="main",
-        container_id="col",
-        parent_id="cont2")
+add_column(
+    window_id="main",
+    container_id="col",
+    parent_id="cont2",
+    spacing=20.0,
+    padding=[20.0])
 
 # Add some text.  Since this text is not styled
 # it would be a bit hard to see because the container
@@ -98,17 +99,18 @@ ipg.add_column(
 # to style all of the text in the container.
 # This text styling will override the container 
 # text color
-ipg.add_text(
-        parent_id="col",
-        content="Some Text")
+add_text(
+    parent_id="col",
+    content="Some Text")
 
 # Add a button the change the background color 
 # or any of the style settings
-ipg.add_button(
-        parent_id="col",
-        label="Change styling",
-        on_press=change_container_styling)
+add_button(
+    parent_id="col",
+    label="Press to\nchange styling",
+    text_align_x=IpgHorizontalAlignment.Center,
+    on_press=change_container_styling)
 
 
 # last thing is to start the session
-ipg.start_session()
+start_session()

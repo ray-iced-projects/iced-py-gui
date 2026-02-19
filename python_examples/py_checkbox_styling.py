@@ -48,57 +48,57 @@ def add_info():
     text += "The custom style colors will not change based on the theme color\n"
 
     add_text(
-            parent_id="col", 
-            content=text)
+        parent_id="col", 
+        content=text)
 
 # The styling can be added at any time before use.
 # No border color is set here so the unchecked box border 
 # should be the base color. The accent color is the background
 # color when the checkbox is checked.
 colors_no_border = add_checkbox_style( 
-                            background_color=IpgColor.BLUE,
-                            accent_color=IpgColor.YELLOW,
-                            accent_color_hovered=IpgColor.DARK_SALMON,
-                            icon_color=IpgColor.LIGHT_BLUE,
-                            text_color=IpgColor.BLUE)
+        background_color=IpgColor.BLUE,
+        accent_color=IpgColor.YELLOW,
+        accent_color_hovered=IpgColor.DARK_SALMON,
+        icon_color=IpgColor.LIGHT_BLUE,
+        text_color=IpgColor.BLUE)
 
 # Border color defined here.
 colors_with_border = add_checkbox_style( 
-                            background_color=IpgColor.BLUE,
-                            border_color=IpgColor.YELLOW,
-                            icon_color=IpgColor.LIGHT_BLUE,
-                            text_color=IpgColor.BLUE)
+        background_color=IpgColor.BLUE,
+        border_color=IpgColor.YELLOW,
+        icon_color=IpgColor.LIGHT_BLUE,
+        text_color=IpgColor.BLUE)
 
 # The default border is 1 and the radius is 2, these are used just to exaggerate.
 border = add_checkbox_style(
-                border_radius=[4.0], 
-                border_width=3.0)
+            border_radius=[4.0], 
+            border_width=3.0)
 
 
 # Add a window first
 add_window(
-        window_id="main", 
-        title="CheckBox Demo",
-        size=(600, 600),  
-        position=(100,25))
+    window_id="main", 
+    title="CheckBox Demo",
+    size=(600, 600),  
+    position=(100,25))
 
 # Add a container to center the widgets in the middle
 add_container(
-        window_id="main", 
-        container_id="cont", 
-        width_fill=True,
-        height_fill=True,
-        center=True)
+    window_id="main", 
+    container_id="cont", 
+    width_fill=True,
+    height_fill=True,
+    center=True)
 
 # Since a container can only hold one widget, use a column to hold the
 # two checkboxes.  We let the width and height default to shrink, so no entry.
 # The alignment defaults to Start but for demonstration purpose, we
 # added the IpgColumnAlignment.Start
 add_column(
-        window_id="main", 
-        container_id="col", 
-        parent_id="cont",
-        align_x=IpgAlignment.Center)
+    window_id="main", 
+    container_id="col", 
+    parent_id="cont",
+    align_x=IpgAlignment.Center)
 
 add_info()
 
@@ -117,26 +117,24 @@ add_checkboxes()
 # Let's add another window with a different background theme
 # to see how things look
 add_window(
-        window_id="main2", 
-        title="CheckBox Demo",
-        width=600, 
-        height=600,  
-        pos_x=750, 
-        pos_y=25,
-        theme=IpgWindowTheme.SolarizedLight)
+    window_id="main2", 
+    title="CheckBox Demo",
+    size=(600, 600),  
+    position=(750, 25),
+    theme=IpgWindowTheme.SolarizedLight)
 
 add_container(
-        window_id="main2", 
-        container_id="cont",
-        width_fill=True,
-        height_fill=True,
-        center=True)
+    window_id="main2", 
+    container_id="cont",
+    width_fill=True,
+    height_fill=True,
+    center=True)
 
 add_column(
-        window_id="main2", 
-        container_id="col", 
-        parent_id="cont",
-        align_x=IpgAlignment.Center)
+    window_id="main2", 
+    container_id="col", 
+    parent_id="cont",
+    align_x=IpgAlignment.Center)
 
 add_info()
 

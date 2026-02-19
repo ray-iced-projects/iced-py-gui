@@ -32,6 +32,7 @@ def add_buttons(window: str):
             window_id=window, 
             container_id="row_btn", 
             parent_id="col",
+            spacing=5.0,
             align_y=IpgAlignment.Center)
 
     # Add buttons

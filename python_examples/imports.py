@@ -1,17 +1,29 @@
 
 
 from icedpygui import (
-    add_window, start_session, update_widget,
-    add_container, add_column, add_row,
-    IpgAlignment,
-    
-    add_button, add_button_style, 
-    IpgButtonParam, IpgButtonStyleParam,
-    IpgButtonStyleStandard, IpgButtonArrow,
-    
-    add_checkbox, add_checkbox_style, 
-    IpgCheckboxParam, IpgCheckboxStyleParam,
-    
+    add_button_style, 
+    add_button, 
+    add_checkbox_style, 
+    add_checkbox, 
+    add_column, 
+    add_container,
+    add_container_style, 
+    add_row,
     add_text,
-    IpgColor, IpgWindowTheme, IpgStyleStandard
+    add_window, 
+    IpgAlignment,
+    IpgButtonArrow,
+    IpgButtonParam, 
+    IpgButtonStyleParam,
+    IpgButtonStyleStandard, 
+    IpgCheckboxParam, 
+    IpgCheckboxStyleParam,
+    IpgColor, 
+    IpgColumnParam,
+    IpgContainerStyleParam,
+    IpgHorizontalAlignment,
+    IpgStyleStandard,
+    IpgWindowTheme, 
+    start_session, 
+    update_widget,
 )

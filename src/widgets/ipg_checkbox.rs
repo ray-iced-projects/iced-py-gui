@@ -426,7 +426,6 @@ pub fn get_styling(theme: &Theme, status: Status,
 {
 
     if style_standard.is_none() && style_opt.is_none() {
-        dbg!(&status);
         return checkbox::primary(theme, status)
     }
     

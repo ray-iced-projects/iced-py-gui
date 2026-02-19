@@ -16,9 +16,8 @@ def on_press(btn_id, user_data: int):
 add_window(
     window_id="main", 
     title="Button", 
-    width=400, 
-    height=400,  
-    pos_centered=True)
+    size=(400, 400),  
+    centered=True)
 
  # Add a container to hold everything aligning all in the center
 add_container(

@@ -1,9 +1,4 @@
-from icedpygui import IPG, IpgImageParam, IpgTextParam, IpgSvgParam
-from icedpygui import IpgAlignment, IpgMousePointer, IpgTimerParam
-import os, math
-
-
-ipg = IPG()
+from imports import *
 
 # Note: The image is put into a mouse area container, within IPG, where these
 # callbacks can be executed.  If you are using the event_mouse,
@@ -33,7 +28,7 @@ def image_selected(image_id: int):
     except:
         index = tiger_ids.index(image_id)
 
-    ipg.update_item(
+    update_widget(
             wid=text_ids[index], 
             param=IpgTextParam.Content, 
             value="You Pressed Me!")
@@ -48,7 +43,7 @@ def on_mouse_move(image_id, point: dict):
 
     x = '{:{}.{}}'.format(point.get('x'), 10, 4)
     y = '{:{}.{}}'.format(point.get('y'), 10, 4)
-    ipg.update_item(
+    update_widget(
             wid=text_points[index], 
             param=IpgTextParam.Content, 
             value=f"x={x}\ny={y}\n")
@@ -60,7 +55,7 @@ def on_mouse_exit(image_id):
         index = ferris_ids.index(image_id)
     except:
         index = tiger_ids.index(image_id)
-    ipg.update_item(
+    update_widget(
             wid=text_points[index], 
             param=IpgTextParam.Content, 
             value="Point")
@@ -79,21 +74,21 @@ def toggle_images(image_id):
     show_ferris[index] = not show_ferris[index]
     show_tiger[index] = not show_tiger[index]
 
-    ipg.update_item(wid=ferris_ids[index], param=IpgImageParam.Show, value=show_ferris[index])
-    ipg.update_item(wid=tiger_ids[index], param=IpgSvgParam.Show, value=show_tiger[index])
+    update_widget(wid=ferris_ids[index], param=IpgImageParam.Show, value=show_ferris[index])
+    update_widget(wid=tiger_ids[index], param=IpgSvgParam.Show, value=show_tiger[index])
 
 
 def increment_radians(timer_id: int, counter: int):
     radians = counter*0.048481
-    ipg.update_item(wid=ferris_ids[0], param=IpgImageParam.RotationRadians, value=radians)
-    ipg.update_item(wid=ferris_ids[1], param=IpgImageParam.RotationRadians, value=radians)
-    ipg.update_item(wid=ferris_ids[2], param=IpgImageParam.RotationRadians, value=radians)
-    ipg.update_item(wid=ferris_ids[3], param=IpgImageParam.RotationRadians, value=radians)
+    update_widget(wid=ferris_ids[0], param=IpgImageParam.RotationRadians, value=radians)
+    update_widget(wid=ferris_ids[1], param=IpgImageParam.RotationRadians, value=radians)
+    update_widget(wid=ferris_ids[2], param=IpgImageParam.RotationRadians, value=radians)
+    update_widget(wid=ferris_ids[3], param=IpgImageParam.RotationRadians, value=radians)
 
-    ipg.update_item(wid=tiger_ids[0], param=IpgSvgParam.RotationRadians, value=radians)
-    ipg.update_item(wid=tiger_ids[1], param=IpgSvgParam.RotationRadians, value=radians)
-    ipg.update_item(wid=tiger_ids[2], param=IpgSvgParam.RotationRadians, value=radians)
-    ipg.update_item(wid=tiger_ids[3], param=IpgSvgParam.RotationRadians, value=radians)
+    update_widget(wid=tiger_ids[0], param=IpgSvgParam.RotationRadians, value=radians)
+    update_widget(wid=tiger_ids[1], param=IpgSvgParam.RotationRadians, value=radians)
+    update_widget(wid=tiger_ids[2], param=IpgSvgParam.RotationRadians, value=radians)
+    update_widget(wid=tiger_ids[3], param=IpgSvgParam.RotationRadians, value=radians)
 
 timer_label = "Start Rotation"
 def change_label(timer_id: int):
@@ -103,19 +98,18 @@ def change_label(timer_id: int):
     else:
         timer_label = "Start Rotation"
         
-    ipg.update_item(wid=timer_id, param=IpgTimerParam.Label, value=timer_label)
+    update_widget(wid=timer_id, param=IpgTimerParam.Label, value=timer_label)
 
 
 # Add the window
-ipg.add_window(
+add_window(
         window_id="main", 
-        title="Date Picker Demo", 
-        width=600, 
-        height=500,
+        title="Date Picker Demo",
+    size=(600, 500),
         pos_centered=True)
 
 # Add a column to hold the widgets
-ipg.add_column(
+add_column(
         window_id="main", 
         container_id="col", 
         parent_id="main",
@@ -124,12 +118,12 @@ ipg.add_column(
         align=IpgAlignment.Center)
 
 # Add a space for readability
-ipg.add_space(
+add_space(
         parent_id="col", 
         height=50.0)
 
 # Add some text info
-ipg.add_text(
+add_text(
         parent_id="col",
         content="Pressing the left mouse button, while over an image, will display a message.  "
         "Pressing the right mouse button, while over the "
@@ -138,7 +132,7 @@ ipg.add_text(
         width=600.0)
 
 # adding a row for the line of images
-ipg.add_row(
+add_row(
         window_id="main", 
         container_id="row1", 
         parent_id="col", 
@@ -148,7 +142,7 @@ ipg.add_row(
 # but they could be different depending on your needs.
 for i in range(0, 4):
 
-    ferris_ids.append(ipg.add_image(
+    ferris_ids.append(add_image(
                             parent_id="row1", 
                             image_path=ferris,
                             width=100.0, height=50.0,
@@ -159,7 +153,7 @@ for i in range(0, 4):
                             mouse_pointer=IpgMousePointer.Pointer,
                             show=True))
     
-    tiger_ids.append(ipg.add_svg(
+    tiger_ids.append(add_svg(
                             parent_id="row1", 
                             svg_path=tiger,
                             width=100.0, height=50.0,
@@ -172,13 +166,13 @@ for i in range(0, 4):
     
     # Spacing was added last because because the two images occupy the same space
     # So spacing is between the pairs
-    ipg.add_space(
+    add_space(
             parent_id="row1", 
             width=10.0)
 
 
 # add a row for the information
-ipg.add_row(
+add_row(
         window_id="main", 
         container_id="row2", 
         parent_id="col")
@@ -190,24 +184,24 @@ text_points = []
 # Add the text below each image.  There are a number of ways this could be done,
 # Another way is to add a column with the image, info, and points then put the columns into row.
 for i in range(0, 4):
-    text_ids.append(ipg.add_text(
+    text_ids.append(add_text(
                         parent_id="row2", 
                         content="Press image above me", 
                         width=100.0))
 
 # adding a final row for the points display
-ipg.add_row(
+add_row(
         window_id="main", 
         container_id="row3", 
         parent_id="col")
 
 for i in range(0, 4):
-    text_points.append(ipg.add_text(
+    text_points.append(add_text(
                             parent_id="row3", 
                             content="Point", 
                             width=100.0))
 
-ipg.add_timer(
+add_timer(
         parent_id="col",
         label="Rotate Image",
         duration_ms=300, 
@@ -218,4 +212,4 @@ ipg.add_timer(
 
 # Required to be the last widget sent to Iced,  If you start the program
 # and nothing happens, it might mean you forgot to add this command.
-ipg.start_session()
+start_session()

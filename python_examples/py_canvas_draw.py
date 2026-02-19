@@ -1,11 +1,4 @@
-from icedpygui import IPG, IpgDrawMode, IpgCanvasParam, IpgColor, IpgColorPickerParam
-from icedpygui import IpgCanvasWidget, IpgTextInputParam, IpgColorPickerStyleParam
-from icedpygui import IpgHorizontalAlignment, IpgVerticalAlignment
-import os
-
-
-ipg = IPG()
-
+from imports import *
 
 global default_file_path
 cwd = os.getcwd()
@@ -17,7 +10,7 @@ new_file_path = ""
 
 
 def canvas_clear(btn_id: int):
-    ipg.update_item(
+    update_item(
             wid=canvas_id, 
             param=IpgCanvasParam.Clear, 
             value=True)
@@ -50,7 +43,7 @@ def widget_select(radio_id: int, selected: list[int, str]):
         case 9:
             widget = IpgCanvasWidget.Text
 
-    ipg.update_item(canvas_id, IpgCanvasParam.Widget, widget)
+    update_item(canvas_id, IpgCanvasParam.Widget, widget)
     
 
 # The IpgDrawModes are set and cannot be cahnged but you
@@ -66,19 +59,19 @@ def mode_select(input_id: int, selected: str):
         case "Rotate":
             mode = IpgDrawMode.Rotate
     
-    ipg.update_item(
+    update_item(
             wid=canvas_id, 
             param=IpgCanvasParam.Mode, 
             value=mode)
 
 
 def poly_points(input_id: int, number: int):
-    ipg.update_item(
+    update_item(
             wid=canvas_id, 
             param=IpgCanvasParam.PolyPoints, 
             value=number)
     
-    ipg.update_item(
+    update_item(
             wid=input_id, 
             param=IpgTextInputParam.Value, 
             value=str(number))
@@ -92,12 +85,12 @@ def set_file_path(input_id: int, name: str):
     if name == "":
         global new_file_path
         new_file_path = default_file_path
-    ipg.update_item(
+    update_item(
             wid=canvas_id, 
             param=IpgCanvasParam.FilePath, 
             value=new_file_path)
     
-    ipg.update_item(
+    update_item(
             wid=input_id, 
             param=IpgTextInputParam.Value, 
             value=new_file_path)
@@ -107,19 +100,19 @@ def load_file(btn_id):
     global new_file_path
     if new_file_path == "":
         new_file_path = default_file_path
-        ipg.update_item(
+        update_item(
                 wid=canvas_id, 
                 param=IpgCanvasParam.FilePath, 
                 value=new_file_path)
        
-    ipg.update_item(
+    update_item(
             wid=canvas_id, 
             param=IpgCanvasParam.Load, 
             value=None)
     
 
 def save_file(btn_id):
-    ipg.update_item(
+    update_item(
             wid=canvas_id, 
             param=IpgCanvasParam.Save, 
             value=None)
@@ -128,25 +121,25 @@ def save_file(btn_id):
 # Since the color picker widget doesn't know the existence
 # of the canvas, the draw color will need to be updated.
 def submit_draw_color_picker(cp_id: int, color: list):
-    ipg.update_item(
+    update_item(
             wid=canvas_id, 
             param=IpgCanvasParam.DrawColor, 
             value=color)
     # update the button to reflex the new color
     # update the color picker button color
-    ipg.update_item(
+    update_item(
         cp_id_draw_color, 
         IpgColorPickerStyleParam.BackgroundRbga, 
         color)
     
     
 def submit_fill_color_picker(cp_id: int, color: list):
-    ipg.update_item(
+    update_item(
             wid=canvas_id, 
             param=IpgCanvasParam.FillColor, 
             value=color)
     # update the color picker button color
-    ipg.update_item(
+    update_item(
         cp_id_fill_color, 
         IpgColorPickerStyleParam.BackgroundRbga, 
         color)
@@ -154,12 +147,12 @@ def submit_fill_color_picker(cp_id: int, color: list):
     
 def submit_canvas_color_picker(cp_id: int, color: list):
     # update the canvas color
-    ipg.update_item(
+    update_item(
             wid=canvas_id, 
             param=IpgCanvasParam.CanvasColor, 
             value=color)
     # update the color picker button color
-    ipg.update_item(
+    update_item(
         cp_id_bkg_color, 
         IpgColorPickerStyleParam.BackgroundRbga, 
         color)
@@ -167,7 +160,7 @@ def submit_canvas_color_picker(cp_id: int, color: list):
 
 def set_draw_width(input_id: int, width: str):
     width_float = float(width)
-    ipg.update_item(
+    update_item(
             wid=canvas_id, 
             param=IpgCanvasParam.DrawWidth, 
             value=width_float)
@@ -184,7 +177,7 @@ def set_horizontal_text_alignment(pick_id: int, selected: str):
         case "H_Right":
             align = IpgHorizontalAlignment.Right
     
-    ipg.update_item(
+    update_item(
             wid=canvas_id, 
             param=IpgCanvasParam.TextAlignment, 
             value=align)    
@@ -199,47 +192,46 @@ def set_vertical_text_alignment(pick_id: int, selected: str):
         case "V_Bottom":
             align = IpgVerticalAlignment.Bottom
             
-    ipg.update_item(
+    update_item(
             wid=canvas_id, 
             param=IpgCanvasParam.TextAlignment, 
             value=align)    
     
-cp_id_bkg_color = ipg.add_color_picker_style(background_color=IpgColor.PRIMARY)
-cp_id_draw_color = ipg.add_color_picker_style(background_color=IpgColor.PRIMARY)
-cp_id_fill_color = ipg.add_color_picker_style(background_color=IpgColor.TRANSPARENT)
+cp_id_bkg_color = add_color_picker_style(background_color=IpgColor.PRIMARY)
+cp_id_draw_color = add_color_picker_style(background_color=IpgColor.PRIMARY)
+cp_id_fill_color = add_color_picker_style(background_color=IpgColor.TRANSPARENT)
 
-ipg.add_window(
+add_window(
         window_id="main", 
         title="Canvas",
-        width=1000.0, 
-        height=800.0,
+    size=(1000.0, 800.0),
         pos_centered=True)
 
-ipg.add_row(
+add_row(
         window_id="main", 
         container_id="row",
         width_fill=True, 
         height_fill=True)
 
-ipg.add_column(
+add_column(
         window_id="main", 
         container_id="col",
         parent_id="row",
         width=200, height_fill=True,
         padding=[10.0])
 
-canvas_id = ipg.add_canvas(
+canvas_id = add_canvas(
                 window_id="main", 
                 canvas_id="canvas",
                 parent_id="row",
                 width_fill=True, 
                 height_fill=True)
 
-ipg.add_space(
+add_space(
         parent_id="col", 
         height=10.0)
 
-ipg.add_button(
+add_button(
         parent_id="col", 
         label="Clear",
         on_press=canvas_clear)
@@ -247,14 +239,14 @@ ipg.add_button(
 widget_labels = ["Arc", "Bezier", "Circle", "Ellipse", "Line", "Polygon",
                 "PolyLine", "RightTriangle", "FreeHand", "Text"]
 
-ipg.add_radio(
+add_radio(
         parent_id="col", 
         labels=widget_labels,
         on_select=widget_select)
 
 mode_labels = ["Display", "New", "Edit", "Rotate"]
 
-ipg.add_pick_list(
+add_pick_list(
         parent_id="col", 
         options=mode_labels,
         placeholder="Select Mode",
@@ -267,75 +259,75 @@ ipg.add_pick_list(
 # if you were having the called function needing
 # only the whole value, then you would 
 # only use the submit callback function.
-ipg.add_text_input(
+add_text_input(
         parent_id="col",
         placeholder="File Name",
         width=150.0,
         on_input=set_file_path,
         on_submit=set_file_path)
 
-ipg.add_row(
+add_row(
         parent_id="col", 
         container_id="file_row",
         window_id="main")
 
-ipg.add_button(
+add_button(
         parent_id="file_row",
         label="Load",
         on_press=load_file)
 
-ipg.add_button(
+add_button(
         parent_id="file_row",
         label="Save",
         on_press=save_file)
 
-ipg.add_color_picker(
+add_color_picker(
         parent_id="col",
         label="Set Draw Color",
         on_submit=submit_draw_color_picker,
         style_id=cp_id_draw_color)
 
-ipg.add_color_picker(
+add_color_picker(
         parent_id="col",
         label="Fill Color",
         on_submit=submit_fill_color_picker,
         style_id=cp_id_fill_color)
 
-cp_canvas_color_id = ipg.add_color_picker(
+cp_canvas_color_id = add_color_picker(
                         parent_id="col",
                         label="Set Canvas Color",
                         style_id=cp_id_bkg_color,
                         on_submit=submit_canvas_color_picker)
 
-ipg.add_text_input(
+add_text_input(
         parent_id="col",
         placeholder="PolyPoints(3)",
         width=150.0,
         on_input=poly_points,
         on_submit=poly_points)
 
-ipg.add_text_input(
+add_text_input(
         parent_id="col",
         placeholder="Draw Width(2.0)",
         width=150.0,
         on_input=set_draw_width,
         on_submit=set_draw_width)
 
-ipg.add_text(
+add_text(
         parent_id="col",
         content="Text Alignment")
 
-ipg.add_pick_list(
+add_pick_list(
         parent_id="col",
         options=["H_Left", "H_Center", "H_Right"],
         placeholder="H_Center",
         on_select=set_horizontal_text_alignment)
 
-ipg.add_pick_list(
+add_pick_list(
         parent_id="col",
         options=["V_Top", "V_Center", "V_Bottom"],
         placeholder="V_Center",
         on_select=set_vertical_text_alignment)
 
 
-ipg.start_session()
+start_session()

@@ -1,15 +1,11 @@
-from icedpygui import IPG, IpgTextParam
-
-# This is a simple demo for text with wrapping
-ipg = IPG()
-
+from imports import *
 
 def change_text (sldr_id: int, value: float):
-    ipg.update_item(
+    update_widget(
         wid=txt1,
         param=IpgTextParam.Width,
         value=value)
-    ipg.update_item(
+    update_widget(
         wid=txt2,
         param=IpgTextParam.Width,
         value=value)
@@ -17,28 +13,27 @@ def change_text (sldr_id: int, value: float):
 
 
 # Add a window first
-ipg.add_window(
+add_window(
         window_id="main", 
         title="CheckBox Demo",
-        width=600, 
-        height=600,  
+    size=(600, 600),  
         pos_centered=True,
         debug=True)
 
 # Add a container to center the widgets in the middle
-ipg.add_container(
+add_container(
         window_id="main", 
         container_id="cont", 
         width_fill=True,
         height_fill=True,
         centered=True)
 
-ipg.add_column(
+add_column(
     window_id="main",
     container_id="col",
     parent_id="cont")
 
-ipg.add_slider(
+add_slider(
     parent_id="col",
     min=0.0, 
     max=200.0,
@@ -47,12 +42,12 @@ ipg.add_slider(
     on_change=change_text,
     width=175.0)
 
-txt1 = ipg.add_text(
+txt1 = add_text(
         parent_id="col",
         content="This is some very very very very very very very very long text.",
         width=160.0)
 
-txt2 = ipg.add_text(
+txt2 = add_text(
         parent_id="col",
         content="This is some very very very very very very very very long text.",
         width=160.0,
@@ -61,4 +56,4 @@ txt2 = ipg.add_text(
 
 # Required to be the last widget sent to Iced,  If you start the program
 # and nothing happens, it might mean you forgot to add this command.
-ipg.start_session()
+start_session()

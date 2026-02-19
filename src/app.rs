@@ -14,6 +14,7 @@ use crate::widgets::ipg_button::{BtnMessage, button_callback, button_param_updat
 use crate::widgets::ipg_checkbox::{ChkMessage, checkbox_callback, checkbox_param_update, checkbox_style_update, construct_checkbox};
 use crate::widgets::ipg_column::{column_item_update, construct_column};
 use crate::widgets::ipg_container::{construct_container, container_item_update, container_style_update_item};
+use crate::widgets::ipg_date_picker::{DPMessage, construct_date_picker, date_picker_item_update, date_picker_update};
 use crate::widgets::ipg_events::process_window_event;
 use crate::widgets::ipg_font::font_param_update;
 use crate::widgets::ipg_row::{construct_row, row_item_update};
@@ -28,7 +29,7 @@ pub enum Message {
 //     Card(usize, CardMessage),
     CheckBox(usize, ChkMessage),
 //     ColorPicker(usize, ColPikMessage),
-//     DatePicker(usize, DPMessage),
+    DatePicker(usize, DPMessage),
 //     Divider(usize, DivMessage),
 //     EventKeyboard(Event),
 //     EventMouse(Event),
@@ -146,11 +147,12 @@ impl App {
             //     process_updates(&mut self.state, &mut self.canvas_state);
             //     Task::none()
             // }
-            // Message::DatePicker(id, message) => {
-            //     date_picker_update(&mut self.state, id, message);
-            //     process_updates(&mut self.state, &mut self.canvas_state);
-            //     Task::none()
-            // },
+            Message::DatePicker(id, message) => {
+                date_picker_update(&mut self.state, id, message);
+                // process_updates(&mut self.state, &mut self.canvas_state);
+                process_updates(&mut self.state);
+                Task::none()
+            },
             // Message::Divider(id, message) => {
             //     divider_callback(&mut self.state, id, message);
             //     process_updates(&mut self.state, &mut self.canvas_state);
@@ -796,15 +798,15 @@ fn get_widget<'a>(state: &'a IpgState, id: &usize) -> Option<Element<'a, Message
                 // IpgWidgets::IpgMenu(menu) => {
                 //     Some(construct_menu(menu.clone(), state))
                 // },
-                // IpgWidgets::IpgDatePicker(dp) => {
-                //     let style_opt = match dp.button_style_id {
-                //         Some(id) => {
-                //             state.widgets.get(&id)
-                //         },
-                //         None => None,
-                //     };
-                //     construct_date_picker(dp, style_opt)
-                // },
+                IpgWidgets::IpgDatePicker(dp) => {
+                    let style_opt = match dp.button_style_id {
+                        Some(id) => {
+                            state.widgets.get(&id)
+                        },
+                        None => None,
+                    };
+                    construct_date_picker(dp, style_opt)
+                },
                 // IpgWidgets::IpgPickList(pick) => {
                 //     let style_opt = match pick.style_id {
                 //         Some(id) => {
@@ -1163,7 +1165,7 @@ fn show_widget(state: &mut IpgState, ids: &[(usize, bool)]) {
             // IpgWidgets::IpgCard(ipg_card) => ipg_card.show= *value,
             IpgWidgets::IpgCheckBox(ipg_check_box) => ipg_check_box.show= *value,
             // IpgWidgets::IpgColorPicker(ipg_color_picker) => ipg_color_picker.show= *value,
-            // IpgWidgets::IpgDatePicker(ipg_date_picker) => ipg_date_picker.show= *value,
+            IpgWidgets::IpgDatePicker(ipg_date_picker) => ipg_date_picker.show= *value,
             // IpgWidgets::IpgImage(ipg_image) => ipg_image.show= *value,
             // IpgWidgets::IpgPickList(ipg_pick_list) => ipg_pick_list.show= *value,
             // IpgWidgets::IpgProgressBar(ipg_progress_bar) => ipg_progress_bar.show= *value,
@@ -1309,9 +1311,9 @@ fn match_widget(
         IpgWidgets::IpgContainerStyle(style) => {
                 container_style_update_item(style, item, value);
             },
-        // IpgWidgets::IpgDatePicker(dp) => {
-        //         date_picker_item_update(dp, item, value);
-        //     },
+        IpgWidgets::IpgDatePicker(dp) => {
+                date_picker_item_update(dp, item, value);
+        },
         // IpgWidgets::IpgDividerHorizontal(div) => {
         //         divider_horizontal_item_update(div, item, value);
         //     },

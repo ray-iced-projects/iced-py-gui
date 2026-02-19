@@ -1,7 +1,4 @@
-from icedpygui import IPG, IpgToolTipPosition
-from icedpygui import IpgToolTipParam, IpgButtonParam, IpgColor
-
-ipg = IPG()
+from imports import *
 
 positions = [
     IpgToolTipPosition.Top,
@@ -19,7 +16,7 @@ def change_position(btn_id):
     if index == 5:
         index = 0
     
-    ipg.update_item(
+    update_widget(
         wid=tt_id,
         param=IpgToolTipParam.Position,
         value=positions[index])
@@ -36,13 +33,13 @@ def change_position(btn_id):
         case 4:
             label = "Tool Tip Follows Cursor, Press to Change"    
             
-    ipg.update_item(
+    update_widget(
         wid=btn_id,
         param=IpgButtonParam.Label,
         value=label)  
     
     
-ts_id = ipg.add_tooltip_style(
+ts_id = add_tooltip_style(
             background_color=IpgColor.DARK_GRAY,
             text_color=IpgColor.BLACK,
             border_radius=[5.0],
@@ -50,15 +47,14 @@ ts_id = ipg.add_tooltip_style(
             border_width=2.0)  
     
 # Add a window first
-ipg.add_window(
+add_window(
         window_id="main", 
         title="CheckBox Demo",
-        width=600, 
-        height=600,  
+    size=(600, 600),  
         pos_centered=True)
 
 # Add a container to center the widgets in the middle
-ipg.add_container(
+add_container(
         window_id="main", 
         container_id="cont", 
         width_fill=True,
@@ -66,7 +62,7 @@ ipg.add_container(
         centered=True)
 
 
-tt_id = ipg.add_tool_tip(
+tt_id = add_tool_tip(
     window_id="main",
     container_id="tt",
     parent_id="cont",
@@ -76,11 +72,11 @@ tt_id = ipg.add_tool_tip(
     gap=20,
     style_id=ts_id)
 
-btn_id = ipg.add_button(
+btn_id = add_button(
     parent_id="tt",
     label="Tool Tip On Top, Press to Change",
     on_press=change_position)
 
 # Required to be the last widget sent to Iced,  If you start the program
 # and nothing happens, it might mean you forgot to add this command.
-ipg.start_session()
+start_session()

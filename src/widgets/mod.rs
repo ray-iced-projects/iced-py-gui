@@ -10,6 +10,7 @@ pub mod ipg_button;
 pub mod ipg_checkbox;
 pub mod ipg_column;
 pub mod ipg_container;
+pub mod ipg_date_picker;
 pub mod ipg_events;
 pub mod ipg_font;
 pub mod ipg_row;

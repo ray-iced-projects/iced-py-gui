@@ -14,6 +14,7 @@ use pyo3::{Py, PyAny};
 use crate::widgets::ipg_checkbox::{IpgCheckBox, IpgCheckboxStyle};
 use crate::widgets::ipg_column::IpgColumn;
 use crate::widgets::ipg_container::{IpgContainer, IpgContainerStyle};
+use crate::widgets::ipg_date_picker::IpgDatePicker;
 use crate::widgets::ipg_events::IpgEvents;
 use crate::widgets::ipg_font::IpgFont;
 use crate::widgets::ipg_row::IpgRow;
@@ -41,6 +42,7 @@ pub enum IpgWidgets {
     IpgButton(IpgButton),
     IpgButtonStyle(IpgButtonStyle),
     IpgCheckBox(IpgCheckBox),
+    IpgDatePicker(IpgDatePicker),
     IpgText(IpgText),
 
     IpgCheckboxStyle(IpgCheckboxStyle),

@@ -1,4 +1,4 @@
-//! Container module - provides add_containern pyfunction
+//! Container module - provides add_container pyfunction
 #![allow(unused)]
 
 use iced::Color;

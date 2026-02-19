@@ -27,6 +27,7 @@ use py_api::button::{add_button, add_button_style};
 use py_api::checkbox::{add_checkbox, add_checkbox_style};
 use py_api::column::add_column;
 use py_api::container::{add_container, add_container_style};
+use py_api::date_picker::add_date_picker;
 use py_api::font::add_font;
 use py_api::row::add_row;
 use py_api::text::add_text;
@@ -45,6 +46,8 @@ use crate::widgets::ipg_button::{IpgButtonParam, IpgButtonStyleParam, IpgButtonS
 use crate::widgets::ipg_checkbox::{IpgCheckboxParam, IpgCheckboxStyleParam};
 use crate::widgets::ipg_column::IpgColumnParam;
 use crate::widgets::ipg_container::IpgContainerStyleParam;
+use crate::widgets::ipg_date_picker::IpgDatePickerParam;
+use crate::widgets::ipg_text::IpgTextParam;
 
 /// Python module definition
 #[pymodule]
@@ -59,6 +62,7 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(add_checkbox, m)?)?;
     m.add_function(wrap_pyfunction!(add_column, m)?)?;
     m.add_function(wrap_pyfunction!(add_container, m)?)?;
+    m.add_function(wrap_pyfunction!(add_date_picker, m)?)?;
     m.add_function(wrap_pyfunction!(add_font, m)?)?;
     m.add_function(wrap_pyfunction!(add_row, m)?)?;
     m.add_function(wrap_pyfunction!(add_text, m)?)?;
@@ -76,19 +80,23 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<IpgContainerStyleParam>()?;
     m.add_class::<IpgStyleStandard>()?;
 
-    // Enums
-    m.add_class::<IpgAlignment>()?;
+    // widget params
     m.add_class::<IpgButtonArrow>()?;
     m.add_class::<IpgButtonParam>()?;
     m.add_class::<IpgCheckboxParam>()?;
-    m.add_class::<IpgColor>()?;
     m.add_class::<IpgColumnParam>()?;
-    m.add_class::<IpgHorizontalAlignment>()?;
-    m.add_class::<IpgIcon>()?;
-    m.add_class::<IpgVerticalAlignment>()?;
+    m.add_class::<IpgDatePickerParam>()?;
+    m.add_class::<IpgTextParam>()?;
     m.add_class::<IpgWindowLevel>()?;
     m.add_class::<IpgWindowMode>()?;
     m.add_class::<IpgWindowTheme>()?;
-    
+
+    // Enums
+    m.add_class::<IpgAlignment>()?;
+    m.add_class::<IpgColor>()?;
+    m.add_class::<IpgIcon>()?;
+    m.add_class::<IpgHorizontalAlignment>()?;
+    m.add_class::<IpgVerticalAlignment>()?;
+
     Ok(())
 }

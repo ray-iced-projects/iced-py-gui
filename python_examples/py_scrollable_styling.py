@@ -1,19 +1,14 @@
-from icedpygui import IPG, IpgColor
-from icedpygui import IpgAlignment
+from imports import *
 
-
-ipg = IPG()
-
-
-ipg.add_window(
+add_window(
         window_id="main", 
         title="Scrollable - Styling",
-        width=600, height=600,
+    size=(600, 600),
         pos_centered=True)
 
 
 # Add a container just to get some spacing from the top
-ipg.add_container(
+add_container(
         window_id="main", 
         container_id="cont",
         width_fill=True, 
@@ -21,7 +16,7 @@ ipg.add_container(
 
 # Let's add some styling for the scrollable before adding it.
 # Let's style the bar first with a dark color
-color = ipg.add_scrollable_style(
+color = add_scrollable_style(
                 background_color=IpgColor.GRAY,
                 border_color=IpgColor.LIGHT_GREEN,
                 border_width=4.0,
@@ -36,7 +31,7 @@ color = ipg.add_scrollable_style(
 
 # Add the scrollable restricting the width so it can center and height 
 # which is less than the length of the data in the column for scrolling.
-scroll_id_1 = ipg.add_scrollable(
+scroll_id_1 = add_scrollable(
                     window_id="main", 
                     container_id="scroll",
                     parent_id="cont",
@@ -47,7 +42,7 @@ scroll_id_1 = ipg.add_scrollable(
                 )
 
 # Add the column for the data
-ipg.add_column(
+add_column(
         window_id="main", 
         container_id="col",
         parent_id="scroll", 
@@ -56,9 +51,9 @@ ipg.add_column(
 
 #  Add some content to scroll
 for i in range(0, 25):
-    ipg.add_text(
+    add_text(
             parent_id="col", 
             content="Scroll Me Up and Down! Scroll Me Up and Down!")
 
 
-ipg.start_session()
+start_session()

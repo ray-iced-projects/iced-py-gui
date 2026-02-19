@@ -7,6 +7,7 @@ pub mod button;
 pub mod checkbox;
 pub mod column;
 pub mod container;
+pub mod date_picker;
 pub mod font;
 pub mod row;
 pub mod session;

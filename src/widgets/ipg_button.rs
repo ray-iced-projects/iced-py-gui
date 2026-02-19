@@ -280,7 +280,7 @@ pub enum IpgButtonStyleStandard {
     Text,
 }
 
-fn get_standard_style(
+pub fn get_standard_style(
     theme: &Theme, 
     status: button::Status, 
     style_standard: &Option<IpgButtonStyleStandard>

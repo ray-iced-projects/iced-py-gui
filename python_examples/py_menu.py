@@ -1,7 +1,4 @@
-from icedpygui import IPG, IpgColor
-from icedpygui import IpgButtonStyleStandard, IpgSeparatorType
-from icedpygui import IpgMenuStyleParam, IpgMenuBarStyleParam
-
+from imports import *
 
 def bar_button_pressed(btn_id: int, data: int):
     print("bar button pressed", data)
@@ -17,22 +14,19 @@ def checkbox_toppgled(chk_id: int, checked: bool):
 
 # Not pretty changes, just demoing/testing the technique.
 def change_menu_colors(item_id: int, data: list):
-    ipg.update_item(item_style, IpgMenuStyleParam.BaseIpgColor, IpgColor.BLUE)
-    ipg.update_item(item_style, IpgMenuStyleParam.BorderRadius, [5.0])
-    ipg.update_item(item_style, IpgMenuStyleParam.BorderWidth, 6.0)
-    ipg.update_item(item_style, IpgMenuStyleParam.BorderIpgColor, IpgColor.LIGHT_BLUE)
-    ipg.update_item(item_style, IpgMenuStyleParam.ShadowBlurRadius, 10.0)
-    ipg.update_item(item_style, IpgMenuStyleParam.ShadowOffsetXY, [10.0, 10.0])
+    update_widget(item_style, IpgMenuStyleParam.BaseIpgColor, IpgColor.BLUE)
+    update_widget(item_style, IpgMenuStyleParam.BorderRadius, [5.0])
+    update_widget(item_style, IpgMenuStyleParam.BorderWidth, 6.0)
+    update_widget(item_style, IpgMenuStyleParam.BorderIpgColor, IpgColor.LIGHT_BLUE)
+    update_widget(item_style, IpgMenuStyleParam.ShadowBlurRadius, 10.0)
+    update_widget(item_style, IpgMenuStyleParam.ShadowOffsetXY, [10.0, 10.0])
 
 
-ipg = IPG()
-
-
-btn_style = ipg.add_button_style(
+btn_style = add_button_style(
                     border_radius=[10.0]
                     )
 
-mb_style = ipg.add_menu_bar_style(
+mb_style = add_menu_bar_style(
                     base_color=IpgColor.LIGHT_BLUE,
                     border_color=IpgColor.DARK_BLUE,
                     border_radius=[10.0],
@@ -42,7 +36,7 @@ mb_style = ipg.add_menu_bar_style(
                     shadow_offset_xy=[5.0, 5.0],
                     )
 
-item_style = ipg.add_menu_style(
+item_style = add_menu_style(
                     base_color=IpgColor.DARK_BLUE,
                     border_color=IpgColor.LIGHT_BLUE,
                     border_radius=[10.0],
@@ -55,11 +49,10 @@ item_style = ipg.add_menu_style(
 
 # Adding two windows to show color contrasts 
 # Add the 1st window, the default theme is Dark
-ipg.add_window(
+add_window(
         window_id="main", 
-        title="Menu", 
-        width=400, 
-        height=400,  
+        title="Menu",
+    size=(400, 400),  
         pos_centered=True)
 
 
@@ -67,7 +60,7 @@ ipg.add_window(
 # the menu bar or menu items.  The key note here is that you must
 # set the number of bar_items count, followed by a list of the menu items.
 # This number of int in the list must equal the number of bar items.
-ipg.add_menu(
+add_menu(
         window_id="main",
         container_id="menu",
         bar_items=2,
@@ -89,7 +82,7 @@ ipg.add_menu(
 # items.  The pattern is repeated until the menu is complete.
 # The user_data parameter is used to denote which
 # bar or item is pressed and/or any other info you need. 
-ipg.add_button(parent_id="menu",
+add_button(parent_id="menu",
                 label="Bar Button1",
                 on_press=bar_button_pressed,
                 style_id=btn_style,
@@ -102,7 +95,7 @@ for i in range(0, 4):
         label="base color"
         cb=change_menu_colors
         
-    ipg.add_button(parent_id="menu",
+    add_button(parent_id="menu",
                     label=label,
                     style_standard=IpgButtonStyleStandard.Text,
                     user_data=[1, i],
@@ -110,7 +103,7 @@ for i in range(0, 4):
     
     
 #  Second menu bar and items follow
-ipg.add_button(parent_id="menu",
+add_button(parent_id="menu",
                         label="Bar Button2",
                         on_press=bar_button_pressed,
                         style_id=btn_style,
@@ -118,16 +111,16 @@ ipg.add_button(parent_id="menu",
    
 for i in range(0, 4):
     if i == 2:
-        ipg.add_separator(parent_id="menu",
+        add_separator(parent_id="menu",
                           separator_type=IpgSeparatorType.Line,
                           width=100.0,
                           height=20.0)
     elif i == 3:
-        ipg.add_checkbox(parent_id="menu",
+        add_checkbox(parent_id="menu",
                          label="Check Me",
                          on_toggle=checkbox_toppgled)
     else:
-        ipg.add_button(parent_id="menu",
+        add_button(parent_id="menu",
                         label=f"Text{i}",
                         style_standard=IpgButtonStyleStandard.Text,
                         user_data=[2, i],
@@ -137,4 +130,4 @@ for i in range(0, 4):
 
 # Required to be the last widget sent to Iced,  If you start the program
 # and nothing happens, it might mean you forgot to add this command.
-ipg.start_session()
+start_session()

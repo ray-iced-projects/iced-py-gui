@@ -1,9 +1,4 @@
-from icedpygui import IPG, IpgCardParam, IpgCardStyleParam
-from icedpygui import IpgAlignment, IpgColor, IpgButtonStyleStandard
-
-
-# Needed first, see other demos for using a class
-ipg = IPG()
+from imports import *
 
 card_id = 0
 # Callback function for changing the card style
@@ -13,17 +8,17 @@ def update_card(_btn_id: int):
     global card_id
     # The card_id is the first card in the series.  The only one that is changed.
     # The btn_id is not used.
-    ipg.update_item(
+    update_item(
             wid=card_id, 
             param=IpgCardParam.Head, 
             value="This is a new head text")
     
-    ipg.update_item(
+    update_item(
             wid=card_id, 
             param=IpgCardParam.Body, 
             value="This is a new body text.")
     
-    ipg.update_item(
+    update_item(
             wid=card_id, 
             param=IpgCardParam.Foot, 
             value="This is a new foot text")
@@ -38,7 +33,7 @@ def minimize_card(card_id: int):
     # parameter can be selected.  In this case is was IsOpen.
     # id you look at the Card widget docs, you will know what the value
     # type will be, in this case a boolean.
-    ipg.update_item(
+    update_item(
         wid=card_id, 
         param=IpgCardParam.IsOpen, 
         value=False)
@@ -49,7 +44,7 @@ def minimize_card(card_id: int):
 # Normally, you would use a class or dataclass to store these ids.
 def maximize_card(_btn_id: int):
     global card_id
-    ipg.update_item(
+    update_item(
         wid=card_id, 
         param=IpgCardParam.IsOpen, 
         value=True)
@@ -59,36 +54,34 @@ def maximize_card(_btn_id: int):
 colors = [IpgColor.PRIMARY, IpgColor.SUCCESS, IpgColor.DANGER, IpgColor.BLUE]
 style_ids = []
 for i in range(0, 4):
-    id = ipg.add_card_style(
+    id = add_card_style(
             body_background_color=colors[i],
             foot_background_color=IpgColor.DARK_GREY)
     style_ids.append(id)
 
 # window added first
-ipg.add_window(
+add_window(
     window_id="main", 
-    title="Card Demo", 
-    width=800, 
-    height=600,
-    pos_x=100, 
-    pos_y=25)
+    title="Card Demo",
+    size=(800, 600),
+    position=(100, 25))
 
 # Add a container for the first button to center it.
 # A width_fill is used but the height remains a shrink
 # We have center aligned along the x axis.
-ipg.add_container(
+add_container(
     window_id="main", 
     container_id="btn_cont", 
     width_fill=True)
 
 # add a button with a callback on_press to update the first card.
-ipg.add_button("btn_cont",
+add_button("btn_cont",
                label="Pressing this will change the updatable items in the first card\n if you close card 1, "
                      "restore it by pressing on the bottom button.",
                on_press=update_card)
 
 # add another is added container to center the column of cards to follow
-ipg.add_container(
+add_container(
     window_id="main", 
     container_id="cont",
     width_fill=True, 
@@ -100,7 +93,7 @@ ipg.add_container(
 # most of the time but in some situations you'll need to use the window debug setting
 # to see how things line up and getting the contents to scroll.  Just remember the
 # scrollable has to be larger than the container, column, or row.
-ipg.add_column(
+add_column(
     window_id="main", 
     container_id="col", 
     parent_id="cont",
@@ -110,7 +103,7 @@ ipg.add_column(
     padding=[10.0])
 
 # Add a row at the bottom to hold the button
-ipg.add_row(
+add_row(
     window_id="main", 
     container_id="bottom_row", 
     parent_id="main",
@@ -119,7 +112,7 @@ ipg.add_row(
 
 # Add the button. This button could have been hidden and when the card is minimized, then show it.
 # You could also have changed the label to min or max.
-ipg.add_button(
+add_button(
     parent_id="bottom_row", 
     label="Card 1", 
     style_standard=IpgButtonStyleStandard.Primary,
@@ -131,7 +124,7 @@ body = "This is the body of the card."
 foot = "Foot"
 
 for i in range(0, 4):
-    id = ipg.add_card(
+    id = add_card(
             parent_id="col", 
             head=head, 
             body=body, 
@@ -144,4 +137,4 @@ for i in range(0, 4):
 
 # Required to be the last widget sent to Iced,  If you start the program
 # and nothing happens, it might mean you forgot to add this command.
-ipg.start_session()
+start_session()

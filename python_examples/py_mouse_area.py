@@ -1,9 +1,5 @@
-from icedpygui import IPG
+from imports import *
 
-
-
-# Since user data is include, it will need to be
-# added to all whether used on or.
 def on_press(id, _user_data):
     print("on press", id)
 
@@ -42,23 +38,20 @@ def on_exit(id, _user_data):
 
     
 
-ipg = IPG()
-
-ipg.add_window(
+add_window(
         window_id="main", 
-        title="Main", 
-        width=400, 
-        height=400, 
+        title="Main",
+    size=(400, 400), 
         pos_centered=True, 
         debug=True)
 
-ipg.add_container(
+add_container(
         window_id="main", 
         container_id="cont", 
         width_fill=True, 
         height_fill=True)
 
-ipg.add_mousearea(window_id="main", 
+add_mousearea(window_id="main", 
                   container_id="ma", 
                   parent_id="cont",
                   on_enter=on_enter,
@@ -74,10 +67,10 @@ ipg.add_mousearea(window_id="main",
                   )
 
 # A text widget was added here but you can also add containers or other widgets too.
-ipg.add_text("ma", content="my content 1")
+add_text("ma", content="my content 1")
 
 # you will probably rarely add more than one item to a mousearea
 # but the option for more is there.
-ipg.add_text("ma", content="my content 2")
+add_text("ma", content="my content 2")
 
-ipg.start_session()
+start_session()

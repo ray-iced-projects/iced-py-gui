@@ -1,3 +1,5 @@
+from imports import *
+
 """
 Minimal example demonstrating the new module-level function API.
 
@@ -20,15 +22,13 @@ def on_button_press(btn_id):
 
 
 def main():
-    # Create a window - this replaces ipg.add_window()
+    # Create a window - this replaces add_window()
     window_id = add_window(
         window_id="main",
         title="Minimal Example",
-        width=400.0,
-        height=300.0,
+    size=(400.0, 300.0),
         theme=IpgWindowTheme.Dark,
-        exit_on_close=True,
-    )
+        exit_on_close=True)
     print(f"Created window with id: {window_id}")
 
     # Add a button directly to the window
@@ -42,7 +42,7 @@ def main():
     )
     print(f"Created button with id: {btn_id}")
 
-    # Start the GUI event loop - this replaces ipg.start_session()
+    # Start the GUI event loop - this replaces start_session()
     start_session()
 
 

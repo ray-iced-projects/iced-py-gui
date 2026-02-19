@@ -1,49 +1,41 @@
-import os
-import random
-from icedpygui import IPG, IpgColor, IpgStackParam, IpgMousePointer, IpgImageContentFit
-from icedpygui import IpgTextParam
-
-
+from imports import *
 
 def card_selected(card_id, name):
-    ipg.update_item(
+    update_widget(
         wid=text_id, 
         param=IpgTextParam.Content, 
         value=f"Card selected is {name}")
 
-
-ipg=IPG()        
 
 cwd = os.getcwd()
 path = path = cwd + "/python_examples/resources/cards/hearts/"
 
 names = ["Ace", "2", "3", "4", "5", "6", "7", "8", "9", "10", "Jack", "Queen", "King"]
 
-ipg.add_window(
+add_window(
         window_id="main",
         title="Stack",
-        width=400.0,
-        height=800.0,
+    size=(400.0, 800.0),
         pos_centered=True)
 
-ipg.add_container(
+add_container(
         window_id="main",
         container_id="cont",
         width_fill=True,
         height_fill=True)
 
-ipg.add_column(
+add_column(
         window_id="main",
         container_id="main_col",
         parent_id="cont",
         height_fill=True)
 
-text_id = ipg.add_text(
+text_id = add_text(
                 parent_id="main_col", 
                 content="Card Selected is None")
 
 # Adds the stack container to the window.
-stack_id = ipg.add_stack(
+stack_id = add_stack(
                     window_id="main",
                     container_id="stack",
                     parent_id="main_col",
@@ -52,7 +44,7 @@ stack_id = ipg.add_stack(
 
 for i in range(1, 14):
     # Adds the column to the stack to hold the space and card.
-    ipg.add_column(
+    add_column(
             window_id="main",
             container_id=f"col_{i}",
             parent_id="stack")
@@ -62,11 +54,11 @@ for i in range(1, 14):
     # The space, whcich grows with each card, allows for an offset
     # to be able to see all of the cards.  If not used, they are 
     # stacked on top of each other.
-    ipg.add_space(
+    add_space(
             parent_id=f"col_{i}",
             height=35*i-35)
 
-    ipg.add_image(
+    add_image(
             parent_id=f"col_{i}", 
             image_path=file,
             width=200.0, 
@@ -77,5 +69,5 @@ for i in range(1, 14):
             user_data=f"{names[i-1]}")
 
 
-ipg.start_session()
+start_session()
 

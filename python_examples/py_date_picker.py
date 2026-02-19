@@ -1,7 +1,4 @@
-from icedpygui import IPG, IpgTextParam, IpgButtonParam, IpgDatePickerParam
-from icedpygui import IpgAlignment, IpgButtonStyleStandard
-
-ipg = IPG()
+from imports import *
 
 # Callback for the date picker. The id is the date_picker id, so you have to get
 # the id of whatever widget you want to update using a class or, for small projects,
@@ -11,7 +8,7 @@ def date_selected(
         _dp_id: int,
         date: str
 ):
-    ipg.update_item(
+    update_widget(
         wid=selected_date_id,
         param=IpgTextParam.Content,
         value=f"You submitted {date}"
@@ -23,13 +20,13 @@ def date_selected_with_ud(
         date: str,
         user_data: any
 ):
-    ipg.update_item(
+    update_widget(
         wid=selected_with_ud_id,
         param=IpgTextParam.Content,
         value=f"You submitted {date} with user_data = {user_data}"
     )
 
-    ipg.update_item(
+    update_widget(
         wid=btn_id,
         param=IpgButtonParam.Show,
         value=True
@@ -39,23 +36,22 @@ def date_selected_with_ud(
 def date_resize(
         _dp_id: int
 ):
-    ipg.update_item(
+    update_widget(
         wid=dp2_id,
         param=IpgDatePickerParam.SizeFactor,
         value=1.5
     )
 
 # Add a window first
-ipg.add_window(
+add_window(
     window_id="main",
     title="Date Picker Demo",
-    width=400,
-    height=700,
-    pos_centered=True
+    size=(400, 800),
+    centered=True
 )
 
 # Add the container to center both x and y. Holds only one widget.
-ipg.add_container(
+add_container(
     window_id="main",
     container_id="cont",
     width_fill=True,
@@ -64,15 +60,16 @@ ipg.add_container(
 )
 
 # Add a column to hold more than one widget and put this into the container.
-ipg.add_column(
+add_column(
     window_id="main",
     container_id="col",
     parent_id="cont",
-    align=IpgAlignment.Center
+    align_x=IpgAlignment.Center,
+    spacing=10.0,
 )
 
 # Add info text
-ipg.add_text(
+add_text(
     parent_id="col",
     content="Press the first calendar buttons to access the calendar. " +
     "Select a date, then press submit. Do the same for the second " +
@@ -81,20 +78,20 @@ ipg.add_text(
 
 # The date picker size can be scaled from > 1.0. Anything less than 1 will
 # give an error and is not readable anyway.
-ipg.add_date_picker(
+add_date_picker(
     parent_id="col",
     size_factor=1.2,
     on_submit=date_selected
 )
 
 # Text widget id needed for callback.
-selected_date_id = ipg.add_text(
+selected_date_id = add_text(
     parent_id="col",
     content="No selection"
 )
 
 # Another date picker to test the user_data and button style
-dp2_id = ipg.add_date_picker(
+dp2_id = add_date_picker(
     parent_id="col",
     size_factor=1.2,
     on_submit=date_selected_with_ud,
@@ -103,13 +100,13 @@ dp2_id = ipg.add_date_picker(
 )
 
 # Text widget id needed for callback.
-selected_with_ud_id = ipg.add_text(
+selected_with_ud_id = add_text(
     parent_id="col",
     content="No selection"
 )
 
 # Add the button for the resize but hide it until the second calendar is opened
-btn_id = ipg.add_button(
+btn_id = add_button(
     parent_id="col",
     label="Click to resize the calendar",
     on_press=date_resize,
@@ -118,4 +115,4 @@ btn_id = ipg.add_button(
 
 # Required to be the last widget sent to Iced. If you start the program
 # and nothing happens, it might mean you forgot to add this command.
-ipg.start_session()
+start_session()

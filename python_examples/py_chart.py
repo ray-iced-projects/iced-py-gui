@@ -1,14 +1,9 @@
-from icedpygui import IPG, IpgChartTheme
+from imports import *
 
-
-ipg = IPG()
-
-
-ipg.add_window(
+add_window(
         window_id="main", 
         title="Chart",
-        width=800.0,
-        height=600.0,
+    size=(800.0, 600.0),
         pos_centered=True)
 
 data = [
@@ -28,7 +23,7 @@ x_axis_labels = [
         ]
 
 
-ipg.add_chart(
+add_chart(
     window_id="main",
     chart_id="chart",
     series=data,
@@ -36,6 +31,6 @@ ipg.add_chart(
     theme=IpgChartTheme.GrafanaTheme
 )
 
-ipg.construct_chart(["chart"])
+construct_chart(["chart"])
 
-ipg.start_session()
+start_session()

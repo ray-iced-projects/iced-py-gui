@@ -1,10 +1,4 @@
-from icedpygui import IPG, IpgDividerParam, IpgColumnParam, IpgColor, IpgTextParam
-
-# This is a demo to show how the divider_vertical is used.
-# Just put the cursor over a highlighted border and drag
-
-ipg = IPG()
-
+from imports import *
 
 def divider_change(div_id: int, index: int, value: float):
     # Get the difference to be added to the right column
@@ -12,7 +6,7 @@ def divider_change(div_id: int, index: int, value: float):
     
     # Update the top locally and in ipg
     heights[index] = value
-    ipg.update_item(
+    update_widget(
             wid=column_ids[index],
             param=IpgColumnParam.Height,
             value=value)
@@ -20,24 +14,24 @@ def divider_change(div_id: int, index: int, value: float):
     # Update the bottom locally and in ipg
     if index < len(heights)-1:
             heights[index+1] += diff
-            ipg.update_item(
+            update_widget(
                 wid=column_ids[index+1],
                 param=IpgColumnParam.Height,
                 value=heights[index+1])
     
     # Update the divider
-    ipg.update_item(
+    update_widget(
                 wid=div_id,
                 param=IpgDividerParam.Heights,
                 value=heights)
     
     # Update the two text items
-    ipg.update_item(wid=text_ids[index],
+    update_widget(wid=text_ids[index],
                     param=IpgTextParam.Content,
                     value=f"Width={value}")
     
     if index < len(heights)-1:
-        ipg.update_item(wid=text_ids[index+1],
+        update_widget(wid=text_ids[index+1],
                     param=IpgTextParam.Content,
                     value=f"Width={heights[index+1]}")
 
@@ -48,41 +42,40 @@ text_ids = []
 handle_width = 200.0  
 handle_height = 4.0
         
-cont_style_id = ipg.add_container_style(border_color=IpgColor.WHITE,
+cont_style_id = add_container_style(border_color=IpgColor.WHITE,
                                         border_width=1.0)
 
-divider_style_id = ipg.add_divider_style(background_transparent=True)
+divider_style_id = add_divider_style(background_transparent=True)
 
 
 # Add a window first
-ipg.add_window(
+add_window(
         window_id="main", 
         title="CheckBox Demo",
-        width=600, 
-        height=600,  
+    size=(600, 600),  
         pos_centered=True)
 
 # Add a container to center the widgets in the middle
-ipg.add_container(
+add_container(
         window_id="main", 
         container_id="main_cont", 
         width_fill=True,
         height_fill=True)
 
 # add a column to hold the text and the stack
-ipg.add_column(
+add_column(
         window_id="main",
         container_id="main_col",
         parent_id="main_cont")
 
 content = "Pace the cursor over the highlighted divider and drag"
 
-ipg.add_text(
+add_text(
         parent_id="main_col",
         content=content)
 
 # make the stack to lay the dividers over the containers
-ipg.add_stack(
+add_stack(
         window_id="main",
         container_id="stack",
         parent_id="main_col")
@@ -94,7 +87,7 @@ ipg.add_stack(
 # cannot have any padding, since divider
 # cannot detect whether padding is used
 # it becomes misaligned.
-ipg.add_column(
+add_column(
         window_id="main",
         parent_id="stack",
         container_id="col",
@@ -104,38 +97,38 @@ ipg.add_column(
 
 for index, height in enumerate(heights):
     # add a container for styling purposes
-    ipg.add_container(
+    add_container(
             window_id="main",
             container_id=f"cont{index}",
             parent_id="col",
             style_id=cont_style_id)
     
-    column_ids.append(ipg.add_column(window_id="main",
+    column_ids.append(add_column(window_id="main",
                    container_id=f"col{index}",
                    parent_id=f"cont{index}",
                    width=handle_width,
                    height=height))
     
-    text_ids.append(ipg.add_text(
+    text_ids.append(add_text(
                     parent_id=f"col{index}",
                     content=f"Width={height}"))
     
-    ipg.add_button(
+    add_button(
             parent_id=f"col{index}",
             label="Some Button")
     
-    ipg.add_button(
+    add_button(
             parent_id=f"col{index}",
             label="Another Button")
 
-    ipg.add_toggler(
+    add_toggler(
             parent_id=f"col{index}",
             label="Toggler")
 
        
        
 # Make the divider
-ipg.add_divider_vertical(
+add_divider_vertical(
         parent_id="stack",
         heights=heights,
         handle_width=handle_width,
@@ -148,4 +141,4 @@ ipg.add_divider_vertical(
 
 # Required to be the last widget sent to Iced,  If you start the program
 # and nothing happens, it might mean you forgot to add this command.
-ipg.start_session()
+start_session()

@@ -1,6 +1,7 @@
 //! callbacks
 #![allow(dead_code)]
-use crate::IpgState;
+use crate::py_api::helpers::format_date;
+use crate::{IpgState, py_api::helpers::MONTH_NAMES};
 use crate::state::IpgWidgets;
 
 use iced::Point;
@@ -168,54 +169,54 @@ pub fn set_or_get_widget_callback_data(state: &mut IpgState, wci: WidgetCallback
             // IpgWidgets::IpgContainerStyle(_) => {
             //     return WidgetCallbackOut::default();
             // },
-            // IpgWidgets::IpgDatePicker(dp) => {
-            //     if wci.selected_day.is_some() {
-            //         dp.selected_day = wci.selected_day.unwrap();
-            //     }
-            //     // month index
-            //     if wci.index.is_some() {
-            //         let increment = wci.increment_value.unwrap();
-            //         let index = wci.index.unwrap();
-            //         if index == 12 && increment == 1 {
-            //             dp.selected_month_index = 1
-            //         } else if index == 1 && increment == -1 {
-            //             dp.selected_month_index = 12;
-            //         } else if increment == -1 {
-            //             dp.selected_month_index -= 1;
-            //         } else {
-            //             dp.selected_month_index += 1;
-            //         }
+            IpgWidgets::IpgDatePicker(dp) => {
+                if wci.selected_day.is_some() {
+                    dp.selected_day = wci.selected_day.unwrap();
+                }
+                // month index
+                if wci.index.is_some() {
+                    let increment = wci.increment_value.unwrap();
+                    let index = wci.index.unwrap();
+                    if index == 12 && increment == 1 {
+                        dp.selected_month_index = 1
+                    } else if index == 1 && increment == -1 {
+                        dp.selected_month_index = 12;
+                    } else if increment == -1 {
+                        dp.selected_month_index -= 1;
+                    } else {
+                        dp.selected_month_index += 1;
+                    }
             
-            //         dp.selected_month = MONTH_NAMES[dp.selected_month_index].to_string();
-            //     }
+                    dp.selected_month = MONTH_NAMES[dp.selected_month_index].to_string();
+                }
         
-            //     if wci.selected_year.is_some() {
-            //         let yr = wci.selected_year.unwrap();
-            //         dp.selected_year += yr;             
-            //     }
+                if wci.selected_year.is_some() {
+                    let yr = wci.selected_year.unwrap();
+                    dp.selected_year += yr;             
+                }
 
-            //     if wci.date_format.is_some() {
-            //         dp.selected_format = wci.date_format.unwrap();
-            //     }
-            //     dp.selected_date = 
-            //         format_date(
-            //             dp.selected_format.clone(), 
-            //             dp.selected_year, 
-            //             dp.selected_month_index, 
-            //             dp.selected_day
-            //             );
+                if wci.date_format.is_some() {
+                    dp.selected_format = wci.date_format.unwrap();
+                }
+                dp.selected_date = 
+                    format_date(
+                        dp.selected_format.clone(), 
+                        dp.selected_year, 
+                        dp.selected_month_index, 
+                        dp.selected_day
+                        );
         
-            //     if wci.is_submitted.is_some() {
-            //         dp.is_submitted = wci.is_submitted.unwrap();
-            //     }
-            //     if wci.show.is_some() {
-            //         dp.show_calendar = wci.show.unwrap();
-            //     };
-            //     return WidgetCallbackOut{
-            //         selected_date: Some(dp.selected_date.clone()),
-            //         ..Default::default()
-            //     }
-            // },
+                if wci.is_submitted.is_some() {
+                    dp.is_submitted = wci.is_submitted.unwrap();
+                }
+                if wci.show.is_some() {
+                    dp.show_calendar = wci.show;
+                };
+                return WidgetCallbackOut{
+                    selected_date: Some(dp.selected_date.clone()),
+                    ..Default::default()
+                }
+            },
             IpgWidgets::IpgFont(_) => {
                 return WidgetCallbackOut::default();
             }

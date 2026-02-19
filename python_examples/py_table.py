@@ -1,18 +1,4 @@
-from icedpygui import IPG
-from icedpygui import IpgColor, IpgWindowTheme
-from icedpygui import IpgTableParam, IpgTextParam, IpgButtonParam, IpgCheckboxParam
-import polars as pl
-
-import random
-
-# Polars dataframe is used for the table becuase its very fast and since there
-# is a rust/python wrapper for the dataframe, it makes it easy to move data
-# between rust and python.  Otherwise using a dictionary would result
-# in a tedious extraction of all possible datatypes that one would want to
-# put into a table.  Even if you are not familiar with polars dataframe,
-# it only requires one line of code: df = pl.DataFrame(your dictionary)
-# The other operations like filtering, math ops on a column are much easier
-# and faster to do in polars than using a dictionary or lists.
+from imports import *
 
 def table_column_resize(tbl_id: int, index: int, values: list[float]):
     print(index, values)
@@ -31,8 +17,8 @@ def sort_list(pkl_id: int, selected: str):
             df = df.sort("str", descending=True)
             
     # The dataframe is a bit special so use the update_dataframe
-    # and not update_item
-    ipg.update_dataframe(table_id, IpgTableParam.PolarsDf, df)
+    # and not update_widget
+    update_dataframe(table_id, IpgTableParam.PolarsDf, df)
 
 
 def math_op(pkl_id: int, selected: str, index: int):
@@ -46,7 +32,7 @@ def math_op(pkl_id: int, selected: str, index: int):
             value = f"Mean={df['three'].mean()}"
     # The header and footer are not part of the dataframe,
     # so update the item, not the dataframe.
-    ipg.update_item(footer_ids[index], IpgTextParam.Content, value)
+    update_widget(footer_ids[index], IpgTextParam.Content, value)
 
 
 
@@ -77,11 +63,11 @@ def filtering(pkl_id: int, selected: str):
         case "False":
             value = False
         case "None":
-            ipg.update_dataframe(table_id, IpgTableParam.PolarsDf, df)
+            update_dataframe(table_id, IpgTableParam.PolarsDf, df)
             for wid in button_ids:
-                ipg.update_item(wid, IpgButtonParam.Show, True)
+                update_widget(wid, IpgButtonParam.Show, True)
             for id_tf in checkbox_ids:
-                ipg.update_item(id_tf[0], IpgCheckboxParam.Show, True)
+                update_widget(id_tf[0], IpgCheckboxParam.Show, True)
             return
     # get the filtered df
     filtered_df = df.filter(pl.col("Checks") == value)
@@ -90,26 +76,24 @@ def filtering(pkl_id: int, selected: str):
     filtered_button_ids = filtered_df["Edit"].to_list()
     for wid in button_ids:
         if wid not in filtered_button_ids:
-            ipg.update_item(wid, IpgButtonParam.Show, False)
+            update_widget(wid, IpgButtonParam.Show, False)
         else:
             # in case it was hidden by another filter
-            ipg.update_item(wid, IpgButtonParam.Show, True)
+            update_widget(wid, IpgButtonParam.Show, True)
     
     # Since we don't have a list of ids in the df for the checkboxes,
     # we use the values the list of list for the update.
     # The above text discussed alternate ways.
     for id_tf in checkbox_ids:
         if id_tf[1] == value:
-            ipg.update_item(id_tf[0], IpgCheckboxParam.Show, True)
+            update_widget(id_tf[0], IpgCheckboxParam.Show, True)
         else:
             # in case it was hidden by another filter
-            ipg.update_item(id_tf[0], IpgCheckboxParam.Show, False) 
+            update_widget(id_tf[0], IpgCheckboxParam.Show, False) 
                
-    ipg.update_dataframe(table_id, IpgTableParam.PolarsDf, filtered_df)
+    update_dataframe(table_id, IpgTableParam.PolarsDf, filtered_df)
    
 
-
-ipg = IPG()
 
 total_id = 0
 selected = "None"
@@ -117,8 +101,8 @@ list_ids = []
 row_ids = []
 filered_ids = []
 column_widths = [100.0] * 6
-button_ids = [ ipg.generate_id() for _ in range(11) ]
-checkbox_ids = [ [ipg.generate_id(), random.choice([True, False])] for _ in range(11) ]
+button_ids = [ generate_id() for _ in range(11) ]
+checkbox_ids = [ [generate_id(), random.choice([True, False])] for _ in range(11) ]
 checks = [ tup[1] for tup in checkbox_ids ]
 
 
@@ -146,21 +130,20 @@ df_width = df.width
 df_length = df.height
 
 # Some styling for the widgets
-btn_style = ipg.add_button_style(border_radius=[10.0])
+btn_style = add_button_style(border_radius=[10.0])
 
 
 # Add the window
-ipg.add_window(
+add_window(
         window_id="main", 
         title="Table Demo",
-        width=1000, 
-        height=400,
+    size=(1000, 400),
         pos_centered=True,
         theme=IpgWindowTheme.TokyoNightStorm,
         debug=False)
 
 # Add the container for centering the table
-ipg.add_container(
+add_container(
         window_id="main", 
         container_id="cont",
         width_fill=True, 
@@ -170,7 +153,7 @@ ipg.add_container(
 width = sum(column_widths)
 
 # The table is added.
-table_id = ipg.add_table(
+table_id = add_table(
         window_id="main",
         table_id="table",
         polars_df=df,
@@ -235,7 +218,7 @@ table_id = ipg.add_table(
 # In the case of the checkbox, we are going to keep track of the if checked values
 # update the checked column of the df and use a picklist to filter the df.
 for i in range(df_length):
-    ipg.add_button(
+    add_button(
         parent_id="table",
         label="Edit",
         padding=[0.0, 20.0, 0.0, 20.0],
@@ -243,7 +226,7 @@ for i in range(df_length):
         user_data=i,
         gen_id=button_ids[i])
     
-    ipg.add_checkbox(
+    add_checkbox(
         parent_id="table",
         label="Check Me",
         is_checked=checks[i],
@@ -257,26 +240,26 @@ for i in range(df_length):
 header = [""] * df_width
 for i in range(df_width):
     if i == 1:
-        ipg.add_pick_list(
+        add_pick_list(
             parent_id="table",
             options=["Sort(a-z)", "Sort(z-a)"],
             placeholder="Sort",
             on_select=sort_list)
     elif i == 3:
-        ipg.add_pick_list(
+        add_pick_list(
             parent_id="table",
             options=["True", "False", "None"],
             placeholder="Filter",
             on_select=filtering) 
     elif i == 5:
-        ipg.add_pick_list(
+        add_pick_list(
             parent_id="table",
             options=["Add", "Count", "Mean"],
             placeholder="Math",
             on_select=math_op,
             user_data=5) # the footer index
     else:    
-        ipg.add_text(
+        add_text(
             parent_id="table",
             content=header[i],
             size=16.0)
@@ -290,7 +273,7 @@ column_three_sum = df["three"].sum()
 footer = [""] * 6
 footer[5] = f"Sum={column_three_sum}"
 for i in range(df_width):
-    footer_ids.append(ipg.add_text(
+    footer_ids.append(add_text(
                     parent_id="table",
                     content=footer[i],
                     size=14.0))
@@ -300,4 +283,4 @@ for i in range(df_width):
 
 # Required to be the last widget sent to Iced,  If you start the program
 # and nothing happens, it might mean you forgot to add this command.
-ipg.start_session()
+start_session()

@@ -1,22 +1,8 @@
-import os
-import random
-from collections import defaultdict
-from icedpygui import IPG, IpgColor, IpgStackParam, IpgMousePointer, IpgImageContentFit
-from icedpygui import IpgTextParam, IpgImageParam
-
-# The solitaire game is just a demonstration of how to use IPG in a more
-# complex way.  It also highlighted a few issues I had while make the game.
-# Examples help but until you do a real program, sometimes you can't 
-# catch the issues.  
-
-# This game only used the containers and no canvas drawing.  I made it
-# a little more difficult from a move validation and restarting the game.
-# Later on I plan to make the same game using the canvas but the canvas still
-# needs work regarding actively moving things arrow.
+from imports import *
 
 class solitaire:
     def __init__(self) -> None:
-        self.ipg = IPG()
+        self.
         self.cwd = os.getcwd()
         self.path = self.cwd + "/python_examples/resources/cards/"
         self.card_width: float=100.0
@@ -54,41 +40,40 @@ class solitaire:
     def start_game(self):
         self.create_styles()
         # add the main containers
-        self.ipg.add_window(window_id="main", 
+        self.add_window(window_id="main", 
                             title="Solitaire",
-                            width=1000.0,
-                            height=700.0,
+    size=(1000.0, 700.0),
                             pos_centered=True,
                             # debug=True
                             )
         
-        self.ipg.add_row(window_id="main",
+        self.add_row(window_id="main",
                          container_id="main_row",
                          width_fill=True,
                          height_fill=True,
                          spacing=2.0)
         
-        self.ipg.add_container(window_id="main",
+        self.add_container(window_id="main",
                                container_id="control_cont",
                                parent_id="main_row",
                                width=175.0,
                                height_fill=True,
                                style_id=self.white_border)
         
-        self.ipg.add_column(window_id="main",
+        self.add_column(window_id="main",
                             container_id="control_col",
                             parent_id="control_cont",
                             padding=[20.0],
                             height_fill=True)
         
-        self.ipg.add_container(window_id="main",
+        self.add_container(window_id="main",
                                container_id="main_cont",
                                parent_id="main_row",
                                width_fill=True,
                                height_fill=True,
                                style_id=self.white_border)
         
-        self.ipg.add_column(window_id="main",
+        self.add_column(window_id="main",
                             container_id="main_col",
                             parent_id="main_cont",
                             width_fill=True,
@@ -98,11 +83,11 @@ class solitaire:
         self.create_slots()
         self.load_shuffle_cards()
         self.deal_cards()
-        self.ipg.start_session()
+        self.start_session()
         
     def restart_play(self, btn_id: int):
         self.rounds = 0
-        self.ipg.update_item(self.rounds_id, IpgTextParam.Content, f"Card Play Rounds: {self.rounds}")
+        self.update_item(self.rounds_id, IpgTextParam.Content, f"Card Play Rounds: {self.rounds}")
 
         # reshuffle the original card indexes
         random.shuffle(self.shuffled_indexes)
@@ -144,7 +129,7 @@ class solitaire:
                     wid = card.get("wid")
                     self.cards[wid] = card
                     self.tableau[i].append(wid)
-                    self.ipg.move_widget(window_id="main",
+                    self.move_widget(window_id="main",
                                 widget_id=wid,
                                 target_container_str_id=f"tabcol_{i}_{j}"
                                 )
@@ -159,7 +144,7 @@ class solitaire:
                     cover["is_cover"] = True
                     cover["tableau"] = True
                     cover_index += 1
-                    self.ipg.move_widget(window_id="main",
+                    self.move_widget(window_id="main",
                                 widget_id=wid,
                                 target_container_str_id=f"tab_blank_{i}_{j}"
                                 )
@@ -179,37 +164,37 @@ class solitaire:
             wid = card.get("wid")
             self.stock.append(wid)
             self.cards[wid] = card
-            self.ipg.move_widget(window_id="main",
+            self.move_widget(window_id="main",
                                  widget_id=wid,
                                  target_container_str_id="stack_stock_pile"
                                  )    
  
         # restore the stock cover card and mouseares cards
-        self.ipg.move_widget("main", self.stock_cover_id, "stack_stock_pile")
+        self.move_widget("main", self.stock_cover_id, "stack_stock_pile")
         self.cards[self.stock_cover_id] = stock_cover_card
 
         for ma in mas:
             self.cards[ma.get("wid")] = ma        
                 
     def create_styles(self):
-        self.white_border = self.ipg.add_container_style( 
+        self.white_border = self.add_container_style( 
                                         border_color=IpgColor.WHITE,
                                         border_width=2.0)
 
     def define_controls(self):
-        self.ipg.add_button(parent_id="control_col",
+        self.add_button(parent_id="control_col",
                             label="Restart Play",
                             on_press=self.restart_play)
-        self.rounds_id = self.ipg.add_text(parent_id="control_col",
+        self.rounds_id = self.add_text(parent_id="control_col",
                           content="Card Play Rounds:")
-        self.ipg.add_text(parent_id="control_col",
+        self.add_text(parent_id="control_col",
                           content="Cards to Play:")
-        self.ipg.add_pick_list(parent_id="control_col",
+        self.add_pick_list(parent_id="control_col",
                                options=["1", "3"],
                                on_select=self.select_cards_to_play,
                                selected=self.cards_to_play)
-        self.ipg.add_space(parent_id="control_col", height=50.0)
-        self.ipg.add_text(parent_id="control_col",
+        self.add_space(parent_id="control_col", height=50.0)
+        self.add_text(parent_id="control_col",
                           content="Instructions:\nCards are moved by selecting source and destination using mouse.  If a card fails to move it means the validation failed, wrong color or value.\nTo cancel a move, click any other place on the canvas")
     
     def select_cards_to_play(self, picklist_id: int, value: str):
@@ -218,7 +203,7 @@ class solitaire:
     def create_slots(self):
         self.cards = defaultdict(dict)
         # add row for stock, waste, and foundation cards
-        self.ipg.add_row(window_id="main", 
+        self.add_row(window_id="main", 
                          container_id="stock_row",
                          parent_id="main_col",
                          height=self.card_height,
@@ -227,23 +212,23 @@ class solitaire:
                          )
         
         # add some beginning space
-        self.ipg.add_space(parent_id="stock_row",
+        self.add_space(parent_id="stock_row",
                            width=20.0)
         
         # add the stock container to the row
-        self.ipg.add_container(window_id="main",
+        self.add_container(window_id="main",
                         container_id="stock",
                         parent_id="stock_row",
                         padding=[0.0],
                         style_id=self.white_border)
         
         # add the stack in
-        self.ipg.add_stack(window_id="main",
+        self.add_stack(window_id="main",
                            container_id="stack_stock_pile",
                            parent_id="stock",
                            width=self.card_width,
                            height=self.card_height)
-        wid = self.ipg.add_mousearea(window_id="main",
+        wid = self.add_mousearea(window_id="main",
                                     container_id="mouse_stock_pile",
                                     parent_id="stack_stock_pile",
                                     mouse_pointer=IpgMousePointer.Grab,
@@ -264,7 +249,7 @@ class solitaire:
         self.cards[wid] = stock
         
         # add the waste container to the row
-        self.ipg.add_container(window_id="main",
+        self.add_container(window_id="main",
                                 container_id="waste",
                                 parent_id="stock_row",
                                 width=self.card_width,
@@ -273,7 +258,7 @@ class solitaire:
                                 style_id=self.white_border)
 
         # add the stack in
-        self.ipg.add_stack(window_id="main",
+        self.add_stack(window_id="main",
                            container_id="stack_waste_pile",
                            parent_id="waste",
                            width=self.card_width,
@@ -281,20 +266,20 @@ class solitaire:
                            )
 
         # add a space between waste and foundation
-        self.ipg.add_space(parent_id="stock_row",
+        self.add_space(parent_id="stock_row",
                            width=self.card_width
                            )
 
         # Add the 4 foundation slots
         for i in range(0, 4):
-            self.ipg.add_stack(window_id="main",
+            self.add_stack(window_id="main",
                            container_id=f"foundation_{i}",
                            parent_id="stock_row",
                            width=self.card_width,
                            height=self.card_height,
                            )
             
-            wid = self.ipg.add_mousearea(window_id="main",
+            wid = self.add_mousearea(window_id="main",
                                     container_id=f"foundation_mouse_{i}",
                                     parent_id=f"foundation_{i}",
                                     mouse_pointer=IpgMousePointer.Grab,
@@ -311,7 +296,7 @@ class solitaire:
             fd["fd_index"] = i
             self.cards[wid] = fd
             
-            self.ipg.add_container(window_id="main",
+            self.add_container(window_id="main",
                                     container_id=f"foundation_container_{i}",
                                     parent_id=f"foundation_{i}",
                                     width=self.card_width,
@@ -320,32 +305,32 @@ class solitaire:
                                     style_id=self.white_border)
 
         # add a container off screen to hide widget that become unused
-        self.ipg.add_space(parent_id="stock_row",
+        self.add_space(parent_id="stock_row",
                            width=200.0)
-        self.ipg.add_stack(window_id="main",
+        self.add_stack(window_id="main",
                                container_id="hidden",
                                parent_id="stock_row",
                                show=False)
 
         # Add a space between the rows
-        self.ipg.add_space(parent_id="main_col", height=20.0)
+        self.add_space(parent_id="main_col", height=20.0)
         
         # add a sttus row
-        self.ipg.add_row(window_id="main",
+        self.add_row(window_id="main",
                          container_id="status_row",
                          parent_id="main_col")
-        self.ipg.add_space(parent_id="status_row", width=20.0)
-        self.status_id = self.ipg.add_text(parent_id="status_row", content="Status: Selected None")
+        self.add_space(parent_id="status_row", width=20.0)
+        self.status_id = self.add_text(parent_id="status_row", content="Status: Selected None")
 
         # Add a row for the tableau cards
-        self.ipg.add_row(window_id="main",
+        self.add_row(window_id="main",
                          container_id="tableau_row",
                          parent_id="main_col",
                          spacing=10.0
                          )
         
         # Add a space at the beginning of the row
-        self.ipg.add_space(parent_id="tableau_row",
+        self.add_space(parent_id="tableau_row",
                            width=20.0)
         
         # Add the 7 card tableau slots
@@ -353,13 +338,13 @@ class solitaire:
             # initialize the tableau list
             self.tableau.append([])
             # Add in the stacks
-            self.ipg.add_stack(window_id="main",
+            self.add_stack(window_id="main",
                                 container_id=f"tab_stack_{i}",
                                 parent_id="tableau_row",
                                 width=self.card_width,
                                 height=self.stack_height,
                                 )
-            wid = self.ipg.add_mousearea(window_id="main",
+            wid = self.add_mousearea(window_id="main",
                                         container_id=f"tab_stack_ma_{i}",
                                         parent_id=f"tab_stack_{i}",
                                         mouse_pointer=IpgMousePointer.Grab,
@@ -427,12 +412,12 @@ class solitaire:
         index = 0
         for i in range(0, 7):
             for j in range(0, 13):
-                self.ipg.add_column(window_id="main",
+                self.add_column(window_id="main",
                                     container_id=f"tabcol_{i}_{j}",
                                     parent_id=f"tab_stack_{i}",)
                 
                 # Add a blank at top to hide the card below
-                self.ipg.add_space(parent_id=f"tabcol_{i}_{j}",
+                self.add_space(parent_id=f"tabcol_{i}_{j}",
                                     height=20*j)
 
                 if j <= i:
@@ -441,7 +426,7 @@ class solitaire:
                     card["tab_index"] = j
                     card["tableau"] = True
                     file = f"{self.path}/{card.get('suite')}/{card.get('value')}.png"
-                    wid = self.ipg.add_image(parent_id=f"tabcol_{i}_{j}", 
+                    wid = self.add_image(parent_id=f"tabcol_{i}_{j}", 
                                         image_path=file,
                                         width=self.card_width, 
                                         height=self.card_height,
@@ -457,12 +442,12 @@ class solitaire:
                     
                 if j < i:
                     # add the blank over the card unless last one.
-                    self.ipg.add_column(window_id="main",
+                    self.add_column(window_id="main",
                                     container_id=f"tab_blank_{i}_{j}",
                                     parent_id=f"tab_stack_{i}",)
                 
                     # Add a blank at top to hide the card below
-                    self.ipg.add_space(parent_id=f"tab_blank_{i}_{j}",
+                    self.add_space(parent_id=f"tab_blank_{i}_{j}",
                                         height=20*j)
                     cover = {}
                     cover["name"] = "tab_cover"
@@ -472,7 +457,7 @@ class solitaire:
                     cover["is_cover"] = True
                     cover["tableau"] = True
                     file = f"{self.path}/card_back.png"
-                    wid = self.ipg.add_image(
+                    wid = self.add_image(
                             parent_id=f"tab_blank_{i}_{j}", 
                             image_path=file,
                             width=self.card_width, 
@@ -490,7 +475,7 @@ class solitaire:
             file = f"{self.path}/{card.get('suite')}/{card.get('value')}.png"
             card["stock"] = True
 
-            wid = self.ipg.add_image(parent_id="stack_stock_pile", 
+            wid = self.add_image(parent_id="stack_stock_pile", 
                                 image_path=file,
                                 width=self.card_width, 
                                 height=self.card_height,
@@ -504,7 +489,7 @@ class solitaire:
             
         # add a cover
         file = f"{self.path}/card_back.png"
-        wid = self.ipg.add_image(parent_id=f"stack_stock_pile", 
+        wid = self.add_image(parent_id=f"stack_stock_pile", 
                             image_path=file,
                             width=self.card_width, 
                             height=self.card_height,
@@ -558,7 +543,7 @@ class solitaire:
 
         if self.origin is not None and self.target is not None:
             self.move_card()  
-            self.ipg.update_item(self.status_id, IpgTextParam.Content, self.content)
+            self.update_item(self.status_id, IpgTextParam.Content, self.content)
 
     def move_card(self):
         ids = []
@@ -584,7 +569,7 @@ class solitaire:
         
         if ids is not None:
             for wid, str_id in ids:
-                self.ipg.move_widget(window_id="main",
+                self.move_widget(window_id="main",
                                     widget_id=wid,
                                     target_container_str_id=str_id,
                                     move_before=None,
@@ -595,7 +580,7 @@ class solitaire:
         
     def turn_tab_cover_over(self):
         # hide the cover card by moving it off screen
-        self.ipg.move_widget(window_id="main",
+        self.move_widget(window_id="main",
                                 widget_id=self.origin,
                                 target_container_str_id="hidden"
                                 )
@@ -733,7 +718,7 @@ class solitaire:
         ids_to_move = []
         
         if len(self.stock) == 0:
-            self.ipg.move_widget("main", self.stock_cover_id, "hidden")
+            self.move_widget("main", self.stock_cover_id, "hidden")
             
         if self.cards_to_play == "3":
             if len(self.stock) >= 3:
@@ -757,7 +742,7 @@ class solitaire:
         for wid in ids_to_move:
             self.cards.get(wid)["stock"] = False
             self.cards.get(wid)["waste"] = True
-            self.ipg.move_widget(window_id="main",
+            self.move_widget(window_id="main",
                                 widget_id=wid,
                                 target_container_str_id="stack_waste_pile",
                                 )
@@ -775,11 +760,11 @@ class solitaire:
         for wid in self.stock:
             self.cards.get(wid)["stock"] = True
             self.cards.get(wid)["waste"] = False
-            self.ipg.move_widget("main", wid, "stack_stock_pile")
+            self.move_widget("main", wid, "stack_stock_pile")
         # Move the cover card on top
-        self.ipg.move_widget("main", self.stock_cover_id, "stack_stock_pile")
+        self.move_widget("main", self.stock_cover_id, "stack_stock_pile")
         self.rounds += 1
-        self.ipg.update_item(self.rounds_id, IpgTextParam.Content, f"Card Play Rounds: {self.rounds}")
+        self.update_item(self.rounds_id, IpgTextParam.Content, f"Card Play Rounds: {self.rounds}")
 
     def move_waste_to_foundation(self):
         target = self.cards.get(self.target)

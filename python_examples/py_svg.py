@@ -1,8 +1,5 @@
-from icedpygui import IPG, IpgAlignment
-from icedpygui import IpgSvgParam
-import os
+from imports import *
 
-# some global vars
 width = 400.0
 height = 400.0
 
@@ -51,29 +48,26 @@ def increase_size(btn_id):
     global width, height
     width += 10
     height += 10
-    ipg.update_item(svg_id, IpgSvgParam.Width, width)
-    ipg.update_item(svg_id, IpgSvgParam.Height, height)
+    update_widget(svg_id, IpgSvgParam.Width, width)
+    update_widget(svg_id, IpgSvgParam.Height, height)
 
 
 def decrease_size(btn_id):
     global width, height
     width -= 10
     height -= 10
-    ipg.update_item(svg_id, IpgSvgParam.Width, width)
-    ipg.update_item(svg_id, IpgSvgParam.Height, height)
+    update_widget(svg_id, IpgSvgParam.Width, width)
+    update_widget(svg_id, IpgSvgParam.Height, height)
 
 
-ipg = IPG()
-
-ipg.add_window(
+add_window(
         window_id="main", 
         title="Main",
-        width=600, 
-        height=600,
+    size=(600, 600),
         pos_centered=True,
         debug=True)
 
-ipg.add_container(
+add_container(
         window_id="main", 
         container_id="cont",
         width_fill=True,
@@ -83,13 +77,13 @@ ipg.add_container(
 cwd = os.getcwd()
 tiger_path = cwd + "/python_examples/resources/tiger_0.svg"
 
-ipg.add_column(
+add_column(
         window_id="main", 
         container_id="col",
         align=IpgAlignment.Center)
 
 
-svg_id = ipg.add_svg(
+svg_id = add_svg(
                 parent_id="col",
                 svg_path=tiger_path,
                 width=width,
@@ -105,14 +99,14 @@ svg_id = ipg.add_svg(
                 on_right_release=on_right_release,
                 user_data="Some Data")
 
-ipg.add_button(
+add_button(
         parent_id="col", 
         label="Increase Size", 
         on_press=increase_size)
 
-ipg.add_button(
+add_button(
         parent_id="col", 
         label="Decrease Size", 
         on_press=decrease_size)
 
-ipg.start_session()
+start_session()

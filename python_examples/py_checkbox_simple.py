@@ -1,4 +1,5 @@
-from icedpygui import (
+from imports import *
+
     add_window, generate_id, update_widget, start_session,
     add_container, add_column, add_checkbox, IpgIcon,
     IpgCheckboxParam, IpgAlignment

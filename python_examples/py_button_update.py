@@ -78,10 +78,12 @@ counter = 0
 def on_press(timer_id: int):
     global counter
     print(counter)
-    counter += 1
-    if counter >= 10:
+    counter += 1*3
+    
+    if counter > 10:
         counter = 0
         update_widget(style_id, IpgButtonStyleParam.BorderRadius, [0.0])
+        
     update_widget(style_id, IpgButtonStyleParam.BorderRadius, [float(counter)*3.0])
 
 
@@ -91,8 +93,8 @@ style_id = add_button_style(border_radius=[20.0])
 # A window widget needs to be added first, except for styles.
 add_window(window_id="main", 
                title="Button Update", 
-               width=500, height=650,
-               pos_centered=True)
+               size=(500, 650),
+               centered=True)
 
 # Adding a container helps in aligning widgets since it has an x and y centering.
 # The IpgContainerAlignment.Center is used to center widgets.  The container defaults
@@ -102,7 +104,8 @@ add_window(window_id="main",
 add_container(window_id="main", 
                   container_id="cont",
                   width_fill=True, 
-                  height_fill=True)
+                  height_fill=True,
+                  center=True)
 
 # A column is added next because the plan is to arrange then in a column.
 # If you  set the width_fill or height_fill to true when the outer container
@@ -113,7 +116,8 @@ add_column(
         window_id="main", 
         container_id="col", 
         parent_id="cont",
-        align=IpgAlignment.Center)
+        spacing=10.0,
+        align_x=IpgAlignment.Center)
 
 # This is the only active button needed for this demo, so it's the only one with a callback
 # On some IDE setting, when you type in the callback name, it puts a () after the name.

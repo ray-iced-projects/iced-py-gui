@@ -17,13 +17,13 @@ type PyObject = Py<PyAny>;
 #[pyo3(signature = (
     window_id, 
     title=None, 
-    width_height=None, 
+    size=None, 
     maximized=None,
     fullscreen=None,
     centered=None,
     position=None,
-    min_width_height=None,
-    max_width_height=None,
+    min_size=None,
+    max_size=None,
     theme=None,
     visible=None,
     resizable=None,
@@ -45,13 +45,13 @@ type PyObject = Py<PyAny>;
 pub fn add_window(
     window_id: String,
     title: Option<String>,
-    width_height: Option<(f32, f32)>,
+    size: Option<(f32, f32)>,
     maximized: Option<bool>,
     fullscreen: Option<bool>,
     centered: Option<bool>,
     position: Option<(f32, f32)>,
-    min_width_height: Option<(f32, f32)>,
-    max_width_height: Option<(f32, f32)>,
+    min_size: Option<(f32, f32)>,
+    max_size: Option<(f32, f32)>,
     theme: Option<IpgWindowTheme>,
     visible: Option<bool>,
     resizable: Option<bool>,
@@ -82,15 +82,15 @@ pub fn add_window(
         }
     };
 
-    let size = if let Some(wh) = width_height {
+    let size = if let Some(wh) = size {
         Some(Size::new(wh.0, wh.1))
     } else { None };
 
-    let min_size = if let Some(wh) = min_width_height {
+    let min_size = if let Some(wh) = min_size {
         Some(Size::new(wh.0, wh.1))
     } else { None };
 
-    let max_size = if let Some(wh) = max_width_height {
+    let max_size = if let Some(wh) = max_size {
         Some(Size::new(wh.0, wh.1))
     } else { None };
 

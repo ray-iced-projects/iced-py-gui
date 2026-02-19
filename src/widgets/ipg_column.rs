@@ -11,7 +11,7 @@ use crate::app::Message;
 use crate::py_api::helpers::{get_height, get_padding_f32, 
     get_width, try_extract_boolean, try_extract_f32, 
     try_extract_vec_f32};
-use crate::widgets::enums::{IpgAlignment, IpgHorizontalAlignment};
+use crate::widgets::enums::IpgAlignment;
 
 
 #[derive(Debug, Clone)]
@@ -23,14 +23,14 @@ pub struct IpgColumn {
     pub width: Length,
     pub height: Length,
     pub max_width: Option<f32>,
-    pub align_x: Option<IpgHorizontalAlignment>,
+    pub align_x: Option<IpgAlignment>,
     pub clip: Option<bool>,
 }
 
 #[derive(Debug, Clone, PartialEq)]
 #[pyclass(eq, eq_int)]
 pub enum IpgColumnParam {
-    Align,
+    AlignX,
     Clip,
     Padding,
     Width,
@@ -51,8 +51,8 @@ pub fn construct_column<'a>(
             .height(ipg_col.height);
     
     let col = 
-    if let Some(align) = &ipg_col.align_x {
-            col.align_x(align.to_iced())
+    if let Some(align_x) = &ipg_col.align_x {
+            col.align_x(align_x.to_iced())
         } else { col };
 
     let col = 
@@ -84,8 +84,8 @@ pub fn column_item_update(
     let update = try_extract_column_update(item);
     let name = "Column".to_string();
     match update {
-        IpgColumnParam::Align => {
-            col.align_x = Some(IpgHorizontalAlignment::extract(value).unwrap());
+        IpgColumnParam::AlignX => {
+            col.align_x = Some(IpgAlignment::extract(value).unwrap());
         },
         IpgColumnParam::Clip => {
             col.clip = Some(try_extract_boolean(value, name));

@@ -3,7 +3,7 @@
 use pyo3::{Python, pyclass, Py, PyAny};
 type PyObject = Py<PyAny>;
 
-use iced::{self, widget::text::Shaping, alignment, Alignment};
+use iced::{self, Alignment, alignment, widget::text::Shaping};
 
 #[derive(Debug, Clone, PartialEq)]
 #[pyclass(eq, eq_int)]

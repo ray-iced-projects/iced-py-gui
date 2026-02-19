@@ -16,20 +16,23 @@ def add_buttons(window: str):
             window_id=window, 
             container_id="cont", 
             width_fill=True, 
-            height_fill=True)
+            height_fill=True,
+            center=True)
     
     # Add a column to hold multiple widgets, vertically.
     add_column(
             window_id=window, 
             container_id="col", 
-            parent_id="cont")
+            parent_id="cont",
+            spacing=10.0,
+            align_x=IpgAlignment.Center)
 
     # Add a row to hold widgets, horizontally.
     add_row(
             window_id=window, 
             container_id="row_btn", 
             parent_id="col",
-            align=IpgAlignment.Center)
+            align_y=IpgAlignment.Center)
 
     # Add buttons
     add_button(
@@ -71,7 +74,7 @@ def add_buttons(window: str):
             window_id=window, 
             container_id="row_btn2", 
             parent_id="col",
-            align=IpgAlignment.Center)
+            align_y=IpgAlignment.Center)
 
     dodger = add_button_style(
                 background_color=IpgColor.DODGER_BLUE)
@@ -102,7 +105,7 @@ def add_buttons(window: str):
             window_id=window, 
             container_id="row_btn3", 
             parent_id="col",
-            align=IpgAlignment.Center)
+            align_y=IpgAlignment.Center)
     
     std_border = add_button_style(
                          border_color=IpgColor.GREEN,
@@ -125,7 +128,9 @@ def add_buttons(window: str):
                 parent_id="col",
                 label="Alignment = Center/Center",
                 width=300.0,
-                height=50.0)
+                height=50.0,
+                text_align_x=IpgHorizontalAlignment.Center,
+                text_align_y=IpgVerticalAlignment.Center)
         
         add_button(
                 parent_id="col",
@@ -148,18 +153,14 @@ def add_buttons(window: str):
 add_window(
         window_id="main1", 
         title="Button Styling", 
-        width=500, 
-        height=600,  
-        pos_x=100, 
-        pos_y=25)
+        size=(500, 600),  
+        position=(100, 25))
 
 add_window(
         window_id="main2", 
-        title="Button Styling", 
-        width=500, 
-        height=600,  
-        pos_x=650, 
-        pos_y=25,
+        title="Button Styling",  
+        size=(500, 600),  
+        position=(600, 25),
         theme=IpgWindowTheme.GruvboxLight)
 
 add_buttons("main1")

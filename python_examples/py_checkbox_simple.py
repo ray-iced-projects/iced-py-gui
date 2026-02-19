@@ -23,9 +23,8 @@ def on_toggle(_chkbx_id: int, is_checked: bool, user_data: any):
 add_window(
     window_id="main", 
     title="CheckBox Demo",
-    width=600, 
-    height=600,  
-    pos_centered=True)
+    size=(600, 600),  
+    centered=True)
 
 # Add a container to center the widgets in the middle
 # Centering is the default behavior.
@@ -33,7 +32,8 @@ add_container(
     window_id="main", 
     container_id="cont", 
     width_fill=True,
-    height_fill=True)
+    height_fill=True,
+    center=True)
 
 # Since a container can only hold one widget, use a column to hold the
 # two checkboxes.  We let the width and height default to shrink, so no entry.
@@ -43,7 +43,7 @@ add_column(
     window_id="main", 
     container_id="col", 
     parent_id="cont",
-    align=IpgAlignment.Start)
+    align_x=IpgAlignment.Start)
 
 # Add the first checkbox with the callback on_toggle.
 # The user data is optional, we just sow it here.

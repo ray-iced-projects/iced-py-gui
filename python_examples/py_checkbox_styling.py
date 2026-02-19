@@ -6,17 +6,17 @@ def add_checkboxes():
     add_checkbox(
             parent_id="row", 
             label="Primary",
-            style_standard=IpgButtonStyleStandard.Primary)
+            style_standard=IpgStyleStandard.Primary)
 
     add_checkbox(
             parent_id="row", 
             label="Success",
-            style_standard=IpgButtonStyleStandard.Success)
+            style_standard=IpgStyleStandard.Success)
 
     add_checkbox(
             parent_id="row", 
             label="Danger",
-            style_standard=IpgButtonStyleStandard.Danger)
+            style_standard=IpgStyleStandard.Danger)
     
     # Add a checkbox with custom styling.
     add_checkbox(
@@ -79,17 +79,16 @@ border = add_checkbox_style(
 add_window(
         window_id="main", 
         title="CheckBox Demo",
-        width=600, 
-        height=600,  
-        pos_x=100, 
-        pos_y=25)
+        size=(600, 600),  
+        position=(100,25))
 
 # Add a container to center the widgets in the middle
 add_container(
         window_id="main", 
         container_id="cont", 
         width_fill=True,
-        height_fill=True)
+        height_fill=True,
+        center=True)
 
 # Since a container can only hold one widget, use a column to hold the
 # two checkboxes.  We let the width and height default to shrink, so no entry.
@@ -99,16 +98,16 @@ add_column(
         window_id="main", 
         container_id="col", 
         parent_id="cont",
-        align=IpgAlignment.Center)
+        align_x=IpgAlignment.Center)
 
 add_info()
 
 # Adding a row for the horizontal alignment of the checkboxes
 add_row(
-        window_id="main", 
-        container_id="row", 
-        parent_id="col", 
-        spacing=10.0)
+    window_id="main", 
+    container_id="row", 
+    parent_id="col", 
+    spacing=10.0)
 
 
 # Adding checkboxes
@@ -130,22 +129,23 @@ add_container(
         window_id="main2", 
         container_id="cont",
         width_fill=True,
-        height_fill=True)
+        height_fill=True,
+        center=True)
 
 add_column(
         window_id="main2", 
         container_id="col", 
         parent_id="cont",
-        align=IpgAlignment.Center)
+        align_x=IpgAlignment.Center)
 
 add_info()
 
 # Adding a row for the horizontal alignment of the checkboxes
 add_row(
-        window_id="main2", 
-        container_id="row", 
-        parent_id="col", 
-        spacing=10.0)
+    window_id="main2", 
+    container_id="row", 
+    parent_id="col", 
+    spacing=10.0)
 
 # Adding checkboxes
 add_checkboxes()

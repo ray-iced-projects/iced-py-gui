@@ -6,7 +6,7 @@ use crate::access_state;
 use crate::py_api::helpers::{get_height, get_width};
 use crate::state::{IpgContainers, get_id, set_state_cont_wnd_ids, 
     set_state_of_container};
-use crate::widgets::enums::IpgHorizontalAlignment;
+use crate::widgets::enums::IpgAlignment;
 use crate::widgets::ipg_column::IpgColumn;
 
 
@@ -34,7 +34,7 @@ pub fn add_column(
     container_id: String,
     // **above required
     parent_id: Option<String>,
-    align_x: Option<IpgHorizontalAlignment>,
+    align_x: Option<IpgAlignment>,
     width: Option<f32>,
     height: Option<f32>,
     width_fill: bool,

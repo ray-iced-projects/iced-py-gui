@@ -1,72 +1,43 @@
 //! Window widget definition
 #![allow(unused)]
 use iced::widget::Column;
-use iced::window::{self, Position};
+use iced::window::settings::PlatformSpecific;
+use iced::window::{self, Level, Position, icon};
 use iced::{Element, Size, Task, Theme};
 use pyo3::{Python, pyclass, Py, PyAny};
 type PyObject = Py<PyAny>;
 
 use crate::IpgState;
 use crate::app::Message;
-use crate::py_api::helpers::{try_extract_boolean, 
-    try_extract_f64, try_extract_u64, try_extract_vec_f32};
+use crate::graphics::bootstrap_icon::IpgIcon;
+use crate::py_api::helpers::{try_extract_boolean, try_extract_f32, try_extract_usize, try_extract_vec_f32};
 use crate::state::access_window_actions;
 
 #[derive(Debug, Clone)]
 pub struct IpgWindow {
     pub id: usize,
-    pub title: String,
-    pub size: Size,
+    pub title: Option<String>,
+    pub size: Option<Size>,
+    pub maximized: Option<bool>,
+    pub fullscreen: Option<bool>,
+    pub centered: Option<bool>,
+    pub position: Option<(f32, f32)>,
     pub min_size: Option<Size>,
     pub max_size: Option<Size>,
-    pub theme: Theme,
-    pub position: Position,
-    pub exit_on_close_request: bool,
-    pub resizable: bool,
-    pub mode: IpgWindowMode,
-    pub decorations: bool,
-    pub transparent: bool,
-    pub level: IpgWindowLevel,
-    pub scale_factor: f64,
-    pub debug: bool,
-}
-
-impl IpgWindow {
-    pub fn new(
-        id: usize,
-        title: String,
-        size: Size,
-        min_size: Option<Size>,
-        max_size: Option<Size>,
-        position: Position,
-        exit_on_close_request: bool,
-        theme: Theme,
-        resizable: bool,
-        mode: IpgWindowMode,
-        decorations: bool,
-        transparent: bool,
-        level: IpgWindowLevel,
-        scale_factor: f64,
-        debug: bool,
-    ) -> Self {
-        Self {
-            id,
-            title,
-            size,
-            min_size,
-            max_size,
-            position,
-            exit_on_close_request,
-            theme,
-            resizable,
-            mode,
-            decorations,
-            transparent,
-            level,
-            scale_factor,
-            debug,
-        }
-    }
+    pub theme: Option<IpgWindowTheme>,
+    pub visible: Option<bool>,
+    pub resizable: Option<bool>,
+    pub minimizable: Option<bool>,
+    pub closeable: Option<bool>,
+    pub decorations: Option<bool>,
+    pub transparent: Option<bool>,
+    pub blur: Option<bool>,
+    pub level: Option<IpgWindowLevel>,
+    pub icon_rgba: Option<Vec<u8>>,
+    pub icon_width_height: Option<(u32, u32)>,
+    pub exit_on_close_request: Option<bool>,
+    pub scale_factor: Option<f32>,
+    pub debug: Option<bool>,
 }
 
 #[derive(Debug, Clone)]
@@ -83,7 +54,6 @@ pub enum IpgWindowParam {
     Decorations,
     Debug,
     Level,
-    Mode,
     Position,
     Size,
     Theme,
@@ -97,41 +67,89 @@ pub fn add_windows(state: &mut IpgState) -> Vec<Task<Message>> {
     let mut spawn_window: Vec<Task<Message>> = vec![];
 
     for i in 0..state.windows.len() {
-        let visible = match state.windows[i].mode {
-            IpgWindowMode::Windowed => {
-                modes.push((state.windows[i].id, window::Mode::Windowed));
-                true
-            },
-            IpgWindowMode::FullScreen => {
-                modes.push((state.windows[i].id, window::Mode::Fullscreen));
-                true
-            },
-            IpgWindowMode::Closed => {
-                modes.push((state.windows[i].id, window::Mode::Hidden));
-                false
-            },
+        
+        let (visible, mode) = if let Some(vis) = state.windows[i].visible {
+            modes.push((state.windows[i].id, window::Mode::Hidden));
+           ( false, window::Mode::Hidden)
+        } else {
+            modes.push((state.windows[i].id, window::Mode::Windowed));
+            (true, window::Mode::Windowed)
         };
+        
+        let (fullscreen, mode) = if let Some(full) = state.windows[i].fullscreen {
+            modes.push((state.windows[i].id, window::Mode::Fullscreen));
+            (true, window::Mode::Fullscreen)
+        } else { (false, mode) };
+
+        let def_setting = window::Settings::default();
+        
+        let level = if let Some(lv) = &state.windows[i].level {
+            IpgWindowLevel::to_iced(lv)
+        } else {
+            Level::default()
+        };
+
+        let position = if let Some(ct) = state.windows[i].centered {
+            Position::Centered
+        } else {
+            if let Some(pos) = state.windows[i].position {
+                let point = iced::Point::new(pos.0, pos.1);
+                Position::Specific(point)
+            } else {
+                Position::default()
+            }
+        };
+        
+
+        let icon = 
+            if state.windows[i].icon_rgba.is_some()  && state.windows[i].icon_width_height.is_some() {
+                    let (width, height) = state.windows[i].icon_width_height.unwrap();
+                    let results = 
+                    icon::from_rgba(state.windows[i].icon_rgba.clone().unwrap(), width, height);
+                    match results {
+                        Ok(icon) => Some(icon),
+                        Err(err) => panic!("Unable to get windows Icon {}", err)
+                    }
+                } else { None };
+
+
         let (iced_id, open) = window::open(window::Settings {
-            size: state.windows[i].size,
+            size: state.windows[i].size.unwrap_or(def_setting.size),
+            maximized: state.windows[i].maximized.unwrap_or(def_setting.maximized),
+            fullscreen,
+            position,
             min_size: state.windows[i].min_size,
             max_size: state.windows[i].max_size,
-            position: state.windows[i].position,
             visible,
-            resizable: state.windows[i].resizable,
-            decorations: state.windows[i].decorations,
-            transparent: state.windows[i].transparent,
-            level: IpgWindowLevel::to_iced(&state.windows[i].level),
-            exit_on_close_request: state.windows[i].exit_on_close_request,
-            ..Default::default()
+            resizable: state.windows[i].resizable.unwrap_or(def_setting.resizable),
+            minimizable: state.windows[i].minimizable.unwrap_or(def_setting.minimizable),
+            closeable: state.windows[i].closeable.unwrap_or(def_setting.closeable),
+            decorations: state.windows[i].decorations.unwrap_or(true),
+            transparent: state.windows[i].transparent.unwrap_or(def_setting.blur),
+            blur: state.windows[i].blur.unwrap_or(def_setting.blur),
+            icon,
+            level,
+            exit_on_close_request: state.windows[i].exit_on_close_request.unwrap_or(def_setting.exit_on_close_request),
+            platform_specific: PlatformSpecific::default(),
         });
+        
         let id = state.windows[i].id;
-        let debug = state.windows[i].debug;
-        let theme = state.windows[i].theme.clone();
-        let mode = state.windows[i].mode.clone();
+
+        let debug = 
+            if let Some(db) = state.windows[i].debug {
+                db
+            } else { false };
+
+        let theme = if let Some(theme) = &state.windows[i].theme {
+            theme.to_iced()
+        } else {
+            Theme::TokyoNight
+        };
+       
 
         state.window_debug.insert(iced_id, (id, debug));
         state.window_theme.insert(iced_id, (id, theme));
-        state.window_mode.insert(iced_id, (id, IpgWindowMode::to_iced(&mode)));
+        state.window_mode.insert(iced_id, (id, mode));
         state.windows_opened.push(iced_id);
         if !visible {
             state.windows_hidden.push(iced_id);
@@ -139,7 +157,11 @@ pub fn add_windows(state: &mut IpgState) -> Vec<Task<Message>> {
 
         let ipg_id = state.windows[i].id;
         state.windows_iced_ipg_ids.insert(iced_id, ipg_id);
-        let size = state.windows[i].size;
+        let size = if let Some(sz) = state.windows[i].size {
+            sz
+        } else {
+            Size::new(1024.0, 768.0)
+        };
         spawn_window.push(open.map(move|_|Message::WindowOpened(iced_id, None, size)));
         
     }
@@ -161,25 +183,16 @@ pub fn window_item_update(wnd: &mut IpgWindow,
     let name = "Window".to_string();
     match update {
         IpgWindowParam::Debug => {
-            wnd.debug = try_extract_boolean(value, name);
+            wnd.debug = Some(try_extract_boolean(value, name));
         },
         IpgWindowParam::Theme => {
-            let val = try_extract_ipg_theme(value);
-            wnd.theme = IpgWindowTheme::to_iced(&val);
+            wnd.theme = Some(try_extract_ipg_theme(value));
         },
         IpgWindowParam::ScaleFactor => {
-            wnd.scale_factor = try_extract_f64(value, name);
-        },
-        IpgWindowParam::Mode => {
-            let ipg_mode = try_extract_mode(value);
-            let mode = IpgWindowMode::to_iced(&ipg_mode);
-            wnd.mode = ipg_mode;
-            let mut state = access_window_actions();
-            state.mode.push((wnd.id, mode));
-            drop(state)
+            wnd.scale_factor = Some(try_extract_f32(value, name));
         },
         IpgWindowParam::Decorations => {
-            let val = try_extract_u64(value, name) as usize;
+            let val = try_extract_usize(value, name);
             let mut state = access_window_actions();
             state.decorations.push(val);
             drop(state)
@@ -187,7 +200,7 @@ pub fn window_item_update(wnd: &mut IpgWindow,
         IpgWindowParam::Level => {
             let ipg_level = try_extract_level(value);
             let level = IpgWindowLevel::to_iced(&ipg_level);
-            wnd.level = ipg_level;
+            wnd.level = Some(ipg_level);
             let mut state = access_window_actions();
             state.level.push((wnd.id, level));
             drop(state)
@@ -342,3 +355,4 @@ impl IpgWindowMode {
         }
     }
 }
+

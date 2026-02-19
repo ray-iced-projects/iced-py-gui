@@ -5,10 +5,7 @@ use super::styling::IpgStyleStandard;
 use crate::state::{access_callbacks, access_user_data1, 
     access_user_data2, IpgState};
 use crate::app::Message;
-use crate::py_api::helpers::{get_radius, get_width, 
-    try_extract_boolean, try_extract_f32, try_extract_f64,
-    try_extract_string, try_extract_style_standard, 
-    try_extract_vec_f32};
+use crate::py_api::helpers::{get_radius, get_width, try_extract_boolean, try_extract_f32, try_extract_string, try_extract_style_standard, try_extract_usize, try_extract_vec_f32};
 use crate::widgets::callbacks::{set_or_get_widget_callback_data, 
     WidgetCallbackIn};
 use crate::state::IpgWidgets;
@@ -293,18 +290,18 @@ pub fn checkbox_param_update(chk: &mut IpgCheckBox,
             chk.text_shaping = IpgShaping::extract(value);
         },
         IpgCheckboxParam::TextSize => {
-            chk.text_size = Some(try_extract_f64(value, name) as f32);
+            chk.text_size = Some(try_extract_f32(value, name));
         },
         IpgCheckboxParam::Style => {
-            chk.style_id = Some(try_extract_f64(value, name) as usize)
+            chk.style_id = Some(try_extract_usize(value, name))
         },
         IpgCheckboxParam::StyleStandard => {
             let val = try_extract_style_standard(value, name);
             chk.style_standard = Some(val)
         },
         IpgCheckboxParam::Width => {
-            let wd = try_extract_f64(value, name);
-            chk.width =  get_width(Some(wd as f32), false);
+            let wd = try_extract_f32(value, name);
+            chk.width =  get_width(Some(wd), false);
         },
         IpgCheckboxParam::WidthFill => {
             let wd = try_extract_boolean(value, name);
@@ -388,7 +385,7 @@ pub fn checkbox_style_update(style: &mut IpgCheckboxStyle,
             style.border_radius = Some(try_extract_vec_f32(value, name));
         },
         IpgCheckboxStyleParam::BorderWidth => {
-            style.border_width = Some(try_extract_f64(value, name) as f32);
+            style.border_width = Some(try_extract_f32(value, name));
         },
         IpgCheckboxStyleParam::IconIpgColor => {
             let color = IpgColor::extract(value, name);

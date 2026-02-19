@@ -9,7 +9,8 @@ type PyObject = Py<PyAny>;
 
 use crate::app::Message;
 
-use crate::py_api::helpers::{get_height, get_padding_f32, get_width, try_extract_boolean, try_extract_f32, try_extract_vec_f32, try_extract_vec_f64};
+use crate::py_api::helpers::{get_height, get_padding_f32, 
+    get_width, try_extract_boolean, try_extract_f32, try_extract_vec_f32};
 use crate::widgets::enums::IpgAlignment;
 
 
@@ -23,7 +24,7 @@ pub struct IpgRow {
     pub padding: Option<Vec<f32>>,
     pub width: Length,
     pub height: Length,
-    pub align: Option<IpgAlignment>,
+    pub align_y: Option<IpgAlignment>,
     pub clip: Option<bool>,
 }
 
@@ -38,7 +39,7 @@ pub fn construct_row<'a>(
             .height(ipg_row.height);
                         
     let row = 
-        if let Some(align) = &ipg_row.align {
+        if let Some(align) = &ipg_row.align_y {
             row.align_y(IpgAlignment::to_iced(align))
         } else { row };
 
@@ -83,7 +84,7 @@ pub fn row_item_update(ipg_row: &mut IpgRow,
     let name = "Row".to_string();
     match update {
         IpgRowParam::Align => {
-            ipg_row.align = IpgAlignment::extract(value);
+            ipg_row.align_y = IpgAlignment::extract(value);
         },
         IpgRowParam::Clip => {
             ipg_row.clip = Some(try_extract_boolean(value, name));

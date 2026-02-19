@@ -8,7 +8,9 @@ type PyObject = Py<PyAny>;
 
 use crate::app::Message;
 
-use crate::py_api::helpers::{get_height, get_padding_f32, get_width, try_extract_boolean, try_extract_f32, try_extract_f64, try_extract_vec_f32};
+use crate::py_api::helpers::{get_height, get_padding_f32, 
+    get_width, try_extract_boolean, try_extract_f32, 
+    try_extract_vec_f32};
 use crate::widgets::enums::{IpgAlignment, IpgHorizontalAlignment};
 
 

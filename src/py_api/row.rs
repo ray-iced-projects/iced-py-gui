@@ -19,14 +19,14 @@ use crate::widgets::ipg_row::IpgRow;
         window_id, 
         container_id, 
         parent_id=None,
-        align=IpgAlignment::Start, 
-        width=None, 
+        width=None,
+        width_fill=false,  
         height=None, 
-        width_fill=false, 
         height_fill=false,
-        padding=vec![0.0], 
-        spacing=10.0, 
-        clip=false,
+        align_y=None,
+        padding=None, 
+        spacing=None, 
+        clip=None,
         show=true,
         ))]
 pub fn add_row(
@@ -34,11 +34,11 @@ pub fn add_row(
     container_id: String,
     // required above
     parent_id: Option<String>,
-    align: Option<IpgAlignment>,
     width: Option<f32>,
-    height: Option<f32>,
     width_fill: bool,
+    height: Option<f32>,
     height_fill: bool,
+    align_y: Option<IpgAlignment>,
     padding: Option<Vec<f32>>,
     spacing: Option<f32>,
     clip: Option<bool>,
@@ -70,7 +70,7 @@ pub fn add_row(
             padding, 
             width, 
             height, 
-            align,
+            align_y,
             clip,
         }));
 

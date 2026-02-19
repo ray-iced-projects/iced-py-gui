@@ -1,13 +1,11 @@
 //! Window module - provides add_window pyfunction
+use iced::Size;
+use pyo3::{Py, PyAny, PyResult, pyfunction};
 
-use iced::window::Position;
-use iced::{Point, Size};
-use pyo3::prelude::*;
-use pyo3::{Py, PyAny, pyfunction};
-
-use crate::state::{access_state, add_callback_to_mutex, add_user_data_to_mutex, IpgIds, IpgContainers};
+use crate::state::{access_state, add_callback_to_mutex, 
+    add_user_data_to_mutex, IpgIds, IpgContainers};
 use crate::widgets::ipg_window::{
-    IpgWindow, IpgWindowLevel, IpgWindowMode, IpgWindowTheme,
+    IpgWindow, IpgWindowLevel, IpgWindowTheme,
 };
 
 type PyObject = Py<PyAny>;
@@ -18,54 +16,61 @@ type PyObject = Py<PyAny>;
 #[pyfunction]
 #[pyo3(signature = (
     window_id, 
-    title, 
-    width, 
-    height,
-    max_width=None, 
-    max_height=None,
-    min_width=None, 
-    min_height=None,
-    pos_x=None, 
-    pos_y=None,
-    pos_centered=false, 
-    resizable=true,
-    decorations=true, 
-    transparent=false,
-    level=IpgWindowLevel::Normal,
-    scale_factor=1.0,
-    theme=IpgWindowTheme::Dark, 
-    exit_on_close=false, 
-    on_resize=None, 
-    mode=IpgWindowMode::Windowed, 
-    debug=false, 
+    title=None, 
+    width_height=None, 
+    maximized=None,
+    fullscreen=None,
+    centered=None,
+    position=None,
+    min_width_height=None,
+    max_width_height=None,
+    theme=None,
+    visible=None,
+    resizable=None,
+    minimizable=None,
+    closeable=None,
+    decorations=None,
+    transparent=None,
+    blur=None,
+    level=None,
+    icon_rgba=None,
+    icon_width_height=None,
+    exit_on_close_request=None,
+    scale_factor=None,
+    debug=None,
+    on_resize=None,
     user_data=None,
     gen_id=None
 ))]
 pub fn add_window(
     window_id: String,
-    title: String,
-    width: f32,
-    height: f32,
-    max_width: Option<f32>,
-    max_height: Option<f32>,
-    min_width: Option<f32>,
-    min_height: Option<f32>,
-    pos_x: Option<f32>,
-    pos_y: Option<f32>,
-    pos_centered: bool,
-    resizable: bool,
-    decorations: bool,
-    transparent: bool,
-    level: IpgWindowLevel,
-    scale_factor: f64,
-    theme: IpgWindowTheme,
-    exit_on_close: bool,
+    title: Option<String>,
+    width_height: Option<(f32, f32)>,
+    maximized: Option<bool>,
+    fullscreen: Option<bool>,
+    centered: Option<bool>,
+    position: Option<(f32, f32)>,
+    min_width_height: Option<(f32, f32)>,
+    max_width_height: Option<(f32, f32)>,
+    theme: Option<IpgWindowTheme>,
+    visible: Option<bool>,
+    resizable: Option<bool>,
+    minimizable: Option<bool>,
+    closeable: Option<bool>,
+    decorations: Option<bool>,
+    transparent: Option<bool>,
+    blur: Option<bool>,
+    level: Option<IpgWindowLevel>,
+    icon_rgba: Option<Vec<u8>>,
+    icon_width_height: Option<(u32, u32)>,
+    exit_on_close_request: Option<bool>,
+    scale_factor: Option<f32>,
+    debug: Option<bool>,
     on_resize: Option<PyObject>,
-    mode: IpgWindowMode,
-    debug: bool,
     user_data: Option<PyObject>,
     gen_id: Option<usize>,
 ) -> PyResult<usize> {
+
     let mut state = access_state();
     
     // Get or generate ID
@@ -77,37 +82,17 @@ pub fn add_window(
         }
     };
 
-    // Build window position
-    let mut window_position = Position::Default;
-    let size = Size::new(width, height);
+    let size = if let Some(wh) = width_height {
+        Some(Size::new(wh.0, wh.1))
+    } else { None };
 
-    let mut max_size = Size::INFINITE;
-    if let Some(mw) = max_width {
-        max_size.width = mw;
-    }
-    if let Some(mh) = max_height {
-        max_size.height = mh;
-    }
+    let min_size = if let Some(wh) = min_width_height {
+        Some(Size::new(wh.0, wh.1))
+    } else { None };
 
-    let mut min_size = Size::ZERO;
-    if let Some(mw) = min_width {
-        min_size.width = mw;
-    }
-    if let Some(mh) = min_height {
-        min_size.height = mh;
-    }
-
-    if pos_x.is_some() && pos_y.is_some() {
-        let px = pos_x.unwrap_or(0.0);
-        let py = pos_y.unwrap_or(0.0);
-        window_position = Position::Specific(Point { x: px, y: py });
-    }
-
-    if pos_centered {
-        window_position = Position::Centered;
-    }
-
-    let iced_theme = theme.to_iced();
+    let max_size = if let Some(wh) = max_width_height {
+        Some(Size::new(wh.0, wh.1))
+    } else { None };
 
     // Check for duplicate window IDs
     if state.windows_str_ids.get(&window_id).is_some() {
@@ -138,23 +123,32 @@ pub fn add_window(
     state.container_ids.insert(id, vec![id]);
 
     // Create the window object
-    let window = IpgWindow::new(
+    let window = 
+        IpgWindow {
         id,
-        title.clone(),
+        title,
         size,
-        Some(min_size),
-        Some(max_size),
-        window_position,
-        exit_on_close,
-        iced_theme.clone(),
+        maximized,
+        fullscreen,
+        centered,
+        position,
+        min_size,
+        max_size,
+        theme,
+        visible,
         resizable,
-        mode.clone(),
+        minimizable,
+        closeable,
         decorations,
         transparent,
-        level.clone(),
+        blur,
+        level,
+        icon_rgba,
+        icon_width_height,
+        exit_on_close_request,
         scale_factor,
         debug,
-    );
+    };
 
     // Store in containers
     state.containers.insert(id, IpgContainers::IpgWindow(window.clone()));

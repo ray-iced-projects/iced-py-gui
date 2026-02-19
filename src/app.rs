@@ -111,7 +111,7 @@ impl App {
         let window_opt = self.state.containers.get(&ipg_window_id);
         let ipg_window = get_window_container(window_opt);
 
-        ipg_window.title.clone()
+        ipg_window.title.clone().unwrap_or("".to_string())
     }
 
     pub fn update(&mut self, message: Message) -> Task<Message> {
@@ -415,7 +415,11 @@ impl App {
         let window_opt = self.state.containers.get(&ipg_window_id);
         let ipg_window = get_window_container(window_opt);
 
-        ipg_window.theme.clone()
+        if let Some(theme) = &ipg_window.theme {
+            theme.to_iced()
+        } else {
+            Theme::TokyoNight
+        }
     }
 
     pub fn scale_factor(&self, iced_window_id: window::Id) -> f32 {
@@ -429,7 +433,7 @@ impl App {
         let window_opt = self.state.containers.get(&ipg_window_id);
         let ipg_window = get_window_container(window_opt);
 
-        ipg_window.scale_factor as f32
+        ipg_window.scale_factor.unwrap_or(1.0)
     }
 
 }
@@ -447,9 +451,13 @@ fn get_window_values(iced_window_id: window::Id, state: &IpgState) -> (bool, The
     let ipg_window = get_window_container(window_opt);
 
     let debug = ipg_window.debug;
-    let theme = ipg_window.theme.clone();
-
-    (debug, theme)
+    let theme = if let Some(wt) = &ipg_window.theme {
+        wt.to_iced()
+    } else {
+        Theme::TokyoNight
+    };
+    
+    (debug.unwrap_or(false), theme)
 }
 
 fn get_tasks(ipg_state: &mut IpgState) -> Task<Message> {

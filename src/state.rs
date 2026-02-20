@@ -12,6 +12,7 @@ use once_cell::sync::Lazy;
 use pyo3::{Py, PyAny};
 
 use crate::widgets::ipg_checkbox::{IpgCheckBox, IpgCheckboxStyle};
+use crate::widgets::ipg_color_picker::{IpgColorPicker};
 use crate::widgets::ipg_column::IpgColumn;
 use crate::widgets::ipg_container::{IpgContainer, IpgContainerStyle};
 use crate::widgets::ipg_date_picker::IpgDatePicker;
@@ -42,6 +43,7 @@ pub enum IpgWidgets {
     IpgButton(IpgButton),
     IpgButtonStyle(IpgButtonStyle),
     IpgCheckBox(IpgCheckBox),
+    IpgColorPicker(IpgColorPicker),
     IpgDatePicker(IpgDatePicker),
     IpgText(IpgText),
 

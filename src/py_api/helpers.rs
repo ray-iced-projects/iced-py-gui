@@ -63,19 +63,23 @@ pub fn get_height(height: Option<f32>, height_fill: bool)-> Length {
 }
 
 // Standard method for padding
-pub fn get_padding_f32(padding: &Vec<f32>)-> Padding {
-    let len = padding.len();
+pub fn get_padding(padding: &Option<Vec<f32>>)-> Padding {
+    let pd = if let Some(pd) = padding {
+        pd
+    } else { return Padding::default() };
+
+    let len = pd.len();
     match len {
-    0 => panic!("Padding must have at List of at least 1, 2 or 4 items"),
-    1 => Padding::from(padding[0]),
-    2 => Padding::from(vec_to_array2_f32(&padding)),
+    0 => Padding::default(),
+    1 => Padding::from(pd[0]),
+    2 => Padding::from(vec_to_array2_f32(&pd)),
     3 => panic!("Padding must have a List of 1, 2, or 4 items"),
     4 => {
         let mut pad = Padding::default();
-        pad = pad.top(padding[0]);
-        pad = pad.right(padding[1]);
-        pad = pad.bottom(padding[2]);
-        pad = pad.left(padding[3]);
+        pad = pad.top(pd[0]);
+        pad = pad.right(pd[1]);
+        pad = pad.bottom(pd[2]);
+        pad = pad.left(pd[3]);
         pad
     },
     _ => panic!("Padding must have a List of less than 4 items"),

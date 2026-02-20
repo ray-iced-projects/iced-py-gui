@@ -194,7 +194,7 @@ impl IpgColor {
         }
     }
 
-    pub fn extract_rgba_color(value: &PyObject, name: String) -> [f32; 4] {
+    pub fn extract_rgba(value: &PyObject, name: String) -> [f32; 4] {
         Python::attach(|py| {
 
             let res = value.extract::<[f32; 4]>(py);

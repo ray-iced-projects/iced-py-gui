@@ -118,22 +118,25 @@ pub fn set_or_get_widget_callback_data(state: &mut IpgState, wci: WidgetCallback
             IpgWidgets::IpgCheckboxStyle(_) => {
                 return WidgetCallbackOut::default();
             },
-            // IpgWidgets::IpgColorPicker(cp) => {
-            //     cp.show = match wci.value_bool {
-            //         Some(s) => s,
-            //         None => panic!("The open value for color_picker could not be found"),
-            //     };
+            IpgWidgets::IpgColorPicker(cp) => {
+                cp.show = match wci.value_bool {
+                    Some(s) => s,
+                    None => panic!("The open value for color_picker could not be found"),
+                };
 
-            //     if wci.color.is_some() {
-            //         let color = match wci.color {
-            //             Some(c) => c,
-            //             None => panic!("The color value for color_picker could not be found"),
-            //         };
-            //         cp.color = Color::from_rgba(color[0] as f32, color[1] as f32, 
-            //                                 color[2] as f32, color[3] as f32);
-            //     }
+                if wci.color.is_some() {
+                    let color = match wci.color {
+                        Some(c) => c,
+                        None => panic!("The color value for color_picker could not be found"),
+                    };
+                    cp.color = iced::Color::from_rgba(color[0] as f32, color[1] as f32, 
+                                            color[2] as f32, color[3] as f32);
+                }
+                return WidgetCallbackOut::default();
+            },
+            // IpgWidgets::IpgColorPickerStyle(_) => {
             //     return WidgetCallbackOut::default();
-            // },
+            // }
             // IpgWidgets::IpgDividerHorizontal(div) => {
             //     let mut wco = WidgetCallbackOut::default();
             //     if wci.value_str == Some("on_change".to_string()) {

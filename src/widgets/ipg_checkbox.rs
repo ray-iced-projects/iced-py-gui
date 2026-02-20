@@ -347,7 +347,7 @@ pub fn checkbox_style_update(style: &mut IpgCheckboxStyle,
                 IpgColor::rgba_ipg_color_to_iced(None, Some(color), 1.0, false);
         },
         IpgCheckboxStyleParam::BackgroundRgbaColor => {
-            style.background_color = Some(Color::from(IpgColor::extract_rgba_color(value, name)));
+            style.background_color = Some(Color::from(IpgColor::extract_rgba(value, name)));
         },
         IpgCheckboxStyleParam::BackgroundIpgColorHovered => {
             let color = IpgColor::extract(value, name);
@@ -355,7 +355,7 @@ pub fn checkbox_style_update(style: &mut IpgCheckboxStyle,
                 IpgColor::rgba_ipg_color_to_iced(None, Some(color), 1.0, false);
         },
         IpgCheckboxStyleParam::BackgroundRgbaColorHovered => {
-            style.background_color_hovered = Some(Color::from(IpgColor::extract_rgba_color(value, name)));
+            style.background_color_hovered = Some(Color::from(IpgColor::extract_rgba(value, name)));
         },
         IpgCheckboxStyleParam::AccentIpgColor => {
             let color = IpgColor::extract(value, name);
@@ -363,7 +363,7 @@ pub fn checkbox_style_update(style: &mut IpgCheckboxStyle,
                 IpgColor::rgba_ipg_color_to_iced(None, Some(color), 1.0, false);
         },
         IpgCheckboxStyleParam::AccentRgbaColor => {
-            style.accent_color = Some(Color::from(IpgColor::extract_rgba_color(value, name)));
+            style.accent_color = Some(Color::from(IpgColor::extract_rgba(value, name)));
         },
         IpgCheckboxStyleParam::AccentIpgColorHovered => {
             let color = IpgColor::extract(value, name);
@@ -371,7 +371,7 @@ pub fn checkbox_style_update(style: &mut IpgCheckboxStyle,
                 IpgColor::rgba_ipg_color_to_iced(None, Some(color), 1.0, false);
         },
         IpgCheckboxStyleParam::AccentRgbaColorHovered => {
-            style.accent_color_hovered = Some(Color::from(IpgColor::extract_rgba_color(value, name)));
+            style.accent_color_hovered = Some(Color::from(IpgColor::extract_rgba(value, name)));
         },
         IpgCheckboxStyleParam::BorderIpgColor => {
             let color = IpgColor::extract(value, name);
@@ -379,7 +379,7 @@ pub fn checkbox_style_update(style: &mut IpgCheckboxStyle,
                 IpgColor::rgba_ipg_color_to_iced(None, Some(color), 1.0, false);
         },
         IpgCheckboxStyleParam::BorderRgbaColor => {
-            style.border_color = Some(Color::from(IpgColor::extract_rgba_color(value, name)));
+            style.border_color = Some(Color::from(IpgColor::extract_rgba(value, name)));
         },
         IpgCheckboxStyleParam::BorderRadius => {
             style.border_radius = Some(try_extract_vec_f32(value, name));
@@ -393,7 +393,7 @@ pub fn checkbox_style_update(style: &mut IpgCheckboxStyle,
                 IpgColor::rgba_ipg_color_to_iced(None, Some(color), 1.0, false);
         },
         IpgCheckboxStyleParam::IconRgbaColor => {
-            style.icon_color = Some(Color::from(IpgColor::extract_rgba_color(value, name)));
+            style.icon_color = Some(Color::from(IpgColor::extract_rgba(value, name)));
         },
         IpgCheckboxStyleParam::TextIpgColor => {
             let color = IpgColor::extract(value, name);
@@ -401,7 +401,7 @@ pub fn checkbox_style_update(style: &mut IpgCheckboxStyle,
                 IpgColor::rgba_ipg_color_to_iced(None, Some(color), 1.0, false);
         },
         IpgCheckboxStyleParam::TextRgbaColor => {
-            style.text_color = Some(Color::from(IpgColor::extract_rgba_color(value, name)));
+            style.text_color = Some(Color::from(IpgColor::extract_rgba(value, name)));
         },
     }
 }

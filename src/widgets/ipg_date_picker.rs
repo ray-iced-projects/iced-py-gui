@@ -7,10 +7,10 @@ use crate::{access_callbacks, access_user_data1, IpgState};
 use super::callbacks::{set_or_get_widget_callback_data, 
     WidgetCallbackIn};
 use crate::widgets::ipg_button::{self, IpgButtonStyle};
-use crate::py_api::helpers::{DATE_FORMATS, DAYS, MONTH_NAMES, WEEKDAYS, get_padding_f32, try_extract_boolean, try_extract_f32, try_extract_string, try_extract_vec_f32};
+use crate::py_api::helpers::{DATE_FORMATS, DAYS, MONTH_NAMES, WEEKDAYS, get_padding, try_extract_boolean, try_extract_f32, try_extract_string, try_extract_vec_f32};
 use iced::advanced::graphics::core::Element;
 use iced::widget::{button, text};
-use iced::{Length, Padding, Renderer, Theme};
+use iced::{Length, Renderer, Theme};
 use iced::alignment::{self, Alignment};
 use iced::widget::{Button, Column, Container, PickList, 
     Row, Space, Text};
@@ -243,15 +243,10 @@ fn calendar_show_button<'a>(dp: &'a IpgDatePicker,
     let s_btn: Element<'a, Message, Theme, Renderer> = 
                             show_btn.map(move |message| Message::DatePicker(dp.id, message));
 
-    let padding = if let Some(pd) = &dp.padding {
-            get_padding_f32(pd)
-        } else { Padding::default() };
-
-
     Container::new(s_btn)
                 .align_x(alignment::Horizontal::Center)
                 .align_y(alignment::Vertical::Center)
-                .padding(padding).into()
+                .padding(get_padding(&dp.padding)).into()
                     
 }
 

@@ -12,6 +12,7 @@ use crate::py_api::helpers::find_key_for_value;
 use crate::state::{IpgContainers, IpgIds, IpgState, IpgWidgets, access_state, access_update_widgets, access_window_actions, clone_state_to_runtime, set_state_of_widget_running_state};
 use crate::widgets::ipg_button::{BtnMessage, button_callback, button_param_update, button_style_update, construct_button};
 use crate::widgets::ipg_checkbox::{ChkMessage, checkbox_callback, checkbox_param_update, checkbox_style_update, construct_checkbox};
+use crate::widgets::ipg_color_picker::{ColPikMessage, color_picker_callback, construct_color_picker};
 use crate::widgets::ipg_column::{column_item_update, construct_column};
 use crate::widgets::ipg_container::{construct_container, container_item_update, container_style_update_item};
 use crate::widgets::ipg_date_picker::{DPMessage, construct_date_picker, date_picker_item_update, date_picker_update};
@@ -28,7 +29,7 @@ pub enum Message {
 //     Canvas(CanvasMessage),
 //     Card(usize, CardMessage),
     CheckBox(usize, ChkMessage),
-//     ColorPicker(usize, ColPikMessage),
+    ColorPicker(usize, ColPikMessage),
     DatePicker(usize, DPMessage),
 //     Divider(usize, DivMessage),
 //     EventKeyboard(Event),
@@ -142,11 +143,12 @@ impl App {
                 process_updates(&mut self.state);
                 get_tasks(&mut self.state)
             },
-            // Message::ColorPicker(id, message ) => {
-            //     color_picker_callback(&mut self.state, id, message);
-            //     process_updates(&mut self.state, &mut self.canvas_state);
-            //     Task::none()
-            // }
+            Message::ColorPicker(id, message ) => {
+                color_picker_callback(&mut self.state, id, message);
+                // process_updates(&mut self.state, &mut self.canvas_state);
+                process_updates(&mut self.state);
+                Task::none()
+            },
             Message::DatePicker(id, message) => {
                 date_picker_update(&mut self.state, id, message);
                 // process_updates(&mut self.state, &mut self.canvas_state);
@@ -765,15 +767,15 @@ fn get_widget<'a>(state: &'a IpgState, id: &usize) -> Option<Element<'a, Message
                     };
                     construct_checkbox(chk, style_opt)
                 },
-                // IpgWidgets::IpgColorPicker(cp) => {
-                //     let style_opt = match cp.style_id {
-                //         Some(id) => {
-                //             state.widgets.get(&id)
-                //         },
-                //         None => None,
-                //     };
-                //     construct_color_picker(cp, style_opt)
-                // },
+                IpgWidgets::IpgColorPicker(cp) => {
+                    let style_opt = match cp.style_id {
+                        Some(id) => {
+                            state.widgets.get(&id)
+                        },
+                        None => None,
+                    };
+                    construct_color_picker(cp, style_opt)
+                },
                 // IpgWidgets::IpgDividerHorizontal(div) => {
                 //     let style_opt = match div.style_id {
                 //         Some(id) => {
@@ -1161,25 +1163,25 @@ fn show_widget(state: &mut IpgState, ids: &[(usize, bool)]) {
             panic!("Show_items - unable to find id {}", id)
         };
         match widget {
-            IpgWidgets::IpgButton(ipg_button) => ipg_button.show= *value,
-            // IpgWidgets::IpgCard(ipg_card) => ipg_card.show= *value,
-            IpgWidgets::IpgCheckBox(ipg_check_box) => ipg_check_box.show= *value,
-            // IpgWidgets::IpgColorPicker(ipg_color_picker) => ipg_color_picker.show= *value,
-            IpgWidgets::IpgDatePicker(ipg_date_picker) => ipg_date_picker.show= *value,
-            // IpgWidgets::IpgImage(ipg_image) => ipg_image.show= *value,
-            // IpgWidgets::IpgPickList(ipg_pick_list) => ipg_pick_list.show= *value,
-            // IpgWidgets::IpgProgressBar(ipg_progress_bar) => ipg_progress_bar.show= *value,
-            // IpgWidgets::IpgRadio(ipg_radio) => ipg_radio.show= *value,
-            // IpgWidgets::IpgRule(ipg_rule) => ipg_rule.show  = * value,
-            // IpgWidgets::IpgSelectableText(ipg_selectable_text) => ipg_selectable_text.show= *value,
-            // IpgWidgets::IpgSeparator(ipg_separator) => ipg_separator.show= *value,
-            // IpgWidgets::IpgSlider(ipg_slider) => ipg_slider.show= *value,
-            // IpgWidgets::IpgSpace(ipg_space) => ipg_space.show= *value,
-            // IpgWidgets::IpgSvg(ipg_svg) => ipg_svg.show= *value,
-            IpgWidgets::IpgText(ipg_text) => ipg_text.show= *value,
-            // IpgWidgets::IpgTextInput(ipg_text_input) => ipg_text_input.show= *value,
-            // IpgWidgets::IpgTimer(ipg_timer) => ipg_timer.show= *value,
-            // IpgWidgets::IpgToggler(ipg_toggler) => ipg_toggler.show= *value,
+            IpgWidgets::IpgButton(bt) => bt.show= *value,
+            // IpgWidgets::IpgCard(cd) => cd.show= *value,
+            IpgWidgets::IpgCheckBox(cb) => cb.show= *value,
+            IpgWidgets::IpgColorPicker(cp) => cp.show= *value,
+            IpgWidgets::IpgDatePicker(dp) => dp.show= *value,
+            // IpgWidgets::IpgImage(im) => im.show= *value,
+            // IpgWidgets::IpgPickList(pl) => pl.show= *value,
+            // IpgWidgets::IpgProgressBar(pb) => pb.show= *value,
+            // IpgWidgets::IpgRadio(rd) => rd.show= *value,
+            // IpgWidgets::IpgRule(ru) => ru.show  = * value,
+            // IpgWidgets::IpgSelectableText(st) => st.show= *value,
+            // IpgWidgets::IpgSeparator(sp) => sp.show= *value,
+            // IpgWidgets::IpgSlider(sl) => sl.show= *value,
+            // IpgWidgets::IpgSpace(sp) => sp.show= *value,
+            // IpgWidgets::IpgSvg(svg) => svg.show= *value,
+            IpgWidgets::IpgText(tx) => tx.show= *value,
+            // IpgWidgets::ti(ipg_text_input) => ti.show= *value,
+            // IpgWidgets::IpgTimer(tm) => tm.show= *value,
+            // IpgWidgets::IpgToggler(tog) => tog.show= *value,
             _ => (),
         }
     }
@@ -1303,11 +1305,11 @@ fn match_widget(
                 font_param_update(font, item, value);
         },
         // IpgWidgets::IpgColorPicker(cp) => {
-        //         color_picker_update(cp, item, value);
-        //     },
+        //         button_param_update(cp, item, value);
+        // },
         // IpgWidgets::IpgColorPickerStyle(style) => {
-        //         color_picker_style_update_item(style, item, value);
-        //     },
+        //         button_style_update_(style, item, value);
+        // },
         IpgWidgets::IpgContainerStyle(style) => {
                 container_style_update_item(style, item, value);
             },
@@ -1412,6 +1414,7 @@ fn match_widget(
         // IpgWidgets::IpgToolTipStyle(style) => {
         //         tool_tip_style_update_item(style, item, value);
         //     },
+        _ => (),
         
     }
 }

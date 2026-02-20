@@ -9,7 +9,7 @@ type PyObject = Py<PyAny>;
 
 use crate::app::Message;
 
-use crate::py_api::helpers::{get_height, get_padding_f32, 
+use crate::py_api::helpers::{get_height, get_padding, 
     get_width, try_extract_boolean, try_extract_f32, try_extract_vec_f32};
 use crate::widgets::enums::IpgAlignment;
 
@@ -44,9 +44,7 @@ pub fn construct_row<'a>(
         } else { row };
 
     let row = 
-        if let Some(pd) = &ipg_row.padding {
-            row.padding(get_padding_f32(pd))
-        } else { row };
+        row.padding(get_padding(&ipg_row.padding));
 
     let row = 
         if let Some(sp) = ipg_row.spacing {

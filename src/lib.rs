@@ -44,6 +44,7 @@ use crate::graphics::bootstrap_icon::IpgIcon;
 use crate::graphics::colors::IpgColor;
 use crate::widgets::ipg_button::{IpgButtonParam, IpgButtonStyleParam, IpgButtonStyleStandard};
 use crate::widgets::ipg_checkbox::{IpgCheckboxParam, IpgCheckboxStyleParam};
+use crate::py_api::color_picker::add_color_picker;
 use crate::widgets::ipg_column::IpgColumnParam;
 use crate::widgets::ipg_container::IpgContainerStyleParam;
 use crate::widgets::ipg_date_picker::IpgDatePickerParam;
@@ -61,6 +62,7 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(add_button, m)?)?;
     m.add_function(wrap_pyfunction!(add_checkbox, m)?)?;
     m.add_function(wrap_pyfunction!(add_column, m)?)?;
+    m.add_function(wrap_pyfunction!(add_color_picker, m)?)?;
     m.add_function(wrap_pyfunction!(add_container, m)?)?;
     m.add_function(wrap_pyfunction!(add_date_picker, m)?)?;
     m.add_function(wrap_pyfunction!(add_font, m)?)?;

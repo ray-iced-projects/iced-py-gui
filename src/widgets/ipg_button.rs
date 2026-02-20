@@ -16,7 +16,7 @@ use crate::state::IpgWidgets;
 use crate::widgets::enums::{IpgHorizontalAlignment, 
     IpgVerticalAlignment};
 use super::styling::IpgStyleStandard;
-use crate::py_api::helpers::{get_height, get_padding_f32, 
+use crate::py_api::helpers::{get_height, get_padding, 
     get_radius, get_width, try_extract_boolean, try_extract_f32, 
     try_extract_string, try_extract_style_standard, try_extract_vec_f32};
 
@@ -84,17 +84,13 @@ pub fn construct_button<'a>(
     
     let btn=
         Button::new(txt)
+            .padding(get_padding(&ipg_btn.padding))
             .on_press(BtnMessage::OnPress)
             .width(ipg_btn.width)
             .height(ipg_btn.height)
             .style(move |theme: &Theme, status| {
                 get_styling(theme, status, &style_opt, &ipg_btn.style_standard)
         });
-
-    let btn = 
-        if let Some(pd) = &ipg_btn.padding {
-            btn.padding(get_padding_f32(pd))
-        } else { btn };
 
     let btn: Element<'_, BtnMessage> = 
         if let Some(cp) = ipg_btn.clip {
@@ -442,7 +438,7 @@ pub fn button_style_update(style: &mut IpgButtonStyle,
                 IpgColor::rgba_ipg_color_to_iced(None, Some(color), 1.0, false);
         },
         IpgButtonStyleParam::BackgroundRbgaColor => {
-            style.background_color = Some(Color::from(IpgColor::extract_rgba_color(value, name)));
+            style.background_color = Some(Color::from(IpgColor::extract_rgba(value, name)));
         },
         IpgButtonStyleParam::BackgroundIpgColorHovered => {
             let color = IpgColor::extract(value, name);
@@ -450,7 +446,7 @@ pub fn button_style_update(style: &mut IpgButtonStyle,
                 IpgColor::rgba_ipg_color_to_iced(None, Some(color), 1.0, false);
         },
         IpgButtonStyleParam::BackgroundIpgRgbaHovered => {
-            style.background_color_hovered = Some(Color::from(IpgColor::extract_rgba_color(value, name)));
+            style.background_color_hovered = Some(Color::from(IpgColor::extract_rgba(value, name)));
         },
         IpgButtonStyleParam::BorderIpgColor => {
             let color = IpgColor::extract(value, name);
@@ -458,7 +454,7 @@ pub fn button_style_update(style: &mut IpgButtonStyle,
                 IpgColor::rgba_ipg_color_to_iced(None, Some(color), 1.0, false);
         },
         IpgButtonStyleParam::BorderRgbaColor => {
-            style.border_color = Some(Color::from(IpgColor::extract_rgba_color(value, name)));
+            style.border_color = Some(Color::from(IpgColor::extract_rgba(value, name)));
         },
         IpgButtonStyleParam::BorderRadius => {
             style.border_radius = Some(try_extract_vec_f32(value, name));
@@ -472,7 +468,7 @@ pub fn button_style_update(style: &mut IpgButtonStyle,
                 IpgColor::rgba_ipg_color_to_iced(None, Some(color), 1.0, false);
         },
         IpgButtonStyleParam::ShadowRgbaColor => {
-            style.border_color = Some(Color::from(IpgColor::extract_rgba_color(value, name)));
+            style.border_color = Some(Color::from(IpgColor::extract_rgba(value, name)));
         },
         IpgButtonStyleParam::ShadowOffsetX => {
             style.shadow_offset_x = Some(try_extract_f32(value, name));
@@ -489,7 +485,7 @@ pub fn button_style_update(style: &mut IpgButtonStyle,
                 IpgColor::rgba_ipg_color_to_iced(None, Some(color), 1.0, false);
         },
         IpgButtonStyleParam::TextRgbaColor => {
-            style.text_color = Some(Color::from(IpgColor::extract_rgba_color(value, name)));
+            style.text_color = Some(Color::from(IpgColor::extract_rgba(value, name)));
         },
     }
 }

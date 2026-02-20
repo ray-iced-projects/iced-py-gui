@@ -3,16 +3,20 @@ use iced::{Color, Element, Font, Length};
 use iced::widget::text::Style;
 use iced::widget::Text;
 
-use pyo3::{pyclass, Py, PyAny, Python};
+use pyo3::{pyclass, Py, PyAny};
 type PyObject = Py<PyAny>;
 
 use crate::graphics::colors::IpgColor;
-use crate::py_api::helpers::{get_height, get_width, 
-    try_extract_boolean, try_extract_f32, 
-    try_extract_string, try_extract_vec_f32};
+use crate::py_api::helpers::try_extract_vec_f32;
 use crate::app::Message;
 use crate::widgets::enums::{IpgHorizontalAlignment, 
     IpgShaping, IpgVerticalAlignment, h_v_centered};
+use crate::widgets::widget_param_update::{
+    WidgetParamUpdate,
+    set_bool, set_opt_f32, set_opt_string, set_string,
+    set_width, set_width_fill, set_height, set_height_fill,
+    set_halign, set_valign,
+};
 
 
 #[derive(Debug, Clone)]
@@ -115,75 +119,38 @@ pub enum IpgTextParam {
     WidthFill,
 }
 
-pub fn text_widget_update(txt: &mut IpgText, 
-                        item: &PyObject, 
-                        value: &PyObject) {
+// ---------------------------------------------------------------------------
+// WidgetParamUpdate implementation
+// ---------------------------------------------------------------------------
 
-    let update = try_extract_text_update(item);
-    let name = "Text".to_string();
-    match update {
-        IpgTextParam::Content => {
-            txt.content = try_extract_string(value, name);
-        },
-        IpgTextParam::Font => {
-            txt.font = Some(try_extract_string(value, name));
-        },
-        IpgTextParam::Height => {
-            let val = try_extract_f32(value, name);
-            txt.height = get_height(Some(val), false); 
-        },
-        IpgTextParam::HeightFill => {
-            let val = try_extract_boolean(value, name);
-            txt.height = get_height(None, val);
-        },
-        IpgTextParam::AlignX => {
-            txt.align_x = IpgHorizontalAlignment::extract(value);
-        },
-        IpgTextParam::AlignY => {
-            txt.align_y = IpgVerticalAlignment::extract(value);
-        },
-        IpgTextParam::LineHeight => {
-            txt.line_height = Some(try_extract_f32(value, name));
-        },
-        IpgTextParam::Shaping => {
-            txt.shaping = IpgShaping::extract(value);
-        },
-        IpgTextParam::Show => {
-            txt.show = try_extract_boolean(value, name);
-        },
-        IpgTextParam::Size => {
-            txt.size = Some(try_extract_f32(value, name));
-        },
-        IpgTextParam::TextColor => {
-            let ipg_color = Some(IpgColor::extract(value, name));
-            txt.style = 
-                IpgColor::rgba_ipg_color_to_iced(None, ipg_color, 1.0, false);
-        },
-        IpgTextParam::TextRgba => {
-            let v = try_extract_vec_f32(value, name);
-            let color_rgba = Some([v[0], v[1], v[2], v[3]]);
-            txt.style = 
-                IpgColor::rgba_ipg_color_to_iced(color_rgba, None, 1.0, false);
-        },
-        IpgTextParam::Width => {
-            let val = try_extract_f32(value, name);
-            txt.width = get_width(Some(val), false);
-        },
-        IpgTextParam::WidthFill => {
-            let val = try_extract_boolean(value, name);
-            txt.width = get_width(None, val);
-        },
-    }
-}
+impl WidgetParamUpdate for IpgText {
+    type Param = IpgTextParam;
 
-
-fn try_extract_text_update(update_obj: &PyObject) -> IpgTextParam {
-
-    Python::attach(|py| {
-        let res = update_obj.extract::<IpgTextParam>(py);
-        match res {
-            Ok(update) => update,
-            Err(_) => panic!("Text update extraction failed"),
+    fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
+        match param {
+            IpgTextParam::Content    => set_string(&mut self.content, value, name),
+            IpgTextParam::Font       => set_opt_string(&mut self.font, value, name),
+            IpgTextParam::Height     => set_height(&mut self.height, value, name),
+            IpgTextParam::HeightFill => set_height_fill(&mut self.height, value, name),
+            IpgTextParam::AlignX     => set_halign(&mut self.align_x, value),
+            IpgTextParam::AlignY     => set_valign(&mut self.align_y, value),
+            IpgTextParam::LineHeight => set_opt_f32(&mut self.line_height, value, name),
+            IpgTextParam::Shaping    => {
+                self.shaping = IpgShaping::extract(value);
+            }
+            IpgTextParam::Show       => set_bool(&mut self.show, value, name),
+            IpgTextParam::Size       => set_opt_f32(&mut self.size, value, name),
+            IpgTextParam::TextColor  => {
+                let ipg_color = Some(IpgColor::extract(value, name));
+                self.style = IpgColor::rgba_ipg_color_to_iced(None, ipg_color, 1.0, false);
+            }
+            IpgTextParam::TextRgba   => {
+                let v = try_extract_vec_f32(value, name);
+                let color_rgba = Some([v[0], v[1], v[2], v[3]]);
+                self.style = IpgColor::rgba_ipg_color_to_iced(color_rgba, None, 1.0, false);
+            }
+            IpgTextParam::Width      => set_width(&mut self.width, value, name),
+            IpgTextParam::WidthFill  => set_width_fill(&mut self.width, value, name),
         }
-    })
+    }
 }

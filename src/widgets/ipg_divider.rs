@@ -4,7 +4,15 @@ use iced::{Background, Color, Element, Length, Theme};
 use pyo3::{pyclass, Py, PyAny, Python};
 type PyObject = Py<PyAny>;
 
-use crate::{IpgState, access_callbacks, access_user_data1, app, graphics::colors::IpgColor, py_api::helpers::{get_radius, try_extract_boolean, try_extract_f32, try_extract_usize, try_extract_vec_f32}, state::IpgWidgets, widgets::{callbacks::{WidgetCallbackIn, set_or_get_widget_callback_data}, divider::{self, Direction, Status, Style, divider_horizontal, divider_vertical}}};
+use crate::{IpgState, access_callbacks, access_user_data1, app, 
+    py_api::helpers::get_radius, state::IpgWidgets, 
+    widgets::{callbacks::{WidgetCallbackIn, set_or_get_widget_callback_data}, 
+    divider::{self, Direction, Status, Style, divider_horizontal, divider_vertical}}};
+use crate::widgets::widget_param_update::{
+    WidgetParamUpdate,
+    set_bool, set_f32, set_opt_bool, set_opt_f32, set_opt_usize, set_opt_vec_f32,
+    set_vec_f32, set_ipg_color, set_rgba_color_via_ipg,
+};
 
 
 
@@ -244,79 +252,6 @@ pub enum IpgDividerParam {
     Show,
 }
 
-pub fn divider_horizontal_item_update(
-        divider: &mut IpgDividerHorizontal, 
-        item: &PyObject, 
-        value: &PyObject) {
-
-    let update = try_extract_divider_update(item);
-    let name = "Divider".to_string();
-    match update {
-        IpgDividerParam::HandleWidth => {
-            divider.handle_width = try_extract_f32(value, name);
-        },
-        IpgDividerParam::HandleHeight => {
-            divider.handle_height = try_extract_f32(value, name);
-        },
-        IpgDividerParam::Widths => {
-            divider.widths = try_extract_vec_f32(value, name);
-        },
-        IpgDividerParam::Heights => {
-            panic!("Horizontal Divider must use the Widths not Heights");
-        },
-        IpgDividerParam::StyleId => {
-            divider.style_id = Some(try_extract_usize(value, name));
-        },
-        IpgDividerParam::Show => {
-            divider.show = try_extract_boolean(value, name);
-        },
-        
-    }
-}
-
-pub fn divider_vertical_item_update(
-        divider: &mut IpgDividerVertical, 
-        item: &PyObject, 
-        value: &PyObject) {
-
-    let update = try_extract_divider_update(item);
-    let name = "Divider".to_string();
-    match update {
-        IpgDividerParam::HandleWidth => {
-            divider.handle_width = try_extract_f32(value, name);
-        },
-        IpgDividerParam::HandleHeight => {
-            divider.handle_height = try_extract_f32(value, name);
-            
-        },
-        IpgDividerParam::Widths => {
-            panic!("Vertical Divider must use the Heights not Widths");
-        },
-        IpgDividerParam::Heights => {
-            divider.heights = try_extract_vec_f32(value, name);
-        },
-        IpgDividerParam::StyleId => {
-            divider.style_id = Some(try_extract_usize(value, name));
-        },
-        IpgDividerParam::Show => {
-            divider.show = try_extract_boolean(value, name);
-        },
-        
-    }
-}
-
-
-fn try_extract_divider_update(update_obj: &PyObject) -> IpgDividerParam {
-
-    Python::attach(|py| {
-        let res = update_obj.extract::<IpgDividerParam>(py);
-        match res {
-            Ok(update) => update,
-            Err(_) => panic!("Divider update extraction failed"),
-        }
-    })
-}
-
 fn get_styling(theme: &Theme, 
                 status: Status,
                 style_opt: Option<IpgDividerStyle>) 
@@ -378,58 +313,6 @@ pub enum IpgDividerStyleParam {
     BorderRadius,
 }
 
-pub fn divider_style_update_item(
-        style: &mut IpgDividerStyle,
-        item: &PyObject,
-        value: &PyObject,) 
-{
-    let update = try_extract_divider_style_update(item);
-    let name = "DividerStyle".to_string();
-    match update {
-        IpgDividerStyleParam::BackgroundIpgColor => {
-            let color = IpgColor::extract(value, name);
-            style.background_color = 
-            IpgColor::rgba_ipg_color_to_iced(None, Some(color), 1.0, false);
-        },
-        IpgDividerStyleParam::BackgroundRgbaColor => {
-            let rgba = IpgColor::extract_rgba(value, name);
-            style.background_color = 
-            IpgColor::rgba_ipg_color_to_iced(Some(rgba), None, 1.0, false);
-        },
-        IpgDividerStyleParam::BackgroundTransparent => {
-            style.background_transparent = Some(try_extract_boolean(value, name))
-        }
-        IpgDividerStyleParam::BorderIpgColor => {
-            let color = IpgColor::extract(value, name);
-            style.border_color = 
-            IpgColor::rgba_ipg_color_to_iced(None, Some(color), 1.0, false);
-        },
-        IpgDividerStyleParam::BorderRgbaColor => {
-            let rgba = IpgColor::extract_rgba(value, name);
-            style.border_color = 
-            IpgColor::rgba_ipg_color_to_iced(Some(rgba), None, 1.0, false)
-        },
-        IpgDividerStyleParam::BorderWidth => {
-            style.border_width = Some(try_extract_f32(value, name));
-        },
-        IpgDividerStyleParam::BorderRadius =>  {
-             style.border_radius = Some(try_extract_vec_f32(value, name));
-        },
-    }
-    
-}
-
-pub fn try_extract_divider_style_update(update_obj: &PyObject) -> IpgDividerStyleParam {
-
-    Python::attach(|py| {
-        let res = update_obj.extract::<IpgDividerStyleParam>(py);
-        match res {
-            Ok(update) => update,
-            Err(_) => panic!("Divider style update extraction failed"),
-        }
-    })
-}
-
 fn get_divider_style(style: Option<&IpgWidgets>) -> Option<IpgDividerStyle>{
     match style {
         Some(IpgWidgets::IpgDividerStyle(style)) => {
@@ -437,4 +320,54 @@ fn get_divider_style(style: Option<&IpgWidgets>) -> Option<IpgDividerStyle>{
         }
             _ => None,
         }
+}
+
+// ---------------------------------------------------------------------------
+// WidgetParamUpdate implementations
+// ---------------------------------------------------------------------------
+
+impl WidgetParamUpdate for IpgDividerHorizontal {
+    type Param = IpgDividerParam;
+
+    fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
+        match param {
+            IpgDividerParam::HandleWidth  => set_f32(&mut self.handle_width, value, name),
+            IpgDividerParam::HandleHeight => set_f32(&mut self.handle_height, value, name),
+            IpgDividerParam::Widths       => set_vec_f32(&mut self.widths, value, name),
+            IpgDividerParam::Heights      => panic!("Horizontal Divider must use the Widths not Heights"),
+            IpgDividerParam::StyleId      => set_opt_usize(&mut self.style_id, value, name),
+            IpgDividerParam::Show         => set_bool(&mut self.show, value, name),
+        }
+    }
+}
+
+impl WidgetParamUpdate for IpgDividerVertical {
+    type Param = IpgDividerParam;
+
+    fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
+        match param {
+            IpgDividerParam::HandleWidth  => set_f32(&mut self.handle_width, value, name),
+            IpgDividerParam::HandleHeight => set_f32(&mut self.handle_height, value, name),
+            IpgDividerParam::Widths       => panic!("Vertical Divider must use the Heights not Widths"),
+            IpgDividerParam::Heights      => set_vec_f32(&mut self.heights, value, name),
+            IpgDividerParam::StyleId      => set_opt_usize(&mut self.style_id, value, name),
+            IpgDividerParam::Show         => set_bool(&mut self.show, value, name),
+        }
+    }
+}
+
+impl WidgetParamUpdate for IpgDividerStyle {
+    type Param = IpgDividerStyleParam;
+
+    fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
+        match param {
+            IpgDividerStyleParam::BackgroundIpgColor   => set_ipg_color(&mut self.background_color, value, name),
+            IpgDividerStyleParam::BackgroundRgbaColor  => set_rgba_color_via_ipg(&mut self.background_color, value, name),
+            IpgDividerStyleParam::BackgroundTransparent => set_opt_bool(&mut self.background_transparent, value, name),
+            IpgDividerStyleParam::BorderIpgColor       => set_ipg_color(&mut self.border_color, value, name),
+            IpgDividerStyleParam::BorderRgbaColor      => set_rgba_color_via_ipg(&mut self.border_color, value, name),
+            IpgDividerStyleParam::BorderWidth          => set_opt_f32(&mut self.border_width, value, name),
+            IpgDividerStyleParam::BorderRadius         => set_opt_vec_f32(&mut self.border_radius, value, name),
+        }
+    }
 }

@@ -6,6 +6,8 @@ use iced::widget::Column;
 use pyo3::{pyclass, Py, PyAny, Python};
 type PyObject = Py<PyAny>;
 
+use crate::widgets::widget_param_update::WidgetParamUpdate;
+
 
 
 #[derive(Debug, Clone)]
@@ -110,4 +112,22 @@ pub fn try_extract_font_update(update_obj: &PyObject) -> IpgFontParam {
             Err(_) => panic!("Font update extraction failed"),
         }
     })
+}
+
+// ---------------------------------------------------------------------------
+// WidgetParamUpdate implementation
+// ---------------------------------------------------------------------------
+
+impl WidgetParamUpdate for IpgFont {
+    type Param = IpgFontParam;
+
+    fn param_update(&mut self, param: Self::Param, value: &PyObject, _name: String) {
+        match param {
+            IpgFontParam::FamilyName => { /* TODO */ }
+            IpgFontParam::Type       => { /* TODO */ }
+            IpgFontParam::Weight     => { /* TODO */ }
+            IpgFontParam::Stretch    => { /* TODO */ }
+            IpgFontParam::Style      => { /* TODO */ }
+        }
+    }
 }

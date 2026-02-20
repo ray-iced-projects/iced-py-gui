@@ -1,10 +1,5 @@
 from imports import *
 
-    add_window, generate_id, update_widget, start_session,
-    add_container, add_column, add_checkbox, IpgIcon,
-    IpgCheckboxParam, IpgAlignment
-    )
-
 
 # The callback used for the first checkbox.
 # The callback id for this is not used since we are

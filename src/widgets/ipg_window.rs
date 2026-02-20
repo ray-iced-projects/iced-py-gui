@@ -12,6 +12,10 @@ use crate::app::Message;
 use crate::graphics::bootstrap_icon::IpgIcon;
 use crate::py_api::helpers::{try_extract_boolean, try_extract_f32, try_extract_usize, try_extract_vec_f32};
 use crate::state::access_window_actions;
+use crate::widgets::widget_param_update::{
+    WidgetParamUpdate, extract_param,
+    set_opt_bool, set_opt_f32,
+};
 
 #[derive(Debug, Clone)]
 pub struct IpgWindow {
@@ -262,6 +266,50 @@ fn try_extract_level(level: &PyObject) -> IpgWindowLevel {
             Err(e) => panic!("Window level extraction failed with error {}", e),
         }
     })
+}
+
+// ---------------------------------------------------------------------------
+// WidgetParamUpdate implementation
+// ---------------------------------------------------------------------------
+
+impl WidgetParamUpdate for IpgWindow {
+    type Param = IpgWindowParam;
+
+    fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
+        match param {
+            IpgWindowParam::Debug => set_opt_bool(&mut self.debug, value, name),
+            IpgWindowParam::Theme => {
+                self.theme = Some(extract_param::<IpgWindowTheme>(value, "WindowTheme"));
+            }
+            IpgWindowParam::ScaleFactor => set_opt_f32(&mut self.scale_factor, value, name),
+            IpgWindowParam::Decorations => {
+                let val = try_extract_usize(value, name);
+                let mut state = access_window_actions();
+                state.decorations.push(val);
+                drop(state);
+            }
+            IpgWindowParam::Level => {
+                let ipg_level = try_extract_level(value);
+                let level = IpgWindowLevel::to_iced(&ipg_level);
+                self.level = Some(ipg_level);
+                let mut state = access_window_actions();
+                state.level.push((self.id, level));
+                drop(state);
+            }
+            IpgWindowParam::Position => {
+                let val = try_extract_vec_f32(value, name);
+                let mut state = access_window_actions();
+                state.position.push((self.id, val[0], val[1]));
+                drop(state);
+            }
+            IpgWindowParam::Size => {
+                let val = try_extract_vec_f32(value, name);
+                let mut state = access_window_actions();
+                state.resize.push((self.id, val[0], val[1]));
+                drop(state);
+            }
+        }
+    }
 }
 
 #[derive(Debug, Clone, PartialEq)]

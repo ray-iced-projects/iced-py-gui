@@ -11,6 +11,13 @@ use crate::graphics::colors::IpgColor;
 use crate::py_api::helpers::{get_height, get_padding, get_radius, get_width, try_extract_array_2, try_extract_boolean, try_extract_f32, try_extract_vec_f32};
 use crate::state::IpgWidgets;
 use crate::widgets::enums::{IpgHorizontalAlignment, IpgVerticalAlignment};
+use crate::widgets::widget_param_update::{
+    WidgetParamUpdate,
+    set_bool, set_opt_bool, set_opt_f32, set_opt_vec_f32, set_opt_array_2,
+    set_width, set_width_fill, set_height, set_height_fill,
+    set_halign, set_valign,
+    set_ipg_color, set_rgba_color,
+};
 
 
 #[derive(Debug, Clone)]
@@ -385,4 +392,56 @@ pub fn try_extract_container_style_update(update_obj: &PyObject) -> IpgContainer
             Err(_) => panic!("Container style parameter update extraction failed"),
         }
     })
+}
+
+// ---------------------------------------------------------------------------
+// WidgetParamUpdate implementations
+// ---------------------------------------------------------------------------
+
+impl WidgetParamUpdate for IpgContainer {
+    type Param = IpgContainerParam;
+
+    fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
+        match param {
+            IpgContainerParam::AlignBotton => set_opt_bool(&mut self.align_botton, value, name),
+            IpgContainerParam::AlignLeft   => set_opt_bool(&mut self.align_left, value, name),
+            IpgContainerParam::AlignRight  => set_opt_bool(&mut self.align_right, value, name),
+            IpgContainerParam::AlignTop    => set_opt_bool(&mut self.align_top, value, name),
+            IpgContainerParam::AlignX      => set_halign(&mut self.align_x, value),
+            IpgContainerParam::AlignY      => set_valign(&mut self.align_y, value),
+            IpgContainerParam::Center      => set_opt_bool(&mut self.center, value, name),
+            IpgContainerParam::CenterX     => set_opt_bool(&mut self.center_x, value, name),
+            IpgContainerParam::CenterY     => set_opt_bool(&mut self.center_y, value, name),
+            IpgContainerParam::Clip        => set_opt_bool(&mut self.clip, value, name),
+            IpgContainerParam::Height      => set_height(&mut self.height, value, name),
+            IpgContainerParam::HeightFill  => set_height_fill(&mut self.height, value, name),
+            IpgContainerParam::MaxHeight   => set_opt_f32(&mut self.max_height, value, name),
+            IpgContainerParam::MaxWidth    => set_opt_f32(&mut self.max_width, value, name),
+            IpgContainerParam::Padding     => set_opt_vec_f32(&mut self.padding, value, name),
+            IpgContainerParam::Width       => set_width(&mut self.width, value, name),
+            IpgContainerParam::WidthFill   => set_width_fill(&mut self.width, value, name),
+            IpgContainerParam::Show        => set_bool(&mut self.show, value, name),
+        }
+    }
+}
+
+impl WidgetParamUpdate for IpgContainerStyle {
+    type Param = IpgContainerStyleParam;
+
+    fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
+        match param {
+            IpgContainerStyleParam::BackgroundIpgColor  => set_ipg_color(&mut self.background_color, value, name),
+            IpgContainerStyleParam::BackgroundRgbaColor => set_rgba_color(&mut self.background_color, value, name),
+            IpgContainerStyleParam::BorderIpgColor      => set_ipg_color(&mut self.border_color, value, name),
+            IpgContainerStyleParam::BorderRgbaColor     => set_rgba_color(&mut self.border_color, value, name),
+            IpgContainerStyleParam::BorderRadius        => set_opt_vec_f32(&mut self.border_radius, value, name),
+            IpgContainerStyleParam::BorderWidth         => set_opt_f32(&mut self.border_width, value, name),
+            IpgContainerStyleParam::ShadowIpgColor      => set_ipg_color(&mut self.shadow_color, value, name),
+            IpgContainerStyleParam::ShadowRgbaColor     => set_rgba_color(&mut self.shadow_color, value, name),
+            IpgContainerStyleParam::ShadowOffsetXY      => set_opt_array_2(&mut self.shadow_offset_xy, value, name),
+            IpgContainerStyleParam::ShadowBlurRadius    => set_opt_f32(&mut self.shadow_blur_radius, value, name),
+            IpgContainerStyleParam::TextIpgColor        => set_ipg_color(&mut self.text_color, value, name),
+            IpgContainerStyleParam::TextRgbaColor       => set_rgba_color(&mut self.text_color, value, name),
+        }
+    }
 }

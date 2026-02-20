@@ -7,7 +7,11 @@ use crate::{access_callbacks, access_user_data1, IpgState};
 use super::callbacks::{set_or_get_widget_callback_data, 
     WidgetCallbackIn};
 use crate::widgets::ipg_button::{self, IpgButtonStyle};
-use crate::py_api::helpers::{DATE_FORMATS, DAYS, MONTH_NAMES, WEEKDAYS, get_padding, try_extract_boolean, try_extract_f32, try_extract_string, try_extract_vec_f32};
+use crate::py_api::helpers::{DATE_FORMATS, DAYS, MONTH_NAMES, WEEKDAYS, get_padding};
+use crate::widgets::widget_param_update::{
+    WidgetParamUpdate,
+    set_bool, set_opt_f32, set_opt_string, set_opt_vec_f32,
+};
 use iced::advanced::graphics::core::Element;
 use iced::widget::{button, text};
 use iced::{Length, Renderer, Theme};
@@ -647,53 +651,6 @@ pub enum IpgDatePickerParam {
     Show,
 }
 
-pub fn date_picker_item_update(dp: &mut IpgDatePicker,
-                                item: &PyObject,
-                                value: &PyObject,
-                                )
-{
-    let update = try_extract_date_picker_update(item);
-    let name = "DatePicker".to_string();
-    match update {
-        IpgDatePickerParam::Label => {
-            dp.label = Some(try_extract_string(value, name));
-        },
-        IpgDatePickerParam::Padding => {
-            dp.padding = Some(try_extract_vec_f32(value, name));
-        },
-        IpgDatePickerParam::SizeFactor => {
-                dp.size_factor = Some(try_extract_f32(value, name));
-        },
-        IpgDatePickerParam::Show => {
-            dp.show = try_extract_boolean(value, name);
-        },
-    }
-}
-
-pub fn try_extract_date_picker_update(update_obj: &PyObject) -> IpgDatePickerParam {
-
-    Python::attach(|py| {
-        let res = update_obj.extract::<IpgDatePickerParam>(py);
-        match res {
-            Ok(update) => update,
-            Err(_) => panic!("DatePicker update extraction failed"),
-        }
-    })
-}
-
-
-// pub fn date_picker_container(_theme: &Theme) -> container::Style {
-//     container::Style {
-//         background: Some(Background::Color(Color::from_rgba(0.7, 0.5, 0.6, 1.0))),
-//         border: Border {
-//             radius: 4.0.into(),
-//             width: 1.0,
-//             color: Color::TRANSPARENT,
-//         },
-//         ..Default::default()
-//     }
-// }
-
 fn get_widget_style(style: Option<&IpgWidgets>) -> Option<IpgButtonStyle>{
     match style {
         Some(IpgWidgets::IpgButtonStyle(style)) => {
@@ -701,4 +658,21 @@ fn get_widget_style(style: Option<&IpgWidgets>) -> Option<IpgButtonStyle>{
         }
         _ => None,
         }
+}
+
+// ---------------------------------------------------------------------------
+// WidgetParamUpdate implementation
+// ---------------------------------------------------------------------------
+
+impl WidgetParamUpdate for IpgDatePicker {
+    type Param = IpgDatePickerParam;
+
+    fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
+        match param {
+            IpgDatePickerParam::Label      => set_opt_string(&mut self.label, value, name),
+            IpgDatePickerParam::Padding    => set_opt_vec_f32(&mut self.padding, value, name),
+            IpgDatePickerParam::SizeFactor => set_opt_f32(&mut self.size_factor, value, name),
+            IpgDatePickerParam::Show       => set_bool(&mut self.show, value, name),
+        }
+    }
 }

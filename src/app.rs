@@ -11,17 +11,17 @@ type PyObject = Py<PyAny>;
 use crate::py_api::helpers::find_key_for_value;
 use crate::state::{IpgContainers, IpgIds, IpgState, IpgWidgets, access_state, access_update_widgets, access_window_actions, clone_state_to_runtime, set_state_of_widget_running_state};
 use crate::widgets::ipg_button::{BtnMessage, button_callback, button_param_update, button_style_update, construct_button};
-use crate::widgets::ipg_checkbox::{ChkMessage, checkbox_callback, checkbox_param_update, checkbox_style_update, construct_checkbox};
+use crate::widgets::ipg_checkbox::{ChkMessage, checkbox_callback, construct_checkbox};
 use crate::widgets::ipg_color_picker::{ColPikMessage, color_picker_callback, construct_color_picker};
-use crate::widgets::ipg_column::{column_item_update, construct_column};
-use crate::widgets::ipg_container::{construct_container, container_item_update, container_style_update_item};
-use crate::widgets::ipg_date_picker::{DPMessage, construct_date_picker, date_picker_item_update, date_picker_update};
-use crate::widgets::ipg_divider::{DivMessage, construct_divider_horizontal, construct_divider_vertical, divider_callback, divider_horizontal_item_update, divider_style_update_item, divider_vertical_item_update};
+use crate::widgets::ipg_column::construct_column;
+use crate::widgets::ipg_container::construct_container;
+use crate::widgets::ipg_date_picker::{DPMessage, construct_date_picker, date_picker_update};
+use crate::widgets::ipg_divider::{DivMessage, construct_divider_horizontal, construct_divider_vertical, divider_callback};
 use crate::widgets::ipg_events::process_window_event;
-use crate::widgets::ipg_font::font_param_update;
-use crate::widgets::ipg_row::{construct_row, row_item_update};
-use crate::widgets::ipg_text::{construct_text, text_widget_update};
-use crate::widgets::ipg_window::{IpgWindow, IpgWindowLevel, IpgWindowMode, add_windows, construct_window, window_item_update};
+use crate::widgets::ipg_row::construct_row;
+use crate::widgets::ipg_text::construct_text;
+use crate::widgets::ipg_window::{IpgWindow, IpgWindowLevel, IpgWindowMode, add_windows, construct_window};
+use crate::widgets::widget_param_update::{param_update, container_param_update};
 
 
 #[derive(Debug, Clone)]
@@ -1276,141 +1276,7 @@ fn match_widget(
     item: &PyObject, 
     value: &PyObject) 
 {
-    match widget {
-        IpgWidgets::IpgButton(btn) => {
-            button_param_update(btn, item, value);
-        },
-        IpgWidgets::IpgButtonStyle(style) => {
-            button_style_update(style, item, value);
-        },
-        // IpgWidgets::IpgCard(card) => {
-        //         card_item_update(card, item, value);
-        //     },
-        // IpgWidgets::IpgCardStyle(style) => {
-        //         card_style_update(style, item, value);
-        //     },
-        IpgWidgets::IpgCheckBox(chk) => {
-            checkbox_param_update(chk, item, value);
-        },
-        IpgWidgets::IpgCheckboxStyle(style) => {
-            checkbox_style_update(style, item, value);
-        },
-        IpgWidgets::IpgFont(font) => {
-            font_param_update(font, item, value);
-        },
-        IpgWidgets::IpgColorPicker(cp) => {
-            // color_picker_param_update(cp, item, value);
-        },
-        IpgWidgets::IpgColorPickerStyle(style) => {
-            button_style_update(style, item, value);
-        },
-        IpgWidgets::IpgContainerStyle(style) => {
-                container_style_update_item(style, item, value);
-            },
-        IpgWidgets::IpgDatePicker(dp) => {
-                date_picker_item_update(dp, item, value);
-        },
-        IpgWidgets::IpgDividerHorizontal(div) => {
-            divider_horizontal_item_update(div, item, value);
-        },
-        IpgWidgets::IpgDividerVertical(div) => {
-            divider_vertical_item_update(div, item, value);
-        },
-        IpgWidgets::IpgDividerStyle(style) => {
-            divider_style_update_item(style, item, value);
-        },
-        // IpgWidgets::IpgImage(img) => {
-        //         image_item_update(img, item, value);
-        //     },
-        // IpgWidgets::IpgMenuStyle(style) => {
-        //         menu_style_update_item(style, item, value);
-        //     },
-        // IpgWidgets::IpgMenuBarStyle(style) => {
-        //         menu_bar_style_update_item(style, item, value);
-        //     },
-        // IpgWidgets::IpgOpaqueStyle(style) => {
-        //         opaque_style_update_item(style, item, value);
-        //     }
-        // IpgWidgets::IpgPickList(pl) => {
-        //         pick_list_item_update(pl, item, value);
-        //     },
-        // IpgWidgets::IpgPickListStyle(style) => {
-        //         pick_list_style_update_item(style, item, value);
-        //     },
-        // IpgWidgets::IpgProgressBar(pb) => {
-        //         progress_bar_item_update(pb, item, value);
-        //     },
-        // IpgWidgets::IpgProgressBarStyle(style) => {
-        //         progress_bar_style_update_item(style, item, value);
-        //     },
-        // IpgWidgets::IpgRadio(rd) => {
-        //         radio_item_update(rd, item, value);
-        //     },
-        // IpgWidgets::IpgRadioStyle(style) => {
-        //         radio_style_update_item(style, item, value);
-        //     },
-        // IpgWidgets::IpgRule(_) => (),
-        // IpgWidgets::IpgRuleStyle(style) => {
-        //         rule_style_update_item(style, item, value);
-        //     },
-        // IpgWidgets::IpgScrollableStyle(style) => {
-        //         scroll_style_update_item(style, item, value)
-        //     },
-        // IpgWidgets::IpgSelectableText(st) => {
-        //         selectable_text_item_update(st, item, value);
-        //     },
-        // IpgWidgets::IpgSeparator(sep) => {
-        //         separator_item_update(sep, item, value);
-        //     },
-        // IpgWidgets::IpgSeparatorStyle(style) => {
-        //         separator_style_update_item(style, item, value);
-        //     },
-        // IpgWidgets::IpgSlider(slider) => {
-        //         slider_item_update(slider, item, value)
-        //     },
-        // IpgWidgets::IpgSliderStyle(style) => {
-        //         slider_style_update_item(style, item, value)
-        //     },
-        // IpgWidgets::IpgSpace(_) => (),
-        // IpgWidgets::IpgSvg(sg) => {
-        //         svg_item_update(sg, item, value);
-        //     },
-        // IpgWidgets::IpgTableStyle(style) => {
-        //         table_style_update_item(style, item, value);
-        //     }
-        IpgWidgets::IpgText(txt) => {
-                text_widget_update(txt, item, value);
-            },
-        // IpgWidgets::IpgTextInput(ti) => {
-        //         text_input_item_update(ti, item, value);
-        //     },
-        // IpgWidgets::IpgTextInputStyle(style) => {
-        //         text_input_style_update_item(style, item, value);
-        //     },
-        // IpgWidgets::IpgTimer(tim) => {
-        //         timer_item_update(tim, item, value);
-        //     },
-        // IpgWidgets::IpgTimerStyle(style) => {
-        //         timer_style_update_item(style, item, value);
-        //     },
-        // IpgWidgets::IpgCanvasTimer(ctim) => {
-        //         canvas_timer_item_update(ctim, item, value);
-        //     },
-        // IpgWidgets::IpgCanvasTimerStyle(style) => {
-        //         canvas_timer_style_update_item(style, item, value);
-        //     },
-        // IpgWidgets::IpgToggler(tog) => {
-        //         toggler_item_update(tog, item, value);
-        //     },
-        // IpgWidgets::IpgTogglerStyle(style) => {
-        //         toggler_style_update_item(style, item, value);
-        //     },
-        // IpgWidgets::IpgToolTipStyle(style) => {
-        //         tool_tip_style_update_item(style, item, value);
-        //     },
-        _ => (),
-        
-    }
+    param_update(widget, item, value, String::new());
 }
 
 fn match_container(
@@ -1421,53 +1287,6 @@ fn match_container(
     last_id: usize,
     ) -> Option<usize>
 {
-    match container {
-        // IpgContainers::IpgCanvas(_can) => {
-        //     canvas_item_update(canvas_state, item, value, last_id)
-        // },
-        IpgContainers::IpgColumn(col) => {
-            column_item_update(col, item, value);
-            None
-        },
-        IpgContainers::IpgContainer(cont) => {
-            container_item_update(cont, item, value);
-            None
-        },
-        // IpgContainers::IpgMenu(menu) => {
-        //     menu_item_update(menu, item, value);
-        //     None
-        // },
-        // IpgContainers::IpgMouseArea(m_area) => {
-        //     mousearea_item_update(m_area, item, value);
-        //     None
-        // },
-        // IpgContainers::IpgOpaque(op) => {
-        //     opaque_item_update(op, item, value);
-        //     None
-        // },
-        IpgContainers::IpgRow(row) => {
-            row_item_update(row, item, value);
-            None
-        },
-        // IpgContainers::IpgStack(stack) => {
-        //     stack_item_update(stack, item, value);
-        //     None
-        // },
-        // IpgContainers::IpgTable(table) => {
-        //     table_item_update(table, item, value);
-        //     None
-        // },
-        // IpgContainers::IpgScrollable(scroll) => {
-        //     scrollable_item_update(scroll, item, value);
-        //     None
-        // },
-        // IpgContainers::IpgToolTip(tool) => {
-        //     tooltip_item_update(tool, item, value);
-        //     None
-        // },
-        IpgContainers::IpgWindow(wnd) => {
-            window_item_update(wnd, item, value);
-            None
-        },
-    }
+    container_param_update(container, item, value, String::new());
+    None
 }

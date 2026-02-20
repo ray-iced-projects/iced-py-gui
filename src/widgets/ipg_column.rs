@@ -12,6 +12,11 @@ use crate::py_api::helpers::{get_height, get_padding,
     get_width, try_extract_boolean, try_extract_f32, 
     try_extract_vec_f32};
 use crate::widgets::enums::IpgAlignment;
+use crate::widgets::widget_param_update::{
+    WidgetParamUpdate,
+    set_opt_bool, set_opt_f32, set_opt_vec_f32,
+    set_width, set_width_fill, set_height, set_height_fill, set_align,
+};
 
 
 #[derive(Debug, Clone)]
@@ -122,4 +127,25 @@ pub fn try_extract_column_update(update_obj: &PyObject) -> IpgColumnParam {
             Err(_) => panic!("Column update extraction failed"),
         }
     })
+}
+
+// ---------------------------------------------------------------------------
+// WidgetParamUpdate implementation
+// ---------------------------------------------------------------------------
+
+impl WidgetParamUpdate for IpgColumn {
+    type Param = IpgColumnParam;
+
+    fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
+        match param {
+            IpgColumnParam::AlignX     => set_align(&mut self.align_x, value),
+            IpgColumnParam::Clip       => set_opt_bool(&mut self.clip, value, name),
+            IpgColumnParam::Padding    => set_opt_vec_f32(&mut self.padding, value, name),
+            IpgColumnParam::Width      => set_width(&mut self.width, value, name),
+            IpgColumnParam::WidthFill  => set_width_fill(&mut self.width, value, name),
+            IpgColumnParam::Height     => set_height(&mut self.height, value, name),
+            IpgColumnParam::HeightFill => set_height_fill(&mut self.height, value, name),
+            IpgColumnParam::Spacing    => set_opt_f32(&mut self.spacing, value, name),
+        }
+    }
 }

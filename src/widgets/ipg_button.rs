@@ -19,6 +19,12 @@ use super::styling::IpgStyleStandard;
 use crate::py_api::helpers::{get_height, get_padding, 
     get_radius, get_width, try_extract_boolean, try_extract_f32, 
     try_extract_string, try_extract_style_standard, try_extract_vec_f32};
+use crate::widgets::widget_param_update::{
+    WidgetParamUpdate, extract_param,
+    set_bool, set_opt_bool, set_opt_f32, set_opt_string, set_opt_vec_f32,
+    set_width, set_width_fill, set_height, set_height_fill,
+    set_ipg_color, set_rgba_color, set_halign, set_valign,
+};
 
 #[derive(Debug, Clone)]
 pub struct IpgButton {
@@ -748,5 +754,62 @@ pub fn get_bootstrap_arrow_char(arrow: &IpgButtonArrow) -> char {
         IpgButtonArrow::ArrowsFullscreen => icon_to_char(bootstrap::Bootstrap::ArrowsFullscreen),
         IpgButtonArrow::ArrowsMove => icon_to_char(bootstrap::Bootstrap::ArrowsMove),
         IpgButtonArrow::ArrowsVertical => icon_to_char(bootstrap::Bootstrap::ArrowsVertical),
+    }
+}
+
+// ---------------------------------------------------------------------------
+// WidgetParamUpdate implementations
+// ---------------------------------------------------------------------------
+
+impl WidgetParamUpdate for IpgButton {
+    type Param = IpgButtonParam;
+
+    fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
+        match param {
+            IpgButtonParam::ArrowStyle => {
+                self.style_arrow = Some(try_extract_button_arrow(value));
+            }
+            IpgButtonParam::Label      => set_opt_string(&mut self.label, value, name),
+            IpgButtonParam::Height     => set_height(&mut self.height, value, name),
+            IpgButtonParam::HeightFill => set_height_fill(&mut self.height, value, name),
+            IpgButtonParam::Padding    => set_opt_vec_f32(&mut self.padding, value, name),
+            IpgButtonParam::Clip       => set_opt_bool(&mut self.clip, value, name),
+            IpgButtonParam::Show       => set_bool(&mut self.show, value, name),
+            IpgButtonParam::StyleId    => {
+                self.style_id = Some(try_extract_f32(value, name) as usize);
+            }
+            IpgButtonParam::StyleStandard => {
+                self.style_standard = Some(try_extract_button_style_standard(value, name));
+            }
+            IpgButtonParam::TextAlignX => set_halign(&mut self.text_align_x, value),
+            IpgButtonParam::TextAlignY => set_valign(&mut self.text_align_y, value),
+            IpgButtonParam::TextSize   => set_opt_f32(&mut self.text_size, value, name),
+            IpgButtonParam::Width      => set_width(&mut self.width, value, name),
+            IpgButtonParam::WidthFill  => set_width_fill(&mut self.width, value, name),
+        }
+    }
+}
+
+impl WidgetParamUpdate for IpgButtonStyle {
+    type Param = IpgButtonStyleParam;
+
+    fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
+        match param {
+            IpgButtonStyleParam::BackgroundIpgColor      => set_ipg_color(&mut self.background_color, value, name),
+            IpgButtonStyleParam::BackgroundRbgaColor     => set_rgba_color(&mut self.background_color, value, name),
+            IpgButtonStyleParam::BackgroundIpgColorHovered => set_ipg_color(&mut self.background_color_hovered, value, name),
+            IpgButtonStyleParam::BackgroundIpgRgbaHovered => set_rgba_color(&mut self.background_color_hovered, value, name),
+            IpgButtonStyleParam::BorderIpgColor          => set_ipg_color(&mut self.border_color, value, name),
+            IpgButtonStyleParam::BorderRgbaColor         => set_rgba_color(&mut self.border_color, value, name),
+            IpgButtonStyleParam::BorderRadius            => set_opt_vec_f32(&mut self.border_radius, value, name),
+            IpgButtonStyleParam::BorderWidth             => set_opt_f32(&mut self.border_width, value, name),
+            IpgButtonStyleParam::ShadowIpgColor          => set_ipg_color(&mut self.shadow_color, value, name),
+            IpgButtonStyleParam::ShadowRgbaColor         => set_rgba_color(&mut self.shadow_color, value, name),
+            IpgButtonStyleParam::ShadowOffsetX           => set_opt_f32(&mut self.shadow_offset_x, value, name),
+            IpgButtonStyleParam::ShadowOffsetY           => set_opt_f32(&mut self.shadow_offset_y, value, name),
+            IpgButtonStyleParam::ShadowBlurRadius        => set_opt_f32(&mut self.shadow_blur_radius, value, name),
+            IpgButtonStyleParam::TextIpgColor            => set_ipg_color(&mut self.text_color, value, name),
+            IpgButtonStyleParam::TextRgbaColor           => set_rgba_color(&mut self.text_color, value, name),
+        }
     }
 }

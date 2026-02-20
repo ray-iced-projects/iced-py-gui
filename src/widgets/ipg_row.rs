@@ -12,6 +12,11 @@ use crate::app::Message;
 use crate::py_api::helpers::{get_height, get_padding, 
     get_width, try_extract_boolean, try_extract_f32, try_extract_vec_f32};
 use crate::widgets::enums::IpgAlignment;
+use crate::widgets::widget_param_update::{
+    WidgetParamUpdate,
+    set_opt_bool, set_opt_f32, set_opt_vec_f32,
+    set_width, set_width_fill, set_height, set_height_fill, set_align,
+};
 
 
 
@@ -121,4 +126,25 @@ pub fn try_extract_row_update(update_obj: &PyObject) -> IpgRowParam {
             Err(_) => panic!("Row update extraction failed"),
         }
     })
+}
+
+// ---------------------------------------------------------------------------
+// WidgetParamUpdate implementation
+// ---------------------------------------------------------------------------
+
+impl WidgetParamUpdate for IpgRow {
+    type Param = IpgRowParam;
+
+    fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
+        match param {
+            IpgRowParam::Align      => set_align(&mut self.align_y, value),
+            IpgRowParam::Clip       => set_opt_bool(&mut self.clip, value, name),
+            IpgRowParam::Padding    => set_opt_vec_f32(&mut self.padding, value, name),
+            IpgRowParam::Width      => set_width(&mut self.width, value, name),
+            IpgRowParam::WidthFill  => set_width_fill(&mut self.width, value, name),
+            IpgRowParam::Height     => set_height(&mut self.height, value, name),
+            IpgRowParam::HeightFill => set_height_fill(&mut self.height, value, name),
+            IpgRowParam::Spacing    => set_opt_f32(&mut self.spacing, value, name),
+        }
+    }
 }

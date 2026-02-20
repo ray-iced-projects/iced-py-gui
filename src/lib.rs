@@ -28,6 +28,8 @@ use py_api::checkbox::{add_checkbox, add_checkbox_style};
 use py_api::column::add_column;
 use py_api::container::{add_container, add_container_style};
 use py_api::date_picker::add_date_picker;
+use py_api::divider::{add_divider_horizontal, add_divider_vertical,
+    add_divider_style};
 use py_api::font::add_font;
 use py_api::row::add_row;
 use py_api::text::add_text;
@@ -48,6 +50,7 @@ use crate::py_api::color_picker::add_color_picker;
 use crate::widgets::ipg_column::IpgColumnParam;
 use crate::widgets::ipg_container::IpgContainerStyleParam;
 use crate::widgets::ipg_date_picker::IpgDatePickerParam;
+use crate::widgets::ipg_divider::{IpgDividerParam, IpgDividerStyleParam};
 use crate::widgets::ipg_text::IpgTextParam;
 
 /// Python module definition
@@ -65,6 +68,8 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(add_color_picker, m)?)?;
     m.add_function(wrap_pyfunction!(add_container, m)?)?;
     m.add_function(wrap_pyfunction!(add_date_picker, m)?)?;
+    m.add_function(wrap_pyfunction!(add_divider_horizontal, m)?)?;
+    m.add_function(wrap_pyfunction!(add_divider_vertical, m)?)?;
     m.add_function(wrap_pyfunction!(add_font, m)?)?;
     m.add_function(wrap_pyfunction!(add_row, m)?)?;
     m.add_function(wrap_pyfunction!(add_text, m)?)?;
@@ -74,12 +79,14 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(add_button_style, m)?)?;
     m.add_function(wrap_pyfunction!(add_checkbox_style, m)?)?;
     m.add_function(wrap_pyfunction!(add_container_style, m)?)?;
+    m.add_function(wrap_pyfunction!(add_divider_style, m)?)?;
 
     // style parameters
     m.add_class::<IpgButtonStyleParam>()?;
     m.add_class::<IpgButtonStyleStandard>()?;
     m.add_class::<IpgCheckboxStyleParam>()?;
     m.add_class::<IpgContainerStyleParam>()?;
+    m.add_class::<IpgDividerStyleParam>()?;
     m.add_class::<IpgStyleStandard>()?;
 
     // widget params
@@ -88,6 +95,7 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<IpgCheckboxParam>()?;
     m.add_class::<IpgColumnParam>()?;
     m.add_class::<IpgDatePickerParam>()?;
+    m.add_class::<IpgDividerParam>()?;
     m.add_class::<IpgTextParam>()?;
     m.add_class::<IpgWindowLevel>()?;
     m.add_class::<IpgWindowMode>()?;

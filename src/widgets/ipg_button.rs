@@ -390,7 +390,7 @@ pub fn button_param_update(
 
 }
 
-fn try_extract_button_style_standard(
+pub fn try_extract_button_style_standard(
     value: &PyObject, 
     name: String,
     ) -> IpgButtonStyleStandard {

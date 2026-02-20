@@ -1,10 +1,9 @@
-//! Minimal widget definitions for the prototype
-//!
-//! This module contains simplified widget structures that don't depend on the
-//! complex existing module system.
+//! Widget definitions
 
 pub mod callbacks;
+mod divider;
 pub mod enums;
+pub mod widget_param_update;
 pub mod ipg_window;
 pub mod ipg_button;
 pub mod ipg_checkbox;
@@ -12,6 +11,7 @@ pub mod ipg_color_picker;
 pub mod ipg_column;
 pub mod ipg_container;
 pub mod ipg_date_picker;
+pub mod ipg_divider;
 pub mod ipg_events;
 pub mod ipg_font;
 pub mod ipg_row;

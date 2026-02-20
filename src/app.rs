@@ -16,6 +16,7 @@ use crate::widgets::ipg_color_picker::{ColPikMessage, color_picker_callback, con
 use crate::widgets::ipg_column::{column_item_update, construct_column};
 use crate::widgets::ipg_container::{construct_container, container_item_update, container_style_update_item};
 use crate::widgets::ipg_date_picker::{DPMessage, construct_date_picker, date_picker_item_update, date_picker_update};
+use crate::widgets::ipg_divider::{DivMessage, construct_divider_horizontal, construct_divider_vertical, divider_callback, divider_horizontal_item_update, divider_style_update_item, divider_vertical_item_update};
 use crate::widgets::ipg_events::process_window_event;
 use crate::widgets::ipg_font::font_param_update;
 use crate::widgets::ipg_row::{construct_row, row_item_update};
@@ -31,7 +32,7 @@ pub enum Message {
     CheckBox(usize, ChkMessage),
     ColorPicker(usize, ColPikMessage),
     DatePicker(usize, DPMessage),
-//     Divider(usize, DivMessage),
+    Divider(usize, DivMessage),
 //     EventKeyboard(Event),
 //     EventMouse(Event),
     EventWindow((window::Id, Event)),
@@ -155,11 +156,12 @@ impl App {
                 process_updates(&mut self.state);
                 Task::none()
             },
-            // Message::Divider(id, message) => {
-            //     divider_callback(&mut self.state, id, message);
-            //     process_updates(&mut self.state, &mut self.canvas_state);
-            //     Task::none()
-            // },
+            Message::Divider(id, message) => {
+                divider_callback(&mut self.state, id, message);
+                // process_updates(&mut self.state, &mut self.canvas_state);
+                process_updates(&mut self.state);
+                Task::none()
+            },
             // Message::EventKeyboard(event) => {
             //     process_keyboard_events(event, self.state.keyboard_event_id_enabled.0);
             //     process_updates(&mut self.state, &mut self.canvas_state);
@@ -641,12 +643,9 @@ fn get_container<'a>(state: &'a IpgState,
                         panic!("A container can have only one widget, place your multiple widgets into a column or row")
                     }
                     let style_opt = 
-                        match con.style_id {
-                            Some(id) => {
-                                state.widgets.get(&id)
-                            },
-                            None => None,
-                        };
+                        if let Some(id)  = con.style_id {
+                            state.widgets.get(&id)
+                        } else { None };
 
                     construct_container(con, content, style_opt)
                 },
@@ -740,12 +739,10 @@ fn get_widget<'a>(state: &'a IpgState, id: &usize) -> Option<Element<'a, Message
         Some(widget) => 
             match widget {      
                 IpgWidgets::IpgButton(btn) => {
-                    let style_opt = match btn.style_id {
-                        Some(id) => {
+                    let style_opt = 
+                        if let Some(id)  = btn.style_id {
                             state.widgets.get(&id)
-                        },
-                        None => None,
-                    };
+                        } else { None };
                     
                     construct_button(btn, style_opt)
                 },
@@ -759,41 +756,37 @@ fn get_widget<'a>(state: &'a IpgState, id: &usize) -> Option<Element<'a, Message
                 //     construct_card(crd, style_opt)
                 // },
                 IpgWidgets::IpgCheckBox(chk) => {
-                    let style_opt = match chk.style_id {
-                        Some(id) => {
+                    let style_opt = 
+                        if let Some(id)  = chk.style_id {
                             state.widgets.get(&id)
-                        },
-                        None => None,
-                    };
+                        } else { None };
+
                     construct_checkbox(chk, style_opt)
                 },
                 IpgWidgets::IpgColorPicker(cp) => {
-                    let style_opt = match cp.style_id {
-                        Some(id) => {
+                    let style_opt = 
+                        if let Some(id)  = cp.style_id {
                             state.widgets.get(&id)
-                        },
-                        None => None,
-                    };
+                        } else { None };
+
                     construct_color_picker(cp, style_opt)
                 },
-                // IpgWidgets::IpgDividerHorizontal(div) => {
-                //     let style_opt = match div.style_id {
-                //         Some(id) => {
-                //             state.widgets.get(&id)
-                //         },
-                //         None => None,
-                //     };
-                //     construct_divider_horizontal(div, style_opt)
-                // },
-                // IpgWidgets::IpgDividerVertical(div) => {
-                //     let style_opt = match div.style_id {
-                //         Some(id) => {
-                //             state.widgets.get(&id)
-                //         },
-                //         None => None,
-                //     };
-                //     construct_divider_vertical(div, style_opt)
-                // },
+                IpgWidgets::IpgDividerHorizontal(div) => {
+                    let style_opt = 
+                        if let Some(id)  = div.style_id {
+                            state.widgets.get(&id)
+                        } else { None };
+ 
+                    construct_divider_horizontal(div, style_opt)
+                },
+                IpgWidgets::IpgDividerVertical(div) => {
+                    let style_opt = 
+                        if let Some(id)  = div.style_id {
+                            state.widgets.get(&id)
+                        } else { None };
+                    
+                    construct_divider_vertical(div, style_opt)
+                },
                 // IpgWidgets::IpgImage(image) => {
                 //     construct_image(image)
                 // },
@@ -801,12 +794,11 @@ fn get_widget<'a>(state: &'a IpgState, id: &usize) -> Option<Element<'a, Message
                 //     Some(construct_menu(menu.clone(), state))
                 // },
                 IpgWidgets::IpgDatePicker(dp) => {
-                    let style_opt = match dp.button_style_id {
-                        Some(id) => {
+                    let style_opt = 
+                        if let Some(id)  = dp.button_style_id {
                             state.widgets.get(&id)
-                        },
-                        None => None,
-                    };
+                        } else { None };
+
                     construct_date_picker(dp, style_opt)
                 },
                 // IpgWidgets::IpgPickList(pick) => {
@@ -1168,6 +1160,8 @@ fn show_widget(state: &mut IpgState, ids: &[(usize, bool)]) {
             IpgWidgets::IpgCheckBox(cb) => cb.show= *value,
             IpgWidgets::IpgColorPicker(cp) => cp.show= *value,
             IpgWidgets::IpgDatePicker(dp) => dp.show= *value,
+            IpgWidgets::IpgDividerHorizontal(dh) => dh.show = *value,
+            IpgWidgets::IpgDividerVertical(dv) => dv.show = *value,
             // IpgWidgets::IpgImage(im) => im.show= *value,
             // IpgWidgets::IpgPickList(pl) => pl.show= *value,
             // IpgWidgets::IpgProgressBar(pb) => pb.show= *value,
@@ -1296,35 +1290,35 @@ fn match_widget(
         //         card_style_update(style, item, value);
         //     },
         IpgWidgets::IpgCheckBox(chk) => {
-                checkbox_param_update(chk, item, value);
+            checkbox_param_update(chk, item, value);
         },
         IpgWidgets::IpgCheckboxStyle(style) => {
-                checkbox_style_update(style, item, value);
+            checkbox_style_update(style, item, value);
         },
         IpgWidgets::IpgFont(font) => {
-                font_param_update(font, item, value);
+            font_param_update(font, item, value);
         },
-        // IpgWidgets::IpgColorPicker(cp) => {
-        //         button_param_update(cp, item, value);
-        // },
-        // IpgWidgets::IpgColorPickerStyle(style) => {
-        //         button_style_update_(style, item, value);
-        // },
+        IpgWidgets::IpgColorPicker(cp) => {
+            // color_picker_param_update(cp, item, value);
+        },
+        IpgWidgets::IpgColorPickerStyle(style) => {
+            button_style_update(style, item, value);
+        },
         IpgWidgets::IpgContainerStyle(style) => {
                 container_style_update_item(style, item, value);
             },
         IpgWidgets::IpgDatePicker(dp) => {
                 date_picker_item_update(dp, item, value);
         },
-        // IpgWidgets::IpgDividerHorizontal(div) => {
-        //         divider_horizontal_item_update(div, item, value);
-        //     },
-        // IpgWidgets::IpgDividerVertical(div) => {
-        //         divider_vertical_item_update(div, item, value);
-        //     },
-        // IpgWidgets::IpgDividerStyle(style) => {
-        //         divider_style_update_item(style, item, value);
-        //     }
+        IpgWidgets::IpgDividerHorizontal(div) => {
+            divider_horizontal_item_update(div, item, value);
+        },
+        IpgWidgets::IpgDividerVertical(div) => {
+            divider_vertical_item_update(div, item, value);
+        },
+        IpgWidgets::IpgDividerStyle(style) => {
+            divider_style_update_item(style, item, value);
+        },
         // IpgWidgets::IpgImage(img) => {
         //         image_item_update(img, item, value);
         //     },

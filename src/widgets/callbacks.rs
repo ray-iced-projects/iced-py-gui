@@ -88,15 +88,6 @@ pub fn set_or_get_widget_callback_data(state: &mut IpgState, wci: WidgetCallback
 
     if widget_opt.is_some() {
         match widget_opt.unwrap() {
-            IpgWidgets::IpgButton(_) => {
-                return WidgetCallbackOut::default();
-            },
-            IpgWidgets::IpgButtonStyle(_) => {
-                return WidgetCallbackOut::default();
-            },
-            IpgWidgets::IpgContainerStyle(_) => {
-                return WidgetCallbackOut::default();
-            },
             // IpgWidgets::IpgCard(crd) => {
             //     let is_open = match wci.value_bool {
             //         Some(open) => open,
@@ -134,44 +125,32 @@ pub fn set_or_get_widget_callback_data(state: &mut IpgState, wci: WidgetCallback
                 }
                 return WidgetCallbackOut::default();
             },
-            // IpgWidgets::IpgColorPickerStyle(_) => {
-            //     return WidgetCallbackOut::default();
-            // }
-            // IpgWidgets::IpgDividerHorizontal(div) => {
-            //     let mut wco = WidgetCallbackOut::default();
-            //     if wci.value_str == Some("on_change".to_string()) {
-            //         div.index_in_use = wci.value_usize.unwrap();
-            //         div.value_in_use = wci.value_f32.unwrap();
-            //         return wco;
-            //     }
-            //     if wci.value_str == Some("on_release".to_string()) {
-            //         wco.value_usize = Some(div.index_in_use);
-            //         wco.value_f32 = Some(div.value_in_use);
-            //         return wco
-            //     }
-            // },
-            // IpgWidgets::IpgDividerVertical(div) => {
-            //     let mut wco = WidgetCallbackOut::default();
-            //     if wci.value_str == Some("on_change".to_string()) {
-            //         div.index_in_use = wci.value_usize.unwrap();
-            //         div.value_in_use = wci.value_f32.unwrap();
-            //         return wco;
-            //     }
-            //     if wci.value_str == Some("on_release".to_string()) {  
-            //         wco.value_usize = Some(div.index_in_use);
-            //         wco.value_f32 = Some(div.value_in_use);
-            //         return wco
-            //     }
-            // },
-            // IpgWidgets::IpgDividerStyle(_) => {
-            //     return WidgetCallbackOut::default();
-            // },
-            // IpgWidgets::IpgColorPickerStyle(_) => {
-            //     return WidgetCallbackOut::default();
-            // },
-            // IpgWidgets::IpgContainerStyle(_) => {
-            //     return WidgetCallbackOut::default();
-            // },
+            IpgWidgets::IpgDividerHorizontal(div) => {
+                let mut wco = WidgetCallbackOut::default();
+                if wci.value_str == Some("on_change".to_string()) {
+                    div.index_in_use = wci.value_usize.unwrap();
+                    div.value_in_use = wci.value_f32.unwrap();
+                    return wco;
+                }
+                if wci.value_str == Some("on_release".to_string()) {
+                    wco.value_usize = Some(div.index_in_use);
+                    wco.value_f32 = Some(div.value_in_use);
+                    return wco
+                }
+            },
+            IpgWidgets::IpgDividerVertical(div) => {
+                let mut wco = WidgetCallbackOut::default();
+                if wci.value_str == Some("on_change".to_string()) {
+                    div.index_in_use = wci.value_usize.unwrap();
+                    div.value_in_use = wci.value_f32.unwrap();
+                    return wco;
+                }
+                if wci.value_str == Some("on_release".to_string()) {  
+                    wco.value_usize = Some(div.index_in_use);
+                    wco.value_f32 = Some(div.value_in_use);
+                    return wco
+                }
+            },
             IpgWidgets::IpgDatePicker(dp) => {
                 if wci.selected_day.is_some() {
                     dp.selected_day = wci.selected_day.unwrap();
@@ -223,49 +202,6 @@ pub fn set_or_get_widget_callback_data(state: &mut IpgState, wci: WidgetCallback
             IpgWidgets::IpgFont(_) => {
                 return WidgetCallbackOut::default();
             }
-            // IpgWidgets::IpgImage(_) => {
-            //     return WidgetCallbackOut::default();
-            // },
-            // IpgWidgets::IpgOpaqueStyle(_) => {
-            //     return WidgetCallbackOut::default();
-            // },
-            // IpgWidgets::IpgPickList(pl) => {
-            //     pl.selected = wci.value_str;
-            //     return WidgetCallbackOut::default();
-            // },
-            // IpgWidgets::IpgPickListStyle(_) => {
-            //     return WidgetCallbackOut::default();
-            // },
-            // IpgWidgets::IpgProgressBar(_) => {
-            //     return WidgetCallbackOut::default()
-            // },
-            // IpgWidgets::IpgProgressBarStyle(_) => {
-            //     return WidgetCallbackOut::default();
-            // },
-            // IpgWidgets::IpgRadio(_) => {
-            //     return WidgetCallbackOut::default()
-            // },
-            // IpgWidgets::IpgRadioStyle(_) => {
-            //     return WidgetCallbackOut::default();
-            // },
-            // IpgWidgets::IpgRule(_) => {
-            //     return WidgetCallbackOut::default()
-            // },
-            // IpgWidgets::IpgRuleStyle(_) => {
-            //     return WidgetCallbackOut::default();
-            // },
-            // IpgWidgets::IpgScrollableStyle(_) => {
-            //     return WidgetCallbackOut::default();
-            // },
-            // IpgWidgets::IpgSelectableText(_) => {
-            //     return WidgetCallbackOut::default();
-            // },
-            // IpgWidgets::IpgSeparator(_) => {
-            //     return WidgetCallbackOut::default();
-            // },
-            // IpgWidgets::IpgSeparatorStyle(_) => {
-            //     return WidgetCallbackOut::default();
-            // },
             // IpgWidgets::IpgSlider(slider) => {
             //     if wci.value_f64.is_some() {
             //         slider.value = match wci.value_f64 {
@@ -278,21 +214,6 @@ pub fn set_or_get_widget_callback_data(state: &mut IpgState, wci: WidgetCallback
             //         ..Default::default()
             //     }
             // },
-            // IpgWidgets::IpgSliderStyle(_) => {
-            //     return WidgetCallbackOut::default();
-            // },
-            // IpgWidgets::IpgSpace(_) => {
-            //     return WidgetCallbackOut::default();
-            // },
-            // IpgWidgets::IpgSvg(_) => {
-            //     return WidgetCallbackOut::default();
-            // },
-            // IpgWidgets::IpgTableStyle(_) => {
-            //     return WidgetCallbackOut::default();
-            // },
-            IpgWidgets::IpgText(_) => {
-                return WidgetCallbackOut::default()
-            },
             // // IpgWidgets::IpgRichText(_) => {
             // //     return WidgetCallbackOut::default()
             // // },
@@ -302,9 +223,6 @@ pub fn set_or_get_widget_callback_data(state: &mut IpgState, wci: WidgetCallback
             //         value_str: Some(ti.value.clone()),
             //         ..Default::default()
             //     }
-            // },
-            // IpgWidgets::IpgTextInputStyle(_) => {
-            //     return WidgetCallbackOut::default();
             // },
             // IpgWidgets::IpgTimer(tim) => {
             //     tim.counter += 1;
@@ -320,9 +238,6 @@ pub fn set_or_get_widget_callback_data(state: &mut IpgState, wci: WidgetCallback
             //         ..Default::default()
             //     }
             // },
-            // IpgWidgets::IpgTimerStyle(_) => {
-            //     return WidgetCallbackOut::default();
-            // },
             // IpgWidgets::IpgCanvasTimer(ctim) => {
             //     ctim.counter += 1;
             //     // value_str is set when a tick occurs
@@ -337,25 +252,13 @@ pub fn set_or_get_widget_callback_data(state: &mut IpgState, wci: WidgetCallback
             //         ..Default::default()
             //     }
             // },
-            // IpgWidgets::IpgCanvasTimerStyle(_) => {
-            //     return WidgetCallbackOut::default();
-            // },
             // IpgWidgets::IpgToggler(tog) => {
             //     if let Some(tg) = wci.on_toggle { tog.is_toggled = tg }
             //     return WidgetCallbackOut::default();
             // },
-            // IpgWidgets::IpgTogglerStyle(_) => {
-            //     return WidgetCallbackOut::default();
-            // },
-            // IpgWidgets::IpgToolTipStyle(_) => {
-            //     return WidgetCallbackOut::default();
-            // },
-            // IpgWidgets::IpgMenuStyle(_) => {
-            //     return WidgetCallbackOut::default();
-            // },
-            // IpgWidgets::IpgMenuBarStyle(_) => {
-            //     return WidgetCallbackOut::default();
-            // },
+            _ => {
+                return WidgetCallbackOut::default();
+            },
             
             }
     } else {

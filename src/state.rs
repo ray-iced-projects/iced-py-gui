@@ -16,6 +16,8 @@ use crate::widgets::ipg_color_picker::{IpgColorPicker};
 use crate::widgets::ipg_column::IpgColumn;
 use crate::widgets::ipg_container::{IpgContainer, IpgContainerStyle};
 use crate::widgets::ipg_date_picker::IpgDatePicker;
+use crate::widgets::ipg_divider::{IpgDividerHorizontal, IpgDividerVertical, 
+    IpgDividerStyle};
 use crate::widgets::ipg_events::IpgEvents;
 use crate::widgets::ipg_font::IpgFont;
 use crate::widgets::ipg_row::IpgRow;
@@ -44,11 +46,15 @@ pub enum IpgWidgets {
     IpgButtonStyle(IpgButtonStyle),
     IpgCheckBox(IpgCheckBox),
     IpgColorPicker(IpgColorPicker),
+    IpgColorPickerStyle(IpgButtonStyle),
     IpgDatePicker(IpgDatePicker),
+    IpgDividerHorizontal(IpgDividerHorizontal),
+    IpgDividerVertical(IpgDividerVertical),
     IpgText(IpgText),
 
     IpgCheckboxStyle(IpgCheckboxStyle),
     IpgContainerStyle(IpgContainerStyle),
+    IpgDividerStyle(IpgDividerStyle),
     IpgFont(IpgFont),
 }
 

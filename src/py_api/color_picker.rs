@@ -6,8 +6,9 @@ type PyObject = Py<PyAny>;
 use crate::py_api::helpers::{get_height, get_width};
 use crate::{add_callback_to_mutex, add_user_data_to_mutex};
 use crate::state::{IpgWidgets, access_state, get_id, set_state_of_widget};
-use crate::widgets::ipg_button::{IpgButtonArrow, IpgButtonStyleStandard};
+use crate::widgets::ipg_button::{IpgButtonStyleStandard};
 use crate::widgets::ipg_color_picker::{IpgColorPicker};
+use crate::graphics::bootstrap_arrow::IpgArrow;
 
 
 /// Add a color_picker widget.
@@ -51,7 +52,7 @@ pub fn add_color_picker(
     clip: Option<bool>,
     style_id: Option<usize>,
     style_standard: Option<IpgButtonStyleStandard>,
-    style_arrow: Option<IpgButtonArrow>,
+    style_arrow: Option<IpgArrow>,
     user_data: Option<PyObject>,
     show: bool,
     ) -> PyResult<usize> 

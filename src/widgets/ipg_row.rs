@@ -137,7 +137,7 @@ impl WidgetParamUpdate for IpgRow {
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
         match param {
-            IpgRowParam::Align      => set_align(&mut self.align_y, value),
+            IpgRowParam::Align      => set_align(&mut self.align_y, value, name),
             IpgRowParam::Clip       => set_opt_bool(&mut self.clip, value, name),
             IpgRowParam::Padding    => set_opt_vec_f32(&mut self.padding, value, name),
             IpgRowParam::Width      => set_width(&mut self.width, value, name),

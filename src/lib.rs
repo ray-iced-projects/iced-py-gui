@@ -22,31 +22,32 @@ pub use state::{
 };
 
 // Import pyfunctions from py_api modules
-use py_api::window::add_window;
-use py_api::button::{add_button, add_button_style};
-use py_api::checkbox::{add_checkbox, add_checkbox_style};
-use py_api::color_picker::add_color_picker;
-use py_api::column::add_column;
-use py_api::container::{add_container, add_container_style};
-use py_api::date_picker::add_date_picker;
-use py_api::divider::{add_divider_horizontal, add_divider_vertical,
-    add_divider_style};
-use py_api::font::add_font;
-use py_api::image::add_image;
-use py_api::mousearea::add_mouse_area;
-use py_api::opaque::{add_opaque_container, add_opaque_style};
-use py_api::row::add_row;
-use py_api::text::add_text;
-use py_api::session::{start_session, generate_id};
-use py_api::update::update_widget;
+use crate::py_api::window::add_window;
+use crate::py_api::button::{add_button, add_button_style};
+use crate::py_api::checkbox::{add_checkbox, add_checkbox_style};
+use crate::py_api::color_picker::add_color_picker;
+use crate::py_api::column::add_column;
+use crate::py_api::container::{add_container, add_container_style};
+use crate::py_api::date_picker::add_date_picker;
+use crate::py_api::divider::{add_divider_horizontal, 
+    add_divider_vertical, add_divider_style};
+use crate::py_api::font::add_font;
+use crate::py_api::image::add_image;
+use crate::py_api::mousearea::add_mouse_area;
+use crate::py_api::opaque::{add_opaque_container, add_opaque_style};
+use crate::py_api::row::add_row;
+use crate::py_api::picklist::{add_pick_list, add_pick_list_style};
+use crate::py_api::text::add_text;
+use crate::py_api::space::add_space;
+use crate::py_api::session::{start_session, generate_id};
+use crate::py_api::update::update_widget;
 
 // Import enums from widgets module
 use widgets::enums::{IpgAlignment, IpgHorizontalAlignment, IpgVerticalAlignment};
 use widgets::ipg_window::{IpgWindowLevel, IpgWindowMode, IpgWindowTheme};
-use widgets::ipg_button::IpgButtonArrow;
 use widgets::styling::IpgStyleStandard;
 
-use crate::graphics::bootstrap_icon::IpgIcon;
+use crate::graphics::{bootstrap_icon::IpgIcon, bootstrap_arrow::IpgArrow};
 use crate::graphics::colors::IpgColor;
 use crate::widgets::ipg_button::{IpgButtonParam, IpgButtonStyleParam, IpgButtonStyleStandard};
 use crate::widgets::ipg_checkbox::{IpgCheckboxParam, IpgCheckboxStyleParam};
@@ -54,6 +55,7 @@ use crate::widgets::ipg_column::IpgColumnParam;
 use crate::widgets::ipg_container::IpgContainerStyleParam;
 use crate::widgets::ipg_date_picker::IpgDatePickerParam;
 use crate::widgets::ipg_divider::{IpgDividerParam, IpgDividerStyleParam};
+use crate::widgets::ipg_pick_list::IpgPickListHandle;
 use crate::widgets::ipg_text::IpgTextParam;
 
 /// Python module definition
@@ -77,7 +79,9 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(add_font, m)?)?;
     m.add_function(wrap_pyfunction!(add_mouse_area, m)?)?;
     m.add_function(wrap_pyfunction!(add_opaque_container, m)?)?;
+    m.add_function(wrap_pyfunction!(add_pick_list, m)?)?;
     m.add_function(wrap_pyfunction!(add_row, m)?)?;
+    m.add_function(wrap_pyfunction!(add_space, m)?)?;
     m.add_function(wrap_pyfunction!(add_text, m)?)?;
     m.add_function(wrap_pyfunction!(update_widget, m)?)?;
     
@@ -87,6 +91,7 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(add_container_style, m)?)?;
     m.add_function(wrap_pyfunction!(add_divider_style, m)?)?;
      m.add_function(wrap_pyfunction!(add_opaque_style, m)?)?;
+     m.add_function(wrap_pyfunction!(add_pick_list_style, m)?)?;
 
     // style parameters
     m.add_class::<IpgButtonStyleParam>()?;
@@ -97,7 +102,7 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<IpgStyleStandard>()?;
 
     // widget params
-    m.add_class::<IpgButtonArrow>()?;
+    m.add_class::<IpgArrow>()?;
     m.add_class::<IpgButtonParam>()?;
     m.add_class::<IpgCheckboxParam>()?;
     m.add_class::<IpgColumnParam>()?;
@@ -112,6 +117,7 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<IpgAlignment>()?;
     m.add_class::<IpgColor>()?;
     m.add_class::<IpgIcon>()?;
+    m.add_class::<IpgPickListHandle>()?;
     m.add_class::<IpgHorizontalAlignment>()?;
     m.add_class::<IpgVerticalAlignment>()?;
 

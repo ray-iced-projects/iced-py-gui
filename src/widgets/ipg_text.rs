@@ -12,10 +12,10 @@ use crate::app::Message;
 use crate::widgets::enums::{IpgHorizontalAlignment, 
     IpgShaping, IpgVerticalAlignment, h_v_centered};
 use crate::widgets::widget_param_update::{
-    WidgetParamUpdate,
-    set_bool, set_opt_f32, set_opt_string, set_string,
-    set_width, set_width_fill, set_height, set_height_fill,
-    set_halign, set_valign,
+    WidgetParamUpdate, set_bool, set_halign, set_height, 
+    set_height_fill, set_opt_f32, set_opt_string, 
+    set_opt_text_shaping, set_string, set_valign, 
+    set_width, set_width_fill
 };
 
 
@@ -132,12 +132,10 @@ impl WidgetParamUpdate for IpgText {
             IpgTextParam::Font       => set_opt_string(&mut self.font, value, name),
             IpgTextParam::Height     => set_height(&mut self.height, value, name),
             IpgTextParam::HeightFill => set_height_fill(&mut self.height, value, name),
-            IpgTextParam::AlignX     => set_halign(&mut self.align_x, value),
-            IpgTextParam::AlignY     => set_valign(&mut self.align_y, value),
+            IpgTextParam::AlignX     => set_halign(&mut self.align_x, value, name),
+            IpgTextParam::AlignY     => set_valign(&mut self.align_y, value, name),
             IpgTextParam::LineHeight => set_opt_f32(&mut self.line_height, value, name),
-            IpgTextParam::Shaping    => {
-                self.shaping = IpgShaping::extract(value);
-            }
+            IpgTextParam::Shaping    => set_opt_text_shaping(&mut self.shaping, value, name),
             IpgTextParam::Show       => set_bool(&mut self.show, value, name),
             IpgTextParam::Size       => set_opt_f32(&mut self.size, value, name),
             IpgTextParam::TextColor  => {

@@ -6,12 +6,10 @@ use pyo3::{Py, PyAny, Python};
 
 use crate::graphics::colors::IpgColor;
 use crate::py_api::helpers::{
-    get_height, get_width, try_extract_array_2, try_extract_boolean,
-    try_extract_f32, try_extract_string, try_extract_usize,
-    try_extract_vec_f32, try_extract_style_standard,
+    get_height, get_width, try_extract_array_2, try_extract_boolean, try_extract_f32, try_extract_string, try_extract_style_standard, try_extract_usize, try_extract_vec_f32, try_extract_vec_str
 };
 use crate::state::{IpgContainers, IpgWidgets};
-use crate::widgets::enums::{IpgAlignment, IpgHorizontalAlignment, IpgVerticalAlignment};
+use crate::widgets::enums::{IpgAlignment, IpgHorizontalAlignment, IpgShaping, IpgVerticalAlignment};
 
 type PyObject = Py<PyAny>;
 
@@ -49,6 +47,8 @@ pub fn param_update(
         IpgWidgets::IpgDividerStyle(w) => apply_update(w, item, value, name),
         IpgWidgets::IpgImage(w) => apply_update(w, item, value, name),
         IpgWidgets::IpgFont(w) => apply_update(w, item, value, name),
+        IpgWidgets::IpgPickList(w) => apply_update(w, item, value, name),
+        IpgWidgets::IpgPickListStyle(w) => apply_update(w, item, value, name),
         IpgWidgets::IpgText(w) => apply_update(w, item, value, name),
         _ => (),
     }
@@ -111,22 +111,6 @@ pub fn set_opt_bool(field: &mut Option<bool>, value: &PyObject, name: String) {
     *field = Some(try_extract_boolean(value, name));
 }
 
-pub fn set_opt_f32(field: &mut Option<f32>, value: &PyObject, name: String) {
-    *field = Some(try_extract_f32(value, name));
-}
-
-pub fn set_opt_string(field: &mut Option<String>, value: &PyObject, name: String) {
-    *field = Some(try_extract_string(value, name));
-}
-
-pub fn set_opt_vec_f32(field: &mut Option<Vec<f32>>, value: &PyObject, name: String) {
-    *field = Some(try_extract_vec_f32(value, name));
-}
-
-pub fn set_opt_usize(field: &mut Option<usize>, value: &PyObject, name: String) {
-    *field = Some(try_extract_usize(value, name));
-}
-
 pub fn set_width(field: &mut Length, value: &PyObject, name: String) {
     let val = try_extract_f32(value, name);
     *field = get_width(Some(val), false);
@@ -160,24 +144,35 @@ pub fn set_f32(field: &mut f32, value: &PyObject, name: String) {
     *field = try_extract_f32(value, name);
 }
 
-pub fn set_f32_opt(field: &mut Option<f32>, value: &PyObject, name: String) {
+pub fn set_opt_f32(field: &mut Option<f32>, value: &PyObject, name: String) {
     *field = Some(try_extract_f32(value, name));
 }
 
-pub fn set_string(field: &mut String, value: &PyObject, name: String) {
-    *field = try_extract_string(value, name);
+pub fn set_opt_vec_f32(field: &mut Option<Vec<f32>>, value: &PyObject, name: String) {
+    *field = Some(try_extract_vec_f32(value, name));
 }
 
 pub fn set_vec_f32(field: &mut Vec<f32>, value: &PyObject, name: String) {
     *field = try_extract_vec_f32(value, name);
 }
 
-pub fn set_vec_f32_opt(field: &mut Option<Vec<f32>>, value: &PyObject, name: String) {
-    *field = Some(try_extract_vec_f32(value, name));
+pub fn set_opt_usize(field: &mut Option<usize>, value: &PyObject, name: String) {
+    *field = Some(try_extract_usize(value, name));
 }
 
 pub fn set_opt_array_2(field: &mut Option<[f32; 2]>, value: &PyObject, name: String) {
     *field = Some(try_extract_array_2(value, name));
+}
+pub fn set_string(field: &mut String, value: &PyObject, name: String) {
+    *field = try_extract_string(value, name);
+}
+
+pub fn set_opt_string(field: &mut Option<String>, value: &PyObject, name: String) {
+    *field = Some(try_extract_string(value, name));
+}
+
+pub fn set_vec_string(field: &mut Vec<String>, value: &PyObject, name: String) {
+    *field = try_extract_vec_str(value, name);
 }
 
 pub fn set_rgba_color_via_ipg(field: &mut Option<Color>, value: &PyObject, name: String) {
@@ -185,14 +180,18 @@ pub fn set_rgba_color_via_ipg(field: &mut Option<Color>, value: &PyObject, name:
     *field = IpgColor::rgba_ipg_color_to_iced(Some(rgba), None, 1.0, false);
 }
 
-pub fn set_halign(field: &mut Option<IpgHorizontalAlignment>, value: &PyObject) {
+pub fn set_halign(field: &mut Option<IpgHorizontalAlignment>, value: &PyObject, name:String) {
     *field = IpgHorizontalAlignment::extract(value);
 }
 
-pub fn set_valign(field: &mut Option<IpgVerticalAlignment>, value: &PyObject) {
+pub fn set_valign(field: &mut Option<IpgVerticalAlignment>, value: &PyObject, name: String) {
     *field = IpgVerticalAlignment::extract(value);
 }
 
-pub fn set_align(field: &mut Option<IpgAlignment>, value: &PyObject) {
+pub fn set_align(field: &mut Option<IpgAlignment>, value: &PyObject, name: String) {
     *field = IpgAlignment::extract(value);
+}
+
+pub fn set_opt_text_shaping(field: &mut Option<IpgShaping>, value: &PyObject, name: String) {
+    *field = IpgShaping::extract(value)
 }

@@ -14,8 +14,10 @@ pub mod font;
 pub mod image;
 pub mod mousearea;
 pub mod opaque;
+pub mod picklist;
 pub mod row;
 pub mod session;
+pub mod space;
 pub mod text;
 
 pub mod helpers;

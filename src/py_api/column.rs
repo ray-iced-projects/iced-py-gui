@@ -13,7 +13,6 @@ use crate::widgets::ipg_column::IpgColumn;
 /// Add a column widget.
 ///
 /// Returns the widget ID.
-
 #[pyfunction]
 #[pyo3(signature = (
         window_id, 

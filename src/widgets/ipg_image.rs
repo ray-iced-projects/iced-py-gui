@@ -6,12 +6,10 @@ use crate::access_user_data1;
 use crate::app;
 use crate::access_callbacks;
 use crate::py_api::helpers::get_padding;
-use crate::widgets::widget_param_update::set_f32_opt;
-use crate::widgets::widget_param_update::set_string;
 use crate::widgets::widget_param_update::{
     WidgetParamUpdate, 
     set_bool, set_width, set_width_fill, set_height, 
-    set_height_fill, set_vec_f32_opt,
+    set_height_fill, set_opt_vec_f32, set_opt_f32, set_string
 };
 use super::ipg_mousearea::IpgMousePointer;
 
@@ -364,10 +362,10 @@ impl WidgetParamUpdate for IpgImage {
             IpgImageParam::HeightFill => set_height_fill(&mut self.height, value, name),
             IpgImageParam::ImagePath => set_string(&mut self.image_path, value, name),
             IpgImageParam::MousePointer => self.mouse_pointer = IpgMousePointer::extract(value),
-            IpgImageParam::Opacity => set_f32_opt(&mut self.opacity, value, name),
-            IpgImageParam::Padding => set_vec_f32_opt(&mut self.padding, value, name),
+            IpgImageParam::Opacity => set_opt_f32(&mut self.opacity, value, name),
+            IpgImageParam::Padding => set_opt_vec_f32(&mut self.padding, value, name),
             IpgImageParam::RotationMethod => self.rotation_method = IpgImageRotation::extract(value),
-            IpgImageParam::RotationRadians => set_f32_opt(&mut self.rotation_radians, value, name),
+            IpgImageParam::RotationRadians => set_opt_f32(&mut self.rotation_radians, value, name),
             IpgImageParam::Show => set_bool(&mut self.show, value, name),
             IpgImageParam::Width => set_width(&mut self.width, value, name),
             IpgImageParam::WidthFill => set_width_fill(&mut self.width, value, name),

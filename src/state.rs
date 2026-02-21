@@ -23,7 +23,9 @@ use crate::widgets::ipg_font::IpgFont;
 use crate::widgets::ipg_image::IpgImage;
 use crate::widgets::ipg_mousearea::IpgMouseArea;
 use crate::widgets::ipg_opaque::{IpgOpaque, IpgOpaqueStyle};
+use crate::widgets::ipg_pick_list::{IpgPickList, IpgPickListStyle};
 use crate::widgets::ipg_row::IpgRow;
+use crate::widgets::ipg_space::IpgSpace;
 use crate::widgets::ipg_text::IpgText;
 use crate::widgets::ipg_window::IpgWindow;
 use crate::widgets::ipg_button::{IpgButton, IpgButtonStyle};
@@ -73,8 +75,8 @@ pub enum IpgWidgets {
     // IpgMenuStyle(IpgMenuStyle),
     // IpgMenuBarStyle(IpgMenuBarStyle),
     IpgOpaqueStyle(IpgOpaqueStyle),
-    // IpgPickList(IpgPickList),
-    // IpgPickListStyle(IpgPickListStyle),
+    IpgPickList(IpgPickList),
+    IpgPickListStyle(IpgPickListStyle),
     // IpgProgressBar(IpgProgressBar),
     // IpgProgressBarStyle(IpgProgressBarStyle),
     // IpgRadio(IpgRadio),
@@ -87,7 +89,7 @@ pub enum IpgWidgets {
     // IpgSeparatorStyle(IpgSeparatorStyle),
     // IpgSlider(IpgSlider),
     // IpgSliderStyle(IpgSliderStyle),
-    // IpgSpace(IpgSpace),
+    IpgSpace(IpgSpace),
     // IpgSvg(IpgSvg),
     // IpgTableStyle(IpgTableStyle),
     IpgText(IpgText),

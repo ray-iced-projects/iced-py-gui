@@ -14,28 +14,28 @@ def picked_item_with_user_data(pl_id: int, data: str, user_data: any):
 # Add window must be the first widget. Other windows can be added
 # at anytime.
 add_window(
-        window_id="main", 
-        title="Pick List Demo",
+    window_id="main", 
+    title="Pick List Demo",
     size=(700, 400),
-        pos_centered=True)
+    center=True)
 
 # all widgets need to be added to a container, so a container
 # is the second widget needed.
 add_column(
         window_id="main", 
         container_id="col",
-        align=IpgAlignment.Start, 
+        align_x=IpgAlignment.Start, 
         width_fill=True)
 
 add_space(
-        parent_id="col", 
-        height=50.0)
+    parent_id="col", 
+    height=50.0)
 
 # add a row for picklist and a button to change option
 add_row(
-        window_id="main", 
-        container_id="row1", 
-        parent_id="col")
+    window_id="main", 
+    container_id="row1", 
+    parent_id="col")
 
 # A PickList requires that the options you want to select be in a list.
 # The list cannot be of mixed types, all will be converted to strings

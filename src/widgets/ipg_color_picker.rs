@@ -1,10 +1,10 @@
 //! ipg_color_picker
+use crate::graphics::bootstrap_arrow::IpgArrow;
 use crate::state::IpgWidgets;
 use crate::widgets::ipg_button::{IpgButtonStyleStandard, extract_btn_style, get_styling};
 use crate::{access_callbacks, access_user_data1, IpgState};
 use crate::app::Message;
 use crate::py_api::helpers::get_padding;
-use super::ipg_button::{IpgButtonArrow};
 use super::callbacks::{set_or_get_widget_callback_data, WidgetCallbackIn};
 
 use iced::widget::{text, Button};
@@ -28,7 +28,7 @@ pub struct IpgColorPicker {
     pub clip: Option<bool>,
     pub style_id: Option<usize>,
     pub style_standard: Option<IpgButtonStyleStandard>,
-    pub style_arrow: Option<IpgButtonArrow>,
+    pub style_arrow: Option<IpgArrow>,
 }
 
 // #[derive(Debug, Clone, Default)]

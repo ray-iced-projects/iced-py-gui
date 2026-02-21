@@ -1,5 +1,6 @@
 //! A module fitting `iced_graphics`.
 #![allow(dead_code)]
+pub mod bootstrap_arrow;
 pub mod bootstrap_icon;
 pub mod bootstrap;
 pub mod colors;

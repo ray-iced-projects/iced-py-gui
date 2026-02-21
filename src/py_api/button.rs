@@ -6,13 +6,13 @@ use pyo3::{Py, PyAny, pyfunction};
 type PyObject = Py<PyAny>;
 
 use crate::add_user_data_to_mutex;
-use crate::graphics::colors::IpgColor;
+use crate::graphics::{colors::IpgColor, bootstrap_arrow::IpgArrow};
 use crate::py_api::helpers::{get_height, get_width};
 use crate::state::{IpgWidgets, access_state, add_callback_to_mutex, 
     get_id, set_state_of_widget};
 use crate::widgets::enums::{IpgHorizontalAlignment, 
     IpgVerticalAlignment};
-use crate::widgets::ipg_button::{IpgButton, IpgButtonArrow, 
+use crate::widgets::ipg_button::{IpgButton,  
     IpgButtonStyle, IpgButtonStyleStandard};
 
 
@@ -56,7 +56,7 @@ pub fn add_button(
     clip: Option<bool>,
     style_id: Option<usize>,
     style_standard: Option<IpgButtonStyleStandard>,
-    style_arrow: Option<IpgButtonArrow>,
+    style_arrow: Option<IpgArrow>,
     user_data: Option<PyObject>,
     show: bool,
 ) -> PyResult<usize> {

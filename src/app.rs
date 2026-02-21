@@ -21,7 +21,9 @@ use crate::widgets::ipg_events::process_window_event;
 use crate::widgets::ipg_image::{ImageMessage, construct_image, image_callback};
 use crate::widgets::ipg_mousearea::{construct_mousearea, mousearea_callback, mousearea_callback_point};
 use crate::widgets::ipg_opaque::{construct_opaque, opaque_callback};
+use crate::widgets::ipg_pick_list::{PLMessage, construct_picklist, pick_list_callback};
 use crate::widgets::ipg_row::construct_row;
+use crate::widgets::ipg_space::construct_space;
 use crate::widgets::ipg_text::construct_text;
 use crate::widgets::ipg_window::{IpgWindow, IpgWindowLevel, IpgWindowMode, add_windows, construct_window};
 use crate::widgets::widget_param_update::{param_update, container_param_update};
@@ -42,7 +44,7 @@ pub enum Message {
 //     EventTouch(Event),
     Image(usize, ImageMessage),
 //     // Modal(usize, ModalMessage),
-//     PickList(usize, PLMessage),
+    PickList(usize, PLMessage),
 //     Radio(usize, RDMessage),
 //     Scrolled(scrollable::Viewport, usize),
 //     SelectableText(usize, SLTXTMessage),
@@ -260,11 +262,12 @@ impl App {
                 process_updates(&mut self.state);
                 Task::none()
             },
-            // Message::PickList(id, message) => {
-            //     pick_list_callback(&mut self.state, id, message);
-            //     process_updates(&mut self.state, &mut self.canvas_state);
-            //     Task::none()
-            // },
+            Message::PickList(id, message) => {
+                pick_list_callback(&mut self.state, id, message);
+                // process_updates(&mut self.state, &mut self.canvas_state);
+                process_updates(&mut self.state);
+                Task::none()
+            },
             // Message::Radio(id, message) => {
             //     radio_callback(&mut self.state, id, message);
             //     process_updates(&mut self.state, &mut self.canvas_state);
@@ -815,15 +818,14 @@ fn get_widget<'a>(state: &'a IpgState, id: &usize) -> Option<Element<'a, Message
 
                     construct_date_picker(dp, style_opt)
                 },
-                // IpgWidgets::IpgPickList(pick) => {
-                //     let style_opt = match pick.style_id {
-                //         Some(id) => {
-                //             state.widgets.get(&id)
-                //         },
-                //         None => None,
-                //     };
-                //     construct_picklist(pick, style_opt)
-                // },
+                IpgWidgets::IpgPickList(pick) => {
+                    let style_opt = 
+                        if let Some(id) = pick.style_id {
+                            state.widgets.get(&id)
+                        } else { None };
+                    
+                    construct_picklist(pick, style_opt)
+                },
                 // IpgWidgets::IpgProgressBar(bar) => {
                 //     let style_opt = match bar.style_id {
                 //         Some(id) => {
@@ -872,9 +874,9 @@ fn get_widget<'a>(state: &'a IpgState, id: &usize) -> Option<Element<'a, Message
                 //     };
                 //     construct_slider(slider, style_opt)
                 // },
-                // IpgWidgets::IpgSpace(sp) => {
-                //     construct_space(sp)
-                // },
+                IpgWidgets::IpgSpace(sp) => {
+                    construct_space(sp)
+                },
                 // IpgWidgets::IpgSvg(svg) => {
                 //     construct_svg(svg)
                 // },

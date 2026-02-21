@@ -2,7 +2,7 @@
 authors = ["Charles Ray <ray-iced-projects@gmail.com>"]
 name = "iced-py-gui"
 version = "0.4.0"
-edition = "2021"
+edition = "2024"
 license = "GNU"
 description = "Python wrapper for Rust Iced"
 readme = "README.md"

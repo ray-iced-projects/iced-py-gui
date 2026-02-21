@@ -138,7 +138,7 @@ impl WidgetParamUpdate for IpgColumn {
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
         match param {
-            IpgColumnParam::AlignX     => set_align(&mut self.align_x, value),
+            IpgColumnParam::AlignX     => set_align(&mut self.align_x, value, name),
             IpgColumnParam::Clip       => set_opt_bool(&mut self.clip, value, name),
             IpgColumnParam::Padding    => set_opt_vec_f32(&mut self.padding, value, name),
             IpgColumnParam::Width      => set_width(&mut self.width, value, name),

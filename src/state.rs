@@ -20,6 +20,8 @@ use crate::widgets::ipg_divider::{IpgDividerHorizontal, IpgDividerVertical,
     IpgDividerStyle};
 use crate::widgets::ipg_events::IpgEvents;
 use crate::widgets::ipg_font::IpgFont;
+use crate::widgets::ipg_image::IpgImage;
+use crate::widgets::ipg_mousearea::IpgMouseArea;
 use crate::widgets::ipg_row::IpgRow;
 use crate::widgets::ipg_text::IpgText;
 use crate::widgets::ipg_window::IpgWindow;
@@ -34,28 +36,71 @@ type PyObject = Py<PyAny>;
 
 #[derive(Debug, Clone)]
 pub enum IpgContainers {
-    IpgWindow(IpgWindow),
+    // IpgCanvas(IpgCanvas),
     IpgColumn(IpgColumn),
     IpgContainer(IpgContainer),
+    // IpgMenu(IpgMenu),
+    // IpgModal(IpgModal),
+    IpgMouseArea(IpgMouseArea),
+    // IpgOpaque(IpgOpaque),
+    // IpgStack(IpgStack),
+    // IpgTable(IpgTable),
+    // IpgPaneGrid(IpgPaneGrid),
+    // IpgPane(IpgPane),
     IpgRow(IpgRow),
+    // IpgScrollable(IpgScrollable),
+    // IpgToolTip(IpgToolTip),
+    IpgWindow(IpgWindow),
 }
 
 #[derive(Debug, Clone)]
 pub enum IpgWidgets {
     IpgButton(IpgButton),
     IpgButtonStyle(IpgButtonStyle),
+    // IpgCard(IpgCard),
+    // IpgCardStyle(IpgCardStyle),
     IpgCheckBox(IpgCheckBox),
+    IpgCheckboxStyle(IpgCheckboxStyle),
     IpgColorPicker(IpgColorPicker),
-    IpgColorPickerStyle(IpgButtonStyle),
-    IpgDatePicker(IpgDatePicker),
+    IpgContainerStyle(IpgContainerStyle),
     IpgDividerHorizontal(IpgDividerHorizontal),
     IpgDividerVertical(IpgDividerVertical),
-    IpgText(IpgText),
-
-    IpgCheckboxStyle(IpgCheckboxStyle),
-    IpgContainerStyle(IpgContainerStyle),
     IpgDividerStyle(IpgDividerStyle),
+    IpgDatePicker(IpgDatePicker),
     IpgFont(IpgFont),
+    IpgImage(IpgImage),
+    // IpgMenuStyle(IpgMenuStyle),
+    // IpgMenuBarStyle(IpgMenuBarStyle),
+    // IpgOpaqueStyle(IpgOpaqueStyle),
+    // IpgPickList(IpgPickList),
+    // IpgPickListStyle(IpgPickListStyle),
+    // IpgProgressBar(IpgProgressBar),
+    // IpgProgressBarStyle(IpgProgressBarStyle),
+    // IpgRadio(IpgRadio),
+    // IpgRadioStyle(IpgRadioStyle),
+    // IpgRule(IpgRule),
+    // IpgRuleStyle(IpgRuleStyle),
+    // IpgScrollableStyle(IpgScrollableStyle),
+    // IpgSelectableText(IpgSelectableText),
+    // IpgSeparator(IpgSeparator),
+    // IpgSeparatorStyle(IpgSeparatorStyle),
+    // IpgSlider(IpgSlider),
+    // IpgSliderStyle(IpgSliderStyle),
+    // IpgSpace(IpgSpace),
+    // IpgSvg(IpgSvg),
+    // IpgTableStyle(IpgTableStyle),
+    IpgText(IpgText),
+    // IpgRichText(IpgRichText),
+    // IpgTextEditor(IpgTextEditor),
+    // IpgTextInput(IpgTextInput),
+    // IpgTextInputStyle(IpgTextInputStyle),
+    // IpgTimer(IpgTimer),
+    // IpgTimerStyle(IpgTimerStyle),
+    // IpgCanvasTimer(IpgCanvasTimer),
+    // IpgCanvasTimerStyle(IpgCanvasTimerStyle),
+    // IpgToggler(IpgToggler),
+    // IpgTogglerStyle(IpgTogglerStyle),
+    // IpgToolTipStyle(IpgToolTipStyle),
 }
 
 // ============================================================================

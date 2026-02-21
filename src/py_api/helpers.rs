@@ -173,7 +173,7 @@ pub fn try_extract_f32(value: &PyObject, name: String) -> f32 {
 }
 
 
-pub fn try_extract_i32_option(value: &PyObject) -> Option<i32> {
+pub fn try_extract_i32_opt(value: &PyObject) -> Option<i32> {
     Python::attach(|py| {
         let res = value.extract::<i32>(py);
         match res {
@@ -219,6 +219,16 @@ pub fn try_extract_vec_f32(value: &PyObject, name: String) -> Vec<f32> {
         match res {
             Ok(val) => val,
             Err(_) => panic!("{}-Unable to extract python list[float]", name),
+        }
+    })  
+}
+
+pub fn try_extract_vec_f32_opt(value: &PyObject, name: String) -> Option<Vec<f32>> {
+    Python::attach(|py| {
+        let res = value.extract::<Vec<f32>>(py);
+        match res {
+            Ok(val) => Some(val),
+            Err(_) => None,
         }
     })  
 }

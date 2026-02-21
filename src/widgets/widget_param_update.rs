@@ -47,6 +47,7 @@ pub fn param_update(
         IpgWidgets::IpgDividerHorizontal(w) => apply_update(w, item, value, name),
         IpgWidgets::IpgDividerVertical(w) => apply_update(w, item, value, name),
         IpgWidgets::IpgDividerStyle(w) => apply_update(w, item, value, name),
+        IpgWidgets::IpgImage(w) => apply_update(w, item, value, name),
         IpgWidgets::IpgFont(w) => apply_update(w, item, value, name),
         IpgWidgets::IpgText(w) => apply_update(w, item, value, name),
         _ => (),
@@ -66,6 +67,7 @@ pub fn container_param_update(
     match container {
         IpgContainers::IpgColumn(w) => apply_update(w, item, value, name),
         IpgContainers::IpgContainer(w) => apply_update(w, item, value, name),
+        IpgContainers::IpgMouseArea(w) => apply_update(w, item, value, name),
         IpgContainers::IpgRow(w) => apply_update(w, item, value, name),
         IpgContainers::IpgWindow(w) => apply_update(w, item, value, name),
     }
@@ -163,6 +165,10 @@ pub fn set_string(field: &mut String, value: &PyObject, name: String) {
 
 pub fn set_vec_f32(field: &mut Vec<f32>, value: &PyObject, name: String) {
     *field = try_extract_vec_f32(value, name);
+}
+
+pub fn set_vec_f32_opt(field: &mut Option<Vec<f32>>, value: &PyObject, name: String) {
+    *field = Some(try_extract_vec_f32(value, name));
 }
 
 pub fn set_opt_array_2(field: &mut Option<[f32; 2]>, value: &PyObject, name: String) {

@@ -10,7 +10,7 @@ type PyObject = Py<PyAny>;
 
 use crate::py_api::helpers::find_key_for_value;
 use crate::state::{IpgContainers, IpgIds, IpgState, IpgWidgets, access_state, access_update_widgets, access_window_actions, clone_state_to_runtime, set_state_of_widget_running_state};
-use crate::widgets::ipg_button::{BtnMessage, button_callback, button_param_update, button_style_update, construct_button};
+use crate::widgets::ipg_button::{BtnMessage, button_callback, construct_button};
 use crate::widgets::ipg_checkbox::{ChkMessage, checkbox_callback, construct_checkbox};
 use crate::widgets::ipg_color_picker::{ColPikMessage, color_picker_callback, construct_color_picker};
 use crate::widgets::ipg_column::construct_column;
@@ -18,6 +18,8 @@ use crate::widgets::ipg_container::construct_container;
 use crate::widgets::ipg_date_picker::{DPMessage, construct_date_picker, date_picker_update};
 use crate::widgets::ipg_divider::{DivMessage, construct_divider_horizontal, construct_divider_vertical, divider_callback};
 use crate::widgets::ipg_events::process_window_event;
+use crate::widgets::ipg_image::{ImageMessage, construct_image, image_callback};
+use crate::widgets::ipg_mousearea::{construct_mousearea, mousearea_callback, mousearea_callback_point};
 use crate::widgets::ipg_row::construct_row;
 use crate::widgets::ipg_text::construct_text;
 use crate::widgets::ipg_window::{IpgWindow, IpgWindowLevel, IpgWindowMode, add_windows, construct_window};
@@ -37,7 +39,7 @@ pub enum Message {
 //     EventMouse(Event),
     EventWindow((window::Id, Event)),
 //     EventTouch(Event),
-//     Image(usize, ImageMessage),
+    Image(usize, ImageMessage),
 //     // Modal(usize, ModalMessage),
 //     PickList(usize, PLMessage),
 //     Radio(usize, RDMessage),
@@ -60,15 +62,15 @@ pub enum Message {
     FontLoaded(Result<(), font::Error>),
     WindowOpened(window::Id, Option<Point>, Size),
 
-//     MouseAreaOnPress(usize),
-//     MouseAreaOnRelease(usize),
-//     MouseAreaOnRightPress(usize),
-//     MouseAreaOnRightRelease(usize),
-//     MouseAreaOnMiddlePress(usize),
-//     MouseAreaOnMiddleRelease(usize),
-//     MouseAreaOnEnter(usize),
-//     MouseAreaOnMove(Point, usize),
-//     MouseAreaOnExit(usize),
+    MouseAreaOnPress(usize),
+    MouseAreaOnRelease(usize),
+    MouseAreaOnRightPress(usize),
+    MouseAreaOnRightRelease(usize),
+    MouseAreaOnMiddlePress(usize),
+    MouseAreaOnMiddleRelease(usize),
+    MouseAreaOnEnter(usize),
+    MouseAreaOnMove(Point, usize),
+    MouseAreaOnExit(usize),
 
 //     OpaqueOnPress(usize),
 }
@@ -191,56 +193,66 @@ impl App {
             //     process_updates(&mut self.state, &mut self.canvas_state);
             //     Task::none()
             // },
-            // Message::Image(id, message) => {
-            //     image_callback(id, message);
-            //     process_updates(&mut self.state, &mut self.canvas_state);
-            //     Task::none()
-            // },
-            // Message::MouseAreaOnPress(id) => {
-            //     mousearea_callback(&mut self.state, id, "on_press".to_string());
-            //     process_updates(&mut self.state, &mut self.canvas_state);
-            //     Task::none()
-            // },
-            // Message::MouseAreaOnRelease(id) => {
-            //     mousearea_callback(&mut self.state, id, "on_release".to_string());
-            //     process_updates(&mut self.state, &mut self.canvas_state);
-            //     Task::none()
-            // },
-            // Message::MouseAreaOnRightPress(id) => {
-            //     mousearea_callback(&mut self.state, id, "on_right_press".to_string());
-            //     process_updates(&mut self.state, &mut self.canvas_state);
-            //     Task::none()
-            // },
-            // Message::MouseAreaOnRightRelease(id) => {
-            //     mousearea_callback(&mut self.state, id, "on_right_release".to_string());
-            //     process_updates(&mut self.state, &mut self.canvas_state);
-            //     Task::none()
-            // },
-            // Message::MouseAreaOnMiddlePress(id) => {
-            //     mousearea_callback(&mut self.state, id, "on_middle_press".to_string());
-            //     process_updates(&mut self.state, &mut self.canvas_state);
-            //     Task::none()
-            // },
-            // Message::MouseAreaOnMiddleRelease(id) => {
-            //     mousearea_callback(&mut self.state, id, "on_middle_release".to_string());
-            //     process_updates(&mut self.state, &mut self.canvas_state);
-            //     Task::none()
-            // },
-            // Message::MouseAreaOnEnter(id) => {
-            //     mousearea_callback(&mut self.state, id, "on_enter".to_string());
-            //     process_updates(&mut self.state, &mut self.canvas_state);
-            //     Task::none()
-            // },
-            // Message::MouseAreaOnMove(point, id) => {
-            //     mousearea_callback_point(&mut self.state, id, point, "on_move".to_string());
-            //     process_updates(&mut self.state, &mut self.canvas_state);
-            //     Task::none()
-            // },
-            // Message::MouseAreaOnExit(id) => {
-            //     mousearea_callback(&mut self.state, id, "on_exit".to_string());
-            //     process_updates(&mut self.state, &mut self.canvas_state);
-            //     Task::none()
-            // },
+            Message::Image(id, message) => {
+                image_callback(id, message);
+                // process_updates(&mut self.state, &mut self.canvas_state);
+                process_updates(&mut self.state);
+                Task::none()
+            },
+            Message::MouseAreaOnPress(id) => {
+                mousearea_callback(&mut self.state, id, "on_press".to_string());
+                // process_updates(&mut self.state, &mut self.canvas_state);
+                process_updates(&mut self.state);
+                Task::none()
+            },
+            Message::MouseAreaOnRelease(id) => {
+                mousearea_callback(&mut self.state, id, "on_release".to_string());
+                // process_updates(&mut self.state, &mut self.canvas_state);
+                process_updates(&mut self.state);
+                Task::none()
+            },
+            Message::MouseAreaOnRightPress(id) => {
+                mousearea_callback(&mut self.state, id, "on_right_press".to_string());
+                // process_updates(&mut self.state, &mut self.canvas_state);
+                process_updates(&mut self.state);
+                Task::none()
+            },
+            Message::MouseAreaOnRightRelease(id) => {
+                mousearea_callback(&mut self.state, id, "on_right_release".to_string());
+                // process_updates(&mut self.state, &mut self.canvas_state);
+                process_updates(&mut self.state);
+                Task::none()
+            },
+            Message::MouseAreaOnMiddlePress(id) => {
+                mousearea_callback(&mut self.state, id, "on_middle_press".to_string());
+                // process_updates(&mut self.state, &mut self.canvas_state);
+                process_updates(&mut self.state);
+                Task::none()
+            },
+            Message::MouseAreaOnMiddleRelease(id) => {
+                mousearea_callback(&mut self.state, id, "on_middle_release".to_string());
+                // process_updates(&mut self.state, &mut self.canvas_state);
+                process_updates(&mut self.state);
+                Task::none()
+            },
+            Message::MouseAreaOnEnter(id) => {
+                mousearea_callback(&mut self.state, id, "on_enter".to_string());
+                // process_updates(&mut self.state, &mut self.canvas_state);
+                process_updates(&mut self.state);
+                Task::none()
+            },
+            Message::MouseAreaOnMove(point, id) => {
+                mousearea_callback_point(&mut self.state, id, point, "on_move".to_string());
+                // process_updates(&mut self.state, &mut self.canvas_state);
+                process_updates(&mut self.state);
+                Task::none()
+            },
+            Message::MouseAreaOnExit(id) => {
+                mousearea_callback(&mut self.state, id, "on_exit".to_string());
+                // process_updates(&mut self.state, &mut self.canvas_state);
+                process_updates(&mut self.state);
+                Task::none()
+            },
             // Message::OpaqueOnPress(id) => {
             //     opaque_callback(&mut self.state, id, "on_press".to_string());
             //     process_updates(&mut self.state, &mut self.canvas_state);
@@ -670,9 +682,9 @@ fn get_container<'a>(state: &'a IpgState,
                 // IpgContainers::IpgModal(modal) => {
                 //     construct_modal(modal, content)
                 // },
-                // IpgContainers::IpgMouseArea(m_area) => {
-                //     construct_mousearea(m_area, content)
-                // },
+                IpgContainers::IpgMouseArea(m_area) => {
+                    construct_mousearea(m_area, content)
+                },
                 // IpgContainers::IpgOpaque(op) => {
                 //     let style_opt = 
                 //         match op.style_id {
@@ -787,9 +799,9 @@ fn get_widget<'a>(state: &'a IpgState, id: &usize) -> Option<Element<'a, Message
                     
                     construct_divider_vertical(div, style_opt)
                 },
-                // IpgWidgets::IpgImage(image) => {
-                //     construct_image(image)
-                // },
+                IpgWidgets::IpgImage(image) => {
+                    construct_image(image)
+                },
                 // IpgWidgets::IpgMenu(menu) => {
                 //     Some(construct_menu(menu.clone(), state))
                 // },
@@ -1162,7 +1174,7 @@ fn show_widget(state: &mut IpgState, ids: &[(usize, bool)]) {
             IpgWidgets::IpgDatePicker(dp) => dp.show= *value,
             IpgWidgets::IpgDividerHorizontal(dh) => dh.show = *value,
             IpgWidgets::IpgDividerVertical(dv) => dv.show = *value,
-            // IpgWidgets::IpgImage(im) => im.show= *value,
+            IpgWidgets::IpgImage(im) => im.show= *value,
             // IpgWidgets::IpgPickList(pl) => pl.show= *value,
             // IpgWidgets::IpgProgressBar(pb) => pb.show= *value,
             // IpgWidgets::IpgRadio(rd) => rd.show= *value,

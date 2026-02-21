@@ -11,6 +11,8 @@ pub mod color_picker;
 pub mod date_picker;
 pub mod divider;
 pub mod font;
+pub mod image;
+pub mod mousearea;
 pub mod row;
 pub mod session;
 pub mod text;

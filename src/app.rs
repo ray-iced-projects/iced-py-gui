@@ -20,6 +20,7 @@ use crate::widgets::ipg_divider::{DivMessage, construct_divider_horizontal, cons
 use crate::widgets::ipg_events::process_window_event;
 use crate::widgets::ipg_image::{ImageMessage, construct_image, image_callback};
 use crate::widgets::ipg_mousearea::{construct_mousearea, mousearea_callback, mousearea_callback_point};
+use crate::widgets::ipg_opaque::{construct_opaque, opaque_callback};
 use crate::widgets::ipg_row::construct_row;
 use crate::widgets::ipg_text::construct_text;
 use crate::widgets::ipg_window::{IpgWindow, IpgWindowLevel, IpgWindowMode, add_windows, construct_window};
@@ -72,7 +73,7 @@ pub enum Message {
     MouseAreaOnMove(Point, usize),
     MouseAreaOnExit(usize),
 
-//     OpaqueOnPress(usize),
+    OpaqueOnPress(usize),
 }
 
 #[derive(Debug, Clone)]
@@ -253,11 +254,12 @@ impl App {
                 process_updates(&mut self.state);
                 Task::none()
             },
-            // Message::OpaqueOnPress(id) => {
-            //     opaque_callback(&mut self.state, id, "on_press".to_string());
-            //     process_updates(&mut self.state, &mut self.canvas_state);
-            //     Task::none()
-            // },
+            Message::OpaqueOnPress(id) => {
+                opaque_callback(&mut self.state, id, "on_press".to_string());
+                // process_updates(&mut self.state, &mut self.canvas_state);
+                process_updates(&mut self.state);
+                Task::none()
+            },
             // Message::PickList(id, message) => {
             //     pick_list_callback(&mut self.state, id, message);
             //     process_updates(&mut self.state, &mut self.canvas_state);
@@ -685,17 +687,17 @@ fn get_container<'a>(state: &'a IpgState,
                 IpgContainers::IpgMouseArea(m_area) => {
                     construct_mousearea(m_area, content)
                 },
-                // IpgContainers::IpgOpaque(op) => {
-                //     let style_opt = 
-                //         match op.style_id {
-                //             Some(id) => {
-                //                 state.widgets.get(&id)
-                //             },
-                //             None => None,
-                //         };
+                IpgContainers::IpgOpaque(op) => {
+                    let style_opt = 
+                        match op.style_id {
+                            Some(id) => {
+                                state.widgets.get(&id)
+                            },
+                            None => None,
+                        };
 
-                //     construct_opaque(op, content, style_opt)
-                // },
+                    construct_opaque(op, content, style_opt)
+                },
                 // IpgContainers::IpgTable(table) => {
                 //     let style_opt = 
                 //         match table.style_id {

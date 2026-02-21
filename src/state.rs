@@ -22,6 +22,7 @@ use crate::widgets::ipg_events::IpgEvents;
 use crate::widgets::ipg_font::IpgFont;
 use crate::widgets::ipg_image::IpgImage;
 use crate::widgets::ipg_mousearea::IpgMouseArea;
+use crate::widgets::ipg_opaque::{IpgOpaque, IpgOpaqueStyle};
 use crate::widgets::ipg_row::IpgRow;
 use crate::widgets::ipg_text::IpgText;
 use crate::widgets::ipg_window::IpgWindow;
@@ -42,7 +43,7 @@ pub enum IpgContainers {
     // IpgMenu(IpgMenu),
     // IpgModal(IpgModal),
     IpgMouseArea(IpgMouseArea),
-    // IpgOpaque(IpgOpaque),
+    IpgOpaque(IpgOpaque),
     // IpgStack(IpgStack),
     // IpgTable(IpgTable),
     // IpgPaneGrid(IpgPaneGrid),
@@ -71,7 +72,7 @@ pub enum IpgWidgets {
     IpgImage(IpgImage),
     // IpgMenuStyle(IpgMenuStyle),
     // IpgMenuBarStyle(IpgMenuBarStyle),
-    // IpgOpaqueStyle(IpgOpaqueStyle),
+    IpgOpaqueStyle(IpgOpaqueStyle),
     // IpgPickList(IpgPickList),
     // IpgPickListStyle(IpgPickListStyle),
     // IpgProgressBar(IpgProgressBar),

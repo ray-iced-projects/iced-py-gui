@@ -1,4 +1,5 @@
 //! ipg_mousearea
+use crate::widgets::widget_param_update::{WidgetParamUpdate, set_bool};
 use crate::{access_callbacks, access_user_data1, IpgState};
 use crate::app::Message;
 
@@ -25,39 +26,91 @@ pub struct IpgMouseArea {
 #[pyclass(eq, eq_int)]
 pub enum IpgMousePointer {
     None,
+    Alias,
+    AllScroll,
+    Cell,
+    ContextMenu,
+    Copy,
+    Crosshair,
+    Grab,
+    Grabbing,
+    Help,
     Hidden,
     Idle,
-    ContextMenu,
-    Help,
-    Pointer,
-    Progress,
-    Wait,
-    Cell,
-    Crosshair,
-    Text,
-    Alias,
-    Copy,
     Move,
     NoDrop,
     NotAllowed,
-    Grab,
-    Grabbing,
-    ResizingHorizontally,
-    ResizingVertically,
-    ResizingDiagonallyUp,
-    ResizingDiagonallyDown,
+    Pointer,
+    Progress,
     ResizingColumn,
+    ResizingDiagonallyDown,
+    ResizingDiagonallyUp,
+    ResizingHorizontally,
     ResizingRow,
-    AllScroll,
+    ResizingVertically,
+    Text,
+    Wait,
     ZoomIn,
     ZoomOut,
+}
+
+impl IpgMousePointer {
+    pub fn default() -> Self {
+        IpgMousePointer::None
+    }
+
+    pub fn to_iced(&self) -> Interaction {
+        match self {
+            IpgMousePointer::Alias =>  Interaction::Alias,
+            IpgMousePointer::AllScroll =>  Interaction::AllScroll,
+            IpgMousePointer::Cell =>  Interaction::Cell,
+            IpgMousePointer::ContextMenu =>  Interaction::ContextMenu,
+            IpgMousePointer::Copy =>  Interaction::Copy,
+            IpgMousePointer::Crosshair =>  Interaction::Crosshair,
+            IpgMousePointer::Grab =>  Interaction::Grab,
+            IpgMousePointer::Grabbing =>  Interaction::Grabbing,
+            IpgMousePointer::Help =>  Interaction::Help,
+            IpgMousePointer::Hidden =>  Interaction::Hidden,
+            IpgMousePointer::Idle =>  Interaction::Idle,
+            IpgMousePointer::Move =>  Interaction::Move,
+            IpgMousePointer::NoDrop =>  Interaction::NoDrop,
+            IpgMousePointer::None => Interaction::None,
+            IpgMousePointer::NotAllowed =>  Interaction::NotAllowed,
+            IpgMousePointer::Pointer =>  Interaction::Pointer,
+            IpgMousePointer::Progress =>  Interaction::Progress,
+            IpgMousePointer::ResizingColumn =>  Interaction::ResizingColumn,
+            IpgMousePointer::ResizingDiagonallyDown =>  Interaction::ResizingDiagonallyDown,
+            IpgMousePointer::ResizingDiagonallyUp =>  Interaction::ResizingDiagonallyUp,
+            IpgMousePointer::ResizingHorizontally =>  Interaction::ResizingHorizontally,
+            IpgMousePointer::ResizingRow =>  Interaction::ResizingRow,
+            IpgMousePointer::ResizingVertically =>  Interaction::ResizingVertically,
+            IpgMousePointer::Text =>  Interaction::Text,
+            IpgMousePointer::Wait =>  Interaction::Wait,
+            IpgMousePointer::ZoomIn =>  Interaction::ZoomIn,
+            IpgMousePointer::ZoomOut =>  Interaction::ZoomOut,
+        }
+    }
+
+    pub fn extract(value: &PyObject) -> Option<Self> {
+        Python::attach(|py| {
+            let res = value.extract::<IpgMousePointer>(py);
+            match res {
+                Ok(val) => Some(val),
+                Err(_) => None,
+            }
+        })  
+    }
 }
 
 pub fn construct_mousearea<'a>(m_area: &'a IpgMouseArea, 
                             content: Vec<Element<'a, Message>>) 
                             -> Element<'a, Message> {
 
-    let pointer: Interaction = get_interaction(&m_area.mouse_pointer);
+    let pt = if let Some(pt) = &m_area.mouse_pointer{
+        pt
+    } else { &IpgMousePointer::None };
+    
+    let pointer: Interaction = IpgMousePointer::to_iced(pt);
 
     let cont: Element<Message> = Column::with_children(content).into();
 
@@ -76,43 +129,6 @@ pub fn construct_mousearea<'a>(m_area: &'a IpgMouseArea,
         .on_exit(Message::MouseAreaOnExit(m_area.id))
         .interaction(pointer)
         .into()
-}
-
-pub fn get_interaction(pointer: &Option<IpgMousePointer>) -> Interaction {
-    
-    let ptr = if let Some(pt) = &pointer {
-       pt
-    } else { &IpgMousePointer::None };
-
-    match ptr {
-        IpgMousePointer::None => Interaction::None,
-        IpgMousePointer::Alias => Interaction::Alias,
-        IpgMousePointer::AllScroll => Interaction::AllScroll,
-        IpgMousePointer::Cell => Interaction::Cell,
-        IpgMousePointer::ContextMenu => Interaction::ContextMenu,
-        IpgMousePointer::Copy => Interaction::Copy,
-        IpgMousePointer::Crosshair => Interaction::Crosshair,
-        IpgMousePointer::Grab => Interaction::Grab,
-        IpgMousePointer::Grabbing => Interaction::Grabbing,
-        IpgMousePointer::Help => Interaction::Help,
-        IpgMousePointer::Hidden => Interaction::Hidden,
-        IpgMousePointer::Idle => Interaction::Idle,
-        IpgMousePointer::Move => Interaction::Move,
-        IpgMousePointer::NoDrop => Interaction::NoDrop,
-        IpgMousePointer::NotAllowed => Interaction::NotAllowed,
-        IpgMousePointer::Pointer => Interaction::Pointer,
-        IpgMousePointer::Progress => Interaction::Progress,
-        IpgMousePointer::ResizingColumn => Interaction::ResizingColumn,
-        IpgMousePointer::ResizingDiagonallyDown => Interaction::ResizingDiagonallyDown,
-        IpgMousePointer::ResizingDiagonallyUp => Interaction::ResizingDiagonallyUp,
-        IpgMousePointer::ResizingHorizontally => Interaction::ResizingHorizontally,
-        IpgMousePointer::ResizingRow => Interaction::ResizingRow,
-        IpgMousePointer::ResizingVertically => Interaction::ResizingVertically,
-        IpgMousePointer::Text => Interaction::Text,
-        IpgMousePointer::Wait => Interaction::Wait,
-        IpgMousePointer::ZoomIn => Interaction::ZoomIn,
-        IpgMousePointer::ZoomOut => Interaction::ZoomOut,
-    }
 }
 
 pub fn mousearea_callback(_state: &mut IpgState, id: usize, event_name: String) {
@@ -209,5 +225,21 @@ fn process_callback(
 #[derive(Debug, Clone, PartialEq)]
 #[pyclass(eq, eq_int)]
 pub enum IpgMouseAreaParam {
+    MousePointer,
     Show,
+}
+
+// ---------------------------------------------------------------------------
+// WidgetParamUpdate implementations
+// ---------------------------------------------------------------------------
+
+impl WidgetParamUpdate for IpgMouseArea {
+    type Param = IpgMouseAreaParam;
+
+    fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
+        match param {
+            IpgMouseAreaParam::MousePointer => self.mouse_pointer = IpgMousePointer::extract(value),
+            IpgMouseAreaParam::Show => set_bool(&mut self.show, value, name),
+        }
+    }
 }

@@ -16,6 +16,7 @@ pub mod ipg_events;
 pub mod ipg_image;
 pub mod ipg_font;
 pub mod ipg_mousearea;
+pub mod ipg_opaque;
 pub mod ipg_row;
 pub mod styling;
 pub mod ipg_text;

@@ -31,7 +31,7 @@ use crate::widgets::ipg_mousearea::{IpgMouseArea, IpgMousePointer};
     on_exit=None,
     user_data=None,
     ))]
-fn add_mousearea(
+pub fn add_mouse_area(
     window_id: String,
     container_id: String,
     // required above

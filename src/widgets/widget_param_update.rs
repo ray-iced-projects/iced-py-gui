@@ -159,6 +159,10 @@ pub fn set_f32(field: &mut f32, value: &PyObject, name: String) {
     *field = try_extract_f32(value, name);
 }
 
+pub fn set_f32_opt(field: &mut Option<f32>, value: &PyObject, name: String) {
+    *field = Some(try_extract_f32(value, name));
+}
+
 pub fn set_string(field: &mut String, value: &PyObject, name: String) {
     *field = try_extract_string(value, name);
 }

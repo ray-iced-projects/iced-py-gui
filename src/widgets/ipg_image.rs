@@ -6,18 +6,19 @@ use crate::access_user_data1;
 use crate::app;
 use crate::access_callbacks;
 use crate::py_api::helpers::get_padding;
+use crate::widgets::widget_param_update::set_f32_opt;
+use crate::widgets::widget_param_update::set_string;
 use crate::widgets::widget_param_update::{
     WidgetParamUpdate, 
     set_bool, set_width, set_width_fill, set_height, 
     set_height_fill, set_vec_f32_opt,
 };
-use super::ipg_mousearea::get_interaction;
 use super::ipg_mousearea::IpgMousePointer;
 
+use iced::mouse::Interaction;
 use iced::widget::image::FilterMethod;
 use iced::{Length, Element, Point, Radians, Rotation};
 use iced::widget::{Container, Image, MouseArea};
-use iced::mouse::Interaction;
 use iced::advanced::image;
 
 use pyo3::pyclass;
@@ -199,7 +200,9 @@ pub fn construct_image(image: &IpgImage)
                                                 .padding(get_padding(&image.padding))
                                                 .into();
 
-    let pointer: Interaction = get_interaction(&image.mouse_pointer);
+    let pt = if let Some(pt) = &image.mouse_pointer{
+        pt.to_iced()
+    } else { Interaction::None };
 
     let ma: Element<ImageMessage> = 
                 MouseArea::new(cont)
@@ -212,7 +215,7 @@ pub fn construct_image(image: &IpgImage)
                     .on_enter(ImageMessage::OnEnter)
                     .on_move(ImageMessage::OnMove)
                     .on_exit(ImageMessage::OnExit)
-                    .interaction(pointer)
+                    .interaction(pt)
                     .into();
 
     Some(ma.map(move |message| app::Message::Image(image.id, message)))
@@ -359,12 +362,12 @@ impl WidgetParamUpdate for IpgImage {
             IpgImageParam::FilterMethod => self.filter_method = IpgImageFilterMethod::extract(value),
             IpgImageParam::Height => set_height(&mut self.height, value, name),
             IpgImageParam::HeightFill => set_height_fill(&mut self.height, value, name),
-            IpgImageParam::ImagePath => todo!(),
-            IpgImageParam::MousePointer => todo!(),
-            IpgImageParam::Opacity => todo!(),
+            IpgImageParam::ImagePath => set_string(&mut self.image_path, value, name),
+            IpgImageParam::MousePointer => self.mouse_pointer = IpgMousePointer::extract(value),
+            IpgImageParam::Opacity => set_f32_opt(&mut self.opacity, value, name),
             IpgImageParam::Padding => set_vec_f32_opt(&mut self.padding, value, name),
-            IpgImageParam::RotationMethod => todo!(),
-            IpgImageParam::RotationRadians => todo!(),
+            IpgImageParam::RotationMethod => self.rotation_method = IpgImageRotation::extract(value),
+            IpgImageParam::RotationRadians => set_f32_opt(&mut self.rotation_radians, value, name),
             IpgImageParam::Show => set_bool(&mut self.show, value, name),
             IpgImageParam::Width => set_width(&mut self.width, value, name),
             IpgImageParam::WidthFill => set_width_fill(&mut self.width, value, name),

@@ -13,6 +13,7 @@ pub mod divider;
 pub mod font;
 pub mod image;
 pub mod mousearea;
+pub mod opaque;
 pub mod row;
 pub mod session;
 pub mod text;

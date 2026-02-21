@@ -1,9 +1,6 @@
 //! Container module - provides add_container pyfunction
-#![allow(unused)]
-
 use iced::Color;
-use pyo3::prelude::*;
-use pyo3::{Py, PyAny, pyfunction};
+use pyo3::{Py, PyAny, PyResult, pyfunction};
 type PyObject = Py<PyAny>;
 
 use crate::graphics::colors::IpgColor;

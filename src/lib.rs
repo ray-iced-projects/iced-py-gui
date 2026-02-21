@@ -34,6 +34,7 @@ use py_api::divider::{add_divider_horizontal, add_divider_vertical,
 use py_api::font::add_font;
 use py_api::image::add_image;
 use py_api::mousearea::add_mouse_area;
+use py_api::opaque::{add_opaque_container, add_opaque_style};
 use py_api::row::add_row;
 use py_api::text::add_text;
 use py_api::session::{start_session, generate_id};
@@ -75,6 +76,7 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(add_image, m)?)?;
     m.add_function(wrap_pyfunction!(add_font, m)?)?;
     m.add_function(wrap_pyfunction!(add_mouse_area, m)?)?;
+    m.add_function(wrap_pyfunction!(add_opaque_container, m)?)?;
     m.add_function(wrap_pyfunction!(add_row, m)?)?;
     m.add_function(wrap_pyfunction!(add_text, m)?)?;
     m.add_function(wrap_pyfunction!(update_widget, m)?)?;
@@ -84,6 +86,7 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(add_checkbox_style, m)?)?;
     m.add_function(wrap_pyfunction!(add_container_style, m)?)?;
     m.add_function(wrap_pyfunction!(add_divider_style, m)?)?;
+     m.add_function(wrap_pyfunction!(add_opaque_style, m)?)?;
 
     // style parameters
     m.add_class::<IpgButtonStyleParam>()?;

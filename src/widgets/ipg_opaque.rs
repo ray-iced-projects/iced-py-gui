@@ -3,11 +3,12 @@ use iced::mouse::Interaction;
 use iced::{Color, Element, Length};
 use iced::widget::{Container, Space, mouse_area, opaque};
 use pyo3::{pyclass, Py, PyAny, Python};
-
-// Type alias to replace deprecated PyObject
 type PyObject = Py<PyAny>;
 
+
 use crate::state::IpgWidgets;
+use crate::widgets::widget_param_update::{
+    WidgetParamUpdate, set_ipg_color, set_opt_bool, set_rgba_color};
 use crate::{access_callbacks, access_user_data1, IpgState};
 use crate::app::Message;
 use super::ipg_container::{self, get_cont_style};
@@ -19,6 +20,7 @@ pub struct IpgOpaque {
     pub id: usize,
     pub width: Length,
     pub height: Length,
+    pub center: Option<bool>,
     pub align_x: Option<IpgHorizontalAlignment>,
     pub align_y: Option<IpgVerticalAlignment>,
     pub include_mouse_area: bool,
@@ -41,13 +43,20 @@ pub fn construct_opaque<'a>(op: &'a IpgOpaque,
 
     let new_content = content.remove(0);
     
-    let align_h = if let Some(ha) = &op.align_x{
+    let mut align_h = if let Some(ha) = &op.align_x{
         IpgHorizontalAlignment::to_iced(ha)
     } else { iced::alignment::Horizontal::Left };
     
-    let align_v = if let Some(va) = &op.align_y{
+    let mut align_v = if let Some(va) = &op.align_y{
         IpgVerticalAlignment::to_iced(va)
     } else { iced::alignment::Vertical::Top};
+
+    if let Some(cnt) = op.center {
+        if cnt {
+            align_h = iced::alignment::Horizontal::Center;
+            align_v = iced::alignment::Vertical::Center;
+        }
+    }
     
     let style = get_cont_style(style_opt);
 
@@ -78,30 +87,6 @@ pub fn construct_opaque<'a>(op: &'a IpgOpaque,
 #[pyclass(eq, eq_int)]
 pub enum IpgOpaqueParam {
     Show,
-}
-
-pub fn opaque_item_update(op: &mut IpgOpaque,
-                            item: &PyObject,
-                            value: &PyObject,) {
-
-    let update = try_extract_stack_update(item);
-    let name = "OpaqueContainer".to_string();
-    match update {
-        IpgOpaqueParam::Show => {
-            op.show = try_extract_boolean(value, name);
-        },
-    }
-}
-
-pub fn try_extract_stack_update(update_obj: &PyObject) -> IpgOpaqueParam {
-
-    Python::attach(|py| {
-        let res = update_obj.extract::<IpgOpaqueParam>(py);
-        match res {
-            Ok(update) => update,
-            Err(_) => panic!("Opaque update extraction failed"),
-        }
-    })
 }
 
 pub fn opaque_callback(_state: &mut IpgState, id: usize, event_name: String) {
@@ -168,31 +153,27 @@ pub enum IpgOpaqueStyleParam {
     BackgroundRgbaColor,
 }
 
-pub fn opaque_style_update_item(style: &mut IpgOpaqueStyle, 
-                                item: &PyObject, 
-                                value: &PyObject) 
-{
-    let update = try_extract_opaque_style_update(item);
-    let name = "ContainerStyle".to_string();
-    match update {
-        IpgOpaqueStyleParam::BackgroundIpgColor => {
-            let color = try_extract_ipg_color(value, name);
-            style.background_color = get_color(None, Some(color), 1.0, false);
-        },
-        IpgOpaqueStyleParam::BackgroundRgbaColor => {
-            style.background_color = Some(Color::from(try_extract_rgba_color(value, name)));
-        },
+// ---------------------------------------------------------------------------
+// WidgetParamUpdate implementations
+// ---------------------------------------------------------------------------
+
+impl WidgetParamUpdate for IpgOpaque {
+    type Param = IpgOpaqueParam;
+
+    fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
+        match param {
+            IpgOpaqueParam::Show => set_opt_bool(&mut self.center, value, name),
+        }
     }
 }
 
-pub fn try_extract_opaque_style_update(update_obj: &PyObject) -> IpgOpaqueStyleParam {
+impl WidgetParamUpdate for IpgOpaqueStyle {
+    type Param = IpgOpaqueStyleParam;
 
-    Python::attach(|py| {
-        let res = update_obj.extract::<IpgOpaqueStyleParam>(py);
-        match res {
-            Ok(update) => update,
-            Err(_) => panic!("Opaque style parameter update extraction failed"),
+    fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
+        match param {
+            IpgOpaqueStyleParam::BackgroundIpgColor => set_ipg_color(&mut self.background_color, value, name),
+            IpgOpaqueStyleParam::BackgroundRgbaColor => set_rgba_color(&mut self.background_color, value, name),
         }
-    })
+    }
 }
-

@@ -25,7 +25,7 @@ use crate::widgets::enums::{IpgHorizontalAlignment,
     width_fill=false,
     height=None, 
     height_fill=false,
-    centered=true,
+    center=None,
     align_x=None, 
     align_y=None,
     mouse_on_press=None,
@@ -43,7 +43,7 @@ pub fn add_opaque_container(
     width_fill: bool,
     height: Option<f32>,
     height_fill: bool,
-    centered: Option<bool>,
+    center: Option<bool>,
     align_x: Option<IpgHorizontalAlignment>,
     align_y: Option<IpgVerticalAlignment>,
     mouse_on_press: Option<PyObject>,
@@ -82,6 +82,7 @@ pub fn add_opaque_container(
             id,  
             width, 
             height,
+            center,
             align_x,
             align_y,
             include_mouse_area,
@@ -99,7 +100,7 @@ pub fn add_opaque_container(
     background_rgba=None,
     gen_id=None
     ))]
-fn add_opaque_style(
+pub fn add_opaque_style(
     background_color: Option<IpgColor>,
     background_rgba: Option<[f32; 4]>,
     gen_id: Option<usize>,

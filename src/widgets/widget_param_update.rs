@@ -68,6 +68,7 @@ pub fn container_param_update(
         IpgContainers::IpgColumn(w) => apply_update(w, item, value, name),
         IpgContainers::IpgContainer(w) => apply_update(w, item, value, name),
         IpgContainers::IpgMouseArea(w) => apply_update(w, item, value, name),
+        IpgContainers::IpgOpaque(w) => apply_update(w, item, value, name),
         IpgContainers::IpgRow(w) => apply_update(w, item, value, name),
         IpgContainers::IpgWindow(w) => apply_update(w, item, value, name),
     }

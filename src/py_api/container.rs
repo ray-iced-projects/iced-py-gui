@@ -1,7 +1,6 @@
 //! Container module - provides add_container pyfunction
 use iced::Color;
-use pyo3::{Py, PyAny, PyResult, pyfunction};
-type PyObject = Py<PyAny>;
+use pyo3::{PyResult, pyfunction};
 
 use crate::graphics::colors::IpgColor;
 use crate::py_api::helpers::{get_height, get_width};
@@ -25,7 +24,6 @@ use crate::widgets::enums::{IpgHorizontalAlignment,
     height=None, 
     height_fill=false, 
     clip=None, 
-    centered=None,
     max_height=None, 
     max_width=None,
     align_x=None, 
@@ -51,7 +49,6 @@ pub fn add_container(
     height: Option<f32>,
     height_fill: bool,
     clip: Option<bool>,
-    centered: Option<bool>,
     max_height: Option<f32>,
     max_width: Option<f32>,
     align_x: Option<IpgHorizontalAlignment>,

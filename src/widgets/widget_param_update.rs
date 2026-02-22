@@ -4,6 +4,7 @@
 use iced::{Color, Length};
 use pyo3::{Py, PyAny, Python};
 
+use crate::graphics::bootstrap_arrow::IpgArrow;
 use crate::graphics::colors::IpgColor;
 use crate::py_api::helpers::{
     get_height, get_width, try_extract_array_2, try_extract_boolean, try_extract_f32, try_extract_string, try_extract_style_standard, try_extract_usize, try_extract_vec_f32, try_extract_vec_str
@@ -40,17 +41,19 @@ pub fn param_update(
         IpgWidgets::IpgButtonStyle(w) => apply_update(w, item, value, name),
         IpgWidgets::IpgCheckBox(w) => apply_update(w, item, value, name),
         IpgWidgets::IpgCheckboxStyle(w) => apply_update(w, item, value, name),
+        IpgWidgets::IpgColorPicker(w) => apply_update(w, item, value, name),
         IpgWidgets::IpgContainerStyle(w) => apply_update(w, item, value, name),
         IpgWidgets::IpgDatePicker(w) => apply_update(w, item, value, name),
         IpgWidgets::IpgDividerHorizontal(w) => apply_update(w, item, value, name),
-        IpgWidgets::IpgDividerVertical(w) => apply_update(w, item, value, name),
         IpgWidgets::IpgDividerStyle(w) => apply_update(w, item, value, name),
-        IpgWidgets::IpgImage(w) => apply_update(w, item, value, name),
+        IpgWidgets::IpgDividerVertical(w) => apply_update(w, item, value, name),
         IpgWidgets::IpgFont(w) => apply_update(w, item, value, name),
+        IpgWidgets::IpgImage(w) => apply_update(w, item, value, name),
+        IpgWidgets::IpgOpaqueStyle(w) => apply_update(w, item, value, name),
         IpgWidgets::IpgPickList(w) => apply_update(w, item, value, name),
         IpgWidgets::IpgPickListStyle(w) => apply_update(w, item, value, name),
+        IpgWidgets::IpgSpace(w) => apply_update(w, item, value, name),
         IpgWidgets::IpgText(w) => apply_update(w, item, value, name),
-        _ => (),
     }
 }
 
@@ -131,13 +134,21 @@ pub fn set_height_fill(field: &mut Length, value: &PyObject, name: String) {
     *field = get_height(None, val);
 }
 
-pub fn set_ipg_color(field: &mut Option<Color>, value: &PyObject, name: String) {
+pub fn set_iced_color(field: &mut Color, value: &PyObject, name: String) {
+    *field = Color::extract(value, name);
+}
+
+pub fn set_opt_iced_color(field: &mut Option<Color>, value: &PyObject, name: String) {
     let color = IpgColor::extract(value, name);
     *field = IpgColor::rgba_ipg_color_to_iced(None, Some(color), 1.0, false);
 }
 
-pub fn set_rgba_color(field: &mut Option<Color>, value: &PyObject, name: String) {
+pub fn set_iced_color_from_rgba(field: &mut Option<Color>, value: &PyObject, name: String) {
     *field = Some(Color::from(IpgColor::extract_rgba(value, name)));
+}
+
+pub fn set_ipg_color(field: &mut IpgColor, value: &PyObject, name: String) {
+    *field = IpgColor::extract(value, name);
 }
 
 pub fn set_f32(field: &mut f32, value: &PyObject, name: String) {
@@ -194,4 +205,8 @@ pub fn set_align(field: &mut Option<IpgAlignment>, value: &PyObject, name: Strin
 
 pub fn set_opt_text_shaping(field: &mut Option<IpgShaping>, value: &PyObject, name: String) {
     *field = IpgShaping::extract(value)
+}
+
+pub fn set_opt_ipg_arrow(field: &mut Option<IpgArrow>, value: &PyObject, name: String) {
+    *field = IpgArrow::extract(value)
 }

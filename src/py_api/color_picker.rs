@@ -3,6 +3,7 @@ use pyo3::prelude::*;
 use pyo3::{Py, PyAny, pyfunction};
 type PyObject = Py<PyAny>;
 
+use crate::graphics::colors::IpgColor;
 use crate::py_api::helpers::{get_height, get_width};
 use crate::{add_callback_to_mutex, add_user_data_to_mutex};
 use crate::state::{IpgWidgets, access_state, get_id, set_state_of_widget};
@@ -22,7 +23,8 @@ use crate::graphics::bootstrap_arrow::IpgArrow;
     on_press=None, 
     on_select=None, 
     on_cancel=None,
-    color_rgba=[0.5, 0.2, 0.7, 1.0], 
+    color=None,
+    color_rgba=None, 
     width=None,
     width_fill=false,  
     height=None, 
@@ -43,7 +45,8 @@ pub fn add_color_picker(
     on_press: Option<PyObject>,
     on_select: Option<PyObject>,
     on_cancel: Option<PyObject>,
-    color_rgba:[f32; 4],
+    mut color: Option<IpgColor>,
+    color_rgba: Option<[f32; 4]>,
     width: Option<f32>,
     width_fill: bool,
     height: Option<f32>,
@@ -59,7 +62,19 @@ pub fn add_color_picker(
 {
     let id = get_id(gen_id);
 
-    let color = iced::Color::from(color_rgba);
+    // default to rgba if no color
+    let mut rgba = color_rgba;
+    if color.is_none() && rgba.is_none() {
+        rgba = Some([0.5, 0.2, 0.7, 1.0]);
+        color = None;
+    }
+
+    if color.is_some() && rgba.is_some() {
+        rgba = None;
+    }
+
+    let color = 
+        IpgColor::rgba_ipg_color_to_iced(rgba, color, 1.0, false).unwrap();
 
     if let Some(py) = on_press {
         add_callback_to_mutex(id, "on_press".to_string(), py);

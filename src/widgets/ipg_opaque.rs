@@ -8,7 +8,7 @@ type PyObject = Py<PyAny>;
 
 use crate::state::IpgWidgets;
 use crate::widgets::widget_param_update::{
-    WidgetParamUpdate, set_ipg_color, set_opt_bool, set_rgba_color};
+    WidgetParamUpdate, set_opt_iced_color, set_opt_bool, set_iced_color_from_rgba};
 use crate::{access_callbacks, access_user_data1, IpgState};
 use crate::app::Message;
 use super::ipg_container::{self, get_cont_style};
@@ -172,8 +172,8 @@ impl WidgetParamUpdate for IpgOpaqueStyle {
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
         match param {
-            IpgOpaqueStyleParam::BackgroundIpgColor => set_ipg_color(&mut self.background_color, value, name),
-            IpgOpaqueStyleParam::BackgroundRgbaColor => set_rgba_color(&mut self.background_color, value, name),
+            IpgOpaqueStyleParam::BackgroundIpgColor => set_opt_iced_color(&mut self.background_color, value, name),
+            IpgOpaqueStyleParam::BackgroundRgbaColor => set_iced_color_from_rgba(&mut self.background_color, value, name),
         }
     }
 }

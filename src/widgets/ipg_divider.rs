@@ -11,7 +11,7 @@ use crate::{IpgState, access_callbacks, access_user_data1, app,
 use crate::widgets::widget_param_update::{
     WidgetParamUpdate,
     set_bool, set_f32, set_opt_bool, set_opt_f32, set_opt_usize, set_opt_vec_f32,
-    set_vec_f32, set_ipg_color, set_rgba_color_via_ipg,
+    set_vec_f32, set_opt_iced_color, set_rgba_color_via_ipg,
 };
 
 
@@ -361,10 +361,10 @@ impl WidgetParamUpdate for IpgDividerStyle {
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
         match param {
-            IpgDividerStyleParam::BackgroundIpgColor   => set_ipg_color(&mut self.background_color, value, name),
+            IpgDividerStyleParam::BackgroundIpgColor   => set_opt_iced_color(&mut self.background_color, value, name),
             IpgDividerStyleParam::BackgroundRgbaColor  => set_rgba_color_via_ipg(&mut self.background_color, value, name),
             IpgDividerStyleParam::BackgroundTransparent => set_opt_bool(&mut self.background_transparent, value, name),
-            IpgDividerStyleParam::BorderIpgColor       => set_ipg_color(&mut self.border_color, value, name),
+            IpgDividerStyleParam::BorderIpgColor       => set_opt_iced_color(&mut self.border_color, value, name),
             IpgDividerStyleParam::BorderRgbaColor      => set_rgba_color_via_ipg(&mut self.border_color, value, name),
             IpgDividerStyleParam::BorderWidth          => set_opt_f32(&mut self.border_width, value, name),
             IpgDividerStyleParam::BorderRadius         => set_opt_vec_f32(&mut self.border_radius, value, name),

@@ -16,7 +16,7 @@ use crate::widgets::widget_param_update::{
     set_bool, set_opt_bool, set_opt_f32, set_opt_vec_f32, set_opt_array_2,
     set_width, set_width_fill, set_height, set_height_fill,
     set_halign, set_valign,
-    set_ipg_color, set_rgba_color,
+    set_opt_iced_color, set_iced_color_from_rgba,
 };
 
 
@@ -430,18 +430,18 @@ impl WidgetParamUpdate for IpgContainerStyle {
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
         match param {
-            IpgContainerStyleParam::BackgroundIpgColor  => set_ipg_color(&mut self.background_color, value, name),
-            IpgContainerStyleParam::BackgroundRgbaColor => set_rgba_color(&mut self.background_color, value, name),
-            IpgContainerStyleParam::BorderIpgColor      => set_ipg_color(&mut self.border_color, value, name),
-            IpgContainerStyleParam::BorderRgbaColor     => set_rgba_color(&mut self.border_color, value, name),
+            IpgContainerStyleParam::BackgroundIpgColor  => set_opt_iced_color(&mut self.background_color, value, name),
+            IpgContainerStyleParam::BackgroundRgbaColor => set_iced_color_from_rgba(&mut self.background_color, value, name),
+            IpgContainerStyleParam::BorderIpgColor      => set_opt_iced_color(&mut self.border_color, value, name),
+            IpgContainerStyleParam::BorderRgbaColor     => set_iced_color_from_rgba(&mut self.border_color, value, name),
             IpgContainerStyleParam::BorderRadius        => set_opt_vec_f32(&mut self.border_radius, value, name),
             IpgContainerStyleParam::BorderWidth         => set_opt_f32(&mut self.border_width, value, name),
-            IpgContainerStyleParam::ShadowIpgColor      => set_ipg_color(&mut self.shadow_color, value, name),
-            IpgContainerStyleParam::ShadowRgbaColor     => set_rgba_color(&mut self.shadow_color, value, name),
+            IpgContainerStyleParam::ShadowIpgColor      => set_opt_iced_color(&mut self.shadow_color, value, name),
+            IpgContainerStyleParam::ShadowRgbaColor     => set_iced_color_from_rgba(&mut self.shadow_color, value, name),
             IpgContainerStyleParam::ShadowOffsetXY      => set_opt_array_2(&mut self.shadow_offset_xy, value, name),
             IpgContainerStyleParam::ShadowBlurRadius    => set_opt_f32(&mut self.shadow_blur_radius, value, name),
-            IpgContainerStyleParam::TextIpgColor        => set_ipg_color(&mut self.text_color, value, name),
-            IpgContainerStyleParam::TextRgbaColor       => set_rgba_color(&mut self.text_color, value, name),
+            IpgContainerStyleParam::TextIpgColor        => set_opt_iced_color(&mut self.text_color, value, name),
+            IpgContainerStyleParam::TextRgbaColor       => set_iced_color_from_rgba(&mut self.text_color, value, name),
         }
     }
 }

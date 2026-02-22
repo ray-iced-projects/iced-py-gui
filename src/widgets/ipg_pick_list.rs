@@ -8,10 +8,10 @@ use crate::py_api::helpers::{get_padding, get_radius};
 use crate::state::IpgWidgets;
 use crate::widgets::enums::IpgShaping;
 use crate::widgets::widget_param_update::{WidgetParamUpdate,
-    set_bool, set_height, set_height_fill,set_ipg_color,
+    set_bool, set_height, set_height_fill,set_opt_iced_color,
     set_opt_f32, set_opt_string, set_opt_text_shaping,
     set_opt_usize, set_opt_vec_f32, set_vec_string,
-    set_rgba_color, set_width};
+    set_iced_color_from_rgba, set_width};
 use super::callbacks::set_or_get_widget_callback_data;
 use super::callbacks::WidgetCallbackIn;
 
@@ -450,18 +450,18 @@ impl WidgetParamUpdate for IpgPickListStyle {
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
         match param {
-            IpgPickListStyleParam::BackgroundIpgColor => set_ipg_color(&mut self.background_color, value, name),
-            IpgPickListStyleParam::BackgroundRbgaColor => set_rgba_color(&mut self.background_color, value, name),
-            IpgPickListStyleParam::BorderIpgColor => set_ipg_color(&mut self.border_color, value, name),
+            IpgPickListStyleParam::BackgroundIpgColor => set_opt_iced_color(&mut self.background_color, value, name),
+            IpgPickListStyleParam::BackgroundRbgaColor => set_iced_color_from_rgba(&mut self.background_color, value, name),
+            IpgPickListStyleParam::BorderIpgColor => set_opt_iced_color(&mut self.border_color, value, name),
             IpgPickListStyleParam::BorderRadius => set_opt_vec_f32(&mut self.border_radius, value, name),
-            IpgPickListStyleParam::BorderRgbaColor => set_rgba_color(&mut self.border_color, value, name),
+            IpgPickListStyleParam::BorderRgbaColor => set_iced_color_from_rgba(&mut self.border_color, value, name),
             IpgPickListStyleParam::BorderWidth => set_opt_f32(&mut self.border_width, value, name),
-            IpgPickListStyleParam::HandleIpgColor => set_ipg_color(&mut self.handle_color, value, name),
-            IpgPickListStyleParam::HandleRgbaColor => set_rgba_color(&mut self.handle_color, value, name),
-            IpgPickListStyleParam::PlaceholderIpgColor => set_ipg_color(&mut self.placeholder_color, value, name),
-            IpgPickListStyleParam::PlaceholderRgbaColor => set_rgba_color(&mut self.placeholder_color, value, name),
-            IpgPickListStyleParam::TextIpgColor => set_ipg_color(&mut self.text_color, value, name),
-            IpgPickListStyleParam::TextRgbaColor => set_rgba_color(&mut self.text_color, value, name),
+            IpgPickListStyleParam::HandleIpgColor => set_opt_iced_color(&mut self.handle_color, value, name),
+            IpgPickListStyleParam::HandleRgbaColor => set_iced_color_from_rgba(&mut self.handle_color, value, name),
+            IpgPickListStyleParam::PlaceholderIpgColor => set_opt_iced_color(&mut self.placeholder_color, value, name),
+            IpgPickListStyleParam::PlaceholderRgbaColor => set_iced_color_from_rgba(&mut self.placeholder_color, value, name),
+            IpgPickListStyleParam::TextIpgColor => set_opt_iced_color(&mut self.text_color, value, name),
+            IpgPickListStyleParam::TextRgbaColor => set_iced_color_from_rgba(&mut self.text_color, value, name),
         }
     }
 }

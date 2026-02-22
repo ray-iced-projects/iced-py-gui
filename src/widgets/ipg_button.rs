@@ -17,7 +17,7 @@ use crate::widgets::widget_param_update::{
     WidgetParamUpdate, 
     set_bool, set_opt_bool, set_opt_f32, set_opt_string, set_opt_vec_f32,
     set_width, set_width_fill, set_height, set_height_fill,
-    set_ipg_color, set_rgba_color, set_halign, set_valign,
+    set_opt_iced_color, set_iced_color_from_rgba, set_halign, set_valign,
 };
 
 #[derive(Debug, Clone)]
@@ -405,21 +405,21 @@ impl WidgetParamUpdate for IpgButtonStyle {
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
         match param {
-            IpgButtonStyleParam::BackgroundIpgColor      => set_ipg_color(&mut self.background_color, value, name),
-            IpgButtonStyleParam::BackgroundRbgaColor     => set_rgba_color(&mut self.background_color, value, name),
-            IpgButtonStyleParam::BackgroundIpgColorHovered => set_ipg_color(&mut self.background_color_hovered, value, name),
-            IpgButtonStyleParam::BackgroundIpgRgbaHovered => set_rgba_color(&mut self.background_color_hovered, value, name),
-            IpgButtonStyleParam::BorderIpgColor          => set_ipg_color(&mut self.border_color, value, name),
-            IpgButtonStyleParam::BorderRgbaColor         => set_rgba_color(&mut self.border_color, value, name),
-            IpgButtonStyleParam::BorderRadius            => set_opt_vec_f32(&mut self.border_radius, value, name),
-            IpgButtonStyleParam::BorderWidth             => set_opt_f32(&mut self.border_width, value, name),
-            IpgButtonStyleParam::ShadowIpgColor          => set_ipg_color(&mut self.shadow_color, value, name),
-            IpgButtonStyleParam::ShadowRgbaColor         => set_rgba_color(&mut self.shadow_color, value, name),
-            IpgButtonStyleParam::ShadowOffsetX           => set_opt_f32(&mut self.shadow_offset_x, value, name),
-            IpgButtonStyleParam::ShadowOffsetY           => set_opt_f32(&mut self.shadow_offset_y, value, name),
-            IpgButtonStyleParam::ShadowBlurRadius        => set_opt_f32(&mut self.shadow_blur_radius, value, name),
-            IpgButtonStyleParam::TextIpgColor            => set_ipg_color(&mut self.text_color, value, name),
-            IpgButtonStyleParam::TextRgbaColor           => set_rgba_color(&mut self.text_color, value, name),
+            IpgButtonStyleParam::BackgroundIpgColor => set_opt_iced_color(&mut self.background_color, value, name),
+            IpgButtonStyleParam::BackgroundRbgaColor => set_iced_color_from_rgba(&mut self.background_color, value, name),
+            IpgButtonStyleParam::BackgroundIpgColorHovered => set_opt_iced_color(&mut self.background_color_hovered, value, name),
+            IpgButtonStyleParam::BackgroundIpgRgbaHovered => set_iced_color_from_rgba(&mut self.background_color_hovered, value, name),
+            IpgButtonStyleParam::BorderIpgColor  => set_opt_iced_color(&mut self.border_color, value, name),
+            IpgButtonStyleParam::BorderRgbaColor => set_iced_color_from_rgba(&mut self.border_color, value, name),
+            IpgButtonStyleParam::BorderRadius => set_opt_vec_f32(&mut self.border_radius, value, name),
+            IpgButtonStyleParam::BorderWidth => set_opt_f32(&mut self.border_width, value, name),
+            IpgButtonStyleParam::ShadowIpgColor => set_opt_iced_color(&mut self.shadow_color, value, name),
+            IpgButtonStyleParam::ShadowRgbaColor => set_iced_color_from_rgba(&mut self.shadow_color, value, name),
+            IpgButtonStyleParam::ShadowOffsetX => set_opt_f32(&mut self.shadow_offset_x, value, name),
+            IpgButtonStyleParam::ShadowOffsetY => set_opt_f32(&mut self.shadow_offset_y, value, name),
+            IpgButtonStyleParam::ShadowBlurRadius => set_opt_f32(&mut self.shadow_blur_radius, value, name),
+            IpgButtonStyleParam::TextIpgColor => set_opt_iced_color(&mut self.text_color, value, name),
+            IpgButtonStyleParam::TextRgbaColor => set_iced_color_from_rgba(&mut self.text_color, value, name),
         }
     }
 }

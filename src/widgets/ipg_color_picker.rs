@@ -1,7 +1,8 @@
 //! ipg_color_picker
 use crate::graphics::bootstrap_arrow::IpgArrow;
 use crate::state::IpgWidgets;
-use crate::widgets::ipg_button::{IpgButtonStyleStandard, extract_btn_style, get_styling};
+use crate::widgets::ipg_button::{IpgButtonStyleStandard, extract_btn_style, extract_button_style_standard, get_styling};
+use crate::widgets::widget_param_update::{WidgetParamUpdate, set_bool, set_height, set_height_fill, set_iced_color, set_iced_color_from_rgba, set_opt_bool, set_opt_f32, set_opt_iced_color, set_opt_ipg_arrow, set_opt_string, set_opt_usize, set_opt_vec_f32, set_width, set_width_fill};
 use crate::{access_callbacks, access_user_data1, IpgState};
 use crate::app::Message;
 use crate::py_api::helpers::get_padding;
@@ -11,8 +12,8 @@ use iced::widget::{text, Button};
 use iced::{Color, Element, Length, Theme};
 use iced_aw::ColorPicker;
 
-use pyo3::Python;
-
+use pyo3::{Py, PyAny, Python, pyclass};
+type PyObject = Py<PyAny>;
 
 #[derive(Debug, Clone)]
 pub struct IpgColorPicker {
@@ -31,20 +32,20 @@ pub struct IpgColorPicker {
     pub style_arrow: Option<IpgArrow>,
 }
 
-// #[derive(Debug, Clone, Default)]
-// pub struct IpgColorPickerStyle {
-//     pub id: usize,
-//     pub background_color: Option<Color>,
-//     pub background_color_hovered: Option<Color>,
-//     pub border_color: Option<Color>,
-//     pub border_radius: Option<Vec<f32>>,
-//     pub border_width: Option<f32>,
-//     pub shadow_color: Option<Color>,
-//     pub shadow_offset_x: Option<f32>,
-//     pub shadow_offset_y: Option<f32>,
-//     pub shadow_blur_radius: Option<f32>,
-//     pub text_color: Option<Color>,
-// }
+#[derive(Debug, Clone, Default)]
+pub struct IpgColorPickerStyle {
+    pub id: usize,
+    pub background_color: Option<Color>,
+    pub background_color_hovered: Option<Color>,
+    pub border_color: Option<Color>,
+    pub border_radius: Option<Vec<f32>>,
+    pub border_width: Option<f32>,
+    pub shadow_color: Option<Color>,
+    pub shadow_offset_x: Option<f32>,
+    pub shadow_offset_y: Option<f32>,
+    pub shadow_blur_radius: Option<f32>,
+    pub text_color: Option<Color>,
+}
 
 #[allow(clippy::enum_variant_names)]
 #[derive(Debug, Clone)]
@@ -191,203 +192,42 @@ pub fn process_callback(id: usize, event_name: String, color: Option<Vec<f64>>)
 }
 
 
-// #[derive(Debug, Clone, PartialEq)]
-// #[pyclass(eq, eq_int)]
-// pub enum IpgColorPickerParam {
-//     ArrowStyle,
-//     Clip,
-//     Color,
-//     Height,
-//     HeightFill,
-//     Label,
-//     Padding,
-//     Show,
-//     StyleId,
-//     StyleStandard,
-//     Width,
-//     WidthFill,
-// }
+#[derive(Debug, Clone, PartialEq)]
+#[pyclass(eq, eq_int)]
+pub enum IpgColorPickerParam {
+    ArrowStyle,
+    Clip,
+    Color,
+    Height,
+    HeightFill,
+    Label,
+    Padding,
+    Show,
+    StyleId,
+    StyleStandard,
+    Width,
+    WidthFill,
+}
 
-// pub fn color_picker_update(cp: &mut IpgColorPicker,
-//                             item: &PyObject,
-//                             value: &PyObject,
-//                             ) 
-// {
-//     let update = try_extract_cp_update(item);
-//     let name = "ColorPicker".to_string();
-//     match update {
-//        IpgColorPickerParam::ArrowStyle => {
-//             cp.style_arrow = Some(try_extract_button_arrow(value));
-//         },
-//         IpgColorPickerParam::Color => {
-//             let rgba = IpgColor::extract_rgba(value, name);
-//             cp.color = Color::from(rgba);
-//         },
-//         IpgColorPickerParam::Label => {
-//             cp.label = Some(try_extract_string(value, name));
-//         },
-//         IpgColorPickerParam::Height => {
-//             let val = try_extract_f32(value, name);
-//             cp.height = get_height(Some(val), false);
-//         },
-//         IpgColorPickerParam::HeightFill => {
-//             let val = try_extract_boolean(value, name);
-//             cp.height = get_height(None, val);
-//         },
-//         IpgColorPickerParam::Padding => {
-//             cp.padding =  Some(try_extract_vec_f32(value, name));
-//         },
-//         IpgColorPickerParam::Clip => {
-//             cp.clip = Some(try_extract_boolean(value, name));
-//         }
-//         IpgColorPickerParam::Show => {
-//             cp.show = try_extract_boolean(value, name);
-//         },
-//         IpgColorPickerParam::StyleId => {
-//             let val = try_extract_f32(value, name) as usize;
-//             cp.style_id = Some(val);
-//         },
-//         IpgColorPickerParam::StyleStandard => {
-//             let val = try_extract_button_style_standard(value, name);
-//             cp.style_standard = Some(val);
-//         },
-//         IpgColorPickerParam::Width => {
-//             let val = try_extract_f32(value, name);
-//             cp.width = get_width(Some(val as f32), false);
-//         },
-//         IpgColorPickerParam::WidthFill => {
-//             let val = try_extract_boolean(value, name);
-//             cp.width = get_width(None, val);
-//         },
-//     }
-// }
-
-// pub fn try_extract_cp_update(update_obj: &PyObject) -> IpgColorPickerParam {
-
-//     Python::attach(|py| {
-//         let res = update_obj.extract::<IpgColorPickerParam>(py);
-//         match res {
-//             Ok(update) => update,
-//             Err(_) => panic!("Color Picker update extraction failed"),
-//         }
-//     })
-// }
-
-// #[derive(Debug, Clone, PartialEq)]
-// #[pyclass(eq, eq_int)]
-// pub enum IpgColorPickerStyleParam {
-//     BackgroundIpgColor,
-//     BackgroundRbga,
-//     BackgroundIpgColorHovered,
-//     BackgroundIpgRgbaHovered,
-//     BorderIpgColor,
-//     BorderRgba,
-//     BorderRadius,
-//     BorderWidth,
-//     ShadowIpgColor,
-//     ShadowRgba,
-//     ShadowOffsetX,
-//     ShadowOffsetY,
-//     ShadowBlurRadius,
-//     TextIpgColor,
-//     TextRgbaColor
-// }
-
-// pub fn color_picker_style_update_item(style: &mut IpgColorPickerStyle,
-//                                         item: &PyObject,
-//                                         value: &PyObject,) 
-// {
-
-//     let update = try_extract_color_picker_style_update(item);
-//     let name = "ColorPickerStyle".to_string();
-//     match update {
-//         IpgColorPickerStyleParam::BackgroundIpgColor => {
-//             let color = IpgColor::extract(value, name);
-//             style.background_color = 
-//             IpgColor::rgba_ipg_color_to_iced(None, Some(color), 1.0, false);
-//         },
-//         IpgColorPickerStyleParam::BackgroundRbga => {
-//             let rgba = IpgColor::extract_rgba(value, name);
-//             style.background_color = 
-//             IpgColor::rgba_ipg_color_to_iced(Some(rgba), None, 1.0, false);
-//         },
-//         IpgColorPickerStyleParam::BackgroundIpgColorHovered => {
-//             let color = IpgColor::extract(value, name);
-//             style.background_color_hovered = 
-//             IpgColor::rgba_ipg_color_to_iced(None, Some(color), 1.0, false);
-//         },
-//         IpgColorPickerStyleParam::BackgroundIpgRgbaHovered => {
-//             let rgba = IpgColor::extract_rgba(value, name);
-//             style.background_color_hovered = 
-//             IpgColor::rgba_ipg_color_to_iced(Some(rgba), None, 1.0, false);
-//         },
-//         IpgColorPickerStyleParam::BorderIpgColor => {
-//             let color = IpgColor::extract(value, name);
-//             style.border_color = 
-//             IpgColor::rgba_ipg_color_to_iced(None, Some(color), 1.0, false);
-//         },
-//         IpgColorPickerStyleParam::BorderRgba => {
-//             let rgba = IpgColor::extract_rgba(value, name);
-//             style.border_color = 
-//             IpgColor::rgba_ipg_color_to_iced(Some(rgba), None, 1.0, false);
-//         },
-//         IpgColorPickerStyleParam::BorderRadius => {
-//             style.border_radius = Some(try_extract_vec_f32(value, name));
-//         },
-//         IpgColorPickerStyleParam::BorderWidth => {
-//             style.border_width = Some(try_extract_f32(value, name));
-//         },
-//         IpgColorPickerStyleParam::ShadowIpgColor => {
-//             let color = IpgColor::extract(value, name);
-//             style.shadow_color = 
-//             IpgColor::rgba_ipg_color_to_iced(None, Some(color), 1.0, false);
-//         },
-//         IpgColorPickerStyleParam::ShadowRgba => {
-//             let rgba = IpgColor::extract_rgba(value, name);
-//             style.shadow_color = 
-//             IpgColor::rgba_ipg_color_to_iced(Some(rgba), None, 1.0, false);
-//         },
-//         IpgColorPickerStyleParam::ShadowOffsetX => {
-//             style.shadow_offset_x = Some(try_extract_f32(value, name));
-//         },
-//         IpgColorPickerStyleParam::ShadowOffsetY => {
-//             style.shadow_offset_y = Some(try_extract_f32(value, name));
-//         },
-//         IpgColorPickerStyleParam::ShadowBlurRadius => {
-//             style.shadow_blur_radius = Some(try_extract_f32(value, name));
-//         },
-//         IpgColorPickerStyleParam::TextIpgColor => {
-//             let color = IpgColor::extract(value, name);
-//             style.text_color = 
-//             IpgColor::rgba_ipg_color_to_iced(None, Some(color), 1.0, false);
-//         },
-//         IpgColorPickerStyleParam::TextRgbaColor => {
-//             let rgba = IpgColor::extract_rgba(value, name);
-//             style.text_color = 
-//             IpgColor::rgba_ipg_color_to_iced(Some(rgba), None, 1.0, false);
-//         },
-//     }
-// }
-
-// pub fn try_extract_color_picker_style_update(update_obj: &PyObject) -> IpgColorPickerStyleParam {
-
-//     Python::attach(|py| {
-//         let res = update_obj.extract::<IpgColorPickerStyleParam>(py);
-//         match res {
-//             Ok(update) => update,
-//             Err(_) => panic!("Color Picker style update extraction failed"),
-//         }
-//     })
-// }
-
-// fn get_cp_style(style: Option<&IpgWidgets>) -> Option<IpgColorPickerStyle>{
-//     match style {
-//         Some(IpgWidgets::IpgColorPickerStyle(style)) => {
-//             Some(style.clone())
-//         }
-//         _ => None,
-//     }
-// }
+#[derive(Debug, Clone, PartialEq)]
+#[pyclass(eq, eq_int)]
+pub enum IpgColorPickerStyleParam {
+    BackgroundIpgColor,
+    BackgroundRbga,
+    BackgroundIpgColorHovered,
+    BackgroundIpgRgbaHovered,
+    BorderIpgColor,
+    BorderRgba,
+    BorderRadius,
+    BorderWidth,
+    ShadowIpgColor,
+    ShadowRgba,
+    ShadowOffsetX,
+    ShadowOffsetY,
+    ShadowBlurRadius,
+    TextIpgColor,
+    TextRgbaColor
+}
 
 // pub fn get_styling(theme: &Theme, status: button::Status,
 //                     style_opt: &Option<IpgColorPickerStyle>,
@@ -490,4 +330,55 @@ fn convert_color_to_list(color: Color) -> Vec<f64> {
 fn rnd_2(rgba: f32) -> f64 {
     let num = rgba as f64 * 100.0;
     num.round()/100.0
+}
+
+// ---------------------------------------------------------------------------
+// WidgetParamUpdate implementations
+// ---------------------------------------------------------------------------
+
+impl WidgetParamUpdate for IpgColorPicker {
+    type Param = IpgColorPickerParam;
+
+    fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
+        match param {
+            IpgColorPickerParam::ArrowStyle => set_opt_ipg_arrow(&mut self.style_arrow, value, name),
+            IpgColorPickerParam::Clip => set_opt_bool(&mut self.clip, value, name),
+            IpgColorPickerParam::Color => set_iced_color(&mut self.color, value, name),
+            IpgColorPickerParam::Height => set_height(&mut self.height, value, name),
+            IpgColorPickerParam::HeightFill => set_height_fill(&mut self.height, value, name),
+            IpgColorPickerParam::Label => set_opt_string(&mut self.label, value, name),
+            IpgColorPickerParam::Padding => set_opt_vec_f32(&mut self.padding, value, name),
+            IpgColorPickerParam::Show => set_bool(&mut self.show, value, name),
+            IpgColorPickerParam::StyleId => set_opt_usize(&mut self.style_id, value, name),
+            IpgColorPickerParam::StyleStandard => {
+                self.style_standard = Some(extract_button_style_standard(value, name));
+            },
+            IpgColorPickerParam::Width => set_width(&mut self.width, value, name),
+            IpgColorPickerParam::WidthFill => set_width_fill(&mut self.width, value, name),
+        }
+    }
+}
+
+impl WidgetParamUpdate for IpgColorPickerStyle {
+    type Param = IpgColorPickerStyleParam;
+
+    fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
+        match param {
+            IpgColorPickerStyleParam::BackgroundIpgColor => set_opt_iced_color(&mut self.background_color, value, name),
+            IpgColorPickerStyleParam::BackgroundRbga => set_iced_color_from_rgba(&mut self.background_color, value, name),
+            IpgColorPickerStyleParam::BackgroundIpgColorHovered => set_opt_iced_color(&mut self.background_color, value, name),
+            IpgColorPickerStyleParam::BackgroundIpgRgbaHovered => set_iced_color_from_rgba(&mut self.background_color, value, name),
+            IpgColorPickerStyleParam::BorderIpgColor => set_opt_iced_color(&mut self.background_color, value, name),
+            IpgColorPickerStyleParam::BorderRgba => set_iced_color_from_rgba(&mut self.background_color, value, name),
+            IpgColorPickerStyleParam::BorderRadius => set_opt_vec_f32(&mut self.border_radius, value, name),
+            IpgColorPickerStyleParam::BorderWidth => set_opt_f32(&mut self.border_width, value, name),
+            IpgColorPickerStyleParam::ShadowIpgColor => set_opt_iced_color(&mut self.background_color, value, name),
+            IpgColorPickerStyleParam::ShadowRgba => set_iced_color_from_rgba(&mut self.background_color, value, name),
+            IpgColorPickerStyleParam::ShadowOffsetX => set_opt_f32(&mut self.shadow_offset_x, value, name),
+            IpgColorPickerStyleParam::ShadowOffsetY => set_opt_f32(&mut self.shadow_offset_y, value, name),
+            IpgColorPickerStyleParam::ShadowBlurRadius => set_opt_f32(&mut self.shadow_blur_radius, value, name),
+            IpgColorPickerStyleParam::TextIpgColor => set_opt_iced_color(&mut self.background_color, value, name),
+            IpgColorPickerStyleParam::TextRgbaColor => set_iced_color_from_rgba(&mut self.background_color, value, name),
+        }
+    }
 }

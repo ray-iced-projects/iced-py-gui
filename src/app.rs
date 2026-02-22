@@ -22,6 +22,7 @@ use crate::widgets::ipg_image::{ImageMessage, construct_image, image_callback};
 use crate::widgets::ipg_mousearea::{construct_mousearea, mousearea_callback, mousearea_callback_point};
 use crate::widgets::ipg_opaque::{construct_opaque, opaque_callback};
 use crate::widgets::ipg_pick_list::{PLMessage, construct_picklist, pick_list_callback};
+use crate::widgets::ipg_progress_bar::construct_progress_bar;
 use crate::widgets::ipg_row::construct_row;
 use crate::widgets::ipg_space::construct_space;
 use crate::widgets::ipg_text::construct_text;
@@ -826,15 +827,15 @@ fn get_widget<'a>(state: &'a IpgState, id: &usize) -> Option<Element<'a, Message
                     
                     construct_picklist(pick, style_opt)
                 },
-                // IpgWidgets::IpgProgressBar(bar) => {
-                //     let style_opt = match bar.style_id {
-                //         Some(id) => {
-                //             state.widgets.get(&id)
-                //         },
-                //         None => None,
-                //     };
-                //     construct_progress_bar(bar, style_opt)
-                // },
+                IpgWidgets::IpgProgressBar(bar) => {
+                    let style_opt = match bar.style_id {
+                        Some(id) => {
+                            state.widgets.get(&id)
+                        },
+                        None => None,
+                    };
+                    construct_progress_bar(bar, style_opt)
+                },
                 // IpgWidgets::IpgRadio(radio) => {
                 //     let style_opt = match radio.style_id {
                 //         Some(id) => {

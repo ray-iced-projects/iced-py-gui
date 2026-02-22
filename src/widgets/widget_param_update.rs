@@ -42,6 +42,7 @@ pub fn param_update(
         IpgWidgets::IpgCheckBox(w) => apply_update(w, item, value, name),
         IpgWidgets::IpgCheckboxStyle(w) => apply_update(w, item, value, name),
         IpgWidgets::IpgColorPicker(w) => apply_update(w, item, value, name),
+        IpgWidgets::IpgColorPickerStyle(w) => apply_update(w, item, value, name),
         IpgWidgets::IpgContainerStyle(w) => apply_update(w, item, value, name),
         IpgWidgets::IpgDatePicker(w) => apply_update(w, item, value, name),
         IpgWidgets::IpgDividerHorizontal(w) => apply_update(w, item, value, name),
@@ -135,7 +136,8 @@ pub fn set_height_fill(field: &mut Length, value: &PyObject, name: String) {
 }
 
 pub fn set_iced_color(field: &mut Color, value: &PyObject, name: String) {
-    *field = Color::extract(value, name);
+    let rgba = IpgColor::extract_rgba(value, name);
+    *field = Color::from(rgba);
 }
 
 pub fn set_opt_iced_color(field: &mut Option<Color>, value: &PyObject, name: String) {

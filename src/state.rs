@@ -12,7 +12,7 @@ use once_cell::sync::Lazy;
 use pyo3::{Py, PyAny};
 
 use crate::widgets::ipg_checkbox::{IpgCheckBox, IpgCheckboxStyle};
-use crate::widgets::ipg_color_picker::{IpgColorPicker};
+use crate::widgets::ipg_color_picker::{IpgColorPicker, IpgColorPickerStyle};
 use crate::widgets::ipg_column::IpgColumn;
 use crate::widgets::ipg_container::{IpgContainer, IpgContainerStyle};
 use crate::widgets::ipg_date_picker::IpgDatePicker;
@@ -24,6 +24,7 @@ use crate::widgets::ipg_image::IpgImage;
 use crate::widgets::ipg_mousearea::IpgMouseArea;
 use crate::widgets::ipg_opaque::{IpgOpaque, IpgOpaqueStyle};
 use crate::widgets::ipg_pick_list::{IpgPickList, IpgPickListStyle};
+use crate::widgets::ipg_progress_bar::{IpgProgressBar, IpgProgressBarStyle};
 use crate::widgets::ipg_row::IpgRow;
 use crate::widgets::ipg_space::IpgSpace;
 use crate::widgets::ipg_text::IpgText;
@@ -65,6 +66,7 @@ pub enum IpgWidgets {
     IpgCheckBox(IpgCheckBox),
     IpgCheckboxStyle(IpgCheckboxStyle),
     IpgColorPicker(IpgColorPicker),
+    IpgColorPickerStyle(IpgColorPickerStyle),
     IpgContainerStyle(IpgContainerStyle),
     IpgDividerHorizontal(IpgDividerHorizontal),
     IpgDividerVertical(IpgDividerVertical),
@@ -77,8 +79,8 @@ pub enum IpgWidgets {
     IpgOpaqueStyle(IpgOpaqueStyle),
     IpgPickList(IpgPickList),
     IpgPickListStyle(IpgPickListStyle),
-    // IpgProgressBar(IpgProgressBar),
-    // IpgProgressBarStyle(IpgProgressBarStyle),
+    IpgProgressBar(IpgProgressBar),
+    IpgProgressBarStyle(IpgProgressBarStyle),
     // IpgRadio(IpgRadio),
     // IpgRadioStyle(IpgRadioStyle),
     // IpgRule(IpgRule),

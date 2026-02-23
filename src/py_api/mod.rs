@@ -19,6 +19,7 @@ pub mod progress_bar;
 pub mod radio;
 pub mod row;
 pub mod rule;
+pub mod separator;
 pub mod session;
 pub mod slider;
 pub mod space;

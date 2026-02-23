@@ -21,6 +21,7 @@ pub mod ipg_opaque;
 pub mod ipg_progress_bar;
 pub mod ipg_radio;
 pub mod ipg_rule;
+pub mod ipg_separator;
 pub mod ipg_space;
 pub mod ipg_slider;
 pub mod ipg_row;

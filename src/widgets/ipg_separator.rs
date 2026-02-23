@@ -1,84 +1,36 @@
 //! ipg_separator
 #![allow(clippy::enum_variant_names)]
 use crate::app::Message;
-use crate::graphics::colors::{get_color, IpgColor};
-use crate::iced_aw_widgets::menu::quad::{InnerBounds, Quad};
+use crate::graphics::colors::IpgColor;
 
 use crate::app;
-use super::helpers::{get_height, get_width, 
-    try_extract_boolean, try_extract_f64, try_extract_i64, 
-    try_extract_ipg_color, try_extract_rgba_color, 
-    try_extract_string};
-use super::ipg_enums::IpgWidgets;
+use crate::state::IpgWidgets;
 
 use iced::border::Radius;
-
-
-use pyo3::{pyclass, Py, PyAny, Python};
-
-// Type alias to replace deprecated PyObject
-type PyObject = Py<PyAny>;
-
 use iced::widget::{row, Row, Text};
 use iced::{Background, Border, Color, Element, 
     Length, Renderer, Theme };
 
+use pyo3::{pyclass, Py, PyAny, Python};
+type PyObject = Py<PyAny>;
 
 #[derive(Debug, Clone)]
 pub struct IpgSeparator {
     pub id: usize,
     pub parent_id: String,
-    pub separator_type: IpgSeparatorType,
+    pub separator_type: Option<IpgSeparatorType>,
     pub label: Option<String>,
-    pub label_left_width: f32,
-    pub label_right_width: f32,
-    pub dot_radius: f32,
-    pub dot_count: usize,
+    pub label_left_width: Option<f32>,
+    pub label_right_width: Option<f32>,
+    pub dot_radius: Option<f32>,
+    pub dot_count: Option<usize>,
     pub dot_fill: bool,
-    pub dot_border_width: f32,
+    pub dot_border_width: Option<f32>,
     pub width: Length,
     pub height: Length,
-    pub spacing: f32,
+    pub spacing: Option<f32>,
     pub style_id: Option<usize>,
     pub show: bool,
-}
-
-impl IpgSeparator {
-    pub fn new( 
-        id: usize,
-        parent_id: String,
-        separator_type: IpgSeparatorType,
-        label: Option<String>,
-        label_left_width: f32,
-        label_right_width: f32,
-        dot_radius: f32,
-        dot_count: usize,
-        dot_fill: bool,
-        dot_border_width: f32,
-        width: Length,
-        height: Length,
-        spacing: f32,
-        style_id: Option<usize>,
-        show: bool,
-        ) -> Self {
-        Self {
-            id,
-            parent_id,
-            separator_type,
-            label,
-            label_left_width,
-            label_right_width,
-            dot_radius,
-            dot_count,
-            dot_fill,
-            dot_border_width,
-            width,
-            height,
-            spacing,
-            style_id,
-            show,
-        }
-    }
 }
 
 #[derive(Debug, Clone)]
@@ -86,20 +38,6 @@ pub struct IpgSeparatorStyle {
     pub id: usize,
     pub color: Option<Color>,
     pub border_color: Option<Color>,
-}
-
-impl IpgSeparatorStyle {
-    pub fn new(
-        id: usize,
-        color: Option<Color>,
-        border_color: Option<Color>,
-    ) -> Self {
-        Self {
-            id,
-            color,
-            border_color,
-        }
-    }
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -120,48 +58,49 @@ pub fn construct_separator<'a>(sep: &'a IpgSeparator,
 
     let style_opt = get_sep_style(style_opt);
 
-    let mut sep_color = get_color(
+    let mut sep_color = IpgColor::rgba_ipg_color_to_iced(
                                     None, 
                                     Some(IpgColor::PRIMARY), 
                                     1.0, 
                                     false).unwrap();
+
     let mut border = Border::default();
     
-    let separator: Element<'a, app::Message>  = if style_opt.is_some() {
-        let style = style_opt.unwrap();
+    let separator: Element<'a, app::Message>  = 
+        if let Some(style) = style_opt {
+        
+        let sep_color = 
+            if let Some(c) = style.color {
+                c
+            } else { sep_color };
 
-        sep_color = if style.color.is_some() {
-            style.color.unwrap()
-        } else {
-            sep_color
-        };
-
-        border.color = if style.border_color.is_some() {
-            style.border_color.unwrap()
-        } else {
-            border.color
-        };
-
+        if let Some(bc) = style.border_color {
+            border.color = bc;
+        }
+        
+        // returns a separator with some styling
         match sep.separator_type {
-            IpgSeparatorType::Dot => {  
+            Some(IpgSeparatorType::Dot) => {  
                 get_dot(sep, sep_color, border)
             },
-            IpgSeparatorType::Label => {
+            Some(IpgSeparatorType::Label )=> {
                 get_label(sep, sep_color)
             },
-            IpgSeparatorType::Line => {
+            Some(IpgSeparatorType::Line) | None=> {
                 get_line(sep, sep_color)
             },
         }
+
     } else {
+        // returns a separator with default styling
         match sep.separator_type {
-            IpgSeparatorType::Dot => {
+            Some(IpgSeparatorType::Dot) => {
                 get_dot(sep, sep_color, border)
             },
-            IpgSeparatorType::Label => {
+            Some(IpgSeparatorType::Label) => {
                 get_label(sep, sep_color)
             },
-            IpgSeparatorType::Line => {
+            Some(IpgSeparatorType::Line) | None=> {
                 get_line(sep, sep_color)
             },
         }
@@ -181,20 +120,12 @@ fn get_dot(sep: &IpgSeparator,
     } else {
         Color::TRANSPARENT
     };
-    let radius = sep.dot_radius;
-    // Shrink doesn't seem to work so sub in radius
-    let width = if sep.width == Length::Shrink {
-        Length::Fixed(radius*2.0)
-    } else {
-        sep.width
-    };
-    
-    let height = if sep.height == Length::Shrink {
-        Length::Fixed(radius*2.0)
-    } else {
-        sep.height
-    };
 
+    // Shrink doesn't seem to work so sub in radius
+    let width =  if let Some(rad) = sep.dot_radius {
+        Length::Fixed(rad*2.0)
+        } else { Length::Shrink };
+    
     row((0..sep.dot_count).map(|_| {
         Quad {
             inner_bounds: InnerBounds::Square(radius * 2.0),

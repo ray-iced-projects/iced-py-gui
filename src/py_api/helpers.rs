@@ -253,10 +253,21 @@ pub fn try_extract_vec_usize(value: &PyObject, name: String) -> Vec<usize> {
     })  
 }
 
-pub fn try_extract_array_2(value: &PyObject, name: String) -> [f32; 2] {
+pub fn try_extract_f32_array_2(value: &PyObject, name: String) -> [f32; 2] {
     Python::attach(|py| {
 
         let res = value.extract::<[f32; 2]>(py);
+        match res {
+            Ok(val) => val,
+            Err(_) => panic!("{}-Unable to extract python object for 2 item list", name),
+        }
+    })
+}
+
+pub fn try_extract_u16_array_2(value: &PyObject, name: String) -> [u16; 2] {
+    Python::attach(|py| {
+
+        let res = value.extract::<[u16; 2]>(py);
         match res {
             Ok(val) => val,
             Err(_) => panic!("{}-Unable to extract python object for 2 item list", name),

@@ -7,7 +7,7 @@ use crate::widgets::enums::{IpgHorizontalAlignment,
 use crate::widgets::widget_param_update::{
     WidgetParamUpdate, set_bool, set_halign, set_height, 
     set_height_fill, set_iced_color_from_rgba, 
-    set_opt_array_2, set_opt_bool, set_opt_f32, 
+    set_opt_f32_array_2, set_opt_bool, set_opt_f32, 
     set_opt_iced_color, set_opt_usize, set_opt_vec_f32, 
     set_valign, set_width, set_width_fill
 };
@@ -294,7 +294,7 @@ impl WidgetParamUpdate for IpgContainerStyle {
             IpgContainerStyleParam::BorderWidth         => set_opt_f32(&mut self.border_width, value, name),
             IpgContainerStyleParam::ShadowIpgColor      => set_opt_iced_color(&mut self.shadow_color, value, name),
             IpgContainerStyleParam::ShadowRgbaColor     => set_iced_color_from_rgba(&mut self.shadow_color, value, name),
-            IpgContainerStyleParam::ShadowOffsetXY      => set_opt_array_2(&mut self.shadow_offset_xy, value, name),
+            IpgContainerStyleParam::ShadowOffsetXY      => set_opt_f32_array_2(&mut self.shadow_offset_xy, value, name),
             IpgContainerStyleParam::ShadowBlurRadius    => set_opt_f32(&mut self.shadow_blur_radius, value, name),
             IpgContainerStyleParam::TextIpgColor        => set_opt_iced_color(&mut self.text_color, value, name),
             IpgContainerStyleParam::TextRgbaColor       => set_iced_color_from_rgba(&mut self.text_color, value, name),

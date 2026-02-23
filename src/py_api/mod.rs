@@ -18,6 +18,7 @@ pub mod picklist;
 pub mod progress_bar;
 pub mod radio;
 pub mod row;
+pub mod rule;
 pub mod session;
 pub mod space;
 pub mod text;

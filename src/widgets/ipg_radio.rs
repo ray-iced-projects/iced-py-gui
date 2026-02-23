@@ -55,30 +55,6 @@ pub struct IpgRadioStyle {
     pub text_color: Option<Color>,
 }
 
-impl IpgRadioStyle {
-    pub fn new(
-        id: usize,
-        background_color: Option<Color>,
-        background_color_hovered: Option<Color>,
-        dot_color: Option<Color>,
-        dot_color_hovered: Option<Color>,
-        border_color: Option<Color>,
-        border_width: Option<f32>,
-        text_color: Option<Color>,
-    ) -> Self {
-        Self {
-            id,
-            background_color,
-            background_color_hovered,
-            dot_color,
-            dot_color_hovered,
-            border_color,
-            border_width,
-            text_color,
-        }
-    }
-}
-
 #[derive(Debug, Clone, PartialEq)]
 #[pyclass(eq, eq_int)]
 pub enum IpgRadioDirection {

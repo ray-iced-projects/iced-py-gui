@@ -25,6 +25,7 @@ use crate::widgets::ipg_pick_list::{PLMessage, construct_picklist, pick_list_cal
 use crate::widgets::ipg_progress_bar::construct_progress_bar;
 use crate::widgets::ipg_radio::{RDMessage, construct_radio, radio_callback};
 use crate::widgets::ipg_row::construct_row;
+use crate::widgets::ipg_rule::construct_rule;
 use crate::widgets::ipg_space::construct_space;
 use crate::widgets::ipg_text::construct_text;
 use crate::widgets::ipg_window::{IpgWindow, IpgWindowLevel, IpgWindowMode, add_windows, construct_window};
@@ -844,15 +845,13 @@ fn get_widget<'a>(state: &'a IpgState, id: &usize) -> Option<Element<'a, Message
                         } else { None };
                     construct_radio(rad, style_opt, font_opt)
                 },
-                // IpgWidgets::IpgRule(rule) => {
-                //     let style_opt = match rule.style_id {
-                //         Some(id) => {
-                //             state.widgets.get(&id)
-                //         },
-                //         None => None,
-                //     };
-                //     construct_rule(rule, style_opt)
-                // },
+                IpgWidgets::IpgRule(rule) => {
+                    let style_opt = 
+                        if let Some(id) = rule.style_id {
+                            state.widgets.get(&id)
+                        } else { None };
+                    construct_rule(rule, style_opt)
+                },
                 // IpgWidgets::IpgSelectableText(sltxt) => {
                 //     construct_selectable_text(sltxt)
                 // },

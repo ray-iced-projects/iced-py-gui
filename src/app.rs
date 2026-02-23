@@ -23,6 +23,7 @@ use crate::widgets::ipg_mousearea::{construct_mousearea, mousearea_callback, mou
 use crate::widgets::ipg_opaque::{construct_opaque, opaque_callback};
 use crate::widgets::ipg_pick_list::{PLMessage, construct_picklist, pick_list_callback};
 use crate::widgets::ipg_progress_bar::construct_progress_bar;
+use crate::widgets::ipg_radio::{RDMessage, construct_radio, radio_callback};
 use crate::widgets::ipg_row::construct_row;
 use crate::widgets::ipg_space::construct_space;
 use crate::widgets::ipg_text::construct_text;
@@ -46,7 +47,7 @@ pub enum Message {
     Image(usize, ImageMessage),
 //     // Modal(usize, ModalMessage),
     PickList(usize, PLMessage),
-//     Radio(usize, RDMessage),
+    Radio(usize, RDMessage),
 //     Scrolled(scrollable::Viewport, usize),
 //     SelectableText(usize, SLTXTMessage),
 //     Slider(usize, SLMessage),
@@ -269,11 +270,12 @@ impl App {
                 process_updates(&mut self.state);
                 Task::none()
             },
-            // Message::Radio(id, message) => {
-            //     radio_callback(&mut self.state, id, message);
-            //     process_updates(&mut self.state, &mut self.canvas_state);
-            //     Task::none()
-            // },
+            Message::Radio(id, message) => {
+                radio_callback(&mut self.state, id, message);
+                // process_updates(&mut self.state, &mut self.canvas_state);
+                process_updates(&mut self.state);
+                Task::none()
+            },
             // Message::Scrolled(vp, id) => {
             //     scrollable_callback(&mut self.state, id, vp);
             //     process_updates(&mut self.state, &mut self.canvas_state);
@@ -693,12 +695,9 @@ fn get_container<'a>(state: &'a IpgState,
                 },
                 IpgContainers::IpgOpaque(op) => {
                     let style_opt = 
-                        match op.style_id {
-                            Some(id) => {
-                                state.widgets.get(&id)
-                            },
-                            None => None,
-                        };
+                        if let Some(id)  = op.style_id {
+                            state.widgets.get(&id)
+                        } else { None };
 
                     construct_opaque(op, content, style_opt)
                 },
@@ -828,23 +827,23 @@ fn get_widget<'a>(state: &'a IpgState, id: &usize) -> Option<Element<'a, Message
                     construct_picklist(pick, style_opt)
                 },
                 IpgWidgets::IpgProgressBar(bar) => {
-                    let style_opt = match bar.style_id {
-                        Some(id) => {
+                    let style_opt = 
+                        if let Some(id) = bar.style_id {
                             state.widgets.get(&id)
-                        },
-                        None => None,
-                    };
+                        } else { None };
                     construct_progress_bar(bar, style_opt)
                 },
-                // IpgWidgets::IpgRadio(radio) => {
-                //     let style_opt = match radio.style_id {
-                //         Some(id) => {
-                //             state.widgets.get(&id)
-                //         },
-                //         None => None,
-                //     };
-                //     construct_radio(radio, style_opt)
-                // },
+                IpgWidgets::IpgRadio(rad) => {
+                    let style_opt = 
+                        if let Some(id) = rad.style_id {
+                            state.widgets.get(&id)
+                        } else { None };
+                    let font_opt = 
+                        if let Some(id) = rad.font_id {
+                            state.widgets.get(&id)
+                        } else { None };
+                    construct_radio(rad, style_opt, font_opt)
+                },
                 // IpgWidgets::IpgRule(rule) => {
                 //     let style_opt = match rule.style_id {
                 //         Some(id) => {
@@ -881,14 +880,12 @@ fn get_widget<'a>(state: &'a IpgState, id: &usize) -> Option<Element<'a, Message
                 // IpgWidgets::IpgSvg(svg) => {
                 //     construct_svg(svg)
                 // },
-                IpgWidgets::IpgText(text) => {
-                    let font_opt = match text.font_id {
-                        Some(id) => {
+                IpgWidgets::IpgText(txt) => {
+                    let font_opt = 
+                        if let Some(id) = txt.font_id {
                             state.widgets.get(&id)
-                        },
-                        None => None,
-                    };
-                    construct_text(text, font_opt)
+                        } else { None };
+                    construct_text(txt, font_opt)
                 },
                 // IpgWidgets::IpgTextInput(input) => {
                 //     let style_opt = match input.style_id {

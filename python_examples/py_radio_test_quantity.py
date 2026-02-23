@@ -6,38 +6,23 @@ def radio_cb(id: int, selected: tuple):
     print(id, radio_index, radio_label)
 
 add_window(
-        window_id="main", 
-        title="Radio Demo",
+    window_id="main", 
+    title="Radio Demo",
     size=(1400, 600),
-        position=(100, 25))
+    position=(100, 25))
 
-add_scrollable(
-        window_id="main", 
-        container_id="scroller")
+add_container(
+    window_id="main",
+    container_id="cont",
+    center=True,
+)
 
-add_column(
-        window_id="main", 
-        container_id="col",
-        parent_id="scroller",
-        align=IpgAlignment.Start, 
-        padding=[5])
-
-# The radio button limits are 26 groups with 26 items
-for i in range(0, 25):
-    add_row(
-            window_id="main", 
-            container_id=f"row{i}", 
-            parent_id="col")
-    add_text(
-            parent_id=f"row{i}", 
-            content=F"Row-{i}")
-    add_radio(
-            parent_id=f"row{i}", 
-            labels=["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", 
-                    "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"],
-            direction=IpgRadioDirection.Horizontal,
-            size=15.0,
-            on_select=radio_cb)
+add_radio(
+    parent_id="cont", 
+    labels=["a", "b", "c"],
+    direction=IpgRadioDirection.Horizontal,
+    size=15.0,
+    on_select=radio_cb)
 
 
 # Required to be the last widget sent to Iced,  If you start the program

@@ -16,6 +16,7 @@ pub mod mousearea;
 pub mod opaque;
 pub mod picklist;
 pub mod progress_bar;
+pub mod radio;
 pub mod row;
 pub mod session;
 pub mod space;

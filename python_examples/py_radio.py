@@ -3,23 +3,23 @@ from imports import *
 # The callback data parameter for the radio is a list = [index, label]
 # In this case, the user_data is a string but it can be anything
 def selected_radio_1(
-        rd_id: int, 
-        data: list[int, str], 
-        user_data: str):
+    rd_id: int, 
+    data: list[int, str], 
+    user_data: str):
     
     update_widget(
-            rd_text_id_1, 
-            IpgTextParam.Content,
-            f"Radio callback id = {rd_id}, \n index = {data[0]}, \nlabel = {data[1]} \n user_data = {user_data}")
+        rd_text_id_1, 
+        IpgTextParam.Content,
+        f"Radio callback id = {rd_id}, \n index = {data[0]}, \nlabel = {data[1]} \n user_data = {user_data}")
 
 
 def selected_radio_2(
     rd_id: int, 
     data: list[int, str]):
     update_widget(
-            rd_text_id_2, 
-            IpgTextParam.Content,
-            f"Radio callback id = {rd_id}, \n index = {data[0]}, \nlabel = {data[1]} \n user_data = None used")
+        rd_text_id_2, 
+        IpgTextParam.Content,
+        f"Radio callback id = {rd_id}, \n index = {data[0]}, \nlabel = {data[1]} \n user_data = None used")
 
 
 # The callbacks below allow you to change all of the parameters for a widget.
@@ -251,15 +251,14 @@ def change_height(chk_id: int, checked: bool, radio_ids: list[int]):
 def change_right_radio_colors(chk_id: int, checked: bool, radio_right_id: int):
     if checked:
         update_widget(
-                radio_right_id, 
-                IpgRadioParam.StyleId, 
-                color)
+            radio_right_id, 
+            IpgRadioParam.StyleId, 
+            color)
     else:
         update_widget(
-                radio_right_id, 
-                IpgRadioParam.StyleId, 
-                0)
-
+            radio_right_id, 
+            IpgRadioParam.StyleId, 
+            0)
 
 
 # Define the styling that's used later

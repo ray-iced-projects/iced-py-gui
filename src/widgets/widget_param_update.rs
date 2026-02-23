@@ -11,6 +11,7 @@ use crate::py_api::helpers::{
 };
 use crate::state::{IpgContainers, IpgWidgets};
 use crate::widgets::enums::{IpgAlignment, IpgHorizontalAlignment, IpgShaping, IpgVerticalAlignment};
+use crate::widgets::ipg_text::IpgWrapping;
 
 type PyObject = Py<PyAny>;
 
@@ -53,6 +54,8 @@ pub fn param_update(
         IpgWidgets::IpgOpaqueStyle(w) => apply_update(w, item, value, name),
         IpgWidgets::IpgPickList(w) => apply_update(w, item, value, name),
         IpgWidgets::IpgPickListStyle(w) => apply_update(w, item, value, name),
+        IpgWidgets::IpgRadio(w) => apply_update(w, item, value, name),
+        IpgWidgets::IpgRadioStyle(w) => apply_update(w, item, value, name),
         IpgWidgets::IpgProgressBar(w) => apply_update(w, item, value, name),
         IpgWidgets::IpgProgressBarStyle(w) => apply_update(w, item, value, name),
         IpgWidgets::IpgSpace(w) => apply_update(w, item, value, name),
@@ -209,6 +212,10 @@ pub fn set_align(field: &mut Option<IpgAlignment>, value: &PyObject, name: Strin
 
 pub fn set_opt_text_shaping(field: &mut Option<IpgShaping>, value: &PyObject, name: String) {
     *field = IpgShaping::extract(value)
+}
+
+pub fn set_opt_text_wrapping(field: &mut Option<IpgWrapping>, value: &PyObject, name: String) {
+    *field = IpgWrapping::extract(value)
 }
 
 pub fn set_opt_ipg_arrow(field: &mut Option<IpgArrow>, value: &PyObject, name: String) {

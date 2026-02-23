@@ -137,7 +137,7 @@ pub enum IpgWrapping {
 }
 
 impl IpgWrapping {
-    fn to_iced(&self) -> text::Wrapping {
+    pub fn to_iced(&self) -> text::Wrapping {
         match self {
             IpgWrapping::None => text::Wrapping::None,
             IpgWrapping::Glyph => text::Wrapping::Glyph,
@@ -146,7 +146,7 @@ impl IpgWrapping {
         }
     }
 
-    fn extract(value: &PyObject) -> Option<Self> {
+    pub fn extract(value: &PyObject) -> Option<Self> {
         Some(Python::attach(|py| {
 
             let res = value.extract::<Self>(py);

@@ -2,7 +2,7 @@
 #![allow(dead_code)]
 use crate::IpgState;
 use super::ipg_enums::IpgContainers;
-use super::{helpers::{format_date, MONTH_NAMES}, ipg_enums::IpgWidgets, ipg_radio::Choice};
+use super::{helpers::{format_date, MONTH_NAMES}, ipg_enums::IpgWidgets};
 
 use iced::widget::scrollable;
 use iced::{Color, Point};
@@ -14,7 +14,7 @@ type PyObject = Py<PyAny>;
 #[derive(Default, Debug)]
 pub struct WidgetCallbackIn {
     pub id: usize,
-    pub choice: Option<Choice>,
+    pub choice: Option<usize>,
     pub choice_index: Option<usize>,
     pub color: Option<Vec<f64>>,
     pub counter: Option<u64>,

@@ -25,6 +25,7 @@ use crate::widgets::ipg_mousearea::IpgMouseArea;
 use crate::widgets::ipg_opaque::{IpgOpaque, IpgOpaqueStyle};
 use crate::widgets::ipg_pick_list::{IpgPickList, IpgPickListStyle};
 use crate::widgets::ipg_progress_bar::{IpgProgressBar, IpgProgressBarStyle};
+use crate::widgets::ipg_radio::{IpgRadio, IpgRadioStyle};
 use crate::widgets::ipg_row::IpgRow;
 use crate::widgets::ipg_space::IpgSpace;
 use crate::widgets::ipg_text::IpgText;
@@ -81,8 +82,8 @@ pub enum IpgWidgets {
     IpgPickListStyle(IpgPickListStyle),
     IpgProgressBar(IpgProgressBar),
     IpgProgressBarStyle(IpgProgressBarStyle),
-    // IpgRadio(IpgRadio),
-    // IpgRadioStyle(IpgRadioStyle),
+    IpgRadio(IpgRadio),
+    IpgRadioStyle(IpgRadioStyle),
     // IpgRule(IpgRule),
     // IpgRuleStyle(IpgRuleStyle),
     // IpgScrollableStyle(IpgScrollableStyle),
@@ -298,7 +299,6 @@ pub struct State {
     pub touch_event_id_enabled: (usize, bool),
     pub timer_duration: u64,
     pub canvas_timer_duration: u64,
-
 }
 
 pub static STATE: Mutex<State> = Mutex::new(
@@ -332,7 +332,6 @@ pub static STATE: Mutex<State> = Mutex::new(
         touch_event_id_enabled: (0, false),
         timer_duration: 0,
         canvas_timer_duration: 0,
-
     }
 );
 

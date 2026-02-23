@@ -36,12 +36,14 @@ use crate::py_api::image::add_image;
 use crate::py_api::mousearea::add_mouse_area;
 use crate::py_api::opaque::{add_opaque_container, add_opaque_style};
 use crate::py_api::progress_bar::{add_progress_bar, add_progress_bar_style};
+use crate::py_api::radio::{add_radio, add_radio_style};
 use crate::py_api::row::add_row;
 use crate::py_api::picklist::{add_pick_list, add_pick_list_style};
 use crate::py_api::text::add_text;
 use crate::py_api::space::add_space;
 use crate::py_api::session::{start_session, generate_id};
 use crate::py_api::update::update_widget;
+use crate::widgets::ipg_radio::{IpgRadioDirection, IpgRadioParam, IpgRadioStyleParam};
 
 // Import enums from widgets module
 use widgets::enums::{IpgAlignment, IpgHorizontalAlignment, IpgVerticalAlignment};
@@ -82,6 +84,7 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(add_opaque_container, m)?)?;
     m.add_function(wrap_pyfunction!(add_pick_list, m)?)?;
     m.add_function(wrap_pyfunction!(add_progress_bar, m)?)?;
+    m.add_function(wrap_pyfunction!(add_radio, m)?)?;
     m.add_function(wrap_pyfunction!(add_row, m)?)?;
     m.add_function(wrap_pyfunction!(add_space, m)?)?;
     m.add_function(wrap_pyfunction!(add_text, m)?)?;
@@ -96,6 +99,7 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(add_opaque_style, m)?)?;
     m.add_function(wrap_pyfunction!(add_pick_list_style, m)?)?;
     m.add_function(wrap_pyfunction!(add_progress_bar_style, m)?)?;
+    m.add_function(wrap_pyfunction!(add_radio_style, m)?)?;
 
     // style parameters
     m.add_class::<IpgButtonStyleParam>()?;
@@ -103,6 +107,7 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<IpgCheckboxStyleParam>()?;
     m.add_class::<IpgContainerStyleParam>()?;
     m.add_class::<IpgDividerStyleParam>()?;
+    m.add_class::<IpgRadioStyleParam>()?;
     m.add_class::<IpgStyleStandard>()?;
 
     // widget params
@@ -112,6 +117,7 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<IpgColumnParam>()?;
     m.add_class::<IpgDatePickerParam>()?;
     m.add_class::<IpgDividerParam>()?;
+    m.add_class::<IpgRadioParam>()?;
     m.add_class::<IpgTextParam>()?;
     m.add_class::<IpgWindowLevel>()?;
     m.add_class::<IpgWindowMode>()?;
@@ -124,6 +130,6 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<IpgPickListHandle>()?;
     m.add_class::<IpgHorizontalAlignment>()?;
     m.add_class::<IpgVerticalAlignment>()?;
-
+    m.add_class::<IpgRadioDirection>()?;
     Ok(())
 }

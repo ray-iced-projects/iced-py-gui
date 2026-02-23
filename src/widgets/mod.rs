@@ -19,6 +19,7 @@ pub mod ipg_mousearea;
 pub mod ipg_pick_list;
 pub mod ipg_opaque;
 pub mod ipg_progress_bar;
+pub mod ipg_radio;
 pub mod ipg_space;
 pub mod ipg_row;
 pub mod styling;

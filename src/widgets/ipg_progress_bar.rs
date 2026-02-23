@@ -1,13 +1,15 @@
 //! ipg_progress_bar
 use iced::{Color, Element, Length, Theme};
 use iced::widget::{progress_bar, ProgressBar};
-use pyo3::{pyclass, Py, PyAny, Python};
+
+use pyo3::{pyclass, Py, PyAny};
 type PyObject = Py<PyAny>;
 
 use crate::app;
+use crate::py_api::helpers::{get_radius, try_extract_style_standard};
 use crate::state::IpgWidgets;
 use crate::widgets::styling::IpgStyleStandard;
-use crate::widgets::widget_param_update::WidgetParamUpdate;
+use crate::widgets::widget_param_update::{WidgetParamUpdate, set_bool, set_f32, set_height, set_height_fill, set_iced_color_from_rgba, set_opt_bool, set_opt_f32, set_opt_iced_color, set_opt_usize, set_opt_vec_f32, set_width, set_width_fill};
 
 #[derive(Debug, Clone)]
 pub struct IpgProgressBar {
@@ -45,16 +47,17 @@ pub fn construct_progress_bar<'a>(bar: &'a IpgProgressBar,
 
     let style = get_progress_bar_style(style_opt);
 
-    Some(ProgressBar::new(bar.min..=bar.max, bar.value)
-                            .length(bar.width)
-                            .girth(bar.height)
-                            .style(move|theme: &Theme | {   
-                                get_styling(theme, 
-                                    bar.style_standard.clone(), 
-                                    style.clone(), 
-                                    )  
-                                })
-                            .into()
+    Some(ProgressBar::new(
+        bar.min..=bar.max, bar.value)
+            .length(bar.width)
+            .girth(bar.height)
+            .style(move|theme: &Theme | {   
+                get_styling(theme, 
+                    bar.style_standard.clone(), 
+                    style.clone(), 
+                    )  
+                })
+            .into()
     )
 }
 
@@ -63,12 +66,13 @@ pub fn construct_progress_bar<'a>(bar: &'a IpgProgressBar,
 #[pyclass(eq, eq_int)]
 pub enum IpgProgressBarParam {
     Height,
+    HeightFill,
     IsVertical,
     Min,
     Max,
     Show,
     StyleStandard,
-    Style,
+    StyleId,
     Value,
     Width,
     WidthFill,
@@ -90,13 +94,23 @@ pub fn get_styling(theme: &Theme,
             IpgStyleStandard::Primary => {
                 progress_bar::primary(theme)
             },
+            IpgStyleStandard::Secondary => {
+                progress_bar::secondary(theme)
+            },
             IpgStyleStandard::Success => {
                 progress_bar::success(theme)
             },
             IpgStyleStandard::Danger => {
                 progress_bar::danger(theme)
             },
-            IpgStyleStandard::Text => panic!("IpgStandardStyle.Text is not valid for progress bar"),
+            IpgStyleStandard::Text => {
+                eprint!("[WARN] IpgStandardStyle.Text 
+                is not valid for progress bar, defaulting to primary.");
+                progress_bar::primary(theme)
+            },
+            IpgStyleStandard::Warning => {
+                progress_bar::warning(theme)
+            },
         };
 
         if style_opt.is_some() {
@@ -175,32 +189,42 @@ impl WidgetParamUpdate for IpgProgressBar {
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
         match param {
-            IpgProgressBarParam::Height      => set_height(&mut self.height, value, name),
-            IpgProgressBarParam::HeightFill  => set_height_fill(&mut self.height, value, name),
-            IpgProgressBarParam::Width       => set_width(&mut self.width, value, name),
-            IpgProgressBarParam::WidthFill   => set_width_fill(&mut self.width, value, name),
-            IpgProgressBarParam::Show        => set_bool(&mut self.show, value, name),
+            IpgProgressBarParam::Height => set_height(&mut self.height, value, name),
+            IpgProgressBarParam::HeightFill => set_height_fill(&mut self.height, value, name),
+            IpgProgressBarParam::IsVertical => set_opt_bool(&mut self.is_vertical, value, name),
+            IpgProgressBarParam::Max => set_f32(&mut self.max, value, name),
+            IpgProgressBarParam::Min => set_f32(&mut self.min, value, name),
+            IpgProgressBarParam::Show => set_bool(&mut self.show, value, name),
+            IpgProgressBarParam::StyleId => set_opt_usize(&mut self.style_id, value, name),
+            IpgProgressBarParam::StyleStandard => self.style_standard = Some(try_extract_style_standard(value, name)),
+            IpgProgressBarParam::Value => set_f32(&mut self.value, value, name),
+            IpgProgressBarParam::Width => set_width(&mut self.width, value, name),
+            IpgProgressBarParam::WidthFill => set_width_fill(&mut self.width, value, name),
         }
     }
 }
 
-impl WidgetParamUpdate for IpgContainerStyle {
-    type Param = IpgContainerStyleParam;
+impl WidgetParamUpdate for IpgProgressBarStyle {
+    type Param = IpgProgressBarStyleParam;
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
         match param {
-            IpgContainerStyleParam::BackgroundIpgColor  => set_opt_iced_color(&mut self.background_color, value, name),
-            IpgContainerStyleParam::BackgroundRgbaColor => set_iced_color_from_rgba(&mut self.background_color, value, name),
-            IpgContainerStyleParam::BorderIpgColor      => set_opt_iced_color(&mut self.border_color, value, name),
-            IpgContainerStyleParam::BorderRgbaColor     => set_iced_color_from_rgba(&mut self.border_color, value, name),
-            IpgContainerStyleParam::BorderRadius        => set_opt_vec_f32(&mut self.border_radius, value, name),
-            IpgContainerStyleParam::BorderWidth         => set_opt_f32(&mut self.border_width, value, name),
-            IpgContainerStyleParam::ShadowIpgColor      => set_opt_iced_color(&mut self.shadow_color, value, name),
-            IpgContainerStyleParam::ShadowRgbaColor     => set_iced_color_from_rgba(&mut self.shadow_color, value, name),
-            IpgContainerStyleParam::ShadowOffsetXY      => set_opt_array_2(&mut self.shadow_offset_xy, value, name),
-            IpgContainerStyleParam::ShadowBlurRadius    => set_opt_f32(&mut self.shadow_blur_radius, value, name),
-            IpgContainerStyleParam::TextIpgColor        => set_opt_iced_color(&mut self.text_color, value, name),
-            IpgContainerStyleParam::TextRgbaColor       => set_iced_color_from_rgba(&mut self.text_color, value, name),
+            IpgProgressBarStyleParam::BackgroundIpgColor => 
+                set_opt_iced_color(&mut self.background_color, value, name),
+            IpgProgressBarStyleParam::BackgroundRgbaColor => 
+                set_iced_color_from_rgba(&mut self.background_color, value, name),
+            IpgProgressBarStyleParam::BarIpgColor => 
+                set_opt_iced_color(&mut self.bar_color, value, name),
+            IpgProgressBarStyleParam::BarRgbaColor => 
+                set_iced_color_from_rgba(&mut self.bar_color, value, name),
+            IpgProgressBarStyleParam::BorderIpgColor => 
+                set_opt_iced_color(&mut self.border_color, value, name),
+            IpgProgressBarStyleParam::BorderRgbaColor => 
+                set_iced_color_from_rgba(&mut self.border_color, value, name),
+            IpgProgressBarStyleParam::BorderRadius => 
+                set_opt_vec_f32(&mut self.border_radius, value, name),
+            IpgProgressBarStyleParam::BorderWidth => 
+                set_opt_f32(&mut self.border_width, value, name),
         }
     }
 }

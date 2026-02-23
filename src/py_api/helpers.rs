@@ -294,7 +294,6 @@ pub fn try_extract_boolean(value: &PyObject, name: String) -> bool {
     })  
 }
 
-
 pub fn try_extract_style_standard(value: &PyObject, name: String) -> IpgStyleStandard {
     Python::attach(|py| {
 

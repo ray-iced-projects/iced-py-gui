@@ -1,8 +1,6 @@
-//! Button module - provides add_button pyfunction
-
+//! Image module - provides add_image pyfunction
 use pyo3::{Py, PyAny, pyfunction, PyResult};
 type PyObject = Py<PyAny>;
-
 
 use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex, 
     py_api::helpers::{get_height, get_width}, 

@@ -9,8 +9,8 @@ type PyObject = Py<PyAny>;
 
 use crate::IpgState;
 use crate::app::Message;
-use crate::graphics::bootstrap_icon::IpgIcon;
-use crate::py_api::helpers::{try_extract_boolean, try_extract_f32, try_extract_usize, try_extract_vec_f32};
+use crate::py_api::helpers::{try_extract_boolean, 
+    try_extract_f32, try_extract_usize, try_extract_vec_f32};
 use crate::state::access_window_actions;
 use crate::widgets::widget_param_update::{
     WidgetParamUpdate, extract_param,

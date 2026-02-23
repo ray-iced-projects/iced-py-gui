@@ -882,7 +882,13 @@ fn get_widget<'a>(state: &'a IpgState, id: &usize) -> Option<Element<'a, Message
                 //     construct_svg(svg)
                 // },
                 IpgWidgets::IpgText(text) => {
-                    construct_text(text)
+                    let font_opt = match text.font_id {
+                        Some(id) => {
+                            state.widgets.get(&id)
+                        },
+                        None => None,
+                    };
+                    construct_text(text, font_opt)
                 },
                 // IpgWidgets::IpgTextInput(input) => {
                 //     let style_opt = match input.style_id {

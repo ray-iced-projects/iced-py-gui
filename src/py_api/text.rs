@@ -3,7 +3,7 @@ use pyo3::{pyfunction, PyResult};
 
 use crate::py_api::helpers::{get_height, get_width};
 use crate::state::{IpgWidgets, get_id, set_state_of_widget}; 
-use crate::widgets::ipg_text::IpgText;
+use crate::widgets::ipg_text::{IpgText, IpgWrapping};
 use crate::widgets::enums::{IpgHorizontalAlignment, IpgShaping, IpgVerticalAlignment};
 use crate::access_state; 
 use crate::graphics::colors::IpgColor;
@@ -20,15 +20,16 @@ use crate::graphics::colors::IpgColor;
     width_fill=false, 
     height=None, 
     height_fill=false,
-    centered=true,
+    center=true,
     align_x=None, 
     align_y=None,
     line_height=None, 
     size=None,
-    font=None, 
+    font_id=None, 
     shaping=None, 
     text_color=None, 
     text_rgba=None,
+    wrapping=None,
     show=true,
     ))]
 pub fn add_text(
@@ -40,15 +41,16 @@ pub fn add_text(
     width_fill: bool,
     height: Option<f32>,
     height_fill: bool,
-    centered: Option<bool>,
+    center: Option<bool>,
     align_x: Option<IpgHorizontalAlignment>,
     align_y: Option<IpgVerticalAlignment>,
     line_height: Option<f32>,
     size: Option<f32>,
-    font: Option<String>,
+    font_id: Option<usize>,
     shaping: Option<IpgShaping>,
     text_color: Option<IpgColor>,
     text_rgba: Option<[f32; 4]>,
+    wrapping: Option<IpgWrapping>,
     show: bool,
     ) -> PyResult<usize> 
 {
@@ -74,12 +76,13 @@ pub fn add_text(
             line_height,
             width,
             height,
-            centered,
+            center,
             align_x,
             align_y,
-            font,
+            font_id,
             shaping,
             show,
+            wrapping,
             style,
         }));
 

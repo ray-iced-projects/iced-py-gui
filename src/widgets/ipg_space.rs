@@ -1,6 +1,7 @@
 //! ipg_space
 use iced::{Element, Length};
 use iced::widget::Space;
+
 use pyo3::{pyclass, Py, PyAny};
 type PyObject = Py<PyAny>;
 
@@ -49,9 +50,9 @@ impl WidgetParamUpdate for IpgSpace {
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
         match param {
-            IpgSpaceParam::Width      => set_width(&mut self.width, value, name),
-            IpgSpaceParam::WidthFill  => set_width_fill(&mut self.width, value, name),
-            IpgSpaceParam::Height     => set_height(&mut self.height, value, name),
+            IpgSpaceParam::Width => set_width(&mut self.width, value, name),
+            IpgSpaceParam::WidthFill => set_width_fill(&mut self.width, value, name),
+            IpgSpaceParam::Height => set_height(&mut self.height, value, name),
             IpgSpaceParam::HeightFill => set_height_fill(&mut self.height, value, name),
         }
     }

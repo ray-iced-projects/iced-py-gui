@@ -1,22 +1,18 @@
 //! ipg_column
-#![allow(unused)]
-
-use iced::{Element, Length, Padding};
-use iced::widget::Column;
-use pyo3::{pyclass, Py, PyAny, Python};
-type PyObject = Py<PyAny>;
-
 use crate::app::Message;
-
-use crate::py_api::helpers::{get_height, get_padding, 
-    get_width, try_extract_boolean, try_extract_f32, 
-    try_extract_vec_f32};
+use crate::py_api::helpers::get_padding;
 use crate::widgets::enums::IpgAlignment;
 use crate::widgets::widget_param_update::{
     WidgetParamUpdate,
     set_opt_bool, set_opt_f32, set_opt_vec_f32,
     set_width, set_width_fill, set_height, set_height_fill, set_align,
 };
+
+use iced::{Element, Length};
+use iced::widget::Column;
+
+use pyo3::{pyclass, Py, PyAny};
+type PyObject = Py<PyAny>;
 
 
 #[derive(Debug, Clone)]
@@ -77,57 +73,6 @@ pub fn construct_column<'a>(
 
 }
 
-
-pub fn column_item_update(
-    col: &mut IpgColumn,
-    item: &PyObject,
-    value: &PyObject,
-    )
-{
-    let update = try_extract_column_update(item);
-    let name = "Column".to_string();
-    match update {
-        IpgColumnParam::AlignX => {
-            col.align_x = Some(IpgAlignment::extract(value).unwrap());
-        },
-        IpgColumnParam::Clip => {
-            col.clip = Some(try_extract_boolean(value, name));
-        },
-        IpgColumnParam::Padding => {
-            col.padding =  Some(try_extract_vec_f32(value, name));
-        },
-        IpgColumnParam::Width => {
-            let val = try_extract_f32(value, name);
-            col.width = get_width(Some(val), false);
-        },
-        IpgColumnParam::WidthFill => {
-            let val = try_extract_boolean(value, name);
-            col.width = get_width(None, val);
-        },
-        IpgColumnParam::Height => {
-            let val = try_extract_f32(value, name);
-            col.height = get_height(Some(val), false);
-        },
-        IpgColumnParam::HeightFill => {
-            let val = try_extract_boolean(value, name);
-            col.height = get_height(None, val);
-        },
-        IpgColumnParam::Spacing => {
-            col.spacing = Some(try_extract_f32(value, name));
-        },
-    }
-}
-
-pub fn try_extract_column_update(update_obj: &PyObject) -> IpgColumnParam {
-
-    Python::attach(|py| {
-        let res = update_obj.extract::<IpgColumnParam>(py);
-        match res {
-            Ok(update) => update,
-            Err(_) => panic!("Column update extraction failed"),
-        }
-    })
-}
 
 // ---------------------------------------------------------------------------
 // WidgetParamUpdate implementation

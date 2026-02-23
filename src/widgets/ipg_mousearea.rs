@@ -10,8 +10,6 @@ use iced::mouse::Interaction;
 
 use pyo3::pyclass;
 use pyo3::{Py, PyAny, Python};
-
-// Type alias to replace deprecated PyObject
 type PyObject = Py<PyAny>;
 
 

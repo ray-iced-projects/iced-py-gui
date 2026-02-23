@@ -1,24 +1,22 @@
 //! ipg_container
-#![allow(unused)]
-
-use iced::{Border, Color, Element, Length, Padding, Shadow, Theme, Vector};
-use iced::widget::{container, Space, Container};
-use pyo3::{pyclass, Py, PyAny, Python};
-type PyObject = Py<PyAny>;
-
 use crate::app::Message;
-use crate::graphics::colors::IpgColor;
-use crate::py_api::helpers::{get_height, get_padding, get_radius, get_width, try_extract_array_2, try_extract_boolean, try_extract_f32, try_extract_vec_f32};
+use crate::py_api::helpers::get_radius;
 use crate::state::IpgWidgets;
-use crate::widgets::enums::{IpgHorizontalAlignment, IpgVerticalAlignment};
+use crate::widgets::enums::{IpgHorizontalAlignment, 
+    IpgVerticalAlignment};
 use crate::widgets::widget_param_update::{
-    WidgetParamUpdate,
-    set_bool, set_opt_bool, set_opt_f32, set_opt_vec_f32, set_opt_array_2,
-    set_width, set_width_fill, set_height, set_height_fill,
-    set_halign, set_valign,
-    set_opt_iced_color, set_iced_color_from_rgba,
+    WidgetParamUpdate, set_bool, set_halign, set_height, 
+    set_height_fill, set_iced_color_from_rgba, 
+    set_opt_array_2, set_opt_bool, set_opt_f32, 
+    set_opt_iced_color, set_opt_usize, set_opt_vec_f32, 
+    set_valign, set_width, set_width_fill
 };
 
+use iced::{Border, Color, Element, Length, Shadow, Theme, Vector};
+use iced::widget::{container, Space, Container};
+
+use pyo3::{pyclass, Py, PyAny};
+type PyObject = Py<PyAny>;
 
 #[derive(Debug, Clone)]
 pub struct IpgContainer {
@@ -169,84 +167,7 @@ pub enum IpgContainerParam {
     Width,
     WidthFill,
     Show,
-}
-
-pub fn container_item_update(cont: &mut IpgContainer,
-                            item: &PyObject,
-                            value: &PyObject,
-                            )
-{
-    let update = try_extract_container_update(item);
-    let name = "Container".to_string();
-    match update {
-        IpgContainerParam::AlignBotton => {
-            cont.align_botton = Some(try_extract_boolean(value, name));
-        },
-        IpgContainerParam::AlignLeft => {
-            cont.align_left = Some(try_extract_boolean(value, name));
-        },
-        IpgContainerParam::AlignRight => {
-            cont.align_right = Some(try_extract_boolean(value, name));
-        },
-        IpgContainerParam::AlignTop => {
-            cont.align_top = Some(try_extract_boolean(value, name));
-        },
-        IpgContainerParam::AlignX => {
-            cont.align_x = IpgHorizontalAlignment::extract(value);
-        },
-        IpgContainerParam::AlignY => {
-            cont.align_y = IpgVerticalAlignment::extract(value);
-        },
-        IpgContainerParam::Center => {
-            cont.center = Some(try_extract_boolean(value, name));
-        },
-        IpgContainerParam::CenterX => {
-            cont.center_x = Some(try_extract_boolean(value, name));
-        },
-        IpgContainerParam::CenterY => {
-            cont.center_y = Some(try_extract_boolean(value, name));
-        },
-        IpgContainerParam::Clip => {
-            cont.clip = Some(try_extract_boolean(value, name));
-        },
-        IpgContainerParam::Height => {
-            let h = Some(try_extract_f32(value, name));
-            cont.height = get_height(h, false)
-        },
-        IpgContainerParam::HeightFill => {
-            cont.height = get_height(None, try_extract_boolean(value, name));
-        },
-        IpgContainerParam::MaxHeight => {
-            cont.max_height = Some(try_extract_f32(value, name));
-        },
-        IpgContainerParam::MaxWidth => {
-            cont.max_width = Some(try_extract_f32(value, name));
-        },
-        IpgContainerParam::Padding => {
-            cont.padding = Some(try_extract_vec_f32(value, name));
-        },
-        IpgContainerParam::Width => {
-            let w = Some(try_extract_f32(value, name));
-            cont.width = get_width(w, false)
-        },
-        IpgContainerParam::WidthFill => {
-            cont.width = get_width(None, try_extract_boolean(value, name));
-        },
-        IpgContainerParam::Show => {
-            cont.show = try_extract_boolean(value, name);
-        }
-    }
-}
-
-pub fn try_extract_container_update(update_obj: &PyObject) -> IpgContainerParam {
-
-    Python::attach(|py| {
-        let res = update_obj.extract::<IpgContainerParam>(py);
-        match res {
-            Ok(update) => update,
-            Err(_) => panic!("Container update extraction failed"),
-        }
-    })
+    StyleId,
 }
 
 pub fn get_cont_style(style: Option<&IpgWidgets>) -> Option<IpgContainerStyle>{
@@ -328,72 +249,6 @@ pub enum IpgContainerStyleParam {
     TextRgbaColor,
 }
 
-pub fn container_style_update_item(style: &mut IpgContainerStyle,
-                            item: &PyObject,
-                            value: &PyObject,) 
-{
-    let update = try_extract_container_style_update(item);
-    let name = "ContainerStyle".to_string();
-    match update {
-        IpgContainerStyleParam::BackgroundIpgColor => {
-            let color = IpgColor::extract(value, name);
-            style.background_color = 
-                IpgColor::rgba_ipg_color_to_iced(None, Some(color), 1.0, false);
-        },
-        IpgContainerStyleParam::BackgroundRgbaColor => {
-            style.background_color = Some(Color::from(IpgColor::extract_rgba(value, name)));
-        },
-        IpgContainerStyleParam::BorderIpgColor => {
-            let color = IpgColor::extract(value, name);
-            style.border_color = 
-                IpgColor::rgba_ipg_color_to_iced(None, Some(color), 1.0, false);
-        },
-        IpgContainerStyleParam::BorderRgbaColor => {
-            style.border_color = Some(Color::from(IpgColor::extract_rgba(value, name)));
-        },
-        IpgContainerStyleParam::BorderRadius => {
-            style.border_radius = Some(try_extract_vec_f32(value, name));
-        },
-        IpgContainerStyleParam::BorderWidth => {
-            style.border_width = Some(try_extract_f32(value, name));
-        },
-        IpgContainerStyleParam::ShadowIpgColor => {
-            let color = IpgColor::extract(value, name);
-            style.shadow_color = 
-                IpgColor::rgba_ipg_color_to_iced(None, Some(color), 1.0, false);
-        },
-        IpgContainerStyleParam::ShadowRgbaColor => {
-            style.border_color = Some(Color::from(IpgColor::extract_rgba(value, name)));
-        },
-        IpgContainerStyleParam::ShadowOffsetXY => {
-            style.shadow_offset_xy = Some(try_extract_array_2(value, name));
-        },
-        IpgContainerStyleParam::ShadowBlurRadius => {
-            style.shadow_blur_radius = Some(try_extract_f32(value, name));
-        },
-        IpgContainerStyleParam::TextIpgColor => {
-            let color = IpgColor::extract(value, name);
-            style.text_color = 
-                IpgColor::rgba_ipg_color_to_iced(None, Some(color), 1.0, false);
-        },
-        IpgContainerStyleParam::TextRgbaColor => {
-            style.text_color = Some(Color::from(IpgColor::extract_rgba(value, name)));
-        },
-    }
-
-}
-
-pub fn try_extract_container_style_update(update_obj: &PyObject) -> IpgContainerStyleParam {
-
-    Python::attach(|py| {
-        let res = update_obj.extract::<IpgContainerStyleParam>(py);
-        match res {
-            Ok(update) => update,
-            Err(_) => panic!("Container style parameter update extraction failed"),
-        }
-    })
-}
-
 // ---------------------------------------------------------------------------
 // WidgetParamUpdate implementations
 // ---------------------------------------------------------------------------
@@ -404,23 +259,24 @@ impl WidgetParamUpdate for IpgContainer {
     fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
         match param {
             IpgContainerParam::AlignBotton => set_opt_bool(&mut self.align_botton, value, name),
-            IpgContainerParam::AlignLeft   => set_opt_bool(&mut self.align_left, value, name),
-            IpgContainerParam::AlignRight  => set_opt_bool(&mut self.align_right, value, name),
-            IpgContainerParam::AlignTop    => set_opt_bool(&mut self.align_top, value, name),
-            IpgContainerParam::AlignX      => set_halign(&mut self.align_x, value, name),
-            IpgContainerParam::AlignY      => set_valign(&mut self.align_y, value, name),
-            IpgContainerParam::Center      => set_opt_bool(&mut self.center, value, name),
-            IpgContainerParam::CenterX     => set_opt_bool(&mut self.center_x, value, name),
-            IpgContainerParam::CenterY     => set_opt_bool(&mut self.center_y, value, name),
-            IpgContainerParam::Clip        => set_opt_bool(&mut self.clip, value, name),
-            IpgContainerParam::Height      => set_height(&mut self.height, value, name),
-            IpgContainerParam::HeightFill  => set_height_fill(&mut self.height, value, name),
-            IpgContainerParam::MaxHeight   => set_opt_f32(&mut self.max_height, value, name),
-            IpgContainerParam::MaxWidth    => set_opt_f32(&mut self.max_width, value, name),
-            IpgContainerParam::Padding     => set_opt_vec_f32(&mut self.padding, value, name),
-            IpgContainerParam::Width       => set_width(&mut self.width, value, name),
-            IpgContainerParam::WidthFill   => set_width_fill(&mut self.width, value, name),
-            IpgContainerParam::Show        => set_bool(&mut self.show, value, name),
+            IpgContainerParam::AlignLeft => set_opt_bool(&mut self.align_left, value, name),
+            IpgContainerParam::AlignRight => set_opt_bool(&mut self.align_right, value, name),
+            IpgContainerParam::AlignTop => set_opt_bool(&mut self.align_top, value, name),
+            IpgContainerParam::AlignX => set_halign(&mut self.align_x, value, name),
+            IpgContainerParam::AlignY => set_valign(&mut self.align_y, value, name),
+            IpgContainerParam::Center => set_opt_bool(&mut self.center, value, name),
+            IpgContainerParam::CenterX => set_opt_bool(&mut self.center_x, value, name),
+            IpgContainerParam::CenterY => set_opt_bool(&mut self.center_y, value, name),
+            IpgContainerParam::Clip => set_opt_bool(&mut self.clip, value, name),
+            IpgContainerParam::Height => set_height(&mut self.height, value, name),
+            IpgContainerParam::HeightFill => set_height_fill(&mut self.height, value, name),
+            IpgContainerParam::MaxHeight => set_opt_f32(&mut self.max_height, value, name),
+            IpgContainerParam::MaxWidth => set_opt_f32(&mut self.max_width, value, name),
+            IpgContainerParam::Padding => set_opt_vec_f32(&mut self.padding, value, name),
+            IpgContainerParam::Width => set_width(&mut self.width, value, name),
+            IpgContainerParam::WidthFill => set_width_fill(&mut self.width, value, name),
+            IpgContainerParam::Show => set_bool(&mut self.show, value, name),
+            IpgContainerParam::StyleId => set_opt_usize(&mut self.style_id, value, name),
         }
     }
 }

@@ -1,6 +1,5 @@
 //! ProgressBar module - provides add_progress_bar pyfunction
-use pyo3::prelude::*;
-use pyo3::{Py, PyAny, pyfunction};
+use pyo3::{pyfunction, PyResult};
 
 use crate::access_state;
 use crate::graphics::colors::IpgColor;
@@ -8,7 +7,7 @@ use crate::py_api::helpers::{get_height, get_width};
 use crate::state::{IpgWidgets, get_id, set_state_of_widget};
 use crate::widgets::ipg_progress_bar::{IpgProgressBar, IpgProgressBarStyle};
 use crate::widgets::styling::IpgStyleStandard;
-type PyObject = Py<PyAny>;
+
 
 
 

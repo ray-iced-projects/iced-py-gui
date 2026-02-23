@@ -1,20 +1,21 @@
 //! ipg_divider
+use crate::{IpgState, access_callbacks, access_user_data1, app};
+use crate::py_api::helpers::get_radius;
+use crate::state::IpgWidgets;
+use crate::widgets::callbacks::{WidgetCallbackIn, 
+    set_or_get_widget_callback_data}; 
+use crate::widgets::divider::{self, Direction, Status, Style, 
+    divider_horizontal, divider_vertical};
+use crate::widgets::widget_param_update::{
+    WidgetParamUpdate, set_bool, set_f32, 
+    set_opt_bool, set_opt_f32, set_opt_usize, 
+    set_opt_vec_f32, set_vec_f32, set_opt_iced_color, 
+    set_rgba_color_via_ipg,
+};
 
 use iced::{Background, Color, Element, Length, Theme};
 use pyo3::{pyclass, Py, PyAny, Python};
 type PyObject = Py<PyAny>;
-
-use crate::{IpgState, access_callbacks, access_user_data1, app, 
-    py_api::helpers::get_radius, state::IpgWidgets, 
-    widgets::{callbacks::{WidgetCallbackIn, set_or_get_widget_callback_data}, 
-    divider::{self, Direction, Status, Style, divider_horizontal, divider_vertical}}};
-use crate::widgets::widget_param_update::{
-    WidgetParamUpdate,
-    set_bool, set_f32, set_opt_bool, set_opt_f32, set_opt_usize, set_opt_vec_f32,
-    set_vec_f32, set_opt_iced_color, set_rgba_color_via_ipg,
-};
-
-
 
 
 #[derive(Debug, Clone, PartialEq)]

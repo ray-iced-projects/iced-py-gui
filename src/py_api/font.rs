@@ -4,7 +4,7 @@ use pyo3::prelude::*;
 use pyo3::pyfunction;
 
 use crate::state::{IpgWidgets, access_state, get_id};
-use crate::widgets::ipg_font::{IpgFont, IpgFontStretch, IpgFontStyle, IpgFontType, IpgFontWeight};
+use crate::widgets::ipg_font::{IpgFont, IpgFontStretch, IpgFontStyle, IpgFontFamily, IpgFontWeight};
 
 
 /// Add a font widget.
@@ -12,16 +12,16 @@ use crate::widgets::ipg_font::{IpgFont, IpgFontStretch, IpgFontStyle, IpgFontTyp
 /// Returns the widget ID.
 #[pyfunction]
 #[pyo3(signature = (
-    family_name,
-    font_type=None,
+    family=None,
+    family_name=None,
     weight=None,
     stretch=None,
     style=None,
     gen_id=None
     ))]
 pub fn add_font(
-    family_name: String,
-    font_type: Option<IpgFontType>,
+    family: Option<IpgFontFamily>,
+    family_name: Option<String>,
     weight: Option<IpgFontWeight>,
     stretch: Option<IpgFontStretch>,
     style: Option<IpgFontStyle>,
@@ -35,8 +35,8 @@ pub fn add_font(
     state.widgets.insert(id, IpgWidgets::IpgFont(
         IpgFont {
             id,
+            family,
             family_name,
-            font_type,
             weight,
             stretch,
             style,

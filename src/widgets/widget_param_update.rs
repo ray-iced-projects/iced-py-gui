@@ -53,6 +53,8 @@ pub fn param_update(
         IpgWidgets::IpgOpaqueStyle(w) => apply_update(w, item, value, name),
         IpgWidgets::IpgPickList(w) => apply_update(w, item, value, name),
         IpgWidgets::IpgPickListStyle(w) => apply_update(w, item, value, name),
+        IpgWidgets::IpgProgressBar(w) => apply_update(w, item, value, name),
+        IpgWidgets::IpgProgressBarStyle(w) => apply_update(w, item, value, name),
         IpgWidgets::IpgSpace(w) => apply_update(w, item, value, name),
         IpgWidgets::IpgText(w) => apply_update(w, item, value, name),
     }

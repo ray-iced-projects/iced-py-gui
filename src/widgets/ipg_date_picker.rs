@@ -7,7 +7,8 @@ use crate::{access_callbacks, access_user_data1, IpgState};
 use super::callbacks::{set_or_get_widget_callback_data, 
     WidgetCallbackIn};
 use crate::widgets::ipg_button::{self, IpgButtonStyle};
-use crate::py_api::helpers::{DATE_FORMATS, DAYS, MONTH_NAMES, WEEKDAYS, get_padding};
+use crate::py_api::helpers::{DATE_FORMATS, DAYS, 
+    MONTH_NAMES, WEEKDAYS, get_padding};
 use crate::widgets::widget_param_update::{
     WidgetParamUpdate,
     set_bool, set_opt_f32, set_opt_string, set_opt_vec_f32,
@@ -21,8 +22,6 @@ use iced::widget::{Button, Column, Container, PickList,
 
 use chrono::prelude::*;
 use pyo3::{pyclass, Py, PyAny, Python};
-
-// Type alias to replace deprecated PyObject
 type PyObject = Py<PyAny>;
 
 

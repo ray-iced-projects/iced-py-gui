@@ -31,6 +31,31 @@ pub trait WidgetParamUpdate {
 // Dispatch — one line per widget variant
 // ---------------------------------------------------------------------------
 
+// Helper copy and paste
+// ---------------------------------------------------------------------------
+// WidgetParamUpdate implementations
+// ---------------------------------------------------------------------------
+
+
+// impl WidgetParamUpdate for IpgRule {
+//     type Param = IpgRuleParam;
+
+//     fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
+//         match param {
+//         }
+//     }
+// }
+
+// impl WidgetParamUpdate for IpgRuleStyle {
+//     type Param = IpgRuleStyleParam;
+
+//     fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
+//         match param {
+//         }
+//     }
+// }
+
+
 pub fn param_update(
     widget: &mut IpgWidgets,
     item: &PyObject,
@@ -61,8 +86,9 @@ pub fn param_update(
         IpgWidgets::IpgRule(w) => apply_update(w, item, value, name),
         IpgWidgets::IpgRuleStyle(w) => apply_update(w, item, value, name),
         IpgWidgets::IpgSpace(w) => apply_update(w, item, value, name),
+        IpgWidgets::IpgSlider(ipg_slider) => todo!(),
+        IpgWidgets::IpgSliderStyle(ipg_slider_style) => todo!(),
         IpgWidgets::IpgText(w) => apply_update(w, item, value, name),
-        
     }
 }
 
@@ -114,6 +140,17 @@ where
 // ---------------------------------------------------------------------------
 // Shared value-update helpers — use these in WidgetParamUpdate impls
 // ---------------------------------------------------------------------------
+
+pub fn set_t_value<T>(field: &mut T, value: &PyObject, name: String)
+where
+    T: for<'py> pyo3::FromPyObject<'py>,
+{
+    *field = Python::attach(|py| {
+        value
+            .extract::<T>(py)
+            .unwrap_or_else(|err| panic!("{name} extraction failed: {err}"))
+    });
+}
 
 pub fn set_bool(field: &mut bool, value: &PyObject, name: String) {
     *field = try_extract_boolean(value, name);

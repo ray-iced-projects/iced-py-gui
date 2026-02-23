@@ -26,6 +26,7 @@ use crate::widgets::ipg_progress_bar::construct_progress_bar;
 use crate::widgets::ipg_radio::{RDMessage, construct_radio, radio_callback};
 use crate::widgets::ipg_row::construct_row;
 use crate::widgets::ipg_rule::construct_rule;
+use crate::widgets::ipg_slider::{SLMessage, construct_slider, slider_callback};
 use crate::widgets::ipg_space::construct_space;
 use crate::widgets::ipg_text::construct_text;
 use crate::widgets::ipg_window::{IpgWindow, IpgWindowLevel, IpgWindowMode, add_windows, construct_window};
@@ -51,7 +52,7 @@ pub enum Message {
     Radio(usize, RDMessage),
 //     Scrolled(scrollable::Viewport, usize),
 //     SelectableText(usize, SLTXTMessage),
-//     Slider(usize, SLMessage),
+    Slider(usize, SLMessage),
 //     Svg(usize, SvgMessage),
 
 //     TableSync(scrollable::AbsoluteOffset, usize),
@@ -287,11 +288,12 @@ impl App {
             //     process_updates(&mut self.state, &mut self.canvas_state);
             //     Task::none()
             // },
-            // Message::Slider(id, message) => {
-            //     slider_callback(&mut self.state, id, message);
-            //     process_updates(&mut self.state, &mut self.canvas_state);
-            //     Task::none()
-            // },
+            Message::Slider(id, message) => {
+                slider_callback(&mut self.state, id, message);
+                // process_updates(&mut self.state, &mut self.canvas_state);
+                process_updates(&mut self.state);
+                Task::none()
+            },
             // Message::Svg(id, message) => {
             //     svg_callback(&mut self.state, id, message);
             //     process_updates(&mut self.state, &mut self.canvas_state);
@@ -864,15 +866,13 @@ fn get_widget<'a>(state: &'a IpgState, id: &usize) -> Option<Element<'a, Message
                 //     };
                 //     construct_separator(sep, style_opt)
                 // }
-                // IpgWidgets::IpgSlider(slider) => {
-                //     let style_opt = match slider.style_id {
-                //         Some(id) => {
-                //             state.widgets.get(&id)
-                //         },
-                //         None => None,
-                //     };
-                //     construct_slider(slider, style_opt)
-                // },
+                IpgWidgets::IpgSlider(slider) => {
+                    let style_opt = 
+                        if let Some(id) = slider.style_id {
+                            state.widgets.get(&id)
+                        } else { None };
+                    construct_slider(slider, style_opt)
+                },
                 IpgWidgets::IpgSpace(sp) => {
                     construct_space(sp)
                 },

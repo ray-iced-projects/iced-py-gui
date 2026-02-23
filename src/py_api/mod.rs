@@ -20,6 +20,7 @@ pub mod radio;
 pub mod row;
 pub mod rule;
 pub mod session;
+pub mod slider;
 pub mod space;
 pub mod text;
 

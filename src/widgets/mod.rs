@@ -3,6 +3,7 @@
 pub mod callbacks;
 mod divider;
 pub mod enums;
+pub mod quad;
 pub mod widget_param_update;
 pub mod ipg_window;
 pub mod ipg_button;

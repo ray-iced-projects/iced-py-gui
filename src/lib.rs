@@ -41,12 +41,14 @@ use crate::py_api::row::add_row;
 use crate::py_api::rule::{add_rule, add_rule_style};
 use crate::py_api::picklist::{add_pick_list, add_pick_list_style};
 use crate::py_api::text::add_text;
+use crate::py_api::separator::{add_separator, add_separator_style};
 use crate::py_api::space::add_space;
 use crate::py_api::slider::{add_slider, add_slider_style};
 use crate::py_api::session::{start_session, generate_id};
 use crate::py_api::update::update_widget;
 use crate::widgets::ipg_radio::{IpgRadioDirection, IpgRadioParam, IpgRadioStyleParam};
 use crate::widgets::ipg_rule::{IpgRuleParam, IpgRuleStyleParam};
+use crate::widgets::ipg_separator::{IpgSeparatorParam, IpgSeparatorStyleParam, IpgSeparatorType};
 use crate::widgets::ipg_slider::{IpgSliderParam, IpgSliderStyleParam};
 
 // Import enums from widgets module
@@ -92,6 +94,7 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(add_row, m)?)?;
     m.add_function(wrap_pyfunction!(add_rule, m)?)?;
     m.add_function(wrap_pyfunction!(add_slider, m)?)?;
+    m.add_function(wrap_pyfunction!(add_separator, m)?)?;
     m.add_function(wrap_pyfunction!(add_space, m)?)?;
     m.add_function(wrap_pyfunction!(add_text, m)?)?;
     m.add_function(wrap_pyfunction!(update_widget, m)?)?;
@@ -105,6 +108,7 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(add_opaque_style, m)?)?;
     m.add_function(wrap_pyfunction!(add_pick_list_style, m)?)?;
     m.add_function(wrap_pyfunction!(add_progress_bar_style, m)?)?;
+    m.add_function(wrap_pyfunction!(add_separator_style, m)?)?;
     m.add_function(wrap_pyfunction!(add_slider_style, m)?)?;
     m.add_function(wrap_pyfunction!(add_radio_style, m)?)?;
     m.add_function(wrap_pyfunction!(add_rule_style, m)?)?;
@@ -117,6 +121,7 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<IpgDividerStyleParam>()?;
     m.add_class::<IpgRadioStyleParam>()?;
     m.add_class::<IpgRuleStyleParam>()?;
+    m.add_class::<IpgSeparatorStyleParam>()?;
     m.add_class::<IpgSliderStyleParam>()?;
     m.add_class::<IpgStyleStandard>()?;
 
@@ -129,6 +134,7 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<IpgDividerParam>()?;
     m.add_class::<IpgRadioParam>()?;
     m.add_class::<IpgRuleParam>()?;
+    m.add_class::<IpgSeparatorParam>()?;
     m.add_class::<IpgSliderParam>()?;
     m.add_class::<IpgTextParam>()?;
     m.add_class::<IpgWindowLevel>()?;
@@ -143,5 +149,6 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<IpgHorizontalAlignment>()?;
     m.add_class::<IpgVerticalAlignment>()?;
     m.add_class::<IpgRadioDirection>()?;
+    m.add_class::<IpgSeparatorType>()?;
     Ok(())
 }

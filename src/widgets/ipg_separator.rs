@@ -5,13 +5,19 @@ use crate::graphics::colors::IpgColor;
 
 use crate::app;
 use crate::state::IpgWidgets;
+use crate::widgets::widget_param_update::{
+    WidgetParamUpdate, set_bool, set_height, 
+    set_iced_color_from_rgba, set_opt_f32, 
+    set_opt_iced_color, set_opt_string, 
+    set_opt_u32, set_opt_usize, set_width};
 
 use iced::border::Radius;
 use iced::widget::{row, Row, Text};
 use iced::{Background, Border, Color, Element, 
     Length, Renderer, Theme };
 
-use pyo3::{pyclass, Py, PyAny, Python};
+use crate::widgets::quad::{InnerBounds, Quad};
+use pyo3::{pyclass, Py, PyAny};
 type PyObject = Py<PyAny>;
 
 #[derive(Debug, Clone)]
@@ -23,9 +29,11 @@ pub struct IpgSeparator {
     pub label_left_width: Option<f32>,
     pub label_right_width: Option<f32>,
     pub dot_radius: Option<f32>,
-    pub dot_count: Option<usize>,
+    pub dot_count: Option<u32>,
     pub dot_fill: bool,
     pub dot_border_width: Option<f32>,
+    pub line_length: Option<f32>,
+    pub line_thickness: Option<f32>,
     pub width: Length,
     pub height: Length,
     pub spacing: Option<f32>,
@@ -48,9 +56,10 @@ pub enum IpgSeparatorType {
     Line,
 }
 
-pub fn construct_separator<'a>(sep: &'a IpgSeparator, 
-                            style_opt: Option<&IpgWidgets>) 
-                            -> Option<Element<'a, app::Message>> {
+pub fn construct_separator<'a>(
+    sep: &'a IpgSeparator, 
+    style_opt: Option<&IpgWidgets>) 
+    -> Option<Element<'a, app::Message>> {
 
     if !sep.show {
         return None
@@ -58,11 +67,12 @@ pub fn construct_separator<'a>(sep: &'a IpgSeparator,
 
     let style_opt = get_sep_style(style_opt);
 
-    let mut sep_color = IpgColor::rgba_ipg_color_to_iced(
-                                    None, 
-                                    Some(IpgColor::PRIMARY), 
-                                    1.0, 
-                                    false).unwrap();
+    let sep_color = 
+        IpgColor::rgba_ipg_color_to_iced(
+            None, 
+            Some(IpgColor::PRIMARY), 
+            1.0, 
+            false).unwrap();
 
     let mut border = Border::default();
     
@@ -73,7 +83,7 @@ pub fn construct_separator<'a>(sep: &'a IpgSeparator,
             if let Some(c) = style.color {
                 c
             } else { sep_color };
-
+        
         if let Some(bc) = style.border_color {
             border.color = bc;
         }
@@ -117,31 +127,39 @@ fn get_dot(sep: &IpgSeparator,
     
     let color = if sep.dot_fill {
         sep_color
-    } else {
-        Color::TRANSPARENT
-    };
+    } else  { Color::TRANSPARENT };
 
-    // Shrink doesn't seem to work so sub in radius
+    let dot_radius = if let Some(dr) = sep.dot_radius {
+        dr
+    } else { 1.0 };
+
     let width =  if let Some(rad) = sep.dot_radius {
         Length::Fixed(rad*2.0)
         } else { Length::Shrink };
     
-    row((0..sep.dot_count).map(|_| {
+    let dot_count = if let Some(dc) = sep.dot_count {
+        dc
+    } else {
+        eprintln!("You selected IpgSeparator.Dot, so you need to use dot_count, defaulting to 10");
+        10
+    };
+    
+    row((0..dot_count).map(|_| {
         Quad {
-            inner_bounds: InnerBounds::Square(radius * 2.0),
+            inner_bounds: InnerBounds::Square(dot_radius*2.0),
             quad_border: Border {
-                radius: Radius::new(radius),
+                radius: dot_radius.into(),
                 color: border.color,
-                width: sep.dot_border_width,
+                width: border.width,
             },
             width,
-            height,
+            height: sep.height,
             quad_color: color.into(),
             ..Default::default()
         }.into()
     }))
-    .height(height)
-    .spacing(sep.spacing)
+    .height(sep.height)
+    .spacing(sep.spacing.unwrap_or(0.0))
     .into()
 }
 
@@ -150,12 +168,12 @@ fn get_label(sep: &IpgSeparator,
             -> Element<'_, app::Message> {
 
     let q_1: Element<Message, Theme, Renderer> = Quad {
-        width: Length::Fixed(sep.label_left_width),
+        width: Length::Fixed(sep.label_left_width.unwrap_or(0.0)),
         height: sep.height,
         ..separator(sep_color.into())
     }.into();
     let q_2: Element<Message, Theme, Renderer> = Quad {
-        width: Length::Fixed(sep.label_right_width),
+        width: Length::Fixed(sep.label_right_width.unwrap_or(0.0)),
         height: sep.height,
         ..separator(sep_color.into())
     }.into();
@@ -170,17 +188,26 @@ fn get_label(sep: &IpgSeparator,
                         Text::new(lbl).color(sep_color).into(),
                         q_2,
                         ])
-                        .spacing(sep.spacing)
+                        .spacing(sep.spacing.unwrap_or(0.0))
                         .into()
 }
 
 fn get_line(sep: &IpgSeparator,
             sep_color: Color) 
             -> Element<'_, app::Message> {
+
+    let length = if let Some(ll) = sep.line_length {
+        ll
+    } else { 5.0 };
+
+    let thickness = if let Some(th) = sep.line_thickness {
+        th
+    } else { 2.0 };
     Quad {
-        width: sep.width,
-        height: sep.height,
-        ..separator(sep_color.into())
+        width: Length::Fixed(length),
+        height: Length::Fixed(thickness),
+        quad_color: sep_color.into(),
+        ..Default::default()
     }.into()
 }
 
@@ -203,69 +230,6 @@ pub enum IpgSeparatorParam {
 }
 
 
-pub fn separator_item_update(sep: &mut IpgSeparator,
-                            item: &PyObject,
-                            value: &PyObject,
-                            )
-{
-    let update = try_extract_separator_update(item);
-    let name = "Separator".to_string();
-    match update {
-        IpgSeparatorParam::DotBorderWidth => {
-            sep.dot_border_width = try_extract_f64(value, name) as f32;
-        },
-        IpgSeparatorParam::DotCount => {
-            sep.dot_count = try_extract_i64(value, name) as usize;
-        },
-        IpgSeparatorParam::DotFill => {
-            sep.dot_fill = try_extract_boolean(value, name);
-        },
-        IpgSeparatorParam::DotRadius => {
-            sep.dot_radius = try_extract_f64(value, name) as f32;
-        },
-        IpgSeparatorParam::Label => {
-            sep.label = Some(try_extract_string(value, name));
-        },
-        IpgSeparatorParam::Height => {
-            let val = try_extract_f64(value, name);
-            sep.height = get_height(Some(val as f32), false);
-        },
-        IpgSeparatorParam::HeightFill => {
-            let val = try_extract_boolean(value, name);
-            sep.height = get_height(None, val);
-        },
-        IpgSeparatorParam::Spacing => {
-            sep.spacing = try_extract_f64(value, name) as f32;
-        },
-        IpgSeparatorParam::Show => {
-            sep.show = try_extract_boolean(value, name);
-        },
-        IpgSeparatorParam::StyleId => {
-            sep.style_id = Some(try_extract_f64(value, name) as usize);
-        },
-        IpgSeparatorParam::Width => {
-            let val = try_extract_f64(value, name);
-            sep.width = get_width(Some(val as f32), false);
-        },
-        IpgSeparatorParam::WidthFill => {
-            let val = try_extract_boolean(value, name);
-            sep.width = get_width(None, val);
-        },
-    }
-
-}
-
-fn try_extract_separator_update(update_obj: &PyObject) -> IpgSeparatorParam {
-
-    Python::attach(|py| {
-        let res = update_obj.extract::<IpgSeparatorParam>(py);
-        match res {
-            Ok(update) => update,
-            Err(_) => panic!("Separator update extraction failed"),
-        }
-    })
-}
-
 #[derive(Debug, Clone, PartialEq)]
 #[pyclass(eq, eq_int)]
 pub enum IpgSeparatorStyleParam {
@@ -273,41 +237,6 @@ pub enum IpgSeparatorStyleParam {
     RbgaColor,
     BorderIpgColor,
     BorderRgbaColor,
-}
-
-pub fn separator_style_update_item(style: &mut IpgSeparatorStyle,
-                            item: &PyObject,
-                            value: &PyObject,) 
-{
-    let update = try_extract_separator_style_update(item);
-    let name = "SeparatorStyle".to_string();
-    match update {
-        IpgSeparatorStyleParam::IpgColor => {
-            let color = try_extract_ipg_color(value, name);
-            style.color = get_color(None, Some(color), 1.0, false);
-        },
-        IpgSeparatorStyleParam::RbgaColor => {
-            style.color = Some(Color::from(try_extract_rgba_color(value, name)));
-        },
-        IpgSeparatorStyleParam::BorderIpgColor => {
-            let color = try_extract_ipg_color(value, name);
-            style.border_color = get_color(None, Some(color), 1.0, false);
-        },
-        IpgSeparatorStyleParam::BorderRgbaColor => {
-            style.border_color = Some(Color::from(try_extract_rgba_color(value, name)));
-        },
-    }
-}
-
-fn try_extract_separator_style_update(update_obj: &PyObject) -> IpgSeparatorStyleParam {
-
-    Python::attach(|py| {
-        let res = update_obj.extract::<IpgSeparatorStyleParam>(py);
-        match res {
-            Ok(update) => update,
-            Err(_) => panic!("Separator type update extraction failed"),
-        }
-    })
 }
 
 pub fn get_sep_style(style: Option<&IpgWidgets>) -> Option<IpgSeparatorStyle>{
@@ -333,3 +262,44 @@ fn separator(bg_color: Background) -> Quad {
     }
 }
 
+// ---------------------------------------------------------------------------
+// WidgetParamUpdate implementations
+// ---------------------------------------------------------------------------
+
+impl WidgetParamUpdate for IpgSeparator {
+    type Param = IpgSeparatorParam;
+
+    fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
+        match param {
+            IpgSeparatorParam::DotCount => set_opt_u32(&mut self.dot_count, value, name),
+            IpgSeparatorParam::DotFill => set_bool(&mut self.dot_fill, value, name),
+            IpgSeparatorParam::DotBorderWidth => set_opt_f32(&mut self.dot_border_width, value, name),
+            IpgSeparatorParam::DotRadius => set_opt_f32(&mut self.dot_radius, value, name),
+            IpgSeparatorParam::Height => set_height(&mut self.height, value, name),
+            IpgSeparatorParam::HeightFill => set_height(&mut self.height, value, name),
+            IpgSeparatorParam::Label => set_opt_string(&mut self.label, value, name),
+            IpgSeparatorParam::Spacing => set_opt_f32(&mut self.spacing, value, name),
+            IpgSeparatorParam::Show => set_bool(&mut self.show, value, name),
+            IpgSeparatorParam::StyleId => set_opt_usize(&mut self.style_id, value, name),
+            IpgSeparatorParam::Width => set_width(&mut self.width, value, name),
+            IpgSeparatorParam::WidthFill => set_width(&mut self.width, value, name),
+        }
+    }
+}
+
+impl WidgetParamUpdate for IpgSeparatorStyle {
+    type Param = IpgSeparatorStyleParam;
+
+    fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
+        match param {
+            IpgSeparatorStyleParam::IpgColor => 
+            set_opt_iced_color(&mut self.color, value, name),
+            IpgSeparatorStyleParam::RbgaColor => 
+            set_iced_color_from_rgba(&mut self.color, value, name),
+            IpgSeparatorStyleParam::BorderIpgColor => 
+            set_opt_iced_color(&mut self.color, value, name),
+            IpgSeparatorStyleParam::BorderRgbaColor => 
+            set_iced_color_from_rgba(&mut self.color, value, name),
+        }
+    }
+}

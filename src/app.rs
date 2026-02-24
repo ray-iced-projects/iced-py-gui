@@ -26,6 +26,7 @@ use crate::widgets::ipg_progress_bar::construct_progress_bar;
 use crate::widgets::ipg_radio::{RDMessage, construct_radio, radio_callback};
 use crate::widgets::ipg_row::construct_row;
 use crate::widgets::ipg_rule::construct_rule;
+use crate::widgets::ipg_separator::construct_separator;
 use crate::widgets::ipg_slider::{SLMessage, construct_slider, slider_callback};
 use crate::widgets::ipg_space::construct_space;
 use crate::widgets::ipg_text::construct_text;
@@ -857,15 +858,13 @@ fn get_widget<'a>(state: &'a IpgState, id: &usize) -> Option<Element<'a, Message
                 // IpgWidgets::IpgSelectableText(sltxt) => {
                 //     construct_selectable_text(sltxt)
                 // },
-                // IpgWidgets::IpgSeparator(sep) => {
-                //     let style_opt = match sep.style_id {
-                //         Some(id) => {
-                //             state.widgets.get(&id)
-                //         },
-                //         None => None,
-                //     };
-                //     construct_separator(sep, style_opt)
-                // }
+                IpgWidgets::IpgSeparator(sep) => {
+                    let style_opt = 
+                        if let Some(id) = sep.style_id {
+                            state.widgets.get(&id)
+                        } else { None };
+                    construct_separator(sep, style_opt)
+                }
                 IpgWidgets::IpgSlider(slider) => {
                     let style_opt = 
                         if let Some(id) = slider.style_id {

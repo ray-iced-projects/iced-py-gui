@@ -14,10 +14,12 @@ use crate::{access_state, graphics::colors::IpgColor, py_api::helpers::
     separator_type=None, 
     label_left_width=None,
     label_right_width=None,
-    dot_radius=4.0, 
-    dot_count=1,
+    dot_radius=None, 
+    dot_count=None,
     dot_fill=true, 
-    dot_border_width=0.0,
+    dot_border_width=None,
+    line_length=None,
+    line_thickness=None,
     width=None, 
     width_fill=false, 
     height=None, 
@@ -27,16 +29,18 @@ use crate::{access_state, graphics::colors::IpgColor, py_api::helpers::
     gen_id=None, 
     show=true
     ))]
-fn add_separator(
+pub fn add_separator(
     parent_id: String,
     label: Option<String>,
     separator_type: Option<IpgSeparatorType>,
     label_left_width: Option<f32>,
     label_right_width: Option<f32>,
     dot_radius: Option<f32>,
-    dot_count: Option<usize>,
+    dot_count: Option<u32>,
     dot_fill: bool,
     dot_border_width: Option<f32>,
+    line_length: Option<f32>,
+    line_thickness: Option<f32>,
     width: Option<f32>, 
     width_fill: bool,
     height: Option<f32>,
@@ -68,6 +72,8 @@ fn add_separator(
             dot_count,
             dot_fill,
             dot_border_width,
+            line_length,
+            line_thickness,
             width,
             height,
             spacing,
@@ -89,7 +95,7 @@ fn add_separator(
     border_rgba_color=None,
     gen_id=None,
     ))]
-fn add_separator_style(
+pub fn add_separator_style(
     ipg_color: Option<IpgColor>,
     rgba_color: Option<[f32; 4]>,
     border_ipg_color: Option<IpgColor>,

@@ -85,10 +85,13 @@ pub fn param_update(
         IpgWidgets::IpgRadioStyle(w) => apply_update(w, item, value, name),
         IpgWidgets::IpgRule(w) => apply_update(w, item, value, name),
         IpgWidgets::IpgRuleStyle(w) => apply_update(w, item, value, name),
+        IpgWidgets::IpgSeparator(w) => apply_update(w, item, value, name),
+        IpgWidgets::IpgSeparatorStyle(w) => apply_update(w, item, value, name),
         IpgWidgets::IpgSpace(w) => apply_update(w, item, value, name),
-        IpgWidgets::IpgSlider(ipg_slider) => todo!(),
-        IpgWidgets::IpgSliderStyle(ipg_slider_style) => todo!(),
+        IpgWidgets::IpgSlider(w) => apply_update(w, item, value, name),
+        IpgWidgets::IpgSliderStyle(w) => apply_update(w, item, value, name),
         IpgWidgets::IpgText(w) => apply_update(w, item, value, name),
+        
     }
 }
 

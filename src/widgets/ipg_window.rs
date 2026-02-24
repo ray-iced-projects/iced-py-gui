@@ -24,7 +24,7 @@ pub struct IpgWindow {
     pub size: Option<Size>,
     pub maximized: Option<bool>,
     pub fullscreen: Option<bool>,
-    pub centered: Option<bool>,
+    pub center: Option<bool>,
     pub position: Option<(f32, f32)>,
     pub min_size: Option<Size>,
     pub max_size: Option<Size>,
@@ -93,7 +93,7 @@ pub fn add_windows(state: &mut IpgState) -> Vec<Task<Message>> {
             Level::default()
         };
 
-        let position = if let Some(ct) = state.windows[i].centered {
+        let position = if let Some(ct) = state.windows[i].center {
             Position::Centered
         } else {
             if let Some(pos) = state.windows[i].position {

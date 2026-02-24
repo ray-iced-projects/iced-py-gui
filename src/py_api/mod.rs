@@ -19,11 +19,13 @@ pub mod progress_bar;
 pub mod radio;
 pub mod row;
 pub mod rule;
+pub mod selectable_text;
 pub mod separator;
 pub mod session;
 pub mod slider;
 pub mod space;
 pub mod text;
+pub mod toggle;
 
 pub mod helpers;
 pub mod update;

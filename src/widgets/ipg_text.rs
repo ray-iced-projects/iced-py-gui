@@ -34,7 +34,7 @@ pub struct IpgText {
     pub font_id: Option<usize>,
     pub shaping: Option<IpgShaping>,
     pub show: bool,
-    pub style: Option<Color>,
+    pub color: Option<Color>,
     pub wrapping: Option<IpgWrapping>,
 }
 
@@ -49,9 +49,9 @@ pub fn construct_text<'a>(
 
     let txt = Text::new(ipg_text.content.clone()
                         )
-                        .style(move|_theme|{
+                        .style(move|_|{
                             let mut style = Style::default();
-                            style.color = ipg_text.style;
+                            style.color = ipg_text.color;
                             style
                             }
                         );
@@ -109,14 +109,14 @@ pub fn construct_text<'a>(
 #[derive(Debug, Clone, PartialEq)]
 #[pyclass(eq, eq_int)]
 pub enum IpgTextParam {
+    AlignX,
+    AlignY,
     Content,
     Height,
     HeightFill,
-    AlignX,
-    AlignY,
     LineHeight,
-    Show,
     Shaping,
+    Show,
     Size,
     TextColor, 
     TextRgba,
@@ -167,19 +167,17 @@ impl WidgetParamUpdate for IpgText {
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
         match param {
+            IpgTextParam::AlignX => set_halign(&mut self.align_x, value, name),
+            IpgTextParam::AlignY => set_valign(&mut self.align_y, value, name),
             IpgTextParam::Content => set_string(&mut self.content, value, name),
             IpgTextParam::Height => set_height(&mut self.height, value, name),
             IpgTextParam::HeightFill => set_height_fill(&mut self.height, value, name),
-            IpgTextParam::AlignX => set_halign(&mut self.align_x, value, name),
-            IpgTextParam::AlignY => set_valign(&mut self.align_y, value, name),
             IpgTextParam::LineHeight => set_opt_f32(&mut self.line_height, value, name),
             IpgTextParam::Shaping => set_opt_text_shaping(&mut self.shaping, value, name),
             IpgTextParam::Show => set_bool(&mut self.show, value, name),
             IpgTextParam::Size => set_opt_f32(&mut self.size, value, name),
-            IpgTextParam::TextColor  => 
-                set_opt_iced_color(&mut self.style, value, name),
-            IpgTextParam::TextRgba => 
-                set_iced_color_from_rgba(&mut self.style, value, name),
+            IpgTextParam::TextColor  => set_opt_iced_color(&mut self.color, value, name),
+            IpgTextParam::TextRgba => set_iced_color_from_rgba(&mut self.color, value, name),
             IpgTextParam::Width => set_width(&mut self.width, value, name),
             IpgTextParam::WidthFill => set_width_fill(&mut self.width, value, name),
             IpgTextParam::Wrapping => self.wrapping = IpgWrapping::extract(value),

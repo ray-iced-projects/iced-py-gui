@@ -57,7 +57,7 @@ pub fn add_text(
 
     let id = get_id(gen_id);
 
-    let style= 
+    let color= 
         IpgColor::rgba_ipg_color_to_iced(text_rgba, text_color, 1.0, false);
 
     let width = get_width(width, width_fill);
@@ -83,7 +83,7 @@ pub fn add_text(
             shaping,
             show,
             wrapping,
-            style,
+            color,
         }));
 
     drop(state);

@@ -28,10 +28,12 @@ use crate::widgets::ipg_progress_bar::{IpgProgressBar, IpgProgressBarStyle};
 use crate::widgets::ipg_radio::{IpgRadio, IpgRadioStyle};
 use crate::widgets::ipg_row::IpgRow;
 use crate::widgets::ipg_rule::{IpgRule, IpgRuleStyle};
+use crate::widgets::ipg_selectable_text::IpgSelectableText;
 use crate::widgets::ipg_separator::{IpgSeparator, IpgSeparatorStyle};
 use crate::widgets::ipg_slider::{IpgSlider, IpgSliderStyle};
 use crate::widgets::ipg_space::IpgSpace;
 use crate::widgets::ipg_text::IpgText;
+use crate::widgets::ipg_toggle::{IpgToggler, IpgTogglerStyle};
 use crate::widgets::ipg_window::IpgWindow;
 use crate::widgets::ipg_button::{IpgButton, IpgButtonStyle};
 
@@ -90,7 +92,7 @@ pub enum IpgWidgets {
     IpgRule(IpgRule),
     IpgRuleStyle(IpgRuleStyle),
     // IpgScrollableStyle(IpgScrollableStyle),
-    // IpgSelectableText(IpgSelectableText),
+    IpgSelectableText(IpgSelectableText),
     IpgSeparator(IpgSeparator),
     IpgSeparatorStyle(IpgSeparatorStyle),
     IpgSlider(IpgSlider),
@@ -107,8 +109,8 @@ pub enum IpgWidgets {
     // IpgTimerStyle(IpgTimerStyle),
     // IpgCanvasTimer(IpgCanvasTimer),
     // IpgCanvasTimerStyle(IpgCanvasTimerStyle),
-    // IpgToggler(IpgToggler),
-    // IpgTogglerStyle(IpgTogglerStyle),
+    IpgToggler(IpgToggler),
+    IpgTogglerStyle(IpgTogglerStyle),
     // IpgToolTipStyle(IpgToolTipStyle),
 }
 

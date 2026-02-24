@@ -166,15 +166,17 @@ fn get_dot(sep: &IpgSeparator,
 fn get_label(sep: &IpgSeparator,
             sep_color: Color) 
             -> Element<'_, app::Message> {
-
+    
     let q_1: Element<Message, Theme, Renderer> = Quad {
         width: Length::Fixed(sep.label_left_width.unwrap_or(0.0)),
-        height: sep.height,
+        height: Length::Fill,
+        inner_bounds: InnerBounds::Ratio(1.0, 1.0),
         ..separator(sep_color.into())
     }.into();
     let q_2: Element<Message, Theme, Renderer> = Quad {
         width: Length::Fixed(sep.label_right_width.unwrap_or(0.0)),
-        height: sep.height,
+        height: Length::Fill,
+        inner_bounds: InnerBounds::Ratio(1.0, 1.0),
         ..separator(sep_color.into())
     }.into();
 
@@ -195,20 +197,23 @@ fn get_label(sep: &IpgSeparator,
 fn get_line(sep: &IpgSeparator,
             sep_color: Color) 
             -> Element<'_, app::Message> {
-
+    
     let length = if let Some(ll) = sep.line_length {
-        ll
-    } else { 5.0 };
+        Length::Fixed(ll)
+    } else { Length::Fixed(20.0) };
 
     let thickness = if let Some(th) = sep.line_thickness {
-        th
-    } else { 2.0 };
+        Length::Fixed(th)
+    } else { Length::Fixed(2.0) };
+
     Quad {
-        width: Length::Fixed(length),
-        height: Length::Fixed(thickness),
-        quad_color: sep_color.into(),
-        ..Default::default()
-    }.into()
+            inner_bounds: InnerBounds::Ratio(1.0, 1.0),
+            quad_border: Border::default(),
+            width: length,
+            height: thickness,
+            quad_color: sep_color.into(),
+            ..Default::default()
+        }.into()
 }
 
 

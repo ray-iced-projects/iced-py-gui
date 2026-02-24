@@ -57,8 +57,13 @@ where
     }
 
     fn layout(&mut self, _tree: &mut Tree, _renderer: &Renderer, limits: &Limits) -> Node {
+        let intrinsic = match self.inner_bounds {
+            InnerBounds::Square(l) => Size::new(l, l),
+            InnerBounds::Ratio(_, _) => Size::ZERO,
+        };
         let limits = limits.width(self.width).height(self.height);
-        Node::new(limits.max())
+        let size = limits.resolve(self.width, self.height, intrinsic);
+        Node::new(size)
     }
 
     fn draw(

@@ -28,20 +28,27 @@ add_column(
     align_x=IpgAlignment.Center
 )
 
-# for the dot, the width and height are not used
-# unless one wants a sort of padding around the circle.
+
 add_separator(
     parent_id="col",
     separator_type=IpgSeparatorType.Dot,
-    dot_radius=5.0,
+    dot_radius=3.0,
     dot_count=10,
     spacing=10.0,)
 
 add_separator(
     parent_id="col",
     separator_type=IpgSeparatorType.Line,
-    line_length=30.0,
-    line_thickness=5.0)
+    line_length=150.0,
+    line_thickness=2.0)
+
+add_separator(
+    parent_id="col",
+    separator_type=IpgSeparatorType.Label,
+    label="label",
+    label_left_width=2.0,
+    label_right_width=2.0,
+)
 
 # Required to be the last widget sent to Iced,  If you start the program
 # and nothing happens, it might mean you forgot to add this command.

@@ -94,6 +94,7 @@ pub fn param_update(
         IpgWidgets::IpgText(w) => apply_update(w, item, value, name),
         IpgWidgets::IpgToggler(w) => apply_update(w, item, value, name),
         IpgWidgets::IpgTogglerStyle(w) => apply_update(w, item, value, name),
+        IpgWidgets::IpgSvg(w) => apply_update(w, item, value, name),
             }
 }
 

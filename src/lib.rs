@@ -47,6 +47,7 @@ use crate::py_api::separator::{add_separator, add_separator_style};
 use crate::py_api::space::add_space;
 use crate::py_api::slider::{add_slider, add_slider_style};
 use crate::py_api::session::{start_session, generate_id};
+use crate::py_api::svg::add_svg;
 use crate::py_api::update::update_widget;
 use crate::widgets::ipg_radio::{IpgRadioDirection, IpgRadioParam, IpgRadioStyleParam};
 use crate::widgets::ipg_rule::{IpgRuleParam, IpgRuleStyleParam};
@@ -103,6 +104,7 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(add_space, m)?)?;
     m.add_function(wrap_pyfunction!(add_toggler, m)?)?;
     m.add_function(wrap_pyfunction!(add_text, m)?)?;
+    m.add_function(wrap_pyfunction!(add_svg, m)?)?;
     m.add_function(wrap_pyfunction!(update_widget, m)?)?;
     
     // styles

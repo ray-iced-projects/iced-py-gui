@@ -1,30 +1,35 @@
-//! Image module - provides add_image pyfunction
+//! Svg module - provides add_svg pyfunction
 use pyo3::{Py, PyAny, pyfunction, PyResult};
 type PyObject = Py<PyAny>;
 
-use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex, 
-    py_api::helpers::{get_height, get_width}, 
-    state::{IpgWidgets, get_id, set_state_of_widget}, 
-    widgets::{enums::{IpgContentFit, IpgColorFilter, IpgRotation}, ipg_image::IpgImage, 
-        ipg_mousearea::IpgMousePointer}};
+use crate::graphics::colors::IpgColor;
+use crate::state::{IpgWidgets, get_id, set_state_of_widget};
+use crate::widgets::enums::{IpgContentFit, IpgRotation};
+use crate::widgets::ipg_mousearea::IpgMousePointer;
+use crate::widgets::ipg_svg::IpgSvg;
+use crate::{access_state, add_callback_to_mutex, 
+    add_user_data_to_mutex}; 
+use crate::py_api::helpers::{get_height, get_width};
 
 
 #[pyfunction]
+
 #[pyo3(signature = (
     parent_id, 
-    image_path, 
+    svg_path, 
     gen_id=None, 
     width=None, 
     width_fill=false, 
     height=None, 
-    height_fill=false, 
-    padding=None, 
-    content_fit=None, 
-    filter_method=None,
-    rotation_method=None,
+    height_fill=false,
+    ipg_color_filter=None,
+    rgba_filter=None,
+    content_fit=None,
+    rotation_type=None,
     rotation_radians=None, 
     opacity=None,
-    mouse_pointer=None,
+    mouse_pointer=None, 
+    show=true,
     on_press=None, 
     on_release=None,
     on_right_press=None, 
@@ -33,26 +38,26 @@ use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex,
     on_middle_release=None,
     on_enter=None, 
     on_move=None, 
-    on_exit=None,
+    on_exit=None, 
     user_data=None,
-    show=true,
     ))]
-pub fn add_image(
+pub fn add_svg(
     parent_id: String,
-    image_path: String,
+    svg_path: String,
     // above required
     gen_id: Option<usize>,
     width: Option<f32>,
     width_fill: bool,
     height: Option<f32>,
     height_fill: bool,
-    padding: Option<Vec<f32>>,
+    ipg_color_filter: Option<IpgColor>,
+    rgba_filter: Option<[f32; 4]>,
     content_fit: Option<IpgContentFit>,
-    filter_method: Option<IpgColorFilter>,
-    rotation_method: Option<IpgRotation>,
+    rotation_type: Option<IpgRotation>,
     rotation_radians: Option<f32>,
     opacity: Option<f32>,
     mouse_pointer: Option<IpgMousePointer>,
+    show: bool,
     on_press: Option<PyObject>,
     on_release: Option<PyObject>,
     on_right_press: Option<PyObject>,
@@ -63,10 +68,12 @@ pub fn add_image(
     on_move: Option<PyObject>,
     on_exit: Option<PyObject>,
     user_data: Option<PyObject>,
-    show: bool,
     ) -> PyResult<usize>
 {
     let id = get_id(gen_id);
+
+    let color_filter = 
+        IpgColor::rgba_ipg_color_to_iced(rgba_filter, ipg_color_filter, 1.0, false);
 
     if let Some(py) = on_press {
         add_callback_to_mutex(id, "on_press".to_string(), py);
@@ -115,17 +122,16 @@ pub fn add_image(
 
     let mut state = access_state();
 
-    state.widgets.insert(id, IpgWidgets::IpgImage(
-        IpgImage {
+    state.widgets.insert(id, IpgWidgets::IpgSvg(
+        IpgSvg {
             id,
             parent_id,
-            image_path,
+            svg_path,
             width,
             height,
-            padding,
+            color_filter,
             content_fit,
-            filter_method,
-            rotation_method,
+            rotation_type,
             rotation_radians,
             opacity,
             mouse_pointer,

@@ -26,6 +26,7 @@ pub mod ipg_selectable_text;
 pub mod ipg_separator;
 pub mod ipg_space;
 pub mod ipg_slider;
+pub mod ipg_svg;
 pub mod ipg_toggle;
 pub mod ipg_row;
 pub mod styling;

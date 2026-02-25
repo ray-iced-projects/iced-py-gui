@@ -6,6 +6,9 @@ use crate::access_user_data1;
 use crate::app;
 use crate::access_callbacks;
 use crate::py_api::helpers::get_padding;
+use crate::widgets::enums::IpgContentFit;
+use crate::widgets::enums::IpgColorFilter;
+use crate::widgets::enums::IpgRotation;
 use crate::widgets::widget_param_update::{
     WidgetParamUpdate, 
     set_bool, set_width, set_width_fill, set_height, 
@@ -14,8 +17,7 @@ use crate::widgets::widget_param_update::{
 use super::ipg_mousearea::IpgMousePointer;
 
 use iced::mouse::Interaction;
-use iced::widget::image::FilterMethod;
-use iced::{Length, Element, Point, Radians, Rotation};
+use iced::{Length, Element, Point};
 use iced::widget::{Container, Image, MouseArea};
 use iced::advanced::image;
 
@@ -32,9 +34,9 @@ pub struct IpgImage {
         pub width: Length,
         pub height: Length,
         pub padding: Option<Vec<f32>>,
-        pub content_fit: Option<IpgImageContentFit>,
-        pub filter_method: Option<IpgImageFilterMethod>,
-        pub rotation_method: Option<IpgImageRotation>,
+        pub content_fit: Option<IpgContentFit>,
+        pub filter_method: Option<IpgColorFilter>,
+        pub rotation_method: Option<IpgRotation>,
         pub rotation_radians: Option<f32>,
         pub opacity: Option<f32>,
         pub mouse_pointer: Option<IpgMousePointer>,
@@ -54,105 +56,6 @@ pub enum ImageMessage {
     OnExit,
 }
 
-#[derive(Debug, Clone, PartialEq)]
-#[pyclass(eq, eq_int)]
-pub enum IpgImageContentFit {
-    Contain,
-    Cover,
-    Fill,
-    IpgNone,
-    ScaleDown,
-}
-
-impl IpgImageContentFit {
-    pub fn default() -> Self {
-        IpgImageContentFit::Contain
-    }
-
-    pub fn to_iced(&self) -> iced::ContentFit {
-        match self {
-            IpgImageContentFit::Contain => iced::ContentFit::Contain,
-            IpgImageContentFit::Cover => iced::ContentFit::Cover,
-            IpgImageContentFit::Fill => iced::ContentFit::Fill,
-            IpgImageContentFit::IpgNone => iced::ContentFit::None,
-            IpgImageContentFit::ScaleDown => iced::ContentFit::ScaleDown,
-        }
-    }
-
-    fn extract(value: &PyObject) -> Option<Self> {
-        Python::attach(|py| {
-            let res = value.extract::<IpgImageContentFit>(py);
-            match res {
-                Ok(val) => Some(val),
-                Err(_) => None,
-            }
-        })  
-    }
-}
-
-#[derive(Debug, Clone, PartialEq)]
-#[pyclass(eq, eq_int)]
-pub enum IpgImageFilterMethod {
-    Linear,
-    Nearest,
-}
-
-impl IpgImageFilterMethod {
-    pub fn default() -> Self {
-        IpgImageFilterMethod::Linear
-    }
-
-    pub fn to_iced(&self) -> FilterMethod {
-        match self {
-            IpgImageFilterMethod::Linear => FilterMethod::Linear,
-            IpgImageFilterMethod::Nearest => FilterMethod::Nearest,
-        }
-    }
-
-    fn extract(value: &PyObject) -> Option<Self> {
-        Python::attach(|py| {
-            let res = value.extract::<IpgImageFilterMethod>(py);
-            match res {
-                Ok(val) => Some(val),
-                Err(_) => None,
-            }
-        })  
-    }
-}
-
-#[derive(Debug, Clone, PartialEq)]
-#[pyclass(eq, eq_int)]
-pub enum IpgImageRotation {
-    Floating,
-    Solid,
-}
-
-impl IpgImageRotation {
-    pub fn default() -> Rotation {
-        Rotation::Floating(Radians(0.0))
-    }
-
-    pub fn to_iced(&self, rad: Option<f32>) -> Rotation {
-        let rads = if let Some(rad) = rad {
-            rad
-        } else { 0.0 };
-        match self {
-            IpgImageRotation::Floating => Rotation::Floating(Radians(rads)),
-            IpgImageRotation::Solid => Rotation::Solid(Radians(rads)),
-        }
-    }
-
-    fn extract(value: &PyObject) -> Option<Self> {
-        Python::attach(|py| {
-            let res = value.extract::<IpgImageRotation>(py);
-            match res {
-                Ok(val) => Some(val),
-                Err(_) => None,
-            }
-        })  
-    }
-}
-
 pub fn construct_image(image: &IpgImage) 
                         -> Option<Element<'_, app::Message>> {
 
@@ -163,19 +66,19 @@ pub fn construct_image(image: &IpgImage)
     let fit = if let Some(f) = &image.content_fit {
         f.to_iced()
     } else {
-        IpgImageContentFit::default().to_iced()
+        IpgContentFit::default().to_iced()
     };
 
     let filter = if let Some(f) = &image.filter_method {
         f.to_iced()
     } else {
-        IpgImageFilterMethod::default().to_iced()
+        IpgColorFilter::default().to_iced()
     };
 
     let rotation = if let Some(r) = &image.rotation_method {
         r.to_iced(image.rotation_radians)
     } else {
-        IpgImageRotation::default()
+        IpgRotation::default()
     };
 
     let op = if let Some(op) = image.opacity {
@@ -354,15 +257,15 @@ impl WidgetParamUpdate for IpgImage {
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
         match param {
-            IpgImageParam::ContentFit => self.content_fit = IpgImageContentFit::extract(value),
-            IpgImageParam::FilterMethod => self.filter_method = IpgImageFilterMethod::extract(value),
+            IpgImageParam::ContentFit => self.content_fit = IpgContentFit::extract(value),
+            IpgImageParam::FilterMethod => self.filter_method = IpgColorFilter::extract(value),
             IpgImageParam::Height => set_height(&mut self.height, value, name),
             IpgImageParam::HeightFill => set_height_fill(&mut self.height, value, name),
             IpgImageParam::ImagePath => set_string(&mut self.image_path, value, name),
             IpgImageParam::MousePointer => self.mouse_pointer = IpgMousePointer::extract(value),
             IpgImageParam::Opacity => set_opt_f32(&mut self.opacity, value, name),
             IpgImageParam::Padding => set_opt_vec_f32(&mut self.padding, value, name),
-            IpgImageParam::RotationMethod => self.rotation_method = IpgImageRotation::extract(value),
+            IpgImageParam::RotationMethod => self.rotation_method = IpgRotation::extract(value),
             IpgImageParam::RotationRadians => set_opt_f32(&mut self.rotation_radians, value, name),
             IpgImageParam::Show => set_bool(&mut self.show, value, name),
             IpgImageParam::Width => set_width(&mut self.width, value, name),

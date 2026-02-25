@@ -32,6 +32,7 @@ use crate::widgets::ipg_selectable_text::IpgSelectableText;
 use crate::widgets::ipg_separator::{IpgSeparator, IpgSeparatorStyle};
 use crate::widgets::ipg_slider::{IpgSlider, IpgSliderStyle};
 use crate::widgets::ipg_space::IpgSpace;
+use crate::widgets::ipg_svg::IpgSvg;
 use crate::widgets::ipg_text::IpgText;
 use crate::widgets::ipg_toggle::{IpgToggler, IpgTogglerStyle};
 use crate::widgets::ipg_window::IpgWindow;
@@ -98,7 +99,7 @@ pub enum IpgWidgets {
     IpgSlider(IpgSlider),
     IpgSliderStyle(IpgSliderStyle),
     IpgSpace(IpgSpace),
-    // IpgSvg(IpgSvg),
+    IpgSvg(IpgSvg),
     // IpgTableStyle(IpgTableStyle),
     IpgText(IpgText),
     // IpgRichText(IpgRichText),

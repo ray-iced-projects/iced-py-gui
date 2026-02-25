@@ -30,6 +30,7 @@ use crate::widgets::ipg_selectable_text::{SLTXTMessage, construct_selectable_tex
 use crate::widgets::ipg_separator::construct_separator;
 use crate::widgets::ipg_slider::{SLMessage, construct_slider, slider_callback};
 use crate::widgets::ipg_space::construct_space;
+use crate::widgets::ipg_svg::{SvgMessage, construct_svg, svg_callback};
 use crate::widgets::ipg_text::construct_text;
 use crate::widgets::ipg_toggle::{TOGMessage, construct_toggler, toggle_callback};
 use crate::widgets::ipg_window::{IpgWindow, IpgWindowLevel, IpgWindowMode, add_windows, construct_window};
@@ -56,7 +57,7 @@ pub enum Message {
 //     Scrolled(scrollable::Viewport, usize),
     SelectableText(usize, SLTXTMessage),
     Slider(usize, SLMessage),
-//     Svg(usize, SvgMessage),
+    Svg(usize, SvgMessage),
 
 //     TableSync(scrollable::AbsoluteOffset, usize),
 //     TableDividerChanged((usize, usize, f32)),
@@ -298,11 +299,11 @@ impl App {
                 process_updates(&mut self.state);
                 Task::none()
             },
-            // Message::Svg(id, message) => {
-            //     svg_callback(&mut self.state, id, message);
-            //     process_updates(&mut self.state, &mut self.canvas_state);
-            //     Task::none()
-            // },
+            Message::Svg(id, message) => {
+                svg_callback(&mut self.state, id, message);
+                process_updates(&mut self.state); //, &mut self.canvas_state);
+                Task::none()
+            },
             // Message::TableSync(offset, id) => {
             //     let message = TableMessage::SyncScrollables(id);
             //     let (header, body, footer) = table_callback(&mut self.state, id, message);
@@ -883,9 +884,9 @@ fn get_widget<'a>(state: &'a IpgState, id: &usize) -> Option<Element<'a, Message
                 IpgWidgets::IpgSpace(sp) => {
                     construct_space(sp)
                 },
-                // IpgWidgets::IpgSvg(svg) => {
-                //     construct_svg(svg)
-                // },
+                IpgWidgets::IpgSvg(svg) => {
+                    construct_svg(svg)
+                },
                 IpgWidgets::IpgText(txt) => {
                     let font_opt = 
                         if let Some(id) = txt.font_id {

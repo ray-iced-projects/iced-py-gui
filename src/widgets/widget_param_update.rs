@@ -36,7 +36,6 @@ pub trait WidgetParamUpdate {
 // WidgetParamUpdate implementations
 // ---------------------------------------------------------------------------
 
-
 // impl WidgetParamUpdate for IpgRule {
 //     type Param = IpgRuleParam;
 

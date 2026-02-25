@@ -6,14 +6,14 @@ use crate::graphics::bootstrap_arrow::IpgArrow;
 use crate::state::IpgWidgets;
 use crate::widgets::enums::{IpgHorizontalAlignment, 
     IpgVerticalAlignment};
-use crate::py_api::helpers::{get_padding, 
-    get_radius};
+use crate::py_api::helpers::get_padding;
+use crate::widgets::styling::{apply_border_overrides, apply_shadow_overrides};
 use crate::widgets::widget_param_update::{
     WidgetParamUpdate, set_bool, set_halign, set_height, set_height_fill, set_iced_color_from_rgba, set_opt_bool, set_opt_f32, set_opt_iced_color, set_opt_string, set_opt_usize, set_opt_vec_f32, set_valign, set_width, set_width_fill
 };
 
 use iced::widget::{button, text, Button};
-use iced::{Color, Element, Length, Theme, Vector};
+use iced::{Color, Element, Length, Theme};
 
 use pyo3::{Py, PyAny, Python, pyclass};
 type PyObject = Py<PyAny>;
@@ -203,39 +203,16 @@ impl IpgButtonStyle {
             }
         }
 
-        if let Some(color) = self.border_color {
-            style.border.color = color;
-        }
+        apply_border_overrides(
+            &mut style.border, self.border_color,
+            &self.border_radius, self.border_width, "Button",
+        );
 
-        if let Some(ref radius) = self.border_radius {
-            style.border.radius = get_radius(&radius, "Button".to_string());
-        }
-
-        if let Some(width) = self.border_width {
-            style.border.width = width;
-        }
-
-        if let Some(color) = self.shadow_color {
-            style.shadow.color = color;
-        }
-
-        if let Some(offset_x) = self.shadow_offset_x {
-            style.shadow.offset = Vector::new(
-                offset_x,
-                self.shadow_offset_y.unwrap_or(style.shadow.offset.y),
-            );
-        }
-
-        if let Some(offset_y) = self.shadow_offset_y {
-            style.shadow.offset = Vector::new(
-                self.shadow_offset_x.unwrap_or(style.shadow.offset.x),
-                offset_y,
-            );
-        }
-
-        if let Some(blur_radius) = self.shadow_blur_radius {
-            style.shadow.blur_radius = blur_radius;
-        }
+        apply_shadow_overrides(
+            &mut style.shadow, self.shadow_color,
+            self.shadow_offset_x, self.shadow_offset_y,
+            self.shadow_blur_radius,
+        );
 
         if let Some(color) = self.text_color {
             style.text_color = color;
@@ -342,6 +319,7 @@ pub fn extract_button_style_standard(
         }
     })
 }
+
 #[derive(Debug, Clone, PartialEq)]
 #[pyclass(eq, eq_int)]
 pub enum IpgButtonStyleParam {

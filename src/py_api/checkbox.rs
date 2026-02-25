@@ -11,8 +11,8 @@ use crate::py_api::helpers::get_width;
 use crate::state::{IpgWidgets, access_state, 
     add_callback_to_mutex, get_id, set_state_of_widget};
 use crate::widgets::enums::IpgShaping;
-use crate::widgets::ipg_checkbox::{IpgCheckBox, IpgCheckboxStyle};
-use crate::widgets::styling::IpgStyleStandard;
+use crate::widgets::ipg_checkbox::{IpgCheckBox, IpgCheckboxStyle, IpgCheckboxStyleStandard};
+
 
 /// Add a checkbox widget.
 ///
@@ -65,7 +65,7 @@ pub fn add_checkbox(
     user_data: Option<PyObject>,
     show: bool,
     style_id: Option<usize>,
-    style_standard: Option<IpgStyleStandard>,
+    style_standard: Option<IpgCheckboxStyleStandard>,
     ) -> PyResult<usize> 
 {
     let id = get_id(gen_id);

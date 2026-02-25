@@ -7,8 +7,7 @@ use pyo3::{Py, PyAny, PyResult, pyfunction};
 use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex, 
     graphics::colors::IpgColor, py_api::helpers::{get_height, get_width}, 
     state::{IpgContainers, IpgWidgets, get_id, set_state_cont_wnd_ids, 
-        set_state_of_container, set_state_of_widget}, widgets::{ipg_scrollable::
-        {IpgAnchor, IpgScrollable, IpgScrollableStyle, IpgScrollbar}}};
+        set_state_of_container, set_state_of_widget}, widgets::ipg_scrollable::{IpgAnchor, IpgAutoScrollStyle, IpgRailStyle, IpgScrollable, IpgScrollableStyle, IpgScrollbar}};
 type PyObject = Py<PyAny>;
 
 
@@ -142,62 +141,36 @@ pub fn add_scrollbar (
 
 #[pyfunction]
 #[pyo3(signature = ( 
-    scrollbar_color=None,
-    scrollbar_rgba=None,
-    scrollbar_border_radius=None,
-    scrollbar_border_width=None,
-    scrollbar_border_color=None,
-    scrollbar_border_rgba=None,
-    scroller_color=None,
-    scroller_rgba=None,
-    scroller_color_hovered=None,
-    scroller_rgba_hovered=None,
-    scroller_color_dragged=None,
-    scroller_rgba_dragged=None,
+    container_style_id=None,
+    vertical_rail_id=None,
+    horizontal_rail_id=None,
+    gap_background_color=None,
+    gap_background_rgba=None,
     gen_id=None
     ))]
 pub fn add_scrollable_style(
-    scrollbar_color: Option<IpgColor>,
-    scrollbar_rgba: Option<[f32; 4]>,
-    scrollbar_border_radius: Option<Vec<f32>>,
-    scrollbar_border_width: Option<f32>,
-    scrollbar_border_color: Option<IpgColor>,
-    scrollbar_border_rgba: Option<[f32; 4]>,
-    scroller_color: Option<IpgColor>,
-    scroller_rgba: Option<[f32; 4]>,
-    scroller_color_hovered: Option<IpgColor>,
-    scroller_rgba_hovered: Option<[f32; 4]>,
-    scroller_color_dragged: Option<IpgColor>,
-    scroller_rgba_dragged: Option<[f32; 4]>,
+    container_style_id: Option<usize>,
+    vertical_rail_id: Option<usize>,
+    horizontal_rail_id: Option<usize>,
+    gap_background_color: Option<IpgColor>,
+    gap_background_rgba: Option<[f32; 4]>,
     gen_id: Option<usize>,
     ) -> PyResult<usize>
 {
     let id = get_id(gen_id);
 
-    let scrollbar_color: Option<Color> = 
-        IpgColor::rgba_ipg_color_to_iced(scrollbar_rgba, scrollbar_color, 1.0, false);
-    let scrollbar_border_color: Option<Color> = 
-        IpgColor::rgba_ipg_color_to_iced(scrollbar_border_rgba, scrollbar_border_color, 1.0, false);
+    let gap_background_color: Option<Color> = 
+        IpgColor::rgba_ipg_color_to_iced(gap_background_rgba, gap_background_color, 1.0, false);
     
-    let scroller_color: Option<Color> = 
-        IpgColor::rgba_ipg_color_to_iced(scroller_rgba, scroller_color, 1.0, false);
-    let scroller_color_hovered: Option<Color> = 
-        IpgColor::rgba_ipg_color_to_iced(scroller_rgba_hovered, scroller_color_hovered, 1.0, false);
-    let scroller_color_dragged: Option<Color> = 
-        IpgColor::rgba_ipg_color_to_iced(scroller_rgba_dragged, scroller_color_dragged, 1.0, false);
-
     let mut state = access_state();
 
     state.widgets.insert(id, IpgWidgets::IpgScrollableStyle(
         IpgScrollableStyle { 
             id,
-            scrollbar_color,
-            scrollbar_border_radius,
-            scrollbar_border_width,
-            scrollbar_border_color,
-            scroller_color,
-            scroller_color_hovered,
-            scroller_color_dragged,
+            container_style_id,
+            vertical_rail_id,
+            horizontal_rail_id,
+            gap_background_color,
         }));
 
     drop(state);
@@ -205,3 +178,108 @@ pub fn add_scrollable_style(
 
 }
 
+#[pyfunction]
+#[pyo3(signature = ( 
+    background_color=None,
+    background_rgba=None,
+    border_color=None,
+    border_rgba=None,
+    border_width=None,
+    border_radius=None,
+    gen_id=None
+    ))]
+pub fn add_vertical_rail_style(
+    background_color: Option<IpgColor>,
+    background_rgba: Option<[f32; 4]>,
+    border_color: Option<IpgColor>,
+    border_rgba: Option<[f32; 4]>,
+    border_width: Option<f32>,
+    border_radius: Option<Vec<f32>>,
+    gen_id: Option<usize>,
+    ) -> PyResult<usize>
+{
+    let id = get_id(gen_id);
+
+    let background: Option<Color> = 
+        IpgColor::rgba_ipg_color_to_iced(background_rgba, background_color, 1.0, false);
+    let border_color: Option<Color> = 
+        IpgColor::rgba_ipg_color_to_iced(border_rgba, border_color, 1.0, false);
+    
+    let mut state = access_state();
+
+    state.widgets.insert(id, IpgWidgets::IpgRailStyle(
+        IpgRailStyle { 
+            id,
+            background,
+            border_color,
+            border_width,
+            border_radius,
+        }));
+
+    drop(state);
+    Ok(id)
+
+}
+
+#[pyfunction]
+#[pyo3(signature = ( 
+    background_color=None,
+    background_rgba=None,
+    border_color=None,
+    border_rgba=None,
+    border_width=None,
+    border_radius=None,
+    shadow_color=None,
+    shadow_rgba=None,
+    shadow_offset=None,
+    shadow_blur_radius=None,
+    shadow_icon_color=None,
+    shadow_icon_rgba=None,
+    gen_id=None
+    ))]
+pub fn add_auto_scroll_style(
+    background_color: Option<IpgColor>,
+    background_rgba: Option<[f32; 4]>,
+    border_color: Option<IpgColor>,
+    border_rgba: Option<[f32; 4]>,
+    border_width: Option<f32>,
+    border_radius: Option<Vec<f32>>,
+    shadow_color: Option<IpgColor>,
+    shadow_rgba: Option<[f32; 4]>,
+    shadow_offset: Option<[f32; 2]>,
+    shadow_blur_radius: Option<f32>,
+    shadow_icon_color: Option<IpgColor>,
+    shadow_icon_rgba: Option<[f32; 4]>,
+    gen_id: Option<usize>,
+    ) -> PyResult<usize>
+{
+    let id = get_id(gen_id);
+
+    let background: Option<Color> = 
+        IpgColor::rgba_ipg_color_to_iced(background_rgba, background_color, 1.0, false);
+    let border_color: Option<Color> = 
+        IpgColor::rgba_ipg_color_to_iced(border_rgba, border_color, 1.0, false);
+    let shadow_color: Option<Color> = 
+        IpgColor::rgba_ipg_color_to_iced(shadow_rgba, shadow_color, 1.0, false);
+    let shadow_icon_color: Option<Color> = 
+        IpgColor::rgba_ipg_color_to_iced(shadow_icon_rgba, shadow_icon_color, 1.0, false);
+    
+    let mut state = access_state();
+
+    state.widgets.insert(id, IpgWidgets::IpgAutoScrollStyle(
+        IpgAutoScrollStyle { 
+            id,
+            background,
+            border_color,
+            border_width,
+            border_radius,
+            shadow_color,
+            shadow_offset,
+            shadow_blur_radius,
+            shadow_icon_color,
+        }));
+
+    drop(state);
+    Ok(id)
+
+}

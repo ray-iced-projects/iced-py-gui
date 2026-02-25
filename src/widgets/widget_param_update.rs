@@ -96,6 +96,8 @@ pub fn param_update(
         IpgWidgets::IpgSvg(w) => apply_update(w, item, value, name),
         IpgWidgets::IpgScrollbar(w) => apply_update(w, item, value, name),
         IpgWidgets::IpgScrollableStyle(w) => apply_update(w, item, value, name),
+        IpgWidgets::IpgRailStyle(w) => apply_update(w, item, value, name),
+        IpgWidgets::IpgAutoScrollStyle(w) => apply_update(w, item, value, name),
             }
 }
 

@@ -4,6 +4,7 @@ use crate::IpgState;
 use crate::access_callbacks;
 use crate::access_user_data1;
 use crate::app::Message;
+use crate::graphics::colors::IpgColor;
 use crate::state::IpgWidgets;
 use crate::widgets::ipg_container;
 use crate::widgets::widget_param_update::WidgetParamUpdate;
@@ -50,18 +51,6 @@ pub struct IpgScrollbar {
     pub alignment: Option<IpgAnchor>,
 }
 
-#[derive(Debug, Clone)]
-pub struct IpgScrollableStyle {
-    pub id: usize,
-    pub scrollbar_color: Option<Color>,
-    pub scrollbar_border_radius: Option<Vec<f32>>,
-    pub scrollbar_border_width: Option<f32>,
-    pub scrollbar_border_color: Option<Color>,
-    pub scroller_color: Option<Color>,
-    pub scroller_color_hovered: Option<Color>,
-    pub scroller_color_dragged: Option<Color>,
-}
-
 #[derive(Debug, Clone, PartialEq)]
 #[pyclass(eq, eq_int)]
 pub enum IpgAnchor {
@@ -97,7 +86,7 @@ pub fn construct_scrollable<'a>(
     style_opt: Option<&IpgWidgets> ) 
     -> Element<'a, Message> {
     
-    let ipg_style_opt = get_scroll_style(style_opt);
+    let ipg_style_opt = get_scroll_style_widget(style_opt);
     let ipg_cont_style_opt = ipg_container::get_cont_style(cont_style_opt);
 
     let content: Element<'a, Message> = Column::with_children(content).into();
@@ -267,21 +256,11 @@ fn get_styling(theme: &Theme, status: Status,
 {
 
     let mut style = scrollable::default(theme, status);
- 
-    match (style_opt.is_some(), cont_style_opt.is_some() ){
-        (true, true) => {
-            style.container = ipg_container::get_styling(theme, cont_style_opt);
-        },
-        (false, true) => {
-           
-        },
-        (true, false) => {
-
-        },
-        (false, false) => {
-            return scrollable::default(theme, status)
-        }
-    }
+    // container style via the container_style_id
+    style.container = ipg_container::get_styling(theme, cont_style_opt);
+    
+            
+        
     
     
     
@@ -289,6 +268,67 @@ fn get_styling(theme: &Theme, status: Status,
 
     style
     
+}
+
+#[derive(Debug, Clone)]
+pub struct IpgScrollableStyle {
+    pub id: usize,
+    pub container_style_id: Option<usize>,
+    pub vertical_rail_id: Option<usize>,
+    pub horizontal_rail_id: Option<usize>,
+    pub gap_background_color: Option<Color>,
+}
+
+impl IpgScrollableStyle {
+    /// Apply user-defined style overrides to an existing iced checkbox::Style
+    pub fn apply_to(&self, style: &mut scrollable::Style, status: scrollable::Status) {
+
+    }
+}
+
+pub fn get_scroll_style_widget(style: Option<&IpgWidgets>) -> Option<IpgScrollableStyle> {
+    style.and_then(|s| match s {
+        IpgWidgets::IpgScrollableStyle(st) => Some(st.clone()),
+        _ => None,
+    })
+}
+
+fn get_scrollbar_widget(sb_opt: Option<&IpgWidgets>) -> Option<IpgScrollbar> {
+    sb_opt.and_then(|s| match s {
+        IpgWidgets::IpgScrollbar(st) => Some(st.clone()),
+        _ => None,
+    })
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct IpgRailStyle { 
+    pub id: usize,
+    pub background: Option<Color>,
+    pub border_color: Option<Color>,
+    pub border_width: Option<f32>,
+    pub border_radius: Option<Vec<f32>>,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct IpgScrollerStyle {
+    pub id: usize,
+    pub background: Option<Color>,
+    pub border_color: Option<Color>,
+    pub border_width: Option<f32>,
+    pub border_radius: Option<Vec<f32>>,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct IpgAutoScrollStyle {
+    pub id: usize,
+    pub background: Option<Color>,
+    pub border_color: Option<Color>,
+    pub border_width: Option<f32>,
+    pub border_radius: Option<Vec<f32>>,
+    pub shadow_color: Option<Color>,
+    pub shadow_offset: Option<[f32; 2]>,
+    pub shadow_blur_radius: Option<f32>,
+    pub shadow_icon_color: Option<Color>,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -308,21 +348,33 @@ pub enum IpgScrollableStyleParam {
     ScrollerRgbaColorDragged,
 }
 
-pub fn get_scroll_style(style: Option<&IpgWidgets>) -> Option<IpgScrollableStyle> {
-    style.and_then(|s| match s {
-        IpgWidgets::IpgScrollableStyle(st) => Some(st.clone()),
-        _ => None,
-    })
+#[derive(Debug, Clone, PartialEq)]
+#[pyclass(eq, eq_int)]
+pub enum IpgRailStyleParam { 
+    BackgroundColor,
+    BackgroundRgba,
+    BorderColor,
+    BorderRgba,
+    BorderWidth,
+    BorderRadius,
 }
 
-fn get_scrollbar_widget(sb_opt: Option<&IpgWidgets>) -> Option<IpgScrollbar> {
-    sb_opt.and_then(|s| match s {
-        IpgWidgets::IpgScrollbar(st) => Some(st.clone()),
-        _ => None,
-    })
+#[derive(Debug, Clone, PartialEq)]
+#[pyclass(eq, eq_int)]
+pub enum IpgAutoScrollStyleParam {
+    BackgroundColor,
+    BackgroundRgba,
+    BorderColor,
+    BorderRgba,
+    BorderWidth,
+    BorderRadius,
+    ShadowColor,
+    ShadowRgba,
+    ShadowOffset,
+    ShadowBlurRadius,
+    ShadowIconColor,
+    ShadowIconRgba,
 }
-
-
 // ---------------------------------------------------------------------------
 // WidgetParamUpdate implementations
 // ---------------------------------------------------------------------------
@@ -382,11 +434,38 @@ impl WidgetParamUpdate for IpgScrollbar {
     }
 }
 
-// impl WidgetParamUpdate for IpgScrollbarStyle {
-//     type Param = IpgScrollbarStyleParam;
+impl WidgetParamUpdate for IpgRailStyle {
+    type Param = IpgRailStyleParam;
 
-//     fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
-//         match param {
-//         }
-//     }
-// }
+    fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
+        match param {
+            IpgRailStyleParam::BackgroundColor => todo!(),
+            IpgRailStyleParam::BackgroundRgba => todo!(),
+            IpgRailStyleParam::BorderColor => todo!(),
+            IpgRailStyleParam::BorderRgba => todo!(),
+            IpgRailStyleParam::BorderWidth => todo!(),
+            IpgRailStyleParam::BorderRadius => todo!(),
+        }
+    }
+}
+
+impl WidgetParamUpdate for IpgAutoScrollStyle {
+    type Param = IpgAutoScrollStyleParam;
+
+    fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
+        match param {
+            IpgAutoScrollStyleParam::BackgroundColor => todo!(),
+            IpgAutoScrollStyleParam::BackgroundRgba => todo!(),
+            IpgAutoScrollStyleParam::BorderColor => todo!(),
+            IpgAutoScrollStyleParam::BorderRgba => todo!(),
+            IpgAutoScrollStyleParam::BorderWidth => todo!(),
+            IpgAutoScrollStyleParam::BorderRadius => todo!(),
+            IpgAutoScrollStyleParam::ShadowColor => todo!(),
+            IpgAutoScrollStyleParam::ShadowRgba => todo!(),
+            IpgAutoScrollStyleParam::ShadowOffset => todo!(),
+            IpgAutoScrollStyleParam::ShadowBlurRadius => todo!(),
+            IpgAutoScrollStyleParam::ShadowIconColor => todo!(),
+            IpgAutoScrollStyleParam::ShadowIconRgba => todo!(),
+        }
+    }
+}

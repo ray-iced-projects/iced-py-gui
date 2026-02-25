@@ -261,7 +261,7 @@ pub fn get_styling(theme: &Theme, status: Status,
     };
 
     let border_radius = if let Some(br) = ipg_style.border_radius {
-        Some(get_radius(br, "toggle".to_string()))
+        Some(get_radius(&br, "toggle".to_string()))
     } else { None };
 
     toggler::Style {

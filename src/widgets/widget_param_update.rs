@@ -95,6 +95,8 @@ pub fn param_update(
         IpgWidgets::IpgToggler(w) => apply_update(w, item, value, name),
         IpgWidgets::IpgTogglerStyle(w) => apply_update(w, item, value, name),
         IpgWidgets::IpgSvg(w) => apply_update(w, item, value, name),
+        IpgWidgets::IpgScrollbar(w) => apply_update(w, item, value, name),
+        IpgWidgets::IpgScrollableStyle(w) => apply_update(w, item, value, name),
             }
 }
 
@@ -114,6 +116,7 @@ pub fn container_param_update(
         IpgContainers::IpgMouseArea(w) => apply_update(w, item, value, name),
         IpgContainers::IpgOpaque(w) => apply_update(w, item, value, name),
         IpgContainers::IpgRow(w) => apply_update(w, item, value, name),
+        IpgContainers::IpgScrollable(w) => apply_update(w, item, value, name),
         IpgContainers::IpgWindow(w) => apply_update(w, item, value, name),
     }
 }

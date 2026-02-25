@@ -276,7 +276,7 @@ fn get_styling(theme: &Theme,
 
     if let Some(br) = style.border_radius {
         base_style.border_radius = 
-            get_radius(br,  "Divider".to_string());
+            get_radius(&br,  "Divider".to_string());
         }
 
     if let Some(bc) = style.border_color {

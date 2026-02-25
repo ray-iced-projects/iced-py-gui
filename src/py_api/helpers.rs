@@ -86,7 +86,7 @@ pub fn get_padding(padding: &Option<Vec<f32>>)-> Padding {
     }
 }
 
-pub fn get_radius(border_radius: Vec<f32>, widget_name: String) -> Radius {
+pub fn get_radius(border_radius: &Vec<f32>, widget_name: String) -> Radius {
     if border_radius.len() == 1 {
         Radius::from(border_radius[0])
     } else if border_radius.len() == 4 {

@@ -396,7 +396,7 @@ pub fn get_styling(theme: &Theme, status: Status,
 
     if let Some(br) = style.border_radius {
      active_style.border.radius = 
-        get_radius(br, "PickList".to_string());
+        get_radius(&br, "PickList".to_string());
     }
 
     if let Some(bw) = style.border_width {

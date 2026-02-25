@@ -113,17 +113,16 @@ pub fn get_styling(theme: &Theme,
             },
         };
 
-        if style_opt.is_some() {
-            let custom = style_opt.unwrap();
-            if custom.border_color.is_some() {
-                std_style.border.color = custom.border_color.unwrap();
+        if let Some(custom) = style_opt {
+            if let Some(bc) = custom.border_color {
+                std_style.border.color = bc;
             }
-            if custom.border_width.is_some() {
-                 std_style.border.width = custom.border_width.unwrap();
+            if let Some(bw) = custom.border_width {
+                 std_style.border.width = bw;
             }
-            if custom.border_radius.is_some() {
-                std_style.border.radius = get_radius(custom.border_radius.clone().unwrap(),
-                                            "ProgressBar".to_string());
+            if let Some(br) = custom.border_radius {
+                std_style.border.radius = 
+                    get_radius(&br, "ProgressBar".to_string());
             }
         }
         return std_style
@@ -135,23 +134,23 @@ pub fn get_styling(theme: &Theme,
     //tested above so should unwrap()
     let style = style_opt.unwrap();
     
-    if style.background_color.is_some() {
-        custom.background = style.background_color.unwrap().into();
+    if let Some(bc) = style.background_color {
+        custom.background = bc.into();
     }
 
-    if style.bar_color.is_some() {
-        custom.bar = style.bar_color.unwrap().into();
+    if let Some(bc) = style.bar_color {
+        custom.bar = bc.into();
     }
 
-    if style.border_color.is_some() {
-        custom.border.color = style.border_color.unwrap();
+    if let Some(bc) = style.border_color {
+        custom.border.color = bc;
     }
-    if style.border_width.is_some() {
-         custom.border.width = style.border_width.unwrap();
+    if let Some(bw) = style.border_width {
+         custom.border.width = bw;
     }
-    if style.border_radius.is_some() {
-        custom.border.radius = get_radius(style.border_radius.clone().unwrap(),
-                                    "ProgressBar".to_string());
+    if let Some(br) = style.border_radius {
+        custom.border.radius = 
+            get_radius(&br,"ProgressBar".to_string());
     }
 
     custom

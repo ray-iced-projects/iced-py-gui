@@ -50,7 +50,7 @@ pub fn construct_button<'a>(
         return None;
     }
 
-    let style_opt = extract_btn_style(style_widget);
+    let style_opt = get_btn_style_widget(style_widget);
 
     let txt = 
         if let Some(sa) = ipg_btn.style_arrow.clone() {
@@ -99,13 +99,11 @@ pub fn construct_button<'a>(
 
 }
 
-pub fn extract_btn_style(style: Option<&IpgWidgets>) -> Option<IpgButtonStyle>{
-    match style {
-        Some(IpgWidgets::IpgButtonStyle(style)) => {
-            Some(style.clone())
-        }
+pub fn get_btn_style_widget(style: Option<&IpgWidgets>) -> Option<IpgButtonStyle>{
+    style.and_then(|s| match s {
+        IpgWidgets::IpgButtonStyle(st) => Some(st.clone()),
         _ => None,
-    }
+    })
 }
 
 pub fn button_callback(id: usize, message: BtnMessage) {
@@ -186,6 +184,7 @@ pub struct IpgButtonStyle {
 impl IpgButtonStyle {
     /// Apply user-defined style overrides to an existing iced button::Style
     pub fn apply_to(&self, style: &mut button::Style, status: button::Status) {
+        
         if let Some(color) = self.background_color {
             if status == button::Status::Active || status == button::Status::Pressed {
                 style.background = Some(color.into());
@@ -209,7 +208,7 @@ impl IpgButtonStyle {
         }
 
         if let Some(ref radius) = self.border_radius {
-            style.border.radius = get_radius(radius.clone(), "Button".to_string());
+            style.border.radius = get_radius(&radius, "Button".to_string());
         }
 
         if let Some(width) = self.border_width {

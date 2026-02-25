@@ -77,9 +77,7 @@ pub fn construct_container<'a>(
             .width(ipg_cont.width)
             .height(ipg_cont.height)
             .style(move|theme|
-                get_styling(theme, 
-                    style.clone(),
-                )
+                get_styling(theme, &style)
             );
 
     let cont = 
@@ -170,24 +168,21 @@ pub enum IpgContainerParam {
     StyleId,
 }
 
-pub fn get_cont_style(style: Option<&IpgWidgets>) -> Option<IpgContainerStyle>{
-    match style {
-        Some(IpgWidgets::IpgContainerStyle(style)) => {
-            Some(style.clone())
-        }
+pub fn get_cont_style(style: Option<&IpgWidgets>) -> Option<IpgContainerStyle> {
+    style.and_then(|s| match s {
+        IpgWidgets::IpgContainerStyle(st) => Some(st.clone()),
         _ => None,
-    }
+    })
 }
 
 pub fn get_styling(theme: &Theme,
-                style_opt: Option<IpgContainerStyle>,  
+                style_opt: &Option<IpgContainerStyle>,  
                 ) -> container::Style {
     
-    if style_opt.is_none() {
-        return container::transparent(theme);
-    }
-
-    let style = style_opt.unwrap();
+    let style = 
+        if let Some(st) = style_opt {
+            st
+        } else { return container::transparent(theme) };
 
     let background_color = if style.background_color.is_some() {
         style.background_color.unwrap()
@@ -198,11 +193,11 @@ pub fn get_styling(theme: &Theme,
     let mut border = Border::default();
     let mut shadow = Shadow::default();
 
-    if style.border_color.is_some() {
-        border.color = style.border_color.unwrap();
+    if let Some(bc) = style.border_color {
+        border.color = bc;
     }
 
-    if let Some(radius) = style.border_radius {
+    if let Some(radius) = &style.border_radius {
         border.radius = get_radius(radius, "Container".to_string());
     }
 
@@ -210,8 +205,8 @@ pub fn get_styling(theme: &Theme,
         border.width = width;
     }
 
-    if style.shadow_color.is_some() {
-        shadow.color = style.shadow_color.unwrap();
+    if let Some(sc) = style.shadow_color {
+        shadow.color = sc;
 
         if let Some(blur) = style.shadow_blur_radius {
             shadow.blur_radius = blur;

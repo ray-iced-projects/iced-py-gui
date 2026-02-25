@@ -4,7 +4,11 @@
 use iced::{Color, Rectangle};
 use pyo3::{Py, PyAny, PyResult, pyfunction};
 
-use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex, graphics::colors::IpgColor, py_api::helpers::{get_height, get_width}, state::{IpgContainers, IpgWidgets, get_id, set_state_cont_wnd_ids, set_state_of_container}, widgets::ipg_scrollable::{IpgScrollable, IpgScrollableAlignment, IpgScrollableDirection, IpgScrollableStyle}};
+use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex, 
+    graphics::colors::IpgColor, py_api::helpers::{get_height, get_width}, 
+    state::{IpgContainers, IpgWidgets, get_id, set_state_cont_wnd_ids, 
+        set_state_of_container, set_state_of_widget}, widgets::{ipg_scrollable::
+        {IpgAnchor, IpgScrollable, IpgScrollableStyle, IpgScrollbar}}};
 type PyObject = Py<PyAny>;
 
 
@@ -16,21 +20,13 @@ type PyObject = Py<PyAny>;
     width=None,
     width_fill=false, 
     height=None, 
-    height_fill=false, 
-    direction=None, 
-    h_bar_width=None, 
-    h_bar_margin=None, 
-    h_scroller_width=None,
-    h_spacing=None, 
-    h_bar_alignment=None,
-    v_bar_width=None, 
-    v_bar_margin=None, 
-    v_scroller_width=None,
-    v_spacing=None, 
-    v_bar_alignment=None,
+    height_fill=false,
+    scrollbar_x_id=None,
+    scrollbar_y_id=None,
     on_scroll=None, 
     user_data=None,
     style_id=None,
+    container_style_id=None,
     ))]
 pub fn add_scrollable(
     window_id: String,
@@ -41,20 +37,12 @@ pub fn add_scrollable(
     width_fill: bool,
     height: Option<f32>,
     height_fill: bool,
-    direction: Option<IpgScrollableDirection>,
-    h_bar_width: Option<f32>,
-    h_bar_margin: Option<f32>,
-    h_scroller_width: Option<f32>,
-    h_spacing: Option<f32>,
-    h_bar_alignment: Option<IpgScrollableAlignment>,
-    v_bar_width: Option<f32>,
-    v_bar_margin: Option<f32>,
-    v_scroller_width: Option<f32>,
-    v_spacing: Option<f32>,
-    v_bar_alignment: Option<IpgScrollableAlignment>,
+    scrollbar_x_id: Option<usize>,
+    scrollbar_y_id: Option<usize>,
     on_scroll: Option<PyObject>,
     user_data: Option<PyObject>,
     style_id: Option<usize>,
+    container_style_id: Option<usize>,
     ) -> PyResult<usize>
 {
     let id = get_id(None);
@@ -86,18 +74,10 @@ pub fn add_scrollable(
             id,
             width,
             height,
-            direction,
-            h_bar_width,
-            h_bar_margin,
-            h_scroller_width,
-            h_spacing,
-            h_bar_alignment,
-            v_bar_width,
-            v_bar_margin,
-            v_scroller_width,
-            v_spacing,
-            v_bar_alignment,
+            scrollbar_x_id,
+            scrollbar_y_id,
             style_id,
+            container_style_id,
             scroll_y_pos: None,
             scroll_x_pos: None,
             bounds: Rectangle::default(),
@@ -111,19 +91,57 @@ pub fn add_scrollable(
 
 #[pyfunction]
 #[pyo3(signature = ( 
-    background_color=None, 
-    background_rgba=None,
-    border_color=None, 
-    border_rgba=None,
-    border_radius=None, 
-    border_width=None,
-    shadow_color=None, 
-    shadow_rgba=None,
-    shadow_offset_x=None, 
-    shadow_offset_y=None,
-    shadow_blur_radius=None,
-    text_color=None, 
-    text_rgba=None,
+    parent_id,
+    x_direction,
+    y_direction,
+    width=None,
+    margin=None,
+    scroller_width=None,
+    spacing=None,
+    alignment=None,
+    gen_id=None,
+    ))]
+pub fn add_scrollbar (
+    parent_id: String,
+    mut x_direction: bool,
+    y_direction: bool,
+    width: Option<f32>,
+    margin: Option<f32>,
+    scroller_width: Option<f32>,
+    spacing: Option<f32>,
+    alignment: Option<IpgAnchor>,
+    gen_id: Option<usize>,
+    )-> PyResult<usize>
+{
+
+    let id = get_id(gen_id);
+
+    if !x_direction && !y_direction {
+        x_direction = true;
+    }
+
+    set_state_of_widget(id, parent_id.clone());
+
+    let mut state = access_state();
+
+    state.widgets.insert(id, IpgWidgets::IpgScrollbar (
+        IpgScrollbar {
+        id,
+        x_direction,
+        y_direction,
+        width,
+        margin,
+        scroller_width,
+        spacing,
+        alignment,
+    }));
+
+    drop(state);
+    Ok(id)
+}
+
+#[pyfunction]
+#[pyo3(signature = ( 
     scrollbar_color=None,
     scrollbar_rgba=None,
     scrollbar_border_radius=None,
@@ -139,19 +157,6 @@ pub fn add_scrollable(
     gen_id=None
     ))]
 pub fn add_scrollable_style(
-    background_color: Option<IpgColor>,
-    background_rgba: Option<[f32; 4]>,
-    border_color: Option<IpgColor>,
-    border_rgba: Option<[f32; 4]>,
-    border_radius: Option<Vec<f32>>,
-    border_width: Option<f32>,
-    shadow_color: Option<IpgColor>,
-    shadow_rgba: Option<[f32; 4]>,
-    shadow_offset_x: Option<f32>,
-    shadow_offset_y: Option<f32>,
-    shadow_blur_radius: Option<f32>,
-    text_color: Option<IpgColor>,
-    text_rgba: Option<[f32; 4]>,
     scrollbar_color: Option<IpgColor>,
     scrollbar_rgba: Option<[f32; 4]>,
     scrollbar_border_radius: Option<Vec<f32>>,
@@ -168,15 +173,6 @@ pub fn add_scrollable_style(
     ) -> PyResult<usize>
 {
     let id = get_id(gen_id);
-
-    let background_color: Option<Color> = 
-        IpgColor::rgba_ipg_color_to_iced(background_rgba, background_color, 1.0, false);
-    let border_color: Option<Color> = 
-        IpgColor::rgba_ipg_color_to_iced(border_rgba, border_color, 1.0, false);
-    let shadow_color: Option<Color> = 
-        IpgColor::rgba_ipg_color_to_iced(shadow_rgba, shadow_color, 1.0, false);
-    let text_color: Option<Color> = 
-        IpgColor::rgba_ipg_color_to_iced(text_rgba, text_color, 1.0, false);
 
     let scrollbar_color: Option<Color> = 
         IpgColor::rgba_ipg_color_to_iced(scrollbar_rgba, scrollbar_color, 1.0, false);
@@ -195,15 +191,6 @@ pub fn add_scrollable_style(
     state.widgets.insert(id, IpgWidgets::IpgScrollableStyle(
         IpgScrollableStyle { 
             id,
-            background_color,
-            border_color,
-            border_radius,
-            border_width,
-            shadow_color,
-            shadow_offset_x,
-            shadow_offset_y,
-            shadow_blur_radius,
-            text_color,
             scrollbar_color,
             scrollbar_border_radius,
             scrollbar_border_width,
@@ -217,3 +204,4 @@ pub fn add_scrollable_style(
     Ok(id)
 
 }
+

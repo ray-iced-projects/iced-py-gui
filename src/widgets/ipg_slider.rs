@@ -193,7 +193,7 @@ fn get_styling(theme: &Theme,
 
     if let Some(br) = style.rail_border_radius {
         base_style.rail.border.radius = 
-            get_radius(br, "Slider".to_string());
+            get_radius(&br, "Slider".to_string());
     }
 
     if let Some(hcr) = style.handle_circle_radius {
@@ -204,7 +204,7 @@ fn get_styling(theme: &Theme,
         (Some(hrw), Some(br)) => {
             base_style.handle.shape = HandleShape::Rectangle {
                 width: hrw,
-                border_radius: get_radius(br, "Slider".to_string()),
+                border_radius: get_radius(&br, "Slider".to_string()),
             };
         }
         (Some(hrw), None) => {
@@ -221,7 +221,7 @@ fn get_styling(theme: &Theme,
             };
             base_style.handle.shape = HandleShape::Rectangle {
                 width: current_width,
-                border_radius: get_radius(br, "Slider".to_string()),
+                border_radius: get_radius(&br, "Slider".to_string()),
             };
         }
         (None, None) => {}

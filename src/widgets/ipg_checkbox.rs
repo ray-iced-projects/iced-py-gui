@@ -314,7 +314,7 @@ pub fn get_styling(theme: &Theme, status: Status,
             }
             if let Some(br) = style.border_radius {
                 std_style.border.radius = 
-                    get_radius(br, 
+                    get_radius(&br, 
                         "Checkbox".to_string());
             }
         }
@@ -329,14 +329,16 @@ pub fn get_styling(theme: &Theme, status: Status,
 
     let style = style_opt.unwrap();
 
-    let mut border_style = checkbox::primary(theme, Status::Active { is_checked }).border;
+    let mut border_style = 
+        checkbox::primary(theme, Status::Active { is_checked }).border;
     
     if let Some(bc) = style.border_color {
         border_style.color = bc;
     }
 
     if let Some(r) = style.border_radius {
-        border_style.radius = get_radius(r, "Checkbox".to_string());
+        border_style.radius = 
+            get_radius(&r, "Checkbox".to_string());
     }
     
     if let Some(bw) = style.border_width {

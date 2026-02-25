@@ -92,8 +92,8 @@ fn get_styling(theme: &Theme,
 
 
     if let Some(br)  = style.border_radius {
-        base_style.radius = get_radius(br,
-                                "Rule".to_string()); 
+        base_style.radius = 
+            get_radius(&br, "Rule".to_string()); 
     }
 
     base_style.fill_mode = 

@@ -67,9 +67,7 @@ pub fn construct_opaque<'a>(op: &'a IpgOpaque,
             .align_x(align_h)
             .align_y(align_v)
             .style(move|theme|
-                ipg_container::get_styling(theme, 
-                    style.clone(),
-                    ))
+                ipg_container::get_styling(theme, &style))
             .into();
     
     if op.include_mouse_area {

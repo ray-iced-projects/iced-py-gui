@@ -1,7 +1,7 @@
 #![allow(unused)]
 use std::collections::HashMap;
 
-use iced::widget::Column;
+use iced::widget::{Column, scrollable};
 use iced::window::{self, Position};
 use iced::{Color, Element, Event, Point, Size, Subscription, Task, Theme, font};
 
@@ -26,7 +26,7 @@ use crate::widgets::ipg_progress_bar::construct_progress_bar;
 use crate::widgets::ipg_radio::{RDMessage, construct_radio, radio_callback};
 use crate::widgets::ipg_row::construct_row;
 use crate::widgets::ipg_rule::construct_rule;
-use crate::widgets::ipg_scrollable::construct_scrollable;
+use crate::widgets::ipg_scrollable::{construct_scrollable, scrollable_callback};
 use crate::widgets::ipg_selectable_text::{SLTXTMessage, construct_selectable_text, selectable_text_callback};
 use crate::widgets::ipg_separator::construct_separator;
 use crate::widgets::ipg_slider::{SLMessage, construct_slider, slider_callback};
@@ -55,7 +55,7 @@ pub enum Message {
 //     // Modal(usize, ModalMessage),
     PickList(usize, PLMessage),
     Radio(usize, RDMessage),
-//     Scrolled(scrollable::Viewport, usize),
+    Scrolled(scrollable::Viewport, usize),
     SelectableText(usize, SLTXTMessage),
     Slider(usize, SLMessage),
     Svg(usize, SvgMessage),
@@ -283,11 +283,11 @@ impl App {
                 process_updates(&mut self.state);
                 Task::none()
             },
-            // Message::Scrolled(vp, id) => {
-            //     scrollable_callback(&mut self.state, id, vp);
-            //     process_updates(&mut self.state, &mut self.canvas_state);
-            //     Task::none()
-            // },
+            Message::Scrolled(vp, id) => {
+                scrollable_callback(&mut self.state, id, vp);
+                process_updates(&mut self.state); //, &mut self.canvas_state);
+                Task::none()
+            },
             Message::SelectableText(id, message) => {
                 selectable_text_callback(id, message);
                 // process_updates(&mut self.state, &mut self.canvas_state);
@@ -726,7 +726,11 @@ fn get_container<'a>(state: &'a IpgState,
                 },
                 IpgContainers::IpgScrollable(scroll) => {
                     let style_opt = 
-                        if let Some(id)  = btn.style_id {
+                        if let Some(id)  = scroll.style_id {
+                            state.widgets.get(&id)
+                        } else { None };
+                    let cont_style_opt = 
+                        if let Some(id)  = scroll.container_style_id {
                             state.widgets.get(&id)
                         } else { None };
                     let sb_x_opt = 
@@ -737,7 +741,7 @@ fn get_container<'a>(state: &'a IpgState,
                         if let Some(id)  = scroll.scrollbar_y_id {
                             state.widgets.get(&id)
                         } else { None };
-                    construct_scrollable(scroll, content, sb_x_opt, sb_y_opt, style_opt)
+                    construct_scrollable(scroll, content, sb_x_opt, sb_y_opt, cont_style_opt, style_opt)
                 },
                 // IpgContainers::IpgStack(stk) => {
                 //     construct_stack(stk.clone(), content)

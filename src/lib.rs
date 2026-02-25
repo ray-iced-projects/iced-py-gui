@@ -42,6 +42,7 @@ use crate::py_api::rule::{add_rule, add_rule_style};
 use crate::py_api::picklist::{add_pick_list, add_pick_list_style};
 use crate::py_api::text::add_text;
 use crate::py_api::toggle::{add_toggler, add_toggler_style};
+use crate::py_api::scrollable::{add_scrollable, add_scrollable_style};
 use crate::py_api::selectable_text::add_selectable_text;
 use crate::py_api::separator::{add_separator, add_separator_style};
 use crate::py_api::space::add_space;
@@ -98,6 +99,7 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(add_radio, m)?)?;
     m.add_function(wrap_pyfunction!(add_row, m)?)?;
     m.add_function(wrap_pyfunction!(add_rule, m)?)?;
+    m.add_function(wrap_pyfunction!(add_scrollable, m)?)?;
     m.add_function(wrap_pyfunction!(add_slider, m)?)?;
     m.add_function(wrap_pyfunction!(add_selectable_text, m)?)?;
     m.add_function(wrap_pyfunction!(add_separator, m)?)?;
@@ -116,6 +118,7 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(add_opaque_style, m)?)?;
     m.add_function(wrap_pyfunction!(add_pick_list_style, m)?)?;
     m.add_function(wrap_pyfunction!(add_progress_bar_style, m)?)?;
+    m.add_function(wrap_pyfunction!(add_scrollable_style, m)?)?;
     m.add_function(wrap_pyfunction!(add_separator_style, m)?)?;
     m.add_function(wrap_pyfunction!(add_slider_style, m)?)?;
     m.add_function(wrap_pyfunction!(add_toggler_style, m)?)?;

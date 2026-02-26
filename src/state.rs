@@ -28,7 +28,8 @@ use crate::widgets::ipg_progress_bar::{IpgProgressBar, IpgProgressBarStyle};
 use crate::widgets::ipg_radio::{IpgRadio, IpgRadioStyle};
 use crate::widgets::ipg_row::IpgRow;
 use crate::widgets::ipg_rule::{IpgRule, IpgRuleStyle};
-use crate::widgets::ipg_scrollable::{IpgAutoScrollStyle, IpgRailStyle, IpgScrollable, IpgScrollableStyle, IpgScrollbar};
+use crate::widgets::ipg_scrollable::{IpgAutoScrollStyle, IpgRailStyle, 
+    IpgScrollable, IpgScrollbar};
 use crate::widgets::ipg_selectable_text::IpgSelectableText;
 use crate::widgets::ipg_separator::{IpgSeparator, IpgSeparatorStyle};
 use crate::widgets::ipg_slider::{IpgSlider, IpgSliderStyle};
@@ -94,7 +95,6 @@ pub enum IpgWidgets {
     IpgRule(IpgRule),
     IpgRuleStyle(IpgRuleStyle),
     IpgScrollbar(IpgScrollbar),
-    IpgScrollableStyle(IpgScrollableStyle),
     IpgRailStyle(IpgRailStyle),
     IpgAutoScrollStyle(IpgAutoScrollStyle),
     IpgSelectableText(IpgSelectableText),

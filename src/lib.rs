@@ -42,7 +42,8 @@ use crate::py_api::rule::{add_rule, add_rule_style};
 use crate::py_api::picklist::{add_pick_list, add_pick_list_style};
 use crate::py_api::text::add_text;
 use crate::py_api::toggle::{add_toggler, add_toggler_style};
-use crate::py_api::scrollable::{add_scrollable, add_scrollable_style, add_scrollbar};
+use crate::py_api::scrollable::{add_scrollable, add_scrollbar, 
+    add_autoscroll_style, add_rail_style};
 use crate::py_api::selectable_text::add_selectable_text;
 use crate::py_api::separator::{add_separator, add_separator_style};
 use crate::py_api::space::add_space;
@@ -52,6 +53,8 @@ use crate::py_api::svg::add_svg;
 use crate::py_api::update::update_widget;
 use crate::widgets::ipg_radio::{IpgRadioDirection, IpgRadioParam, IpgRadioStyleParam};
 use crate::widgets::ipg_rule::{IpgRuleParam, IpgRuleStyleParam};
+use crate::widgets::ipg_scrollable::{IpgScrollableParam, IpgRailStyleParam, 
+    IpgScrollbarParam, IpgAutoScrollStyleParam};
 use crate::widgets::ipg_selectable_text::IpgSelectableTextParam;
 use crate::widgets::ipg_separator::{IpgSeparatorParam, IpgSeparatorStyleParam, IpgSeparatorType};
 use crate::widgets::ipg_slider::{IpgSliderParam, IpgSliderStyleParam};
@@ -119,7 +122,8 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(add_opaque_style, m)?)?;
     m.add_function(wrap_pyfunction!(add_pick_list_style, m)?)?;
     m.add_function(wrap_pyfunction!(add_progress_bar_style, m)?)?;
-    m.add_function(wrap_pyfunction!(add_scrollable_style, m)?)?;
+    m.add_function(wrap_pyfunction!(add_rail_style, m)?)?;
+    m.add_function(wrap_pyfunction!(add_autoscroll_style, m)?)?;
     m.add_function(wrap_pyfunction!(add_separator_style, m)?)?;
     m.add_function(wrap_pyfunction!(add_slider_style, m)?)?;
     m.add_function(wrap_pyfunction!(add_toggler_style, m)?)?;
@@ -135,6 +139,8 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<IpgRadioStyleParam>()?;
     m.add_class::<IpgRuleStyleParam>()?;
     m.add_class::<IpgSeparatorStyleParam>()?;
+    m.add_class::<IpgAutoScrollStyleParam>()?;
+    m.add_class::<IpgRailStyleParam>()?;
     m.add_class::<IpgSliderStyleParam>()?;
     m.add_class::<IpgStyleStandard>()?;
     m.add_class::<IpgTogglerStyleParam>()?;
@@ -148,6 +154,8 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<IpgDividerParam>()?;
     m.add_class::<IpgRadioParam>()?;
     m.add_class::<IpgRuleParam>()?;
+    m.add_class::<IpgScrollableParam>()?;
+    m.add_class::<IpgScrollbarParam>()?;
     m.add_class::<IpgSelectableTextParam>()?;
     m.add_class::<IpgSeparatorParam>()?;
     m.add_class::<IpgSliderParam>()?;

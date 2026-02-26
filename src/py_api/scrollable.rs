@@ -7,7 +7,8 @@ use pyo3::{Py, PyAny, PyResult, pyfunction};
 use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex, 
     graphics::colors::IpgColor, py_api::helpers::{get_height, get_width}, 
     state::{IpgContainers, IpgWidgets, get_id, set_state_cont_wnd_ids, 
-        set_state_of_container, set_state_of_widget}, widgets::ipg_scrollable::{IpgAnchor, IpgAutoScrollStyle, IpgRailStyle, IpgScrollable, IpgScrollableStyle, IpgScrollbar}};
+        set_state_of_container}, widgets::ipg_scrollable::{
+            IpgAnchor, IpgAutoScrollStyle, IpgRailStyle, IpgScrollable, IpgScrollbar}};
 type PyObject = Py<PyAny>;
 
 
@@ -24,8 +25,12 @@ type PyObject = Py<PyAny>;
     scrollbar_y_id=None,
     on_scroll=None, 
     user_data=None,
-    style_id=None,
     container_style_id=None,
+    rail_x_style_id=None,
+    rail_y_style_id=None,
+    auto_scroll_style_id=None,
+    gap_background_color=None,
+    gap_background_rgba=None,
     ))]
 pub fn add_scrollable(
     window_id: String,
@@ -40,11 +45,18 @@ pub fn add_scrollable(
     scrollbar_y_id: Option<usize>,
     on_scroll: Option<PyObject>,
     user_data: Option<PyObject>,
-    style_id: Option<usize>,
     container_style_id: Option<usize>,
+    rail_x_style_id: Option<usize>,
+    rail_y_style_id: Option<usize>,
+    auto_scroll_style_id: Option<usize>,
+    gap_background_color: Option<IpgColor>,
+    gap_background_rgba: Option<[f32; 4]>,
     ) -> PyResult<usize>
 {
     let id = get_id(None);
+
+    let gap_background_color = 
+        IpgColor::rgba_ipg_color_to_iced(gap_background_rgba, gap_background_color, 1.0, false);
 
     if let Some(py) = on_scroll {
         add_callback_to_mutex(id, "on_scroll".to_string(), py);
@@ -75,8 +87,11 @@ pub fn add_scrollable(
             height,
             scrollbar_x_id,
             scrollbar_y_id,
-            style_id,
             container_style_id,
+            rail_x_style_id,
+            rail_y_style_id,
+            auto_scroll_style_id,
+            gap_background_color,
             scroll_y_pos: None,
             scroll_x_pos: None,
             bounds: Rectangle::default(),
@@ -90,93 +105,44 @@ pub fn add_scrollable(
 
 #[pyfunction]
 #[pyo3(signature = ( 
-    parent_id,
-    x_direction,
-    y_direction,
     width=None,
     margin=None,
     scroller_width=None,
     spacing=None,
-    alignment=None,
+    anchor=None,
+    hidden=None,
     gen_id=None,
     ))]
 pub fn add_scrollbar (
-    parent_id: String,
-    mut x_direction: bool,
-    y_direction: bool,
     width: Option<f32>,
     margin: Option<f32>,
     scroller_width: Option<f32>,
     spacing: Option<f32>,
-    alignment: Option<IpgAnchor>,
+    anchor: Option<IpgAnchor>,
+    hidden: Option<bool>,
     gen_id: Option<usize>,
     )-> PyResult<usize>
 {
 
     let id = get_id(gen_id);
 
-    if !x_direction && !y_direction {
-        x_direction = true;
-    }
-
-    set_state_of_widget(id, parent_id.clone());
-
     let mut state = access_state();
 
     state.widgets.insert(id, IpgWidgets::IpgScrollbar (
         IpgScrollbar {
         id,
-        x_direction,
-        y_direction,
         width,
         margin,
         scroller_width,
         spacing,
-        alignment,
+        anchor,
+        hidden,
     }));
 
     drop(state);
     Ok(id)
 }
 
-#[pyfunction]
-#[pyo3(signature = ( 
-    container_style_id=None,
-    vertical_rail_id=None,
-    horizontal_rail_id=None,
-    gap_background_color=None,
-    gap_background_rgba=None,
-    gen_id=None
-    ))]
-pub fn add_scrollable_style(
-    container_style_id: Option<usize>,
-    vertical_rail_id: Option<usize>,
-    horizontal_rail_id: Option<usize>,
-    gap_background_color: Option<IpgColor>,
-    gap_background_rgba: Option<[f32; 4]>,
-    gen_id: Option<usize>,
-    ) -> PyResult<usize>
-{
-    let id = get_id(gen_id);
-
-    let gap_background_color: Option<Color> = 
-        IpgColor::rgba_ipg_color_to_iced(gap_background_rgba, gap_background_color, 1.0, false);
-    
-    let mut state = access_state();
-
-    state.widgets.insert(id, IpgWidgets::IpgScrollableStyle(
-        IpgScrollableStyle { 
-            id,
-            container_style_id,
-            vertical_rail_id,
-            horizontal_rail_id,
-            gap_background_color,
-        }));
-
-    drop(state);
-    Ok(id)
-
-}
 
 #[pyfunction]
 #[pyo3(signature = ( 
@@ -188,7 +154,7 @@ pub fn add_scrollable_style(
     border_radius=None,
     gen_id=None
     ))]
-pub fn add_vertical_rail_style(
+pub fn add_rail_style(
     background_color: Option<IpgColor>,
     background_rgba: Option<[f32; 4]>,
     border_color: Option<IpgColor>,
@@ -237,7 +203,7 @@ pub fn add_vertical_rail_style(
     shadow_icon_rgba=None,
     gen_id=None
     ))]
-pub fn add_auto_scroll_style(
+pub fn add_autoscroll_style(
     background_color: Option<IpgColor>,
     background_rgba: Option<[f32; 4]>,
     border_color: Option<IpgColor>,

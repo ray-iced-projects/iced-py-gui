@@ -1,5 +1,7 @@
 //! Session module - provides start_session and generate_id pyfunctions
 
+use std::panic;
+
 use pyo3::prelude::*;
 use pyo3::pyfunction;
 
@@ -12,6 +14,30 @@ use crate::state::access_state;
 /// It will block until all windows are closed.
 #[pyfunction]
 pub fn start_session() -> PyResult<()> {
+    // Install a custom panic hook so errors stand out in the console
+    panic::set_hook(Box::new(|info| {
+        let msg = if let Some(s) = info.payload().downcast_ref::<&str>() {
+            s.to_string()
+        } else if let Some(s) = info.payload().downcast_ref::<String>() {
+            s.clone()
+        } else {
+            "Unknown panic".to_string()
+        };
+
+        let location = if let Some(loc) = info.location() {
+            format!("{}:{}:{}", loc.file(), loc.line(), loc.column())
+        } else {
+            "unknown location".to_string()
+        };
+
+        eprintln!("\n{}", "=".repeat(60));
+        eprintln!("  IcedPyGui ERROR");
+        eprintln!("{}", "=".repeat(60));
+        eprintln!("  {msg}");
+        eprintln!("  at {location}");
+        eprintln!("{}\n", "=".repeat(60));
+    }));
+
     let _ = iced::daemon(App::new, App::update, App::view)
         .subscription(App::subscription)
         .theme(App::theme)

@@ -16,7 +16,7 @@ add_window(
     window_id="main", 
     title="App", 
     size=(400, 300),
-    centered=True)
+    center=True)
 
 add_column(
     window_id="main", 

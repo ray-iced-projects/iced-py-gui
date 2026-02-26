@@ -5,6 +5,7 @@ use iced::widget::{Column, scrollable};
 use iced::window::{self, Position};
 use iced::{Color, Element, Event, Point, Size, Subscription, Task, Theme, font};
 
+use palette::chromatic_adaptation::AdaptInto;
 use pyo3::{Py, PyAny};
 type PyObject = Py<PyAny>;
 
@@ -725,14 +726,6 @@ fn get_container<'a>(state: &'a IpgState,
                     construct_row(row, content)
                 },
                 IpgContainers::IpgScrollable(scroll) => {
-                    let style_opt = 
-                        if let Some(id)  = scroll.style_id {
-                            state.widgets.get(&id)
-                        } else { None };
-                    let cont_style_opt = 
-                        if let Some(id)  = scroll.container_style_id {
-                            state.widgets.get(&id)
-                        } else { None };
                     let sb_x_opt = 
                         if let Some(id)  = scroll.scrollbar_x_id {
                             state.widgets.get(&id)
@@ -741,7 +734,32 @@ fn get_container<'a>(state: &'a IpgState,
                         if let Some(id)  = scroll.scrollbar_y_id {
                             state.widgets.get(&id)
                         } else { None };
-                    construct_scrollable(scroll, content, sb_x_opt, sb_y_opt, cont_style_opt, style_opt)
+                    let cont_style_opt = 
+                        if let Some(id)  = scroll.container_style_id {
+                            state.widgets.get(&id)
+                        } else { None };
+                    let rail_x_style_opt = 
+                        if let Some(id)  = scroll.rail_x_style_id {
+                                state.widgets.get(&id)
+                            } else { None };
+                    let rail_y_style_opt = 
+                        if let Some(id)  = scroll.rail_y_style_id {
+                                state.widgets.get(&id)
+                            } else { None };
+                    let  auto_scroll_style_opt = 
+                        if let Some(id)  = scroll.auto_scroll_style_id {
+                                state.widgets.get(&id)
+                            } else { None };
+
+                    construct_scrollable(
+                        scroll, 
+                        content,
+                        sb_x_opt, 
+                        sb_y_opt, 
+                        cont_style_opt,
+                        rail_x_style_opt,
+                        rail_y_style_opt,
+                        auto_scroll_style_opt)
                 },
                 // IpgContainers::IpgStack(stk) => {
                 //     construct_stack(stk.clone(), content)

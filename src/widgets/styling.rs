@@ -55,3 +55,21 @@ pub fn apply_shadow_overrides(
         shadow.blur_radius = b;
     }
 }
+
+/// Apply optional shadow overrides using a combined `[x, y]` offset array.
+pub fn apply_shadow_overrides_xy(
+    shadow: &mut Shadow,
+    color: Option<Color>,
+    offset: Option<[f32; 2]>,
+    blur_radius: Option<f32>,
+) {
+    if let Some(c) = color {
+        shadow.color = c;
+    }
+    if let Some([x, y]) = offset {
+        shadow.offset = Vector::new(x, y);
+    }
+    if let Some(b) = blur_radius {
+        shadow.blur_radius = b;
+    }
+}

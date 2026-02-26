@@ -4,16 +4,23 @@ use crate::IpgState;
 use crate::access_callbacks;
 use crate::access_user_data1;
 use crate::app::Message;
-use crate::graphics::colors::IpgColor;
 use crate::state::IpgWidgets;
 use crate::widgets::ipg_container;
-use crate::widgets::widget_param_update::WidgetParamUpdate;
+use crate::widgets::styling::{apply_border_overrides, apply_shadow_overrides_xy};
+use crate::widgets::widget_param_update::set_opt_bool;
+use crate::widgets::widget_param_update::{
+    WidgetParamUpdate,
+    set_opt_f32, set_opt_f32_array_2, set_opt_iced_color,
+    set_opt_usize, set_opt_vec_f32, set_iced_color_from_rgba,
+    set_height, set_width,
+};
 
 use std::collections::HashMap;
 use iced::widget::scrollable;
 use iced::widget::scrollable::Anchor;
 use iced::widget::scrollable::Scrollbar;
-use iced::widget::scrollable::{Direction, Scrollable, Viewport, Status, Style};
+use iced::widget::scrollable::{Direction, Scrollable, 
+    Viewport, Status, Style};
 use iced::Rectangle;
 use iced::{Color, Element, Length, Theme};
 use iced::widget::Column;
@@ -30,8 +37,11 @@ pub struct IpgScrollable {
     pub height: Length,
     pub scrollbar_x_id: Option<usize>,
     pub scrollbar_y_id: Option<usize>,
-    pub style_id: Option<usize>,
     pub container_style_id: Option<usize>,
+    pub rail_x_style_id: Option<usize>,
+    pub rail_y_style_id: Option<usize>,
+    pub auto_scroll_style_id: Option<usize>,
+    pub gap_background_color: Option<Color>,
     // internal use
     pub scroll_y_pos: Option<f32>,
     pub scroll_x_pos: Option<f32>,
@@ -39,16 +49,118 @@ pub struct IpgScrollable {
     pub content_bounds: Rectangle,
 }
 
+pub fn construct_scrollable<'a>(
+    ipg_scroll: &'a IpgScrollable, 
+    content: Vec<Element<'a, Message>>,
+    sb_x_opt: Option<&IpgWidgets>,
+    sb_y_opt: Option<&IpgWidgets>,
+    cont_style_opt: Option<&IpgWidgets>,
+    rail_x_style_opt: Option<&IpgWidgets>,
+    rail_y_style_opt: Option<&IpgWidgets>,
+    auto_scroll_style_opt: Option<&IpgWidgets>,
+     ) -> Element<'a, Message> {
+    
+    let ipg_cont_style_opt = ipg_container::get_cont_style(cont_style_opt);
+    let ipg_rail_x_style_opt = get_rail_style_widget(rail_x_style_opt);
+    let ipg_rail_y_style_opt = get_rail_style_widget(rail_y_style_opt);
+    let ipg_auto_scroll_style_opt = get_auto_style_widget(auto_scroll_style_opt);
+
+    let content: Element<'a, Message> = Column::with_children(content).into();
+
+    let direction = 
+        match (sb_x_opt.is_some(), sb_y_opt.is_some()) {
+            (true, true) => {
+                let ipg_sb_x = match_scrollbar_widget(sb_x_opt);
+                let ipg_sb_y = match_scrollbar_widget(sb_y_opt);
+                Direction::Both { vertical: ipg_sb_y.construct(), horizontal: ipg_sb_x.construct() }
+            },
+            (true, false) => {
+                let ipg_sb = match_scrollbar_widget(sb_x_opt);
+                Direction::Horizontal(ipg_sb.construct())
+            },
+            (false, true) => {
+                let ipg_sb = match_scrollbar_widget(sb_y_opt);
+                Direction::Vertical(ipg_sb.construct())
+            },
+            (false, false) => Direction::Vertical(Scrollbar::default()),
+        };
+
+    Scrollable::with_direction(content, direction)
+        .width(ipg_scroll.width)
+        .height(ipg_scroll.height)
+        .on_scroll(move|vp| 
+            Message::Scrolled(vp, ipg_scroll.id))
+        .style(move|theme, status| {
+            get_styling(
+                theme, 
+                status, 
+                &ipg_cont_style_opt,
+                &ipg_rail_x_style_opt,
+                &ipg_rail_y_style_opt,
+                &ipg_auto_scroll_style_opt,
+                ipg_scroll.gap_background_color
+            )
+        })
+        .into()
+    
+}
+
+fn match_scrollbar_widget(wid: Option<&IpgWidgets>) -> IpgScrollbar {
+    if let Some(w) = wid {
+        match w {
+            IpgWidgets::IpgScrollbar(bar) => bar.clone(),
+            _ => IpgScrollbar::default()
+        }
+    } else {
+        return IpgScrollbar::default()
+    }
+    
+}
+
 #[derive(Debug, Default, Clone)]
 pub struct IpgScrollbar {
     pub id: usize,
-    pub x_direction: bool,
-    pub y_direction: bool,
     pub width: Option<f32>,
     pub margin: Option<f32>,
     pub scroller_width: Option<f32>,
     pub spacing: Option<f32>,
-    pub alignment: Option<IpgAnchor>,
+    pub anchor: Option<IpgAnchor>,
+    pub hidden: Option<bool>,
+}
+
+impl IpgScrollbar {
+    pub fn construct(&self) -> Scrollbar {
+        
+        let sb = Scrollbar::default();
+
+        if let Some(w) = self.width {
+            sb.width(w);
+        }
+
+        if let Some(m) = self.margin {
+            sb.margin(m);
+        }
+
+        if let Some(sw) = self.scroller_width {
+            sb.scroller_width(sw);
+        }
+
+        if let Some(an) = &self.anchor {
+            sb.anchor(an.to_iced());
+        }
+
+        if let Some(sp) = self.spacing {
+            sb.spacing(sp);
+        }
+
+        if let Some(hd) = self.hidden {
+            if hd {
+                sb.width(0).scroller_width(0);
+            }
+        }
+
+        sb
+    }
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -75,89 +187,6 @@ impl IpgAnchor {
             }
         })  
     }
-}
-
-pub fn construct_scrollable<'a>(
-    ipg_scroll: &'a IpgScrollable, 
-    content: Vec<Element<'a, Message>>,
-    sb_x_opt: Option<&IpgWidgets>,
-    sb_y_opt: Option<&IpgWidgets>,
-    cont_style_opt: Option<&IpgWidgets>,
-    style_opt: Option<&IpgWidgets> ) 
-    -> Element<'a, Message> {
-    
-    let ipg_style_opt = get_scroll_style_widget(style_opt);
-    let ipg_cont_style_opt = ipg_container::get_cont_style(cont_style_opt);
-
-    let content: Element<'a, Message> = Column::with_children(content).into();
-
-    let direction = 
-        match (sb_x_opt.is_some(), sb_y_opt.is_some()) {
-            (true, true) => {
-                let ipg_sb = match_scrollbar_widget(sb_x_opt);
-                let sb_x = get_scrollbar(ipg_sb);
-
-                let ipg_sb = match_scrollbar_widget(sb_y_opt);
-                let sb_y = get_scrollbar(ipg_sb);
-
-                Direction::Both { vertical: sb_y, horizontal: sb_x }
-            },
-            (true, false) => {
-                let ipg_sb = match_scrollbar_widget(sb_x_opt);
-                let sb_x = get_scrollbar(ipg_sb);
-                Direction::Horizontal(sb_x)
-            },
-            (false, true) => {
-                let ipg_sb = match_scrollbar_widget(sb_y_opt);
-                let sb_y = get_scrollbar(ipg_sb);
-                Direction::Vertical(sb_y)
-            },
-            (false, false) => todo!(),
-        };
-
-    Scrollable::with_direction(content, direction)
-        .width(ipg_scroll.width)
-        .height(ipg_scroll.height)
-        .on_scroll(move|vp| 
-            Message::Scrolled(vp, ipg_scroll.id))
-        .style(move|theme, status| {
-            get_styling(theme, status, &ipg_style_opt, &ipg_cont_style_opt)
-        })
-        .into()
-    
-}
-
-fn match_scrollbar_widget(wid: Option<&IpgWidgets>) -> IpgScrollbar {
-    if let Some(w) = wid {
-        match w {
-            IpgWidgets::IpgScrollbar(bar) => bar.clone(),
-            _ => IpgScrollbar::default()
-        }
-    } else {
-        return IpgScrollbar::default()
-    }
-    
-}
-
-fn get_scrollbar(ipg_sb: IpgScrollbar) -> Scrollbar {
-    
-    let sb = Scrollbar::default();
-    if let Some(an) = ipg_sb.alignment {
-        sb.anchor(an.to_iced());
-    }
-    if let Some(w) = ipg_sb.width {
-        sb.width(w);
-    }
-    if let Some(m) = ipg_sb.margin {
-        sb.margin(m);
-    }
-    if let Some(sw) = ipg_sb.scroller_width {
-        sb.scroller_width(sw);
-    }
-    if let Some(sp) = ipg_sb.spacing {
-        sb.spacing(sp);
-    }
-    sb
 }
 
 pub fn scrollable_callback(_state: &mut IpgState, id: usize, vp: Viewport) {
@@ -226,91 +255,134 @@ let ud1 = access_user_data1();
 #[derive(Debug, Clone, PartialEq)]
 #[pyclass(eq, eq_int)]
 pub enum IpgScrollableParam {
-    BarAlignment,
-    BarMargin,
-    BarWidth,
+    AutoScrollStyleId,
+    ContainerStyleId,
+    GapBackgroundColor,
+    GapBackgroundRgba,
     Height,
-    ScrollerWidth,
-    ScrollXTo,
-    ScrollYTo,
-    Spacing,
+    RailXStyleId,
+    RailYStyleId,
+    ScrollbarXId,
+    ScrollbarYId,
     Width,
 }
 
 #[derive(Debug, Clone, PartialEq)]
 #[pyclass(eq, eq_int)]
 pub enum IpgScrollbarParam {
-    Alignment,
+    Anchor,
+    Hidden,
     Margin,
     ScrollerWidth,
     Spacing,
     Width,
-    XDirection,
-    YDirection,
 }
 
-fn get_styling(theme: &Theme, status: Status,
-                style_opt: &Option<IpgScrollableStyle>,
-                cont_style_opt: &Option<ipg_container::IpgContainerStyle>
-                ) -> Style 
+fn get_styling(
+    theme: &Theme, status: Status,
+    cont_style_opt: &Option<ipg_container::IpgContainerStyle>, // container
+    ipg_rail_x_style_opt: &Option<IpgRailStyle>, // horizontal_rail
+    ipg_rail_y_style_opt: &Option<IpgRailStyle>, // vertical_rail
+    ipg_auto_scroll_style_opt: &Option<IpgAutoScrollStyle>, // auto_scroll
+    gap_bkg_color: Option<Color>, // gap
+    ) -> Style 
 {
 
     let mut style = scrollable::default(theme, status);
+
+    // Need default since iced doesn't default each one individually
+    let def_h_rail = style.horizontal_rail;
+    let def_v_rail = style.vertical_rail;
+    let def_auto_scroll = style.auto_scroll;
+    
     // container style via the container_style_id
     style.container = ipg_container::get_styling(theme, cont_style_opt);
     
-            
-        
+    style.horizontal_rail = get_rail_styling(ipg_rail_x_style_opt, def_h_rail);
     
+    style.vertical_rail = get_rail_styling(ipg_rail_y_style_opt, def_v_rail);
     
+    if let Some(c) = gap_bkg_color {
+        style.gap = Some(c.into());
+    }
     
-
-
+    style.auto_scroll = get_auto_styling(ipg_auto_scroll_style_opt, def_auto_scroll);
+    
     style
     
 }
 
-#[derive(Debug, Clone)]
-pub struct IpgScrollableStyle {
-    pub id: usize,
-    pub container_style_id: Option<usize>,
-    pub vertical_rail_id: Option<usize>,
-    pub horizontal_rail_id: Option<usize>,
-    pub gap_background_color: Option<Color>,
-}
+fn get_rail_styling(
+    style_opt: &Option<IpgRailStyle>,
+    default: scrollable::Rail,
+) -> scrollable::Rail {
+    let style = match style_opt {
+        Some(s) => s,
+        None => return default,
+    };
 
-impl IpgScrollableStyle {
-    /// Apply user-defined style overrides to an existing iced checkbox::Style
-    pub fn apply_to(&self, style: &mut scrollable::Style, status: scrollable::Status) {
+    let mut rail = default;
 
+    if let Some(color) = style.background {
+        rail.background = Some(color.into());
     }
+
+    apply_border_overrides(
+        &mut rail.border, style.border_color,
+        &style.border_radius, style.border_width, "Scrollable rail",
+    );
+
+    rail
 }
 
-pub fn get_scroll_style_widget(style: Option<&IpgWidgets>) -> Option<IpgScrollableStyle> {
-    style.and_then(|s| match s {
-        IpgWidgets::IpgScrollableStyle(st) => Some(st.clone()),
+fn get_auto_styling(
+    style_opt: &Option<IpgAutoScrollStyle>,
+    default: scrollable::AutoScroll,
+) -> scrollable::AutoScroll {
+    let style = match style_opt {
+        Some(s) => s,
+        None => return default,
+    };
+
+    let mut auto = default;
+
+    if let Some(color) = style.background {
+        auto.background = color.into();
+    }
+
+    apply_border_overrides(
+        &mut auto.border, style.border_color,
+        &style.border_radius, style.border_width, "Scrollable auto_scroll",
+    );
+
+    apply_shadow_overrides_xy(
+        &mut auto.shadow, style.shadow_color,
+        style.shadow_offset, style.shadow_blur_radius,
+    );
+
+    if let Some(color) = style.shadow_icon_color {
+        auto.icon = color;
+    }
+
+    auto
+}
+
+fn get_rail_style_widget(rail_opt: Option<&IpgWidgets>) -> Option<IpgRailStyle> {
+    rail_opt.and_then(|w| match w {
+        IpgWidgets::IpgRailStyle(st) => Some(st.clone()),
         _ => None,
     })
 }
 
-fn get_scrollbar_widget(sb_opt: Option<&IpgWidgets>) -> Option<IpgScrollbar> {
-    sb_opt.and_then(|s| match s {
-        IpgWidgets::IpgScrollbar(st) => Some(st.clone()),
+fn get_auto_style_widget(auto_opt: Option<&IpgWidgets>) -> Option<IpgAutoScrollStyle> {
+    auto_opt.and_then(|w| match w {
+        IpgWidgets::IpgAutoScrollStyle(st) => Some(st.clone()),
         _ => None,
     })
 }
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct IpgRailStyle { 
-    pub id: usize,
-    pub background: Option<Color>,
-    pub border_color: Option<Color>,
-    pub border_width: Option<f32>,
-    pub border_radius: Option<Vec<f32>>,
-}
-
-#[derive(Debug, Clone, PartialEq)]
-pub struct IpgScrollerStyle {
     pub id: usize,
     pub background: Option<Color>,
     pub border_color: Option<Color>,
@@ -329,23 +401,6 @@ pub struct IpgAutoScrollStyle {
     pub shadow_offset: Option<[f32; 2]>,
     pub shadow_blur_radius: Option<f32>,
     pub shadow_icon_color: Option<Color>,
-}
-
-#[derive(Debug, Clone, PartialEq)]
-#[pyclass(eq, eq_int)]
-pub enum IpgScrollableStyleParam {
-    ScrollbarIpgColor,
-    ScrollbarRgbaColor,
-    ScrollbarBorderRadius,
-    ScrollbarBorderWidth,
-    ScrollbarBorderIpgColor,
-    ScrollbarBorderRgbaColor,
-    ScrollerIpgColor,
-    ScrollerRgbaColor,
-    ScrollerIpgColorHovered,
-    ScrollerRgbaColorHovered,
-    ScrollerIpgColorDragged,
-    ScrollerRgbaColorDragged,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -384,36 +439,16 @@ impl WidgetParamUpdate for IpgScrollable {
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
         match param {
-            IpgScrollableParam::BarAlignment => todo!(),
-            IpgScrollableParam::BarMargin => todo!(),
-            IpgScrollableParam::BarWidth => todo!(),
-            IpgScrollableParam::Height => todo!(),
-            IpgScrollableParam::ScrollerWidth => todo!(),
-            IpgScrollableParam::ScrollXTo => todo!(),
-            IpgScrollableParam::ScrollYTo => todo!(),
-            IpgScrollableParam::Spacing => todo!(),
-            IpgScrollableParam::Width => todo!(),
-        }
-    }
-}
-
-impl WidgetParamUpdate for IpgScrollableStyle {
-    type Param = IpgScrollableStyleParam;
-
-    fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
-        match param {
-            IpgScrollableStyleParam::ScrollbarIpgColor => todo!(),
-            IpgScrollableStyleParam::ScrollbarRgbaColor => todo!(),
-            IpgScrollableStyleParam::ScrollbarBorderRadius => todo!(),
-            IpgScrollableStyleParam::ScrollbarBorderWidth => todo!(),
-            IpgScrollableStyleParam::ScrollbarBorderIpgColor => todo!(),
-            IpgScrollableStyleParam::ScrollbarBorderRgbaColor => todo!(),
-            IpgScrollableStyleParam::ScrollerIpgColor => todo!(),
-            IpgScrollableStyleParam::ScrollerRgbaColor => todo!(),
-            IpgScrollableStyleParam::ScrollerIpgColorHovered => todo!(),
-            IpgScrollableStyleParam::ScrollerRgbaColorHovered => todo!(),
-            IpgScrollableStyleParam::ScrollerIpgColorDragged => todo!(),
-            IpgScrollableStyleParam::ScrollerRgbaColorDragged => todo!(),
+            IpgScrollableParam::AutoScrollStyleId => set_opt_usize(&mut self.auto_scroll_style_id, value, name),
+            IpgScrollableParam::ContainerStyleId => set_opt_usize(&mut self.container_style_id, value, name),
+            IpgScrollableParam::GapBackgroundColor => set_opt_iced_color(&mut self.gap_background_color, value, name),
+            IpgScrollableParam::GapBackgroundRgba => set_iced_color_from_rgba(&mut self.gap_background_color, value, name),
+            IpgScrollableParam::Height => set_height(&mut self.height, value, name),
+            IpgScrollableParam::RailXStyleId => set_opt_usize(&mut self.rail_x_style_id, value, name),
+            IpgScrollableParam::RailYStyleId => set_opt_usize(&mut self.rail_y_style_id, value, name),
+            IpgScrollableParam::ScrollbarXId => set_opt_usize(&mut self.scrollbar_x_id, value, name),
+            IpgScrollableParam::ScrollbarYId => set_opt_usize(&mut self.scrollbar_y_id, value, name),
+            IpgScrollableParam::Width => set_width(&mut self.width, value, name),
         }
     }
 }
@@ -423,13 +458,12 @@ impl WidgetParamUpdate for IpgScrollbar {
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
         match param {
-            IpgScrollbarParam::Alignment => todo!(),
-            IpgScrollbarParam::Margin => todo!(),
-            IpgScrollbarParam::ScrollerWidth => todo!(),
-            IpgScrollbarParam::Spacing => todo!(),
-            IpgScrollbarParam::Width => todo!(),
-            IpgScrollbarParam::XDirection => todo!(),
-            IpgScrollbarParam::YDirection => todo!(),
+            IpgScrollbarParam::Anchor => self.anchor = IpgAnchor::extract(value),
+            IpgScrollbarParam::Hidden => set_opt_bool(&mut self.hidden, value, name),
+            IpgScrollbarParam::Margin => set_opt_f32(&mut self.margin, value, name),
+            IpgScrollbarParam::ScrollerWidth => set_opt_f32(&mut self.scroller_width, value, name),
+            IpgScrollbarParam::Spacing => set_opt_f32(&mut self.spacing, value, name),
+            IpgScrollbarParam::Width => set_opt_f32(&mut self.width, value, name),
         }
     }
 }
@@ -439,12 +473,12 @@ impl WidgetParamUpdate for IpgRailStyle {
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
         match param {
-            IpgRailStyleParam::BackgroundColor => todo!(),
-            IpgRailStyleParam::BackgroundRgba => todo!(),
-            IpgRailStyleParam::BorderColor => todo!(),
-            IpgRailStyleParam::BorderRgba => todo!(),
-            IpgRailStyleParam::BorderWidth => todo!(),
-            IpgRailStyleParam::BorderRadius => todo!(),
+            IpgRailStyleParam::BackgroundColor => set_opt_iced_color(&mut self.background, value, name),
+            IpgRailStyleParam::BackgroundRgba => set_iced_color_from_rgba(&mut self.background, value, name),
+            IpgRailStyleParam::BorderColor => set_opt_iced_color(&mut self.border_color, value, name),
+            IpgRailStyleParam::BorderRgba => set_iced_color_from_rgba(&mut self.border_color, value, name),
+            IpgRailStyleParam::BorderWidth => set_opt_f32(&mut self.border_width, value, name),
+            IpgRailStyleParam::BorderRadius => set_opt_vec_f32(&mut self.border_radius, value, name),
         }
     }
 }
@@ -454,18 +488,18 @@ impl WidgetParamUpdate for IpgAutoScrollStyle {
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
         match param {
-            IpgAutoScrollStyleParam::BackgroundColor => todo!(),
-            IpgAutoScrollStyleParam::BackgroundRgba => todo!(),
-            IpgAutoScrollStyleParam::BorderColor => todo!(),
-            IpgAutoScrollStyleParam::BorderRgba => todo!(),
-            IpgAutoScrollStyleParam::BorderWidth => todo!(),
-            IpgAutoScrollStyleParam::BorderRadius => todo!(),
-            IpgAutoScrollStyleParam::ShadowColor => todo!(),
-            IpgAutoScrollStyleParam::ShadowRgba => todo!(),
-            IpgAutoScrollStyleParam::ShadowOffset => todo!(),
-            IpgAutoScrollStyleParam::ShadowBlurRadius => todo!(),
-            IpgAutoScrollStyleParam::ShadowIconColor => todo!(),
-            IpgAutoScrollStyleParam::ShadowIconRgba => todo!(),
+            IpgAutoScrollStyleParam::BackgroundColor => set_opt_iced_color(&mut self.background, value, name),
+            IpgAutoScrollStyleParam::BackgroundRgba => set_iced_color_from_rgba(&mut self.background, value, name),
+            IpgAutoScrollStyleParam::BorderColor => set_opt_iced_color(&mut self.border_color, value, name),
+            IpgAutoScrollStyleParam::BorderRgba => set_iced_color_from_rgba(&mut self.border_color, value, name),
+            IpgAutoScrollStyleParam::BorderWidth => set_opt_f32(&mut self.border_width, value, name),
+            IpgAutoScrollStyleParam::BorderRadius => set_opt_vec_f32(&mut self.border_radius, value, name),
+            IpgAutoScrollStyleParam::ShadowColor => set_opt_iced_color(&mut self.shadow_color, value, name),
+            IpgAutoScrollStyleParam::ShadowRgba => set_iced_color_from_rgba(&mut self.shadow_color, value, name),
+            IpgAutoScrollStyleParam::ShadowOffset => set_opt_f32_array_2(&mut self.shadow_offset, value, name),
+            IpgAutoScrollStyleParam::ShadowBlurRadius => set_opt_f32(&mut self.shadow_blur_radius, value, name),
+            IpgAutoScrollStyleParam::ShadowIconColor => set_opt_iced_color(&mut self.shadow_icon_color, value, name),
+            IpgAutoScrollStyleParam::ShadowIconRgba => set_iced_color_from_rgba(&mut self.shadow_icon_color, value, name),
         }
     }
 }

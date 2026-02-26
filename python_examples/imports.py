@@ -9,6 +9,8 @@ from icedpygui import (
     add_column, 
     add_container,
     add_container_style,
+    Container,
+    Window,
     add_date_picker, 
     add_pick_list,
     add_pick_list_style,
@@ -57,4 +59,5 @@ from icedpygui import (
     IpgWindowTheme, 
     start_session, 
     update_widget,
+    generate_id,
 )

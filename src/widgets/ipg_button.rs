@@ -50,7 +50,7 @@ pub fn construct_button<'a>(
         return None;
     }
 
-    let style_opt = get_btn_style_widget(style_widget);
+    let style_opt = style_widget.and_then(IpgWidgets::as_button_style).cloned();
 
     let txt = 
         if let Some(sa) = ipg_btn.style_arrow.clone() {
@@ -99,12 +99,7 @@ pub fn construct_button<'a>(
 
 }
 
-pub fn get_btn_style_widget(style: Option<&IpgWidgets>) -> Option<IpgButtonStyle>{
-    style.and_then(|s| match s {
-        IpgWidgets::IpgButtonStyle(st) => Some(st.clone()),
-        _ => None,
-    })
-}
+
 
 pub fn button_callback(id: usize, message: BtnMessage) {
     match message {

@@ -1,7 +1,7 @@
 //! ipg_color_picker
 use crate::graphics::bootstrap_arrow::IpgArrow;
 use crate::state::IpgWidgets;
-use crate::widgets::ipg_button::{IpgButtonStyleStandard, get_btn_style_widget, extract_button_style_standard, get_styling};
+use crate::widgets::ipg_button::{IpgButtonStyleStandard, extract_button_style_standard, get_styling};
 use crate::widgets::widget_param_update::{WidgetParamUpdate, set_bool, set_height, set_height_fill, set_iced_color, set_iced_color_from_rgba, set_opt_bool, set_opt_f32, set_opt_iced_color, set_opt_ipg_arrow, set_opt_string, set_opt_usize, set_opt_vec_f32, set_width, set_width_fill};
 use crate::{access_callbacks, access_user_data1, IpgState};
 use crate::app::Message;
@@ -68,7 +68,7 @@ pub fn construct_color_picker<'a>(cp: &'a IpgColorPicker,
         };
     
 
-    let style = get_btn_style_widget(style_opt);
+    let style = style_opt.and_then(IpgWidgets::as_button_style).cloned();
 
     let btn: Element<ColPikMessage> = Button::new(label)
                                     .height(cp.height)

@@ -44,7 +44,7 @@ pub fn construct_rule<'a>(
         return None
     }
 
-    let style = get_rule_style(style_opt);
+    let style = style_opt.and_then(IpgWidgets::as_rule_style).cloned();
 
     let thickness = if let Some(th) = rl.thickness {
         th
@@ -67,14 +67,7 @@ pub fn construct_rule<'a>(
 
 }
 
-fn get_rule_style(style: Option<&IpgWidgets>) -> Option<IpgRuleStyle>{
-    match style {
-        Some(IpgWidgets::IpgRuleStyle(style)) => {
-            Some(style.clone())
-        }
-        _ => None,
-    }
-}
+
 
 fn get_styling(theme: &Theme,
                 style_opt: Option<IpgRuleStyle>,

@@ -45,7 +45,7 @@ pub fn construct_progress_bar<'a>(bar: &'a IpgProgressBar,
         return None
     }
 
-    let style = get_progress_bar_style(style_opt);
+    let style = style_opt.and_then(IpgWidgets::as_progress_bar_style).cloned();
 
     Some(ProgressBar::new(
         bar.min..=bar.max, bar.value)
@@ -170,14 +170,7 @@ pub enum IpgProgressBarStyleParam {
     BorderWidth,
 }
 
-fn get_progress_bar_style(style: Option<&IpgWidgets>) -> Option<IpgProgressBarStyle>{
-    match style {
-        Some(IpgWidgets::IpgProgressBarStyle(style)) => {
-            Some(style.clone())
-        }
-            _ => None,
-        }
-}
+
 
 // ---------------------------------------------------------------------------
 // WidgetParamUpdate implementations

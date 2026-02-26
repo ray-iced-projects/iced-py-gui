@@ -62,7 +62,7 @@ pub fn construct_slider<'a>(slider: &'a IpgSlider,
         return None
     }
 
-    let style = get_slider_style(style_opt);
+    let style = style_opt.and_then(IpgWidgets::as_slider_style).cloned();
 
     let sld: Element<SLMessage, Theme> = 
         Slider::new(slider.min..=slider.max, 
@@ -271,14 +271,7 @@ pub enum IpgSliderStyleParam {
     HandleRectangleBorderRadius,
 }
 
-fn get_slider_style(style: Option<&IpgWidgets>) -> Option<IpgSliderStyle>{
-    match style {
-        Some(IpgWidgets::IpgSliderStyle(style)) => {
-            Some(style.clone())
-        }
-            _ => None,
-        }
-}
+
 
 // ---------------------------------------------------------------------------
 // WidgetParamUpdate implementations

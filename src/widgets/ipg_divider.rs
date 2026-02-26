@@ -88,7 +88,7 @@ pub fn construct_divider_horizontal<'a>(
         return None
     }
 
-    let style = get_divider_style(style_opt);
+    let style = style_opt.and_then(IpgWidgets::as_divider_style).cloned();
 
     let offsets = match divider.handle_offsets.clone() {
         Some(offsets) => offsets,
@@ -131,7 +131,7 @@ pub fn construct_divider_vertical<'a>(
         return None
     }
 
-    let style = get_divider_style(style_opt);
+    let style = style_opt.and_then(IpgWidgets::as_divider_style).cloned();
 
     let offsets = match divider.handle_offsets.clone() {
         Some(offsets) => offsets,
@@ -314,14 +314,7 @@ pub enum IpgDividerStyleParam {
     BorderRadius,
 }
 
-fn get_divider_style(style: Option<&IpgWidgets>) -> Option<IpgDividerStyle>{
-    match style {
-        Some(IpgWidgets::IpgDividerStyle(style)) => {
-            Some(style.clone())
-        }
-            _ => None,
-        }
-}
+
 
 // ---------------------------------------------------------------------------
 // WidgetParamUpdate implementations

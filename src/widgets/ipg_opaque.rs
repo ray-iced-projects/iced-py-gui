@@ -11,7 +11,7 @@ use crate::widgets::widget_param_update::{
     WidgetParamUpdate, set_opt_iced_color, set_opt_bool, set_iced_color_from_rgba};
 use crate::{access_callbacks, access_user_data1, IpgState};
 use crate::app::Message;
-use super::ipg_container::{self, get_cont_style};
+use super::ipg_container;
 use super::enums::{IpgHorizontalAlignment, IpgVerticalAlignment};
 
 
@@ -58,7 +58,7 @@ pub fn construct_opaque<'a>(op: &'a IpgOpaque,
         }
     }
     
-    let style = get_cont_style(style_opt);
+    let style = style_opt.and_then(IpgWidgets::as_container_style).cloned();
 
     let cont: Element<'a, Message> = 
         Container::new(new_content)

@@ -1,6 +1,178 @@
 from dataclasses import dataclass
 from typing import Any, Callable, List, Optional, Union, DataFrame, PyDataFrame
 
+
+# ---------------------------------------------------------------------------
+# Standalone functions (migrated from IPG class methods)
+# ---------------------------------------------------------------------------
+
+def add_container(
+    window_id: str,
+    container_id: str,
+    *,
+    parent_id: Optional[str] = None,
+    width: Optional[float] = None,
+    width_fill: bool = False,
+    height: Optional[float] = None,
+    height_fill: bool = False,
+    clip: Optional[bool] = None,
+    max_height: Optional[float] = None,
+    max_width: Optional[float] = None,
+    align_x: Optional[IpgHorizontalAlignment] = None,
+    align_y: Optional[IpgVerticalAlignment] = None,
+    center_x: Optional[bool] = None,
+    center_y: Optional[bool] = None,
+    center: Optional[bool] = None,
+    align_left: Optional[bool] = None,
+    align_right: Optional[bool] = None,
+    align_top: Optional[bool] = None,
+    align_botton: Optional[bool] = None,
+    padding: Optional[list[float]] = None,
+    show: bool = True,
+    style_id: Optional[int] = None,
+) -> int:
+    """
+    Add a container widget.
+
+    Wraps the iced ``Container`` — a widget that aligns its contents inside
+    of its boundaries.  Unlike a row or column a container can only have
+    **one** child.  To align many widgets, add a row or column as that child
+    and use the alignment / centering parameters.
+
+    See: https://docs.rs/iced_widget/0.14.2/iced_widget/container/struct.Container.html
+
+    Parameters
+    ----------
+    window_id : str
+        Id of the window to place the container in.
+    container_id : str
+        The id of the container.
+    parent_id : str, optional
+        If parent_id == window_id then not required.
+        If another container then required.
+    width : float, optional
+        Sets the width of the Container (iced ``Length::Fixed``).
+    width_fill : bool
+        Sets the width to fill the available space (iced ``Length::Fill``),
+        overrides *width*.
+    height : float, optional
+        Sets the height of the Container (iced ``Length::Fixed``).
+    height_fill : bool
+        Sets the height to fill the available space (iced ``Length::Fill``),
+        overrides *height*.
+    clip : bool, optional
+        Sets whether the contents of the Container should be clipped on
+        overflow.
+    max_height : float, optional
+        Sets the maximum height of the Container.
+    max_width : float, optional
+        Sets the maximum width of the Container.
+    align_x : IpgHorizontalAlignment, optional
+        Sets the content alignment for the horizontal axis of the Container.
+    align_y : IpgVerticalAlignment, optional
+        Sets the content alignment for the vertical axis of the Container.
+    center_x : bool, optional
+        Sets the width of the Container and centers its contents
+        horizontally.  Equivalent to iced ``center_x(Fill)``.
+    center_y : bool, optional
+        Sets the height of the Container and centers its contents
+        vertically.  Equivalent to iced ``center_y(Fill)``.
+    center : bool, optional
+        Sets the width and height of the Container and centers its contents
+        in both axes.  Equivalent to chaining ``center_x`` and ``center_y``.
+    align_left : bool, optional
+        Sets the width of the Container and aligns its contents to the left.
+    align_right : bool, optional
+        Sets the width of the Container and aligns its contents to the right.
+    align_top : bool, optional
+        Sets the height of the Container and aligns its contents to the top.
+    align_botton : bool, optional
+        Sets the height of the Container and aligns its contents to the
+        bottom.
+    padding : list[float], optional
+        Sets the Padding of the Container.
+        Use ``[float]`` for all sides,
+        ``[float, float]`` for [top & bottom, left & right],
+        ``[float, float, float, float]`` for [top, right, bottom, left].
+    show : bool
+        Shows or hides the container and all of its contents.
+    style_id : int, optional
+        style_id returned from ``add_container_style``.
+
+    Returns
+    -------
+    int
+        Internal id of the widget.
+    """
+    ...
+
+
+# ---------------------------------------------------------------------------
+# Context-manager classes
+# ---------------------------------------------------------------------------
+
+class Container:
+    """
+    Context manager wrapper around :func:`add_container`.
+
+    Wraps the iced ``Container`` — a widget that aligns its contents inside
+    of its boundaries.
+
+    Reads *window_id* from the :class:`Window` context manager if omitted.
+    Auto-generates *container_id* via :func:`generate_id` if omitted.
+    Pushes the *container_id* onto the parent stack so child widgets
+    can resolve their *parent_id* automatically.
+
+    See: https://docs.rs/iced_widget/0.14.2/iced_widget/container/struct.Container.html
+
+    Usage::
+
+        with Window(title="Demo") as wnd_id:
+            with Container(center=True, width_fill=True) as cont_id:
+                add_text(content="hello")
+    """
+
+    def __init__(
+        self,
+        window_id: Optional[str] = None,
+        container_id: Optional[str] = None,
+        *,
+        parent_id: Optional[str] = None,
+        width: Optional[float] = None,
+        width_fill: bool = False,
+        height: Optional[float] = None,
+        height_fill: bool = False,
+        clip: Optional[bool] = None,
+        max_height: Optional[float] = None,
+        max_width: Optional[float] = None,
+        align_x: Optional[IpgHorizontalAlignment] = None,
+        align_y: Optional[IpgVerticalAlignment] = None,
+        center_x: Optional[bool] = None,
+        center_y: Optional[bool] = None,
+        center: Optional[bool] = None,
+        align_left: Optional[bool] = None,
+        align_right: Optional[bool] = None,
+        align_top: Optional[bool] = None,
+        align_botton: Optional[bool] = None,
+        padding: Optional[list[float]] = None,
+        show: bool = True,
+        style_id: Optional[int] = None,
+    ) -> None:
+        """
+        Create a Container context manager.
+
+        All keyword arguments are forwarded to :func:`add_container`.
+        See that function's docstring for full parameter descriptions.
+        """
+        ...
+
+    def __enter__(self) -> str:
+        """Returns the container_id."""
+        ...
+
+    def __exit__(self, exc_type: Any, exc_val: Any, exc_tb: Any) -> bool: ...
+
+
 class IPG:
     """
     Main class that is instantiated and that calls the corresponding rust file to implement the widgets
@@ -180,80 +352,8 @@ class IPG:
             Internal id of widget and can be used by user if equated.
         """
         
-    def add_container(self,
-                        window_id: str,
-                        container_id: str,
-                        *,
-                        parent_id: Optional[str]=None,
-                        width: Optional[float]=None,
-                        height: Optional[float]=None,
-                        width_fill: bool=False,
-                        height_fill: bool=False,
-                        max_height: float=float('inf'),
-                        max_width: float=float('inf'),
-                        centered: bool=True,
-                        align_x: IpgAlignment.Left,
-                        align_y: IpgAlignment.Top,
-                        padding: list[float]=[10.0],
-                        clip: bool=False,
-                        show: bool=True,
-                        style_id: Optional[str]=None,
-                        style_standard: Optional[IpgButtonStyleStandard]=None
-                        ) -> int:
-        """
-        Adds a generic container to the gui
-        Note: A container unlike a row or column can only have 1 child.
-            The container is used to help with widget alignments.
-            You can align 1 widget or many if you add a row or column to the
-            container and use the horizontal and vertical alignments.
-
-        Parameters
-        ----------
-            window_id: str
-                Id of the window to place container in.
-            container_id: str
-                The id of the container.
-            parent_id: str
-                If parent_id == window_id then not required, 
-                If another container then required.
-            width: float
-                Sets the width of the widget.
-            width_fill: bool
-                Sets the width to fill the available space, overrides width.
-            height: float
-                Sets the height of the widget.   
-            height_fill: bool
-                Sets the height to fill the available space, overrides height.
-            max_width: float
-                Sets the maximum width the container is allowed to be.
-            max_height: float
-                Sets a maximum height the container is allowed to be.
-            centered: bool
-               Centers the containing element if true.
-            align_x: IpgHorizontalAlignment
-                Aligns the container horizontally; Start=default, Center, End
-            align_y: IpgVerticalAlignment
-                Aligns the container vertically; Start=default, Center, End
-            padding: List[float]
-                Sets the padding for container.
-                use [float] for all sides,
-                use [float, float] for [top&bottom, left&right]
-                use [float, float, float, float] for [top, right, bottom, left]
-            clip: bool
-                Whether to clip any text if size > container.
-            show: bool
-                Shows or hides container and all of its contents.
-            style_id: str
-                style_id of the add_container_style.
-            style_Standard: IpgStyleStandard
-                IpgStyleStandard class.
-            
-        Returns
-        -------
-        id: int
-            Internal id of widget and can be used by user if equated.
-
-        """
+    # NOTE: add_container has been moved to a standalone function.
+    # See the top-level `add_container()` and `Container` class above.
 
     def add_container_style(self,
                             background_color: Optional[IpgColor]=None,

@@ -76,7 +76,7 @@ pub fn construct_picklist<'a>(
     if!pick.show {
         return None
     }
-    let style = get_pick_list_style(style_opt);
+    let style = style_opt.and_then(IpgWidgets::as_pick_list_style).cloned();
     let placeholder = pick.placeholder.clone().unwrap_or("".to_string());
 
     let handle = if let Some(hd) = &pick.handle {
@@ -421,14 +421,7 @@ pub fn get_styling(theme: &Theme, status: Status,
 
 }
 
-fn get_pick_list_style(style: Option<&IpgWidgets>) -> Option<IpgPickListStyle>{
-    match style {
-        Some(IpgWidgets::IpgPickListStyle(style)) => {
-            Some(style.clone())
-        }
-            _ => None,
-        }
-}
+
 
 // ---------------------------------------------------------------------------
 // WidgetParamUpdate implementations

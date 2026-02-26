@@ -119,6 +119,72 @@ pub enum IpgWidgets {
     // IpgToolTipStyle(IpgToolTipStyle),
 }
 
+// ---------------------------------------------------------------------------
+// Generated accessor methods for IpgWidgets
+// ---------------------------------------------------------------------------
+// Each invocation generates:
+//   pub fn as_<name>(&self) -> Option<&Type>
+//   pub fn as_<name>_mut(&mut self) -> Option<&mut Type>
+// ---------------------------------------------------------------------------
+macro_rules! ipg_widget_accessors {
+    ($($variant:ident => $type:ty, $fn_ref:ident, $fn_mut:ident;)*) => {
+        impl IpgWidgets {
+            $(
+                pub fn $fn_ref(&self) -> Option<&$type> {
+                    match self {
+                        IpgWidgets::$variant(x) => Some(x),
+                        _ => None,
+                    }
+                }
+                pub fn $fn_mut(&mut self) -> Option<&mut $type> {
+                    match self {
+                        IpgWidgets::$variant(x) => Some(x),
+                        _ => None,
+                    }
+                }
+            )*
+        }
+    };
+}
+
+ipg_widget_accessors! {
+    IpgButton           => IpgButton,           as_button,              as_button_mut;
+    IpgButtonStyle      => IpgButtonStyle,       as_button_style,        as_button_style_mut;
+    IpgCheckBox         => IpgCheckBox,          as_checkbox,            as_checkbox_mut;
+    IpgCheckboxStyle    => IpgCheckboxStyle,     as_checkbox_style,      as_checkbox_style_mut;
+    IpgColorPicker      => IpgColorPicker,       as_color_picker,        as_color_picker_mut;
+    IpgColorPickerStyle => IpgColorPickerStyle,  as_color_picker_style,  as_color_picker_style_mut;
+    IpgContainerStyle   => IpgContainerStyle,    as_container_style,     as_container_style_mut;
+    IpgDatePicker       => IpgDatePicker,        as_date_picker,         as_date_picker_mut;
+    IpgDividerHorizontal=> IpgDividerHorizontal, as_divider_horizontal,  as_divider_horizontal_mut;
+    IpgDividerVertical  => IpgDividerVertical,   as_divider_vertical,    as_divider_vertical_mut;
+    IpgDividerStyle     => IpgDividerStyle,      as_divider_style,       as_divider_style_mut;
+    IpgFont             => IpgFont,              as_font,                as_font_mut;
+    IpgImage            => IpgImage,             as_image,               as_image_mut;
+    IpgOpaqueStyle      => IpgOpaqueStyle,       as_opaque_style,        as_opaque_style_mut;
+    IpgPickList         => IpgPickList,          as_pick_list,           as_pick_list_mut;
+    IpgPickListStyle    => IpgPickListStyle,     as_pick_list_style,     as_pick_list_style_mut;
+    IpgProgressBar      => IpgProgressBar,       as_progress_bar,        as_progress_bar_mut;
+    IpgProgressBarStyle => IpgProgressBarStyle,  as_progress_bar_style,  as_progress_bar_style_mut;
+    IpgRadio            => IpgRadio,             as_radio,               as_radio_mut;
+    IpgRadioStyle       => IpgRadioStyle,        as_radio_style,         as_radio_style_mut;
+    IpgRule             => IpgRule,              as_rule,                as_rule_mut;
+    IpgRuleStyle        => IpgRuleStyle,         as_rule_style,          as_rule_style_mut;
+    IpgScrollbar        => IpgScrollbar,         as_scrollbar,           as_scrollbar_mut;
+    IpgRailStyle        => IpgRailStyle,         as_rail_style,          as_rail_style_mut;
+    IpgAutoScrollStyle  => IpgAutoScrollStyle,   as_auto_scroll_style,   as_auto_scroll_style_mut;
+    IpgSelectableText   => IpgSelectableText,    as_selectable_text,     as_selectable_text_mut;
+    IpgSeparator        => IpgSeparator,         as_separator,           as_separator_mut;
+    IpgSeparatorStyle   => IpgSeparatorStyle,    as_separator_style,     as_separator_style_mut;
+    IpgSlider           => IpgSlider,            as_slider,              as_slider_mut;
+    IpgSliderStyle      => IpgSliderStyle,       as_slider_style,        as_slider_style_mut;
+    IpgSpace            => IpgSpace,             as_space,               as_space_mut;
+    IpgSvg             => IpgSvg,               as_svg,                 as_svg_mut;
+    IpgText             => IpgText,              as_text,                as_text_mut;
+    IpgToggler          => IpgToggler,           as_toggler,             as_toggler_mut;
+    IpgTogglerStyle     => IpgTogglerStyle,      as_toggler_style,       as_toggler_style_mut;
+}
+
 // ============================================================================
 // IpgIds - tracks parent/child relationships
 // ============================================================================

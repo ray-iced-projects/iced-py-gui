@@ -27,7 +27,7 @@ use crate::widgets::ipg_progress_bar::construct_progress_bar;
 use crate::widgets::ipg_radio::{RDMessage, construct_radio, radio_callback};
 use crate::widgets::ipg_row::construct_row;
 use crate::widgets::ipg_rule::construct_rule;
-use crate::widgets::ipg_scrollable::{construct_scrollable, scrollable_callback};
+use crate::widgets::ipg_scrollable::scrollable_callback;
 use crate::widgets::ipg_selectable_text::{SLTXTMessage, construct_selectable_text, selectable_text_callback};
 use crate::widgets::ipg_separator::construct_separator;
 use crate::widgets::ipg_slider::{SLMessage, construct_slider, slider_callback};
@@ -726,40 +726,7 @@ fn get_container<'a>(state: &'a IpgState,
                     construct_row(row, content)
                 },
                 IpgContainers::IpgScrollable(scroll) => {
-                    let sb_x_opt = 
-                        if let Some(id)  = scroll.scrollbar_x_id {
-                            state.widgets.get(&id)
-                        } else { None };
-                    let sb_y_opt = 
-                        if let Some(id)  = scroll.scrollbar_y_id {
-                            state.widgets.get(&id)
-                        } else { None };
-                    let cont_style_opt = 
-                        if let Some(id)  = scroll.container_style_id {
-                            state.widgets.get(&id)
-                        } else { None };
-                    let rail_x_style_opt = 
-                        if let Some(id)  = scroll.rail_x_style_id {
-                                state.widgets.get(&id)
-                            } else { None };
-                    let rail_y_style_opt = 
-                        if let Some(id)  = scroll.rail_y_style_id {
-                                state.widgets.get(&id)
-                            } else { None };
-                    let  auto_scroll_style_opt = 
-                        if let Some(id)  = scroll.auto_scroll_style_id {
-                                state.widgets.get(&id)
-                            } else { None };
-
-                    construct_scrollable(
-                        scroll, 
-                        content,
-                        sb_x_opt, 
-                        sb_y_opt, 
-                        cont_style_opt,
-                        rail_x_style_opt,
-                        rail_y_style_opt,
-                        auto_scroll_style_opt)
+                    scroll.construct(content, &state.widgets)
                 },
                 // IpgContainers::IpgStack(stk) => {
                 //     construct_stack(stk.clone(), content)

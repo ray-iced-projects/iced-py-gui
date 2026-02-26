@@ -191,7 +191,8 @@ pub fn radio_callback(state: &mut IpgState, id: usize, message: RDMessage) {
         None => panic!("Radio callback with id {} could not be found", id),
     };
 
-    let radio: &mut IpgRadio = match_widgets(widgets);
+    let radio: &mut IpgRadio = widgets.as_radio_mut()
+        .expect("Radio expected IpgRadio in IpgWidgets");
 
     let ch_usize = match message {
         RDMessage::RadioSelected(index) => index,
@@ -255,13 +256,7 @@ let ud1 = access_user_data1();
 }
 
 
-fn match_widgets (widget: &mut IpgWidgets) -> &mut IpgRadio {
-    
-    match widget {
-        IpgWidgets::IpgRadio(radio) => radio,
-        _ => panic!("Radio expected to find radio in IpgWidgets")
-    }
-}
+
 
 #[derive(Debug, Clone, PartialEq)]
 #[pyclass(eq, eq_int)]

@@ -110,7 +110,7 @@ pub fn construct_date_picker<'a>(
     btn_style_opt: Option<&'a IpgWidgets>) 
     -> Option<Element<'a, Message, Theme, Renderer>> {
     
-    let btn_style  = get_widget_style(btn_style_opt);
+    let btn_style  = btn_style_opt.and_then(IpgWidgets::as_button_style).cloned();
 
     if !dp.show {
         return None;
@@ -650,14 +650,7 @@ pub enum IpgDatePickerParam {
     Show,
 }
 
-fn get_widget_style(style: Option<&IpgWidgets>) -> Option<IpgButtonStyle>{
-    match style {
-        Some(IpgWidgets::IpgButtonStyle(style)) => {
-            Some(style.clone())
-        }
-        _ => None,
-        }
-}
+
 
 // ---------------------------------------------------------------------------
 // WidgetParamUpdate implementation

@@ -65,7 +65,7 @@ pub fn construct_separator<'a>(
         return None
     }
 
-    let style_opt = get_sep_style(style_opt);
+    let style_opt = style_opt.and_then(IpgWidgets::as_separator_style).cloned();
 
     let sep_color = 
         IpgColor::rgba_ipg_color_to_iced(
@@ -244,14 +244,7 @@ pub enum IpgSeparatorStyleParam {
     BorderRgbaColor,
 }
 
-pub fn get_sep_style(style: Option<&IpgWidgets>) -> Option<IpgSeparatorStyle>{
-    match style {
-        Some(IpgWidgets::IpgSeparatorStyle(style)) => {
-            Some(style.clone())
-        }
-            _ => None,
-        }
-}
+
 
 fn separator(bg_color: Background) -> Quad {
     Quad {

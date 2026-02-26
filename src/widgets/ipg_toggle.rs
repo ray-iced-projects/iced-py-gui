@@ -53,7 +53,7 @@ pub fn construct_toggler<'a>(
         return None
     }
 
-    let style = get_toggler_style(style_opt);
+    let style = style_opt.and_then(IpgWidgets::as_toggler_style).cloned();
 
     let mut tog =  
         Toggler::new(ipg_tog.is_toggled)
@@ -297,14 +297,7 @@ pub enum IpgTogglerStyleParam {
     PaddingRatio,
 }
 
-pub fn get_toggler_style(style: Option<&IpgWidgets>) -> Option<IpgTogglerStyle>{
-    match style {
-        Some(IpgWidgets::IpgTogglerStyle(style)) => {
-            Some(style.clone())
-        }
-        _ => None,
-        }
-}
+
 
 // ---------------------------------------------------------------------------
 // WidgetParamUpdate implementations

@@ -64,7 +64,7 @@ pub fn construct_checkbox<'a>(
         return None
     };
 
-    let style_opt = get_chk_style_widget(style_opt);
+    let style_opt = style_opt.and_then(IpgWidgets::as_checkbox_style).cloned();
 
     // Icon related
     let code_point = 
@@ -149,12 +149,7 @@ pub fn construct_checkbox<'a>(
 
 }
 
-pub fn get_chk_style_widget(style: Option<&IpgWidgets>) -> Option<IpgCheckboxStyle>{
-    style.and_then(|s| match s {
-        IpgWidgets::IpgCheckboxStyle(st) => Some(st.clone()),
-        _ => None,
-    })
-}
+
 
 #[derive(Debug, Clone, Default)]
 pub struct IpgCheckboxStyle {

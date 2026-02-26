@@ -61,7 +61,7 @@ pub fn construct_container<'a>(
     
     if !ipg_cont.show {return Space::new().into()}
 
-    let style = get_cont_style(style_opt);
+    let style = style_opt.and_then(IpgWidgets::as_container_style).cloned();
 
     // Since a container can have only one element and the 
     // the process sends a vec then if empty container, put in a
@@ -168,12 +168,7 @@ pub enum IpgContainerParam {
     StyleId,
 }
 
-pub fn get_cont_style(style: Option<&IpgWidgets>) -> Option<IpgContainerStyle> {
-    style.and_then(|s| match s {
-        IpgWidgets::IpgContainerStyle(st) => Some(st.clone()),
-        _ => None,
-    })
-}
+
 
 pub fn get_styling(theme: &Theme,
                 style_opt: &Option<IpgContainerStyle>,  

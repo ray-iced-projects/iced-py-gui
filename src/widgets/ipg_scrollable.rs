@@ -43,73 +43,75 @@ pub struct IpgScrollable {
     pub gap_background_color: Option<Color>,
 }
 
-pub fn construct_scrollable<'a>(
-    ipg_scroll: &'a IpgScrollable, 
-    content: Vec<Element<'a, Message>>,
-    sb_x_opt: Option<&IpgWidgets>,
-    sb_y_opt: Option<&IpgWidgets>,
-    cont_style_opt: Option<&IpgWidgets>,
-    rail_x_style_opt: Option<&IpgWidgets>,
-    rail_y_style_opt: Option<&IpgWidgets>,
-    auto_scroll_style_opt: Option<&IpgWidgets>,
-     ) -> Element<'a, Message> {
-    
-    let ipg_cont_style_opt = ipg_container::get_cont_style(cont_style_opt);
-    let ipg_rail_x_style_opt = get_rail_style_widget(rail_x_style_opt);
-    let ipg_rail_y_style_opt = get_rail_style_widget(rail_y_style_opt);
-    let ipg_auto_scroll_style_opt = get_auto_style_widget(auto_scroll_style_opt);
+impl IpgScrollable {
 
-    let content: Element<'a, Message> = Column::with_children(content).into();
-
-    let direction = 
-        match (sb_x_opt.is_some(), sb_y_opt.is_some()) {
-            (true, true) => {
-                let ipg_sb_x = match_scrollbar_widget(sb_x_opt);
-                let ipg_sb_y = match_scrollbar_widget(sb_y_opt);
-                Direction::Both { vertical: ipg_sb_y.construct(), horizontal: ipg_sb_x.construct() }
-            },
-            (true, false) => {
-                let ipg_sb = match_scrollbar_widget(sb_x_opt);
-                Direction::Horizontal(ipg_sb.construct())
-            },
-            (false, true) => {
-                let ipg_sb = match_scrollbar_widget(sb_y_opt);
-                Direction::Vertical(ipg_sb.construct())
-            },
-            (false, false) => Direction::Vertical(Scrollbar::default()),
-        };
-
-    Scrollable::with_direction(content, direction)
-        .width(ipg_scroll.width)
-        .height(ipg_scroll.height)
-        .on_scroll(move|vp| 
-            Message::Scrolled(vp, ipg_scroll.id))
-        .style(move|theme, status| {
-            get_styling(
-                theme, 
-                status, 
-                &ipg_cont_style_opt,
-                &ipg_rail_x_style_opt,
-                &ipg_rail_y_style_opt,
-                &ipg_auto_scroll_style_opt,
-                ipg_scroll.gap_background_color
-            )
-        })
-        .into()
-    
-}
-
-fn match_scrollbar_widget(wid: Option<&IpgWidgets>) -> IpgScrollbar {
-    if let Some(w) = wid {
-        match w {
-            IpgWidgets::IpgScrollbar(bar) => bar.clone(),
-            _ => IpgScrollbar::default()
-        }
-    } else {
-        return IpgScrollbar::default()
+    fn lookup<'a>(&self, widgets: &'a HashMap<usize, IpgWidgets>, id: Option<usize>) -> Option<&'a IpgWidgets> {
+        id.and_then(|id| widgets.get(&id))
     }
-    
+
+    pub fn construct<'a>(
+        &'a self,
+        content: Vec<Element<'a, Message>>,
+        widgets: &HashMap<usize, IpgWidgets>,
+        ) -> Element<'a, Message> {
+
+        let sb_x_opt = self.lookup(widgets, self.scrollbar_x_id);
+        let sb_y_opt = self.lookup(widgets, self.scrollbar_y_id);
+
+        let ipg_cont_style_opt = self.lookup(widgets, self.container_style_id)
+            .and_then(IpgWidgets::as_container_style).cloned();
+        
+        let ipg_rail_x_style_opt = self.lookup(widgets, self.rail_x_style_id)
+            .and_then(IpgWidgets::as_rail_style).cloned();
+        
+        let ipg_rail_y_style_opt = self.lookup(widgets, self.rail_y_style_id)
+            .and_then(IpgWidgets::as_rail_style).cloned();
+        
+        let ipg_auto_scroll_style_opt = self.lookup(widgets, self.auto_scroll_style_id)
+            .and_then(IpgWidgets::as_auto_scroll_style).cloned();
+
+        let content: Element<'a, Message> = Column::with_children(content).into();
+
+        let direction = 
+            match (sb_x_opt.is_some(), sb_y_opt.is_some()) {
+                (true, true) => {
+                    let ipg_sb_x = sb_x_opt.and_then(IpgWidgets::as_scrollbar).cloned().unwrap_or_default();
+                    let ipg_sb_y = sb_y_opt.and_then(IpgWidgets::as_scrollbar).cloned().unwrap_or_default();
+                    Direction::Both { vertical: ipg_sb_y.construct(), horizontal: ipg_sb_x.construct() }
+                },
+                (true, false) => {
+                    let ipg_sb = sb_x_opt.and_then(IpgWidgets::as_scrollbar).cloned().unwrap_or_default();
+                    Direction::Horizontal(ipg_sb.construct())
+                },
+                (false, true) => {
+                    let ipg_sb = sb_y_opt.and_then(IpgWidgets::as_scrollbar).cloned().unwrap_or_default();
+                    Direction::Vertical(ipg_sb.construct())
+                },
+                (false, false) => Direction::Vertical(Scrollbar::default()),
+            };
+
+        Scrollable::with_direction(content, direction)
+            .width(self.width)
+            .height(self.height)
+            .on_scroll(move|vp| 
+                Message::Scrolled(vp, self.id))
+            .style(move|theme, status| {
+                get_styling(
+                    theme, 
+                    status, 
+                    &ipg_cont_style_opt,
+                    &ipg_rail_x_style_opt,
+                    &ipg_rail_y_style_opt,
+                    &ipg_auto_scroll_style_opt,
+                    self.gap_background_color
+                )
+            })
+            .into()
+        
+    }
 }
+
+
 
 #[derive(Debug, Default, Clone)]
 pub struct IpgScrollbar {
@@ -361,19 +363,7 @@ fn get_auto_styling(
     auto
 }
 
-fn get_rail_style_widget(rail_opt: Option<&IpgWidgets>) -> Option<IpgRailStyle> {
-    rail_opt.and_then(|w| match w {
-        IpgWidgets::IpgRailStyle(st) => Some(st.clone()),
-        _ => None,
-    })
-}
 
-fn get_auto_style_widget(auto_opt: Option<&IpgWidgets>) -> Option<IpgAutoScrollStyle> {
-    auto_opt.and_then(|w| match w {
-        IpgWidgets::IpgAutoScrollStyle(st) => Some(st.clone()),
-        _ => None,
-    })
-}
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct IpgRailStyle { 

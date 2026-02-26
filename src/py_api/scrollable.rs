@@ -1,7 +1,7 @@
 //! Scrollable module - Provides add_scrollable and 
 //!                     add_scrollable_style to pyfunction
 
-use iced::{Color, Rectangle};
+use iced::Color;
 use pyo3::{Py, PyAny, PyResult, pyfunction};
 
 use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex, 
@@ -92,10 +92,6 @@ pub fn add_scrollable(
             rail_y_style_id,
             auto_scroll_style_id,
             gap_background_color,
-            scroll_y_pos: None,
-            scroll_x_pos: None,
-            bounds: Rectangle::default(),
-            content_bounds: Rectangle::default(),
         }));
 
     drop(state);

@@ -21,7 +21,6 @@ use iced::widget::scrollable::Anchor;
 use iced::widget::scrollable::Scrollbar;
 use iced::widget::scrollable::{Direction, Scrollable, 
     Viewport, Status, Style};
-use iced::Rectangle;
 use iced::{Color, Element, Length, Theme};
 use iced::widget::Column;
 
@@ -42,11 +41,6 @@ pub struct IpgScrollable {
     pub rail_y_style_id: Option<usize>,
     pub auto_scroll_style_id: Option<usize>,
     pub gap_background_color: Option<Color>,
-    // internal use
-    pub scroll_y_pos: Option<f32>,
-    pub scroll_x_pos: Option<f32>,
-    pub bounds: Rectangle,
-    pub content_bounds: Rectangle,
 }
 
 pub fn construct_scrollable<'a>(

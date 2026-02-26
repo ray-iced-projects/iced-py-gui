@@ -16,11 +16,8 @@ use crate::widgets::widget_param_update::{
 };
 
 use std::collections::HashMap;
-use iced::widget::scrollable;
-use iced::widget::scrollable::Anchor;
-use iced::widget::scrollable::Scrollbar;
-use iced::widget::scrollable::{Direction, Scrollable, 
-    Viewport, Status, Style};
+use iced::widget::scrollable::{self, Direction, Scrollable, 
+    Viewport, Anchor, Scrollbar};
 use iced::{Color, Element, Length, Theme};
 use iced::widget::Column;
 
@@ -55,23 +52,27 @@ impl IpgScrollable {
         widgets: &HashMap<usize, IpgWidgets>,
         ) -> Element<'a, Message> {
 
-        let sb_x_opt = self.lookup(widgets, self.scrollbar_x_id);
-        let sb_y_opt = self.lookup(widgets, self.scrollbar_y_id);
+        let mut ipg_style = IpgScrollStyle::default();
 
-        let ipg_cont_style_opt = self.lookup(widgets, self.container_style_id)
+        ipg_style.container = self.lookup(widgets, self.container_style_id)
             .and_then(IpgWidgets::as_container_style).cloned();
         
-        let ipg_rail_x_style_opt = self.lookup(widgets, self.rail_x_style_id)
+        ipg_style.horizontal_rail = self.lookup(widgets, self.rail_x_style_id)
             .and_then(IpgWidgets::as_rail_style).cloned();
         
-        let ipg_rail_y_style_opt = self.lookup(widgets, self.rail_y_style_id)
+        ipg_style.vertical_rail = self.lookup(widgets, self.rail_y_style_id)
             .and_then(IpgWidgets::as_rail_style).cloned();
         
-        let ipg_auto_scroll_style_opt = self.lookup(widgets, self.auto_scroll_style_id)
+        ipg_style.auto_scroll = self.lookup(widgets, self.auto_scroll_style_id)
             .and_then(IpgWidgets::as_auto_scroll_style).cloned();
+
+        ipg_style.gap = self.gap_background_color;
 
         let content: Element<'a, Message> = Column::with_children(content).into();
 
+        let sb_x_opt = self.lookup(widgets, self.scrollbar_x_id);
+        let sb_y_opt = self.lookup(widgets, self.scrollbar_y_id);
+        
         let direction = 
             match (sb_x_opt.is_some(), sb_y_opt.is_some()) {
                 (true, true) => {
@@ -96,15 +97,7 @@ impl IpgScrollable {
             .on_scroll(move|vp| 
                 Message::Scrolled(vp, self.id))
             .style(move|theme, status| {
-                get_styling(
-                    theme, 
-                    status, 
-                    &ipg_cont_style_opt,
-                    &ipg_rail_x_style_opt,
-                    &ipg_rail_y_style_opt,
-                    &ipg_auto_scroll_style_opt,
-                    self.gap_background_color
-                )
+                ipg_style.set_style(theme, status)
             })
             .into()
         
@@ -274,62 +267,44 @@ pub enum IpgScrollbarParam {
     Width,
 }
 
-fn get_styling(
-    theme: &Theme, status: Status,
-    cont_style_opt: &Option<ipg_container::IpgContainerStyle>, // container
-    ipg_rail_x_style_opt: &Option<IpgRailStyle>, // horizontal_rail
-    ipg_rail_y_style_opt: &Option<IpgRailStyle>, // vertical_rail
-    ipg_auto_scroll_style_opt: &Option<IpgAutoScrollStyle>, // auto_scroll
-    gap_bkg_color: Option<Color>, // gap
-    ) -> Style 
-{
-
-    let mut style = scrollable::default(theme, status);
-
-    // Need default since iced doesn't default each one individually
-    let def_h_rail = style.horizontal_rail;
-    let def_v_rail = style.vertical_rail;
-    let def_auto_scroll = style.auto_scroll;
-    
-    // container style via the container_style_id
-    style.container = ipg_container::get_styling(theme, cont_style_opt);
-    
-    style.horizontal_rail = get_rail_styling(ipg_rail_x_style_opt, def_h_rail);
-    
-    style.vertical_rail = get_rail_styling(ipg_rail_y_style_opt, def_v_rail);
-    
-    if let Some(c) = gap_bkg_color {
-        style.gap = Some(c.into());
-    }
-    
-    style.auto_scroll = get_auto_styling(ipg_auto_scroll_style_opt, def_auto_scroll);
-    
-    style
-    
+/// The appearance of a scrollable.
+#[derive(Debug, Clone, Default, PartialEq)]
+pub struct IpgScrollStyle {
+    pub container: Option<ipg_container::IpgContainerStyle>,
+    pub vertical_rail: Option<IpgRailStyle>,
+    pub horizontal_rail: Option<IpgRailStyle>,
+    pub gap: Option<Color>,
+    pub auto_scroll: Option<IpgAutoScrollStyle>,
 }
 
-fn get_rail_styling(
-    style_opt: &Option<IpgRailStyle>,
-    default: scrollable::Rail,
-) -> scrollable::Rail {
-    let style = match style_opt {
-        Some(s) => s,
-        None => return default,
-    };
+impl IpgScrollStyle {
+    fn set_style(&self, theme: &Theme, status: scrollable::Status,) -> scrollable::Style {
+        let mut style = scrollable::default(theme, status);
 
-    let mut rail = default;
-
-    if let Some(color) = style.background {
-        rail.background = Some(color.into());
+        // Need default since iced doesn't default each one individually
+        let def_h_rail = style.horizontal_rail;
+        let def_v_rail = style.vertical_rail;
+        let def_auto_scroll = style.auto_scroll;
+        
+        // container style via the container_style_id
+        style.container = ipg_container::get_styling(theme, &self.container);
+        
+        style.horizontal_rail = if let Some(rail) = self.vertical_rail {
+            self.rail.to_iced(def_h_rail)
+        } else { def_h_rail };
+        
+        style.vertical_rail = get_rail_styling(&self.horizontal_rail, def_v_rail);
+        
+        if let Some(c) = self.gap {
+            style.gap = Some(c.into());
+        }
+        
+        style.auto_scroll = get_auto_styling(&self.auto_scroll, def_auto_scroll);
+        
+        style
     }
-
-    apply_border_overrides(
-        &mut rail.border, style.border_color,
-        &style.border_radius, style.border_width, "Scrollable rail",
-    );
-
-    rail
 }
+
 
 fn get_auto_styling(
     style_opt: &Option<IpgAutoScrollStyle>,
@@ -372,6 +347,23 @@ pub struct IpgRailStyle {
     pub border_color: Option<Color>,
     pub border_width: Option<f32>,
     pub border_radius: Option<Vec<f32>>,
+}
+
+impl IpgRailStyle {
+    fn to_iced(&self) -> scrollable::Rail {
+        
+        if let Some(color) = self.background {
+            self.background = Some(color.into());
+        }
+
+        let border = apply_border_overrides(
+            &mut self.border, self.border_color,
+            &self.border_radius, self.border_width, "Scrollable rail",
+        );
+
+        rail
+}
+
 }
 
 #[derive(Debug, Clone, PartialEq)]

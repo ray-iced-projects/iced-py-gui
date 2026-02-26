@@ -40,7 +40,7 @@ pub struct IpgContainer {
     pub clip: Option<bool>,
     pub style_id: Option<usize>, 
 }
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct IpgContainerStyle {
     pub id: usize,
     pub background_color: Option<Color>,

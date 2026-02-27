@@ -4,9 +4,9 @@ use crate::access_user_data1;
 use crate::app;
 use crate::access_callbacks;
 use crate::state::IpgWidgets;
-use crate::widgets::enums::IpgHorizontalAlignment;
+use crate::widgets::enums::IpgAlignmentX;
 use crate::widgets::enums::IpgShaping;
-use crate::widgets::enums::IpgVerticalAlignment;
+use crate::widgets::enums::IpgAlignmentY;
 use crate::widgets::enums::h_v_centered;
 use crate::widgets::ipg_text::IpgWrapping;
 use crate::widgets::widget_param_update::WidgetParamUpdate;
@@ -41,8 +41,8 @@ pub struct IpgSelectableText {
     pub width: Length,
     pub height: Length,
     pub center: Option<bool>,
-    pub align_x: Option<IpgHorizontalAlignment>,
-    pub align_y: Option<IpgVerticalAlignment>,
+    pub align_x: Option<IpgAlignmentX>,
+    pub align_y: Option<IpgAlignmentY>,
     pub line_height: Option<f32>,
     pub size: Option<f32>,
     pub show: bool,

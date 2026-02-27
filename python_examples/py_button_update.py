@@ -62,7 +62,7 @@ def update_button(btn_id: int):
     # Changing the Arrow
     update_widget(arrow_btn, 
         IpgButtonParam.ArrowStyle, 
-        IpgButtonArrow.ArrowDown)
+        IpgArrow.ArrowDown)
 
     # Hide the button
     update_widget(show_btn, 
@@ -94,7 +94,7 @@ style_id = add_button_style(border_radius=[20.0])
 add_window(window_id="main", 
                title="Button Update", 
                size=(500, 650),
-               centered=True)
+               center=True)
 
 # Adding a container helps in aligning widgets since it has an x and y centering.
 # The IpgContainerAlignment.Center is used to center widgets.  The container defaults
@@ -170,7 +170,7 @@ style_btn = add_button(
 arrow_btn = add_button(
                 parent_id="col", 
                 label="",
-                style_arrow=IpgButtonArrow.ArrowUp)
+                style_arrow=IpgArrow.ArrowUp)
 
 show_btn = add_button(
                 parent_id="col", 

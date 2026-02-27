@@ -1,7 +1,7 @@
 //!SelectableText - Provides add_selectable_text to the pyfunction
 use pyo3::{Py, PyAny, PyResult, pyfunction};
 
-use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex, graphics::colors::IpgColor, py_api::helpers::{get_height, get_width}, state::{IpgWidgets, get_id, set_state_of_widget}, widgets::{enums::{IpgHorizontalAlignment, IpgShaping, IpgVerticalAlignment}, ipg_selectable_text::IpgSelectableText, ipg_text::IpgWrapping}};
+use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex, graphics::colors::IpgColor, py_api::helpers::{get_height, get_width}, state::{IpgWidgets, get_id, set_state_of_widget}, widgets::{enums::{IpgAlignmentX, IpgShaping, IpgAlignmentY}, ipg_selectable_text::IpgSelectableText, ipg_text::IpgWrapping}};
 type PyObject = Py<PyAny>;
 
 #[pyfunction]
@@ -54,8 +54,8 @@ pub fn add_selectable_text(
     height: Option<f32>,
     height_fill: bool,
     center: Option<bool>,
-    align_x: Option<IpgHorizontalAlignment>,
-    align_y: Option<IpgVerticalAlignment>,
+    align_x: Option<IpgAlignmentX>,
+    align_y: Option<IpgAlignmentY>,
     line_height: Option<f32>,
     size: Option<f32>,
     text_color: Option<IpgColor>,

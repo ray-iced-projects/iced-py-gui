@@ -28,6 +28,7 @@ from .icedpygui import (
     add_window as _add_window,
     generate_id, 
     IpgAlignment,
+    IpgArrow,
     IpgButtonParam,
     IpgButtonStyleParam, 
     IpgButtonStyleStandard, 
@@ -37,7 +38,7 @@ from .icedpygui import (
     IpgColumnParam,
     IpgContainerStyleParam,
     IpgDatePickerParam,            
-    IpgHorizontalAlignment, 
+    IpgAlignmentX, 
     IpgIcon, 
     IpgPickListHandle,
     IpgRadioDirection,
@@ -53,7 +54,7 @@ from .icedpygui import (
     IpgSliderStyleParam,
     IpgStyleStandard,
     IpgTextParam,
-    IpgVerticalAlignment,
+    IpgAlignmentY,
     IpgWindowLevel, 
     IpgWindowMode, 
     IpgWindowTheme,
@@ -161,6 +162,82 @@ class Container:
 
     def __enter__(self):
         add_container(
+            window_id=self.window_id,
+            container_id=self.container_id,
+            parent_id=self.parent_id or _current_parent(),
+            **self.kwargs,
+        )
+        _parent_stack.append(self.container_id)
+        return self.container_id
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        _parent_stack.pop()
+        return False
+
+
+class Column:
+    """Context manager wrapper around add_column.
+
+    Usage (reads window_id from Window context)::
+
+        with Window(title="Demo") as wnd_id:
+            with Column(container_id="col", spacing=10.0) as col_id:
+                add_text(content="hello")
+
+    Usage with explicit ids::
+
+        with Column("main", "col", spacing=10.0):
+            add_text(parent_id="col", content="hello")
+    """
+
+    def __init__(self, window_id=None, container_id=None, *, parent_id=None, **kwargs):
+        self.window_id = window_id if window_id is not None else _current_window()
+        if self.window_id is None:
+            raise ValueError("Column: window_id is required (either pass it or use a Window context manager)")
+        self.container_id = container_id if container_id is not None else str(generate_id())
+        self.parent_id = parent_id
+        self.kwargs = kwargs
+
+    def __enter__(self):
+        add_column(
+            window_id=self.window_id,
+            container_id=self.container_id,
+            parent_id=self.parent_id or _current_parent(),
+            **self.kwargs,
+        )
+        _parent_stack.append(self.container_id)
+        return self.container_id
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        _parent_stack.pop()
+        return False
+
+
+class Row:
+    """Context manager wrapper around add_row.
+
+    Usage (reads window_id from Window context)::
+
+        with Window(title="Demo") as wnd_id:
+            with Row(container_id="row", spacing=10.0) as row_id:
+                add_text(content="hello")
+
+    Usage with explicit ids::
+
+        with Row("main", "row", spacing=10.0):
+            add_text(parent_id="row", content="hello")
+    """
+
+    def __init__(self, window_id=None, container_id=None, *, parent_id=None, **kwargs):
+        self.window_id = window_id if window_id is not None else _current_window()
+        if self.window_id is None:
+            raise ValueError("Row: window_id is required (either pass it or use a Window context manager)")
+        self.container_id = container_id if container_id is not None else str(generate_id())
+        self.parent_id = parent_id
+        self.kwargs = kwargs
+
+    def __enter__(self):
+        add_row(
             window_id=self.window_id,
             container_id=self.container_id,
             parent_id=self.parent_id or _current_parent(),

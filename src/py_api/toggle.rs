@@ -1,7 +1,7 @@
 //! Toggler provide add_toggle and add_toggle_style to a python function
 use pyo3::{pyfunction, Py, PyAny, PyResult};
 
-use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex, graphics::colors::IpgColor, py_api::helpers::get_width, state::{IpgWidgets, get_id, set_state_of_widget}, widgets::{enums::{IpgHorizontalAlignment, IpgShaping}, ipg_text::IpgWrapping, ipg_toggle::{IpgToggler, IpgTogglerStyle}}};
+use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex, graphics::colors::IpgColor, py_api::helpers::get_width, state::{IpgWidgets, get_id, set_state_of_widget}, widgets::{enums::{IpgAlignmentX, IpgShaping}, ipg_text::IpgWrapping, ipg_toggle::{IpgToggler, IpgTogglerStyle}}};
 type PyObject = Py<PyAny>;
 
 
@@ -36,7 +36,7 @@ pub fn add_toggler(
     size: Option<f32>,
     text_size: Option<f32>,
     text_line_height: Option<f32>,
-    text_alignment: Option<IpgHorizontalAlignment>,
+    text_alignment: Option<IpgAlignmentX>,
     text_shaping: Option<IpgShaping>,
     text_wrapping: Option<IpgWrapping>,
     spacing: Option<f32>,

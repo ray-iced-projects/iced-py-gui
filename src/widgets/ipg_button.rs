@@ -2,20 +2,27 @@
 use std::collections::HashMap;
 
 use crate::access_callbacks;
-use crate::access_user_data1;
 use crate::app::Message;
 use crate::graphics::bootstrap_arrow::IpgArrow;
 use crate::state::IpgWidgets;
-use crate::widgets::enums::{IpgHorizontalAlignment, 
-    IpgVerticalAlignment};
+use crate::state::access_user_data2;
+use crate::widgets::enums::{IpgAlignmentX, 
+    IpgAlignmentY};
 use crate::py_api::helpers::get_padding;
-use crate::widgets::styling::{apply_border_overrides, apply_shadow_overrides};
+use crate::widgets::styling::apply_shadow_overrides_xy;
+use crate::widgets::styling::apply_border_overrides;
+use crate::widgets::widget_param_update::set_opt_f32_array_2;
 use crate::widgets::widget_param_update::{
-    WidgetParamUpdate, set_bool, set_halign, set_height, set_height_fill, set_iced_color_from_rgba, set_opt_bool, set_opt_f32, set_opt_iced_color, set_opt_string, set_opt_usize, set_opt_vec_f32, set_valign, set_width, set_width_fill
+    WidgetParamUpdate, set_bool, set_halign, set_height, 
+    set_height_fill, set_iced_color_from_rgba, set_opt_bool, 
+    set_opt_f32, set_opt_iced_color, set_opt_string, set_opt_usize, 
+    set_opt_vec_f32, set_valign, set_width, set_width_fill
 };
 
+use iced::border;
 use iced::widget::{button, text, Button};
 use iced::{Color, Element, Length, Theme};
+use iced::theme::palette;
 
 use pyo3::{Py, PyAny, Python, pyclass};
 type PyObject = Py<PyAny>;
@@ -29,8 +36,8 @@ pub struct IpgButton {
     pub width: Length,
     pub height: Length,
     pub padding: Option<Vec<f32>>,
-    pub text_align_x: Option<IpgHorizontalAlignment>,
-    pub text_align_y: Option<IpgVerticalAlignment>,
+    pub text_align_x: Option<IpgAlignmentX>,
+    pub text_align_y: Option<IpgAlignmentY>,
     pub text_size: Option<f32>,
     pub clip: Option<bool>,
     pub style_id: Option<usize>,
@@ -93,7 +100,7 @@ impl IpgButton {
                 .height(self.height)
                 .style(move |theme: &Theme, status| {
                     if let Some(st) = &style_opt {
-                        st.set_style(theme, status, &self.style_standard)
+                        st.to_iced(theme, status, &self.style_standard)
                     } else {
                        match &self.style_standard {
                             Some(std) => std.to_iced(theme, status),
@@ -138,33 +145,25 @@ fn process_callback(id: usize, event_name: String) {
     
     drop(app_cbs);
     
-    // Check user data 1
-    let user_data_1_lock = access_user_data1();
-    let user_data_1_opt = user_data_1_lock.get(id).map(|ud| Python::attach(|py| ud.clone_ref(py)));
-    drop(user_data_1_lock);
-    
-    // Call the callback
-    Python::attach(|py| {
-        let result = if let Some(user_data) = user_data_1_opt {
-            callback.call1(py, (id, user_data))
+    // Try user_data1 first; if its mutex is locked, fall back to user_data2
+    let user_data_opt = {
+        use crate::state::USERDATA1;
+        let lock1 = USERDATA1.try_lock();
+        if let Ok(ref ud1) = lock1 {
+            let opt = ud1.get(id).map(|ud| Python::attach(|py| ud.clone_ref(py)));
+            drop(lock1);
+            opt
         } else {
-            callback.call1(py, (id,))
-        };
-        
-        if let Err(err) = result {
-            panic!("Button callback error: {err}");
+            let ud2 = access_user_data2();
+            let opt = ud2.get(id).map(|ud| Python::attach(|py| ud.clone_ref(py)));
+            drop(ud2);
+            opt
         }
-        return
-    });
+    };
 
-    // Check user data 2
-    let user_data_2_lock = access_user_data1();
-    let user_data_2_opt = user_data_2_lock.get(id).map(|ud| Python::attach(|py| ud.clone_ref(py)));
-    drop(user_data_2_lock);
-
-    // Call the callback
+    // Call the callback once
     Python::attach(|py| {
-        let result = if let Some(user_data) = user_data_2_opt {
+        let result = if let Some(user_data) = user_data_opt {
             callback.call1(py, (id, user_data))
         } else {
             callback.call1(py, (id,))
@@ -181,72 +180,88 @@ fn process_callback(id: usize, event_name: String) {
 pub struct IpgButtonStyle {
     pub id: usize,
     pub background_color: Option<Color>,
-    pub background_color_hovered: Option<Color>,
-    pub background_color_disabled: Option<Color>,
     pub border_color: Option<Color>,
     pub border_radius: Option<Vec<f32>>,
     pub border_width: Option<f32>,
     pub shadow_color: Option<Color>,
-    pub shadow_offset_x: Option<f32>,
-    pub shadow_offset_y: Option<f32>,
+    pub shadow_offset_xy: Option<[f32; 2]>,
     pub shadow_blur_radius: Option<f32>,
     pub text_color: Option<Color>,
 }
 
 impl IpgButtonStyle {
     /// Apply user-defined style overrides to an existing iced button::Style
-    pub fn set_style(
+    pub fn to_iced(
         &self, 
         theme: &Theme, 
         status: button::Status,
         std_style_opt: &Option<IpgButtonStyleStandard>,
         ) -> button::Style{
         
-        let mut style = if let Some(std) = std_style_opt {
+        // Default the style to primary unless user supplies another standard style.
+        let style = if let Some(std) = std_style_opt {
             std.to_iced(theme, status)
         } else { button::primary(theme, status) };
         
-        // Use user-supplied base colors or fall back to theme palette colors
-        let palette = theme.extended_palette();
+        // If user suppies a bkg color then pair with the text color, if user suppied a text color too.
+        let mut style = if let Some(bkg) = self.background_color {
+            let text = if let Some(tc) = self.text_color {
+                tc
+            } else { style.text_color };
         
-        if let Some(color) = self.background_color {
-            if status == button::Status::Active || status == button::Status::Pressed {
-                style.background = Some(color.into());
-            }
-        }
+            let palette = palette::Background::new(bkg, text);
+            
+            let base = styled(palette.base);
 
-        if let Some(color) = self.background_color_hovered {
-            if status == button::Status::Hovered {
-                self.background = Some(color.into());
+            match status {
+                button::Status::Active => base,
+                button::Status::Pressed => button::Style {
+                    background: Some(iced::Background::Color(
+                        palette.strong.color,
+                    )),
+                    ..base
+                },
+                button::Status::Hovered => button::Style {
+                    background: Some(iced::Background::Color(palette.weak.color)),
+                    ..base
+                },
+                button::Status::Disabled => disabled(base),
             }
-        }
-
-        if let Some(color) = self.background_color_disabled {
-            if status == button::Status::Disabled {
-                self.background = Some(color.into());
-            }
-        }
-
+        } else { style };
+        
         apply_border_overrides(
-            &mut self.border, self.border_color,
+            &mut style.border, self.border_color,
             &self.border_radius, self.border_width, "Button",
         );
 
-        apply_shadow_overrides(
-            &mut self.shadow, self.shadow_color,
-            self.shadow_offset_x, self.shadow_offset_y,
-            self.shadow_blur_radius,
-        );
-
-        if let Some(color) = self.text_color {
-            self.text_color = color;
-        }
-
+        apply_shadow_overrides_xy(
+            &mut style.shadow, self.shadow_color, 
+            self.shadow_offset_xy, self.shadow_blur_radius);
         style
 
     }
+
 }
 
+
+fn styled(pair: palette::Pair) -> button::Style {
+    button::Style {
+        background: Some(iced::Background::Color(pair.color)),
+        text_color: pair.text,
+        border: border::rounded(2),
+        ..button::Style::default()
+    }
+}
+
+fn disabled(style: button::Style) -> button::Style {
+    button::Style {
+        background: style
+            .background
+            .map(|background| background.scale_alpha(0.5)),
+        text_color: style.text_color.scale_alpha(0.5),
+        ..style
+    }
+}
 
 #[derive(Debug, Clone, PartialEq)]
 #[pyclass(eq, eq_int)]
@@ -269,31 +284,30 @@ impl IpgButtonStyleStandard {
         ) -> button::Style {
         
         match self {
-            Some(IpgButtonStyleStandard::Background) => {
+            IpgButtonStyleStandard::Background => {
                 button::background(theme, status)
             },
-            Some(IpgButtonStyleStandard::Danger) => {
+            IpgButtonStyleStandard::Danger => {
                 button::danger(theme, status)
             },
-            Some(IpgButtonStyleStandard::Primary) => {
+            IpgButtonStyleStandard::Primary => {
                 button::primary(theme, status)
             },
-            Some(IpgButtonStyleStandard::Secondary) => {
+            IpgButtonStyleStandard::Secondary => {
                 button::secondary(theme, status)
             },
-            Some(IpgButtonStyleStandard::Subtle) => {
+            IpgButtonStyleStandard::Subtle => {
                 button::subtle(theme, status)
             },
-            Some(IpgButtonStyleStandard::Success) => {
+            IpgButtonStyleStandard::Success => {
                 button::success(theme, status)
             },
-            Some(IpgButtonStyleStandard::Warning) => {
+            IpgButtonStyleStandard::Warning => {
                 button::warning(theme, status)
             },
-            Some(IpgButtonStyleStandard::Text) => {
+            IpgButtonStyleStandard::Text => {
                 button::text(theme, status)
             },
-            None => button::primary(theme, status),
         }
     }
 }
@@ -336,18 +350,17 @@ pub fn extract_button_style_standard(
 #[derive(Debug, Clone, PartialEq)]
 #[pyclass(eq, eq_int)]
 pub enum IpgButtonStyleParam {
-    BackgroundIpgColor,
+    BackgroundColor,
     BackgroundRbga,
-    BorderIpgColor,
+    BorderColor,
     BorderRgba,
     BorderRadius,
     BorderWidth,
-    ShadowIpgColor,
+    ShadowColor,
     ShadowRgba,
-    ShadowOffsetX,
-    ShadowOffsetY,
+    ShadowOffsetXY,
     ShadowBlurRadius,
-    TextIpgColor,
+    TextColor,
     TextRgba,
 }
 
@@ -388,11 +401,11 @@ impl WidgetParamUpdate for IpgButtonStyle {
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
         match param {
-            IpgButtonStyleParam::BackgroundIpgColor => 
+            IpgButtonStyleParam::BackgroundColor => 
                 set_opt_iced_color(&mut self.background_color, value, name),
             IpgButtonStyleParam::BackgroundRbga => 
                 set_iced_color_from_rgba(&mut self.background_color, value, name),
-            IpgButtonStyleParam::BorderIpgColor => 
+            IpgButtonStyleParam::BorderColor => 
                 set_opt_iced_color(&mut self.border_color, value, name),
             IpgButtonStyleParam::BorderRgba => 
                 set_iced_color_from_rgba(&mut self.border_color, value, name),
@@ -400,17 +413,15 @@ impl WidgetParamUpdate for IpgButtonStyle {
                 set_opt_vec_f32(&mut self.border_radius, value, name),
             IpgButtonStyleParam::BorderWidth => 
                 set_opt_f32(&mut self.border_width, value, name),
-            IpgButtonStyleParam::ShadowIpgColor => 
+            IpgButtonStyleParam::ShadowColor => 
                 set_opt_iced_color(&mut self.shadow_color, value, name),
             IpgButtonStyleParam::ShadowRgba => 
                 set_iced_color_from_rgba(&mut self.shadow_color, value, name),
-            IpgButtonStyleParam::ShadowOffsetX => 
-                set_opt_f32(&mut self.shadow_offset_x, value, name),
-            IpgButtonStyleParam::ShadowOffsetY => 
-                set_opt_f32(&mut self.shadow_offset_y, value, name),
+            IpgButtonStyleParam::ShadowOffsetXY => 
+                set_opt_f32_array_2(&mut self.shadow_offset_xy, value, name),
             IpgButtonStyleParam::ShadowBlurRadius => 
                 set_opt_f32(&mut self.shadow_blur_radius, value, name),
-            IpgButtonStyleParam::TextIpgColor => 
+            IpgButtonStyleParam::TextColor => 
                 set_opt_iced_color(&mut self.text_color, value, name),
             IpgButtonStyleParam::TextRgba => 
                 set_iced_color_from_rgba(&mut self.text_color, value, name),

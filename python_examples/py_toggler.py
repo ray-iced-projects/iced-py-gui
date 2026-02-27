@@ -38,7 +38,7 @@ def update_alignment(_btn_id):
     update_widget(
             tog_id, 
             IpgTogglerParam.HorizontalAlignment, 
-            IpgHorizontalAlignment.Left)
+            IpgAlignmentX.Left)
 
 
 def update_size(_btn_id):

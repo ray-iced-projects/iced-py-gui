@@ -1,0 +1,23 @@
+Automating mouse interactions
+Iced doesn't have a built-in GUI testing/automation framework, but there are a few practical approaches given its Elm-like architecture:
+
+1. Message injection via Task::done()
+Iced's Task::done(message) creates a task that immediately produces a message. You could expose a Python API like simulate_button_press(widget_id) that internally returns Task::done(Message::Button(id, ...)) — the update loop processes it exactly as if the user clicked.
+
+2. Direct update() testing
+Since all state changes flow through update(&mut self, message: Message), you can unit-test it by constructing Message variants directly and calling update() without ever rendering a window. This is the standard approach for testing Elm-architecture apps.
+
+3. Timer-driven scripted sequences
+You already have timer infrastructure. A "test mode" timer could dispatch a scripted sequence of messages at intervals — press button A, wait 500ms, toggle checkbox B, etc. This would exercise the real GUI rendering too.
+
+4. For IPG specifically — the simplest path
+Since your Python callbacks go through process_callback(), you could add a Python function like:
+
+    # Triggers the same code path as a real button press
+    simulate_press(widget_id=5)
+
+On the Rust side it would just call button_callback(id, message) + process_updates(state) and return Task::done(Message::Tick) (or similar) to force a redraw.
+
+External tools: There are also OS-level options like xdotool (Linux) or pyautogui that can send real mouse clicks to window coordinates, but those are fragile.
+
+The Task::done() approach is the most "iced-native" and would let you build a Python-level test harness that scripts interactions without touching the mouse.

@@ -63,24 +63,24 @@ impl IpgAlignment {
 
 #[derive(Debug, Clone, PartialEq)]
 #[pyclass(eq, eq_int)]
-pub enum IpgHorizontalAlignment {
+pub enum IpgAlignmentX {
     Left,
     Center,
     Right,
 }
 
-impl IpgHorizontalAlignment {
+impl IpgAlignmentX {
     pub fn to_iced(&self) -> alignment::Horizontal {
         match self {
-            IpgHorizontalAlignment::Left => alignment::Horizontal::Left,
-            IpgHorizontalAlignment::Center => alignment::Horizontal::Center,
-            IpgHorizontalAlignment::Right => alignment::Horizontal::Right,
+            IpgAlignmentX::Left => alignment::Horizontal::Left,
+            IpgAlignmentX::Center => alignment::Horizontal::Center,
+            IpgAlignmentX::Right => alignment::Horizontal::Right,
         }
     }
 
-    pub fn extract(value: &PyObject) -> Option<IpgHorizontalAlignment> {
+    pub fn extract(value: &PyObject) -> Option<IpgAlignmentX> {
         Python::attach(|py| {
-            let res = value.extract::<IpgHorizontalAlignment>(py);
+            let res = value.extract::<IpgAlignmentX>(py);
             match res {
                 Ok(val) => Some(val),
                 Err(_) => panic!("Unable to extract python IpgHorizontalAlignment"),
@@ -91,24 +91,24 @@ impl IpgHorizontalAlignment {
 
 #[derive(Debug, Clone, PartialEq)]
 #[pyclass(eq, eq_int)]
-pub enum IpgVerticalAlignment {
+pub enum IpgAlignmentY {
     Top,
     Center,
     Bottom,
 }
 
-impl IpgVerticalAlignment {
+impl IpgAlignmentY {
     pub fn to_iced(&self) -> iced::alignment::Vertical {
         match self {
-            IpgVerticalAlignment::Top => alignment::Vertical::Top,
-            IpgVerticalAlignment::Center => alignment::Vertical::Center,
-            IpgVerticalAlignment::Bottom => alignment::Vertical::Bottom,
+            IpgAlignmentY::Top => alignment::Vertical::Top,
+            IpgAlignmentY::Center => alignment::Vertical::Center,
+            IpgAlignmentY::Bottom => alignment::Vertical::Bottom,
         }
     }
 
-    pub fn extract(value: &PyObject) -> Option<IpgVerticalAlignment> {
+    pub fn extract(value: &PyObject) -> Option<IpgAlignmentY> {
         Python::attach(|py| {
-            let res = value.extract::<IpgVerticalAlignment>(py);
+            let res = value.extract::<IpgAlignmentY>(py);
             match res {
                 Ok(val) => Some(val),
                 Err(_) => panic!("Unable to extract python IpgVerticalAlignment"),

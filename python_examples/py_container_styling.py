@@ -108,7 +108,7 @@ add_text(
 add_button(
     parent_id="col",
     label="Press to\nchange styling",
-    text_align_x=IpgHorizontalAlignment.Center,
+    text_align_x=IpgAlignmentX.Center,
     on_press=change_container_styling)
 
 

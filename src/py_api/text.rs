@@ -4,7 +4,7 @@ use pyo3::{pyfunction, PyResult};
 use crate::py_api::helpers::{get_height, get_width};
 use crate::state::{IpgWidgets, get_id, set_state_of_widget}; 
 use crate::widgets::ipg_text::{IpgText, IpgWrapping};
-use crate::widgets::enums::{IpgHorizontalAlignment, IpgShaping, IpgVerticalAlignment};
+use crate::widgets::enums::{IpgAlignmentX, IpgShaping, IpgAlignmentY};
 use crate::access_state; 
 use crate::graphics::colors::IpgColor;
 
@@ -42,8 +42,8 @@ pub fn add_text(
     height: Option<f32>,
     height_fill: bool,
     center: Option<bool>,
-    align_x: Option<IpgHorizontalAlignment>,
-    align_y: Option<IpgVerticalAlignment>,
+    align_x: Option<IpgAlignmentX>,
+    align_y: Option<IpgAlignmentY>,
     line_height: Option<f32>,
     size: Option<f32>,
     font_id: Option<usize>,

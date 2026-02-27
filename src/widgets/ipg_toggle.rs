@@ -13,7 +13,7 @@ use crate::widgets::ipg_text::IpgWrapping;
 use crate::widgets::widget_param_update::{WidgetParamUpdate, set_bool, set_halign, set_iced_color_from_rgba, set_opt_f32, set_opt_iced_color, set_opt_string, set_opt_text_shaping, set_opt_text_wrapping, set_opt_usize, set_opt_vec_f32, set_width, set_width_fill};
 use crate::{IpgState, access_callbacks, access_user_data1};
 use crate::widgets::callbacks::{WidgetCallbackIn, set_or_get_widget_callback_data};
-use crate::widgets::enums::{IpgHorizontalAlignment, IpgShaping};
+use crate::widgets::enums::{IpgAlignmentX, IpgShaping};
 type PyObject = Py<PyAny>;
 
 
@@ -30,7 +30,7 @@ pub struct IpgToggler {
     pub size: Option<f32>,
     pub text_size: Option<f32>,
     pub text_line_height: Option<f32>,
-    pub text_alignment: Option<IpgHorizontalAlignment>,
+    pub text_alignment: Option<IpgAlignmentX>,
     pub text_shaping: Option<IpgShaping>,
     pub text_wrapping: Option<IpgWrapping>,
     pub spacing: Option<f32>,

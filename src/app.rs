@@ -1129,18 +1129,25 @@ fn process_updates(
     //         None => panic!("DataFrame_update: table with id {wid} not found.")
     //     }
     // }
-    // transfer any widgets or containers over
-    // let mut mutex_state = access_state();
-    // let widgets = mutex_state.widgets.to_owned();
+    // Transfer any new widgets added during callbacks
+    let mut mutex_state = access_state();
+    if !mutex_state.widgets.is_empty() {
+        // Move new widgets into the runtime state
+        let new_widgets: HashMap<usize, IpgWidgets> = mutex_state.widgets.drain().collect();
+        let new_parent_ids: HashMap<usize, String> = mutex_state.widget_container_ids.drain().collect();
+        // Sync the last_id so future IDs don't collide
+        state.last_id = mutex_state.last_id;
+        drop(mutex_state);
 
-    // for key in widgets.keys() {
-    //     let value = mutex_state.widgets.remove(key).unwrap();
-    //     let parent_id = get_widget_parent_id(&value);
-    //     set_state_of_widget_running_state(state, *key, parent_id);
-    //     state.widgets.insert(*key, value);
-    // }
-
-    // drop(mutex_state);
+        for (id, widget) in new_widgets {
+            if let Some(parent_id) = new_parent_ids.get(&id) {
+                set_state_of_widget_running_state(state, id, parent_id.clone());
+            }
+            state.widgets.insert(id, widget);
+        }
+    } else {
+        drop(mutex_state);
+    }
 
 }
 

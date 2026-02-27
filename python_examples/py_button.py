@@ -63,7 +63,7 @@ def add_buttons(window: str):
             parent_id="row_btn", 
             label="",
             on_press=on_press,
-            style_arrow=IpgButtonArrow.ArrowRight)
+            style_arrow=IpgArrow.ArrowRight)
 
     add_row(
             window_id=window, 
@@ -124,24 +124,24 @@ def add_buttons(window: str):
                 label="Alignment = Center/Center",
                 width=300.0,
                 height=50.0,
-                text_align_x=IpgHorizontalAlignment.Center,
-                text_align_y=IpgVerticalAlignment.Center)
+                text_align_x=IpgAlignmentX.Center,
+                text_align_y=IpgAlignmentY.Center)
         
         add_button(
                 parent_id="col",
                 label="Alignment = Left/Bottom",
                 width=300.0,
                 height=50.0,
-                text_align_x=IpgHorizontalAlignment.Left,
-                text_align_y=IpgVerticalAlignment.Bottom)
+                text_align_x=IpgAlignmentX.Left,
+                text_align_y=IpgAlignmentY.Bottom)
         
         add_button(
                 parent_id="col",
                 label="Alignment = Right/Top",
                 width=300.0,
                 height=50.0,
-                text_align_x=IpgHorizontalAlignment.Right,
-                text_align_y=IpgVerticalAlignment.Top)
+                text_align_x=IpgAlignmentX.Right,
+                text_align_y=IpgAlignmentY.Top)
         
 
 # Add the windows

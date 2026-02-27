@@ -11,8 +11,8 @@ from icedpygui import (
     add_button, 
     start_session,
     IpgWindowTheme,
-    IpgHorizontalAlignment,
-    IpgVerticalAlignment,
+    IpgAlignmentX,
+    IpgAlignmentY,
 )
 
 
@@ -37,8 +37,8 @@ def main():
         parent_id="main",
         label="Click Me!",
         on_press=on_button_press,
-        text_align_x=IpgHorizontalAlignment.Center,
-        text_align_y=IpgVerticalAlignment.Center,
+        text_align_x=IpgAlignmentX.Center,
+        text_align_y=IpgAlignmentY.Center,
     )
     print(f"Created button with id: {btn_id}")
 

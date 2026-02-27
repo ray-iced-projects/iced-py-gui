@@ -1,3 +1,0 @@
-Instructions
-
-1. in lib_original find add_date_picker and add_date_picker_style and place into py_api/date_picker

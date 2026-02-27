@@ -238,7 +238,7 @@ fn calendar_show_button<'a>(dp: &'a IpgDatePicker,
             .width(Length::Shrink)
             .style(move|theme, status|
                 if let Some(st) = &btn_style {
-                        st.set_style(theme, status, &dp.button_style_standard)
+                        st.to_iced(theme, status, &dp.button_style_standard)
                     } else {
                        match &dp.button_style_standard {
                             Some(std) => std.to_iced(theme, status),

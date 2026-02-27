@@ -171,11 +171,11 @@ def set_draw_width(input_id: int, width: str):
 def set_horizontal_text_alignment(pick_id: int, selected: str):
     match selected:
         case "H_Left":
-            align = IpgHorizontalAlignment.Left
+            align = IpgAlignmentX.Left
         case "H_Center":
-            align = IpgHorizontalAlignment.Center
+            align = IpgAlignmentX.Center
         case "H_Right":
-            align = IpgHorizontalAlignment.Right
+            align = IpgAlignmentX.Right
     
     update_item(
             wid=canvas_id, 
@@ -186,11 +186,11 @@ def set_horizontal_text_alignment(pick_id: int, selected: str):
 def set_vertical_text_alignment(pick_id: int, selected: str):
     match selected:
         case "V_Top":
-            align = IpgVerticalAlignment.Top
+            align = IpgAlignmentY.Top
         case "V_Center":
-            align = IpgVerticalAlignment.Center
+            align = IpgAlignmentY.Center
         case "V_Bottom":
-            align = IpgVerticalAlignment.Bottom
+            align = IpgAlignmentY.Bottom
             
     update_item(
             wid=canvas_id, 

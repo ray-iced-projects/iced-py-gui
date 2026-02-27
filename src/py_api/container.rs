@@ -8,8 +8,8 @@ use crate::state::{IpgContainers, IpgWidgets, access_state,
     get_id, set_state_cont_wnd_ids, set_state_of_container};
 use crate::widgets::ipg_container::{IpgContainer, 
     IpgContainerStyle};
-use crate::widgets::enums::{IpgHorizontalAlignment, 
-    IpgVerticalAlignment};
+use crate::widgets::enums::{IpgAlignmentX, 
+    IpgAlignmentY};
 
 /// Add a container widget.
 ///
@@ -51,8 +51,8 @@ pub fn add_container(
     clip: Option<bool>,
     max_height: Option<f32>,
     max_width: Option<f32>,
-    align_x: Option<IpgHorizontalAlignment>,
-    align_y: Option<IpgVerticalAlignment>,
+    align_x: Option<IpgAlignmentX>,
+    align_y: Option<IpgAlignmentY>,
     center_x: Option<bool>,
     center_y: Option<bool>,
     center: Option<bool>,

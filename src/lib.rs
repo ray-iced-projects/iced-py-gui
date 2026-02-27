@@ -61,7 +61,7 @@ use crate::widgets::ipg_slider::{IpgSliderParam, IpgSliderStyleParam};
 use crate::widgets::ipg_toggle::{IpgTogglerParam, IpgTogglerStyleParam};
 
 // Import enums from widgets module
-use widgets::enums::{IpgAlignment, IpgHorizontalAlignment, IpgVerticalAlignment};
+use widgets::enums::{IpgAlignment, IpgAlignmentX, IpgAlignmentY};
 use widgets::ipg_window::{IpgWindowLevel, IpgWindowMode, IpgWindowTheme};
 use widgets::styling::IpgStyleStandard;
 
@@ -167,11 +167,12 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
 
     // Enums
     m.add_class::<IpgAlignment>()?;
+    m.add_class::<IpgArrow>()?;
     m.add_class::<IpgColor>()?;
     m.add_class::<IpgIcon>()?;
     m.add_class::<IpgPickListHandle>()?;
-    m.add_class::<IpgHorizontalAlignment>()?;
-    m.add_class::<IpgVerticalAlignment>()?;
+    m.add_class::<IpgAlignmentX>()?;
+    m.add_class::<IpgAlignmentY>()?;
     m.add_class::<IpgRadioDirection>()?;
     m.add_class::<IpgSeparatorType>()?;
     Ok(())

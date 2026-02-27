@@ -9,8 +9,8 @@ type PyObject = Py<PyAny>;
 
 use crate::app::Message;
 use crate::state::IpgWidgets;
-use crate::widgets::enums::{IpgHorizontalAlignment, 
-    IpgShaping, IpgVerticalAlignment, h_v_centered};
+use crate::widgets::enums::{IpgAlignmentX, 
+    IpgShaping, IpgAlignmentY, h_v_centered};
 use crate::widgets::widget_param_update::{
     WidgetParamUpdate, set_bool, set_halign, 
     set_height, set_height_fill, set_iced_color_from_rgba, 
@@ -29,8 +29,8 @@ pub struct IpgText {
     pub width: Length,
     pub height: Length,
     pub center: Option<bool>,
-    pub align_x: Option<IpgHorizontalAlignment>,
-    pub align_y: Option<IpgVerticalAlignment>,
+    pub align_x: Option<IpgAlignmentX>,
+    pub align_y: Option<IpgAlignmentY>,
     pub font_id: Option<usize>,
     pub shaping: Option<IpgShaping>,
     pub show: bool,

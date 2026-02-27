@@ -2,8 +2,8 @@
 use crate::app::Message;
 use crate::py_api::helpers::get_radius;
 use crate::state::IpgWidgets;
-use crate::widgets::enums::{IpgHorizontalAlignment, 
-    IpgVerticalAlignment};
+use crate::widgets::enums::{IpgAlignmentX, 
+    IpgAlignmentY};
 use crate::widgets::widget_param_update::{
     WidgetParamUpdate, set_bool, set_halign, set_height, 
     set_height_fill, set_iced_color_from_rgba, 
@@ -28,8 +28,8 @@ pub struct IpgContainer {
     pub height: Length,
     pub max_width: Option<f32>,
     pub max_height: Option<f32>,
-    pub align_x: Option<IpgHorizontalAlignment>,
-    pub align_y: Option<IpgVerticalAlignment>,
+    pub align_x: Option<IpgAlignmentX>,
+    pub align_y: Option<IpgAlignmentY>,
     pub center_x: Option<bool>,
     pub center_y: Option<bool>,
     pub center: Option<bool>,

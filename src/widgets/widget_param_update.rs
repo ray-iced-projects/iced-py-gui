@@ -10,7 +10,7 @@ use crate::py_api::helpers::{
     get_height, get_width, try_extract_boolean, try_extract_f32, try_extract_f32_array_2, try_extract_string, try_extract_style_standard, try_extract_u16, try_extract_u16_array_2, try_extract_u32, try_extract_usize, try_extract_vec_f32, try_extract_vec_str
 };
 use crate::state::{IpgContainers, IpgWidgets};
-use crate::widgets::enums::{IpgAlignment, IpgHorizontalAlignment, IpgShaping, IpgVerticalAlignment};
+use crate::widgets::enums::{IpgAlignment, IpgAlignmentX, IpgShaping, IpgAlignmentY};
 use crate::widgets::ipg_text::IpgWrapping;
 
 type PyObject = Py<PyAny>;
@@ -260,12 +260,12 @@ pub fn set_rgba_color_via_ipg(field: &mut Option<Color>, value: &PyObject, name:
     *field = IpgColor::rgba_ipg_color_to_iced(Some(rgba), None, 1.0, false);
 }
 
-pub fn set_halign(field: &mut Option<IpgHorizontalAlignment>, value: &PyObject, name:String) {
-    *field = IpgHorizontalAlignment::extract(value);
+pub fn set_halign(field: &mut Option<IpgAlignmentX>, value: &PyObject, name:String) {
+    *field = IpgAlignmentX::extract(value);
 }
 
-pub fn set_valign(field: &mut Option<IpgVerticalAlignment>, value: &PyObject, name: String) {
-    *field = IpgVerticalAlignment::extract(value);
+pub fn set_valign(field: &mut Option<IpgAlignmentY>, value: &PyObject, name: String) {
+    *field = IpgAlignmentY::extract(value);
 }
 
 pub fn set_align(field: &mut Option<IpgAlignment>, value: &PyObject, name: String) {

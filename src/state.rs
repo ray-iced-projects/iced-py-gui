@@ -148,7 +148,7 @@ macro_rules! ipg_widget_accessors {
 }
 
 ipg_widget_accessors! {
-    IpgButton           => IpgButton,           as_button,              as_button_mut;
+    IpgButton           => IpgButton,            as_button,              as_button_mut;
     IpgButtonStyle      => IpgButtonStyle,       as_button_style,        as_button_style_mut;
     IpgCheckBox         => IpgCheckBox,          as_checkbox,            as_checkbox_mut;
     IpgCheckboxStyle    => IpgCheckboxStyle,     as_checkbox_style,      as_checkbox_style_mut;
@@ -179,7 +179,7 @@ ipg_widget_accessors! {
     IpgSlider           => IpgSlider,            as_slider,              as_slider_mut;
     IpgSliderStyle      => IpgSliderStyle,       as_slider_style,        as_slider_style_mut;
     IpgSpace            => IpgSpace,             as_space,               as_space_mut;
-    IpgSvg             => IpgSvg,               as_svg,                 as_svg_mut;
+    IpgSvg             => IpgSvg,                as_svg,                 as_svg_mut;
     IpgText             => IpgText,              as_text,                as_text_mut;
     IpgToggler          => IpgToggler,           as_toggler,             as_toggler_mut;
     IpgTogglerStyle     => IpgTogglerStyle,      as_toggler_style,       as_toggler_style_mut;
@@ -539,6 +539,9 @@ pub fn set_state_of_widget(id: usize, parent_id: String) {
 
     // Find the parent's usize ID
     let parent_uid = find_parent_uid(state.ids.get(&wnd_id_usize).unwrap(), parent_id.clone());
+
+    // Record the parent mapping so process_updates can register new widgets
+    state.widget_container_ids.insert(id, parent_id.clone());
 
     // Register this widget with the window's ID tracking
     state.ids.get_mut(&wnd_id_usize).unwrap().push(IpgIds {

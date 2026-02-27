@@ -78,7 +78,7 @@ pub fn construct_color_picker<'a>(cp: &'a IpgColorPicker,
             .on_press(ColPikMessage::OnPress)
             .style(move|theme: &Theme, status| {   
                 if let Some(st) = &style_opt {
-                        st.set_style(theme, status, &cp.style_standard)
+                        st.to_iced(theme, status, &cp.style_standard)
                     } else {
                        match &cp.style_standard {
                             Some(std) => std.to_iced(theme, status),

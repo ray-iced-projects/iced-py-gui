@@ -104,8 +104,6 @@ impl IpgScrollable {
     }
 }
 
-
-
 #[derive(Debug, Default, Clone)]
 pub struct IpgScrollbar {
     pub id: usize,
@@ -172,7 +170,10 @@ impl IpgAnchor {
             let res = value.extract::<IpgAnchor>(py);
             match res {
                 Ok(val) => Some(val),
-                Err(_) => panic!("Unable to extract python IpgAnchor"),
+                Err(err) => panic!(
+                    "Unable to extract python {} {}", 
+                    "IpgAnchor",
+                    err),
             }
         })  
     }
@@ -282,62 +283,32 @@ impl IpgScrollStyle {
         let mut style = scrollable::default(theme, status);
 
         // Need default since iced doesn't default each one individually
-        let def_h_rail = style.horizontal_rail;
-        let def_v_rail = style.vertical_rail;
-        let def_auto_scroll = style.auto_scroll;
+        let mut def_h_rail = style.horizontal_rail;
+        let mut def_v_rail = style.vertical_rail;
+        let mut def_auto_scroll = style.auto_scroll;
         
         // container style via the container_style_id
         style.container = ipg_container::get_styling(theme, &self.container);
         
-        style.horizontal_rail = if let Some(rail) = self.vertical_rail {
-            self.rail.to_iced(def_h_rail)
-        } else { def_h_rail };
+        style.horizontal_rail = if let Some(rail) = &self.vertical_rail {
+            rail.to_iced(&mut def_h_rail)
+        } else { def_v_rail };
         
-        style.vertical_rail = get_rail_styling(&self.horizontal_rail, def_v_rail);
+        style.vertical_rail = if let Some(rail) = &self.horizontal_rail {
+            rail.to_iced(&mut def_v_rail)
+        } else { def_h_rail };
         
         if let Some(c) = self.gap {
             style.gap = Some(c.into());
         }
         
-        style.auto_scroll = get_auto_styling(&self.auto_scroll, def_auto_scroll);
+        style.auto_scroll = if let Some(auto) = &self.auto_scroll {
+            auto.to_iced(&mut def_auto_scroll)
+        } else { def_auto_scroll };
         
         style
     }
 }
-
-
-fn get_auto_styling(
-    style_opt: &Option<IpgAutoScrollStyle>,
-    default: scrollable::AutoScroll,
-) -> scrollable::AutoScroll {
-    let style = match style_opt {
-        Some(s) => s,
-        None => return default,
-    };
-
-    let mut auto = default;
-
-    if let Some(color) = style.background {
-        auto.background = color.into();
-    }
-
-    apply_border_overrides(
-        &mut auto.border, style.border_color,
-        &style.border_radius, style.border_width, "Scrollable auto_scroll",
-    );
-
-    apply_shadow_overrides_xy(
-        &mut auto.shadow, style.shadow_color,
-        style.shadow_offset, style.shadow_blur_radius,
-    );
-
-    if let Some(color) = style.shadow_icon_color {
-        auto.icon = color;
-    }
-
-    auto
-}
-
 
 
 #[derive(Debug, Clone, PartialEq)]
@@ -350,20 +321,23 @@ pub struct IpgRailStyle {
 }
 
 impl IpgRailStyle {
-    fn to_iced(&self) -> scrollable::Rail {
+    fn to_iced(&self, rail: &mut scrollable::Rail) -> scrollable::Rail {
         
         if let Some(color) = self.background {
-            self.background = Some(color.into());
+            rail.background = Some(color.into());
         }
 
-        let border = apply_border_overrides(
-            &mut self.border, self.border_color,
-            &self.border_radius, self.border_width, "Scrollable rail",
+        apply_border_overrides(
+            &mut rail.border, self.border_color,
+            &self.border_radius, self.border_width, self.type_name(),
         );
 
-        rail
-}
+        *rail
+    }
 
+    fn type_name(&self) -> &'static str {
+        std::any::type_name::<Self>()
+    }
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -377,6 +351,36 @@ pub struct IpgAutoScrollStyle {
     pub shadow_offset: Option<[f32; 2]>,
     pub shadow_blur_radius: Option<f32>,
     pub shadow_icon_color: Option<Color>,
+}
+
+impl IpgAutoScrollStyle {
+    fn to_iced(&self, auto: &mut scrollable::AutoScroll) -> scrollable::AutoScroll {
+
+        if let Some(color) = self.background {
+            auto.background = color.into();
+        }
+
+        apply_border_overrides(
+            &mut auto.border, self.border_color,
+            &self.border_radius, self.border_width, self.type_name(),
+        );
+
+        apply_shadow_overrides_xy(
+            &mut auto.shadow, self.shadow_color,
+            self.shadow_offset, self.shadow_blur_radius,
+        );
+
+        if let Some(color) = self.shadow_icon_color {
+            auto.icon = color;
+        }
+
+        *auto
+    }
+
+    fn type_name(&self) -> &'static str {
+        std::any::type_name::<Self>()
+    }
+
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -406,6 +410,7 @@ pub enum IpgAutoScrollStyleParam {
     ShadowIconColor,
     ShadowIconRgba,
 }
+
 // ---------------------------------------------------------------------------
 // WidgetParamUpdate implementations
 // ---------------------------------------------------------------------------

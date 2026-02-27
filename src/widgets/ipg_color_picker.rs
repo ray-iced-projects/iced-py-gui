@@ -1,14 +1,14 @@
 //! ipg_color_picker
 use crate::graphics::bootstrap_arrow::IpgArrow;
 use crate::state::IpgWidgets;
-use crate::widgets::ipg_button::{IpgButtonStyleStandard, extract_button_style_standard, get_styling};
+use crate::widgets::ipg_button::{IpgButtonStyleStandard, extract_button_style_standard};
 use crate::widgets::widget_param_update::{WidgetParamUpdate, set_bool, set_height, set_height_fill, set_iced_color, set_iced_color_from_rgba, set_opt_bool, set_opt_f32, set_opt_iced_color, set_opt_ipg_arrow, set_opt_string, set_opt_usize, set_opt_vec_f32, set_width, set_width_fill};
 use crate::{access_callbacks, access_user_data1, IpgState};
 use crate::app::Message;
 use crate::py_api::helpers::get_padding;
 use super::callbacks::{set_or_get_widget_callback_data, WidgetCallbackIn};
 
-use iced::widget::{text, Button};
+use iced::widget::{Button, button, text};
 use iced::{Color, Element, Length, Theme};
 use iced_aw::ColorPicker;
 
@@ -57,7 +57,7 @@ pub enum ColPikMessage {
 
 
 pub fn construct_color_picker<'a>(cp: &'a IpgColorPicker,
-                                style_opt: Option<&IpgWidgets>,
+                                widget: Option<&IpgWidgets>,
                                 ) -> Option<Element<'a, Message>> {
     
     let label = 
@@ -68,19 +68,26 @@ pub fn construct_color_picker<'a>(cp: &'a IpgColorPicker,
         };
     
 
-    let style = style_opt.and_then(IpgWidgets::as_button_style).cloned();
+    let style_opt = widget.and_then(IpgWidgets::as_button_style).cloned();
 
-    let btn: Element<ColPikMessage> = Button::new(label)
-                                    .height(cp.height)
-                                    .padding(get_padding(&cp.padding))
-                                    .width(cp.width)
-                                    .on_press(ColPikMessage::OnPress)
-                                    .style(move|theme: &Theme, status| {   
-                                        get_styling(theme, status,
-                                            &style,
-                                            &cp.style_standard)
-                                        })
-                                    .into();
+    let btn: Element<ColPikMessage> = 
+        Button::new(label)
+            .height(cp.height)
+            .padding(get_padding(&cp.padding))
+            .width(cp.width)
+            .on_press(ColPikMessage::OnPress)
+            .style(move|theme: &Theme, status| {   
+                if let Some(st) = &style_opt {
+                        st.set_style(theme, status, &cp.style_standard)
+                    } else {
+                       match &cp.style_standard {
+                            Some(std) => std.to_iced(theme, status),
+                            None => button::primary(theme, status),
+                        }
+                    }
+                }
+            )
+            .into();
 
     if !cp.show {
         return Some(btn.map(move |message| Message::ColorPicker(cp.id, message)));

@@ -6,7 +6,7 @@ use crate::widgets::ipg_button::IpgButtonStyleStandard;
 use crate::{access_callbacks, access_user_data1, IpgState};
 use super::callbacks::{set_or_get_widget_callback_data, 
     WidgetCallbackIn};
-use crate::widgets::ipg_button::{self, IpgButtonStyle};
+use crate::widgets::ipg_button::IpgButtonStyle;
 use crate::py_api::helpers::{DATE_FORMATS, DAYS, 
     MONTH_NAMES, WEEKDAYS, get_padding};
 use crate::widgets::widget_param_update::{
@@ -232,16 +232,21 @@ fn calendar_show_button<'a>(dp: &'a IpgDatePicker,
     };
 
     let show_btn: Element<DPMessage, Theme, Renderer> = 
-                    Button::new(text(label))
-                                    .on_press(DPMessage::ShowModal)
-                                    .height(Length::Shrink)
-                                    .width(Length::Shrink)
-                                    .style(move|theme, status|
-                                        ipg_button::get_styling(theme, status,
-                                            &btn_style, 
-                                            &dp.button_style_standard
-                                        ))
-                                    .into();
+        Button::new(text(label))
+            .on_press(DPMessage::ShowModal)
+            .height(Length::Shrink)
+            .width(Length::Shrink)
+            .style(move|theme, status|
+                if let Some(st) = &btn_style {
+                        st.set_style(theme, status, &dp.button_style_standard)
+                    } else {
+                       match &dp.button_style_standard {
+                            Some(std) => std.to_iced(theme, status),
+                            None => button::primary(theme, status),
+                        }
+                    }
+            )
+            .into();
 
     let s_btn: Element<'a, Message, Theme, Renderer> = 
                             show_btn.map(move |message| Message::DatePicker(dp.id, message));

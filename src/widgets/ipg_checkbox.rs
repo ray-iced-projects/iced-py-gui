@@ -1,8 +1,11 @@
 //! ipg_checkbox
+use std::collections::HashMap;
+
 use crate::widgets::enums::IpgShaping;
 use crate::state::{access_callbacks, access_user_data1, 
     access_user_data2, IpgState};
 use crate::app::Message;
+use crate::widgets::ipg_text::IpgWrapping;
 use crate::widgets::widget_param_update::{
     WidgetParamUpdate,
     set_bool, set_opt_f32, set_opt_string, set_opt_usize, set_opt_vec_f32,
@@ -22,6 +25,7 @@ use iced::advanced::text;
 use iced::{Background, Element, Color, Length, Theme};
 use iced::widget::text::{LineHeight, Shaping};
 use iced::widget::{Checkbox, checkbox};
+use iced::theme::palette;
 
 use pyo3::{pyclass, Py, PyAny, Python};
 type PyObject = Py<PyAny>;
@@ -40,6 +44,7 @@ pub struct IpgCheckBox {
     pub text_size: Option<f32>,
     pub text_line_height: Option<f32>,
     pub text_shaping: Option<IpgShaping>,
+    pub text_wrapping: Option<IpgWrapping>,
     pub text_font_id: Option<usize>,
     pub icon_font_id: Option<usize>,
     pub icon: Option<IpgIcon>,
@@ -55,109 +60,112 @@ pub enum ChkMessage {
     OnToggle(bool),
 }
 
-pub fn construct_checkbox<'a>(
-    ipg_chk: &'a IpgCheckBox, 
-    style_opt: Option<&IpgWidgets>) 
-    -> Option<Element<'a, Message>> {
+impl IpgCheckBox {
 
-    if !ipg_chk.show {
-        return None
-    };
+    fn lookup<'a>(&self, widgets: &'a HashMap<usize, IpgWidgets>, id: Option<usize>) -> Option<&'a IpgWidgets> {
+        id.and_then(|id| widgets.get(&id))
+    }
 
-    let style_opt = style_opt.and_then(IpgWidgets::as_checkbox_style).cloned();
+    pub fn construct<'a>(
+        &self,
+        widgets: &HashMap<usize, IpgWidgets>,
+    ) -> Option<Element<'a, Message>> {
 
-    // Icon related
-    let code_point = 
-        if let Some(ic) = ipg_chk.icon {
-            icon_to_char(ic)
-        } else {
-            icon_to_char(IpgIcon::Check)
+        if !self.show {
+            return None
         };
 
-    let size = 
-        if let Some(sz) = ipg_chk.icon_size {
-            Some(iced::Pixels(sz))
-        } else {
-            None
-        };
+        let style_opt = 
+            self.lookup(widgets, self.style_id)
+                .and_then(IpgWidgets::as_button_style).cloned();
 
-    let shaping = 
-        if let Some(sh) = &ipg_chk.icon_shaping {
-            IpgShaping::to_iced(sh)
-        } else {
-            Shaping::default()
-        };
+        // Icon related
+        let code_point = 
+            if let Some(ic) = self.icon {
+                icon_to_char(ic)
+            } else {
+                icon_to_char(IpgIcon::Check)
+            };
 
-    let line_height = 
-        if let Some(lh) = ipg_chk.icon_line_height {
-            LineHeight::Relative(lh)
-        } else {
-            LineHeight::default()
-        };
+        let size = 
+            if let Some(sz) = self.icon_size {
+                Some(iced::Pixels(sz))
+            } else { None };
 
-    let icon = 
-        checkbox::Icon {
-            font: BOOTSTRAP_FONT,
-            code_point,
-            size,
-            line_height,
-            shaping,
-        };
-    
-    // Text related
-    let text_line_height = 
-        if let Some(lh) = ipg_chk.text_line_height {
-            text::LineHeight::Relative(lh)
-        } else {
-            text::LineHeight::default()
-        };
+        let shaping = 
+            if let Some(sh) = &self.icon_shaping {
+                IpgShaping::to_iced(sh)
+            } else { Shaping::default() };
 
-    let text_shaping = 
-        if let Some(ts) = &ipg_chk.text_shaping {
-            IpgShaping::to_iced(ts)
-        } else {
-            Shaping::default()
-        };
+        let line_height = 
+            if let Some(lh) = self.icon_line_height {
+                LineHeight::Relative(lh)
+            } else { LineHeight::default() };
 
-   let chk = 
-        Checkbox::new(ipg_chk.is_checked)
-            .on_toggle(ChkMessage::OnToggle)
-            .width(ipg_chk.width)
-            .text_line_height(text_line_height)
-            .text_shaping(text_shaping)
-            .icon(icon)
-            .style(move|theme: &Theme, status| {   
-                get_styling(theme, status, &style_opt, &ipg_chk.style_standard) 
-                });
-    
-    let chk = 
-        if let Some(lb) = &ipg_chk.label {
-            chk.label(lb.clone())
-        } else { chk };
+        let icon = 
+            checkbox::Icon {
+                font: BOOTSTRAP_FONT,
+                code_point,
+                size,
+                line_height,
+                shaping,
+            };
+        
+        // Text related
+        let text_line_height = 
+            if let Some(lh) = self.text_line_height {
+                text::LineHeight::Relative(lh)
+            } else { text::LineHeight::default() };
+
+        let text_shaping = 
+            if let Some(ts) = &self.text_shaping {
+                IpgShaping::to_iced(ts)
+            } else { Shaping::default() };
 
     let chk = 
-        if let Some(sz) = ipg_chk.size {
-            chk.size(sz)
-        } else { chk };
+            Checkbox::new(self.is_checked)
+                .on_toggle(ChkMessage::OnToggle)
+                .width(self.width)
+                .text_line_height(text_line_height)
+                .text_shaping(text_shaping)
+                .icon(icon)
+                .style(move|theme: &Theme, status| {   
+                    if let Some(st) = &style_opt {
+                        st.to_iced(theme, status, &self.style_standard)
+                    } else {
+                       match &self.style_standard {
+                            Some(std) => std.to_iced(theme, status),
+                            None => checkbox::primary(theme, status),
+                        }
+                    }
+                    });
+        
+        let chk = 
+            if let Some(lb) = &self.label {
+                chk.label(lb.clone())
+            } else { chk };
 
-    let chk: Element<'_, ChkMessage> = 
-        if let Some(sp) = ipg_chk.spacing {
-            chk.spacing(sp).into()
-        } else { chk.into() };
+        let chk = 
+            if let Some(sz) = self.size {
+                chk.size(sz)
+            } else { chk };
 
-    Some(chk.map(move |message| Message::CheckBox(ipg_chk.id, message)))
+        let chk: Element<'_, ChkMessage> = 
+            if let Some(sp) = self.spacing {
+                chk.spacing(sp).into()
+            } else { chk.into() };
 
+        Some(chk.map(move |message| Message::CheckBox(self.id, message)))
+
+    }
 }
-
 
 
 #[derive(Debug, Clone, Default)]
 pub struct IpgCheckboxStyle {
     pub id: usize,
     pub background_color: Option<Color>,
-    pub background_color_hovered: Option<Color>,
     pub accent_color: Option<Color>,
-    pub accent_color_hovered: Option<Color>,
     pub border_color: Option<Color>,
     pub border_radius: Option<Vec<f32>>,
     pub border_width: Option<f32>,
@@ -167,39 +175,60 @@ pub struct IpgCheckboxStyle {
 
 impl IpgCheckboxStyle {
     /// Apply user-defined style overrides to an existing iced checkbox::Style
-    pub fn apply_to(&self, style: &mut checkbox::Style, status: checkbox::Status) {
+    pub fn to_iced(
+         &self, 
+        theme: &Theme, 
+        status: checkbox::Status,
+        std_style_opt: &Option<IpgCheckboxStyleStandard>,
+        ) -> checkbox::Style {
 
-        let is_checked = matches!(status,
-            checkbox::Status::Active { is_checked: true }
-            | checkbox::Status::Hovered { is_checked: true }
-            | checkbox::Status::Disabled { is_checked: true }
-        );
+        // Default the style to primary unless user supplies another standard style.
+        let style = if let Some(std) = std_style_opt {
+            std.to_iced(theme, status)
+        } else { checkbox::primary(theme, status) };
 
-        // Background / accent colors depend on checked state and status
-        match status {
-            checkbox::Status::Active { .. } | checkbox::Status::Disabled { .. } => {
-                if is_checked {
-                    if let Some(color) = self.accent_color {
-                        style.background = Background::Color(color);
-                    }
-                } else if let Some(color) = self.background_color {
-                    style.background = Background::Color(color);
-                }
+        // If user suppies a bkg color then pair with the text color, 
+        // if user suppied a text color too.
+        let mut style = if let Some(bkg) = self.background_color {
+            let border_color = if let Some(bc) = self.border_color {
+                bc
+            } else { style.border.color };
+        
+            // let palette = palette::Background::new(bkg, border_color);
+            
+            // let base = styled(palette.base);
+        
+            let is_checked = matches!(status,
+                checkbox::Status::Active { is_checked: true }
+                | checkbox::Status::Hovered { is_checked: true }
+                | checkbox::Status::Disabled { is_checked: true }
+            );
+
+        
+            match status {
+                checkbox::Status::Active { is_checked } => styled(
+                    palette.background.strong.color,
+                    palette.background.base,
+                    palette.primary.base.text,
+                    palette.primary.base,
+                    is_checked,
+                ),
+                checkbox::Status::Hovered { is_checked } => styled(
+                    palette.background.strong.color,
+                    palette.background.weak,
+                    palette.primary.base.text,
+                    palette.primary.strong,
+                    is_checked,
+                ),
+                checkbox::Status::Disabled { is_checked } => styled(
+                    palette.background.weak.color,
+                    palette.background.weaker,
+                    palette.primary.base.text,
+                    palette.background.strong,
+                    is_checked,
+                ),
             }
-            checkbox::Status::Hovered { .. } => {
-                if is_checked {
-                    if let Some(color) = self.accent_color_hovered {
-                        style.background = Background::Color(color);
-                    } else if let Some(color) = self.accent_color {
-                        style.background = Background::Color(color);
-                    }
-                } else if let Some(color) = self.background_color_hovered {
-                    style.background = Background::Color(color);
-                } else if let Some(color) = self.background_color {
-                    style.background = Background::Color(color);
-                }
-            }
-        }
+        };
 
         apply_border_overrides(
             &mut style.border, self.border_color,
@@ -208,29 +237,38 @@ impl IpgCheckboxStyle {
 
         if let Some(color) = self.icon_color {
             style.icon_color = color;
-        }
+        };
 
-        if let Some(color) = self.text_color {
-            style.text_color = Some(color);
-        }
+        style
+
     }
+
 }
 
-pub fn get_styling(theme: &Theme, status: checkbox::Status,
-                    style_opt: &Option<IpgCheckboxStyle>,
-                    style_standard: &Option<IpgCheckboxStyleStandard>,
-                    ) -> checkbox::Style
-{
-    let mut style = match style_standard {
-        Some(_) => get_checkbox_standard_style(theme, status, style_standard),
-        None => checkbox::primary(theme, status),
+fn styled(
+    border_color: Color,
+    base: palette::Pair,
+    icon_color: Color,
+    accent: palette::Pair,
+    is_checked: bool,
+) -> checkbox::Style {
+
+    let (background, border) = if is_checked {
+        (accent, accent.color)
+    } else {
+        (base, border_color)
     };
 
-    if let Some(user_style) = style_opt {
-        user_style.apply_to(&mut style, status);
+    checkbox::Style {
+        background: Background::Color(background.color),
+        icon_color,
+        border: iced::Border {
+            radius: 2.0.into(),
+            width: 1.0,
+            color: border,
+        },
+        text_color: None,
     }
-
-    style
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -242,26 +280,27 @@ pub enum IpgCheckboxStyleStandard {
     Success,
 }
 
-pub fn get_checkbox_standard_style(
-    theme: &Theme, 
-    status: checkbox::Status, 
-    style_standard: &Option<IpgCheckboxStyleStandard>
-    ) -> checkbox::Style {
-    
-    match style_standard {
-        Some(IpgCheckboxStyleStandard::Danger) => {
-            checkbox::danger(theme, status)
-        },
-        Some(IpgCheckboxStyleStandard::Primary) => {
-            checkbox::primary(theme, status)
-        },
-        Some(IpgCheckboxStyleStandard::Secondary) => {
-            checkbox::secondary(theme, status)
-        },
-        Some(IpgCheckboxStyleStandard::Success) => {
-            checkbox::success(theme, status)
-        },
-        None => checkbox::primary(theme, status),
+impl IpgCheckboxStyleStandard {
+    pub fn to_iced (
+        &self,
+        theme: &Theme, 
+        status: checkbox::Status, 
+        ) -> checkbox::Style {
+        
+        match self {
+            IpgCheckboxStyleStandard::Danger => {
+                checkbox::danger(theme, status)
+            },
+            IpgCheckboxStyleStandard::Primary => {
+                checkbox::primary(theme, status)
+            },
+            IpgCheckboxStyleStandard::Secondary => {
+                checkbox::secondary(theme, status)
+            },
+            IpgCheckboxStyleStandard::Success => {
+                checkbox::success(theme, status)
+            },
+        }
     }
 }
 

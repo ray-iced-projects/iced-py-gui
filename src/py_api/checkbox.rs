@@ -12,6 +12,7 @@ use crate::state::{IpgWidgets, access_state,
     add_callback_to_mutex, get_id, set_state_of_widget};
 use crate::widgets::enums::IpgShaping;
 use crate::widgets::ipg_checkbox::{IpgCheckBox, IpgCheckboxStyle, IpgCheckboxStyleStandard};
+use crate::widgets::ipg_text::IpgWrapping;
 
 
 /// Add a checkbox widget.
@@ -31,6 +32,7 @@ use crate::widgets::ipg_checkbox::{IpgCheckBox, IpgCheckboxStyle, IpgCheckboxSty
     text_size=None,
     text_line_height=None,
     text_shaping=None,
+    text_wrapping=None,
     text_font_id=None,
     icon_font_id= None,
     icon=None,
@@ -56,6 +58,7 @@ pub fn add_checkbox(
     text_size: Option<f32>,
     text_line_height: Option<f32>,
     text_shaping: Option<IpgShaping>,
+    text_wrapping: Option<IpgWrapping>,
     text_font_id: Option<usize>,
     icon_font_id: Option<usize>,
     icon: Option<IpgIcon>,
@@ -97,6 +100,7 @@ pub fn add_checkbox(
             text_size,
             text_line_height,
             text_shaping,
+            text_wrapping,
             text_font_id,
             icon_font_id,
             icon,
@@ -119,12 +123,8 @@ pub fn add_checkbox(
 #[pyo3(signature = ( 
     background_color=None, 
     background_rgba=None,
-    background_color_hovered=None,
-    background_rgba_hovered=None,
     accent_color=None,
     accent_rgba=None,
-    accent_color_hovered=None,
-    accent_rgba_hovered=None,
     border_color=None, 
     border_rgba=None,
     border_radius=None, 
@@ -138,12 +138,8 @@ pub fn add_checkbox(
 pub fn add_checkbox_style(
     background_color: Option<IpgColor>,
     background_rgba: Option<[f32; 4]>,
-    background_color_hovered: Option<IpgColor>,
-    background_rgba_hovered: Option<[f32; 4]>,
     accent_color: Option<IpgColor>,
     accent_rgba: Option<[f32; 4]>,
-    accent_color_hovered: Option<IpgColor>,
-    accent_rgba_hovered: Option<[f32; 4]>,
     border_color: Option<IpgColor>,
     border_rgba: Option<[f32; 4]>,
     border_radius: Option<Vec<f32>>,
@@ -159,12 +155,8 @@ pub fn add_checkbox_style(
 
     let background_color: Option<Color> = 
         IpgColor::rgba_ipg_color_to_iced(background_rgba, background_color, 1.0, false);
-    let background_color_hovered: Option<Color> = 
-        IpgColor::rgba_ipg_color_to_iced(background_rgba_hovered, background_color_hovered, 1.0, false);
     let accent_color: Option<Color> = 
         IpgColor::rgba_ipg_color_to_iced(accent_rgba, accent_color, 1.0, false);
-    let accent_color_hovered: Option<Color> = 
-        IpgColor::rgba_ipg_color_to_iced(accent_rgba_hovered, accent_color_hovered, 1.0, false);
     let border_color: Option<Color> = 
         IpgColor::rgba_ipg_color_to_iced(border_rgba, border_color, 1.0, false);
     let icon_color: Option<Color> = 
@@ -178,9 +170,7 @@ pub fn add_checkbox_style(
         IpgCheckboxStyle {
             id,
             background_color,
-            background_color_hovered,
             accent_color,
-            accent_color_hovered,
             border_color,
             border_radius,
             border_width,

@@ -194,9 +194,9 @@ impl IpgButtonStyle {
     pub fn to_iced(
         &self, 
         theme: &Theme, 
-        status: button::Status,
+        status: checkbox::Status,
         std_style_opt: &Option<IpgButtonStyleStandard>,
-        ) -> button::Style{
+        ) -> checkbox::Style{
         
         // Default the style to primary unless user supplies another standard style.
         let style = if let Some(std) = std_style_opt {

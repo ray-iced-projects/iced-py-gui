@@ -35,27 +35,6 @@ pub fn apply_border_overrides(
     }
 }
 
-/// Apply optional shadow overrides to an existing `Shadow`.
-// pub fn apply_shadow_overrides(
-//     shadow: &mut Shadow,
-//     color: Option<Color>,
-//     offset_x: Option<f32>,
-//     offset_y: Option<f32>,
-//     blur_radius: Option<f32>,
-// ) {
-//     if let Some(c) = color {
-//         shadow.color = c;
-//     }
-//     if let Some(x) = offset_x {
-//         shadow.offset = Vector::new(x, offset_y.unwrap_or(shadow.offset.y));
-//     } else if let Some(y) = offset_y {
-//         shadow.offset = Vector::new(shadow.offset.x, y);
-//     }
-//     if let Some(b) = blur_radius {
-//         shadow.blur_radius = b;
-//     }
-// }
-
 /// Apply optional shadow overrides using a combined `[x, y]` offset array.
 pub fn apply_shadow_overrides_xy(
     shadow: &mut Shadow,
@@ -73,3 +52,4 @@ pub fn apply_shadow_overrides_xy(
         shadow.blur_radius = b;
     }
 }
+

@@ -12,7 +12,7 @@ type PyObject = Py<PyAny>;
 use crate::py_api::helpers::find_key_for_value;
 use crate::state::{IpgContainers, IpgIds, IpgState, IpgWidgets, access_state, access_update_widgets, access_window_actions, clone_state_to_runtime, set_state_of_widget_running_state};
 use crate::widgets::ipg_button::{BtnMessage, button_callback};
-use crate::widgets::ipg_checkbox::{ChkMessage, checkbox_callback, construct_checkbox};
+use crate::widgets::ipg_checkbox::{ChkMessage, checkbox_callback};
 use crate::widgets::ipg_color_picker::{ColPikMessage, color_picker_callback, construct_color_picker};
 use crate::widgets::ipg_column::construct_column;
 use crate::widgets::ipg_container::construct_container;
@@ -772,12 +772,7 @@ fn get_widget<'a>(state: &'a IpgState, id: &usize) -> Option<Element<'a, Message
                 //     construct_card(crd, style_opt)
                 // },
                 IpgWidgets::IpgCheckBox(chk) => {
-                    let style_opt = 
-                        if let Some(id)  = chk.style_id {
-                            state.widgets.get(&id)
-                        } else { None };
-
-                    construct_checkbox(chk, style_opt)
+                    chk.construct(&state.widgets)
                 },
                 IpgWidgets::IpgColorPicker(cp) => {
                     let style_opt = 

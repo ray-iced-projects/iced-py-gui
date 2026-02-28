@@ -61,7 +61,7 @@ for i in range(0, 4):
 
 # window added first
 add_window(
-    window_id="main", 
+    id="main", 
     title="Card Demo",
     size=(800, 600),
     position=(100, 25))
@@ -71,7 +71,7 @@ add_window(
 # We have center aligned along the x axis.
 add_container(
     window_id="main", 
-    container_id="btn_cont", 
+    id="btn_cont", 
     width_fill=True)
 
 # add a button with a callback on_press to update the first card.
@@ -83,7 +83,7 @@ add_button("btn_cont",
 # add another is added container to center the column of cards to follow
 add_container(
     window_id="main", 
-    container_id="cont",
+    id="cont",
     width_fill=True, 
     height_fill=True)
 
@@ -95,7 +95,7 @@ add_container(
 # scrollable has to be larger than the container, column, or row.
 add_column(
     window_id="main", 
-    container_id="col", 
+    id="col", 
     parent_id="cont",
     align=IpgAlignment.Center, 
     width=400.0, 
@@ -105,7 +105,7 @@ add_column(
 # Add a row at the bottom to hold the button
 add_row(
     window_id="main", 
-    container_id="bottom_row", 
+    id="bottom_row", 
     parent_id="main",
     width_fill=True,
     spacing=0.0)

@@ -1,7 +1,7 @@
 from imports import *
 
 add_window(
-        window_id="main", 
+        id="main", 
         title="Scrollable - Styling",
     size=(600, 600),
         pos_centered=True)
@@ -10,7 +10,7 @@ add_window(
 # Add a container just to get some spacing from the top
 add_container(
         window_id="main", 
-        container_id="cont",
+        id="cont",
         width_fill=True, 
         height_fill=True)
 
@@ -33,7 +33,7 @@ color = add_scrollable_style(
 # which is less than the length of the data in the column for scrolling.
 scroll_id_1 = add_scrollable(
                     window_id="main", 
-                    container_id="scroll",
+                    id="scroll",
                     parent_id="cont",
                     width=500, height=150.0,
                     style_id=color,
@@ -44,7 +44,7 @@ scroll_id_1 = add_scrollable(
 # Add the column for the data
 add_column(
         window_id="main", 
-        container_id="col",
+        id="col",
         parent_id="scroll", 
         width_fill=True,
         align=IpgAlignment.Center)

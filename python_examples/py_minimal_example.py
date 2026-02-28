@@ -24,7 +24,7 @@ def on_button_press(btn_id):
 def main():
     # Create a window - this replaces add_window()
     window_id = add_window(
-        window_id="main",
+        id="main",
         title="Minimal Example",
     size=(400.0, 300.0),
         theme=IpgWindowTheme.Dark,

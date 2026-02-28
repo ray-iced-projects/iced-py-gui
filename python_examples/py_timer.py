@@ -80,7 +80,7 @@ def on_stop(timer_id: int, counter: int):
 
 # Add a window
 add_window(
-        window_id="main", 
+        id="main", 
         title="Timer Demo",
     size=(400.0, 600.0),  
         pos_centered=True)
@@ -88,14 +88,14 @@ add_window(
 # Add the container to center everything
 add_container(
         window_id="main", 
-        container_id="cont", 
+        id="cont", 
         width_fill=True,
         height_fill=True)
 
 # Add the column to hold the widgets
 add_column(
         window_id="main", 
-        container_id="col", 
+        id="col", 
         parent_id="cont")
 
 add_text(

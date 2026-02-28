@@ -62,7 +62,7 @@ cont_style = add_container_style(
 
 # Add the windows
 add_window(
-        window_id="main", 
+        id="main", 
         title="Container Styling",
     size=(600, 600),  
         pos_centered=True,
@@ -71,14 +71,14 @@ add_window(
 # Add column to hold everything
 add_column(
         window_id="main",
-        container_id="col",
+        id="col",
         width_fill=True)
 
 
 # Add a row to hold the text widgets
 col_id = add_row(
                 window_id="main",
-                container_id="row_txt",
+                id="row_txt",
                 parent_id="col",
                 align=IpgAlignment.Start,
                 width_fill=True,
@@ -100,7 +100,7 @@ add_text(
 
 add_column(
         window_id="main",
-        container_id="col_bottom",
+        id="col_bottom",
         parent_id="col",
         width_fill=True,
         height=400.0

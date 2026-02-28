@@ -47,7 +47,7 @@ add_event_mouse(enabled=True,
 
 # Adding a window
 add_window(
-        window_id="main", 
+        id="main", 
         title="Mouse Handler Demo",
     size=(600, 600),
         pos_centered=True)
@@ -55,7 +55,7 @@ add_window(
 # Add a column to hold the widgets
 add_column(
         window_id="main", 
-        container_id="col",
+        id="col",
         align=IpgAlignment.Center,
         width_fill=True, 
         height_fill=True)

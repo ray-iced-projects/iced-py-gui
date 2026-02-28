@@ -41,7 +41,7 @@ cp_style = add_button_style(border_radius=[5.0])
 
 # Add a window first
 add_window(
-    window_id="main", 
+    id="main", 
     title="Canvas",
     size=(500.0, 500.0),
     centered=True)
@@ -49,7 +49,7 @@ add_window(
 # Add the container to center both x and y (default).  Holds only one widget.
 add_container(
     window_id="main", 
-    container_id="cont",
+    id="cont",
     width_fill=True, 
     height_fill=True,
     center=True)
@@ -57,7 +57,7 @@ add_container(
 # Add a column to hold multiple widgets
 add_column(
     window_id="main",
-    container_id="col",
+    id="col",
     parent_id="cont",
     spacing=20.0)
 

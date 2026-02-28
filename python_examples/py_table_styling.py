@@ -238,7 +238,7 @@ tbl_style_id = add_table_style()
 
 # Add the window
 add_window(
-        window_id="main", 
+        id="main", 
         title="Table Demo",
     size=(700, 600),
         pos_centered=True,
@@ -248,7 +248,7 @@ add_window(
 # Add the container for centering the table
 add_container(
         window_id="main", 
-        container_id="cont",
+        id="cont",
         width_fill=True, 
         height_fill=True,
         centered=True,)
@@ -256,7 +256,7 @@ add_container(
 add_column(
     window_id="main",
     parent_id="cont",
-    container_id="col",
+    id="col",
 )
 
 # Needed in callback

@@ -77,7 +77,7 @@ border = add_checkbox_style(
 
 # Add a window first
 add_window(
-    window_id="main", 
+    id="main", 
     title="CheckBox Demo",
     size=(600, 600),  
     position=(100,25))
@@ -85,7 +85,7 @@ add_window(
 # Add a container to center the widgets in the middle
 add_container(
     window_id="main", 
-    container_id="cont", 
+    id="cont", 
     width_fill=True,
     height_fill=True,
     center=True)
@@ -96,7 +96,7 @@ add_container(
 # added the IpgColumnAlignment.Start
 add_column(
     window_id="main", 
-    container_id="col", 
+    id="col", 
     parent_id="cont",
     align_x=IpgAlignment.Center)
 
@@ -105,7 +105,7 @@ add_info()
 # Adding a row for the horizontal alignment of the checkboxes
 add_row(
     window_id="main", 
-    container_id="row", 
+    id="row", 
     parent_id="col", 
     spacing=10.0)
 
@@ -117,7 +117,7 @@ add_checkboxes()
 # Let's add another window with a different background theme
 # to see how things look
 add_window(
-    window_id="main2", 
+    id="main2", 
     title="CheckBox Demo",
     size=(600, 600),  
     position=(750, 25),
@@ -125,14 +125,14 @@ add_window(
 
 add_container(
     window_id="main2", 
-    container_id="cont",
+    id="cont",
     width_fill=True,
     height_fill=True,
     center=True)
 
 add_column(
     window_id="main2", 
-    container_id="col", 
+    id="col", 
     parent_id="cont",
     align_x=IpgAlignment.Center)
 
@@ -141,7 +141,7 @@ add_info()
 # Adding a row for the horizontal alignment of the checkboxes
 add_row(
     window_id="main2", 
-    container_id="row", 
+    id="row", 
     parent_id="col", 
     spacing=10.0)
 

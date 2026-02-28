@@ -64,7 +64,7 @@ cont_style = add_container_style(
 
 # Add the windows
 add_window(
-    window_id="main", 
+    id="main", 
     title="Container Styling", 
     size=(600, 600),  
     centered=True,
@@ -72,7 +72,7 @@ add_window(
 
 add_row(
     window_id="main",
-    container_id="row",
+    id="row",
     width_fill=True)
 
 
@@ -81,7 +81,7 @@ add_row(
 # is being modified in the callbacks.
 col_id = add_column(
             window_id="main",
-            container_id="col_txt",
+            id="col_txt",
             parent_id="row",
             align_x=IpgAlignment.Start,
             width_fill=True,
@@ -103,7 +103,7 @@ add_text(
 
 add_column(
         window_id="main",
-        container_id="col_right",
+        id="col_right",
         parent_id="row",
         width_fill=True,
         height=400.0,

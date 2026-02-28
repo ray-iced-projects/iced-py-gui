@@ -91,7 +91,7 @@ def on_press(timer_id: int):
 style_id = add_button_style(border_radius=[20.0])
 
 # A window widget needs to be added first, except for styles.
-add_window(window_id="main", 
+add_window(id="main", 
                title="Button Update", 
                size=(500, 650),
                center=True)
@@ -102,7 +102,7 @@ add_window(window_id="main",
 # A container can have only one widget, so generally a column or row follows.
 # THis container may or may not be needed, it depends on your layout.
 add_container(window_id="main", 
-                  container_id="cont",
+                  id="cont",
                   width_fill=True, 
                   height_fill=True,
                   center=True)
@@ -114,7 +114,7 @@ add_container(window_id="main",
 # Sometime you'll need to give them specific amounts to get alignments correct for your layout
 add_column(
         window_id="main", 
-        container_id="col", 
+        id="col", 
         parent_id="cont",
         spacing=10.0,
         align_x=IpgAlignment.Center)

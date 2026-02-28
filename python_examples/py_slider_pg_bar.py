@@ -67,7 +67,7 @@ sl_style = add_slider_style(
 
 # Add the window
 add_window(
-        window_id="main", 
+        id="main", 
         title="Slider Demo",
     size=(600, 600),
         position=(100, 25))
@@ -75,7 +75,7 @@ add_window(
 # Add the column and center the widgets in it.
 add_column(
         window_id="main", 
-        container_id="col",
+        id="col",
         align=IpgAlignment.Center,
         width_fill=True, 
         height_fill=True, 
@@ -116,7 +116,7 @@ sl_id = add_slider(
 # Add some value at beginning and end
 add_row(
         window_id="main", 
-        container_id="row_0", 
+        id="row_0", 
         parent_id="col",
         width=320.0, 
         padding=[5.0])
@@ -155,7 +155,7 @@ add_space(
 # add_rows for buttons
 add_row(
         window_id="main", 
-        container_id="row_1", 
+        id="row_1", 
         parent_id="col")
 
 add_button(
@@ -170,7 +170,7 @@ add_button(
 
 add_row(
         window_id="main", 
-        container_id="row_2", 
+        id="row_2", 
         parent_id="col")
 
 add_button(
@@ -185,7 +185,7 @@ add_button(
 
 add_row(
         window_id="main", 
-        container_id="row_3", 
+        id="row_3", 
         parent_id="col")
 
 add_button(
@@ -200,7 +200,7 @@ add_button(
 
 add_row(
         window_id="main", 
-        container_id="row_4", 
+        id="row_4", 
         parent_id="col")
 
 add_button(

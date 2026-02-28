@@ -5,15 +5,15 @@ from .icedpygui import (
     add_checkbox_style,
     add_checkbox as _add_checkbox,
     add_color_picker as _add_color_picker, 
-    add_column, 
-    add_container,
+    add_column as _add_column, 
+    add_container as _add_container,
     add_container_style,
     add_date_picker as _add_date_picker,
     add_pick_list as _add_pick_list,
     add_pick_list_style,
     add_radio as _add_radio,
     add_radio_style, 
-    add_row,
+    add_row as _add_row,
     add_scrollable as _add_scrollable,
     add_scrollbar,
     add_autoscroll_style,
@@ -87,14 +87,14 @@ def _current_parent():
 # Thin wrappers that fall back to the context stacks
 # ---------------------------------------------------------------------------
 
-def add_window(window_id=None, **kwargs):
+def add_window(id=None, **kwargs):
     """Wrapper around the Rust add_window.
 
-    If *window_id* is omitted an id is auto-generated.
+    If *id* is omitted an id is auto-generated.
     """
-    if window_id is None:
-        window_id = str(generate_id())
-    return _add_window(window_id=window_id, **kwargs)
+    if id is None:
+        id = str(generate_id())
+    return _add_window(window_id=id, **kwargs)
 
 
 def add_text(parent_id=None, **kwargs):
@@ -137,12 +137,36 @@ add_space = _wrap_widget(_add_space, "add_space")
 add_slider = _wrap_widget(_add_slider, "add_slider")
 
 
+def _wrap_container(rust_fn, name):
+    """Create a thin wrapper that translates id= to container_id= and
+    injects window_id from the window stack."""
+    def wrapper(id=None, *, window_id=None, parent_id=None, **kwargs):
+        if window_id is None:
+            window_id = _current_window()
+        if window_id is None:
+            raise ValueError(f"{name}: window_id is required (either pass it or use a Window context manager)")
+        if id is None:
+            id = str(generate_id())
+        if parent_id is None:
+            parent_id = _current_parent()
+        return rust_fn(window_id=window_id, container_id=id, parent_id=parent_id, **kwargs)
+    wrapper.__name__ = name
+    wrapper.__qualname__ = name
+    wrapper.__doc__ = f"Wrapper around the Rust {name}. Accepts id= (maps to container_id=)."
+    return wrapper
+
+
+add_container = _wrap_container(_add_container, "add_container")
+add_column = _wrap_container(_add_column, "add_column")
+add_row = _wrap_container(_add_row, "add_row")
+
+
 # ---------------------------------------------------------------------------
 # Context managers
 # ---------------------------------------------------------------------------
 
 class Window:
-    """Context manager that calls add_window and tracks the window_id.
+    """Context manager that calls add_window and tracks the window id.
 
     Usage::
 
@@ -151,12 +175,12 @@ class Window:
                 add_text(content="hello")
     """
 
-    def __init__(self, window_id=None, **kwargs):
-        self.window_id = window_id if window_id is not None else str(generate_id())
+    def __init__(self, id=None, **kwargs):
+        self.window_id = id if id is not None else str(generate_id())
         self.kwargs = kwargs
 
     def __enter__(self):
-        add_window(window_id=self.window_id, **self.kwargs)
+        add_window(id=self.window_id, **self.kwargs)
         _window_stack.append(self.window_id)
         return self.window_id
 
@@ -174,22 +198,22 @@ class Container:
             with Container(center=True, width_fill=True) as cont_id:
                 add_text(content="hello")
 
-    Usage with explicit ids::
+    Usage with explicit id::
 
-        with Container("main", "cont", center=True):
-            add_text(parent_id="cont", content="hello")
+        with Container(id="cont", center=True):
+            add_text(content="hello")
     """
 
-    def __init__(self, window_id=None, container_id=None, *, parent_id=None, **kwargs):
+    def __init__(self, id=None, *, window_id=None, parent_id=None, **kwargs):
         self.window_id = window_id if window_id is not None else _current_window()
         if self.window_id is None:
             raise ValueError("Container: window_id is required (either pass it or use a Window context manager)")
-        self.container_id = container_id if container_id is not None else str(generate_id())
+        self.container_id = id if id is not None else str(generate_id())
         self.parent_id = parent_id
         self.kwargs = kwargs
 
     def __enter__(self):
-        add_container(
+        _add_container(
             window_id=self.window_id,
             container_id=self.container_id,
             parent_id=self.parent_id or _current_parent(),
@@ -209,25 +233,25 @@ class Column:
     Usage (reads window_id from Window context)::
 
         with Window(title="Demo") as wnd_id:
-            with Column(container_id="col", spacing=10.0) as col_id:
+            with Column(id="col", spacing=10.0) as col_id:
                 add_text(content="hello")
 
     Usage with explicit ids::
 
-        with Column("main", "col", spacing=10.0):
+        with Column(id="col", window_id="main", spacing=10.0):
             add_text(parent_id="col", content="hello")
     """
 
-    def __init__(self, window_id=None, container_id=None, *, parent_id=None, **kwargs):
+    def __init__(self, id=None, *, window_id=None, parent_id=None, **kwargs):
         self.window_id = window_id if window_id is not None else _current_window()
         if self.window_id is None:
             raise ValueError("Column: window_id is required (either pass it or use a Window context manager)")
-        self.container_id = container_id if container_id is not None else str(generate_id())
+        self.container_id = id if id is not None else str(generate_id())
         self.parent_id = parent_id
         self.kwargs = kwargs
 
     def __enter__(self):
-        add_column(
+        _add_column(
             window_id=self.window_id,
             container_id=self.container_id,
             parent_id=self.parent_id or _current_parent(),
@@ -247,25 +271,25 @@ class Row:
     Usage (reads window_id from Window context)::
 
         with Window(title="Demo") as wnd_id:
-            with Row(container_id="row", spacing=10.0) as row_id:
+            with Row(id="row", spacing=10.0) as row_id:
                 add_text(content="hello")
 
     Usage with explicit ids::
 
-        with Row("main", "row", spacing=10.0):
+        with Row(id="row", window_id="main", spacing=10.0):
             add_text(parent_id="row", content="hello")
     """
 
-    def __init__(self, window_id=None, container_id=None, *, parent_id=None, **kwargs):
+    def __init__(self, id=None, *, window_id=None, parent_id=None, **kwargs):
         self.window_id = window_id if window_id is not None else _current_window()
         if self.window_id is None:
             raise ValueError("Row: window_id is required (either pass it or use a Window context manager)")
-        self.container_id = container_id if container_id is not None else str(generate_id())
+        self.container_id = id if id is not None else str(generate_id())
         self.parent_id = parent_id
         self.kwargs = kwargs
 
     def __enter__(self):
-        add_row(
+        _add_row(
             window_id=self.window_id,
             container_id=self.container_id,
             parent_id=self.parent_id or _current_parent(),

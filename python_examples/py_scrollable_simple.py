@@ -3,14 +3,14 @@ from imports import *
 
 
 add_window(
-    window_id="main", 
+    id="main", 
     title="Scrollable",
     center=True,
 )
 
 add_container(
     window_id="main",
-    container_id="cont",
+    id="cont",
     center=True,
     width_fill=True,
     height_fill=True,
@@ -18,7 +18,7 @@ add_container(
 
 add_column(
     window_id="main",
-    container_id="col",
+    id="col",
     parent_id="cont",
     spacing=20.0,
 )
@@ -28,7 +28,7 @@ add_column(
 add_scrollable(
     window_id="main",
     parent_id="col",
-    container_id="scroll_default", 
+    id="scroll_default", 
     width=200.0, 
     height=100.0,
 )
@@ -46,7 +46,7 @@ bar_x = add_scrollbar()
 
 add_scrollable(
     window_id="main",
-    container_id="scroll_x",
+    id="scroll_x",
     parent_id="col",
     width=200.0, 
     height=50.0,

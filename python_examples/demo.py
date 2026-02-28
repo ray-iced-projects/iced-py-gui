@@ -224,7 +224,7 @@ class Demo:
 
     def construct_window_1(self):
         self.ipg.add_window(
-                    window_id=self.wnd_1, 
+                    id=self.wnd_1, 
                     title="Demo Window 1 - Iced Wrapped in Python",
                     width=500, 
                     height=500, 
@@ -234,26 +234,26 @@ class Demo:
         # Add container to center everything
         self.ipg.add_container(
                     window_id=self.wnd_1,
-                    container_id="cont1",
+                    id="cont1",
                     width_fill=True,
                     height_fill=True)
         
         # add row to hold the 2 columns
         self.ipg.add_row(
                     window_id=self.wnd_1, 
-                    container_id=self.row_1,
+                    id=self.row_1,
                     parent_id="cont1")
         
         # This column will be on the left side
         self.ipg.add_column(
                     window_id=self.wnd_1, 
-                    container_id=self.l_col_1, 
+                    id=self.l_col_1, 
                     parent_id=self.row_1)
         
         # This column will be on the right side
         self.ipg.add_column(
                     window_id=self.wnd_1, 
-                    container_id=self.r_col_1, 
+                    id=self.r_col_1, 
                     parent_id=self.row_1)
 
     # A button is defined, a text is defined with info.
@@ -470,7 +470,7 @@ class Demo:
 
     def construct_window_2(self):
         self.ipg.add_window(
-                    window_id=self.wnd_2, 
+                    id=self.wnd_2, 
                     title="Demo Window 2 - Iced Wrapped in Python",
                     width=600, 
                     height=500,
@@ -480,14 +480,14 @@ class Demo:
         # Add container to center everything
         self.ipg.add_container(
                     window_id=self.wnd_2,
-                    container_id="cont2",
+                    id="cont2",
                     width_fill=True,
                     height_fill=True)
 
         # add a column to hold multiple widgets
         self.ipg.add_column(
                     window_id=self.wnd_2, 
-                    container_id=self.l_col_2,
+                    id=self.l_col_2,
                     parent_id="cont2",
                     width_fill=True, 
                     align=IpgAlignment.Center)

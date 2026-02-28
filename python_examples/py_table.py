@@ -135,7 +135,7 @@ btn_style = add_button_style(border_radius=[10.0])
 
 # Add the window
 add_window(
-        window_id="main", 
+        id="main", 
         title="Table Demo",
     size=(1000, 400),
         pos_centered=True,
@@ -145,7 +145,7 @@ add_window(
 # Add the container for centering the table
 add_container(
         window_id="main", 
-        container_id="cont",
+        id="cont",
         width_fill=True, 
         height_fill=True,
         centered=True,)

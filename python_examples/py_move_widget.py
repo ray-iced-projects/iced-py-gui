@@ -19,18 +19,18 @@ def move_widget(btn_id: int, item: any):
             move_before=move_before)
     
 
-add_window(window_id="main",
+add_window(id="main",
                title="Move Widget",
     size=(400.0, 600.0),
                pos_centered=True)
 
 add_row(
         window_id="main",
-        container_id="row")
+        id="row")
 
 add_column(
         window_id="main",
-        container_id="col_1",
+        id="col_1",
         parent_id="row")
 
 for i in range(0, 10):
@@ -42,13 +42,13 @@ add_space(
 
 add_column(
         window_id="main",
-        container_id="col_2",
+        id="col_2",
         parent_id="row")
 
 
 add_column(
         window_id="main",
-        container_id="move_btns")
+        id="move_btns")
 
 add_button(
         parent_id="move_btns",

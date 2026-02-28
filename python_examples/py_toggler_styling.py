@@ -2,7 +2,7 @@ from imports import *
 
 # Add the window
 add_window(
-        window_id="main", 
+        id="main", 
         title="Toggler Demo",
     size=(700, 625),  
         pos_centered=True)
@@ -10,7 +10,7 @@ add_window(
 # Add a main column to hold everything
 add_column(
         window_id="main", 
-        container_id="col", 
+        id="col", 
         width_fill=True, 
         height_fill=True,
         align=IpgAlignment.Center, 

@@ -13,20 +13,20 @@ path = path = cwd + "/python_examples/resources/cards/hearts/"
 names = ["Ace", "2", "3", "4", "5", "6", "7", "8", "9", "10", "Jack", "Queen", "King"]
 
 add_window(
-        window_id="main",
+        id="main",
         title="Stack",
     size=(400.0, 800.0),
         pos_centered=True)
 
 add_container(
         window_id="main",
-        container_id="cont",
+        id="cont",
         width_fill=True,
         height_fill=True)
 
 add_column(
         window_id="main",
-        container_id="main_col",
+        id="main_col",
         parent_id="cont",
         height_fill=True)
 
@@ -37,7 +37,7 @@ text_id = add_text(
 # Adds the stack container to the window.
 stack_id = add_stack(
                     window_id="main",
-                    container_id="stack",
+                    id="stack",
                     parent_id="main_col",
                     width=200.0,
                     height=750.0)
@@ -46,7 +46,7 @@ for i in range(1, 14):
     # Adds the column to the stack to hold the space and card.
     add_column(
             window_id="main",
-            container_id=f"col_{i}",
+            id=f"col_{i}",
             parent_id="stack")
 
     file = f"{path}{i}.png"

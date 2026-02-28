@@ -37,15 +37,15 @@ moon_path = f"{cwd}/python_examples/resources/solar_system_assets/moon.png"
 canvas_width = 800.0
 canvas_height = 725.0
    
-add_window(window_id="main", title="Canvas",
+add_window(id="main", title="Canvas",
     size=(800.0, 800.0),
                pos_centered=True)
 
-add_column(window_id="main", container_id="col",
+add_column(window_id="main", id="col",
             width_fill=True, height_fill=True)
 
 add_row(window_id="main",
-            container_id="row",
+            id="row",
             parent_id="col",
             )
 

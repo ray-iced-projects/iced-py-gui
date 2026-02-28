@@ -7,7 +7,7 @@ from imports import *
 # the separators and the effect of the 
 # width and height settings.
 add_window(
-    window_id="main", 
+    id="main", 
     title="Separator Demo",
     size=(600, 600),  
     center=True,
@@ -15,7 +15,7 @@ add_window(
 
 add_container(
     window_id="main",
-    container_id="cont",
+    id="cont",
     width_fill=True,
     height_fill=True,
     center=True)
@@ -23,7 +23,7 @@ add_container(
 add_column(
     window_id="main",
     parent_id="cont",
-    container_id="col",
+    id="col",
     spacing=20.0,
     align_x=IpgAlignment.Center
 )

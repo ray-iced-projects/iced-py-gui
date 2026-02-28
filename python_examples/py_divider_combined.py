@@ -113,7 +113,7 @@ divider_style_id = add_divider_style(
 
 # Add a window first
 add_window(
-        window_id="main", 
+        id="main", 
         title="CheckBox Demo",
     size=(600, 600),  
         pos_centered=True,
@@ -123,7 +123,7 @@ add_window(
 # Add a container to center the widgets in the middle
 add_container(
         window_id="main", 
-        container_id="main_cont", 
+        id="main_cont", 
         width_fill=True,
         height_fill=True,
         centered=False,
@@ -132,7 +132,7 @@ add_container(
 # add a column to hold the text and the stack
 add_column(
         window_id="main",
-        container_id="main_col",
+        id="main_col",
         parent_id="main_cont",
         spacing=30)
 
@@ -145,7 +145,7 @@ add_text(
 # make the stack to lay the dividers over the containers
 stack_id = add_stack(
         window_id="main",
-        container_id="stack",
+        id="stack",
         parent_id="main_col")
 
 
@@ -154,7 +154,7 @@ stack_id = add_stack(
 add_column(
         window_id="main",
         parent_id="stack",
-        container_id="col",
+        id="col",
         spacing=0,
         padding=[0],
         width=row_handle_width)
@@ -162,7 +162,7 @@ add_column(
 for i, height in enumerate(rows):
     row_ids.append(add_row(
         window_id="main",
-        container_id=f"row{i}",
+        id=f"row{i}",
         parent_id="col",
         height=height,
         spacing=0))
@@ -171,7 +171,7 @@ for i, height in enumerate(rows):
     for j, width in enumerate(columns):
         cont_ids.append(add_container(
                 window_id="main",
-                container_id=f"cont{i} {j}",
+                id=f"cont{i} {j}",
                 parent_id=f"row{i}",
                 width=width,
                 height_fill=True,

@@ -20,7 +20,7 @@ def on_press(btn_id, user_data: int):
 
 # Add the windows
 add_window(
-    window_id="main", 
+    id="main", 
     title="Button", 
     size=(400, 400),  
     center=True,
@@ -29,7 +29,7 @@ add_window(
  # Add a container to hold everything aligning all in the center
 add_container(
     window_id="main", 
-    container_id="cont", 
+    id="cont", 
     width_fill=True, 
     height_fill=True,
     center=True,
@@ -38,7 +38,7 @@ add_container(
 # Add a column to hold multiple widgets, vertically.
 add_column(
     window_id="main", 
-    container_id="col", 
+    id="col", 
     parent_id="cont",
     spacing=20.0,
     )

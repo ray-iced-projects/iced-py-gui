@@ -24,7 +24,7 @@ ipg = IPG()
 
 #  add the window centered on the screen
 ipg.add_window(
-      window_id="main", 
+      id="main", 
       title="Demo Window",
       width=600,
       height=500,
@@ -33,14 +33,14 @@ ipg.add_window(
 # container alignment defaults to centering
 ipg.add_container(
       window_id="main", 
-      container_id="cont",
+      id="cont",
       width_fill=True, 
       height_fill=True)
 
 # The column width will shrink to the size of the largest widget by default.
 ipg.add_column(
       window_id="main", 
-      container_id="col", 
+      id="col", 
       parent_id="cont",
       align=IpgAlignment.Center)
 

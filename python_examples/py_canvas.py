@@ -1,7 +1,7 @@
 from imports import *
 
 add_window(
-        window_id="main", 
+        id="main", 
         title="Canvas",
     size=(400.0, 400.0),
         pos_centered=True)

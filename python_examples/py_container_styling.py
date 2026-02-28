@@ -57,7 +57,7 @@ cont_style = add_container_style(
 
 # Add the windows
 add_window(
-    window_id="main", 
+    id="main", 
     title="Container Styling", 
     size=(500, 600),  
     center=True)
@@ -66,7 +66,7 @@ add_window(
 # in the middle of the window
 add_container(
     window_id="main",
-    container_id="cont1",
+    id="cont1",
     width_fill=True,
     height_fill=True,
     center=True)
@@ -74,7 +74,7 @@ add_container(
 # add the container to work on
 with Container(
     window_id="main",
-    container_id="cont2",
+    id="cont2",
     parent_id="cont1",
     width=200.0, 
     height=200.0,
@@ -86,7 +86,7 @@ with Container(
     # so the container style shows through
     add_column(
         window_id="main",
-        container_id="col",
+        id="col",
         parent_id="cont2",
         spacing=20.0,
         padding=[20.0])

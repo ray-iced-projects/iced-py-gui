@@ -39,7 +39,7 @@ def on_exit(id, _user_data):
     
 
 add_window(
-        window_id="main", 
+        id="main", 
         title="Main",
     size=(400, 400), 
         pos_centered=True, 
@@ -47,12 +47,12 @@ add_window(
 
 add_container(
         window_id="main", 
-        container_id="cont", 
+        id="cont", 
         width_fill=True, 
         height_fill=True)
 
 add_mousearea(window_id="main", 
-                  container_id="ma", 
+                  id="ma", 
                   parent_id="cont",
                   on_enter=on_enter,
                   on_exit=on_exit,

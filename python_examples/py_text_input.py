@@ -98,7 +98,7 @@ def add_style(_btn_id):
 
 # add the window
 add_window(
-        window_id="main", 
+        id="main", 
         title="Text Input Demo",
     size=(600, 600),
         position=(100, 25))
@@ -106,7 +106,7 @@ add_window(
 # add the column for the widgets, centered
 add_column(
         window_id="main", 
-        container_id="col",
+        id="col",
         align=IpgAlignment.Center,
         height_fill=True, 
         width_fill=True, 
@@ -151,7 +151,7 @@ text_user_data_id = add_text(
 # Add row for buttons
 add_row(
         window_id="main", 
-        container_id="row_1", 
+        id="row_1", 
         parent_id="col")
 
 add_button(
@@ -166,7 +166,7 @@ add_button(
 
 add_row(
         window_id="main", 
-        container_id="row_2", 
+        id="row_2", 
         parent_id="col")
 
 add_button(
@@ -181,7 +181,7 @@ add_button(
 
 add_row(
         window_id="main", 
-        container_id="row_3", 
+        id="row_3", 
         parent_id="col")
 
 add_button(
@@ -196,7 +196,7 @@ add_button(
 
 add_row(
         window_id="main", 
-        container_id="row_4", 
+        id="row_4", 
         parent_id="col")
 
 add_button(
@@ -206,7 +206,7 @@ add_button(
 
 add_row(
         window_id="main", 
-        container_id="row_5", 
+        id="row_5", 
         parent_id="col")
 
 add_button(

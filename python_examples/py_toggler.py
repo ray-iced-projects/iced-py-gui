@@ -64,7 +64,7 @@ def update_line_height(_btn_id):
 
 # Add the window
 add_window(
-        window_id="main", 
+        id="main", 
         title="Toggler Demo",
     size=(700, 625),  
         position=(100, 25))
@@ -72,7 +72,7 @@ add_window(
 # Add a main column to hold everything
 add_column(
         window_id="main", 
-        container_id="col", 
+        id="col", 
         width_fill=True, 
         height_fill=True,
         align=IpgAlignment.Center, 
@@ -81,7 +81,7 @@ add_column(
 # Add a column at the top for the toggler and a text widget
 add_column(
         window_id="main", 
-        container_id="col_top", 
+        id="col_top", 
         parent_id="col",
         align=IpgAlignment.Center,
         height=110.0, 
@@ -100,7 +100,7 @@ text_id = add_text(
 # Add another column to hold the remaining buttons
 add_column(
         window_id="main", 
-        container_id="col_bot", 
+        id="col_bot", 
         parent_id="col",
         align=IpgAlignment.Center, 
         spacing=10.0, 
@@ -139,7 +139,7 @@ add_button(
 # putting last two buttons in a row to make more room on screen
 add_row(
         window_id="main", 
-        container_id="row", 
+        id="row", 
         parent_id="col_bot", 
         align=IpgAlignment.Center,
         width_fill=True)

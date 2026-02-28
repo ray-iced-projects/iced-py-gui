@@ -106,7 +106,7 @@ def toggle_debug(btn_id):
 # Add window must be the first widget. Other windows can be added
 # at anytime, as long as their widgets follow.
 wnd_id = add_window(
-                window_id="main", 
+                id="main", 
                 title="Selectable Text Demo",
     size=(800, 600),  
                 position=(100, 25))
@@ -115,7 +115,7 @@ wnd_id = add_window(
 # is the second widget needed.
 add_column(
         window_id="main", 
-        container_id="col",
+        id="col",
         align=IpgAlignment.Center,
         width_fill=True, 
         height_fill=True,
@@ -133,7 +133,7 @@ add_space(
         parent_id="col", 
         height=20.0)
 
-# add_row(window_id="main", container_id="col0", parent_id="col", 
+# add_row(window_id="main", id="col0", parent_id="col", 
 #                height=50.0, align_items=IpgRowAlignment.Center)
 # A selectable is a bit more versatile than using a button styled as text.
 # In this case, you can detect the left, right, and muddle buttons of the mouse.
@@ -156,7 +156,7 @@ add_space(
 
 add_row(
         window_id="main", 
-        container_id="left", 
+        id="left", 
         parent_id="col")
 
 left_pressed_id = add_text(
@@ -169,7 +169,7 @@ left_released_id = add_text(
 
 add_row(
         window_id="main", 
-        container_id="right", 
+        id="right", 
         parent_id="col")
 
 right_pressed_id = add_text(
@@ -182,7 +182,7 @@ right_released_id = add_text(
 
 add_row(
         window_id="main", 
-        container_id="middle", 
+        id="middle", 
         parent_id="col")
 
 middle_pressed_id = add_text(
@@ -195,7 +195,7 @@ middle_released_id = add_text(
 
 add_row(
         window_id="main", 
-        container_id="row_1", 
+        id="row_1", 
         parent_id="col")
 
 add_button(
@@ -211,7 +211,7 @@ add_button(
 # TODO: height not working
 add_row(
         window_id="main", 
-        container_id="row_2", 
+        id="row_2", 
         parent_id="col")
 
 add_button(
@@ -226,7 +226,7 @@ add_button(
 
 add_row(
         window_id="main", 
-        container_id="row_3", 
+        id="row_3", 
         parent_id="col")
 
 add_button(
@@ -241,7 +241,7 @@ add_button(
 
 add_row(
         window_id="main", 
-        container_id="row_4", 
+        id="row_4", 
         parent_id="col")
 
 add_button(
@@ -256,7 +256,7 @@ add_button(
 
 add_row(
         window_id="main", 
-        container_id="row_5", 
+        id="row_5", 
         parent_id="col")
 
 add_button(

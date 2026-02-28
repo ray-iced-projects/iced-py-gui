@@ -103,7 +103,7 @@ def change_label(timer_id: int):
 
 # Add the window
 add_window(
-        window_id="main", 
+        id="main", 
         title="Date Picker Demo",
     size=(600, 500),
         pos_centered=True)
@@ -111,7 +111,7 @@ add_window(
 # Add a column to hold the widgets
 add_column(
         window_id="main", 
-        container_id="col", 
+        id="col", 
         parent_id="main",
         width_fill=True, 
         height_fill=True,
@@ -134,7 +134,7 @@ add_text(
 # adding a row for the line of images
 add_row(
         window_id="main", 
-        container_id="row1", 
+        id="row1", 
         parent_id="col", 
         spacing=0)
 
@@ -174,7 +174,7 @@ for i in range(0, 4):
 # add a row for the information
 add_row(
         window_id="main", 
-        container_id="row2", 
+        id="row2", 
         parent_id="col")
 
 # Using some global variables for the ids needed for the callbacks
@@ -192,7 +192,7 @@ for i in range(0, 4):
 # adding a final row for the points display
 add_row(
         window_id="main", 
-        container_id="row3", 
+        id="row3", 
         parent_id="col")
 
 for i in range(0, 4):

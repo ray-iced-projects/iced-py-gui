@@ -8,7 +8,7 @@ def add_buttons(window: str):
     # Add a container to hold everything aligning all in the center
     add_container(
             window_id=window, 
-            container_id="cont", 
+            id="cont", 
             width_fill=True, 
             height_fill=True,
             center=True)
@@ -16,7 +16,7 @@ def add_buttons(window: str):
     # Add a column to hold multiple widgets, vertically.
     add_column(
             window_id=window, 
-            container_id="col", 
+            id="col", 
             parent_id="cont",
             spacing=10.0,
             align_x=IpgAlignment.Center)
@@ -24,7 +24,7 @@ def add_buttons(window: str):
     # Add a row to hold widgets, horizontally.
     add_row(
             window_id=window, 
-            container_id="row_btn", 
+            id="row_btn", 
             parent_id="col",
             spacing=5.0,
             align_y=IpgAlignment.Center)
@@ -67,7 +67,7 @@ def add_buttons(window: str):
 
     add_row(
             window_id=window, 
-            container_id="row_btn2", 
+            id="row_btn2", 
             parent_id="col",
             align_y=IpgAlignment.Center)
 
@@ -98,7 +98,7 @@ def add_buttons(window: str):
     
     add_row(
             window_id=window, 
-            container_id="row_btn3", 
+            id="row_btn3", 
             parent_id="col",
             align_y=IpgAlignment.Center)
     
@@ -146,13 +146,13 @@ def add_buttons(window: str):
 
 # Add the windows
 add_window(
-        window_id="main1", 
+        id="main1", 
         title="Button Styling", 
         size=(500, 600),  
         position=(100, 25))
 
 add_window(
-        window_id="main2", 
+        id="main2", 
         title="Button Styling",  
         size=(500, 600),  
         position=(600, 25),

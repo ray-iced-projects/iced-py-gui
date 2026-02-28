@@ -1,7 +1,7 @@
 from imports import *
 
 add_window(
-        window_id="main", 
+        id="main", 
         title="Chart",
     size=(800.0, 600.0),
         pos_centered=True)

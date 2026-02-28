@@ -21,19 +21,19 @@ chk_style = add_checkbox_style(
 
 
 # Add a window first
-with Window(window_id="main", title="CheckBox Demo",
+with Window(id="main", title="CheckBox Demo",
             size=(600, 600),  center=True):
 
     # Add a container to center the widgets in the middle
     # Centering is the default behavior.
-    with Container(container_id="cont", width_fill=True,
+    with Container(id="cont", width_fill=True,
                    height_fill=True, center=True):
 
         # Since a container can only hold one widget, use a column to hold the
         # two checkboxes.  We let the width and height default to shrink, so no entry.
         # The alignment defaults to Start but for demonstration purpose, we
         # added the IpgColumnAlignment.Start
-        with Column(container_id="col", align_x=IpgAlignment.Start, spacing=20.0):
+        with Column(id="col", align_x=IpgAlignment.Start, spacing=20.0):
 
             # Add the first checkbox with the callback on_toggle.
             # The user data is optional, we just sow it here.
@@ -42,7 +42,7 @@ with Window(window_id="main", title="CheckBox Demo",
                 on_toggle=on_toggle,
                 user_data="Something") # not used in this demo
 
-            with Container(container_id="custom", style_id=cont_style):
+            with Container(id="custom", style_id=cont_style):
 
                 # Add the second checkbox.  This has no callback since it not needed.
                 # We need it's id, so we will equate it and use it in the callback

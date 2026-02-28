@@ -57,7 +57,7 @@ class DemoScrollable:
     def create_scroll_vertical(self):
 
         self.add_window(
-                    window_id=self.wnd_v, 
+                    id=self.wnd_v, 
                     title="Scrollable - Vertical",
     size=(self.wnd_width, self.wnd_height),
                     position=(50, 25))
@@ -65,7 +65,7 @@ class DemoScrollable:
         # The header is just a title of sorts.
         self.add_container(
                     window_id=self.wnd_v, 
-                    container_id=self.cont_v_top,
+                    id=self.cont_v_top,
                     width_fill=True, 
                     height=100.0, 
                     padding=[20])
@@ -82,7 +82,7 @@ class DemoScrollable:
         # could still scroll because the height is less than the data height.
         self.scroll_id_1 = self.add_scrollable(
                                         window_id=self.wnd_v, 
-                                        container_id=self.scroll_v,
+                                        id=self.scroll_v,
                                         width_fill=True, 
                                         height=150.0, 
                                         on_scroll=self.on_scroll_v)
@@ -93,7 +93,7 @@ class DemoScrollable:
         # The scrollable size will control the size of the scrollable container.
         self.add_column(
                     window_id=self.wnd_v, 
-                    container_id=self.cont_v_middle,
+                    id=self.cont_v_middle,
                     parent_id=self.scroll_v, 
                     width_fill=True,
                     align=IpgAlignment.Center)
@@ -106,7 +106,7 @@ class DemoScrollable:
         # Container for the callback text
         self.add_container(
                     window_id=self.wnd_v, 
-                    container_id=self.cont_v_bottom, 
+                    id=self.cont_v_bottom, 
                     parent_id=self.wnd_v,
                     width_fill=True, 
                     height_fill=True)
@@ -118,7 +118,7 @@ class DemoScrollable:
         # Adding row for buttons to change things
         self.add_row(
                     window_id=self.wnd_v, 
-                    container_id="row_v")
+                    id="row_v")
         
         self.add_button(
                     parent_id="row_v", 
@@ -146,14 +146,14 @@ class DemoScrollable:
 
     def create_scroll_horizontal(self):
         self.add_window(
-                    window_id=self.wnd_h, 
+                    id=self.wnd_h, 
                     title="Scrollable - Horizontal",
     size=(200, self.wnd_height),
                     position=(500, 25))
 
         self.add_container(
                     window_id=self.wnd_h, 
-                    container_id=self.cont_h_top,
+                    id=self.cont_h_top,
                     width_fill=True, 
                     height=200.0, 
                     padding=[20])
@@ -168,7 +168,7 @@ class DemoScrollable:
         # since there is only a single line of text.
         self.add_scrollable(
                     window_id=self.wnd_h, 
-                    container_id=self.scroll_h,
+                    id=self.scroll_h,
                     direction=IpgScrollableDirection.Horizontal,
                     width_fill=True, 
                     height=50.0,
@@ -178,7 +178,7 @@ class DemoScrollable:
         # NOTE: The row width and height should be left at default, no value.
         self.add_row(
                     window_id=self.wnd_h, 
-                    container_id=self.cont_h_middle,
+                    id=self.cont_h_middle,
                     parent_id=self.scroll_h)
 
         for i in range(0, 25):
@@ -189,7 +189,7 @@ class DemoScrollable:
         # The final mostly empty container is added at the bottom
         self.add_column(
                     window_id=self.wnd_h, 
-                    container_id=self.cont_h_bottom,
+                    id=self.cont_h_bottom,
                     parent_id=self.wnd_h)
 
         self.cb_text_h1 = self.add_text(
@@ -237,7 +237,7 @@ class DemoScrollable:
     def create_scroll_both(self):
         # Add the 3rd window
         self.add_window(
-                    window_id=self.wnd_b, 
+                    id=self.wnd_b, 
                     title="Scrollable - Both",
     size=(self.wnd_width + 100, self.wnd_height),
                     position=(760, 25))
@@ -245,14 +245,14 @@ class DemoScrollable:
         # The container is added to center the contents below.
         self.add_container(
                     window_id=self.wnd_b, 
-                    container_id=self.cont_b,
+                    id=self.cont_b,
                     width_fill=True, 
                     height_fill=True)
 
         # Add a column to hold all the widgets
         self.add_column(
                     window_id=self.wnd_b, 
-                    container_id="col", 
+                    id="col", 
                     parent_id=self.cont_b,
                     spacing=10, 
                     align=IpgAlignment.Center)
@@ -265,7 +265,7 @@ class DemoScrollable:
         # The scrollable size controls the viewport for the column container.
         self.scroll_id_3 = self.add_scrollable(
                                         window_id=self.wnd_b, 
-                                        container_id=self.scroll_b,
+                                        id=self.scroll_b,
                                         parent_id="col",
                                         width=250, 
                                         height=100.0,
@@ -274,7 +274,7 @@ class DemoScrollable:
         # NOTE:  The column width and height should default to shrink, no value.
         self.add_column(
                     window_id=self.wnd_b, 
-                    container_id=self.col_b, 
+                    id=self.col_b, 
                     parent_id=self.scroll_b,
                     align=IpgAlignment.Center)
 
@@ -287,7 +287,7 @@ class DemoScrollable:
         # Add row to hold the buttons.
         self.add_row(
                     window_id=self.wnd_b, 
-                    container_id="row_1", 
+                    id="row_1", 
                     parent_id="col")
 
         self.add_button(
@@ -306,7 +306,7 @@ class DemoScrollable:
 
         self.add_row(
                     window_id=self.wnd_b, 
-                    container_id="row_2", 
+                    id="row_2", 
                     padding=[5], 
                     parent_id="col")
 
@@ -326,7 +326,7 @@ class DemoScrollable:
 
         self.add_row(
                     window_id=self.wnd_b, 
-                    container_id="row_3", 
+                    id="row_3", 
                     parent_id="col")
 
         self.add_button(
@@ -345,7 +345,7 @@ class DemoScrollable:
 
         self.add_row(
                     window_id=self.wnd_b, 
-                    container_id="row_4", 
+                    id="row_4", 
                     parent_id="col")
 
         self.add_button(
@@ -364,7 +364,7 @@ class DemoScrollable:
 
         self.add_row(
                     window_id=self.wnd_b, 
-                    container_id="row_5", 
+                    id="row_5", 
                     parent_id="col")
 
         self.add_button(
@@ -383,7 +383,7 @@ class DemoScrollable:
 
         self.add_row(
                     window_id=self.wnd_b, 
-                    container_id="row_6", 
+                    id="row_6", 
                     parent_id="col")
 
         self.add_button(
@@ -402,7 +402,7 @@ class DemoScrollable:
 
         self.add_row(
                     window_id=self.wnd_b, 
-                    container_id="row_7", 
+                    id="row_7", 
                     parent_id="col")
 
     def inc_dec_h_bar_width(self, btn_id, inc_dec):

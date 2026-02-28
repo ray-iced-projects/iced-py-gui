@@ -44,7 +44,7 @@ def date_resize(
 
 # Add a window first
 add_window(
-    window_id="main",
+    id="main",
     title="Date Picker Demo",
     size=(400, 800),
     centered=True
@@ -53,7 +53,7 @@ add_window(
 # Add the container to center both x and y. Holds only one widget.
 add_container(
     window_id="main",
-    container_id="cont",
+    id="cont",
     width_fill=True,
     height_fill=True,
     centered=True,
@@ -62,7 +62,7 @@ add_container(
 # Add a column to hold more than one widget and put this into the container.
 add_column(
     window_id="main",
-    container_id="col",
+    id="col",
     parent_id="cont",
     align_x=IpgAlignment.Center,
     spacing=10.0,

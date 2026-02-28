@@ -202,20 +202,20 @@ cp_id_draw_color = add_color_picker_style(background_color=IpgColor.PRIMARY)
 cp_id_fill_color = add_color_picker_style(background_color=IpgColor.TRANSPARENT)
 
 add_window(
-        window_id="main", 
+        id="main", 
         title="Canvas",
     size=(1000.0, 800.0),
         pos_centered=True)
 
 add_row(
         window_id="main", 
-        container_id="row",
+        id="row",
         width_fill=True, 
         height_fill=True)
 
 add_column(
         window_id="main", 
-        container_id="col",
+        id="col",
         parent_id="row",
         width=200, height_fill=True,
         padding=[10.0])
@@ -268,7 +268,7 @@ add_text_input(
 
 add_row(
         parent_id="col", 
-        container_id="file_row",
+        id="file_row",
         window_id="main")
 
 add_button(

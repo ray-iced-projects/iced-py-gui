@@ -14,7 +14,7 @@ def change_text (sldr_id: int, value: float):
 
 # Add a window first
 add_window(
-        window_id="main", 
+        id="main", 
         title="CheckBox Demo",
     size=(600, 600),  
         pos_centered=True,
@@ -23,14 +23,14 @@ add_window(
 # Add a container to center the widgets in the middle
 add_container(
         window_id="main", 
-        container_id="cont", 
+        id="cont", 
         width_fill=True,
         height_fill=True,
         centered=True)
 
 add_column(
     window_id="main",
-    container_id="col",
+    id="col",
     parent_id="cont")
 
 add_slider(

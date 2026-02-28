@@ -56,7 +56,7 @@ widths = [260, 150, 150]
 
 # Add the window first
 ipg.add_window(
-        window_id="main", 
+        id="main", 
         title="Menu", 
         width=600, 
         height=600,  
@@ -68,7 +68,7 @@ headers = ["Base Color", "Weak Color", "Strong Color"]
 # add row with some padding on top
 ipg.add_row(
         window_id="main", 
-        container_id="info_row",
+        id="info_row",
         width_fill=True,
         padding=[20.0, 0.0, 0.0, 0.0])
 
@@ -76,7 +76,7 @@ for i in range(0, 3):
     # Add the 3 containers for the header text
     ipg.add_container(
             window_id="main", 
-            container_id=f"info{i}",
+            id=f"info{i}",
             parent_id="info_row",
             width=widths[i])
     
@@ -87,7 +87,7 @@ for i in range(0, 3):
 # Add a scrollable container for all of the colors
 ipg.add_scrollable(
         window_id="main", 
-        container_id="scroll", 
+        id="scroll", 
         height=550.0, 
         width_fill=True)
 
@@ -95,7 +95,7 @@ ipg.add_scrollable(
 ipg.add_column(
         window_id="main", 
         parent_id="scroll", 
-        container_id="col", 
+        id="col", 
         width_fill=True, 
         spacing=0.0)
 
@@ -104,7 +104,7 @@ for (i, color) in enumerate(colors):
     ipg.add_row(
             window_id="main", 
             parent_id="col", 
-            container_id=f"row{i}", 
+            id=f"row{i}", 
             padding=[0.0])
 
     # get the name by cutting off the first 9 characters
@@ -131,7 +131,7 @@ for (i, color) in enumerate(colors):
     # add the 3 containers
     ipg.add_container(
             window_id="main", 
-            container_id=f"cont1{i}",
+            id=f"cont1{i}",
             parent_id=f"row{i}",
             style_id= style_base,
             width=widths[0], height=30.0,
@@ -139,7 +139,7 @@ for (i, color) in enumerate(colors):
     
     ipg.add_container(
             window_id="main", 
-            container_id=f"cont2{i}",
+            id=f"cont2{i}",
             parent_id=f"row{i}",
             style_id= style_strong,
             width=widths[1], 
@@ -148,7 +148,7 @@ for (i, color) in enumerate(colors):
     
     ipg.add_container(
             window_id="main", 
-            container_id=f"cont3{i}",
+            id=f"cont3{i}",
             parent_id=f"row{i}",
             style_id= style_weak,
             width=widths[2], height=30.0,

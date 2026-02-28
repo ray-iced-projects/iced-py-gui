@@ -61,7 +61,7 @@ def decrease_size(btn_id):
 
 
 add_window(
-        window_id="main", 
+        id="main", 
         title="Main",
     size=(600, 600),
         pos_centered=True,
@@ -69,7 +69,7 @@ add_window(
 
 add_container(
         window_id="main", 
-        container_id="cont",
+        id="cont",
         width_fill=True,
         centered=True)
 
@@ -79,7 +79,7 @@ tiger_path = cwd + "/python_examples/resources/tiger_0.svg"
 
 add_column(
         window_id="main", 
-        container_id="col",
+        id="col",
         align=IpgAlignment.Center)
 
 

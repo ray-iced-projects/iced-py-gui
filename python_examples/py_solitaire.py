@@ -40,7 +40,7 @@ class solitaire:
     def start_game(self):
         self.create_styles()
         # add the main containers
-        self.add_window(window_id="main", 
+        self.add_window(id="main", 
                             title="Solitaire",
     size=(1000.0, 700.0),
                             pos_centered=True,
@@ -48,33 +48,33 @@ class solitaire:
                             )
         
         self.add_row(window_id="main",
-                         container_id="main_row",
+                         id="main_row",
                          width_fill=True,
                          height_fill=True,
                          spacing=2.0)
         
         self.add_container(window_id="main",
-                               container_id="control_cont",
+                               id="control_cont",
                                parent_id="main_row",
                                width=175.0,
                                height_fill=True,
                                style_id=self.white_border)
         
         self.add_column(window_id="main",
-                            container_id="control_col",
+                            id="control_col",
                             parent_id="control_cont",
                             padding=[20.0],
                             height_fill=True)
         
         self.add_container(window_id="main",
-                               container_id="main_cont",
+                               id="main_cont",
                                parent_id="main_row",
                                width_fill=True,
                                height_fill=True,
                                style_id=self.white_border)
         
         self.add_column(window_id="main",
-                            container_id="main_col",
+                            id="main_col",
                             parent_id="main_cont",
                             width_fill=True,
                             height_fill=True)
@@ -204,7 +204,7 @@ class solitaire:
         self.cards = defaultdict(dict)
         # add row for stock, waste, and foundation cards
         self.add_row(window_id="main", 
-                         container_id="stock_row",
+                         id="stock_row",
                          parent_id="main_col",
                          height=self.card_height,
                          spacing=10.0,
@@ -217,19 +217,19 @@ class solitaire:
         
         # add the stock container to the row
         self.add_container(window_id="main",
-                        container_id="stock",
+                        id="stock",
                         parent_id="stock_row",
                         padding=[0.0],
                         style_id=self.white_border)
         
         # add the stack in
         self.add_stack(window_id="main",
-                           container_id="stack_stock_pile",
+                           id="stack_stock_pile",
                            parent_id="stock",
                            width=self.card_width,
                            height=self.card_height)
         wid = self.add_mousearea(window_id="main",
-                                    container_id="mouse_stock_pile",
+                                    id="mouse_stock_pile",
                                     parent_id="stack_stock_pile",
                                     mouse_pointer=IpgMousePointer.Grab,
                                     on_press=self.card_selected,
@@ -250,7 +250,7 @@ class solitaire:
         
         # add the waste container to the row
         self.add_container(window_id="main",
-                                container_id="waste",
+                                id="waste",
                                 parent_id="stock_row",
                                 width=self.card_width,
                                 height=self.card_height,
@@ -259,7 +259,7 @@ class solitaire:
 
         # add the stack in
         self.add_stack(window_id="main",
-                           container_id="stack_waste_pile",
+                           id="stack_waste_pile",
                            parent_id="waste",
                            width=self.card_width,
                            height=self.card_height,
@@ -273,14 +273,14 @@ class solitaire:
         # Add the 4 foundation slots
         for i in range(0, 4):
             self.add_stack(window_id="main",
-                           container_id=f"foundation_{i}",
+                           id=f"foundation_{i}",
                            parent_id="stock_row",
                            width=self.card_width,
                            height=self.card_height,
                            )
             
             wid = self.add_mousearea(window_id="main",
-                                    container_id=f"foundation_mouse_{i}",
+                                    id=f"foundation_mouse_{i}",
                                     parent_id=f"foundation_{i}",
                                     mouse_pointer=IpgMousePointer.Grab,
                                     on_press=self.card_selected,
@@ -297,7 +297,7 @@ class solitaire:
             self.cards[wid] = fd
             
             self.add_container(window_id="main",
-                                    container_id=f"foundation_container_{i}",
+                                    id=f"foundation_container_{i}",
                                     parent_id=f"foundation_{i}",
                                     width=self.card_width,
                                     height=self.card_height,
@@ -308,7 +308,7 @@ class solitaire:
         self.add_space(parent_id="stock_row",
                            width=200.0)
         self.add_stack(window_id="main",
-                               container_id="hidden",
+                               id="hidden",
                                parent_id="stock_row",
                                show=False)
 
@@ -317,14 +317,14 @@ class solitaire:
         
         # add a sttus row
         self.add_row(window_id="main",
-                         container_id="status_row",
+                         id="status_row",
                          parent_id="main_col")
         self.add_space(parent_id="status_row", width=20.0)
         self.status_id = self.add_text(parent_id="status_row", content="Status: Selected None")
 
         # Add a row for the tableau cards
         self.add_row(window_id="main",
-                         container_id="tableau_row",
+                         id="tableau_row",
                          parent_id="main_col",
                          spacing=10.0
                          )
@@ -339,13 +339,13 @@ class solitaire:
             self.tableau.append([])
             # Add in the stacks
             self.add_stack(window_id="main",
-                                container_id=f"tab_stack_{i}",
+                                id=f"tab_stack_{i}",
                                 parent_id="tableau_row",
                                 width=self.card_width,
                                 height=self.stack_height,
                                 )
             wid = self.add_mousearea(window_id="main",
-                                        container_id=f"tab_stack_ma_{i}",
+                                        id=f"tab_stack_ma_{i}",
                                         parent_id=f"tab_stack_{i}",
                                         mouse_pointer=IpgMousePointer.Grab,
                                         on_press=self.card_selected,
@@ -413,7 +413,7 @@ class solitaire:
         for i in range(0, 7):
             for j in range(0, 13):
                 self.add_column(window_id="main",
-                                    container_id=f"tabcol_{i}_{j}",
+                                    id=f"tabcol_{i}_{j}",
                                     parent_id=f"tab_stack_{i}",)
                 
                 # Add a blank at top to hide the card below
@@ -443,7 +443,7 @@ class solitaire:
                 if j < i:
                     # add the blank over the card unless last one.
                     self.add_column(window_id="main",
-                                    container_id=f"tab_blank_{i}_{j}",
+                                    id=f"tab_blank_{i}_{j}",
                                     parent_id=f"tab_stack_{i}",)
                 
                     # Add a blank at top to hide the card below

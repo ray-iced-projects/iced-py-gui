@@ -140,7 +140,7 @@ add_event_window(
 
 # ******************Add the 1st window***************************
 wnd1 = add_window(
-    window_id="main1",
+    id="main1",
     title="Window 1",
     size=(400.0, 600.0), 
     position=(100, 25))
@@ -148,14 +148,14 @@ wnd1 = add_window(
 # add a container to center things
 add_container(
         window_id="main1", 
-        container_id="cont",
+        id="cont",
         width_fill=True,
         height_fill=True)
 
 # Add a column for multiple widgets
 add_column(
         window_id="main1", 
-        container_id="col", 
+        id="col", 
         parent_id="cont")
 
 # Add some text
@@ -225,7 +225,7 @@ add_button(
 # To get a close request from this window, exit_on_close must be set to False.
 # Windows default to True.
 add_window(
-        window_id="main2", 
+        id="main2", 
         title="Window 2",
     size=(400.0, 400.0),  
         position=(600, 25),
@@ -235,7 +235,7 @@ add_window(
 
 add_container(
         window_id="main2", 
-        container_id="cont")
+        id="cont")
 
 add_button(
         parent_id="cont", 
@@ -247,7 +247,7 @@ add_button(
 # **************Add close request window ***********************
 # Note the window is closed, acting like a modal in this case.
 add_window(
-        window_id="close_request",
+        id="close_request",
         title="Close Requested",
     size=(300.0, 300.0),
         pos_centered=True,
@@ -256,13 +256,13 @@ add_window(
 
 add_container(
         window_id="close_request",
-        container_id="cont",
+        id="cont",
         width_fill=True, 
         height_fill=True)
 
 add_column(
         window_id="close_request",
-        container_id="col",
+        id="col",
         parent_id="cont")
 
 add_text(
@@ -289,7 +289,7 @@ add_button(
 # ************Add the 4th window ****************************
 # This window is for changing the window parameters
 add_window(
-        window_id="main4", 
+        id="main4", 
         title="Window 4",
     size=(300.0, 600.0),  
         position=(1000.0, 25.0),
@@ -297,7 +297,7 @@ add_window(
 
 add_column(
         window_id="main4", 
-        container_id="col")
+        id="col")
 
 add_toggler(
         parent_id="col", 

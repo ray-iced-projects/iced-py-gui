@@ -274,20 +274,20 @@ color = add_radio_style(
 # **************Window Constructions Starts Here*************************
 
 add_window(
-        window_id="main", 
+        id="main", 
         title="Radio Demo",
     size=(500, 600),
         position=(100, 25))
 
 add_container(
         window_id="main", 
-        container_id="cont",
+        id="cont",
         width_fill=True, 
         height_fill=True)
 
 add_column(
         window_id="main", 
-        container_id="col", 
+        id="col", 
         parent_id="cont",
         align=IpgAlignment.Center, 
         height=600.0, 
@@ -307,7 +307,7 @@ add_text(
 # Add a row for the two groups of radio buttons
 add_row(
         window_id="main", 
-        container_id="row1", 
+        id="row1", 
         parent_id="col",
         spacing=30.0, 
         width_fill=True)
@@ -327,7 +327,7 @@ rd_right_id = add_radio(
 # add a row for the text associated with the above radio groups
 add_row(
         window_id="main", 
-        container_id="row2", 
+        id="row2", 
         parent_id="col", 
         spacing=50.0)
 
@@ -345,20 +345,20 @@ add_space(
 # ********** Adding Window 2 with Checkboxes ****************************************
 
 add_window(
-        window_id="main2", 
+        id="main2", 
         title="Radio Demo",
     size=(400, 600),
         position=(650, 25))
 
 add_container(
         window_id="main2", 
-        container_id="cont",
+        id="cont",
         width_fill=True, 
         height_fill=True)
 
 add_column(
         window_id="main2", 
-        container_id="chk_col", 
+        id="chk_col", 
         parent_id="cont")
 
 add_checkbox(

@@ -48,7 +48,7 @@ ts_id = add_tooltip_style(
     
 # Add a window first
 add_window(
-        window_id="main", 
+        id="main", 
         title="CheckBox Demo",
     size=(600, 600),  
         pos_centered=True)
@@ -56,7 +56,7 @@ add_window(
 # Add a container to center the widgets in the middle
 add_container(
         window_id="main", 
-        container_id="cont", 
+        id="cont", 
         width_fill=True,
         height_fill=True,
         centered=True)
@@ -64,7 +64,7 @@ add_container(
 
 tt_id = add_tool_tip(
     window_id="main",
-    container_id="tt",
+    id="tt",
     parent_id="cont",
     text_to_display="Some Tip",
     position=IpgToolTipPosition.Top,

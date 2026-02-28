@@ -53,7 +53,7 @@ add_event_keyboard(
 # Unlike widgets, the events can be added at any time since they are not widgets
 # A window is added before any widgets
 add_window(
-        window_id="main", 
+        id="main", 
         title="KeyBoard Handler Demo",
     size=(600, 400),
         pos_centered=True)
@@ -61,7 +61,7 @@ add_window(
 # A column is added to hold the widgets
 add_column(
         window_id="main", 
-        container_id="col",
+        id="col",
         align=IpgAlignment.Center,
         width_fill=True, 
         height_fill=True)

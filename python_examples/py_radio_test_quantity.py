@@ -6,14 +6,14 @@ def radio_cb(id: int, selected: tuple):
     print(id, radio_index, radio_label)
 
 add_window(
-    window_id="main", 
+    id="main", 
     title="Radio Demo",
     size=(1400, 600),
     position=(100, 25))
 
 add_container(
     window_id="main",
-    container_id="cont",
+    id="cont",
     center=True,
 )
 

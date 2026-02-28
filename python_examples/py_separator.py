@@ -60,7 +60,7 @@ line_style = add_separator_style(
 # the separators and the effect of the 
 # width and height settings.
 add_window(
-    window_id="main", 
+    id="main", 
     title="Separator Demo",
     size=(600, 600),  
     center=True,
@@ -68,14 +68,14 @@ add_window(
 
 add_container(
     window_id="main",
-    container_id="cont",
+    id="cont",
     width_fill=True,
     height_fill=True)
 
 # Add a column to hold the widgets
 add_column(
     window_id="main", 
-    container_id="col",
+    id="col",
     parent_id="cont")
 
 # for the dot, the width and height are not used
@@ -131,7 +131,7 @@ add_separator(
 
 
 add_row(window_id="main",
-    container_id="dot_count_row",
+    id="dot_count_row",
     parent_id="col")
 
 add_button(
@@ -149,7 +149,7 @@ dot_count_id = add_separator(
 
 add_row(
     window_id="main",
-    container_id="dot_fill_row",
+    id="dot_fill_row",
     parent_id="col")
 
 add_button(
@@ -167,7 +167,7 @@ dot_fill_id = add_separator(
 
 add_row(
     window_id="main",
-    container_id="dot_border_width_row",
+    id="dot_border_width_row",
     parent_id="col")
 
 add_button(
@@ -191,7 +191,7 @@ add_text(
 
 add_row(
     window_id="main",
-    container_id="dot_width_row",
+    id="dot_width_row",
     parent_id="col")
 
 add_button(
@@ -209,7 +209,7 @@ dot_width_id = add_separator(
 
 add_row(
     window_id="main",
-    container_id="dot_spacing_row",
+    id="dot_spacing_row",
     parent_id="col")
 
 add_button(
@@ -227,7 +227,7 @@ dot_spacing_id = add_separator(
 
 add_row(
     window_id="main",
-    container_id="dot_show_row",
+    id="dot_show_row",
     parent_id="col")
 
 add_button(

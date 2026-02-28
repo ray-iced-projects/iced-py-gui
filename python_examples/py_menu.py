@@ -50,7 +50,7 @@ item_style = add_menu_style(
 # Adding two windows to show color contrasts 
 # Add the 1st window, the default theme is Dark
 add_window(
-        window_id="main", 
+        id="main", 
         title="Menu",
     size=(400, 400),  
         pos_centered=True)
@@ -62,7 +62,7 @@ add_window(
 # This number of int in the list must equal the number of bar items.
 add_menu(
         window_id="main",
-        container_id="menu",
+        id="menu",
         bar_items=2,
         bar_spacing=10.0,
         menu_items=[4, 4], 

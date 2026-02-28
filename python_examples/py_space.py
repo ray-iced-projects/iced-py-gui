@@ -2,7 +2,7 @@ from imports import *
 
 # Add the window, debug is set to true to be able to see the space widget.
 add_window(
-        window_id="main1", 
+        id="main1", 
         title="Space Demo 1",
     size=(400, 600),
         position=(100, 25), 
@@ -11,7 +11,7 @@ add_window(
 # Add the column for the widgets, centered
 add_column(
         window_id="main1", 
-        container_id="col1",
+        id="col1",
         align=IpgAlignment.Center,
         width_fill=True, 
         height_fill=True)
@@ -32,7 +32,7 @@ add_text(
 
 # Add another window
 add_window(
-    window_id="main2", 
+    id="main2", 
     title="Space Demo 2",
     size=(400, 600),
     position=(600, 25), 
@@ -41,7 +41,7 @@ add_window(
 # Add the column for the widgets, centered
 add_column(
     window_id="main2", 
-    container_id="col2",
+    id="col2",
     align=IpgAlignment.Center,
     width_fill=True, 
     height_fill=True)

@@ -62,7 +62,7 @@ def hide_bar(_btn_id: int, pg_id: any):
 
 # Add the window
 add_window(
-        window_id="main", 
+        id="main", 
         title="CheckBox Demo",
     size=(600, 600), 
         pos_centered=True)
@@ -70,14 +70,14 @@ add_window(
 # Add the container to help with alignment
 add_container(
         window_id="main", 
-        container_id="cont", 
+        id="cont", 
         width_fill=True,
         height_fill=True)
 
 # Add a column for the widgets
 add_column(
         window_id="main", 
-        container_id="col", 
+        id="col", 
         parent_id="cont",
         align=IpgAlignment.Center, spacing=2)
 
@@ -88,7 +88,7 @@ add_space(
 # add a row for the  for the pg bar
 add_row(
         window_id="main", 
-        container_id="row1", 
+        id="row1", 
         parent_id="col",
         width=400.0, 
         padding=[0])
@@ -103,7 +103,7 @@ pg_id = add_progress_bar(
 # add a row to display text value at the start and end of the pg bar
 add_row(
         window_id="main", 
-        container_id="row2", 
+        id="row2", 
         parent_id="col",
         width=400.0, 
         padding=[0])
@@ -118,7 +118,7 @@ max_text = add_text("row2", "100")
 # If this was more complex, you could add another container to the window then proceed.
 add_column(
         window_id="main", 
-        container_id="col2", 
+        id="col2", 
         parent_id="col",
         align=IpgAlignment.Center)
 
@@ -130,7 +130,7 @@ current_value_id = add_text(
 # Add row for increment and decrement buttons
 add_row(
         window_id="main", 
-        container_id="value_row", 
+        id="value_row", 
         parent_id="col2")
 
 # Increment button
@@ -150,7 +150,7 @@ add_button(
 # add row for min and max
 add_row(
         window_id="main", 
-        container_id="min_max_row", 
+        id="min_max_row", 
         parent_id="col2")
 
 # text input widgets are used for the inputs which you convert to floats in the callback

@@ -2,7 +2,7 @@ from imports import *
 
 # Add the window
 add_window(
-        window_id="main", 
+        id="main", 
         title="Rule Demo",
     size=(500, 650),
         position=(100, 25))
@@ -10,14 +10,14 @@ add_window(
 # Add a container for alignment
 add_container(
         window_id="main", 
-        container_id="cont", 
+        id="cont", 
         width_fill=True, 
         height_fill=True)
 
 # Add a column to hold the widgets
 add_column(
         window_id="main", 
-        container_id="col", 
+        id="col", 
         parent_id="cont",
         align=IpgAlignment.Center)
 

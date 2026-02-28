@@ -1,6 +1,8 @@
 //! ipg_checkbox
+#![allow(unused)]
 use std::collections::HashMap;
 
+use crate::graphics::colors::IpgColor;
 use crate::widgets::enums::IpgShaping;
 use crate::state::{access_callbacks, access_user_data1, 
     access_user_data2, IpgState};
@@ -19,13 +21,13 @@ use crate::state::IpgWidgets;
 use crate::graphics::BOOTSTRAP_FONT;
 use crate::graphics::bootstrap_icon::{IpgIcon, icon_to_char};
 
-use crate::widgets::styling::apply_border_overrides;
+use crate::widgets::styling::{apply_border_overrides, create_custom_theme, get_theme_palette_color};
 
 use iced::advanced::text;
 use iced::{Background, Element, Color, Length, Theme};
 use iced::widget::text::{LineHeight, Shaping};
 use iced::widget::{Checkbox, checkbox};
-use iced::theme::palette;
+use iced::theme::palette::{self, Primary};
 
 use pyo3::{pyclass, Py, PyAny, Python};
 type PyObject = Py<PyAny>;
@@ -67,7 +69,7 @@ impl IpgCheckBox {
     }
 
     pub fn construct<'a>(
-        &self,
+        &'a self,
         widgets: &HashMap<usize, IpgWidgets>,
     ) -> Option<Element<'a, Message>> {
 
@@ -77,7 +79,7 @@ impl IpgCheckBox {
 
         let style_opt = 
             self.lookup(widgets, self.style_id)
-                .and_then(IpgWidgets::as_button_style).cloned();
+                .and_then(IpgWidgets::as_checkbox_style).cloned();
 
         // Icon related
         let code_point = 
@@ -131,7 +133,8 @@ impl IpgCheckBox {
                 .icon(icon)
                 .style(move|theme: &Theme, status| {   
                     if let Some(st) = &style_opt {
-                        st.to_iced(theme, status, &self.style_standard)
+                        let is_label = if self.label.is_some() { true } else { false };
+                        st.to_iced(theme, status, &self.style_standard, is_label)
                     } else {
                        match &self.style_standard {
                             Some(std) => std.to_iced(theme, status),
@@ -165,7 +168,6 @@ impl IpgCheckBox {
 pub struct IpgCheckboxStyle {
     pub id: usize,
     pub background_color: Option<Color>,
-    pub accent_color: Option<Color>,
     pub border_color: Option<Color>,
     pub border_radius: Option<Vec<f32>>,
     pub border_width: Option<f32>,
@@ -175,59 +177,69 @@ pub struct IpgCheckboxStyle {
 
 impl IpgCheckboxStyle {
     /// Apply user-defined style overrides to an existing iced checkbox::Style
-    pub fn to_iced(
+    fn to_iced(
          &self, 
         theme: &Theme, 
         status: checkbox::Status,
         std_style_opt: &Option<IpgCheckboxStyleStandard>,
+        is_label: bool,
         ) -> checkbox::Style {
 
-        // Default the style to primary unless user supplies another standard style.
-        let style = if let Some(std) = std_style_opt {
-            std.to_iced(theme, status)
-        } else { checkbox::primary(theme, status) };
+        let mut style = if let Some(std) = 
+            std_style_opt {
+                std.to_iced(theme, status)
+            } else { checkbox::primary(theme, status) };
+        
+        if let Some(color) = self.icon_color {
+                style.icon_color = color;
+            };
 
-        // If user suppies a bkg color then pair with the text color, 
-        // if user suppied a text color too.
-        let mut style = if let Some(bkg) = self.background_color {
-            let border_color = if let Some(bc) = self.border_color {
-                bc
-            } else { style.border.color };
+        style.text_color = self.text_color;
         
-            // let palette = palette::Background::new(bkg, border_color);
-            
-            // let base = styled(palette.base);
-        
-            let is_checked = matches!(status,
-                checkbox::Status::Active { is_checked: true }
-                | checkbox::Status::Hovered { is_checked: true }
-                | checkbox::Status::Disabled { is_checked: true }
-            );
+        // custom style only depends on bkg and border color
+        if self.background_color.is_none() && self.border_color.is_none() {
+            return style
+        }
 
-        
-            match status {
-                checkbox::Status::Active { is_checked } => styled(
-                    palette.background.strong.color,
-                    palette.background.base,
-                    palette.primary.base.text,
-                    palette.primary.base,
-                    is_checked,
-                ),
-                checkbox::Status::Hovered { is_checked } => styled(
-                    palette.background.strong.color,
-                    palette.background.weak,
-                    palette.primary.base.text,
-                    palette.primary.strong,
-                    is_checked,
-                ),
-                checkbox::Status::Disabled { is_checked } => styled(
-                    palette.background.weak.color,
-                    palette.background.weaker,
-                    palette.primary.base.text,
-                    palette.background.strong,
-                    is_checked,
-                ),
-            }
+        // if given a border_color then use border_color as is
+        // if given a bkg_color then use bkg_color as is
+        // the accent will be paired regardless
+
+        let custom_theme;
+        let text_color;
+
+        let palette = if let Some(bkg) = self.background_color {
+            let dark_mode = palette::is_dark(bkg);
+            custom_theme = create_custom_theme(bkg, dark_mode);
+            text_color = custom_theme.palette().text;
+            custom_theme.extended_palette()
+        } else {
+            text_color = theme.palette().text;
+            theme.extended_palette()
+        };
+
+        let mut style = match status {
+            checkbox::Status::Active { is_checked } => styled(
+                palette.background.strong.color,
+                palette.background.base,
+                palette.primary.base.text,
+                palette.primary.base,
+                is_checked,
+            ),
+            checkbox::Status::Hovered { is_checked } => styled(
+                palette.background.strong.color,
+                palette.background.weak,
+                palette.primary.base.text,
+                palette.primary.strong,
+                is_checked,
+            ),
+            checkbox::Status::Disabled { is_checked } => styled(
+                palette.background.weak.color,
+                palette.background.weaker,
+                palette.primary.base.text,
+                palette.background.strong,
+                is_checked,
+            ),
         };
 
         apply_border_overrides(
@@ -235,12 +247,13 @@ impl IpgCheckboxStyle {
             &self.border_radius, self.border_width, "Checkbox",
         );
 
-        if let Some(color) = self.icon_color {
-            style.icon_color = color;
-        };
+        if is_label && self.background_color.is_some() {
+            let color = palette::readable(self.background_color.unwrap(), text_color);
+            style.text_color = Some(color);
+        }
 
         style
-
+        
     }
 
 }
@@ -252,7 +265,6 @@ fn styled(
     accent: palette::Pair,
     is_checked: bool,
 ) -> checkbox::Style {
-
     let (background, border) = if is_checked {
         (accent, accent.color)
     } else {
@@ -394,12 +406,6 @@ pub enum IpgCheckboxParam {
 pub enum IpgCheckboxStyleParam {
     BackgroundIpgColor,
     BackgroundRgbaColor,
-    BackgroundIpgColorHovered,
-    BackgroundRgbaColorHovered,
-    AccentIpgColor,
-    AccentRgbaColor,
-    AccentIpgColorHovered,
-    AccentRgbaColorHovered,
     BorderIpgColor,
     BorderRgbaColor,
     BorderRadius,
@@ -470,12 +476,6 @@ impl WidgetParamUpdate for IpgCheckboxStyle {
         match param {
             IpgCheckboxStyleParam::BackgroundIpgColor       => set_opt_iced_color(&mut self.background_color, value, name),
             IpgCheckboxStyleParam::BackgroundRgbaColor      => set_iced_color_from_rgba(&mut self.background_color, value, name),
-            IpgCheckboxStyleParam::BackgroundIpgColorHovered => set_opt_iced_color(&mut self.background_color_hovered, value, name),
-            IpgCheckboxStyleParam::BackgroundRgbaColorHovered => set_iced_color_from_rgba(&mut self.background_color_hovered, value, name),
-            IpgCheckboxStyleParam::AccentIpgColor           => set_opt_iced_color(&mut self.accent_color, value, name),
-            IpgCheckboxStyleParam::AccentRgbaColor          => set_iced_color_from_rgba(&mut self.accent_color, value, name),
-            IpgCheckboxStyleParam::AccentIpgColorHovered    => set_opt_iced_color(&mut self.accent_color_hovered, value, name),
-            IpgCheckboxStyleParam::AccentRgbaColorHovered   => set_iced_color_from_rgba(&mut self.accent_color_hovered, value, name),
             IpgCheckboxStyleParam::BorderIpgColor           => set_opt_iced_color(&mut self.border_color, value, name),
             IpgCheckboxStyleParam::BorderRgbaColor          => set_iced_color_from_rgba(&mut self.border_color, value, name),
             IpgCheckboxStyleParam::BorderRadius             => set_opt_vec_f32(&mut self.border_radius, value, name),

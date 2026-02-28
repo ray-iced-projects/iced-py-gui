@@ -123,8 +123,6 @@ pub fn add_checkbox(
 #[pyo3(signature = ( 
     background_color=None, 
     background_rgba=None,
-    accent_color=None,
-    accent_rgba=None,
     border_color=None, 
     border_rgba=None,
     border_radius=None, 
@@ -138,8 +136,6 @@ pub fn add_checkbox(
 pub fn add_checkbox_style(
     background_color: Option<IpgColor>,
     background_rgba: Option<[f32; 4]>,
-    accent_color: Option<IpgColor>,
-    accent_rgba: Option<[f32; 4]>,
     border_color: Option<IpgColor>,
     border_rgba: Option<[f32; 4]>,
     border_radius: Option<Vec<f32>>,
@@ -155,8 +151,6 @@ pub fn add_checkbox_style(
 
     let background_color: Option<Color> = 
         IpgColor::rgba_ipg_color_to_iced(background_rgba, background_color, 1.0, false);
-    let accent_color: Option<Color> = 
-        IpgColor::rgba_ipg_color_to_iced(accent_rgba, accent_color, 1.0, false);
     let border_color: Option<Color> = 
         IpgColor::rgba_ipg_color_to_iced(border_rgba, border_color, 1.0, false);
     let icon_color: Option<Color> = 
@@ -170,7 +164,6 @@ pub fn add_checkbox_style(
         IpgCheckboxStyle {
             id,
             background_color,
-            accent_color,
             border_color,
             border_radius,
             border_width,

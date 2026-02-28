@@ -1,8 +1,10 @@
 //! Style standard definitions and shared styling helpers
+use crate::{graphics::colors::IpgColor, py_api::helpers::get_radius};
 
-use crate::py_api::helpers::get_radius;
+use iced::{Border, Color, Shadow, Theme, Vector, theme::Palette};
+use iced::theme::palette::{Extended, Background, Primary, Secondary, 
+    Success, Warning, Danger, is_dark};
 
-use iced::{Border, Color, Shadow, Vector};
 use pyo3::pyclass;
 
 #[derive(Debug, Clone, PartialEq)]
@@ -53,3 +55,49 @@ pub fn apply_shadow_overrides_xy(
     }
 }
 
+pub fn get_theme_palette_color(theme: &iced::Theme) -> Color {
+    let r = theme.palette().background.r;
+    let g = theme.palette().background.g;
+    let b = theme.palette().background.b;
+    let a = theme.palette().background.a;
+    let rgba = [r, b, g, a];
+    IpgColor::rgba_ipg_color_to_iced(Some(rgba), None, 1.0, false).unwrap()
+}
+
+
+pub fn create_custom_theme(base_color: Color, dark_mode: bool) -> Theme {
+    // Build a Palette from your one color
+    let background = if dark_mode { Color::from_rgb(0.15, 0.15, 0.18) } 
+                     else { Color::from_rgb(0.95, 0.95, 0.93) };
+    let text = if dark_mode { Color::from_rgb(0.9, 0.9, 0.9) } 
+               else { Color::from_rgb(0.1, 0.1, 0.1) };
+
+    let palette = Palette {
+        background,
+        text,
+        primary: base_color,
+        success: base_color,  // or hue-rotated
+        warning: base_color,  // or hue-rotated
+        danger: base_color,   // or hue-rotated
+    };
+
+    Theme::custom_with_fn("Custom", palette, |p| {
+        // Here you control ALL the deviation factors
+        Extended {
+            background: Background::new(p.background, p.text),  // uses iced's defaults
+            primary: Primary::generate(p.primary, p.background, p.text),
+            secondary: Secondary::generate(p.background, p.text),
+            success: Success::generate(p.success, p.background, p.text),
+            warning: Warning::generate(p.warning, p.background, p.text),
+            danger: Danger::generate(p.danger, p.background, p.text),
+            is_dark: is_dark(p.background),
+        }
+    })
+}
+
+pub fn get_custom_palette(bkg_color: Color) -> (Extended, Color) {
+    let dark_mode = is_dark(bkg_color);
+    let custom_theme = create_custom_theme(bkg_color, dark_mode);
+    let text_color = custom_theme.palette().text;
+    (custom_theme.extended_palette().to_owned(), text_color)
+}

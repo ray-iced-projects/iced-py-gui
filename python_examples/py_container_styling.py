@@ -60,7 +60,7 @@ add_window(
     window_id="main", 
     title="Container Styling", 
     size=(500, 600),  
-    centered=True)
+    center=True)
 
 # add a container to hold the demo container 
 # in the middle of the window
@@ -69,47 +69,47 @@ add_container(
     container_id="cont1",
     width_fill=True,
     height_fill=True,
-    centered=True)
+    center=True)
 
 # add the container to work on
-add_container(
+with Container(
     window_id="main",
     container_id="cont2",
     parent_id="cont1",
     width=200.0, 
     height=200.0,
     style_id=cont_style,
-    centered=True)
+    center=True):
 
-# Add a column to hold the widgets
-# the column has an transparent background
-# so the container style shows through
-add_column(
-    window_id="main",
-    container_id="col",
-    parent_id="cont2",
-    spacing=20.0,
-    padding=[20.0])
+    # Add a column to hold the widgets
+    # the column has an transparent background
+    # so the container style shows through
+    add_column(
+        window_id="main",
+        container_id="col",
+        parent_id="cont2",
+        spacing=20.0,
+        padding=[20.0])
 
-# Add some text.  Since this text is not styled
-# it would be a bit hard to see because the container
-# will attempt to default style the text but
-# won't always work best, So you can either
-# style the text or use the container text_color
-# to style all of the text in the container.
-# This text styling will override the container 
-# text color
-add_text(
-    parent_id="col",
-    content="Some Text")
+    # Add some text.  Since this text is not styled
+    # it would be a bit hard to see because the container
+    # will attempt to default style the text but
+    # won't always work best, So you can either
+    # style the text or use the container text_color
+    # to style all of the text in the container.
+    # This text styling will override the container 
+    # text color
+    add_text(
+        parent_id="col",
+        content="Some Text")
 
-# Add a button the change the background color 
-# or any of the style settings
-add_button(
-    parent_id="col",
-    label="Press to\nchange styling",
-    text_align_x=IpgAlignmentX.Center,
-    on_press=change_container_styling)
+    # Add a button the change the background color 
+    # or any of the style settings
+    add_button(
+        parent_id="col",
+        label="Press to\nchange styling",
+        text_align_x=IpgAlignmentX.Center,
+        on_press=change_container_styling)
 
 
 # last thing is to start the session

@@ -1,28 +1,28 @@
 # Ipg functions
 from .icedpygui import (
     add_button_style, 
-    add_button, 
+    add_button as _add_button, 
     add_checkbox_style,
-    add_checkbox,
-    add_color_picker, 
+    add_checkbox as _add_checkbox,
+    add_color_picker as _add_color_picker, 
     add_column, 
     add_container,
     add_container_style,
-    add_date_picker,
-    add_pick_list,
+    add_date_picker as _add_date_picker,
+    add_pick_list as _add_pick_list,
     add_pick_list_style,
-    add_radio,
+    add_radio as _add_radio,
     add_radio_style, 
     add_row,
-    add_scrollable,
+    add_scrollable as _add_scrollable,
     add_scrollbar,
     add_autoscroll_style,
     add_rail_style,
-    add_selectable_text,
-    add_separator,
+    add_selectable_text as _add_selectable_text,
+    add_separator as _add_separator,
     add_separator_style,
-    add_space,
-    add_slider,
+    add_space as _add_space,
+    add_slider as _add_slider,
     add_slider_style,
     add_text as _add_text,
     add_window as _add_window,
@@ -36,6 +36,7 @@ from .icedpygui import (
     IpgCheckboxStyleParam,
     IpgColor, 
     IpgColumnParam,
+    IpgContainerParam,
     IpgContainerStyleParam,
     IpgDatePickerParam,            
     IpgAlignmentX, 
@@ -107,6 +108,33 @@ def add_text(parent_id=None, **kwargs):
     if parent_id is None:
         raise ValueError("add_text: parent_id is required (either pass it or use a context manager)")
     return _add_text(parent_id=parent_id, **kwargs)
+
+
+def _wrap_widget(rust_fn, name):
+    """Create a thin wrapper that injects parent_id from the context stack."""
+    def wrapper(parent_id=None, **kwargs):
+        if parent_id is None:
+            parent_id = _current_parent()
+        if parent_id is None:
+            raise ValueError(f"{name}: parent_id is required (either pass it or use a context manager)")
+        return rust_fn(parent_id=parent_id, **kwargs)
+    wrapper.__name__ = name
+    wrapper.__qualname__ = name
+    wrapper.__doc__ = f"Wrapper around the Rust {name}. Falls back to parent stack for parent_id."
+    return wrapper
+
+
+add_button = _wrap_widget(_add_button, "add_button")
+add_checkbox = _wrap_widget(_add_checkbox, "add_checkbox")
+add_color_picker = _wrap_widget(_add_color_picker, "add_color_picker")
+add_date_picker = _wrap_widget(_add_date_picker, "add_date_picker")
+add_pick_list = _wrap_widget(_add_pick_list, "add_pick_list")
+add_radio = _wrap_widget(_add_radio, "add_radio")
+add_scrollable = _wrap_widget(_add_scrollable, "add_scrollable")
+add_selectable_text = _wrap_widget(_add_selectable_text, "add_selectable_text")
+add_separator = _wrap_widget(_add_separator, "add_separator")
+add_space = _wrap_widget(_add_space, "add_space")
+add_slider = _wrap_widget(_add_slider, "add_slider")
 
 
 # ---------------------------------------------------------------------------

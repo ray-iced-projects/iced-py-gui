@@ -40,6 +40,7 @@ from icedpygui import (
     IpgCheckboxStyleParam,
     IpgColor, 
     IpgColumnParam,
+    IpgContainerParam,
     IpgContainerStyleParam,
     IpgDatePickerParam,
     IpgAlignmentX,

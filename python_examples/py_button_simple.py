@@ -19,16 +19,16 @@ with Window(window_id="main", title="App",
                 padding=[20.0], align_x=IpgAlignment.Center):
 
         add_button(
-            parent_id="col", 
             label="Click Me to Print Id",
             padding=[5.0],
             on_press=print_id, 
             style_id=style_id)
 
         add_button(
-            parent_id="col", 
             label="Press to Update the Corner Radius",
             padding=[5.0], 
             on_press=round_corners)
+
+
 
 start_session()

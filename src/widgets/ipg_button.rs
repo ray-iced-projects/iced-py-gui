@@ -11,6 +11,7 @@ use crate::widgets::enums::{IpgAlignmentX,
 use crate::py_api::helpers::get_padding;
 use crate::widgets::styling::apply_shadow_overrides_xy;
 use crate::widgets::styling::apply_border_overrides;
+use crate::widgets::styling::get_custom_palette;
 use crate::widgets::widget_param_update::set_opt_f32_array_2;
 use crate::widgets::widget_param_update::{
     WidgetParamUpdate, set_bool, set_halign, set_height, 
@@ -19,6 +20,7 @@ use crate::widgets::widget_param_update::{
     set_opt_vec_f32, set_valign, set_width, set_width_fill
 };
 
+use iced::Background;
 use iced::border;
 use iced::widget::{button, text, Button};
 use iced::{Color, Element, Length, Theme};
@@ -194,41 +196,30 @@ impl IpgButtonStyle {
     pub fn to_iced(
         &self, 
         theme: &Theme, 
-        status: checkbox::Status,
+        status: button::Status,
         std_style_opt: &Option<IpgButtonStyleStandard>,
-        ) -> checkbox::Style{
+        ) -> button::Style{
         
-        // Default the style to primary unless user supplies another standard style.
-        let style = if let Some(std) = std_style_opt {
-            std.to_iced(theme, status)
-        } else { button::primary(theme, status) };
-        
-        // If user suppies a bkg color then pair with the text color, if user suppied a text color too.
+        // If the user supplied a background_color, build a custom palette style.
+        // Otherwise, use the standard style (or default to primary).
         let mut style = if let Some(bkg) = self.background_color {
-            let text = if let Some(tc) = self.text_color {
-                tc
-            } else { style.text_color };
-        
-            let palette = palette::Background::new(bkg, text);
-            
-            let base = styled(palette.base);
-
+            let (palette, _text_color) = get_custom_palette(bkg);
+            let base = styled(palette.primary.base);
             match status {
-                button::Status::Active => base,
-                button::Status::Pressed => button::Style {
-                    background: Some(iced::Background::Color(
-                        palette.strong.color,
-                    )),
-                    ..base
-                },
+                button::Status::Active | button::Status::Pressed => base,
                 button::Status::Hovered => button::Style {
-                    background: Some(iced::Background::Color(palette.weak.color)),
+                    background: Some(Background::Color(palette.primary.strong.color)),
                     ..base
                 },
                 button::Status::Disabled => disabled(base),
             }
-        } else { style };
-        
+        } else if let Some(std) = std_style_opt {
+            std.to_iced(theme, status)
+        } else {
+            button::primary(theme, status)
+        };
+
+        // Apply remaining optional overrides
         apply_border_overrides(
             &mut style.border, self.border_color,
             &self.border_radius, self.border_width, "Button",
@@ -237,6 +228,11 @@ impl IpgButtonStyle {
         apply_shadow_overrides_xy(
             &mut style.shadow, self.shadow_color, 
             self.shadow_offset_xy, self.shadow_blur_radius);
+        
+        if let Some(tc) = self.text_color {
+            style.text_color = tc; 
+        }
+
         style
 
     }

@@ -70,7 +70,7 @@ use crate::graphics::colors::IpgColor;
 use crate::widgets::ipg_button::{IpgButtonParam, IpgButtonStyleParam, IpgButtonStyleStandard};
 use crate::widgets::ipg_checkbox::{IpgCheckboxParam, IpgCheckboxStyleParam};
 use crate::widgets::ipg_column::IpgColumnParam;
-use crate::widgets::ipg_container::IpgContainerStyleParam;
+use crate::widgets::ipg_container::{IpgContainerParam, IpgContainerStyleParam};
 use crate::widgets::ipg_date_picker::IpgDatePickerParam;
 use crate::widgets::ipg_divider::{IpgDividerParam, IpgDividerStyleParam};
 use crate::widgets::ipg_pick_list::IpgPickListHandle;
@@ -134,6 +134,7 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<IpgButtonStyleParam>()?;
     m.add_class::<IpgButtonStyleStandard>()?;
     m.add_class::<IpgCheckboxStyleParam>()?;
+    m.add_class::<IpgContainerParam>()?;
     m.add_class::<IpgContainerStyleParam>()?;
     m.add_class::<IpgDividerStyleParam>()?;
     m.add_class::<IpgRadioStyleParam>()?;

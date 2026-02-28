@@ -4,8 +4,7 @@ use std::collections::HashMap;
 
 use crate::graphics::colors::IpgColor;
 use crate::widgets::enums::IpgShaping;
-use crate::state::{access_callbacks, access_user_data1, 
-    access_user_data2, IpgState};
+use crate::state::IpgState;
 use crate::app::Message;
 use crate::widgets::ipg_text::IpgWrapping;
 use crate::widgets::widget_param_update::{
@@ -14,8 +13,10 @@ use crate::widgets::widget_param_update::{
     set_width, set_width_fill,
     set_opt_iced_color, set_iced_color_from_rgba,
 };
-use crate::widgets::callbacks::{set_or_get_widget_callback_data, 
-    WidgetCallbackIn};
+use crate::widgets::callbacks::{
+    invoke_callback_with_args, set_or_get_widget_callback_data, 
+    WidgetCallbackIn
+};
 use crate::state::IpgWidgets;
 
 use crate::graphics::BOOTSTRAP_FONT;
@@ -324,58 +325,9 @@ pub fn checkbox_callback(state: &mut IpgState, id: usize, message: ChkMessage) {
             wci.on_toggle = Some(on_toggle);
             let _ = set_or_get_widget_callback_data(state, wci);
 
-            process_callback(id, on_toggle, "on_toggle".to_string());
+            invoke_callback_with_args(id, "on_toggle", "Checkbox", on_toggle);
         }
     }
-}
-
-pub fn process_callback(
-        id: usize, 
-        is_checked: bool, 
-        event_name: String) 
-{
-    let ud1 = access_user_data1();
-    let app_cbs = access_callbacks();
-
-    // Retrieve the callback
-    let callback = match app_cbs.callbacks.get(&(id, event_name)) {
-        Some(cb) => Python::attach(|py| cb.clone_ref(py)),
-        None => return,
-    };
-
-    drop(app_cbs);
-
-    // Check user data from ud1
-    if let Some(user_data) = ud1.user_data.get(&id) {
-        Python::attach(|py| {
-            if let Err(err) = callback.call1(py, (id, is_checked, user_data)) {
-                panic!("Checkbox callback error: {err}");
-            }
-        });
-        drop(ud1); // Drop ud1 before processing ud2
-        return;
-    }
-    drop(ud1); // Drop ud1 if no user data is found
-
-    // Check user data from ud2
-    let ud2 = access_user_data2();
-    if let Some(user_data) = ud2.user_data.get(&id) {
-        Python::attach(|py| {
-            if let Err(err) = callback.call1(py, (id, is_checked, user_data)) {
-                panic!("Checkbox callback error: {err}");
-            }
-        });
-        drop(ud2); // Drop ud2 after processing
-        return;
-    }
-    drop(ud2); // Drop ud2 if no user data is found
-
-    // If no user data is found in both ud1 and ud2, call the callback with only the id and is_checked
-    Python::attach(|py| {
-        if let Err(err) = callback.call1(py, (id, is_checked)) {
-            panic!("Checkbox callback error: {err}");
-        }
-    });
 }
 
 

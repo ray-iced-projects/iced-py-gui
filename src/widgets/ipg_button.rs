@@ -1,11 +1,10 @@
 //! Button widget definition
 use std::collections::HashMap;
 
-use crate::access_callbacks;
 use crate::app::Message;
 use crate::graphics::bootstrap_arrow::IpgArrow;
 use crate::state::IpgWidgets;
-use crate::state::access_user_data2;
+use crate::widgets::callbacks::invoke_callback;
 use crate::widgets::enums::{IpgAlignmentX, 
     IpgAlignmentY};
 use crate::py_api::helpers::get_padding;
@@ -130,52 +129,9 @@ pub enum BtnMessage {
 pub fn button_callback(id: usize, message: BtnMessage) {
     match message {
         BtnMessage::OnPress => {
-            process_callback(id, "on_press".to_string());
+            invoke_callback(id, "on_press", "Button");
         }
     }
-}
-
-fn process_callback(id: usize, event_name: String) {
-    
-    let app_cbs = access_callbacks();
-    
-    // Retrieve the callback
-    let callback = match app_cbs.get(id, &event_name) {
-        Some(cb) => Python::attach(|py| cb.clone_ref(py)),
-        None => return,
-    };
-    
-    drop(app_cbs);
-    
-    // Try user_data1 first; if its mutex is locked, fall back to user_data2
-    let user_data_opt = {
-        use crate::state::USERDATA1;
-        let lock1 = USERDATA1.try_lock();
-        if let Ok(ref ud1) = lock1 {
-            let opt = ud1.get(id).map(|ud| Python::attach(|py| ud.clone_ref(py)));
-            drop(lock1);
-            opt
-        } else {
-            let ud2 = access_user_data2();
-            let opt = ud2.get(id).map(|ud| Python::attach(|py| ud.clone_ref(py)));
-            drop(ud2);
-            opt
-        }
-    };
-
-    // Call the callback once
-    Python::attach(|py| {
-        let result = if let Some(user_data) = user_data_opt {
-            callback.call1(py, (id, user_data))
-        } else {
-            callback.call1(py, (id,))
-        };
-        
-        if let Err(err) = result {
-            panic!("Button callback error: {err}");
-        }
-    });
-
 }
 
 #[derive(Debug, Clone, Default)]

@@ -28,19 +28,6 @@ pub struct IpgColumn {
     pub clip: Option<bool>,
 }
 
-#[derive(Debug, Clone, PartialEq)]
-#[pyclass(eq, eq_int)]
-pub enum IpgColumnParam {
-    AlignX,
-    Clip,
-    Padding,
-    Width,
-    WidthFill,
-    Height,
-    HeightFill,
-    Spacing,
-}
-
 pub fn construct_column<'a>(
     ipg_col: &IpgColumn, 
     content: Vec<Element<'a, Message>> 
@@ -73,6 +60,18 @@ pub fn construct_column<'a>(
 
 }
 
+#[derive(Debug, Clone, PartialEq)]
+#[pyclass(eq, eq_int)]
+pub enum IpgColumnParam {
+    AlignX,
+    Clip,
+    Height,
+    HeightFill,
+    Padding,
+    Spacing,
+    Width,
+    WidthFill,
+}
 
 // ---------------------------------------------------------------------------
 // WidgetParamUpdate implementation

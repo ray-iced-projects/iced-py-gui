@@ -44,7 +44,7 @@ add_window(
     id="main", 
     title="Canvas",
     size=(500.0, 500.0),
-    centered=True)
+    center=True)
 
 # Add the container to center both x and y (default).  Holds only one widget.
 add_container(

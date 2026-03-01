@@ -3,16 +3,16 @@ use crate::graphics::bootstrap_arrow::IpgArrow;
 use crate::state::IpgWidgets;
 use crate::widgets::ipg_button::{IpgButtonStyleStandard, extract_button_style_standard};
 use crate::widgets::widget_param_update::{WidgetParamUpdate, set_bool, set_height, set_height_fill, set_iced_color, set_iced_color_from_rgba, set_opt_bool, set_opt_f32, set_opt_iced_color, set_opt_ipg_arrow, set_opt_string, set_opt_usize, set_opt_vec_f32, set_width, set_width_fill};
-use crate::{access_callbacks, access_user_data1, IpgState};
+use crate::IpgState;
 use crate::app::Message;
 use crate::py_api::helpers::get_padding;
-use super::callbacks::{set_or_get_widget_callback_data, WidgetCallbackIn};
+use super::callbacks::{invoke_callback, invoke_callback_with_args};
 
 use iced::widget::{Button, button, text};
 use iced::{Color, Element, Length, Theme};
 use iced_aw::ColorPicker;
 
-use pyo3::{Py, PyAny, Python, pyclass};
+use pyo3::{Py, PyAny, pyclass};
 type PyObject = Py<PyAny>;
 
 #[derive(Debug, Clone)]
@@ -46,15 +46,6 @@ pub struct IpgColorPickerStyle {
     pub shadow_blur_radius: Option<f32>,
     pub text_color: Option<Color>,
 }
-
-#[allow(clippy::enum_variant_names)]
-#[derive(Debug, Clone)]
-pub enum ColPikMessage {
-    OnPress,
-    OnCancel,
-    OnSubmit(Color),
-}
-
 
 pub fn construct_color_picker<'a>(cp: &'a IpgColorPicker,
                                 widget: Option<&IpgWidgets>,
@@ -105,97 +96,43 @@ pub fn construct_color_picker<'a>(cp: &'a IpgColorPicker,
 
 }
 
-pub fn color_picker_callback(state: &mut IpgState, id: usize, message: ColPikMessage) {
-    let mut wci: WidgetCallbackIn = WidgetCallbackIn::default();
-    match message {
-        ColPikMessage::OnCancel => {
-            wci.id = id;
-            wci.value_bool = Some(false);
-            let _ = set_or_get_widget_callback_data(state, wci);
-            process_callback(id, "on_cancel".to_string(), None);
-        },
-        ColPikMessage::OnSubmit(color) => {
-            wci.id = id;
-            wci.value_bool = Some(false);
-            wci.color = Some(convert_color_to_list(color));
-            let _ = set_or_get_widget_callback_data(state, wci);
-            process_callback(id, "on_select".to_string(), Some(convert_color_to_list(color)));
-        },
-        ColPikMessage::OnPress => {
-            wci.id = id;
-            wci.value_bool = Some(true);
-            let _ = set_or_get_widget_callback_data(state, wci);
-            process_callback(id, "on_press".to_string(), None);
-        },
-    }
+#[allow(clippy::enum_variant_names)]
+#[derive(Debug, Clone)]
+pub enum ColPikMessage {
+    OnPress,
+    OnCancel,
+    OnSubmit(Color),
 }
 
-
-pub fn process_callback(id: usize, event_name: String, color: Option<Vec<f64>>) 
-{
-    let ud1 = access_user_data1();
-    let app_cbs = access_callbacks();
-
-    // Retrieve the callback
-    let callback = match app_cbs.callbacks.get(&(id, event_name.clone())) {
-        Some(cb) => Python::attach(|py| cb.clone_ref(py)),
-        None => return,
-    };
-
-    drop(app_cbs);
-
-    // Check user data from ud1
-    if let Some(user_data) = ud1.user_data.get(&id) {
-        Python::attach(|py| {
-            if event_name == "on_select".to_string() {
-                if let Err(err) = callback.call1(py, (id, color, user_data)) {
-                    panic!("ColorPicker callback error: {err}");
-                }
-            } else {
-                if let Err(err) = callback.call1(py, (id, user_data)) {
-                    panic!("ColorPicker callback error: {err}");
-                }
-            }
-            
-        });
-        drop(ud1); // Drop ud1 before processing ud2
-        return;
-    }
-    drop(ud1); // Drop ud1 if no user data is found
-
-    // Check user data from ud2
-    // let ud2 = access_user_data2();
-    // if let Some(user_data) = ud2.user_data.get(&id) {
-    //     Python::attach(|py| {
-    //         if event_name == "on_submit".to_string() {
-    //             if let Err(err) = callback.call1(py, (id, color, user_data)) {
-    //                 panic!("ColorPicker callback error: {err}");
-    //             }
-    //         } else {
-    //             if let Err(err) = callback.call1(py, (id, user_data)) {
-    //                 panic!("ColorPicker callback error: {err}");
-    //             }
-    //         }
-    //     });
-    //     drop(ud2); // Drop ud2 after processing
-    //     return;
-    // }
-    // drop(ud2); // Drop ud2 if no user data is found
-
-    // If no user data is found in both ud1 and ud2, call the 
-    // callback with only the id and color except for on_pressed
-    // which has only an id.
-    Python::attach(|py| {
-        if event_name == "on_submit".to_string() {
-            if let Err(err) = callback.call1(py, (id, color)) {
-                panic!("ColorPicker callback error: {err}");
-            }
-        } else {
-            if let Err(err) = callback.call1(py, (id,)) {
-                panic!("ColorPicker callback error: {err}");
-            }
+pub fn color_picker_callback(state: &mut IpgState, id: usize, message: ColPikMessage) {
+    // Update widget state directly
+    if let Some(IpgWidgets::IpgColorPicker(cp)) = state.widgets.get_mut(&id) {
+        match &message {
+            ColPikMessage::OnCancel => {
+                cp.show = false;
+            },
+            ColPikMessage::OnSubmit(color) => {
+                cp.show = false;
+                cp.color = *color;
+            },
+            ColPikMessage::OnPress => {
+                cp.show = true;
+            },
         }
-    });
+    }
+
+    // Invoke Python callback
+    match message {
+        ColPikMessage::OnCancel => {
+            invoke_callback(id, "on_cancel", "ColorPicker");
+        },
+        ColPikMessage::OnSubmit(color) => {
+            invoke_callback_with_args(id, "on_select", "ColorPicker", convert_color_to_list(color));
+        },
+        ColPikMessage::OnPress => {
+            invoke_callback(id, "on_press", "ColorPicker");
+        },
+    }
 }
 
 

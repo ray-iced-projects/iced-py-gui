@@ -9,6 +9,7 @@ from imports import *
 # The is_checked is a boolean which will toggle ther first 
 # checkbox when you want todo something, in this case change the Icon.
 def on_toggle(_chkbx_id: int, is_checked: bool, user_data: any):
+    print("Some user data: ", user_data)
     update_widget(
             wid=x_id, 
             param=IpgCheckboxParam.Icon, 
@@ -40,7 +41,7 @@ with Window(id="main", title="CheckBox Demo",
             add_checkbox(
                 label="Check Me!!!",
                 on_toggle=on_toggle,
-                user_data="Something") # not used in this demo
+                user_data="Something") # just printed in this demo
 
             with Container(id="custom", style_id=cont_style):
 

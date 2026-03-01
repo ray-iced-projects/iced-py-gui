@@ -13,10 +13,7 @@ use crate::widgets::widget_param_update::{
     set_width, set_width_fill,
     set_opt_iced_color, set_iced_color_from_rgba,
 };
-use crate::widgets::callbacks::{
-    invoke_callback_with_args, set_or_get_widget_callback_data, 
-    WidgetCallbackIn
-};
+use crate::widgets::callbacks::invoke_callback_with_args;
 use crate::state::IpgWidgets;
 
 use crate::graphics::BOOTSTRAP_FONT;
@@ -56,11 +53,6 @@ pub struct IpgCheckBox {
     pub icon_shaping: Option<IpgShaping>,
     pub style_id: Option<usize>,
     pub style_standard: Option<IpgCheckboxStyleStandard>,
-}
-
-#[derive(Debug, Clone)]
-pub enum ChkMessage {
-    OnToggle(bool),
 }
 
 impl IpgCheckBox {
@@ -164,6 +156,23 @@ impl IpgCheckBox {
     }
 }
 
+#[derive(Debug, Clone)]
+pub enum ChkMessage {
+    OnToggle(bool),
+}
+
+pub fn checkbox_callback(state: &mut IpgState, id: usize, message: ChkMessage) {
+
+    match message {
+        ChkMessage::OnToggle(is_checked) => {
+            // Update widget state directly
+            if let Some(IpgWidgets::IpgCheckBox(cb)) = state.widgets.get_mut(&id) {
+                cb.is_checked = is_checked;
+            }
+            invoke_callback_with_args(id, "on_toggle", "Checkbox", is_checked);
+        }
+    }
+}
 
 #[derive(Debug, Clone, Default)]
 pub struct IpgCheckboxStyle {
@@ -313,19 +322,6 @@ impl IpgCheckboxStyleStandard {
             IpgCheckboxStyleStandard::Success => {
                 checkbox::success(theme, status)
             },
-        }
-    }
-}
-
-pub fn checkbox_callback(state: &mut IpgState, id: usize, message: ChkMessage) {
-
-    match message {
-        ChkMessage::OnToggle(on_toggle) => {
-            let mut wci: WidgetCallbackIn = WidgetCallbackIn{id, ..Default::default()};
-            wci.on_toggle = Some(on_toggle);
-            let _ = set_or_get_widget_callback_data(state, wci);
-
-            invoke_callback_with_args(id, "on_toggle", "Checkbox", on_toggle);
         }
     }
 }

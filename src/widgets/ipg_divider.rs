@@ -1,9 +1,8 @@
 //! ipg_divider
-use crate::{IpgState, access_callbacks, access_user_data1, app};
+use crate::{IpgState, app};
 use crate::py_api::helpers::get_radius;
 use crate::state::IpgWidgets;
-use crate::widgets::callbacks::{WidgetCallbackIn, 
-    set_or_get_widget_callback_data}; 
+use crate::widgets::callbacks::invoke_callback_with_args;
 use crate::widgets::divider::{self, Direction, Status, Style, 
     divider_horizontal, divider_vertical};
 use crate::widgets::widget_param_update::{
@@ -14,7 +13,7 @@ use crate::widgets::widget_param_update::{
 };
 
 use iced::{Background, Color, Element, Length, Theme};
-use pyo3::{pyclass, Py, PyAny, Python};
+use pyo3::{pyclass, Py, PyAny};
 type PyObject = Py<PyAny>;
 
 
@@ -166,80 +165,30 @@ pub fn construct_divider_vertical<'a>(
 }
 
 pub fn divider_callback(state: &mut IpgState, id: usize, message: DivMessage) {
-
-    let mut wci: WidgetCallbackIn = WidgetCallbackIn{id, ..Default::default()};
-           
     match message {
-        DivMessage::OnChange((id, index, value)) => {
-            wci.value_f32 = Some(value);
-            wci.value_usize = Some(index);
-            wci.value_str = Some("on_change".to_string());
-            let _ = set_or_get_widget_callback_data(state, wci);
-            process_callback(
-                id, 
-                "on_change".to_string(), 
-                index, 
-                value);
+        DivMessage::OnChange((widget_id, index, value)) => {
+            // Update widget state directly - try horizontal first, then vertical
+            if let Some(IpgWidgets::IpgDividerHorizontal(div)) = state.widgets.get_mut(&widget_id) {
+                div.index_in_use = index;
+                div.value_in_use = value;
+            } else if let Some(IpgWidgets::IpgDividerVertical(div)) = state.widgets.get_mut(&widget_id) {
+                div.index_in_use = index;
+                div.value_in_use = value;
+            }
+            invoke_callback_with_args(widget_id, "on_change", "Divider", (index, value));
         },
         DivMessage::OnRelease => {
-            // to be consistent, returning values for both
-            wci.value_str = Some("on_release".to_string());
-            let wco = set_or_get_widget_callback_data(state, wci);
-            process_callback(
-                id, 
-                "on_release".to_string(), 
-                wco.value_usize.unwrap(), 
-                wco.value_f32.unwrap());
+            // Get stored values from widget state
+            let (index, value) = if let Some(IpgWidgets::IpgDividerHorizontal(div)) = state.widgets.get(&id) {
+                (div.index_in_use, div.value_in_use)
+            } else if let Some(IpgWidgets::IpgDividerVertical(div)) = state.widgets.get(&id) {
+                (div.index_in_use, div.value_in_use)
+            } else {
+                (0, 0.0)
+            };
+            invoke_callback_with_args(id, "on_release", "Divider", (index, value));
         },
     }
-}
-
-pub fn process_callback(id: usize, event_name: String, index: usize, value: f32) {
-    let ud1 = access_user_data1();
-    let app_cbs = access_callbacks();
-
-    // Retrieve the callback
-    let callback = match app_cbs.callbacks.get(&(id, event_name)) {
-        Some(cb) => Python::attach(|py| cb.clone_ref(py)),
-        None => return,
-    };
-
-    drop(app_cbs);
-
-    // Check user data from ud1
-    if let Some(user_data) = ud1.user_data.get(&id) {
-        Python::attach(|py| {
-            let res = callback.call1(py, (id, index, value, user_data));
-            if let Err(err) = res {
-                panic!("Divider callback error: {err}");
-            }
-        });
-        drop(ud1); // Drop ud1 before processing ud2
-        return;
-    }
-    drop(ud1); // Drop ud1 if no user data is found
-
-    // // Check user data from ud2
-    // let ud2 = access_user_data2();
-    // if let Some(user_data) = ud2.user_data.get(&id) {
-    //     Python::attach(|py| {
-    //         let res = callback.call1(py, (id, index, value, user_data));
-    //         if let Err(err) = res {
-    //             panic!("Divider callback error: {err}");
-    //         }
-    //     });
-    //     drop(ud2); // Drop ud2 after processing
-    //     return;
-    // }
-    // drop(ud2); // Drop ud2 if no user data is found
-
-    // If no user data is found in both ud1 and ud2, call the callback with only id, index, and value
-    Python::attach(|py| {
-        let res = callback.call1(py, (id, index, value));
-        if let Err(err) = res {
-            panic!("Divider callback error: {err}");
-        }
-    });
 }
 
 #[derive(Debug, Clone, PartialEq)]

@@ -1,6 +1,4 @@
 //! ipg_pick_list
-use crate::access_callbacks;
-use crate::access_user_data1;
 use crate::app;
 use crate::IpgState;
 use crate::graphics::bootstrap_arrow::IpgArrow;
@@ -13,8 +11,7 @@ use crate::widgets::widget_param_update::{WidgetParamUpdate,
     set_opt_f32, set_opt_string, set_opt_text_shaping,
     set_opt_usize, set_opt_vec_f32, set_vec_string,
     set_iced_color_from_rgba, set_width};
-use super::callbacks::set_or_get_widget_callback_data;
-use super::callbacks::WidgetCallbackIn;
+use super::callbacks::invoke_callback_with_args;
 
 use iced::widget::pick_list::{self, Status};
 use iced::{Color, Font, Pixels, Theme};
@@ -122,68 +119,15 @@ pub fn construct_picklist<'a>(
  
 
  pub fn pick_list_callback(state: &mut IpgState, id: usize, message: PLMessage) {
-
-    let mut wci: WidgetCallbackIn = WidgetCallbackIn{id, ..Default::default()};
-
     match message {
         PLMessage::OnSelect(selected) => {
-            wci.value_str = Some(selected.clone());
-            let _ = set_or_get_widget_callback_data(state, wci);
-            
-            process_callback(id, "on_select".to_string(), selected);
+            // Update widget state directly
+            if let Some(IpgWidgets::IpgPickList(pl)) = state.widgets.get_mut(&id) {
+                pl.selected = Some(selected.clone());
+            }
+            invoke_callback_with_args(id, "on_select", "PickList", selected);
         },
     }
- }
-
-
- fn process_callback(
-        id: usize, 
-        event_name: String, 
-        selected: String) 
- {
-    let ud1 = access_user_data1();
-    let app_cbs = access_callbacks();
-
-    // Retrieve the callback
-    let callback = match app_cbs.callbacks.get(&(id, event_name)) {
-        Some(cb) => Python::attach(|py| cb.clone_ref(py)),
-        None => return,
-    };
-
-    drop(app_cbs);
-
-    // Check user data from ud1
-    if let Some(user_data) = ud1.user_data.get(&id) {
-        Python::attach(|py| {
-            if let Err(err) = callback.call1(py, (id, selected, user_data)) {
-                panic!("PickList callback error: {err}");
-            }
-        });
-        drop(ud1); // Drop ud1 before processing ud2
-        return;
-    }
-    drop(ud1); // Drop ud1 if no user data is found
-
-    // Check user data from ud2
-    // let ud2 = access_user_data2();
-    // if let Some(user_data) = ud2.user_data.get(&id) {
-    //     Python::attach(|py| {
-    //         if let Err(err) = callback.call1(py, (id, selected, user_data)) {
-    //             panic!("PickList callback error: {err}");
-    //         }
-    //     });
-    //     drop(ud2); // Drop ud2 after processing
-    //     return;
-    // }
-    // drop(ud2); // Drop ud2 if no user data is found
-
-    // If no user data is found in both ud1 and ud2, call the callback with only the id and selected
-    Python::attach(|py| {
-        if let Err(err) = callback.call1(py, (id, selected)) {
-            panic!("PickList callback error: {err}");
-        }
-    });
-
  }
 
 

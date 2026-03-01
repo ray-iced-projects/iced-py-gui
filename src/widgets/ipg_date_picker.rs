@@ -1,14 +1,13 @@
 //! ipg_date_picker
 use crate::app::{Message, self};
 use crate::graphics::BOOTSTRAP_FONT;
-use crate::state::{IpgWidgets, access_user_data2};
+use crate::state::IpgWidgets;
 use crate::widgets::ipg_button::IpgButtonStyleStandard;
-use crate::{access_callbacks, access_user_data1, IpgState};
-use super::callbacks::{set_or_get_widget_callback_data, 
-    WidgetCallbackIn};
+use crate::IpgState;
+use super::callbacks::invoke_callback_with_args;
 use crate::widgets::ipg_button::IpgButtonStyle;
 use crate::py_api::helpers::{DATE_FORMATS, DAYS, 
-    MONTH_NAMES, WEEKDAYS, get_padding};
+    MONTH_NAMES, WEEKDAYS, get_padding, format_date};
 use crate::widgets::widget_param_update::{
     WidgetParamUpdate,
     set_bool, set_opt_f32, set_opt_string, set_opt_vec_f32,
@@ -21,7 +20,7 @@ use iced::widget::{Button, Column, Container, PickList,
     Row, Space, Text};
 
 use chrono::prelude::*;
-use pyo3::{pyclass, Py, PyAny, Python};
+use pyo3::{pyclass, Py, PyAny};
 type PyObject = Py<PyAny>;
 
 
@@ -522,128 +521,95 @@ fn create_submit_row(id: usize, size_factor: f32, selected_date: String) -> Elem
 
 
 pub fn date_picker_update(state: &mut IpgState, id: usize, message: DPMessage) {
-    let mut wci: WidgetCallbackIn = WidgetCallbackIn{id, ..Default::default()};
+    // Get the date picker widget
+    let dp = match state.widgets.get_mut(&id) {
+        Some(IpgWidgets::IpgDatePicker(dp)) => dp,
+        _ => return,
+    };
 
     match message {
         DPMessage::ShowModal => {
-            // Non callback just sending the values.
-            wci.show = Some(true);
-            wci.is_submitted = Some(false);
-            let _ = set_or_get_widget_callback_data(state, wci);
+            dp.show_calendar = Some(true);
+            dp.is_submitted = false;
         }
         DPMessage::HideModal => {
-            // Non callback just sending the values.
-            wci.show = Some(false);
-            let _ = set_or_get_widget_callback_data(state, wci);
+            dp.show_calendar = Some(false);
         }
         DPMessage::DayPressed(day) => {
-            // Non callback just sending the values.
-            wci.selected_day = Some(day);
-            let _ = set_or_get_widget_callback_data(state, wci);
+            dp.selected_day = day;
+            dp.selected_date = format_date(
+                dp.selected_format.clone(),
+                dp.selected_year,
+                dp.selected_month_index,
+                dp.selected_day
+            );
         }
-        DPMessage::DatePickerFormat(date_format) => {
-            // Non callback just sending the values.
-            wci.date_format = Some(date_format);
-            let _ = set_or_get_widget_callback_data(state, wci);
+        DPMessage::DatePickerFormat(date_fmt) => {
+            dp.selected_format = date_fmt;
+            dp.selected_date = format_date(
+                dp.selected_format.clone(),
+                dp.selected_year,
+                dp.selected_month_index,
+                dp.selected_day
+            );
         }
         DPMessage::MonthRightPressed(index) => {
-            // Non callback just sending the values.
-            wci.index = Some(index);
-            wci.increment_value = Some(1);
-            wci.is_submitted = Some(false);
-            let _ = set_or_get_widget_callback_data(state, wci);
+            if index == 12 {
+                dp.selected_month_index = 1;
+            } else {
+                dp.selected_month_index += 1;
+            }
+            dp.selected_month = MONTH_NAMES[dp.selected_month_index].to_string();
+            dp.is_submitted = false;
+            dp.selected_date = format_date(
+                dp.selected_format.clone(),
+                dp.selected_year,
+                dp.selected_month_index,
+                dp.selected_day
+            );
         }
         DPMessage::MonthLeftPressed(index) => {
-            // Non callback just sending the values.
-            wci.index = Some(index);
-            wci.increment_value = Some(-1);
-            wci.is_submitted = Some(false);
-            let _ = set_or_get_widget_callback_data(state, wci);
+            if index == 1 {
+                dp.selected_month_index = 12;
+            } else {
+                dp.selected_month_index -= 1;
+            }
+            dp.selected_month = MONTH_NAMES[dp.selected_month_index].to_string();
+            dp.is_submitted = false;
+            dp.selected_date = format_date(
+                dp.selected_format.clone(),
+                dp.selected_year,
+                dp.selected_month_index,
+                dp.selected_day
+            );
         }
         DPMessage::YearRightPressed => {
-            // Non callback just sending the values.
-            wci.selected_year = Some(1);
-            wci.is_submitted = Some(false);
-            let _ = set_or_get_widget_callback_data(state, wci);
+            dp.selected_year += 1;
+            dp.is_submitted = false;
+            dp.selected_date = format_date(
+                dp.selected_format.clone(),
+                dp.selected_year,
+                dp.selected_month_index,
+                dp.selected_day
+            );
         }
         DPMessage::YearLeftPressed => {
-            // Non callback just sending the values.
-            wci.selected_year = Some(-1);
-            wci.is_submitted = Some(false);
-            let _ = set_or_get_widget_callback_data(state, wci);
+            dp.selected_year -= 1;
+            dp.is_submitted = false;
+            dp.selected_date = format_date(
+                dp.selected_format.clone(),
+                dp.selected_year,
+                dp.selected_month_index,
+                dp.selected_day
+            );
         }
         DPMessage::OnSubmit => {
-            wci.is_submitted = Some(true);
-            let wco = set_or_get_widget_callback_data(state, wci);
-
-            process_callback(id, "on_submit".to_string(), wco.selected_date);
+            dp.is_submitted = true;
+            let selected_date = dp.selected_date.clone();
+            invoke_callback_with_args(id, "on_submit", "DatePicker", selected_date);
         }
     }
 }
-
-
-pub fn process_callback(id: usize, event_name: String, selected_date: Option<String>) {
-    let ud1 = access_user_data1();
-    let app_cbs = access_callbacks();
-
-    // Retrieve the callback
-    let callback = match app_cbs.callbacks.get(&(id, event_name)) {
-        Some(cb) => Python::attach(|py| cb.clone_ref(py)),
-        None => return,
-    };
-
-    drop(app_cbs);
-
-    // Check user data from ud1
-    if let Some(user_data) = ud1.user_data.get(&id) {
-        Python::attach(|py| {
-            if let Some(date) = &selected_date {
-                if let Err(err) = callback.call1(py, (id, date.clone(), user_data)) {
-                    panic!("DatePicker callback error: {err}");
-                }
-            } else {
-                if let Err(err) = callback.call1(py, (id, user_data)) {
-                    panic!("DatePicker callback error: {err}");
-                }
-            }
-        });
-        drop(ud1); // Drop ud1 before processing ud2
-        return;
-    }
-    drop(ud1); // Drop ud1 if no user data is found
-
-    // Check user data from ud2
-    let ud2 = access_user_data2();
-    if let Some(user_data) = ud2.user_data.get(&id) {
-        Python::attach(|py| {
-            if let Some(date) = &selected_date {
-                if let Err(err) = callback.call1(py, (id, date.clone(), user_data)) {
-                    panic!("DatePicker callback error: {err}");
-                }
-            } else {
-                if let Err(err) = callback.call1(py, (id, user_data)) {
-                    panic!("DatePicker callback error: {err}");
-                }
-            }
-        });
-        drop(ud2); // Drop ud2 after processing
-        return;
-    }
-    drop(ud2); // Drop ud2 if no user data is found
-
-    // If no user data is found in both ud1 and ud2, call the callback with only id and selected_date
-    Python::attach(|py| {
-        if let Some(date) = selected_date {
-            if let Err(err) = callback.call1(py, (id, date)) {
-                panic!("DatePicker callback error: {err}");
-            }
-        } else {
-            if let Err(err) = callback.call1(py, (id,)) {
-                panic!("DatePicker callback error: {err}");
-            }
-        }
-    });
-}      
 
 
 #[derive(Debug, Clone, PartialEq)]

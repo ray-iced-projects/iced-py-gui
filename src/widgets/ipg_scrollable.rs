@@ -288,7 +288,7 @@ impl IpgScrollStyle {
         let mut def_auto_scroll = style.auto_scroll;
         
         // container style via the container_style_id
-        style.container = ipg_container::get_styling(theme, &self.container);
+        style.container = ipg_container::to_iced(theme, &self.container);
         
         style.horizontal_rail = if let Some(rail) = &self.vertical_rail {
             rail.to_iced(&mut def_h_rail)

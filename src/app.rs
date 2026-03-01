@@ -14,8 +14,6 @@ use crate::state::{IpgContainers, IpgIds, IpgState, IpgWidgets, access_state, ac
 use crate::widgets::ipg_button::{BtnMessage, button_callback};
 use crate::widgets::ipg_checkbox::{ChkMessage, checkbox_callback};
 use crate::widgets::ipg_color_picker::{ColPikMessage, color_picker_callback, construct_color_picker};
-use crate::widgets::ipg_column::construct_column;
-use crate::widgets::ipg_container::construct_container;
 use crate::widgets::ipg_date_picker::{DPMessage, construct_date_picker, date_picker_update};
 use crate::widgets::ipg_divider::{DivMessage, construct_divider_horizontal, construct_divider_vertical, divider_callback};
 use crate::widgets::ipg_events::process_window_event;
@@ -667,18 +665,14 @@ fn get_container<'a>(state: &'a IpgState,
                 //     construct_canvas(canvas_state)
                 // },
                 IpgContainers::IpgColumn(col) => {
-                    construct_column(col, content) 
+                    col.construct(content) 
                 },
-                IpgContainers::IpgContainer(con) => {
+                IpgContainers::IpgContainer(cont) => {
                     if content.len() > 1 {
                         panic!("A container can have only one widget, place your multiple widgets into a column or row")
                     }
-                    let style_opt = 
-                        if let Some(id)  = con.style_id {
-                            state.widgets.get(&id)
-                        } else { None };
-
-                    construct_container(con, content, style_opt)
+                    
+                    cont.construct(content, &state.widgets)
                 },
                 // IpgContainers::IpgMenu(menu) => {
                 //     let bar_style: Option<&IpgWidgets> = 

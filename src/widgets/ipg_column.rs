@@ -28,36 +28,38 @@ pub struct IpgColumn {
     pub clip: Option<bool>,
 }
 
-pub fn construct_column<'a>(
-    ipg_col: &IpgColumn, 
-    content: Vec<Element<'a, Message>> 
-    ) -> Element<'a, Message> {
+impl IpgColumn {
+    pub fn construct<'a>(
+        &self,
+        content: Vec<Element<'a, Message>> 
+        ) -> Element<'a, Message> {
 
-    let col = 
-        Column::with_children(content)
-            .width(ipg_col.width)
-            .height(ipg_col.height);
-    
-    let col = 
-    if let Some(align_x) = &ipg_col.align_x {
-            col.align_x(align_x.to_iced())
-        } else { col };
+        let col = 
+            Column::with_children(content)
+                .width(self.width)
+                .height(self.height);
+        
+        let col = 
+            if let Some(align_x) = &self.align_x {
+                    col.align_x(align_x.to_iced())
+                } else { col };
 
-    let col = 
-        if let Some(cp) = ipg_col.clip {
-            col.clip(cp)
-        } else { col };
+        let col = 
+            if let Some(cp) = self.clip {
+                col.clip(cp)
+            } else { col };
 
-    let col = 
-            col.padding(get_padding(&ipg_col.padding));
+        let col = 
+                col.padding(get_padding(&self.padding));
 
-    let col = 
-        if let Some(sp) = ipg_col.spacing {
-            col.spacing(sp)
-        } else { col };
+        let col = 
+            if let Some(sp) = self.spacing {
+                col.spacing(sp)
+            } else { col };
 
-    col.into()
+        col.into()
 
+    }
 }
 
 #[derive(Debug, Clone, PartialEq)]

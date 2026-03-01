@@ -11,7 +11,6 @@ use crate::widgets::widget_param_update::{
     WidgetParamUpdate, set_opt_iced_color, set_opt_bool, set_iced_color_from_rgba};
 use crate::{access_callbacks, access_user_data1, IpgState};
 use crate::app::Message;
-use super::ipg_container;
 use super::enums::{IpgAlignmentX, IpgAlignmentY};
 
 
@@ -58,7 +57,7 @@ pub fn construct_opaque<'a>(op: &'a IpgOpaque,
         }
     }
     
-    let style = style_opt.and_then(IpgWidgets::as_container_style).cloned();
+    let _style = style_opt.and_then(IpgWidgets::as_container_style).cloned();
 
     let cont: Element<'a, Message> = 
         Container::new(new_content)
@@ -66,8 +65,8 @@ pub fn construct_opaque<'a>(op: &'a IpgOpaque,
             .height(op.height)
             .align_x(align_h)
             .align_y(align_v)
-            .style(move|theme|
-                ipg_container::get_styling(theme, &style))
+            // .style(move|theme|
+            //     ipg_container::to_iced(theme, &style))
             .into();
     
     if op.include_mouse_area {

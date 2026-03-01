@@ -111,6 +111,11 @@ pub fn add_button(
 #[pyo3(signature = (
         background_color=None, 
         background_rgba=None,
+        background_gradient_color_stop=None,
+        background_gradient_rgba_stop=None,
+        background_gradient_degrees=None,
+        background_gradient_radians=None,
+        background_gradient_alpha=None,
         border_color=None, 
         border_rgba=None,
         border_radius=None, 
@@ -126,6 +131,11 @@ pub fn add_button(
 pub fn add_button_style(
     background_color: Option<IpgColor>,
     background_rgba: Option<[f32; 4]>,
+    background_gradient_color_stop: Option<IpgColor>,
+    background_gradient_rgba_stop: Option<[f32; 4]>,
+    background_gradient_degrees: Option<f32>,
+    background_gradient_radians: Option<f32>,
+    background_gradient_alpha: Option<f32>,
     border_color: Option<IpgColor>,
     border_rgba: Option<[f32; 4]>,
     border_radius: Option<Vec<f32>>,
@@ -141,8 +151,12 @@ pub fn add_button_style(
 {
     let id = get_id(gen_id);
 
+    let grad_a = background_gradient_alpha.unwrap_or(1.0);
+
     let background_color: Option<Color> = 
         IpgColor::rgba_ipg_color_to_iced(background_rgba, background_color, 1.0, false);
+    let background_gradient_color_stop: Option<Color> =
+        IpgColor::rgba_ipg_color_to_iced(background_gradient_rgba_stop, background_gradient_color_stop, grad_a, false);
     let border_color: Option<Color> = 
         IpgColor::rgba_ipg_color_to_iced(border_rgba, border_color, 1.0, false);
     let shadow_color: Option<Color> = 
@@ -156,6 +170,9 @@ pub fn add_button_style(
         IpgButtonStyle {
             id,
             background_color,
+            background_gradient_color_stop,
+            background_gradient_degrees,
+            background_gradient_radians,
             border_color,
             border_radius,
             border_width,

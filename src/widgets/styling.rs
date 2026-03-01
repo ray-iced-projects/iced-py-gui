@@ -1,7 +1,8 @@
 //! Style standard definitions and shared styling helpers
 use crate::{graphics::colors::IpgColor, py_api::helpers::get_radius};
 
-use iced::{Border, Color, Shadow, Theme, Vector, theme::Palette};
+use iced::{Background as IcedBackground, Border, Color, Radians, Shadow, Theme, Vector, theme::Palette};
+use iced::gradient::{self, Gradient};
 use iced::theme::palette::{Extended, Background, Primary, Secondary, 
     Success, Warning, Danger, is_dark};
 
@@ -52,6 +53,44 @@ pub fn apply_shadow_overrides_xy(
     }
     if let Some(b) = blur_radius {
         shadow.blur_radius = b;
+    }
+}
+
+/// Build an `Option<Background>` from the user-supplied color/gradient fields.
+///
+/// * If `gradient_color_stop` is `Some`, a linear gradient background is built
+///   from `background_color` (offset 0.0) → `gradient_color_stop` (offset 1.0)
+///   using either `gradient_degrees` or `gradient_radians` for the angle
+///   (degrees is checked first, then radians; defaults to 0.0).
+/// * Otherwise, if `background_color` alone is `Some`, a solid color background
+///   is returned.
+/// * If neither is set the existing background is left untouched (`None`).
+pub fn apply_background_overrides(
+    background: &mut Option<IcedBackground>,
+    background_color: Option<Color>,
+    gradient_color_stop: Option<Color>,
+    gradient_degrees: Option<f32>,
+    gradient_radians: Option<f32>,
+) {
+    if let Some(stop_color) = gradient_color_stop {
+        // Calculate angle: prefer degrees, fall back to radians, default 0.
+        let angle: Radians = if let Some(deg) = gradient_degrees {
+            Radians(deg.to_radians())
+        } else if let Some(rad) = gradient_radians {
+            Radians(rad)
+        } else {
+            Radians(0.0)
+        };
+
+        let start_color = background_color.unwrap_or(Color::TRANSPARENT);
+
+        let linear = gradient::Linear::new(angle)
+            .add_stop(0.0, start_color)
+            .add_stop(1.0, stop_color);
+
+        *background = Some(IcedBackground::Gradient(Gradient::Linear(linear)));
+    } else if let Some(color) = background_color {
+        *background = Some(IcedBackground::Color(color));
     }
 }
 

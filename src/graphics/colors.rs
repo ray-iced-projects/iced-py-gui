@@ -11,9 +11,10 @@ use pyo3::{Py, PyAny, Python, pyclass};
 type PyObject = Py<PyAny>;
 
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, Default, PartialEq)]
 #[pyclass(eq, eq_int)]
 pub enum IpgColor {
+    #[default]
     PRIMARY,
     SECONDARY,
     SUCCESS,

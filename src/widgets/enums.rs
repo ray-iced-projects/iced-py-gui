@@ -5,6 +5,7 @@ type PyObject = Py<PyAny>;
 
 use iced::{self, Alignment, Radians, Rotation, alignment, widget::{image::FilterMethod, text::Shaping}};
 
+
 #[derive(Debug, Clone, PartialEq)]
 #[pyclass(eq, eq_int)]
 pub enum IpgShaping {

@@ -8,9 +8,9 @@ use crate::widgets::callbacks::invoke_callback;
 use crate::widgets::enums::{IpgAlignmentX, 
     IpgAlignmentY};
 use crate::py_api::helpers::get_padding;
-use crate::widgets::styling::apply_shadow_overrides_xy;
-use crate::widgets::styling::apply_border_overrides;
-use crate::widgets::styling::get_custom_palette;
+use crate::widgets::styling::{apply_shadow_overrides_xy, 
+    apply_border_overrides, apply_background_overrides, 
+    get_custom_palette};
 use crate::widgets::widget_param_update::set_opt_f32_array_2;
 use crate::widgets::widget_param_update::{
     WidgetParamUpdate, set_bool, set_halign, set_height, 
@@ -57,9 +57,7 @@ impl IpgButton {
         widgets: &HashMap<usize, IpgWidgets>,
         ) -> Option<Element<'a, Message>> {
         
-        if !self.show {
-            return None;
-        }
+        if !self.show { return None }
 
         let style_opt = 
             self.lookup(widgets, self.style_id)
@@ -138,6 +136,9 @@ pub fn button_callback(id: usize, message: BtnMessage) {
 pub struct IpgButtonStyle {
     pub id: usize,
     pub background_color: Option<Color>,
+    pub background_gradient_color_stop: Option<Color>,
+    pub background_gradient_degrees: Option<f32>,
+    pub background_gradient_radians: Option<f32>,
     pub border_color: Option<Color>,
     pub border_radius: Option<Vec<f32>>,
     pub border_width: Option<f32>,
@@ -176,6 +177,13 @@ impl IpgButtonStyle {
         };
 
         // Apply remaining optional overrides
+        apply_background_overrides(
+            &mut style.background, self.background_color,
+            self.background_gradient_color_stop,
+            self.background_gradient_degrees,
+            self.background_gradient_radians,
+        );
+
         apply_border_overrides(
             &mut style.border, self.border_color,
             &self.border_radius, self.border_width, "Button",

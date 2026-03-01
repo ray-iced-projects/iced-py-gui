@@ -1,9 +1,12 @@
 //! ipg_container
+use std::collections::HashMap;
+
 use crate::app::Message;
-use crate::py_api::helpers::get_radius;
 use crate::state::IpgWidgets;
 use crate::widgets::enums::{IpgAlignmentX, 
     IpgAlignmentY};
+use crate::widgets::styling::{apply_background_overrides, 
+    apply_border_overrides, apply_shadow_overrides_xy};
 use crate::widgets::widget_param_update::{
     WidgetParamUpdate, set_bool, set_halign, set_height, 
     set_height_fill, set_iced_color_from_rgba, 
@@ -12,7 +15,7 @@ use crate::widgets::widget_param_update::{
     set_valign, set_width, set_width_fill
 };
 
-use iced::{Border, Color, Element, Length, Shadow, Theme, Vector};
+use iced::{Color, Element, Length, Theme};
 use iced::widget::{container, Space, Container};
 
 use pyo3::{pyclass, Py, PyAny};
@@ -38,12 +41,124 @@ pub struct IpgContainer {
     pub align_top: Option<bool>,
     pub align_botton: Option<bool>,
     pub clip: Option<bool>,
-    pub style_id: Option<usize>, 
+    pub style_id: Option<usize>,
+    pub style_standard: Option<IpgContainerStyleStd>,
 }
+
+impl IpgContainer {
+
+    fn lookup<'a>(&self, widgets: &'a HashMap<usize, IpgWidgets>, id: Option<usize>) -> Option<&'a IpgWidgets> {
+        id.and_then(|id| widgets.get(&id))
+    }
+
+    pub fn construct<'a>(
+        &'a self,
+        mut content: Vec<Element<'a, Message>>,
+        widgets: &HashMap<usize, IpgWidgets>,
+        ) -> Element<'a, Message> {
+        
+        if !self.show {return Space::new().into()}
+
+        let style_opt = 
+            self.lookup(widgets, self.style_id)
+                .and_then(IpgWidgets::as_container_style).cloned();
+
+        // Since a container can have only one element and the 
+        // the process sends a vec then if empty container, put in a
+        // space or remove the element in the vec.
+        let new_content: Element<Message> = if content.is_empty() {
+            Space::new().into()
+        } else {
+            content.remove(0)
+        };
+
+        let cont = 
+            Container::new(new_content)
+                .width(self.width)
+                .height(self.height)
+                .style(move|theme|
+                    if let Some(st) = &style_opt {
+                        st.to_iced(theme, &self.style_standard)
+                    } else {
+                       match &self.style_standard {
+                            Some(std) => std.to_iced(theme),
+                            None => container::transparent(theme),
+                        }
+                    }
+                );
+
+        let cont = 
+            if let Some(mw) = self.max_width {
+                cont.max_width(mw)
+            } else { cont };
+
+        let cont = 
+            if let Some(mh) = self.max_height {
+                cont.max_width(mh)
+            } else { cont };
+
+        let cont = 
+            if let Some(align) = &self.align_x {
+                cont.align_x(align.to_iced())
+            } else { cont };
+
+        let cont = 
+            if let Some(align) = &self.align_y {
+                cont.align_y(align.to_iced())
+            } else { cont };
+
+        let cont = 
+            if self.center == Some(true) {
+                cont.center(self.width)
+            } else { cont };
+
+        let cont = 
+            if self.center_x == Some(true) {
+                cont.center_x(self.width)
+            } else { cont };
+
+        let cont = 
+            if self.center_y == Some(true) {
+                cont.center_y(self.height)
+            } else { cont };
+
+        let cont = 
+            if self.align_left == Some(true) {
+                cont.align_left(self.width)
+            } else { cont };
+
+        let cont = 
+            if self.align_right == Some(true) {
+                cont.align_right(self.width)
+            } else { cont };
+
+        let cont = 
+            if self.align_top == Some(true) {
+                cont.align_top(self.height)
+            } else { cont };
+
+        let cont = 
+            if self.align_botton == Some(true) {
+                cont.align_bottom(self.height)
+            } else { cont };
+        
+        let cont = 
+            if self.clip == Some(true) {
+                cont.clip(true)
+            } else { cont };
+
+        cont.into()            
+        
+    }
+}
+
 #[derive(Debug, Clone, PartialEq)]
 pub struct IpgContainerStyle {
     pub id: usize,
     pub background_color: Option<Color>,
+    pub background_gradient_color_stop: Option<Color>,
+    pub background_gradient_degrees: Option<f32>,
+    pub background_gradient_radians: Option<f32>,
     pub border_color: Option<Color>,
     pub border_radius: Option<Vec<f32>>,
     pub border_width: Option<f32>,
@@ -51,97 +166,103 @@ pub struct IpgContainerStyle {
     pub shadow_offset_xy: Option<[f32; 2]>,
     pub shadow_blur_radius: Option<f32>,
     pub text_color: Option<Color>,
+    pub snap: Option<bool>,
 }
 
-pub fn construct_container<'a>(
-    ipg_cont: &'a IpgContainer, 
-    mut content: Vec<Element<'a, Message>>,
-    style_opt: Option<&'a IpgWidgets>,
-    ) -> Element<'a, Message> {
-    
-    if !ipg_cont.show {return Space::new().into()}
+impl IpgContainerStyle {
+    pub fn to_iced(
+        &self, 
+        theme: &Theme, 
+        std_style_opt: &Option<IpgContainerStyleStd>,  
+        ) -> container::Style {
+        
+        let mut style = 
+            if let Some(st) = std_style_opt {
+                st.to_iced(theme)
+            } else { container::transparent(theme) };
 
-    let style = style_opt.and_then(IpgWidgets::as_container_style).cloned();
+        
 
-    // Since a container can have only one element and the 
-    // the process sends a vec then if empty container, put in a
-    // space or remove the element in the vec.
-    let new_content: Element<Message> = if content.is_empty() {
-        Space::new().into()
-    } else {
-        content.remove(0)
-    };
+        // Apply remaining optional overrides
+        apply_background_overrides(
+            &mut style.background, self.background_color,
+            self.background_gradient_color_stop,
+            self.background_gradient_degrees,
+            self.background_gradient_radians,
+        );
 
-    let cont = 
-        Container::new(new_content)
-            .width(ipg_cont.width)
-            .height(ipg_cont.height)
-            .style(move|theme|
-                get_styling(theme, &style)
-            );
+        apply_border_overrides(
+            &mut style.border, self.border_color,
+            &self.border_radius, self.border_width, "Container",
+        );
 
-    let cont = 
-        if let Some(mw) = ipg_cont.max_width {
-            cont.max_width(mw)
-        } else { cont };
+        apply_shadow_overrides_xy(
+            &mut style.shadow, self.shadow_color, 
+            self.shadow_offset_xy, self.shadow_blur_radius);
+        
+        style.text_color = self.text_color;
 
-    let cont = 
-        if let Some(mh) = ipg_cont.max_height {
-            cont.max_width(mh)
-        } else { cont };
+        if let Some(sp) = self.snap {
+            style.snap = sp;
+        }
 
-    let cont = 
-        if let Some(align) = &ipg_cont.align_x {
-            cont.align_x(align.to_iced())
-        } else { cont };
+        style
+        
+    }
+}
 
-    let cont = 
-        if let Some(align) = &ipg_cont.align_y {
-            cont.align_y(align.to_iced())
-        } else { cont };
+/// Convenience free function for callers that have an `Option<IpgContainerStyle>`
+/// (e.g. `IpgScrollStyle`). Returns the styled result or the default transparent
+/// container style.
+pub fn to_iced(theme: &Theme, style_opt: &Option<IpgContainerStyle>) -> container::Style {
+    match style_opt {
+        Some(s) => s.to_iced(theme, &None),
+        None => container::transparent(theme),
+    }
+}
 
-    let cont = 
-        if ipg_cont.center == Some(true) {
-            cont.center(ipg_cont.width)
-        } else { cont };
+#[derive(Debug, Clone, PartialEq)]
+#[pyclass(eq, eq_int)]
+pub enum IpgContainerStyleStd {
+    BorderedBox,
+    Danger,
+    Dark,
+    Primary,
+    RoundedBox,
+    Secondary,
+    Success,
+    Transparent,
+    Warning,
+}
 
-    let cont = 
-        if ipg_cont.center_x == Some(true) {
-            cont.center_x(ipg_cont.width)
-        } else { cont };
-
-    let cont = 
-        if ipg_cont.center_y == Some(true) {
-            cont.center_y(ipg_cont.height)
-        } else { cont };
-
-    let cont = 
-        if ipg_cont.align_left == Some(true) {
-            cont.align_left(ipg_cont.width)
-        } else { cont };
-
-    let cont = 
-        if ipg_cont.align_right == Some(true) {
-            cont.align_right(ipg_cont.width)
-        } else { cont };
-
-    let cont = 
-        if ipg_cont.align_top == Some(true) {
-            cont.align_top(ipg_cont.height)
-        } else { cont };
-
-    let cont = 
-        if ipg_cont.align_botton == Some(true) {
-            cont.align_bottom(ipg_cont.height)
-        } else { cont };
-    
-    let cont = 
-        if ipg_cont.clip == Some(true) {
-            cont.clip(true)
-        } else { cont };
-
-    cont.into()            
-    
+impl IpgContainerStyleStd {
+    pub fn to_iced(
+        &self,
+        theme: &Theme, 
+        ) -> container::Style {
+        
+        match self {
+            IpgContainerStyleStd::BorderedBox => todo!(),
+            IpgContainerStyleStd::Danger => {
+                container::danger(theme)
+            },
+            IpgContainerStyleStd::Dark => todo!(),
+            IpgContainerStyleStd::Primary => {
+                container::primary(theme)
+            },
+            IpgContainerStyleStd::RoundedBox => todo!(),
+            IpgContainerStyleStd::Secondary => {
+                container::secondary(theme)
+            },
+            IpgContainerStyleStd::Success => {
+                container::success(theme)
+            },
+            IpgContainerStyleStd::Warning => {
+                container::warning(theme)
+            },
+            IpgContainerStyleStd::Transparent => todo!(),
+        }
+    }
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -168,59 +289,6 @@ pub enum IpgContainerParam {
     StyleId,
 }
 
-
-
-pub fn get_styling(theme: &Theme,
-                style_opt: &Option<IpgContainerStyle>,  
-                ) -> container::Style {
-    
-    let style = 
-        if let Some(st) = style_opt {
-            st
-        } else { return container::transparent(theme) };
-
-    let background_color = if style.background_color.is_some() {
-        style.background_color.unwrap()
-    } else {
-        Color::TRANSPARENT
-    };
-
-    let mut border = Border::default();
-    let mut shadow = Shadow::default();
-
-    if let Some(bc) = style.border_color {
-        border.color = bc;
-    }
-
-    if let Some(radius) = &style.border_radius {
-        border.radius = get_radius(radius, "Container".to_string());
-    }
-
-    if let Some(width) = style.border_width {
-        border.width = width;
-    }
-
-    if let Some(sc) = style.shadow_color {
-        shadow.color = sc;
-
-        if let Some(blur) = style.shadow_blur_radius {
-            shadow.blur_radius = blur;
-        }
-
-        if let Some(offset) = style.shadow_offset_xy {
-            shadow.offset = Vector{ x: offset[0], y: offset[1] }
-        }
-    }
-
-    container::Style {
-        background: Some(background_color.into()),
-        border,
-        shadow,
-        text_color: style.text_color,
-        snap: false,
-    }
-    
-}
 
 #[derive(Debug, Clone, PartialEq)]
 #[pyclass(eq, eq_int)]

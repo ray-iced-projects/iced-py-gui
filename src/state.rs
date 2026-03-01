@@ -185,6 +185,41 @@ ipg_widget_accessors! {
     IpgTogglerStyle     => IpgTogglerStyle,      as_toggler_style,       as_toggler_style_mut;
 }
 
+// ---------------------------------------------------------------------------
+// Container accessor macro — same pattern as ipg_widget_accessors but for
+// the IpgContainers enum.
+// ---------------------------------------------------------------------------
+macro_rules! ipg_container_accessors {
+    ($($variant:ident => $type:ty, $fn_ref:ident, $fn_mut:ident;)*) => {
+        impl IpgContainers {
+            $(
+                pub fn $fn_ref(&self) -> Option<&$type> {
+                    match self {
+                        IpgContainers::$variant(x) => Some(x),
+                        _ => None,
+                    }
+                }
+                pub fn $fn_mut(&mut self) -> Option<&mut $type> {
+                    match self {
+                        IpgContainers::$variant(x) => Some(x),
+                        _ => None,
+                    }
+                }
+            )*
+        }
+    };
+}
+
+ipg_container_accessors! {
+    IpgColumn     => IpgColumn,     as_column,     as_column_mut;
+    IpgContainer  => IpgContainer,  as_container,  as_container_mut;
+    IpgMouseArea  => IpgMouseArea,  as_mouse_area, as_mouse_area_mut;
+    IpgOpaque     => IpgOpaque,     as_opaque,     as_opaque_mut;
+    IpgRow        => IpgRow,        as_row,        as_row_mut;
+    IpgScrollable => IpgScrollable, as_scrollable, as_scrollable_mut;
+    IpgWindow     => IpgWindow,     as_window,     as_window_mut;
+}
+
 // ============================================================================
 // IpgIds - tracks parent/child relationships
 // ============================================================================

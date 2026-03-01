@@ -7,7 +7,7 @@ use crate::py_api::helpers::{get_height, get_width};
 use crate::state::{IpgContainers, IpgWidgets, access_state, 
     get_id, set_state_cont_wnd_ids, set_state_of_container};
 use crate::widgets::ipg_container::{IpgContainer, 
-    IpgContainerStyle};
+    IpgContainerStyle, IpgContainerStyleStd};
 use crate::widgets::enums::{IpgAlignmentX, 
     IpgAlignmentY};
 
@@ -37,7 +37,8 @@ use crate::widgets::enums::{IpgAlignmentX,
     align_botton=None,
     padding=None, 
     show=true, 
-    style_id=None, 
+    style_id=None,
+    style_standard=None, 
     ))]
 pub fn add_container(
     window_id: String,
@@ -63,6 +64,7 @@ pub fn add_container(
     padding: Option<Vec<f32>>, 
     show: bool,
     style_id: Option<usize>,
+    style_standard: Option<IpgContainerStyleStd>,
     ) -> PyResult<usize>
 {
     let id = get_id(None);
@@ -100,7 +102,8 @@ pub fn add_container(
             align_top,
             align_botton,
             clip,
-            style_id, 
+            style_id,
+            style_standard,
         }));
 
     drop(state);
@@ -112,44 +115,72 @@ pub fn add_container(
 #[pyo3(signature = (
     background_color=None, 
     background_rgba=None,
+    background_alpha=None,
+    background_gradient_color_stop=None,
+    background_gradient_rgba_stop=None,
+    background_gradient_degrees=None,
+    background_gradient_radians=None,
+    background_gradient_alpha=None,
     border_color=None, 
     border_rgba=None,
+    border_alpha=None,
     border_radius=None, 
     border_width=None,
     shadow_color=None, 
     shadow_rgba=None,
+    shadow_alpha=None,
     shadow_offset_xy=None,
     shadow_blur_radius=None,
     text_color=None, 
     text_rgba=None,
+    text_alpha=None,
+    snap=None,
     gen_id=None
     ))]
 pub fn add_container_style(
     background_color: Option<IpgColor>,
     background_rgba: Option<[f32; 4]>,
+    background_alpha: Option<f32>,
+    background_gradient_color_stop: Option<IpgColor>,
+    background_gradient_rgba_stop: Option<[f32; 4]>,
+    background_gradient_degrees: Option<f32>,
+    background_gradient_radians: Option<f32>,
+    background_gradient_alpha: Option<f32>,
     border_color: Option<IpgColor>,
     border_rgba: Option<[f32; 4]>,
+    border_alpha: Option<f32>,
     border_radius: Option<Vec<f32>>,
     border_width: Option<f32>,
     shadow_color: Option<IpgColor>,
     shadow_rgba: Option<[f32; 4]>,
+    shadow_alpha: Option<f32>,
     shadow_offset_xy: Option<[f32; 2]>,
     shadow_blur_radius: Option<f32>,
     text_color: Option<IpgColor>,
     text_rgba: Option<[f32; 4]>,
+    text_alpha: Option<f32>,
+    snap: Option<bool>,
     gen_id: Option<usize>,
     ) -> PyResult<usize>
 {
     let id = get_id(gen_id);
 
+    let bkg_a = background_alpha.unwrap_or(1.0);
+    let grad_a = background_gradient_alpha.unwrap_or(1.0);
+    let border_a = border_alpha.unwrap_or(1.0);
+    let shadow_a = shadow_alpha.unwrap_or(1.0);
+    let text_a = text_alpha.unwrap_or(1.0);
+
     let background_color: Option<Color> = 
-        IpgColor::rgba_ipg_color_to_iced(background_rgba, background_color, 1.0, false);
+        IpgColor::rgba_ipg_color_to_iced(background_rgba, background_color, bkg_a, false);
+    let background_gradient_color_stop = 
+        IpgColor::rgba_ipg_color_to_iced(background_gradient_rgba_stop, background_gradient_color_stop, grad_a, false);
     let border_color: Option<Color> = 
-        IpgColor::rgba_ipg_color_to_iced(border_rgba, border_color, 1.0, false);
+        IpgColor::rgba_ipg_color_to_iced(border_rgba, border_color, border_a, false);
     let shadow_color: Option<Color> = 
-        IpgColor::rgba_ipg_color_to_iced(shadow_rgba, shadow_color, 1.0, false);
+        IpgColor::rgba_ipg_color_to_iced(shadow_rgba, shadow_color, shadow_a, false);
     let text_color: Option<Color> = 
-        IpgColor::rgba_ipg_color_to_iced(text_rgba, text_color, 1.0, false);
+        IpgColor::rgba_ipg_color_to_iced(text_rgba, text_color, text_a, false);
 
     let mut state = access_state();
 
@@ -157,6 +188,9 @@ pub fn add_container_style(
         IpgContainerStyle {
             id,
             background_color,
+            background_gradient_color_stop,
+            background_gradient_degrees,
+            background_gradient_radians,
             border_color,
             border_radius,
             border_width,
@@ -164,6 +198,7 @@ pub fn add_container_style(
             shadow_offset_xy,
             shadow_blur_radius,
             text_color,
+            snap,
         }));
 
     drop(state);

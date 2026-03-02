@@ -24,9 +24,10 @@ from .icedpygui import (
     add_selectable_text as _add_selectable_text,
     add_separator as _add_separator,
     add_separator_style,
-    add_space as _add_space,
     add_slider as _add_slider,
-    add_slider_style,
+    add_slider_style, 
+    add_space as _add_space,
+    add_stack as _add_stack,
     add_text as _add_text,
     add_window as _add_window,
     IpgAlignment,
@@ -58,6 +59,7 @@ from .icedpygui import (
     IpgSeparatorStyleParam,
     IpgSliderParam,
     IpgSliderStyleParam,
+    IpgStackParam,
     IpgStyleStandard,
     IpgTextParam,
     IpgAlignmentY,
@@ -92,29 +94,6 @@ def _current_parent():
 # Thin wrappers that fall back to the context stacks
 # ---------------------------------------------------------------------------
 
-# def add_window(id=None, **kwargs):
-#     """Wrapper around the Rust add_window.
-
-#     If *id* is omitted an id is auto-generated.
-#     """
-#     if id is None:
-#         id = str(generate_id())
-#     return _add_window(window_id=id, **kwargs)
-
-
-# def add_text(parent_id=None, **kwargs):
-#     """Wrapper around the Rust add_text.
-
-#     If *parent_id* is omitted it is read from the parent stack
-#     (set by the innermost Container / Column / Row / … context manager).
-#     """
-#     if parent_id is None:
-#         parent_id = _current_parent()
-#     if parent_id is None:
-#         raise ValueError("add_text: parent_id is required (either pass it or use a context manager)")
-#     return _add_text(parent_id=parent_id, **kwargs)
-
-
 def _wrap_widget(rust_fn, name):
     """Create a thin wrapper that injects parent_id from the context stack."""
     def wrapper(parent_id=None, **kwargs):
@@ -139,8 +118,8 @@ add_radio = _wrap_widget(_add_radio, "add_radio")
 add_scrollable = _wrap_widget(_add_scrollable, "add_scrollable")
 add_selectable_text = _wrap_widget(_add_selectable_text, "add_selectable_text")
 add_separator = _wrap_widget(_add_separator, "add_separator")
-add_space = _wrap_widget(_add_space, "add_space")
 add_slider = _wrap_widget(_add_slider, "add_slider")
+add_space = _wrap_widget(_add_space, "add_space")
 add_text = _wrap_widget(_add_text, "add_text")
 
 
@@ -165,7 +144,7 @@ def _wrap_container(rust_fn, name):
 add_container = _wrap_container(_add_container, "add_container")
 add_column = _wrap_container(_add_column, "add_column")
 add_row = _wrap_container(_add_row, "add_row")
-
+add_stack = _wrap_widget(_add_stack, "add_stack")
 
 def add_window(id=None, **kwargs):
     """Wrapper around the Rust add_window.
@@ -317,3 +296,41 @@ class Row:
     def __exit__(self, exc_type, exc_val, exc_tb):
         _parent_stack.pop()
         return False
+
+class Stack:
+    """Context manager wrapper around add_stack.
+
+    Usage (reads window_id from Window context)::
+
+        with Window(title="Demo") as wnd_id:
+            with Stack() as row_id:
+                add_text(content="hello")
+
+    Usage with explicit ids::
+
+        with Stack(id="row", window_id="main"):
+            add_text(parent_id="row", content="hello")
+    """
+
+    def __init__(self, id=None, *, window_id=None, parent_id=None, **kwargs):
+        self.window_id = window_id if window_id is not None else _current_window()
+        if self.window_id is None:
+            raise ValueError("Row: window_id is required (either pass it or use a Window context manager)")
+        self.container_id = id if id is not None else str(generate_id())
+        self.parent_id = parent_id
+        self.kwargs = kwargs
+
+    def __enter__(self):
+        _add_row(
+            window_id=self.window_id,
+            container_id=self.container_id,
+            parent_id=self.parent_id or _current_parent(),
+            **self.kwargs,
+        )
+        _parent_stack.append(self.container_id)
+        return self.container_id
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        _parent_stack.pop()
+        return False
+    

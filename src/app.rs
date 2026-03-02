@@ -722,9 +722,9 @@ fn get_container<'a>(state: &'a IpgState,
                 IpgContainers::IpgScrollable(scroll) => {
                     scroll.construct(content, &state.widgets)
                 },
-                // IpgContainers::IpgStack(stk) => {
-                //     construct_stack(stk.clone(), content)
-                // }
+                IpgContainers::IpgStack(stk) => {
+                    stk.construct(content)
+                }
                 // IpgContainers::IpgToolTip(tool) => {
                 //     let style_opt = 
                 //         match tool.style_id {

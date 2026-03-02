@@ -25,6 +25,7 @@ pub mod separator;
 pub mod session;
 pub mod slider;
 pub mod space;
+pub mod stack;
 pub mod svg;
 pub mod text;
 pub mod toggle;

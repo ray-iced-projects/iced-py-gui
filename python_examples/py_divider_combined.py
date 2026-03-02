@@ -1,7 +1,7 @@
 from imports import *
 
 # NOTE: To reduce the number of items that need to be changed,
-# make the changes to the row's height instead of  each container
+# make the changes to the row's height instead of each container
 # in the row by using a height_fill on the containers.  This only then
 # leaves having to do each container in the rows when the column
 # is changed where the indexing of the 2d list is easier.
@@ -124,56 +124,56 @@ with Window(id="main", title="Divider Demo",
 
             content = "Pace the cursor over the highlighted divider and drag"
 
-            add_text(parent_id="main_col", content=content)
+            add_text(content=content)
 
             # make the stack to lay the dividers over the containers
-            stack_id = add_stack()
+            with Stack() as stack:
 
-            # make a column to hold the two columns
-            # this is added to stack
-            with Column(width=row_handle_width):
+                # make a column to hold the two columns
+                # this is added to stack
+                with Column(width=row_handle_width):
 
-                for i, height in enumerate(rows):
-                    row_ids.append(add_row(
-                        id=f"row{i}",
-                        height=height))
+                    for i, height in enumerate(rows):
+                        row_ids.append(add_row(
+                            id=f"row{i}",
+                            height=height))
 
-                    cont_ids = []
-                    for j, width in enumerate(columns):
-                        cont_ids.append(add_container(
-                                id=f"cont{i} {j}",
-                                parent_id=f"row{i}",
-                                width=width,
-                                height_fill=True,
-                                style_id=cont_style_id))
+                        cont_ids = []
+                        for j, width in enumerate(columns):
+                            cont_ids.append(add_container(
+                                    id=f"cont{i} {j}",
+                                    parent_id=f"row{i}",
+                                    width=width,
+                                    height_fill=True,
+                                    style_id=cont_style_id))
+                            
+                            add_text(parent_id=f"cont{i} {j}",
+                                    content=f"Some Text")
+                            
+                        container_ids.append(cont_ids)
                         
-                        add_text(parent_id=f"cont{i} {j}",
-                                 content=f"Some Text")
-                        
-                    container_ids.append(cont_ids)
                     
-                
-                # Make the vertical divider (rows)
-                row_div = add_divider_vertical(
-                            parent_id="stack",
-                            heights=rows,
-                            handle_width=row_handle_width,
-                            handle_height=row_handle_height,
-                            on_change=divider_row_change,
-                            # use the style to see just the outline and not the divider
-                            # style_id=divider_style_id
-                            )
+                    # Make the vertical divider (rows)
+                    row_div = add_divider_vertical(
+                                parent_id=stack,
+                                heights=rows,
+                                handle_width=row_handle_width,
+                                handle_height=row_handle_height,
+                                on_change=divider_row_change,
+                                # use the style to see just the outline and not the divider
+                                # style_id=divider_style_id
+                                )
 
-                #Make the horizontal divider (columns)
-                col_div = add_divider_horizontal(
-                            parent_id="stack",
-                            widths=columns,
-                            handle_width=col_handle_width,
-                            handle_height=col_handle_height,
-                            on_change=divider_col_change,
-                            # use the style to see just the outline and not the divider
-                            # style_id=divider_style_id
-                            )
+                    #Make the horizontal divider (columns)
+                    col_div = add_divider_horizontal(
+                                parent_id=stack,
+                                widths=columns,
+                                handle_width=col_handle_width,
+                                handle_height=col_handle_height,
+                                on_change=divider_col_change,
+                                # use the style to see just the outline and not the divider
+                                # style_id=divider_style_id
+                                )
 
 # Required to be the last widget sent to Iced,  If you start the program
 # and nothing happens, it might mean you forgot to add this command.

@@ -50,6 +50,7 @@ use crate::py_api::space::add_space;
 use crate::py_api::slider::{add_slider, add_slider_style};
 use crate::py_api::session::{start_session, generate_id};
 use crate::py_api::svg::add_svg;
+use crate::py_api::stack::add_stack;
 use crate::py_api::update::update_widget;
 use crate::widgets::ipg_radio::{IpgRadioDirection, IpgRadioParam, IpgRadioStyleParam};
 use crate::widgets::ipg_row::IpgRowParam;
@@ -59,6 +60,7 @@ use crate::widgets::ipg_scrollable::{IpgScrollableParam, IpgRailStyleParam,
 use crate::widgets::ipg_selectable_text::IpgSelectableTextParam;
 use crate::widgets::ipg_separator::{IpgSeparatorParam, IpgSeparatorStyleParam, IpgSeparatorType};
 use crate::widgets::ipg_slider::{IpgSliderParam, IpgSliderStyleParam};
+use crate::widgets::ipg_stack::IpgStackParam;
 use crate::widgets::ipg_toggle::{IpgTogglerParam, IpgTogglerStyleParam};
 
 // Import enums from widgets module
@@ -109,6 +111,7 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(add_selectable_text, m)?)?;
     m.add_function(wrap_pyfunction!(add_separator, m)?)?;
     m.add_function(wrap_pyfunction!(add_space, m)?)?;
+    m.add_function(wrap_pyfunction!(add_stack, m)?)?;
     m.add_function(wrap_pyfunction!(add_toggler, m)?)?;
     m.add_function(wrap_pyfunction!(add_text, m)?)?;
     m.add_function(wrap_pyfunction!(add_svg, m)?)?;
@@ -144,6 +147,7 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<IpgAutoScrollStyleParam>()?;
     m.add_class::<IpgRailStyleParam>()?;
     m.add_class::<IpgSliderStyleParam>()?;
+    m.add_class::<IpgStackParam>()?;
     m.add_class::<IpgStyleStandard>()?;
     m.add_class::<IpgTogglerStyleParam>()?;
 

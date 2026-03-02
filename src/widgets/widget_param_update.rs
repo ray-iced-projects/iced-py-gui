@@ -116,6 +116,7 @@ pub fn container_param_update(
         IpgContainers::IpgOpaque(w) => apply_update(w, item, value, name),
         IpgContainers::IpgRow(w) => apply_update(w, item, value, name),
         IpgContainers::IpgScrollable(w) => apply_update(w, item, value, name),
+        IpgContainers::IpgStack(w) => apply_update(w, item, value, name),
         IpgContainers::IpgWindow(w) => apply_update(w, item, value, name),
     }
 }

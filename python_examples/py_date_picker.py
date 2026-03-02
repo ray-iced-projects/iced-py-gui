@@ -43,75 +43,61 @@ def date_resize(
     )
 
 # Add a window first
-add_window(
+with Window(
     id="main",
     title="Date Picker Demo",
     size=(400, 800),
-    centered=True
-)
+    center=True):
 
-# Add the container to center both x and y. Holds only one widget.
-add_container(
-    window_id="main",
-    id="cont",
-    width_fill=True,
-    height_fill=True,
-    centered=True,
-)
+    # Add the container to center both x and y. Holds only one widget.
+    with Container(
+        width_fill=True,
+        height_fill=True,
+        center=True):
 
-# Add a column to hold more than one widget and put this into the container.
-add_column(
-    window_id="main",
-    id="col",
-    parent_id="cont",
-    align_x=IpgAlignment.Center,
-    spacing=10.0,
-)
+        # Add a column to hold more than one widget and put this into the container.
+        with Column(
+            align_x=IpgAlignment.Center,
+            spacing=10.0):
 
-# Add info text
-add_text(
-    parent_id="col",
-    content="Press the first calendar buttons to access the calendar. " +
-    "Select a date, then press submit. Do the same for the second " +
-    "button, and you will see another button to resize the calendar."
-)
+            # Add info text
+            add_text(
+                content="Press the first calendar buttons to access the calendar. " +
+                "Select a date, then press submit. Do the same for the second " +
+                "button, and you will see another button to resize the calendar."
+            )
 
-# The date picker size can be scaled from > 1.0. Anything less than 1 will
-# give an error and is not readable anyway.
-add_date_picker(
-    parent_id="col",
-    size_factor=1.2,
-    on_submit=date_selected
-)
+            # The date picker size can be scaled from > 1.0. Anything less than 1 will
+            # give an error and is not readable anyway.
+            add_date_picker(
+                size_factor=1.2,
+                on_submit=date_selected
+            )
 
-# Text widget id needed for callback.
-selected_date_id = add_text(
-    parent_id="col",
-    content="No selection"
-)
+            # Text widget id needed for callback.
+            selected_date_id = add_text(
+                content="No selection"
+            )
 
-# Another date picker to test the user_data and button style
-dp2_id = add_date_picker(
-    parent_id="col",
-    size_factor=1.2,
-    on_submit=date_selected_with_ud,
-    user_data="Some user data",
-    button_style_standard=IpgButtonStyleStandard.Success
-)
+            # Another date picker to test the user_data and button style
+            dp2_id = add_date_picker(
+                size_factor=1.2,
+                on_submit=date_selected_with_ud,
+                user_data="Some user data",
+                button_style_standard=IpgButtonStyleStandard.Success
+            )
 
-# Text widget id needed for callback.
-selected_with_ud_id = add_text(
-    parent_id="col",
-    content="No selection"
-)
+            # Text widget id needed for callback.
+            selected_with_ud_id = add_text(
+                content="No selection"
+            )
 
-# Add the button for the resize but hide it until the second calendar is opened
-btn_id = add_button(
-    parent_id="col",
-    label="Click to resize the calendar",
-    on_press=date_resize,
-    show=False
-)
+            # Add the button for the resize but hide it until the second calendar is opened
+            btn_id = add_button(
+                label="Click to resize the calendar",
+                on_press=date_resize,
+                show=False
+            )
 
 # Required to be the last widget sent to Iced. If you start the program
 # and nothing happens, it might mean you forgot to add this command.

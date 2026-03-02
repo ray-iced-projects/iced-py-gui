@@ -55,7 +55,6 @@ pub struct IpgDatePicker {
     // internal to the app
     pub selected_format: String,
     pub selected_year: i32,
-    pub selected_month: String,
     pub selected_month_index: usize,
     pub selected_day: usize,
     pub selected_date: String,
@@ -90,7 +89,6 @@ impl IpgDatePicker {
             selected_format: "YYYY-mm-dd".to_string(),
             selected_year: Utc::now().year(),
             selected_month_index: Utc::now().month() as usize,
-            selected_month: MONTH_NAMES[Utc::now().month() as usize].to_string(),
             selected_day: Utc::now().day() as usize,
             selected_date: "".to_string(),
 
@@ -102,6 +100,21 @@ impl IpgDatePicker {
             button_style_standard,
             button_style_id,
         }
+    }
+
+    /// Get the selected month name from the index
+    pub fn selected_month(&self) -> &'static str {
+        MONTH_NAMES[self.selected_month_index]
+    }
+
+    /// Update selected_date from current format/year/month/day
+    pub fn update_selected_date(&mut self) {
+        self.selected_date = format_date(
+            self.selected_format.clone(),
+            self.selected_year,
+            self.selected_month_index,
+            self.selected_day
+        );
     }
 
     fn lookup<'a>(&self, widgets: &'a HashMap<usize, IpgWidgets>, id: Option<usize>) -> Option<&'a IpgWidgets> {
@@ -133,7 +146,7 @@ impl IpgDatePicker {
         let col_content: Element<Message, Theme, Renderer> =
             Column::with_children(vec![
                 create_first_row_arrows(self.id, 
-                    &self.selected_month, 
+                    self.selected_month(), 
                     self.selected_month_index, 
                     self.selected_year,
                     size),
@@ -207,6 +220,17 @@ fn right_arrow_icon(size: f32) -> Text<'static> {
     icon('\u{f135}', size)
 }
 
+fn arrow_button(id: usize, icon: Text<'static>, message: DPMessage, width: f32, height: f32) -> Element<'static, Message, Theme, Renderer> {
+    let btn: Element<DPMessage, Theme, Renderer> = 
+        Button::new(icon)
+            .on_press(message)
+            .width(width)
+            .height(height)
+            .padding(0)
+            .style(move |theme, status| button::text(theme, status))
+            .into();
+    btn.map(move |msg| Message::DatePicker(id, msg))
+}
 
 fn get_days_of_month(year: i32, month: u32) -> i64 {
 
@@ -271,87 +295,30 @@ fn create_first_row_arrows(
     selected_month_index: usize, 
     selected_year: i32,
     size_factor: f32) 
-    -> Element<'_, Message, Theme, Renderer> 
+    -> Element<'static, Message, Theme, Renderer> 
 {
-
-    let btn_arrow_width = 18.0 * size_factor;
-    let btn_arrow_height = 15.0 * size_factor;
+    let w = 18.0 * size_factor;
+    let h = 15.0 * size_factor;
     let arrow_size = 11.0 * size_factor;
-
-    // sets a width for all month names which prevents shifing when month names differ.
-    let month_container_width = 45.0 * size_factor; 
+    let month_container_width = 45.0 * size_factor;
     let text_size = 9.0 * size_factor;
-    let padding = 0;
 
-    let left_btn: Element<DPMessage, Theme, Renderer> = 
-        Button::new(left_arrow_icon(arrow_size))
-                .on_press(DPMessage::MonthLeftPressed(selected_month_index))
-                .width(btn_arrow_width)
-                .height(btn_arrow_height)
-                .padding(padding)
-                .style(move|theme, status| button::text(theme, status))
-                .into();
-    let month_left_btn: Element<'_, Message, Theme, Renderer> = 
-        left_btn.map(move |message| Message::DatePicker(id, message));
-
-    let right_btn: Element<DPMessage, Theme, Renderer> = 
-        Button::new(right_arrow_icon(arrow_size))
-            .on_press(DPMessage::MonthRightPressed(selected_month_index))
-            .width(btn_arrow_width)
-            .height(btn_arrow_height)
-            .padding(padding)
-            .style(move|theme, status| button::text(theme, status))
-            .into();
-    let month_right_btn: Element<'_, Message, Theme, Renderer> = 
-                right_btn.map(move |message| Message::DatePicker(id, message));
-
-    let left_btn: Element<DPMessage, Theme, Renderer> = 
-        Button::new(left_arrow_icon(arrow_size))
-            .on_press(DPMessage::YearLeftPressed)
-            .width(btn_arrow_width)
-            .height(btn_arrow_height)
-            .padding(padding)
-            .style(move|theme, status| button::text(theme, status))
-            .into();
-    let year_left_btn: Element<'_, Message, Theme, Renderer> = 
-                left_btn.map(move |message| Message::DatePicker(id, message));
-
-    let right_btn: Element<DPMessage, Theme, Renderer> = 
-        Button::new(right_arrow_icon(arrow_size))
-            .on_press(DPMessage::YearRightPressed)
-            .width(btn_arrow_width)
-            .height(btn_arrow_height)
-            .padding(padding)
-            .style(move|theme, status| button::text(theme, status))
-            .into();
-    
-    let year_right_btn = 
-        right_btn.map(move |message| Message::DatePicker(id, message));
-
-    let selected_month_cont = 
-        Container::new(Text::new(selected_month.to_owned())
-            .size(text_size))
+    let selected_month_cont: Element<'static, Message, Theme, Renderer> = 
+        Container::new(Text::new(selected_month.to_owned()).size(text_size))
             .align_x(alignment::Horizontal::Center)
             .align_y(alignment::Vertical::Center)
             .width(Length::Fixed(month_container_width))
             .into();
 
     Row::with_children(vec![
-        Row::with_children(
-            vec![
-                month_left_btn,
-                selected_month_cont, 
-                month_right_btn,
-                year_left_btn,
-                Text::new(selected_year.to_string())
-                            .size(text_size)
-                            .into(),
-                year_right_btn,
-            ]
-        )
-        .spacing(2)
-        .align_y(Alignment::Center).into(),
+        arrow_button(id, left_arrow_icon(arrow_size), DPMessage::MonthLeftPressed(selected_month_index), w, h),
+        selected_month_cont,
+        arrow_button(id, right_arrow_icon(arrow_size), DPMessage::MonthRightPressed(selected_month_index), w, h),
+        arrow_button(id, left_arrow_icon(arrow_size), DPMessage::YearLeftPressed, w, h),
+        Text::new(selected_year.to_string()).size(text_size).into(),
+        arrow_button(id, right_arrow_icon(arrow_size), DPMessage::YearRightPressed, w, h),
     ])
+    .spacing(2)
     .align_y(Alignment::Center)
     .width(Length::Fill)
     .into()
@@ -547,71 +514,31 @@ pub fn date_picker_update(state: &mut IpgState, id: usize, message: DPMessage) {
         }
         DPMessage::DayPressed(day) => {
             dp.selected_day = day;
-            dp.selected_date = format_date(
-                dp.selected_format.clone(),
-                dp.selected_year,
-                dp.selected_month_index,
-                dp.selected_day
-            );
+            dp.update_selected_date();
         }
         DPMessage::DatePickerFormat(date_fmt) => {
             dp.selected_format = date_fmt;
-            dp.selected_date = format_date(
-                dp.selected_format.clone(),
-                dp.selected_year,
-                dp.selected_month_index,
-                dp.selected_day
-            );
+            dp.update_selected_date();
         }
         DPMessage::MonthRightPressed(index) => {
-            if index == 12 {
-                dp.selected_month_index = 1;
-            } else {
-                dp.selected_month_index += 1;
-            }
-            dp.selected_month = MONTH_NAMES[dp.selected_month_index].to_string();
+            dp.selected_month_index = if index == 12 { 1 } else { index + 1 };
             dp.is_submitted = false;
-            dp.selected_date = format_date(
-                dp.selected_format.clone(),
-                dp.selected_year,
-                dp.selected_month_index,
-                dp.selected_day
-            );
+            dp.update_selected_date();
         }
         DPMessage::MonthLeftPressed(index) => {
-            if index == 1 {
-                dp.selected_month_index = 12;
-            } else {
-                dp.selected_month_index -= 1;
-            }
-            dp.selected_month = MONTH_NAMES[dp.selected_month_index].to_string();
+            dp.selected_month_index = if index == 1 { 12 } else { index - 1 };
             dp.is_submitted = false;
-            dp.selected_date = format_date(
-                dp.selected_format.clone(),
-                dp.selected_year,
-                dp.selected_month_index,
-                dp.selected_day
-            );
+            dp.update_selected_date();
         }
         DPMessage::YearRightPressed => {
             dp.selected_year += 1;
             dp.is_submitted = false;
-            dp.selected_date = format_date(
-                dp.selected_format.clone(),
-                dp.selected_year,
-                dp.selected_month_index,
-                dp.selected_day
-            );
+            dp.update_selected_date();
         }
         DPMessage::YearLeftPressed => {
             dp.selected_year -= 1;
             dp.is_submitted = false;
-            dp.selected_date = format_date(
-                dp.selected_format.clone(),
-                dp.selected_year,
-                dp.selected_month_index,
-                dp.selected_day
-            );
+            dp.update_selected_date();
         }
         DPMessage::OnSubmit => {
             dp.is_submitted = true;

@@ -1,8 +1,10 @@
 //! ipg_color_picker
+use std::collections::HashMap;
+
 use crate::graphics::bootstrap_arrow::IpgArrow;
 use crate::state::IpgWidgets;
 use crate::widgets::ipg_button::{IpgButtonStyleStandard, extract_button_style_standard};
-use crate::widgets::widget_param_update::{WidgetParamUpdate, set_bool, set_height, set_height_fill, set_iced_color, set_iced_color_from_rgba, set_opt_bool, set_opt_f32, set_opt_iced_color, set_opt_ipg_arrow, set_opt_string, set_opt_usize, set_opt_vec_f32, set_width, set_width_fill};
+use crate::widgets::widget_param_update::{WidgetParamUpdate, set_bool, set_height, set_height_fill, set_iced_color, set_opt_bool, set_opt_ipg_arrow, set_opt_string, set_opt_usize, set_opt_vec_f32, set_width, set_width_fill};
 use crate::IpgState;
 use crate::app::Message;
 use crate::py_api::helpers::get_padding;
@@ -32,68 +34,64 @@ pub struct IpgColorPicker {
     pub style_arrow: Option<IpgArrow>,
 }
 
-#[derive(Debug, Clone, Default)]
-pub struct IpgColorPickerStyle {
-    pub id: usize,
-    pub background_color: Option<Color>,
-    pub background_color_hovered: Option<Color>,
-    pub border_color: Option<Color>,
-    pub border_radius: Option<Vec<f32>>,
-    pub border_width: Option<f32>,
-    pub shadow_color: Option<Color>,
-    pub shadow_offset_x: Option<f32>,
-    pub shadow_offset_y: Option<f32>,
-    pub shadow_blur_radius: Option<f32>,
-    pub text_color: Option<Color>,
-}
+impl IpgColorPicker {
 
-pub fn construct_color_picker<'a>(cp: &'a IpgColorPicker,
-                                widget: Option<&IpgWidgets>,
-                                ) -> Option<Element<'a, Message>> {
-    
-    let label = 
-        if let Some(lbl) = cp.label.clone() {
-            text(lbl)
-        } else {
-            text("Select Color".to_string())
-        };
-    
-
-    let style_opt = widget.and_then(IpgWidgets::as_button_style).cloned();
-
-    let btn: Element<ColPikMessage> = 
-        Button::new(label)
-            .height(cp.height)
-            .padding(get_padding(&cp.padding))
-            .width(cp.width)
-            .on_press(ColPikMessage::OnPress)
-            .style(move|theme: &Theme, status| {   
-                if let Some(st) = &style_opt {
-                        st.to_iced(theme, status, &cp.style_standard)
-                    } else {
-                       match &cp.style_standard {
-                            Some(std) => std.to_iced(theme, status),
-                            None => button::primary(theme, status),
-                        }
-                    }
-                }
-            )
-            .into();
-
-    if !cp.show {
-        return Some(btn.map(move |message| Message::ColorPicker(cp.id, message)));
+    fn lookup<'a>(&self, widgets: &'a HashMap<usize, IpgWidgets>, id: Option<usize>) -> Option<&'a IpgWidgets> {
+        id.and_then(|id| widgets.get(&id))
     }
 
-    let color_picker: Element<ColPikMessage> = ColorPicker::new(
-                                    cp.show,
-                                    cp.color,
-                                    btn,
-                                    ColPikMessage::OnCancel,
-                                    ColPikMessage::OnSubmit,
-                                ).into();
+    pub fn construct<'a>(
+        &'a self,
+        widgets: &HashMap<usize, IpgWidgets>,
+        ) -> Option<Element<'a, Message>> {
+        
+        let label = 
+            if let Some(lbl) = self.label.clone() {
+                text(lbl)
+            } else {
+                text("Select Color".to_string())
+            };
+        
 
-    Some(color_picker.map(move |message| Message::ColorPicker(cp.id, message)))
+        let style_opt = 
+            self.lookup(widgets, self.style_id)
+                .and_then(IpgWidgets::as_button_style).cloned();
 
+
+        let btn: Element<ColPikMessage> = 
+            Button::new(label)
+                .height(self.height)
+                .padding(get_padding(&self.padding))
+                .width(self.width)
+                .on_press(ColPikMessage::OnPress)
+                .style(move|theme: &Theme, status| {   
+                    if let Some(st) = &style_opt {
+                            st.to_iced(theme, status, &self.style_standard)
+                        } else {
+                        match &self.style_standard {
+                                Some(std) => std.to_iced(theme, status),
+                                None => button::primary(theme, status),
+                            }
+                        }
+                    }
+                )
+                .into();
+
+        if !self.show {
+            return Some(btn.map(move |message| Message::ColorPicker(self.id, message)));
+        }
+
+        let color_picker: Element<ColPikMessage> = ColorPicker::new(
+                                        self.show,
+                                        self.color,
+                                        btn,
+                                        ColPikMessage::OnCancel,
+                                        ColPikMessage::OnSubmit,
+                                    ).into();
+
+        Some(color_picker.map(move |message| Message::ColorPicker(self.id, message)))
+
+    }
 }
 
 #[allow(clippy::enum_variant_names)]
@@ -173,94 +171,6 @@ pub enum IpgColorPickerStyleParam {
     TextRgbaColor
 }
 
-// pub fn get_styling(theme: &Theme, status: button::Status,
-//                     style_opt: &Option<IpgColorPickerStyle>,
-//                     style_standard: &Option<IpgButtonStyleStandard>,
-//                     ) -> button::Style 
-// {
-//     if style_standard.is_none() && style_opt.is_none() {
-//         return button::primary(theme, status)
-//     }
-
-//     if style_opt.is_none() && style_standard.is_some() {
-//             return get_standard_style(theme, status, &style_standard)
-//     }
-
-//     let mut border = Border::default();
-//     let mut shadow = Shadow::default();
-
-//     let mut base_style = button::primary(theme, status);
-//     let mut hover_style = button::primary(theme, status);
-
-//     let style = style_opt.clone().unwrap_or_default();
-
-//     if style.border_color.is_some() {
-//         border.color = style.border_color.unwrap();
-//     }
-
-//     if let Some(br) = style.border_radius {
-//         border.radius = get_radius(br, "ColorPicker".to_string());
-//     }
-
-//     if let Some(bw) = style.border_width {
-//         border.width = bw;
-//     }
-
-//     if let Some(sc) = style.shadow_color {
-//         shadow.color = sc;
-//     }
-
-//     let offset_x = if let Some(x) = style.shadow_offset_x {
-//         x
-//     } else { 0.0 };
-
-//     let offset_y = if let Some(y) = style.shadow_offset_x {
-//         y
-//     } else { 0.0 };
-
-//     shadow.offset = Vector{ x: offset_x , y: offset_y };
-    
-//     if let Some(br) = style.shadow_blur_radius {
-//         shadow.blur_radius = br;
-//     }
-
-//     if let Some(bc) = style.background_color {
-//         base_style.background = Some(bc.into())
-//     };
-
-//     if let Some(bch) = style.background_color_hovered {
-//         hover_style.background = Some(bch.into())
-//     };
-
-//     if let Some(tc) = style.text_color {
-//         base_style.text_color = tc;
-//         hover_style.text_color = tc;
-//     }
-
-//     base_style.border = border;
-//     hover_style.border = border;
-
-//     base_style.shadow = shadow;
-//     hover_style.shadow = shadow;
-
-//     match status {
-//         button::Status::Active | button::Status::Pressed => base_style,
-//         button::Status::Hovered => hover_style,
-//         button::Status::Disabled => disabled(base_style),
-//     }
-    
-// }
-
-// fn disabled(style: button::Style) -> button::Style {
-//     button::Style {
-//         background: style
-//             .background
-//             .map(|background| background.scale_alpha(0.5)),
-//         text_color: style.text_color.scale_alpha(0.5),
-//         ..style
-//     }
-// }
-
 fn convert_color_to_list(color: Color) -> Vec<f64> {
 
     vec![
@@ -303,26 +213,3 @@ impl WidgetParamUpdate for IpgColorPicker {
     }
 }
 
-impl WidgetParamUpdate for IpgColorPickerStyle {
-    type Param = IpgColorPickerStyleParam;
-
-    fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
-        match param {
-            IpgColorPickerStyleParam::BackgroundIpgColor => set_opt_iced_color(&mut self.background_color, value, name),
-            IpgColorPickerStyleParam::BackgroundRbga => set_iced_color_from_rgba(&mut self.background_color, value, name),
-            IpgColorPickerStyleParam::BackgroundIpgColorHovered => set_opt_iced_color(&mut self.background_color, value, name),
-            IpgColorPickerStyleParam::BackgroundIpgRgbaHovered => set_iced_color_from_rgba(&mut self.background_color, value, name),
-            IpgColorPickerStyleParam::BorderIpgColor => set_opt_iced_color(&mut self.background_color, value, name),
-            IpgColorPickerStyleParam::BorderRgba => set_iced_color_from_rgba(&mut self.background_color, value, name),
-            IpgColorPickerStyleParam::BorderRadius => set_opt_vec_f32(&mut self.border_radius, value, name),
-            IpgColorPickerStyleParam::BorderWidth => set_opt_f32(&mut self.border_width, value, name),
-            IpgColorPickerStyleParam::ShadowIpgColor => set_opt_iced_color(&mut self.background_color, value, name),
-            IpgColorPickerStyleParam::ShadowRgba => set_iced_color_from_rgba(&mut self.background_color, value, name),
-            IpgColorPickerStyleParam::ShadowOffsetX => set_opt_f32(&mut self.shadow_offset_x, value, name),
-            IpgColorPickerStyleParam::ShadowOffsetY => set_opt_f32(&mut self.shadow_offset_y, value, name),
-            IpgColorPickerStyleParam::ShadowBlurRadius => set_opt_f32(&mut self.shadow_blur_radius, value, name),
-            IpgColorPickerStyleParam::TextIpgColor => set_opt_iced_color(&mut self.background_color, value, name),
-            IpgColorPickerStyleParam::TextRgbaColor => set_iced_color_from_rgba(&mut self.background_color, value, name),
-        }
-    }
-}

@@ -67,7 +67,6 @@ pub fn param_update(
         IpgWidgets::IpgCheckBox(w) => apply_update(w, item, value, name),
         IpgWidgets::IpgCheckboxStyle(w) => apply_update(w, item, value, name),
         IpgWidgets::IpgColorPicker(w) => apply_update(w, item, value, name),
-        IpgWidgets::IpgColorPickerStyle(w) => apply_update(w, item, value, name),
         IpgWidgets::IpgContainerStyle(w) => apply_update(w, item, value, name),
         IpgWidgets::IpgDatePicker(w) => apply_update(w, item, value, name),
         IpgWidgets::IpgDividerHorizontal(w) => apply_update(w, item, value, name),

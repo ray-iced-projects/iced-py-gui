@@ -40,40 +40,32 @@ cp_style = add_button_style(border_radius=[5.0])
 
 
 # Add a window first
-add_window(
+with Window(
     id="main", 
-    title="Canvas",
+    title="ColorPicker",
     size=(500.0, 500.0),
-    center=True)
+    center=True):
 
-# Add the container to center both x and y (default).  Holds only one widget.
-add_container(
-    window_id="main", 
-    id="cont",
-    width_fill=True, 
-    height_fill=True,
-    center=True)
+    # Add the container to center both x and y (default).  Holds only one widget.
+    with Container(
+        width_fill=True, 
+        height_fill=True,
+        center=True):
 
-# Add a column to hold multiple widgets
-add_column(
-    window_id="main",
-    id="col",
-    parent_id="cont",
-    spacing=20.0)
+        # Add a column to hold multiple widgets
+        with Column(spacing=20.0):
 
-add_color_picker(
-    parent_id="col",
-    on_press=cp_opened, # Button to open color picker
-    on_select=color_selected, # the color selection selected
-    on_cancel=cp_canceled, # the color selection cancel
-    padding=[5.0],
-    style_id=cp_style,
-    user_data="Something") #user data not used but supplied for testing
-    # If you use user_data, all callback will require the user_data parameter
-    # or whatever name you want for it.
+            add_color_picker(
+                on_press=cp_opened, # Button to open color picker
+                on_select=color_selected, # the color selection selected
+                on_cancel=cp_canceled, # the color selection cancel
+                padding=[5.0],
+                style_id=cp_style,
+                user_data="Something") #user data not used but supplied for testing
+                # If you use user_data, all callback will require the user_data parameter
+                # or whatever name you want for it.
 
-text_id = add_text(
-            parent_id="col",
-            content="Color value here")
+            text_id = add_text(
+                        content="Color value here")
 
 start_session()

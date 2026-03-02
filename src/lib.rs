@@ -25,7 +25,7 @@ pub use state::{
 use crate::py_api::window::add_window;
 use crate::py_api::button::{add_button, add_button_style};
 use crate::py_api::checkbox::{add_checkbox, add_checkbox_style};
-use crate::py_api::color_picker::{add_color_picker, add_color_picker_style};
+use crate::py_api::color_picker::{add_color_picker};
 use crate::py_api::column::add_column;
 use crate::py_api::container::{add_container, add_container_style};
 use crate::py_api::date_picker::add_date_picker;
@@ -116,7 +116,6 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     // styles
     m.add_function(wrap_pyfunction!(add_button_style, m)?)?;
     m.add_function(wrap_pyfunction!(add_checkbox_style, m)?)?;
-    m.add_function(wrap_pyfunction!(add_color_picker_style, m)?)?;
     m.add_function(wrap_pyfunction!(add_container_style, m)?)?;
     m.add_function(wrap_pyfunction!(add_divider_style, m)?)?;
     m.add_function(wrap_pyfunction!(add_opaque_style, m)?)?;

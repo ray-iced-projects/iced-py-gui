@@ -12,7 +12,7 @@ use once_cell::sync::Lazy;
 use pyo3::{Py, PyAny};
 
 use crate::widgets::ipg_checkbox::{IpgCheckBox, IpgCheckboxStyle};
-use crate::widgets::ipg_color_picker::{IpgColorPicker, IpgColorPickerStyle};
+use crate::widgets::ipg_color_picker::IpgColorPicker;
 use crate::widgets::ipg_column::IpgColumn;
 use crate::widgets::ipg_container::{IpgContainer, IpgContainerStyle};
 use crate::widgets::ipg_date_picker::IpgDatePicker;
@@ -75,7 +75,6 @@ pub enum IpgWidgets {
     IpgCheckBox(IpgCheckBox),
     IpgCheckboxStyle(IpgCheckboxStyle),
     IpgColorPicker(IpgColorPicker),
-    IpgColorPickerStyle(IpgColorPickerStyle),
     IpgContainerStyle(IpgContainerStyle),
     IpgDividerHorizontal(IpgDividerHorizontal),
     IpgDividerVertical(IpgDividerVertical),
@@ -153,7 +152,6 @@ ipg_widget_accessors! {
     IpgCheckBox         => IpgCheckBox,          as_checkbox,            as_checkbox_mut;
     IpgCheckboxStyle    => IpgCheckboxStyle,     as_checkbox_style,      as_checkbox_style_mut;
     IpgColorPicker      => IpgColorPicker,       as_color_picker,        as_color_picker_mut;
-    IpgColorPickerStyle => IpgColorPickerStyle,  as_color_picker_style,  as_color_picker_style_mut;
     IpgContainerStyle   => IpgContainerStyle,    as_container_style,     as_container_style_mut;
     IpgDatePicker       => IpgDatePicker,        as_date_picker,         as_date_picker_mut;
     IpgDividerHorizontal=> IpgDividerHorizontal, as_divider_horizontal,  as_divider_horizontal_mut;

@@ -13,7 +13,7 @@ use crate::py_api::helpers::find_key_for_value;
 use crate::state::{IpgContainers, IpgIds, IpgState, IpgWidgets, access_state, access_update_widgets, access_window_actions, clone_state_to_runtime, set_state_of_widget_running_state};
 use crate::widgets::ipg_button::{BtnMessage, button_callback};
 use crate::widgets::ipg_checkbox::{ChkMessage, checkbox_callback};
-use crate::widgets::ipg_color_picker::{ColPikMessage, color_picker_callback, construct_color_picker};
+use crate::widgets::ipg_color_picker::{ColPikMessage, color_picker_callback};
 use crate::widgets::ipg_date_picker::{DPMessage, construct_date_picker, date_picker_update};
 use crate::widgets::ipg_divider::{DivMessage, construct_divider_horizontal, construct_divider_vertical, divider_callback};
 use crate::widgets::ipg_events::process_window_event;
@@ -769,12 +769,8 @@ fn get_widget<'a>(state: &'a IpgState, id: &usize) -> Option<Element<'a, Message
                     chk.construct(&state.widgets)
                 },
                 IpgWidgets::IpgColorPicker(cp) => {
-                    let style_opt = 
-                        if let Some(id)  = cp.style_id {
-                            state.widgets.get(&id)
-                        } else { None };
-
-                    construct_color_picker(cp, style_opt)
+                    
+                    cp.construct(&state.widgets)
                 },
                 IpgWidgets::IpgDividerHorizontal(div) => {
                     let style_opt = 

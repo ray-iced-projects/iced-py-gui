@@ -52,6 +52,7 @@ use crate::py_api::session::{start_session, generate_id};
 use crate::py_api::svg::add_svg;
 use crate::py_api::update::update_widget;
 use crate::widgets::ipg_radio::{IpgRadioDirection, IpgRadioParam, IpgRadioStyleParam};
+use crate::widgets::ipg_row::IpgRowParam;
 use crate::widgets::ipg_rule::{IpgRuleParam, IpgRuleStyleParam};
 use crate::widgets::ipg_scrollable::{IpgScrollableParam, IpgRailStyleParam, 
     IpgScrollbarParam, IpgAutoScrollStyleParam};
@@ -135,6 +136,7 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<IpgCheckboxStyleParam>()?;
     m.add_class::<IpgContainerParam>()?;
     m.add_class::<IpgContainerStyleParam>()?;
+    m.add_class::<IpgDividerParam>()?;
     m.add_class::<IpgDividerStyleParam>()?;
     m.add_class::<IpgRadioStyleParam>()?;
     m.add_class::<IpgRuleStyleParam>()?;
@@ -153,6 +155,7 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<IpgDatePickerParam>()?;
     m.add_class::<IpgDividerParam>()?;
     m.add_class::<IpgRadioParam>()?;
+    m.add_class::<IpgRowParam>()?;
     m.add_class::<IpgRuleParam>()?;
     m.add_class::<IpgScrollableParam>()?;
     m.add_class::<IpgScrollbarParam>()?;

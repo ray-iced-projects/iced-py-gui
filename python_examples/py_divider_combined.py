@@ -114,9 +114,9 @@ divider_style_id = add_divider_style(
 # Add a window first
 add_window(
         id="main", 
-        title="CheckBox Demo",
-    size=(600, 600),  
-        pos_centered=True,
+        title="Divider Demo",
+        size=(600, 600),  
+        center=True,
         # debug=True
         )
 
@@ -126,7 +126,6 @@ add_container(
         id="main_cont", 
         width_fill=True,
         height_fill=True,
-        centered=False,
         padding=[100, 0, 0, 100])
 
 # add a column to hold the text and the stack

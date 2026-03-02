@@ -5,7 +5,9 @@ from .icedpygui import (
     add_checkbox_style,
     add_checkbox as _add_checkbox,
     add_color_picker as _add_color_picker, 
-    add_column as _add_column, 
+    add_column as _add_column,
+    add_divider_horizontal as _add_divider_horizontal,
+    add_divider_vertical as _add_divider_vertical, 
     add_container as _add_container,
     add_container_style,
     add_date_picker as _add_date_picker,
@@ -27,7 +29,6 @@ from .icedpygui import (
     add_slider_style,
     add_text as _add_text,
     add_window as _add_window,
-    generate_id, 
     IpgAlignment,
     IpgAlignmentX, 
     IpgArrow,
@@ -91,27 +92,27 @@ def _current_parent():
 # Thin wrappers that fall back to the context stacks
 # ---------------------------------------------------------------------------
 
-def add_window(id=None, **kwargs):
-    """Wrapper around the Rust add_window.
+# def add_window(id=None, **kwargs):
+#     """Wrapper around the Rust add_window.
 
-    If *id* is omitted an id is auto-generated.
-    """
-    if id is None:
-        id = str(generate_id())
-    return _add_window(window_id=id, **kwargs)
+#     If *id* is omitted an id is auto-generated.
+#     """
+#     if id is None:
+#         id = str(generate_id())
+#     return _add_window(window_id=id, **kwargs)
 
 
-def add_text(parent_id=None, **kwargs):
-    """Wrapper around the Rust add_text.
+# def add_text(parent_id=None, **kwargs):
+#     """Wrapper around the Rust add_text.
 
-    If *parent_id* is omitted it is read from the parent stack
-    (set by the innermost Container / Column / Row / … context manager).
-    """
-    if parent_id is None:
-        parent_id = _current_parent()
-    if parent_id is None:
-        raise ValueError("add_text: parent_id is required (either pass it or use a context manager)")
-    return _add_text(parent_id=parent_id, **kwargs)
+#     If *parent_id* is omitted it is read from the parent stack
+#     (set by the innermost Container / Column / Row / … context manager).
+#     """
+#     if parent_id is None:
+#         parent_id = _current_parent()
+#     if parent_id is None:
+#         raise ValueError("add_text: parent_id is required (either pass it or use a context manager)")
+#     return _add_text(parent_id=parent_id, **kwargs)
 
 
 def _wrap_widget(rust_fn, name):
@@ -127,11 +128,12 @@ def _wrap_widget(rust_fn, name):
     wrapper.__doc__ = f"Wrapper around the Rust {name}. Falls back to parent stack for parent_id."
     return wrapper
 
-
 add_button = _wrap_widget(_add_button, "add_button")
 add_checkbox = _wrap_widget(_add_checkbox, "add_checkbox")
 add_color_picker = _wrap_widget(_add_color_picker, "add_color_picker")
 add_date_picker = _wrap_widget(_add_date_picker, "add_date_picker")
+add_divider_horizontal = _wrap_widget(_add_divider_horizontal, "add_divider_horizontal")
+add_divider_vertical = _wrap_widget(_add_divider_vertical, "add_divider_vertical")
 add_pick_list = _wrap_widget(_add_pick_list, "add_pick_list")
 add_radio = _wrap_widget(_add_radio, "add_radio")
 add_scrollable = _wrap_widget(_add_scrollable, "add_scrollable")
@@ -139,6 +141,7 @@ add_selectable_text = _wrap_widget(_add_selectable_text, "add_selectable_text")
 add_separator = _wrap_widget(_add_separator, "add_separator")
 add_space = _wrap_widget(_add_space, "add_space")
 add_slider = _wrap_widget(_add_slider, "add_slider")
+add_text = _wrap_widget(_add_text, "add_text")
 
 
 def _wrap_container(rust_fn, name):
@@ -159,10 +162,19 @@ def _wrap_container(rust_fn, name):
     wrapper.__doc__ = f"Wrapper around the Rust {name}. Accepts id= (maps to container_id=)."
     return wrapper
 
-
 add_container = _wrap_container(_add_container, "add_container")
 add_column = _wrap_container(_add_column, "add_column")
 add_row = _wrap_container(_add_row, "add_row")
+
+
+def add_window(id=None, **kwargs):
+    """Wrapper around the Rust add_window.
+
+    If *id* is omitted an id is auto-generated.
+    """
+    if id is None:
+        id = str(generate_id())
+    return _add_window(window_id=id, **kwargs)
 
 
 # ---------------------------------------------------------------------------

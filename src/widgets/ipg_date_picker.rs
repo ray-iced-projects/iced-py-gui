@@ -1,4 +1,6 @@
 //! ipg_date_picker
+use std::collections::HashMap;
+
 use crate::app::{Message, self};
 use crate::graphics::BOOTSTRAP_FONT;
 use crate::state::IpgWidgets;
@@ -23,6 +25,19 @@ use chrono::prelude::*;
 use pyo3::{pyclass, Py, PyAny};
 type PyObject = Py<PyAny>;
 
+
+#[derive(Debug, Clone)]
+pub enum DPMessage {
+    DatePickerFormat(String),
+    DayPressed(usize),
+    HideModal,
+    MonthLeftPressed(usize),
+    MonthRightPressed(usize),
+    OnSubmit,
+    ShowModal,
+    YearLeftPressed,
+    YearRightPressed,
+} 
 
 #[derive(Debug, Clone, Default)]
 pub struct IpgDatePicker {
@@ -88,99 +103,92 @@ impl IpgDatePicker {
             button_style_id,
         }
     }
-}
 
-
-#[derive(Debug, Clone)]
-pub enum DPMessage {
-    DatePickerFormat(String),
-    DayPressed(usize),
-    HideModal,
-    MonthLeftPressed(usize),
-    MonthRightPressed(usize),
-    OnSubmit,
-    ShowModal,
-    YearLeftPressed,
-    YearRightPressed,
-}   
-
-pub fn construct_date_picker<'a>(
-    dp: &'a IpgDatePicker, 
-    btn_style_opt: Option<&'a IpgWidgets>) 
-    -> Option<Element<'a, Message, Theme, Renderer>> {
-    
-    let btn_style  = btn_style_opt.and_then(IpgWidgets::as_button_style).cloned();
-
-    if !dp.show {
-        return None;
+    fn lookup<'a>(&self, widgets: &'a HashMap<usize, IpgWidgets>, id: Option<usize>) -> Option<&'a IpgWidgets> {
+        id.and_then(|id| widgets.get(&id))
     }
 
-    if dp.show_calendar == Some(false) {
-        let cal_show_btn: Element<'a, Message, Theme, Renderer> = 
-            calendar_show_button(dp, btn_style);
-        return Some(cal_show_btn)
+    pub fn construct<'a>(
+        &'a self, 
+        widgets: &HashMap<usize, IpgWidgets>,
+        ) -> Option<Element<'a, Message, Theme, Renderer>> {
+        
+        if !self.show {
+            return None;
+        }
+
+        let btn_style_opt = 
+            self.lookup(widgets, self.button_style_id)
+                .and_then(IpgWidgets::as_button_style).cloned();
+
+
+        if self.show_calendar == Some(false) {
+            let cal_show_btn: Element<'a, Message, Theme, Renderer> = 
+                calendar_show_button(self, btn_style_opt);
+            return Some(cal_show_btn)
+        }
+
+        let size = self.size_factor.unwrap_or(1.0).max(1.0);
+        
+        let col_content: Element<Message, Theme, Renderer> =
+            Column::with_children(vec![
+                create_first_row_arrows(self.id, 
+                    &self.selected_month, 
+                    self.selected_month_index, 
+                    self.selected_year,
+                    size),
+                
+                // Column titles S M T W T F S
+                Row::with_children(
+                    vec![Space::new().width(7.0*size).into(), 
+                    create_day_row(size)]
+                ).width(Length::Fill).into(),
+                
+                // days of the month
+                Row::with_children(
+                    vec![Space::new().width(5.0*size).into(), 
+                    get_calendar_days(self.id, 
+                        self.selected_year,
+                        self.selected_month_index,
+                        self.selected_day,
+                        size),
+                    ]).width(Length::Fill).into(),
+
+                // close btn and format picklist
+                Row::with_children(
+                    vec![Space::new().width(5.0*size).into(), 
+                    create_select_row(
+                        self.id, 
+                        self.selected_format.clone(), 
+                        size),
+                    ]).width(Length::Fill).into(),
+                
+                // bottom submit btn and selected date, if any
+                Row::with_children(
+                    vec![Space::new().width(5.0*size).into(),
+                        create_submit_row(
+                            self.id, 
+                            size, 
+                            self.selected_date.clone())
+                    ]).width(Length::Fill).into(),
+                
+            ])
+            .spacing(3.0*size)
+            .height(Length::Fill)
+            .width(Length::Fill)
+            .align_x(Alignment::Center)
+            .into();
+
+        let width = Length::Fixed(self.show_width * size);
+        let height = Length::Fixed(self.show_height * size);
+
+        Some(Container::new(col_content)
+                .width(width)
+                .height(height)
+            // .style(theme::Container::Box)
+            .into())
+
     }
-
-    let size = dp.size_factor.unwrap_or(1.0).max(1.0);
-    
-    let col_content: Element<Message, Theme, Renderer> =
-        Column::with_children(vec![
-            create_first_row_arrows(dp.id, 
-                &dp.selected_month, 
-                dp.selected_month_index, 
-                dp.selected_year,
-                size),
-            
-            // Column titles S M T W T F S
-            Row::with_children(
-                vec![Space::new().width(7.0*size).into(), 
-                create_day_row(size)]
-            ).width(Length::Fill).into(),
-            
-            // days of the month
-            Row::with_children(
-                vec![Space::new().width(5.0*size).into(), 
-                get_calendar_days(dp.id, 
-                    dp.selected_year,
-                    dp.selected_month_index,
-                    dp.selected_day,
-                    size),
-                ]).width(Length::Fill).into(),
-
-            // close btn and format picklist
-            Row::with_children(
-                vec![Space::new().width(5.0*size).into(), 
-                create_select_row(
-                    dp.id, 
-                    dp.selected_format.clone(), 
-                    size),
-                ]).width(Length::Fill).into(),
-            
-            // bottom submit btn and selected date, if any
-            Row::with_children(
-                vec![Space::new().width(5.0*size).into(),
-                    create_submit_row(
-                        dp.id, 
-                        size, 
-                        dp.selected_date.clone())
-                ]).width(Length::Fill).into(),
-            
-        ])
-        .spacing(3.0*size)
-        .height(Length::Fill)
-        .width(Length::Fill)
-        .align_x(Alignment::Center)
-        .into();
-
-    let width = Length::Fixed(dp.show_width * size);
-    let height = Length::Fixed(dp.show_height * size);
-
-    Some(Container::new(col_content)
-            .width(width)
-            .height(height)
-        // .style(theme::Container::Box)
-        .into())
-
 }
 
 fn icon(unicode: char, size: f32) -> Text<'static> {
@@ -220,15 +228,14 @@ fn get_days_of_month(year: i32, month: u32) -> i64 {
     
 }
 
-fn calendar_show_button<'a>(dp: &'a IpgDatePicker, 
-                            btn_style: Option<IpgButtonStyle>) 
-                            -> Element<'a, Message, Theme, Renderer> {
+fn calendar_show_button<'a>(
+        dp: &'a IpgDatePicker, 
+        btn_style: Option<IpgButtonStyle>,
+    ) -> Element<'a, Message, Theme, Renderer> {
     
     let label = if let Some(lb) = dp.label.clone() {
         lb
-    } else {
-        "Calendar".to_string()
-    };
+    } else { "Calendar".to_string() };
 
     let show_btn: Element<DPMessage, Theme, Renderer> = 
         Button::new(text(label))
@@ -247,13 +254,13 @@ fn calendar_show_button<'a>(dp: &'a IpgDatePicker,
             )
             .into();
 
-    let s_btn: Element<'a, Message, Theme, Renderer> = 
-                            show_btn.map(move |message| Message::DatePicker(dp.id, message));
+    let s_btn = 
+        show_btn.map(move |message| Message::DatePicker(dp.id, message));
 
     Container::new(s_btn)
-                .align_x(alignment::Horizontal::Center)
-                .align_y(alignment::Vertical::Center)
-                .padding(get_padding(&dp.padding)).into()
+        .align_x(alignment::Horizontal::Center)
+        .align_y(alignment::Vertical::Center)
+        .padding(get_padding(&dp.padding)).into()
                     
 }
 
@@ -288,61 +295,62 @@ fn create_first_row_arrows(
         left_btn.map(move |message| Message::DatePicker(id, message));
 
     let right_btn: Element<DPMessage, Theme, Renderer> = 
-                Button::new(right_arrow_icon(arrow_size))
-                        .on_press(DPMessage::MonthRightPressed(selected_month_index))
-                        .width(btn_arrow_width)
-                        .height(btn_arrow_height)
-                        .padding(padding)
-                        .style(move|theme, status| button::text(theme, status))
-                        .into();
+        Button::new(right_arrow_icon(arrow_size))
+            .on_press(DPMessage::MonthRightPressed(selected_month_index))
+            .width(btn_arrow_width)
+            .height(btn_arrow_height)
+            .padding(padding)
+            .style(move|theme, status| button::text(theme, status))
+            .into();
     let month_right_btn: Element<'_, Message, Theme, Renderer> = 
                 right_btn.map(move |message| Message::DatePicker(id, message));
 
     let left_btn: Element<DPMessage, Theme, Renderer> = 
-                Button::new(left_arrow_icon(arrow_size))
-                        .on_press(DPMessage::YearLeftPressed)
-                        .width(btn_arrow_width)
-                        .height(btn_arrow_height)
-                        .padding(padding)
-                        .style(move|theme, status| button::text(theme, status))
-                        .into();
+        Button::new(left_arrow_icon(arrow_size))
+            .on_press(DPMessage::YearLeftPressed)
+            .width(btn_arrow_width)
+            .height(btn_arrow_height)
+            .padding(padding)
+            .style(move|theme, status| button::text(theme, status))
+            .into();
     let year_left_btn: Element<'_, Message, Theme, Renderer> = 
                 left_btn.map(move |message| Message::DatePicker(id, message));
 
     let right_btn: Element<DPMessage, Theme, Renderer> = 
-                Button::new(right_arrow_icon(arrow_size))
-                        .on_press(DPMessage::YearRightPressed)
-                        .width(btn_arrow_width)
-                        .height(btn_arrow_height)
-                        .padding(padding)
-                        .style(move|theme, status| button::text(theme, status))
-                        .into();
-    let year_right_btn: Element<'_, Message, Theme, Renderer> = 
-                right_btn.map(move |message| Message::DatePicker(id, message));
+        Button::new(right_arrow_icon(arrow_size))
+            .on_press(DPMessage::YearRightPressed)
+            .width(btn_arrow_width)
+            .height(btn_arrow_height)
+            .padding(padding)
+            .style(move|theme, status| button::text(theme, status))
+            .into();
+    
+    let year_right_btn = 
+        right_btn.map(move |message| Message::DatePicker(id, message));
 
-    let selected_month_cont: Element<Message, Theme, Renderer> = 
-            Container::new(Text::new(selected_month.to_owned())
-                        .size(text_size))
-                        .align_x(alignment::Horizontal::Center)
-                        .align_y(alignment::Vertical::Center)
-                        .width(Length::Fixed(month_container_width))
-                        .into();
+    let selected_month_cont = 
+        Container::new(Text::new(selected_month.to_owned())
+            .size(text_size))
+            .align_x(alignment::Horizontal::Center)
+            .align_y(alignment::Vertical::Center)
+            .width(Length::Fixed(month_container_width))
+            .into();
 
     Row::with_children(vec![
-        Row::with_children(vec![
-                            month_left_btn,
-                            selected_month_cont, 
-                            month_right_btn,
-                            // --------------------------------------
-                            year_left_btn,
-                            
-                            Text::new(selected_year.to_string())
-                                        .size(text_size)
-                                        .into(),
-                            year_right_btn,
-                        ])
-                        .spacing(2)
-                        .align_y(Alignment::Center).into(),
+        Row::with_children(
+            vec![
+                month_left_btn,
+                selected_month_cont, 
+                month_right_btn,
+                year_left_btn,
+                Text::new(selected_year.to_string())
+                            .size(text_size)
+                            .into(),
+                year_right_btn,
+            ]
+        )
+        .spacing(2)
+        .align_y(Alignment::Center).into(),
     ])
     .align_y(Alignment::Center)
     .width(Length::Fill)
@@ -351,11 +359,12 @@ fn create_first_row_arrows(
 }
 
 
-fn get_calendar_days(id: usize, selected_year: i32, 
-                        selected_month_index: usize, 
-                        selected_day: usize,
-                        size_factor: f32) 
-                        -> Element<'static, Message, Theme, Renderer> 
+fn get_calendar_days(
+        id: usize, selected_year: i32, 
+        selected_month_index: usize, 
+        selected_day: usize,
+        size_factor: f32,
+    ) -> Element<'static, Message, Theme, Renderer> 
 {
 
     let days = get_days_of_month(selected_year, selected_month_index as u32) as f32;
@@ -504,10 +513,11 @@ fn create_submit_row(id: usize, size_factor: f32, selected_date: String) -> Elem
     let submit_text: Element<DPMessage, Theme, Renderer> = Text::new("Submit").size(10.0*size_factor).into();
 
     let submit_btn: Element<DPMessage, Theme, Renderer> = 
-                                            Button::new(submit_text)
-                                                    .on_press(DPMessage::OnSubmit)
-                                                    .style(move|theme, status| button::primary(theme, status))
-                                                    .into();
+        Button::new(submit_text)
+            .on_press(DPMessage::OnSubmit)
+            .style(move|theme, status| button::primary(theme, status))
+            .into();
+    
     let submit_btn_mapped: Element<Message, Theme, Renderer> = 
                                 submit_btn.map(move |message| app::Message::DatePicker(id, message));
 

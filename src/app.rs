@@ -14,7 +14,7 @@ use crate::state::{IpgContainers, IpgIds, IpgState, IpgWidgets, access_state, ac
 use crate::widgets::ipg_button::{BtnMessage, button_callback};
 use crate::widgets::ipg_checkbox::{ChkMessage, checkbox_callback};
 use crate::widgets::ipg_color_picker::{ColPikMessage, color_picker_callback};
-use crate::widgets::ipg_date_picker::{DPMessage, construct_date_picker, date_picker_update};
+use crate::widgets::ipg_date_picker::{DPMessage, date_picker_update};
 use crate::widgets::ipg_divider::{DivMessage, construct_divider_horizontal, construct_divider_vertical, divider_callback};
 use crate::widgets::ipg_events::process_window_event;
 use crate::widgets::ipg_image::{ImageMessage, construct_image, image_callback};
@@ -795,12 +795,7 @@ fn get_widget<'a>(state: &'a IpgState, id: &usize) -> Option<Element<'a, Message
                 //     Some(construct_menu(menu.clone(), state))
                 // },
                 IpgWidgets::IpgDatePicker(dp) => {
-                    let style_opt = 
-                        if let Some(id)  = dp.button_style_id {
-                            state.widgets.get(&id)
-                        } else { None };
-
-                    construct_date_picker(dp, style_opt)
+                    dp.construct(&state.widgets)
                 },
                 IpgWidgets::IpgPickList(pick) => {
                     let style_opt = 

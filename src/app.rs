@@ -865,15 +865,9 @@ fn get_widget<'a>(state: &'a IpgState, id: &usize) -> Option<Element<'a, Message
                         } else { None };
                     construct_text(txt, font_opt)
                 },
-                // IpgWidgets::IpgTextInput(input) => {
-                //     let style_opt = match input.style_id {
-                //         Some(id) => {
-                //             state.widgets.get(&id)
-                //         },
-                //         None => None,
-                //     };
-                //     construct_text_input(input, style_opt)       
-                // },
+                IpgWidgets::IpgTextInput(input) => {
+                    input.construct(&state.widgets)       
+                },
                 // IpgWidgets::IpgTimer(timer) => {
                 //     let style_opt = match timer.style_id {
                 //         Some(id) => {

@@ -6269,8 +6269,7 @@ class IpgTextInputParam:
     Width:float
     Padding:list[float]
     Size:float
-    LineHeightPixels:float
-    LineHeightRelative:float
+    LineHeight:float
     StyleId:int
 
 

@@ -66,29 +66,29 @@ def change_width(_btn_id):
 # 4 elements effect [Top, Right, Bottom, Left]
 def change_padding(_btn_id):
     # Let's make sure a value is there
-    update_widget(ti_id, IpgTextInputParam.Value, "A Value for the Padding")
+    update_widget(ti_id, IpgTextInputParam.Value, "Text moved left due to Padding")
     # let's make it bigger to hold the text
     update_widget(ti_id, IpgTextInputParam.Width, 300.0)
     # Use only two entries for the list
-    update_widget(ti_id, IpgTextInputParam.Padding, [0.0, 30.0])
+    update_widget(ti_id, IpgTextInputParam.Padding, [0.0, 0.0, 0.0, 30.0])
 
 
 # Change the size of the text
 def change_size(_btn_id):
     # Let's make sure a value is there
-    update_widget(ti_id, IpgTextInputParam.Value, "A Value for the Sizing")
+    update_widget(ti_id, IpgTextInputParam.Value, "The Size Increased")
     # let's make it bigger to hold the text
-    update_widget(ti_id, IpgTextInputParam.Width, 400.0)
+    update_widget(ti_id, IpgTextInputParam.Width, 300.0)
     update_widget(ti_id, IpgTextInputParam.Size, 30.0)
 
 
 # Change the line height
 def change_line_height(_btn_id):
     # Let's make sure a value is there
-    update_widget(ti_id, IpgTextInputParam.Value, "A Value for the LineHeight")
+    update_widget(ti_id, IpgTextInputParam.Value, "The LineHeight Increased")
     # let's make it bigger to hold the text
-    update_widget(ti_id, IpgTextInputParam.Width, 450.0)
-    update_widget(ti_id, IpgTextInputParam.LineHeightRelative, 3.0)
+    update_widget(ti_id, IpgTextInputParam.Width, 300.0)
+    update_widget(ti_id, IpgTextInputParam.LineHeight, 3.0)
 
 
 # Add some styling
@@ -125,7 +125,7 @@ add_space(
 ti_id = add_text_input(
                 parent_id="col", 
                 placeholder="Input Some Text",
-                width=200.0,
+                width=250.0,
                 on_input=on_input,
                 on_submit=on_submit,
                 on_paste=on_paste,

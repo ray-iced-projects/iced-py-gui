@@ -56,7 +56,7 @@ impl IpgTextInput {
         &'a self,
         widgets: &HashMap<usize, IpgWidgets>,
     ) -> Option<Element<'a, Message>> {
-        
+       
         if !self.show {
             return None
         }
@@ -112,19 +112,19 @@ pub fn text_input_callback(state: &mut IpgState, id: usize, message: TIMessage) 
     match message {
         TIMessage::OnInput(value) => {
             if let Some(IpgWidgets::IpgTextInput(ti)) = state.widgets.get_mut(&id) {
-                ti.placeholder = value.clone();
+                ti.value = value.clone();
             }
             invoke_callback_with_args(id, "on_input", "TextInput", value);
         },
         TIMessage::OnSubmit(value) => {
             if let Some(IpgWidgets::IpgTextInput(ti)) = state.widgets.get_mut(&id) {
-                ti.placeholder = value.clone();
+                ti.value = String::new();
             }
             invoke_callback_with_args(id, "on_submit", "TextInput", value);
         }
         TIMessage::OnPaste(value) => {
             if let Some(IpgWidgets::IpgTextInput(ti)) = state.widgets.get_mut(&id) {
-                ti.placeholder = value.clone();
+                ti.value = value.clone();
             }
             invoke_callback_with_args(id, "on_paste", "TextInput", value);
         }

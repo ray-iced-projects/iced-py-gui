@@ -52,7 +52,7 @@ impl IpgScrollable {
         widgets: &HashMap<usize, IpgWidgets>,
         ) -> Element<'a, Message> {
 
-        let mut ipg_style = IpgScrollStyle::default();
+        let mut ipg_style = IpgScrollableStyle::default();
 
         ipg_style.container = self.lookup(widgets, self.container_style_id)
             .and_then(IpgWidgets::as_container_style).cloned();
@@ -270,7 +270,7 @@ pub enum IpgScrollbarParam {
 
 /// The appearance of a scrollable.
 #[derive(Debug, Clone, Default, PartialEq)]
-pub struct IpgScrollStyle {
+pub struct IpgScrollableStyle {
     pub container: Option<ipg_container::IpgContainerStyle>,
     pub vertical_rail: Option<IpgRailStyle>,
     pub horizontal_rail: Option<IpgRailStyle>,
@@ -278,8 +278,13 @@ pub struct IpgScrollStyle {
     pub auto_scroll: Option<IpgAutoScrollStyle>,
 }
 
-impl IpgScrollStyle {
-    fn set_style(&self, theme: &Theme, status: scrollable::Status,) -> scrollable::Style {
+impl IpgScrollableStyle {
+    fn set_style(
+        &self, 
+        theme: &Theme, 
+        status: scrollable::Status,
+    ) -> scrollable::Style {
+        
         let mut style = scrollable::default(theme, status);
 
         // Need default since iced doesn't default each one individually

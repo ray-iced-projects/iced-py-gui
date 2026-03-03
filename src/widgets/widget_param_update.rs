@@ -95,6 +95,7 @@ pub fn param_update(
         IpgWidgets::IpgScrollbar(w) => apply_update(w, item, value, name),
         IpgWidgets::IpgRailStyle(w) => apply_update(w, item, value, name),
         IpgWidgets::IpgAutoScrollStyle(w) => apply_update(w, item, value, name),
+        IpgWidgets::IpgTableStyle(w) => apply_update(w, item, value, name),
         IpgWidgets::IpgTextInput(w) => apply_update(w, item, value, name),
         IpgWidgets::IpgTextInputStyle(w) => apply_update(w, item, value, name),
             }
@@ -118,6 +119,7 @@ pub fn container_param_update(
         IpgContainers::IpgRow(w) => apply_update(w, item, value, name),
         IpgContainers::IpgScrollable(w) => apply_update(w, item, value, name),
         IpgContainers::IpgStack(w) => apply_update(w, item, value, name),
+        IpgContainers::IpgTable(w) => apply_update(w, item, value, name),
         IpgContainers::IpgWindow(w) => apply_update(w, item, value, name),
     }
 }

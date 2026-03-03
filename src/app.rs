@@ -2,6 +2,7 @@
 use std::collections::HashMap;
 
 use iced::widget::{Column, scrollable};
+use iced::advanced::widget::operation::scrollable::scroll_to;
 use iced::window::{self, Position};
 use iced::{Color, Element, Event, Point, Size, Subscription, Task, Theme, font};
 
@@ -31,6 +32,7 @@ use crate::widgets::ipg_separator::construct_separator;
 use crate::widgets::ipg_slider::{SLMessage, construct_slider, slider_callback};
 use crate::widgets::ipg_space::construct_space;
 use crate::widgets::ipg_svg::{SvgMessage, construct_svg, svg_callback};
+use crate::widgets::ipg_table::{TableMessage, table_callback};
 use crate::widgets::ipg_text::construct_text;
 use crate::widgets::ipg_text_input::{TIMessage, text_input_callback};
 use crate::widgets::ipg_toggle::{TOGMessage, construct_toggler, toggle_callback};
@@ -60,9 +62,9 @@ pub enum Message {
     Slider(usize, SLMessage),
     Svg(usize, SvgMessage),
 
-//     TableSync(scrollable::AbsoluteOffset, usize),
-//     TableDividerChanged((usize, usize, f32)),
-//     TableDividerReleased(usize),
+    TableSync(scrollable::AbsoluteOffset, usize),
+    TableDividerChanged((usize, usize, f32)),
+    TableDividerReleased(usize),
 
     TextInput(usize, TIMessage),
     Toggler(usize, TOGMessage),
@@ -305,31 +307,37 @@ impl App {
                 process_updates(&mut self.state); //, &mut self.canvas_state);
                 Task::none()
             },
-            // Message::TableSync(offset, id) => {
-            //     let message = TableMessage::SyncScrollables(id);
-            //     let (header, body, footer) = table_callback(&mut self.state, id, message);
-            //     process_updates(&mut self.state, &mut self.canvas_state);
-            //     let mut tasks = vec![scrollable::scroll_to(body.unwrap(), offset)];
-            //     if header.is_some() {
-            //         tasks.push(scrollable::scroll_to(header.unwrap(), offset));
-            //     }
-            //     if footer.is_some() {
-            //         tasks.push(scrollable::scroll_to(footer.unwrap(), offset));
-            //     }
-            //     Task::batch(tasks)
-            // },
-            // Message::TableDividerChanged((id, index, value)) => {
-            //     let message = TableMessage::DivDragging((index, value));
-            //     table_callback(&mut self.state, id, message);
-            //     process_updates(&mut self.state, &mut self.canvas_state);
-            //     Task::none()
-            // },
-            // Message::TableDividerReleased(id) => {
-            //     let message = TableMessage::DivOnRelease;
-            //     table_callback(&mut self.state, id, message);
-            //     process_updates(&mut self.state, &mut self.canvas_state);
-            //     Task::none()
-            // },
+            Message::TableSync(offset, id) => {
+                let message = TableMessage::SyncScrollables(id);
+                
+                // let (header, body, footer) = 
+                //     table_callback(&mut self.state, id, message);
+                
+                // process_updates(&mut self.state); //, &mut self.canvas_state);
+                
+                // let mut tasks = vec![scroll_to(body.unwrap(), offset)];
+               
+                // if header.is_some() {
+                //     tasks.push(scroll_to(header.unwrap(), offset));
+                // }
+                // if footer.is_some() {
+                //     tasks.push(scroll_to(footer.unwrap(), offset));
+                // }
+                // Task::batch(tasks)
+                Task::none()
+            },
+            Message::TableDividerChanged((id, index, value)) => {
+                let message = TableMessage::DivDragging((index, value));
+                table_callback(&mut self.state, id, message);
+                process_updates(&mut self.state); //, &mut self.canvas_state);
+                Task::none()
+            },
+            Message::TableDividerReleased(id) => {
+                let message = TableMessage::DivOnRelease;
+                table_callback(&mut self.state, id, message);
+                process_updates(&mut self.state); //, &mut self.canvas_state);
+                Task::none()
+            },
             Message::TextInput(id, message) => {
                 text_input_callback(&mut self.state, id, message);
                 process_updates(&mut self.state); //, &mut self.canvas_state);
@@ -707,16 +715,9 @@ fn get_container<'a>(state: &'a IpgState,
 
                     construct_opaque(op, content, style_opt)
                 },
-                // IpgContainers::IpgTable(table) => {
-                //     let style_opt = 
-                //         match table.style_id {
-                //             Some(id) => {
-                //                 state.widgets.get(&id)
-                //             },
-                //             None => None,
-                //         };
-                //     construct_table(table.clone(), content, style_opt)
-                // },
+                IpgContainers::IpgTable(table) => {
+                    table.construct(content, &state.widgets)
+                },
                 IpgContainers::IpgRow(row) => {
                     construct_row(row, content)
                 },

@@ -48,6 +48,7 @@ use crate::py_api::slider::{add_slider, add_slider_style};
 use crate::py_api::space::add_space;
 use crate::py_api::stack::add_stack;
 use crate::py_api::svg::add_svg;
+use crate::py_api::table::{add_table, add_table_style};
 use crate::py_api::text_input::{add_text_input, add_text_input_style};
 use crate::py_api::text::add_text;
 use crate::py_api::toggle::{add_toggler, add_toggler_style};
@@ -113,9 +114,10 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(add_separator, m)?)?;
     m.add_function(wrap_pyfunction!(add_space, m)?)?;
     m.add_function(wrap_pyfunction!(add_stack, m)?)?;
-    m.add_function(wrap_pyfunction!(add_toggler, m)?)?;
+    m.add_function(wrap_pyfunction!(add_table, m)?)?;
     m.add_function(wrap_pyfunction!(add_text, m)?)?;
     m.add_function(wrap_pyfunction!(add_text_input, m)?)?;
+    m.add_function(wrap_pyfunction!(add_toggler, m)?)?;
     m.add_function(wrap_pyfunction!(add_svg, m)?)?;
     m.add_function(wrap_pyfunction!(update_widget, m)?)?;
     
@@ -131,6 +133,7 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(add_autoscroll_style, m)?)?;
     m.add_function(wrap_pyfunction!(add_separator_style, m)?)?;
     m.add_function(wrap_pyfunction!(add_slider_style, m)?)?;
+    m.add_function(wrap_pyfunction!(add_table_style, m)?)?;
     m.add_function(wrap_pyfunction!(add_toggler_style, m)?)?;
     m.add_function(wrap_pyfunction!(add_radio_style, m)?)?;
     m.add_function(wrap_pyfunction!(add_rule_style, m)?)?;

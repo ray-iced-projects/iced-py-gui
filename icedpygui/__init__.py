@@ -28,6 +28,8 @@ from .icedpygui import (
     add_slider_style, 
     add_space as _add_space,
     add_stack as _add_stack,
+    add_text_input as _add_text_input,
+    add_text_input_style,
     add_text as _add_text,
     add_window as _add_window,
     IpgAlignment,
@@ -61,6 +63,7 @@ from .icedpygui import (
     IpgSliderStyleParam,
     IpgStackParam,
     IpgStyleStandard,
+    IpgTextInputParam,
     IpgTextParam,
     IpgAlignmentY,
     IpgWindowLevel, 
@@ -120,6 +123,7 @@ add_selectable_text = _wrap_widget(_add_selectable_text, "add_selectable_text")
 add_separator = _wrap_widget(_add_separator, "add_separator")
 add_slider = _wrap_widget(_add_slider, "add_slider")
 add_space = _wrap_widget(_add_space, "add_space")
+add_text_input = _wrap_widget(_add_text_input, "add_text_input")
 add_text = _wrap_widget(_add_text, "add_text")
 
 

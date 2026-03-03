@@ -3,9 +3,9 @@ from imports import *
 secure = False
 
 # Currently, Ipg only has the text_input widget.
-# Additional types of inputs will follow soon.
-# Therefore, the return data will be a string
-# that you will need to convert to whatever type you want
+# They could be used for anything, just convert them
+# to  a string for the list and convert back when selected.
+
 
 # Add the callback for the text_input, 2 parameters are
 # returned, the id of the text_input, not used here, and the
@@ -100,14 +100,14 @@ def add_style(_btn_id):
 add_window(
         id="main", 
         title="Text Input Demo",
-    size=(600, 600),
-        position=(100, 25))
+        size=(600, 600),
+        center=True)
 
 # add the column for the widgets, centered
 add_column(
         window_id="main", 
         id="col",
-        align=IpgAlignment.Center,
+        align_x=IpgAlignment.Center,
         height_fill=True, 
         width_fill=True, 
         spacing=10)
@@ -149,10 +149,10 @@ text_user_data_id = add_text(
                             content="User data will e here when submitted")
 
 # Add row for buttons
-add_row(
-        window_id="main", 
+add_row(window_id="main", 
         id="row_1", 
-        parent_id="col")
+        parent_id="col",
+        spacing=10.0)
 
 add_button(
         parent_id="row_1", 
@@ -167,7 +167,8 @@ add_button(
 add_row(
         window_id="main", 
         id="row_2", 
-        parent_id="col")
+        parent_id="col",
+        spacing=10.0)
 
 add_button(
         parent_id="row_2", 
@@ -182,7 +183,8 @@ add_button(
 add_row(
         window_id="main", 
         id="row_3", 
-        parent_id="col")
+        parent_id="col",
+        spacing=10.0)
 
 add_button(
         parent_id="row_3", 
@@ -197,7 +199,8 @@ add_button(
 add_row(
         window_id="main", 
         id="row_4", 
-        parent_id="col")
+        parent_id="col",
+        spacing=10.0)
 
 add_button(
         parent_id="row_4", 
@@ -207,7 +210,8 @@ add_button(
 add_row(
         window_id="main", 
         id="row_5", 
-        parent_id="col")
+        parent_id="col",
+        spacing=10.0)
 
 add_button(
         parent_id="row_5", 
@@ -217,12 +221,12 @@ add_button(
 # the add style functions can be place anywhere as long as they are before the start_session
 ti_style = add_text_input_style( 
                     background_color=IpgColor.CADET_BLUE,
-                    border_color=IpgColor.YELLOW,
+                    border_color_active=IpgColor.YELLOW,
                     border_color_focused=IpgColor.PALE_GOLDEN_ROD,
                     border_color_hovered=IpgColor.CHARTREUSE,
                     border_width=5.0,
-                    border_radius=[8.0],
-                    placeholder_color=IpgColor.BLACK,
+                    border_radius=8.0,
+                    placeholder_color_active=IpgColor.BLACK,
                     value_color=IpgColor.LIGHT_STEEL_BLUE,
                     selection_color=IpgColor.DARK_SLATE_GRAY)
 

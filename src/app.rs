@@ -32,6 +32,7 @@ use crate::widgets::ipg_slider::{SLMessage, construct_slider, slider_callback};
 use crate::widgets::ipg_space::construct_space;
 use crate::widgets::ipg_svg::{SvgMessage, construct_svg, svg_callback};
 use crate::widgets::ipg_text::construct_text;
+use crate::widgets::ipg_text_input::{TIMessage, text_input_callback};
 use crate::widgets::ipg_toggle::{TOGMessage, construct_toggler, toggle_callback};
 use crate::widgets::ipg_window::{IpgWindow, IpgWindowLevel, IpgWindowMode, add_windows, construct_window};
 use crate::widgets::widget_param_update::{param_update, container_param_update};
@@ -63,7 +64,7 @@ pub enum Message {
 //     TableDividerChanged((usize, usize, f32)),
 //     TableDividerReleased(usize),
 
-//     TextInput(usize, TIMessage),
+    TextInput(usize, TIMessage),
     Toggler(usize, TOGMessage),
 //     CanvasTextBlink,
 //     Tick,
@@ -329,11 +330,11 @@ impl App {
             //     process_updates(&mut self.state, &mut self.canvas_state);
             //     Task::none()
             // },
-            // Message::TextInput(id, message) => {
-            //     text_input_callback(&mut self.state, id, message);
-            //     process_updates(&mut self.state, &mut self.canvas_state);
-            //     Task::none()
-            // },
+            Message::TextInput(id, message) => {
+                text_input_callback(&mut self.state, id, message);
+                process_updates(&mut self.state); //, &mut self.canvas_state);
+                Task::none()
+            },
             // Message::CanvasTextBlink => {
             //     self.canvas_state.elapsed_time += self.canvas_state.timer_duration;
             //     self.canvas_state.blink = !self.canvas_state.blink;

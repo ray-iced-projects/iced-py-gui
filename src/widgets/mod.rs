@@ -33,3 +33,4 @@ pub mod ipg_toggle;
 pub mod ipg_row;
 pub mod styling;
 pub mod ipg_text;
+pub mod ipg_text_input;

@@ -134,7 +134,8 @@ impl IpgCheckBox {
                             None => checkbox::primary(theme, status),
                         }
                     }
-                    });
+                }
+            );
         
         let chk = 
             if let Some(lb) = &self.label {
@@ -165,7 +166,6 @@ pub fn checkbox_callback(state: &mut IpgState, id: usize, message: ChkMessage) {
 
     match message {
         ChkMessage::OnToggle(is_checked) => {
-            // Update widget state directly
             if let Some(IpgWidgets::IpgCheckBox(cb)) = state.widgets.get_mut(&id) {
                 cb.is_checked = is_checked;
             }
@@ -186,7 +186,6 @@ pub struct IpgCheckboxStyle {
 }
 
 impl IpgCheckboxStyle {
-    /// Apply user-defined style overrides to an existing iced checkbox::Style
     fn to_iced(
          &self, 
         theme: &Theme, 

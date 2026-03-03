@@ -15,7 +15,7 @@ use crate::widgets::ipg_button::{BtnMessage, button_callback};
 use crate::widgets::ipg_checkbox::{ChkMessage, checkbox_callback};
 use crate::widgets::ipg_color_picker::{ColPikMessage, color_picker_callback};
 use crate::widgets::ipg_date_picker::{DPMessage, date_picker_update};
-use crate::widgets::ipg_divider::{DivMessage, construct_divider_horizontal, construct_divider_vertical, divider_callback};
+use crate::widgets::ipg_divider::{DivMessage, divider_callback};
 use crate::widgets::ipg_events::process_window_event;
 use crate::widgets::ipg_image::{ImageMessage, construct_image, image_callback};
 use crate::widgets::ipg_mousearea::{construct_mousearea, mousearea_callback, mousearea_callback_point};
@@ -770,24 +770,10 @@ fn get_widget<'a>(state: &'a IpgState, id: &usize) -> Option<Element<'a, Message
                     chk.construct(&state.widgets)
                 },
                 IpgWidgets::IpgColorPicker(cp) => {
-                    
                     cp.construct(&state.widgets)
                 },
-                IpgWidgets::IpgDividerHorizontal(div) => {
-                    let style_opt = 
-                        if let Some(id)  = div.style_id {
-                            state.widgets.get(&id)
-                        } else { None };
- 
-                    construct_divider_horizontal(div, style_opt)
-                },
-                IpgWidgets::IpgDividerVertical(div) => {
-                    let style_opt = 
-                        if let Some(id)  = div.style_id {
-                            state.widgets.get(&id)
-                        } else { None };
-                    
-                    construct_divider_vertical(div, style_opt)
+                IpgWidgets::IpgDivider(div) => {
+                    div.construct(&state.widgets)
                 },
                 IpgWidgets::IpgImage(image) => {
                     construct_image(image)
@@ -1161,8 +1147,7 @@ fn show_widget(state: &mut IpgState, ids: &[(usize, bool)]) {
             IpgWidgets::IpgCheckBox(cb) => cb.show= *value,
             IpgWidgets::IpgColorPicker(cp) => cp.show= *value,
             IpgWidgets::IpgDatePicker(dp) => dp.show= *value,
-            IpgWidgets::IpgDividerHorizontal(dh) => dh.show = *value,
-            IpgWidgets::IpgDividerVertical(dv) => dv.show = *value,
+            IpgWidgets::IpgDivider(d) => d.show = *value,
             IpgWidgets::IpgImage(im) => im.show= *value,
             // IpgWidgets::IpgPickList(pl) => pl.show= *value,
             // IpgWidgets::IpgProgressBar(pb) => pb.show= *value,

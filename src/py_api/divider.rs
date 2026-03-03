@@ -5,19 +5,20 @@ use iced::Color;
 use pyo3::{Py, PyAny, pyfunction, PyResult};
 
 use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex, graphics::colors::IpgColor, py_api::helpers::{get_height, get_width}, state::{IpgWidgets, 
-        get_id, set_state_of_widget}, widgets::{ipg_divider::{self, IpgDividerHorizontal, IpgDividerStyle, IpgDividerVertical}, 
+        get_id, set_state_of_widget}, widgets::{ipg_divider::{self, IpgDivider, IpgDividerDirection, IpgDividerStyle}, 
             styling::IpgStyleStandard}};
 type PyObject = Py<PyAny>;
 
 
 
-/// Add a divider_horizontal widget.
+/// Add a divider widget.
 ///
 /// Returns the widget ID.
 #[pyfunction]
 #[pyo3(signature = (
     parent_id,
-    widths,
+    direction,
+    sizes,
     handle_width,
     handle_height,
     handle_offsets=None,
@@ -33,9 +34,10 @@ type PyObject = Py<PyAny>;
     user_data=None,
     show=true,
     ))]
-pub fn add_divider_horizontal(
+pub fn add_divider(
     parent_id: String,
-    widths: Vec<f32>,
+    direction: IpgDividerDirection,
+    sizes: Vec<f32>,
     handle_width: f32,
     handle_height: f32,
     handle_offsets: Option<Vec<f32>>,
@@ -74,97 +76,13 @@ pub fn add_divider_horizontal(
 
     let mut state = access_state();
 
-    state.widgets.insert(id, IpgWidgets::IpgDividerHorizontal(
-        IpgDividerHorizontal {
+    state.widgets.insert(id, IpgWidgets::IpgDivider(
+        IpgDivider {
             id,
             parent_id,
             show,
-            widths,
-            handle_width,
-            handle_height,
-            handle_offsets,
-            include_last_handle,
-            width,
-            height,
-            index_in_use: 0,
-            value_in_use: 0.0,
-            style_id,
-        }));
-
-    drop(state);
-    Ok(id)
-}
-
-
-/// Add a divider_vertical widget.
-///
-/// Returns the widget ID.
-#[pyfunction]
-#[pyo3(signature = (
-    parent_id,
-    heights,
-    handle_width,
-    handle_height,
-    handle_offsets=None,
-    include_last_handle=true,
-    on_change=None,
-    on_release=None,
-    width=None,
-    width_fill=true,
-    height=None,
-    height_fill=true,
-    style_id=None,
-    gen_id=None,
-    user_data=None,
-    show=true,
-    ))]
-pub fn add_divider_vertical(
-    parent_id: String,
-    heights: Vec<f32>,
-    handle_width: f32,
-    handle_height: f32,
-    handle_offsets: Option<Vec<f32>>,
-    include_last_handle: bool,
-    on_change: Option<PyObject>,
-    on_release: Option<PyObject>,
-    width: Option<f32>,
-    width_fill: bool,
-    height: Option<f32>,
-    height_fill: bool,
-    style_id: Option<usize>,
-    gen_id: Option<usize>,
-    user_data: Option<PyObject>,
-    show: bool,
-) -> PyResult<usize>
-{
-    let id = get_id(gen_id);
-
-    if let Some(py) = on_change {
-        add_callback_to_mutex(id, "on_change".to_string(), py);
-    }
-
-    if let Some(py) = on_release {
-        add_callback_to_mutex(id, "on_release".to_string(), py);
-    }
-
-    if let Some(py) = user_data {
-        add_user_data_to_mutex(id, py);
-    }
-
-    let width = get_width(width, width_fill);
-
-    let height = get_height(height, height_fill);
-
-    set_state_of_widget(id, parent_id.clone());
-
-    let mut state = access_state();
-
-    state.widgets.insert(id, IpgWidgets::IpgDividerVertical(
-        IpgDividerVertical {
-            id,
-            parent_id,
-            show,
-            heights,
+            direction,
+            sizes,
             handle_width,
             handle_height,
             handle_offsets,

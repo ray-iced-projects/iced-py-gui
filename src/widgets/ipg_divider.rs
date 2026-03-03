@@ -1,4 +1,6 @@
 //! ipg_divider
+use std::collections::HashMap;
+
 use crate::{IpgState, app};
 use crate::py_api::helpers::get_radius;
 use crate::state::IpgWidgets;
@@ -18,11 +20,12 @@ type PyObject = Py<PyAny>;
 
 
 #[derive(Debug, Clone, PartialEq)]
-pub struct IpgDividerHorizontal {
+pub struct IpgDivider {
     pub id: usize,
     pub parent_id: String,
     pub show: bool,
-    pub widths: Vec<f32>,
+    pub direction: IpgDividerDirection,
+    pub sizes: Vec<f32>,
     pub handle_width: f32,
     pub handle_height: f32,
     pub handle_offsets: Option<Vec<f32>>,
@@ -32,35 +35,6 @@ pub struct IpgDividerHorizontal {
     pub index_in_use: usize,
     pub value_in_use: f32,
     pub style_id: Option<usize>,
-}
-
-#[derive(Debug, Clone, PartialEq)]
-pub struct IpgDividerVertical {
-    pub id: usize,
-    pub parent_id: String,
-    pub show: bool,
-    pub heights: Vec<f32>,
-    pub handle_width: f32,
-    pub handle_height: f32,
-    pub handle_offsets: Option<Vec<f32>>,
-    pub include_last_handle: bool,
-    pub width: Length,
-    pub height: Length,
-    pub index_in_use: usize,
-    pub value_in_use: f32,
-    pub style_id: Option<usize>,
-}
-
-
-#[derive(Debug, Clone, PartialEq)]
-pub struct IpgDividerStyle {
-    pub id: usize,
-    pub background_color: Option<Color>,
-    pub background_color_hovered: Option<Color>,
-    pub background_transparent: Option<bool>,
-    pub border_color: Option<Color>,
-    pub border_width: Option<f32>,
-    pub border_radius: Option<Vec<f32>>,
 }
 
 #[derive(Debug, Clone)]
@@ -78,110 +52,102 @@ pub enum IpgDividerDirection {
     Vertical,
 }
 
-pub fn construct_divider_horizontal<'a>(
-        divider: &'a IpgDividerHorizontal, 
-        style_opt: Option<&IpgWidgets>) 
-        -> Option<Element<'a, app::Message>> {
+impl IpgDivider {
 
-    if !divider.show {
-        return None
+    fn lookup<'a>(&self, widgets: &'a HashMap<usize, IpgWidgets>, id: Option<usize>) -> Option<&'a IpgWidgets> {
+        id.and_then(|id| widgets.get(&id))
     }
 
-    let style = style_opt.and_then(IpgWidgets::as_divider_style).cloned();
+    pub fn construct<'a>(
+        &'a self,
+        widgets: &HashMap<usize, IpgWidgets>,
+    )-> Option<Element<'a, app::Message>> {
 
-    let offsets = match divider.handle_offsets.clone() {
-        Some(offsets) => offsets,
-        None => {
-            let mut offsets = vec![-divider.handle_width/2.0; divider.widths.len()-1];
-            offsets.extend([-divider.handle_width]);
-            offsets
-        }
-    };
+        if !self.show { return None }
 
-    let div: Element<DivMessage, Theme> = 
-        divider_horizontal(
-            divider.id,
-            divider.widths.clone(),
-            divider.handle_width,
-            divider.handle_height, 
-            DivMessage::OnChange
-            )
-            .on_release(DivMessage::OnRelease)
-            .direction(Direction::Horizontal)
-            .width(divider.width)
-            .height(divider.height)
-            .handle_offsets(offsets)
-            .include_last_handle(divider.include_last_handle)
-            .style(move|theme, status|
-                get_styling(theme, status,
-                style.clone())
+        let style_opt = 
+            self.lookup(widgets, self.style_id)
+                .and_then(IpgWidgets::as_divider_style).cloned();
+
+        let is_horizontal = self.direction == IpgDividerDirection::Horizontal;
+
+        let offsets = match self.handle_offsets.clone() {
+            Some(offsets) => offsets,
+            None => {
+                if is_horizontal {
+                    let mut offsets = vec![-self.handle_width/2.0; self.sizes.len()-1];
+                    offsets.extend([-self.handle_width]);
+                    offsets
+                } else {
+                    let mut offsets = vec![-self.handle_height/2.0; self.sizes.len()-1];
+                    offsets.extend([-self.handle_height]);
+                    offsets
+                }
+            }
+        };
+
+        let div: Element<DivMessage, Theme> = if is_horizontal {
+            divider_horizontal(
+                self.id,
+                self.sizes.clone(),
+                self.handle_width,
+                self.handle_height, 
+                DivMessage::OnChange
                 )
-            .into();
+                .on_release(DivMessage::OnRelease)
+                .direction(Direction::Horizontal)
+                .width(self.width)
+                .height(self.height)
+                .handle_offsets(offsets)
+                .include_last_handle(self.include_last_handle)
+                .style(move |theme: &Theme, status| {
+                    if let Some(st) = &style_opt {
+                        st.to_iced(theme, status)
+                    } else {
+                        divider::primary(theme, status)
+                    }
+                })
+                .into()
+        } else {
+            divider_vertical(
+                self.id,
+                self.sizes.clone(),
+                self.handle_width,
+                self.handle_height, 
+                DivMessage::OnChange
+                )
+                .on_release(DivMessage::OnRelease)
+                .direction(Direction::Vertical)
+                .width(self.width)
+                .height(self.height)
+                .handle_offsets(offsets)
+                .include_last_handle(self.include_last_handle)
+                .style(move |theme: &Theme, status| {
+                    if let Some(st) = &style_opt {
+                        st.to_iced(theme, status)
+                    } else {
+                       divider::primary(theme, status)
+                    }
+                }).into()
+        };
 
-    Some(div.map(move |message| app::Message::Divider(divider.id, message)))
-}
+        Some(div.map(move |message| app::Message::Divider(self.id, message)))
 
-pub fn construct_divider_vertical<'a>(
-        divider: &'a IpgDividerVertical, 
-        style_opt: Option<&IpgWidgets>) 
-        -> Option<Element<'a, app::Message>> {
-
-    if !divider.show {
-        return None
     }
 
-    let style = style_opt.and_then(IpgWidgets::as_divider_style).cloned();
-
-    let offsets = match divider.handle_offsets.clone() {
-        Some(offsets) => offsets,
-        None => {
-            let mut offsets = vec![-divider.handle_height/2.0; divider.heights.len()-1];
-            offsets.extend([-divider.handle_height]);
-            offsets
-        }
-    };
-
-    let div: Element<DivMessage, Theme> = 
-        divider_vertical(
-            divider.id,
-            divider.heights.clone(),
-            divider.handle_width,
-            divider.handle_height, 
-            DivMessage::OnChange
-            )
-            .on_release(DivMessage::OnRelease)
-            .direction(Direction::Vertical)
-            .width(divider.width)
-            .height(divider.height)
-            .handle_offsets(offsets)
-            .include_last_handle(divider.include_last_handle)
-            .style(move|theme, status|
-                get_styling(theme, status,
-                style.clone())
-                )
-            .into();
-
-    Some(div.map(move |message| app::Message::Divider(divider.id, message)))
 }
 
 pub fn divider_callback(state: &mut IpgState, id: usize, message: DivMessage) {
     match message {
         DivMessage::OnChange((widget_id, index, value)) => {
-            // Update widget state directly - try horizontal first, then vertical
-            if let Some(IpgWidgets::IpgDividerHorizontal(div)) = state.widgets.get_mut(&widget_id) {
-                div.index_in_use = index;
-                div.value_in_use = value;
-            } else if let Some(IpgWidgets::IpgDividerVertical(div)) = state.widgets.get_mut(&widget_id) {
+            if let Some(IpgWidgets::IpgDivider(div)) = state.widgets.get_mut(&widget_id) {
                 div.index_in_use = index;
                 div.value_in_use = value;
             }
             invoke_callback_with_args(widget_id, "on_change", "Divider", (index, value));
         },
         DivMessage::OnRelease => {
-            // Get stored values from widget state
-            let (index, value) = if let Some(IpgWidgets::IpgDividerHorizontal(div)) = state.widgets.get(&id) {
-                (div.index_in_use, div.value_in_use)
-            } else if let Some(IpgWidgets::IpgDividerVertical(div)) = state.widgets.get(&id) {
+            let (index, value) = if let Some(IpgWidgets::IpgDivider(div)) = state.widgets.get(&id) {
                 (div.index_in_use, div.value_in_use)
             } else {
                 (0, 0.0)
@@ -192,65 +158,61 @@ pub fn divider_callback(state: &mut IpgState, id: usize, message: DivMessage) {
 }
 
 #[derive(Debug, Clone, PartialEq)]
-#[pyclass(eq, eq_int)]
-pub enum IpgDividerParam {
-    HandleWidth,
-    HandleHeight,
-    Widths,
-    Heights,
-    StyleId,
-    Show,
+pub struct IpgDividerStyle {
+    pub id: usize,
+    pub background_color: Option<Color>,
+    pub background_color_hovered: Option<Color>,
+    pub background_transparent: Option<bool>,
+    pub border_color: Option<Color>,
+    pub border_width: Option<f32>,
+    pub border_radius: Option<Vec<f32>>,
 }
 
-fn get_styling(theme: &Theme, 
-                status: Status,
-                style_opt: Option<IpgDividerStyle>) 
-                -> Style {
+impl IpgDividerStyle {
+    fn to_iced(
+        &self,
+        theme: &Theme, 
+        status: Status,
+    ) -> Style {
 
-    if style_opt.is_none() {
-        return divider::primary(theme, status)
-    }     
-    
-    let style = style_opt.unwrap();
-
-    if style.background_transparent == Some(true) {
-        return divider::transparent(theme, status);
-    }
-
-    let mut base_style = divider::primary(theme, status);
-
-    if let Some(bc) = style.background_color {
-        base_style.background = Background::Color(bc);
-    };
-
-    if let Some(br) = style.border_radius {
-        base_style.border_radius = 
-            get_radius(&br,  "Divider".to_string());
+        if self.background_transparent == Some(true) {
+            return divider::transparent(theme, status);
         }
 
-    if let Some(bc) = style.border_color {
-        base_style.border_color = bc;
+        let mut base_style = divider::primary(theme, status);
+
+        if let Some(bc) = self.background_color {
+            base_style.background = Background::Color(bc);
+        };
+
+        if let Some(br) = &self.border_radius {
+            base_style.border_radius = 
+                get_radius(&br,  "Divider".to_string());
+            }
+
+        if let Some(bc) = self.border_color {
+            base_style.border_color = bc;
+        }
+
+        if let Some(bw) = self.border_width {
+            base_style.border_width = bw;
+        }
+        let mut hovered_style = base_style;
+
+        if let Some(bch) = self.background_color_hovered {
+            hovered_style.background = bch.into();
+        }
+
+        match status 
+        {
+            Status::Active => base_style,
+            Status::Hovered => hovered_style,
+            Status::Dragged => base_style, // active and drag are same
+        }
+
+
     }
-
-    if let Some(bw) = style.border_width {
-        base_style.border_width = bw;
-    }
-    let mut hovered_style = base_style;
-
-    if let Some(bch) = style.background_color_hovered {
-        hovered_style.background = bch.into();
-    }
-
-    match status 
-    {
-        Status::Active => base_style,
-        Status::Hovered => hovered_style,
-        Status::Dragged => base_style, // active and drag are same
-    }
-
-
 }
-
 #[derive(Debug, Clone, PartialEq)]
 #[pyclass(eq, eq_int)]
 pub enum IpgDividerStyleParam {
@@ -263,36 +225,28 @@ pub enum IpgDividerStyleParam {
     BorderRadius,
 }
 
-
+#[derive(Debug, Clone, PartialEq)]
+#[pyclass(eq, eq_int)]
+pub enum IpgDividerParam {
+    HandleWidth,
+    HandleHeight,
+    Sizes,
+    StyleId,
+    Show,
+}
 
 // ---------------------------------------------------------------------------
 // WidgetParamUpdate implementations
 // ---------------------------------------------------------------------------
 
-impl WidgetParamUpdate for IpgDividerHorizontal {
+impl WidgetParamUpdate for IpgDivider {
     type Param = IpgDividerParam;
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
         match param {
             IpgDividerParam::HandleWidth  => set_f32(&mut self.handle_width, value, name),
             IpgDividerParam::HandleHeight => set_f32(&mut self.handle_height, value, name),
-            IpgDividerParam::Widths       => set_vec_f32(&mut self.widths, value, name),
-            IpgDividerParam::Heights      => panic!("Horizontal Divider must use the Widths not Heights"),
-            IpgDividerParam::StyleId      => set_opt_usize(&mut self.style_id, value, name),
-            IpgDividerParam::Show         => set_bool(&mut self.show, value, name),
-        }
-    }
-}
-
-impl WidgetParamUpdate for IpgDividerVertical {
-    type Param = IpgDividerParam;
-
-    fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
-        match param {
-            IpgDividerParam::HandleWidth  => set_f32(&mut self.handle_width, value, name),
-            IpgDividerParam::HandleHeight => set_f32(&mut self.handle_height, value, name),
-            IpgDividerParam::Widths       => panic!("Vertical Divider must use the Heights not Widths"),
-            IpgDividerParam::Heights      => set_vec_f32(&mut self.heights, value, name),
+            IpgDividerParam::Sizes        => set_vec_f32(&mut self.sizes, value, name),
             IpgDividerParam::StyleId      => set_opt_usize(&mut self.style_id, value, name),
             IpgDividerParam::Show         => set_bool(&mut self.show, value, name),
         }

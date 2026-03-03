@@ -6,8 +6,7 @@ from .icedpygui import (
     add_checkbox as _add_checkbox,
     add_color_picker as _add_color_picker, 
     add_column as _add_column,
-    add_divider_horizontal as _add_divider_horizontal,
-    add_divider_vertical as _add_divider_vertical, 
+    add_divider as _add_divider,
     add_container as _add_container,
     add_container_style,
     add_date_picker as _add_date_picker,
@@ -45,6 +44,7 @@ from .icedpygui import (
     IpgContainerParam,
     IpgContainerStyleParam,
     IpgDatePickerParam,
+    IpgDividerDirection,
     IpgDividerParam,
     IpgDividerStyleParam,            
     IpgIcon, 
@@ -114,8 +114,7 @@ add_button = _wrap_widget(_add_button, "add_button")
 add_checkbox = _wrap_widget(_add_checkbox, "add_checkbox")
 add_color_picker = _wrap_widget(_add_color_picker, "add_color_picker")
 add_date_picker = _wrap_widget(_add_date_picker, "add_date_picker")
-add_divider_horizontal = _wrap_widget(_add_divider_horizontal, "add_divider_horizontal")
-add_divider_vertical = _wrap_widget(_add_divider_vertical, "add_divider_vertical")
+add_divider = _wrap_widget(_add_divider, "add_divider")
 add_pick_list = _wrap_widget(_add_pick_list, "add_pick_list")
 add_radio = _wrap_widget(_add_radio, "add_radio")
 add_scrollable = _wrap_widget(_add_scrollable, "add_scrollable")

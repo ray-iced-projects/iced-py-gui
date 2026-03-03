@@ -22,7 +22,7 @@ def divider_change(div_id: int, index: int, value: float):
     # Update the divider
     update_widget(
                 wid=div_id,
-                param=IpgDividerParam.Widths,
+                param=IpgDividerParam.Sizes,
                 value=column_widths)
     
     # Update the two text items
@@ -130,9 +130,10 @@ for index, width in enumerate(column_widths):
        
        
 # Make the divider
-add_divider_horizontal(
+add_divider(
     parent_id="stack",
-    widths=column_widths,
+    direction=IpgDividerDirection.Horizontal,
+    sizes=column_widths,
     handle_width=handle_width,
     handle_height=handle_height,
     on_change=divider_change,

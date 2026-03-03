@@ -31,7 +31,7 @@ def divider_row_change(div_id: int, index: int, value: float):
     # Update the divider
     update_widget(
         wid=div_id,
-        param=IpgDividerParam.Heights,
+        param=IpgDividerParam.Sizes,
         value=rows)
     
     # Update the height of the column divider
@@ -68,7 +68,7 @@ def divider_col_change(div_id: int, index: int, value: float):
     # Update the column divider
     update_widget(
         wid=div_id,
-        param=IpgDividerParam.Widths,
+        param=IpgDividerParam.Sizes,
         value=columns)
     
     # Update the width of the row divider
@@ -154,9 +154,10 @@ with Window(id="main", title="Divider Demo",
                         
                     
                     # Make the vertical divider (rows)
-                    row_div = add_divider_vertical(
+                    row_div = add_divider(
                                 parent_id=stack,
-                                heights=rows,
+                                direction=IpgDividerDirection.Vertical,
+                                sizes=rows,
                                 handle_width=row_handle_width,
                                 handle_height=row_handle_height,
                                 on_change=divider_row_change,
@@ -165,9 +166,10 @@ with Window(id="main", title="Divider Demo",
                                 )
 
                     #Make the horizontal divider (columns)
-                    col_div = add_divider_horizontal(
+                    col_div = add_divider(
                                 parent_id=stack,
-                                widths=columns,
+                                direction=IpgDividerDirection.Horizontal,
+                                sizes=columns,
                                 handle_width=col_handle_width,
                                 handle_height=col_handle_height,
                                 on_change=divider_col_change,

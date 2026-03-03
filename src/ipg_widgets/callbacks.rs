@@ -130,7 +130,7 @@ pub fn set_or_get_widget_callback_data(state: &mut IpgState, wci: WidgetCallback
                 }
                 return WidgetCallbackOut::default();
             },
-            IpgWidgets::IpgDividerHorizontal(div) => {
+            IpgWidgets::IpgDivider(div) => {
                 let mut wco = WidgetCallbackOut::default();
                 if wci.value_str == Some("on_change".to_string()) {
                     div.index_in_use = wci.value_usize.unwrap();
@@ -138,19 +138,6 @@ pub fn set_or_get_widget_callback_data(state: &mut IpgState, wci: WidgetCallback
                     return wco;
                 }
                 if wci.value_str == Some("on_release".to_string()) {
-                    wco.value_usize = Some(div.index_in_use);
-                    wco.value_f32 = Some(div.value_in_use);
-                    return wco
-                }
-            },
-            IpgWidgets::IpgDividerVertical(div) => {
-                let mut wco = WidgetCallbackOut::default();
-                if wci.value_str == Some("on_change".to_string()) {
-                    div.index_in_use = wci.value_usize.unwrap();
-                    div.value_in_use = wci.value_f32.unwrap();
-                    return wco;
-                }
-                if wci.value_str == Some("on_release".to_string()) {  
                     wco.value_usize = Some(div.index_in_use);
                     wco.value_f32 = Some(div.value_in_use);
                     return wco

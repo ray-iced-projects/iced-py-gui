@@ -29,8 +29,7 @@ use crate::py_api::color_picker::{add_color_picker};
 use crate::py_api::column::add_column;
 use crate::py_api::container::{add_container, add_container_style};
 use crate::py_api::date_picker::add_date_picker;
-use crate::py_api::divider::{add_divider_horizontal, 
-    add_divider_vertical, add_divider_style};
+use crate::py_api::divider::{add_divider, add_divider_style};
 use crate::py_api::font::add_font;
 use crate::py_api::image::add_image;
 use crate::py_api::mousearea::add_mouse_area;
@@ -78,7 +77,7 @@ use crate::widgets::ipg_checkbox::{IpgCheckboxParam, IpgCheckboxStyleParam};
 use crate::widgets::ipg_column::IpgColumnParam;
 use crate::widgets::ipg_container::{IpgContainerParam, IpgContainerStyleParam};
 use crate::widgets::ipg_date_picker::IpgDatePickerParam;
-use crate::widgets::ipg_divider::{IpgDividerParam, IpgDividerStyleParam};
+use crate::widgets::ipg_divider::{IpgDividerDirection, IpgDividerParam, IpgDividerStyleParam};
 use crate::widgets::ipg_pick_list::IpgPickListHandle;
 use crate::widgets::ipg_text::IpgTextParam;
 
@@ -97,8 +96,7 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(add_color_picker, m)?)?;
     m.add_function(wrap_pyfunction!(add_container, m)?)?;
     m.add_function(wrap_pyfunction!(add_date_picker, m)?)?;
-    m.add_function(wrap_pyfunction!(add_divider_horizontal, m)?)?;
-    m.add_function(wrap_pyfunction!(add_divider_vertical, m)?)?;
+    m.add_function(wrap_pyfunction!(add_divider, m)?)?;
     m.add_function(wrap_pyfunction!(add_image, m)?)?;
     m.add_function(wrap_pyfunction!(add_font, m)?)?;
     m.add_function(wrap_pyfunction!(add_mouse_area, m)?)?;
@@ -145,6 +143,7 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<IpgContainerParam>()?;
     m.add_class::<IpgContainerStyleParam>()?;
     m.add_class::<IpgDividerParam>()?;
+    m.add_class::<IpgDividerDirection>()?;
     m.add_class::<IpgDividerStyleParam>()?;
     m.add_class::<IpgRadioStyleParam>()?;
     m.add_class::<IpgRuleStyleParam>()?;

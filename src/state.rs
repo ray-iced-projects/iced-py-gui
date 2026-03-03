@@ -16,7 +16,7 @@ use crate::widgets::ipg_color_picker::IpgColorPicker;
 use crate::widgets::ipg_column::IpgColumn;
 use crate::widgets::ipg_container::{IpgContainer, IpgContainerStyle};
 use crate::widgets::ipg_date_picker::IpgDatePicker;
-use crate::widgets::ipg_divider::{IpgDividerHorizontal, IpgDividerVertical, 
+use crate::widgets::ipg_divider::{IpgDivider, 
     IpgDividerStyle};
 use crate::widgets::ipg_events::IpgEvents;
 use crate::widgets::ipg_font::IpgFont;
@@ -78,8 +78,7 @@ pub enum IpgWidgets {
     IpgCheckboxStyle(IpgCheckboxStyle),
     IpgColorPicker(IpgColorPicker),
     IpgContainerStyle(IpgContainerStyle),
-    IpgDividerHorizontal(IpgDividerHorizontal),
-    IpgDividerVertical(IpgDividerVertical),
+    IpgDivider(IpgDivider),
     IpgDividerStyle(IpgDividerStyle),
     IpgDatePicker(IpgDatePicker),
     IpgFont(IpgFont),
@@ -156,8 +155,7 @@ ipg_widget_accessors! {
     IpgColorPicker      => IpgColorPicker,       as_color_picker,        as_color_picker_mut;
     IpgContainerStyle   => IpgContainerStyle,    as_container_style,     as_container_style_mut;
     IpgDatePicker       => IpgDatePicker,        as_date_picker,         as_date_picker_mut;
-    IpgDividerHorizontal=> IpgDividerHorizontal, as_divider_horizontal,  as_divider_horizontal_mut;
-    IpgDividerVertical  => IpgDividerVertical,   as_divider_vertical,    as_divider_vertical_mut;
+    IpgDivider          => IpgDivider,           as_divider,             as_divider_mut;
     IpgDividerStyle     => IpgDividerStyle,      as_divider_style,       as_divider_style_mut;
     IpgFont             => IpgFont,              as_font,                as_font_mut;
     IpgImage            => IpgImage,             as_image,               as_image_mut;

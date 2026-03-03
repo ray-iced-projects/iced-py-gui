@@ -22,7 +22,7 @@ def divider_change(div_id: int, index: int, value: float):
     # Update the divider
     update_widget(
                 wid=div_id,
-                param=IpgDividerParam.Heights,
+                param=IpgDividerParam.Sizes,
                 value=heights)
     
     # Update the two text items
@@ -52,8 +52,8 @@ divider_style_id = add_divider_style(background_transparent=True)
 add_window(
         id="main", 
         title="CheckBox Demo",
-    size=(600, 600),  
-        pos_centered=True)
+        size=(600, 600),  
+        center=True)
 
 # Add a container to center the widgets in the middle
 add_container(
@@ -128,9 +128,10 @@ for index, height in enumerate(heights):
        
        
 # Make the divider
-add_divider_vertical(
+add_divider(
         parent_id="stack",
-        heights=heights,
+        direction=IpgDividerDirection.Vertical,
+        sizes=heights,
         handle_width=handle_width,
         handle_height=handle_height,
         on_change=divider_change,

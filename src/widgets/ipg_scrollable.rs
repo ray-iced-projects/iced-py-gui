@@ -279,7 +279,7 @@ pub struct IpgScrollableStyle {
 }
 
 impl IpgScrollableStyle {
-    fn set_style(
+    pub fn set_style(
         &self, 
         theme: &Theme, 
         status: scrollable::Status,
@@ -486,6 +486,76 @@ impl WidgetParamUpdate for IpgAutoScrollStyle {
             IpgAutoScrollStyleParam::ShadowBlurRadius => set_opt_f32(&mut self.shadow_blur_radius, value, name),
             IpgAutoScrollStyleParam::ShadowIconColor => set_opt_iced_color(&mut self.shadow_icon_color, value, name),
             IpgAutoScrollStyleParam::ShadowIconRgba => set_iced_color_from_rgba(&mut self.shadow_icon_color, value, name),
+        }
+    }
+}
+
+
+// ---------------------------------------------------------------------------
+// IpgScrollableStyleConfig — storable widget that composes an IpgScrollableStyle
+// from sub-style IDs.  Referenced by IpgTable.scrollable_style_id (and
+// potentially other compound widgets).
+// ---------------------------------------------------------------------------
+
+#[derive(Debug, Clone, Default)]
+pub struct IpgScrollableStyleConfig {
+    pub id: usize,
+    pub container_style_id: Option<usize>,
+    pub rail_x_style_id: Option<usize>,
+    pub rail_y_style_id: Option<usize>,
+    pub auto_scroll_style_id: Option<usize>,
+    pub gap: Option<Color>,
+}
+
+impl IpgScrollableStyleConfig {
+    /// Assemble an [`IpgScrollableStyle`] by looking up the sub-style widgets.
+    pub fn build_style(&self, widgets: &HashMap<usize, IpgWidgets>) -> IpgScrollableStyle {
+        fn lookup<'a>(widgets: &'a HashMap<usize, IpgWidgets>, id: Option<usize>) -> Option<&'a IpgWidgets> {
+            id.and_then(|id| widgets.get(&id))
+        }
+
+        IpgScrollableStyle {
+            container: lookup(widgets, self.container_style_id)
+                .and_then(IpgWidgets::as_container_style).cloned(),
+            horizontal_rail: lookup(widgets, self.rail_x_style_id)
+                .and_then(IpgWidgets::as_rail_style).cloned(),
+            vertical_rail: lookup(widgets, self.rail_y_style_id)
+                .and_then(IpgWidgets::as_rail_style).cloned(),
+            auto_scroll: lookup(widgets, self.auto_scroll_style_id)
+                .and_then(IpgWidgets::as_auto_scroll_style).cloned(),
+            gap: self.gap,
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq)]
+#[pyclass(eq, eq_int)]
+pub enum IpgScrollableStyleConfigParam {
+    ContainerStyleId,
+    RailXStyleId,
+    RailYStyleId,
+    AutoScrollStyleId,
+    GapBackgroundColor,
+    GapBackgroundRgba,
+}
+
+impl WidgetParamUpdate for IpgScrollableStyleConfig {
+    type Param = IpgScrollableStyleConfigParam;
+
+    fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
+        match param {
+            IpgScrollableStyleConfigParam::ContainerStyleId =>
+                set_opt_usize(&mut self.container_style_id, value, name),
+            IpgScrollableStyleConfigParam::RailXStyleId =>
+                set_opt_usize(&mut self.rail_x_style_id, value, name),
+            IpgScrollableStyleConfigParam::RailYStyleId =>
+                set_opt_usize(&mut self.rail_y_style_id, value, name),
+            IpgScrollableStyleConfigParam::AutoScrollStyleId =>
+                set_opt_usize(&mut self.auto_scroll_style_id, value, name),
+            IpgScrollableStyleConfigParam::GapBackgroundColor =>
+                set_opt_iced_color(&mut self.gap, value, name),
+            IpgScrollableStyleConfigParam::GapBackgroundRgba =>
+                set_iced_color_from_rgba(&mut self.gap, value, name),
         }
     }
 }

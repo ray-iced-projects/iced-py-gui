@@ -62,7 +62,7 @@ pub enum Message {
     Slider(usize, SLMessage),
     Svg(usize, SvgMessage),
 
-    TableSync(scrollable::AbsoluteOffset, usize),
+    TableScrolled(scrollable::Viewport, usize),
     TableDividerChanged((usize, usize, f32)),
     TableDividerReleased(usize),
 
@@ -307,23 +307,10 @@ impl App {
                 process_updates(&mut self.state); //, &mut self.canvas_state);
                 Task::none()
             },
-            Message::TableSync(offset, id) => {
-                let message = TableMessage::SyncScrollables(id);
-                
-                // let (header, body, footer) = 
-                //     table_callback(&mut self.state, id, message);
-                
-                // process_updates(&mut self.state); //, &mut self.canvas_state);
-                
-                // let mut tasks = vec![scroll_to(body.unwrap(), offset)];
-               
-                // if header.is_some() {
-                //     tasks.push(scroll_to(header.unwrap(), offset));
-                // }
-                // if footer.is_some() {
-                //     tasks.push(scroll_to(footer.unwrap(), offset));
-                // }
-                // Task::batch(tasks)
+            Message::TableScrolled(vp, id) => {
+                dbg!("table scrolled", &vp, &id);
+                scrollable_callback(&mut self.state, id, vp);
+                process_updates(&mut self.state); //, &mut self.canvas_state);
                 Task::none()
             },
             Message::TableDividerChanged((id, index, value)) => {

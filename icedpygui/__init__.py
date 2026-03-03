@@ -27,6 +27,8 @@ from .icedpygui import (
     add_slider_style, 
     add_space as _add_space,
     add_stack as _add_stack,
+    add_table as _add_table,
+    add_table_style,
     add_text_input as _add_text_input,
     add_text_input_style,
     add_text as _add_text,
@@ -63,13 +65,16 @@ from .icedpygui import (
     IpgSliderStyleParam,
     IpgStackParam,
     IpgStyleStandard,
+    IpgTableParam,
+    IpgTableStyleParam,
     IpgTextInputParam,
     IpgTextParam,
     IpgAlignmentY,
     IpgWindowLevel, 
     IpgWindowMode, 
     IpgWindowTheme,
-    start_session, 
+    start_session,
+    update_dataframe, 
     update_widget,
     generate_id,
 )
@@ -117,7 +122,6 @@ add_date_picker = _wrap_widget(_add_date_picker, "add_date_picker")
 add_divider = _wrap_widget(_add_divider, "add_divider")
 add_pick_list = _wrap_widget(_add_pick_list, "add_pick_list")
 add_radio = _wrap_widget(_add_radio, "add_radio")
-add_scrollable = _wrap_widget(_add_scrollable, "add_scrollable")
 add_selectable_text = _wrap_widget(_add_selectable_text, "add_selectable_text")
 add_separator = _wrap_widget(_add_separator, "add_separator")
 add_slider = _wrap_widget(_add_slider, "add_slider")
@@ -147,7 +151,9 @@ def _wrap_container(rust_fn, name):
 add_container = _wrap_container(_add_container, "add_container")
 add_column = _wrap_container(_add_column, "add_column")
 add_row = _wrap_container(_add_row, "add_row")
+add_scrollable = _wrap_container(_add_scrollable, "add_scrollable")
 add_stack = _wrap_widget(_add_stack, "add_stack")
+add_table = _wrap_widget(_add_table, "add_table")
 
 def add_window(id=None, **kwargs):
     """Wrapper around the Rust add_window.

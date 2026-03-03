@@ -10,6 +10,7 @@ use iced::window;
 use iced::Theme;
 use once_cell::sync::Lazy;
 use pyo3::{Py, PyAny};
+use pyo3_polars::PyDataFrame;
 
 use crate::widgets::ipg_checkbox::{IpgCheckBox, IpgCheckboxStyle};
 use crate::widgets::ipg_color_picker::IpgColorPicker;
@@ -29,7 +30,7 @@ use crate::widgets::ipg_radio::{IpgRadio, IpgRadioStyle};
 use crate::widgets::ipg_row::IpgRow;
 use crate::widgets::ipg_rule::{IpgRule, IpgRuleStyle};
 use crate::widgets::ipg_scrollable::{IpgAutoScrollStyle, IpgRailStyle, 
-    IpgScrollable, IpgScrollbar};
+    IpgScrollable, IpgScrollbar, IpgScrollableStyleConfig};
 use crate::widgets::ipg_selectable_text::IpgSelectableText;
 use crate::widgets::ipg_separator::{IpgSeparator, IpgSeparatorStyle};
 use crate::widgets::ipg_slider::{IpgSlider, IpgSliderStyle};
@@ -96,6 +97,7 @@ pub enum IpgWidgets {
     IpgRule(IpgRule),
     IpgRuleStyle(IpgRuleStyle),
     IpgScrollbar(IpgScrollbar),
+    IpgScrollableStyleConfig(IpgScrollableStyleConfig),
     IpgRailStyle(IpgRailStyle),
     IpgAutoScrollStyle(IpgAutoScrollStyle),
     IpgSelectableText(IpgSelectableText),
@@ -170,6 +172,7 @@ ipg_widget_accessors! {
     IpgRule             => IpgRule,              as_rule,                as_rule_mut;
     IpgRuleStyle        => IpgRuleStyle,         as_rule_style,          as_rule_style_mut;
     IpgScrollbar        => IpgScrollbar,         as_scrollbar,           as_scrollbar_mut;
+    IpgScrollableStyleConfig => IpgScrollableStyleConfig, as_scrollable_style_config, as_scrollable_style_config_mut;
     IpgRailStyle        => IpgRailStyle,         as_rail_style,          as_rail_style_mut;
     IpgAutoScrollStyle  => IpgAutoScrollStyle,   as_auto_scroll_style,   as_auto_scroll_style_mut;
     IpgSelectableText   => IpgSelectableText,    as_selectable_text,     as_selectable_text_mut;
@@ -337,7 +340,7 @@ pub struct UpdateWidgets {
     // window_id, wid
     pub deletes: Vec<(String, usize)>,
     pub shows: Vec<(String, Vec<(usize, bool)>)>,
-    pub dataframes: Vec<(usize, PyObject)>, // PyDataFrame for polar later
+    pub dataframes: Vec<(usize, PyObject, PyDataFrame)>, // PyDataFrame for polars
     pub new_widgets: Lazy<HashMap<usize, IpgWidgets>>,
 }
 

@@ -227,13 +227,6 @@ pub fn add_table(
     divider_hover_color=None,
     divider_hover_rgba=None,
 
-    scroller_rail_color=None,
-    scroller_rail_rgba=None,
-    scroller_color=None,
-    scroller_rgba=None,
-    scroller_hover_color=None,
-    scroller_hover_rgba=None,
-
     gen_id=None
     ))]
 pub fn add_table_style(
@@ -271,13 +264,6 @@ pub fn add_table_style(
     divider_hover_color: Option<IpgColor>,
     divider_hover_rgba: Option<[f32; 4]>,
 
-    scroller_rail_color: Option<IpgColor>,
-    scroller_rail_rgba: Option<[f32; 4]>,
-    scroller_color: Option<IpgColor>,
-    scroller_rgba: Option<[f32; 4]>,
-    scroller_hover_color: Option<IpgColor>,
-    scroller_hover_rgba: Option<[f32; 4]>,
-
     gen_id: Option<usize>,
     ) -> PyResult<usize>
 {
@@ -310,13 +296,6 @@ pub fn add_table_style(
         IpgColor::rgba_ipg_color_to_iced(divider_rgba, divider_color, 1.0, false);
     let divider_hover_color = 
         IpgColor::rgba_ipg_color_to_iced(divider_hover_rgba, divider_hover_color, 1.0, false);
-
-    let rail = 
-        IpgColor::rgba_ipg_color_to_iced(scroller_rail_rgba, scroller_rail_color, 1.0, false);
-    let scroller = 
-        IpgColor::rgba_ipg_color_to_iced(scroller_rgba, scroller_color, 1.0, false);
-    let scroller_hover = 
-        IpgColor::rgba_ipg_color_to_iced(scroller_hover_rgba, scroller_hover_color, 1.0, false);
     
     let mut state = access_state();
 
@@ -344,10 +323,6 @@ pub fn add_table_style(
             
             divider_background,
             divider_hover_color,
-
-            rail,
-            scroller,
-            scroller_hover,
         }));
 
     drop(state);

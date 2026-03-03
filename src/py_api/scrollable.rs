@@ -1,5 +1,5 @@
-//! Scrollable module - Provides add_scrollable and 
-//!                     add_scrollable_style to pyfunction
+//! Scrollable module - Provides add_scrollable, add_scrollable_style,
+//!                     add_scrollbar, add_rail_style, add_autoscroll_style
 
 use iced::Color;
 use pyo3::{Py, PyAny, PyResult, pyfunction};
@@ -8,7 +8,8 @@ use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex,
     graphics::colors::IpgColor, py_api::helpers::{get_height, get_width}, 
     state::{IpgContainers, IpgWidgets, get_id, set_state_cont_wnd_ids, 
         set_state_of_container}, widgets::ipg_scrollable::{
-            IpgAnchor, IpgAutoScrollStyle, IpgRailStyle, IpgScrollable, IpgScrollbar}};
+            IpgAnchor, IpgAutoScrollStyle, IpgRailStyle, IpgScrollable, 
+            IpgScrollableStyleConfig, IpgScrollbar}};
 type PyObject = Py<PyAny>;
 
 
@@ -244,4 +245,45 @@ pub fn add_autoscroll_style(
     drop(state);
     Ok(id)
 
+}
+
+#[pyfunction]
+#[pyo3(signature = ( 
+    container_style_id=None,
+    rail_x_style_id=None,
+    rail_y_style_id=None,
+    auto_scroll_style_id=None,
+    gap_background_color=None,
+    gap_background_rgba=None,
+    gen_id=None
+    ))]
+pub fn add_scrollable_style(
+    container_style_id: Option<usize>,
+    rail_x_style_id: Option<usize>,
+    rail_y_style_id: Option<usize>,
+    auto_scroll_style_id: Option<usize>,
+    gap_background_color: Option<IpgColor>,
+    gap_background_rgba: Option<[f32; 4]>,
+    gen_id: Option<usize>,
+    ) -> PyResult<usize>
+{
+    let id = get_id(gen_id);
+
+    let gap: Option<Color> = 
+        IpgColor::rgba_ipg_color_to_iced(gap_background_rgba, gap_background_color, 1.0, false);
+    
+    let mut state = access_state();
+
+    state.widgets.insert(id, IpgWidgets::IpgScrollableStyleConfig(
+        IpgScrollableStyleConfig {
+            id,
+            container_style_id,
+            rail_x_style_id,
+            rail_y_style_id,
+            auto_scroll_style_id,
+            gap,
+        }));
+
+    drop(state);
+    Ok(id)
 }

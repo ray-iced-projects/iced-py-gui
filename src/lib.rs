@@ -39,8 +39,8 @@ use crate::py_api::radio::{add_radio, add_radio_style};
 use crate::py_api::row::add_row;
 use crate::py_api::rule::{add_rule, add_rule_style};
 use crate::py_api::picklist::{add_pick_list, add_pick_list_style};
-use crate::py_api::scrollable::{add_scrollable, add_scrollbar, 
-    add_autoscroll_style, add_rail_style};
+use crate::py_api::scrollable::{add_scrollable, add_scrollable_style, 
+    add_scrollbar, add_autoscroll_style, add_rail_style};
 use crate::py_api::selectable_text::add_selectable_text;
 use crate::py_api::separator::{add_separator, add_separator_style};
 use crate::py_api::session::{start_session, generate_id};
@@ -52,17 +52,18 @@ use crate::py_api::table::{add_table, add_table_style};
 use crate::py_api::text_input::{add_text_input, add_text_input_style};
 use crate::py_api::text::add_text;
 use crate::py_api::toggle::{add_toggler, add_toggler_style};
-use crate::py_api::update::update_widget;
+use crate::py_api::update::{update_widget, update_dataframe};
 
 use crate::widgets::ipg_radio::{IpgRadioDirection, IpgRadioParam, IpgRadioStyleParam};
 use crate::widgets::ipg_row::IpgRowParam;
 use crate::widgets::ipg_rule::{IpgRuleParam, IpgRuleStyleParam};
-use crate::widgets::ipg_scrollable::{IpgScrollableParam, IpgRailStyleParam, 
-    IpgScrollbarParam, IpgAutoScrollStyleParam};
+use crate::widgets::ipg_scrollable::{IpgScrollableParam, IpgScrollableStyleConfigParam,
+    IpgRailStyleParam, IpgScrollbarParam, IpgAutoScrollStyleParam};
 use crate::widgets::ipg_selectable_text::IpgSelectableTextParam;
 use crate::widgets::ipg_separator::{IpgSeparatorParam, IpgSeparatorStyleParam, IpgSeparatorType};
 use crate::widgets::ipg_slider::{IpgSliderParam, IpgSliderStyleParam};
 use crate::widgets::ipg_stack::IpgStackParam;
+use crate::widgets::ipg_table::{IpgTableParam, IpgTableStyleParam};
 use crate::widgets::ipg_text_input::{IpgTextInputParam, IpgTextInputStyleParam};
 use crate::widgets::ipg_toggle::{IpgTogglerParam, IpgTogglerStyleParam};
 
@@ -119,6 +120,7 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(add_text_input, m)?)?;
     m.add_function(wrap_pyfunction!(add_toggler, m)?)?;
     m.add_function(wrap_pyfunction!(add_svg, m)?)?;
+    m.add_function(wrap_pyfunction!(update_dataframe, m)?)?;
     m.add_function(wrap_pyfunction!(update_widget, m)?)?;
     
     // styles
@@ -131,6 +133,7 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(add_progress_bar_style, m)?)?;
     m.add_function(wrap_pyfunction!(add_rail_style, m)?)?;
     m.add_function(wrap_pyfunction!(add_autoscroll_style, m)?)?;
+    m.add_function(wrap_pyfunction!(add_scrollable_style, m)?)?;
     m.add_function(wrap_pyfunction!(add_separator_style, m)?)?;
     m.add_function(wrap_pyfunction!(add_slider_style, m)?)?;
     m.add_function(wrap_pyfunction!(add_table_style, m)?)?;
@@ -153,9 +156,11 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<IpgSeparatorStyleParam>()?;
     m.add_class::<IpgAutoScrollStyleParam>()?;
     m.add_class::<IpgRailStyleParam>()?;
+    m.add_class::<IpgScrollableStyleConfigParam>()?;
     m.add_class::<IpgSliderStyleParam>()?;
     m.add_class::<IpgStackParam>()?;
     m.add_class::<IpgStyleStandard>()?;
+    m.add_class::<IpgTableStyleParam>()?;
     m.add_class::<IpgTextInputStyleParam>()?;
     m.add_class::<IpgTogglerStyleParam>()?;
 
@@ -174,8 +179,9 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<IpgSelectableTextParam>()?;
     m.add_class::<IpgSeparatorParam>()?;
     m.add_class::<IpgSliderParam>()?;
+    m.add_class::<IpgTableParam>()?;
     m.add_class::<IpgTextParam>()?;
-     m.add_class::<IpgTextInputParam>()?;
+    m.add_class::<IpgTextInputParam>()?;
     m.add_class::<IpgTogglerParam>()?;
     m.add_class::<IpgWindowLevel>()?;
     m.add_class::<IpgWindowMode>()?;

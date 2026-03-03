@@ -1,4 +1,8 @@
+import random
+
 from imports import *
+import polars as pl
+
 
 def table_column_resize(tbl_id: int, index: int, values: list[float]):
     print(index, values)
@@ -47,7 +51,7 @@ def math_op(pkl_id: int, selected: str, index: int):
 # Rust doesn't allow mixed lists so if one wanted to use the checkbox df column, 
 # they could store the id and a 0 or 1 for false/true, [23, 1].
 # You could also store it as a string and parse it later.
-# It's easiest to try and keep everthing in the df is possible.
+# It's easiest to try and keep everthing in the df if possible.
 
 # Sometimes it's easier to work with a original_df and a working_df.
 # In doing this your working_df is the filtered one and you can further select 
@@ -137,8 +141,8 @@ btn_style = add_button_style(border_radius=[10.0])
 add_window(
         id="main", 
         title="Table Demo",
-    size=(1000, 400),
-        pos_centered=True,
+        size=(1000, 400),
+        center=True,
         theme=IpgWindowTheme.TokyoNightStorm,
         debug=False)
 
@@ -148,7 +152,7 @@ add_container(
         id="cont",
         width_fill=True, 
         height_fill=True,
-        centered=True,)
+        center=True,)
 
 width = sum(column_widths)
 

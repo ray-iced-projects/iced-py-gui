@@ -88,11 +88,17 @@ impl IpgTable {
             self.lookup(widgets, self.style_id)
                 .and_then(IpgWidgets::as_table_style).cloned();
 
+        // Build scrollable style from the scrollable_style_config widget
+        let scrollable_style = self.scrollable_style_id
+            .and_then(|id| widgets.get(&id))
+            .and_then(IpgWidgets::as_scrollable_style_config)
+            .map(|cfg| cfg.build_style(widgets))
+            .unwrap_or_default();
+
         let (header_style, 
             footer_style, 
             body_style,
-            divider_style,
-            _scrollable_style) = 
+            divider_style) = 
         if let Some(style) = style_opt {
                 (Some(HeaderStyle{
                     background: style.header_background,
@@ -120,14 +126,9 @@ impl IpgTable {
                     background: style.divider_background,
                     hover: style.divider_hover_color,
                 }),
-                Some(ScrollableStyle {
-                    rail: style.rail,
-                    scroller: style.scroller,
-                    scroller_hover: style.scroller_hover,
-                }),
             )
         } else {
-            (None, None, None, None, None)
+            (None, None, None, None)
         };
 
         let mut body_rows = vec![];
@@ -136,12 +137,16 @@ impl IpgTable {
                     let mut rw = vec![];
                     for (i, item) in df_row.0.iter().enumerate() {
                         let cell = if !self.control_columns.contains(&i) {
-                                Element::from(text(item.to_string())
-                                    .size(self.text_size.unwrap_or_default())
+                                let txt = 
+                                    text(item.to_string())
                                     .align_x(alignment::Horizontal::Center)
                                     .align_y(alignment::Vertical::Center)
-                                    .width(self.column_widths[i]))
-                            
+                                    .width(self.column_widths[i]);
+                                let txt = match self.text_size {
+                                    Some(sz) if sz > 0.0 => txt.size(sz),
+                                    _ => txt,
+                                };
+                                txt.into()
                         } else {
                             content.remove(0)
                         };
@@ -181,9 +186,8 @@ impl IpgTable {
                     scrollable(body_column)
                         .height(self.height)
                         .width(table_width)
-                        .id(widget::Id::unique())
-                        .on_scroll(move|vp|Message::TableSync(
-                                        vp.absolute_offset(), self.id))
+                        .on_scroll(move|vp|Message::TableScrolled(
+                                        vp, self.id))
                         .direction({
                             let scrollbar = Scrollbar::new()
                                 .scroller_width(self.body_scroller_width.unwrap_or(5.0))
@@ -194,12 +198,12 @@ impl IpgTable {
                                 vertical: scrollbar,
                             }
                         })
-                        // .style({
-                        //     let scrollable_style = scrollable_style.clone();
-                        //     move |theme, status| {
-                        //         get_scrollable_style(&scrollable_style, theme, status)
-                        //     }
-                        // })
+                        .style({
+                            let style = scrollable_style.clone();
+                            move |theme, status| {
+                                style.set_style(theme, status)
+                            }
+                        })
                         .into();
             
             let header_height = if self.header_enabled {
@@ -223,12 +227,16 @@ impl IpgTable {
                 let mut rw = vec![];
                 for (i, hd) in header.into_iter().enumerate() {
                         let txt = 
-                        text(hd)
-                        .size(self.text_size.unwrap_or_default())
-                        .align_x(alignment::Horizontal::Center)
-                        .align_y(alignment::Vertical::Center)
-                        .width(Fill)
-                        .height(Fill);
+                            text(hd)
+                            // .size(self.text_size.unwrap_or_default())
+                            .align_x(alignment::Horizontal::Center)
+                            .align_y(alignment::Vertical::Center)
+                            .width(Fill)
+                            .height(Fill);
+                        let txt = match self.text_size {
+                            Some(sz) if sz > 0.0 => txt.size(sz),
+                            _ => txt,
+                        };
                     rw.push(Element::from(
                         container(txt)
                             .width(self.column_widths[i])
@@ -281,15 +289,14 @@ impl IpgTable {
                                     .spacing(self.header_scrollbar_spacing.unwrap_or_default());
                                 scrollable::Direction::Horizontal(scrollbar)
                                 })
-                            .on_scroll(move|vp| Message::TableSync(
-                                                vp.absolute_offset(), self.id))
-                            // .style({
-                            //         let scrollable_style = scrollable_style.clone();
-                            //         move |theme, status| {
-                            //             get_scrollable_style(&scrollable_style, theme, status)
-                            //         }
-                            //     })
-                            ))
+                            .on_scroll(move|vp| Message::TableScrolled(
+                                                vp, self.id))
+                            .style({
+                                    let style = scrollable_style.clone();
+                                    move |theme, status| {
+                                        style.set_style(theme, status)
+                                    }
+                                })))
                 } else {
                     Some(hd_col)
                 }
@@ -331,15 +338,14 @@ impl IpgTable {
                                     .spacing(self.footer_scrollbar_spacing.unwrap_or_default());
                                 scrollable::Direction::Horizontal(scrollbar)
                                 })
-                            .on_scroll(move|vp| Message::TableSync(
-                                                vp.absolute_offset(), self.id))
-                            // .style({
-                            //         let scrollable_style = scrollable_style.clone();
-                            //         move |theme, status| {
-                            //             get_scrollable_style(&scrollable_style, theme, status)
-                            //         }
-                            //     })
-                            ))
+                            .on_scroll(move|vp| Message::TableScrolled(
+                                                vp, self.id))
+                            .style({
+                                    let style = scrollable_style.clone();
+                                    move |theme, status| {
+                                        style.set_style(theme, status)
+                                    }
+                                })))
                 } else {
                     Some(ft_col)
                 }
@@ -435,7 +441,6 @@ impl IpgTable {
 pub enum TableMessage {
     DivDragging((usize, f32)),
     DivOnRelease,
-    SyncScrollables(usize),
 }
 
 pub fn table_callback(
@@ -446,6 +451,7 @@ pub fn table_callback(
 
     match message {
         TableMessage::DivDragging((index, value)) => {
+            dbg!(&index, &value);
             if let Some(IpgContainers::IpgTable(tbl)) = state.containers.get_mut(&id) {
 
                 let value = if value < tbl.min_column_width.unwrap_or_default() {
@@ -491,9 +497,6 @@ pub fn table_callback(
         TableMessage::DivOnRelease=> {
             invoke_callback_with_args(id, "released", "Table", ());
         },
-        TableMessage::SyncScrollables(id) => {
-           invoke_callback_with_args(id, "released", "Table", id);
-        }
     }
 }
 
@@ -624,10 +627,6 @@ pub struct IpgTableStyle {
 
     pub divider_background: Option<Color>,
     pub divider_hover_color: Option<Color>,
-
-    pub rail: Option<Color>,
-    pub scroller: Option<Color>,
-    pub scroller_hover: Option<Color>,
 }
 
 
@@ -664,22 +663,6 @@ struct DividerStyle {
     background: Option<Color>,
     hover: Option<Color>,
 }
-
-#[derive(Debug, Clone, PartialEq)]
-struct ScrollableStyle {
-    rail: Option<Color>,
-    scroller: Option<Color>,
-    scroller_hover: Option<Color>,
-}
-
-// pub fn get_table_style_opt(style: Option<&IpgWidgets>) -> Option<IpgTableStyle> {
-//     match style {
-//         Some(IpgWidgets::IpgTableStyle(style)) => {
-//             Some(style.clone())
-//         }
-//         _ => None,
-//     }
-// }
 
 fn get_header_style(style_opt: &Option<HeaderStyle>, theme: &Theme) 
         -> container::Style 
@@ -895,13 +878,6 @@ pub enum IpgTableStyleParam {
     DividerBackgroundRgbaColor,
     DividerHoverIpgColor,
     DividerHoverRgbaColor,
-
-    ScrollerBackgroundIpgColor,
-    ScrollerBackgroundRgbaColor,
-    ScrollerHoverIpgColor,
-    ScrollerHoverRgbaColor,
-    ScrollerRailIpgColor,
-    ScrollerRailRgbaColor,
     
 }
 
@@ -944,6 +920,7 @@ pub enum IpgTableParam {
     Show,
     TableWidthFixed,
     StyleId,
+    ScrollableStyleId,
 }
 
 
@@ -997,6 +974,7 @@ impl WidgetParamUpdate for IpgTable {
             IpgTableParam::Show => set_bool(&mut self.show, value, name),
             IpgTableParam::TableWidthFixed => set_bool(&mut self.table_width_fixed, value, name),
             IpgTableParam::StyleId => set_opt_usize(&mut self.style_id, value, name),
+            IpgTableParam::ScrollableStyleId => set_opt_usize(&mut self.scrollable_style_id, value, name),
         }
     }
 }
@@ -1066,18 +1044,6 @@ impl WidgetParamUpdate for IpgTableStyle {
                 set_opt_iced_color(&mut self.divider_hover_color, value, name),
             IpgTableStyleParam::DividerHoverRgbaColor =>
                 set_iced_color_from_rgba(&mut self.divider_hover_color, value, name),
-            IpgTableStyleParam::ScrollerBackgroundIpgColor =>
-                set_opt_iced_color(&mut self.scroller, value, name),
-            IpgTableStyleParam::ScrollerBackgroundRgbaColor =>
-                set_iced_color_from_rgba(&mut self.scroller, value, name),
-            IpgTableStyleParam::ScrollerHoverIpgColor =>
-                set_opt_iced_color(&mut self.scroller_hover, value, name),
-            IpgTableStyleParam::ScrollerHoverRgbaColor =>
-                set_iced_color_from_rgba(&mut self.scroller_hover, value, name),
-            IpgTableStyleParam::ScrollerRailIpgColor =>
-                set_opt_iced_color(&mut self.rail, value, name),
-            IpgTableStyleParam::ScrollerRailRgbaColor =>
-                set_iced_color_from_rgba(&mut self.rail, value, name),
         }
     }
 }

@@ -308,7 +308,6 @@ impl App {
                 Task::none()
             },
             Message::TableScrolled(vp, id) => {
-                dbg!("table scrolled", &vp, &id);
                 scrollable_callback(&mut self.state, id, vp);
                 process_updates(&mut self.state); //, &mut self.canvas_state);
                 Task::none()

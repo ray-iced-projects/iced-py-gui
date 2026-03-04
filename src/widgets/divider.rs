@@ -501,8 +501,6 @@ where
         },
         _ => {}
     }
-
-    shell.capture_event();
 }
 
 fn get_handle_bounds(

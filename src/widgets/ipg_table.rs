@@ -19,7 +19,7 @@ use iced::widget::{scrollable::Scrollbar};
 use iced::{Background, Border, Color, Length, alignment, widget};
 use iced::Length::Fill;
 use iced::{Element, Renderer, Theme};
-use iced::widget::{column, container, Space, row, scrollable, stack, text};
+use iced::widget::{Space, column, container, row, scrollable, stack, text};
 
 use pyo3::{pyclass, Py, PyAny};
 type PyObject = Py<PyAny>;
@@ -81,7 +81,7 @@ impl IpgTable {
     pub fn construct<'a>(
         &'a self,
         mut content: Vec<Element<'a, Message, Theme, Renderer>>,
-        widgets: &HashMap<usize, IpgWidgets>,
+        widgets: &'a HashMap<usize, IpgWidgets>,
     ) -> Element<'a, Message, Theme, Renderer> {
         
         let style_opt = 
@@ -89,11 +89,9 @@ impl IpgTable {
                 .and_then(IpgWidgets::as_table_style).cloned();
 
         // Build scrollable style from the scrollable_style_config widget
-        let scrollable_style = self.scrollable_style_id
+        let ipg_scroll_style = self.scrollable_style_id
             .and_then(|id| widgets.get(&id))
-            .and_then(IpgWidgets::as_scrollable_style_config)
-            .map(|cfg| cfg.build_style(widgets))
-            .unwrap_or_default();
+            .and_then(IpgWidgets::as_scrollable_style);
 
         let (header_style, 
             footer_style, 
@@ -179,30 +177,32 @@ impl IpgTable {
                     }
                 },
             );
-          
+            
             let body: Element<Message> = 
-                    scrollable(body_column)
-                        .height(self.height)
-                        .width(table_width)
-                        .on_scroll(move|vp|Message::TableScrolled(
-                                        vp, self.id))
-                        .direction({
-                            let scrollbar = Scrollbar::new()
-                                .scroller_width(self.body_scroller_width.unwrap_or(5.0))
-                                .width(self.body_scrollbar_width.unwrap_or(5.0))
-                                .margin(self.body_scrollbar_margin.unwrap_or_default());
-                            scrollable::Direction::Both {
-                                horizontal: scrollbar,
-                                vertical: scrollbar,
-                            }
-                        })
-                        .style({
-                            let style = scrollable_style.clone();
-                            move |theme, status| {
-                                style.set_style(theme, status)
-                            }
-                        })
-                        .into();
+                scrollable(body_column)
+                    .height(self.height)
+                    .width(table_width)
+                    .on_scroll(move|vp|Message::TableScrolled(
+                                    vp, self.id))
+                    .direction({
+                        let scrollbar = Scrollbar::new()
+                            .scroller_width(self.body_scroller_width.unwrap_or(5.0))
+                            .width(self.body_scrollbar_width.unwrap_or(5.0))
+                            .margin(self.body_scrollbar_margin.unwrap_or_default());
+                        scrollable::Direction::Both {
+                            horizontal: scrollbar,
+                            vertical: scrollbar,
+                        }
+                    })
+                    .style(move|theme, status| {
+                        if let Some(ipg_style) = &ipg_scroll_style {
+                            ipg_style.set_style(theme, status, widgets)
+                        } else {
+                            scrollable::default(theme, status)
+                        }
+                        
+                    })
+                    .into();
             
             let header_height = if self.header_enabled {
                 self.header_row_height.unwrap_or(20.0)
@@ -287,12 +287,14 @@ impl IpgTable {
                                 })
                             .on_scroll(move|vp| Message::TableScrolled(
                                                 vp, self.id))
-                            .style({
-                                    let style = scrollable_style.clone();
-                                    move |theme, status| {
-                                        style.set_style(theme, status)
-                                    }
-                                })))
+                            .style(move|theme, status| {
+                                if let Some(ipg_style) = &ipg_scroll_style {
+                                    ipg_style.set_style(theme, status, widgets)
+                                } else {
+                                    scrollable::default(theme, status)
+                                }
+                            })
+                        ))
                 } else {
                     Some(hd_col)
                 }
@@ -336,12 +338,14 @@ impl IpgTable {
                                 })
                             .on_scroll(move|vp| Message::TableScrolled(
                                                 vp, self.id))
-                            .style({
-                                    let style = scrollable_style.clone();
-                                    move |theme, status| {
-                                        style.set_style(theme, status)
-                                    }
-                                })))
+                            .style(move|theme, status| {
+                                if let Some(ipg_style) = &ipg_scroll_style {
+                                    ipg_style.set_style(theme, status, widgets)
+                                } else {
+                                    scrollable::default(theme, status)
+                                }
+                            })
+                    ))
                 } else {
                     Some(ft_col)
                 }
@@ -429,7 +433,7 @@ impl IpgTable {
             container(column(main_col))
                 .style(move|theme| default_border_style(theme))
                 .into()
-        
+
     }
 }
 

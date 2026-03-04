@@ -211,16 +211,6 @@ impl IpgContainerStyle {
     }
 }
 
-/// Convenience free function for callers that have an `Option<IpgContainerStyle>`
-/// (e.g. `IpgScrollStyle`). Returns the styled result or the default transparent
-/// container style.
-pub fn to_iced(theme: &Theme, style_opt: &Option<IpgContainerStyle>) -> container::Style {
-    match style_opt {
-        Some(s) => s.to_iced(theme, &None),
-        None => container::transparent(theme),
-    }
-}
-
 #[derive(Debug, Clone, PartialEq)]
 #[pyclass(eq, eq_int)]
 pub enum IpgContainerStyleStd {

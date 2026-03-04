@@ -29,7 +29,7 @@ use crate::widgets::ipg_radio::{IpgRadio, IpgRadioStyle};
 use crate::widgets::ipg_row::IpgRow;
 use crate::widgets::ipg_rule::{IpgRule, IpgRuleStyle};
 use crate::widgets::ipg_scrollable::{IpgAutoScrollStyle, IpgRailStyle, 
-    IpgScrollable, IpgScrollbar, IpgScrollableStyleConfig};
+    IpgScrollable, IpgScrollableStyle, IpgScrollbar};
 use crate::widgets::ipg_selectable_text::IpgSelectableText;
 use crate::widgets::ipg_separator::{IpgSeparator, IpgSeparatorStyle};
 use crate::widgets::ipg_slider::{IpgSlider, IpgSliderStyle};
@@ -47,7 +47,7 @@ use crate::widgets::ipg_button::{IpgButton, IpgButtonStyle};
 type PyObject = Py<PyAny>;
 
 // ============================================================================
-// Container and Widget enums - minimal versions for the prototype
+// Container and Widget enums
 // ============================================================================
 
 #[derive(Debug, Clone)]
@@ -95,8 +95,8 @@ pub enum IpgWidgets {
     IpgRadioStyle(IpgRadioStyle),
     IpgRule(IpgRule),
     IpgRuleStyle(IpgRuleStyle),
+    IpgScrollableStyle(IpgScrollableStyle),
     IpgScrollbar(IpgScrollbar),
-    IpgScrollableStyleConfig(IpgScrollableStyleConfig),
     IpgRailStyle(IpgRailStyle),
     IpgAutoScrollStyle(IpgAutoScrollStyle),
     IpgSelectableText(IpgSelectableText),
@@ -171,7 +171,7 @@ ipg_widget_accessors! {
     IpgRule             => IpgRule,              as_rule,                as_rule_mut;
     IpgRuleStyle        => IpgRuleStyle,         as_rule_style,          as_rule_style_mut;
     IpgScrollbar        => IpgScrollbar,         as_scrollbar,           as_scrollbar_mut;
-    IpgScrollableStyleConfig => IpgScrollableStyleConfig, as_scrollable_style_config, as_scrollable_style_config_mut;
+    IpgScrollableStyle  => IpgScrollableStyle,   as_scrollable_style,    as_scrollable_style_mut;
     IpgRailStyle        => IpgRailStyle,         as_rail_style,          as_rail_style_mut;
     IpgAutoScrollStyle  => IpgAutoScrollStyle,   as_auto_scroll_style,   as_auto_scroll_style_mut;
     IpgSelectableText   => IpgSelectableText,    as_selectable_text,     as_selectable_text_mut;

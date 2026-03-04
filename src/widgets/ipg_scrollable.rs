@@ -85,6 +85,7 @@ impl IpgScrollable {
                 } else {
                     scrollable::default(theme, status)
                 }
+                
             })
             .into()
         

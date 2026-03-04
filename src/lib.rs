@@ -48,7 +48,7 @@ use crate::py_api::slider::{add_slider, add_slider_style};
 use crate::py_api::space::add_space;
 use crate::py_api::stack::add_stack;
 use crate::py_api::svg::add_svg;
-use crate::py_api::table::{add_table, add_table_style};
+use crate::py_api::table::add_table;
 use crate::py_api::text_input::{add_text_input, add_text_input_style};
 use crate::py_api::text::add_text;
 use crate::py_api::toggle::{add_toggler, add_toggler_style};
@@ -62,7 +62,7 @@ use crate::widgets::ipg_selectable_text::IpgSelectableTextParam;
 use crate::widgets::ipg_separator::{IpgSeparatorParam, IpgSeparatorStyleParam, IpgSeparatorType};
 use crate::widgets::ipg_slider::{IpgSliderParam, IpgSliderStyleParam};
 use crate::widgets::ipg_stack::IpgStackParam;
-use crate::widgets::ipg_table::{IpgTableParam, IpgTableStyleParam};
+use crate::widgets::ipg_table::IpgTableParam;
 use crate::widgets::ipg_text_input::{IpgTextInputParam, IpgTextInputStyleParam};
 use crate::widgets::ipg_toggle::{IpgTogglerParam, IpgTogglerStyleParam};
 
@@ -134,7 +134,6 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(add_scrollable_style, m)?)?;
     m.add_function(wrap_pyfunction!(add_separator_style, m)?)?;
     m.add_function(wrap_pyfunction!(add_slider_style, m)?)?;
-    m.add_function(wrap_pyfunction!(add_table_style, m)?)?;
     m.add_function(wrap_pyfunction!(add_toggler_style, m)?)?;
     m.add_function(wrap_pyfunction!(add_radio_style, m)?)?;
     m.add_function(wrap_pyfunction!(add_rule_style, m)?)?;
@@ -158,7 +157,6 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<IpgSliderStyleParam>()?;
     m.add_class::<IpgStackParam>()?;
     m.add_class::<IpgStyleStandard>()?;
-    m.add_class::<IpgTableStyleParam>()?;
     m.add_class::<IpgTextInputStyleParam>()?;
     m.add_class::<IpgTogglerStyleParam>()?;
 

@@ -10,13 +10,13 @@ use crate::widgets::divider::{self, divider_horizontal};
 use crate::py_api::helpers::try_extract_vec_usize;
 use crate::widgets::widget_param_update::{
     WidgetParamUpdate, set_bool, set_f32, set_opt_f32, set_opt_usize,
-    set_vec_f32, set_vec_string, set_vec_vec_f32, set_opt_iced_color, set_iced_color_from_rgba,
+    set_vec_f32, set_vec_string, set_vec_vec_f32
 };
 use crate::IpgState;
 
 use iced::border::Radius;
 use iced::widget::{scrollable::Scrollbar};
-use iced::{Background, Border, Color, Length, alignment, widget};
+use iced::{Color, Length, alignment, widget};
 use iced::Length::Fill;
 use iced::{Element, Renderer, Theme};
 use iced::widget::{Space, column, container, row, scrollable, stack, text};
@@ -84,50 +84,12 @@ impl IpgTable {
         widgets: &'a HashMap<usize, IpgWidgets>,
     ) -> Element<'a, Message, Theme, Renderer> {
         
-        let style_opt = 
-            self.lookup(widgets, self.style_id)
-                .and_then(IpgWidgets::as_table_style).cloned();
-
-        // Build scrollable style from the scrollable_style_config widget
-        let ipg_scroll_style = self.scrollable_style_id
-            .and_then(|id| widgets.get(&id))
-            .and_then(IpgWidgets::as_scrollable_style);
-
-        let (header_style, 
-            footer_style, 
-            body_style,
-            divider_style) = 
-        if let Some(style) = style_opt {
-                (Some(HeaderStyle{
-                    background: style.header_background,
-                    border_color: style.header_border_color,
-                    border_radius: style.header_border_radius,
-                    border_width: style.header_border_width,
-                    text_color: style.header_text_color,
-                }),
-                Some(FooterStyle{
-                    background: style.footer_background,
-                    border_color: style.footer_border_color,
-                    border_radius: style.header_border_radius,
-                    border_width: style.footer_border_width,
-                    text_color: style.footer_text_color,
-                }),
-                Some(BodyStyle{
-                    background: style.body_background,
-                    border_color: style.body_border_color,
-                    border_radius: style.body_border_radius,
-                    border_width: style.body_border_width,
-                    text_color: style.body_text_color,
-                    row_highlight: style.body_row_highlight,
-                }),
-                Some(DividerStyle {
-                    background: style.divider_background,
-                    hover: style.divider_hover_color,
-                }),
-            )
-        } else {
-            (None, None, None, None)
-        };
+        let ipg_scroll_style_header  = self.lookup(widgets, self.style_id)
+            .and_then(IpgWidgets::as_scrollable_style).cloned();
+         let ipg_scroll_style_body  = self.lookup(widgets, self.style_id)
+            .and_then(IpgWidgets::as_scrollable_style).cloned();
+         let ipg_scroll_style_footer  = self.lookup(widgets, self.style_id)
+            .and_then(IpgWidgets::as_scrollable_style).cloned();
 
         let mut body_rows = vec![];
             for idx in 0..self.body.len() {
@@ -150,15 +112,7 @@ impl IpgTable {
                         rw.push(Element::from(container(cell)
                                 .width(self.column_widths[i])
                                 .center_x(self.column_widths[i])
-                                .style({
-                                    let body_style = body_style.clone();
-                                    move |theme| {
-                                        get_body_style(
-                                            &body_style, 
-                                            theme, idx, 
-                                            self.body_row_highlight)
-                                    }
-                                })));
+                            ));
                     }
                 
                 body_rows.push(row(rw).into());
@@ -195,7 +149,7 @@ impl IpgTable {
                         }
                     })
                     .style(move|theme, status| {
-                        if let Some(ipg_style) = &ipg_scroll_style {
+                        if let Some(ipg_style) = &ipg_scroll_style_body {
                             ipg_style.set_style(theme, status, widgets)
                         } else {
                             scrollable::default(theme, status)
@@ -237,12 +191,7 @@ impl IpgTable {
                         container(txt)
                             .width(self.column_widths[i])
                             .height(header_height)
-                            .style({
-                                let header_style = header_style.clone();
-                                move |theme| {
-                                    get_header_style(&header_style, theme)
-                                }
-                            })));
+                        ));
                 }
                 header_column.push(Element::from(row(rw)));
             }
@@ -257,13 +206,7 @@ impl IpgTable {
                                 .width(self.column_widths[i])
                                 .height(custom_header_height)
                                 .center_x(self.column_widths[i])
-                                .style({
-                                let header_style = header_style.clone();
-                                        move |theme| {
-                                            get_header_style(&header_style, theme)
-                                        }
-                                    })
-                                ));
+                            ));
                     }
                     header_column.push(Element::from(row(custom_rw)));
                 }
@@ -288,7 +231,7 @@ impl IpgTable {
                             .on_scroll(move|vp| Message::TableScrolled(
                                                 vp, self.id))
                             .style(move|theme, status| {
-                                if let Some(ipg_style) = &ipg_scroll_style {
+                                if let Some(ipg_style) = &ipg_scroll_style_header{
                                     ipg_style.set_style(theme, status, widgets)
                                 } else {
                                     scrollable::default(theme, status)
@@ -312,12 +255,7 @@ impl IpgTable {
                                 .width(self.column_widths[i])
                                 .height(Length::Fixed(self.footer_height.unwrap_or(20.0)))
                                 .center_x(self.column_widths[i])
-                                .style({
-                                    let footer_style = footer_style.clone();
-                                    move |theme| {
-                                        get_footer_style(&footer_style, theme)
-                                    }
-                                })));
+                            ));
                     }
                     footer_column.push(Element::from(row(rw)));
                 }
@@ -339,7 +277,7 @@ impl IpgTable {
                             .on_scroll(move|vp| Message::TableScrolled(
                                                 vp, self.id))
                             .style(move|theme, status| {
-                                if let Some(ipg_style) = &ipg_scroll_style {
+                                if let Some(ipg_style) = &ipg_scroll_style_footer {
                                     ipg_style.set_style(theme, status, widgets)
                                 } else {
                                     scrollable::default(theme, status)
@@ -362,16 +300,7 @@ impl IpgTable {
                     Message::TableDividerChanged,
                 )
                 .include_last_handle(!self.resize_columns_enabled)
-                .on_release(Message::TableDividerReleased(self.id))
-                .style({
-                    let div_style = divider_style.clone();
-                    move |theme, status| {
-                        get_divider_style(
-                            &div_style, 
-                            theme, 
-                            status,)
-                    }
-                });
+                .on_release(Message::TableDividerReleased(self.id));
             
             let handle_height = header_height + self.custom_header_rows.unwrap_or_default() as f32 * 
                 self.header_row_height.unwrap_or(20.0);
@@ -430,9 +359,7 @@ impl IpgTable {
                 main_col.push(footer.unwrap());
             }
 
-            container(column(main_col))
-                .style(move|theme| default_border_style(theme))
-                .into()
+            column(main_col).into()
 
     }
 }
@@ -602,189 +529,14 @@ pub fn table_callback(
 
 // }
 
-
-#[derive(Debug, Clone, Default)]
-pub struct IpgTableStyle {
-    pub id: usize,
-    pub header_background: Option<Color>,
-    pub header_border_color: Option<Color>,
-    pub header_border_radius: f32,
-    pub header_border_width: f32,
-    pub header_text_color: Option<Color>,
-
-    pub body_background: Option<Color>,
-    pub body_border_color: Option<Color>,
-    pub body_border_radius: f32,
-    pub body_border_width: f32,
-    pub body_text_color: Option<Color>,
-    pub body_row_highlight: Option<Color>,
-
-    pub footer_background: Option<Color>,
-    pub footer_border_color: Option<Color>,
-    pub footer_border_radius: f32,
-    pub footer_border_width: f32,
-    pub footer_text_color: Option<Color>,
-
-    pub divider_background: Option<Color>,
-    pub divider_hover_color: Option<Color>,
-}
-
-
-#[derive(Debug, Clone, PartialEq)]
-struct HeaderStyle {
-    background: Option<Color>,
-    border_color: Option<Color>,
-    border_radius: f32,
-    border_width: f32,
-    text_color: Option<Color>,
-}
-
-#[derive(Debug, Clone, PartialEq)]
-struct FooterStyle {
-    background: Option<Color>,
-    border_color: Option<Color>,
-    border_radius: f32,
-    border_width: f32,
-    text_color: Option<Color>,
-}
-
-#[derive(Debug, Clone, PartialEq)]
-struct BodyStyle {
-    background: Option<Color>,
-    border_color: Option<Color>,
-    border_radius: f32,
-    border_width: f32,
-    text_color: Option<Color>,
-    row_highlight: Option<Color>,
-}
-
 #[derive(Debug, Clone, PartialEq)]
 struct DividerStyle {
     background: Option<Color>,
     hover: Option<Color>,
 }
 
-fn get_header_style(style_opt: &Option<HeaderStyle>, theme: &Theme) 
-        -> container::Style 
-{
-    let mut style = default_style(theme, 0, false);
-    
-    if style_opt.is_none() {
-        return style
-    }
-    let style_opt = style_opt.clone().unwrap();
-    
-    if let Some(background) = style_opt.background {
-        style.background = Some(background.into());
-    }
-
-    if let Some(border_color) = style_opt.border_color {
-        style.border.color = border_color;
-    }
-    
-    style.text_color = style_opt.text_color;
-    style.border.radius = style_opt.border_radius.into();
-    style.border.width = style_opt.border_width;
-
-    style
-}
-
-fn get_footer_style(style_opt: &Option<FooterStyle>, theme: &Theme) 
-        -> container::Style 
-{
-    let mut style = default_style(theme, 0, false);
-    
-    if style_opt.is_none() {
-        return style
-    }
-    let style_opt = style_opt.clone().unwrap();
-    
-    if let Some(background) = style_opt.background {
-        style.background = Some(background.into());
-    }
-
-    if let Some(border_color) = style_opt.border_color {
-        style.border.color = border_color;
-    }
-    
-    style.text_color = style_opt.text_color;
-    style.border.radius = style_opt.border_radius.into();
-    style.border.width = style_opt.border_width;
-
-    style
-}
-
-fn get_body_style(
-        style_opt: &Option<BodyStyle>, 
-        theme: &Theme, 
-        index: usize,
-        highlight: bool) 
-        -> container::Style 
-{
-    let mut style = default_style(theme, index, highlight);
-    
-    if style_opt.is_none() {
-        return style
-    }
-    
-    let style_opt = style_opt.clone().unwrap();
-    
-    style.background = match (style_opt.background.is_some(), index % 2 == 0, highlight, style_opt.row_highlight.is_some()) {
-        (true, true, true, false) => Some(style_opt.background.unwrap().into()),
-        (true, true, true, true) => Some(style_opt.background.unwrap().into()),
-        (true, false, true, false) => Some(Color::TRANSPARENT.into()),
-        (true, false, true, true) => Some(style_opt.row_highlight.unwrap().into()),
-        _ => style.background,
-    };
-
-    if let Some(border_color) = style_opt.border_color {
-        style.border.color = border_color;
-    }
-
-    style.text_color = style_opt.text_color;
-    style.border.radius = style_opt.border_radius.into();
-    style.border.width = style_opt.border_width;
-
-    style
-}
-
 const ROW_COLOR: Color = Color::from_rgba(0.04, 0.35, 0.35, 0.2);
 const ROW_CONTRAST_COLOR: Color = Color::from_rgba(0.25, 0.63, 0.67, 1.0);
-
-fn default_style(
-    _theme: &Theme, 
-    index: usize,
-    highlight: bool) 
-    -> container::Style {
-
-    let background: Option<Background> = match (index % 2 == 0, highlight) {
-        (true, true) => Some(ROW_COLOR.into()),
-        (false, true) => Some(Color::TRANSPARENT.into()),
-        _ => Some(ROW_COLOR.into()),
-    };
-
-    container::Style {
-        background,
-        border: Border {
-            width: 1.0,
-            radius: 0.0.into(),
-            color: ROW_COLOR,
-        },
-        ..container::Style::default()
-    }
-}
-
-fn default_border_style(_theme: &Theme) -> container::Style {
-    container::Style {
-        background: Some(Color::TRANSPARENT.into()),
-        border: Border {
-            width: 4.0,
-            radius: 0.0.into(),
-            color: ROW_COLOR,
-        },
-        ..container::Style::default()
-    }
-}
 
 
 pub fn default_divider_style(_theme: &Theme, status: divider::Status) -> divider::Style {
@@ -842,44 +594,6 @@ fn get_divider_style(
     style
 }
 
-#[derive(Debug, Clone, PartialEq)]
-#[pyclass(eq, eq_int)]
-pub enum IpgTableStyleParam {
-    HeaderBackgroundIpgColor,
-    HeaderBackgroundRgbaColor,
-    HeaderBorderIpgColor,
-    HeaderBorderRgbaColor,
-    HeaderBorderRadius,
-    HeaderBorderWidth,
-    HeaderTextIpgColor,
-    HeaderTextRgbaColor,
-
-    BodyBackgroundIpgColor,
-    BodyBackgroundRgbaColor,
-    BodyBorderIpgColor,
-    BodyBorderRgbaColor,
-    BodyBorderRadius,
-    BodyBorderWidth,
-    BodyTextIpgColor,
-    BodyTextRgbaColor,
-    BodyRowHighlightColor,
-    BodyRowHighlightRgba,
-
-    FooterBackgroundIpgColor,
-    FooterBackgroundRgbaColor,
-    FooterBorderIpgColor,
-    FooterBorderRgbaColor,
-    FooterBorderRadius,
-    FooterBorderWidth,
-    FooterTextIpgColor,
-    FooterTextRgbaColor,
-
-    DividerBackgroundIpgColor,
-    DividerBackgroundRgbaColor,
-    DividerHoverIpgColor,
-    DividerHoverRgbaColor,
-    
-}
 
 #[derive(Debug, Clone, PartialEq)]
 #[pyclass(eq, eq_int)]
@@ -893,21 +607,9 @@ pub enum IpgTableParam {
     ResizerWidth,
     HeaderEnabled,
     HeaderHeight,
-    HeaderScrollbarHeight,
-    HeaderScrollbarMargin,
-    HeaderScrollerHeight,
-    HeaderScrollbarSpacing,
     HeaderRowSpacing,
     FooterHeight,
-    FooterScrollbarHeight,
-    FooterScrollbarMargin,
-    FooterScrollerHeight,
-    FooterScrollbarSpacing,
     FooterSpacing,
-    BodyScrollbarWidth,
-    BodyScrollbarMargin,
-    BodyScrollerWidth,
-    BodyScrollbarSpacing,
     CustomHeaderRows,
     CustomFooterRows,
     ControlColumns,
@@ -944,21 +646,9 @@ impl WidgetParamUpdate for IpgTable {
             IpgTableParam::ResizerWidth => set_opt_f32(&mut self.resizer_width, value, name),
             IpgTableParam::HeaderEnabled => set_bool(&mut self.header_enabled, value, name),
             IpgTableParam::HeaderHeight => set_opt_f32(&mut self.header_row_height, value, name),
-            IpgTableParam::HeaderScrollbarHeight => set_opt_f32(&mut self.header_scrollbar_height, value, name),
-            IpgTableParam::HeaderScrollbarMargin => set_opt_f32(&mut self.header_scrollbar_margin, value, name),
-            IpgTableParam::HeaderScrollerHeight => set_opt_f32(&mut self.header_scroller_height, value, name),
-            IpgTableParam::HeaderScrollbarSpacing => set_opt_f32(&mut self.header_scrollbar_spacing, value, name),
             IpgTableParam::HeaderRowSpacing => set_opt_f32(&mut self.header_row_spacing, value, name),
             IpgTableParam::FooterHeight => set_opt_f32(&mut self.footer_height, value, name),
-            IpgTableParam::FooterScrollbarHeight => set_opt_f32(&mut self.footer_scrollbar_height, value, name),
-            IpgTableParam::FooterScrollbarMargin => set_opt_f32(&mut self.footer_scrollbar_margin, value, name),
-            IpgTableParam::FooterScrollerHeight => set_opt_f32(&mut self.footer_scroller_height, value, name),
-            IpgTableParam::FooterScrollbarSpacing => set_opt_f32(&mut self.footer_scrollbar_spacing, value, name),
             IpgTableParam::FooterSpacing => set_opt_f32(&mut self.footer_spacing, value, name),
-            IpgTableParam::BodyScrollbarWidth => set_opt_f32(&mut self.body_scrollbar_width, value, name),
-            IpgTableParam::BodyScrollbarMargin => set_opt_f32(&mut self.body_scrollbar_margin, value, name),
-            IpgTableParam::BodyScrollerWidth => set_opt_f32(&mut self.body_scroller_width, value, name),
-            IpgTableParam::BodyScrollbarSpacing => set_opt_f32(&mut self.body_scrollbar_spacing, value, name),
             IpgTableParam::CustomHeaderRows => set_opt_usize(&mut self.custom_header_rows, value, name),
             IpgTableParam::CustomFooterRows => set_opt_usize(&mut self.custom_footer_rows, value, name),
             IpgTableParam::ControlColumns => {
@@ -976,75 +666,6 @@ impl WidgetParamUpdate for IpgTable {
             IpgTableParam::TableWidthFixed => set_bool(&mut self.table_width_fixed, value, name),
             IpgTableParam::StyleId => set_opt_usize(&mut self.style_id, value, name),
             IpgTableParam::ScrollableStyleId => set_opt_usize(&mut self.scrollable_style_id, value, name),
-        }
-    }
-}
-
-impl WidgetParamUpdate for IpgTableStyle {
-    type Param = IpgTableStyleParam;
-
-    fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
-        match param {
-            IpgTableStyleParam::HeaderBackgroundIpgColor =>
-                set_opt_iced_color(&mut self.header_background, value, name),
-            IpgTableStyleParam::HeaderBackgroundRgbaColor =>
-                set_iced_color_from_rgba(&mut self.header_background, value, name),
-            IpgTableStyleParam::HeaderBorderIpgColor =>
-                set_opt_iced_color(&mut self.header_border_color, value, name),
-            IpgTableStyleParam::HeaderBorderRgbaColor =>
-                set_iced_color_from_rgba(&mut self.header_border_color, value, name),
-            IpgTableStyleParam::HeaderBorderRadius =>
-                set_f32(&mut self.header_border_radius, value, name),
-            IpgTableStyleParam::HeaderBorderWidth =>
-                set_f32(&mut self.header_border_width, value, name),
-            IpgTableStyleParam::HeaderTextIpgColor =>
-                set_opt_iced_color(&mut self.header_text_color, value, name),
-            IpgTableStyleParam::HeaderTextRgbaColor =>
-                set_iced_color_from_rgba(&mut self.header_text_color, value, name),
-            IpgTableStyleParam::BodyBackgroundIpgColor =>
-                set_opt_iced_color(&mut self.body_background, value, name),
-            IpgTableStyleParam::BodyBackgroundRgbaColor =>
-                set_iced_color_from_rgba(&mut self.body_background, value, name),
-            IpgTableStyleParam::BodyBorderIpgColor =>
-                set_opt_iced_color(&mut self.body_border_color, value, name),
-            IpgTableStyleParam::BodyBorderRgbaColor =>
-                set_iced_color_from_rgba(&mut self.body_border_color, value, name),
-            IpgTableStyleParam::BodyBorderRadius =>
-                set_f32(&mut self.body_border_radius, value, name),
-            IpgTableStyleParam::BodyBorderWidth =>
-                set_f32(&mut self.body_border_width, value, name),
-            IpgTableStyleParam::BodyTextIpgColor =>
-                set_opt_iced_color(&mut self.body_text_color, value, name),
-            IpgTableStyleParam::BodyTextRgbaColor =>
-                set_iced_color_from_rgba(&mut self.body_text_color, value, name),
-            IpgTableStyleParam::BodyRowHighlightColor =>
-                set_opt_iced_color(&mut self.body_row_highlight, value, name),
-            IpgTableStyleParam::BodyRowHighlightRgba =>
-                set_iced_color_from_rgba(&mut self.body_row_highlight, value, name),
-            IpgTableStyleParam::FooterBackgroundIpgColor =>
-                set_opt_iced_color(&mut self.footer_background, value, name),
-            IpgTableStyleParam::FooterBackgroundRgbaColor =>
-                set_iced_color_from_rgba(&mut self.footer_background, value, name),
-            IpgTableStyleParam::FooterBorderIpgColor =>
-                set_opt_iced_color(&mut self.footer_border_color, value, name),
-            IpgTableStyleParam::FooterBorderRgbaColor =>
-                set_iced_color_from_rgba(&mut self.footer_border_color, value, name),
-            IpgTableStyleParam::FooterBorderRadius =>
-                set_f32(&mut self.footer_border_radius, value, name),
-            IpgTableStyleParam::FooterBorderWidth =>
-                set_f32(&mut self.footer_border_width, value, name),
-            IpgTableStyleParam::FooterTextIpgColor =>
-                set_opt_iced_color(&mut self.footer_text_color, value, name),
-            IpgTableStyleParam::FooterTextRgbaColor =>
-                set_iced_color_from_rgba(&mut self.footer_text_color, value, name),
-            IpgTableStyleParam::DividerBackgroundIpgColor =>
-                set_opt_iced_color(&mut self.divider_background, value, name),
-            IpgTableStyleParam::DividerBackgroundRgbaColor =>
-                set_iced_color_from_rgba(&mut self.divider_background, value, name),
-            IpgTableStyleParam::DividerHoverIpgColor =>
-                set_opt_iced_color(&mut self.divider_hover_color, value, name),
-            IpgTableStyleParam::DividerHoverRgbaColor =>
-                set_iced_color_from_rgba(&mut self.divider_hover_color, value, name),
         }
     }
 }

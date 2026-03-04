@@ -25,7 +25,10 @@ from imports import *
 
 # Obtain an id from each type of style
 cont_id = add_container_style(
-            background_color=IpgColor.AQUA)
+            background_color=IpgColor.BLUE,
+            border_color=IpgColor.AQUA,
+            border_width=3.0,
+            border_radius=[5.0])
 
 
 scr_style = add_scrollable_style(container_style_id=cont_id,)
@@ -43,6 +46,7 @@ with Window(id="main", title="Scrollable", center=True):
                 id="scroll_y", 
                 width=200.0, 
                 height=100.0,
+                
                 style_id=scr_style,
             )
 

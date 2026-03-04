@@ -1,13 +1,12 @@
 
 
-use iced::Color;
+
 use pyo3::{Py, PyAny, PyResult, pyfunction};
 type PyObject = Py<PyAny>;
 
 use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex, 
-    graphics::colors::IpgColor, state::{IpgContainers, 
-        IpgWidgets, get_id, set_state_cont_wnd_ids, set_state_of_container}, 
-        widgets::ipg_table::{IpgTable, IpgTableStyle}};
+    state::{IpgContainers, get_id, set_state_cont_wnd_ids, set_state_of_container}, 
+        widgets::ipg_table::{IpgTable}};
 
 
 #[pyfunction]
@@ -192,141 +191,3 @@ pub fn add_table(
 
 }
 
-
-#[pyfunction]
-#[pyo3(signature = ( 
-    header_background_color=None, 
-    header_background_rgba=None,
-    header_border_color=None, 
-    header_border_rgba=None,
-    header_border_radius = 0.0, 
-    header_border_width=0.0,
-    header_text_color=None, 
-    header_text_rgba=None,
-
-    body_background_color=None, 
-    body_background_rgba=None,
-    body_border_color=None, 
-    body_border_rgba=None,
-    body_border_radius = 0.0, 
-    body_border_width=0.0,
-    body_text_color=None, 
-    body_text_rgba=None,
-    body_row_highlight_color=None,
-    body_row_highlight_rgba=None,
-
-    footer_background_color=None, 
-    footer_background_rgba=None,
-    footer_border_color=None, 
-    footer_border_rgba=None,
-    footer_border_radius = 0.0, 
-    footer_border_width=0.0,
-    footer_text_color=None, 
-    footer_text_rgba=None,
-
-    divider_color=None,
-    divider_rgba=None,
-    divider_hover_color=None,
-    divider_hover_rgba=None,
-
-    gen_id=None
-    ))]
-pub fn add_table_style(
-    header_background_color: Option<IpgColor>,
-    header_background_rgba: Option<[f32; 4]>,
-    header_border_color: Option<IpgColor>,
-    header_border_rgba: Option<[f32; 4]>,
-    header_border_radius: f32,
-    header_border_width: f32,
-    header_text_color: Option<IpgColor>,
-    header_text_rgba: Option<[f32; 4]>,
-
-    body_background_color: Option<IpgColor>,
-    body_background_rgba: Option<[f32; 4]>,
-    body_border_color: Option<IpgColor>,
-    body_border_rgba: Option<[f32; 4]>,
-    body_border_radius: f32,
-    body_border_width: f32,
-    body_text_color: Option<IpgColor>,
-    body_text_rgba: Option<[f32; 4]>,
-    body_row_highlight_color: Option<IpgColor>,
-    body_row_highlight_rgba: Option<[f32; 4]>,
-
-    footer_background_color: Option<IpgColor>,
-    footer_background_rgba: Option<[f32; 4]>,
-    footer_border_color: Option<IpgColor>,
-    footer_border_rgba: Option<[f32; 4]>,
-    footer_border_radius: f32,
-    footer_border_width: f32,
-    footer_text_color: Option<IpgColor>,
-    footer_text_rgba: Option<[f32; 4]>,
-
-    divider_color: Option<IpgColor>,
-    divider_rgba: Option<[f32; 4]>,
-    divider_hover_color: Option<IpgColor>,
-    divider_hover_rgba: Option<[f32; 4]>,
-
-    gen_id: Option<usize>,
-    ) -> PyResult<usize>
-{
-    let id = get_id(gen_id);
-
-    let header_background =  
-        IpgColor::rgba_ipg_color_to_iced(header_background_rgba, header_background_color, 1.0, false);
-    let header_border_color: Option<Color> = 
-        IpgColor::rgba_ipg_color_to_iced(header_border_rgba, header_border_color, 1.0, false);
-    let header_text_color: Option<Color> = 
-        IpgColor::rgba_ipg_color_to_iced(header_text_rgba, header_text_color, 1.0, false);
-    
-    let body_background: Option<Color> = 
-        IpgColor::rgba_ipg_color_to_iced(body_background_rgba, body_background_color, 1.0, false);
-    let body_border_color: Option<Color> = 
-        IpgColor::rgba_ipg_color_to_iced(body_border_rgba, body_border_color, 1.0, false);
-    let body_text_color: Option<Color> = 
-        IpgColor::rgba_ipg_color_to_iced(body_text_rgba, body_text_color, 1.0, false);
-    let body_row_highlight: Option<Color> = 
-        IpgColor::rgba_ipg_color_to_iced(body_row_highlight_rgba, body_row_highlight_color, 1.0, false);
-
-    let footer_background: Option<Color> = 
-        IpgColor::rgba_ipg_color_to_iced(footer_background_rgba, footer_background_color, 1.0, false);
-    let footer_border_color: Option<Color> = 
-        IpgColor::rgba_ipg_color_to_iced(footer_border_rgba, footer_border_color, 1.0, false);
-    let footer_text_color: Option<Color> = 
-        IpgColor::rgba_ipg_color_to_iced(footer_text_rgba, footer_text_color, 1.0, false);
-
-    let divider_background: Option<Color> = 
-        IpgColor::rgba_ipg_color_to_iced(divider_rgba, divider_color, 1.0, false);
-    let divider_hover_color = 
-        IpgColor::rgba_ipg_color_to_iced(divider_hover_rgba, divider_hover_color, 1.0, false);
-    
-    let mut state = access_state();
-
-    state.widgets.insert(id, IpgWidgets::IpgTableStyle(
-        IpgTableStyle {
-            id,
-            header_background,
-            header_border_color,
-            header_border_radius,
-            header_border_width,
-            header_text_color,
-            
-            body_background,
-            body_border_color,
-            body_border_radius,
-            body_border_width,
-            body_text_color,
-            body_row_highlight,
-            
-            footer_background,
-            footer_border_color,
-            footer_border_radius,
-            footer_border_width,
-            footer_text_color,
-            
-            divider_background,
-            divider_hover_color,
-        }));
-
-    drop(state);
-    Ok(id)
-}

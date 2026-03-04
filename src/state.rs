@@ -36,7 +36,7 @@ use crate::widgets::ipg_slider::{IpgSlider, IpgSliderStyle};
 use crate::widgets::ipg_space::IpgSpace;
 use crate::widgets::ipg_stack::IpgStack;
 use crate::widgets::ipg_svg::IpgSvg;
-use crate::widgets::ipg_table::{IpgTable, IpgTableStyle};
+use crate::widgets::ipg_table::IpgTable;
 use crate::widgets::ipg_text::IpgText;
 use crate::widgets::ipg_text_input::{IpgTextInput, IpgTextInputStyle};
 use crate::widgets::ipg_toggle::{IpgToggler, IpgTogglerStyle};
@@ -106,7 +106,6 @@ pub enum IpgWidgets {
     IpgSliderStyle(IpgSliderStyle),
     IpgSpace(IpgSpace),
     IpgSvg(IpgSvg),
-    IpgTableStyle(IpgTableStyle),
     IpgText(IpgText),
     // IpgRichText(IpgRichText),
     // IpgTextEditor(IpgTextEditor),
@@ -181,7 +180,6 @@ ipg_widget_accessors! {
     IpgSliderStyle      => IpgSliderStyle,       as_slider_style,        as_slider_style_mut;
     IpgSpace            => IpgSpace,             as_space,               as_space_mut;
     IpgSvg              => IpgSvg,               as_svg,                 as_svg_mut;
-    IpgTableStyle       => IpgTableStyle,        as_table_style,         as_table_style_mut;
     IpgText             => IpgText,              as_text,                as_text_mut;
     IpgTextInputStyle   => IpgTextInputStyle,    as_text_input_style,    as_text_input_style_mut;
     IpgToggler          => IpgToggler,           as_toggler,             as_toggler_mut;

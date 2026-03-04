@@ -77,7 +77,6 @@ from icedpygui import (
     IpgAlignmentY,
     IpgWindowTheme, 
     start_session,
-    update_dataframe, 
     update_widget,
     generate_id,
 )

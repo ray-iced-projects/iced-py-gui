@@ -1,7 +1,6 @@
 from icedpygui import IPG, IpgTextParam, IpgRadioDirection
 from icedpygui import IpgButtonParam, IpgProgressBarParam
 from icedpygui import IpgAlignment
-import polars as pl
 import random
 
 """
@@ -511,22 +510,30 @@ class Demo:
     def construct_table(self):
         # define the column widths
         column_widths = [100.0] * 4
-        # create the data dictionary
-        data = {
-            "str": ["H", "e", "l", "l", "o", " ", "W", "o", "r", "l", "d"],
-            "one": [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0],
-            "two": [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22],
-            "three": [3, 6, 9, 12, 15, 18, 21, 24, 27, 30, 33],
-            }
-
-        # make the dataframe
-        df = pl.DataFrame(data)
+        # create the data
+        headers = ["str", "one", "two", "three"]
+        body = [
+            [0.0, 1.0, 2.0, 3.0],
+            [0.0, 2.0, 4.0, 6.0],
+            [0.0, 3.0, 6.0, 9.0],
+            [0.0, 4.0, 8.0, 12.0],
+            [0.0, 5.0, 10.0, 15.0],
+            [0.0, 6.0, 12.0, 18.0],
+            [0.0, 7.0, 14.0, 21.0],
+            [0.0, 8.0, 16.0, 24.0],
+            [0.0, 9.0, 18.0, 27.0],
+            [0.0, 10.0, 20.0, 30.0],
+            [0.0, 11.0, 22.0, 33.0],
+        ]
+        footers = ["", "", "", ""]
         
         # Add the table.
         self.ipg.add_table(
                 window_id=self.wnd_2,
                 table_id="table",
-                polars_df=df,
+                headers=headers,
+                body=body,
+                footers=footers,
                 parent_id=self.l_col_2,
                 column_widths=column_widths,
                 height=150.0,

@@ -1,7 +1,6 @@
 import random
 
 from imports import *
-import polars as pl
 
 
 def table_column_resize(tbl_id: int, index: int, values: list[float]):
@@ -9,93 +8,68 @@ def table_column_resize(tbl_id: int, index: int, values: list[float]):
 
 
 def sum_of_column() -> str:
-    return str(df["three"].sum())    
+    return str(sum(row[5] for row in body))    
 
 
 def sort_list(pkl_id: int, selected: str):
-    global df, table_id
+    global headers, body, table_id
+    # Sort by the "str" column (index 1)
     match selected:
         case "Sort(a-z)":
-            df = df.sort("str") 
+            body.sort(key=lambda r: r[1]) 
         case "Sort(z-a)":
-            df = df.sort("str", descending=True)
+            body.sort(key=lambda r: r[1], reverse=True)
             
-    # The dataframe is a bit special so use the update_dataframe
-    # and not update_widget
-    update_dataframe(table_id, IpgTableParam.PolarsDf, df)
+    # Use update_widget with the new Body param
+    update_widget(table_id, IpgTableParam.Body, body)
 
 
 def math_op(pkl_id: int, selected: str, index: int):
-    global df, table_id, footer_ids
+    global body, table_id, footer_ids
+    col_values = [row[5] for row in body]
     match selected:
         case "Add":
-            value = f"Sum={df['three'].sum()}"
+            value = f"Sum={sum(col_values)}"
         case "Count":
-            value = f"Count={df['three'].count()}"
+            value = f"Count={len(col_values)}"
         case "Mean":
-            value = f"Mean={df['three'].mean()}"
-    # The header and footer are not part of the dataframe,
-    # so update the item, not the dataframe.
+            value = f"Mean={sum(col_values)/len(col_values):.2f}"
     update_widget(footer_ids[index], IpgTextParam.Content, value)
 
 
-
-# Normally, filtering is easy without control coulmns,
-# you just pass back the new df.  However with control columns
-# you'll need to do some extra work since they are not part of
-# dataframe.
-# The approach that was used here was to store the true/false values 
-# in the checkbox column of the dataframe, filter the df and then use 
-# the checkbox_id python list to find the checkbox ids.  Once the ids
-# are found the just hide the ones not in the list.
-# Rust doesn't allow mixed lists so if one wanted to use the checkbox df column, 
-# they could store the id and a 0 or 1 for false/true, [23, 1].
-# You could also store it as a string and parse it later.
-# It's easiest to try and keep everthing in the df if possible.
-
-# Sometimes it's easier to work with a original_df and a working_df.
-# In doing this your working_df is the filtered one and you can further select 
-# the columns you want to show.  It also makes it easier to back out of the 
-# filtering operation to get the unfiltered version.  By selecting just the
-# just the columns you vwant to show, you can eliminate the issue of not
-# having a mixed list in a column, just use as many as you want.
+# Filtering with plain lists
 def filtering(pkl_id: int, selected: str):
-    global df, table_id
+    global body, original_body, table_id
     match selected:
         case "True": 
             value = True
         case "False":
             value = False
         case "None":
-            update_dataframe(table_id, IpgTableParam.PolarsDf, df)
+            update_widget(table_id, IpgTableParam.Body, original_body)
             for wid in button_ids:
                 update_widget(wid, IpgButtonParam.Show, True)
             for id_tf in checkbox_ids:
                 update_widget(id_tf[0], IpgCheckboxParam.Show, True)
             return
-    # get the filtered df
-    filtered_df = df.filter(pl.col("Checks") == value)
-
-    # now we need to hide all of the ids that were filtered out
-    filtered_button_ids = filtered_df["Edit"].to_list()
-    for wid in button_ids:
-        if wid not in filtered_button_ids:
-            update_widget(wid, IpgButtonParam.Show, False)
-        else:
-            # in case it was hidden by another filter
-            update_widget(wid, IpgButtonParam.Show, True)
     
-    # Since we don't have a list of ids in the df for the checkboxes,
-    # we use the values the list of list for the update.
-    # The above text discussed alternate ways.
+    # Filter body rows where the checks column (index 3) matches value
+    filtered_body = [row for row, chk in zip(original_body, checks) if chk == value]
+    
+    # Show/hide buttons and checkboxes
+    for i, wid in enumerate(button_ids):
+        if checks[i] == value:
+            update_widget(wid, IpgButtonParam.Show, True)
+        else:
+            update_widget(wid, IpgButtonParam.Show, False)
+    
     for id_tf in checkbox_ids:
         if id_tf[1] == value:
             update_widget(id_tf[0], IpgCheckboxParam.Show, True)
         else:
-            # in case it was hidden by another filter
-            update_widget(id_tf[0], IpgCheckboxParam.Show, False) 
+            update_widget(id_tf[0], IpgCheckboxParam.Show, False)
                
-    update_dataframe(table_id, IpgTableParam.PolarsDf, filtered_df)
+    update_widget(table_id, IpgTableParam.Body, filtered_body)
    
 
 
@@ -109,29 +83,29 @@ button_ids = [ generate_id() for _ in range(11) ]
 checkbox_ids = [ [generate_id(), random.choice([True, False])] for _ in range(11) ]
 checks = [ tup[1] for tup in checkbox_ids ]
 
+# Headers for the table columns (including control columns)
+headers = ["Edit", "str", "one", "Checks", "two", "three"]
 
-# The control column are "Edit" and "Toggler" in this case.
-# They can be any widget.  The only requirement for the DataFrame
-# is that the columns must be of equal length.  Therefore, we fill
-# them with zeroes.  You could fill them with gen_id for your widgets
-# and use them for the widgets if you need their ids in a callback.
-# However, the user_data works a bit easier for that but there may be 
-# a use case out there somewhere.
-data = {
-    "Edit": button_ids,
-    "str": ["H", "e", "l", "l", "o", " ", "W", "o", "r", "l", "d"],
-    "one": [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0],
-    "Checks": checks,
-    "two": [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22],
-    "three": [3, 6, 9, 12, 15, 18, 21, 24, 27, 30, 33],
-    }
-
-# Polars df is used for tables because it's very fast and efficient
-# usually you be filtering, sorting, and such so using the df makes 
-# it pretty easy to do.
-df = pl.DataFrame(data)
-df_width = df.width
-df_length = df.height
+# Body data: each row is a list of floats.
+# Control columns (Edit, Checks) use 0.0 as placeholder since
+# actual widgets are added separately.
+body = [
+    [0.0, 0.0, 1.0, 0.0, 2.0, 3.0],
+    [0.0, 0.0, 2.0, 0.0, 4.0, 6.0],
+    [0.0, 0.0, 3.0, 0.0, 6.0, 9.0],
+    [0.0, 0.0, 4.0, 0.0, 8.0, 12.0],
+    [0.0, 0.0, 5.0, 0.0, 10.0, 15.0],
+    [0.0, 0.0, 6.0, 0.0, 12.0, 18.0],
+    [0.0, 0.0, 7.0, 0.0, 14.0, 21.0],
+    [0.0, 0.0, 8.0, 0.0, 16.0, 24.0],
+    [0.0, 0.0, 9.0, 0.0, 18.0, 27.0],
+    [0.0, 0.0, 10.0, 0.0, 20.0, 30.0],
+    [0.0, 0.0, 11.0, 0.0, 22.0, 33.0],
+]
+original_body = [row[:] for row in body]  # keep a copy for filtering
+footers = [""] * 6
+df_width = len(headers)
+df_length = len(body)
 
 # Some styling for the widgets
 btn_style = add_button_style(border_radius=[10.0])
@@ -160,7 +134,9 @@ width = sum(column_widths)
 table_id = add_table(
         window_id="main",
         table_id="table",
-        polars_df=df,
+        headers=headers,
+        body=body,
+        footers=footers,
         parent_id="cont",
         column_widths=column_widths,
         height=150.0,
@@ -273,7 +249,7 @@ for i in range(df_width):
 # The footer ids are needed for the table footer update
 # which is just a text update.
 footer_ids = []
-column_three_sum = df["three"].sum()
+column_three_sum = sum(row[5] for row in body)
 footer = [""] * 6
 footer[5] = f"Sum={column_three_sum}"
 for i in range(df_width):

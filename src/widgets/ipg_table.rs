@@ -10,7 +10,7 @@ use crate::widgets::divider::{self, divider_horizontal};
 use crate::py_api::helpers::try_extract_vec_usize;
 use crate::widgets::widget_param_update::{
     WidgetParamUpdate, set_bool, set_f32, set_opt_f32, set_opt_usize,
-    set_vec_f32, set_opt_iced_color, set_iced_color_from_rgba,
+    set_vec_f32, set_vec_string, set_vec_vec_f32, set_opt_iced_color, set_iced_color_from_rgba,
 };
 use crate::IpgState;
 
@@ -21,8 +21,6 @@ use iced::Length::Fill;
 use iced::{Element, Renderer, Theme};
 use iced::widget::{column, container, Space, row, scrollable, stack, text};
 
-use polars::frame::DataFrame;
-
 use pyo3::{pyclass, Py, PyAny};
 type PyObject = Py<PyAny>;
 
@@ -30,7 +28,9 @@ type PyObject = Py<PyAny>;
 #[derive(Debug, Clone, Default)]
 pub struct IpgTable {
         pub id: usize,
-        pub df: DataFrame,
+        pub headers: Vec<String>,
+        pub body: Vec<Vec<f32>>,
+        pub footers: Vec<String>,
         pub column_widths: Vec<f32>,
         pub height: f32,
         // above required
@@ -132,10 +132,9 @@ impl IpgTable {
         };
 
         let mut body_rows = vec![];
-            for idx in 0..self.df.height() {
-                if let Ok(df_row) = self.df.get_row(idx) {
+            for idx in 0..self.body.len() {
                     let mut rw = vec![];
-                    for (i, item) in df_row.0.iter().enumerate() {
+                    for (i, item) in self.body[idx].iter().enumerate() {
                         let cell = if !self.control_columns.contains(&i) {
                                 let txt = 
                                     text(item.to_string())
@@ -165,7 +164,6 @@ impl IpgTable {
                     }
                 
                 body_rows.push(row(rw).into());
-                }
             }
 
             let body_column = column(body_rows)
@@ -222,10 +220,8 @@ impl IpgTable {
 
             // add the header if enabled
             if self.header_enabled {
-                let column_names = self.df.get_column_names_owned();
-                let header = column_names.iter().map(|s| s.to_string());
                 let mut rw = vec![];
-                for (i, hd) in header.into_iter().enumerate() {
+                for (i, hd) in self.headers.iter().enumerate() {
                         let txt = 
                             text(hd)
                             // .size(self.text_size.unwrap_or_default())
@@ -255,7 +251,7 @@ impl IpgTable {
             if self.custom_header_rows.is_some() {
                 for _ in 0..self.custom_header_rows.unwrap() {
                     let mut custom_rw = vec![];
-                    for i in 0..self.df.width() {
+                    for i in 0..self.column_widths.len() {
                         custom_rw.push(Element::from(
                             container(content.remove(0))
                                 .width(self.column_widths[i])
@@ -308,7 +304,7 @@ impl IpgTable {
                 let mut footer_column= vec![];
                 for _ in 0..self.custom_footer_rows.unwrap_or_default() {
                     let mut rw = vec![];
-                    for i in 0..self.df.width() {
+                    for i in 0..self.column_widths.len() {
                         rw.push(Element::from(
                             container(content.remove(0))
                                 .width(self.column_widths[i])
@@ -884,7 +880,9 @@ pub enum IpgTableStyleParam {
 #[derive(Debug, Clone, PartialEq)]
 #[pyclass(eq, eq_int)]
 pub enum IpgTableParam {
-    PolarsDf,
+    Headers,
+    Body,
+    Footers,
     ColumnWidths,
     Height,
     Width,
@@ -933,10 +931,9 @@ impl WidgetParamUpdate for IpgTable {
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
         match param {
-            IpgTableParam::PolarsDf => {
-                // Handled separately via table_dataframe_update
-                panic!("{name}: PolarsDf must be updated via table_dataframe_update");
-            }
+            IpgTableParam::Headers => set_vec_string(&mut self.headers, value, name),
+            IpgTableParam::Body => set_vec_vec_f32(&mut self.body, value, name),
+            IpgTableParam::Footers => set_vec_string(&mut self.footers, value, name),
             IpgTableParam::ColumnWidths => set_vec_f32(&mut self.column_widths, value, name),
             IpgTableParam::Height => set_f32(&mut self.height, value, name),
             IpgTableParam::Width => set_opt_f32(&mut self.width, value, name),

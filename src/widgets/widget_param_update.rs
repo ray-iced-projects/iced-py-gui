@@ -7,7 +7,7 @@ use pyo3::{Py, PyAny, Python};
 use crate::graphics::bootstrap_arrow::IpgArrow;
 use crate::graphics::colors::IpgColor;
 use crate::py_api::helpers::{
-    get_height, get_width, try_extract_boolean, try_extract_f32, try_extract_f32_array_2, try_extract_string, try_extract_style_standard, try_extract_u16, try_extract_u16_array_2, try_extract_u32, try_extract_usize, try_extract_vec_f32, try_extract_vec_str
+    get_height, get_width, try_extract_boolean, try_extract_f32, try_extract_f32_array_2, try_extract_string, try_extract_style_standard, try_extract_u16, try_extract_u16_array_2, try_extract_u32, try_extract_usize, try_extract_vec_f32, try_extract_vec_str, try_extract_vec_vec_f32
 };
 use crate::state::{IpgContainers, IpgWidgets};
 use crate::widgets::enums::{IpgAlignment, IpgAlignmentX, IpgShaping, IpgAlignmentY};
@@ -225,6 +225,10 @@ pub fn set_opt_vec_f32(field: &mut Option<Vec<f32>>, value: &PyObject, name: Str
 
 pub fn set_vec_f32(field: &mut Vec<f32>, value: &PyObject, name: String) {
     *field = try_extract_vec_f32(value, name);
+}
+
+pub fn set_vec_vec_f32(field: &mut Vec<Vec<f32>>, value: &PyObject, name: String) {
+    *field = try_extract_vec_vec_f32(value, name);
 }
 
 pub fn set_opt_u32(field: &mut Option<u32>, value: &PyObject, name: String) {

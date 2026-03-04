@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Any, Callable, List, Optional, Union, DataFrame, PyDataFrame
+from typing import Any, Callable, List, Optional, Union
 
 
 # ---------------------------------------------------------------------------
@@ -2839,7 +2839,9 @@ def add_svg(
 def add_table(
         window_id: str, 
         table_id: str, 
-        polars_df: DataFrame,
+        headers: list[str],
+        body: list[list[float]],
+        footers: list[str],
         column_widths: list[float],
         height: float,
         *,
@@ -2892,8 +2894,12 @@ def add_table(
             Id of the window to place container in.
         table_id: str
             The id of the container.
-        polars_df: DataFrame
-            data in polars dataframe format
+        headers: list[str]
+            Column header strings.
+        body: list[list[float]]
+            Table data as a list of rows, each row a list of floats.
+        footers: list[str]
+            Column footer strings.
         column_widths: list[float]
             Width of each column in table.
         height: float
@@ -4556,29 +4562,6 @@ def show_items(
         ids (List[tuple[int, bool]]):
             A list of the ids and they bool value to indicate either sgoe(True) or Hide(False).
     """
-    
-def update_dataframe(
-        wid: int, 
-        param: str, 
-        value: PyDataFrame,
-    ):
-    
-    """
-    Update a DataFrame example: update_dataframe(table_id, IpgTableParams.PolarsDf, my_df)
-    
-    Parameters
-    ----------
-    wid: int
-        The widget id of the widget to be updated.
-    param: class property
-        a class like for a table would be IpgTableParams
-    value: PyDataFrame 
-        Polars Dataframe  
-
-    Returns
-    -------
-    None
-    """
            
 def update_widget(
         wid: int, 
@@ -6090,8 +6073,12 @@ class IpgTableParam:
 
     Parameters
     ----------
-    Data: list[dict]
-        Table data in list of dictionaries form
+    Headers: list[str]
+        Column header strings.
+    Body: list[list[float]]
+        Table data as a list of rows, each row a list of floats.
+    Footers: list[str]
+        Column footer strings.
     Width: float
         Width of the table.
     Height: float
@@ -6127,7 +6114,9 @@ class IpgTableParam:
     Show: bool
         Whether to show or hide the widget.
     """
-    PolarsDf:PyDataFrame
+    Headers:list[str]
+    Body:list[list[float]]
+    Footers:list[str]
     Width:float
     Height:float
     HeaderEnabled:bool

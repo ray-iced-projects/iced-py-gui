@@ -1069,15 +1069,6 @@ fn process_updates(
     
     all_updates.shows = vec![];
 
-    // for DataFrame
-    // for ((wid, item, value)) in all_updates.dataframes.iter() {
-    //     match state.containers.get_mut(wid) {
-    //         Some(cnt) => {
-    //             match_container_for_df(cnt, item, value);
-    //         },
-    //         None => panic!("DataFrame_update: table with id {wid} not found.")
-    //     }
-    // }
     // Transfer any new widgets added during callbacks
     let mut mutex_state = access_state();
     if !mutex_state.widgets.is_empty() {

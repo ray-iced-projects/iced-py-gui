@@ -10,7 +10,6 @@ use iced::window;
 use iced::Theme;
 use once_cell::sync::Lazy;
 use pyo3::{Py, PyAny};
-use pyo3_polars::PyDataFrame;
 
 use crate::widgets::ipg_checkbox::{IpgCheckBox, IpgCheckboxStyle};
 use crate::widgets::ipg_color_picker::IpgColorPicker;
@@ -340,7 +339,6 @@ pub struct UpdateWidgets {
     // window_id, wid
     pub deletes: Vec<(String, usize)>,
     pub shows: Vec<(String, Vec<(usize, bool)>)>,
-    pub dataframes: Vec<(usize, PyObject, PyDataFrame)>, // PyDataFrame for polars
     pub new_widgets: Lazy<HashMap<usize, IpgWidgets>>,
 }
 
@@ -349,7 +347,6 @@ pub static UPDATE_WIDGETS: Mutex<UpdateWidgets> = Mutex::new(UpdateWidgets {
     moves: vec![],
     deletes: vec![],
     shows: vec![],
-    dataframes: vec![],
     new_widgets: Lazy::new(||HashMap::new()),
 });
 

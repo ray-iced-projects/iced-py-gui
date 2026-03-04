@@ -1,8 +1,6 @@
 
 
 use iced::Color;
-use polars::frame::DataFrame;
-use pyo3_polars::PyDataFrame;
 use pyo3::{Py, PyAny, PyResult, pyfunction};
 type PyObject = Py<PyAny>;
 
@@ -16,7 +14,9 @@ use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex,
 #[pyo3(signature = (
     window_id, 
     table_id, 
-    polars_df,
+    headers,
+    body,
+    footers,
     column_widths,
     height,
     parent_id=None,
@@ -63,7 +63,9 @@ use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex,
 pub fn add_table(
         window_id: String,
         table_id: String,
-        polars_df: PyDataFrame,
+        headers: Vec<String>,
+        body: Vec<Vec<f32>>,
+        footers: Vec<String>,
         column_widths: Vec<f32>,
         height: f32,
         // above required
@@ -117,8 +119,6 @@ pub fn add_table(
         None => window_id.clone(),
     };
 
-    let df: DataFrame = polars_df.into();
-    
     if let Some(py) = user_data {
         add_user_data_to_mutex(id, py);
     }
@@ -143,7 +143,9 @@ pub fn add_table(
     state.containers.insert(id, IpgContainers::IpgTable(
         IpgTable {
             id,
-            df,
+            headers,
+            body,
+            footers,
             column_widths,
             height,
             width,

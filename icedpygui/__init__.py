@@ -74,7 +74,6 @@ from .icedpygui import (
     IpgWindowMode, 
     IpgWindowTheme,
     start_session,
-    update_dataframe, 
     update_widget,
     generate_id,
 )

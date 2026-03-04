@@ -52,7 +52,7 @@ use crate::py_api::table::{add_table, add_table_style};
 use crate::py_api::text_input::{add_text_input, add_text_input_style};
 use crate::py_api::text::add_text;
 use crate::py_api::toggle::{add_toggler, add_toggler_style};
-use crate::py_api::update::{update_widget, update_dataframe};
+use crate::py_api::update::update_widget;
 
 use crate::widgets::ipg_radio::{IpgRadioDirection, IpgRadioParam, IpgRadioStyleParam};
 use crate::widgets::ipg_row::IpgRowParam;
@@ -120,7 +120,6 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(add_text_input, m)?)?;
     m.add_function(wrap_pyfunction!(add_toggler, m)?)?;
     m.add_function(wrap_pyfunction!(add_svg, m)?)?;
-    m.add_function(wrap_pyfunction!(update_dataframe, m)?)?;
     m.add_function(wrap_pyfunction!(update_widget, m)?)?;
     
     // styles

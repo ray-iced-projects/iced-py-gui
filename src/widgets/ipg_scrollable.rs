@@ -33,18 +33,10 @@ pub struct IpgScrollable {
     pub height: Length,
     pub scrollbar_x_id: Option<usize>,
     pub scrollbar_y_id: Option<usize>,
-    pub container_style_id: Option<usize>,
-    pub rail_x_style_id: Option<usize>,
-    pub rail_y_style_id: Option<usize>,
-    pub auto_scroll_style_id: Option<usize>,
-    pub gap_background_color: Option<Color>,
+    pub style_id: Option<usize>,
 }
 
 impl IpgScrollable {
-
-    fn lookup<'a>(&self, widgets: &'a HashMap<usize, IpgWidgets>, id: Option<usize>) -> Option<&'a IpgWidgets> {
-        id.and_then(|id| widgets.get(&id))
-    }
 
     pub fn construct<'a>(
         &'a self,
@@ -53,20 +45,6 @@ impl IpgScrollable {
         ) -> Element<'a, Message> {
 
         let mut ipg_style = IpgScrollableStyle::default();
-
-        ipg_style.container = self.lookup(widgets, self.container_style_id)
-            .and_then(IpgWidgets::as_container_style).cloned();
-        
-        ipg_style.horizontal_rail = self.lookup(widgets, self.rail_x_style_id)
-            .and_then(IpgWidgets::as_rail_style).cloned();
-        
-        ipg_style.vertical_rail = self.lookup(widgets, self.rail_y_style_id)
-            .and_then(IpgWidgets::as_rail_style).cloned();
-        
-        ipg_style.auto_scroll = self.lookup(widgets, self.auto_scroll_style_id)
-            .and_then(IpgWidgets::as_auto_scroll_style).cloned();
-
-        ipg_style.gap = self.gap_background_color;
 
         let content: Element<'a, Message> = Column::with_children(content).into();
 
@@ -279,13 +257,33 @@ pub struct IpgScrollableStyle {
 }
 
 impl IpgScrollableStyle {
+
+    fn lookup<'a>(&self, widgets: &'a HashMap<usize, IpgWidgets>, id: Option<usize>) -> Option<&'a IpgWidgets> {
+        id.and_then(|id| widgets.get(&id))
+    }
+
     pub fn set_style(
         &self, 
         theme: &Theme, 
         status: scrollable::Status,
+        scroller_style,
     ) -> scrollable::Style {
         
         let mut style = scrollable::default(theme, status);
+
+        self.container = self.lookup(widgets, self.container_style_id)
+            .and_then(IpgWidgets::as_container_style).cloned();
+        
+        self.horizontal_rail = self.lookup(widgets, self.rail_x_style_id)
+            .and_then(IpgWidgets::as_rail_style).cloned();
+        
+        self.vertical_rail = self.lookup(widgets, self.rail_y_style_id)
+            .and_then(IpgWidgets::as_rail_style).cloned();
+        
+        self.auto_scroll = self.lookup(widgets, self.auto_scroll_style_id)
+            .and_then(IpgWidgets::as_auto_scroll_style).cloned();
+
+        self.gap = self.gap_background_color;
 
         // Need default since iced doesn't default each one individually
         let mut def_h_rail = style.horizontal_rail;
@@ -530,7 +528,7 @@ impl IpgScrollableStyleConfig {
 
 #[derive(Debug, Clone, PartialEq)]
 #[pyclass(eq, eq_int)]
-pub enum IpgScrollableStyleConfigParam {
+pub enum IpgScrollableStyleParam {
     ContainerStyleId,
     RailXStyleId,
     RailYStyleId,
@@ -540,21 +538,21 @@ pub enum IpgScrollableStyleConfigParam {
 }
 
 impl WidgetParamUpdate for IpgScrollableStyleConfig {
-    type Param = IpgScrollableStyleConfigParam;
+    type Param = IpgScrollableStyleParam;
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
         match param {
-            IpgScrollableStyleConfigParam::ContainerStyleId =>
+            IpgScrollableStyleParam::ContainerStyleId =>
                 set_opt_usize(&mut self.container_style_id, value, name),
-            IpgScrollableStyleConfigParam::RailXStyleId =>
+            IpgScrollableStyleParam::RailXStyleId =>
                 set_opt_usize(&mut self.rail_x_style_id, value, name),
-            IpgScrollableStyleConfigParam::RailYStyleId =>
+            IpgScrollableStyleParam::RailYStyleId =>
                 set_opt_usize(&mut self.rail_y_style_id, value, name),
-            IpgScrollableStyleConfigParam::AutoScrollStyleId =>
+            IpgScrollableStyleParam::AutoScrollStyleId =>
                 set_opt_usize(&mut self.auto_scroll_style_id, value, name),
-            IpgScrollableStyleConfigParam::GapBackgroundColor =>
+            IpgScrollableStyleParam::GapBackgroundColor =>
                 set_opt_iced_color(&mut self.gap, value, name),
-            IpgScrollableStyleConfigParam::GapBackgroundRgba =>
+            IpgScrollableStyleParam::GapBackgroundRgba =>
                 set_iced_color_from_rgba(&mut self.gap, value, name),
         }
     }

@@ -26,12 +26,7 @@ type PyObject = Py<PyAny>;
     scrollbar_y_id=None,
     on_scroll=None, 
     user_data=None,
-    container_style_id=None,
-    rail_x_style_id=None,
-    rail_y_style_id=None,
-    auto_scroll_style_id=None,
-    gap_background_color=None,
-    gap_background_rgba=None,
+    style_id=None,
     ))]
 pub fn add_scrollable(
     window_id: String,
@@ -46,18 +41,10 @@ pub fn add_scrollable(
     scrollbar_y_id: Option<usize>,
     on_scroll: Option<PyObject>,
     user_data: Option<PyObject>,
-    container_style_id: Option<usize>,
-    rail_x_style_id: Option<usize>,
-    rail_y_style_id: Option<usize>,
-    auto_scroll_style_id: Option<usize>,
-    gap_background_color: Option<IpgColor>,
-    gap_background_rgba: Option<[f32; 4]>,
+    style_id: Option<usize>,
     ) -> PyResult<usize>
 {
     let id = get_id(None);
-
-    let gap_background_color = 
-        IpgColor::rgba_ipg_color_to_iced(gap_background_rgba, gap_background_color, 1.0, false);
 
     if let Some(py) = on_scroll {
         add_callback_to_mutex(id, "on_scroll".to_string(), py);
@@ -88,11 +75,7 @@ pub fn add_scrollable(
             height,
             scrollbar_x_id,
             scrollbar_y_id,
-            container_style_id,
-            rail_x_style_id,
-            rail_y_style_id,
-            auto_scroll_style_id,
-            gap_background_color,
+            style_id,
         }));
 
     drop(state);

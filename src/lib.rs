@@ -57,7 +57,7 @@ use crate::py_api::update::update_widget;
 use crate::widgets::ipg_radio::{IpgRadioDirection, IpgRadioParam, IpgRadioStyleParam};
 use crate::widgets::ipg_row::IpgRowParam;
 use crate::widgets::ipg_rule::{IpgRuleParam, IpgRuleStyleParam};
-use crate::widgets::ipg_scrollable::{IpgScrollableParam, IpgScrollableStyleConfigParam,
+use crate::widgets::ipg_scrollable::{IpgScrollableParam, IpgScrollableStyleParam,
     IpgRailStyleParam, IpgScrollbarParam, IpgAutoScrollStyleParam};
 use crate::widgets::ipg_selectable_text::IpgSelectableTextParam;
 use crate::widgets::ipg_separator::{IpgSeparatorParam, IpgSeparatorStyleParam, IpgSeparatorType};
@@ -155,7 +155,7 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<IpgSeparatorStyleParam>()?;
     m.add_class::<IpgAutoScrollStyleParam>()?;
     m.add_class::<IpgRailStyleParam>()?;
-    m.add_class::<IpgScrollableStyleConfigParam>()?;
+    m.add_class::<IpgScrollableStyleParam>()?;
     m.add_class::<IpgSliderStyleParam>()?;
     m.add_class::<IpgStackParam>()?;
     m.add_class::<IpgStyleStandard>()?;

@@ -13,25 +13,31 @@ from imports import *
     gap_background_color,
     gap_background_rgba,
     
-    The container styling used the
-    add_container_styling
-    Both rails are styled using
-    add_rail_styling
-    The auto scroll is styled using
-    add_auto_scroll_styling
-    The gap styling is just equated to
-    a color or rgba type.
+    The container styling used the - add_container_style
+    Both rails are styled using - add_rail_style
+    The auto scroll is styled using - add_auto_scroll_style
+    The gap styling is just equated to a color or rgba type.
 '''
 
-# Obtain an id from each type of style
+# Create an id from each type of style or parameter
 cont_id = add_container_style(
-            background_color=IpgColor.BLUE,
-            border_color=IpgColor.AQUA,
-            border_width=3.0,
-            border_radius=[5.0])
+            background_color=IpgColor.DARK_GREEN)
 
+rail_x = add_rail_style (
+            background_color=IpgColor.GREEN)
 
-scr_style = add_scrollable_style(container_style_id=cont_id,)
+# If any parameters are needed for a scroller, then the
+# scroller parameter widget is needed
+scroller_y = add_scroller_param(
+                width=20.0,  # default=10.0
+                margin=5.0, # default=0.0
+            )
+
+# Add the style ids to the scrollable style
+scr_style = add_scrollable_style(
+    container_style_id=cont_id,
+    vertical_rail_style_id=rail_x,
+    )
 
 
 with Window(id="main", title="Scrollable", center=True):
@@ -46,8 +52,8 @@ with Window(id="main", title="Scrollable", center=True):
                 id="scroll_y", 
                 width=200.0, 
                 height=100.0,
-                
-                style_id=scr_style,
+                style_id=scr_style,         # add the scrollable style
+                scroller_y_id=scroller_y,   # add the scroller parameters, if none, defaults to vertical, unless hidden
             )
 
             txt = ("This is Some Text \n")*20

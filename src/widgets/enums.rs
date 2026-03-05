@@ -84,7 +84,7 @@ impl IpgAlignmentX {
             let res = value.extract::<IpgAlignmentX>(py);
             match res {
                 Ok(val) => Some(val),
-                Err(_) => panic!("Unable to extract python IpgHorizontalAlignment"),
+                Err(_) => panic!("Unable to extract python IpgAlignmentX"),
             }
         })  
     }

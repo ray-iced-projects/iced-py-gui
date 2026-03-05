@@ -31,8 +31,9 @@ pub struct IpgScrollable {
     pub id: usize,
     pub width: Length,
     pub height: Length,
-    pub scrollbar_x_id: Option<usize>,
-    pub scrollbar_y_id: Option<usize>,
+    pub both_scrollers: Option<bool>,
+    pub scroller_x_id: Option<usize>,
+    pub scroller_y_id: Option<usize>,
     pub style_id: Option<usize>,
 }
 
@@ -53,25 +54,33 @@ impl IpgScrollable {
 
         let content: Element<'a, Message> = Column::with_children(content).into();
 
-        let sb_x_opt = self.lookup(widgets, self.scrollbar_x_id);
-        let sb_y_opt = self.lookup(widgets, self.scrollbar_y_id);
+        let sb_x_opt = self.lookup(widgets, self.scroller_x_id);
+        let sb_y_opt = self.lookup(widgets, self.scroller_y_id);
         
         let direction = 
             match (sb_x_opt.is_some(), sb_y_opt.is_some()) {
                 (true, true) => {
-                    let ipg_sb_x = sb_x_opt.and_then(IpgWidgets::as_scrollbar).cloned().unwrap_or_default();
-                    let ipg_sb_y = sb_y_opt.and_then(IpgWidgets::as_scrollbar).cloned().unwrap_or_default();
+                    let ipg_sb_x = sb_x_opt.and_then(IpgWidgets::as_scroller).cloned().unwrap_or_default();
+                    let ipg_sb_y = sb_y_opt.and_then(IpgWidgets::as_scroller).cloned().unwrap_or_default();
                     Direction::Both { vertical: ipg_sb_y.construct(), horizontal: ipg_sb_x.construct() }
                 },
                 (true, false) => {
-                    let ipg_sb = sb_x_opt.and_then(IpgWidgets::as_scrollbar).cloned().unwrap_or_default();
-                    Direction::Horizontal(ipg_sb.construct())
+                    let ipg_sb = sb_x_opt.and_then(IpgWidgets::as_scroller).cloned().unwrap_or_default();
+                    if self.both_scrollers == Some(true) {
+                        Direction::Both { vertical: Scrollbar::default(), horizontal: ipg_sb.construct() }
+                    } else { Direction::Horizontal(ipg_sb.construct()) }
                 },
                 (false, true) => {
-                    let ipg_sb = sb_y_opt.and_then(IpgWidgets::as_scrollbar).cloned().unwrap_or_default();
-                    Direction::Vertical(ipg_sb.construct())
+                    let ipg_sb = sb_y_opt.and_then(IpgWidgets::as_scroller).cloned().unwrap_or_default();
+                    if self.both_scrollers == Some(true) {
+                            Direction::Both { vertical: ipg_sb.construct(), horizontal: Scrollbar::default() }
+                        } else { Direction::Vertical(ipg_sb.construct()) }
                 },
-                (false, false) => Direction::Vertical(Scrollbar::default()),
+                (false, false) => {
+                    if self.both_scrollers == Some(true) {
+                        Direction::Both { vertical: Scrollbar::default(), horizontal: Scrollbar::default() }
+                    } else { Direction::Vertical(Scrollbar::default()) }
+                },
             };
 
         Scrollable::with_direction(content, direction)
@@ -120,7 +129,7 @@ impl IpgScrollableStyle {
 
         let ipg_container_style = self.lookup(widgets, self.container_style_id)
             .and_then(IpgWidgets::as_container_style).cloned();
-        
+
         let ipg_h_rail_style = self.lookup(widgets, self.horizontal_rail_style_id)
             .and_then(IpgWidgets::as_rail_style).cloned();
         
@@ -129,7 +138,6 @@ impl IpgScrollableStyle {
         
         let ipg_auto_scroll_style = self.lookup(widgets, self.auto_scroll_style_id)
             .and_then(IpgWidgets::as_auto_scroll_style).cloned();
-
 
         // Need default since iced doesn't default each one individually
         let mut def_h_rail = style.horizontal_rail;
@@ -166,7 +174,7 @@ impl IpgScrollableStyle {
 }
 
 #[derive(Debug, Default, Clone)]
-pub struct IpgScrollbar {
+pub struct IpgScroller {
     pub id: usize,
     pub width: Option<f32>,
     pub margin: Option<f32>,
@@ -176,35 +184,33 @@ pub struct IpgScrollbar {
     pub hidden: Option<bool>,
 }
 
-impl IpgScrollbar {
+impl IpgScroller {
     pub fn construct(&self) -> Scrollbar {
-        
-        let sb = Scrollbar::default();
 
-        if let Some(w) = self.width {
-            sb.width(w);
-        }
+        let mut sb = Scrollbar::default();
 
-        if let Some(m) = self.margin {
-            sb.margin(m);
-        }
+        sb = if let Some(w) = self.width {
+                sb.width(w)
+            } else { sb };
 
-        if let Some(sw) = self.scroller_width {
-            sb.scroller_width(sw);
-        }
+        sb = if let Some(m) = self.margin {
+                sb.margin(m)
+            } else { sb };
 
-        if let Some(an) = &self.anchor {
-            sb.anchor(an.to_iced());
-        }
+        sb = if let Some(sw) = self.scroller_width {
+                sb.scroller_width(sw)
+            } else { sb };
 
-        if let Some(sp) = self.spacing {
-            sb.spacing(sp);
-        }
+        sb = if let Some(an) = &self.anchor {
+                sb.anchor(an.to_iced())
+            } else { sb };
 
-        if let Some(hd) = self.hidden {
-            if hd {
-                sb.width(0).scroller_width(0);
-            }
+        sb = if let Some(sp) = self.spacing {
+                sb.spacing(sp)
+            } else { sb };
+
+        if self.hidden == Some(true) {
+            sb = sb.width(0).scroller_width(0);
         }
 
         sb
@@ -307,8 +313,8 @@ let ud1 = access_user_data1();
 #[pyclass(eq, eq_int)]
 pub enum IpgScrollableParam {
     Height,
-    ScrollbarXId,
-    ScrollbarYId,
+    ScrollerXId,
+    ScrollerYId,
     StyleId,
     Width,
 }
@@ -317,7 +323,7 @@ pub enum IpgScrollableParam {
 
 #[derive(Debug, Clone, PartialEq)]
 #[pyclass(eq, eq_int)]
-pub enum IpgScrollbarParam {
+pub enum IpgScrollerParam {
     Anchor,
     Hidden,
     Margin,
@@ -334,6 +340,11 @@ pub struct IpgRailStyle {
     pub border_color: Option<Color>,
     pub border_width: Option<f32>,
     pub border_radius: Option<Vec<f32>>,
+    pub scroller_background: Option<Color>,
+    pub scroller_border_color: Option<Color>,
+    pub scroller_border_width: Option<f32>,
+    pub scroller_border_radius: Option<Vec<f32>>,
+    
 }
 
 impl IpgRailStyle {
@@ -346,6 +357,15 @@ impl IpgRailStyle {
         apply_border_overrides(
             &mut rail.border, self.border_color,
             &self.border_radius, self.border_width, self.type_name(),
+        );
+
+        if let Some(color) = self.scroller_background {
+            rail.scroller.background = color.into();
+        }
+
+        apply_border_overrides(
+            &mut rail.scroller.border, self.scroller_border_color,
+            &self.scroller_border_radius, self.scroller_border_width, self.type_name(),
         );
 
         *rail
@@ -449,8 +469,8 @@ impl WidgetParamUpdate for IpgScrollable {
     fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
         match param {
             IpgScrollableParam::Height => set_height(&mut self.height, value, name),
-            IpgScrollableParam::ScrollbarXId => set_opt_usize(&mut self.scrollbar_x_id, value, name),
-            IpgScrollableParam::ScrollbarYId => set_opt_usize(&mut self.scrollbar_y_id, value, name),
+            IpgScrollableParam::ScrollerXId => set_opt_usize(&mut self.scroller_x_id, value, name),
+            IpgScrollableParam::ScrollerYId => set_opt_usize(&mut self.scroller_y_id, value, name),
             IpgScrollableParam::StyleId => set_opt_usize(&mut self.style_id, value, name),
             IpgScrollableParam::Width => set_width(&mut self.width, value, name),
         }
@@ -473,17 +493,17 @@ impl WidgetParamUpdate for IpgScrollableStyle {
     }
 }
 
-impl WidgetParamUpdate for IpgScrollbar {
-    type Param = IpgScrollbarParam;
+impl WidgetParamUpdate for IpgScroller {
+    type Param = IpgScrollerParam;
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
         match param {
-            IpgScrollbarParam::Anchor => self.anchor = IpgAnchor::extract(value),
-            IpgScrollbarParam::Hidden => set_opt_bool(&mut self.hidden, value, name),
-            IpgScrollbarParam::Margin => set_opt_f32(&mut self.margin, value, name),
-            IpgScrollbarParam::ScrollerWidth => set_opt_f32(&mut self.scroller_width, value, name),
-            IpgScrollbarParam::Spacing => set_opt_f32(&mut self.spacing, value, name),
-            IpgScrollbarParam::Width => set_opt_f32(&mut self.width, value, name),
+            IpgScrollerParam::Anchor => self.anchor = IpgAnchor::extract(value),
+            IpgScrollerParam::Hidden => set_opt_bool(&mut self.hidden, value, name),
+            IpgScrollerParam::Margin => set_opt_f32(&mut self.margin, value, name),
+            IpgScrollerParam::ScrollerWidth => set_opt_f32(&mut self.scroller_width, value, name),
+            IpgScrollerParam::Spacing => set_opt_f32(&mut self.spacing, value, name),
+            IpgScrollerParam::Width => set_opt_f32(&mut self.width, value, name),
         }
     }
 }

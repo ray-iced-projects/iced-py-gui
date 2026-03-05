@@ -1,5 +1,8 @@
 from imports import *
 
+# The button demo add a new button to the window when the first
+# button is pressed.  You can dynamically add any widget through a callback
+
 count = 0
 def on_press(btn_id, user_data: int):
     global count

@@ -18,7 +18,7 @@ from .icedpygui import (
     add_row as _add_row,
     add_scrollable as _add_scrollable,
     add_scrollable_style,
-    add_scrollbar,
+    add_scroller_param,
     add_autoscroll_style,
     add_rail_style,
     add_selectable_text as _add_selectable_text,
@@ -29,10 +29,11 @@ from .icedpygui import (
     add_space as _add_space,
     add_stack as _add_stack,
     add_table as _add_table,
-    add_table_style,
     add_text_input as _add_text_input,
     add_text_input_style,
     add_text as _add_text,
+    add_toggler as _add_toggler,
+    add_toggler_style,
     add_window as _add_window,
     IpgAlignment,
     IpgAlignmentX, 
@@ -58,7 +59,7 @@ from .icedpygui import (
     IpgRowParam,
     IpgScrollableParam,
     IpgScrollableStyleParam,
-    IpgScrollbarParam,
+    IpgScrollerParam,
     IpgSelectableTextParam,
     IpgSeparatorParam,
     IpgSeparatorType,
@@ -68,9 +69,10 @@ from .icedpygui import (
     IpgStackParam,
     IpgStyleStandard,
     IpgTableParam,
-    IpgTableStyleParam,
     IpgTextInputParam,
     IpgTextParam,
+    IpgTogglerParam,
+    IpgTogglerStyleParam,
     IpgAlignmentY,
     IpgWindowLevel, 
     IpgWindowMode, 
@@ -129,6 +131,7 @@ add_slider = _wrap_widget(_add_slider, "add_slider")
 add_space = _wrap_widget(_add_space, "add_space")
 add_text_input = _wrap_widget(_add_text_input, "add_text_input")
 add_text = _wrap_widget(_add_text, "add_text")
+add_toggler = _wrap_widget(_add_toggler, "add_toggler")
 
 
 def _wrap_container(rust_fn, name):

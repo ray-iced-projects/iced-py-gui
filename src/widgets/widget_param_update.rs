@@ -93,7 +93,7 @@ pub fn param_update(
         IpgWidgets::IpgTogglerStyle(w) => apply_update(w, item, value, name),
         IpgWidgets::IpgSvg(w) => apply_update(w, item, value, name),
         IpgWidgets::IpgScrollableStyle(w) => apply_update(w, item, value, name),
-        IpgWidgets::IpgScrollbar(w) => apply_update(w, item, value, name),
+        IpgWidgets::IpgScroller(w) => apply_update(w, item, value, name),
         IpgWidgets::IpgRailStyle(w) => apply_update(w, item, value, name),
         IpgWidgets::IpgAutoScrollStyle(w) => apply_update(w, item, value, name),
         IpgWidgets::IpgTextInput(w) => apply_update(w, item, value, name),

@@ -29,7 +29,7 @@ use crate::widgets::ipg_radio::{IpgRadio, IpgRadioStyle};
 use crate::widgets::ipg_row::IpgRow;
 use crate::widgets::ipg_rule::{IpgRule, IpgRuleStyle};
 use crate::widgets::ipg_scrollable::{IpgAutoScrollStyle, IpgRailStyle, 
-    IpgScrollable, IpgScrollableStyle, IpgScrollbar};
+    IpgScrollable, IpgScrollableStyle, IpgScroller};
 use crate::widgets::ipg_selectable_text::IpgSelectableText;
 use crate::widgets::ipg_separator::{IpgSeparator, IpgSeparatorStyle};
 use crate::widgets::ipg_slider::{IpgSlider, IpgSliderStyle};
@@ -96,7 +96,7 @@ pub enum IpgWidgets {
     IpgRule(IpgRule),
     IpgRuleStyle(IpgRuleStyle),
     IpgScrollableStyle(IpgScrollableStyle),
-    IpgScrollbar(IpgScrollbar),
+    IpgScroller(IpgScroller),
     IpgRailStyle(IpgRailStyle),
     IpgAutoScrollStyle(IpgAutoScrollStyle),
     IpgSelectableText(IpgSelectableText),
@@ -169,7 +169,7 @@ ipg_widget_accessors! {
     IpgRadioStyle       => IpgRadioStyle,        as_radio_style,         as_radio_style_mut;
     IpgRule             => IpgRule,              as_rule,                as_rule_mut;
     IpgRuleStyle        => IpgRuleStyle,         as_rule_style,          as_rule_style_mut;
-    IpgScrollbar        => IpgScrollbar,         as_scrollbar,           as_scrollbar_mut;
+    IpgScroller         => IpgScroller,          as_scroller,            as_scroller_mut;
     IpgScrollableStyle  => IpgScrollableStyle,   as_scrollable_style,    as_scrollable_style_mut;
     IpgRailStyle        => IpgRailStyle,         as_rail_style,          as_rail_style_mut;
     IpgAutoScrollStyle  => IpgAutoScrollStyle,   as_auto_scroll_style,   as_auto_scroll_style_mut;

@@ -8,7 +8,7 @@ use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex,
     graphics::colors::IpgColor, py_api::helpers::{get_height, get_width}, 
     state::{IpgContainers, IpgWidgets, get_id, set_state_cont_wnd_ids, 
         set_state_of_container}, widgets::{ipg_container::IpgContainerStyleStd, ipg_scrollable::{
-            IpgAnchor, IpgAutoScrollStyle, IpgRailStyle, IpgScrollable, IpgScrollableStyle, IpgScrollbar}}};
+            IpgAnchor, IpgAutoScrollStyle, IpgRailStyle, IpgScrollable, IpgScrollableStyle, IpgScroller}}};
 type PyObject = Py<PyAny>;
 
 
@@ -21,8 +21,9 @@ type PyObject = Py<PyAny>;
     width_fill=false, 
     height=None, 
     height_fill=false,
-    scrollbar_x_id=None,
-    scrollbar_y_id=None,
+    both_scrollers=None,
+    scroller_x_id=None,
+    scroller_y_id=None,
     on_scroll=None, 
     user_data=None,
     style_id=None,
@@ -36,8 +37,9 @@ pub fn add_scrollable(
     width_fill: bool,
     height: Option<f32>,
     height_fill: bool,
-    scrollbar_x_id: Option<usize>,
-    scrollbar_y_id: Option<usize>,
+    both_scrollers: Option<bool>,
+    scroller_x_id: Option<usize>,
+    scroller_y_id: Option<usize>,
     on_scroll: Option<PyObject>,
     user_data: Option<PyObject>,
     style_id: Option<usize>,
@@ -72,8 +74,9 @@ pub fn add_scrollable(
             id,
             width,
             height,
-            scrollbar_x_id,
-            scrollbar_y_id,
+            both_scrollers,
+            scroller_x_id,
+            scroller_y_id,
             style_id,
         }));
 
@@ -135,7 +138,7 @@ pub fn add_scrollable_style(
     hidden=None,
     gen_id=None,
     ))]
-pub fn add_scrollbar (
+pub fn add_scroller_param (
     width: Option<f32>,
     margin: Option<f32>,
     scroller_width: Option<f32>,
@@ -150,8 +153,8 @@ pub fn add_scrollbar (
 
     let mut state = access_state();
 
-    state.widgets.insert(id, IpgWidgets::IpgScrollbar (
-        IpgScrollbar {
+    state.widgets.insert(id, IpgWidgets::IpgScroller (
+        IpgScroller {
         id,
         width,
         margin,
@@ -174,6 +177,12 @@ pub fn add_scrollbar (
     border_rgba=None,
     border_width=None,
     border_radius=None,
+    scroller_background_color=None,
+    scroller_background_rgba=None,
+    scroller_border_color=None,
+    scroller_border_rgba=None,
+    scroller_border_width=None,
+    scroller_border_radius=None,
     gen_id=None
     ))]
 pub fn add_rail_style(
@@ -183,6 +192,12 @@ pub fn add_rail_style(
     border_rgba: Option<[f32; 4]>,
     border_width: Option<f32>,
     border_radius: Option<Vec<f32>>,
+    scroller_background_color: Option<IpgColor>,
+    scroller_background_rgba: Option<[f32; 4]>,
+    scroller_border_color: Option<IpgColor>,
+    scroller_border_rgba: Option<[f32; 4]>,
+    scroller_border_width: Option<f32>,
+    scroller_border_radius: Option<Vec<f32>>,
     gen_id: Option<usize>,
     ) -> PyResult<usize>
 {
@@ -192,6 +207,11 @@ pub fn add_rail_style(
         IpgColor::rgba_ipg_color_to_iced(background_rgba, background_color, 1.0, false);
     let border_color: Option<Color> = 
         IpgColor::rgba_ipg_color_to_iced(border_rgba, border_color, 1.0, false);
+
+    let scroller_background: Option<Color> = 
+        IpgColor::rgba_ipg_color_to_iced(scroller_background_rgba, scroller_background_color, 1.0, false);
+    let scroller_border_color: Option<Color> = 
+        IpgColor::rgba_ipg_color_to_iced(scroller_border_rgba, scroller_border_color, 1.0, false);
     
     let mut state = access_state();
 
@@ -202,6 +222,10 @@ pub fn add_rail_style(
             border_color,
             border_width,
             border_radius,
+            scroller_background,
+            scroller_border_color,
+            scroller_border_width,
+            scroller_border_radius,
         }));
 
     drop(state);

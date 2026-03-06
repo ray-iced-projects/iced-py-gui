@@ -77,27 +77,34 @@ impl IpgButton {
                 text(label.clone())
             };
 
-        let txt = 
-            if let Some(align) = &self.text_align_x {
-                txt.align_x(align.to_iced())
-            } else {txt};
+        let txt = match &self.text_align_x {
+            Some(align) => txt.align_x(align.to_iced()),
+            None if self.text_center => txt.align_x(iced::alignment::Horizontal::Center),
+            None => txt,
+        };
 
-        let txt = 
-            if let Some(align) = &self.text_align_y {
-                txt.align_y(align.to_iced())
-            } else {txt};
+        let txt = match &self.text_align_y {
+            Some(align) => txt.align_y(align.to_iced()),
+            None if self.text_center => txt.align_y(iced::alignment::Vertical::Center),
+            None => txt,
+        };
         
         let txt = 
             if let Some(size) = self.text_size {
                 txt.size(size)
             } else {txt};
-        
-        let btn=
+
+        let txt = if self.clip == Some(true) {
+            txt.wrapping(text::Wrapping::None)
+        } else { txt };
+
+        let btn: Element<'_, BtnMessage>=
             Button::new(txt)
                 .padding(get_padding(&self.padding))
                 .on_press(BtnMessage::OnPress)
                 .width(self.width)
                 .height(self.height)
+                .clip(self.clip.unwrap_or(false))
                 .style(move |theme: &Theme, status| {
                     if let Some(st) = &style_opt {
                         st.to_iced(theme, status, &self.style_std)
@@ -108,12 +115,7 @@ impl IpgButton {
                         }
                     }
                 }
-            );
-
-        let btn: Element<'_, BtnMessage> = 
-            if let Some(cp) = self.clip {
-                btn.clip(cp).into()
-            } else { btn.into() };
+            ).into();
 
         Some(btn.map(move |message| Message::Button(self.id, message)))
 
@@ -287,6 +289,7 @@ pub enum IpgButtonParam {
     StyleStandard,
     TextAlignX,
     TextAlignY,
+    TextCenter,
     TextSize,
     Width,
     WidthFill,
@@ -350,6 +353,7 @@ impl WidgetParamUpdate for IpgButton {
             },
             IpgButtonParam::TextAlignX => set_halign(&mut self.text_align_x, value, name),
             IpgButtonParam::TextAlignY => set_valign(&mut self.text_align_y, value, name),
+            IpgButtonParam::TextCenter => set_bool(&mut self.text_center, value, name),
             IpgButtonParam::TextSize => set_opt_f32(&mut self.text_size, value, name),
             IpgButtonParam::Width => set_width(&mut self.width, value, name),
             IpgButtonParam::WidthFill => set_width_fill(&mut self.width, value, name),

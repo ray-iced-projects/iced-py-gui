@@ -1,17 +1,6 @@
 from imports import *
 
 
-# A button demo for styling the buttons and using a simple callback
-# In ths demo, the container were carefully aligned so that each button
-# would go into the right window and container.  Not something you would
-# usually do.  In many cases, you would have different subroutines
-# that would add the various widgets.  Sometimes when subs are used, the 
-# preceding container/window id might not be carried through so take
-# a look at the container examples to see how this works.
-
-def on_press(btn_id):
-    print("button pressed")
-
 def add_buttons(window: str):
     # Add a container to hold everything aligning all in the center
     with Container(window_id=window, 

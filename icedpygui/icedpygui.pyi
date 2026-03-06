@@ -5011,7 +5011,7 @@ class IpgContainerStyleParam:
     TextIpgColor:IpgColor
     TextRgbaColor:list[float, 4]
     
-class IpgContainerStyleStd
+class IpgContainerStyleStd:
     BorderedBox='',
     Danger='',
     Dark='',

@@ -347,4 +347,42 @@ class Stack:
     def __exit__(self, exc_type, exc_val, exc_tb):
         _parent_stack.pop()
         return False
+
+
+class Scrollable:
+    """Context manager wrapper around add_scrollable.
+
+    Usage (reads window_id from Window context)::
+
+        with Window(title="Demo") as wnd_id:
+            with Scrollable(id="scroll", width=200.0, height=100.0) as scr_id:
+                add_text(content="long text...")
+
+    Usage with explicit ids::
+
+        with Scrollable(id="scroll", window_id="main", width=200.0, height=100.0):
+            add_text(parent_id="scroll", content="long text...")
+    """
+
+    def __init__(self, id=None, *, window_id=None, parent_id=None, **kwargs):
+        self.window_id = window_id if window_id is not None else _current_window()
+        if self.window_id is None:
+            raise ValueError("Scrollable: window_id is required (either pass it or use a Window context manager)")
+        self.container_id = id if id is not None else str(generate_id())
+        self.parent_id = parent_id
+        self.kwargs = kwargs
+
+    def __enter__(self):
+        _add_scrollable(
+            window_id=self.window_id,
+            container_id=self.container_id,
+            parent_id=self.parent_id or _current_parent(),
+            **self.kwargs,
+        )
+        _parent_stack.append(self.container_id)
+        return self.container_id
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        _parent_stack.pop()
+        return False
     

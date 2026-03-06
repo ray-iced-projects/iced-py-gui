@@ -14,7 +14,7 @@ use pyo3::{Py, PyAny};
 
 use crate::app::Message;
 use crate::py_api::helpers::get_padding;
-use crate::widgets::enums::IpgAlignmentX;
+use crate::widgets::enums::AlignX;
 use crate::widgets::styling::create_custom_theme;
 use crate::{IpgState};
 use crate::state::IpgWidgets;
@@ -39,7 +39,7 @@ pub struct IpgTextInput {
     pub padding: Option<Vec<f32>>,
     pub size: Option<f32>,
     pub line_height: Option<f32>,
-    pub align_x: Option<IpgAlignmentX>,
+    pub align_x: Option<AlignX>,
     // icon: Option<Message>,
     pub font_id: Option<usize>,
     pub style_id: Option<usize>,

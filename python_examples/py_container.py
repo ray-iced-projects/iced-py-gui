@@ -4,12 +4,12 @@ def change_alignment(btn_id):
     update_widget(
             wid=cont2, 
             param=IpgContainerParam.AlignX, 
-            value=IpgAlignmentX.Left)
+            value=AlignX.Left)
     
     update_widget(
             wid=cont2, 
             param=IpgContainerParam.AlignY, 
-            value=IpgAlignmentY.Top)
+            value=AlignY.Top)
     
     
 # Moves the text to the center position

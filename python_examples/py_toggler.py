@@ -38,7 +38,7 @@ def update_alignment(_btn_id):
     update_widget(
         tog_id, 
         IpgTogglerParam.TextAlignment, 
-        IpgAlignmentX.Left)
+        AlignX.Left)
 
 
 def update_size(_btn_id):
@@ -102,7 +102,7 @@ with Window(
                 on_press=update_label)
 
             add_button(
-                text_align_x=IpgAlignmentX,
+                text_align_x=AlignX,
                 label="Update Width\n the width will shrink stacking the label",
                 on_press=update_width)
 

@@ -67,16 +67,16 @@ use crate::widgets::ipg_text_input::{IpgTextInputParam, IpgTextInputStyleParam};
 use crate::widgets::ipg_toggle::{IpgTogglerParam, IpgTogglerStyleParam};
 
 // Import enums from widgets module
-use widgets::enums::{IpgAlignment, IpgAlignmentX, IpgAlignmentY};
+use widgets::enums::{IpgAlignment, AlignX, AlignY};
 use widgets::ipg_window::{IpgWindowLevel, IpgWindowMode, IpgWindowTheme};
 use widgets::styling::IpgStyleStandard;
 
 use crate::graphics::{bootstrap_icon::IpgIcon, bootstrap_arrow::IpgArrow};
 use crate::graphics::colors::IpgColor;
-use crate::widgets::ipg_button::{IpgButtonParam, IpgButtonStyleParam, IpgButtonStyleStandard};
+use crate::widgets::ipg_button::{IpgButtonParam, IpgButtonStyleParam, IpgButtonStyleStd};
 use crate::widgets::ipg_checkbox::{IpgCheckboxParam, IpgCheckboxStyleParam};
 use crate::widgets::ipg_column::IpgColumnParam;
-use crate::widgets::ipg_container::{IpgContainerParam, IpgContainerStyleParam};
+use crate::widgets::ipg_container::{IpgContainerParam, IpgContainerStyleParam, IpgContainerStyleStd};
 use crate::widgets::ipg_date_picker::IpgDatePickerParam;
 use crate::widgets::ipg_divider::{IpgDividerDirection, IpgDividerParam, IpgDividerStyleParam};
 use crate::widgets::ipg_pick_list::IpgPickListHandle;
@@ -142,10 +142,11 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
 
     // style parameters
     m.add_class::<IpgButtonStyleParam>()?;
-    m.add_class::<IpgButtonStyleStandard>()?;
+    m.add_class::<IpgButtonStyleStd>()?;
     m.add_class::<IpgCheckboxStyleParam>()?;
     m.add_class::<IpgContainerParam>()?;
     m.add_class::<IpgContainerStyleParam>()?;
+    m.add_class::<IpgContainerStyleStd>()?;
     m.add_class::<IpgDividerParam>()?;
     m.add_class::<IpgDividerDirection>()?;
     m.add_class::<IpgDividerStyleParam>()?;
@@ -166,6 +167,7 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<IpgButtonParam>()?;
     m.add_class::<IpgCheckboxParam>()?;
     m.add_class::<IpgColumnParam>()?;
+    m.add_class::<IpgContainerParam>()?;
     m.add_class::<IpgDatePickerParam>()?;
     m.add_class::<IpgDividerParam>()?;
     m.add_class::<IpgRadioParam>()?;
@@ -190,8 +192,8 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<IpgColor>()?;
     m.add_class::<IpgIcon>()?;
     m.add_class::<IpgPickListHandle>()?;
-    m.add_class::<IpgAlignmentX>()?;
-    m.add_class::<IpgAlignmentY>()?;
+    m.add_class::<AlignX>()?;
+    m.add_class::<AlignY>()?;
     m.add_class::<IpgRadioDirection>()?;
     m.add_class::<IpgSeparatorType>()?;
     Ok(())

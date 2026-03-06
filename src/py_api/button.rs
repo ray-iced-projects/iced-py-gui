@@ -10,10 +10,10 @@ use crate::graphics::{colors::IpgColor, bootstrap_arrow::IpgArrow};
 use crate::py_api::helpers::{get_height, get_width};
 use crate::state::{IpgWidgets, access_state, add_callback_to_mutex, 
     get_id, set_state_of_widget};
-use crate::widgets::enums::{IpgAlignmentX, 
-    IpgAlignmentY};
+use crate::widgets::enums::{AlignX, 
+    AlignY};
 use crate::widgets::ipg_button::{IpgButton,  
-    IpgButtonStyle, IpgButtonStyleStandard};
+    IpgButtonStyle, IpgButtonStyleStd};
 
 
 /// Add a button widget.
@@ -32,10 +32,11 @@ use crate::widgets::ipg_button::{IpgButton,
     padding=None,
     text_align_x=None,
     text_align_y=None,
+    text_center=true,
     text_size=None,
     clip=None,
     style_id=None,
-    style_standard=None,
+    style_std=None,
     style_arrow=None,
     user_data=None,
     show=true
@@ -50,12 +51,13 @@ pub fn add_button(
     width_fill: bool,
     height_fill: bool,
     padding: Option<Vec<f32>>,
-    text_align_x: Option<IpgAlignmentX>,
-    text_align_y: Option<IpgAlignmentY>,
+    text_align_x: Option<AlignX>,
+    text_align_y: Option<AlignY>,
+    text_center: bool,
     text_size: Option<f32>,
     clip: Option<bool>,
     style_id: Option<usize>,
-    style_standard: Option<IpgButtonStyleStandard>,
+    style_std: Option<IpgButtonStyleStd>,
     style_arrow: Option<IpgArrow>,
     user_data: Option<PyObject>,
     show: bool,
@@ -95,10 +97,11 @@ pub fn add_button(
                 padding,
                 text_align_x,
                 text_align_y,
+                text_center,
                 text_size,
                 clip,
                 style_id,
-                style_standard,
+                style_std,
                 style_arrow,
             }),
         );

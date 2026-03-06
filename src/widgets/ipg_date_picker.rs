@@ -4,7 +4,7 @@ use std::collections::HashMap;
 use crate::app::{Message, self};
 use crate::graphics::BOOTSTRAP_FONT;
 use crate::state::IpgWidgets;
-use crate::widgets::ipg_button::IpgButtonStyleStandard;
+use crate::widgets::ipg_button::IpgButtonStyleStd;
 use crate::IpgState;
 use super::callbacks::invoke_callback_with_args;
 use crate::widgets::ipg_button::IpgButtonStyle;
@@ -49,7 +49,7 @@ pub struct IpgDatePicker {
     pub show: bool,
     pub show_calendar: Option<bool>,
     pub is_submitted: bool,
-    pub button_style_standard: Option<IpgButtonStyleStandard>,
+    pub button_style_standard: Option<IpgButtonStyleStd>,
     pub button_style_id: Option<usize>,
 
     // internal to the app
@@ -74,7 +74,7 @@ impl IpgDatePicker {
         padding: Option<Vec<f32>>,
         show: bool,
         show_calendar: Option<bool>,
-        button_style_standard: Option<IpgButtonStyleStandard>,
+        button_style_standard: Option<IpgButtonStyleStd>,
         button_style_id: Option<usize>,
         ) -> Self {
         Self {

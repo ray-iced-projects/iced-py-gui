@@ -37,22 +37,22 @@ def add_buttons(window: str):
                 add_button(
                         label="Primary", 
                         on_press=on_press,
-                        style_standard=IpgButtonStyleStandard.Primary)
+                        style_standard=IpgButtonStyleStd.Primary)
 
                 add_button(
                         label="Success", 
                         on_press=on_press,
-                        style_standard=IpgButtonStyleStandard.Success)
+                        style_standard=IpgButtonStyleStd.Success)
 
                 add_button(
                         label="Danger", 
                         on_press=on_press,
-                        style_standard=IpgButtonStyleStandard.Danger)
+                        style_standard=IpgButtonStyleStd.Danger)
 
                 add_button(
                         label="Text", 
                         on_press=on_press,
-                        style_standard=IpgButtonStyleStandard.Text)
+                        style_standard=IpgButtonStyleStd.Text)
                 
                 add_button( 
                         label="",
@@ -101,7 +101,7 @@ def add_buttons(window: str):
                     add_button(
                             label="Standard with Border and shadow",
                             style_id=std_border,
-                            style_standard=IpgButtonStyleStandard.Success)
+                            style_standard=IpgButtonStyleStd.Success)
                     
         
             # add additional buttons to add only the main1 window
@@ -111,22 +111,22 @@ def add_buttons(window: str):
                         label="Alignment = Center/Center",
                         width=300.0,
                         height=50.0,
-                        text_align_x=IpgAlignmentX.Center,
-                        text_align_y=IpgAlignmentY.Center)
+                        text_align_x=AlignX.Center,
+                        text_align_y=AlignY.Center)
                 
                 add_button(
                         label="Alignment = Left/Bottom",
                         width=300.0,
                         height=50.0,
-                        text_align_x=IpgAlignmentX.Left,
-                        text_align_y=IpgAlignmentY.Bottom)
+                        text_align_x=AlignX.Left,
+                        text_align_y=AlignY.Bottom)
                 
                 add_button(
                         label="Alignment = Right/Top",
                         width=300.0,
                         height=50.0,
-                        text_align_x=IpgAlignmentX.Right,
-                        text_align_y=IpgAlignmentY.Top)
+                        text_align_x=AlignX.Right,
+                        text_align_y=AlignY.Top)
    
 # Add the windows
 add_window(

@@ -3,8 +3,8 @@ use std::collections::HashMap;
 
 use crate::app::Message;
 use crate::state::IpgWidgets;
-use crate::widgets::enums::{IpgAlignmentX, 
-    IpgAlignmentY};
+use crate::widgets::enums::{AlignX, 
+    AlignY};
 use crate::widgets::styling::{apply_background_overrides, 
     apply_border_overrides, apply_shadow_overrides_xy};
 use crate::widgets::widget_param_update::{
@@ -31,8 +31,8 @@ pub struct IpgContainer {
     pub height: Length,
     pub max_width: Option<f32>,
     pub max_height: Option<f32>,
-    pub align_x: Option<IpgAlignmentX>,
-    pub align_y: Option<IpgAlignmentY>,
+    pub align_x: Option<AlignX>,
+    pub align_y: Option<AlignY>,
     pub center_x: Option<bool>,
     pub center_y: Option<bool>,
     pub center: Option<bool>,
@@ -42,7 +42,7 @@ pub struct IpgContainer {
     pub align_botton: Option<bool>,
     pub clip: Option<bool>,
     pub style_id: Option<usize>,
-    pub style_standard: Option<IpgContainerStyleStd>,
+    pub style_std: Option<IpgContainerStyleStd>,
 }
 
 impl IpgContainer {
@@ -78,9 +78,9 @@ impl IpgContainer {
                 .height(self.height)
                 .style(move|theme|
                     if let Some(st) = &style_opt {
-                        st.to_iced(theme, &self.style_standard)
+                        st.to_iced(theme, &self.style_std)
                     } else {
-                       match &self.style_standard {
+                       match &self.style_std {
                             Some(std) => std.to_iced(theme),
                             None => container::transparent(theme),
                         }
@@ -232,15 +232,21 @@ impl IpgContainerStyleStd {
         ) -> container::Style {
         
         match self {
-            IpgContainerStyleStd::BorderedBox => todo!(),
+            IpgContainerStyleStd::BorderedBox => {
+                container::bordered_box(theme)
+            },
             IpgContainerStyleStd::Danger => {
                 container::danger(theme)
             },
-            IpgContainerStyleStd::Dark => todo!(),
+            IpgContainerStyleStd::Dark => {
+                container::dark(theme)
+            },
             IpgContainerStyleStd::Primary => {
                 container::primary(theme)
             },
-            IpgContainerStyleStd::RoundedBox => todo!(),
+            IpgContainerStyleStd::RoundedBox => {
+                container::rounded_box(theme)
+            },
             IpgContainerStyleStd::Secondary => {
                 container::secondary(theme)
             },
@@ -250,7 +256,9 @@ impl IpgContainerStyleStd {
             IpgContainerStyleStd::Warning => {
                 container::warning(theme)
             },
-            IpgContainerStyleStd::Transparent => todo!(),
+            IpgContainerStyleStd::Transparent => {
+                container::transparent(theme)
+            },
         }
     }
 }

@@ -64,24 +64,24 @@ impl IpgAlignment {
 
 #[derive(Debug, Clone, PartialEq)]
 #[pyclass(eq, eq_int)]
-pub enum IpgAlignmentX {
+pub enum AlignX {
     Left,
     Center,
     Right,
 }
 
-impl IpgAlignmentX {
+impl AlignX {
     pub fn to_iced(&self) -> alignment::Horizontal {
         match self {
-            IpgAlignmentX::Left => alignment::Horizontal::Left,
-            IpgAlignmentX::Center => alignment::Horizontal::Center,
-            IpgAlignmentX::Right => alignment::Horizontal::Right,
+            AlignX::Left => alignment::Horizontal::Left,
+            AlignX::Center => alignment::Horizontal::Center,
+            AlignX::Right => alignment::Horizontal::Right,
         }
     }
 
-    pub fn extract(value: &PyObject) -> Option<IpgAlignmentX> {
+    pub fn extract(value: &PyObject) -> Option<AlignX> {
         Python::attach(|py| {
-            let res = value.extract::<IpgAlignmentX>(py);
+            let res = value.extract::<AlignX>(py);
             match res {
                 Ok(val) => Some(val),
                 Err(_) => panic!("Unable to extract python IpgAlignmentX"),
@@ -92,24 +92,24 @@ impl IpgAlignmentX {
 
 #[derive(Debug, Clone, PartialEq)]
 #[pyclass(eq, eq_int)]
-pub enum IpgAlignmentY {
+pub enum AlignY {
     Top,
     Center,
     Bottom,
 }
 
-impl IpgAlignmentY {
+impl AlignY {
     pub fn to_iced(&self) -> iced::alignment::Vertical {
         match self {
-            IpgAlignmentY::Top => alignment::Vertical::Top,
-            IpgAlignmentY::Center => alignment::Vertical::Center,
-            IpgAlignmentY::Bottom => alignment::Vertical::Bottom,
+            AlignY::Top => alignment::Vertical::Top,
+            AlignY::Center => alignment::Vertical::Center,
+            AlignY::Bottom => alignment::Vertical::Bottom,
         }
     }
 
-    pub fn extract(value: &PyObject) -> Option<IpgAlignmentY> {
+    pub fn extract(value: &PyObject) -> Option<AlignY> {
         Python::attach(|py| {
-            let res = value.extract::<IpgAlignmentY>(py);
+            let res = value.extract::<AlignY>(py);
             match res {
                 Ok(val) => Some(val),
                 Err(_) => panic!("Unable to extract python IpgVerticalAlignment"),

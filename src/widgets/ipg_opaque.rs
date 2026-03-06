@@ -11,7 +11,7 @@ use crate::widgets::widget_param_update::{
     WidgetParamUpdate, set_opt_iced_color, set_opt_bool, set_iced_color_from_rgba};
 use crate::{access_callbacks, access_user_data1, IpgState};
 use crate::app::Message;
-use super::enums::{IpgAlignmentX, IpgAlignmentY};
+use super::enums::{AlignX, AlignY};
 
 
 #[derive(Debug, Clone)]
@@ -20,8 +20,8 @@ pub struct IpgOpaque {
     pub width: Length,
     pub height: Length,
     pub center: Option<bool>,
-    pub align_x: Option<IpgAlignmentX>,
-    pub align_y: Option<IpgAlignmentY>,
+    pub align_x: Option<AlignX>,
+    pub align_y: Option<AlignY>,
     pub include_mouse_area: bool,
     pub show: bool,
     pub style_id: Option<usize>, 
@@ -43,11 +43,11 @@ pub fn construct_opaque<'a>(op: &'a IpgOpaque,
     let new_content = content.remove(0);
     
     let mut align_h = if let Some(ha) = &op.align_x{
-        IpgAlignmentX::to_iced(ha)
+        AlignX::to_iced(ha)
     } else { iced::alignment::Horizontal::Left };
     
     let mut align_v = if let Some(va) = &op.align_y{
-        IpgAlignmentY::to_iced(va)
+        AlignY::to_iced(va)
     } else { iced::alignment::Vertical::Top};
 
     if let Some(cnt) = op.center {

@@ -8,8 +8,8 @@ use crate::state::{IpgContainers, IpgWidgets, access_state,
     get_id, set_state_cont_wnd_ids, set_state_of_container};
 use crate::widgets::ipg_container::{IpgContainer, 
     IpgContainerStyle, IpgContainerStyleStd};
-use crate::widgets::enums::{IpgAlignmentX, 
-    IpgAlignmentY};
+use crate::widgets::enums::{AlignX, 
+    AlignY};
 
 /// Add a container widget.
 ///
@@ -38,7 +38,7 @@ use crate::widgets::enums::{IpgAlignmentX,
     padding=None, 
     show=true, 
     style_id=None,
-    style_standard=None, 
+    style_std=None, 
     ))]
 pub fn add_container(
     window_id: String,
@@ -52,8 +52,8 @@ pub fn add_container(
     clip: Option<bool>,
     max_height: Option<f32>,
     max_width: Option<f32>,
-    align_x: Option<IpgAlignmentX>,
-    align_y: Option<IpgAlignmentY>,
+    align_x: Option<AlignX>,
+    align_y: Option<AlignY>,
     center_x: Option<bool>,
     center_y: Option<bool>,
     center: Option<bool>,
@@ -64,7 +64,7 @@ pub fn add_container(
     padding: Option<Vec<f32>>, 
     show: bool,
     style_id: Option<usize>,
-    style_standard: Option<IpgContainerStyleStd>,
+    style_std: Option<IpgContainerStyleStd>,
     ) -> PyResult<usize>
 {
     let id = get_id(None);
@@ -103,7 +103,7 @@ pub fn add_container(
             align_botton,
             clip,
             style_id,
-            style_standard,
+            style_std,
         }));
 
     drop(state);

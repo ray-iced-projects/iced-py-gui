@@ -5,8 +5,8 @@ use crate::app::Message;
 use crate::graphics::bootstrap_arrow::IpgArrow;
 use crate::state::IpgWidgets;
 use crate::widgets::callbacks::invoke_callback;
-use crate::widgets::enums::{IpgAlignmentX, 
-    IpgAlignmentY};
+use crate::widgets::enums::{AlignX, 
+    AlignY};
 use crate::py_api::helpers::get_padding;
 use crate::widgets::styling::{apply_shadow_overrides_xy, 
     apply_border_overrides, apply_background_overrides, 
@@ -37,12 +37,13 @@ pub struct IpgButton {
     pub width: Length,
     pub height: Length,
     pub padding: Option<Vec<f32>>,
-    pub text_align_x: Option<IpgAlignmentX>,
-    pub text_align_y: Option<IpgAlignmentY>,
+    pub text_align_x: Option<AlignX>,
+    pub text_align_y: Option<AlignY>,
+    pub text_center: bool,
     pub text_size: Option<f32>,
     pub clip: Option<bool>,
     pub style_id: Option<usize>,
-    pub style_standard: Option<IpgButtonStyleStandard>,
+    pub style_std: Option<IpgButtonStyleStd>,
     pub style_arrow: Option<IpgArrow>,
 }
 
@@ -99,9 +100,9 @@ impl IpgButton {
                 .height(self.height)
                 .style(move |theme: &Theme, status| {
                     if let Some(st) = &style_opt {
-                        st.to_iced(theme, status, &self.style_standard)
+                        st.to_iced(theme, status, &self.style_std)
                     } else {
-                       match &self.style_standard {
+                       match &self.style_std {
                             Some(std) => std.to_iced(theme, status),
                             None => button::primary(theme, status),
                         }
@@ -154,7 +155,7 @@ impl IpgButtonStyle {
         &self, 
         theme: &Theme, 
         status: button::Status,
-        std_style_opt: &Option<IpgButtonStyleStandard>,
+        std_style_opt: &Option<IpgButtonStyleStd>,
         ) -> button::Style{
         
         // If the user supplied a background_color, build a custom palette style.
@@ -225,7 +226,7 @@ fn disabled(style: button::Style) -> button::Style {
 
 #[derive(Debug, Clone, PartialEq)]
 #[pyclass(eq, eq_int)]
-pub enum IpgButtonStyleStandard {
+pub enum IpgButtonStyleStd {
     Background,
     Danger,
     Primary,
@@ -236,7 +237,7 @@ pub enum IpgButtonStyleStandard {
     Text,
 }
 
-impl IpgButtonStyleStandard {
+impl IpgButtonStyleStd {
     pub fn to_iced(
         &self,
         theme: &Theme, 
@@ -244,28 +245,28 @@ impl IpgButtonStyleStandard {
         ) -> button::Style {
         
         match self {
-            IpgButtonStyleStandard::Background => {
+            IpgButtonStyleStd::Background => {
                 button::background(theme, status)
             },
-            IpgButtonStyleStandard::Danger => {
+            IpgButtonStyleStd::Danger => {
                 button::danger(theme, status)
             },
-            IpgButtonStyleStandard::Primary => {
+            IpgButtonStyleStd::Primary => {
                 button::primary(theme, status)
             },
-            IpgButtonStyleStandard::Secondary => {
+            IpgButtonStyleStd::Secondary => {
                 button::secondary(theme, status)
             },
-            IpgButtonStyleStandard::Subtle => {
+            IpgButtonStyleStd::Subtle => {
                 button::subtle(theme, status)
             },
-            IpgButtonStyleStandard::Success => {
+            IpgButtonStyleStd::Success => {
                 button::success(theme, status)
             },
-            IpgButtonStyleStandard::Warning => {
+            IpgButtonStyleStd::Warning => {
                 button::warning(theme, status)
             },
-            IpgButtonStyleStandard::Text => {
+            IpgButtonStyleStd::Text => {
                 button::text(theme, status)
             },
         }
@@ -294,12 +295,12 @@ pub enum IpgButtonParam {
 pub fn extract_button_style_standard(
     value: &PyObject, 
     name: String,
-    ) -> IpgButtonStyleStandard {
+    ) -> IpgButtonStyleStd {
     
     Python::attach(|py| {
 
         let res = 
-            value.extract::<IpgButtonStyleStandard>(py);
+            value.extract::<IpgButtonStyleStd>(py);
         match res {
             Ok(val) => val,
             Err(_) => panic!("{}-Unable to extract python object for ButtonStyleStandard", name),
@@ -345,7 +346,7 @@ impl WidgetParamUpdate for IpgButton {
             IpgButtonParam::Show => set_bool(&mut self.show, value, name),
             IpgButtonParam::StyleId => set_opt_usize(&mut self.style_id, value, name),
             IpgButtonParam::StyleStandard => {
-                self.style_standard = Some(extract_button_style_standard(value, name));
+                self.style_std = Some(extract_button_style_standard(value, name));
             },
             IpgButtonParam::TextAlignX => set_halign(&mut self.text_align_x, value, name),
             IpgButtonParam::TextAlignY => set_valign(&mut self.text_align_y, value, name),

@@ -108,7 +108,7 @@ with Container(
     add_button(
         parent_id="col",
         label="Press to\nchange styling",
-        text_align_x=IpgAlignmentX.Center,
+        text_align_x=AlignX.Center,
         on_press=change_container_styling)
 
 

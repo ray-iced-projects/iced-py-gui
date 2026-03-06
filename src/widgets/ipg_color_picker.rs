@@ -3,7 +3,7 @@ use std::collections::HashMap;
 
 use crate::graphics::bootstrap_arrow::IpgArrow;
 use crate::state::IpgWidgets;
-use crate::widgets::ipg_button::{IpgButtonStyleStandard, extract_button_style_standard};
+use crate::widgets::ipg_button::{IpgButtonStyleStd, extract_button_style_standard};
 use crate::widgets::widget_param_update::{WidgetParamUpdate, set_bool, set_height, set_height_fill, set_iced_color, set_opt_bool, set_opt_ipg_arrow, set_opt_string, set_opt_usize, set_opt_vec_f32, set_width, set_width_fill};
 use crate::IpgState;
 use crate::app::Message;
@@ -30,7 +30,7 @@ pub struct IpgColorPicker {
     pub padding: Option<Vec<f32>>,
     pub clip: Option<bool>,
     pub style_id: Option<usize>,
-    pub style_standard: Option<IpgButtonStyleStandard>,
+    pub style_standard: Option<IpgButtonStyleStd>,
     pub style_arrow: Option<IpgArrow>,
 }
 

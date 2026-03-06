@@ -76,13 +76,13 @@ def change_height(btn_id):
 def change_h_align(btn_id):
     # Expand the width so the right alignment can be seen
     update_widget(st_id, IpgSelectableTextParam.WidthFill, True)
-    update_widget(st_id, IpgSelectableTextParam.HorizontalAlign, IpgAlignmentX.Right)
+    update_widget(st_id, IpgSelectableTextParam.HorizontalAlign, AlignX.Right)
 
 
 def change_v_align(btn_id):
     # Expand the width so the bottom alignment can be seen
     update_widget(st_id, IpgSelectableTextParam.HeightFill, True)
-    update_widget(st_id, IpgSelectableTextParam.VerticalAlign, IpgAlignmentY.Bottom)
+    update_widget(st_id, IpgSelectableTextParam.VerticalAlign, AlignY.Bottom)
 
 
 def change_line_height(btn_id):

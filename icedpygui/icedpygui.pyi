@@ -91,12 +91,13 @@ def add_button(
         height: Optional[float]=None,
         height_fill: bool=False,
         padding: list=None,
-        text_align_x: Optional[IpgAlignmentX]=None,
-        text_align_y: Optional[IpgAlignmentY]=None,
+        text_align_x: Optional[AlignX]=None,
+        text_align_y: Optional[AlignY]=None,
+        text_center: bool=True,
         text_size: Optional[float]=None,
         clip: Optional[bool]=None, 
         style_id: Optional[int]=None,
-        style_standard: Optional[IpgButtonStyleStandard]=None,
+        style_standard: Optional[IpgButtonStyleStd]=None,
         style_arrow: Optional[IpgArrow]=None,
         user_data: Optional[any]=None,
         show: bool=True, 
@@ -127,7 +128,6 @@ def add_button(
         padding: List[float]
             Sets the padding for widget.
             use [float] for all sides,
-            use [float, float] for [top&bottom, left&right]
             use [float, float, float, float] for [top, right, bottom, left]
         text_align_x: Optional[IpgAlignmentX]
             Aligns the text in the horizontal direction
@@ -218,7 +218,7 @@ def add_checkbox(
         icon_x: bool=False,
         icon_size: float=25.0,
         style_id: Optional[int]=None,
-        style_standard: Optional[IpgButtonStyleStandard]=None,
+        style_standard: Optional[IpgButtonStyleStd]=None,
         user_data: Optional[Any]=None,
         show: bool=True,
     ) -> int:
@@ -384,8 +384,8 @@ def add_container(
         clip: Optional[bool] = None,
         max_height: Optional[float] = None,
         max_width: Optional[float] = None,
-        align_x: Optional[IpgAlignmentX] = None,
-        align_y: Optional[IpgAlignmentY] = None,
+        align_x: Optional[AlignX] = None,
+        align_y: Optional[AlignY] = None,
         center_x: Optional[bool] = None,
         center_y: Optional[bool] = None,
         center: Optional[bool] = None,
@@ -550,8 +550,8 @@ class Container:
         clip: Optional[bool] = None,
         max_height: Optional[float] = None,
         max_width: Optional[float] = None,
-        align_x: Optional[IpgAlignmentX] = None,
-        align_y: Optional[IpgAlignmentY] = None,
+        align_x: Optional[AlignX] = None,
+        align_y: Optional[AlignY] = None,
         center_x: Optional[bool] = None,
         center_y: Optional[bool] = None,
         center: Optional[bool] = None,
@@ -1299,7 +1299,7 @@ def add_checkbox(
         icon_x: bool=False,
         icon_size: float=25.0,
         style_id: Optional[int]=None,
-        style_standard: Optional[IpgButtonStyleStandard]=None,
+        style_standard: Optional[IpgButtonStyleStd]=None,
         user_data: Optional[Any]=None,
         show: bool=True,
     ) -> int:
@@ -1416,7 +1416,7 @@ def add_color_picker(
         padding: List=[10.0],
         clip: bool=False,
         style_id: Optional[int]=None,
-        style_standard: Optional[IpgButtonStyleStandard]=None,
+        style_standard: Optional[IpgButtonStyleStd]=None,
         style_arrow: Optional[IpgArrow]=None,
         user_data: Optional[Any]=None,
         show: bool=True, 
@@ -2120,7 +2120,7 @@ def add_progress_bar(
         width: Optional[float]=None,
         width_fill: bool=False,
         height: float=1.0,
-        style_standard: Optional[IpgButtonStyleStandard]=None,
+        style_standard: Optional[IpgButtonStyleStd]=None,
         style_id: Union[None, int]=None,
         user_data: Union[None, any]=None,
         show: bool=True,
@@ -2991,8 +2991,8 @@ def add_text(
         width_fill: bool=False,
         height_fill: bool=False,
         centered: bool,
-        align_x: IpgAlignmentX=IpgAlignmentX.Left,
-        align_y: IpgAlignmentY=IpgAlignmentY.Top,
+        align_x: AlignX=AlignX.Left,
+        align_y: AlignY=AlignY.Top,
         line_height: str="default",
         size: float=16.0,
         shaping: str="basic",
@@ -3225,7 +3225,7 @@ def add_timer(
         padding: list[float]=[10.0],
         clip: bool=False,
         style_id: Optional[str],
-        style_standard: Optional[IpgButtonStyleStandard]=None,
+        style_standard: Optional[IpgButtonStyleStd]=None,
         style_arrow: Optional[IpgArrow]=None,
         user_data: any=None,
         show: bool=True,
@@ -3350,7 +3350,7 @@ def add_canvas_timer(
         padding: list[float]=[10.0],
         clip: bool=False,
         style_id: Optional[str],
-        style_standard: Optional[IpgButtonStyleStandard]=None,
+        style_standard: Optional[IpgButtonStyleStd]=None,
         style_arrow: Optional[IpgArrow]=None,
         user_data: any=None,
         show: bool=True,
@@ -3471,7 +3471,7 @@ def add_toggler(
         size: float=20.0,
         text_size: float=16.0,
         text_line_height: float=1.3,
-        text_alignment: IpgAlignmentX=IpgAlignmentX.Center,
+        text_alignment: AlignX=AlignX.Center,
         spacing: float=10.0,
         user_data: Optional[Any]=None,
         show: bool=True,
@@ -4162,7 +4162,7 @@ def add_chart_title(
         title_font_rgba: Optional[list[float, 4]],
         title_font_weight: Optional[str],
         title_margin: Optional[list[float, 4]],
-        title_align: IpgAlignmentX,
+        title_align: AlignX,
         title_height: float,
         sub_title_text: Optional[str],
         sub_title_font_size: Optional[float],
@@ -4170,7 +4170,7 @@ def add_chart_title(
         sub_title_font_rgba: Optional[list[float, 4]],
         sub_title_font_weight: Optional[str],
         sub_title_margin: Optional[list[float, 4]],
-        sub_title_align: IpgAlignmentX,
+        sub_title_align: AlignX,
         sub_title_height: float,
         gen_id: Optional[int],
     ) -> int:
@@ -4207,7 +4207,7 @@ def add_chart_legend(
         legend_font_ipgcolor: Optional[IpgColor],
         legend_font_rgba: Optional[list[float, 4]],
         legend_font_weight: Optional[str],
-        legend_align: IpgAlignmentX,
+        legend_align: AlignX,
         legend_margin: Optional[list[float, 4]],
         legend_category: IpgChartLegendCategory,
         legend_show: bool,
@@ -4299,7 +4299,7 @@ def add_chart_y_axis(
         y_axis_width: Optional[float],
         y_axis_split_number: int,
         y_axis_name_gap: float,
-        y_axis_name_align: Optional[IpgAlignmentX],
+        y_axis_name_align: Optional[AlignX],
         y_axis_margin: Optional[list[float, 4]],
         y_axis_formatter: Optional[str],
         y_axis_min: Optional[float],
@@ -4552,7 +4552,7 @@ class IpgAlignment:
     End=''
 
 
-class IpgAlignmentX:
+class AlignX:
     """
     How items placed in a container or widget are aligned in the horizontal direction\n
     Left, Center, Right
@@ -4562,7 +4562,7 @@ class IpgAlignmentX:
     Right=''
 
 
-class IpgAlignmentY:
+class AlignY:
     """
     How items placed in a container or widget are aligned in the vertical direction\n
     Top, Center, Bottom
@@ -4608,7 +4608,7 @@ class IpgButtonParam:
     Clip: bool
     Show: bool
     StyleId: int
-    StyleStandard: IpgButtonStyleStandard
+    StyleStandard: IpgButtonStyleStd
     Width: float
     WidthFill: bool
 
@@ -4819,7 +4819,7 @@ class IpgCheckboxParam:
     Size: float
     Spacing: float
     StyleId: int
-    StyleStandard: IpgButtonStyleStandard
+    StyleStandard: IpgButtonStyleStd
     TextLineHeight: float
     TextSize: float
     Width: float
@@ -4914,7 +4914,7 @@ class IpgColorPickerParam:
     Clip: bool
     Show: bool
     StyleId: int
-    StyleStandard: IpgButtonStyleStandard
+    StyleStandard: IpgButtonStyleStd
     Width: float
     WidthFill: bool
 
@@ -4985,8 +4985,8 @@ class IpgColumnParam:
     
 
 class IpgContainerParam:
-    AlignX:IpgAlignmentX
-    AlignY:IpgAlignmentY
+    AlignX:AlignX
+    AlignY:AlignY
     Centered:bool
     Clip:bool
     Padding:list[float]
@@ -5011,6 +5011,17 @@ class IpgContainerStyleParam:
     TextIpgColor:IpgColor
     TextRgbaColor:list[float, 4]
     
+class IpgContainerStyleStd
+    BorderedBox='',
+    Danger='',
+    Dark='',
+    Primary='',
+    RoundedBox='',
+    Secondary='',
+    Success='',
+    Transparent='',
+    Warning='',
+
 
 class IpgDatePickerParam:
     """
@@ -5805,8 +5816,8 @@ class IpgSelectableTextParam:
     WidthFill: bool
     Height: float
     HeightFill: bool
-    HorizontalAlign: IpgAlignmentX
-    VerticalAlign: IpgAlignmentY
+    HorizontalAlign: AlignX
+    VerticalAlign: AlignY
     LineHeight: float
     Size: float
     TextColor: IpgColor
@@ -5900,7 +5911,7 @@ class IpgStackParam:
     """
     ShowStack: bool
 
-class IpgButtonStyleStandard:
+class IpgButtonStyleStd:
     """
     Standard styles for Button widget
     """
@@ -6148,12 +6159,12 @@ class IpgTextParam:
     Content:str
     Height:float
     HeightFill:bool
-    HorizontalAlignment:IpgAlignmentX
+    HorizontalAlignment:AlignX
     LineHeight:float
     Size:float
     TextColor:IpgColor
     TextRgba:list[float]
-    VerticalAlignment:IpgAlignmentY
+    VerticalAlignment:AlignY
     Width:float
     WidthFill:bool
     Show:bool

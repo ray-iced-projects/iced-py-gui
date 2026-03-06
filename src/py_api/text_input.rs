@@ -1,6 +1,6 @@
 
 
-use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex, graphics::colors::IpgColor, py_api::helpers::get_width, state::{IpgWidgets, get_id, set_state_of_widget}, widgets::{enums::IpgAlignmentX, ipg_text_input::{IpgTextInput, IpgTextInputStyle}}};
+use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex, graphics::colors::IpgColor, py_api::helpers::get_width, state::{IpgWidgets, get_id, set_state_of_widget}, widgets::{enums::AlignX, ipg_text_input::{IpgTextInput, IpgTextInputStyle}}};
 
 use pyo3::{Py, PyAny, pyfunction, PyResult};
 type PyObject = Py<PyAny>;
@@ -39,7 +39,7 @@ pub fn add_text_input(
         padding: Option<Vec<f32>>,
         size: Option<f32>,
         line_height: Option<f32>,
-        align_x: Option<IpgAlignmentX>,
+        align_x: Option<AlignX>,
         user_data: Option<PyObject>,
         is_secure: Option<bool>,
         font_id: Option<usize>,

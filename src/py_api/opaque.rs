@@ -10,8 +10,8 @@ use crate::{add_callback_to_mutex, add_user_data_to_mutex};
 use crate::graphics::colors::IpgColor;
 use crate::py_api::helpers::{get_height, get_width};
 use crate::state::{IpgContainers, IpgWidgets, access_state, get_id, set_state_cont_wnd_ids, set_state_of_container};
-use crate::widgets::enums::{IpgAlignmentX, 
-    IpgAlignmentY};
+use crate::widgets::enums::{AlignX, 
+    AlignY};
 
 /// Add a container widget.
 ///
@@ -44,8 +44,8 @@ pub fn add_opaque_container(
     height: Option<f32>,
     height_fill: bool,
     center: Option<bool>,
-    align_x: Option<IpgAlignmentX>,
-    align_y: Option<IpgAlignmentY>,
+    align_x: Option<AlignX>,
+    align_y: Option<AlignY>,
     mouse_on_press: Option<PyObject>,
     user_data: Option<PyObject>,
     show: bool,

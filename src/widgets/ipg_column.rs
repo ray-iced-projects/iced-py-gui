@@ -1,11 +1,9 @@
 //! ipg_column
 use crate::app::Message;
 use crate::py_api::helpers::get_padding;
-use crate::widgets::enums::Align;
+use crate::widgets::enums::AlignX;
 use crate::widgets::widget_param_update::{
-    WidgetParamUpdate,
-    set_opt_bool, set_opt_f32, set_opt_vec_f32,
-    set_width, set_width_fill, set_height, set_height_fill, set_align,
+    WidgetParamUpdate, set_halign, set_height, set_height_fill, set_opt_bool, set_opt_f32, set_opt_vec_f32, set_width, set_width_fill
 };
 
 use iced::{Element, Length};
@@ -24,7 +22,7 @@ pub struct IpgColumn {
     pub width: Length,
     pub height: Length,
     pub max_width: Option<f32>,
-    pub align: Option<Align>,
+    pub align_x: Option<AlignX>,
     pub clip: Option<bool>,
 }
 
@@ -40,7 +38,7 @@ impl IpgColumn {
                 .height(self.height);
         
         let col = 
-            if let Some(align_x) = &self.align {
+            if let Some(align_x) = &self.align_x {
                     col.align_x(align_x.to_iced())
                 } else { col };
 
@@ -84,7 +82,7 @@ impl WidgetParamUpdate for IpgColumn {
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
         match param {
-            IpgColumnParam::AlignX     => set_align(&mut self.align, value, name),
+            IpgColumnParam::AlignX     => set_halign(&mut self.align_x, value, name),
             IpgColumnParam::Clip       => set_opt_bool(&mut self.clip, value, name),
             IpgColumnParam::Padding    => set_opt_vec_f32(&mut self.padding, value, name),
             IpgColumnParam::Width      => set_width(&mut self.width, value, name),

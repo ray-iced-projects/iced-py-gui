@@ -8,7 +8,7 @@ type PyObject = Py<PyAny>;
 use crate::app::Message;
 
 use crate::py_api::helpers::get_padding;
-use crate::widgets::enums::IpgAlignment;
+use crate::widgets::enums::Align;
 use crate::widgets::widget_param_update::{
     WidgetParamUpdate,
     set_opt_bool, set_opt_f32, set_opt_vec_f32,
@@ -25,7 +25,7 @@ pub struct IpgRow {
     pub padding: Option<Vec<f32>>,
     pub width: Length,
     pub height: Length,
-    pub align_y: Option<IpgAlignment>,
+    pub align_y: Option<Align>,
     pub clip: Option<bool>,
 }
 
@@ -41,7 +41,7 @@ pub fn construct_row<'a>(
                         
     let row = 
         if let Some(align) = &ipg_row.align_y {
-            row.align_y(IpgAlignment::to_iced(align))
+            row.align_y(Align::to_iced(align))
         } else { row };
 
     let row = 

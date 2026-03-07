@@ -15,7 +15,7 @@ use iced::widget::text::{Shaping, LineHeight};
 use pyo3::{Py, PyAny, Python};
 type PyObject = Py<PyAny>;
 
-use crate::widgets::enums::{IpgAlignment, AlignX, AlignY};
+use crate::widgets::enums::{Align, AlignX, AlignY};
 
 
 pub fn find_key_for_value(ids: HashMap<window::Id, usize>, value: usize) -> window::Id {

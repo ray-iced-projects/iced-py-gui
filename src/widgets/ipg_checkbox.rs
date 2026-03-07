@@ -52,7 +52,7 @@ pub struct IpgCheckBox {
     pub icon_line_height: Option<f32>,
     pub icon_shaping: Option<IpgShaping>,
     pub style_id: Option<usize>,
-    pub style_standard: Option<IpgCheckboxStyleStandard>,
+    pub style_std: Option<IpgCheckboxStyleStd>,
 }
 
 impl IpgCheckBox {
@@ -127,9 +127,9 @@ impl IpgCheckBox {
                 .style(move|theme: &Theme, status| {   
                     if let Some(st) = &style_opt {
                         let is_label = if self.label.is_some() { true } else { false };
-                        st.to_iced(theme, status, &self.style_standard, is_label)
+                        st.to_iced(theme, status, &self.style_std, is_label)
                     } else {
-                       match &self.style_standard {
+                       match &self.style_std {
                             Some(std) => std.to_iced(theme, status),
                             None => checkbox::primary(theme, status),
                         }
@@ -190,7 +190,7 @@ impl IpgCheckboxStyle {
          &self, 
         theme: &Theme, 
         status: checkbox::Status,
-        std_style_opt: &Option<IpgCheckboxStyleStandard>,
+        std_style_opt: &Option<IpgCheckboxStyleStd>,
         is_label: bool,
         ) -> checkbox::Style {
 
@@ -294,14 +294,14 @@ fn styled(
 
 #[derive(Debug, Clone, PartialEq)]
 #[pyclass(eq, eq_int)]
-pub enum IpgCheckboxStyleStandard {
+pub enum IpgCheckboxStyleStd {
     Danger,
     Primary,
     Secondary,
     Success,
 }
 
-impl IpgCheckboxStyleStandard {
+impl IpgCheckboxStyleStd {
     pub fn to_iced (
         &self,
         theme: &Theme, 
@@ -309,16 +309,16 @@ impl IpgCheckboxStyleStandard {
         ) -> checkbox::Style {
         
         match self {
-            IpgCheckboxStyleStandard::Danger => {
+            IpgCheckboxStyleStd::Danger => {
                 checkbox::danger(theme, status)
             },
-            IpgCheckboxStyleStandard::Primary => {
+            IpgCheckboxStyleStd::Primary => {
                 checkbox::primary(theme, status)
             },
-            IpgCheckboxStyleStandard::Secondary => {
+            IpgCheckboxStyleStd::Secondary => {
                 checkbox::secondary(theme, status)
             },
-            IpgCheckboxStyleStandard::Success => {
+            IpgCheckboxStyleStd::Success => {
                 checkbox::success(theme, status)
             },
         }
@@ -365,12 +365,12 @@ pub enum IpgCheckboxStyleParam {
 
 fn extract_chk_style_standard(
     value: &PyObject, 
-    ) -> IpgCheckboxStyleStandard {
+    ) -> IpgCheckboxStyleStd {
     
     Python::attach(|py| {
 
         let res = 
-            value.extract::<IpgCheckboxStyleStandard>(py);
+            value.extract::<IpgCheckboxStyleStd>(py);
         match res {
             Ok(val) => val,
             Err(_) => panic!("Unable to extract python object for CheckboxStyleStandard"),
@@ -407,7 +407,7 @@ impl WidgetParamUpdate for IpgCheckBox {
             IpgCheckboxParam::TextSize     => set_opt_f32(&mut self.text_size, value, name),
             IpgCheckboxParam::Style        => set_opt_usize(&mut self.style_id, value, name),
             IpgCheckboxParam::StyleStandard => {
-                self.style_standard = Some(extract_chk_style_standard(value));
+                self.style_std = Some(extract_chk_style_standard(value));
             }
             IpgCheckboxParam::Width        => set_width(&mut self.width, value, name),
             IpgCheckboxParam::WidthFill    => set_width_fill(&mut self.width, value, name),

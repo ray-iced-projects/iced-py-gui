@@ -129,9 +129,9 @@ def add_button(
             Sets the padding for widget.
             use [float] for all sides,
             use [float, float, float, float] for [top, right, bottom, left]
-        text_align_x: Optional[IpgAlignmentX]
+        text_align_x: Optional[AlignX]
             Aligns the text in the horizontal direction
-        text_align_y: Optional[IpgAlignmentY]
+        text_align_y: Optional[AlignY]
             Aligns the text in the vertical direction
         text_size: Optional[float]
             Size of the text
@@ -317,7 +317,7 @@ def add_column(
         container_id: str,
         *,
         parent_id: Optional[str]=None,
-        align: IpgAlignment=IpgAlignment.Start,
+        align: Align=Align.Start,
         width: Optional[float]=None,
         height: Optional[float]=None,
         width_fill: bool=False,
@@ -341,7 +341,7 @@ def add_column(
         parent_id: str
             If parent_id == window_id then not required, 
             If another container then required.
-        align: IpgAlignment
+        align: Align
             Sets the vertical alignment of the items in the column; Start, Center, End.
         width: float
             Sets the width of the widget.
@@ -626,7 +626,7 @@ def add_canvas(
 #     *,
 #     parent_id: Optional[str]=None,
 #     on_open: Optional[Callable]=None,
-#     align_items: IpgAlignment=IpgAlignment.Start,
+#     align_items: Align=Align.Start,
 #     width: Optional[float]=None,
 #     height: Optional[float]=None,
 #     width_fill: bool=False,
@@ -779,7 +779,7 @@ def add_row(
         container_id: str,
         *,
         parent_id: Optional[str]=None,
-        align: IpgAlignment=IpgAlignment.Start,
+        align: Align=Align.Start,
         width: Optional[float]=None,
         height: Optional[float]=None,
         width_fill: bool=False,
@@ -890,12 +890,12 @@ def add_scrollable(
         h_bar_margin: float=0.0,
         h_scroller_width: float=10.0,
         h_spacing: float=0.0,
-        h_bar_alignment: IpgAlignment=IpgAlignment.Start,
+        h_bar_alignment: Align=Align.Start,
         v_bar_width: float=10.0,
         v_bar_margin: float=0.0,
         v_scroller_width: float=10.0,
         v_spacing: float=0.0,
-        v_bar_alignment: IpgAlignment=IpgAlignment.Start,
+        v_bar_alignment: Align=Align.Start,
         on_scroll: Optional[Callable]=None,
         style_id: Optional[str]=None,
         user_data: Optional[any]=None,
@@ -4543,7 +4543,7 @@ def move_widget(
     """
     
         
-class IpgAlignment:
+class Align:
     """
     How items placed in a container or widget are aligned
     """
@@ -4974,7 +4974,7 @@ class IpgColorPickerStyleParam:
 
 
 class IpgColumnParam:
-    AlignX:IpgAlignment
+    AlignX:Align
     Clip:bool
     Padding:list[float]
     Width:float
@@ -5612,7 +5612,7 @@ class IpgRadioStyleParam:
 
 
 class IpgRowParam:
-    Align:IpgAlignment
+    Align:Align
     Clip:bool
     Padding:list[float]
     Width:float
@@ -5662,7 +5662,7 @@ class IpgScrollableParam:
         The horizontal scroller width.
     HSpacing: float
         If > 0.0 lowers the scroller
-    HBarAlignment: IpgAlignment
+    HBarAlignment: Align
         The horizontal bar alignment.
     VBarWidth: float
         The vertical bar width.
@@ -5672,7 +5672,7 @@ class IpgScrollableParam:
         The vertical scroller width.
     VSpacing: float
     If > 0.0 moves scroller right.
-    VBarAlignment: IpgAlignment
+    VBarAlignment: Align
         The vertical bar alignment.
         
     Examples
@@ -5688,12 +5688,12 @@ class IpgScrollableParam:
     HBarMargin: float
     HScrollerWidth: float
     HSpacing: float
-    HBarAlignment: IpgAlignment
+    HBarAlignment: Align
     VBarWidth: float
     VBarMargin: float
     VScrollerWidth: float
     VSpacing: float
-    VBarAlignment: IpgAlignment
+    VBarAlignment: Align
 
 
 class IpgScrollableStyleParam:
@@ -6281,8 +6281,8 @@ class IpgTogglerParam:
 
     Parameters
     ----------
-    Alignment: IpgAlignment
-        Align widget using IpgAlignment
+    Alignment: Align
+        Align widget using Align
     Label: str
         String label for widget.
     LineHeight: float
@@ -6298,7 +6298,7 @@ class IpgTogglerParam:
     WidthFill: bool
         Whether the width fills the container.
     """
-    Alignment: IpgAlignment
+    Alignment: Align
     Label: str
     LineHeight: float
     Show: bool

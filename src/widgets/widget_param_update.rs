@@ -10,7 +10,7 @@ use crate::py_api::helpers::{
     get_height, get_width, try_extract_boolean, try_extract_f32, try_extract_f32_array_2, try_extract_string, try_extract_style_standard, try_extract_u16, try_extract_u16_array_2, try_extract_u32, try_extract_usize, try_extract_vec_f32, try_extract_vec_str, try_extract_vec_vec_f32
 };
 use crate::state::{IpgContainers, IpgWidgets};
-use crate::widgets::enums::{IpgAlignment, AlignX, IpgShaping, AlignY};
+use crate::widgets::enums::{Align, AlignX, IpgShaping, AlignY};
 use crate::widgets::ipg_text::IpgWrapping;
 
 type PyObject = Py<PyAny>;
@@ -275,8 +275,8 @@ pub fn set_valign(field: &mut Option<AlignY>, value: &PyObject, name: String) {
     *field = AlignY::extract(value);
 }
 
-pub fn set_align(field: &mut Option<IpgAlignment>, value: &PyObject, name: String) {
-    *field = IpgAlignment::extract(value);
+pub fn set_align(field: &mut Option<Align>, value: &PyObject, name: String) {
+    *field = Align::extract(value);
 }
 
 pub fn set_opt_text_shaping(field: &mut Option<IpgShaping>, value: &PyObject, name: String) {

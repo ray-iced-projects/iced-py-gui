@@ -36,24 +36,24 @@ impl IpgShaping {
 
 #[derive(Debug, Clone, PartialEq)]
 #[pyclass(eq, eq_int)]
-pub enum IpgAlignment {
+pub enum Align {
     Start,
     Center,
     End,
 }
 
-impl IpgAlignment {
+impl Align {
     pub fn to_iced(&self) -> Alignment {
         match self {
-            IpgAlignment::Start => Alignment::Start,
-            IpgAlignment::Center => Alignment::Center,
-            IpgAlignment::End => Alignment::End,
+            Align::Start => Alignment::Start,
+            Align::Center => Alignment::Center,
+            Align::End => Alignment::End,
         }
     }
 
-    pub fn extract(value: &PyObject) -> Option<IpgAlignment> {
+    pub fn extract(value: &PyObject) -> Option<Align> {
         Python::attach(|py| {
-            let res = value.extract::<IpgAlignment>(py);
+            let res = value.extract::<Align>(py);
             match res {
                 Ok(val) => Some(val),
                 Err(_) => panic!("Unable to extract python IpgAlignment"),

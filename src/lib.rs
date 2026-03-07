@@ -65,16 +65,17 @@ use crate::widgets::ipg_stack::IpgStackParam;
 use crate::widgets::ipg_table::IpgTableParam;
 use crate::widgets::ipg_text_input::{IpgTextInputParam, IpgTextInputStyleParam};
 use crate::widgets::ipg_toggle::{IpgTogglerParam, IpgTogglerStyleParam};
+use crate::widgets::ipg_window::IpgWindowParam;
 
 // Import enums from widgets module
-use widgets::enums::{IpgAlignment, AlignX, AlignY};
+use widgets::enums::{Align, AlignX, AlignY};
 use widgets::ipg_window::{IpgWindowLevel, IpgWindowMode, IpgWindowTheme};
 use widgets::styling::IpgStyleStandard;
 
 use crate::graphics::{bootstrap_icon::IpgIcon, bootstrap_arrow::IpgArrow};
 use crate::graphics::colors::IpgColor;
 use crate::widgets::ipg_button::{IpgButtonParam, IpgButtonStyleParam, IpgButtonStyleStd};
-use crate::widgets::ipg_checkbox::{IpgCheckboxParam, IpgCheckboxStyleParam};
+use crate::widgets::ipg_checkbox::{IpgCheckboxParam, IpgCheckboxStyleParam, IpgCheckboxStyleStd};
 use crate::widgets::ipg_column::IpgColumnParam;
 use crate::widgets::ipg_container::{IpgContainerParam, IpgContainerStyleParam, IpgContainerStyleStd};
 use crate::widgets::ipg_date_picker::IpgDatePickerParam;
@@ -144,6 +145,7 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<IpgButtonStyleParam>()?;
     m.add_class::<IpgButtonStyleStd>()?;
     m.add_class::<IpgCheckboxStyleParam>()?;
+    m.add_class::<IpgCheckboxStyleStd>()?;
     m.add_class::<IpgContainerParam>()?;
     m.add_class::<IpgContainerStyleParam>()?;
     m.add_class::<IpgContainerStyleStd>()?;
@@ -166,6 +168,7 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<IpgArrow>()?;
     m.add_class::<IpgButtonParam>()?;
     m.add_class::<IpgCheckboxParam>()?;
+    m.add_class::<IpgCheckboxStyleParam>()?;
     m.add_class::<IpgColumnParam>()?;
     m.add_class::<IpgContainerParam>()?;
     m.add_class::<IpgDatePickerParam>()?;
@@ -184,16 +187,17 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<IpgTogglerParam>()?;
     m.add_class::<IpgWindowLevel>()?;
     m.add_class::<IpgWindowMode>()?;
+    m.add_class::<IpgWindowParam>()?;
     m.add_class::<IpgWindowTheme>()?;
 
     // Enums
-    m.add_class::<IpgAlignment>()?;
+    m.add_class::<Align>()?;
+    m.add_class::<AlignX>()?;
+    m.add_class::<AlignY>()?;
     m.add_class::<IpgArrow>()?;
     m.add_class::<IpgColor>()?;
     m.add_class::<IpgIcon>()?;
     m.add_class::<IpgPickListHandle>()?;
-    m.add_class::<AlignX>()?;
-    m.add_class::<AlignY>()?;
     m.add_class::<IpgRadioDirection>()?;
     m.add_class::<IpgSeparatorType>()?;
     Ok(())

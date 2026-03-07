@@ -18,7 +18,7 @@ def color_selected(cp_id: int, color: list, user_data: any):
     # update the text color
     update_widget(
         wid=text_id, 
-        # Note the type is TextRgba, not TextColor
+        # Note the type is Rgba, not IpgColor
         # You could use a value of type IpgColor
         # then use the TextColor without using the colorpicker
         param=IpgTextParam.TextRgba, 

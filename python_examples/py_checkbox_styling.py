@@ -1,153 +1,159 @@
 from imports import *
 
 
-# Add some standard styled checkboxes
-def add_checkboxes():
-    add_checkbox(
-            parent_id="row", 
-            label="Primary",
-            style_standard=IpgStyleStandard.Primary)
-
-    add_checkbox(
-            parent_id="row", 
-            label="Success",
-            style_standard=IpgStyleStandard.Success)
-
-    add_checkbox(
-            parent_id="row", 
-            label="Danger",
-            style_standard=IpgStyleStandard.Danger)
-    
-    # Add a checkbox with custom styling.
-    add_checkbox(
-            parent_id="col", 
-            label="I have custom styling",
-            style_id=colors_no_border)
-    
-    # Add a checkbox with custom styling.
-    add_checkbox(
-            parent_id="col", 
-            label="I have custom styling with ugly border",
-            style_id=colors_with_border)
-    
-    # Add a checkbox with border styling.
-    add_checkbox(
-            parent_id="col", 
-            label="I have custom border styling with rounded and thicker border",
-            style_id=border)
-    
-    # Add a checkbox with no styling, should get primary
-    add_checkbox(
-            parent_id="col", 
-            label="No style defined = primary")
+# Style IDs can be created anywhere before use
+custom_bkg = add_checkbox_style(
+    background_color=IpgColor.LIGHT_BLUE)
 
 
-def add_info():
-    text = "Using the mouse, check, uncheck, and hover to see the style changes\n" 
-    text += "The standard style colors depends on the window theme color\n"
-    text += "The custom style colors will not change based on the theme color\n"
+with Window(title="Checkbox Styling",
+            size=(700, 600), center=True):
 
-    add_text(
-        parent_id="col", 
-        content=text)
+    with Scrollable(width_fill=True):
 
-# The styling can be added at any time before use.
-# No border color is set here so the unchecked box border 
-# should be the base color. The accent color is the background
-# color when the checkbox is checked.
-colors_no_border = add_checkbox_style( 
-        background_color=IpgColor.BLUE,
-        accent_color=IpgColor.YELLOW,
-        accent_color_hovered=IpgColor.DARK_SALMON,
-        icon_color=IpgColor.LIGHT_BLUE,
-        text_color=IpgColor.BLUE)
+        with Column(spacing=20.0, padding=[20.0]):
 
-# Border color defined here.
-colors_with_border = add_checkbox_style( 
-        background_color=IpgColor.BLUE,
-        border_color=IpgColor.YELLOW,
-        icon_color=IpgColor.LIGHT_BLUE,
-        text_color=IpgColor.BLUE)
+            add_text(content="Checkboxes with style_std types (check and hover to see changes)")
 
-# The default border is 1 and the radius is 2, these are used just to exaggerate.
-border = add_checkbox_style(
-            border_radius=[4.0], 
-            border_width=3.0)
+            with Row(spacing=20.0):
+
+                add_checkbox(
+                    label="Primary (Default)",
+                    is_checked=True,
+                    style_std=IpgCheckboxStyleStd.Primary)
+
+                add_checkbox(
+                    label="Secondary",
+                    is_checked=True,
+                    style_std=IpgCheckboxStyleStd.Secondary)
+
+                add_checkbox(
+                    label="Success",
+                    is_checked=True,
+                    style_std=IpgCheckboxStyleStd.Success)
+
+                add_checkbox(
+                    label="Danger",
+                    is_checked=True,
+                    style_std=IpgCheckboxStyleStd.Danger)
+
+            add_text(content="Checkbox Background Color")
+
+            with Row(spacing=20.0):
+
+                add_checkbox(
+                    label="Custom Background",
+                    is_checked=True,
+                    style_id=custom_bkg)
+
+                bkg_yellow = add_checkbox_style(
+                    background_color=IpgColor.LIGHT_YELLOW)
+
+                add_checkbox(
+                    label="Yellow Background",
+                    is_checked=True,
+                    style_id=bkg_yellow)
+
+            add_text(content="Checkbox Border Options")
+
+            with Row(spacing=20.0):
+
+                border_color = add_checkbox_style(
+                    border_color=IpgColor.RED,
+                    border_width=2.0)
+
+                border_radius = add_checkbox_style(
+                    border_color=IpgColor.BLUE,
+                    border_width=2.0,
+                    border_radius=[8.0])
+
+                border_thick = add_checkbox_style(
+                    border_color=IpgColor.DARK_GREEN,
+                    border_width=4.0,
+                    border_radius=[4.0])
+
+                add_checkbox(
+                    label="Border Color + Width",
+                    is_checked=True,
+                    style_id=border_color)
+
+                add_checkbox(
+                    label="Border Radius",
+                    is_checked=True,
+                    style_id=border_radius)
+
+                add_checkbox(
+                    label="Thick Rounded Border",
+                    is_checked=True,
+                    style_id=border_thick)
+
+            add_text(content="Checkbox Icon Color")
+
+            with Row(spacing=20.0):
+
+                icon_red = add_checkbox_style(
+                    icon_color=IpgColor.RED)
+
+                icon_green = add_checkbox_style(
+                    icon_color=IpgColor.GREEN)
+
+                add_checkbox(
+                    label="Red Icon",
+                    is_checked=True,
+                    style_id=icon_red)
+
+                add_checkbox(
+                    label="Green Icon",
+                    is_checked=True,
+                    style_id=icon_green)
+
+            add_text(content="Checkbox Text Color")
+
+            with Row(spacing=20.0):
+
+                text_blue = add_checkbox_style(
+                    text_color=IpgColor.BLUE)
+
+                text_red = add_checkbox_style(
+                    text_color=IpgColor.RED)
+
+                add_checkbox(
+                    label="Blue Text",
+                    is_checked=True,
+                    style_id=text_blue)
+
+                add_checkbox(
+                    label="Red Text",
+                    is_checked=True,
+                    style_id=text_red)
+
+            add_text(content="Checkbox Combined Styling")
+
+            with Row(spacing=20.0):
+
+                combined = add_checkbox_style(
+                    background_color=IpgColor.DARK_BLUE,
+                    border_color=IpgColor.GOLD,
+                    border_width=2.0,
+                    border_radius=[6.0],
+                    icon_color=IpgColor.GOLD,
+                    text_color=IpgColor.DARK_BLUE)
+
+                add_checkbox(
+                    label="All Custom Styles",
+                    is_checked=True,
+                    style_id=combined)
+
+                combined_std = add_checkbox_style(
+                    border_color=IpgColor.RED,
+                    border_width=2.0,
+                    icon_color=IpgColor.ORANGE)
+
+                add_checkbox(
+                    label="Success + Custom Overrides",
+                    is_checked=True,
+                    style_id=combined_std,
+                    style_std=IpgCheckboxStyleStd.Success)
 
 
-# Add a window first
-add_window(
-    id="main", 
-    title="CheckBox Demo",
-    size=(600, 600),  
-    position=(100,25))
-
-# Add a container to center the widgets in the middle
-add_container(
-    window_id="main", 
-    id="cont", 
-    width_fill=True,
-    height_fill=True,
-    center=True)
-
-# Since a container can only hold one widget, use a column to hold the
-# two checkboxes.  We let the width and height default to shrink, so no entry.
-# The alignment defaults to Start but for demonstration purpose, we
-# added the IpgColumnAlignment.Start
-add_column(
-    window_id="main", 
-    id="col", 
-    parent_id="cont",
-    align_x=IpgAlignment.Center)
-
-add_info()
-
-# Adding a row for the horizontal alignment of the checkboxes
-add_row(
-    window_id="main", 
-    id="row", 
-    parent_id="col", 
-    spacing=10.0)
-
-
-# Adding checkboxes
-add_checkboxes()
-
-
-# Let's add another window with a different background theme
-# to see how things look
-add_window(
-    id="main2", 
-    title="CheckBox Demo",
-    size=(600, 600),  
-    position=(750, 25),
-    theme=IpgWindowTheme.SolarizedLight)
-
-add_container(
-    window_id="main2", 
-    id="cont",
-    width_fill=True,
-    height_fill=True,
-    center=True)
-
-add_column(
-    window_id="main2", 
-    id="col", 
-    parent_id="cont",
-    align_x=IpgAlignment.Center)
-
-add_info()
-
-# Adding a row for the horizontal alignment of the checkboxes
-add_row(
-    window_id="main2", 
-    id="row", 
-    parent_id="col", 
-    spacing=10.0)
-
-# Adding checkboxes
-add_checkboxes()
-
-# Required to be the last widget sent to Iced,  If you start the program
-# and nothing happens, it might mean you forgot to add this command.
 start_session()

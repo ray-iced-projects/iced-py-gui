@@ -35,14 +35,16 @@ from .icedpygui import (
     add_toggler as _add_toggler,
     add_toggler_style,
     add_window as _add_window,
-    IpgAlignment,
-    AlignX, 
+    Align,
+    AlignX,
+    AlignY, 
     IpgArrow,
     IpgButtonParam,
     IpgButtonStyleParam, 
     IpgButtonStyleStd,
     IpgContainerStyleStd,
-    IpgCheckboxParam, 
+    IpgCheckboxParam,
+    IpgCheckboxStyleStd,
     IpgCheckboxStyleParam,
     IpgColor, 
     IpgColumnParam,
@@ -74,9 +76,9 @@ from .icedpygui import (
     IpgTextParam,
     IpgTogglerParam,
     IpgTogglerStyleParam,
-    AlignY,
     IpgWindowLevel, 
-    IpgWindowMode, 
+    IpgWindowMode,
+    IpgWindowParam,
     IpgWindowTheme,
     start_session,
     update_widget,
@@ -164,6 +166,7 @@ def add_window(id=None, **kwargs):
     """Wrapper around the Rust add_window.
 
     If *id* is omitted an id is auto-generated.
+    Returns the numeric widget id (usable with update_widget).
     """
     if id is None:
         id = str(generate_id())
@@ -189,9 +192,9 @@ class Window:
         self.kwargs = kwargs
 
     def __enter__(self):
-        add_window(id=self.window_id, **self.kwargs)
+        self.numeric_id = add_window(id=self.window_id, **self.kwargs)
         _window_stack.append(self.window_id)
-        return self.window_id
+        return self.numeric_id
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         _window_stack.pop()
@@ -222,14 +225,14 @@ class Container:
         self.kwargs = kwargs
 
     def __enter__(self):
-        _add_container(
+        self.numeric_id = _add_container(
             window_id=self.window_id,
             container_id=self.container_id,
             parent_id=self.parent_id or _current_parent(),
             **self.kwargs,
         )
         _parent_stack.append(self.container_id)
-        return self.container_id
+        return self.numeric_id
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         _parent_stack.pop()
@@ -260,14 +263,14 @@ class Column:
         self.kwargs = kwargs
 
     def __enter__(self):
-        _add_column(
+        self.numeric_id = _add_column(
             window_id=self.window_id,
             container_id=self.container_id,
             parent_id=self.parent_id or _current_parent(),
             **self.kwargs,
         )
         _parent_stack.append(self.container_id)
-        return self.container_id
+        return self.numeric_id
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         _parent_stack.pop()
@@ -298,14 +301,14 @@ class Row:
         self.kwargs = kwargs
 
     def __enter__(self):
-        _add_row(
+        self.numeric_id = _add_row(
             window_id=self.window_id,
             container_id=self.container_id,
             parent_id=self.parent_id or _current_parent(),
             **self.kwargs,
         )
         _parent_stack.append(self.container_id)
-        return self.container_id
+        return self.numeric_id
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         _parent_stack.pop()
@@ -335,14 +338,14 @@ class Stack:
         self.kwargs = kwargs
 
     def __enter__(self):
-        _add_row(
+        self.numeric_id = _add_stack(
             window_id=self.window_id,
             container_id=self.container_id,
             parent_id=self.parent_id or _current_parent(),
             **self.kwargs,
         )
         _parent_stack.append(self.container_id)
-        return self.container_id
+        return self.numeric_id
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         _parent_stack.pop()
@@ -373,14 +376,14 @@ class Scrollable:
         self.kwargs = kwargs
 
     def __enter__(self):
-        _add_scrollable(
+        self.numeric_id = _add_scrollable(
             window_id=self.window_id,
             container_id=self.container_id,
             parent_id=self.parent_id or _current_parent(),
             **self.kwargs,
         )
         _parent_stack.append(self.container_id)
-        return self.container_id
+        return self.numeric_id
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         _parent_stack.pop()

@@ -2,20 +2,20 @@
 use std::collections::HashMap;
 
 use crate::app::Message;
+use crate::py_api::helpers::get_padding;
 use crate::state::IpgWidgets;
-use crate::widgets::enums::{AlignX, 
-    AlignY};
+
 use crate::widgets::styling::{apply_background_overrides, 
     apply_border_overrides, apply_shadow_overrides_xy};
 use crate::widgets::widget_param_update::{
-    WidgetParamUpdate, set_bool, set_halign, set_height, 
+    WidgetParamUpdate, set_bool, set_height, 
     set_height_fill, set_iced_color_from_rgba, 
     set_opt_f32_array_2, set_opt_bool, set_opt_f32, 
     set_opt_iced_color, set_opt_usize, set_opt_vec_f32, 
-    set_valign, set_width, set_width_fill
+    set_width, set_width_fill
 };
 
-use iced::{Color, Element, Length, Theme};
+use iced::{Color, Element, Length, Theme, alignment};
 use iced::widget::{container, Space, Container};
 
 use pyo3::{pyclass, Py, PyAny};
@@ -31,15 +31,15 @@ pub struct IpgContainer {
     pub height: Length,
     pub max_width: Option<f32>,
     pub max_height: Option<f32>,
-    pub align_x: Option<AlignX>,
-    pub align_y: Option<AlignY>,
-    pub center_x: Option<bool>,
-    pub center_y: Option<bool>,
-    pub center: Option<bool>,
-    pub align_left: Option<bool>,
-    pub align_right: Option<bool>,
-    pub align_top: Option<bool>,
-    pub align_botton: Option<bool>,
+    pub align_top_left: Option<bool>,
+    pub align_top_center: Option<bool>,
+    pub align_top_right: Option<bool>,
+    pub align_center_left: Option<bool>,
+    pub align_center: Option<bool>,
+    pub align_center_right: Option<bool>,
+    pub align_bottom_left: Option<bool>,
+    pub align_bottom_center: Option<bool>,
+    pub align_bottom_right: Option<bool>,
     pub clip: Option<bool>,
     pub style_id: Option<usize>,
     pub style_std: Option<IpgContainerStyleStd>,
@@ -76,6 +76,7 @@ impl IpgContainer {
             Container::new(new_content)
                 .width(self.width)
                 .height(self.height)
+                .padding(get_padding(&self.padding))
                 .style(move|theme|
                     if let Some(st) = &style_opt {
                         st.to_iced(theme, &self.style_std)
@@ -98,50 +99,56 @@ impl IpgContainer {
             } else { cont };
 
         let cont = 
-            if let Some(align) = &self.align_x {
-                cont.align_x(align.to_iced())
+            if self.align_top_left == Some(true) {
+                cont.align_x(alignment::Horizontal::Left)
             } else { cont };
 
         let cont = 
-            if let Some(align) = &self.align_y {
-                cont.align_y(align.to_iced())
+            if self.align_top_center == Some(true) {
+                cont.align_x(alignment::Horizontal::Center)
             } else { cont };
 
         let cont = 
-            if self.center == Some(true) {
-                cont.center(self.width)
-            } else { cont };
-
-        let cont = 
-            if self.center_x == Some(true) {
-                cont.center_x(self.width)
-            } else { cont };
-
-        let cont = 
-            if self.center_y == Some(true) {
-                cont.center_y(self.height)
-            } else { cont };
-
-        let cont = 
-            if self.align_left == Some(true) {
-                cont.align_left(self.width)
-            } else { cont };
-
-        let cont = 
-            if self.align_right == Some(true) {
-                cont.align_right(self.width)
-            } else { cont };
-
-        let cont = 
-            if self.align_top == Some(true) {
-                cont.align_top(self.height)
-            } else { cont };
-
-        let cont = 
-            if self.align_botton == Some(true) {
-                cont.align_bottom(self.height)
+            if self.align_top_right == Some(true) {
+                cont.align_x(alignment::Horizontal::Right)
             } else { cont };
         
+        let cont = 
+            if self.align_center_left == Some(true) {
+                cont.align_x(alignment::Horizontal::Left)
+                    .align_y(alignment::Vertical::Center)
+            } else { cont };
+
+        let cont = 
+            if self.align_center == Some(true) {
+                cont.align_x(alignment::Horizontal::Center)
+                    .align_y(alignment::Vertical::Center)
+            } else { cont };
+        
+        let cont = 
+            if self.align_center_right == Some(true) {
+                cont.align_x(alignment::Horizontal::Right)
+                    .align_y(alignment::Vertical::Center)
+            } else { cont };
+
+        let cont = 
+            if self.align_bottom_left == Some(true) {
+                cont.align_x(alignment::Horizontal::Left)
+                    .align_y(alignment::Vertical::Bottom)
+            } else { cont };
+
+        let cont = 
+            if self.align_bottom_center == Some(true) {
+                cont.align_x(alignment::Horizontal::Center)
+                    .align_y(alignment::Vertical::Bottom)
+            } else { cont };
+
+        let cont = 
+            if self.align_bottom_right == Some(true) {
+                cont.align_x(alignment::Horizontal::Right)
+                    .align_y(alignment::Vertical::Bottom)
+            } else { cont };
+
         let cont = 
             if self.clip == Some(true) {
                 cont.clip(true)
@@ -266,15 +273,15 @@ impl IpgContainerStyleStd {
 #[derive(Debug, Clone, PartialEq)]
 #[pyclass(eq, eq_int)]
 pub enum IpgContainerParam {
-    AlignBotton,
-    AlignLeft,
-    AlignRight,
-    AlignTop,
-    AlignX,
-    AlignY,
-    Center,
-    CenterX,
-    CenterY,
+    AlignBottomCenter,
+    AlignBottomLeft,
+    AlignBottomRight,
+    AlignCenter,
+    AlignCenterLeft,
+    AlignCenterRight,
+    AlignTopCenter,
+    AlignTopLeft,
+    AlignTopRight,
     Clip,
     Height,
     HeightFill,
@@ -314,15 +321,15 @@ impl WidgetParamUpdate for IpgContainer {
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
         match param {
-            IpgContainerParam::AlignBotton => set_opt_bool(&mut self.align_botton, value, name),
-            IpgContainerParam::AlignLeft => set_opt_bool(&mut self.align_left, value, name),
-            IpgContainerParam::AlignRight => set_opt_bool(&mut self.align_right, value, name),
-            IpgContainerParam::AlignTop => set_opt_bool(&mut self.align_top, value, name),
-            IpgContainerParam::AlignX => set_halign(&mut self.align_x, value, name),
-            IpgContainerParam::AlignY => set_valign(&mut self.align_y, value, name),
-            IpgContainerParam::Center => set_opt_bool(&mut self.center, value, name),
-            IpgContainerParam::CenterX => set_opt_bool(&mut self.center_x, value, name),
-            IpgContainerParam::CenterY => set_opt_bool(&mut self.center_y, value, name),
+            IpgContainerParam::AlignBottomCenter => set_opt_bool(&mut self.align_bottom_center, value, name),
+            IpgContainerParam::AlignBottomLeft => set_opt_bool(&mut self.align_bottom_left, value, name),
+            IpgContainerParam::AlignBottomRight => set_opt_bool(&mut self.align_bottom_right, value, name),
+            IpgContainerParam::AlignCenter => set_opt_bool(&mut self.align_center, value, name),
+            IpgContainerParam::AlignCenterLeft => set_opt_bool(&mut self.align_center_left, value, name),
+            IpgContainerParam::AlignCenterRight => set_opt_bool(&mut self.align_center_right, value, name),
+            IpgContainerParam::AlignTopCenter => set_opt_bool(&mut self.align_top_center, value, name),
+            IpgContainerParam::AlignTopLeft => set_opt_bool(&mut self.align_top_left, value, name),
+            IpgContainerParam::AlignTopRight => set_opt_bool(&mut self.align_top_right, value, name),
             IpgContainerParam::Clip => set_opt_bool(&mut self.clip, value, name),
             IpgContainerParam::Height => set_height(&mut self.height, value, name),
             IpgContainerParam::HeightFill => set_height_fill(&mut self.height, value, name),
@@ -333,7 +340,8 @@ impl WidgetParamUpdate for IpgContainer {
             IpgContainerParam::WidthFill => set_width_fill(&mut self.width, value, name),
             IpgContainerParam::Show => set_bool(&mut self.show, value, name),
             IpgContainerParam::StyleId => set_opt_usize(&mut self.style_id, value, name),
-        }
+            
+                    }
     }
 }
 

@@ -1,4 +1,5 @@
 //! ipg_toggler
+use iced::advanced::text;
 use iced::widget::toggler::{self, Status};
 use iced::widget::Toggler;
 use iced::{Color, Element, Length, Theme};
@@ -10,10 +11,14 @@ use crate::app::Message;
 use crate::py_api::helpers::get_radius;
 use crate::state::IpgWidgets;
 use crate::widgets::ipg_text::IpgWrapping;
-use crate::widgets::widget_param_update::{WidgetParamUpdate, set_bool, set_halign, set_iced_color_from_rgba, set_opt_f32, set_opt_iced_color, set_opt_string, set_opt_text_shaping, set_opt_text_wrapping, set_opt_usize, set_opt_vec_f32, set_width, set_width_fill};
+use crate::widgets::widget_param_update::{WidgetParamUpdate, 
+    set_bool, set_iced_color_from_rgba, set_opt_bool, set_opt_f32, 
+    set_opt_iced_color, set_opt_string, set_opt_text_shaping, 
+    set_opt_text_wrapping, set_opt_usize, set_opt_vec_f32, 
+    set_width, set_width_fill};
 use crate::IpgState;
 use crate::widgets::callbacks::invoke_callback_with_args;
-use crate::widgets::enums::{AlignX, IpgShaping};
+use crate::widgets::enums::IpgShaping;
 type PyObject = Py<PyAny>;
 
 
@@ -30,7 +35,9 @@ pub struct IpgToggler {
     pub size: Option<f32>,
     pub text_size: Option<f32>,
     pub text_line_height: Option<f32>,
-    pub text_alignment: Option<AlignX>,
+    pub text_center: Option<bool>,
+    pub text_left: Option<bool>,
+    pub text_right: Option<bool>,
     pub text_shaping: Option<IpgShaping>,
     pub text_wrapping: Option<IpgWrapping>,
     pub spacing: Option<f32>,
@@ -76,8 +83,16 @@ pub fn construct_toggler<'a>(
         tog = tog.size(sz);
     }
 
-    if let Some(align) = &ipg_tog.text_alignment {
-        tog = tog.text_alignment(align.to_iced());
+    if ipg_tog.text_center == Some(true){
+        tog = tog.text_alignment(text::Alignment::Center);
+    }
+
+    if ipg_tog.text_left == Some(true){
+        tog = tog.text_alignment(text::Alignment::Left);
+    }
+
+    if ipg_tog.text_right == Some(true){
+        tog = tog.text_alignment(text::Alignment::Right);
     }
 
     if let Some(lh) = ipg_tog.text_line_height {
@@ -133,7 +148,9 @@ pub enum IpgTogglerParam {
     Size,
     Spacing,
     StyleId,
-    TextAlignment,
+    TextCenter,
+    TextLeft,
+    TextRight,
     TextLineHeight,
     TextShaping,
     TextSize,
@@ -258,19 +275,21 @@ impl WidgetParamUpdate for IpgToggler {
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
         match param {
-            IpgTogglerParam::FontId        => set_opt_usize(&mut self.font_id, value, name),
-            IpgTogglerParam::Label         => set_opt_string(&mut self.label, value, name),
-            IpgTogglerParam::Show          => set_bool(&mut self.show, value, name),
-            IpgTogglerParam::Size          => set_opt_f32(&mut self.size, value, name),
-            IpgTogglerParam::Spacing       => set_opt_f32(&mut self.spacing, value, name),
-            IpgTogglerParam::StyleId       => set_opt_usize(&mut self.style_id, value, name),
-            IpgTogglerParam::TextAlignment => set_halign(&mut self.text_alignment, value, name),
+            IpgTogglerParam::FontId => set_opt_usize(&mut self.font_id, value, name),
+            IpgTogglerParam::Label => set_opt_string(&mut self.label, value, name),
+            IpgTogglerParam::Show => set_bool(&mut self.show, value, name),
+            IpgTogglerParam::Size => set_opt_f32(&mut self.size, value, name),
+            IpgTogglerParam::Spacing => set_opt_f32(&mut self.spacing, value, name),
+            IpgTogglerParam::StyleId => set_opt_usize(&mut self.style_id, value, name),
+            IpgTogglerParam::TextCenter => set_opt_bool(&mut self.text_center, value, name),
+            IpgTogglerParam::TextLeft => set_opt_bool(&mut self.text_left, value, name),
+            IpgTogglerParam::TextRight => set_opt_bool(&mut self.text_right, value, name),
             IpgTogglerParam::TextLineHeight => set_opt_f32(&mut self.text_line_height, value, name),
-            IpgTogglerParam::TextShaping   => set_opt_text_shaping(&mut self.text_shaping, value, name),
-            IpgTogglerParam::TextSize      => set_opt_f32(&mut self.text_size, value, name),
-            IpgTogglerParam::TextWrapping  => set_opt_text_wrapping(&mut self.text_wrapping, value, name),
-            IpgTogglerParam::Width         => set_width(&mut self.width, value, name),
-            IpgTogglerParam::WidthFill     => set_width_fill(&mut self.width, value, name),
+            IpgTogglerParam::TextShaping => set_opt_text_shaping(&mut self.text_shaping, value, name),
+            IpgTogglerParam::TextSize => set_opt_f32(&mut self.text_size, value, name),
+            IpgTogglerParam::TextWrapping => set_opt_text_wrapping(&mut self.text_wrapping, value, name),
+            IpgTogglerParam::Width => set_width(&mut self.width, value, name),
+            IpgTogglerParam::WidthFill => set_width_fill(&mut self.width, value, name),
         }
     }
 }

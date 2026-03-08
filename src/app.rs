@@ -32,7 +32,6 @@ use crate::widgets::ipg_slider::{SLMessage, construct_slider, slider_callback};
 use crate::widgets::ipg_space::construct_space;
 use crate::widgets::ipg_svg::{SvgMessage, construct_svg, svg_callback};
 use crate::widgets::ipg_table::{TableMessage, table_callback};
-use crate::widgets::ipg_text::construct_text;
 use crate::widgets::ipg_text_input::{TIMessage, text_input_callback};
 use crate::widgets::ipg_toggle::{TOGMessage, construct_toggler, toggle_callback};
 use crate::widgets::ipg_window::{IpgWindow, IpgWindowLevel, IpgWindowMode, add_windows, construct_window};
@@ -831,11 +830,7 @@ fn get_widget<'a>(state: &'a IpgState, id: &usize) -> Option<Element<'a, Message
                     construct_svg(svg)
                 },
                 IpgWidgets::IpgText(txt) => {
-                    let font_opt = 
-                        if let Some(id) = txt.font_id {
-                            state.widgets.get(&id)
-                        } else { None };
-                    construct_text(txt, font_opt)
+                    txt.construct(&state.widgets)
                 },
                 IpgWidgets::IpgTextInput(input) => {
                     input.construct(&state.widgets)       

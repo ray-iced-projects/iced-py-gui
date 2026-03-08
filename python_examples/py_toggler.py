@@ -1,132 +1,124 @@
 from imports import *
 
-# Callback from toggler, updated a text widget
-def toggled(_tog_id, is_toggled):
-    update_widget(
-        text_id, 
-        IpgTextParam.Content, 
-        f"The toggler is {is_toggled}.")
+# Callback from toggler
+def toggled(tog_id, is_toggled):
+    print(tog_id, is_toggled)
 
 
-# The callbacks below allow you to change all of the parameters for a widget.
-# They may or may not have frequent usage but it makes the gui very flexible
-# when the data that may be loaded effects the placement, sizes, etc. used.
-# These callbacks also demonstrate the usage of the widget parameters and
-# are used in the testing of the code to make sure it behaves as expected.
-def update_label(_btn_id):
-    update_widget(
-        tog_id, 
-        IpgTogglerParam.Label, 
-        "New Toggle Label")
-
-
-def update_width(_btn_id):
-    update_widget(
-        tog_id, 
-        IpgTogglerParam.Width, 
-        100.0)
-
-
-def update_width_fill(_btn_id):
-    update_widget(
-        tog_id, 
-        IpgTogglerParam.WidthFill, 
-        True)
-
-
-def update_alignment(_btn_id):
-    update_widget(
-        tog_id, 
-        IpgTogglerParam.TextAlignment, 
-        AlignX.Left)
-
-
-def update_size(_btn_id):
-    update_widget(
-        tog_id, 
-        IpgTogglerParam.Size, 
-        30.0)
-
-
-def update_text_size(_btn_id):
-    update_widget(
-        tog_id, 
-        IpgTogglerParam.TextSize, 
-        30.0)
-
-
-def update_line_height(_btn_id):
-    update_widget(
-        tog_id, 
-        IpgTogglerParam.LineHeight, 
-        2.0)
-
+wnd_width = 700.0
 
 # Add the window
 with Window(
     id="main", 
     title="Toggler Demo",
-    size=(700, 625),  
+    size=(wnd_width, 700),  
     center=True):
 
-    # Add a main column to hold everything
-    with Column(
-        width_fill=True, 
-        height_fill=True,
-        align_x=IpgAlignment.Center, 
-        spacing=5.0):
-
-        # Add a column at the top for the toggler and a text widget
+    # Add a main row to hold two columns
+    with Row(width_fill=True, height_fill=True):
         with Column(
-            align_x=IpgAlignment.Center,
-            height=110.0, 
-            spacing=5.0, 
-            padding=[5.0], 
-            width_fill=True):
+            width = wnd_width/2.0, 
+            height_fill=True,
+            padding=[20.0],
+            spacing=20.0):
 
-            tog_id = add_toggler(toggled=toggled)
+            add_text(content="Label alignment:\nvalid if width > text width",
+                    align_center_left=True)
 
-            text_id = add_text(content="The toggler is False.")
+            # add container for the background
+            with Container(width_fill=True, height=100.0,
+                        style_std=IpgContainerStyleStd.BorderedBox):
+                # add the row to hold the togglers
+                with Column(spacing=10.0, padding=[10.0], 
+                            width_fill=True, height_fill=True):
+                    # text alignment only works if width > length of text
+                    add_toggler(label="Text left (default)", width=200.0)
+                    add_toggler(label="Text center", width=200.0, text_center=True)
+                    add_toggler(label="Text right", width=200.0, text_right=True)
+            
+            add_text(content="Toggler Size",
+                    align_center_left=True)
+            
+            # add container for the background
+            with Container(width_fill=True, height=100.0,
+                        style_std=IpgContainerStyleStd.BorderedBox):
+                # add the row to hold the togglers
+                with Column(spacing=10.0, padding=[10.0], 
+                            width_fill=True, height_fill=True):
+                    add_toggler(label="Size (default)", width=200.0)
+                    add_toggler(label="Size: 30", width=200.0, size=30.0)
+                    add_toggler(label="Size: 10", width=200.0, size=10.0)
+            
+            add_text(content="Toggler Text Size",
+                    align_center_left=True)
+            
+            # add container for the background
+            with Container(width_fill=True, height=100.0,
+                        style_std=IpgContainerStyleStd.BorderedBox):
+                # add the row to hold the togglers
+                with Column(spacing=10.0, padding=[10.0],
+                            width_fill=True, height_fill=True):
+                    add_toggler(label="Text Size (default)")
+                    add_toggler(label="Text Size: 20", text_size=20.0)
+                    add_toggler(label="Text Size: 5", text_size=5.0)
+                    
+            add_text(content="Label spacing:",
+                    align_center_left=True)
 
-        # Add another column to hold the remaining buttons
+            # add container for the background
+            with Container(width_fill=True, height=100.0,
+                        style_std=IpgContainerStyleStd.BorderedBox):
+                # add the row to hold the togglers
+                with Column(spacing=10.0, padding=[10.0], 
+                            width_fill=True, height_fill=True):
+                    
+                    add_toggler(label="Text spacing (default)")
+                    add_toggler(label="Text spacing 0", spacing=0.0)
+                    add_toggler(label="Text spacing 30", spacing=30.0)
+                        
         with Column(
-            align_x=IpgAlignment.Center, 
-            spacing=10.0, 
-            padding=[5.0]):
+            width_fill=True, 
+            height_fill=True,
+            padding=[20.0],
+            spacing=20.0):
+        
+            add_text(content="Label text Line Height:",
+                    align_center_left=True)
 
-            add_text(
-                content="Press the buttons, below, in order to best see the effects, top to bottom, left to right")
+            # add container for the background
+            with Container(width_fill=True, height=175.0,
+                        style_std=IpgContainerStyleStd.BorderedBox):
+                # add the row to hold the togglers
+                with Column(spacing=10.0, padding=[10.0], 
+                            width_fill=True, height_fill=True):
+                    
+                    # adding a container with outline to show how the 
+                    # line height works
+                    with Container(style_std=IpgContainerStyleStd.RoundedBox):
+                        add_toggler(label="Text Line Height (default=0)")
+                    with Container(style_std=IpgContainerStyleStd.RoundedBox):
+                        add_toggler(label="Text Line Height 5", text_line_height=5.0)
+                    with Container(style_std=IpgContainerStyleStd.RoundedBox):
+                        add_toggler(label="Text Line Height 2", text_line_height=2.0)
+            
+            add_text(content="Label wrapping:\n" + 
+                    "None — no wrapping; text overflows\n" +
+                    "Word — wrap at word boundaries (spaces/hyphens); (default)\n" +
+                    "Glyph — wrap at any character\n" +
+                    "WordOrGlyph — try word boundaries first, glyph-level breaking\n",
+                    align_center_left=True)
 
-            add_button(
-                label="Update Label", 
-                on_press=update_label)
-
-            add_button(
-                text_align_x=AlignX,
-                label="Update Width\n the width will shrink stacking the label",
-                on_press=update_width)
-
-            add_button(
-                label="Setting WidthFill=True\n The toggler expand the width of the container. the label is centered, "
-                            "the default setting",
-                on_press=update_width_fill)
-
-            add_button(
-                label="Setting the alignment to Left\n This caused the label to move left",
-                on_press=update_alignment)
-
-            add_button(
-                label="Setting the size\n This makes the toggler bigger", 
-                on_press=update_size)
-
-            add_button(
-                label="Increasing the TextSize", 
-                on_press=update_text_size)
-
-            # The text line height basically makes the outer box container the widget bigger
-            add_button(
-                label="Increasing the TextLineHeight\n Set window debug=True to see this better,",
-                on_press=update_line_height)
+            # add container for the background
+            with Container(width_fill=True, height=100.0,
+                        style_std=IpgContainerStyleStd.BorderedBox):
+                # add the row to hold the togglers
+                with Column(spacing=10.0, padding=[10.0], 
+                            width_fill=True, height_fill=True):
+                    
+                    add_toggler(label="Text wrapping (default=None)", width=100.0)
+                    add_toggler(label="Text wrapping", width=100.0)
+                    add_toggler(label="Text wrapping", width=100.0)            
+                
 
 # Required to be the last widget sent to Iced,  If you start the program
 # and nothing happens, it might mean you forgot to add this command.

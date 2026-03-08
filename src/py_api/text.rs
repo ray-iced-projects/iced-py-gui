@@ -4,7 +4,7 @@ use pyo3::{pyfunction, PyResult};
 use crate::py_api::helpers::{get_height, get_width};
 use crate::state::{IpgWidgets, get_id, set_state_of_widget}; 
 use crate::widgets::ipg_text::{IpgText, IpgWrapping};
-use crate::widgets::enums::{AlignX, IpgShaping, AlignY};
+use crate::widgets::enums::IpgShaping;
 use crate::access_state; 
 use crate::graphics::colors::IpgColor;
 
@@ -21,8 +21,15 @@ use crate::graphics::colors::IpgColor;
     height=None, 
     height_fill=false,
     center=true,
-    align_x=None, 
-    align_y=None,
+    align_top_left=None,
+    align_top_center=None,
+    align_top_right=None,
+    align_center_left=None,
+    align_center=None,
+    align_center_right=None,
+    align_bottom_left=None,
+    align_bottom_center=None,
+    align_bottom_right=None,
     line_height=None, 
     size=None,
     font_id=None, 
@@ -42,8 +49,15 @@ pub fn add_text(
     height: Option<f32>,
     height_fill: bool,
     center: Option<bool>,
-    align_x: Option<AlignX>,
-    align_y: Option<AlignY>,
+    align_top_left: Option<bool>,
+    align_top_center: Option<bool>,
+    align_top_right: Option<bool>,
+    align_center_left: Option<bool>,
+    align_center: Option<bool>,
+    align_center_right: Option<bool>,
+    align_bottom_left: Option<bool>,
+    align_bottom_center: Option<bool>,
+    align_bottom_right: Option<bool>,
     line_height: Option<f32>,
     size: Option<f32>,
     font_id: Option<usize>,
@@ -77,8 +91,15 @@ pub fn add_text(
             width,
             height,
             center,
-            align_x,
-            align_y,
+            align_top_left,
+            align_top_center,
+            align_top_right,
+            align_center_left,
+            align_center,
+            align_center_right,
+            align_bottom_left,
+            align_bottom_center,
+            align_bottom_right,
             font_id,
             shaping,
             show,

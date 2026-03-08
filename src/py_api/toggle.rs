@@ -1,8 +1,13 @@
 //! Toggler provide add_toggle and add_toggle_style to a python function
 use pyo3::{pyfunction, Py, PyAny, PyResult};
-
-use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex, graphics::colors::IpgColor, py_api::helpers::get_width, state::{IpgWidgets, get_id, set_state_of_widget}, widgets::{enums::{AlignX, IpgShaping}, ipg_text::IpgWrapping, ipg_toggle::{IpgToggler, IpgTogglerStyle}}};
 type PyObject = Py<PyAny>;
+
+use crate::{access_state, add_callback_to_mutex, 
+    add_user_data_to_mutex, graphics::colors::IpgColor, 
+    py_api::helpers::get_width, state::{IpgWidgets, get_id, 
+        set_state_of_widget}, widgets::{enums::{IpgShaping}, 
+        ipg_text::IpgWrapping, ipg_toggle::{IpgToggler, IpgTogglerStyle}}};
+
 
 
 #[pyfunction]
@@ -16,7 +21,9 @@ type PyObject = Py<PyAny>;
     size=None, 
     text_size=None,
     text_line_height=None, 
-    text_alignment=None,
+    text_center=None,
+    text_left=None,
+    text_right=None,
     text_shaping=None,
     text_wrapping=None, 
     spacing=None, 
@@ -36,7 +43,9 @@ pub fn add_toggler(
     size: Option<f32>,
     text_size: Option<f32>,
     text_line_height: Option<f32>,
-    text_alignment: Option<AlignX>,
+    text_center: Option<bool>,
+    text_left: Option<bool>,
+    text_right: Option<bool>,
     text_shaping: Option<IpgShaping>,
     text_wrapping: Option<IpgWrapping>,
     spacing: Option<f32>,
@@ -73,7 +82,9 @@ pub fn add_toggler(
             size,
             text_size,
             text_line_height,
-            text_alignment,
+            text_center,
+            text_left,
+            text_right,
             text_shaping,
             text_wrapping,
             spacing,

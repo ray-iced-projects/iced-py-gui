@@ -1,152 +1,72 @@
 from imports import *
 
-def align_center(btn_id):
-    update_widget(
-            wid=col_id, 
-            param=IpgRowParam.Align, 
-            value=IpgAlignment.Center)
-
-     
-# Moves the text to the end position
-def align_end(btn_id):
-    update_widget(
-            wid=col_id, 
-            param=IpgRowParam.Align, 
-            value=IpgAlignment.End)
-    
-    
-# Moves the text back to the start position
-def align_start(btn_id):
-    update_widget(
-            wid=col_id, 
-            param=IpgRowParam.Align, 
-            value=IpgAlignment.Start)
-    
-
-# Moves text off start because padding on the left side
-# padding = [top, right, bottom, left]
-def padding(btn_id):
-    update_widget(
-            wid=col_id, 
-            param=IpgRowParam.Padding, 
-            value=[0.0, 0.0, 0.0, 50.0])  
-    
-# change container width
-def width(btn_id):
-    update_widget(
-            wid=col_id, 
-            param=IpgRowParam.Width, 
-            value=350.0)
-    
-    
-# change container height
-def height(btn_id):
-    update_widget(
-            wid=col_id, 
-            param=IpgRowParam.Height, 
-            value=100.0)
- 
-# change container height
-def spacing(btn_id):
-    update_widget(
-            wid=col_id, 
-            param=IpgRowParam.Spacing, 
-            value=20.0)
-    
-    
-cont_style = add_container_style(
-                    border_width=2.0,
-                    border_color=IpgColor.WHITE)
+# Row and add_row() Demo
+# A Row adds widgets vertically
 
 
-
-# Add the windows
-add_window(
-        id="main", 
-        title="Container Styling",
+# Add the window
+with Window(
+    title="Row", 
     size=(600, 600),  
-        pos_centered=True,
-        debug=True)
+    center=True) as wnd:
 
-# Add column to hold everything
-add_column(
-        window_id="main",
-        id="col",
-        width_fill=True)
+    # Need a Column and row to hold the widgets
+    with Column(spacing=20.0, padding=[20.0], width_fill=True, height_fill=True):
+        
+        add_text(content="Spacing of 10.0 and 20.0")
+        
+        with Row(width_fill=True, height=50.0, spacing=20.0):
+            # We use add_row here to show the alternate version
+            # We add two text widgets to each Row below to demonstrate spacing
+            # The container is just for showing a little background for highlighting
+            with Container(width=200.0, height_fill=True,
+                    style_std=IpgContainerStyleStd.BorderedBox):
+                add_row(id="row1", spacing=10.0)
+                add_text(parent_id="row1", content="spacing 10")
+                add_text(parent_id="row1", content="spacing 10")
+            
+            with Container(width=200.0, height_fill=True,
+                    style_std=IpgContainerStyleStd.BorderedBox):    
+                add_row(id="row2", spacing=20.0)
+                add_text(parent_id="row2", content="spacing 20")
+                add_text(parent_id="row2", content="spacing 20")
 
+        add_text(content="Padding of [all] and [top, right, botton, left]\n" +
+                "Note the space around the Row outline", 
+                align_x=AlignX.Left)
+        
+        
+        with Row(width_fill=True, height=100.0, spacing=20.0):
+            with Container(style_std=IpgContainerStyleStd.BorderedBox):
+                add_row(id="row3", spacing=20.0, padding=[20.0])
+                add_text(parent_id="row3", content="Padding all")
+                add_text(parent_id="row3", content="Padding all")
+            
+            with Container(style_std=IpgContainerStyleStd.BorderedBox):    
+                add_row(id="row4", spacing=20.0, padding=[20.0, 0.0, 20.0, 0.0])
+                add_text(parent_id="row4", content="Padding\nTop/Bottom")
+                add_text(parent_id="row4", content="Padding\nTop/Bottom")
 
-# Add a row to hold the text widgets
-col_id = add_row(
-                window_id="main",
-                id="row_txt",
-                parent_id="col",
-                align=IpgAlignment.Start,
-                width_fill=True,
-                height=50.0
-                )
-
-add_text(
-        parent_id="row_txt",
-        content="Some Text")
-
-add_text(
-        parent_id="row_txt",
-        content="Some Text")
-
-add_text(
-        parent_id="row_txt",
-        content="Some Text")
-
-
-add_column(
-        window_id="main",
-        id="col_bottom",
-        parent_id="col",
-        width_fill=True,
-        height=400.0
-        )
-
-# Add a button the center the alignment 
-add_button(
-        parent_id="col_bottom",
-        label="Align Center",
-        on_press=align_center)
-
-# Add a button align end 
-add_button(
-        parent_id="col_bottom",
-        label="Align End",
-        on_press=align_end)
-
-# Add a button align back to the start 
-add_button(
-        parent_id="col_bottom",
-        label="Align Start",
-        on_press=align_start)
-
-# Add a button add padding of the contained items
-add_button(
-        parent_id="col_bottom",
-        label="Padding",
-        on_press=padding)
-
-# Add a button change the container width
-add_button(
-        parent_id="col_bottom",
-        label="Width",
-        on_press=width)
-
-# Add a button change the container height
-add_button(
-        parent_id="col_bottom",
-        label="Height",
-        on_press=height)
-
-# Add a button change the solumn spacing
-add_button(
-        parent_id="col_bottom",
-        label="Spacing",
-        on_press=spacing)
+        add_text(content="Alignment: bool\n" +
+                 "NOTE the empty space(s) beside each text group",
+                 align_x=AlignX.Left)
+        
+        
+        with Row(width_fill=True, height=75.0, spacing=20.0):
+            with Container(style_std=IpgContainerStyleStd.BorderedBox):
+                add_row(id="row5", width=175, height=100, spacing=10.0, align_top=True)
+                add_text(parent_id="row5", content="top")
+                add_text(parent_id="row5", content="top")
+            
+            with Container(style_std=IpgContainerStyleStd.BorderedBox):
+                add_row(id="row6", width=175, height=100, spacing=10.0, align_center=True)
+                add_text(parent_id="row6", content="center")
+                add_text(parent_id="row6", content="center")
+            
+            with Container(style_std=IpgContainerStyleStd.BorderedBox):
+                add_row(id="row7", width=175, height=100, spacing=10.0, align_bottom=True)
+                add_text(parent_id="row7", content="bottom")
+                add_text(parent_id="row7", content="bottom")
 
 # last thing is to start the session
 start_session()

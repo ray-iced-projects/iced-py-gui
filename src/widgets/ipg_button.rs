@@ -5,21 +5,19 @@ use crate::app::Message;
 use crate::graphics::bootstrap_arrow::IpgArrow;
 use crate::state::IpgWidgets;
 use crate::widgets::callbacks::invoke_callback;
-use crate::widgets::enums::{AlignX, 
-    AlignY};
 use crate::py_api::helpers::get_padding;
 use crate::widgets::styling::{apply_shadow_overrides_xy, 
     apply_border_overrides, apply_background_overrides, 
     get_custom_palette};
 use crate::widgets::widget_param_update::set_opt_f32_array_2;
 use crate::widgets::widget_param_update::{
-    WidgetParamUpdate, set_bool, set_halign, set_height, 
+    WidgetParamUpdate, set_bool, set_height, 
     set_height_fill, set_iced_color_from_rgba, set_opt_bool, 
     set_opt_f32, set_opt_iced_color, set_opt_string, set_opt_usize, 
-    set_opt_vec_f32, set_valign, set_width, set_width_fill
+    set_opt_vec_f32, set_width, set_width_fill
 };
 
-use iced::Background;
+use iced::{Background, alignment};
 use iced::border;
 use iced::widget::{button, text, Button};
 use iced::{Color, Element, Length, Theme};
@@ -37,9 +35,15 @@ pub struct IpgButton {
     pub width: Length,
     pub height: Length,
     pub padding: Option<Vec<f32>>,
-    pub text_align_x: Option<AlignX>,
-    pub text_align_y: Option<AlignY>,
-    pub text_center: bool,
+    pub text_align_top_left: Option<bool>,
+    pub text_align_top_center: Option<bool>,
+    pub text_align_top_right: Option<bool>,
+    pub text_align_center_left: Option<bool>,
+    pub text_align_center: Option<bool>,
+    pub text_align_center_right: Option<bool>,
+    pub text_align_bottom_left: Option<bool>,
+    pub text_align_bottom_center: Option<bool>,
+    pub text_align_bottom_right: Option<bool>,
     pub text_size: Option<f32>,
     pub clip: Option<bool>,
     pub style_id: Option<usize>,
@@ -77,17 +81,59 @@ impl IpgButton {
                 text(label.clone())
             };
 
-        let txt = match &self.text_align_x {
-            Some(align) => txt.align_x(align.to_iced()),
-            None if self.text_center => txt.align_x(iced::alignment::Horizontal::Center),
-            None => txt,
-        };
+        // Center is the default but is overridden by any other alignment
+        // so center needs to be the first one tested
+        let txt = 
+                txt.align_x(alignment::Horizontal::Center)
+                    .align_y(alignment::Vertical::Center);
 
-        let txt = match &self.text_align_y {
-            Some(align) => txt.align_y(align.to_iced()),
-            None if self.text_center => txt.align_y(iced::alignment::Vertical::Center),
-            None => txt,
-        };
+        let txt = 
+            if self.text_align_top_left == Some(true) {
+                txt.align_x(alignment::Horizontal::Left)
+                    .align_y(alignment::Vertical::Top)
+            } else { txt };
+
+        let txt = 
+            if self.text_align_top_center == Some(true) {
+                txt.align_x(alignment::Horizontal::Center)
+                    .align_y(alignment::Vertical::Top)
+            } else { txt };
+
+        let txt = 
+            if self.text_align_top_right == Some(true) {
+                txt.align_x(alignment::Horizontal::Right)
+                    .align_y(alignment::Vertical::Top)
+            } else { txt };
+        
+        let txt = 
+            if self.text_align_center_left == Some(true) {
+                txt.align_x(alignment::Horizontal::Left)
+                    .align_y(alignment::Vertical::Center)
+            } else { txt };
+
+        let txt = 
+            if self.text_align_center_right == Some(true) {
+                txt.align_x(alignment::Horizontal::Right)
+                    .align_y(alignment::Vertical::Center)
+            } else { txt };
+
+        let txt = 
+            if self.text_align_bottom_left == Some(true) {
+                txt.align_x(alignment::Horizontal::Left)
+                    .align_y(alignment::Vertical::Bottom)
+            } else { txt };
+
+        let txt = 
+            if self.text_align_bottom_center == Some(true) {
+                txt.align_x(alignment::Horizontal::Center)
+                    .align_y(alignment::Vertical::Bottom)
+            } else { txt };
+
+        let txt = 
+            if self.text_align_bottom_right == Some(true) {
+                txt.align_x(alignment::Horizontal::Right)
+                    .align_y(alignment::Vertical::Bottom)
+            } else { txt };
         
         let txt = 
             if let Some(size) = self.text_size {
@@ -287,9 +333,15 @@ pub enum IpgButtonParam {
     Show,
     StyleId,
     StyleStandard,
-    TextAlignX,
-    TextAlignY,
-    TextCenter,
+    TextAlignBottomCenter,
+    TextAlignBottomLeft,
+    TextAlignBottomRight,
+    TextAlignCenter,
+    TextAlignCenterLeft,
+    TextAlignCenterRight,
+    TextAlignTopCenter,
+    TextAlignTopLeft,
+    TextAlignTopRight,
     TextSize,
     Width,
     WidthFill,
@@ -351,12 +403,18 @@ impl WidgetParamUpdate for IpgButton {
             IpgButtonParam::StyleStandard => {
                 self.style_std = Some(extract_button_style_standard(value, name));
             },
-            IpgButtonParam::TextAlignX => set_halign(&mut self.text_align_x, value, name),
-            IpgButtonParam::TextAlignY => set_valign(&mut self.text_align_y, value, name),
-            IpgButtonParam::TextCenter => set_bool(&mut self.text_center, value, name),
             IpgButtonParam::TextSize => set_opt_f32(&mut self.text_size, value, name),
             IpgButtonParam::Width => set_width(&mut self.width, value, name),
             IpgButtonParam::WidthFill => set_width_fill(&mut self.width, value, name),
+            IpgButtonParam::TextAlignBottomCenter => set_opt_bool(&mut self.text_align_bottom_center, value, name),
+            IpgButtonParam::TextAlignBottomLeft => set_opt_bool(&mut self.text_align_bottom_left, value, name),
+            IpgButtonParam::TextAlignBottomRight => set_opt_bool(&mut self.text_align_bottom_right, value, name),
+            IpgButtonParam::TextAlignCenter => set_opt_bool(&mut self.text_align_center, value, name),
+            IpgButtonParam::TextAlignCenterLeft => set_opt_bool(&mut self.text_align_center_left, value, name),
+            IpgButtonParam::TextAlignCenterRight => set_opt_bool(&mut self.text_align_bottom_right, value, name),
+            IpgButtonParam::TextAlignTopCenter => set_opt_bool(&mut self.text_align_top_center, value, name),
+            IpgButtonParam::TextAlignTopLeft => set_opt_bool(&mut self.text_align_top_left, value, name),
+            IpgButtonParam::TextAlignTopRight => set_opt_bool(&mut self.text_align_top_right, value, name),
         }
     }
 }

@@ -1,12 +1,13 @@
 //! ipg_column
 use crate::app::Message;
 use crate::py_api::helpers::get_padding;
-use crate::widgets::enums::AlignX;
 use crate::widgets::widget_param_update::{
-    WidgetParamUpdate, set_halign, set_height, set_height_fill, set_opt_bool, set_opt_f32, set_opt_vec_f32, set_width, set_width_fill
+    WidgetParamUpdate, set_height, set_height_fill, 
+    set_opt_bool, set_opt_f32, set_opt_vec_f32, 
+    set_width, set_width_fill
 };
 
-use iced::{Element, Length};
+use iced::{Alignment, Element, Length};
 use iced::widget::Column;
 
 use pyo3::{pyclass, Py, PyAny};
@@ -22,7 +23,9 @@ pub struct IpgColumn {
     pub width: Length,
     pub height: Length,
     pub max_width: Option<f32>,
-    pub align_x: Option<AlignX>,
+    pub align_left: Option<bool>,
+    pub align_center: Option<bool>,
+    pub align_right: Option<bool>,
     pub clip: Option<bool>,
 }
 
@@ -38,8 +41,18 @@ impl IpgColumn {
                 .height(self.height);
         
         let col = 
-            if let Some(align_x) = &self.align_x {
-                    col.align_x(align_x.to_iced())
+            if self.align_left ==  Some(true) {
+                    col.align_x(Alignment::Start)
+                } else { col };
+
+        let col = 
+            if self.align_center ==  Some(true) {
+                    col.align_x(Alignment::Center)
+                } else { col };
+
+        let col = 
+            if self.align_right ==  Some(true) {
+                    col.align_x(Alignment::End)
                 } else { col };
 
         let col = 
@@ -63,7 +76,9 @@ impl IpgColumn {
 #[derive(Debug, Clone, PartialEq)]
 #[pyclass(eq, eq_int)]
 pub enum IpgColumnParam {
-    AlignX,
+    AlignLeft,
+    AlignCenter,
+    AlignRight,
     Clip,
     Height,
     HeightFill,
@@ -82,14 +97,16 @@ impl WidgetParamUpdate for IpgColumn {
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
         match param {
-            IpgColumnParam::AlignX     => set_halign(&mut self.align_x, value, name),
-            IpgColumnParam::Clip       => set_opt_bool(&mut self.clip, value, name),
-            IpgColumnParam::Padding    => set_opt_vec_f32(&mut self.padding, value, name),
-            IpgColumnParam::Width      => set_width(&mut self.width, value, name),
-            IpgColumnParam::WidthFill  => set_width_fill(&mut self.width, value, name),
-            IpgColumnParam::Height     => set_height(&mut self.height, value, name),
+            IpgColumnParam::AlignLeft => set_opt_bool(&mut self.align_left, value, name),
+            IpgColumnParam::AlignCenter => set_opt_bool(&mut self.align_center, value, name),
+            IpgColumnParam::AlignRight => set_opt_bool(&mut self.align_right, value, name),
+            IpgColumnParam::Clip => set_opt_bool(&mut self.clip, value, name),
+            IpgColumnParam::Padding => set_opt_vec_f32(&mut self.padding, value, name),
+            IpgColumnParam::Width  => set_width(&mut self.width, value, name),
+            IpgColumnParam::WidthFill => set_width_fill(&mut self.width, value, name),
+            IpgColumnParam::Height => set_height(&mut self.height, value, name),
             IpgColumnParam::HeightFill => set_height_fill(&mut self.height, value, name),
-            IpgColumnParam::Spacing    => set_opt_f32(&mut self.spacing, value, name),
+            IpgColumnParam::Spacing => set_opt_f32(&mut self.spacing, value, name),
         }
     }
 }

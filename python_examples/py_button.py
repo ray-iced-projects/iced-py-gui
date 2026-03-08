@@ -43,78 +43,75 @@ with Window(id="main", title="App",
                     label="Left/Right Padding",
                     padding=[0.0, 10.0, 0.0, 10.0]) # left & right
             
-            add_text(content="Button label Alignment, Center X and Center Y defaults")
+            add_text(content="Button label Alignment: bool")
                 
             with Row(spacing=20.0):
                 
                 add_button(
-                    label="Align Center default",
-                    width=200.0,
-                    height=50.0
+                    label="top left",
+                    width=150.0,
+                    height=50.0,
+                    text_align_top_left=True,
                 )
                 
                 add_button(
-                    label="Align Top",
-                    width=200.0,
+                    label="top center",
+                    width=150.0,
                     height=50.0,
-                    text_align_y=AlignY.Top,
+                    text_align_top_center=True,
                 )
                 
                 add_button(
-                    label="Align Bottom",
+                    label="top right",
                     width=200.0,
                     height=50.0,
-                    text_align_y=AlignY.Bottom,
-                )
-                
-            with Row(spacing=20.0):
-                
-                add_button(
-                    label="Align Left Top",
-                    width=200.0,
-                    height=50.0,
-                    text_align_x=AlignX.Left,
-                    text_align_y=AlignY.Top,
-                )
-                
-                add_button(
-                    label="Align left Center",
-                    width=200.0,
-                    height=50.0,
-                    text_align_x=AlignX.Left,
-                )
-                
-                add_button(
-                    label="Align Left Bottom",
-                    width=200.0,
-                    height=50.0,
-                    text_align_x=AlignX.Left,
-                    text_align_y=AlignY.Bottom,
+                    text_align_top_right=True,
                 )
                 
             with Row(spacing=20.0):
                 
                 add_button(
-                    label="Align Right Top",
+                    label="center left",
                     width=200.0,
                     height=50.0,
-                    text_align_x=AlignX.Right,
-                    text_align_y=AlignY.Top,
+                    text_align_center_left=True,
                 )
                 
                 add_button(
-                    label="Align Right Center",
+                    label="center (default)",
                     width=200.0,
                     height=50.0,
-                    text_align_x=AlignX.Right,
+                    text_align_center=True,
                 )
                 
                 add_button(
-                    label="Align Right Bottom",
+                    label="center right",
                     width=200.0,
                     height=50.0,
-                    text_align_x=AlignX.Right,
-                    text_align_y=AlignY.Bottom,
+                    text_align_center_right=True,
+                )
+                
+            with Row(spacing=20.0):
+                
+                add_button(
+                    label="bottom left",
+                    width=200.0,
+                    height=50.0,
+                    text_align_bottom_left=True,
+                )
+                
+                add_button(
+                    label="bottom center",
+                    width=200.0,
+                    height=50.0,
+                    text_align_bottom_center=True,
+                )
+                
+                add_button(
+                    label="bottom right",
+                    width=200.0,
+                    height=50.0,
+                    text_align_bottom_right=True,
                 )
                 
             add_text(content="Button label text size")

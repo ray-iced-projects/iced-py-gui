@@ -16,7 +16,7 @@ with Window(
     # Need a column and row to hold the widget
     with Column(spacing=20.0, padding=[20.0], width_fill=True, height_fill=True):
         
-        add_text(content="Alignments", align_x=AlignX.Left)
+        add_text(content="Alignments: booleans", align_x=AlignX.Left)
         
         with Row(width_fill=True, height=75.0, spacing=20.0):
             # We use add_container here to show the alternate version

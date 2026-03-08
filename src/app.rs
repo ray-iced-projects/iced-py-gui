@@ -24,7 +24,6 @@ use crate::widgets::ipg_opaque::{construct_opaque, opaque_callback};
 use crate::widgets::ipg_pick_list::{PLMessage, construct_picklist, pick_list_callback};
 use crate::widgets::ipg_progress_bar::construct_progress_bar;
 use crate::widgets::ipg_radio::{RDMessage, construct_radio, radio_callback};
-use crate::widgets::ipg_row::construct_row;
 use crate::widgets::ipg_rule::construct_rule;
 use crate::widgets::ipg_scrollable::scrollable_callback;
 use crate::widgets::ipg_selectable_text::{SLTXTMessage, construct_selectable_text, selectable_text_callback};
@@ -705,7 +704,7 @@ fn get_container<'a>(state: &'a IpgState,
                     table.construct(content, &state.widgets)
                 },
                 IpgContainers::IpgRow(row) => {
-                    construct_row(row, content)
+                    row.construct(content)
                 },
                 IpgContainers::IpgScrollable(scroll) => {
                     scroll.construct(content, &state.widgets)

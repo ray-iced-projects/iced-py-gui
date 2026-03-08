@@ -1,5 +1,5 @@
 //! ipg_row
-use iced::{Length, Element};
+use iced::{Alignment, Element, Length};
 use iced::widget::Row;
 
 use pyo3::{pyclass, Py, PyAny};
@@ -8,11 +8,10 @@ type PyObject = Py<PyAny>;
 use crate::app::Message;
 
 use crate::py_api::helpers::get_padding;
-use crate::widgets::enums::Align;
 use crate::widgets::widget_param_update::{
     WidgetParamUpdate,
     set_opt_bool, set_opt_f32, set_opt_vec_f32,
-    set_width, set_width_fill, set_height, set_height_fill, set_align,
+    set_width, set_width_fill, set_height, set_height_fill,
 };
 
 
@@ -25,46 +24,62 @@ pub struct IpgRow {
     pub padding: Option<Vec<f32>>,
     pub width: Length,
     pub height: Length,
-    pub align_y: Option<Align>,
+    pub align_bottom: Option<bool>,
+    pub align_center: Option<bool>,
+    pub align_top: Option<bool>,
     pub clip: Option<bool>,
 }
 
-pub fn construct_row<'a>(
-    ipg_row: &IpgRow, 
-    content: Vec<Element<'a, Message>>,
-    ) -> Element<'a, Message> {
+impl IpgRow {
+    pub fn construct<'a>(
+        &self, 
+        content: Vec<Element<'a, Message>>,
+        ) -> Element<'a, Message> {
 
-    let row = 
-        Row::with_children(content)
-            .width(ipg_row.width)
-            .height(ipg_row.height);
-                        
-    let row = 
-        if let Some(align) = &ipg_row.align_y {
-            row.align_y(Align::to_iced(align))
-        } else { row };
+        let row = 
+            Row::with_children(content)
+                .width(self.width)
+                .height(self.height);
+                            
+        let row = 
+            if self.align_top ==  Some(true) {
+                    row.align_y(Alignment::Start)
+                } else { row };
 
-    let row = 
-        row.padding(get_padding(&ipg_row.padding));
+        let row = 
+            if self.align_center ==  Some(true) {
+                    row.align_y(Alignment::Center)
+                } else { row };
 
-    let row = 
-        if let Some(sp) = ipg_row.spacing {
-            row.spacing(sp)
-        } else { row };
+        let row = 
+            if self.align_bottom ==  Some(true) {
+                    row.align_y(Alignment::End)
+                } else { row };
 
-    let row = 
-        if let Some(cp) = ipg_row.clip {
-            row.clip(cp)
-        } else { row };
+        let row = 
+            row.padding(get_padding(&self.padding));
 
-    row.into()
+        let row = 
+            if let Some(sp) = self.spacing {
+                row.spacing(sp)
+            } else { row };
+
+        let row = 
+            if let Some(cp) = self.clip {
+                row.clip(cp)
+            } else { row };
+
+        row.into()
+    }
 }
 
 
 #[derive(Debug, Clone, PartialEq)]
 #[pyclass(eq, eq_int)]
 pub enum IpgRowParam {
-    Align,
+    AlignBottom,
+    AlignCenter,
+    AlignTop,
     Clip,
     Padding,
     Width,
@@ -84,7 +99,9 @@ impl WidgetParamUpdate for IpgRow {
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
         match param {
-            IpgRowParam::Align => set_align(&mut self.align_y, value, name),
+            IpgRowParam::AlignBottom => set_opt_bool(&mut self.align_bottom, value, name),
+            IpgRowParam::AlignCenter => set_opt_bool(&mut self.align_center, value, name),
+            IpgRowParam::AlignTop => set_opt_bool(&mut self.align_top, value, name),
             IpgRowParam::Clip => set_opt_bool(&mut self.clip, value, name),
             IpgRowParam::Padding => set_opt_vec_f32(&mut self.padding, value, name),
             IpgRowParam::Width => set_width(&mut self.width, value, name),

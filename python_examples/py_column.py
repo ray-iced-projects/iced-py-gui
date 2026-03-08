@@ -18,7 +18,7 @@ with Window(
         with Row(width_fill=True, height=100.0, spacing=20.0):
             # We use add_column here to show the alternate version
             # We add two text widgets to each column below to demonstrate spacing
-            
+            # The container is just for showing a little background for highlighting
             with Container(width=200.0, height_fill=True,
                     style_std=IpgContainerStyleStd.BorderedBox):
                 add_column(id="col1", spacing=10.0)
@@ -55,17 +55,17 @@ with Window(
         
         with Row(width_fill=True, height=75.0, spacing=20.0):
             with Container(style_std=IpgContainerStyleStd.BorderedBox):
-                add_column(id="col5", width=175, height=100, align_x=AlignX.Left)
+                add_column(id="col5", width=175, height=100, align_left=True)
                 add_text(parent_id="col5", content="Left")
                 add_text(parent_id="col5", content="Left")
             
             with Container(style_std=IpgContainerStyleStd.BorderedBox):
-                add_column(id="col6", width=175, height=100, align_x=AlignX.Center)
+                add_column(id="col6", width=175, height=100, align_center=True)
                 add_text(parent_id="col6", content="Center")
                 add_text(parent_id="col6", content="Center")
             
             with Container(style_std=IpgContainerStyleStd.BorderedBox):
-                add_column(id="col7", width=175, height=100, align_x=AlignX.Right)
+                add_column(id="col7", width=175, height=100, align_right=True)
                 add_text(parent_id="col7", content="Right")
                 add_text(parent_id="col7", content="Right")
 

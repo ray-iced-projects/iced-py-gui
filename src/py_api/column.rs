@@ -6,7 +6,6 @@ use crate::access_state;
 use crate::py_api::helpers::{get_height, get_width};
 use crate::state::{IpgContainers, get_id, set_state_cont_wnd_ids, 
     set_state_of_container};
-use crate::widgets::enums::AlignX;
 use crate::widgets::ipg_column::IpgColumn;
 
 
@@ -18,14 +17,16 @@ use crate::widgets::ipg_column::IpgColumn;
         window_id, 
         container_id, 
         parent_id=None,
-        align_x=None,
         width=None, 
         width_fill=false,
         height=None, 
         height_fill=false,
         max_width=None,
         padding=None,
-        spacing=None, 
+        spacing=None,
+        align_left=None,
+        align_center=None,
+        align_right=None, 
         clip=None, 
         show=true,
         ))]
@@ -34,7 +35,6 @@ pub fn add_column(
     container_id: String,
     // **above required
     parent_id: Option<String>,
-    align_x: Option<AlignX>,
     width: Option<f32>,
     width_fill: bool,
     height: Option<f32>,
@@ -42,6 +42,9 @@ pub fn add_column(
     max_width: Option<f32>,
     padding: Option<Vec<f32>>,
     spacing: Option<f32>,
+    align_left: Option<bool>,
+    align_center: Option<bool>,
+    align_right: Option<bool>,
     clip: Option<bool>,
     show: bool,
     ) -> PyResult<usize> 
@@ -72,7 +75,9 @@ pub fn add_column(
                 width, 
                 height, 
                 max_width, 
-                align_x,
+                align_left,
+                align_center,
+                align_right,
                 clip,
             }));
 

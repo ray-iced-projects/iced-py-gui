@@ -101,16 +101,19 @@ impl IpgContainer {
         let cont = 
             if self.align_top_left == Some(true) {
                 cont.align_x(alignment::Horizontal::Left)
+                    .align_y(alignment::Vertical::Top)
             } else { cont };
 
         let cont = 
             if self.align_top_center == Some(true) {
                 cont.align_x(alignment::Horizontal::Center)
+                    .align_y(alignment::Vertical::Top)
             } else { cont };
 
         let cont = 
             if self.align_top_right == Some(true) {
                 cont.align_x(alignment::Horizontal::Right)
+                    .align_y(alignment::Vertical::Top)
             } else { cont };
         
         let cont = 

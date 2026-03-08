@@ -7,7 +7,6 @@ use crate::access_state;
 use crate::py_api::helpers::{get_height, get_width};
 use crate::state::{IpgContainers, get_id, 
     set_state_cont_wnd_ids, set_state_of_container};
-use crate::widgets::enums::Align;
 use crate::widgets::ipg_row::IpgRow;
 
 
@@ -23,7 +22,9 @@ use crate::widgets::ipg_row::IpgRow;
         width_fill=false,  
         height=None, 
         height_fill=false,
-        align_y=None,
+        align_bottom=None,
+        align_center=None,
+        align_top=None,
         padding=None, 
         spacing=None, 
         clip=None,
@@ -38,7 +39,9 @@ pub fn add_row(
     width_fill: bool,
     height: Option<f32>,
     height_fill: bool,
-    align_y: Option<Align>,
+    align_bottom: Option<bool>,
+    align_center: Option<bool>,
+    align_top: Option<bool>,
     padding: Option<Vec<f32>>,
     spacing: Option<f32>,
     clip: Option<bool>,
@@ -70,7 +73,9 @@ pub fn add_row(
             padding, 
             width, 
             height, 
-            align_y,
+            align_bottom,
+            align_center,
+            align_top,
             clip,
         }));
 

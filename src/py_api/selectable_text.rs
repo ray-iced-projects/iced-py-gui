@@ -1,7 +1,10 @@
 //!SelectableText - Provides add_selectable_text to the pyfunction
 use pyo3::{Py, PyAny, PyResult, pyfunction};
 
-use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex, graphics::colors::IpgColor, py_api::helpers::{get_height, get_width}, state::{IpgWidgets, get_id, set_state_of_widget}, widgets::{enums::{AlignX, IpgShaping, AlignY}, ipg_selectable_text::IpgSelectableText, ipg_text::IpgWrapping}};
+use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex, 
+    graphics::colors::IpgColor, py_api::helpers::{get_height, get_width}, 
+    state::{IpgWidgets, get_id, set_state_of_widget}, widgets::{enums::{AlignX, AlignY}, 
+    ipg_selectable_text::IpgSelectableText, ipg_text::{TextShaping, TextWrapping}}};
 type PyObject = Py<PyAny>;
 
 #[pyfunction]
@@ -62,8 +65,8 @@ pub fn add_selectable_text(
     text_rgba: Option<[f32; 4]>,
     show: bool,
     font_id: Option<usize>,
-    shaping: Option<IpgShaping>,
-    wrapping: Option<IpgWrapping>,
+    shaping: Option<TextShaping>,
+    wrapping: Option<TextWrapping>,
     user_data: Option<PyObject>,
     ) -> PyResult<usize> 
 {

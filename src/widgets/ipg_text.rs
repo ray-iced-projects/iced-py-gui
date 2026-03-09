@@ -3,7 +3,7 @@ use std::collections::HashMap;
 
 use iced::advanced::text;
 use iced::{Color, Element, Length, alignment};
-use iced::widget::text::Style;
+use iced::widget::text::{Shaping, Style};
 use iced::widget::Text;
 
 use pyo3::{Py, PyAny, Python, pyclass};
@@ -11,7 +11,6 @@ type PyObject = Py<PyAny>;
 
 use crate::app::Message;
 use crate::state::IpgWidgets;
-use crate::widgets::enums::{IpgShaping};
 use crate::widgets::widget_param_update::{
     WidgetParamUpdate, set_bool, set_height, set_height_fill, 
     set_iced_color_from_rgba, set_opt_bool, set_opt_f32, 
@@ -40,10 +39,10 @@ pub struct IpgText {
     pub align_bottom_center: Option<bool>,
     pub align_bottom_right: Option<bool>,
     pub font_id: Option<usize>,
-    pub shaping: Option<IpgShaping>,
+    pub shaping: Option<TextShaping>,
     pub show: bool,
     pub color: Option<Color>,
-    pub wrapping: Option<IpgWrapping>,
+    pub wrapping: Option<TextWrapping>,
 }
 
 impl IpgText {
@@ -188,21 +187,21 @@ pub enum IpgTextParam {
 // The wrapping strategy of some text.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
 #[pyclass(eq, eq_int)]
-pub enum IpgWrapping {
-    None,
+pub enum TextWrapping {
+    TextNone,
     #[default]
     Glyph,
     Word,
     WordOrGlyph,
 }
 
-impl IpgWrapping {
+impl TextWrapping {
     pub fn to_iced(&self) -> text::Wrapping {
         match self {
-            IpgWrapping::None => text::Wrapping::None,
-            IpgWrapping::Glyph => text::Wrapping::Glyph,
-            IpgWrapping::Word => text::Wrapping::Word,
-            IpgWrapping::WordOrGlyph => text::Wrapping::WordOrGlyph,
+            TextWrapping::TextNone => text::Wrapping::None,
+            TextWrapping::Glyph => text::Wrapping::Glyph,
+            TextWrapping::Word => text::Wrapping::Word,
+            TextWrapping::WordOrGlyph => text::Wrapping::WordOrGlyph,
         }
     }
 
@@ -215,6 +214,34 @@ impl IpgWrapping {
                 Err(_) => panic!("Unable to extract python object for IpgWrapping"),
             }
         }))
+    }
+}
+
+#[derive(Debug, Clone, PartialEq)]
+#[pyclass(eq, eq_int)]
+pub enum TextShaping {
+    Auto,
+    Basic,
+    Advanced,
+}
+
+impl TextShaping {
+    pub fn to_iced(&self) -> Shaping {
+        match self {
+            TextShaping::Auto => Shaping::Auto,
+            TextShaping::Basic => Shaping::Basic,
+            TextShaping::Advanced => Shaping::Advanced,
+        }
+    }
+
+    pub fn extract(value: &PyObject) -> Option<TextShaping> {
+        Python::attach(|py| {
+            let res = value.extract::<TextShaping>(py);
+            match res {
+                Ok(val) => Some(val),
+                Err(_) => panic!("Unable to extract python IpgShaping"),
+            }
+        })  
     }
 }
 
@@ -247,7 +274,7 @@ impl WidgetParamUpdate for IpgText {
             IpgTextParam::TextRgba => set_iced_color_from_rgba(&mut self.color, value, name),
             IpgTextParam::Width => set_width(&mut self.width, value, name),
             IpgTextParam::WidthFill => set_width_fill(&mut self.width, value, name),
-            IpgTextParam::Wrapping => self.wrapping = IpgWrapping::extract(value),
+            IpgTextParam::Wrapping => self.wrapping = TextWrapping::extract(value),
             
         }
     }

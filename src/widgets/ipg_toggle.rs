@@ -10,7 +10,7 @@ use pyo3::{pyclass, Py, PyAny};
 use crate::app::Message;
 use crate::py_api::helpers::get_radius;
 use crate::state::IpgWidgets;
-use crate::widgets::ipg_text::IpgWrapping;
+use crate::widgets::ipg_text::TextWrapping;
 use crate::widgets::widget_param_update::{WidgetParamUpdate, 
     set_bool, set_iced_color_from_rgba, set_opt_bool, set_opt_f32, 
     set_opt_iced_color, set_opt_string, set_opt_text_shaping, 
@@ -18,7 +18,7 @@ use crate::widgets::widget_param_update::{WidgetParamUpdate,
     set_width, set_width_fill};
 use crate::IpgState;
 use crate::widgets::callbacks::invoke_callback_with_args;
-use crate::widgets::enums::IpgShaping;
+use crate::widgets::ipg_text::TextShaping;
 type PyObject = Py<PyAny>;
 
 
@@ -38,8 +38,8 @@ pub struct IpgToggler {
     pub text_center: Option<bool>,
     pub text_left: Option<bool>,
     pub text_right: Option<bool>,
-    pub text_shaping: Option<IpgShaping>,
-    pub text_wrapping: Option<IpgWrapping>,
+    pub text_shaping: Option<TextShaping>,
+    pub text_wrapping: Option<TextWrapping>,
     pub spacing: Option<f32>,
     pub font_id: Option<usize>,
     pub style_id: Option<usize>,

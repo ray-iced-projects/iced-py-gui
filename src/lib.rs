@@ -63,6 +63,7 @@ use crate::widgets::ipg_separator::{IpgSeparatorParam, IpgSeparatorStyleParam, I
 use crate::widgets::ipg_slider::{IpgSliderParam, IpgSliderStyleParam};
 use crate::widgets::ipg_stack::IpgStackParam;
 use crate::widgets::ipg_table::IpgTableParam;
+use crate::widgets::ipg_text::TextShaping;
 use crate::widgets::ipg_text_input::{IpgTextInputParam, IpgTextInputStyleParam};
 use crate::widgets::ipg_toggle::{IpgTogglerParam, IpgTogglerStyleParam};
 use crate::widgets::ipg_window::IpgWindowParam;
@@ -81,7 +82,7 @@ use crate::widgets::ipg_container::{IpgContainerParam, IpgContainerStyleParam, I
 use crate::widgets::ipg_date_picker::IpgDatePickerParam;
 use crate::widgets::ipg_divider::{IpgDividerDirection, IpgDividerParam, IpgDividerStyleParam};
 use crate::widgets::ipg_pick_list::IpgPickListHandle;
-use crate::widgets::ipg_text::IpgTextParam;
+use crate::widgets::ipg_text::{IpgTextParam, TextWrapping};
 
 /// Python module definition
 #[pymodule]
@@ -200,5 +201,7 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<IpgPickListHandle>()?;
     m.add_class::<IpgRadioDirection>()?;
     m.add_class::<IpgSeparatorType>()?;
+    m.add_class::<TextShaping>()?;
+    m.add_class::<TextWrapping>()?;
     Ok(())
 }

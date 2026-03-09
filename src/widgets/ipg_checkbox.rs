@@ -3,10 +3,9 @@
 use std::collections::HashMap;
 
 use crate::graphics::colors::IpgColor;
-use crate::widgets::enums::IpgShaping;
 use crate::state::IpgState;
 use crate::app::Message;
-use crate::widgets::ipg_text::IpgWrapping;
+use crate::widgets::ipg_text::{TextShaping, TextWrapping};
 use crate::widgets::widget_param_update::{
     WidgetParamUpdate,
     set_bool, set_opt_f32, set_opt_string, set_opt_usize, set_opt_vec_f32,
@@ -43,14 +42,14 @@ pub struct IpgCheckBox {
     pub spacing: Option<f32>,
     pub text_size: Option<f32>,
     pub text_line_height: Option<f32>,
-    pub text_shaping: Option<IpgShaping>,
-    pub text_wrapping: Option<IpgWrapping>,
+    pub text_shaping: Option<TextShaping>,
+    pub text_wrapping: Option<TextWrapping>,
     pub text_font_id: Option<usize>,
     pub icon_font_id: Option<usize>,
     pub icon: Option<IpgIcon>,
     pub icon_size: Option<f32>,
     pub icon_line_height: Option<f32>,
-    pub icon_shaping: Option<IpgShaping>,
+    pub icon_shaping: Option<TextShaping>,
     pub style_id: Option<usize>,
     pub style_std: Option<IpgCheckboxStyleStd>,
 }
@@ -89,7 +88,7 @@ impl IpgCheckBox {
 
         let shaping = 
             if let Some(sh) = &self.icon_shaping {
-                IpgShaping::to_iced(sh)
+                TextShaping::to_iced(sh)
             } else { Shaping::default() };
 
         let line_height = 
@@ -114,7 +113,7 @@ impl IpgCheckBox {
 
         let text_shaping = 
             if let Some(ts) = &self.text_shaping {
-                IpgShaping::to_iced(ts)
+                TextShaping::to_iced(ts)
             } else { Shaping::default() };
 
     let chk = 
@@ -394,7 +393,7 @@ impl WidgetParamUpdate for IpgCheckBox {
             IpgCheckboxParam::IconLineHeight => set_opt_f32(&mut self.icon_line_height, value, name),
             IpgCheckboxParam::IconSize     => set_opt_f32(&mut self.icon_size, value, name),
             IpgCheckboxParam::IconShaping  => {
-                self.icon_shaping = IpgShaping::extract(value);
+                self.icon_shaping = TextShaping::extract(value);
             }
             IpgCheckboxParam::IsChecked    => set_bool(&mut self.is_checked, value, name),
             IpgCheckboxParam::Label        => set_opt_string(&mut self.label, value, name),
@@ -402,7 +401,7 @@ impl WidgetParamUpdate for IpgCheckBox {
             IpgCheckboxParam::Spacing      => set_opt_f32(&mut self.spacing, value, name),
             IpgCheckboxParam::TextLineHeight => set_opt_f32(&mut self.text_line_height, value, name),
             IpgCheckboxParam::TextShaping  => {
-                self.text_shaping = IpgShaping::extract(value);
+                self.text_shaping = TextShaping::extract(value);
             }
             IpgCheckboxParam::TextSize     => set_opt_f32(&mut self.text_size, value, name),
             IpgCheckboxParam::Style        => set_opt_usize(&mut self.style_id, value, name),

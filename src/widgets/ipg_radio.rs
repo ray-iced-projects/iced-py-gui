@@ -1,13 +1,13 @@
 //!ipg_radio
 use crate::py_api::helpers::get_padding;
-use crate::widgets::enums::IpgShaping;
-use crate::widgets::ipg_text::IpgWrapping;
+use crate::widgets::ipg_text::TextWrapping;
 use crate::widgets::widget_param_update::{
     WidgetParamUpdate, set_bool, set_height, 
     set_iced_color_from_rgba, set_opt_f32, 
     set_opt_iced_color, set_opt_text_shaping, 
     set_opt_text_wrapping, set_opt_usize, 
     set_opt_vec_f32, set_vec_string, set_width};
+use crate::widgets::ipg_text::TextShaping;
 use crate::{access_callbacks, access_user_data1, IpgState};
 use crate::app;
 use crate::state::IpgWidgets;
@@ -37,8 +37,8 @@ pub struct IpgRadio {
     pub text_spacing: Option<f32>,
     pub text_size: Option<f32>,
     pub text_line_height: Option<f32>,
-    pub text_shaping: Option<IpgShaping>,
-    pub text_wrapping: Option<IpgWrapping>,
+    pub text_shaping: Option<TextShaping>,
+    pub text_wrapping: Option<TextWrapping>,
     pub font_id: Option<usize>,
     pub style_id: Option<usize>,
 }

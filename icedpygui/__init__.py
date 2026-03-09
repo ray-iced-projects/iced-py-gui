@@ -80,6 +80,8 @@ from .icedpygui import (
     IpgWindowMode,
     IpgWindowParam,
     IpgWindowTheme,
+    TextShaping,
+    TextWrapping,
     start_session,
     update_widget,
     generate_id,

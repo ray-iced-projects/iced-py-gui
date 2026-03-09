@@ -10,9 +10,8 @@ use crate::graphics::colors::IpgColor;
 use crate::py_api::helpers::get_width;
 use crate::state::{IpgWidgets, access_state, 
     add_callback_to_mutex, get_id, set_state_of_widget};
-use crate::widgets::enums::IpgShaping;
 use crate::widgets::ipg_checkbox::{IpgCheckBox, IpgCheckboxStyle, IpgCheckboxStyleStd};
-use crate::widgets::ipg_text::IpgWrapping;
+use crate::widgets::ipg_text::{TextShaping, TextWrapping};
 
 
 /// Add a checkbox widget.
@@ -57,14 +56,14 @@ pub fn add_checkbox(
     spacing: Option<f32>,
     text_size: Option<f32>,
     text_line_height: Option<f32>,
-    text_shaping: Option<IpgShaping>,
-    text_wrapping: Option<IpgWrapping>,
+    text_shaping: Option<TextShaping>,
+    text_wrapping: Option<TextWrapping>,
     text_font_id: Option<usize>,
     icon_font_id: Option<usize>,
     icon: Option<IpgIcon>,
     icon_size: Option<f32>,
     icon_line_height: Option<f32>,
-    icon_shaping: Option<IpgShaping>,
+    icon_shaping: Option<TextShaping>,
     user_data: Option<PyObject>,
     show: bool,
     style_id: Option<usize>,

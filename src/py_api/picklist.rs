@@ -11,7 +11,7 @@ use crate::graphics::{colors::IpgColor,
         bootstrap_arrow::IpgArrow}; 
 use crate::py_api::helpers::{get_height, get_width}; 
 use crate::state::{IpgWidgets, get_id, set_state_of_widget}; 
-use crate::widgets::{enums::IpgShaping, 
+use crate::widgets::{ipg_text::TextShaping, 
         ipg_pick_list::{IpgPickList, IpgPickListHandle, 
         IpgPickListStyle, convert_pyobject_vec_string}};
 
@@ -60,7 +60,7 @@ pub fn add_pick_list(
     selected: Option<String>,
     text_size: Option<f32>,
     text_line_height: Option<f32>,
-    text_shaping: Option<IpgShaping>,
+    text_shaping: Option<TextShaping>,
     handle: Option<IpgPickListHandle>,
     arrow_size: Option<f32>,
     dynamic_closed: Option<IpgArrow>,

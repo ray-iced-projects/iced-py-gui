@@ -5,8 +5,9 @@ type PyObject = Py<PyAny>;
 use crate::{access_state, add_callback_to_mutex, 
     add_user_data_to_mutex, graphics::colors::IpgColor, 
     py_api::helpers::get_width, state::{IpgWidgets, get_id, 
-        set_state_of_widget}, widgets::{enums::{IpgShaping}, 
-        ipg_text::IpgWrapping, ipg_toggle::{IpgToggler, IpgTogglerStyle}}};
+        set_state_of_widget}, widgets::{ 
+        ipg_text::{TextShaping, TextWrapping}, 
+        ipg_toggle::{IpgToggler, IpgTogglerStyle}}};
 
 
 
@@ -46,8 +47,8 @@ pub fn add_toggler(
     text_center: Option<bool>,
     text_left: Option<bool>,
     text_right: Option<bool>,
-    text_shaping: Option<IpgShaping>,
-    text_wrapping: Option<IpgWrapping>,
+    text_shaping: Option<TextShaping>,
+    text_wrapping: Option<TextWrapping>,
     spacing: Option<f32>,
     user_data: Option<PyObject>,
     show: bool,

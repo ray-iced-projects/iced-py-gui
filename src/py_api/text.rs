@@ -3,8 +3,7 @@ use pyo3::{pyfunction, PyResult};
 
 use crate::py_api::helpers::{get_height, get_width};
 use crate::state::{IpgWidgets, get_id, set_state_of_widget}; 
-use crate::widgets::ipg_text::{IpgText, IpgWrapping};
-use crate::widgets::enums::IpgShaping;
+use crate::widgets::ipg_text::{IpgText, TextShaping, TextWrapping};
 use crate::access_state; 
 use crate::graphics::colors::IpgColor;
 
@@ -33,10 +32,10 @@ use crate::graphics::colors::IpgColor;
     line_height=None, 
     size=None,
     font_id=None, 
-    shaping=None, 
+    text_shaping=None, 
     text_color=None, 
     text_rgba=None,
-    wrapping=None,
+    text_wrapping=None,
     show=true,
     ))]
 pub fn add_text(
@@ -61,10 +60,10 @@ pub fn add_text(
     line_height: Option<f32>,
     size: Option<f32>,
     font_id: Option<usize>,
-    shaping: Option<IpgShaping>,
+    text_shaping: Option<TextShaping>,
     text_color: Option<IpgColor>,
     text_rgba: Option<[f32; 4]>,
-    wrapping: Option<IpgWrapping>,
+    text_wrapping: Option<TextWrapping>,
     show: bool,
     ) -> PyResult<usize> 
 {
@@ -101,9 +100,9 @@ pub fn add_text(
             align_bottom_center,
             align_bottom_right,
             font_id,
-            shaping,
+            shaping: text_shaping,
             show,
-            wrapping,
+            wrapping: text_wrapping,
             color,
         }));
 

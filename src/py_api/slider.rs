@@ -17,7 +17,7 @@ type PyObject = Py<PyAny>;
     max, 
     step, 
     value,
-    shift_step, 
+    shift_step=None, 
     gen_id=None, 
     width=None, 
     height=None, 

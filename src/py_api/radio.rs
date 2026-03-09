@@ -2,7 +2,11 @@
 use iced::Color;
 use pyo3::{pyfunction, PyResult, Py, PyAny};
 type PyObject = Py<PyAny>;
-use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex, graphics::colors::IpgColor, py_api::helpers::{get_height, get_width}, state::{IpgWidgets, get_id, set_state_of_widget}, widgets::{enums::IpgShaping, ipg_radio::{IpgRadio, IpgRadioDirection, IpgRadioStyle}, ipg_text::IpgWrapping}};
+use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex, 
+    graphics::colors::IpgColor, py_api::helpers::{get_height, get_width}, 
+    state::{IpgWidgets, get_id, set_state_of_widget}, 
+    widgets::{ipg_text::TextShaping, ipg_radio::{IpgRadio, IpgRadioDirection, 
+        IpgRadioStyle}, ipg_text::TextWrapping}};
 
 
 #[pyfunction]
@@ -52,8 +56,8 @@ pub fn add_radio(
     text_spacing: Option<f32>,
     text_size: Option<f32>,
     text_line_height: Option<f32>,
-    text_shaping: Option<IpgShaping>,
-    text_wrapping: Option<IpgWrapping>,
+    text_shaping: Option<TextShaping>,
+    text_wrapping: Option<TextWrapping>,
     user_data: Option<PyObject>,
     show: bool,
     ) -> PyResult<usize>

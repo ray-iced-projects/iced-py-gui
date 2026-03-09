@@ -5,10 +5,9 @@ use crate::app;
 use crate::access_callbacks;
 use crate::state::IpgWidgets;
 use crate::widgets::enums::AlignX;
-use crate::widgets::enums::IpgShaping;
 use crate::widgets::enums::AlignY;
 use crate::widgets::enums::h_v_centered;
-use crate::widgets::ipg_text::IpgWrapping;
+use crate::widgets::ipg_text::{TextShaping, TextWrapping};
 use crate::widgets::widget_param_update::WidgetParamUpdate;
 use crate::widgets::widget_param_update::set_bool;
 use crate::widgets::widget_param_update::set_halign;
@@ -47,8 +46,8 @@ pub struct IpgSelectableText {
     pub size: Option<f32>,
     pub show: bool,
     pub font_id: Option<usize>,
-    pub shaping: Option<IpgShaping>,
-    pub wrapping: Option<IpgWrapping>,
+    pub shaping: Option<TextShaping>,
+    pub wrapping: Option<TextWrapping>,
     pub text_color: Option<Color>,
 }
 
@@ -299,7 +298,7 @@ impl WidgetParamUpdate for IpgSelectableText {
             IpgSelectableTextParam::TextRgba => set_iced_color_from_rgba(&mut self.text_color, value, name),
             IpgSelectableTextParam::Width => set_width(&mut self.width, value, name),
             IpgSelectableTextParam::WidthFill => set_width_fill(&mut self.width, value, name),
-            IpgSelectableTextParam::Wrapping => self.wrapping = IpgWrapping::extract(value),
+            IpgSelectableTextParam::Wrapping => self.wrapping = TextWrapping::extract(value),
         }
     }
 }

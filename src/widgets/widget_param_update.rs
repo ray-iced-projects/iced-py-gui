@@ -10,8 +10,8 @@ use crate::py_api::helpers::{
     get_height, get_width, try_extract_boolean, try_extract_f32, try_extract_f32_array_2, try_extract_string, try_extract_style_standard, try_extract_u16, try_extract_u16_array_2, try_extract_u32, try_extract_usize, try_extract_vec_f32, try_extract_vec_str, try_extract_vec_vec_f32
 };
 use crate::state::{IpgContainers, IpgWidgets};
-use crate::widgets::enums::{Align, AlignX, IpgShaping, AlignY};
-use crate::widgets::ipg_text::IpgWrapping;
+use crate::widgets::enums::{Align, AlignX, AlignY};
+use crate::widgets::ipg_text::{TextShaping, TextWrapping};
 
 type PyObject = Py<PyAny>;
 
@@ -279,12 +279,12 @@ pub fn set_align(field: &mut Option<Align>, value: &PyObject, name: String) {
     *field = Align::extract(value);
 }
 
-pub fn set_opt_text_shaping(field: &mut Option<IpgShaping>, value: &PyObject, name: String) {
-    *field = IpgShaping::extract(value)
+pub fn set_opt_text_shaping(field: &mut Option<TextShaping>, value: &PyObject, name: String) {
+    *field = TextShaping::extract(value)
 }
 
-pub fn set_opt_text_wrapping(field: &mut Option<IpgWrapping>, value: &PyObject, name: String) {
-    *field = IpgWrapping::extract(value)
+pub fn set_opt_text_wrapping(field: &mut Option<TextWrapping>, value: &PyObject, name: String) {
+    *field = TextWrapping::extract(value)
 }
 
 pub fn set_opt_ipg_arrow(field: &mut Option<IpgArrow>, value: &PyObject, name: String) {

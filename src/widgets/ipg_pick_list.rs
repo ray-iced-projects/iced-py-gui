@@ -4,13 +4,13 @@ use crate::IpgState;
 use crate::graphics::bootstrap_arrow::IpgArrow;
 use crate::py_api::helpers::{get_padding, get_radius};
 use crate::state::IpgWidgets;
-use crate::widgets::enums::IpgShaping;
 use crate::widgets::widget_param_update::set_opt_ipg_arrow;
 use crate::widgets::widget_param_update::{WidgetParamUpdate,
     set_bool, set_height, set_height_fill,set_opt_iced_color,
     set_opt_f32, set_opt_string, set_opt_text_shaping,
     set_opt_usize, set_opt_vec_f32, set_vec_string,
     set_iced_color_from_rgba, set_width};
+use crate::widgets::ipg_text::TextShaping;
 use super::callbacks::invoke_callback_with_args;
 
 use iced::widget::pick_list::{self, Status};
@@ -37,7 +37,7 @@ pub struct IpgPickList {
     pub padding: Option<Vec<f32>>,
     pub text_size: Option<f32>,
     pub text_line_height: Option<f32>,
-    pub text_shaping: Option<IpgShaping>,
+    pub text_shaping: Option<TextShaping>,
     pub handle: Option<IpgPickListHandle>,
     pub arrow_size: Option<f32>,
     pub dynamic_closed: Option<IpgArrow>,

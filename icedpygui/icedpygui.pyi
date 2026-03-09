@@ -6381,7 +6381,19 @@ class IpgWindowMode:
     FullScreen=''
     Windowed=''
     
-
+class TextWrapping:
+    """_summary_
+    TextNone — no wrapping; text overflows its bounds
+    Word — wrap at word boundaries (spaces/hyphens); the default behavior
+    Glyph — wrap at any character; words can be split mid-letter
+    WordOrGlyph — try word boundaries first, but if a single word is too long to fit, fall back to glyph-level breaking
+    """
+    TextNone=''
+    Word=''
+    Glyph=''
+    WordOrGlyph=''
+    
+    
 class IpgWindowTheme:
     """
     Window themes

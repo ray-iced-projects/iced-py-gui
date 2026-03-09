@@ -4,6 +4,22 @@ from imports import *
 def toggled(tog_id, is_toggled):
     print(tog_id, is_toggled)
 
+wrapping_index=1
+def wrapping_selected(radio_id: int, data: list[int, str]):
+    global wrapping_index
+    wrapping_index = data[0]
+    value = TextWrapping.Word  # default
+    # Since 
+    match data[0]:
+        case 0: value = TextWrapping.TextNone
+        case 1: value = TextWrapping.Word
+        case 2: value = TextWrapping.Glyph
+        case 3: value = TextWrapping.WordOrGlyph
+        
+    update_widget(wid=tog, param=IpgTogglerParam.TextWrapping, value=value)
+
+
+    
 
 wnd_width = 700.0
 
@@ -101,23 +117,29 @@ with Window(
                     with Container(style_std=IpgContainerStyleStd.RoundedBox):
                         add_toggler(label="Text Line Height 2", text_line_height=2.0)
             
-            add_text(content="Label wrapping:\n" + 
-                    "None — no wrapping; text overflows\n" +
-                    "Word — wrap at word boundaries (spaces/hyphens); (default)\n" +
-                    "Glyph — wrap at any character\n" +
-                    "WordOrGlyph — try word boundaries first, glyph-level breaking\n",
-                    align_center_left=True)
-
             # add container for the background
-            with Container(width_fill=True, height=100.0,
+            with Container(width_fill=True, height=250.0,
                         style_std=IpgContainerStyleStd.BorderedBox):
                 # add the row to hold the togglers
                 with Column(spacing=10.0, padding=[10.0], 
                             width_fill=True, height_fill=True):
-                    
-                    add_toggler(label="Text wrapping (default=None)", width=100.0)
-                    add_toggler(label="Text wrapping", width=100.0)
-                    add_toggler(label="Text wrapping", width=100.0)            
+                    add_text(content="Select wrapping type then use slider(below) to show the effect")
+                    add_radio(labels=[
+                            "TextNone — no wrapping; text overflows",
+                            "Word — wrap at word boundaries; (default)",
+                            "Glyph — wrap at any character",
+                            "WordOrGlyph — try word then glyph"],
+                            on_select=wrapping_selected,
+                            radio_spacing=10.0, selected_index=wrapping_index)
+
+            # add container for the background and width sizing
+            with Container(width=240.0, height=50.0,
+                    style_std=IpgContainerStyleStd.BorderedBox) as tog_cont:
+
+                    tog = add_toggler(label="This is some text that will show wrapping", width=250.0)
+            
+            
+                           
                 
 
 # Required to be the last widget sent to Iced,  If you start the program

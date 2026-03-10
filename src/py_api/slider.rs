@@ -3,7 +3,7 @@ use pyo3::{pyfunction, Py, PyAny, PyResult};
 
 use crate::{access_state, add_callback_to_mutex, 
     add_user_data_to_mutex, graphics::colors::IpgColor, 
-    py_api::helpers::get_width, state::{IpgWidgets, 
+    py_api::helpers::get_length, state::{IpgWidgets, 
         get_id, set_state_of_widget}, 
         widgets::ipg_slider::{IpgSlider, IpgSliderStyle}};
 type PyObject = Py<PyAny>;
@@ -60,7 +60,7 @@ pub fn add_slider(
         add_user_data_to_mutex(id, py);
     }
     
-    let width = get_width(width, width_fill);
+    let width = get_length(width, width_fill);
     let height = height.unwrap_or(16.0);
 
     set_state_of_widget(id, parent_id.clone());

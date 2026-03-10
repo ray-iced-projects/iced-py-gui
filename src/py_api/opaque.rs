@@ -8,8 +8,9 @@ type PyObject = Py<PyAny>;
 use crate::widgets::ipg_opaque::{IpgOpaque, IpgOpaqueStyle};
 use crate::{add_callback_to_mutex, add_user_data_to_mutex};
 use crate::graphics::colors::IpgColor;
-use crate::py_api::helpers::{get_height, get_width};
-use crate::state::{IpgContainers, IpgWidgets, access_state, get_id, set_state_cont_wnd_ids, set_state_of_container};
+use crate::py_api::helpers::get_length;
+use crate::state::{IpgContainers, IpgWidgets, access_state, 
+    get_id, set_state_cont_wnd_ids, set_state_of_container};
 use crate::widgets::enums::{AlignX, 
     AlignY};
 
@@ -55,8 +56,8 @@ pub fn add_opaque_container(
 {
     let id = get_id(gen_id);
 
-    let width = get_width(width, width_fill);
-    let height = get_height(height, height_fill);
+    let width = get_length(width, width_fill);
+    let height = get_length(height, height_fill);
 
     let include_mouse_area = if let Some(py) = mouse_on_press {
         add_callback_to_mutex(id, "on_press".to_string(), py);

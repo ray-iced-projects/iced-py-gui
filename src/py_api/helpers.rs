@@ -35,12 +35,12 @@ pub fn find_key_for_value(ids: HashMap<window::Id, usize>, value: usize) -> wind
 }
 
 // Standard method for Length using Width
-pub fn get_width(width: Option<f32>, width_fill: bool)-> Length {
+pub fn get_length(value: Option<f32>, fill: bool)-> Length {
     // width overrides width_fill
-    match width {
+    match value {
         Some(wd) => Length::Fixed(wd),
         None => {
-                match width_fill {
+                match fill {
                     true => Length::Fill,
                     false => Length::Shrink,
                 }
@@ -48,19 +48,6 @@ pub fn get_width(width: Option<f32>, width_fill: bool)-> Length {
     }
 }
 
-// Standard method for Length using Height
-pub fn get_height(height: Option<f32>, height_fill: bool)-> Length {
-    // height overrides height_fill
-    match height {
-        Some(ht) => Length::Fixed(ht),
-        None => {
-            match height_fill {
-                true => Length::Fill,
-                false => Length::Shrink,
-            }
-        },
-    }
-}
 
 // Standard method for padding
 pub fn get_padding(padding: &Option<Vec<f32>>)-> Padding {
@@ -172,6 +159,15 @@ pub fn try_extract_f32(value: &PyObject, name: String) -> f32 {
     })  
 }
 
+pub fn try_extract_f32_opt(value: &PyObject, name: String) -> Option<f32> {
+    Python::attach(|py| {
+        let res = value.extract::<Option<f32>>(py);
+        match res {
+            Ok(val) => val,
+            Err(_) => panic!("{}-Unable to extract python optional float", name),
+        }
+    })  
+}
 
 pub fn try_extract_i32_opt(value: &PyObject) -> Option<i32> {
     Python::attach(|py| {
@@ -308,6 +304,16 @@ pub fn try_extract_vec_str(value: &PyObject, name: String) -> Vec<String> {
 pub fn try_extract_boolean(value: &PyObject, name: String) -> bool {
     Python::attach(|py| {
         let res = value.extract::<bool>(py);
+        match res {
+            Ok(val) => val,
+            Err(_) => panic!("{}-Unable to extract python bool", name),
+        }
+    })  
+}
+
+pub fn try_extract_opt_boolean(value: &PyObject, name: String) -> Option<bool> {
+    Python::attach(|py| {
+        let res = value.extract::<Option<bool>>(py);
         match res {
             Ok(val) => val,
             Err(_) => panic!("{}-Unable to extract python bool", name),

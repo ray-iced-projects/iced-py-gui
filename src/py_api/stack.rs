@@ -1,7 +1,7 @@
 
 use pyo3::{pyfunction, PyResult};
 
-use crate::{access_state, py_api::helpers::{get_height, get_width}, 
+use crate::{access_state, py_api::helpers::get_length, 
 state::{IpgContainers, get_id, set_state_cont_wnd_ids, 
     set_state_of_container}, widgets::ipg_stack::IpgStack};
 
@@ -33,8 +33,8 @@ pub fn add_stack(
 {
     let id = get_id(None);
 
-    let width = get_width(width, width_fill);
-    let height = get_height(height, height_fill);
+    let width = get_length(width, width_fill);
+    let height = get_length(height, height_fill);
 
     let prt_id = match parent_id {
         Some(id) => id,

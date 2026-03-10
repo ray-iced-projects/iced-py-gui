@@ -7,7 +7,11 @@ use pyo3::{Py, PyAny, Python};
 use crate::graphics::bootstrap_arrow::IpgArrow;
 use crate::graphics::colors::IpgColor;
 use crate::py_api::helpers::{
-    get_height, get_width, try_extract_boolean, try_extract_f32, try_extract_f32_array_2, try_extract_string, try_extract_style_standard, try_extract_u16, try_extract_u16_array_2, try_extract_u32, try_extract_usize, try_extract_vec_f32, try_extract_vec_str, try_extract_vec_vec_f32
+    get_length, try_extract_boolean, try_extract_f32, 
+    try_extract_f32_array_2, try_extract_f32_opt, try_extract_opt_boolean, 
+    try_extract_string, try_extract_style_standard, try_extract_u16, 
+    try_extract_u16_array_2, try_extract_u32, try_extract_usize, 
+    try_extract_vec_f32, try_extract_vec_str, try_extract_vec_vec_f32
 };
 use crate::state::{IpgContainers, IpgWidgets};
 use crate::widgets::enums::{Align, AlignX, AlignY};
@@ -172,24 +176,28 @@ pub fn set_opt_bool(field: &mut Option<bool>, value: &PyObject, name: String) {
     *field = Some(try_extract_boolean(value, name));
 }
 
+pub fn set_opt_bool_from_opt(field: &mut Option<bool>, value: &PyObject, name: String) {
+    *field = try_extract_opt_boolean(value, name);
+}
+
 pub fn set_width(field: &mut Length, value: &PyObject, name: String) {
-    let val = try_extract_f32(value, name);
-    *field = get_width(Some(val), false);
+    let val = try_extract_f32_opt(value, name);
+    *field = get_length(val, false);
 }
 
 pub fn set_width_fill(field: &mut Length, value: &PyObject, name: String) {
     let val = try_extract_boolean(value, name);
-    *field = get_width(None, val);
+    *field = get_length(None, val);
 }
 
 pub fn set_height(field: &mut Length, value: &PyObject, name: String) {
-    let val = try_extract_f32(value, name);
-    *field = get_height(Some(val), false);
+    let val = try_extract_f32_opt(value, name);
+    *field = get_length(val, false);
 }
 
 pub fn set_height_fill(field: &mut Length, value: &PyObject, name: String) {
     let val = try_extract_boolean(value, name);
-    *field = get_height(None, val);
+    *field = get_length(None, val);
 }
 
 pub fn set_iced_color(field: &mut Color, value: &PyObject, name: String) {

@@ -9,7 +9,7 @@ use crate::widgets::ipg_mousearea::IpgMousePointer;
 use crate::widgets::ipg_svg::IpgSvg;
 use crate::{access_state, add_callback_to_mutex, 
     add_user_data_to_mutex}; 
-use crate::py_api::helpers::{get_height, get_width};
+use crate::py_api::helpers::get_length;
 
 
 #[pyfunction]
@@ -115,8 +115,8 @@ pub fn add_svg(
         add_user_data_to_mutex(id, py);
     }
     
-    let width = get_width(width, width_fill);
-    let height = get_height(height, height_fill);
+    let width = get_length(width, width_fill);
+    let height = get_length(height, height_fill);
 
     set_state_of_widget(id, parent_id.clone());
 

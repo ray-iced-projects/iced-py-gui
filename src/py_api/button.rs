@@ -7,7 +7,7 @@ type PyObject = Py<PyAny>;
 
 use crate::add_user_data_to_mutex;
 use crate::graphics::{colors::IpgColor, bootstrap_arrow::IpgArrow};
-use crate::py_api::helpers::{get_height, get_width};
+use crate::py_api::helpers::get_length;
 use crate::state::{IpgWidgets, access_state, add_callback_to_mutex, 
     get_id, set_state_of_widget};
 use crate::widgets::ipg_button::{IpgButton,  
@@ -76,8 +76,8 @@ pub fn add_button(
     let id = get_id(gen_id);
     
     // Calculate dimensions
-    let width = get_width(width, width_fill);
-    let height = get_height(height, height_fill);
+    let width = get_length(width, width_fill);
+    let height = get_length(height, height_fill);
 
     // Register widget with parent
     set_state_of_widget(id, parent_id.clone());

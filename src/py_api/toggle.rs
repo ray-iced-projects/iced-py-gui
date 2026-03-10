@@ -4,7 +4,7 @@ type PyObject = Py<PyAny>;
 
 use crate::{access_state, add_callback_to_mutex, 
     add_user_data_to_mutex, graphics::colors::IpgColor, 
-    py_api::helpers::get_width, state::{IpgWidgets, get_id, 
+    py_api::helpers::get_length, state::{IpgWidgets, get_id, 
         set_state_of_widget}, widgets::{ 
         ipg_text::{TextShaping, TextWrapping}, 
         ipg_toggle::{IpgToggler, IpgTogglerStyle}}};
@@ -66,7 +66,7 @@ pub fn add_toggler(
         add_user_data_to_mutex(id, py);
     }
 
-    let width = get_width(width, width_fill);
+    let width = get_length(width, width_fill);
 
     set_state_of_widget(id, parent_id.clone());
 

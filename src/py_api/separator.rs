@@ -2,9 +2,10 @@
 
 use pyo3::{PyResult, pyfunction};
 
-use crate::{access_state, graphics::colors::IpgColor, py_api::helpers::
-    {get_height, get_width}, state::{IpgWidgets, 
-        get_id, set_state_of_widget}, widgets::ipg_separator::{IpgSeparator, IpgSeparatorStyle, IpgSeparatorType}};
+use crate::{access_state, graphics::colors::IpgColor, 
+    py_api::helpers::get_length, state::{IpgWidgets, 
+        get_id, set_state_of_widget}, widgets::ipg_separator::
+        {IpgSeparator, IpgSeparatorStyle, IpgSeparatorType}};
 
 
 #[pyfunction]
@@ -53,8 +54,8 @@ pub fn add_separator(
 {
     let id = get_id(gen_id);
 
-    let width = get_width(width, width_fill);
-    let height = get_height(height, height_fill);
+    let width = get_length(width, width_fill);
+    let height = get_length(height, height_fill);
 
     set_state_of_widget(id, parent_id.clone());
 

@@ -7,7 +7,7 @@ type PyObject = Py<PyAny>;
 use crate::add_user_data_to_mutex;
 use crate::graphics::bootstrap_icon::IpgIcon;
 use crate::graphics::colors::IpgColor;
-use crate::py_api::helpers::get_width;
+use crate::py_api::helpers::get_length;
 use crate::state::{IpgWidgets, access_state, 
     add_callback_to_mutex, get_id, set_state_of_widget};
 use crate::widgets::ipg_checkbox::{IpgCheckBox, IpgCheckboxStyle, IpgCheckboxStyleStd};
@@ -80,7 +80,7 @@ pub fn add_checkbox(
         add_user_data_to_mutex(id, py);
     }
     
-    let width = get_width(width, width_fill);
+    let width = get_length(width, width_fill);
     
     set_state_of_widget(id, parent_id.clone());
 

@@ -3,7 +3,7 @@ use pyo3::prelude::*;
 use pyo3::pyfunction;
 
 use crate::access_state;
-use crate::py_api::helpers::{get_height, get_width};
+use crate::py_api::helpers::get_length;
 use crate::state::IpgWidgets;
 use crate::state::get_id;
 use crate::state::set_state_of_widget;
@@ -36,8 +36,8 @@ pub fn add_space(
 
     let id = get_id(gen_id);
 
-    let width = get_width(width, width_fill);
-    let height = get_height(height, height_fill);
+    let width = get_length(width, width_fill);
+    let height = get_length(height, height_fill);
 
     set_state_of_widget(id, parent_id.clone());
 

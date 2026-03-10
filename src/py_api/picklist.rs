@@ -9,7 +9,7 @@ use crate::{access_state, add_callback_to_mutex,
     add_user_data_to_mutex};
 use crate::graphics::{colors::IpgColor, 
         bootstrap_arrow::IpgArrow}; 
-use crate::py_api::helpers::{get_height, get_width}; 
+use crate::py_api::helpers::get_length; 
 use crate::state::{IpgWidgets, get_id, set_state_of_widget}; 
 use crate::widgets::{ipg_text::TextShaping, 
         ipg_pick_list::{IpgPickList, IpgPickListHandle, 
@@ -81,8 +81,8 @@ pub fn add_pick_list(
         add_user_data_to_mutex(id, py);
     }
 
-    let width = get_width(width, width_fill);
-    let menu_height = get_height(menu_height, menu_height_fill);
+    let width = get_length(width, width_fill);
+    let menu_height = get_length(menu_height, menu_height_fill);
 
     let options =  convert_pyobject_vec_string(options);
 

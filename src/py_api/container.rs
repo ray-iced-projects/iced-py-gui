@@ -3,7 +3,7 @@ use iced::Color;
 use pyo3::{PyResult, pyfunction};
 
 use crate::graphics::colors::IpgColor;
-use crate::py_api::helpers::{get_height, get_width};
+use crate::py_api::helpers::get_length;
 use crate::state::{IpgContainers, IpgWidgets, access_state, 
     get_id, set_state_cont_wnd_ids, set_state_of_container};
 use crate::widgets::ipg_container::{IpgContainer, 
@@ -68,8 +68,8 @@ pub fn add_container(
 {
     let id = get_id(None);
 
-    let width = get_width(width, width_fill);
-    let height = get_height(height, height_fill);
+    let width = get_length(width, width_fill);
+    let height = get_length(height, height_fill);
     
     let prt_id = match parent_id {
         Some(id) => id,

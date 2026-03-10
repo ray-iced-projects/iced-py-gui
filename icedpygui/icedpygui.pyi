@@ -6125,6 +6125,19 @@ class IpgTextInputParam:
     StyleId:int
 
 
+class TextShaping:
+    Auto=''
+    Basic=''
+    Advanced=''
+
+
+class TextWrapping:
+    TextNone=''
+    Glyph=''
+    Word=''
+    WordOrGlyph=''
+    
+    
 class IpgTextParam:
     """
     Text parameters
@@ -6133,60 +6146,70 @@ class IpgTextParam:
     ----------
     Content: str
         The text.
-    Height: float
+    AlignBottomCenter: Optional[bool]
+    AlignBottomLeft: Optional[bool]
+    AlignBottomRight: Optional[bool]
+    AlignCenter: Optional[bool]
+    AlignCenterLeft: Optional[bool]
+    AlignCenterRight: Optional[bool]
+    AlignTopCenter: Optional[bool]
+    AlignTopLeft: Optional[bool]
+    AlignTopRight: Optional[bool]
+    Height: Optional[float]
         The height of the widget.
-    HeightFill: bool
+    HeightFill: bool=True
         Whether to fill the height of the container with the widget.
-    HorizontalAlignment: IpgHorizontalAlignment
-        The alignment of the text in the text box.
-    LineHeight: float
+    LineHeight: Optional[float]
         The height of the text box.
-    Size: float
+    Size: Optional[float]
         The size of the text.
-    TextColor: IpgColor
+    TextColor: Optional[IpgColor]
         The color of the text.
-    TextRgba: list[float]
+    TextRgba: Optional[list[float, 4]]
         The color of the text in rgba format.
-    VerticalAlignment: IpgVerticalAlignment
-        The alignment of the text in the text box.
-    Width: float
+    Width: Optional[float]
         The width of the widget.
-    WidthFill: bool
+    WidthFill: bool=False
         Whether to fill the width of the container with the widget.
-    Show: bool
+    Show: bool=True
         Whether to show or hide the widget.
     """
-    Content:str
-    Height:float
-    HeightFill:bool
-    HorizontalAlignment:AlignX
-    LineHeight:float
-    Size:float
-    TextColor:IpgColor
-    TextRgba:list[float]
-    VerticalAlignment:AlignY
-    Width:float
-    WidthFill:bool
-    Show:bool
+    AlignBottomCenter: Optional[bool]
+    AlignBottomLeft: Optional[bool]
+    AlignBottomRight: Optional[bool]
+    AlignCenter: Optional[bool]
+    AlignCenterLeft: Optional[bool]
+    AlignCenterRight: Optional[bool]
+    AlignTopCenter: Optional[bool]
+    AlignTopLeft: Optional[bool]
+    AlignTopRight: Optional[bool]
+    Content: str
+    Height: Optional[float]
+    HeightFill: Optional[bool]
+    LineHeight: Optional[float]
+    Show: Optional[bool]
+    Size: Optional[float]
+    TextColor: Optional[IpgColor] 
+    TextRgba: Optional[list[float, 4]]
+    TextShaping: Optional[TextShaping]
+    TextWrapping: Optional[TextWrapping]
+    Width: Optional[float]
+    WidthFill: Optional[bool]
 
 
 class IpgTextInputStyleParam:
-    BackgroundIpgColor:IpgColor
-    BackgroundRgbaColor:list[float, 4]
-    BorderIpgColor:IpgColor
-    BorderRgbaColor:list[float, 4]
-    BorderIpgColorHovered:IpgColor
-    BorderRgbaColorHovered:list[float, 4]
-    BorderIpgColorFocused:IpgColor
-    BorderRgbaColorFocused:list[float, 4]
-    BorderWidth:float
-    BorderRadius:list[float]
-    PlaceholderIpgColor:IpgColor
-    PlaceholderRgbaColor:list[float, 4]
-    ValueIpgColor:IpgColor
-    ValueRgbaColor:list[float, 4]
-    SelectionIpgColor:IpgColor
-    SelectionRgbaColor:list[float, 4]
+    BackgroundIpgColor: Optional[IpgColor]
+    BackgroundRgbaColor: Optional[list[float, 4]]
+    BorderIpgColor: Optional[IpgColor]
+    BorderRadius: Optional[list[float]]
+    BorderRgbaColor: Optional[list[float, 4]]
+    BorderWidth: Optional[float]
+    PlaceholderIpgColor: Optional[IpgColor]
+    PlaceholderRgbaColor: Optional[list[float, 4]]
+    SelectionIpgColor: Optional[IpgColor]
+    SelectionRgbaColor: Optional[list[float, 4]]
+    ValueIpgColor: Optional[IpgColor]
+    ValueRgbaColor: Optional[list[float, 4]]
 
 
 class IpgTimerParam:

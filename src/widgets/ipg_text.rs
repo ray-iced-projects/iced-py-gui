@@ -13,9 +13,8 @@ use crate::app::Message;
 use crate::state::IpgWidgets;
 use crate::widgets::widget_param_update::{
     WidgetParamUpdate, set_bool, set_height, set_height_fill, 
-    set_iced_color_from_rgba, set_opt_bool, set_opt_f32, 
-    set_opt_iced_color, set_opt_text_shaping, set_string, 
-    set_width, set_width_fill
+    set_iced_color_from_rgba, set_opt_bool_from_opt, 
+    set_opt_f32, set_opt_iced_color, set_string, set_width, set_width_fill
 };
 
 
@@ -25,19 +24,18 @@ pub struct IpgText {
     pub parent_id: String,
     pub content: String,
     pub size: Option<f32>,
-    pub line_height: Option<f32>,
+    pub line_height: Option<f32>,  // defaults 1.3 relative
     pub width: Length,
     pub height: Length,
-    pub center: Option<bool>,
-    pub align_top_left: Option<bool>,
-    pub align_top_center: Option<bool>,
-    pub align_top_right: Option<bool>,
-    pub align_center_left: Option<bool>,
-    pub align_center: Option<bool>,
-    pub align_center_right: Option<bool>,
-    pub align_bottom_left: Option<bool>,
     pub align_bottom_center: Option<bool>,
+    pub align_bottom_left: Option<bool>,
     pub align_bottom_right: Option<bool>,
+    pub align_center_left: Option<bool>,
+    pub align_center_right: Option<bool>,
+    pub align_center: Option<bool>,
+    pub align_top_center: Option<bool>,
+    pub align_top_left: Option<bool>,
+    pub align_top_right: Option<bool>,
     pub font_id: Option<usize>,
     pub shaping: Option<TextShaping>,
     pub show: bool,
@@ -84,6 +82,7 @@ impl IpgText {
                 txt.line_height(lh)
             } else { txt };
 
+    
         let txt = 
             if self.align_bottom_left == Some(true) {
                 txt.align_x(alignment::Horizontal::Left)
@@ -109,16 +108,17 @@ impl IpgText {
             } else { txt };
 
         let txt = 
-            if self.align_center == Some(true) {
-                txt.align_x(alignment::Horizontal::Center)
-                    .align_y(alignment::Vertical::Center)
-            } else { txt };
-
-        let txt = 
             if self.align_center_right == Some(true) {
                 txt.align_x(alignment::Horizontal::Right)
                     .align_y(alignment::Vertical::Center)
             } else { txt };
+
+        let txt = 
+        if self.align_center == Some(true) {
+            txt.align_x(alignment::Horizontal::Center)
+                .align_y(alignment::Vertical::Center)
+        } else { txt };
+
 
         let txt = 
             if self.align_top_left == Some(true) {
@@ -174,14 +174,14 @@ pub enum IpgTextParam {
     Height,
     HeightFill,
     LineHeight,
-    Shaping,
     Show,
     Size,
     TextColor, 
     TextRgba,
+    TextShaping,
+    TextWrapping,
     Width,
     WidthFill,
-    Wrapping,
 }
 
 // The wrapping strategy of some text.
@@ -211,7 +211,7 @@ impl TextWrapping {
             let res = value.extract::<Self>(py);
             match res {
                 Ok(val) => val,
-                Err(_) => panic!("Unable to extract python object for IpgWrapping"),
+                Err(_) => panic!("Unable to extract python object for TextWrapping"),
             }
         }))
     }
@@ -236,10 +236,10 @@ impl TextShaping {
 
     pub fn extract(value: &PyObject) -> Option<TextShaping> {
         Python::attach(|py| {
-            let res = value.extract::<TextShaping>(py);
+            let res = value.extract::<Self>(py);
             match res {
                 Ok(val) => Some(val),
-                Err(_) => panic!("Unable to extract python IpgShaping"),
+                Err(_) => panic!("Unable to extract python TextShaping"),
             }
         })  
     }
@@ -254,28 +254,27 @@ impl WidgetParamUpdate for IpgText {
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
         match param {
-            IpgTextParam::AlignBottomCenter => set_opt_bool(&mut self.align_bottom_center, value, name),
-            IpgTextParam::AlignBottomLeft => set_opt_bool(&mut self.align_bottom_left, value, name),
-            IpgTextParam::AlignBottomRight => set_opt_bool(&mut self.align_bottom_right, value, name),
-            IpgTextParam::AlignCenter => set_opt_bool(&mut self.align_center, value, name),
-            IpgTextParam::AlignCenterLeft => set_opt_bool(&mut self.align_center_left, value, name),
-            IpgTextParam::AlignCenterRight => set_opt_bool(&mut self.align_center_right, value, name),
-            IpgTextParam::AlignTopCenter => set_opt_bool(&mut self.align_top_center, value, name),
-            IpgTextParam::AlignTopLeft => set_opt_bool(&mut self.align_top_left, value, name),
-            IpgTextParam::AlignTopRight => set_opt_bool(&mut self.align_top_right, value, name),
+            IpgTextParam::AlignBottomCenter => set_opt_bool_from_opt(&mut self.align_bottom_center, value, name),
+            IpgTextParam::AlignBottomLeft => set_opt_bool_from_opt(&mut self.align_bottom_left, value, name),
+            IpgTextParam::AlignBottomRight => set_opt_bool_from_opt(&mut self.align_bottom_right, value, name),
+            IpgTextParam::AlignCenter => set_opt_bool_from_opt(&mut self.align_center, value, name),
+            IpgTextParam::AlignCenterLeft => set_opt_bool_from_opt(&mut self.align_center_left, value, name),
+            IpgTextParam::AlignCenterRight => set_opt_bool_from_opt(&mut self.align_center_right, value, name),
+            IpgTextParam::AlignTopCenter => set_opt_bool_from_opt(&mut self.align_top_center, value, name),
+            IpgTextParam::AlignTopLeft => set_opt_bool_from_opt(&mut self.align_top_left, value, name),
+            IpgTextParam::AlignTopRight => set_opt_bool_from_opt(&mut self.align_top_right, value, name),
             IpgTextParam::Content => set_string(&mut self.content, value, name),
             IpgTextParam::Height => set_height(&mut self.height, value, name),
             IpgTextParam::HeightFill => set_height_fill(&mut self.height, value, name),
             IpgTextParam::LineHeight => set_opt_f32(&mut self.line_height, value, name),
-            IpgTextParam::Shaping => set_opt_text_shaping(&mut self.shaping, value, name),
             IpgTextParam::Show => set_bool(&mut self.show, value, name),
             IpgTextParam::Size => set_opt_f32(&mut self.size, value, name),
             IpgTextParam::TextColor  => set_opt_iced_color(&mut self.color, value, name),
             IpgTextParam::TextRgba => set_iced_color_from_rgba(&mut self.color, value, name),
+            IpgTextParam::TextShaping => self.shaping = TextShaping::extract(value),
+            IpgTextParam::TextWrapping => self.wrapping = TextWrapping::extract(value),
             IpgTextParam::Width => set_width(&mut self.width, value, name),
             IpgTextParam::WidthFill => set_width_fill(&mut self.width, value, name),
-            IpgTextParam::Wrapping => self.wrapping = TextWrapping::extract(value),
-            
         }
     }
 }

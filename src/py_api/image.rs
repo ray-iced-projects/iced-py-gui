@@ -3,7 +3,7 @@ use pyo3::{Py, PyAny, pyfunction, PyResult};
 type PyObject = Py<PyAny>;
 
 use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex, 
-    py_api::helpers::{get_height, get_width}, 
+    py_api::helpers::get_length, 
     state::{IpgWidgets, get_id, set_state_of_widget}, 
     widgets::{enums::{IpgContentFit, IpgColorFilter, IpgRotation}, ipg_image::IpgImage, 
         ipg_mousearea::IpgMousePointer}};
@@ -108,8 +108,8 @@ pub fn add_image(
         add_user_data_to_mutex(id, py);
     }
     
-    let width = get_width(width, width_fill);
-    let height = get_height(height, height_fill);
+    let width = get_length(width, width_fill);
+    let height = get_length(height, height_fill);
 
     set_state_of_widget(id, parent_id.clone());
 

@@ -4,7 +4,7 @@ use pyo3::{Py, PyAny, pyfunction};
 type PyObject = Py<PyAny>;
 
 use crate::graphics::colors::IpgColor;
-use crate::py_api::helpers::{get_height, get_width};
+use crate::py_api::helpers::get_length;
 use crate::{add_callback_to_mutex, add_user_data_to_mutex};
 use crate::state::{IpgWidgets, access_state, get_id, set_state_of_widget};
 use crate::widgets::ipg_button::{IpgButtonStyleStd};
@@ -92,8 +92,8 @@ pub fn add_color_picker(
         add_user_data_to_mutex(id, py);
     }
 
-    let width = get_width(width, width_fill);
-    let height = get_height(height, height_fill);
+    let width = get_length(width, width_fill);
+    let height = get_length(height, height_fill);
 
     set_state_of_widget(id, parent_id.clone());
 

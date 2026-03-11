@@ -242,7 +242,8 @@ pub enum IpgDividerParam {
 impl WidgetParamUpdate for IpgDivider {
     type Param = IpgDividerParam;
 
-    fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
+    fn param_update(&mut self, param: Self::Param, value: &PyObject) {
+        let name = String::new();
         match param {
             IpgDividerParam::HandleWidth  => set_f32(&mut self.handle_width, value, name),
             IpgDividerParam::HandleHeight => set_f32(&mut self.handle_height, value, name),
@@ -256,7 +257,8 @@ impl WidgetParamUpdate for IpgDivider {
 impl WidgetParamUpdate for IpgDividerStyle {
     type Param = IpgDividerStyleParam;
 
-    fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
+    fn param_update(&mut self, param: Self::Param, value: &PyObject) {
+        let name = String::new();
         match param {
             IpgDividerStyleParam::BackgroundIpgColor   => set_opt_iced_color(&mut self.background_color, value, name),
             IpgDividerStyleParam::BackgroundRgbaColor  => set_rgba_color_via_ipg(&mut self.background_color, value, name),

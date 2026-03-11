@@ -232,7 +232,8 @@ pub enum IpgSliderStyleParam {
 impl WidgetParamUpdate for IpgSlider {
     type Param = IpgSliderParam;
 
-    fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
+    fn param_update(&mut self, param: Self::Param, value: &PyObject) {
+        let name = String::new();
         match param {
             IpgSliderParam::Min => set_f32(&mut self.min, value, name),
             IpgSliderParam::Max => set_f32(&mut self.max, value, name),
@@ -250,7 +251,8 @@ impl WidgetParamUpdate for IpgSlider {
 impl WidgetParamUpdate for IpgSliderStyle {
     type Param = IpgSliderStyleParam;
 
-    fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
+    fn param_update(&mut self, param: Self::Param, value: &PyObject) {
+        let name = String::new();
         match param {
             IpgSliderStyleParam::RailIpgColor => 
                 set_opt_iced_color(&mut self.rail_color, value, name),

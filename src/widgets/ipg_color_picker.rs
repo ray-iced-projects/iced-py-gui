@@ -193,14 +193,15 @@ fn rnd_2(rgba: f32) -> f64 {
 impl WidgetParamUpdate for IpgColorPicker {
     type Param = IpgColorPickerParam;
 
-    fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
+    fn param_update(&mut self, param: Self::Param, value: &PyObject) {
+        let name = String::new();
         match param {
             IpgColorPickerParam::ArrowStyle => set_opt_ipg_arrow(&mut self.style_arrow, value, name),
             IpgColorPickerParam::Clip => set_opt_bool(&mut self.clip, value, name),
             IpgColorPickerParam::Color => set_iced_color(&mut self.color, value, name),
             IpgColorPickerParam::Height => set_height(&mut self.height, value, name),
             IpgColorPickerParam::HeightFill => set_height_fill(&mut self.height, value, name),
-            IpgColorPickerParam::Label => set_opt_string(&mut self.label, value, name),
+            IpgColorPickerParam::Label => set_opt_string(&mut self.label, value, "Label"),
             IpgColorPickerParam::Padding => set_opt_vec_f32(&mut self.padding, value, name),
             IpgColorPickerParam::Show => set_bool(&mut self.show, value, name),
             IpgColorPickerParam::StyleId => set_opt_usize(&mut self.style_id, value, name),

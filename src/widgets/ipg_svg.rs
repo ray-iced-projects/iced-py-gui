@@ -239,7 +239,8 @@ pub enum IpgSvgParam {
 impl WidgetParamUpdate for IpgSvg {
     type Param = IpgSvgParam;
 
-    fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
+    fn param_update(&mut self, param: Self::Param, value: &PyObject) {
+        let name = String::new();
         match param {
             IpgSvgParam::ColorFilter => set_opt_iced_color(&mut self.color_filter, value, name),
             IpgSvgParam::ContentFit => self.content_fit = IpgContentFit::extract(value),
@@ -249,7 +250,7 @@ impl WidgetParamUpdate for IpgSvg {
             IpgSvgParam::RotationRadians => set_opt_f32(&mut self.rotation_radians, value, name),
             IpgSvgParam::RotationType => self.rotation_type = IpgRotation::extract(value),
             IpgSvgParam::Show => set_bool(&mut self.show, value, name),
-            IpgSvgParam::SvgPath => set_string(&mut self.svg_path, value, name),
+            IpgSvgParam::SvgPath => set_string(&mut self.svg_path, value, "SvgPath"),
             IpgSvgParam::Width => set_width(&mut self.width, value, name),
         }
     }

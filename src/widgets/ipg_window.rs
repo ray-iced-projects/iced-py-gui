@@ -275,11 +275,12 @@ fn try_extract_level(level: &PyObject) -> IpgWindowLevel {
 impl WidgetParamUpdate for IpgWindow {
     type Param = IpgWindowParam;
 
-    fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
+    fn param_update(&mut self, param: Self::Param, value: &PyObject) {
+        let name = String::new();
         match param {
             IpgWindowParam::Debug => set_opt_bool(&mut self.debug, value, name),
             IpgWindowParam::Theme => {
-                self.theme = Some(extract_param::<IpgWindowTheme>(value, "WindowTheme"));
+                self.theme = Some(extract_param::<IpgWindowTheme>(value));
             }
             IpgWindowParam::ScaleFactor => set_opt_f32(&mut self.scale_factor, value, name),
             IpgWindowParam::Decorations => {

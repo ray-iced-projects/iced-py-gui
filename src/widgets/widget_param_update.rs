@@ -28,7 +28,7 @@ pub trait WidgetParamUpdate {
     type Param: for<'py> pyo3::FromPyObject<'py>;
 
     /// Apply a single parameter update.
-    fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String);
+    fn param_update(&mut self, param: Self::Param, value: &PyObject);
 }
 
 // ---------------------------------------------------------------------------
@@ -63,45 +63,44 @@ pub fn param_update(
     widget: &mut IpgWidgets,
     item: &PyObject,
     value: &PyObject,
-    name: String,
 ) {
     match widget {
-        IpgWidgets::IpgButton(w) => apply_update(w, item, value, name),
-        IpgWidgets::IpgButtonStyle(w) => apply_update(w, item, value, name),
-        IpgWidgets::IpgCheckBox(w) => apply_update(w, item, value, name),
-        IpgWidgets::IpgCheckboxStyle(w) => apply_update(w, item, value, name),
-        IpgWidgets::IpgColorPicker(w) => apply_update(w, item, value, name),
-        IpgWidgets::IpgContainerStyle(w) => apply_update(w, item, value, name),
-        IpgWidgets::IpgDatePicker(w) => apply_update(w, item, value, name),
-        IpgWidgets::IpgDivider(w) => apply_update(w, item, value, name),
-        IpgWidgets::IpgDividerStyle(w) => apply_update(w, item, value, name),
-        IpgWidgets::IpgFont(w) => apply_update(w, item, value, name),
-        IpgWidgets::IpgImage(w) => apply_update(w, item, value, name),
-        IpgWidgets::IpgOpaqueStyle(w) => apply_update(w, item, value, name),
-        IpgWidgets::IpgPickList(w) => apply_update(w, item, value, name),
-        IpgWidgets::IpgPickListStyle(w) => apply_update(w, item, value, name),
-        IpgWidgets::IpgProgressBar(w) => apply_update(w, item, value, name),
-        IpgWidgets::IpgProgressBarStyle(w) => apply_update(w, item, value, name),
-        IpgWidgets::IpgRadio(w) => apply_update(w, item, value, name),
-        IpgWidgets::IpgRadioStyle(w) => apply_update(w, item, value, name),
-        IpgWidgets::IpgRule(w) => apply_update(w, item, value, name),
-        IpgWidgets::IpgRuleStyle(w) => apply_update(w, item, value, name),
-        IpgWidgets::IpgSelectableText(w) => apply_update(w, item, value, name),
-        IpgWidgets::IpgSeparator(w) => apply_update(w, item, value, name),
-        IpgWidgets::IpgSeparatorStyle(w) => apply_update(w, item, value, name),
-        IpgWidgets::IpgSpace(w) => apply_update(w, item, value, name),
-        IpgWidgets::IpgSlider(w) => apply_update(w, item, value, name),
-        IpgWidgets::IpgSliderStyle(w) => apply_update(w, item, value, name),
-        IpgWidgets::IpgText(w) => apply_update(w, item, value, name),
-        IpgWidgets::IpgToggler(w) => apply_update(w, item, value, name),
-        IpgWidgets::IpgTogglerStyle(w) => apply_update(w, item, value, name),
-        IpgWidgets::IpgSvg(w) => apply_update(w, item, value, name),
-        IpgWidgets::IpgScrollableStyle(w) => apply_update(w, item, value, name),
-        IpgWidgets::IpgScroller(w) => apply_update(w, item, value, name),
-        IpgWidgets::IpgRailStyle(w) => apply_update(w, item, value, name),
-        IpgWidgets::IpgAutoScrollStyle(w) => apply_update(w, item, value, name),
-        IpgWidgets::IpgTextInput(w) => apply_update(w, item, value, name),
-        IpgWidgets::IpgTextInputStyle(w) => apply_update(w, item, value, name),
+        IpgWidgets::IpgButton(w) => apply_update(w, item, value),
+        IpgWidgets::IpgButtonStyle(w) => apply_update(w, item, value),
+        IpgWidgets::IpgCheckBox(w) => apply_update(w, item, value),
+        IpgWidgets::IpgCheckboxStyle(w) => apply_update(w, item, value),
+        IpgWidgets::IpgColorPicker(w) => apply_update(w, item, value),
+        IpgWidgets::IpgContainerStyle(w) => apply_update(w, item, value),
+        IpgWidgets::IpgDatePicker(w) => apply_update(w, item, value),
+        IpgWidgets::IpgDivider(w) => apply_update(w, item, value),
+        IpgWidgets::IpgDividerStyle(w) => apply_update(w, item, value),
+        IpgWidgets::IpgFont(w) => apply_update(w, item, value),
+        IpgWidgets::IpgImage(w) => apply_update(w, item, value),
+        IpgWidgets::IpgOpaqueStyle(w) => apply_update(w, item, value),
+        IpgWidgets::IpgPickList(w) => apply_update(w, item, value),
+        IpgWidgets::IpgPickListStyle(w) => apply_update(w, item, value),
+        IpgWidgets::IpgProgressBar(w) => apply_update(w, item, value),
+        IpgWidgets::IpgProgressBarStyle(w) => apply_update(w, item, value),
+        IpgWidgets::IpgRadio(w) => apply_update(w, item, value),
+        IpgWidgets::IpgRadioStyle(w) => apply_update(w, item, value),
+        IpgWidgets::IpgRule(w) => apply_update(w, item, value),
+        IpgWidgets::IpgRuleStyle(w) => apply_update(w, item, value),
+        IpgWidgets::IpgSelectableText(w) => apply_update(w, item, value),
+        IpgWidgets::IpgSeparator(w) => apply_update(w, item, value),
+        IpgWidgets::IpgSeparatorStyle(w) => apply_update(w, item, value),
+        IpgWidgets::IpgSpace(w) => apply_update(w, item, value),
+        IpgWidgets::IpgSlider(w) => apply_update(w, item, value),
+        IpgWidgets::IpgSliderStyle(w) => apply_update(w, item, value),
+        IpgWidgets::IpgText(w) => apply_update(w, item, value),
+        IpgWidgets::IpgToggler(w) => apply_update(w, item, value),
+        IpgWidgets::IpgTogglerStyle(w) => apply_update(w, item, value),
+        IpgWidgets::IpgSvg(w) => apply_update(w, item, value),
+        IpgWidgets::IpgScrollableStyle(w) => apply_update(w, item, value),
+        IpgWidgets::IpgScroller(w) => apply_update(w, item, value),
+        IpgWidgets::IpgRailStyle(w) => apply_update(w, item, value),
+        IpgWidgets::IpgAutoScrollStyle(w) => apply_update(w, item, value),
+        IpgWidgets::IpgTextInput(w) => apply_update(w, item, value),
+        IpgWidgets::IpgTextInputStyle(w) => apply_update(w, item, value),
             }
 }
 
@@ -113,18 +112,17 @@ pub fn container_param_update(
     container: &mut IpgContainers,
     item: &PyObject,
     value: &PyObject,
-    name: String,
 ) {
     match container {
-        IpgContainers::IpgColumn(w) => apply_update(w, item, value, name),
-        IpgContainers::IpgContainer(w) => apply_update(w, item, value, name),
-        IpgContainers::IpgMouseArea(w) => apply_update(w, item, value, name),
-        IpgContainers::IpgOpaque(w) => apply_update(w, item, value, name),
-        IpgContainers::IpgRow(w) => apply_update(w, item, value, name),
-        IpgContainers::IpgScrollable(w) => apply_update(w, item, value, name),
-        IpgContainers::IpgStack(w) => apply_update(w, item, value, name),
-        IpgContainers::IpgTable(w) => apply_update(w, item, value, name),
-        IpgContainers::IpgWindow(w) => apply_update(w, item, value, name),
+        IpgContainers::IpgColumn(w) => apply_update(w, item, value),
+        IpgContainers::IpgContainer(w) => apply_update(w, item, value),
+        IpgContainers::IpgMouseArea(w) => apply_update(w, item, value),
+        IpgContainers::IpgOpaque(w) => apply_update(w, item, value),
+        IpgContainers::IpgRow(w) => apply_update(w, item, value),
+        IpgContainers::IpgScrollable(w) => apply_update(w, item, value),
+        IpgContainers::IpgStack(w) => apply_update(w, item, value),
+        IpgContainers::IpgTable(w) => apply_update(w, item, value),
+        IpgContainers::IpgWindow(w) => apply_update(w, item, value),
     }
 }
 
@@ -132,24 +130,23 @@ fn apply_update<W: WidgetParamUpdate>(
     widget: &mut W,
     item: &PyObject,
     value: &PyObject,
-    name: String,
 ) {
-    let param = extract_param::<W::Param>(item, &name);
-    widget.param_update(param, value, name);
+    let param = extract_param::<W::Param>(item);
+    widget.param_update(param, value);
 }
 
 // ---------------------------------------------------------------------------
 // Generic param extraction (works for any #[pyclass] enum)
 // ---------------------------------------------------------------------------
 
-pub fn extract_param<T>(update_obj: &PyObject, widget_name: &str) -> T
+pub fn extract_param<T>(update_obj: &PyObject) -> T
 where
     T: for<'py> pyo3::FromPyObject<'py>,
 {
     Python::attach(|py| {
         update_obj
             .extract::<T>(py)
-            .unwrap_or_else(|err| panic!("{} param extraction failed: {}", widget_name, err))
+            .unwrap_or_else(|err| panic!("param extraction failed: {}", err))
     })
 }
 
@@ -176,7 +173,7 @@ pub fn set_opt_bool(field: &mut Option<bool>, value: &PyObject, name: String) {
     *field = Some(try_extract_boolean(value, name));
 }
 
-pub fn set_opt_bool_from_opt(field: &mut Option<bool>, value: &PyObject, name: String) {
+pub fn set_opt_bool_from_opt(field: &mut Option<bool>, value: &PyObject, name: &str) {
     *field = try_extract_opt_boolean(value, name);
 }
 
@@ -258,11 +255,11 @@ pub fn set_opt_u16_array_2(field: &mut Option<[u16; 2]>, value: &PyObject, name:
     *field = Some(try_extract_u16_array_2(value, name));
 }
 
-pub fn set_string(field: &mut String, value: &PyObject, name: String) {
+pub fn set_string(field: &mut String, value: &PyObject, name: &str) {
     *field = try_extract_string(value, name);
 }
 
-pub fn set_opt_string(field: &mut Option<String>, value: &PyObject, name: String) {
+pub fn set_opt_string(field: &mut Option<String>, value: &PyObject, name: &str) {
     *field = Some(try_extract_string(value, name));
 }
 

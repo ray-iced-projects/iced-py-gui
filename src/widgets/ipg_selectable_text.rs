@@ -283,11 +283,12 @@ pub enum IpgSelectableTextParam {
 impl WidgetParamUpdate for IpgSelectableText {
     type Param = IpgSelectableTextParam;
 
-    fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
+    fn param_update(&mut self, param: Self::Param, value: &PyObject) {
+        let name = String::new();
         match param {
             IpgSelectableTextParam::AlignX => set_halign(&mut self.align_x, value, name),
             IpgSelectableTextParam::AlignY => set_valign(&mut self.align_y, value, name),
-            IpgSelectableTextParam::Content => set_string(&mut self.content, value, name),
+            IpgSelectableTextParam::Content => set_string(&mut self.content, value, "Content"),
             IpgSelectableTextParam::Height => set_height(&mut self.height, value, name),
             IpgSelectableTextParam::HeightFill => set_height_fill(&mut self.height, value, name),
             IpgSelectableTextParam::LineHeight => set_opt_f32(&mut self.line_height, value, name),

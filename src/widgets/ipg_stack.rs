@@ -67,7 +67,8 @@ pub enum IpgStackParam {
 impl WidgetParamUpdate for IpgStack {
     type Param = IpgStackParam;
 
-    fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
+    fn param_update(&mut self, param: Self::Param, value: &PyObject) {
+        let name = String::new();
         match param {
             IpgStackParam::Height => set_height(&mut self.height, value, name),
             IpgStackParam::HeightFill => set_height(&mut self.height, value, name),

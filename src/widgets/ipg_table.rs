@@ -635,7 +635,8 @@ pub enum IpgTableParam {
 impl WidgetParamUpdate for IpgTable {
     type Param = IpgTableParam;
 
-    fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
+    fn param_update(&mut self, param: Self::Param, value: &PyObject) {
+        let name = String::new();
         match param {
             IpgTableParam::Headers => set_vec_string(&mut self.headers, value, name),
             IpgTableParam::Body => set_vec_vec_f32(&mut self.body, value, name),

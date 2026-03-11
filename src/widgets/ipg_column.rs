@@ -95,7 +95,8 @@ pub enum IpgColumnParam {
 impl WidgetParamUpdate for IpgColumn {
     type Param = IpgColumnParam;
 
-    fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
+    fn param_update(&mut self, param: Self::Param, value: &PyObject) {
+        let name= String::new();
         match param {
             IpgColumnParam::AlignLeft => set_opt_bool(&mut self.align_left, value, name),
             IpgColumnParam::AlignCenter => set_opt_bool(&mut self.align_center, value, name),

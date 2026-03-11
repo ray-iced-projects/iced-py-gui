@@ -179,7 +179,8 @@ pub enum IpgProgressBarStyleParam {
 impl WidgetParamUpdate for IpgProgressBar {
     type Param = IpgProgressBarParam;
 
-    fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
+    fn param_update(&mut self, param: Self::Param, value: &PyObject) {
+        let name = String::new();
         match param {
             IpgProgressBarParam::Height => set_height(&mut self.height, value, name),
             IpgProgressBarParam::HeightFill => set_height_fill(&mut self.height, value, name),
@@ -199,7 +200,8 @@ impl WidgetParamUpdate for IpgProgressBar {
 impl WidgetParamUpdate for IpgProgressBarStyle {
     type Param = IpgProgressBarStyleParam;
 
-    fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
+    fn param_update(&mut self, param: Self::Param, value: &PyObject) {
+        let name = String::new();
         match param {
             IpgProgressBarStyleParam::BackgroundIpgColor => 
                 set_opt_iced_color(&mut self.background_color, value, name),

@@ -255,13 +255,14 @@ pub enum IpgImageParam {
 impl WidgetParamUpdate for IpgImage {
     type Param = IpgImageParam;
 
-    fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
+    fn param_update(&mut self, param: Self::Param, value: &PyObject) {
+        let name = String::new();
         match param {
             IpgImageParam::ContentFit => self.content_fit = IpgContentFit::extract(value),
             IpgImageParam::FilterMethod => self.filter_method = IpgColorFilter::extract(value),
             IpgImageParam::Height => set_height(&mut self.height, value, name),
             IpgImageParam::HeightFill => set_height_fill(&mut self.height, value, name),
-            IpgImageParam::ImagePath => set_string(&mut self.image_path, value, name),
+            IpgImageParam::ImagePath => set_string(&mut self.image_path, value, "ImagePath"),
             IpgImageParam::MousePointer => self.mouse_pointer = IpgMousePointer::extract(value),
             IpgImageParam::Opacity => set_opt_f32(&mut self.opacity, value, name),
             IpgImageParam::Padding => set_opt_vec_f32(&mut self.padding, value, name),

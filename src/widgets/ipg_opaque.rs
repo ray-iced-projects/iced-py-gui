@@ -153,7 +153,8 @@ pub enum IpgOpaqueStyleParam {
 impl WidgetParamUpdate for IpgOpaque {
     type Param = IpgOpaqueParam;
 
-    fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
+    fn param_update(&mut self, param: Self::Param, value: &PyObject) {
+        let name = String::new();
         match param {
             IpgOpaqueParam::Show => 
                 set_opt_bool(&mut self.center, value, name),
@@ -164,7 +165,8 @@ impl WidgetParamUpdate for IpgOpaque {
 impl WidgetParamUpdate for IpgOpaqueStyle {
     type Param = IpgOpaqueStyleParam;
 
-    fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
+    fn param_update(&mut self, param: Self::Param, value: &PyObject) {
+        let name = String::new();
         match param {
             IpgOpaqueStyleParam::BackgroundIpgColor => 
                 set_opt_iced_color(&mut self.background_color, value, name),

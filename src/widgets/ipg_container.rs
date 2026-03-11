@@ -322,7 +322,8 @@ pub enum IpgContainerStyleParam {
 impl WidgetParamUpdate for IpgContainer {
     type Param = IpgContainerParam;
 
-    fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
+    fn param_update(&mut self, param: Self::Param, value: &PyObject) {
+        let name = String::new();
         match param {
             IpgContainerParam::AlignBottomCenter => set_opt_bool(&mut self.align_bottom_center, value, name),
             IpgContainerParam::AlignBottomLeft => set_opt_bool(&mut self.align_bottom_left, value, name),
@@ -351,7 +352,8 @@ impl WidgetParamUpdate for IpgContainer {
 impl WidgetParamUpdate for IpgContainerStyle {
     type Param = IpgContainerStyleParam;
 
-    fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
+    fn param_update(&mut self, param: Self::Param, value: &PyObject) {
+        let name = String::new();
         match param {
             IpgContainerStyleParam::BackgroundIpgColor  => set_opt_iced_color(&mut self.background_color, value, name),
             IpgContainerStyleParam::BackgroundRgbaColor => set_iced_color_from_rgba(&mut self.background_color, value, name),

@@ -281,7 +281,7 @@ pub fn try_extract_u16_array_2(value: &PyObject, name: String) -> [u16; 2] {
     })
 }
 
-pub fn try_extract_string(value: &PyObject, name: String) -> String {
+pub fn try_extract_string(value: &PyObject, name: &str) -> String {
     Python::attach(|py| {
         let res = value.extract::<String>(py);
         match res {
@@ -311,7 +311,7 @@ pub fn try_extract_boolean(value: &PyObject, name: String) -> bool {
     })  
 }
 
-pub fn try_extract_opt_boolean(value: &PyObject, name: String) -> Option<bool> {
+pub fn try_extract_opt_boolean(value: &PyObject, name: &str) -> Option<bool> {
     Python::attach(|py| {
         let res = value.extract::<Option<bool>>(py);
         match res {

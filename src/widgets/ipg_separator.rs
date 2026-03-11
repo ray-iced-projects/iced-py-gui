@@ -267,7 +267,8 @@ fn separator(bg_color: Background) -> Quad {
 impl WidgetParamUpdate for IpgSeparator {
     type Param = IpgSeparatorParam;
 
-    fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
+    fn param_update(&mut self, param: Self::Param, value: &PyObject) {
+        let name = String::new();
         match param {
             IpgSeparatorParam::DotCount => set_opt_u32(&mut self.dot_count, value, name),
             IpgSeparatorParam::DotFill => set_bool(&mut self.dot_fill, value, name),
@@ -275,7 +276,7 @@ impl WidgetParamUpdate for IpgSeparator {
             IpgSeparatorParam::DotRadius => set_opt_f32(&mut self.dot_radius, value, name),
             IpgSeparatorParam::Height => set_height(&mut self.height, value, name),
             IpgSeparatorParam::HeightFill => set_height(&mut self.height, value, name),
-            IpgSeparatorParam::Label => set_opt_string(&mut self.label, value, name),
+            IpgSeparatorParam::Label => set_opt_string(&mut self.label, value, "Label"),
             IpgSeparatorParam::Spacing => set_opt_f32(&mut self.spacing, value, name),
             IpgSeparatorParam::Show => set_bool(&mut self.show, value, name),
             IpgSeparatorParam::StyleId => set_opt_usize(&mut self.style_id, value, name),
@@ -288,7 +289,8 @@ impl WidgetParamUpdate for IpgSeparator {
 impl WidgetParamUpdate for IpgSeparatorStyle {
     type Param = IpgSeparatorStyleParam;
 
-    fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
+    fn param_update(&mut self, param: Self::Param, value: &PyObject) {
+        let name = String::new();
         match param {
             IpgSeparatorStyleParam::IpgColor => 
             set_opt_iced_color(&mut self.color, value, name),

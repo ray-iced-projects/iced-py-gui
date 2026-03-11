@@ -567,9 +567,10 @@ pub enum IpgDatePickerParam {
 impl WidgetParamUpdate for IpgDatePicker {
     type Param = IpgDatePickerParam;
 
-    fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
+    fn param_update(&mut self, param: Self::Param, value: &PyObject) {
+        let name = String::new();
         match param {
-            IpgDatePickerParam::Label      => set_opt_string(&mut self.label, value, name),
+            IpgDatePickerParam::Label      => set_opt_string(&mut self.label, value, "Label"),
             IpgDatePickerParam::Padding    => set_opt_vec_f32(&mut self.padding, value, name),
             IpgDatePickerParam::SizeFactor => set_opt_f32(&mut self.size_factor, value, name),
             IpgDatePickerParam::Show       => set_bool(&mut self.show, value, name),

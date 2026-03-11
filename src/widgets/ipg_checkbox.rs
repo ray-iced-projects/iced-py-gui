@@ -384,7 +384,8 @@ fn extract_chk_style_standard(
 impl WidgetParamUpdate for IpgCheckBox {
     type Param = IpgCheckboxParam;
 
-    fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
+    fn param_update(&mut self, param: Self::Param, value: &PyObject) {
+        let name = String::new();
         match param {
             IpgCheckboxParam::Icon => {
                 self.icon = Some(IpgIcon::extract(value));
@@ -396,7 +397,7 @@ impl WidgetParamUpdate for IpgCheckBox {
                 self.icon_shaping = TextShaping::extract(value);
             }
             IpgCheckboxParam::IsChecked    => set_bool(&mut self.is_checked, value, name),
-            IpgCheckboxParam::Label        => set_opt_string(&mut self.label, value, name),
+            IpgCheckboxParam::Label        => set_opt_string(&mut self.label, value, "Label"),
             IpgCheckboxParam::Show         => set_bool(&mut self.show, value, name),
             IpgCheckboxParam::Spacing      => set_opt_f32(&mut self.spacing, value, name),
             IpgCheckboxParam::TextLineHeight => set_opt_f32(&mut self.text_line_height, value, name),
@@ -418,7 +419,8 @@ impl WidgetParamUpdate for IpgCheckBox {
 impl WidgetParamUpdate for IpgCheckboxStyle {
     type Param = IpgCheckboxStyleParam;
 
-    fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
+    fn param_update(&mut self, param: Self::Param, value: &PyObject) {
+        let name = String::new();
         match param {
             IpgCheckboxStyleParam::BackgroundIpgColor       => set_opt_iced_color(&mut self.background_color, value, name),
             IpgCheckboxStyleParam::BackgroundRgbaColor      => set_iced_color_from_rgba(&mut self.background_color, value, name),

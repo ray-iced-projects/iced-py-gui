@@ -277,10 +277,11 @@ pub enum IpgTextInputStyleParam {
 impl WidgetParamUpdate for IpgTextInput {
     type Param = IpgTextInputParam;
 
-    fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
+    fn param_update(&mut self, param: Self::Param, value: &PyObject) {
+        let name = String::new();
         match param {
-            IpgTextInputParam::Placeholder => set_string(&mut self.placeholder, value, name),
-            IpgTextInputParam::Value => set_string(&mut self.value, value, name),
+            IpgTextInputParam::Placeholder => set_string(&mut self.placeholder, value, "Placeholder"),
+            IpgTextInputParam::Value => set_string(&mut self.value, value, "Value"),
             IpgTextInputParam::IsSecure => set_opt_bool(&mut self.is_secure, value, name),
             IpgTextInputParam::Width => set_width(&mut self.width, value, name),
             IpgTextInputParam::Padding => set_opt_vec_f32(&mut self.padding, value, name),
@@ -294,7 +295,8 @@ impl WidgetParamUpdate for IpgTextInput {
 impl WidgetParamUpdate for IpgTextInputStyle {
     type Param = IpgTextInputStyleParam;
 
-    fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
+    fn param_update(&mut self, param: Self::Param, value: &PyObject) {
+        let name = String::new();
         match param {
             IpgTextInputStyleParam::BackgroundColor =>
                 set_opt_iced_color(&mut self.background_color, value, name),

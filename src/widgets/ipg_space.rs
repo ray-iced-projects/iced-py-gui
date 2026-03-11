@@ -48,7 +48,8 @@ pub enum IpgSpaceParam {
 impl WidgetParamUpdate for IpgSpace {
     type Param = IpgSpaceParam;
 
-    fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
+    fn param_update(&mut self, param: Self::Param, value: &PyObject) {
+        let name = String::new();
         match param {
             IpgSpaceParam::Width => set_width(&mut self.width, value, name),
             IpgSpaceParam::WidthFill => set_width_fill(&mut self.width, value, name),

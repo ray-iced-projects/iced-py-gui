@@ -388,7 +388,8 @@ pub enum IpgButtonStyleParam {
 impl WidgetParamUpdate for IpgButton {
     type Param = IpgButtonParam;
 
-    fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
+    fn param_update(&mut self, param: Self::Param, value: &PyObject) {
+        let name= String::new();
         match param {
             IpgButtonParam::ArrowStyle => {
                 self.style_arrow = IpgArrow::extract(value);
@@ -396,7 +397,7 @@ impl WidgetParamUpdate for IpgButton {
             IpgButtonParam::Clip => set_opt_bool(&mut self.clip, value, name),
             IpgButtonParam::Height => set_height(&mut self.height, value, name),
             IpgButtonParam::HeightFill => set_height_fill(&mut self.height, value, name),
-            IpgButtonParam::Label => set_opt_string(&mut self.label, value, name),
+            IpgButtonParam::Label => set_opt_string(&mut self.label, value, "Label"),
             IpgButtonParam::Padding => set_opt_vec_f32(&mut self.padding, value, name),
             IpgButtonParam::Show => set_bool(&mut self.show, value, name),
             IpgButtonParam::StyleId => set_opt_usize(&mut self.style_id, value, name),
@@ -421,8 +422,9 @@ impl WidgetParamUpdate for IpgButton {
 
 impl WidgetParamUpdate for IpgButtonStyle {
     type Param = IpgButtonStyleParam;
-
-    fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
+    
+    fn param_update(&mut self, param: Self::Param, value: &PyObject) {
+        let name = String::new();
         match param {
             IpgButtonStyleParam::BackgroundColor => 
                 set_opt_iced_color(&mut self.background_color, value, name),

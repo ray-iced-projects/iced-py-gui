@@ -135,7 +135,8 @@ pub enum IpgRuleParam {
 impl WidgetParamUpdate for IpgRule {
     type Param = IpgRuleParam;
 
-    fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
+    fn param_update(&mut self, param: Self::Param, value: &PyObject) {
+        let name = String::new();
         match param {
             IpgRuleParam::IsVertical => set_opt_bool(&mut self.is_vertical, value, name),
             IpgRuleParam::Thickness => set_opt_u32(&mut self.thickness, value, name),
@@ -147,7 +148,8 @@ impl WidgetParamUpdate for IpgRule {
 impl WidgetParamUpdate for IpgRuleStyle {
     type Param = IpgRuleStyleParam;
 
-    fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
+    fn param_update(&mut self, param: Self::Param, value: &PyObject) {
+        let name = String::new();
         match param {
             IpgRuleStyleParam::BorderRadius => set_opt_vec_f32(&mut self.border_radius, value, name),
             IpgRuleStyleParam::FillModeAsymmetricPadding => set_opt_u16_array_2(&mut self.fillmode_asymmetric_padding, value, name),

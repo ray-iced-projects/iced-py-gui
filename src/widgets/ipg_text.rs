@@ -252,18 +252,19 @@ impl TextShaping {
 impl WidgetParamUpdate for IpgText {
     type Param = IpgTextParam;
 
-    fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
+    fn param_update(&mut self, param: Self::Param, value: &PyObject) {
+        let name = String::new();
         match param {
-            IpgTextParam::AlignBottomCenter => set_opt_bool_from_opt(&mut self.align_bottom_center, value, name),
-            IpgTextParam::AlignBottomLeft => set_opt_bool_from_opt(&mut self.align_bottom_left, value, name),
-            IpgTextParam::AlignBottomRight => set_opt_bool_from_opt(&mut self.align_bottom_right, value, name),
-            IpgTextParam::AlignCenter => set_opt_bool_from_opt(&mut self.align_center, value, name),
-            IpgTextParam::AlignCenterLeft => set_opt_bool_from_opt(&mut self.align_center_left, value, name),
-            IpgTextParam::AlignCenterRight => set_opt_bool_from_opt(&mut self.align_center_right, value, name),
-            IpgTextParam::AlignTopCenter => set_opt_bool_from_opt(&mut self.align_top_center, value, name),
-            IpgTextParam::AlignTopLeft => set_opt_bool_from_opt(&mut self.align_top_left, value, name),
-            IpgTextParam::AlignTopRight => set_opt_bool_from_opt(&mut self.align_top_right, value, name),
-            IpgTextParam::Content => set_string(&mut self.content, value, name),
+            IpgTextParam::AlignBottomCenter => set_opt_bool_from_opt(&mut self.align_bottom_center, value, "AlignBottomCenter"),
+            IpgTextParam::AlignBottomLeft => set_opt_bool_from_opt(&mut self.align_bottom_left, value, "AlignBottomLeft"),
+            IpgTextParam::AlignBottomRight => set_opt_bool_from_opt(&mut self.align_bottom_right, value, "AlignBottomRight"),
+            IpgTextParam::AlignCenter => set_opt_bool_from_opt(&mut self.align_center, value, "AlignCenter"),
+            IpgTextParam::AlignCenterLeft => set_opt_bool_from_opt(&mut self.align_center_left, value, "AlignCenterLeft"),
+            IpgTextParam::AlignCenterRight => set_opt_bool_from_opt(&mut self.align_center_right, value, "AlignCenterRight"),
+            IpgTextParam::AlignTopCenter => set_opt_bool_from_opt(&mut self.align_top_center, value, "AlignTopCenter"),
+            IpgTextParam::AlignTopLeft => set_opt_bool_from_opt(&mut self.align_top_left, value, "AlignTopLeft"),
+            IpgTextParam::AlignTopRight => set_opt_bool_from_opt(&mut self.align_top_right, value, "AlignTopRight"),
+            IpgTextParam::Content => set_string(&mut self.content, value, "Content"),
             IpgTextParam::Height => set_height(&mut self.height, value, name),
             IpgTextParam::HeightFill => set_height_fill(&mut self.height, value, name),
             IpgTextParam::LineHeight => set_opt_f32(&mut self.line_height, value, name),

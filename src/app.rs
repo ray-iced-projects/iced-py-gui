@@ -1186,7 +1186,7 @@ fn match_widget(
     item: &PyObject, 
     value: &PyObject) 
 {
-    param_update(widget, item, value, String::new());
+    param_update(widget, item, value);
 }
 
 fn match_container(
@@ -1197,6 +1197,6 @@ fn match_container(
     last_id: usize,
     ) -> Option<usize>
 {
-    container_param_update(container, item, value, String::new());
+    container_param_update(container, item, value);
     None
 }

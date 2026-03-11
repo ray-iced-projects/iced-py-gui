@@ -374,7 +374,8 @@ pub fn get_styling(theme: &Theme, status: Status,
 impl WidgetParamUpdate for IpgPickList {
     type Param = IpgPickListParam;
 
-    fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
+    fn param_update(&mut self, param: Self::Param, value: &PyObject) {
+        let name = String::new();
         match param {
             IpgPickListParam::ArrowSize => set_opt_f32(&mut self.arrow_size, value, name),
             IpgPickListParam::CustomStatic => set_opt_ipg_arrow(&mut self.custom_static, value, name),
@@ -385,8 +386,8 @@ impl WidgetParamUpdate for IpgPickList {
             IpgPickListParam::MenuHeightFill => set_height_fill(&mut self.menu_height, value, name),
             IpgPickListParam::Options => set_vec_string(&mut self.options, value, name),
             IpgPickListParam::Padding => set_opt_vec_f32(&mut self.padding, value, name),
-            IpgPickListParam::Placeholder => set_opt_string(&mut self.placeholder, value, name),
-            IpgPickListParam::Selected => set_opt_string(&mut self.selected, value, name),
+            IpgPickListParam::Placeholder => set_opt_string(&mut self.placeholder, value, "Placeholder"),
+            IpgPickListParam::Selected => set_opt_string(&mut self.selected, value, "Selected"),
             IpgPickListParam::Show => set_bool(&mut self.show, value, name),
             IpgPickListParam::StyleId => set_opt_usize(&mut self.style_id, value, name),
             IpgPickListParam::TextLineHeight => set_opt_f32(&mut self.text_line_height,value, name),
@@ -400,7 +401,8 @@ impl WidgetParamUpdate for IpgPickList {
 impl WidgetParamUpdate for IpgPickListStyle {
     type Param = IpgPickListStyleParam;
 
-    fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
+    fn param_update(&mut self, param: Self::Param, value: &PyObject) {
+        let name = String::new();
         match param {
             IpgPickListStyleParam::BackgroundIpgColor => 
                 set_opt_iced_color(&mut self.background_color, value, name),

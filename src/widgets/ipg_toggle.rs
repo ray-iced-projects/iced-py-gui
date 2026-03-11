@@ -273,10 +273,11 @@ pub enum IpgTogglerStyleParam {
 impl WidgetParamUpdate for IpgToggler {
     type Param = IpgTogglerParam;
 
-    fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
+    fn param_update(&mut self, param: Self::Param, value: &PyObject) {
+        let name = String::new();
         match param {
             IpgTogglerParam::FontId => set_opt_usize(&mut self.font_id, value, name),
-            IpgTogglerParam::Label => set_opt_string(&mut self.label, value, name),
+            IpgTogglerParam::Label => set_opt_string(&mut self.label, value, "Label"),
             IpgTogglerParam::Show => set_bool(&mut self.show, value, name),
             IpgTogglerParam::Size => set_opt_f32(&mut self.size, value, name),
             IpgTogglerParam::Spacing => set_opt_f32(&mut self.spacing, value, name),
@@ -297,7 +298,8 @@ impl WidgetParamUpdate for IpgToggler {
 impl WidgetParamUpdate for IpgTogglerStyle {
     type Param = IpgTogglerStyleParam;
 
-    fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
+    fn param_update(&mut self, param: Self::Param, value: &PyObject) {
+        let name = String::new();
         match param {
             IpgTogglerStyleParam::BackgroundIpgColor =>
                 set_opt_iced_color(&mut self.background_color, value, name),

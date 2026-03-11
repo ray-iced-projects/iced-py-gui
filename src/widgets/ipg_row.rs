@@ -97,7 +97,8 @@ pub enum IpgRowParam {
 impl WidgetParamUpdate for IpgRow {
     type Param = IpgRowParam;
 
-    fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
+    fn param_update(&mut self, param: Self::Param, value: &PyObject) {
+        let name = String::new();
         match param {
             IpgRowParam::AlignBottom => set_opt_bool(&mut self.align_bottom, value, name),
             IpgRowParam::AlignCenter => set_opt_bool(&mut self.align_center, value, name),

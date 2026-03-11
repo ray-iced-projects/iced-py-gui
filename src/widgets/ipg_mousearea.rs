@@ -234,7 +234,8 @@ pub enum IpgMouseAreaParam {
 impl WidgetParamUpdate for IpgMouseArea {
     type Param = IpgMouseAreaParam;
 
-    fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
+    fn param_update(&mut self, param: Self::Param, value: &PyObject) {
+        let name = String::new();
         match param {
             IpgMouseAreaParam::MousePointer => self.mouse_pointer = IpgMousePointer::extract(value),
             IpgMouseAreaParam::Show => set_bool(&mut self.show, value, name),

@@ -373,7 +373,8 @@ fn get_radio_style(style: Option<&IpgWidgets>) -> Option<IpgRadioStyle>{
 impl WidgetParamUpdate for IpgRadio {
     type Param = IpgRadioParam;
 
-    fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
+    fn param_update(&mut self, param: Self::Param, value: &PyObject) {
+        let name = String::new();
         match param {
             IpgRadioParam::Direction => self.direction = extract_radio_direction(value),
             IpgRadioParam::FontId => set_opt_usize(&mut self.font_id, value, name),
@@ -401,7 +402,8 @@ impl WidgetParamUpdate for IpgRadio {
 impl WidgetParamUpdate for IpgRadioStyle {
     type Param = IpgRadioStyleParam;
 
-    fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
+    fn param_update(&mut self, param: Self::Param, value: &PyObject) {
+        let name = String::new();
         match param {
             IpgRadioStyleParam::BackgroundIpgColor => 
                 set_opt_iced_color(&mut self.background_color, value, name),

@@ -466,7 +466,8 @@ pub enum IpgAutoScrollStyleParam {
 impl WidgetParamUpdate for IpgScrollable {
     type Param = IpgScrollableParam;
 
-    fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
+    fn param_update(&mut self, param: Self::Param, value: &PyObject) {
+        let name = String::new();
         match param {
             IpgScrollableParam::Height => set_height(&mut self.height, value, name),
             IpgScrollableParam::ScrollerXId => set_opt_usize(&mut self.scroller_x_id, value, name),
@@ -480,7 +481,8 @@ impl WidgetParamUpdate for IpgScrollable {
 impl WidgetParamUpdate for IpgScrollableStyle {
     type Param = IpgScrollableStyleParam;
 
-    fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
+    fn param_update(&mut self, param: Self::Param, value: &PyObject) {
+        let name = String::new();
         match param {
             IpgScrollableStyleParam::ContainerStyleId => set_opt_usize(&mut self.container_style_id, value, name),
             IpgScrollableStyleParam::ContainerStyleStd => todo!(),
@@ -496,7 +498,8 @@ impl WidgetParamUpdate for IpgScrollableStyle {
 impl WidgetParamUpdate for IpgScroller {
     type Param = IpgScrollerParam;
 
-    fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
+    fn param_update(&mut self, param: Self::Param, value: &PyObject) {
+        let name = String::new();
         match param {
             IpgScrollerParam::Anchor => self.anchor = IpgAnchor::extract(value),
             IpgScrollerParam::Hidden => set_opt_bool(&mut self.hidden, value, name),
@@ -511,7 +514,8 @@ impl WidgetParamUpdate for IpgScroller {
 impl WidgetParamUpdate for IpgRailStyle {
     type Param = IpgRailStyleParam;
 
-    fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
+    fn param_update(&mut self, param: Self::Param, value: &PyObject) {
+        let name = String::new();
         match param {
             IpgRailStyleParam::BackgroundColor => set_opt_iced_color(&mut self.background, value, name),
             IpgRailStyleParam::BackgroundRgba => set_iced_color_from_rgba(&mut self.background, value, name),
@@ -526,7 +530,8 @@ impl WidgetParamUpdate for IpgRailStyle {
 impl WidgetParamUpdate for IpgAutoScrollStyle {
     type Param = IpgAutoScrollStyleParam;
 
-    fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
+    fn param_update(&mut self, param: Self::Param, value: &PyObject) {
+        let name = String::new();
         match param {
             IpgAutoScrollStyleParam::BackgroundColor => set_opt_iced_color(&mut self.background, value, name),
             IpgAutoScrollStyleParam::BackgroundRgba => set_iced_color_from_rgba(&mut self.background, value, name),

@@ -223,7 +223,7 @@ pub fn set_f32(field: &mut f32, value: &PyObject, name: String) {
 }
 
 pub fn set_opt_f32(field: &mut Option<f32>, value: &PyObject, name: String) {
-    *field = Some(try_extract_f32(value, name));
+    *field = try_extract_f32_opt(value, name);
 }
 
 pub fn set_opt_vec_f32(field: &mut Option<Vec<f32>>, value: &PyObject, name: String) {

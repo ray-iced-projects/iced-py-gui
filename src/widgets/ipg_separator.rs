@@ -6,10 +6,7 @@ use crate::graphics::colors::IpgColor;
 use crate::app;
 use crate::state::IpgWidgets;
 use crate::widgets::widget_param_update::{
-    WidgetParamUpdate, set_bool, set_height, 
-    set_iced_color_from_rgba, set_opt_f32, 
-    set_opt_iced_color, set_opt_string, 
-    set_opt_u32, set_opt_usize, set_width};
+    WidgetParamUpdate, set_bool, set_height, set_opt_f32, set_opt_iced_color, set_opt_iced_color_from_rgba, set_opt_string, set_opt_u32, set_opt_usize, set_width};
 
 use iced::border::Radius;
 use iced::widget::{row, Row, Text};
@@ -268,20 +265,19 @@ impl WidgetParamUpdate for IpgSeparator {
     type Param = IpgSeparatorParam;
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
-        let name = String::new();
         match param {
-            IpgSeparatorParam::DotCount => set_opt_u32(&mut self.dot_count, value, name),
-            IpgSeparatorParam::DotFill => set_bool(&mut self.dot_fill, value, name),
-            IpgSeparatorParam::DotBorderWidth => set_opt_f32(&mut self.dot_border_width, value, name),
-            IpgSeparatorParam::DotRadius => set_opt_f32(&mut self.dot_radius, value, name),
-            IpgSeparatorParam::Height => set_height(&mut self.height, value, name),
-            IpgSeparatorParam::HeightFill => set_height(&mut self.height, value, name),
+            IpgSeparatorParam::DotCount => set_opt_u32(&mut self.dot_count, value, "DotCount"),
+            IpgSeparatorParam::DotFill => set_bool(&mut self.dot_fill, value, "DotFill"),
+            IpgSeparatorParam::DotBorderWidth => set_opt_f32(&mut self.dot_border_width, value, "DotBorderWidth"),
+            IpgSeparatorParam::DotRadius => set_opt_f32(&mut self.dot_radius, value, "DotRadius"),
+            IpgSeparatorParam::Height => set_height(&mut self.height, value, "Height"),
+            IpgSeparatorParam::HeightFill => set_height(&mut self.height, value, "HeightFill"),
             IpgSeparatorParam::Label => set_opt_string(&mut self.label, value, "Label"),
-            IpgSeparatorParam::Spacing => set_opt_f32(&mut self.spacing, value, name),
-            IpgSeparatorParam::Show => set_bool(&mut self.show, value, name),
-            IpgSeparatorParam::StyleId => set_opt_usize(&mut self.style_id, value, name),
-            IpgSeparatorParam::Width => set_width(&mut self.width, value, name),
-            IpgSeparatorParam::WidthFill => set_width(&mut self.width, value, name),
+            IpgSeparatorParam::Spacing => set_opt_f32(&mut self.spacing, value, "Spacing"),
+            IpgSeparatorParam::Show => set_bool(&mut self.show, value, "Show"),
+            IpgSeparatorParam::StyleId => set_opt_usize(&mut self.style_id, value, "StyleId"),
+            IpgSeparatorParam::Width => set_width(&mut self.width, value, "Width"),
+            IpgSeparatorParam::WidthFill => set_width(&mut self.width, value, "WidthFill"),
         }
     }
 }
@@ -290,16 +286,15 @@ impl WidgetParamUpdate for IpgSeparatorStyle {
     type Param = IpgSeparatorStyleParam;
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
-        let name = String::new();
         match param {
             IpgSeparatorStyleParam::IpgColor => 
-            set_opt_iced_color(&mut self.color, value, name),
+            set_opt_iced_color(&mut self.color, value, "IpgColor"),
             IpgSeparatorStyleParam::RbgaColor => 
-            set_iced_color_from_rgba(&mut self.color, value, name),
+            set_opt_iced_color_from_rgba(&mut self.color, value, "RbgaColor"),
             IpgSeparatorStyleParam::BorderIpgColor => 
-            set_opt_iced_color(&mut self.color, value, name),
+            set_opt_iced_color(&mut self.color, value, "BorderIpgColor"),
             IpgSeparatorStyleParam::BorderRgbaColor => 
-            set_iced_color_from_rgba(&mut self.color, value, name),
+            set_opt_iced_color_from_rgba(&mut self.color, value, "BorderRgbaColor"),
         }
     }
 }

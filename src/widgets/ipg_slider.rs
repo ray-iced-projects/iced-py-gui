@@ -7,7 +7,7 @@ use pyo3::{Py, PyAny, pyclass};
 type PyObject = Py<PyAny>;
 
 use crate::py_api::helpers::get_radius;
-use crate::widgets::widget_param_update::{WidgetParamUpdate, set_bool, set_f32, set_iced_color_from_rgba, set_opt_f32, set_opt_iced_color, set_opt_u16, set_opt_usize, set_opt_vec_f32, set_width};
+use crate::widgets::widget_param_update::{WidgetParamUpdate, set_bool, set_f32, set_opt_f32, set_opt_iced_color, set_opt_iced_color_from_rgba, set_opt_u16, set_opt_usize, set_opt_vec_f32, set_width};
 use crate::{IpgState, app};
 use crate::state::IpgWidgets;
 use crate::widgets::callbacks::invoke_callback_with_args;
@@ -233,17 +233,16 @@ impl WidgetParamUpdate for IpgSlider {
     type Param = IpgSliderParam;
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
-        let name = String::new();
         match param {
-            IpgSliderParam::Min => set_f32(&mut self.min, value, name),
-            IpgSliderParam::Max => set_f32(&mut self.max, value, name),
-            IpgSliderParam::Step => set_f32(&mut self.step, value, name),
+            IpgSliderParam::Min => set_f32(&mut self.min, value, "Min"),
+            IpgSliderParam::Max => set_f32(&mut self.max, value, "Max"),
+            IpgSliderParam::Step => set_f32(&mut self.step, value, "Step"),
             IpgSliderParam::Value => todo!(),
-            IpgSliderParam::Width => set_width(&mut self.width, value, name),
-            IpgSliderParam::WidthFill => set_width(&mut self.width, value, name),
-            IpgSliderParam::Height => set_f32(&mut self.height, value, name),
-            IpgSliderParam::StyleId => set_opt_usize(&mut self.style_id, value, name),
-            IpgSliderParam::Show => set_bool(&mut self.show, value, name),
+            IpgSliderParam::Width => set_width(&mut self.width, value, "Width"),
+            IpgSliderParam::WidthFill => set_width(&mut self.width, value, "WidthFill"),
+            IpgSliderParam::Height => set_f32(&mut self.height, value, "Height"),
+            IpgSliderParam::StyleId => set_opt_usize(&mut self.style_id, value, "StyleId"),
+            IpgSliderParam::Show => set_bool(&mut self.show, value, "Show"),
         }
     }
 }
@@ -252,36 +251,35 @@ impl WidgetParamUpdate for IpgSliderStyle {
     type Param = IpgSliderStyleParam;
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
-        let name = String::new();
         match param {
             IpgSliderStyleParam::RailIpgColor => 
-                set_opt_iced_color(&mut self.rail_color, value, name),
+                set_opt_iced_color(&mut self.rail_color, value, "RailIpgColor"),
             IpgSliderStyleParam::RailRbgaColor => 
-                set_iced_color_from_rgba(&mut self.rail_color, value, name),
+                set_opt_iced_color_from_rgba(&mut self.rail_color, value, "RailRbgaColor"),
             IpgSliderStyleParam::RailIpgColorHovered => 
-                set_opt_iced_color(&mut self.rail_color_hovered, value, name),
+                set_opt_iced_color(&mut self.rail_color_hovered, value, "RailIpgColorHovered"),
             IpgSliderStyleParam::RailIpgRgbaHovered => 
-                set_iced_color_from_rgba(&mut self.rail_color_hovered, value, name),
+                set_opt_iced_color_from_rgba(&mut self.rail_color_hovered, value, "RailIpgRgbaHovered"),
             IpgSliderStyleParam::RailBorderRadius => 
-                set_opt_vec_f32(&mut self.rail_border_radius, value, name),
+                set_opt_vec_f32(&mut self.rail_border_radius, value, "RailBorderRadius"),
             IpgSliderStyleParam::RailWidth => 
-                set_opt_f32(&mut self.rail_width, value, name),
+                set_opt_f32(&mut self.rail_width, value, "RailWidth"),
             IpgSliderStyleParam::HandleIpgColor => 
-                set_opt_iced_color(&mut self.handle_color, value, name),
+                set_opt_iced_color(&mut self.handle_color, value, "HandleIpgColor"),
             IpgSliderStyleParam::HandleRgbaColor => 
-                set_iced_color_from_rgba(&mut self.handle_color, value, name),
+                set_opt_iced_color_from_rgba(&mut self.handle_color, value, "HandleRgbaColor"),
             IpgSliderStyleParam::HandleBorderIpgColor => 
-                set_opt_iced_color(&mut self.handle_border_color, value, name),
+                set_opt_iced_color(&mut self.handle_border_color, value, "HandleBorderIpgColor"),
             IpgSliderStyleParam::HandleBorderRgbaColor => 
-                set_iced_color_from_rgba(&mut self.handle_border_color, value, name),
+                set_opt_iced_color_from_rgba(&mut self.handle_border_color, value, "HandleBorderRgbaColor"),
             IpgSliderStyleParam::HandleBorderWidth => 
-                set_opt_f32(&mut self.handle_border_width, value, name),
+                set_opt_f32(&mut self.handle_border_width, value, "HandleBorderWidth"),
             IpgSliderStyleParam::HandleCircleRadius => 
-                set_opt_f32(&mut self.handle_circle_radius, value, name),
+                set_opt_f32(&mut self.handle_circle_radius, value, "HandleCircleRadius"),
             IpgSliderStyleParam::HandleRectangleWidth => 
-                set_opt_u16(&mut self.handle_rectangle_width, value, name),
+                set_opt_u16(&mut self.handle_rectangle_width, value, "HandleRectangleWidth"),
             IpgSliderStyleParam::HandleRectangleBorderRadius => 
-                set_opt_vec_f32(&mut self.handle_rectangle_border_radius, value, name),
+                set_opt_vec_f32(&mut self.handle_rectangle_border_radius, value, "HandleRectangleBorderRadius"),
         }
     }
 }

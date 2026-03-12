@@ -11,11 +11,7 @@ use crate::app::Message;
 use crate::py_api::helpers::get_radius;
 use crate::state::IpgWidgets;
 use crate::widgets::ipg_text::TextWrapping;
-use crate::widgets::widget_param_update::{WidgetParamUpdate, 
-    set_bool, set_iced_color_from_rgba, set_opt_bool, set_opt_f32, 
-    set_opt_iced_color, set_opt_string, set_opt_text_shaping, 
-    set_opt_text_wrapping, set_opt_usize, set_opt_vec_f32, 
-    set_width, set_width_fill};
+use crate::widgets::widget_param_update::{WidgetParamUpdate, set_bool, set_opt_bool, set_opt_f32, set_opt_iced_color, set_opt_iced_color_from_rgba, set_opt_string, set_opt_text_shaping, set_opt_text_wrapping, set_opt_usize, set_opt_vec_f32, set_width, set_width_fill};
 use crate::IpgState;
 use crate::widgets::callbacks::invoke_callback_with_args;
 use crate::widgets::ipg_text::TextShaping;
@@ -274,23 +270,22 @@ impl WidgetParamUpdate for IpgToggler {
     type Param = IpgTogglerParam;
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
-        let name = String::new();
         match param {
-            IpgTogglerParam::FontId => set_opt_usize(&mut self.font_id, value, name),
+            IpgTogglerParam::FontId => set_opt_usize(&mut self.font_id, value, "FontId"),
             IpgTogglerParam::Label => set_opt_string(&mut self.label, value, "Label"),
-            IpgTogglerParam::Show => set_bool(&mut self.show, value, name),
-            IpgTogglerParam::Size => set_opt_f32(&mut self.size, value, name),
-            IpgTogglerParam::Spacing => set_opt_f32(&mut self.spacing, value, name),
-            IpgTogglerParam::StyleId => set_opt_usize(&mut self.style_id, value, name),
-            IpgTogglerParam::TextCenter => set_opt_bool(&mut self.text_center, value, name),
-            IpgTogglerParam::TextLeft => set_opt_bool(&mut self.text_left, value, name),
-            IpgTogglerParam::TextRight => set_opt_bool(&mut self.text_right, value, name),
-            IpgTogglerParam::TextLineHeight => set_opt_f32(&mut self.text_line_height, value, name),
-            IpgTogglerParam::TextShaping => set_opt_text_shaping(&mut self.text_shaping, value, name),
-            IpgTogglerParam::TextSize => set_opt_f32(&mut self.text_size, value, name),
-            IpgTogglerParam::TextWrapping => set_opt_text_wrapping(&mut self.text_wrapping, value, name),
-            IpgTogglerParam::Width => set_width(&mut self.width, value, name),
-            IpgTogglerParam::WidthFill => set_width_fill(&mut self.width, value, name),
+            IpgTogglerParam::Show => set_bool(&mut self.show, value, "Show"),
+            IpgTogglerParam::Size => set_opt_f32(&mut self.size, value, "Size"),
+            IpgTogglerParam::Spacing => set_opt_f32(&mut self.spacing, value, "Spacing"),
+            IpgTogglerParam::StyleId => set_opt_usize(&mut self.style_id, value, "StyleId"),
+            IpgTogglerParam::TextCenter => set_opt_bool(&mut self.text_center, value, "TextCenter"),
+            IpgTogglerParam::TextLeft => set_opt_bool(&mut self.text_left, value, "TextLeft"),
+            IpgTogglerParam::TextRight => set_opt_bool(&mut self.text_right, value, "TextRight"),
+            IpgTogglerParam::TextLineHeight => set_opt_f32(&mut self.text_line_height, value, "TextLineHeight"),
+            IpgTogglerParam::TextShaping => set_opt_text_shaping(&mut self.text_shaping, value, "TextShaping"),
+            IpgTogglerParam::TextSize => set_opt_f32(&mut self.text_size, value, "TextSize"),
+            IpgTogglerParam::TextWrapping => set_opt_text_wrapping(&mut self.text_wrapping, value, "TextWrapping"),
+            IpgTogglerParam::Width => set_width(&mut self.width, value, "Width"),
+            IpgTogglerParam::WidthFill => set_width_fill(&mut self.width, value, "WidthFill"),
         }
     }
 }
@@ -299,36 +294,35 @@ impl WidgetParamUpdate for IpgTogglerStyle {
     type Param = IpgTogglerStyleParam;
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
-        let name = String::new();
         match param {
             IpgTogglerStyleParam::BackgroundIpgColor =>
-                set_opt_iced_color(&mut self.background_color, value, name),
+                set_opt_iced_color(&mut self.background_color, value, "BackgroundIpgColor"),
             IpgTogglerStyleParam::BackgroundRgbaColor =>
-                set_iced_color_from_rgba(&mut self.background_color, value, name),
+                set_opt_iced_color_from_rgba(&mut self.background_color, value, "BackgroundRgbaColor"),
             IpgTogglerStyleParam::BackgroundBorderIpgColor =>
-                set_opt_iced_color(&mut self.background_border_color, value, name),
+                set_opt_iced_color(&mut self.background_border_color, value, "BackgroundBorderIpgColor"),
             IpgTogglerStyleParam::BackgroundBorderRgbaColor =>
-                set_iced_color_from_rgba(&mut self.background_border_color, value, name),
+                set_opt_iced_color_from_rgba(&mut self.background_border_color, value, "BackgroundBorderRgbaColor"),
             IpgTogglerStyleParam::BackgroundBorderWidth =>
-                set_opt_f32(&mut self.background_border_width, value, name),
+                set_opt_f32(&mut self.background_border_width, value, "BackgroundBorderWidth"),
             IpgTogglerStyleParam::ForegroundIpgColor =>
-                set_opt_iced_color(&mut self.foreground_color, value, name),
+                set_opt_iced_color(&mut self.foreground_color, value, "ForegroundIpgColor"),
             IpgTogglerStyleParam::ForegroundRgbaColor =>
-                set_iced_color_from_rgba(&mut self.foreground_color, value, name),
+                set_opt_iced_color_from_rgba(&mut self.foreground_color, value, "ForegroundRgbaColor"),
             IpgTogglerStyleParam::ForegroundBorderIpgColor =>
-                set_opt_iced_color(&mut self.foreground_border_color, value, name),
+                set_opt_iced_color(&mut self.foreground_border_color, value, "ForegroundBorderIpgColor"),
             IpgTogglerStyleParam::ForegroundBorderRgbaColor =>
-                set_iced_color_from_rgba(&mut self.foreground_border_color, value, name),
+                set_opt_iced_color_from_rgba(&mut self.foreground_border_color, value, "ForegroundBorderRgbaColor"),
             IpgTogglerStyleParam::ForegroundBorderWidth =>
-                set_opt_f32(&mut self.foreground_border_width, value, name),
+                set_opt_f32(&mut self.foreground_border_width, value, "ForegroundBorderWidth"),
             IpgTogglerStyleParam::TextIpgColor =>
-                set_opt_iced_color(&mut self.text_color, value, name),
+                set_opt_iced_color(&mut self.text_color, value, "TextIpgColor"),
             IpgTogglerStyleParam::TextRgbaColor =>
-                set_iced_color_from_rgba(&mut self.text_color, value, name),
+                set_opt_iced_color_from_rgba(&mut self.text_color, value, "TextRgbaColor"),
             IpgTogglerStyleParam::BorderRadius =>
-                set_opt_vec_f32(&mut self.border_radius, value, name),
+                set_opt_vec_f32(&mut self.border_radius, value, "BorderRadius"),
             IpgTogglerStyleParam::PaddingRatio =>
-                set_opt_f32(&mut self.padding_ratio, value, name),
+                set_opt_f32(&mut self.padding_ratio, value, "PaddingRatio"),
         }
     }
 }

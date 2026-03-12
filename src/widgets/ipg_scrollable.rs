@@ -8,10 +8,11 @@ use crate::state::IpgWidgets;
 use crate::widgets::ipg_container::IpgContainerStyleStd;
 use crate::widgets::styling::{apply_border_overrides, apply_shadow_overrides_xy};
 use crate::widgets::widget_param_update::set_opt_bool;
+use crate::widgets::widget_param_update::set_opt_iced_color_from_rgba;
 use crate::widgets::widget_param_update::{
     WidgetParamUpdate,
     set_opt_f32, set_opt_f32_array_2, set_opt_iced_color,
-    set_opt_usize, set_opt_vec_f32, set_iced_color_from_rgba,
+    set_opt_usize, set_opt_vec_f32, 
     set_height, set_width,
 };
 
@@ -467,13 +468,12 @@ impl WidgetParamUpdate for IpgScrollable {
     type Param = IpgScrollableParam;
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
-        let name = String::new();
         match param {
-            IpgScrollableParam::Height => set_height(&mut self.height, value, name),
-            IpgScrollableParam::ScrollerXId => set_opt_usize(&mut self.scroller_x_id, value, name),
-            IpgScrollableParam::ScrollerYId => set_opt_usize(&mut self.scroller_y_id, value, name),
-            IpgScrollableParam::StyleId => set_opt_usize(&mut self.style_id, value, name),
-            IpgScrollableParam::Width => set_width(&mut self.width, value, name),
+            IpgScrollableParam::Height => set_height(&mut self.height, value, "Height"),
+            IpgScrollableParam::ScrollerXId => set_opt_usize(&mut self.scroller_x_id, value, "ScrollerXId"),
+            IpgScrollableParam::ScrollerYId => set_opt_usize(&mut self.scroller_y_id, value, "ScrollerYId"),
+            IpgScrollableParam::StyleId => set_opt_usize(&mut self.style_id, value, "StyleId"),
+            IpgScrollableParam::Width => set_width(&mut self.width, value, "Width"),
         }
     }
 }
@@ -482,15 +482,14 @@ impl WidgetParamUpdate for IpgScrollableStyle {
     type Param = IpgScrollableStyleParam;
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
-        let name = String::new();
         match param {
-            IpgScrollableStyleParam::ContainerStyleId => set_opt_usize(&mut self.container_style_id, value, name),
+            IpgScrollableStyleParam::ContainerStyleId => set_opt_usize(&mut self.container_style_id, value, "ContainerStyleId"),
             IpgScrollableStyleParam::ContainerStyleStd => todo!(),
-            IpgScrollableStyleParam::VerticalRailStyleId => set_opt_usize(&mut self.vertical_rail_style_id, value, name),
-            IpgScrollableStyleParam::HorizontalRailStyleId => set_opt_usize(&mut self.horizontal_rail_style_id, value, name),
-            IpgScrollableStyleParam::AutoScrollStyleId => set_opt_usize(&mut self.auto_scroll_style_id, value, name),
-            IpgScrollableStyleParam::GapColor => set_opt_iced_color(&mut self.gap_color, value, name),
-            IpgScrollableStyleParam::GapRgba => set_iced_color_from_rgba(&mut self.gap_color, value, name),
+            IpgScrollableStyleParam::VerticalRailStyleId => set_opt_usize(&mut self.vertical_rail_style_id, value, "VerticalRailStyleId"),
+            IpgScrollableStyleParam::HorizontalRailStyleId => set_opt_usize(&mut self.horizontal_rail_style_id, value, "HorizontalRailStyleId"),
+            IpgScrollableStyleParam::AutoScrollStyleId => set_opt_usize(&mut self.auto_scroll_style_id, value, "AutoScrollStyleId"),
+            IpgScrollableStyleParam::GapColor => set_opt_iced_color(&mut self.gap_color, value, "GapColor"),
+            IpgScrollableStyleParam::GapRgba => set_opt_iced_color_from_rgba(&mut self.gap_color, value, "GapRgba"),
         }
     }
 }
@@ -499,14 +498,13 @@ impl WidgetParamUpdate for IpgScroller {
     type Param = IpgScrollerParam;
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
-        let name = String::new();
         match param {
             IpgScrollerParam::Anchor => self.anchor = IpgAnchor::extract(value),
-            IpgScrollerParam::Hidden => set_opt_bool(&mut self.hidden, value, name),
-            IpgScrollerParam::Margin => set_opt_f32(&mut self.margin, value, name),
-            IpgScrollerParam::ScrollerWidth => set_opt_f32(&mut self.scroller_width, value, name),
-            IpgScrollerParam::Spacing => set_opt_f32(&mut self.spacing, value, name),
-            IpgScrollerParam::Width => set_opt_f32(&mut self.width, value, name),
+            IpgScrollerParam::Hidden => set_opt_bool(&mut self.hidden, value, "Hidden"),
+            IpgScrollerParam::Margin => set_opt_f32(&mut self.margin, value, "Margin"),
+            IpgScrollerParam::ScrollerWidth => set_opt_f32(&mut self.scroller_width, value, "ScrollerWidth"),
+            IpgScrollerParam::Spacing => set_opt_f32(&mut self.spacing, value, "Spacing"),
+            IpgScrollerParam::Width => set_opt_f32(&mut self.width, value, "Width"),
         }
     }
 }
@@ -515,14 +513,13 @@ impl WidgetParamUpdate for IpgRailStyle {
     type Param = IpgRailStyleParam;
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
-        let name = String::new();
         match param {
-            IpgRailStyleParam::BackgroundColor => set_opt_iced_color(&mut self.background, value, name),
-            IpgRailStyleParam::BackgroundRgba => set_iced_color_from_rgba(&mut self.background, value, name),
-            IpgRailStyleParam::BorderColor => set_opt_iced_color(&mut self.border_color, value, name),
-            IpgRailStyleParam::BorderRgba => set_iced_color_from_rgba(&mut self.border_color, value, name),
-            IpgRailStyleParam::BorderWidth => set_opt_f32(&mut self.border_width, value, name),
-            IpgRailStyleParam::BorderRadius => set_opt_vec_f32(&mut self.border_radius, value, name),
+            IpgRailStyleParam::BackgroundColor => set_opt_iced_color(&mut self.background, value, "BackgroundColor"),
+            IpgRailStyleParam::BackgroundRgba => set_opt_iced_color_from_rgba(&mut self.background, value, "BackgroundRgba"),
+            IpgRailStyleParam::BorderColor => set_opt_iced_color(&mut self.border_color, value, "BorderColor"),
+            IpgRailStyleParam::BorderRgba => set_opt_iced_color_from_rgba(&mut self.border_color, value, "BorderRgba"),
+            IpgRailStyleParam::BorderWidth => set_opt_f32(&mut self.border_width, value, "BorderWidth"),
+            IpgRailStyleParam::BorderRadius => set_opt_vec_f32(&mut self.border_radius, value, "BorderRadius"),
         }
     }
 }
@@ -531,20 +528,19 @@ impl WidgetParamUpdate for IpgAutoScrollStyle {
     type Param = IpgAutoScrollStyleParam;
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
-        let name = String::new();
         match param {
-            IpgAutoScrollStyleParam::BackgroundColor => set_opt_iced_color(&mut self.background, value, name),
-            IpgAutoScrollStyleParam::BackgroundRgba => set_iced_color_from_rgba(&mut self.background, value, name),
-            IpgAutoScrollStyleParam::BorderColor => set_opt_iced_color(&mut self.border_color, value, name),
-            IpgAutoScrollStyleParam::BorderRgba => set_iced_color_from_rgba(&mut self.border_color, value, name),
-            IpgAutoScrollStyleParam::BorderWidth => set_opt_f32(&mut self.border_width, value, name),
-            IpgAutoScrollStyleParam::BorderRadius => set_opt_vec_f32(&mut self.border_radius, value, name),
-            IpgAutoScrollStyleParam::ShadowColor => set_opt_iced_color(&mut self.shadow_color, value, name),
-            IpgAutoScrollStyleParam::ShadowRgba => set_iced_color_from_rgba(&mut self.shadow_color, value, name),
-            IpgAutoScrollStyleParam::ShadowOffset => set_opt_f32_array_2(&mut self.shadow_offset, value, name),
-            IpgAutoScrollStyleParam::ShadowBlurRadius => set_opt_f32(&mut self.shadow_blur_radius, value, name),
-            IpgAutoScrollStyleParam::ShadowIconColor => set_opt_iced_color(&mut self.shadow_icon_color, value, name),
-            IpgAutoScrollStyleParam::ShadowIconRgba => set_iced_color_from_rgba(&mut self.shadow_icon_color, value, name),
+            IpgAutoScrollStyleParam::BackgroundColor => set_opt_iced_color(&mut self.background, value, "BackgroundColor"),
+            IpgAutoScrollStyleParam::BackgroundRgba => set_opt_iced_color_from_rgba(&mut self.background, value, "BackgroundRgba"),
+            IpgAutoScrollStyleParam::BorderColor => set_opt_iced_color(&mut self.border_color, value, "BorderColor"),
+            IpgAutoScrollStyleParam::BorderRgba => set_opt_iced_color_from_rgba(&mut self.border_color, value, "BorderRgba"),
+            IpgAutoScrollStyleParam::BorderWidth => set_opt_f32(&mut self.border_width, value, "BorderWidth"),
+            IpgAutoScrollStyleParam::BorderRadius => set_opt_vec_f32(&mut self.border_radius, value, "BorderRadius"),
+            IpgAutoScrollStyleParam::ShadowColor => set_opt_iced_color(&mut self.shadow_color, value, "ShadowColor"),
+            IpgAutoScrollStyleParam::ShadowRgba => set_opt_iced_color_from_rgba(&mut self.shadow_color, value, "ShadowRgba"),
+            IpgAutoScrollStyleParam::ShadowOffset => set_opt_f32_array_2(&mut self.shadow_offset, value, "ShadowOffset"),
+            IpgAutoScrollStyleParam::ShadowBlurRadius => set_opt_f32(&mut self.shadow_blur_radius, value, "ShadowBlurRadius"),
+            IpgAutoScrollStyleParam::ShadowIconColor => set_opt_iced_color(&mut self.shadow_icon_color, value, "ShadowIconColor"),
+            IpgAutoScrollStyleParam::ShadowIconRgba => set_opt_iced_color_from_rgba(&mut self.shadow_icon_color, value, "ShadowIconRgba"),
         }
     }
 }

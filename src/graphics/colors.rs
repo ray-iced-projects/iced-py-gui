@@ -195,7 +195,7 @@ impl IpgColor {
         }
     }
 
-    pub fn extract_rgba(value: &PyObject, name: String) -> [f32; 4] {
+    pub fn extract_rgba(value: &PyObject, name: &str) -> [f32; 4] {
         Python::attach(|py| {
 
             let res = value.extract::<[f32; 4]>(py);
@@ -206,13 +206,41 @@ impl IpgColor {
         })
     }
 
-    pub fn extract(value: &PyObject, name: String) -> IpgColor {
+    pub fn extract_rgba_opt(value: &PyObject, name: &str) -> Option<[f32; 4]> {
+        Python::attach(|py| {
+
+            let res = value.extract::<Option<Vec<f32>>>(py);
+            match res {
+                Ok(val) => {
+                    if val.is_none() { return None };
+                    match val.unwrap().try_into() {
+                        Ok(arr) => Some(arr),
+                        Err(_) => panic!("{} The RGBA value need to have an array of 4 floats ", name)
+                    }
+                },
+                Err(_) => panic!("{}-Unable to extract python object for optional RGBA color", name),
+            }
+        })
+    }
+
+    pub fn extract(value: &PyObject, name: &str) -> IpgColor {
         Python::attach(|py| {
 
             let res = value.extract::<IpgColor>(py);
             match res {
                 Ok(val) => val,
-                Err(_) => panic!("{}-Unable to extract python object for IpgColor color", name),
+                Err(_) => panic!("{}-Unable to extract python object for IpgColor", name),
+            }
+        })
+    }
+
+    pub fn extract_opt(value: &PyObject, name: &str) -> Option<IpgColor> {
+        Python::attach(|py| {
+
+            let res = value.extract::<Option<IpgColor>>(py);
+            match res {
+                Ok(val) => val,
+                Err(_) => panic!("{}-Unable to extract python object for optional IpgColor", name),
             }
         })
     }

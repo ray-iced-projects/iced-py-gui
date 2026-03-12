@@ -4,12 +4,13 @@ use crate::IpgState;
 use crate::graphics::bootstrap_arrow::IpgArrow;
 use crate::py_api::helpers::{get_padding, get_radius};
 use crate::state::IpgWidgets;
+use crate::widgets::widget_param_update::set_opt_iced_color_from_rgba;
 use crate::widgets::widget_param_update::set_opt_ipg_arrow;
 use crate::widgets::widget_param_update::{WidgetParamUpdate,
     set_bool, set_height, set_height_fill,set_opt_iced_color,
     set_opt_f32, set_opt_string, set_opt_text_shaping,
     set_opt_usize, set_opt_vec_f32, set_vec_string,
-    set_iced_color_from_rgba, set_width};
+    set_width};
 use crate::widgets::ipg_text::TextShaping;
 use super::callbacks::invoke_callback_with_args;
 
@@ -375,25 +376,24 @@ impl WidgetParamUpdate for IpgPickList {
     type Param = IpgPickListParam;
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
-        let name = String::new();
         match param {
-            IpgPickListParam::ArrowSize => set_opt_f32(&mut self.arrow_size, value, name),
-            IpgPickListParam::CustomStatic => set_opt_ipg_arrow(&mut self.custom_static, value, name),
-            IpgPickListParam::DynamicClosed => set_opt_ipg_arrow(&mut self.dynamic_closed, value, name),
-            IpgPickListParam::DynamicOpen => set_opt_ipg_arrow(&mut self.dynamic_open, value, name),
+            IpgPickListParam::ArrowSize => set_opt_f32(&mut self.arrow_size, value, "ArrowSize"),
+            IpgPickListParam::CustomStatic => set_opt_ipg_arrow(&mut self.custom_static, value, "CustomStatic"),
+            IpgPickListParam::DynamicClosed => set_opt_ipg_arrow(&mut self.dynamic_closed, value, "DynamicClosed"),
+            IpgPickListParam::DynamicOpen => set_opt_ipg_arrow(&mut self.dynamic_open, value, "DynamicOpen"),
             IpgPickListParam::Handle => self.handle = IpgPickListHandle::extract(value),
-            IpgPickListParam::MenuHeight => set_height(&mut self.menu_height, value, name),
-            IpgPickListParam::MenuHeightFill => set_height_fill(&mut self.menu_height, value, name),
-            IpgPickListParam::Options => set_vec_string(&mut self.options, value, name),
-            IpgPickListParam::Padding => set_opt_vec_f32(&mut self.padding, value, name),
+            IpgPickListParam::MenuHeight => set_height(&mut self.menu_height, value, "MenuHeight"),
+            IpgPickListParam::MenuHeightFill => set_height_fill(&mut self.menu_height, value, "MenuHeightFill"),
+            IpgPickListParam::Options => set_vec_string(&mut self.options, value, "Options"),
+            IpgPickListParam::Padding => set_opt_vec_f32(&mut self.padding, value, "Padding"),
             IpgPickListParam::Placeholder => set_opt_string(&mut self.placeholder, value, "Placeholder"),
             IpgPickListParam::Selected => set_opt_string(&mut self.selected, value, "Selected"),
-            IpgPickListParam::Show => set_bool(&mut self.show, value, name),
-            IpgPickListParam::StyleId => set_opt_usize(&mut self.style_id, value, name),
-            IpgPickListParam::TextLineHeight => set_opt_f32(&mut self.text_line_height,value, name),
-            IpgPickListParam::TextShaping => set_opt_text_shaping(&mut self.text_shaping, value, name),
-            IpgPickListParam::TextSize => set_opt_f32(&mut self.text_size, value, name),
-            IpgPickListParam::Width => set_width(&mut self.width, value, name),
+            IpgPickListParam::Show => set_bool(&mut self.show, value, "Show"),
+            IpgPickListParam::StyleId => set_opt_usize(&mut self.style_id, value, "StyleId"),
+            IpgPickListParam::TextLineHeight => set_opt_f32(&mut self.text_line_height,value, "TextLineHeight"),
+            IpgPickListParam::TextShaping => set_opt_text_shaping(&mut self.text_shaping, value, "TextShaping"),
+            IpgPickListParam::TextSize => set_opt_f32(&mut self.text_size, value, "TextSize"),
+            IpgPickListParam::Width => set_width(&mut self.width, value, "Width"),
         }
     }
 }
@@ -402,32 +402,31 @@ impl WidgetParamUpdate for IpgPickListStyle {
     type Param = IpgPickListStyleParam;
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
-        let name = String::new();
         match param {
             IpgPickListStyleParam::BackgroundIpgColor => 
-                set_opt_iced_color(&mut self.background_color, value, name),
+                set_opt_iced_color(&mut self.background_color, value, "BackgroundIpgColor"),
             IpgPickListStyleParam::BackgroundRbgaColor => 
-                set_iced_color_from_rgba(&mut self.background_color, value, name),
+                set_opt_iced_color_from_rgba(&mut self.background_color, value, "BackgroundRbgaColor"),
             IpgPickListStyleParam::BorderIpgColor => 
-                set_opt_iced_color(&mut self.border_color, value, name),
+                set_opt_iced_color(&mut self.border_color, value, "BorderIpgColor"),
             IpgPickListStyleParam::BorderRadius => 
-                set_opt_vec_f32(&mut self.border_radius, value, name),
+                set_opt_vec_f32(&mut self.border_radius, value, "BorderRadius"),
             IpgPickListStyleParam::BorderRgbaColor => 
-                set_iced_color_from_rgba(&mut self.border_color, value, name),
+                set_opt_iced_color_from_rgba(&mut self.border_color, value, "BorderRgbaColor"),
             IpgPickListStyleParam::BorderWidth => 
-                set_opt_f32(&mut self.border_width, value, name),
+                set_opt_f32(&mut self.border_width, value, "BorderWidth"),
             IpgPickListStyleParam::HandleIpgColor => 
-                set_opt_iced_color(&mut self.handle_color, value, name),
+                set_opt_iced_color(&mut self.handle_color, value, "HandleIpgColor"),
             IpgPickListStyleParam::HandleRgbaColor => 
-                set_iced_color_from_rgba(&mut self.handle_color, value, name),
+                set_opt_iced_color_from_rgba(&mut self.handle_color, value, "HandleRgbaColor"),
             IpgPickListStyleParam::PlaceholderIpgColor => 
-                set_opt_iced_color(&mut self.placeholder_color, value, name),
+                set_opt_iced_color(&mut self.placeholder_color, value, "PlaceholderIpgColor"),
             IpgPickListStyleParam::PlaceholderRgbaColor => 
-                set_iced_color_from_rgba(&mut self.placeholder_color, value, name),
+                set_opt_iced_color_from_rgba(&mut self.placeholder_color, value, "PlaceholderRgbaColor"),
             IpgPickListStyleParam::TextIpgColor => 
-                set_opt_iced_color(&mut self.text_color, value, name),
+                set_opt_iced_color(&mut self.text_color, value, "TextIpgColor"),
             IpgPickListStyleParam::TextRgbaColor => 
-                set_iced_color_from_rgba(&mut self.text_color, value, name),
+                set_opt_iced_color_from_rgba(&mut self.text_color, value, "TextRgbaColor"),
         }
     }
 }

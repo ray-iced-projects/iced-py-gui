@@ -96,18 +96,17 @@ impl WidgetParamUpdate for IpgColumn {
     type Param = IpgColumnParam;
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
-        let name= String::new();
         match param {
-            IpgColumnParam::AlignLeft => set_opt_bool(&mut self.align_left, value, name),
-            IpgColumnParam::AlignCenter => set_opt_bool(&mut self.align_center, value, name),
-            IpgColumnParam::AlignRight => set_opt_bool(&mut self.align_right, value, name),
-            IpgColumnParam::Clip => set_opt_bool(&mut self.clip, value, name),
-            IpgColumnParam::Padding => set_opt_vec_f32(&mut self.padding, value, name),
-            IpgColumnParam::Width  => set_width(&mut self.width, value, name),
-            IpgColumnParam::WidthFill => set_width_fill(&mut self.width, value, name),
-            IpgColumnParam::Height => set_height(&mut self.height, value, name),
-            IpgColumnParam::HeightFill => set_height_fill(&mut self.height, value, name),
-            IpgColumnParam::Spacing => set_opt_f32(&mut self.spacing, value, name),
+            IpgColumnParam::AlignLeft => set_opt_bool(&mut self.align_left, value, "AlignLeft"),
+            IpgColumnParam::AlignCenter => set_opt_bool(&mut self.align_center, value, "AlignCenter"),
+            IpgColumnParam::AlignRight => set_opt_bool(&mut self.align_right, value, "AlignRight"),
+            IpgColumnParam::Clip => set_opt_bool(&mut self.clip, value, "Clip"),
+            IpgColumnParam::Padding => set_opt_vec_f32(&mut self.padding, value, "Padding"),
+            IpgColumnParam::Width  => set_width(&mut self.width, value, "Width"),
+            IpgColumnParam::WidthFill => set_width_fill(&mut self.width, value, "WidthFill"),
+            IpgColumnParam::Height => set_height(&mut self.height, value, "Height"),
+            IpgColumnParam::HeightFill => set_height_fill(&mut self.height, value, "HeightFill"),
+            IpgColumnParam::Spacing => set_opt_f32(&mut self.spacing, value, "Spacing"),
         }
     }
 }

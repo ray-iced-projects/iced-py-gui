@@ -7,10 +7,7 @@ use crate::state::IpgState;
 use crate::app::Message;
 use crate::widgets::ipg_text::{TextShaping, TextWrapping};
 use crate::widgets::widget_param_update::{
-    WidgetParamUpdate,
-    set_bool, set_opt_f32, set_opt_string, set_opt_usize, set_opt_vec_f32,
-    set_width, set_width_fill,
-    set_opt_iced_color, set_iced_color_from_rgba,
+    WidgetParamUpdate, set_bool, set_opt_f32, set_opt_iced_color, set_opt_iced_color_from_rgba, set_opt_string, set_opt_usize, set_opt_vec_f32, set_width, set_width_fill
 };
 use crate::widgets::callbacks::invoke_callback_with_args;
 use crate::state::IpgWidgets;
@@ -385,32 +382,32 @@ impl WidgetParamUpdate for IpgCheckBox {
     type Param = IpgCheckboxParam;
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
-        let name = String::new();
+
         match param {
             IpgCheckboxParam::Icon => {
                 self.icon = Some(IpgIcon::extract(value));
             }
             IpgCheckboxParam::IconFont     => { /* TODO */ }
-            IpgCheckboxParam::IconLineHeight => set_opt_f32(&mut self.icon_line_height, value, name),
-            IpgCheckboxParam::IconSize     => set_opt_f32(&mut self.icon_size, value, name),
+            IpgCheckboxParam::IconLineHeight => set_opt_f32(&mut self.icon_line_height, value, "IconLineHeight"),
+            IpgCheckboxParam::IconSize     => set_opt_f32(&mut self.icon_size, value, "IconSize"),
             IpgCheckboxParam::IconShaping  => {
                 self.icon_shaping = TextShaping::extract(value);
             }
-            IpgCheckboxParam::IsChecked    => set_bool(&mut self.is_checked, value, name),
+            IpgCheckboxParam::IsChecked    => set_bool(&mut self.is_checked, value, "IsChecked"),
             IpgCheckboxParam::Label        => set_opt_string(&mut self.label, value, "Label"),
-            IpgCheckboxParam::Show         => set_bool(&mut self.show, value, name),
-            IpgCheckboxParam::Spacing      => set_opt_f32(&mut self.spacing, value, name),
-            IpgCheckboxParam::TextLineHeight => set_opt_f32(&mut self.text_line_height, value, name),
+            IpgCheckboxParam::Show         => set_bool(&mut self.show, value, "Show"),
+            IpgCheckboxParam::Spacing      => set_opt_f32(&mut self.spacing, value, "Spacing"),
+            IpgCheckboxParam::TextLineHeight => set_opt_f32(&mut self.text_line_height, value, "TextLineHeight"),
             IpgCheckboxParam::TextShaping  => {
                 self.text_shaping = TextShaping::extract(value);
             }
-            IpgCheckboxParam::TextSize     => set_opt_f32(&mut self.text_size, value, name),
-            IpgCheckboxParam::Style        => set_opt_usize(&mut self.style_id, value, name),
+            IpgCheckboxParam::TextSize     => set_opt_f32(&mut self.text_size, value, "TextSize"),
+            IpgCheckboxParam::Style        => set_opt_usize(&mut self.style_id, value, "Style"),
             IpgCheckboxParam::StyleStandard => {
                 self.style_std = Some(extract_chk_style_standard(value));
             }
-            IpgCheckboxParam::Width        => set_width(&mut self.width, value, name),
-            IpgCheckboxParam::WidthFill    => set_width_fill(&mut self.width, value, name),
+            IpgCheckboxParam::Width        => set_width(&mut self.width, value, "Width"),
+            IpgCheckboxParam::WidthFill    => set_width_fill(&mut self.width, value, "WidthFill"),
             IpgCheckboxParam::TextFont     => { /* TODO */ }
         }
     }
@@ -420,18 +417,17 @@ impl WidgetParamUpdate for IpgCheckboxStyle {
     type Param = IpgCheckboxStyleParam;
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
-        let name = String::new();
         match param {
-            IpgCheckboxStyleParam::BackgroundIpgColor       => set_opt_iced_color(&mut self.background_color, value, name),
-            IpgCheckboxStyleParam::BackgroundRgbaColor      => set_iced_color_from_rgba(&mut self.background_color, value, name),
-            IpgCheckboxStyleParam::BorderIpgColor           => set_opt_iced_color(&mut self.border_color, value, name),
-            IpgCheckboxStyleParam::BorderRgbaColor          => set_iced_color_from_rgba(&mut self.border_color, value, name),
-            IpgCheckboxStyleParam::BorderRadius             => set_opt_vec_f32(&mut self.border_radius, value, name),
-            IpgCheckboxStyleParam::BorderWidth              => set_opt_f32(&mut self.border_width, value, name),
-            IpgCheckboxStyleParam::IconIpgColor             => set_opt_iced_color(&mut self.icon_color, value, name),
-            IpgCheckboxStyleParam::IconRgbaColor            => set_iced_color_from_rgba(&mut self.icon_color, value, name),
-            IpgCheckboxStyleParam::TextIpgColor             => set_opt_iced_color(&mut self.text_color, value, name),
-            IpgCheckboxStyleParam::TextRgbaColor            => set_iced_color_from_rgba(&mut self.text_color, value, name),
+            IpgCheckboxStyleParam::BackgroundIpgColor => set_opt_iced_color(&mut self.background_color, value, "BackgroundIpgColor"),
+            IpgCheckboxStyleParam::BackgroundRgbaColor => set_opt_iced_color_from_rgba(&mut self.background_color, value, "BackgroundRgbaColor"),
+            IpgCheckboxStyleParam::BorderIpgColor => set_opt_iced_color(&mut self.border_color, value, "BorderIpgColor"),
+            IpgCheckboxStyleParam::BorderRgbaColor => set_opt_iced_color_from_rgba(&mut self.border_color, value, "BorderRgbaColor"),
+            IpgCheckboxStyleParam::BorderRadius => set_opt_vec_f32(&mut self.border_radius, value, "BorderRadius"),
+            IpgCheckboxStyleParam::BorderWidth => set_opt_f32(&mut self.border_width, value, "BorderWidth"),
+            IpgCheckboxStyleParam::IconIpgColor => set_opt_iced_color(&mut self.icon_color, value, "IconIpgColor"),
+            IpgCheckboxStyleParam::IconRgbaColor => set_opt_iced_color_from_rgba(&mut self.icon_color, value, "IconRgbaColor"),
+            IpgCheckboxStyleParam::TextIpgColor => set_opt_iced_color(&mut self.text_color, value, "TextIpgColor"),
+            IpgCheckboxStyleParam::TextRgbaColor => set_opt_iced_color_from_rgba(&mut self.text_color, value, "TextRgbaColor"),
         }
     }
 }

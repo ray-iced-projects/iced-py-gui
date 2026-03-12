@@ -8,7 +8,7 @@ type PyObject = Py<PyAny>;
 
 use crate::state::IpgWidgets;
 use crate::widgets::widget_param_update::{
-    WidgetParamUpdate, set_opt_iced_color, set_opt_bool, set_iced_color_from_rgba};
+    WidgetParamUpdate, set_opt_bool, set_opt_iced_color, set_opt_iced_color_from_rgba};
 use crate::{access_callbacks, access_user_data1, IpgState};
 use crate::app::Message;
 use super::enums::{AlignX, AlignY};
@@ -154,10 +154,9 @@ impl WidgetParamUpdate for IpgOpaque {
     type Param = IpgOpaqueParam;
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
-        let name = String::new();
         match param {
             IpgOpaqueParam::Show => 
-                set_opt_bool(&mut self.center, value, name),
+                set_opt_bool(&mut self.center, value, "Show"),
         }
     }
 }
@@ -166,12 +165,11 @@ impl WidgetParamUpdate for IpgOpaqueStyle {
     type Param = IpgOpaqueStyleParam;
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
-        let name = String::new();
         match param {
             IpgOpaqueStyleParam::BackgroundIpgColor => 
-                set_opt_iced_color(&mut self.background_color, value, name),
+                set_opt_iced_color(&mut self.background_color, value, "BackgroundIpgColor"),
             IpgOpaqueStyleParam::BackgroundRgbaColor => 
-                set_iced_color_from_rgba(&mut self.background_color, value, name),
+                set_opt_iced_color_from_rgba(&mut self.background_color, value, "BackgroundRgbaColor"),
         }
     }
 }

@@ -98,18 +98,17 @@ impl WidgetParamUpdate for IpgRow {
     type Param = IpgRowParam;
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
-        let name = String::new();
         match param {
-            IpgRowParam::AlignBottom => set_opt_bool(&mut self.align_bottom, value, name),
-            IpgRowParam::AlignCenter => set_opt_bool(&mut self.align_center, value, name),
-            IpgRowParam::AlignTop => set_opt_bool(&mut self.align_top, value, name),
-            IpgRowParam::Clip => set_opt_bool(&mut self.clip, value, name),
-            IpgRowParam::Padding => set_opt_vec_f32(&mut self.padding, value, name),
-            IpgRowParam::Width => set_width(&mut self.width, value, name),
-            IpgRowParam::WidthFill => set_width_fill(&mut self.width, value, name),
-            IpgRowParam::Height => set_height(&mut self.height, value, name),
-            IpgRowParam::HeightFill => set_height_fill(&mut self.height, value, name),
-            IpgRowParam::Spacing => set_opt_f32(&mut self.spacing, value, name),
+            IpgRowParam::AlignBottom => set_opt_bool(&mut self.align_bottom, value, "AlignBottom"),
+            IpgRowParam::AlignCenter => set_opt_bool(&mut self.align_center, value, "AlignCenter"),
+            IpgRowParam::AlignTop => set_opt_bool(&mut self.align_top, value, "AlignTop"),
+            IpgRowParam::Clip => set_opt_bool(&mut self.clip, value, "Clip"),
+            IpgRowParam::Padding => set_opt_vec_f32(&mut self.padding, value, "Padding"),
+            IpgRowParam::Width => set_width(&mut self.width, value, "Width"),
+            IpgRowParam::WidthFill => set_width_fill(&mut self.width, value, "WidthFill"),
+            IpgRowParam::Height => set_height(&mut self.height, value, "Height"),
+            IpgRowParam::HeightFill => set_height_fill(&mut self.height, value, "HeightFill"),
+            IpgRowParam::Spacing => set_opt_f32(&mut self.spacing, value, "Spacing"),
         }
     }
 }

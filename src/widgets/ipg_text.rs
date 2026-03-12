@@ -13,8 +13,8 @@ use crate::app::Message;
 use crate::state::IpgWidgets;
 use crate::widgets::widget_param_update::{
     WidgetParamUpdate, set_bool, set_height, set_height_fill, 
-    set_iced_color_from_rgba, set_opt_bool_from_opt, 
-    set_opt_f32, set_opt_iced_color, set_string, set_width, set_width_fill
+    set_opt_bool_from_opt, set_opt_f32, set_opt_iced_color, 
+    set_opt_iced_color_from_rgba, set_string, set_width, set_width_fill
 };
 
 
@@ -211,9 +211,22 @@ impl TextWrapping {
             let res = value.extract::<Self>(py);
             match res {
                 Ok(val) => val,
-                Err(_) => panic!("Unable to extract python object for TextWrapping"),
+                Err(err) => panic!("Unable to extract python object for TextWrapping: {}", err),
             }
         }))
+    }
+
+    pub fn extract_opt(value: &PyObject) -> Option<Self> {
+        Python::attach(|py| {
+            let res = value.extract::<Option<Self>>(py);
+            match res {
+                Ok(val) => {
+                    if val.is_none() { return None }
+                    val
+                },
+                Err(err) => panic!("Unable to extract python TextWrapping: {}", err),
+            }
+        })  
     }
 }
 
@@ -234,12 +247,25 @@ impl TextShaping {
         }
     }
 
-    pub fn extract(value: &PyObject) -> Option<TextShaping> {
+    pub fn extract(value: &PyObject) -> Option<Self> {
         Python::attach(|py| {
             let res = value.extract::<Self>(py);
             match res {
                 Ok(val) => Some(val),
-                Err(_) => panic!("Unable to extract python TextShaping"),
+                Err(err) => panic!("Unable to extract python TextShaping: {}", err),
+            }
+        })  
+    }
+
+    pub fn extract_opt(value: &PyObject) -> Option<Self> {
+        Python::attach(|py| {
+            let res = value.extract::<Option<Self>>(py);
+            match res {
+                Ok(val) => {
+                    if val.is_none() { return None }
+                    val
+                },
+                Err(err) => panic!("Unable to extract python TextShaping: {}", err),
             }
         })  
     }
@@ -253,7 +279,6 @@ impl WidgetParamUpdate for IpgText {
     type Param = IpgTextParam;
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
-        let name = String::new();
         match param {
             IpgTextParam::AlignBottomCenter => set_opt_bool_from_opt(&mut self.align_bottom_center, value, "AlignBottomCenter"),
             IpgTextParam::AlignBottomLeft => set_opt_bool_from_opt(&mut self.align_bottom_left, value, "AlignBottomLeft"),
@@ -265,17 +290,17 @@ impl WidgetParamUpdate for IpgText {
             IpgTextParam::AlignTopLeft => set_opt_bool_from_opt(&mut self.align_top_left, value, "AlignTopLeft"),
             IpgTextParam::AlignTopRight => set_opt_bool_from_opt(&mut self.align_top_right, value, "AlignTopRight"),
             IpgTextParam::Content => set_string(&mut self.content, value, "Content"),
-            IpgTextParam::Height => set_height(&mut self.height, value, name),
-            IpgTextParam::HeightFill => set_height_fill(&mut self.height, value, name),
-            IpgTextParam::LineHeight => set_opt_f32(&mut self.line_height, value, name),
-            IpgTextParam::Show => set_bool(&mut self.show, value, name),
-            IpgTextParam::Size => set_opt_f32(&mut self.size, value, name),
-            IpgTextParam::TextColor  => set_opt_iced_color(&mut self.color, value, name),
-            IpgTextParam::TextRgba => set_iced_color_from_rgba(&mut self.color, value, name),
-            IpgTextParam::TextShaping => self.shaping = TextShaping::extract(value),
-            IpgTextParam::TextWrapping => self.wrapping = TextWrapping::extract(value),
-            IpgTextParam::Width => set_width(&mut self.width, value, name),
-            IpgTextParam::WidthFill => set_width_fill(&mut self.width, value, name),
+            IpgTextParam::Height => set_height(&mut self.height, value, "Height"),
+            IpgTextParam::HeightFill => set_height_fill(&mut self.height, value, "HeightFill"),
+            IpgTextParam::LineHeight => set_opt_f32(&mut self.line_height, value, "LineHeight"),
+            IpgTextParam::Show => set_bool(&mut self.show, value, "Show"),
+            IpgTextParam::Size => set_opt_f32(&mut self.size, value, "Size"),
+            IpgTextParam::TextColor  => set_opt_iced_color(&mut self.color, value, "TextColor"),
+            IpgTextParam::TextRgba => set_opt_iced_color_from_rgba(&mut self.color, value, "TextRgba"),
+            IpgTextParam::TextShaping => self.shaping = TextShaping::extract_opt(value),
+            IpgTextParam::TextWrapping => self.wrapping = TextWrapping::extract_opt(value),
+            IpgTextParam::Width => set_width(&mut self.width, value, "Width"),
+            IpgTextParam::WidthFill => set_width_fill(&mut self.width, value, "WidthFill"),
         }
     }
 }

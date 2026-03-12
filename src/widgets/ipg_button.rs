@@ -9,10 +9,10 @@ use crate::py_api::helpers::get_padding;
 use crate::widgets::styling::{apply_shadow_overrides_xy, 
     apply_border_overrides, apply_background_overrides, 
     get_custom_palette};
-use crate::widgets::widget_param_update::set_opt_f32_array_2;
+use crate::widgets::widget_param_update::{set_opt_f32_array_2, set_opt_iced_color_from_rgba};
 use crate::widgets::widget_param_update::{
     WidgetParamUpdate, set_bool, set_height, 
-    set_height_fill, set_iced_color_from_rgba, set_opt_bool, 
+    set_height_fill, set_opt_bool, 
     set_opt_f32, set_opt_iced_color, set_opt_string, set_opt_usize, 
     set_opt_vec_f32, set_width, set_width_fill
 };
@@ -349,7 +349,7 @@ pub enum IpgButtonParam {
 
 pub fn extract_button_style_standard(
     value: &PyObject, 
-    name: String,
+    name: &str,
     ) -> IpgButtonStyleStd {
     
     Python::attach(|py| {
@@ -389,33 +389,32 @@ impl WidgetParamUpdate for IpgButton {
     type Param = IpgButtonParam;
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
-        let name= String::new();
         match param {
             IpgButtonParam::ArrowStyle => {
                 self.style_arrow = IpgArrow::extract(value);
             }
-            IpgButtonParam::Clip => set_opt_bool(&mut self.clip, value, name),
-            IpgButtonParam::Height => set_height(&mut self.height, value, name),
-            IpgButtonParam::HeightFill => set_height_fill(&mut self.height, value, name),
+            IpgButtonParam::Clip => set_opt_bool(&mut self.clip, value, "Clip"),
+            IpgButtonParam::Height => set_height(&mut self.height, value, "Height"),
+            IpgButtonParam::HeightFill => set_height_fill(&mut self.height, value, "HeightFill"),
             IpgButtonParam::Label => set_opt_string(&mut self.label, value, "Label"),
-            IpgButtonParam::Padding => set_opt_vec_f32(&mut self.padding, value, name),
-            IpgButtonParam::Show => set_bool(&mut self.show, value, name),
-            IpgButtonParam::StyleId => set_opt_usize(&mut self.style_id, value, name),
+            IpgButtonParam::Padding => set_opt_vec_f32(&mut self.padding, value, "Padding"),
+            IpgButtonParam::Show => set_bool(&mut self.show, value, "Show"),
+            IpgButtonParam::StyleId => set_opt_usize(&mut self.style_id, value, "StyleId"),
             IpgButtonParam::StyleStandard => {
-                self.style_std = Some(extract_button_style_standard(value, name));
+                self.style_std = Some(extract_button_style_standard(value, "StyleStandard"));
             },
-            IpgButtonParam::TextSize => set_opt_f32(&mut self.text_size, value, name),
-            IpgButtonParam::Width => set_width(&mut self.width, value, name),
-            IpgButtonParam::WidthFill => set_width_fill(&mut self.width, value, name),
-            IpgButtonParam::TextAlignBottomCenter => set_opt_bool(&mut self.text_align_bottom_center, value, name),
-            IpgButtonParam::TextAlignBottomLeft => set_opt_bool(&mut self.text_align_bottom_left, value, name),
-            IpgButtonParam::TextAlignBottomRight => set_opt_bool(&mut self.text_align_bottom_right, value, name),
-            IpgButtonParam::TextAlignCenter => set_opt_bool(&mut self.text_align_center, value, name),
-            IpgButtonParam::TextAlignCenterLeft => set_opt_bool(&mut self.text_align_center_left, value, name),
-            IpgButtonParam::TextAlignCenterRight => set_opt_bool(&mut self.text_align_bottom_right, value, name),
-            IpgButtonParam::TextAlignTopCenter => set_opt_bool(&mut self.text_align_top_center, value, name),
-            IpgButtonParam::TextAlignTopLeft => set_opt_bool(&mut self.text_align_top_left, value, name),
-            IpgButtonParam::TextAlignTopRight => set_opt_bool(&mut self.text_align_top_right, value, name),
+            IpgButtonParam::TextSize => set_opt_f32(&mut self.text_size, value, "TextSize"),
+            IpgButtonParam::Width => set_width(&mut self.width, value, "Width"),
+            IpgButtonParam::WidthFill => set_width_fill(&mut self.width, value, "WidthFill"),
+            IpgButtonParam::TextAlignBottomCenter => set_opt_bool(&mut self.text_align_bottom_center, value, "TextAlignBottomCenter"),
+            IpgButtonParam::TextAlignBottomLeft => set_opt_bool(&mut self.text_align_bottom_left, value, "TextAlignBottomLeft"),
+            IpgButtonParam::TextAlignBottomRight => set_opt_bool(&mut self.text_align_bottom_right, value, "TextAlignBottomRight"),
+            IpgButtonParam::TextAlignCenter => set_opt_bool(&mut self.text_align_center, value, "TextAlignCenter"),
+            IpgButtonParam::TextAlignCenterLeft => set_opt_bool(&mut self.text_align_center_left, value, "TextAlignCenterLeft"),
+            IpgButtonParam::TextAlignCenterRight => set_opt_bool(&mut self.text_align_bottom_right, value, "TextAlignCenterRight"),
+            IpgButtonParam::TextAlignTopCenter => set_opt_bool(&mut self.text_align_top_center, value, "TextAlignTopCenter"),
+            IpgButtonParam::TextAlignTopLeft => set_opt_bool(&mut self.text_align_top_left, value, "TextAlignTopLeft"),
+            IpgButtonParam::TextAlignTopRight => set_opt_bool(&mut self.text_align_top_right, value, "TextAlignTopRight"),
         }
     }
 }
@@ -424,16 +423,16 @@ impl WidgetParamUpdate for IpgButtonStyle {
     type Param = IpgButtonStyleParam;
     
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
-        let name = String::new();
+        let name = "";
         match param {
             IpgButtonStyleParam::BackgroundColor => 
                 set_opt_iced_color(&mut self.background_color, value, name),
             IpgButtonStyleParam::BackgroundRbga => 
-                set_iced_color_from_rgba(&mut self.background_color, value, name),
+                set_opt_iced_color_from_rgba(&mut self.background_color, value, name),
             IpgButtonStyleParam::BorderColor => 
                 set_opt_iced_color(&mut self.border_color, value, name),
             IpgButtonStyleParam::BorderRgba => 
-                set_iced_color_from_rgba(&mut self.border_color, value, name),
+                set_opt_iced_color_from_rgba(&mut self.border_color, value, name),
             IpgButtonStyleParam::BorderRadius => 
                 set_opt_vec_f32(&mut self.border_radius, value, name),
             IpgButtonStyleParam::BorderWidth => 
@@ -441,7 +440,7 @@ impl WidgetParamUpdate for IpgButtonStyle {
             IpgButtonStyleParam::ShadowColor => 
                 set_opt_iced_color(&mut self.shadow_color, value, name),
             IpgButtonStyleParam::ShadowRgba => 
-                set_iced_color_from_rgba(&mut self.shadow_color, value, name),
+                set_opt_iced_color_from_rgba(&mut self.shadow_color, value, name),
             IpgButtonStyleParam::ShadowOffsetXY => 
                 set_opt_f32_array_2(&mut self.shadow_offset_xy, value, name),
             IpgButtonStyleParam::ShadowBlurRadius => 
@@ -449,7 +448,7 @@ impl WidgetParamUpdate for IpgButtonStyle {
             IpgButtonStyleParam::TextColor => 
                 set_opt_iced_color(&mut self.text_color, value, name),
             IpgButtonStyleParam::TextRgba => 
-                set_iced_color_from_rgba(&mut self.text_color, value, name),
+                set_opt_iced_color_from_rgba(&mut self.text_color, value, name),
         }
     }
 }

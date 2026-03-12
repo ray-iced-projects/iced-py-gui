@@ -278,16 +278,15 @@ impl WidgetParamUpdate for IpgTextInput {
     type Param = IpgTextInputParam;
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
-        let name = String::new();
         match param {
             IpgTextInputParam::Placeholder => set_string(&mut self.placeholder, value, "Placeholder"),
             IpgTextInputParam::Value => set_string(&mut self.value, value, "Value"),
-            IpgTextInputParam::IsSecure => set_opt_bool(&mut self.is_secure, value, name),
-            IpgTextInputParam::Width => set_width(&mut self.width, value, name),
-            IpgTextInputParam::Padding => set_opt_vec_f32(&mut self.padding, value, name),
-            IpgTextInputParam::Size => set_opt_f32(&mut self.size, value, name),
-            IpgTextInputParam::LineHeight => set_opt_f32(&mut self.line_height, value, name),
-            IpgTextInputParam::StyleId => set_opt_usize(&mut self.style_id, value, name),
+            IpgTextInputParam::IsSecure => set_opt_bool(&mut self.is_secure, value, "IsSecure"),
+            IpgTextInputParam::Width => set_width(&mut self.width, value, "Width"),
+            IpgTextInputParam::Padding => set_opt_vec_f32(&mut self.padding, value, "Padding"),
+            IpgTextInputParam::Size => set_opt_f32(&mut self.size, value, "Size"),
+            IpgTextInputParam::LineHeight => set_opt_f32(&mut self.line_height, value, "LineHeight"),
+            IpgTextInputParam::StyleId => set_opt_usize(&mut self.style_id, value, "StyleId"),
         }
     }
 }
@@ -296,30 +295,29 @@ impl WidgetParamUpdate for IpgTextInputStyle {
     type Param = IpgTextInputStyleParam;
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
-        let name = String::new();
         match param {
             IpgTextInputStyleParam::BackgroundColor =>
-                set_opt_iced_color(&mut self.background_color, value, name),
+                set_opt_iced_color(&mut self.background_color, value, "BackgroundColor"),
             IpgTextInputStyleParam::BorderColorActive =>
-                set_opt_iced_color(&mut self.border_color_active, value, name),
+                set_opt_iced_color(&mut self.border_color_active, value, "BorderColorActive"),
             IpgTextInputStyleParam::BorderColorHovered =>
-                set_opt_iced_color(&mut self.border_color_hovered, value, name),
+                set_opt_iced_color(&mut self.border_color_hovered, value, "BorderColorHovered"),
             IpgTextInputStyleParam::BorderColorFocused =>
-                set_opt_iced_color(&mut self.border_color_focused, value, name),
+                set_opt_iced_color(&mut self.border_color_focused, value, "BorderColorFocused"),
             IpgTextInputStyleParam::BorderColorDisabled =>
-                set_opt_iced_color(&mut self.border_color_disabled, value, name),
+                set_opt_iced_color(&mut self.border_color_disabled, value, "BorderColorDisabled"),
             IpgTextInputStyleParam::BorderWidth =>
-                set_opt_f32(&mut self.border_width, value, name),
+                set_opt_f32(&mut self.border_width, value, "BorderWidth"),
             IpgTextInputStyleParam::BorderRadius =>
-                set_opt_f32(&mut self.border_radius, value, name),
+                set_opt_f32(&mut self.border_radius, value, "BorderRadius"),
             IpgTextInputStyleParam::PlaceholderColorActive =>
-                set_opt_iced_color(&mut self.placeholder_color_active, value, name),
+                set_opt_iced_color(&mut self.placeholder_color_active, value, "PlaceholderColorActive"),
             IpgTextInputStyleParam::PlaceholderColorDisabled =>
-                set_opt_iced_color(&mut self.placeholder_color_disabled, value, name),
+                set_opt_iced_color(&mut self.placeholder_color_disabled, value, "PlaceholderColorDisabled"),
             IpgTextInputStyleParam::ValueColor =>
-                set_opt_iced_color(&mut self.value_color, value, name),
+                set_opt_iced_color(&mut self.value_color, value, "ValueColor"),
             IpgTextInputStyleParam::SelectionColor =>
-                set_opt_iced_color(&mut self.selection_color, value, name),
+                set_opt_iced_color(&mut self.selection_color, value, "SelectionColor"),
         }
     }
 }

@@ -256,21 +256,20 @@ impl WidgetParamUpdate for IpgImage {
     type Param = IpgImageParam;
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
-        let name = String::new();
         match param {
             IpgImageParam::ContentFit => self.content_fit = IpgContentFit::extract(value),
             IpgImageParam::FilterMethod => self.filter_method = IpgColorFilter::extract(value),
-            IpgImageParam::Height => set_height(&mut self.height, value, name),
-            IpgImageParam::HeightFill => set_height_fill(&mut self.height, value, name),
+            IpgImageParam::Height => set_height(&mut self.height, value, "Height"),
+            IpgImageParam::HeightFill => set_height_fill(&mut self.height, value, "HeightFill"),
             IpgImageParam::ImagePath => set_string(&mut self.image_path, value, "ImagePath"),
             IpgImageParam::MousePointer => self.mouse_pointer = IpgMousePointer::extract(value),
-            IpgImageParam::Opacity => set_opt_f32(&mut self.opacity, value, name),
-            IpgImageParam::Padding => set_opt_vec_f32(&mut self.padding, value, name),
+            IpgImageParam::Opacity => set_opt_f32(&mut self.opacity, value, "Opacity"),
+            IpgImageParam::Padding => set_opt_vec_f32(&mut self.padding, value, "Padding"),
             IpgImageParam::RotationMethod => self.rotation_method = IpgRotation::extract(value),
-            IpgImageParam::RotationRadians => set_opt_f32(&mut self.rotation_radians, value, name),
-            IpgImageParam::Show => set_bool(&mut self.show, value, name),
-            IpgImageParam::Width => set_width(&mut self.width, value, name),
-            IpgImageParam::WidthFill => set_width_fill(&mut self.width, value, name),
+            IpgImageParam::RotationRadians => set_opt_f32(&mut self.rotation_radians, value, "RotationRadians"),
+            IpgImageParam::Show => set_bool(&mut self.show, value, "Show"),
+            IpgImageParam::Width => set_width(&mut self.width, value, "Width"),
+            IpgImageParam::WidthFill => set_width_fill(&mut self.width, value, "WidthFill"),
         }
     }
 }

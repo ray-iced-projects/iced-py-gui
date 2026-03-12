@@ -68,14 +68,13 @@ impl WidgetParamUpdate for IpgStack {
     type Param = IpgStackParam;
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
-        let name = String::new();
         match param {
-            IpgStackParam::Height => set_height(&mut self.height, value, name),
-            IpgStackParam::HeightFill => set_height(&mut self.height, value, name),
-            IpgStackParam::HideIndex => set_opt_usize(&mut self.hide_index, value, name),
-            IpgStackParam::Show => set_bool(&mut self.show, value, name),
-            IpgStackParam::Width => set_width(&mut self.width, value, name),
-            IpgStackParam::WidthFill => set_width(&mut self.width, value, name),
+            IpgStackParam::Height => set_height(&mut self.height, value, "Height"),
+            IpgStackParam::HeightFill => set_height(&mut self.height, value, "HeightFill"),
+            IpgStackParam::HideIndex => set_opt_usize(&mut self.hide_index, value, "HideIndex"),
+            IpgStackParam::Show => set_bool(&mut self.show, value, "Show"),
+            IpgStackParam::Width => set_width(&mut self.width, value, "Width"),
+            IpgStackParam::WidthFill => set_width(&mut self.width, value, "WidthFill"),
         }
     }
 }

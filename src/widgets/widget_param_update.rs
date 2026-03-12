@@ -154,7 +154,7 @@ where
 // Shared value-update helpers — use these in WidgetParamUpdate impls
 // ---------------------------------------------------------------------------
 
-pub fn set_t_value<T>(field: &mut T, value: &PyObject, name: String)
+pub fn set_t_value<T>(field: &mut T, value: &PyObject, name: &str)
 where
     T: for<'py> pyo3::FromPyObject<'py>,
 {
@@ -165,11 +165,11 @@ where
     });
 }
 
-pub fn set_bool(field: &mut bool, value: &PyObject, name: String) {
+pub fn set_bool(field: &mut bool, value: &PyObject, name: &str) {
     *field = try_extract_boolean(value, name);
 }
 
-pub fn set_opt_bool(field: &mut Option<bool>, value: &PyObject, name: String) {
+pub fn set_opt_bool(field: &mut Option<bool>, value: &PyObject, name: &str) {
     *field = Some(try_extract_boolean(value, name));
 }
 
@@ -177,81 +177,82 @@ pub fn set_opt_bool_from_opt(field: &mut Option<bool>, value: &PyObject, name: &
     *field = try_extract_opt_boolean(value, name);
 }
 
-pub fn set_width(field: &mut Length, value: &PyObject, name: String) {
+pub fn set_width(field: &mut Length, value: &PyObject, name: &str) {
     let val = try_extract_f32_opt(value, name);
     *field = get_length(val, false);
 }
 
-pub fn set_width_fill(field: &mut Length, value: &PyObject, name: String) {
+pub fn set_width_fill(field: &mut Length, value: &PyObject, name: &str) {
     let val = try_extract_boolean(value, name);
     *field = get_length(None, val);
 }
 
-pub fn set_height(field: &mut Length, value: &PyObject, name: String) {
+pub fn set_height(field: &mut Length, value: &PyObject, name: &str) {
     let val = try_extract_f32_opt(value, name);
     *field = get_length(val, false);
 }
 
-pub fn set_height_fill(field: &mut Length, value: &PyObject, name: String) {
+pub fn set_height_fill(field: &mut Length, value: &PyObject, name: &str) {
     let val = try_extract_boolean(value, name);
     *field = get_length(None, val);
 }
 
-pub fn set_iced_color(field: &mut Color, value: &PyObject, name: String) {
+pub fn set_iced_color(field: &mut Color, value: &PyObject, name: &str) {
     let rgba = IpgColor::extract_rgba(value, name);
     *field = Color::from(rgba);
 }
 
-pub fn set_opt_iced_color(field: &mut Option<Color>, value: &PyObject, name: String) {
-    let color = IpgColor::extract(value, name);
-    *field = IpgColor::rgba_ipg_color_to_iced(None, Some(color), 1.0, false);
+pub fn set_opt_iced_color(field: &mut Option<Color>, value: &PyObject, name: &str) {
+    let color = IpgColor::extract_opt(value, name);
+    *field = IpgColor::rgba_ipg_color_to_iced(None, color, 1.0, false);
 }
 
-pub fn set_iced_color_from_rgba(field: &mut Option<Color>, value: &PyObject, name: String) {
-    *field = Some(Color::from(IpgColor::extract_rgba(value, name)));
+pub fn set_opt_iced_color_from_rgba(field: &mut Option<Color>, value: &PyObject, name: &str) {
+    let rgba_opt = IpgColor::extract_rgba_opt(value, name);
+    *field = IpgColor::rgba_ipg_color_to_iced(rgba_opt, None, 1.0, false);
 }
 
-pub fn set_ipg_color(field: &mut IpgColor, value: &PyObject, name: String) {
+pub fn set_ipg_color(field: &mut IpgColor, value: &PyObject, name: &str) {
     *field = IpgColor::extract(value, name);
 }
 
-pub fn set_f32(field: &mut f32, value: &PyObject, name: String) {
+pub fn set_f32(field: &mut f32, value: &PyObject, name: &str) {
     *field = try_extract_f32(value, name);
 }
 
-pub fn set_opt_f32(field: &mut Option<f32>, value: &PyObject, name: String) {
+pub fn set_opt_f32(field: &mut Option<f32>, value: &PyObject, name: &str) {
     *field = try_extract_f32_opt(value, name);
 }
 
-pub fn set_opt_vec_f32(field: &mut Option<Vec<f32>>, value: &PyObject, name: String) {
+pub fn set_opt_vec_f32(field: &mut Option<Vec<f32>>, value: &PyObject, name: &str) {
     *field = Some(try_extract_vec_f32(value, name));
 }
 
-pub fn set_vec_f32(field: &mut Vec<f32>, value: &PyObject, name: String) {
+pub fn set_vec_f32(field: &mut Vec<f32>, value: &PyObject, name: &str) {
     *field = try_extract_vec_f32(value, name);
 }
 
-pub fn set_vec_vec_f32(field: &mut Vec<Vec<f32>>, value: &PyObject, name: String) {
+pub fn set_vec_vec_f32(field: &mut Vec<Vec<f32>>, value: &PyObject, name: &str) {
     *field = try_extract_vec_vec_f32(value, name);
 }
 
-pub fn set_opt_u32(field: &mut Option<u32>, value: &PyObject, name: String) {
+pub fn set_opt_u32(field: &mut Option<u32>, value: &PyObject, name: &str) {
     *field = Some(try_extract_u32(value, name));
 }
 
-pub fn set_opt_u16(field: &mut Option<u16>, value: &PyObject, name: String) {
+pub fn set_opt_u16(field: &mut Option<u16>, value: &PyObject, name: &str) {
     *field = Some(try_extract_u16(value, name));
 }
 
-pub fn set_opt_usize(field: &mut Option<usize>, value: &PyObject, name: String) {
+pub fn set_opt_usize(field: &mut Option<usize>, value: &PyObject, name: &str) {
     *field = Some(try_extract_usize(value, name));
 }
 
-pub fn set_opt_f32_array_2(field: &mut Option<[f32; 2]>, value: &PyObject, name: String) {
+pub fn set_opt_f32_array_2(field: &mut Option<[f32; 2]>, value: &PyObject, name: &str) {
     *field = Some(try_extract_f32_array_2(value, name));
 }
 
-pub fn set_opt_u16_array_2(field: &mut Option<[u16; 2]>, value: &PyObject, name: String) {
+pub fn set_opt_u16_array_2(field: &mut Option<[u16; 2]>, value: &PyObject, name: &str) {
     *field = Some(try_extract_u16_array_2(value, name));
 }
 
@@ -263,35 +264,35 @@ pub fn set_opt_string(field: &mut Option<String>, value: &PyObject, name: &str) 
     *field = Some(try_extract_string(value, name));
 }
 
-pub fn set_vec_string(field: &mut Vec<String>, value: &PyObject, name: String) {
+pub fn set_vec_string(field: &mut Vec<String>, value: &PyObject, name: &str) {
     *field = try_extract_vec_str(value, name);
 }
 
-pub fn set_rgba_color_via_ipg(field: &mut Option<Color>, value: &PyObject, name: String) {
+pub fn set_rgba_color_via_ipg(field: &mut Option<Color>, value: &PyObject, name: &str) {
     let rgba = IpgColor::extract_rgba(value, name);
     *field = IpgColor::rgba_ipg_color_to_iced(Some(rgba), None, 1.0, false);
 }
 
-pub fn set_halign(field: &mut Option<AlignX>, value: &PyObject, name:String) {
+pub fn set_halign(field: &mut Option<AlignX>, value: &PyObject, name: &str) {
     *field = AlignX::extract(value);
 }
 
-pub fn set_valign(field: &mut Option<AlignY>, value: &PyObject, name: String) {
+pub fn set_valign(field: &mut Option<AlignY>, value: &PyObject, name: &str) {
     *field = AlignY::extract(value);
 }
 
-pub fn set_align(field: &mut Option<Align>, value: &PyObject, name: String) {
+pub fn set_align(field: &mut Option<Align>, value: &PyObject, name: &str) {
     *field = Align::extract(value);
 }
 
-pub fn set_opt_text_shaping(field: &mut Option<TextShaping>, value: &PyObject, name: String) {
+pub fn set_opt_text_shaping(field: &mut Option<TextShaping>, value: &PyObject, name: &str) {
     *field = TextShaping::extract(value)
 }
 
-pub fn set_opt_text_wrapping(field: &mut Option<TextWrapping>, value: &PyObject, name: String) {
+pub fn set_opt_text_wrapping(field: &mut Option<TextWrapping>, value: &PyObject, name: &str) {
     *field = TextWrapping::extract(value)
 }
 
-pub fn set_opt_ipg_arrow(field: &mut Option<IpgArrow>, value: &PyObject, name: String) {
+pub fn set_opt_ipg_arrow(field: &mut Option<IpgArrow>, value: &PyObject, name: &str) {
     *field = IpgArrow::extract(value)
 }

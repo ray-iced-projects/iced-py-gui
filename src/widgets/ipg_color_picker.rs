@@ -194,22 +194,21 @@ impl WidgetParamUpdate for IpgColorPicker {
     type Param = IpgColorPickerParam;
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
-        let name = String::new();
         match param {
-            IpgColorPickerParam::ArrowStyle => set_opt_ipg_arrow(&mut self.style_arrow, value, name),
-            IpgColorPickerParam::Clip => set_opt_bool(&mut self.clip, value, name),
-            IpgColorPickerParam::Color => set_iced_color(&mut self.color, value, name),
-            IpgColorPickerParam::Height => set_height(&mut self.height, value, name),
-            IpgColorPickerParam::HeightFill => set_height_fill(&mut self.height, value, name),
+            IpgColorPickerParam::ArrowStyle => set_opt_ipg_arrow(&mut self.style_arrow, value, "ArrowStyle"),
+            IpgColorPickerParam::Clip => set_opt_bool(&mut self.clip, value, "Clip"),
+            IpgColorPickerParam::Color => set_iced_color(&mut self.color, value, "Color"),
+            IpgColorPickerParam::Height => set_height(&mut self.height, value, "Height"),
+            IpgColorPickerParam::HeightFill => set_height_fill(&mut self.height, value, "HeightFill"),
             IpgColorPickerParam::Label => set_opt_string(&mut self.label, value, "Label"),
-            IpgColorPickerParam::Padding => set_opt_vec_f32(&mut self.padding, value, name),
-            IpgColorPickerParam::Show => set_bool(&mut self.show, value, name),
-            IpgColorPickerParam::StyleId => set_opt_usize(&mut self.style_id, value, name),
+            IpgColorPickerParam::Padding => set_opt_vec_f32(&mut self.padding, value, "Padding"),
+            IpgColorPickerParam::Show => set_bool(&mut self.show, value, "Show"),
+            IpgColorPickerParam::StyleId => set_opt_usize(&mut self.style_id, value, "StyleId"),
             IpgColorPickerParam::StyleStandard => {
-                self.style_standard = Some(extract_button_style_standard(value, name));
+                self.style_standard = Some(extract_button_style_standard(value, "StyleStandard"));
             },
-            IpgColorPickerParam::Width => set_width(&mut self.width, value, name),
-            IpgColorPickerParam::WidthFill => set_width_fill(&mut self.width, value, name),
+            IpgColorPickerParam::Width => set_width(&mut self.width, value, "Width"),
+            IpgColorPickerParam::WidthFill => set_width_fill(&mut self.width, value, "WidthFill"),
         }
     }
 }

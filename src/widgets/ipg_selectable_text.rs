@@ -13,9 +13,9 @@ use crate::widgets::widget_param_update::set_bool;
 use crate::widgets::widget_param_update::set_halign;
 use crate::widgets::widget_param_update::set_height;
 use crate::widgets::widget_param_update::set_height_fill;
-use crate::widgets::widget_param_update::set_iced_color_from_rgba;
 use crate::widgets::widget_param_update::set_opt_f32;
 use crate::widgets::widget_param_update::set_opt_iced_color;
+use crate::widgets::widget_param_update::set_opt_iced_color_from_rgba;
 use crate::widgets::widget_param_update::set_opt_text_shaping;
 use crate::widgets::widget_param_update::set_string;
 use crate::widgets::widget_param_update::set_valign;
@@ -284,21 +284,20 @@ impl WidgetParamUpdate for IpgSelectableText {
     type Param = IpgSelectableTextParam;
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
-        let name = String::new();
         match param {
-            IpgSelectableTextParam::AlignX => set_halign(&mut self.align_x, value, name),
-            IpgSelectableTextParam::AlignY => set_valign(&mut self.align_y, value, name),
+            IpgSelectableTextParam::AlignX => set_halign(&mut self.align_x, value, "AlignX"),
+            IpgSelectableTextParam::AlignY => set_valign(&mut self.align_y, value, "AlignY"),
             IpgSelectableTextParam::Content => set_string(&mut self.content, value, "Content"),
-            IpgSelectableTextParam::Height => set_height(&mut self.height, value, name),
-            IpgSelectableTextParam::HeightFill => set_height_fill(&mut self.height, value, name),
-            IpgSelectableTextParam::LineHeight => set_opt_f32(&mut self.line_height, value, name),
-            IpgSelectableTextParam::Shaping => set_opt_text_shaping(&mut self.shaping, value, name),
-            IpgSelectableTextParam::Show => set_bool(&mut self.show, value, name),
-            IpgSelectableTextParam::Size => set_opt_f32(&mut self.size, value, name),
-            IpgSelectableTextParam::TextColor  => set_opt_iced_color(&mut self.text_color, value, name),
-            IpgSelectableTextParam::TextRgba => set_iced_color_from_rgba(&mut self.text_color, value, name),
-            IpgSelectableTextParam::Width => set_width(&mut self.width, value, name),
-            IpgSelectableTextParam::WidthFill => set_width_fill(&mut self.width, value, name),
+            IpgSelectableTextParam::Height => set_height(&mut self.height, value, "Height"),
+            IpgSelectableTextParam::HeightFill => set_height_fill(&mut self.height, value, "HeightFill"),
+            IpgSelectableTextParam::LineHeight => set_opt_f32(&mut self.line_height, value, "LineHeight"),
+            IpgSelectableTextParam::Shaping => set_opt_text_shaping(&mut self.shaping, value, "Shaping"),
+            IpgSelectableTextParam::Show => set_bool(&mut self.show, value, "Show"),
+            IpgSelectableTextParam::Size => set_opt_f32(&mut self.size, value, "Size"),
+            IpgSelectableTextParam::TextColor  => set_opt_iced_color(&mut self.text_color, value, "TextColor"),
+            IpgSelectableTextParam::TextRgba => set_opt_iced_color_from_rgba(&mut self.text_color, value, "TextRgba"),
+            IpgSelectableTextParam::Width => set_width(&mut self.width, value, "Width"),
+            IpgSelectableTextParam::WidthFill => set_width_fill(&mut self.width, value, "WidthFill"),
             IpgSelectableTextParam::Wrapping => self.wrapping = TextWrapping::extract(value),
         }
     }

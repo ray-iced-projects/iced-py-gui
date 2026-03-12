@@ -49,12 +49,11 @@ impl WidgetParamUpdate for IpgSpace {
     type Param = IpgSpaceParam;
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
-        let name = String::new();
         match param {
-            IpgSpaceParam::Width => set_width(&mut self.width, value, name),
-            IpgSpaceParam::WidthFill => set_width_fill(&mut self.width, value, name),
-            IpgSpaceParam::Height => set_height(&mut self.height, value, name),
-            IpgSpaceParam::HeightFill => set_height_fill(&mut self.height, value, name),
+            IpgSpaceParam::Width => set_width(&mut self.width, value, "Width"),
+            IpgSpaceParam::WidthFill => set_width_fill(&mut self.width, value, "WidthFill"),
+            IpgSpaceParam::Height => set_height(&mut self.height, value, "Height"),
+            IpgSpaceParam::HeightFill => set_height_fill(&mut self.height, value, "HeightFill"),
         }
     }
 }

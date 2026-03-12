@@ -243,13 +243,12 @@ impl WidgetParamUpdate for IpgDivider {
     type Param = IpgDividerParam;
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
-        let name = String::new();
         match param {
-            IpgDividerParam::HandleWidth  => set_f32(&mut self.handle_width, value, name),
-            IpgDividerParam::HandleHeight => set_f32(&mut self.handle_height, value, name),
-            IpgDividerParam::Sizes        => set_vec_f32(&mut self.sizes, value, name),
-            IpgDividerParam::StyleId      => set_opt_usize(&mut self.style_id, value, name),
-            IpgDividerParam::Show         => set_bool(&mut self.show, value, name),
+            IpgDividerParam::HandleWidth  => set_f32(&mut self.handle_width, value, "HandleWidth"),
+            IpgDividerParam::HandleHeight => set_f32(&mut self.handle_height, value, "HandleHeight"),
+            IpgDividerParam::Sizes        => set_vec_f32(&mut self.sizes, value, "Sizes"),
+            IpgDividerParam::StyleId      => set_opt_usize(&mut self.style_id, value, "StyleId"),
+            IpgDividerParam::Show         => set_bool(&mut self.show, value, "Show"),
         }
     }
 }
@@ -258,15 +257,14 @@ impl WidgetParamUpdate for IpgDividerStyle {
     type Param = IpgDividerStyleParam;
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
-        let name = String::new();
         match param {
-            IpgDividerStyleParam::BackgroundIpgColor   => set_opt_iced_color(&mut self.background_color, value, name),
-            IpgDividerStyleParam::BackgroundRgbaColor  => set_rgba_color_via_ipg(&mut self.background_color, value, name),
-            IpgDividerStyleParam::BackgroundTransparent => set_opt_bool(&mut self.background_transparent, value, name),
-            IpgDividerStyleParam::BorderIpgColor       => set_opt_iced_color(&mut self.border_color, value, name),
-            IpgDividerStyleParam::BorderRgbaColor      => set_rgba_color_via_ipg(&mut self.border_color, value, name),
-            IpgDividerStyleParam::BorderWidth          => set_opt_f32(&mut self.border_width, value, name),
-            IpgDividerStyleParam::BorderRadius         => set_opt_vec_f32(&mut self.border_radius, value, name),
+            IpgDividerStyleParam::BackgroundIpgColor   => set_opt_iced_color(&mut self.background_color, value, "BackgroundIpgColor"),
+            IpgDividerStyleParam::BackgroundRgbaColor  => set_rgba_color_via_ipg(&mut self.background_color, value, "BackgroundRgbaColor"),
+            IpgDividerStyleParam::BackgroundTransparent => set_opt_bool(&mut self.background_transparent, value, "BackgroundTransparent"),
+            IpgDividerStyleParam::BorderIpgColor       => set_opt_iced_color(&mut self.border_color, value, "BorderIpgColor"),
+            IpgDividerStyleParam::BorderRgbaColor      => set_rgba_color_via_ipg(&mut self.border_color, value, "BorderRgbaColor"),
+            IpgDividerStyleParam::BorderWidth          => set_opt_f32(&mut self.border_width, value, "BorderWidth"),
+            IpgDividerStyleParam::BorderRadius         => set_opt_vec_f32(&mut self.border_radius, value, "BorderRadius"),
         }
     }
 }

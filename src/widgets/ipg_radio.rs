@@ -2,11 +2,7 @@
 use crate::py_api::helpers::get_padding;
 use crate::widgets::ipg_text::TextWrapping;
 use crate::widgets::widget_param_update::{
-    WidgetParamUpdate, set_bool, set_height, 
-    set_iced_color_from_rgba, set_opt_f32, 
-    set_opt_iced_color, set_opt_text_shaping, 
-    set_opt_text_wrapping, set_opt_usize, 
-    set_opt_vec_f32, set_vec_string, set_width};
+    WidgetParamUpdate, set_bool, set_height, set_opt_f32, set_opt_iced_color, set_opt_iced_color_from_rgba, set_opt_text_shaping, set_opt_text_wrapping, set_opt_usize, set_opt_vec_f32, set_vec_string, set_width};
 use crate::widgets::ipg_text::TextShaping;
 use crate::{access_callbacks, access_user_data1, IpgState};
 use crate::app;
@@ -374,27 +370,26 @@ impl WidgetParamUpdate for IpgRadio {
     type Param = IpgRadioParam;
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
-        let name = String::new();
         match param {
             IpgRadioParam::Direction => self.direction = extract_radio_direction(value),
-            IpgRadioParam::FontId => set_opt_usize(&mut self.font_id, value, name),
-            IpgRadioParam::Height => set_height(&mut self.height, value, name),
-            IpgRadioParam::HeightFill => set_height(&mut self.height, value, name),
-            IpgRadioParam::IsIndex => set_opt_usize(&mut self.is_selected, value, name),
-            IpgRadioParam::Labels => set_vec_string(&mut self.labels, value, name),
-            IpgRadioParam::Padding => set_opt_vec_f32(&mut self.padding, value, name),
-            IpgRadioParam::RadioSpacing => set_opt_f32(&mut self.radio_spacing, value, name),
-            IpgRadioParam::Show => set_bool(&mut self.show, value, name),
-            IpgRadioParam::TextShaping => set_opt_text_shaping(&mut self.text_shaping, value, name),
-            IpgRadioParam::Size => set_opt_f32(&mut self.size, value, name),
-            IpgRadioParam::Spacing => set_opt_f32(&mut self.spacing, value, name),
-            IpgRadioParam::StyleId => set_opt_usize(&mut self.style_id, value, name),
-            IpgRadioParam::TextLineHeight => set_opt_f32(&mut self.text_line_height, value, name),
-            IpgRadioParam::TextSize => set_opt_f32(&mut self.text_size, value, name),
-            IpgRadioParam::TextSpacing => set_opt_f32(&mut self.text_spacing, value, name),
-            IpgRadioParam::Width => set_width(&mut self.width, value, name),
-            IpgRadioParam::WidthFill => set_width(&mut self.width, value, name),
-            IpgRadioParam::TextWrapping => set_opt_text_wrapping(&mut self.text_wrapping, value, name),
+            IpgRadioParam::FontId => set_opt_usize(&mut self.font_id, value, "FontId"),
+            IpgRadioParam::Height => set_height(&mut self.height, value, "Height"),
+            IpgRadioParam::HeightFill => set_height(&mut self.height, value, "HeightFill"),
+            IpgRadioParam::IsIndex => set_opt_usize(&mut self.is_selected, value, "IsIndex"),
+            IpgRadioParam::Labels => set_vec_string(&mut self.labels, value, "Labels"),
+            IpgRadioParam::Padding => set_opt_vec_f32(&mut self.padding, value, "Padding"),
+            IpgRadioParam::RadioSpacing => set_opt_f32(&mut self.radio_spacing, value, "RadioSpacing"),
+            IpgRadioParam::Show => set_bool(&mut self.show, value, "Show"),
+            IpgRadioParam::TextShaping => set_opt_text_shaping(&mut self.text_shaping, value, "TextShaping"),
+            IpgRadioParam::Size => set_opt_f32(&mut self.size, value, "Size"),
+            IpgRadioParam::Spacing => set_opt_f32(&mut self.spacing, value, "Spacing"),
+            IpgRadioParam::StyleId => set_opt_usize(&mut self.style_id, value, "StyleId"),
+            IpgRadioParam::TextLineHeight => set_opt_f32(&mut self.text_line_height, value, "TextLineHeight"),
+            IpgRadioParam::TextSize => set_opt_f32(&mut self.text_size, value, "TextSize"),
+            IpgRadioParam::TextSpacing => set_opt_f32(&mut self.text_spacing, value, "TextSpacing"),
+            IpgRadioParam::Width => set_width(&mut self.width, value, "Width"),
+            IpgRadioParam::WidthFill => set_width(&mut self.width, value, "WidthFill"),
+            IpgRadioParam::TextWrapping => set_opt_text_wrapping(&mut self.text_wrapping, value, "TextWrapping"),
         }
     }
 }
@@ -403,30 +398,29 @@ impl WidgetParamUpdate for IpgRadioStyle {
     type Param = IpgRadioStyleParam;
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
-        let name = String::new();
         match param {
             IpgRadioStyleParam::BackgroundIpgColor => 
-                set_opt_iced_color(&mut self.background_color, value, name),
+                set_opt_iced_color(&mut self.background_color, value, "BackgroundIpgColor"),
             IpgRadioStyleParam::BackgroundRgbaColor => 
-                set_iced_color_from_rgba(&mut self.background_color, value, name),
+                set_opt_iced_color_from_rgba(&mut self.background_color, value, "BackgroundRgbaColor"),
             IpgRadioStyleParam::BorderIpgColor => 
-                set_opt_iced_color(&mut self.border_color, value, name),
+                set_opt_iced_color(&mut self.border_color, value, "BorderIpgColor"),
             IpgRadioStyleParam::BorderRgbaColor => 
-                set_iced_color_from_rgba(&mut self.border_color, value, name),
+                set_opt_iced_color_from_rgba(&mut self.border_color, value, "BorderRgbaColor"),
             IpgRadioStyleParam::BorderWidth => 
-                set_opt_f32(&mut self.border_width, value, name),
+                set_opt_f32(&mut self.border_width, value, "BorderWidth"),
             IpgRadioStyleParam::DotIpgColor => 
-                set_opt_iced_color(&mut self.dot_color, value, name),
+                set_opt_iced_color(&mut self.dot_color, value, "DotIpgColor"),
             IpgRadioStyleParam::DotRgbaColor => 
-                set_iced_color_from_rgba(&mut self.dot_color, value, name),
+                set_opt_iced_color_from_rgba(&mut self.dot_color, value, "DotRgbaColor"),
             IpgRadioStyleParam::DotIpgColorHovered => 
-                set_opt_iced_color(&mut self.dot_color_hovered, value, name),
+                set_opt_iced_color(&mut self.dot_color_hovered, value, "DotIpgColorHovered"),
             IpgRadioStyleParam::DotRgbaColorHovered => 
-                set_iced_color_from_rgba(&mut self.dot_color_hovered, value, name),
+                set_opt_iced_color_from_rgba(&mut self.dot_color_hovered, value, "DotRgbaColorHovered"),
             IpgRadioStyleParam::TextIpgColor => 
-                set_opt_iced_color(&mut self.text_color, value, name),
+                set_opt_iced_color(&mut self.text_color, value, "TextIpgColor"),
             IpgRadioStyleParam::TextRgbaColor => 
-                set_iced_color_from_rgba(&mut self.text_color, value, name),
+                set_opt_iced_color_from_rgba(&mut self.text_color, value, "TextRgbaColor"),
         }
     }
 }

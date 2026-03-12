@@ -223,7 +223,6 @@ impl WidgetParamUpdate for IpgFont {
     type Param = IpgFontParam;
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
-        let name = String::new();
         match param {
             IpgFontParam::Family => self.family = IpgFontFamily::extract(value),
             IpgFontParam::Weight => self.weight = IpgFontWeight::extract(value),

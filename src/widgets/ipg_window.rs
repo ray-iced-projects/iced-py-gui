@@ -184,19 +184,18 @@ pub fn window_item_update(wnd: &mut IpgWindow,
                             )
 {
     let update = try_extract_window_update(item);
-    let name = "Window".to_string();
     match update {
         IpgWindowParam::Debug => {
-            wnd.debug = Some(try_extract_boolean(value, name));
+            wnd.debug = Some(try_extract_boolean(value, "Debug"));
         },
         IpgWindowParam::Theme => {
             wnd.theme = Some(try_extract_ipg_theme(value));
         },
         IpgWindowParam::ScaleFactor => {
-            wnd.scale_factor = Some(try_extract_f32(value, name));
+            wnd.scale_factor = Some(try_extract_f32(value, "ScaleFactor"));
         },
         IpgWindowParam::Decorations => {
-            let val = try_extract_usize(value, name);
+            let val = try_extract_usize(value, "Decorations");
             let mut state = access_window_actions();
             state.decorations.push(val);
             drop(state)
@@ -210,13 +209,13 @@ pub fn window_item_update(wnd: &mut IpgWindow,
             drop(state)
         },
         IpgWindowParam::Position => {
-            let val = try_extract_vec_f32(value, name);
+            let val = try_extract_vec_f32(value, "Position");
             let mut state = access_window_actions();
             state.position.push((wnd.id, val[0], val[1]));
             drop(state)
         },
         IpgWindowParam::Size => {
-            let val = try_extract_vec_f32(value, name);
+            let val = try_extract_vec_f32(value, "Size");
             let mut state = access_window_actions();
             state.resize.push((wnd.id, val[0], val[1]));
             drop(state)
@@ -276,15 +275,14 @@ impl WidgetParamUpdate for IpgWindow {
     type Param = IpgWindowParam;
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
-        let name = String::new();
         match param {
-            IpgWindowParam::Debug => set_opt_bool(&mut self.debug, value, name),
+            IpgWindowParam::Debug => set_opt_bool(&mut self.debug, value, "Debug"),
             IpgWindowParam::Theme => {
                 self.theme = Some(extract_param::<IpgWindowTheme>(value));
             }
-            IpgWindowParam::ScaleFactor => set_opt_f32(&mut self.scale_factor, value, name),
+            IpgWindowParam::ScaleFactor => set_opt_f32(&mut self.scale_factor, value, "ScaleFactor"),
             IpgWindowParam::Decorations => {
-                let val = try_extract_usize(value, name);
+                let val = try_extract_usize(value, "Decorations");
                 let mut state = access_window_actions();
                 state.decorations.push(val);
                 drop(state);
@@ -298,13 +296,13 @@ impl WidgetParamUpdate for IpgWindow {
                 drop(state);
             }
             IpgWindowParam::Position => {
-                let val = try_extract_vec_f32(value, name);
+                let val = try_extract_vec_f32(value, "Position");
                 let mut state = access_window_actions();
                 state.position.push((self.id, val[0], val[1]));
                 drop(state);
             }
             IpgWindowParam::Size => {
-                let val = try_extract_vec_f32(value, name);
+                let val = try_extract_vec_f32(value, "Size");
                 let mut state = access_window_actions();
                 state.resize.push((self.id, val[0], val[1]));
                 drop(state);

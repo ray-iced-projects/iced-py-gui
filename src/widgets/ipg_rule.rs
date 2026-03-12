@@ -9,10 +9,7 @@ use crate::app;
 
 use crate::py_api::helpers::get_radius;
 use crate::state::IpgWidgets;
-use crate::widgets::widget_param_update::{WidgetParamUpdate, 
-    set_iced_color_from_rgba, set_opt_bool, set_opt_f32, 
-    set_opt_iced_color, set_opt_u16, set_opt_u16_array_2, 
-    set_opt_u32, set_opt_usize, set_opt_vec_f32};
+use crate::widgets::widget_param_update::{WidgetParamUpdate, set_opt_bool, set_opt_f32, set_opt_iced_color, set_opt_iced_color_from_rgba, set_opt_u16, set_opt_u16_array_2, set_opt_u32, set_opt_usize, set_opt_vec_f32};
 
 #[derive(Debug, Clone)]
 pub struct IpgRule {
@@ -136,11 +133,10 @@ impl WidgetParamUpdate for IpgRule {
     type Param = IpgRuleParam;
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
-        let name = String::new();
         match param {
-            IpgRuleParam::IsVertical => set_opt_bool(&mut self.is_vertical, value, name),
-            IpgRuleParam::Thickness => set_opt_u32(&mut self.thickness, value, name),
-            IpgRuleParam::StyleId => set_opt_usize(&mut self.style_id, value, name),
+            IpgRuleParam::IsVertical => set_opt_bool(&mut self.is_vertical, value, "IsVertical"),
+            IpgRuleParam::Thickness => set_opt_u32(&mut self.thickness, value, "Thickness"),
+            IpgRuleParam::StyleId => set_opt_usize(&mut self.style_id, value, "StyleId"),
         }
     }
 }
@@ -149,14 +145,13 @@ impl WidgetParamUpdate for IpgRuleStyle {
     type Param = IpgRuleStyleParam;
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
-        let name = String::new();
         match param {
-            IpgRuleStyleParam::BorderRadius => set_opt_vec_f32(&mut self.border_radius, value, name),
-            IpgRuleStyleParam::FillModeAsymmetricPadding => set_opt_u16_array_2(&mut self.fillmode_asymmetric_padding, value, name),
-            IpgRuleStyleParam::FillModePadded => set_opt_u16(&mut self.fillmode_padded, value, name),
-            IpgRuleStyleParam::FillModePercent => set_opt_f32(&mut self.fillmode_percent, value, name),
-            IpgRuleStyleParam::IpgColor => set_opt_iced_color(&mut self.color, value, name),
-            IpgRuleStyleParam::RbgaColor => set_iced_color_from_rgba(&mut self.color, value, name),
+            IpgRuleStyleParam::BorderRadius => set_opt_vec_f32(&mut self.border_radius, value, "BorderRadius"),
+            IpgRuleStyleParam::FillModeAsymmetricPadding => set_opt_u16_array_2(&mut self.fillmode_asymmetric_padding, value, "FillModeAsymmetricPadding"),
+            IpgRuleStyleParam::FillModePadded => set_opt_u16(&mut self.fillmode_padded, value, "FillModePadded"),
+            IpgRuleStyleParam::FillModePercent => set_opt_f32(&mut self.fillmode_percent, value, "FillModePercent"),
+            IpgRuleStyleParam::IpgColor => set_opt_iced_color(&mut self.color, value, "IpgColor"),
+            IpgRuleStyleParam::RbgaColor => set_opt_iced_color_from_rgba(&mut self.color, value, "RbgaColor"),
         }
     }
 }

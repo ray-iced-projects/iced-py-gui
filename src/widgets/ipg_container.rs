@@ -8,11 +8,7 @@ use crate::state::IpgWidgets;
 use crate::widgets::styling::{apply_background_overrides, 
     apply_border_overrides, apply_shadow_overrides_xy};
 use crate::widgets::widget_param_update::{
-    WidgetParamUpdate, set_bool, set_height, 
-    set_height_fill, set_iced_color_from_rgba, 
-    set_opt_f32_array_2, set_opt_bool, set_opt_f32, 
-    set_opt_iced_color, set_opt_usize, set_opt_vec_f32, 
-    set_width, set_width_fill
+    WidgetParamUpdate, set_bool, set_height, set_height_fill, set_opt_bool, set_opt_f32, set_opt_f32_array_2, set_opt_iced_color, set_opt_iced_color_from_rgba, set_opt_usize, set_opt_vec_f32, set_width, set_width_fill
 };
 
 use iced::{Color, Element, Length, Theme, alignment};
@@ -323,27 +319,26 @@ impl WidgetParamUpdate for IpgContainer {
     type Param = IpgContainerParam;
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
-        let name = String::new();
         match param {
-            IpgContainerParam::AlignBottomCenter => set_opt_bool(&mut self.align_bottom_center, value, name),
-            IpgContainerParam::AlignBottomLeft => set_opt_bool(&mut self.align_bottom_left, value, name),
-            IpgContainerParam::AlignBottomRight => set_opt_bool(&mut self.align_bottom_right, value, name),
-            IpgContainerParam::AlignCenter => set_opt_bool(&mut self.align_center, value, name),
-            IpgContainerParam::AlignCenterLeft => set_opt_bool(&mut self.align_center_left, value, name),
-            IpgContainerParam::AlignCenterRight => set_opt_bool(&mut self.align_center_right, value, name),
-            IpgContainerParam::AlignTopCenter => set_opt_bool(&mut self.align_top_center, value, name),
-            IpgContainerParam::AlignTopLeft => set_opt_bool(&mut self.align_top_left, value, name),
-            IpgContainerParam::AlignTopRight => set_opt_bool(&mut self.align_top_right, value, name),
-            IpgContainerParam::Clip => set_opt_bool(&mut self.clip, value, name),
-            IpgContainerParam::Height => set_height(&mut self.height, value, name),
-            IpgContainerParam::HeightFill => set_height_fill(&mut self.height, value, name),
-            IpgContainerParam::MaxHeight => set_opt_f32(&mut self.max_height, value, name),
-            IpgContainerParam::MaxWidth => set_opt_f32(&mut self.max_width, value, name),
-            IpgContainerParam::Padding => set_opt_vec_f32(&mut self.padding, value, name),
-            IpgContainerParam::Width => set_width(&mut self.width, value, name),
-            IpgContainerParam::WidthFill => set_width_fill(&mut self.width, value, name),
-            IpgContainerParam::Show => set_bool(&mut self.show, value, name),
-            IpgContainerParam::StyleId => set_opt_usize(&mut self.style_id, value, name),
+            IpgContainerParam::AlignBottomCenter => set_opt_bool(&mut self.align_bottom_center, value, "AlignBottomCenter"),
+            IpgContainerParam::AlignBottomLeft => set_opt_bool(&mut self.align_bottom_left, value, "AlignBottomLeft"),
+            IpgContainerParam::AlignBottomRight => set_opt_bool(&mut self.align_bottom_right, value, "AlignBottomRight"),
+            IpgContainerParam::AlignCenter => set_opt_bool(&mut self.align_center, value, "AlignCenter"),
+            IpgContainerParam::AlignCenterLeft => set_opt_bool(&mut self.align_center_left, value, "AlignCenterLeft"),
+            IpgContainerParam::AlignCenterRight => set_opt_bool(&mut self.align_center_right, value, "AlignCenterRight"),
+            IpgContainerParam::AlignTopCenter => set_opt_bool(&mut self.align_top_center, value, "AlignTopCenter"),
+            IpgContainerParam::AlignTopLeft => set_opt_bool(&mut self.align_top_left, value, "AlignTopLeft"),
+            IpgContainerParam::AlignTopRight => set_opt_bool(&mut self.align_top_right, value, "AlignTopRight"),
+            IpgContainerParam::Clip => set_opt_bool(&mut self.clip, value, "Clip"),
+            IpgContainerParam::Height => set_height(&mut self.height, value, "Height"),
+            IpgContainerParam::HeightFill => set_height_fill(&mut self.height, value, "HeightFill"),
+            IpgContainerParam::MaxHeight => set_opt_f32(&mut self.max_height, value, "MaxHeight"),
+            IpgContainerParam::MaxWidth => set_opt_f32(&mut self.max_width, value, "MaxWidth"),
+            IpgContainerParam::Padding => set_opt_vec_f32(&mut self.padding, value, "Padding"),
+            IpgContainerParam::Width => set_width(&mut self.width, value, "Width"),
+            IpgContainerParam::WidthFill => set_width_fill(&mut self.width, value, "WidthFill"),
+            IpgContainerParam::Show => set_bool(&mut self.show, value, "Show"),
+            IpgContainerParam::StyleId => set_opt_usize(&mut self.style_id, value, "StyleId"),
             
                     }
     }
@@ -353,20 +348,19 @@ impl WidgetParamUpdate for IpgContainerStyle {
     type Param = IpgContainerStyleParam;
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
-        let name = String::new();
         match param {
-            IpgContainerStyleParam::BackgroundIpgColor  => set_opt_iced_color(&mut self.background_color, value, name),
-            IpgContainerStyleParam::BackgroundRgbaColor => set_iced_color_from_rgba(&mut self.background_color, value, name),
-            IpgContainerStyleParam::BorderIpgColor      => set_opt_iced_color(&mut self.border_color, value, name),
-            IpgContainerStyleParam::BorderRgbaColor     => set_iced_color_from_rgba(&mut self.border_color, value, name),
-            IpgContainerStyleParam::BorderRadius        => set_opt_vec_f32(&mut self.border_radius, value, name),
-            IpgContainerStyleParam::BorderWidth         => set_opt_f32(&mut self.border_width, value, name),
-            IpgContainerStyleParam::ShadowIpgColor      => set_opt_iced_color(&mut self.shadow_color, value, name),
-            IpgContainerStyleParam::ShadowRgbaColor     => set_iced_color_from_rgba(&mut self.shadow_color, value, name),
-            IpgContainerStyleParam::ShadowOffsetXY      => set_opt_f32_array_2(&mut self.shadow_offset_xy, value, name),
-            IpgContainerStyleParam::ShadowBlurRadius    => set_opt_f32(&mut self.shadow_blur_radius, value, name),
-            IpgContainerStyleParam::TextIpgColor        => set_opt_iced_color(&mut self.text_color, value, name),
-            IpgContainerStyleParam::TextRgbaColor       => set_iced_color_from_rgba(&mut self.text_color, value, name),
+            IpgContainerStyleParam::BackgroundIpgColor  => set_opt_iced_color(&mut self.background_color, value, "BackgroundIpgColor"),
+            IpgContainerStyleParam::BackgroundRgbaColor => set_opt_iced_color_from_rgba(&mut self.background_color, value, "BackgroundRgbaColor"),
+            IpgContainerStyleParam::BorderIpgColor => set_opt_iced_color(&mut self.border_color, value, "BorderIpgColor"),
+            IpgContainerStyleParam::BorderRgbaColor => set_opt_iced_color_from_rgba(&mut self.border_color, value, "BorderRgbaColor"),
+            IpgContainerStyleParam::BorderRadius => set_opt_vec_f32(&mut self.border_radius, value, "BorderRadius"),
+            IpgContainerStyleParam::BorderWidth => set_opt_f32(&mut self.border_width, value, "BorderWidth"),
+            IpgContainerStyleParam::ShadowIpgColor => set_opt_iced_color(&mut self.shadow_color, value, "ShadowIpgColor"),
+            IpgContainerStyleParam::ShadowRgbaColor => set_opt_iced_color_from_rgba(&mut self.shadow_color, value, "ShadowRgbaColor"),
+            IpgContainerStyleParam::ShadowOffsetXY => set_opt_f32_array_2(&mut self.shadow_offset_xy, value, "ShadowOffsetXY"),
+            IpgContainerStyleParam::ShadowBlurRadius => set_opt_f32(&mut self.shadow_blur_radius, value, "ShadowBlurRadius"),
+            IpgContainerStyleParam::TextIpgColor => set_opt_iced_color(&mut self.text_color, value, "TextIpgColor"),
+            IpgContainerStyleParam::TextRgbaColor => set_opt_iced_color_from_rgba(&mut self.text_color, value, "TextRgbaColor"),
         }
     }
 }

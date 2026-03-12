@@ -149,7 +149,7 @@ fn convert_to_len_two(value: usize) -> String {
     }
 }
 
-pub fn try_extract_f32(value: &PyObject, name: String) -> f32 {
+pub fn try_extract_f32(value: &PyObject, name: &str) -> f32 {
     Python::attach(|py| {
         let res = value.extract::<f32>(py);
         match res {
@@ -159,7 +159,7 @@ pub fn try_extract_f32(value: &PyObject, name: String) -> f32 {
     })  
 }
 
-pub fn try_extract_f32_opt(value: &PyObject, name: String) -> Option<f32> {
+pub fn try_extract_f32_opt(value: &PyObject, name: &str) -> Option<f32> {
     Python::attach(|py| {
         let res = value.extract::<Option<f32>>(py);
         match res {
@@ -179,7 +179,7 @@ pub fn try_extract_i32_opt(value: &PyObject) -> Option<i32> {
     })  
 }
 
-pub fn try_extract_u16(value: &PyObject, name: String) -> u16 {
+pub fn try_extract_u16(value: &PyObject, name: &str) -> u16 {
     Python::attach(|py| {
         let res = value.extract::<u16>(py);
         match res {
@@ -189,7 +189,7 @@ pub fn try_extract_u16(value: &PyObject, name: String) -> u16 {
     })  
 }
 
-pub fn try_extract_u32(value: &PyObject, name: String) -> u32 {
+pub fn try_extract_u32(value: &PyObject, name: &str) -> u32 {
     Python::attach(|py| {
         let res = value.extract::<u32>(py);
         match res {
@@ -199,7 +199,7 @@ pub fn try_extract_u32(value: &PyObject, name: String) -> u32 {
     })  
 }
 
-pub fn try_extract_usize(value: &PyObject, name: String) -> usize {
+pub fn try_extract_usize(value: &PyObject, name: &str) -> usize {
     Python::attach(|py| {
         let res = value.extract::<usize>(py);
         match res {
@@ -209,7 +209,7 @@ pub fn try_extract_usize(value: &PyObject, name: String) -> usize {
     })  
 }
 
-pub fn try_extract_vec_f32(value: &PyObject, name: String) -> Vec<f32> {
+pub fn try_extract_vec_f32(value: &PyObject, name: &str) -> Vec<f32> {
     Python::attach(|py| {
         let res = value.extract::<Vec<f32>>(py);
         match res {
@@ -219,7 +219,7 @@ pub fn try_extract_vec_f32(value: &PyObject, name: String) -> Vec<f32> {
     })  
 }
 
-pub fn try_extract_vec_vec_f32(value: &PyObject, name: String) -> Vec<Vec<f32>> {
+pub fn try_extract_vec_vec_f32(value: &PyObject, name: &str) -> Vec<Vec<f32>> {
     Python::attach(|py| {
         let res = value.extract::<Vec<Vec<f32>>>(py);
         match res {
@@ -229,7 +229,7 @@ pub fn try_extract_vec_vec_f32(value: &PyObject, name: String) -> Vec<Vec<f32>> 
     })
 }
 
-pub fn try_extract_vec_f32_opt(value: &PyObject, name: String) -> Option<Vec<f32>> {
+pub fn try_extract_vec_f32_opt(value: &PyObject, name: &str) -> Option<Vec<f32>> {
     Python::attach(|py| {
         let res = value.extract::<Vec<f32>>(py);
         match res {
@@ -239,7 +239,7 @@ pub fn try_extract_vec_f32_opt(value: &PyObject, name: String) -> Option<Vec<f32
     })  
 }
 
-pub fn try_extract_vec_u16(value: &PyObject, name: String) -> Vec<u16> {
+pub fn try_extract_vec_u16(value: &PyObject, name: &str) -> Vec<u16> {
     Python::attach(|py| {
         let res = value.extract::<Vec<u16>>(py);
         match res {
@@ -249,7 +249,7 @@ pub fn try_extract_vec_u16(value: &PyObject, name: String) -> Vec<u16> {
     })  
 }
 
-pub fn try_extract_vec_usize(value: &PyObject, name: String) -> Vec<usize> {
+pub fn try_extract_vec_usize(value: &PyObject, name: &str) -> Vec<usize> {
     Python::attach(|py| {
         let res = value.extract::<Vec<usize>>(py);
         match res {
@@ -259,7 +259,7 @@ pub fn try_extract_vec_usize(value: &PyObject, name: String) -> Vec<usize> {
     })  
 }
 
-pub fn try_extract_f32_array_2(value: &PyObject, name: String) -> [f32; 2] {
+pub fn try_extract_f32_array_2(value: &PyObject, name: &str) -> [f32; 2] {
     Python::attach(|py| {
 
         let res = value.extract::<[f32; 2]>(py);
@@ -270,7 +270,7 @@ pub fn try_extract_f32_array_2(value: &PyObject, name: String) -> [f32; 2] {
     })
 }
 
-pub fn try_extract_u16_array_2(value: &PyObject, name: String) -> [u16; 2] {
+pub fn try_extract_u16_array_2(value: &PyObject, name: &str) -> [u16; 2] {
     Python::attach(|py| {
 
         let res = value.extract::<[u16; 2]>(py);
@@ -291,7 +291,7 @@ pub fn try_extract_string(value: &PyObject, name: &str) -> String {
     })  
 }
 
-pub fn try_extract_vec_str(value: &PyObject, name: String) -> Vec<String> {
+pub fn try_extract_vec_str(value: &PyObject, name: &str) -> Vec<String> {
     Python::attach(|py| {
         let res = value.extract::<Vec<String>>(py);
         match res {
@@ -301,7 +301,7 @@ pub fn try_extract_vec_str(value: &PyObject, name: String) -> Vec<String> {
     })  
 }
 
-pub fn try_extract_boolean(value: &PyObject, name: String) -> bool {
+pub fn try_extract_boolean(value: &PyObject, name: &str) -> bool {
     Python::attach(|py| {
         let res = value.extract::<bool>(py);
         match res {
@@ -321,7 +321,7 @@ pub fn try_extract_opt_boolean(value: &PyObject, name: &str) -> Option<bool> {
     })  
 }
 
-pub fn try_extract_style_standard(value: &PyObject, name: String) -> IpgStyleStandard {
+pub fn try_extract_style_standard(value: &PyObject, name: &str) -> IpgStyleStandard {
     Python::attach(|py| {
 
         let res = value.extract::<IpgStyleStandard>(py);
@@ -333,7 +333,7 @@ pub fn try_extract_style_standard(value: &PyObject, name: String) -> IpgStyleSta
 }
 
 
-pub fn try_extract_point(value: &PyObject, name: String) -> [f32; 2] {
+pub fn try_extract_point(value: &PyObject, name: &str) -> [f32; 2] {
     Python::attach(|py| {
 
         let res = value.extract::<[f32; 2]>(py);

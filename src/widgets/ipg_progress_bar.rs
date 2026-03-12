@@ -9,7 +9,7 @@ use crate::app;
 use crate::py_api::helpers::{get_radius, try_extract_style_standard};
 use crate::state::IpgWidgets;
 use crate::widgets::styling::IpgStyleStandard;
-use crate::widgets::widget_param_update::{WidgetParamUpdate, set_bool, set_f32, set_height, set_height_fill, set_iced_color_from_rgba, set_opt_bool, set_opt_f32, set_opt_iced_color, set_opt_usize, set_opt_vec_f32, set_width, set_width_fill};
+use crate::widgets::widget_param_update::{WidgetParamUpdate, set_bool, set_f32, set_height, set_height_fill, set_opt_bool, set_opt_f32, set_opt_iced_color, set_opt_iced_color_from_rgba, set_opt_usize, set_opt_vec_f32, set_width, set_width_fill};
 
 #[derive(Debug, Clone)]
 pub struct IpgProgressBar {
@@ -180,19 +180,18 @@ impl WidgetParamUpdate for IpgProgressBar {
     type Param = IpgProgressBarParam;
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
-        let name = String::new();
         match param {
-            IpgProgressBarParam::Height => set_height(&mut self.height, value, name),
-            IpgProgressBarParam::HeightFill => set_height_fill(&mut self.height, value, name),
-            IpgProgressBarParam::IsVertical => set_opt_bool(&mut self.is_vertical, value, name),
-            IpgProgressBarParam::Max => set_f32(&mut self.max, value, name),
-            IpgProgressBarParam::Min => set_f32(&mut self.min, value, name),
-            IpgProgressBarParam::Show => set_bool(&mut self.show, value, name),
-            IpgProgressBarParam::StyleId => set_opt_usize(&mut self.style_id, value, name),
-            IpgProgressBarParam::StyleStandard => self.style_standard = Some(try_extract_style_standard(value, name)),
-            IpgProgressBarParam::Value => set_f32(&mut self.value, value, name),
-            IpgProgressBarParam::Width => set_width(&mut self.width, value, name),
-            IpgProgressBarParam::WidthFill => set_width_fill(&mut self.width, value, name),
+            IpgProgressBarParam::Height => set_height(&mut self.height, value, "Height"),
+            IpgProgressBarParam::HeightFill => set_height_fill(&mut self.height, value, "HeightFill"),
+            IpgProgressBarParam::IsVertical => set_opt_bool(&mut self.is_vertical, value, "IsVertical"),
+            IpgProgressBarParam::Max => set_f32(&mut self.max, value, "Max"),
+            IpgProgressBarParam::Min => set_f32(&mut self.min, value, "Min"),
+            IpgProgressBarParam::Show => set_bool(&mut self.show, value, "Show"),
+            IpgProgressBarParam::StyleId => set_opt_usize(&mut self.style_id, value, "StyleId"),
+            IpgProgressBarParam::StyleStandard => self.style_standard = Some(try_extract_style_standard(value, "StyleStandard")),
+            IpgProgressBarParam::Value => set_f32(&mut self.value, value, "Value"),
+            IpgProgressBarParam::Width => set_width(&mut self.width, value, "Width"),
+            IpgProgressBarParam::WidthFill => set_width_fill(&mut self.width, value, "WidthFill"),
         }
     }
 }
@@ -201,24 +200,23 @@ impl WidgetParamUpdate for IpgProgressBarStyle {
     type Param = IpgProgressBarStyleParam;
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
-        let name = String::new();
         match param {
             IpgProgressBarStyleParam::BackgroundIpgColor => 
-                set_opt_iced_color(&mut self.background_color, value, name),
+                set_opt_iced_color(&mut self.background_color, value, "BackgroundIpgColor"),
             IpgProgressBarStyleParam::BackgroundRgbaColor => 
-                set_iced_color_from_rgba(&mut self.background_color, value, name),
+                set_opt_iced_color_from_rgba(&mut self.background_color, value, "BackgroundRgbaColor"),
             IpgProgressBarStyleParam::BarIpgColor => 
-                set_opt_iced_color(&mut self.bar_color, value, name),
+                set_opt_iced_color(&mut self.bar_color, value, "BarIpgColor"),
             IpgProgressBarStyleParam::BarRgbaColor => 
-                set_iced_color_from_rgba(&mut self.bar_color, value, name),
+                set_opt_iced_color_from_rgba(&mut self.bar_color, value, "BarRgbaColor"),
             IpgProgressBarStyleParam::BorderIpgColor => 
-                set_opt_iced_color(&mut self.border_color, value, name),
+                set_opt_iced_color(&mut self.border_color, value, "BorderIpgColor"),
             IpgProgressBarStyleParam::BorderRgbaColor => 
-                set_iced_color_from_rgba(&mut self.border_color, value, name),
+                set_opt_iced_color_from_rgba(&mut self.border_color, value, "BorderRgbaColor"),
             IpgProgressBarStyleParam::BorderRadius => 
-                set_opt_vec_f32(&mut self.border_radius, value, name),
+                set_opt_vec_f32(&mut self.border_radius, value, "BorderRadius"),
             IpgProgressBarStyleParam::BorderWidth => 
-                set_opt_f32(&mut self.border_width, value, name),
+                set_opt_f32(&mut self.border_width, value, "BorderWidth"),
         }
     }
 }

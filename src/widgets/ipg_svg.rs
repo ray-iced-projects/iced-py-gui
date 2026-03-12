@@ -240,18 +240,17 @@ impl WidgetParamUpdate for IpgSvg {
     type Param = IpgSvgParam;
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
-        let name = String::new();
         match param {
-            IpgSvgParam::ColorFilter => set_opt_iced_color(&mut self.color_filter, value, name),
+            IpgSvgParam::ColorFilter => set_opt_iced_color(&mut self.color_filter, value, "ColorFilter"),
             IpgSvgParam::ContentFit => self.content_fit = IpgContentFit::extract(value),
-            IpgSvgParam::Height => set_height(&mut self.height, value, name),
+            IpgSvgParam::Height => set_height(&mut self.height, value, "Height"),
             IpgSvgParam::MousePointer => self.mouse_pointer = IpgMousePointer::extract(value),
-            IpgSvgParam::Opacity => set_opt_f32(&mut self.opacity, value, name),
-            IpgSvgParam::RotationRadians => set_opt_f32(&mut self.rotation_radians, value, name),
+            IpgSvgParam::Opacity => set_opt_f32(&mut self.opacity, value, "Opacity"),
+            IpgSvgParam::RotationRadians => set_opt_f32(&mut self.rotation_radians, value, "RotationRadians"),
             IpgSvgParam::RotationType => self.rotation_type = IpgRotation::extract(value),
-            IpgSvgParam::Show => set_bool(&mut self.show, value, name),
+            IpgSvgParam::Show => set_bool(&mut self.show, value, "Show"),
             IpgSvgParam::SvgPath => set_string(&mut self.svg_path, value, "SvgPath"),
-            IpgSvgParam::Width => set_width(&mut self.width, value, name),
+            IpgSvgParam::Width => set_width(&mut self.width, value, "Width"),
         }
     }
 }

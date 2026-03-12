@@ -636,37 +636,36 @@ impl WidgetParamUpdate for IpgTable {
     type Param = IpgTableParam;
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
-        let name = String::new();
         match param {
-            IpgTableParam::Headers => set_vec_string(&mut self.headers, value, name),
-            IpgTableParam::Body => set_vec_vec_f32(&mut self.body, value, name),
-            IpgTableParam::Footers => set_vec_string(&mut self.footers, value, name),
-            IpgTableParam::ColumnWidths => set_vec_f32(&mut self.column_widths, value, name),
-            IpgTableParam::Height => set_f32(&mut self.height, value, name),
-            IpgTableParam::Width => set_opt_f32(&mut self.width, value, name),
-            IpgTableParam::ResizerWidth => set_opt_f32(&mut self.resizer_width, value, name),
-            IpgTableParam::HeaderEnabled => set_bool(&mut self.header_enabled, value, name),
-            IpgTableParam::HeaderHeight => set_opt_f32(&mut self.header_row_height, value, name),
-            IpgTableParam::HeaderRowSpacing => set_opt_f32(&mut self.header_row_spacing, value, name),
-            IpgTableParam::FooterHeight => set_opt_f32(&mut self.footer_height, value, name),
-            IpgTableParam::FooterSpacing => set_opt_f32(&mut self.footer_spacing, value, name),
-            IpgTableParam::CustomHeaderRows => set_opt_usize(&mut self.custom_header_rows, value, name),
-            IpgTableParam::CustomFooterRows => set_opt_usize(&mut self.custom_footer_rows, value, name),
+            IpgTableParam::Headers => set_vec_string(&mut self.headers, value, "Headers"),
+            IpgTableParam::Body => set_vec_vec_f32(&mut self.body, value, "Body"),
+            IpgTableParam::Footers => set_vec_string(&mut self.footers, value, "Footers"),
+            IpgTableParam::ColumnWidths => set_vec_f32(&mut self.column_widths, value, "ColumnWidths"),
+            IpgTableParam::Height => set_f32(&mut self.height, value, "Height"),
+            IpgTableParam::Width => set_opt_f32(&mut self.width, value, "Width"),
+            IpgTableParam::ResizerWidth => set_opt_f32(&mut self.resizer_width, value, "ResizerWidth"),
+            IpgTableParam::HeaderEnabled => set_bool(&mut self.header_enabled, value, "HeaderEnabled"),
+            IpgTableParam::HeaderHeight => set_opt_f32(&mut self.header_row_height, value, "HeaderHeight"),
+            IpgTableParam::HeaderRowSpacing => set_opt_f32(&mut self.header_row_spacing, value, "HeaderRowSpacing"),
+            IpgTableParam::FooterHeight => set_opt_f32(&mut self.footer_height, value, "FooterHeight"),
+            IpgTableParam::FooterSpacing => set_opt_f32(&mut self.footer_spacing, value, "FooterSpacing"),
+            IpgTableParam::CustomHeaderRows => set_opt_usize(&mut self.custom_header_rows, value, "CustomHeaderRows"),
+            IpgTableParam::CustomFooterRows => set_opt_usize(&mut self.custom_footer_rows, value, "CustomFooterRows"),
             IpgTableParam::ControlColumns => {
-                self.control_columns = try_extract_vec_usize(value, name);
+                self.control_columns = try_extract_vec_usize(value, "ControlColumns");
             }
-            IpgTableParam::ColumnProportionalResize => set_bool(&mut self.column_proportional_resize, value, name),
-            IpgTableParam::RowSpacing => set_opt_f32(&mut self.row_spacing, value, name),
-            IpgTableParam::RowHeight => set_opt_f32(&mut self.row_height, value, name),
-            IpgTableParam::HeaderBodySpacing => set_opt_f32(&mut self.header_body_spacing, value, name),
-            IpgTableParam::BodyFooterSpacing => set_opt_f32(&mut self.body_footer_spacing, value, name),
-            IpgTableParam::ResizeColumnsEnabled => set_bool(&mut self.resize_columns_enabled, value, name),
-            IpgTableParam::MinColumnWidth => set_opt_f32(&mut self.min_column_width, value, name),
-            IpgTableParam::TextSize => set_opt_f32(&mut self.text_size, value, name),
-            IpgTableParam::Show => set_bool(&mut self.show, value, name),
-            IpgTableParam::TableWidthFixed => set_bool(&mut self.table_width_fixed, value, name),
-            IpgTableParam::StyleId => set_opt_usize(&mut self.style_id, value, name),
-            IpgTableParam::ScrollableStyleId => set_opt_usize(&mut self.scrollable_style_id, value, name),
+            IpgTableParam::ColumnProportionalResize => set_bool(&mut self.column_proportional_resize, value, "ColumnProportionalResize"),
+            IpgTableParam::RowSpacing => set_opt_f32(&mut self.row_spacing, value, "RowSpacing"),
+            IpgTableParam::RowHeight => set_opt_f32(&mut self.row_height, value, "RowHeight"),
+            IpgTableParam::HeaderBodySpacing => set_opt_f32(&mut self.header_body_spacing, value, "HeaderBodySpacing"),
+            IpgTableParam::BodyFooterSpacing => set_opt_f32(&mut self.body_footer_spacing, value, "BodyFooterSpacing"),
+            IpgTableParam::ResizeColumnsEnabled => set_bool(&mut self.resize_columns_enabled, value, "ResizeColumnsEnabled"),
+            IpgTableParam::MinColumnWidth => set_opt_f32(&mut self.min_column_width, value, "MinColumnWidth"),
+            IpgTableParam::TextSize => set_opt_f32(&mut self.text_size, value, "TextSize"),
+            IpgTableParam::Show => set_bool(&mut self.show, value, "Show"),
+            IpgTableParam::TableWidthFixed => set_bool(&mut self.table_width_fixed, value, "TableWidthFixed"),
+            IpgTableParam::StyleId => set_opt_usize(&mut self.style_id, value, "StyleId"),
+            IpgTableParam::ScrollableStyleId => set_opt_usize(&mut self.scrollable_style_id, value, "ScrollableStyleId"),
         }
     }
 }

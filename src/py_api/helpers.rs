@@ -270,6 +270,20 @@ pub fn try_extract_f32_array_2(value: &PyObject, name: &str) -> [f32; 2] {
     })
 }
 
+pub fn try_extract_f32_opt_array_1_or_upto_4(value: &PyObject, name: &str) -> Option<Vec<f32>> {
+    Python::attach(|py| {
+
+        let res = value.extract::<Vec<f32>>(py);
+        match res {
+            Ok(val) => {
+                if val.len() > 4 {panic!("{}-The radius must be a list of length 1 or < 4", name)}
+                Some(val)
+            },
+            Err(_) => panic!("{}-Unable to extract python object for 2 item list", name),
+        }
+    })
+}
+
 pub fn try_extract_u16_array_2(value: &PyObject, name: &str) -> [u16; 2] {
     Python::attach(|py| {
 

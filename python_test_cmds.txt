@@ -1,0 +1,2 @@
+
+LD_LIBRARY_PATH=/home/charles/.pyenv/versions/3.14.2/lib cargo test --no-default-features --lib ipg_text::tests

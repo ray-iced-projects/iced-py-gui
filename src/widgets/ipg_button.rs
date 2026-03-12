@@ -9,7 +9,7 @@ use crate::py_api::helpers::get_padding;
 use crate::widgets::styling::{apply_shadow_overrides_xy, 
     apply_border_overrides, apply_background_overrides, 
     get_custom_palette};
-use crate::widgets::widget_param_update::{set_opt_f32_array_2, set_opt_iced_color_from_rgba};
+use crate::widgets::widget_param_update::{set_opt_f32_array_2, set_opt_iced_color_from_rgba, set_opt_vec_f32_1_or_upto_4};
 use crate::widgets::widget_param_update::{
     WidgetParamUpdate, set_bool, set_height, 
     set_height_fill, set_opt_bool, 
@@ -423,32 +423,340 @@ impl WidgetParamUpdate for IpgButtonStyle {
     type Param = IpgButtonStyleParam;
     
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
-        let name = "";
         match param {
             IpgButtonStyleParam::BackgroundColor => 
-                set_opt_iced_color(&mut self.background_color, value, name),
+                set_opt_iced_color(&mut self.background_color, value, "BackgroundColor"),
             IpgButtonStyleParam::BackgroundRbga => 
-                set_opt_iced_color_from_rgba(&mut self.background_color, value, name),
+                set_opt_iced_color_from_rgba(&mut self.background_color, value, "BackgroundRbga"),
             IpgButtonStyleParam::BorderColor => 
-                set_opt_iced_color(&mut self.border_color, value, name),
+                set_opt_iced_color(&mut self.border_color, value, "BorderColor"),
             IpgButtonStyleParam::BorderRgba => 
-                set_opt_iced_color_from_rgba(&mut self.border_color, value, name),
+                set_opt_iced_color_from_rgba(&mut self.border_color, value, "BorderRgba"),
             IpgButtonStyleParam::BorderRadius => 
-                set_opt_vec_f32(&mut self.border_radius, value, name),
+                set_opt_vec_f32_1_or_upto_4(&mut self.border_radius, value, "BorderRadius"),
             IpgButtonStyleParam::BorderWidth => 
-                set_opt_f32(&mut self.border_width, value, name),
+                set_opt_f32(&mut self.border_width, value, "BorderWidth"),
             IpgButtonStyleParam::ShadowColor => 
-                set_opt_iced_color(&mut self.shadow_color, value, name),
+                set_opt_iced_color(&mut self.shadow_color, value, "ShadowColor"),
             IpgButtonStyleParam::ShadowRgba => 
-                set_opt_iced_color_from_rgba(&mut self.shadow_color, value, name),
+                set_opt_iced_color_from_rgba(&mut self.shadow_color, value, "ShadowRgba"),
             IpgButtonStyleParam::ShadowOffsetXY => 
-                set_opt_f32_array_2(&mut self.shadow_offset_xy, value, name),
+                set_opt_f32_array_2(&mut self.shadow_offset_xy, value, "ShadowOffsetXY"),
             IpgButtonStyleParam::ShadowBlurRadius => 
-                set_opt_f32(&mut self.shadow_blur_radius, value, name),
+                set_opt_f32(&mut self.shadow_blur_radius, value, "ShadowBlurRadius"),
             IpgButtonStyleParam::TextColor => 
-                set_opt_iced_color(&mut self.text_color, value, name),
+                set_opt_iced_color(&mut self.text_color, value, "TextColor"),
             IpgButtonStyleParam::TextRgba => 
-                set_opt_iced_color_from_rgba(&mut self.text_color, value, name),
+                set_opt_iced_color_from_rgba(&mut self.text_color, value, "TextRgba"),
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use iced::Length;
+    use pyo3::IntoPyObjectExt;
+
+    fn make_button() -> IpgButton {
+        IpgButton {
+            id: 0,
+            parent_id: String::new(),
+            show: true,
+            label: None,
+            width: Length::Shrink,
+            height: Length::Shrink,
+            padding: None,
+            text_align_top_left: None,
+            text_align_top_center: None,
+            text_align_top_right: None,
+            text_align_center_left: None,
+            text_align_center: None,
+            text_align_center_right: None,
+            text_align_bottom_left: None,
+            text_align_bottom_center: None,
+            text_align_bottom_right: None,
+            text_size: None,
+            clip: None,
+            style_id: None,
+            style_std: None,
+            style_arrow: None,
+        }
+    }
+
+    fn make_button_style() -> IpgButtonStyle {
+        IpgButtonStyle::default()
+    }
+
+    fn py_obj<T>(val: T) -> PyObject
+    where
+        for<'py> T: pyo3::IntoPyObject<'py>,
+    {
+        Python::attach(|py| val.into_py_any(py).unwrap())
+    }
+
+    fn py_none() -> PyObject {
+        Python::attach(|py| py.None())
+    }
+
+    // -----------------------------------------------------------------------
+    // IpgButton param tests
+    // -----------------------------------------------------------------------
+
+    #[test]
+    fn test_clip() {
+        Python::initialize();
+        let mut b = make_button();
+        b.param_update(IpgButtonParam::Clip, &py_obj(true));
+        assert_eq!(b.clip, Some(true));
+    }
+
+    #[test]
+    fn test_height() {
+        Python::initialize();
+        let mut b = make_button();
+        b.param_update(IpgButtonParam::Height, &py_obj(100.0f32));
+        assert_eq!(b.height, Length::Fixed(100.0));
+        b.param_update(IpgButtonParam::Height, &py_none());
+        assert_eq!(b.height, Length::Shrink);
+    }
+
+    #[test]
+    fn test_height_fill() {
+        Python::initialize();
+        let mut b = make_button();
+        b.param_update(IpgButtonParam::HeightFill, &py_obj(true));
+        assert_eq!(b.height, Length::Fill);
+        b.param_update(IpgButtonParam::HeightFill, &py_obj(false));
+        assert_eq!(b.height, Length::Shrink);
+    }
+
+    #[test]
+    fn test_label() {
+        Python::initialize();
+        let mut b = make_button();
+        b.param_update(IpgButtonParam::Label, &py_obj("Click"));
+        assert_eq!(b.label, Some("Click".to_string()));
+    }
+
+    #[test]
+    fn test_padding() {
+        Python::initialize();
+        let mut b = make_button();
+        b.param_update(IpgButtonParam::Padding, &py_obj(vec![5.0f32, 10.0, 5.0, 10.0]));
+        assert_eq!(b.padding, Some(vec![5.0, 10.0, 5.0, 10.0]));
+    }
+
+    #[test]
+    fn test_show() {
+        Python::initialize();
+        let mut b = make_button();
+        b.param_update(IpgButtonParam::Show, &py_obj(false));
+        assert!(!b.show);
+    }
+
+    #[test]
+    fn test_style_id() {
+        Python::initialize();
+        let mut b = make_button();
+        b.param_update(IpgButtonParam::StyleId, &py_obj(42u64));
+        assert_eq!(b.style_id, Some(42));
+    }
+
+    #[test]
+    fn test_text_size() {
+        Python::initialize();
+        let mut b = make_button();
+        b.param_update(IpgButtonParam::TextSize, &py_obj(16.0f32));
+        assert_eq!(b.text_size, Some(16.0));
+        b.param_update(IpgButtonParam::TextSize, &py_none());
+        assert_eq!(b.text_size, None);
+    }
+
+    #[test]
+    fn test_width() {
+        Python::initialize();
+        let mut b = make_button();
+        b.param_update(IpgButtonParam::Width, &py_obj(200.0f32));
+        assert_eq!(b.width, Length::Fixed(200.0));
+        b.param_update(IpgButtonParam::Width, &py_none());
+        assert_eq!(b.width, Length::Shrink);
+    }
+
+    #[test]
+    fn test_width_fill() {
+        Python::initialize();
+        let mut b = make_button();
+        b.param_update(IpgButtonParam::WidthFill, &py_obj(true));
+        assert_eq!(b.width, Length::Fill);
+        b.param_update(IpgButtonParam::WidthFill, &py_obj(false));
+        assert_eq!(b.width, Length::Shrink);
+    }
+
+    #[test]
+    fn test_text_align_bottom_center() {
+        Python::initialize();
+        let mut b = make_button();
+        b.param_update(IpgButtonParam::TextAlignBottomCenter, &py_obj(true));
+        assert_eq!(b.text_align_bottom_center, Some(true));
+    }
+
+    #[test]
+    fn test_text_align_bottom_left() {
+        Python::initialize();
+        let mut b = make_button();
+        b.param_update(IpgButtonParam::TextAlignBottomLeft, &py_obj(true));
+        assert_eq!(b.text_align_bottom_left, Some(true));
+    }
+
+    #[test]
+    fn test_text_align_bottom_right() {
+        Python::initialize();
+        let mut b = make_button();
+        b.param_update(IpgButtonParam::TextAlignBottomRight, &py_obj(true));
+        assert_eq!(b.text_align_bottom_right, Some(true));
+    }
+
+    #[test]
+    fn test_text_align_center() {
+        Python::initialize();
+        let mut b = make_button();
+        b.param_update(IpgButtonParam::TextAlignCenter, &py_obj(true));
+        assert_eq!(b.text_align_center, Some(true));
+    }
+
+    #[test]
+    fn test_text_align_center_left() {
+        Python::initialize();
+        let mut b = make_button();
+        b.param_update(IpgButtonParam::TextAlignCenterLeft, &py_obj(true));
+        assert_eq!(b.text_align_center_left, Some(true));
+    }
+
+    #[test]
+    fn test_text_align_top_center() {
+        Python::initialize();
+        let mut b = make_button();
+        b.param_update(IpgButtonParam::TextAlignTopCenter, &py_obj(true));
+        assert_eq!(b.text_align_top_center, Some(true));
+    }
+
+    #[test]
+    fn test_text_align_top_left() {
+        Python::initialize();
+        let mut b = make_button();
+        b.param_update(IpgButtonParam::TextAlignTopLeft, &py_obj(true));
+        assert_eq!(b.text_align_top_left, Some(true));
+    }
+
+    #[test]
+    fn test_text_align_top_right() {
+        Python::initialize();
+        let mut b = make_button();
+        b.param_update(IpgButtonParam::TextAlignTopRight, &py_obj(true));
+        assert_eq!(b.text_align_top_right, Some(true));
+    }
+
+    // -----------------------------------------------------------------------
+    // IpgButtonStyle param tests
+    // -----------------------------------------------------------------------
+
+    #[test]
+    fn test_style_background_color() {
+        Python::initialize();
+        let mut s = make_button_style();
+        let rgba = vec![1.0f32, 0.0, 0.0, 1.0];
+        s.param_update(IpgButtonStyleParam::BackgroundRbga, &py_obj(rgba));
+        assert!(s.background_color.is_some());
+        s.param_update(IpgButtonStyleParam::BackgroundRbga, &py_none());
+        assert!(s.background_color.is_none());
+    }
+
+    #[test]
+    fn test_style_border_color() {
+        Python::initialize();
+        let mut s = make_button_style();
+        let rgba = vec![0.0f32, 1.0, 0.0, 1.0];
+        s.param_update(IpgButtonStyleParam::BorderRgba, &py_obj(rgba));
+        assert!(s.border_color.is_some());
+        s.param_update(IpgButtonStyleParam::BorderRgba, &py_none());
+        assert!(s.border_color.is_none());
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_style_border_rgba_bad_len() {
+        Python::initialize();
+        let mut s = make_button_style();
+        let rgba = vec![0.0f32, 1.0, 0.0];
+        s.param_update(IpgButtonStyleParam::BorderRgba, &py_obj(rgba));
+    }
+
+    #[test]
+    fn test_style_border_radius() {
+        Python::initialize();
+        let mut s = make_button_style();
+        s.param_update(IpgButtonStyleParam::BorderRadius, &py_obj(vec![5.0f32; 4]));
+        assert_eq!(s.border_radius, Some(vec![5.0, 5.0, 5.0, 5.0]));
+        s.param_update(IpgButtonStyleParam::BorderRadius, &py_obj(vec![5.0f32]));
+        assert_eq!(s.border_radius, Some(vec![5.0]));
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_style_border_radius_bad_len() {
+        Python::initialize();
+        let mut s = make_button_style();
+        s.param_update(IpgButtonStyleParam::BorderRadius, &py_obj(vec![5.0f32; 5]));
+    }
+
+    #[test]
+    fn test_style_border_width() {
+        Python::initialize();
+        let mut s = make_button_style();
+        s.param_update(IpgButtonStyleParam::BorderWidth, &py_obj(2.0f32));
+        assert_eq!(s.border_width, Some(2.0));
+        s.param_update(IpgButtonStyleParam::BorderWidth, &py_none());
+        assert_eq!(s.border_width, None);
+    }
+
+    #[test]
+    fn test_style_shadow_color() {
+        Python::initialize();
+        let mut s = make_button_style();
+        let rgba = vec![0.0f32, 0.0, 0.0, 0.5];
+        s.param_update(IpgButtonStyleParam::ShadowRgba, &py_obj(rgba));
+        assert!(s.shadow_color.is_some());
+        s.param_update(IpgButtonStyleParam::ShadowRgba, &py_none());
+        assert!(s.shadow_color.is_none());
+    }
+
+    #[test]
+    fn test_style_shadow_offset_xy() {
+        Python::initialize();
+        let mut s = make_button_style();
+        s.param_update(IpgButtonStyleParam::ShadowOffsetXY, &py_obj(vec![2.0f32, 3.0]));
+        assert_eq!(s.shadow_offset_xy, Some([2.0, 3.0]));
+    }
+
+    #[test]
+    fn test_style_shadow_blur_radius() {
+        Python::initialize();
+        let mut s = make_button_style();
+        s.param_update(IpgButtonStyleParam::ShadowBlurRadius, &py_obj(4.0f32));
+        assert_eq!(s.shadow_blur_radius, Some(4.0));
+        s.param_update(IpgButtonStyleParam::ShadowBlurRadius, &py_none());
+        assert_eq!(s.shadow_blur_radius, None);
+    }
+
+    #[test]
+    fn test_style_text_color() {
+        Python::initialize();
+        let mut s = make_button_style();
+        let rgba = vec![1.0f32, 1.0, 1.0, 1.0];
+        s.param_update(IpgButtonStyleParam::TextRgba, &py_obj(rgba));
+        assert!(s.text_color.is_some());
+        s.param_update(IpgButtonStyleParam::TextRgba, &py_none());
+        assert!(s.text_color.is_none());
     }
 }

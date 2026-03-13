@@ -403,3 +403,65 @@ impl IpgWindowMode {
     }
 }
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use pyo3::{Python, IntoPyObjectExt};
+
+    fn make_window() -> IpgWindow {
+        IpgWindow {
+            id: 0,
+            title: None,
+            size: None,
+            maximized: None,
+            fullscreen: None,
+            center: None,
+            position: None,
+            min_size: None,
+            max_size: None,
+            theme: None,
+            visible: None,
+            resizable: None,
+            minimizable: None,
+            closeable: None,
+            decorations: None,
+            transparent: None,
+            blur: None,
+            level: None,
+            icon_rgba: None,
+            icon_width_height: None,
+            exit_on_close_request: None,
+            scale_factor: None,
+            debug: None,
+        }
+    }
+
+    fn py_obj<T: for<'py> IntoPyObjectExt<'py>>(val: T) -> PyObject {
+        Python::initialize();
+        Python::attach(|py| val.into_py_any(py).unwrap())
+    }
+
+    fn py_none() -> PyObject {
+        Python::initialize();
+        Python::attach(|py| py.None().into_py_any(py).unwrap())
+    }
+
+    #[test]
+    fn test_debug() {
+        let mut w = make_window();
+        w.param_update(IpgWindowParam::Debug, &py_obj(true));
+        assert_eq!(w.debug, Some(true));
+        w.param_update(IpgWindowParam::Debug, &py_none());
+        assert_eq!(w.debug, None);
+    }
+
+    #[test]
+    fn test_scale_factor() {
+        let mut w = make_window();
+        w.param_update(IpgWindowParam::ScaleFactor, &py_obj(1.5f32));
+        assert_eq!(w.scale_factor, Some(1.5));
+        w.param_update(IpgWindowParam::ScaleFactor, &py_none());
+        assert_eq!(w.scale_factor, None);
+    }
+}
+

@@ -302,3 +302,107 @@ impl WidgetParamUpdate for IpgSelectableText {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use iced::Length;
+    use pyo3::{Python, IntoPyObjectExt};
+
+    fn make_selectable_text() -> IpgSelectableText {
+        IpgSelectableText {
+            id: 0,
+            parent_id: String::new(),
+            content: "test".to_string(),
+            width: Length::Shrink,
+            height: Length::Shrink,
+            center: None,
+            align_x: None,
+            align_y: None,
+            line_height: None,
+            size: None,
+            show: true,
+            font_id: None,
+            shaping: None,
+            wrapping: None,
+            text_color: None,
+        }
+    }
+
+    fn py_obj<T: for<'py> IntoPyObjectExt<'py>>(val: T) -> PyObject {
+        Python::initialize();
+        Python::attach(|py| val.into_py_any(py).unwrap())
+    }
+
+    fn py_none() -> PyObject {
+        Python::initialize();
+        Python::attach(|py| py.None().into_py_any(py).unwrap())
+    }
+
+    #[test]
+    fn test_content() {
+        let mut t = make_selectable_text();
+        t.param_update(IpgSelectableTextParam::Content, &py_obj("hello".to_string()));
+        assert_eq!(t.content, "hello");
+    }
+
+    #[test]
+    fn test_height() {
+        let mut t = make_selectable_text();
+        t.param_update(IpgSelectableTextParam::Height, &py_obj(50.0f32));
+        assert_eq!(t.height, Length::Fixed(50.0));
+    }
+
+    #[test]
+    fn test_height_fill() {
+        let mut t = make_selectable_text();
+        t.param_update(IpgSelectableTextParam::HeightFill, &py_obj(true));
+        assert_eq!(t.height, Length::Fill);
+    }
+
+    #[test]
+    fn test_line_height() {
+        let mut t = make_selectable_text();
+        t.param_update(IpgSelectableTextParam::LineHeight, &py_obj(1.5f32));
+        assert_eq!(t.line_height, Some(1.5));
+        t.param_update(IpgSelectableTextParam::LineHeight, &py_none());
+        assert_eq!(t.line_height, None);
+    }
+
+    #[test]
+    fn test_show() {
+        let mut t = make_selectable_text();
+        t.param_update(IpgSelectableTextParam::Show, &py_obj(false));
+        assert!(!t.show);
+    }
+
+    #[test]
+    fn test_size() {
+        let mut t = make_selectable_text();
+        t.param_update(IpgSelectableTextParam::Size, &py_obj(16.0f32));
+        assert_eq!(t.size, Some(16.0));
+        t.param_update(IpgSelectableTextParam::Size, &py_none());
+        assert_eq!(t.size, None);
+    }
+
+    #[test]
+    fn test_text_rgba() {
+        let mut t = make_selectable_text();
+        t.param_update(IpgSelectableTextParam::TextRgba, &py_obj(vec![1.0f32, 0.0, 0.0, 1.0]));
+        assert!(t.text_color.is_some());
+    }
+
+    #[test]
+    fn test_width() {
+        let mut t = make_selectable_text();
+        t.param_update(IpgSelectableTextParam::Width, &py_obj(200.0f32));
+        assert_eq!(t.width, Length::Fixed(200.0));
+    }
+
+    #[test]
+    fn test_width_fill() {
+        let mut t = make_selectable_text();
+        t.param_update(IpgSelectableTextParam::WidthFill, &py_obj(true));
+        assert_eq!(t.width, Length::Fill);
+    }
+}

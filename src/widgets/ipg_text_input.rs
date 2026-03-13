@@ -321,3 +321,135 @@ impl WidgetParamUpdate for IpgTextInputStyle {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use iced::Length;
+    use pyo3::{Python, IntoPyObjectExt};
+
+    fn make_text_input() -> IpgTextInput {
+        IpgTextInput {
+            id: 0,
+            parent_id: String::new(),
+            placeholder: "enter".to_string(),
+            value: String::new(),
+            is_secure: None,
+            width: Length::Shrink,
+            padding: None,
+            size: None,
+            line_height: None,
+            align_x: None,
+            font_id: None,
+            style_id: None,
+            show: true,
+        }
+    }
+
+    fn make_text_input_style() -> IpgTextInputStyle {
+        IpgTextInputStyle {
+            id: 0,
+            background_color: None,
+            border_color_active: None,
+            border_color_hovered: None,
+            border_color_focused: None,
+            border_color_disabled: None,
+            border_width: None,
+            border_radius: None,
+            placeholder_color_active: None,
+            placeholder_color_disabled: None,
+            value_color: None,
+            selection_color: None,
+        }
+    }
+
+    fn py_obj<T: for<'py> IntoPyObjectExt<'py>>(val: T) -> PyObject {
+        Python::initialize();
+        Python::attach(|py| val.into_py_any(py).unwrap())
+    }
+
+    fn py_none() -> PyObject {
+        Python::initialize();
+        Python::attach(|py| py.None().into_py_any(py).unwrap())
+    }
+
+    // -- IpgTextInput param tests --
+
+    #[test]
+    fn test_placeholder() {
+        let mut t = make_text_input();
+        t.param_update(IpgTextInputParam::Placeholder, &py_obj("type here".to_string()));
+        assert_eq!(t.placeholder, "type here");
+    }
+
+    #[test]
+    fn test_value() {
+        let mut t = make_text_input();
+        t.param_update(IpgTextInputParam::Value, &py_obj("hello".to_string()));
+        assert_eq!(t.value, "hello");
+    }
+
+    #[test]
+    fn test_is_secure() {
+        let mut t = make_text_input();
+        t.param_update(IpgTextInputParam::IsSecure, &py_obj(true));
+        assert_eq!(t.is_secure, Some(true));
+        t.param_update(IpgTextInputParam::IsSecure, &py_none());
+        assert_eq!(t.is_secure, None);
+    }
+
+    #[test]
+    fn test_width() {
+        let mut t = make_text_input();
+        t.param_update(IpgTextInputParam::Width, &py_obj(300.0f32));
+        assert_eq!(t.width, Length::Fixed(300.0));
+    }
+
+    #[test]
+    fn test_padding() {
+        let mut t = make_text_input();
+        t.param_update(IpgTextInputParam::Padding, &py_obj(vec![5.0f32, 10.0]));
+        assert_eq!(t.padding, Some(vec![5.0, 10.0]));
+        t.param_update(IpgTextInputParam::Padding, &py_none());
+        assert_eq!(t.padding, None);
+    }
+
+    #[test]
+    fn test_size() {
+        let mut t = make_text_input();
+        t.param_update(IpgTextInputParam::Size, &py_obj(16.0f32));
+        assert_eq!(t.size, Some(16.0));
+    }
+
+    #[test]
+    fn test_line_height() {
+        let mut t = make_text_input();
+        t.param_update(IpgTextInputParam::LineHeight, &py_obj(1.5f32));
+        assert_eq!(t.line_height, Some(1.5));
+    }
+
+    #[test]
+    fn test_style_id() {
+        let mut t = make_text_input();
+        t.param_update(IpgTextInputParam::StyleId, &py_obj(4usize));
+        assert_eq!(t.style_id, Some(4));
+        t.param_update(IpgTextInputParam::StyleId, &py_none());
+        assert_eq!(t.style_id, None);
+    }
+
+    // -- IpgTextInputStyle param tests --
+
+    #[test]
+    fn test_style_border_width() {
+        let mut s = make_text_input_style();
+        s.param_update(IpgTextInputStyleParam::BorderWidth, &py_obj(2.0f32));
+        assert_eq!(s.border_width, Some(2.0));
+    }
+
+    #[test]
+    fn test_style_border_radius() {
+        let mut s = make_text_input_style();
+        s.param_update(IpgTextInputStyleParam::BorderRadius, &py_obj(5.0f32));
+        assert_eq!(s.border_radius, Some(5.0));
+    }
+}

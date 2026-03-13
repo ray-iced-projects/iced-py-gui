@@ -545,3 +545,279 @@ impl WidgetParamUpdate for IpgAutoScrollStyle {
     }
 }
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use iced::Length;
+    use pyo3::{Python, IntoPyObjectExt};
+
+    fn make_scrollable() -> IpgScrollable {
+        IpgScrollable {
+            id: 0,
+            width: Length::Shrink,
+            height: Length::Shrink,
+            both_scrollers: None,
+            scroller_x_id: None,
+            scroller_y_id: None,
+            style_id: None,
+        }
+    }
+
+    fn make_scrollable_style() -> IpgScrollableStyle {
+        IpgScrollableStyle::default()
+    }
+
+    fn make_scroller() -> IpgScroller {
+        IpgScroller::default()
+    }
+
+    fn make_rail_style() -> IpgRailStyle {
+        IpgRailStyle {
+            id: 0,
+            background: None,
+            border_color: None,
+            border_width: None,
+            border_radius: None,
+            scroller_background: None,
+            scroller_border_color: None,
+            scroller_border_width: None,
+            scroller_border_radius: None,
+        }
+    }
+
+    fn make_auto_scroll_style() -> IpgAutoScrollStyle {
+        IpgAutoScrollStyle {
+            id: 0,
+            background: None,
+            border_color: None,
+            border_width: None,
+            border_radius: None,
+            shadow_color: None,
+            shadow_offset: None,
+            shadow_blur_radius: None,
+            shadow_icon_color: None,
+        }
+    }
+
+    fn py_obj<T: for<'py> IntoPyObjectExt<'py>>(val: T) -> PyObject {
+        Python::initialize();
+        Python::attach(|py| val.into_py_any(py).unwrap())
+    }
+
+    fn py_none() -> PyObject {
+        Python::initialize();
+        Python::attach(|py| py.None().into_py_any(py).unwrap())
+    }
+
+    // -- IpgScrollable param tests --
+
+    #[test]
+    fn test_scrollable_height() {
+        let mut s = make_scrollable();
+        s.param_update(IpgScrollableParam::Height, &py_obj(200.0f32));
+        assert_eq!(s.height, Length::Fixed(200.0));
+    }
+
+    #[test]
+    fn test_scrollable_width() {
+        let mut s = make_scrollable();
+        s.param_update(IpgScrollableParam::Width, &py_obj(300.0f32));
+        assert_eq!(s.width, Length::Fixed(300.0));
+    }
+
+    #[test]
+    fn test_scrollable_scroller_x_id() {
+        let mut s = make_scrollable();
+        s.param_update(IpgScrollableParam::ScrollerXId, &py_obj(1usize));
+        assert_eq!(s.scroller_x_id, Some(1));
+        s.param_update(IpgScrollableParam::ScrollerXId, &py_none());
+        assert_eq!(s.scroller_x_id, None);
+    }
+
+    #[test]
+    fn test_scrollable_scroller_y_id() {
+        let mut s = make_scrollable();
+        s.param_update(IpgScrollableParam::ScrollerYId, &py_obj(2usize));
+        assert_eq!(s.scroller_y_id, Some(2));
+        s.param_update(IpgScrollableParam::ScrollerYId, &py_none());
+        assert_eq!(s.scroller_y_id, None);
+    }
+
+    #[test]
+    fn test_scrollable_style_id() {
+        let mut s = make_scrollable();
+        s.param_update(IpgScrollableParam::StyleId, &py_obj(5usize));
+        assert_eq!(s.style_id, Some(5));
+        s.param_update(IpgScrollableParam::StyleId, &py_none());
+        assert_eq!(s.style_id, None);
+    }
+
+    // -- IpgScrollableStyle param tests --
+
+    #[test]
+    fn test_scrollable_style_container_style_id() {
+        let mut s = make_scrollable_style();
+        s.param_update(IpgScrollableStyleParam::ContainerStyleId, &py_obj(3usize));
+        assert_eq!(s.container_style_id, Some(3));
+        s.param_update(IpgScrollableStyleParam::ContainerStyleId, &py_none());
+        assert_eq!(s.container_style_id, None);
+    }
+
+    #[test]
+    fn test_scrollable_style_vertical_rail_id() {
+        let mut s = make_scrollable_style();
+        s.param_update(IpgScrollableStyleParam::VerticalRailStyleId, &py_obj(4usize));
+        assert_eq!(s.vertical_rail_style_id, Some(4));
+    }
+
+    #[test]
+    fn test_scrollable_style_horizontal_rail_id() {
+        let mut s = make_scrollable_style();
+        s.param_update(IpgScrollableStyleParam::HorizontalRailStyleId, &py_obj(6usize));
+        assert_eq!(s.horizontal_rail_style_id, Some(6));
+    }
+
+    #[test]
+    fn test_scrollable_style_auto_scroll_id() {
+        let mut s = make_scrollable_style();
+        s.param_update(IpgScrollableStyleParam::AutoScrollStyleId, &py_obj(7usize));
+        assert_eq!(s.auto_scroll_style_id, Some(7));
+    }
+
+    #[test]
+    fn test_scrollable_style_gap_rgba() {
+        let mut s = make_scrollable_style();
+        s.param_update(IpgScrollableStyleParam::GapRgba, &py_obj(vec![0.5f32, 0.5, 0.5, 1.0]));
+        assert!(s.gap_color.is_some());
+    }
+
+    // -- IpgScroller param tests --
+
+    #[test]
+    fn test_scroller_hidden() {
+        let mut s = make_scroller();
+        s.param_update(IpgScrollerParam::Hidden, &py_obj(true));
+        assert_eq!(s.hidden, Some(true));
+        s.param_update(IpgScrollerParam::Hidden, &py_none());
+        assert_eq!(s.hidden, None);
+    }
+
+    #[test]
+    fn test_scroller_margin() {
+        let mut s = make_scroller();
+        s.param_update(IpgScrollerParam::Margin, &py_obj(5.0f32));
+        assert_eq!(s.margin, Some(5.0));
+    }
+
+    #[test]
+    fn test_scroller_scroller_width() {
+        let mut s = make_scroller();
+        s.param_update(IpgScrollerParam::ScrollerWidth, &py_obj(10.0f32));
+        assert_eq!(s.scroller_width, Some(10.0));
+    }
+
+    #[test]
+    fn test_scroller_spacing() {
+        let mut s = make_scroller();
+        s.param_update(IpgScrollerParam::Spacing, &py_obj(3.0f32));
+        assert_eq!(s.spacing, Some(3.0));
+    }
+
+    #[test]
+    fn test_scroller_width() {
+        let mut s = make_scroller();
+        s.param_update(IpgScrollerParam::Width, &py_obj(8.0f32));
+        assert_eq!(s.width, Some(8.0));
+    }
+
+    // -- IpgRailStyle param tests --
+
+    #[test]
+    fn test_rail_background_rgba() {
+        let mut s = make_rail_style();
+        s.param_update(IpgRailStyleParam::BackgroundRgba, &py_obj(vec![1.0f32, 0.0, 0.0, 1.0]));
+        assert!(s.background.is_some());
+    }
+
+    #[test]
+    fn test_rail_border_rgba() {
+        let mut s = make_rail_style();
+        s.param_update(IpgRailStyleParam::BorderRgba, &py_obj(vec![0.0f32, 1.0, 0.0, 1.0]));
+        assert!(s.border_color.is_some());
+    }
+
+    #[test]
+    fn test_rail_border_width() {
+        let mut s = make_rail_style();
+        s.param_update(IpgRailStyleParam::BorderWidth, &py_obj(2.0f32));
+        assert_eq!(s.border_width, Some(2.0));
+    }
+
+    #[test]
+    fn test_rail_border_radius() {
+        let mut s = make_rail_style();
+        s.param_update(IpgRailStyleParam::BorderRadius, &py_obj(vec![4.0f32, 4.0, 4.0, 4.0]));
+        assert_eq!(s.border_radius, Some(vec![4.0, 4.0, 4.0, 4.0]));
+        s.param_update(IpgRailStyleParam::BorderRadius, &py_none());
+        assert_eq!(s.border_radius, None);
+    }
+
+    // -- IpgAutoScrollStyle param tests --
+
+    #[test]
+    fn test_auto_background_rgba() {
+        let mut s = make_auto_scroll_style();
+        s.param_update(IpgAutoScrollStyleParam::BackgroundRgba, &py_obj(vec![1.0f32, 0.0, 0.0, 1.0]));
+        assert!(s.background.is_some());
+    }
+
+    #[test]
+    fn test_auto_border_rgba() {
+        let mut s = make_auto_scroll_style();
+        s.param_update(IpgAutoScrollStyleParam::BorderRgba, &py_obj(vec![0.0f32, 1.0, 0.0, 1.0]));
+        assert!(s.border_color.is_some());
+    }
+
+    #[test]
+    fn test_auto_border_width() {
+        let mut s = make_auto_scroll_style();
+        s.param_update(IpgAutoScrollStyleParam::BorderWidth, &py_obj(1.5f32));
+        assert_eq!(s.border_width, Some(1.5));
+    }
+
+    #[test]
+    fn test_auto_border_radius() {
+        let mut s = make_auto_scroll_style();
+        s.param_update(IpgAutoScrollStyleParam::BorderRadius, &py_obj(vec![2.0f32, 2.0, 2.0, 2.0]));
+        assert_eq!(s.border_radius, Some(vec![2.0, 2.0, 2.0, 2.0]));
+    }
+
+    #[test]
+    fn test_auto_shadow_rgba() {
+        let mut s = make_auto_scroll_style();
+        s.param_update(IpgAutoScrollStyleParam::ShadowRgba, &py_obj(vec![0.0f32, 0.0, 0.0, 0.5]));
+        assert!(s.shadow_color.is_some());
+    }
+
+    #[test]
+    fn test_auto_shadow_offset() {
+        let mut s = make_auto_scroll_style();
+        s.param_update(IpgAutoScrollStyleParam::ShadowOffset, &py_obj(vec![2.0f32, 3.0]));
+        assert_eq!(s.shadow_offset, Some([2.0, 3.0]));
+    }
+
+    #[test]
+    fn test_auto_shadow_blur_radius() {
+        let mut s = make_auto_scroll_style();
+        s.param_update(IpgAutoScrollStyleParam::ShadowBlurRadius, &py_obj(5.0f32));
+        assert_eq!(s.shadow_blur_radius, Some(5.0));
+    }
+
+    #[test]
+    fn test_auto_shadow_icon_rgba() {
+        let mut s = make_auto_scroll_style();
+        s.param_update(IpgAutoScrollStyleParam::ShadowIconRgba, &py_obj(vec![1.0f32, 1.0, 1.0, 1.0]));
+        assert!(s.shadow_icon_color.is_some());
+    }
+}
+

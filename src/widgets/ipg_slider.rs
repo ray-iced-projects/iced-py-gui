@@ -7,7 +7,7 @@ use pyo3::{Py, PyAny, pyclass};
 type PyObject = Py<PyAny>;
 
 use crate::py_api::helpers::get_radius;
-use crate::widgets::widget_param_update::{WidgetParamUpdate, set_bool, set_f32, set_opt_f32, set_opt_iced_color, set_opt_iced_color_from_rgba, set_opt_u16, set_opt_usize, set_opt_vec_f32, set_width};
+use crate::widgets::widget_param_update::{WidgetParamUpdate, set_bool, set_f32, set_opt_f32, set_opt_iced_color, set_opt_iced_color_from_rgba, set_opt_u16, set_opt_usize, set_opt_vec_f32, set_width, set_width_fill};
 use crate::{IpgState, app};
 use crate::state::IpgWidgets;
 use crate::widgets::callbacks::invoke_callback_with_args;
@@ -239,7 +239,7 @@ impl WidgetParamUpdate for IpgSlider {
             IpgSliderParam::Step => set_f32(&mut self.step, value, "Step"),
             IpgSliderParam::Value => todo!(),
             IpgSliderParam::Width => set_width(&mut self.width, value, "Width"),
-            IpgSliderParam::WidthFill => set_width(&mut self.width, value, "WidthFill"),
+            IpgSliderParam::WidthFill => set_width_fill(&mut self.width, value, "WidthFill"),
             IpgSliderParam::Height => set_f32(&mut self.height, value, "Height"),
             IpgSliderParam::StyleId => set_opt_usize(&mut self.style_id, value, "StyleId"),
             IpgSliderParam::Show => set_bool(&mut self.show, value, "Show"),
@@ -281,5 +281,190 @@ impl WidgetParamUpdate for IpgSliderStyle {
             IpgSliderStyleParam::HandleRectangleBorderRadius => 
                 set_opt_vec_f32(&mut self.handle_rectangle_border_radius, value, "HandleRectangleBorderRadius"),
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use iced::Length;
+    use pyo3::{Python, IntoPyObjectExt};
+
+    fn make_slider() -> IpgSlider {
+        IpgSlider {
+            id: 0,
+            parent_id: String::new(),
+            show: true,
+            min: 0.0,
+            max: 100.0,
+            step: 1.0,
+            shift_step: None,
+            value: 50.0,
+            width: Length::Shrink,
+            height: 20.0,
+            style_id: None,
+        }
+    }
+
+    fn make_slider_style() -> IpgSliderStyle {
+        IpgSliderStyle {
+            id: 0,
+            rail_color: None,
+            rail_color_hovered: None,
+            rail_width: None,
+            rail_border_radius: None,
+            handle_circle_radius: None,
+            handle_rectangle_width: None,
+            handle_rectangle_border_radius: None,
+            handle_color: None,
+            handle_border_width: None,
+            handle_border_color: None,
+        }
+    }
+
+    fn py_obj<T: for<'py> IntoPyObjectExt<'py>>(val: T) -> PyObject {
+        Python::initialize();
+        Python::attach(|py| val.into_py_any(py).unwrap())
+    }
+
+    fn py_none() -> PyObject {
+        Python::initialize();
+        Python::attach(|py| py.None().into_py_any(py).unwrap())
+    }
+
+    // -- IpgSlider param tests --
+
+    #[test]
+    fn test_min() {
+        let mut s = make_slider();
+        s.param_update(IpgSliderParam::Min, &py_obj(10.0f32));
+        assert_eq!(s.min, 10.0);
+    }
+
+    #[test]
+    fn test_max() {
+        let mut s = make_slider();
+        s.param_update(IpgSliderParam::Max, &py_obj(200.0f32));
+        assert_eq!(s.max, 200.0);
+    }
+
+    #[test]
+    fn test_step() {
+        let mut s = make_slider();
+        s.param_update(IpgSliderParam::Step, &py_obj(5.0f32));
+        assert_eq!(s.step, 5.0);
+    }
+
+    #[test]
+    fn test_width() {
+        let mut s = make_slider();
+        s.param_update(IpgSliderParam::Width, &py_obj(300.0f32));
+        assert_eq!(s.width, Length::Fixed(300.0));
+    }
+
+    #[test]
+    fn test_width_fill() {
+        let mut s = make_slider();
+        s.param_update(IpgSliderParam::WidthFill, &py_obj(true));
+        assert_eq!(s.width, Length::Fill);
+    }
+
+    #[test]
+    fn test_height() {
+        let mut s = make_slider();
+        s.param_update(IpgSliderParam::Height, &py_obj(30.0f32));
+        assert_eq!(s.height, 30.0);
+    }
+
+    #[test]
+    fn test_style_id() {
+        let mut s = make_slider();
+        s.param_update(IpgSliderParam::StyleId, &py_obj(3usize));
+        assert_eq!(s.style_id, Some(3));
+        s.param_update(IpgSliderParam::StyleId, &py_none());
+        assert_eq!(s.style_id, None);
+    }
+
+    #[test]
+    fn test_show() {
+        let mut s = make_slider();
+        s.param_update(IpgSliderParam::Show, &py_obj(false));
+        assert!(!s.show);
+    }
+
+    // -- IpgSliderStyle param tests --
+
+    #[test]
+    fn test_style_rail_rgba() {
+        let mut s = make_slider_style();
+        s.param_update(IpgSliderStyleParam::RailRbgaColor, &py_obj(vec![1.0f32, 0.0, 0.0, 1.0]));
+        assert!(s.rail_color.is_some());
+    }
+
+    #[test]
+    fn test_style_rail_rgba_hovered() {
+        let mut s = make_slider_style();
+        s.param_update(IpgSliderStyleParam::RailIpgRgbaHovered, &py_obj(vec![0.0f32, 1.0, 0.0, 1.0]));
+        assert!(s.rail_color_hovered.is_some());
+    }
+
+    #[test]
+    fn test_style_rail_border_radius() {
+        let mut s = make_slider_style();
+        s.param_update(IpgSliderStyleParam::RailBorderRadius, &py_obj(vec![4.0f32, 4.0, 4.0, 4.0]));
+        assert_eq!(s.rail_border_radius, Some(vec![4.0, 4.0, 4.0, 4.0]));
+        s.param_update(IpgSliderStyleParam::RailBorderRadius, &py_none());
+        assert_eq!(s.rail_border_radius, None);
+    }
+
+    #[test]
+    fn test_style_rail_width() {
+        let mut s = make_slider_style();
+        s.param_update(IpgSliderStyleParam::RailWidth, &py_obj(3.0f32));
+        assert_eq!(s.rail_width, Some(3.0));
+    }
+
+    #[test]
+    fn test_style_handle_rgba() {
+        let mut s = make_slider_style();
+        s.param_update(IpgSliderStyleParam::HandleRgbaColor, &py_obj(vec![0.0f32, 0.0, 1.0, 1.0]));
+        assert!(s.handle_color.is_some());
+    }
+
+    #[test]
+    fn test_style_handle_border_rgba() {
+        let mut s = make_slider_style();
+        s.param_update(IpgSliderStyleParam::HandleBorderRgbaColor, &py_obj(vec![1.0f32, 1.0, 0.0, 1.0]));
+        assert!(s.handle_border_color.is_some());
+    }
+
+    #[test]
+    fn test_style_handle_border_width() {
+        let mut s = make_slider_style();
+        s.param_update(IpgSliderStyleParam::HandleBorderWidth, &py_obj(2.0f32));
+        assert_eq!(s.handle_border_width, Some(2.0));
+    }
+
+    #[test]
+    fn test_style_handle_circle_radius() {
+        let mut s = make_slider_style();
+        s.param_update(IpgSliderStyleParam::HandleCircleRadius, &py_obj(8.0f32));
+        assert_eq!(s.handle_circle_radius, Some(8.0));
+    }
+
+    #[test]
+    fn test_style_handle_rectangle_width() {
+        let mut s = make_slider_style();
+        s.param_update(IpgSliderStyleParam::HandleRectangleWidth, &py_obj(12u16));
+        assert_eq!(s.handle_rectangle_width, Some(12));
+    }
+
+    #[test]
+    fn test_style_handle_rectangle_border_radius() {
+        let mut s = make_slider_style();
+        s.param_update(IpgSliderStyleParam::HandleRectangleBorderRadius, &py_obj(vec![2.0f32, 2.0, 2.0, 2.0]));
+        assert_eq!(s.handle_rectangle_border_radius, Some(vec![2.0, 2.0, 2.0, 2.0]));
+        s.param_update(IpgSliderStyleParam::HandleRectangleBorderRadius, &py_none());
+        assert_eq!(s.handle_rectangle_border_radius, None);
     }
 }

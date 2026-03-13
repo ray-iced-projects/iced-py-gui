@@ -670,3 +670,254 @@ impl WidgetParamUpdate for IpgTable {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use pyo3::{Python, IntoPyObjectExt};
+
+    fn make_table() -> IpgTable {
+        IpgTable {
+            id: 0,
+            headers: vec!["A".into(), "B".into()],
+            body: vec![vec![1.0, 2.0]],
+            footers: vec![],
+            column_widths: vec![100.0, 100.0],
+            height: 200.0,
+            width: None,
+            resizer_width: None,
+            header_enabled: true,
+            header_row_height: None,
+            header_scrollbar_height: None,
+            header_scrollbar_margin: None,
+            header_scroller_height: None,
+            header_scrollbar_spacing: None,
+            header_row_spacing: None,
+            footer_height: None,
+            footer_scrollbar_height: None,
+            footer_scrollbar_margin: None,
+            footer_scroller_height: None,
+            footer_scrollbar_spacing: None,
+            footer_spacing: None,
+            body_scrollbar_width: None,
+            body_scrollbar_margin: None,
+            body_scroller_width: None,
+            body_scrollbar_spacing: None,
+            body_row_highlight: false,
+            custom_header_rows: None,
+            custom_footer_rows: None,
+            control_columns: vec![],
+            column_proportional_resize: false,
+            row_spacing: None,
+            row_height: None,
+            header_body_spacing: None,
+            body_footer_spacing: None,
+            resize_columns_enabled: false,
+            min_column_width: None,
+            text_size: None,
+            show: true,
+            table_width_fixed: false,
+            style_id: None,
+            scrollable_style_id: None,
+            released: false,
+        }
+    }
+
+    fn py_obj<T: for<'py> IntoPyObjectExt<'py>>(val: T) -> PyObject {
+        Python::initialize();
+        Python::attach(|py| val.into_py_any(py).unwrap())
+    }
+
+    fn py_none() -> PyObject {
+        Python::initialize();
+        Python::attach(|py| py.None().into_py_any(py).unwrap())
+    }
+
+    #[test]
+    fn test_headers() {
+        let mut t = make_table();
+        t.param_update(IpgTableParam::Headers, &py_obj(vec!["X".to_string(), "Y".to_string()]));
+        assert_eq!(t.headers, vec!["X", "Y"]);
+    }
+
+    #[test]
+    fn test_body() {
+        let mut t = make_table();
+        t.param_update(IpgTableParam::Body, &py_obj(vec![vec![3.0f32, 4.0]]));
+        assert_eq!(t.body, vec![vec![3.0, 4.0]]);
+    }
+
+    #[test]
+    fn test_footers() {
+        let mut t = make_table();
+        t.param_update(IpgTableParam::Footers, &py_obj(vec!["total".to_string()]));
+        assert_eq!(t.footers, vec!["total"]);
+    }
+
+    #[test]
+    fn test_column_widths() {
+        let mut t = make_table();
+        t.param_update(IpgTableParam::ColumnWidths, &py_obj(vec![50.0f32, 75.0]));
+        assert_eq!(t.column_widths, vec![50.0, 75.0]);
+    }
+
+    #[test]
+    fn test_height() {
+        let mut t = make_table();
+        t.param_update(IpgTableParam::Height, &py_obj(300.0f32));
+        assert_eq!(t.height, 300.0);
+    }
+
+    #[test]
+    fn test_width() {
+        let mut t = make_table();
+        t.param_update(IpgTableParam::Width, &py_obj(500.0f32));
+        assert_eq!(t.width, Some(500.0));
+        t.param_update(IpgTableParam::Width, &py_none());
+        assert_eq!(t.width, None);
+    }
+
+    #[test]
+    fn test_resizer_width() {
+        let mut t = make_table();
+        t.param_update(IpgTableParam::ResizerWidth, &py_obj(5.0f32));
+        assert_eq!(t.resizer_width, Some(5.0));
+    }
+
+    #[test]
+    fn test_header_enabled() {
+        let mut t = make_table();
+        t.param_update(IpgTableParam::HeaderEnabled, &py_obj(false));
+        assert!(!t.header_enabled);
+    }
+
+    #[test]
+    fn test_header_height() {
+        let mut t = make_table();
+        t.param_update(IpgTableParam::HeaderHeight, &py_obj(30.0f32));
+        assert_eq!(t.header_row_height, Some(30.0));
+    }
+
+    #[test]
+    fn test_header_row_spacing() {
+        let mut t = make_table();
+        t.param_update(IpgTableParam::HeaderRowSpacing, &py_obj(4.0f32));
+        assert_eq!(t.header_row_spacing, Some(4.0));
+    }
+
+    #[test]
+    fn test_footer_height() {
+        let mut t = make_table();
+        t.param_update(IpgTableParam::FooterHeight, &py_obj(25.0f32));
+        assert_eq!(t.footer_height, Some(25.0));
+    }
+
+    #[test]
+    fn test_footer_spacing() {
+        let mut t = make_table();
+        t.param_update(IpgTableParam::FooterSpacing, &py_obj(2.0f32));
+        assert_eq!(t.footer_spacing, Some(2.0));
+    }
+
+    #[test]
+    fn test_custom_header_rows() {
+        let mut t = make_table();
+        t.param_update(IpgTableParam::CustomHeaderRows, &py_obj(3usize));
+        assert_eq!(t.custom_header_rows, Some(3));
+        t.param_update(IpgTableParam::CustomHeaderRows, &py_none());
+        assert_eq!(t.custom_header_rows, None);
+    }
+
+    #[test]
+    fn test_custom_footer_rows() {
+        let mut t = make_table();
+        t.param_update(IpgTableParam::CustomFooterRows, &py_obj(2usize));
+        assert_eq!(t.custom_footer_rows, Some(2));
+    }
+
+    #[test]
+    fn test_column_proportional_resize() {
+        let mut t = make_table();
+        t.param_update(IpgTableParam::ColumnProportionalResize, &py_obj(true));
+        assert!(t.column_proportional_resize);
+    }
+
+    #[test]
+    fn test_row_spacing() {
+        let mut t = make_table();
+        t.param_update(IpgTableParam::RowSpacing, &py_obj(3.0f32));
+        assert_eq!(t.row_spacing, Some(3.0));
+    }
+
+    #[test]
+    fn test_row_height() {
+        let mut t = make_table();
+        t.param_update(IpgTableParam::RowHeight, &py_obj(20.0f32));
+        assert_eq!(t.row_height, Some(20.0));
+    }
+
+    #[test]
+    fn test_header_body_spacing() {
+        let mut t = make_table();
+        t.param_update(IpgTableParam::HeaderBodySpacing, &py_obj(5.0f32));
+        assert_eq!(t.header_body_spacing, Some(5.0));
+    }
+
+    #[test]
+    fn test_body_footer_spacing() {
+        let mut t = make_table();
+        t.param_update(IpgTableParam::BodyFooterSpacing, &py_obj(5.0f32));
+        assert_eq!(t.body_footer_spacing, Some(5.0));
+    }
+
+    #[test]
+    fn test_resize_columns_enabled() {
+        let mut t = make_table();
+        t.param_update(IpgTableParam::ResizeColumnsEnabled, &py_obj(true));
+        assert!(t.resize_columns_enabled);
+    }
+
+    #[test]
+    fn test_min_column_width() {
+        let mut t = make_table();
+        t.param_update(IpgTableParam::MinColumnWidth, &py_obj(50.0f32));
+        assert_eq!(t.min_column_width, Some(50.0));
+    }
+
+    #[test]
+    fn test_text_size() {
+        let mut t = make_table();
+        t.param_update(IpgTableParam::TextSize, &py_obj(14.0f32));
+        assert_eq!(t.text_size, Some(14.0));
+    }
+
+    #[test]
+    fn test_show() {
+        let mut t = make_table();
+        t.param_update(IpgTableParam::Show, &py_obj(false));
+        assert!(!t.show);
+    }
+
+    #[test]
+    fn test_table_width_fixed() {
+        let mut t = make_table();
+        t.param_update(IpgTableParam::TableWidthFixed, &py_obj(true));
+        assert!(t.table_width_fixed);
+    }
+
+    #[test]
+    fn test_style_id() {
+        let mut t = make_table();
+        t.param_update(IpgTableParam::StyleId, &py_obj(5usize));
+        assert_eq!(t.style_id, Some(5));
+        t.param_update(IpgTableParam::StyleId, &py_none());
+        assert_eq!(t.style_id, None);
+    }
+
+    #[test]
+    fn test_scrollable_style_id() {
+        let mut t = make_table();
+        t.param_update(IpgTableParam::ScrollableStyleId, &py_obj(7usize));
+        assert_eq!(t.scrollable_style_id, Some(7));
+    }
+}

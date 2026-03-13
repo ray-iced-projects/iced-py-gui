@@ -2,7 +2,7 @@
 use crate::py_api::helpers::get_padding;
 use crate::widgets::ipg_text::TextWrapping;
 use crate::widgets::widget_param_update::{
-    WidgetParamUpdate, set_bool, set_height, set_opt_f32, set_opt_iced_color, set_opt_iced_color_from_rgba, set_opt_text_shaping, set_opt_text_wrapping, set_opt_usize, set_opt_vec_f32, set_vec_string, set_width};
+    WidgetParamUpdate, set_bool, set_height, set_height_fill, set_opt_f32, set_opt_iced_color, set_opt_iced_color_from_rgba, set_opt_text_shaping, set_opt_text_wrapping, set_opt_usize, set_opt_vec_f32, set_vec_string, set_width, set_width_fill};
 use crate::widgets::ipg_text::TextShaping;
 use crate::{access_callbacks, access_user_data1, IpgState};
 use crate::app;
@@ -374,7 +374,7 @@ impl WidgetParamUpdate for IpgRadio {
             IpgRadioParam::Direction => self.direction = extract_radio_direction(value),
             IpgRadioParam::FontId => set_opt_usize(&mut self.font_id, value, "FontId"),
             IpgRadioParam::Height => set_height(&mut self.height, value, "Height"),
-            IpgRadioParam::HeightFill => set_height(&mut self.height, value, "HeightFill"),
+            IpgRadioParam::HeightFill => set_height_fill(&mut self.height, value, "HeightFill"),
             IpgRadioParam::IsIndex => set_opt_usize(&mut self.is_selected, value, "IsIndex"),
             IpgRadioParam::Labels => set_vec_string(&mut self.labels, value, "Labels"),
             IpgRadioParam::Padding => set_opt_vec_f32(&mut self.padding, value, "Padding"),
@@ -388,7 +388,7 @@ impl WidgetParamUpdate for IpgRadio {
             IpgRadioParam::TextSize => set_opt_f32(&mut self.text_size, value, "TextSize"),
             IpgRadioParam::TextSpacing => set_opt_f32(&mut self.text_spacing, value, "TextSpacing"),
             IpgRadioParam::Width => set_width(&mut self.width, value, "Width"),
-            IpgRadioParam::WidthFill => set_width(&mut self.width, value, "WidthFill"),
+            IpgRadioParam::WidthFill => set_width_fill(&mut self.width, value, "WidthFill"),
             IpgRadioParam::TextWrapping => set_opt_text_wrapping(&mut self.text_wrapping, value, "TextWrapping"),
         }
     }
@@ -422,6 +422,226 @@ impl WidgetParamUpdate for IpgRadioStyle {
             IpgRadioStyleParam::TextRgbaColor => 
                 set_opt_iced_color_from_rgba(&mut self.text_color, value, "TextRgbaColor"),
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use iced::Length;
+    use pyo3::{Python, IntoPyObjectExt};
+
+    fn make_radio() -> IpgRadio {
+        IpgRadio {
+            id: 0,
+            parent_id: String::new(),
+            labels: vec!["A".into(), "B".into()],
+            direction: IpgRadioDirection::Vertical,
+            spacing: None,
+            radio_spacing: None,
+            padding: None,
+            show: true,
+            is_selected: None,
+            width: Length::Shrink,
+            height: Length::Shrink,
+            size: None,
+            text_spacing: None,
+            text_size: None,
+            text_line_height: None,
+            text_shaping: None,
+            text_wrapping: None,
+            font_id: None,
+            style_id: None,
+        }
+    }
+
+    fn make_radio_style() -> IpgRadioStyle {
+        IpgRadioStyle {
+            id: 0,
+            background_color: None,
+            background_color_hovered: None,
+            dot_color: None,
+            dot_color_hovered: None,
+            border_color: None,
+            border_width: None,
+            text_color: None,
+        }
+    }
+
+    fn py_obj<T: for<'py> IntoPyObjectExt<'py>>(val: T) -> PyObject {
+        Python::initialize();
+        Python::attach(|py| val.into_py_any(py).unwrap())
+    }
+
+    fn py_none() -> PyObject {
+        Python::initialize();
+        Python::attach(|py| py.None().into_py_any(py).unwrap())
+    }
+
+    // -- IpgRadio param tests --
+
+    #[test]
+    fn test_font_id() {
+        let mut r = make_radio();
+        r.param_update(IpgRadioParam::FontId, &py_obj(3usize));
+        assert_eq!(r.font_id, Some(3));
+        r.param_update(IpgRadioParam::FontId, &py_none());
+        assert_eq!(r.font_id, None);
+    }
+
+    #[test]
+    fn test_height() {
+        let mut r = make_radio();
+        r.param_update(IpgRadioParam::Height, &py_obj(100.0f32));
+        assert_eq!(r.height, Length::Fixed(100.0));
+    }
+
+    #[test]
+    fn test_height_fill() {
+        let mut r = make_radio();
+        r.param_update(IpgRadioParam::HeightFill, &py_obj(true));
+        assert_eq!(r.height, Length::Fill);
+    }
+
+    #[test]
+    fn test_is_index() {
+        let mut r = make_radio();
+        r.param_update(IpgRadioParam::IsIndex, &py_obj(1usize));
+        assert_eq!(r.is_selected, Some(1));
+        r.param_update(IpgRadioParam::IsIndex, &py_none());
+        assert_eq!(r.is_selected, None);
+    }
+
+    #[test]
+    fn test_labels() {
+        let mut r = make_radio();
+        r.param_update(IpgRadioParam::Labels, &py_obj(vec!["X".to_string(), "Y".to_string()]));
+        assert_eq!(r.labels, vec!["X", "Y"]);
+    }
+
+    #[test]
+    fn test_padding() {
+        let mut r = make_radio();
+        r.param_update(IpgRadioParam::Padding, &py_obj(vec![5.0f32, 10.0]));
+        assert_eq!(r.padding, Some(vec![5.0, 10.0]));
+        r.param_update(IpgRadioParam::Padding, &py_none());
+        assert_eq!(r.padding, None);
+    }
+
+    #[test]
+    fn test_radio_spacing() {
+        let mut r = make_radio();
+        r.param_update(IpgRadioParam::RadioSpacing, &py_obj(8.0f32));
+        assert_eq!(r.radio_spacing, Some(8.0));
+    }
+
+    #[test]
+    fn test_show() {
+        let mut r = make_radio();
+        r.param_update(IpgRadioParam::Show, &py_obj(false));
+        assert!(!r.show);
+    }
+
+    #[test]
+    fn test_size() {
+        let mut r = make_radio();
+        r.param_update(IpgRadioParam::Size, &py_obj(20.0f32));
+        assert_eq!(r.size, Some(20.0));
+    }
+
+    #[test]
+    fn test_spacing() {
+        let mut r = make_radio();
+        r.param_update(IpgRadioParam::Spacing, &py_obj(12.0f32));
+        assert_eq!(r.spacing, Some(12.0));
+    }
+
+    #[test]
+    fn test_style_id() {
+        let mut r = make_radio();
+        r.param_update(IpgRadioParam::StyleId, &py_obj(7usize));
+        assert_eq!(r.style_id, Some(7));
+        r.param_update(IpgRadioParam::StyleId, &py_none());
+        assert_eq!(r.style_id, None);
+    }
+
+    #[test]
+    fn test_text_line_height() {
+        let mut r = make_radio();
+        r.param_update(IpgRadioParam::TextLineHeight, &py_obj(1.5f32));
+        assert_eq!(r.text_line_height, Some(1.5));
+    }
+
+    #[test]
+    fn test_text_size() {
+        let mut r = make_radio();
+        r.param_update(IpgRadioParam::TextSize, &py_obj(16.0f32));
+        assert_eq!(r.text_size, Some(16.0));
+    }
+
+    #[test]
+    fn test_text_spacing() {
+        let mut r = make_radio();
+        r.param_update(IpgRadioParam::TextSpacing, &py_obj(4.0f32));
+        assert_eq!(r.text_spacing, Some(4.0));
+    }
+
+    #[test]
+    fn test_width() {
+        let mut r = make_radio();
+        r.param_update(IpgRadioParam::Width, &py_obj(200.0f32));
+        assert_eq!(r.width, Length::Fixed(200.0));
+    }
+
+    #[test]
+    fn test_width_fill() {
+        let mut r = make_radio();
+        r.param_update(IpgRadioParam::WidthFill, &py_obj(true));
+        assert_eq!(r.width, Length::Fill);
+    }
+
+    // -- IpgRadioStyle param tests --
+
+    #[test]
+    fn test_style_background_rgba() {
+        let mut s = make_radio_style();
+        s.param_update(IpgRadioStyleParam::BackgroundRgbaColor, &py_obj(vec![1.0f32, 0.0, 0.0, 1.0]));
+        assert!(s.background_color.is_some());
+    }
+
+    #[test]
+    fn test_style_border_rgba() {
+        let mut s = make_radio_style();
+        s.param_update(IpgRadioStyleParam::BorderRgbaColor, &py_obj(vec![0.0f32, 1.0, 0.0, 1.0]));
+        assert!(s.border_color.is_some());
+    }
+
+    #[test]
+    fn test_style_border_width() {
+        let mut s = make_radio_style();
+        s.param_update(IpgRadioStyleParam::BorderWidth, &py_obj(2.0f32));
+        assert_eq!(s.border_width, Some(2.0));
+    }
+
+    #[test]
+    fn test_style_dot_rgba() {
+        let mut s = make_radio_style();
+        s.param_update(IpgRadioStyleParam::DotRgbaColor, &py_obj(vec![0.0f32, 0.0, 1.0, 1.0]));
+        assert!(s.dot_color.is_some());
+    }
+
+    #[test]
+    fn test_style_dot_rgba_hovered() {
+        let mut s = make_radio_style();
+        s.param_update(IpgRadioStyleParam::DotRgbaColorHovered, &py_obj(vec![1.0f32, 1.0, 0.0, 1.0]));
+        assert!(s.dot_color_hovered.is_some());
+    }
+
+    #[test]
+    fn test_style_text_rgba() {
+        let mut s = make_radio_style();
+        s.param_update(IpgRadioStyleParam::TextRgbaColor, &py_obj(vec![0.0f32, 0.0, 0.0, 1.0]));
+        assert!(s.text_color.is_some());
     }
 }
 

@@ -220,3 +220,157 @@ impl WidgetParamUpdate for IpgProgressBarStyle {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use iced::Length;
+    use pyo3::{Python, IntoPyObjectExt};
+
+    fn make_progress_bar() -> IpgProgressBar {
+        IpgProgressBar {
+            id: 0,
+            parent_id: String::new(),
+            show: true,
+            min: 0.0,
+            max: 100.0,
+            value: 50.0,
+            is_vertical: None,
+            width: Length::Shrink,
+            height: Length::Shrink,
+            style_standard: None,
+            style_id: None,
+        }
+    }
+
+    fn make_progress_bar_style() -> IpgProgressBarStyle {
+        IpgProgressBarStyle::default()
+    }
+
+    fn py_obj<T: for<'py> IntoPyObjectExt<'py>>(val: T) -> PyObject {
+        Python::initialize();
+        Python::attach(|py| val.into_py_any(py).unwrap())
+    }
+
+    fn py_none() -> PyObject {
+        Python::initialize();
+        Python::attach(|py| py.None().into_py_any(py).unwrap())
+    }
+
+    // -- IpgProgressBar param tests --
+
+    #[test]
+    fn test_height() {
+        let mut pb = make_progress_bar();
+        pb.param_update(IpgProgressBarParam::Height, &py_obj(20.0f32));
+        assert_eq!(pb.height, Length::Fixed(20.0));
+    }
+
+    #[test]
+    fn test_height_fill() {
+        let mut pb = make_progress_bar();
+        pb.param_update(IpgProgressBarParam::HeightFill, &py_obj(true));
+        assert_eq!(pb.height, Length::Fill);
+    }
+
+    #[test]
+    fn test_is_vertical() {
+        let mut pb = make_progress_bar();
+        pb.param_update(IpgProgressBarParam::IsVertical, &py_obj(true));
+        assert_eq!(pb.is_vertical, Some(true));
+        pb.param_update(IpgProgressBarParam::IsVertical, &py_none());
+        assert_eq!(pb.is_vertical, None);
+    }
+
+    #[test]
+    fn test_min() {
+        let mut pb = make_progress_bar();
+        pb.param_update(IpgProgressBarParam::Min, &py_obj(10.0f32));
+        assert_eq!(pb.min, 10.0);
+    }
+
+    #[test]
+    fn test_max() {
+        let mut pb = make_progress_bar();
+        pb.param_update(IpgProgressBarParam::Max, &py_obj(200.0f32));
+        assert_eq!(pb.max, 200.0);
+    }
+
+    #[test]
+    fn test_show() {
+        let mut pb = make_progress_bar();
+        pb.param_update(IpgProgressBarParam::Show, &py_obj(false));
+        assert!(!pb.show);
+    }
+
+    #[test]
+    fn test_style_id() {
+        let mut pb = make_progress_bar();
+        pb.param_update(IpgProgressBarParam::StyleId, &py_obj(5usize));
+        assert_eq!(pb.style_id, Some(5));
+        pb.param_update(IpgProgressBarParam::StyleId, &py_none());
+        assert_eq!(pb.style_id, None);
+    }
+
+    #[test]
+    fn test_value() {
+        let mut pb = make_progress_bar();
+        pb.param_update(IpgProgressBarParam::Value, &py_obj(75.0f32));
+        assert_eq!(pb.value, 75.0);
+    }
+
+    #[test]
+    fn test_width() {
+        let mut pb = make_progress_bar();
+        pb.param_update(IpgProgressBarParam::Width, &py_obj(300.0f32));
+        assert_eq!(pb.width, Length::Fixed(300.0));
+    }
+
+    #[test]
+    fn test_width_fill() {
+        let mut pb = make_progress_bar();
+        pb.param_update(IpgProgressBarParam::WidthFill, &py_obj(true));
+        assert_eq!(pb.width, Length::Fill);
+    }
+
+    // -- IpgProgressBarStyle param tests --
+
+    #[test]
+    fn test_style_background_rgba() {
+        let mut s = make_progress_bar_style();
+        s.param_update(IpgProgressBarStyleParam::BackgroundRgbaColor, &py_obj(vec![1.0f32, 0.0, 0.0, 1.0]));
+        assert!(s.background_color.is_some());
+    }
+
+    #[test]
+    fn test_style_bar_rgba() {
+        let mut s = make_progress_bar_style();
+        s.param_update(IpgProgressBarStyleParam::BarRgbaColor, &py_obj(vec![0.0f32, 1.0, 0.0, 1.0]));
+        assert!(s.bar_color.is_some());
+    }
+
+    #[test]
+    fn test_style_border_rgba() {
+        let mut s = make_progress_bar_style();
+        s.param_update(IpgProgressBarStyleParam::BorderRgbaColor, &py_obj(vec![0.0f32, 0.0, 1.0, 1.0]));
+        assert!(s.border_color.is_some());
+    }
+
+    #[test]
+    fn test_style_border_radius() {
+        let mut s = make_progress_bar_style();
+        s.param_update(IpgProgressBarStyleParam::BorderRadius, &py_obj(vec![4.0f32, 4.0, 4.0, 4.0]));
+        assert_eq!(s.border_radius, Some(vec![4.0, 4.0, 4.0, 4.0]));
+        s.param_update(IpgProgressBarStyleParam::BorderRadius, &py_none());
+        assert_eq!(s.border_radius, None);
+    }
+
+    #[test]
+    fn test_style_border_width() {
+        let mut s = make_progress_bar_style();
+        s.param_update(IpgProgressBarStyleParam::BorderWidth, &py_obj(2.0f32));
+        assert_eq!(s.border_width, Some(2.0));
+        s.param_update(IpgProgressBarStyleParam::BorderWidth, &py_none());
+        assert_eq!(s.border_width, None);
+    }
+}

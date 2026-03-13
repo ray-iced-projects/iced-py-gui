@@ -112,3 +112,117 @@ impl WidgetParamUpdate for IpgRow {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use iced::Length;
+    use pyo3::{Python, IntoPyObjectExt};
+
+    fn make_row() -> IpgRow {
+        IpgRow {
+            id: 0,
+            show: true,
+            spacing: None,
+            padding: None,
+            width: Length::Shrink,
+            height: Length::Shrink,
+            align_bottom: None,
+            align_center: None,
+            align_top: None,
+            clip: None,
+        }
+    }
+
+    fn py_obj<T: for<'py> IntoPyObjectExt<'py>>(val: T) -> PyObject {
+        Python::initialize();
+        Python::attach(|py| val.into_py_any(py).unwrap())
+    }
+
+    fn py_none() -> PyObject {
+        Python::initialize();
+        Python::attach(|py| py.None().into_py_any(py).unwrap())
+    }
+
+    #[test]
+    fn test_align_bottom() {
+        let mut r = make_row();
+        r.param_update(IpgRowParam::AlignBottom, &py_obj(true));
+        assert_eq!(r.align_bottom, Some(true));
+        r.param_update(IpgRowParam::AlignBottom, &py_none());
+        assert_eq!(r.align_bottom, None);
+    }
+
+    #[test]
+    fn test_align_center() {
+        let mut r = make_row();
+        r.param_update(IpgRowParam::AlignCenter, &py_obj(true));
+        assert_eq!(r.align_center, Some(true));
+        r.param_update(IpgRowParam::AlignCenter, &py_none());
+        assert_eq!(r.align_center, None);
+    }
+
+    #[test]
+    fn test_align_top() {
+        let mut r = make_row();
+        r.param_update(IpgRowParam::AlignTop, &py_obj(true));
+        assert_eq!(r.align_top, Some(true));
+        r.param_update(IpgRowParam::AlignTop, &py_none());
+        assert_eq!(r.align_top, None);
+    }
+
+    #[test]
+    fn test_clip() {
+        let mut r = make_row();
+        r.param_update(IpgRowParam::Clip, &py_obj(true));
+        assert_eq!(r.clip, Some(true));
+        r.param_update(IpgRowParam::Clip, &py_none());
+        assert_eq!(r.clip, None);
+    }
+
+    #[test]
+    fn test_padding() {
+        let mut r = make_row();
+        r.param_update(IpgRowParam::Padding, &py_obj(vec![5.0f32, 10.0]));
+        assert_eq!(r.padding, Some(vec![5.0, 10.0]));
+        r.param_update(IpgRowParam::Padding, &py_none());
+        assert_eq!(r.padding, None);
+    }
+
+    #[test]
+    fn test_width() {
+        let mut r = make_row();
+        r.param_update(IpgRowParam::Width, &py_obj(200.0f32));
+        assert_eq!(r.width, Length::Fixed(200.0));
+    }
+
+    #[test]
+    fn test_width_fill() {
+        let mut r = make_row();
+        r.param_update(IpgRowParam::WidthFill, &py_obj(true));
+        assert_eq!(r.width, Length::Fill);
+    }
+
+    #[test]
+    fn test_height() {
+        let mut r = make_row();
+        r.param_update(IpgRowParam::Height, &py_obj(100.0f32));
+        assert_eq!(r.height, Length::Fixed(100.0));
+    }
+
+    #[test]
+    fn test_height_fill() {
+        let mut r = make_row();
+        r.param_update(IpgRowParam::HeightFill, &py_obj(true));
+        assert_eq!(r.height, Length::Fill);
+    }
+
+    #[test]
+    fn test_spacing() {
+        let mut r = make_row();
+        r.param_update(IpgRowParam::Spacing, &py_obj(8.0f32));
+        assert_eq!(r.spacing, Some(8.0));
+        r.param_update(IpgRowParam::Spacing, &py_none());
+        assert_eq!(r.spacing, None);
+    }
+}

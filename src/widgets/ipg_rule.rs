@@ -155,3 +155,110 @@ impl WidgetParamUpdate for IpgRuleStyle {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use pyo3::{Python, IntoPyObjectExt};
+
+    fn make_rule() -> IpgRule {
+        IpgRule {
+            id: 0,
+            parent_id: String::new(),
+            is_vertical: None,
+            thickness: None,
+            style_id: None,
+            show: true,
+        }
+    }
+
+    fn make_rule_style() -> IpgRuleStyle {
+        IpgRuleStyle {
+            id: 0,
+            color: None,
+            border_radius: None,
+            fillmode_percent: None,
+            fillmode_padded: None,
+            fillmode_asymmetric_padding: None,
+            snap: None,
+        }
+    }
+
+    fn py_obj<T: for<'py> IntoPyObjectExt<'py>>(val: T) -> PyObject {
+        Python::initialize();
+        Python::attach(|py| val.into_py_any(py).unwrap())
+    }
+
+    fn py_none() -> PyObject {
+        Python::initialize();
+        Python::attach(|py| py.None().into_py_any(py).unwrap())
+    }
+
+    // -- IpgRule param tests --
+
+    #[test]
+    fn test_is_vertical() {
+        let mut rl = make_rule();
+        rl.param_update(IpgRuleParam::IsVertical, &py_obj(true));
+        assert_eq!(rl.is_vertical, Some(true));
+        rl.param_update(IpgRuleParam::IsVertical, &py_none());
+        assert_eq!(rl.is_vertical, None);
+    }
+
+    #[test]
+    fn test_thickness() {
+        let mut rl = make_rule();
+        rl.param_update(IpgRuleParam::Thickness, &py_obj(3u32));
+        assert_eq!(rl.thickness, Some(3));
+    }
+
+    #[test]
+    fn test_style_id() {
+        let mut rl = make_rule();
+        rl.param_update(IpgRuleParam::StyleId, &py_obj(10usize));
+        assert_eq!(rl.style_id, Some(10));
+        rl.param_update(IpgRuleParam::StyleId, &py_none());
+        assert_eq!(rl.style_id, None);
+    }
+
+    // -- IpgRuleStyle param tests --
+
+    #[test]
+    fn test_style_border_radius() {
+        let mut s = make_rule_style();
+        s.param_update(IpgRuleStyleParam::BorderRadius, &py_obj(vec![2.0f32, 2.0, 2.0, 2.0]));
+        assert_eq!(s.border_radius, Some(vec![2.0, 2.0, 2.0, 2.0]));
+        s.param_update(IpgRuleStyleParam::BorderRadius, &py_none());
+        assert_eq!(s.border_radius, None);
+    }
+
+    #[test]
+    fn test_style_fillmode_asymmetric_padding() {
+        let mut s = make_rule_style();
+        s.param_update(IpgRuleStyleParam::FillModeAsymmetricPadding, &py_obj(vec![5u16, 10]));
+        assert_eq!(s.fillmode_asymmetric_padding, Some([5, 10]));
+    }
+
+    #[test]
+    fn test_style_fillmode_padded() {
+        let mut s = make_rule_style();
+        s.param_update(IpgRuleStyleParam::FillModePadded, &py_obj(8u16));
+        assert_eq!(s.fillmode_padded, Some(8));
+    }
+
+    #[test]
+    fn test_style_fillmode_percent() {
+        let mut s = make_rule_style();
+        s.param_update(IpgRuleStyleParam::FillModePercent, &py_obj(0.5f32));
+        assert_eq!(s.fillmode_percent, Some(0.5));
+        s.param_update(IpgRuleStyleParam::FillModePercent, &py_none());
+        assert_eq!(s.fillmode_percent, None);
+    }
+
+    #[test]
+    fn test_style_rgba_color() {
+        let mut s = make_rule_style();
+        s.param_update(IpgRuleStyleParam::RbgaColor, &py_obj(vec![1.0f32, 0.0, 0.0, 1.0]));
+        assert!(s.color.is_some());
+    }
+}

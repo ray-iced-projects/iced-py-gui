@@ -255,3 +255,81 @@ impl WidgetParamUpdate for IpgSvg {
     }
 }
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use iced::Length;
+    use pyo3::{Python, IntoPyObjectExt};
+
+    fn make_svg() -> IpgSvg {
+        IpgSvg {
+            id: 0,
+            parent_id: String::new(),
+            svg_path: "test.svg".to_string(),
+            width: Length::Shrink,
+            height: Length::Shrink,
+            color_filter: None,
+            content_fit: None,
+            rotation_type: None,
+            rotation_radians: None,
+            opacity: None,
+            mouse_pointer: None,
+            show: true,
+        }
+    }
+
+    fn py_obj<T: for<'py> IntoPyObjectExt<'py>>(val: T) -> PyObject {
+        Python::initialize();
+        Python::attach(|py| val.into_py_any(py).unwrap())
+    }
+
+    fn py_none() -> PyObject {
+        Python::initialize();
+        Python::attach(|py| py.None().into_py_any(py).unwrap())
+    }
+
+    #[test]
+    fn test_height() {
+        let mut s = make_svg();
+        s.param_update(IpgSvgParam::Height, &py_obj(100.0f32));
+        assert_eq!(s.height, Length::Fixed(100.0));
+    }
+
+    #[test]
+    fn test_opacity() {
+        let mut s = make_svg();
+        s.param_update(IpgSvgParam::Opacity, &py_obj(0.5f32));
+        assert_eq!(s.opacity, Some(0.5));
+        s.param_update(IpgSvgParam::Opacity, &py_none());
+        assert_eq!(s.opacity, None);
+    }
+
+    #[test]
+    fn test_rotation_radians() {
+        let mut s = make_svg();
+        s.param_update(IpgSvgParam::RotationRadians, &py_obj(1.57f32));
+        assert_eq!(s.rotation_radians, Some(1.57));
+    }
+
+    #[test]
+    fn test_show() {
+        let mut s = make_svg();
+        s.param_update(IpgSvgParam::Show, &py_obj(false));
+        assert!(!s.show);
+    }
+
+    #[test]
+    fn test_svg_path() {
+        let mut s = make_svg();
+        s.param_update(IpgSvgParam::SvgPath, &py_obj("new.svg".to_string()));
+        assert_eq!(s.svg_path, "new.svg");
+    }
+
+    #[test]
+    fn test_width() {
+        let mut s = make_svg();
+        s.param_update(IpgSvgParam::Width, &py_obj(200.0f32));
+        assert_eq!(s.width, Length::Fixed(200.0));
+    }
+}
+

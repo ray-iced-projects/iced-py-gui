@@ -112,7 +112,7 @@ def _current_parent():
 
 def _wrap_widget(rust_fn, name):
     """Create a thin wrapper that injects parent_id from the context stack."""
-    def wrapper(parent_id=None, **kwargs):
+    def wrapper(*, parent_id=None, **kwargs):
         if parent_id is None:
             parent_id = _current_parent()
         if parent_id is None:
@@ -120,7 +120,6 @@ def _wrap_widget(rust_fn, name):
         return rust_fn(parent_id=parent_id, **kwargs)
     wrapper.__name__ = name
     wrapper.__qualname__ = name
-    wrapper.__doc__ = f"Wrapper around the Rust {name}. Falls back to parent stack for parent_id."
     return wrapper
 
 add_button = _wrap_widget(_add_button, "add_button")
@@ -142,7 +141,7 @@ add_toggler = _wrap_widget(_add_toggler, "add_toggler")
 def _wrap_container(rust_fn, name):
     """Create a thin wrapper that translates id= to container_id= and
     injects window_id from the window stack."""
-    def wrapper(id=None, *, window_id=None, parent_id=None, **kwargs):
+    def wrapper(*, id=None, window_id=None, parent_id=None, **kwargs):
         if window_id is None:
             window_id = _current_window()
         if window_id is None:
@@ -154,7 +153,7 @@ def _wrap_container(rust_fn, name):
         return rust_fn(window_id=window_id, container_id=id, parent_id=parent_id, **kwargs)
     wrapper.__name__ = name
     wrapper.__qualname__ = name
-    wrapper.__doc__ = f"Wrapper around the Rust {name}. Accepts id= (maps to container_id=)."
+    return wrapper
     return wrapper
 
 add_container = _wrap_container(_add_container, "add_container")
@@ -164,12 +163,7 @@ add_scrollable = _wrap_container(_add_scrollable, "add_scrollable")
 add_stack = _wrap_widget(_add_stack, "add_stack")
 add_table = _wrap_widget(_add_table, "add_table")
 
-def add_window(id=None, **kwargs):
-    """Wrapper around the Rust add_window.
-
-    If *id* is omitted an id is auto-generated.
-    Returns the numeric widget id (usable with update_widget).
-    """
+def add_window(*, id=None, **kwargs):
     if id is None:
         id = str(generate_id())
     return _add_window(window_id=id, **kwargs)
@@ -180,16 +174,8 @@ def add_window(id=None, **kwargs):
 # ---------------------------------------------------------------------------
 
 class Window:
-    """Context manager that calls add_window and tracks the window id.
 
-    Usage::
-
-        with Window(title="My App", center=True) as wnd_id:
-            with Container(center=True) as cont_id:
-                add_text(content="hello")
-    """
-
-    def __init__(self, id=None, **kwargs):
+    def __init__(self, *, id=None, **kwargs):
         self.window_id = id if id is not None else str(generate_id())
         self.kwargs = kwargs
 
@@ -204,21 +190,8 @@ class Window:
 
 
 class Container:
-    """Context manager wrapper around add_container.
 
-    Usage with auto-generated ids (reads window_id from Window context)::
-
-        with Window(title="Demo") as wnd_id:
-            with Container(center=True, width_fill=True) as cont_id:
-                add_text(content="hello")
-
-    Usage with explicit id::
-
-        with Container(id="cont", center=True):
-            add_text(content="hello")
-    """
-
-    def __init__(self, id=None, *, window_id=None, parent_id=None, **kwargs):
+    def __init__(self, *, id=None, window_id=None, parent_id=None, **kwargs):
         self.window_id = window_id if window_id is not None else _current_window()
         if self.window_id is None:
             raise ValueError("Container: window_id is required (either pass it or use a Window context manager)")
@@ -242,21 +215,8 @@ class Container:
 
 
 class Column:
-    """Context manager wrapper around add_column.
 
-    Usage (reads window_id from Window context)::
-
-        with Window(title="Demo") as wnd_id:
-            with Column(id="col", spacing=10.0) as col_id:
-                add_text(content="hello")
-
-    Usage with explicit ids::
-
-        with Column(id="col", window_id="main", spacing=10.0):
-            add_text(parent_id="col", content="hello")
-    """
-
-    def __init__(self, id=None, *, window_id=None, parent_id=None, **kwargs):
+    def __init__(self, *, id=None, window_id=None, parent_id=None, **kwargs):
         self.window_id = window_id if window_id is not None else _current_window()
         if self.window_id is None:
             raise ValueError("Column: window_id is required (either pass it or use a Window context manager)")
@@ -280,21 +240,8 @@ class Column:
 
 
 class Row:
-    """Context manager wrapper around add_row.
 
-    Usage (reads window_id from Window context)::
-
-        with Window(title="Demo") as wnd_id:
-            with Row(id="row", spacing=10.0) as row_id:
-                add_text(content="hello")
-
-    Usage with explicit ids::
-
-        with Row(id="row", window_id="main", spacing=10.0):
-            add_text(parent_id="row", content="hello")
-    """
-
-    def __init__(self, id=None, *, window_id=None, parent_id=None, **kwargs):
+    def __init__(self, *, id=None, window_id=None, parent_id=None, **kwargs):
         self.window_id = window_id if window_id is not None else _current_window()
         if self.window_id is None:
             raise ValueError("Row: window_id is required (either pass it or use a Window context manager)")
@@ -317,21 +264,8 @@ class Row:
         return False
 
 class Stack:
-    """Context manager wrapper around add_stack.
 
-    Usage (reads window_id from Window context)::
-
-        with Window(title="Demo") as wnd_id:
-            with Stack() as row_id:
-                add_text(content="hello")
-
-    Usage with explicit ids::
-
-        with Stack(id="row", window_id="main"):
-            add_text(parent_id="row", content="hello")
-    """
-
-    def __init__(self, id=None, *, window_id=None, parent_id=None, **kwargs):
+    def __init__(self, *, id=None, window_id=None, parent_id=None, **kwargs):
         self.window_id = window_id if window_id is not None else _current_window()
         if self.window_id is None:
             raise ValueError("Row: window_id is required (either pass it or use a Window context manager)")
@@ -355,21 +289,8 @@ class Stack:
 
 
 class Scrollable:
-    """Context manager wrapper around add_scrollable.
 
-    Usage (reads window_id from Window context)::
-
-        with Window(title="Demo") as wnd_id:
-            with Scrollable(id="scroll", width=200.0, height=100.0) as scr_id:
-                add_text(content="long text...")
-
-    Usage with explicit ids::
-
-        with Scrollable(id="scroll", window_id="main", width=200.0, height=100.0):
-            add_text(parent_id="scroll", content="long text...")
-    """
-
-    def __init__(self, id=None, *, window_id=None, parent_id=None, **kwargs):
+    def __init__(self, *, id=None, window_id=None, parent_id=None, **kwargs):
         self.window_id = window_id if window_id is not None else _current_window()
         if self.window_id is None:
             raise ValueError("Scrollable: window_id is required (either pass it or use a Window context manager)")

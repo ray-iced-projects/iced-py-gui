@@ -1,2 +1,10 @@
 
 LD_LIBRARY_PATH=/home/charles/.pyenv/versions/3.14.2/lib cargo test --no-default-features --lib ipg_text::tests
+
+
+Some code for later aybe
+def add_button(label: str, parent_id=None, **kwargs):
+    if parent_id is None:
+        parent_id = _current_parent()
+    ...
+    return _add_button(parent_id=parent_id, label=label, **kwargs)

@@ -26,3 +26,8 @@ Issues = "https://github.com/ray-iced-projects/iced-py-gui/issues"
 
 [tool.maturin]
 features = ["pyo3/extension-module"]
+
+[tool.numpydoc_validation]
+checks = [
+    "all",
+]

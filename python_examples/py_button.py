@@ -24,23 +24,22 @@ with Window(id="main", title="App",
             add_text(content="Button with padding variations [Top, Right, Bottom, Left] [all]")
             
             with Row(spacing=20.0):
-
                 # button with only a label parameter all other parameters are defaults
                 add_button(label="No Padding")
 
                 # padding
                 add_button(
-                    label="All sides Padding",
+                    label="All sides Padding\n [10.0]",
                     padding=[10.0])
                 
                 # padding 
                 add_button(
-                    label="Top/Bottom Padding",
+                    label="Top/Bottom Padding\n[10.0, 0.0, 10.0, 0.0]",
                     padding=[10.0, 0.0, 10.0, 0.0]) # top & botton
                 
                 # padding 
                 add_button(
-                    label="Left/Right Padding",
+                    label="Left/Right Padding\n[0.0, 10.0, 0.0, 10.0]",
                     padding=[0.0, 10.0, 0.0, 10.0]) # left & right
             
             add_text(content="Button label Alignment: bool")
@@ -51,21 +50,21 @@ with Window(id="main", title="App",
                     label="top left",
                     width=150.0,
                     height=50.0,
-                    text_align_top_left=True,
+                    text_top_left=True,
                 )
                 
                 add_button(
                     label="top center",
                     width=150.0,
                     height=50.0,
-                    text_align_top_center=True,
+                    text_top_center=True,
                 )
                 
                 add_button(
                     label="top right",
                     width=200.0,
                     height=50.0,
-                    text_align_top_right=True,
+                    text_top_right=True,
                 )
                 
             with Row(spacing=20.0):
@@ -74,21 +73,21 @@ with Window(id="main", title="App",
                     label="center left",
                     width=200.0,
                     height=50.0,
-                    text_align_center_left=True,
+                    text_center_left=True,
                 )
                 
                 add_button(
                     label="center (default)",
                     width=200.0,
                     height=50.0,
-                    text_align_center=True,
+                    text_center=True,
                 )
                 
                 add_button(
                     label="center right",
                     width=200.0,
                     height=50.0,
-                    text_align_center_right=True,
+                    text_center_right=True,
                 )
                 
             with Row(spacing=20.0):
@@ -97,21 +96,21 @@ with Window(id="main", title="App",
                     label="bottom left",
                     width=200.0,
                     height=50.0,
-                    text_align_bottom_left=True,
+                    text_bottom_left=True,
                 )
                 
                 add_button(
                     label="bottom center",
                     width=200.0,
                     height=50.0,
-                    text_align_bottom_center=True,
+                    text_bottom_center=True,
                 )
                 
                 add_button(
                     label="bottom right",
                     width=200.0,
                     height=50.0,
-                    text_align_bottom_right=True,
+                    text_bottom_right=True,
                 )
                 
             add_text(content="Button label text size")

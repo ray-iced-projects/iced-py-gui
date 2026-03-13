@@ -9,7 +9,8 @@ use crate::py_api::helpers::get_padding;
 use crate::widgets::styling::{apply_shadow_overrides_xy, 
     apply_border_overrides, apply_background_overrides, 
     get_custom_palette};
-use crate::widgets::widget_param_update::{set_opt_f32_array_2, set_opt_iced_color_from_rgba, set_opt_vec_f32_1_or_upto_4};
+use crate::widgets::widget_param_update::{set_opt_f32_array_2, 
+    set_opt_iced_color_from_rgba, set_opt_vec_f32_1_or_upto_4};
 use crate::widgets::widget_param_update::{
     WidgetParamUpdate, set_bool, set_height, 
     set_height_fill, set_opt_bool, 
@@ -35,15 +36,15 @@ pub struct IpgButton {
     pub width: Length,
     pub height: Length,
     pub padding: Option<Vec<f32>>,
-    pub text_align_top_left: Option<bool>,
-    pub text_align_top_center: Option<bool>,
-    pub text_align_top_right: Option<bool>,
-    pub text_align_center_left: Option<bool>,
-    pub text_align_center: Option<bool>,
-    pub text_align_center_right: Option<bool>,
-    pub text_align_bottom_left: Option<bool>,
-    pub text_align_bottom_center: Option<bool>,
-    pub text_align_bottom_right: Option<bool>,
+    pub text_top_left: Option<bool>,
+    pub text_top_center: Option<bool>,
+    pub text_top_right: Option<bool>,
+    pub text_center_left: Option<bool>,
+    pub text_center: Option<bool>,
+    pub text_center_right: Option<bool>,
+    pub text_bottom_left: Option<bool>,
+    pub text_bottom_center: Option<bool>,
+    pub text_bottom_right: Option<bool>,
     pub text_size: Option<f32>,
     pub clip: Option<bool>,
     pub style_id: Option<usize>,
@@ -88,49 +89,49 @@ impl IpgButton {
                     .align_y(alignment::Vertical::Center);
 
         let txt = 
-            if self.text_align_top_left == Some(true) {
+            if self.text_top_left == Some(true) {
                 txt.align_x(alignment::Horizontal::Left)
                     .align_y(alignment::Vertical::Top)
             } else { txt };
 
         let txt = 
-            if self.text_align_top_center == Some(true) {
+            if self.text_top_center == Some(true) {
                 txt.align_x(alignment::Horizontal::Center)
                     .align_y(alignment::Vertical::Top)
             } else { txt };
 
         let txt = 
-            if self.text_align_top_right == Some(true) {
+            if self.text_top_right == Some(true) {
                 txt.align_x(alignment::Horizontal::Right)
                     .align_y(alignment::Vertical::Top)
             } else { txt };
         
         let txt = 
-            if self.text_align_center_left == Some(true) {
+            if self.text_center_left == Some(true) {
                 txt.align_x(alignment::Horizontal::Left)
                     .align_y(alignment::Vertical::Center)
             } else { txt };
 
         let txt = 
-            if self.text_align_center_right == Some(true) {
+            if self.text_center_right == Some(true) {
                 txt.align_x(alignment::Horizontal::Right)
                     .align_y(alignment::Vertical::Center)
             } else { txt };
 
         let txt = 
-            if self.text_align_bottom_left == Some(true) {
+            if self.text_bottom_left == Some(true) {
                 txt.align_x(alignment::Horizontal::Left)
                     .align_y(alignment::Vertical::Bottom)
             } else { txt };
 
         let txt = 
-            if self.text_align_bottom_center == Some(true) {
+            if self.text_bottom_center == Some(true) {
                 txt.align_x(alignment::Horizontal::Center)
                     .align_y(alignment::Vertical::Bottom)
             } else { txt };
 
         let txt = 
-            if self.text_align_bottom_right == Some(true) {
+            if self.text_bottom_right == Some(true) {
                 txt.align_x(alignment::Horizontal::Right)
                     .align_y(alignment::Vertical::Bottom)
             } else { txt };
@@ -406,15 +407,15 @@ impl WidgetParamUpdate for IpgButton {
             IpgButtonParam::TextSize => set_opt_f32(&mut self.text_size, value, "TextSize"),
             IpgButtonParam::Width => set_width(&mut self.width, value, "Width"),
             IpgButtonParam::WidthFill => set_width_fill(&mut self.width, value, "WidthFill"),
-            IpgButtonParam::TextAlignBottomCenter => set_opt_bool(&mut self.text_align_bottom_center, value, "TextAlignBottomCenter"),
-            IpgButtonParam::TextAlignBottomLeft => set_opt_bool(&mut self.text_align_bottom_left, value, "TextAlignBottomLeft"),
-            IpgButtonParam::TextAlignBottomRight => set_opt_bool(&mut self.text_align_bottom_right, value, "TextAlignBottomRight"),
-            IpgButtonParam::TextAlignCenter => set_opt_bool(&mut self.text_align_center, value, "TextAlignCenter"),
-            IpgButtonParam::TextAlignCenterLeft => set_opt_bool(&mut self.text_align_center_left, value, "TextAlignCenterLeft"),
-            IpgButtonParam::TextAlignCenterRight => set_opt_bool(&mut self.text_align_bottom_right, value, "TextAlignCenterRight"),
-            IpgButtonParam::TextAlignTopCenter => set_opt_bool(&mut self.text_align_top_center, value, "TextAlignTopCenter"),
-            IpgButtonParam::TextAlignTopLeft => set_opt_bool(&mut self.text_align_top_left, value, "TextAlignTopLeft"),
-            IpgButtonParam::TextAlignTopRight => set_opt_bool(&mut self.text_align_top_right, value, "TextAlignTopRight"),
+            IpgButtonParam::TextAlignBottomCenter => set_opt_bool(&mut self.text_bottom_center, value, "TextAlignBottomCenter"),
+            IpgButtonParam::TextAlignBottomLeft => set_opt_bool(&mut self.text_bottom_left, value, "TextAlignBottomLeft"),
+            IpgButtonParam::TextAlignBottomRight => set_opt_bool(&mut self.text_bottom_right, value, "TextAlignBottomRight"),
+            IpgButtonParam::TextAlignCenter => set_opt_bool(&mut self.text_center, value, "TextAlignCenter"),
+            IpgButtonParam::TextAlignCenterLeft => set_opt_bool(&mut self.text_center_left, value, "TextAlignCenterLeft"),
+            IpgButtonParam::TextAlignCenterRight => set_opt_bool(&mut self.text_bottom_right, value, "TextAlignCenterRight"),
+            IpgButtonParam::TextAlignTopCenter => set_opt_bool(&mut self.text_top_center, value, "TextAlignTopCenter"),
+            IpgButtonParam::TextAlignTopLeft => set_opt_bool(&mut self.text_top_left, value, "TextAlignTopLeft"),
+            IpgButtonParam::TextAlignTopRight => set_opt_bool(&mut self.text_top_right, value, "TextAlignTopRight"),
         }
     }
 }
@@ -467,15 +468,15 @@ mod tests {
             width: Length::Shrink,
             height: Length::Shrink,
             padding: None,
-            text_align_top_left: None,
-            text_align_top_center: None,
-            text_align_top_right: None,
-            text_align_center_left: None,
-            text_align_center: None,
-            text_align_center_right: None,
-            text_align_bottom_left: None,
-            text_align_bottom_center: None,
-            text_align_bottom_right: None,
+            text_top_left: None,
+            text_top_center: None,
+            text_top_right: None,
+            text_center_left: None,
+            text_center: None,
+            text_center_right: None,
+            text_bottom_left: None,
+            text_bottom_center: None,
+            text_bottom_right: None,
             text_size: None,
             clip: None,
             style_id: None,
@@ -598,7 +599,7 @@ mod tests {
         Python::initialize();
         let mut b = make_button();
         b.param_update(IpgButtonParam::TextAlignBottomCenter, &py_obj(true));
-        assert_eq!(b.text_align_bottom_center, Some(true));
+        assert_eq!(b.text_bottom_center, Some(true));
     }
 
     #[test]
@@ -606,7 +607,7 @@ mod tests {
         Python::initialize();
         let mut b = make_button();
         b.param_update(IpgButtonParam::TextAlignBottomLeft, &py_obj(true));
-        assert_eq!(b.text_align_bottom_left, Some(true));
+        assert_eq!(b.text_bottom_left, Some(true));
     }
 
     #[test]
@@ -614,7 +615,7 @@ mod tests {
         Python::initialize();
         let mut b = make_button();
         b.param_update(IpgButtonParam::TextAlignBottomRight, &py_obj(true));
-        assert_eq!(b.text_align_bottom_right, Some(true));
+        assert_eq!(b.text_bottom_right, Some(true));
     }
 
     #[test]
@@ -622,7 +623,7 @@ mod tests {
         Python::initialize();
         let mut b = make_button();
         b.param_update(IpgButtonParam::TextAlignCenter, &py_obj(true));
-        assert_eq!(b.text_align_center, Some(true));
+        assert_eq!(b.text_center, Some(true));
     }
 
     #[test]
@@ -630,7 +631,7 @@ mod tests {
         Python::initialize();
         let mut b = make_button();
         b.param_update(IpgButtonParam::TextAlignCenterLeft, &py_obj(true));
-        assert_eq!(b.text_align_center_left, Some(true));
+        assert_eq!(b.text_center_left, Some(true));
     }
 
     #[test]
@@ -638,7 +639,7 @@ mod tests {
         Python::initialize();
         let mut b = make_button();
         b.param_update(IpgButtonParam::TextAlignTopCenter, &py_obj(true));
-        assert_eq!(b.text_align_top_center, Some(true));
+        assert_eq!(b.text_top_center, Some(true));
     }
 
     #[test]
@@ -646,7 +647,7 @@ mod tests {
         Python::initialize();
         let mut b = make_button();
         b.param_update(IpgButtonParam::TextAlignTopLeft, &py_obj(true));
-        assert_eq!(b.text_align_top_left, Some(true));
+        assert_eq!(b.text_top_left, Some(true));
     }
 
     #[test]
@@ -654,7 +655,7 @@ mod tests {
         Python::initialize();
         let mut b = make_button();
         b.param_update(IpgButtonParam::TextAlignTopRight, &py_obj(true));
-        assert_eq!(b.text_align_top_right, Some(true));
+        assert_eq!(b.text_top_right, Some(true));
     }
 
     // -----------------------------------------------------------------------

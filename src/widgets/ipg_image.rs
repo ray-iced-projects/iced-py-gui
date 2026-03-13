@@ -274,4 +274,108 @@ impl WidgetParamUpdate for IpgImage {
     }
 }
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use iced::Length;
+    use pyo3::{Python, IntoPyObjectExt};
+
+    fn make_image() -> IpgImage {
+        IpgImage {
+            id: 0,
+            parent_id: String::new(),
+            image_path: "test.png".to_string(),
+            width: Length::Shrink,
+            height: Length::Shrink,
+            padding: None,
+            content_fit: None,
+            filter_method: None,
+            rotation_method: None,
+            rotation_radians: None,
+            opacity: None,
+            mouse_pointer: None,
+            show: true,
+        }
+    }
+
+    fn py_obj<T: for<'py> IntoPyObjectExt<'py>>(val: T) -> PyObject {
+        Python::initialize();
+        Python::with_gil(|py| val.into_py_any(py).unwrap())
+    }
+
+    fn py_none() -> PyObject {
+        Python::initialize();
+        Python::with_gil(|py| py.None().into_py_any(py).unwrap())
+    }
+
+    #[test]
+    fn test_height() {
+        let mut img = make_image();
+        img.param_update(IpgImageParam::Height, &py_obj(100.0f32));
+        assert_eq!(img.height, Length::Fixed(100.0));
+    }
+
+    #[test]
+    fn test_height_fill() {
+        let mut img = make_image();
+        img.param_update(IpgImageParam::HeightFill, &py_obj(true));
+        assert_eq!(img.height, Length::Fill);
+    }
+
+    #[test]
+    fn test_image_path() {
+        let mut img = make_image();
+        img.param_update(IpgImageParam::ImagePath, &py_obj("new.png".to_string()));
+        assert_eq!(img.image_path, "new.png");
+    }
+
+    #[test]
+    fn test_opacity() {
+        let mut img = make_image();
+        img.param_update(IpgImageParam::Opacity, &py_obj(0.5f32));
+        assert_eq!(img.opacity, Some(0.5));
+        img.param_update(IpgImageParam::Opacity, &py_none());
+        assert_eq!(img.opacity, None);
+    }
+
+    #[test]
+    fn test_padding() {
+        let mut img = make_image();
+        img.param_update(IpgImageParam::Padding, &py_obj(vec![4.0f32, 8.0]));
+        assert_eq!(img.padding, Some(vec![4.0, 8.0]));
+        img.param_update(IpgImageParam::Padding, &py_none());
+        assert_eq!(img.padding, None);
+    }
+
+    #[test]
+    fn test_rotation_radians() {
+        let mut img = make_image();
+        img.param_update(IpgImageParam::RotationRadians, &py_obj(1.57f32));
+        assert_eq!(img.rotation_radians, Some(1.57));
+        img.param_update(IpgImageParam::RotationRadians, &py_none());
+        assert_eq!(img.rotation_radians, None);
+    }
+
+    #[test]
+    fn test_show() {
+        let mut img = make_image();
+        img.param_update(IpgImageParam::Show, &py_obj(false));
+        assert!(!img.show);
+    }
+
+    #[test]
+    fn test_width() {
+        let mut img = make_image();
+        img.param_update(IpgImageParam::Width, &py_obj(300.0f32));
+        assert_eq!(img.width, Length::Fixed(300.0));
+    }
+
+    #[test]
+    fn test_width_fill() {
+        let mut img = make_image();
+        img.param_update(IpgImageParam::WidthFill, &py_obj(true));
+        assert_eq!(img.width, Length::Fill);
+    }
+}
+
 

@@ -241,3 +241,29 @@ impl WidgetParamUpdate for IpgMouseArea {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use pyo3::{Python, IntoPyObjectExt};
+
+    fn make_mousearea() -> IpgMouseArea {
+        IpgMouseArea {
+            id: 0,
+            mouse_pointer: None,
+            show: true,
+        }
+    }
+
+    fn py_obj<T: for<'py> IntoPyObjectExt<'py>>(val: T) -> PyObject {
+        Python::initialize();
+        Python::attach(|py| val.into_py_any(py).unwrap())
+    }
+
+    #[test]
+    fn test_show() {
+        let mut ma = make_mousearea();
+        ma.param_update(IpgMouseAreaParam::Show, &py_obj(false));
+        assert!(!ma.show);
+    }
+}

@@ -300,12 +300,12 @@ mod tests {
 
     fn py_obj<T: for<'py> IntoPyObjectExt<'py>>(val: T) -> PyObject {
         Python::initialize();
-        Python::with_gil(|py| val.into_py_any(py).unwrap())
+        Python::attach(|py| val.into_py_any(py).unwrap())
     }
 
     fn py_none() -> PyObject {
         Python::initialize();
-        Python::with_gil(|py| py.None().into_py_any(py).unwrap())
+        Python::attach(|py| py.None().into_py_any(py).unwrap())
     }
 
     #[test]

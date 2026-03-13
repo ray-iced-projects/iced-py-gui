@@ -8,7 +8,7 @@ type PyObject = Py<PyAny>;
 
 use crate::state::IpgWidgets;
 use crate::widgets::widget_param_update::{
-    WidgetParamUpdate, set_opt_bool, set_opt_iced_color, set_opt_iced_color_from_rgba};
+    WidgetParamUpdate, set_bool, set_opt_iced_color, set_opt_iced_color_from_rgba};
 use crate::{access_callbacks, access_user_data1, IpgState};
 use crate::app::Message;
 use super::enums::{AlignX, AlignY};
@@ -156,7 +156,7 @@ impl WidgetParamUpdate for IpgOpaque {
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
             IpgOpaqueParam::Show => 
-                set_opt_bool(&mut self.center, value, "Show"),
+                set_bool(&mut self.show, value, "Show"),
         }
     }
 }
@@ -171,5 +171,52 @@ impl WidgetParamUpdate for IpgOpaqueStyle {
             IpgOpaqueStyleParam::BackgroundRgbaColor => 
                 set_opt_iced_color_from_rgba(&mut self.background_color, value, "BackgroundRgbaColor"),
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use pyo3::{Python, IntoPyObjectExt};
+
+    fn make_opaque() -> IpgOpaque {
+        IpgOpaque {
+            id: 0,
+            width: Length::Shrink,
+            height: Length::Shrink,
+            center: None,
+            align_x: None,
+            align_y: None,
+            include_mouse_area: false,
+            show: true,
+            style_id: None,
+        }
+    }
+
+    fn make_opaque_style() -> IpgOpaqueStyle {
+        IpgOpaqueStyle {
+            id: 0,
+            background_color: None,
+        }
+    }
+
+    fn py_obj<T: for<'py> IntoPyObjectExt<'py>>(val: T) -> PyObject {
+        Python::initialize();
+        Python::attach(|py| val.into_py_any(py).unwrap())
+    }
+
+    #[test]
+    fn test_show() {
+        let mut op = make_opaque();
+        op.param_update(IpgOpaqueParam::Show, &py_obj(false));
+        assert!(!op.show);
+        assert_eq!(op.center, None); // center should be unaffected
+    }
+
+    #[test]
+    fn test_style_background_rgba() {
+        let mut s = make_opaque_style();
+        s.param_update(IpgOpaqueStyleParam::BackgroundRgbaColor, &py_obj(vec![1.0f32, 0.0, 0.0, 1.0]));
+        assert!(s.background_color.is_some());
     }
 }

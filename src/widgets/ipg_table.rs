@@ -1,6 +1,6 @@
 //! ipg_table
 #![allow(clippy::unit_arg)]
-
+#![allow(unused)]
 use std::collections::HashMap;
 
 use crate::app::Message;
@@ -528,6 +528,7 @@ pub fn table_callback(
 //     });
 
 // }
+
 
 #[derive(Debug, Clone, PartialEq)]
 struct DividerStyle {

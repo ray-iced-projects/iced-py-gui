@@ -12,7 +12,44 @@ use crate::widgets::ipg_row::IpgRow;
 
 /// Add a row widget.
 ///
-/// Returns the widget ID.
+/// A row lays out its children horizontally from left to right.
+///
+/// Parameters
+/// ----------
+/// window_id : str
+///     The window this row belongs to.
+/// container_id : str
+///     Unique string identifier for the row.
+/// parent_id : str, optional
+///     The parent container ID.  Defaults to the window itself.
+/// width : float, optional
+///     Fixed width in logical pixels.
+/// width_fill : bool, default False
+///     Whether the row fills available width.
+/// height : float, optional
+///     Fixed height in logical pixels.
+/// height_fill : bool, default False
+///     Whether the row fills available height.
+/// align_bottom : bool, optional
+///     Align children to the bottom.
+/// align_center : bool, optional
+///     Align children to the vertical centre.
+/// align_top : bool, optional
+///     Align children to the top.
+/// padding : list of float, optional
+///     Padding as ``[all]``, ``[vertical, horizontal]``, or
+///     ``[top, right, bottom, left]``.
+/// spacing : float, optional
+///     Horizontal spacing between children in logical pixels.
+/// clip : bool, optional
+///     Whether to clip content that overflows the row.
+/// show : bool, default True
+///     Whether the row is visible.
+///
+/// Returns
+/// -------
+/// int
+///     The numeric widget ID of the newly created row.
 #[pyfunction]
 #[pyo3(signature = (
         window_id, 

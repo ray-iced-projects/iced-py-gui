@@ -11,8 +11,68 @@ use crate::widgets::ipg_window::{
 type PyObject = Py<PyAny>;
 
 /// Add a window to the application.
-/// 
+///
 /// This must be called before adding any widgets.
+///
+/// Parameters
+/// ----------
+/// window_id : str
+///     Unique string identifier for this window.
+/// title : str, optional
+///     Title displayed in the window title bar.
+/// size : tuple of (float, float), optional
+///     Initial window size as ``(width, height)`` in logical pixels.
+/// maximized : bool, optional
+///     Whether the window starts maximized.
+/// fullscreen : bool, optional
+///     Whether the window starts in fullscreen mode.
+/// center : bool, optional
+///     Whether to centre the window on screen at startup.
+/// position : tuple of (float, float), optional
+///     Initial window position as ``(x, y)`` in logical pixels.
+/// min_size : tuple of (float, float), optional
+///     Minimum window size as ``(width, height)``.
+/// max_size : tuple of (float, float), optional
+///     Maximum window size as ``(width, height)``.
+/// theme : IpgWindowTheme, optional
+///     The colour theme for the window.
+/// visible : bool, optional
+///     Whether the window is visible on creation.
+/// resizable : bool, optional
+///     Whether the user can resize the window.
+/// minimizable : bool, optional
+///     Whether the user can minimise the window.
+/// closeable : bool, optional
+///     Whether the user can close the window.
+/// decorations : bool, optional
+///     Whether to show window decorations (title bar, borders).
+/// transparent : bool, optional
+///     Whether the window background is transparent.
+/// blur : bool, optional
+///     Whether to blur the window background.
+/// level : IpgWindowLevel, optional
+///     The stacking level of the window (normal, always-on-top, etc.).
+/// icon_rgba : list of int, optional
+///     Raw RGBA bytes for the window icon.
+/// icon_width_height : tuple of (int, int), optional
+///     Dimensions ``(width, height)`` of the icon in *icon_rgba*.
+/// exit_on_close_request : bool, optional
+///     Whether the application exits when this window is closed.
+/// scale_factor : float, optional
+///     DPI scale factor override for this window.
+/// debug : bool, optional
+///     Whether to enable the debug overlay for this window.
+/// on_resize : callable, optional
+///     Callback invoked when the window is resized.
+/// user_data : Any, optional
+///     Arbitrary data forwarded to callbacks.
+/// gen_id : int, optional
+///     Pre-generated numeric ID.  One is created automatically if omitted.
+///
+/// Returns
+/// -------
+/// int
+///     The numeric widget ID of the newly created window.
 #[pyfunction]
 #[pyo3(signature = (
     window_id, 

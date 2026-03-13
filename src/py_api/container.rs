@@ -12,7 +12,63 @@ use crate::widgets::ipg_container::{IpgContainer,
 
 /// Add a container widget.
 ///
-/// Returns the widget ID.
+/// A container wraps a single child widget and provides alignment,
+/// sizing, padding, and optional styling.
+///
+/// Parameters
+/// ----------
+/// window_id : str
+///     The window this container belongs to.
+/// container_id : str
+///     Unique string identifier for the container.
+/// parent_id : str, optional
+///     The parent container ID.  Defaults to the window itself.
+/// width : float, optional
+///     Fixed width in logical pixels.
+/// width_fill : bool, default False
+///     Whether the container fills available width.
+/// height : float, optional
+///     Fixed height in logical pixels.
+/// height_fill : bool, default False
+///     Whether the container fills available height.
+/// clip : bool, optional
+///     Whether to clip content that overflows the container.
+/// max_height : float, optional
+///     Maximum height in logical pixels.
+/// max_width : float, optional
+///     Maximum width in logical pixels.
+/// align_top_left : bool, optional
+///     Align the child to the top-left corner.
+/// align_top_center : bool, optional
+///     Align the child to the top-centre.
+/// align_top_right : bool, optional
+///     Align the child to the top-right corner.
+/// align_center_left : bool, optional
+///     Align the child to the centre-left.
+/// align_center : bool, optional
+///     Align the child to the centre.
+/// align_center_right : bool, optional
+///     Align the child to the centre-right.
+/// align_bottom_left : bool, optional
+///     Align the child to the bottom-left corner.
+/// align_bottom_center : bool, optional
+///     Align the child to the bottom-centre.
+/// align_bottom_right : bool, optional
+///     Align the child to the bottom-right corner.
+/// padding : list of float, optional
+///     Padding as ``[all]``, ``[vertical, horizontal]``, or
+///     ``[top, right, bottom, left]``.
+/// show : bool, default True
+///     Whether the container is visible.
+/// style_id : int, optional
+///     ID of a custom style created with ``add_container_style``.
+/// style_std : IpgContainerStyleStd, optional
+///     A predefined standard style variant.
+///
+/// Returns
+/// -------
+/// int
+///     The numeric widget ID of the newly created container.
 #[pyfunction]
 #[pyo3(signature = (
     window_id, 

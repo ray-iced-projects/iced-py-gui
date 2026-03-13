@@ -11,7 +11,46 @@ use crate::widgets::ipg_column::IpgColumn;
 
 /// Add a column widget.
 ///
-/// Returns the widget ID.
+/// A column lays out its children vertically from top to bottom.
+///
+/// Parameters
+/// ----------
+/// window_id : str
+///     The window this column belongs to.
+/// container_id : str
+///     Unique string identifier for the column.
+/// parent_id : str, optional
+///     The parent container ID.  Defaults to the window itself.
+/// width : float, optional
+///     Fixed width in logical pixels.
+/// width_fill : bool, default False
+///     Whether the column fills available width.
+/// height : float, optional
+///     Fixed height in logical pixels.
+/// height_fill : bool, default False
+///     Whether the column fills available height.
+/// max_width : float, optional
+///     Maximum width in logical pixels.
+/// padding : list of float, optional
+///     Padding as ``[all]``, ``[vertical, horizontal]``, or
+///     ``[top, right, bottom, left]``.
+/// spacing : float, optional
+///     Vertical spacing between children in logical pixels.
+/// align_left : bool, optional
+///     Align children to the left.
+/// align_center : bool, optional
+///     Align children to the horizontal centre.
+/// align_right : bool, optional
+///     Align children to the right.
+/// clip : bool, optional
+///     Whether to clip content that overflows the column.
+/// show : bool, default True
+///     Whether the column is visible.
+///
+/// Returns
+/// -------
+/// int
+///     The numeric widget ID of the newly created column.
 #[pyfunction]
 #[pyo3(signature = (
         window_id, 

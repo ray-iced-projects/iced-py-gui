@@ -16,7 +16,61 @@ use crate::widgets::ipg_text::{TextShaping, TextWrapping};
 
 /// Add a checkbox widget.
 ///
-/// Returns the widget ID.
+/// A checkbox with a text label that can be toggled on and off.
+///
+/// Parameters
+/// ----------
+/// parent_id : str
+///     The parent container ID that this checkbox belongs to.
+/// gen_id : int, optional
+///     Pre-generated numeric ID.  One is created automatically if omitted.
+/// on_toggle : callable, optional
+///     Callback invoked when the checkbox is toggled.
+/// is_checked : bool, default False
+///     Whether the checkbox starts in the checked state.
+/// label : str, optional
+///     Text label displayed next to the checkbox.
+/// width : float, optional
+///     Fixed width in logical pixels.
+/// width_fill : bool, default False
+///     Whether the checkbox fills available width.
+/// size : float, optional
+///     The size of the checkbox square in logical pixels.
+/// spacing : float, optional
+///     Spacing between the checkbox square and the label.
+/// text_size : float, optional
+///     Font size for the label text.
+/// text_line_height : float, optional
+///     Line height for the label text.
+/// text_shaping : TextShaping, optional
+///     Text shaping strategy for the label.
+/// text_wrapping : TextWrapping, optional
+///     Text wrapping strategy for the label.
+/// text_font_id : int, optional
+///     Font ID for the label text.
+/// icon_font_id : int, optional
+///     Font ID for the checkbox icon.
+/// icon : IpgIcon, optional
+///     Icon displayed inside the checkbox when checked.
+/// icon_size : float, optional
+///     Size of the checkbox icon.
+/// icon_line_height : float, optional
+///     Line height of the checkbox icon.
+/// icon_shaping : TextShaping, optional
+///     Text shaping strategy for the icon.
+/// user_data : Any, optional
+///     Arbitrary data forwarded to callbacks.
+/// show : bool, default True
+///     Whether the checkbox is visible.
+/// style_id : int, optional
+///     ID of a custom style created with ``add_checkbox_style``.
+/// style_std : IpgCheckboxStyleStd, optional
+///     A predefined standard style variant.
+///
+/// Returns
+/// -------
+/// int
+///     The numeric widget ID of the newly created checkbox.
 #[pyfunction]
 #[pyo3(signature = (
     parent_id, 

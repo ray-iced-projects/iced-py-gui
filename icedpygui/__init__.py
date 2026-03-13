@@ -123,7 +123,9 @@ def _wrap_widget(rust_fn, name):
     return wrapper
 
 add_button = _wrap_widget(_add_button, "add_button")
+add_button.__doc__ = _add_button.__doc__
 add_checkbox = _wrap_widget(_add_checkbox, "add_checkbox")
+add_checkbox.__doc__ = _add_checkbox.__doc__
 add_color_picker = _wrap_widget(_add_color_picker, "add_color_picker")
 add_date_picker = _wrap_widget(_add_date_picker, "add_date_picker")
 add_divider = _wrap_widget(_add_divider, "add_divider")
@@ -157,8 +159,11 @@ def _wrap_container(rust_fn, name):
     return wrapper
 
 add_container = _wrap_container(_add_container, "add_container")
+add_container.__doc__ = _add_container.__doc__
 add_column = _wrap_container(_add_column, "add_column")
+add_column.__doc__ = _add_column.__doc__
 add_row = _wrap_container(_add_row, "add_row")
+add_row.__doc__ = _add_row.__doc__
 add_scrollable = _wrap_container(_add_scrollable, "add_scrollable")
 add_stack = _wrap_widget(_add_stack, "add_stack")
 add_table = _wrap_widget(_add_table, "add_table")
@@ -167,6 +172,8 @@ def add_window(*, id=None, **kwargs):
     if id is None:
         id = str(generate_id())
     return _add_window(window_id=id, **kwargs)
+
+add_window.__doc__ = _add_window.__doc__
 
 
 # ---------------------------------------------------------------------------

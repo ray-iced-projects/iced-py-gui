@@ -209,9 +209,29 @@ pub fn try_extract_usize(value: &PyObject, name: &str) -> usize {
     })  
 }
 
+pub fn try_extract_opt_usize(value: &PyObject, name: &str) -> Option<usize> {
+    Python::attach(|py| {
+        let res = value.extract::<Option<usize>>(py);
+        match res {
+            Ok(val) => val,
+            Err(_) => panic!("{}-Unable to extract usize", name),
+        }
+    })  
+}
+
 pub fn try_extract_vec_f32(value: &PyObject, name: &str) -> Vec<f32> {
     Python::attach(|py| {
         let res = value.extract::<Vec<f32>>(py);
+        match res {
+            Ok(val) => val,
+            Err(_) => panic!("{}-Unable to extract python list[float]", name),
+        }
+    })  
+}
+
+pub fn try_extract_opt_vec_f32(value: &PyObject, name: &str) -> Option<Vec<f32>> {
+    Python::attach(|py| {
+        let res = value.extract::<Option<Vec<f32>>>(py);
         match res {
             Ok(val) => val,
             Err(_) => panic!("{}-Unable to extract python list[float]", name),
@@ -298,6 +318,16 @@ pub fn try_extract_u16_array_2(value: &PyObject, name: &str) -> [u16; 2] {
 pub fn try_extract_string(value: &PyObject, name: &str) -> String {
     Python::attach(|py| {
         let res = value.extract::<String>(py);
+        match res {
+            Ok(val) => val,
+            Err(_) => panic!("{}-Unable to extract python str", name),
+        }
+    })  
+}
+
+pub fn try_extract_opt_string(value: &PyObject, name: &str) -> Option<String> {
+    Python::attach(|py| {
+        let res = value.extract::<Option<String>>(py);
         match res {
             Ok(val) => val,
             Err(_) => panic!("{}-Unable to extract python str", name),

@@ -213,3 +213,115 @@ impl WidgetParamUpdate for IpgColorPicker {
     }
 }
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use iced::Length;
+    use pyo3::{Python, IntoPyObjectExt};
+
+    fn make_color_picker() -> IpgColorPicker {
+        IpgColorPicker {
+            id: 0,
+            parent_id: String::new(),
+            show: false,
+            color: Color::BLACK,
+            label: None,
+            width: Length::Shrink,
+            height: Length::Shrink,
+            padding: None,
+            clip: None,
+            style_id: None,
+            style_standard: None,
+            style_arrow: None,
+        }
+    }
+
+    fn py_obj<T: for<'py> IntoPyObjectExt<'py>>(val: T) -> PyObject {
+        Python::initialize();
+        Python::with_gil(|py| val.into_py_any(py).unwrap())
+    }
+
+    fn py_none() -> PyObject {
+        Python::initialize();
+        Python::with_gil(|py| py.None().into_py_any(py).unwrap())
+    }
+
+    #[test]
+    fn test_clip() {
+        let mut cp = make_color_picker();
+        cp.param_update(IpgColorPickerParam::Clip, &py_obj(true));
+        assert_eq!(cp.clip, Some(true));
+        cp.param_update(IpgColorPickerParam::Clip, &py_none());
+        assert_eq!(cp.clip, None);
+    }
+
+    #[test]
+    fn test_color() {
+        let mut cp = make_color_picker();
+        cp.param_update(IpgColorPickerParam::Color, &py_obj(vec![1.0f32, 0.5, 0.25, 1.0]));
+        assert_eq!(cp.color, Color::from_rgba(1.0, 0.5, 0.25, 1.0));
+    }
+
+    #[test]
+    fn test_height() {
+        let mut cp = make_color_picker();
+        cp.param_update(IpgColorPickerParam::Height, &py_obj(50.0f32));
+        assert_eq!(cp.height, Length::Fixed(50.0));
+    }
+
+    #[test]
+    fn test_height_fill() {
+        let mut cp = make_color_picker();
+        cp.param_update(IpgColorPickerParam::HeightFill, &py_obj(true));
+        assert_eq!(cp.height, Length::Fill);
+    }
+
+    #[test]
+    fn test_label() {
+        let mut cp = make_color_picker();
+        cp.param_update(IpgColorPickerParam::Label, &py_obj("Pick".to_string()));
+        assert_eq!(cp.label, Some("Pick".to_string()));
+        cp.param_update(IpgColorPickerParam::Label, &py_none());
+        assert_eq!(cp.label, None);
+    }
+
+    #[test]
+    fn test_padding() {
+        let mut cp = make_color_picker();
+        cp.param_update(IpgColorPickerParam::Padding, &py_obj(vec![5.0f32, 10.0]));
+        assert_eq!(cp.padding, Some(vec![5.0, 10.0]));
+        cp.param_update(IpgColorPickerParam::Padding, &py_none());
+        assert_eq!(cp.padding, None);
+    }
+
+    #[test]
+    fn test_show() {
+        let mut cp = make_color_picker();
+        cp.param_update(IpgColorPickerParam::Show, &py_obj(true));
+        assert!(cp.show);
+    }
+
+    #[test]
+    fn test_style_id() {
+        let mut cp = make_color_picker();
+        cp.param_update(IpgColorPickerParam::StyleId, &py_obj(42usize));
+        assert_eq!(cp.style_id, Some(42));
+        cp.param_update(IpgColorPickerParam::StyleId, &py_none());
+        assert_eq!(cp.style_id, None);
+    }
+
+    #[test]
+    fn test_width() {
+        let mut cp = make_color_picker();
+        cp.param_update(IpgColorPickerParam::Width, &py_obj(200.0f32));
+        assert_eq!(cp.width, Length::Fixed(200.0));
+    }
+
+    #[test]
+    fn test_width_fill() {
+        let mut cp = make_color_picker();
+        cp.param_update(IpgColorPickerParam::WidthFill, &py_obj(true));
+        assert_eq!(cp.width, Length::Fill);
+    }
+}
+

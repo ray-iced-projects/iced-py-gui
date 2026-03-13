@@ -110,3 +110,118 @@ impl WidgetParamUpdate for IpgColumn {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use iced::Length;
+    use pyo3::{Python, IntoPyObjectExt};
+
+    fn make_column() -> IpgColumn {
+        IpgColumn {
+            id: 0,
+            show: true,
+            spacing: None,
+            padding: None,
+            width: Length::Shrink,
+            height: Length::Shrink,
+            max_width: None,
+            align_left: None,
+            align_center: None,
+            align_right: None,
+            clip: None,
+        }
+    }
+
+    fn py_obj<T: for<'py> IntoPyObjectExt<'py>>(val: T) -> PyObject {
+        Python::initialize();
+        Python::with_gil(|py| val.into_py_any(py).unwrap())
+    }
+
+    fn py_none() -> PyObject {
+        Python::initialize();
+        Python::with_gil(|py| py.None().into_py_any(py).unwrap())
+    }
+
+    #[test]
+    fn test_align_left() {
+        let mut col = make_column();
+        col.param_update(IpgColumnParam::AlignLeft, &py_obj(true));
+        assert_eq!(col.align_left, Some(true));
+        col.param_update(IpgColumnParam::AlignLeft, &py_none());
+        assert_eq!(col.align_left, None);
+    }
+
+    #[test]
+    fn test_align_center() {
+        let mut col = make_column();
+        col.param_update(IpgColumnParam::AlignCenter, &py_obj(true));
+        assert_eq!(col.align_center, Some(true));
+        col.param_update(IpgColumnParam::AlignCenter, &py_none());
+        assert_eq!(col.align_center, None);
+    }
+
+    #[test]
+    fn test_align_right() {
+        let mut col = make_column();
+        col.param_update(IpgColumnParam::AlignRight, &py_obj(true));
+        assert_eq!(col.align_right, Some(true));
+        col.param_update(IpgColumnParam::AlignRight, &py_none());
+        assert_eq!(col.align_right, None);
+    }
+
+    #[test]
+    fn test_clip() {
+        let mut col = make_column();
+        col.param_update(IpgColumnParam::Clip, &py_obj(true));
+        assert_eq!(col.clip, Some(true));
+        col.param_update(IpgColumnParam::Clip, &py_none());
+        assert_eq!(col.clip, None);
+    }
+
+    #[test]
+    fn test_height() {
+        let mut col = make_column();
+        col.param_update(IpgColumnParam::Height, &py_obj(100.0f32));
+        assert_eq!(col.height, Length::Fixed(100.0));
+    }
+
+    #[test]
+    fn test_height_fill() {
+        let mut col = make_column();
+        col.param_update(IpgColumnParam::HeightFill, &py_obj(true));
+        assert_eq!(col.height, Length::Fill);
+    }
+
+    #[test]
+    fn test_padding() {
+        let mut col = make_column();
+        col.param_update(IpgColumnParam::Padding, &py_obj(vec![5.0f32, 10.0]));
+        assert_eq!(col.padding, Some(vec![5.0, 10.0]));
+        col.param_update(IpgColumnParam::Padding, &py_none());
+        assert_eq!(col.padding, None);
+    }
+
+    #[test]
+    fn test_spacing() {
+        let mut col = make_column();
+        col.param_update(IpgColumnParam::Spacing, &py_obj(8.0f32));
+        assert_eq!(col.spacing, Some(8.0));
+        col.param_update(IpgColumnParam::Spacing, &py_none());
+        assert_eq!(col.spacing, None);
+    }
+
+    #[test]
+    fn test_width() {
+        let mut col = make_column();
+        col.param_update(IpgColumnParam::Width, &py_obj(200.0f32));
+        assert_eq!(col.width, Length::Fixed(200.0));
+    }
+
+    #[test]
+    fn test_width_fill() {
+        let mut col = make_column();
+        col.param_update(IpgColumnParam::WidthFill, &py_obj(true));
+        assert_eq!(col.width, Length::Fill);
+    }
+}

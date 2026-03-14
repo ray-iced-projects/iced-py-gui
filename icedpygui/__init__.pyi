@@ -7,6 +7,7 @@ from .icedpygui import (
     add_checkbox_style as add_checkbox_style,
     add_container_style as add_container_style,
     add_divider_style as add_divider_style,
+    add_mouse_area as add_mouse_area,
     add_pick_list_style as add_pick_list_style,
     add_radio_style as add_radio_style,
     add_scrollable_style as add_scrollable_style,
@@ -37,6 +38,7 @@ from .icedpygui import (
     IpgDividerParam as IpgDividerParam,
     IpgDividerStyleParam as IpgDividerStyleParam,
     IpgIcon as IpgIcon,
+    IpgMousePointer as IpgMousePointer,
     IpgPickListHandle as IpgPickListHandle,
     IpgRadioDirection as IpgRadioDirection,
     IpgRadioParam as IpgRadioParam,
@@ -153,7 +155,7 @@ def add_container(
     align_bottom_center: Optional[bool] = None,
     align_bottom_left: Optional[bool] = None,
     align_bottom_right: Optional[bool] = None,
-    align_center_center: Optional[bool] = None,
+    align_center: Optional[bool] = None,
     align_center_left: Optional[bool] = None,
     align_center_right: Optional[bool] = None,
     align_top_center: Optional[bool] = None,
@@ -163,7 +165,6 @@ def add_container(
     show: bool = True,
     style_id: Optional[int] = None,
 ) -> int:
-    
     ...
 
 def add_column(
@@ -182,9 +183,29 @@ def add_column(
     clip: bool = False,
     show: bool = True,
 ) -> int:
-    
     ...
 
+def add_mouse_area(
+    window_id: str,
+    container_id: str,
+    *,
+    parent_id: Optional[str]=None,
+    gen_id: Optional[int]=None,
+    on_press: Optional[Callable]=None, 
+    on_release: Optional[Callable]=None, 
+    on_right_press: Optional[Callable]=None, 
+    on_right_release: Optional[Callable]=None, 
+    on_middle_press: Optional[Callable]=None, 
+    on_middle_release: Optional[Callable]=None,
+    on_enter: Optional[Callable]=None,
+    on_move: Optional[Callable]=None,
+    on_exit: Optional[Callable]=None,
+    mouse_pointer: Optional[IpgMousePointer]=None,
+    show: bool=True,  
+    user_data: Optional[any]=None,
+) -> int:
+    ...
+    
 def add_row(
     *,
     id: Optional[str] = None,
@@ -200,7 +221,6 @@ def add_row(
     clip: bool = False,
     show: bool = True,
 ) -> int:
-    
     ...
 
 def add_scrollable(
@@ -226,8 +246,7 @@ def add_scrollable(
     on_scroll: Optional[Callable] = None,
     style_id: Optional[str] = None,
     user_data: Optional[Any] = None,
-) -> int:
-    
+) -> int:    
     ...
 
 def add_stack(
@@ -240,7 +259,6 @@ def add_stack(
     hide_index: Optional[int] = None,
     show: bool = True,
 ) -> int:
-    
     ...
 
 def add_table(*, parent_id: Optional[str] = None, **kwargs: Any) -> int: ...
@@ -261,7 +279,7 @@ def add_window(
     min_height: Optional[float] = None,
     pos_x: Optional[float] = None,
     pos_y: Optional[float] = None,
-    pos_centered: bool = False,
+    center: bool = False,
     resizable: bool = True,
     decorations: bool = True,
     transparent: bool = False,
@@ -314,7 +332,7 @@ class Window:
         min_height: Optional[float] = None,
         pos_x: Optional[float] = None,
         pos_y: Optional[float] = None,
-        pos_centered: bool = False,
+        center: bool = False,
         resizable: bool = True,
         decorations: bool = True,
         transparent: bool = False,
@@ -327,6 +345,7 @@ class Window:
     ) -> None: ...
     def __enter__(self) -> int: ...
     def __exit__(self, exc_type: type[BaseException] | None, exc_val: BaseException | None, exc_tb: TracebackType | None) -> bool: ...
+
 
 class Container:
     """Context manager wrapper around add_container.
@@ -371,6 +390,7 @@ class Container:
     def __enter__(self) -> int: ...
     def __exit__(self, exc_type: type[BaseException] | None, exc_val: BaseException | None, exc_tb: TracebackType | None) -> bool: ...
 
+
 class Column:
     """Context manager wrapper around add_column.
 
@@ -404,6 +424,44 @@ class Column:
     def __enter__(self) -> int: ...
     def __exit__(self, exc_type: type[BaseException] | None, exc_val: BaseException | None, exc_tb: TracebackType | None) -> bool: ...
 
+
+class MouseArea:
+    """Context Manager wrapper for add_mousearea
+    
+    A container that is like Container but allows
+    mouse interactions.
+    
+    Usage::
+    
+        with Window(title="Demo"):
+            with MouseArea():
+                add_svg() # Your svg will have mouse interaction    
+    
+    """
+    def __init__(
+        self,
+        *,
+        window_id: str,
+        container_id: str,
+        parent_id: Optional[str]=None,
+        gen_id: Optional[int]=None,
+        on_press: Optional[Callable]=None, 
+        on_release: Optional[Callable]=None, 
+        on_right_press: Optional[Callable]=None, 
+        on_right_release: Optional[Callable]=None, 
+        on_middle_press: Optional[Callable]=None, 
+        on_middle_release: Optional[Callable]=None,
+        on_enter: Optional[Callable]=None,
+        on_move: Optional[Callable]=None,
+        on_exit: Optional[Callable]=None,
+        mouse_pointer: Optional[IpgMousePointer]=None,
+        show: bool=True,  
+        user_data: Optional[any]=None,
+    ) -> None: ...
+    def __enter__(self) -> int: ...
+    def __exit__(self, exc_type: type[BaseException] | None, exc_val: BaseException | None, exc_tb: TracebackType | None) -> bool: ...
+
+
 class Row:
     """Context manager wrapper around add_row.
 
@@ -436,6 +494,7 @@ class Row:
     def __enter__(self) -> int: ...
     def __exit__(self, exc_type: type[BaseException] | None, exc_val: BaseException | None, exc_tb: TracebackType | None) -> bool: ...
 
+
 class Stack:
     """Context manager wrapper around add_stack.
 
@@ -463,6 +522,7 @@ class Stack:
     ) -> None: ...
     def __enter__(self) -> int: ...
     def __exit__(self, exc_type: type[BaseException] | None, exc_val: BaseException | None, exc_tb: TracebackType | None) -> bool: ...
+
 
 class Scrollable:
     """Context manager wrapper around add_scrollable.

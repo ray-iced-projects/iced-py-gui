@@ -16,7 +16,7 @@ use crate::widgets::widget_param_update::set_opt_f32;
 use crate::widgets::widget_param_update::set_opt_iced_color;
 use crate::widgets::widget_param_update::set_string;
 use crate::widgets::widget_param_update::set_width;
-use super::ipg_mousearea::IpgMousePointer;
+use super::ipg_mouse_area::IpgMousePointer;
 
 use iced::Color;
 use iced::{Length, Element, Point};

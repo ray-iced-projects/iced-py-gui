@@ -19,7 +19,7 @@ use crate::widgets::ipg_date_picker::{DPMessage, date_picker_update};
 use crate::widgets::ipg_divider::{DivMessage, divider_callback};
 use crate::widgets::ipg_events::process_window_event;
 use crate::widgets::ipg_image::{ImageMessage, construct_image, image_callback};
-use crate::widgets::ipg_mousearea::{construct_mousearea, mousearea_callback, mousearea_callback_point};
+use crate::widgets::ipg_mouse_area::{construct_mousearea, mousearea_callback, mousearea_callback_point};
 use crate::widgets::ipg_opaque::{construct_opaque, opaque_callback};
 use crate::widgets::ipg_pick_list::{PLMessage, construct_picklist, pick_list_callback};
 use crate::widgets::ipg_progress_bar::construct_progress_bar;

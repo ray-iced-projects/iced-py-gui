@@ -5,7 +5,7 @@ type PyObject = Py<PyAny>;
 use crate::graphics::colors::IpgColor;
 use crate::state::{IpgWidgets, get_id, set_state_of_widget};
 use crate::widgets::enums::{IpgContentFit, IpgRotation};
-use crate::widgets::ipg_mousearea::IpgMousePointer;
+use crate::widgets::ipg_mouse_area::IpgMousePointer;
 use crate::widgets::ipg_svg::IpgSvg;
 use crate::{access_state, add_callback_to_mutex, 
     add_user_data_to_mutex}; 

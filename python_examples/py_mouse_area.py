@@ -36,41 +36,37 @@ def on_exit(id, _user_data):
     print("on exit", id)
 
 
-    
-
-add_window(
-        id="main", 
-        title="Main",
+with Window(
+    title="Main",
     size=(400, 400), 
-        pos_centered=True, 
-        debug=True)
+    center=True, 
+    debug=True):
 
-add_container(
-        window_id="main", 
+    with Container(
         id="cont", 
         width_fill=True, 
-        height_fill=True)
+        height_fill=True,
+        align_center=True,):
 
-add_mousearea(window_id="main", 
-                  id="ma", 
-                  parent_id="cont",
-                  on_enter=on_enter,
-                  on_exit=on_exit,
-                  on_move=on_move,
-                  on_press=on_press,
-                  on_release=on_release,
-                  on_middle_press=on_middle_press,
-                  on_middle_release=on_middle_release,
-                  on_right_press=on_right_press,
-                  on_right_release=on_right_release,
-                  user_data="Some Data"
-                  )
+        add_mouse_area(
+            id="ma",
+            on_enter=on_enter,
+            on_exit=on_exit,
+            on_move=on_move,
+            on_press=on_press,
+            on_release=on_release,
+            on_middle_press=on_middle_press,
+            on_middle_release=on_middle_release,
+            on_right_press=on_right_press,
+            on_right_release=on_right_release,
+            user_data="Some Data"
+            )
 
-# A text widget was added here but you can also add containers or other widgets too.
-add_text("ma", content="my content 1")
+        # A text widget was added here but you can also add containers or other widgets too.
+        add_text(parent_id="ma", content="my content 1")
 
-# you will probably rarely add more than one item to a mousearea
-# but the option for more is there.
-add_text("ma", content="my content 2")
+        # you will probably rarely add more than one item to a mousearea
+        # but the option for more is there.
+        add_text(parent_id="ma", content="my content 2")
 
 start_session()

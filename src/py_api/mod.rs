@@ -12,7 +12,7 @@ pub mod date_picker;
 pub mod divider;
 pub mod font;
 pub mod image;
-pub mod mousearea;
+pub mod mouse_area;
 pub mod opaque;
 pub mod picklist;
 pub mod progress_bar;

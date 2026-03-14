@@ -10,6 +10,7 @@ from .icedpygui import (
     add_container as _add_container,
     add_container_style,
     add_date_picker as _add_date_picker,
+    add_mouse_area as _add_mouse_area,
     add_divider_style,
     add_pick_list as _add_pick_list,
     add_pick_list_style,
@@ -165,6 +166,7 @@ add_column.__doc__ = _add_column.__doc__
 add_row = _wrap_container(_add_row, "add_row")
 add_row.__doc__ = _add_row.__doc__
 add_scrollable = _wrap_container(_add_scrollable, "add_scrollable")
+add_mouse_area = _wrap_container(_add_mouse_area, "add_mouse_area")
 add_stack = _wrap_widget(_add_stack, "add_stack")
 add_table = _wrap_widget(_add_table, "add_table")
 

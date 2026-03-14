@@ -14,7 +14,7 @@ use crate::widgets::widget_param_update::{
     set_bool, set_width, set_width_fill, set_height, 
     set_height_fill, set_opt_vec_f32, set_opt_f32, set_string
 };
-use super::ipg_mousearea::IpgMousePointer;
+use super::ipg_mouse_area::IpgMousePointer;
 
 use iced::mouse::Interaction;
 use iced::{Length, Element, Point};

@@ -76,6 +76,7 @@ use crate::widgets::ipg_button::{IpgButton,
 /// -------
 /// int
 ///     The numeric widget ID of the newly created button.
+///
 #[pyfunction]
 #[pyo3(signature = (
     parent_id,

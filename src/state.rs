@@ -21,7 +21,7 @@ use crate::widgets::ipg_divider::{IpgDivider,
 use crate::widgets::ipg_events::IpgEvents;
 use crate::widgets::ipg_font::IpgFont;
 use crate::widgets::ipg_image::IpgImage;
-use crate::widgets::ipg_mousearea::IpgMouseArea;
+use crate::widgets::ipg_mouse_area::IpgMouseArea;
 use crate::widgets::ipg_opaque::{IpgOpaque, IpgOpaqueStyle};
 use crate::widgets::ipg_pick_list::{IpgPickList, IpgPickListStyle};
 use crate::widgets::ipg_progress_bar::{IpgProgressBar, IpgProgressBarStyle};

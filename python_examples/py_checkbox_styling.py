@@ -9,151 +9,149 @@ custom_bkg = add_checkbox_style(
 with Window(title="Checkbox Styling",
             size=(700, 600), center=True):
 
-    with Scrollable(width_fill=True):
+    with Column(spacing=20.0, padding=[20.0]):
 
-        with Column(spacing=20.0, padding=[20.0]):
+        add_text(content="Checkboxes with style_std types (check and hover to see changes)")
 
-            add_text(content="Checkboxes with style_std types (check and hover to see changes)")
+        with Row(spacing=20.0):
 
-            with Row(spacing=20.0):
+            add_checkbox(
+                label="Primary (Default)",
+                is_checked=True,
+                style_std=IpgCheckboxStyleStd.Primary)
 
-                add_checkbox(
-                    label="Primary (Default)",
-                    is_checked=True,
-                    style_std=IpgCheckboxStyleStd.Primary)
+            add_checkbox(
+                label="Secondary",
+                is_checked=True,
+                style_std=IpgCheckboxStyleStd.Secondary)
 
-                add_checkbox(
-                    label="Secondary",
-                    is_checked=True,
-                    style_std=IpgCheckboxStyleStd.Secondary)
+            add_checkbox(
+                label="Success",
+                is_checked=True,
+                style_std=IpgCheckboxStyleStd.Success)
 
-                add_checkbox(
-                    label="Success",
-                    is_checked=True,
-                    style_std=IpgCheckboxStyleStd.Success)
+            add_checkbox(
+                label="Danger",
+                is_checked=True,
+                style_std=IpgCheckboxStyleStd.Danger)
 
-                add_checkbox(
-                    label="Danger",
-                    is_checked=True,
-                    style_std=IpgCheckboxStyleStd.Danger)
+        add_text(content="Checkbox Background Color")
 
-            add_text(content="Checkbox Background Color")
+        with Row(spacing=20.0):
 
-            with Row(spacing=20.0):
+            add_checkbox(
+                label="Custom Background",
+                is_checked=True,
+                style_id=custom_bkg)
 
-                add_checkbox(
-                    label="Custom Background",
-                    is_checked=True,
-                    style_id=custom_bkg)
+            bkg_yellow = add_checkbox_style(
+                background_color=IpgColor.LIGHT_YELLOW)
 
-                bkg_yellow = add_checkbox_style(
-                    background_color=IpgColor.LIGHT_YELLOW)
+            add_checkbox(
+                label="Yellow Background",
+                is_checked=True,
+                style_id=bkg_yellow)
 
-                add_checkbox(
-                    label="Yellow Background",
-                    is_checked=True,
-                    style_id=bkg_yellow)
+        add_text(content="Checkbox Border Options")
 
-            add_text(content="Checkbox Border Options")
+        with Row(spacing=20.0):
 
-            with Row(spacing=20.0):
+            border_color = add_checkbox_style(
+                border_color=IpgColor.RED,
+                border_width=2.0)
 
-                border_color = add_checkbox_style(
-                    border_color=IpgColor.RED,
-                    border_width=2.0)
+            border_radius = add_checkbox_style(
+                border_color=IpgColor.BLUE,
+                border_width=2.0,
+                border_radius=[8.0])
 
-                border_radius = add_checkbox_style(
-                    border_color=IpgColor.BLUE,
-                    border_width=2.0,
-                    border_radius=[8.0])
+            border_thick = add_checkbox_style(
+                border_color=IpgColor.DARK_GREEN,
+                border_width=4.0,
+                border_radius=[4.0])
 
-                border_thick = add_checkbox_style(
-                    border_color=IpgColor.DARK_GREEN,
-                    border_width=4.0,
-                    border_radius=[4.0])
+            add_checkbox(
+                label="Border Color + Width",
+                is_checked=True,
+                style_id=border_color)
 
-                add_checkbox(
-                    label="Border Color + Width",
-                    is_checked=True,
-                    style_id=border_color)
+            add_checkbox(
+                label="Border Radius",
+                is_checked=True,
+                style_id=border_radius)
 
-                add_checkbox(
-                    label="Border Radius",
-                    is_checked=True,
-                    style_id=border_radius)
+            add_checkbox(
+                label="Thick Rounded Border",
+                is_checked=True,
+                style_id=border_thick)
 
-                add_checkbox(
-                    label="Thick Rounded Border",
-                    is_checked=True,
-                    style_id=border_thick)
+        add_text(content="Checkbox Icon Color")
 
-            add_text(content="Checkbox Icon Color")
+        with Row(spacing=20.0):
 
-            with Row(spacing=20.0):
+            icon_red = add_checkbox_style(
+                icon_color=IpgColor.RED)
 
-                icon_red = add_checkbox_style(
-                    icon_color=IpgColor.RED)
+            icon_green = add_checkbox_style(
+                icon_color=IpgColor.GREEN)
 
-                icon_green = add_checkbox_style(
-                    icon_color=IpgColor.GREEN)
+            add_checkbox(
+                label="Red Icon",
+                is_checked=True,
+                style_id=icon_red)
 
-                add_checkbox(
-                    label="Red Icon",
-                    is_checked=True,
-                    style_id=icon_red)
+            add_checkbox(
+                label="Green Icon",
+                is_checked=True,
+                style_id=icon_green)
 
-                add_checkbox(
-                    label="Green Icon",
-                    is_checked=True,
-                    style_id=icon_green)
+        add_text(content="Checkbox Text Color")
 
-            add_text(content="Checkbox Text Color")
+        with Row(spacing=20.0):
 
-            with Row(spacing=20.0):
+            text_blue = add_checkbox_style(
+                text_color=IpgColor.BLUE)
 
-                text_blue = add_checkbox_style(
-                    text_color=IpgColor.BLUE)
+            text_red = add_checkbox_style(
+                text_color=IpgColor.RED)
 
-                text_red = add_checkbox_style(
-                    text_color=IpgColor.RED)
+            add_checkbox(
+                label="Blue Text",
+                is_checked=True,
+                style_id=text_blue)
 
-                add_checkbox(
-                    label="Blue Text",
-                    is_checked=True,
-                    style_id=text_blue)
+            add_checkbox(
+                label="Red Text",
+                is_checked=True,
+                style_id=text_red)
 
-                add_checkbox(
-                    label="Red Text",
-                    is_checked=True,
-                    style_id=text_red)
+        add_text(content="Checkbox Combined Styling")
 
-            add_text(content="Checkbox Combined Styling")
+        with Row(spacing=20.0):
 
-            with Row(spacing=20.0):
+            combined = add_checkbox_style(
+                background_color=IpgColor.DARK_BLUE,
+                border_color=IpgColor.GOLD,
+                border_width=2.0,
+                border_radius=[6.0],
+                icon_color=IpgColor.GOLD,
+                text_color=IpgColor.DARK_BLUE)
 
-                combined = add_checkbox_style(
-                    background_color=IpgColor.DARK_BLUE,
-                    border_color=IpgColor.GOLD,
-                    border_width=2.0,
-                    border_radius=[6.0],
-                    icon_color=IpgColor.GOLD,
-                    text_color=IpgColor.DARK_BLUE)
+            add_checkbox(
+                label="All Custom Styles",
+                is_checked=True,
+                style_id=combined)
 
-                add_checkbox(
-                    label="All Custom Styles",
-                    is_checked=True,
-                    style_id=combined)
+            combined_std = add_checkbox_style(
+                border_color=IpgColor.RED,
+                border_width=2.0,
+                icon_color=IpgColor.ORANGE)
 
-                combined_std = add_checkbox_style(
-                    border_color=IpgColor.RED,
-                    border_width=2.0,
-                    icon_color=IpgColor.ORANGE)
-
-                add_checkbox(
-                    label="Success + Custom Overrides",
-                    is_checked=True,
-                    style_id=combined_std,
-                    style_std=IpgCheckboxStyleStd.Success)
+            add_checkbox(
+                label="Success + Custom Overrides",
+                is_checked=True,
+                style_id=combined_std,
+                style_std=IpgCheckboxStyleStd.Success)
 
 
 start_session()

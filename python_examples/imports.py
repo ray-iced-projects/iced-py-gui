@@ -17,7 +17,8 @@ from icedpygui import (
     add_container_style,
     add_date_picker,
     add_divider,
-    add_divider_style, 
+    add_divider_style,
+    add_mouse_area, 
     add_pick_list,
     add_pick_list_style,
     add_radio,
@@ -91,3 +92,5 @@ from icedpygui import (
     update_widget,
     generate_id,
 )
+
+import icedpygui as ipg

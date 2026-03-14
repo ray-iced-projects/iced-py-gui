@@ -32,7 +32,7 @@ use crate::py_api::date_picker::add_date_picker;
 use crate::py_api::divider::{add_divider, add_divider_style};
 use crate::py_api::font::add_font;
 use crate::py_api::image::add_image;
-use crate::py_api::mousearea::add_mouse_area;
+use crate::py_api::mouse_area::add_mouse_area;
 use crate::py_api::opaque::{add_opaque_container, add_opaque_style};
 use crate::py_api::progress_bar::{add_progress_bar, add_progress_bar_style};
 use crate::py_api::radio::{add_radio, add_radio_style};

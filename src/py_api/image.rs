@@ -6,7 +6,7 @@ use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex,
     py_api::helpers::get_length, 
     state::{IpgWidgets, get_id, set_state_of_widget}, 
     widgets::{enums::{IpgContentFit, IpgColorFilter, IpgRotation}, ipg_image::IpgImage, 
-        ipg_mousearea::IpgMousePointer}};
+        ipg_mouse_area::IpgMousePointer}};
 
 
 #[pyfunction]

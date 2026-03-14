@@ -15,7 +15,7 @@ pub mod ipg_divider;
 pub mod ipg_events;
 pub mod ipg_font;
 pub mod ipg_image;
-pub mod ipg_mousearea;
+pub mod ipg_mouse_area;
 pub mod ipg_opaque;
 pub mod ipg_pick_list;
 pub mod ipg_progress_bar;

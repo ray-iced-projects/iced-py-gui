@@ -16,9 +16,17 @@ def on_press(btn_id, user_data: int):
     add_button(
         parent_id="col", 
         label=f"Button_{count}", 
-        on_press=on_press,
-        user_data=0,
         )
+
+# The methods below did not use any "with" functions
+# just to show you the alternate but probably not used often.
+# Using with, you eliminate the need to all of the id parameters
+# unless needed elsewhere then use with Window() as wnd_id:
+# usually you would:
+# with Window():
+#   with Container():
+#       with Column():
+#           add_button()
 
 
 # Add the windows
@@ -35,7 +43,7 @@ add_container(
     id="cont", 
     width_fill=True, 
     height_fill=True,
-    center=True,
+    align_center=True,
     )
 
 # Add a column to hold multiple widgets, vertically.

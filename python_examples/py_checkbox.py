@@ -1,11 +1,17 @@
 from imports import *
 
 
-def on_toggle(id, is_checked):
-    print(f"Checkbox id {id} toggled to {is_checked}")
+# callback to simply print if checkbox is checked
+# The checkbox always return a bool and a user_data, if used
+# Normally the chk_id would not be used, the user would
+# be performing some other operation.  Therefore, it's
+# good practise to remind yourself, that the id is the source
+# and that you probably need other ids to do the operations.
+def on_toggle(chk_id, is_checked):
+    print(f"Checkbox id {chk_id} toggled to {is_checked}")
 
-def on_toggle_user_data(id, is_checked, user_data):
-    print(f"Checkbox id {id}, checked={is_checked}, user_data={user_data}")
+def on_toggle_user_data(chk_id, is_checked, user_data):
+    print(f"Checkbox id {chk_id}, checked={is_checked}, user_data={user_data}")
 
 
 with Window(title="Checkbox Demo",
@@ -14,8 +20,10 @@ with Window(title="Checkbox Demo",
     with Scrollable(width_fill=True):
 
         with Column(spacing=20.0, padding=[20.0]):
+            
+            # ***********************Checkbox Basics***************************
 
-            add_text(content="Basic Checkbox")
+            add_text(content="Basic Checkbox\nCheck the ones for callback and user_data to see results printed")
 
             with Row(spacing=20.0):
 
@@ -30,6 +38,8 @@ with Window(title="Checkbox Demo",
                     on_toggle=on_toggle_user_data,
                     user_data="some info")
 
+            # ***********************Checkbox state***************************
+
             add_text(content="Checkbox is_checked State")
 
             with Row(spacing=20.0):
@@ -41,6 +51,8 @@ with Window(title="Checkbox Demo",
                 add_checkbox(
                     label="Checked",
                     is_checked=True)
+
+            # ***********************Checkbox Sizing***************************
 
             add_text(content="Checkbox Size (box size)")
 
@@ -60,6 +72,8 @@ with Window(title="Checkbox Demo",
                     size=40.0,
                     is_checked=True)
 
+            # ***********************Spacing***************************
+
             add_text(content="Checkbox Spacing (gap between box and label)")
 
             with Row(spacing=40.0):
@@ -78,6 +92,8 @@ with Window(title="Checkbox Demo",
                     spacing=30.0,
                     is_checked=True)
 
+            # ***********************Text sizes***************************
+            
             add_text(content="Checkbox Text Size")
 
             with Row(spacing=20.0):
@@ -96,6 +112,8 @@ with Window(title="Checkbox Demo",
                     text_size=30.0,
                     is_checked=True)
 
+            # *************************Widths/Heights**********************
+            
             add_text(content="Checkbox Width")
 
             with Container(width_fill=True, height=80,
@@ -115,6 +133,8 @@ with Window(title="Checkbox Demo",
                         label="Width Fill",
                         width_fill=True,
                         is_checked=True)
+
+            # ***********************Checkbox icons***************************
 
             add_text(content="Checkbox Icon Variations (check the boxes to see icons)")
 
@@ -139,6 +159,8 @@ with Window(title="Checkbox Demo",
                     icon=IpgIcon.HeartFill,
                     is_checked=True)
 
+            # ***********************Checkbox Icon Sizing***************************
+
             add_text(content="Checkbox Icon Size")
 
             with Row(spacing=20.0):
@@ -157,6 +179,8 @@ with Window(title="Checkbox Demo",
                     icon_size=40.0,
                     size=40.0,
                     is_checked=True)
+
+            # ***********************Checkbox No label***************************
 
             add_text(content="Checkbox No Label")
 

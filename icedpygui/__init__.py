@@ -1,3 +1,6 @@
+from typing import Any, Callable, List, Optional
+
+
 # Ipg functions
 from .icedpygui import (
     add_button_style, 
@@ -88,7 +91,6 @@ from .icedpygui import (
     generate_id,
 )
 
-
 # ---------------------------------------------------------------------------
 # Context stacks — used by Window / Container context managers and
 # auto-injecting wrappers so that window_id and parent_id can be inferred.
@@ -124,7 +126,7 @@ def _wrap_widget(rust_fn, name):
     return wrapper
 
 add_button = _wrap_widget(_add_button, "add_button")
-add_button.__doc__ = _add_button.__doc__
+add_button.__doc__ = add_button.__doc__
 add_checkbox = _wrap_widget(_add_checkbox, "add_checkbox")
 add_checkbox.__doc__ = _add_checkbox.__doc__
 add_color_picker = _wrap_widget(_add_color_picker, "add_color_picker")
@@ -139,7 +141,6 @@ add_space = _wrap_widget(_add_space, "add_space")
 add_text_input = _wrap_widget(_add_text_input, "add_text_input")
 add_text = _wrap_widget(_add_text, "add_text")
 add_toggler = _wrap_widget(_add_toggler, "add_toggler")
-
 
 def _wrap_container(rust_fn, name):
     """Create a thin wrapper that translates id= to container_id= and

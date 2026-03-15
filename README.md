@@ -11,7 +11,7 @@ Python wrapper for Rust Iced Gui
 </div>
 
 ## Overview
-
+### A major refactoring is currently in progress to update to iced 0.14 and improve many aspects of the program, estimated completion late Arpil 2026.
 * IcedPyGui is based on [Rust Iced](https://github.com/iced-rs/iced) v0.13.1.
 * Widgets from [Iced_aw](https://github.com/iced-rs/iced_aw).
 * [Pyo3](https://github.com/pyo3/pyo3) is used as the Python wrapper.
@@ -21,7 +21,6 @@ Python wrapper for Rust Iced Gui
 * [Python Examples are available here](https://github.com/icedpygui/IcedPyGui-Python-Examples).
 
 ## Features
-
 * Supported Iced widgets
   * Button
   * Canvas - Add canvas widgets and dynamically drawing

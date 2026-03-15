@@ -11,6 +11,8 @@ with Window(title="Checkbox Styling",
 
     with Column(spacing=20.0, padding=[20.0]):
 
+        # ***********************Style standard types***************************
+
         add_text(content="Checkboxes with style_std types (check and hover to see changes)")
 
         with Row(spacing=20.0):
@@ -35,6 +37,8 @@ with Window(title="Checkbox Styling",
                 is_checked=True,
                 style_std=IpgCheckboxStyleStd.Danger)
 
+        # ***********************Background Color***************************
+
         add_text(content="Checkbox Background Color")
 
         with Row(spacing=20.0):
@@ -51,6 +55,8 @@ with Window(title="Checkbox Styling",
                 label="Yellow Background",
                 is_checked=True,
                 style_id=bkg_yellow)
+
+        # ***********************Border Options***************************
 
         add_text(content="Checkbox Border Options")
 
@@ -85,6 +91,8 @@ with Window(title="Checkbox Styling",
                 is_checked=True,
                 style_id=border_thick)
 
+        # ***********************Icon Color***************************
+
         add_text(content="Checkbox Icon Color")
 
         with Row(spacing=20.0):
@@ -105,6 +113,8 @@ with Window(title="Checkbox Styling",
                 is_checked=True,
                 style_id=icon_green)
 
+        # ***********************Text Color***************************
+
         add_text(content="Checkbox Text Color")
 
         with Row(spacing=20.0):
@@ -124,6 +134,8 @@ with Window(title="Checkbox Styling",
                 label="Red Text",
                 is_checked=True,
                 style_id=text_red)
+
+        # ***********************Combined Styling***************************
 
         add_text(content="Checkbox Combined Styling")
 

@@ -13,13 +13,12 @@ def on_toggle(chk_id, is_checked):
 def on_toggle_user_data(chk_id, is_checked, user_data):
     print(f"Checkbox id {chk_id}, checked={is_checked}, user_data={user_data}")
 
-
 with Window(title="Checkbox Demo",
             size=(800, 600), center=True):
 
     with Scrollable(width_fill=True):
 
-        with Column(spacing=20.0, padding=[20.0]):
+        with Column(spacing=20.0, padding=[20.0], width_fill=True):
             
             # ***********************Checkbox Basics***************************
 
@@ -36,8 +35,9 @@ with Window(title="Checkbox Demo",
                 add_checkbox(
                     label="With User Data",
                     on_toggle=on_toggle_user_data,
-                    user_data="some info")
-
+                    user_data="some info"
+                    )
+            
             # ***********************Checkbox state***************************
 
             add_text(content="Checkbox is_checked State")
@@ -116,21 +116,22 @@ with Window(title="Checkbox Demo",
             
             add_text(content="Checkbox Width")
 
-            with Container(width_fill=True, height=80,
-                           style_std=IpgContainerStyleStd.BorderedBox):
-                with Row(spacing=20.0, width_fill=True):
-
+            with Row(spacing=20.0, width_fill=True):
+                # Added to container to better show background
+                with Container(style_std=IpgContainerStyleStd.BorderedBox):
                     add_checkbox(
                         label="Default Width=Shrink",
                         is_checked=True)
 
+                with Container(style_std=IpgContainerStyleStd.BorderedBox):
                     add_checkbox(
-                        label="Width 300",
-                        width=300.0,
+                        label="Width 200",
+                        width=200.0,
                         is_checked=True)
 
+                with Container(style_std=IpgContainerStyleStd.BorderedBox, width_fill=True):
                     add_checkbox(
-                        label="Width Fill",
+                        label="Width Fill, fills remaining area",
                         width_fill=True,
                         is_checked=True)
 

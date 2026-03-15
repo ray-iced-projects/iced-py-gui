@@ -5,12 +5,13 @@ widgets = [
     "add_window", "add_container", "add_column", "add_mouse_area","add_row",
     "add_opaque", "add_stack",
     # widgets
-    "add_button", "add_checkbox", "add_color_picker",
+    "add_button", "add_button_style", "add_checkbox", "add_checkbox_style",
+    "add_color_picker",
     "add_date_picker", "add_divider", "add_image", 
     "add_picklist", "add_progress_bar", "add_radio", 
     "add_rule", "add_scrollable", "add_selectable_text", 
     "add_separator", "add_slider", "add_space", "add_svg", 
-    "add_table", "add_text_input", "add_text", "add_toggle", 
+    "add_table", "add_text_input", "add_text", "add_toggle",
     # utilities
     "update_widget", "add_session", 
 ]

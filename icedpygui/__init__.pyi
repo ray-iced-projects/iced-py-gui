@@ -112,17 +112,88 @@ def add_button(
     Usage::
 
         with Window(title="My App", pos_centered=True) as wnd_id: (if needed)
-            with Container(align_center_center=True):
+            with Container(align_center=True):
                 add_button(label="Press Me")
 
     """
     ...
+    
+def add_checkbox(
+    *, 
+    parent_id: Optional[str] = None, 
+    on_toggle: Optional[Callable]=None, 
+    is_checked: bool=False, 
+    label: Optional[str]=None, 
+    width: Optional[float]=None, 
+    width_fill: bool=False, 
+    size: Optional[float]=None, 
+    spacing: Optional[float]=None, 
+    text_size: Optional[float]=None,
+    text_line_height: Optional[float]=None,
+    text_shaping: Optional[TextShaping]=None,
+    text_wrapping: Optional[TextWrapping]=None,
+    text_font_id: Optional[int]=None,
+    icon_font_id: Optional[int]=None,
+    icon: Optional[IpgIcon]=None,
+    icon_size: Optional[float]=None,
+    icon_line_height: Optional[float]=None,
+    icon_shaping: Optional[TextShaping]=None,
+    user_data: Optional[Any]=None, 
+    show: bool=True, 
+    style_id: Optional[int]=None, 
+    style_std: Optional[int]=None,
+    gen_id: Optional[int]=None, 
+) -> int: 
+    """Adds a checkbox widget.
+    
+    A widget must go into a container type,
+    
+    i.e. Container, Column, Row, etc.
+    
+    Usage::
 
+        with Window(title="My App", pos_centered=True) as wnd_id: (if needed)
+            with Container(align_center=True):
+                add_checkbox(label="Check Me)
+
+    """
+    ...
+def add_checkbox_style(
+        background_color: Optional[IpgColor]=None,
+        background_rgba: Optional[list]=None,
+        border_color: Optional[IpgColor]=None, 
+        border_rgba: Optional[list]=None,
+        border_radius: Optional[list]=None,
+        border_width: Optional[float]=None,
+        text_color: Optional[IpgColor]=None, 
+        text_rgba: Optional[list]=None,
+        gen_id: Optional[int]=None,
+    ) -> int:
+    """Adds a checkbox styling widget.
+    
+    The styling widget can be place anywhere
+    as long as the id is global enough to be
+    seen by the checkbox or can be stored in a class
+
+    Usage::
+
+        chk_style = add_checkbox_style(
+                background_color=IpgColor.DARK_BLUE,
+                border_color=IpgColor.GOLD,
+                border_width=2.0,
+                border_radius=[6.0],
+                icon_color=IpgColor.GOLD,
+                text_color=IpgColor.DARK_BLUE)
+                
+        then:
+        add_checkbox(style_id=chk_style)
+    """
+    ...
 # ---------------------------------------------------------------------------
 # Other wrapped widget functions — TODO: add full signatures later
 # ---------------------------------------------------------------------------
 
-def add_checkbox(*, parent_id: Optional[str] = None, **kwargs: Any) -> int: ...
+
 def add_color_picker(*, parent_id: Optional[str] = None, **kwargs: Any) -> int: ...
 def add_date_picker(*, parent_id: Optional[str] = None, **kwargs: Any) -> int: ...
 def add_divider(*, parent_id: Optional[str] = None, **kwargs: Any) -> int: ...
@@ -164,6 +235,7 @@ def add_container(
     padding: Optional[list[float]] = None,
     show: bool = True,
     style_id: Optional[int] = None,
+    style_std: Optional[IpgContainerStyleStd] = None,
 ) -> int:
     ...
 
@@ -297,7 +369,7 @@ def add_window(
     Usage::
 
         add_window(window_id="main", title="My App", center=True)
-            with Container(align_center_center=True):
+            with Container(align_center=True):
                 add_text(content="hello")
 
     """
@@ -386,6 +458,7 @@ class Container:
         padding: Optional[list[float]] = None,
         show: bool = True,
         style_id: Optional[int] = None,
+        styl_std:Optional[IpgContainerStyleStd] = None,
     ) -> None: ...
     def __enter__(self) -> int: ...
     def __exit__(self, exc_type: type[BaseException] | None, exc_val: BaseException | None, exc_tb: TracebackType | None) -> bool: ...

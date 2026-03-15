@@ -16,7 +16,7 @@ use crate::widgets::ipg_button::{IpgButton,
 
 /// Add a button widget.
 ///
-/// A clickable button that can display a text label.
+/// A clickable button used for some gui action.
 ///
 /// Parameters
 /// ----------
@@ -24,8 +24,6 @@ use crate::widgets::ipg_button::{IpgButton,
 ///     The parent container ID that this button belongs to.
 /// label : str, optional
 ///     Text label displayed on the button.
-/// gen_id : int, optional
-///     Pre-generated numeric ID.  One is created automatically if omitted.
 /// on_press : callable, optional
 ///     Callback invoked when the button is pressed.
 /// width : float, optional
@@ -71,6 +69,8 @@ use crate::widgets::ipg_button::{IpgButton,
 ///     Arbitrary data forwarded to callbacks.
 /// show : bool, default True
 ///     Whether the button is visible.
+/// gen_id : int, optional
+///     Pre-generated numeric ID.  Used to assign ids to widgets that have not benn created yet.
 ///
 /// Returns
 /// -------
@@ -81,11 +81,10 @@ use crate::widgets::ipg_button::{IpgButton,
 #[pyo3(signature = (
     parent_id,
     label=None,
-    gen_id=None,
     on_press=None,
     width=None,
-    height=None,
     width_fill=false,
+    height=None,
     height_fill=false,
     padding=None,
     text_top_left=None,
@@ -103,16 +102,16 @@ use crate::widgets::ipg_button::{IpgButton,
     style_std=None,
     style_arrow=None,
     user_data=None,
-    show=true
+    show=true,
+    gen_id=None,
 ))]
 pub fn add_button(
     parent_id: String,
     label: Option<String>,
-    gen_id: Option<usize>,
     on_press: Option<PyObject>,
     width: Option<f32>,
-    height: Option<f32>,
     width_fill: bool,
+    height: Option<f32>,
     height_fill: bool,
     padding: Option<Vec<f32>>,
     text_top_left: Option<bool>,
@@ -131,6 +130,7 @@ pub fn add_button(
     style_arrow: Option<IpgArrow>,
     user_data: Option<PyObject>,
     show: bool,
+    gen_id: Option<usize>,
 ) -> PyResult<usize> {
 
     let id = get_id(gen_id);
@@ -186,6 +186,41 @@ pub fn add_button(
     Ok(id)
 }
 
+
+///"""
+///Adds styling to button
+///
+///Parameters
+///----------
+///background_color: Optional[IpgColor]=None
+///    Color of the background.
+///background_rgba: Optional[list[float, 4]]=None
+///    Color of the background in rgba format.
+///border_color: Optional[IpgColor]=None
+///    Color used for the border.
+///border_rgba: list[float; 4]=None
+///    Color of the border in rgba format.
+///border_radius: Optional[list[float]]=None
+///    The radius border, [float]=all corners, 
+///    [float, 4]=[top-left, top-right, bottom-right, bottom-left].
+///border_width: Optional[float]
+///    Border width.
+///shadow_color: Optional[IpgColor]
+///    The color of the shadow.
+///shadow_rgba: Optional[list]
+///    The color in rgba format [float; 4] used as state above.
+///shadow_offset_xy: Optional[float, 2]
+///    Shadow offset in the horizontal direction.
+///shadow_blur_radius: Optional[float]
+///    The blur radius of the shadow.
+///text_color: Optional[IpgColor]
+///    The text color, if not defined, will either be a Black or White variation based on theme background.
+///text_rgba: [list, 4]
+///    The color in rgba used as state above.
+/// gen_id : int, optional
+///     Pre-generated numeric ID.  Used to assign ids to widgets that have not benn created yet.
+///"""
+///
 #[pyfunction]
 #[pyo3(signature = (
         background_color=None, 

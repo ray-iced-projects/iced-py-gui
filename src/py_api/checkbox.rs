@@ -22,8 +22,6 @@ use crate::widgets::ipg_text::{TextShaping, TextWrapping};
 /// ----------
 /// parent_id : str
 ///     The parent container ID that this checkbox belongs to.
-/// gen_id : int, optional
-///     Pre-generated numeric ID.  One is created automatically if omitted.
 /// on_toggle : callable, optional
 ///     Callback invoked when the checkbox is toggled.
 /// is_checked : bool, default False
@@ -66,15 +64,17 @@ use crate::widgets::ipg_text::{TextShaping, TextWrapping};
 ///     ID of a custom style created with ``add_checkbox_style``.
 /// style_std : IpgCheckboxStyleStd, optional
 ///     A predefined standard style variant.
+/// gen_id : int, optional
+///     Pre-generated numeric ID.  Used to assign ids to widgets that have not benn created yet.
 ///
 /// Returns
 /// -------
 /// int
 ///     The numeric widget ID of the newly created checkbox.
+/// 
 #[pyfunction]
 #[pyo3(signature = (
     parent_id, 
-    gen_id=None, 
     on_toggle=None, 
     is_checked=false, 
     label=None, 
@@ -95,12 +95,11 @@ use crate::widgets::ipg_text::{TextShaping, TextWrapping};
     user_data=None, 
     show=true, 
     style_id=None, 
-    style_std=None, 
+    style_std=None,
+    gen_id=None, 
     ))] 
 pub fn add_checkbox(
     parent_id: String,
-    // ** above required
-    gen_id: Option<usize>,
     on_toggle: Option<PyObject>,
     is_checked: bool,
     label: Option<String>,
@@ -122,6 +121,7 @@ pub fn add_checkbox(
     show: bool,
     style_id: Option<usize>,
     style_std: Option<IpgCheckboxStyleStd>,
+    gen_id: Option<usize>,
     ) -> PyResult<usize> 
 {
     let id = get_id(gen_id);
@@ -169,9 +169,37 @@ pub fn add_checkbox(
 
 }
 
-/// Add a checkbox style widget.
+
+///"""
+///Adds styling to container
 ///
-/// Returns the widget ID.
+///Parameters
+///----------
+///background_color: Optional[IpgColor]=None
+///    The background color of the box.
+///background_rgba: list,
+///    The background color of the box in rgba format.
+///dark_mode: bool=false
+///    Indicates wheter the custom bkg color is dark.
+///    Will adjust the border and text color from the bkg color
+///    unless the border color is set.
+///border_color: Optional[IpgColor]=None
+///    The color for the border.
+///border_rgba: Optional[list[float, 4]]=None
+///    The color of the border in rgba format used as state above.
+///border_radius: list
+///    The radius of the 4 corners, [float]=all corners, 
+///    [float, 4] top-left, top-right, bottom-right, bottom-left.
+///border_width: float
+///    The border width.
+///text_color: Optional[IpgColor]=None
+///    The text color, if not defined, will either be a Black or White variation based on theme background.
+///text_rgba: Optional[list[float, 4]]=None
+///    The text color in rgba format.
+/// /// gen_id : int, optional
+///     Pre-generated numeric ID.  
+///    """
+/// 
 #[pyfunction]
 #[pyo3(signature = ( 
     background_color=None, 

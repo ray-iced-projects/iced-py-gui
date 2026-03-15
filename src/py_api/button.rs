@@ -14,69 +14,68 @@ use crate::widgets::ipg_button::{IpgButton,
     IpgButtonStyle, IpgButtonStyleStd};
 
 
-/// Add a button widget.
-///
-/// A clickable button used for some gui action.
-///
-/// Parameters
-/// ----------
-/// parent_id : str
-///     The parent container ID that this button belongs to.
-/// label : str, optional
-///     Text label displayed on the button.
-/// on_press : callable, optional
-///     Callback invoked when the button is pressed.
-/// width : float, optional
-///     Fixed width in logical pixels.
-/// height : float, optional
-///     Fixed height in logical pixels.
-/// width_fill : bool, default False
-///     Whether the button fills available width.
-/// height_fill : bool, default False
-///     Whether the button fills available height.
-/// padding : list of float, optional
-///     Padding as ``[all]``, ``[vertical, horizontal]``, or
-///     ``[top, right, bottom, left]``.
-/// text_top_left : bool, optional
-///     Align the label to the top-left.
-/// text_top_center : bool, optional
-///     Align the label to the top-centre.
-/// text_top_right : bool, optional
-///     Align the label to the top-right.
-/// text_center_left : bool, optional
-///     Align the label to the centre-left.
-/// text_center : bool, optional
-///     Align the label to the centre (default True).
-/// text_center_right : bool, optional
-///     Align the label to the centre-right.
-/// text_bottom_left : bool, optional
-///     Align the label to the bottom-left.
-/// text_bottom_center : bool, optional
-///     Align the label to the bottom-centre.
-/// text_bottom_right : bool, optional
-///     Align the label to the bottom-right.
-/// text_size : float, optional
-///     Font size for the label text.
-/// clip : bool, optional
-///     Whether to clip content that overflows the button.
-/// style_id : int, optional
-///     ID of a custom style created with ``add_button_style``.
-/// style_std : IpgButtonStyleStd, optional
-///     A predefined standard style variant.
-/// style_arrow : IpgArrow, optional
-///     An arrow icon style for the button.
-/// user_data : Any, optional
-///     Arbitrary data forwarded to callbacks.
-/// show : bool, default True
-///     Whether the button is visible.
-/// gen_id : int, optional
-///     Pre-generated numeric ID.  Used to assign ids to widgets that have not benn created yet.
-///
-/// Returns
-/// -------
-/// int
-///     The numeric widget ID of the newly created button.
-///
+///"""
+///Add a button widget.
+///A clickable button used for some gui action.
+/// 
+///Parameters
+///----------
+///parent_id : str, Optional
+///    The parent container ID that this button belongs to.
+///label : str, optional
+///    Text label displayed on the button.
+///on_press : callable, optional
+///    Callback invoked when the button is pressed.
+///width : float, optional
+///    Fixed width in logical pixels.
+///height : float, optional
+///    Fixed height in logical pixels.
+///width_fill : bool, default False
+///    Whether the button fills available width.
+///height_fill : bool, default False
+///    Whether the button fills available height.
+///padding : list of float, optional
+///    Padding as [all], [vertical, horizontal], or
+///    [top, right, bottom, left].
+///text_top_left : bool, optional
+///    Align the label to the top-left.
+///text_top_center : bool, optional
+///    Align the label to the top-centre.
+///text_top_right : bool, optional
+///    Align the label to the top-right.
+///text_center_left : bool, optional
+///    Align the label to the centre-left.
+///text_center : bool, optional
+///    Align the label to the centre (default True).
+///text_center_right : bool, optional
+///    Align the label to the centre-right.
+///text_bottom_left : bool, optional
+///    Align the label to the bottom-left.
+///text_bottom_center : bool, optional
+///    Align the label to the bottom-centre.
+///text_bottom_right : bool, optional
+///    Align the label to the bottom-right.
+///text_size : float, optional
+///    Font size for the label text.
+///clip : bool, optional
+///    Whether to clip content that overflows the button.
+///style_id : int, optional
+///    ID of a custom style created with ``add_button_style``.
+///style_std : IpgButtonStyleStd, optional
+///    A predefined standard style variant.
+///style_arrow : IpgArrow, optional
+///    An arrow icon style for the button.
+///user_data : Any, optional
+///    Arbitrary data forwarded to callbacks.
+///show : bool, default True
+///    Whether the button is visible.
+///gen_id : int, optional
+///    Pre-generated numeric ID.  Used to assign ids to widgets that have not benn created yet.
+///Returns
+///-------
+///int
+///    The numeric widget ID of the newly created button.
+///"""
 #[pyfunction]
 #[pyo3(signature = (
     parent_id,
@@ -188,7 +187,7 @@ pub fn add_button(
 
 
 ///"""
-///Adds styling to button
+///Adds styling to a button
 ///
 ///Parameters
 ///----------
@@ -220,7 +219,6 @@ pub fn add_button(
 /// gen_id : int, optional
 ///     Pre-generated numeric ID.  Used to assign ids to widgets that have not benn created yet.
 ///"""
-///
 #[pyfunction]
 #[pyo3(signature = (
         background_color=None, 

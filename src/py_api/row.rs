@@ -70,7 +70,6 @@ use crate::widgets::ipg_row::IpgRow;
 pub fn add_row(
     window_id: String,
     container_id: String,
-    // required above
     parent_id: Option<String>,
     width: Option<f32>,
     width_fill: bool,

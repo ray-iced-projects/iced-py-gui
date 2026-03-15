@@ -1,3 +1,13 @@
+#!/usr/bin/env python3
+# pylint: disable=useless-import-alias
+# pylint: disable=no-name-in-module
+# pylint: disable=unused-argument
+# pylint: disable=unnecessary_ellipsis
+# pylint: disable=too-many-arguments
+
+"""
+Re-Imports
+"""
 from typing import Any, Callable, Optional
 from types import TracebackType
 
@@ -7,7 +17,6 @@ from .icedpygui import (
     add_checkbox_style as add_checkbox_style,
     add_container_style as add_container_style,
     add_divider_style as add_divider_style,
-    add_mouse_area as add_mouse_area,
     add_pick_list_style as add_pick_list_style,
     add_radio_style as add_radio_style,
     add_scrollable_style as add_scrollable_style,
@@ -18,9 +27,6 @@ from .icedpygui import (
     add_slider_style as add_slider_style,
     add_text_input_style as add_text_input_style,
     add_toggler_style as add_toggler_style,
-    Align as Align,
-    AlignX as AlignX,
-    AlignY as AlignY,
     IpgArrow as IpgArrow,
     IpgButtonParam as IpgButtonParam,
     IpgButtonStyleParam as IpgButtonStyleParam,
@@ -117,33 +123,33 @@ def add_button(
 
     """
     ...
-    
+
 def add_checkbox(
-    *, 
-    parent_id: Optional[str] = None, 
-    on_toggle: Optional[Callable]=None, 
-    is_checked: bool=False, 
-    label: Optional[str]=None, 
-    width: Optional[float]=None, 
-    width_fill: bool=False, 
-    size: Optional[float]=None, 
-    spacing: Optional[float]=None, 
-    text_size: Optional[float]=None,
-    text_line_height: Optional[float]=None,
-    text_shaping: Optional[TextShaping]=None,
-    text_wrapping: Optional[TextWrapping]=None,
-    text_font_id: Optional[int]=None,
-    icon_font_id: Optional[int]=None,
-    icon: Optional[IpgIcon]=None,
-    icon_size: Optional[float]=None,
-    icon_line_height: Optional[float]=None,
-    icon_shaping: Optional[TextShaping]=None,
-    user_data: Optional[Any]=None, 
-    show: bool=True, 
-    style_id: Optional[int]=None, 
-    style_std: Optional[int]=None,
-    gen_id: Optional[int]=None, 
-) -> int: 
+    *,
+    parent_id: Optional[str] = None,
+    on_toggle: Optional[Callable] = None,
+    is_checked: bool = False,
+    label: Optional[str] = None,
+    width: Optional[float] = None,
+    width_fill: bool = False,
+    size: Optional[float] = None,
+    spacing: Optional[float] = None,
+    text_size: Optional[float] = None,
+    text_line_height: Optional[float] = None,
+    text_shaping: Optional[TextShaping] = None,
+    text_wrapping: Optional[TextWrapping] = None,
+    text_font_id: Optional[int] = None,
+    icon_font_id: Optional[int] = None,
+    icon: Optional[IpgIcon] = None,
+    icon_size: Optional[float] = None,
+    icon_line_height: Optional[float] = None,
+    icon_shaping: Optional[TextShaping] = None,
+    user_data: Optional[Any] = None,
+    show: bool = True,
+    style_id: Optional[int] = None,
+    style_std: Optional[int] = None,
+    gen_id: Optional[int] = None,
+) -> int:
     """Adds a checkbox widget.
     
     A widget must go into a container type,
@@ -151,61 +157,195 @@ def add_checkbox(
     i.e. Container, Column, Row, etc.
     
     Usage::
-
+        def checked(chk_id: int, is_checked: bool):
+            print(chk_id, is_checked)
+        
         with Window(title="My App", pos_centered=True) as wnd_id: (if needed)
             with Container(align_center=True):
-                add_checkbox(label="Check Me)
+                add_checkbox(
+                    label="Check Me",
+                    on_toggle=checked)
 
     """
     ...
-def add_checkbox_style(
-        background_color: Optional[IpgColor]=None,
-        background_rgba: Optional[list]=None,
-        border_color: Optional[IpgColor]=None, 
-        border_rgba: Optional[list]=None,
-        border_radius: Optional[list]=None,
-        border_width: Optional[float]=None,
-        text_color: Optional[IpgColor]=None, 
-        text_rgba: Optional[list]=None,
-        gen_id: Optional[int]=None,
-    ) -> int:
-    """Adds a checkbox styling widget.
+def add_color_picker(
+    *,
+    parent_id: Optional[str] = None,
+    **kwargs: Any) -> int:
+    """Adds a Color Picker widget.
     
-    The styling widget can be place anywhere
-    as long as the id is global enough to be
-    seen by the checkbox or can be stored in a class
-
     Usage::
 
-        chk_style = add_checkbox_style(
-                background_color=IpgColor.DARK_BLUE,
-                border_color=IpgColor.GOLD,
-                border_width=2.0,
-                border_radius=[6.0],
-                icon_color=IpgColor.GOLD,
-                text_color=IpgColor.DARK_BLUE)
-                
-        then:
-        add_checkbox(style_id=chk_style)
+        def color_selected(cp_id: int, color: list):
+            print(cp_id, color)
+            
+        def cp_opened(_cp_id: int, _user_data: any):
+            print("color picker opened")
+            
+
+        def cp_canceled(_cp_id: int, _user_data: any):
+            print("color picker canceled")
+
+        add_color_picker(
+            on_press=cp_opened, # Button to open color picker
+            on_select=color_selected, # the color selection selected
+            on_cancel=cp_canceled,  # color selection was canceled
+            )
+    
+    Returns:
+        int: widget id
     """
     ...
-# ---------------------------------------------------------------------------
-# Other wrapped widget functions — TODO: add full signatures later
-# ---------------------------------------------------------------------------
+def add_date_picker(
+    *,
+    parent_id: Optional[str] = None,
+    **kwargs: Any) -> int:
+    """_summary_
 
+    Args:
+        parent_id (Optional[str], optional): _description_. Defaults to None.
 
-def add_color_picker(*, parent_id: Optional[str] = None, **kwargs: Any) -> int: ...
-def add_date_picker(*, parent_id: Optional[str] = None, **kwargs: Any) -> int: ...
-def add_divider(*, parent_id: Optional[str] = None, **kwargs: Any) -> int: ...
-def add_pick_list(*, parent_id: Optional[str] = None, **kwargs: Any) -> int: ...
-def add_radio(*, parent_id: Optional[str] = None, **kwargs: Any) -> int: ...
-def add_selectable_text(*, parent_id: Optional[str] = None, **kwargs: Any) -> int: ...
-def add_separator(*, parent_id: Optional[str] = None, **kwargs: Any) -> int: ...
-def add_slider(*, parent_id: Optional[str] = None, **kwargs: Any) -> int: ...
-def add_space(*, parent_id: Optional[str] = None, **kwargs: Any) -> int: ...
-def add_text_input(*, parent_id: Optional[str] = None, **kwargs: Any) -> int: ...
-def add_text(*, parent_id: Optional[str] = None, **kwargs: Any) -> int: ...
-def add_toggler(*, parent_id: Optional[str] = None, **kwargs: Any) -> int: ...
+    Returns:
+        int: widget id
+    """
+    ...
+def add_divider(
+    *, parent_id: Optional[str] = None,
+    **kwargs: Any) -> int:
+    """_summary_
+
+    Args:
+        parent_id (Optional[str], optional): _description_. Defaults to None.
+
+    Returns:
+        int: widget id
+    """
+    ...
+def add_pick_list(
+    *,
+    parent_id: Optional[str] = None,
+    **kwargs: Any) -> int:
+    """
+    Adds a Pick List widget
+    A widget must go into a container type.
+    
+    i.e. Container, Column, Row, etc.
+    
+    Usage::
+        def picked_item(pl_id: int, data: str):
+            print(f"pl_id = {pl_id} data = {data}")
+            
+        options = ["One", "Two", "Three"]
+        
+        with Window(title="My App", pos_centered=True) as wnd_id: (if needed)
+            with Container(align_center=True):
+                add_pick_list(
+                    options=options,
+                    placeholder="Choose a Number...",
+                    on_select=picked_item)
+
+    Returns:
+        int: widget id
+    """
+    ...
+def add_radio(
+    *,
+    parent_id: Optional[str] = None,
+    **kwargs: Any) -> int:
+    """_summary_
+
+    Args:
+        parent_id (Optional[str], optional): _description_. Defaults to None.
+
+    Returns:
+        int: _description_
+    """
+    ...
+def add_selectable_text(
+    *,
+    parent_id: Optional[str] = None,
+    **kwargs: Any) -> int:
+    """_summary_
+
+    Args:
+        parent_id (Optional[str], optional): _description_. Defaults to None.
+
+    Returns:
+        int: _description_
+    """
+    ...
+def add_separator(
+    *, parent_id: Optional[str] = None,
+    **kwargs: Any) -> int:
+    """_summary_
+
+    Args:
+        parent_id (Optional[str], optional): _description_. Defaults to None.
+
+    Returns:
+        int: _description_
+    """
+    ...
+def add_slider(
+    *, parent_id: Optional[str] = None,
+    **kwargs: Any) -> int:
+    """_summary_
+
+    Args:
+        parent_id (Optional[str], optional): _description_. Defaults to None.
+
+    Returns:
+        int: _description_
+    """
+    ...
+def add_space(
+    *, parent_id: Optional[str] = None,
+    **kwargs: Any) -> int:
+    """_summary_
+
+    Args:
+        parent_id (Optional[str], optional): _description_. Defaults to None.
+
+    Returns:
+        int: _description_
+    """
+    ...
+def add_text_input(
+    *, parent_id: Optional[str] = None,
+    **kwargs: Any) -> int:
+    """_summary_
+
+    Args:
+        parent_id (Optional[str], optional): _description_. Defaults to None.
+
+    Returns:
+        int: _description_
+    """
+    ...
+def add_text(
+    *,
+    parent_id: Optional[str] = None,
+    **kwargs: Any) -> int:
+    """_summary_
+
+    Args:
+        parent_id (Optional[str], optional): _description_. Defaults to None.
+
+    Returns:
+        int: _description_
+    """
+    ...
+def add_toggler(
+    *, parent_id: Optional[str] = None,
+    **kwargs: Any) -> int:
+    """
+    Args:
+        parent_id (Optional[str], optional): _description_. Defaults to None.
+
+    Returns:
+        int: _description_
+    """
+    ...
 
 # ---------------------------------------------------------------------------
 # Wrapped container functions — full signatures
@@ -213,7 +353,7 @@ def add_toggler(*, parent_id: Optional[str] = None, **kwargs: Any) -> int: ...
 
 def add_container(
     *,
-    id: Optional[str] = None,
+    container_id: Optional[str] = None,
     window_id: Optional[str] = None,
     parent_id: Optional[str] = None,
     width: Optional[float] = None,
@@ -237,14 +377,24 @@ def add_container(
     style_id: Optional[int] = None,
     style_std: Optional[IpgContainerStyleStd] = None,
 ) -> int:
+    """_summary_
+
+    Args:
+        parent_id (Optional[str], optional): _description_. Defaults to None.
+
+    Returns:
+        int: widget id
+    """
     ...
 
 def add_column(
     *,
-    id: Optional[str] = None,
+    container_id: Optional[str] = None,
     window_id: Optional[str] = None,
     parent_id: Optional[str] = None,
-    align: Align = ...,
+    align_left: Optional[bool] = None,
+    align_center: Optional[bool] = None,
+    align_right: Optional[bool] = None,
     width: Optional[float] = None,
     height: Optional[float] = None,
     width_fill: bool = False,
@@ -255,35 +405,53 @@ def add_column(
     clip: bool = False,
     show: bool = True,
 ) -> int:
+    """_summary_
+
+    Args:
+        parent_id (Optional[str], optional): _description_. Defaults to None.
+
+    Returns:
+        int: widget id
+    """
     ...
 
 def add_mouse_area(
+    *,
     window_id: str,
     container_id: str,
-    *,
     parent_id: Optional[str]=None,
     gen_id: Optional[int]=None,
-    on_press: Optional[Callable]=None, 
-    on_release: Optional[Callable]=None, 
-    on_right_press: Optional[Callable]=None, 
-    on_right_release: Optional[Callable]=None, 
-    on_middle_press: Optional[Callable]=None, 
+    on_press: Optional[Callable]=None,
+    on_release: Optional[Callable]=None,
+    on_right_press: Optional[Callable]=None,
+    on_right_release: Optional[Callable]=None,
+    on_middle_press: Optional[Callable]=None,
     on_middle_release: Optional[Callable]=None,
     on_enter: Optional[Callable]=None,
     on_move: Optional[Callable]=None,
     on_exit: Optional[Callable]=None,
     mouse_pointer: Optional[IpgMousePointer]=None,
-    show: bool=True,  
+    show: bool=True,
     user_data: Optional[any]=None,
 ) -> int:
+    """_summary_
+
+    Args:
+        parent_id (Optional[str], optional): _description_. Defaults to None.
+
+    Returns:
+        int: widget id
+    """
     ...
     
 def add_row(
     *,
-    id: Optional[str] = None,
+    container_id: Optional[str] = None,
     window_id: Optional[str] = None,
     parent_id: Optional[str] = None,
-    align: Align = ...,
+    align_top: Optional[bool] = None,
+    align_center: Optional[bool] = None,
+    align_bottom: Optional[bool] = None,
     width: Optional[float] = None,
     height: Optional[float] = None,
     width_fill: bool = False,
@@ -293,36 +461,45 @@ def add_row(
     clip: bool = False,
     show: bool = True,
 ) -> int:
+    """_summary_
+
+    Args:
+        parent_id (Optional[str], optional): _description_. Defaults to None.
+
+    Returns:
+        int: widget id
+    """
     ...
 
 def add_scrollable(
     *,
-    id: Optional[str] = None,
-    window_id: Optional[str] = None,
-    parent_id: Optional[str] = None,
-    width: Optional[float] = None,
-    height: Optional[float] = None,
-    width_fill: bool = False,
-    height_fill: bool = False,
-    direction: Any = None,
-    h_bar_width: float = 10.0,
-    h_bar_margin: float = 0.0,
-    h_scroller_width: float = 10.0,
-    h_spacing: float = 0.0,
-    h_bar_alignment: Align = ...,
-    v_bar_width: float = 10.0,
-    v_bar_margin: float = 0.0,
-    v_scroller_width: float = 10.0,
-    v_spacing: float = 0.0,
-    v_bar_alignment: Align = ...,
-    on_scroll: Optional[Callable] = None,
-    style_id: Optional[str] = None,
-    user_data: Optional[Any] = None,
-) -> int:    
+    window_id: Optional[str]=None,
+    container_id: Optional[str]=None,
+    parent_id: Optional[str]=None,
+    width: Optional[float]=None,
+    width_fill: Optional[bool]=None,
+    height: Optional[float]=None,
+    height_fill: Optional[bool]=None,
+    both_scrollers: Optional[bool]=None,
+    scroller_x_id: Optional[int]=None,
+    scroller_y_id: Optional[int]=None,
+    on_scroll: Optional[callable]=None,
+    user_data: Optional[callable]=None,
+    style_id: Optional[int]=None,
+) -> int:
+    """_summary_
+
+    Args:
+        parent_id (Optional[str], optional): _description_. Defaults to None.
+
+    Returns:
+        int: widget id
+    """
     ...
 
 def add_stack(
     *,
+    container_id: Optional[str] = None,
     parent_id: Optional[str] = None,
     width: Optional[float] = None,
     height: Optional[float] = None,
@@ -331,6 +508,14 @@ def add_stack(
     hide_index: Optional[int] = None,
     show: bool = True,
 ) -> int:
+    """_summary_
+
+    Args:
+        parent_id (Optional[str], optional): _description_. Defaults to None.
+
+    Returns:
+        int: widget id
+    """
     ...
 
 def add_table(*, parent_id: Optional[str] = None, **kwargs: Any) -> int: ...
@@ -394,7 +579,7 @@ class Window:
     def __init__(
         self,
         *,
-        id: Optional[str] = None,
+        window_id: Optional[str] = None,
         title: str = ...,
         width: float = ...,
         height: float = ...,
@@ -416,7 +601,9 @@ class Window:
         gen_id: Optional[int] = None,
     ) -> None: ...
     def __enter__(self) -> int: ...
-    def __exit__(self, exc_type: type[BaseException] | None, exc_val: BaseException | None, exc_tb: TracebackType | None) -> bool: ...
+    def __exit__(self, exc_type: type[BaseException] | None, \
+        exc_val: BaseException | None, \
+            exc_tb: TracebackType | None) -> bool: ...
 
 
 class Container:
@@ -436,7 +623,7 @@ class Container:
     def __init__(
         self,
         *,
-        id: Optional[str] = None,
+        container_id: Optional[str] = None,
         window_id: Optional[str] = None,
         parent_id: Optional[str] = None,
         width: Optional[float] = None,
@@ -461,7 +648,9 @@ class Container:
         styl_std:Optional[IpgContainerStyleStd] = None,
     ) -> None: ...
     def __enter__(self) -> int: ...
-    def __exit__(self, exc_type: type[BaseException] | None, exc_val: BaseException | None, exc_tb: TracebackType | None) -> bool: ...
+    def __exit__(self, exc_type: type[BaseException] | None, \
+        exc_val: BaseException | None, \
+            exc_tb: TracebackType | None) -> bool: ...
 
 
 class Column:
@@ -480,13 +669,15 @@ class Column:
     def __init__(
         self,
         *,
-        id: Optional[str] = None,
+        container_id: Optional[str] = None,
         window_id: Optional[str] = None,
         parent_id: Optional[str] = None,
-        align: Align = ...,
+        align_left: Optional[bool] = None,
+        align_center: Optional[bool] = None,
+        align_right: Optional[bool] = None,
         width: Optional[float] = None,
-        height: Optional[float] = None,
         width_fill: bool = False,
+        height: Optional[float] = None,
         height_fill: bool = False,
         max_width: float = ...,
         padding: Optional[list[float]] = None,
@@ -495,7 +686,9 @@ class Column:
         show: bool = True,
     ) -> None: ...
     def __enter__(self) -> int: ...
-    def __exit__(self, exc_type: type[BaseException] | None, exc_val: BaseException | None, exc_tb: TracebackType | None) -> bool: ...
+    def __exit__(self, exc_type: type[BaseException] | None, \
+        exc_val: BaseException | None, \
+            exc_tb: TracebackType | None) -> bool: ...
 
 
 class MouseArea:
@@ -518,21 +711,23 @@ class MouseArea:
         container_id: str,
         parent_id: Optional[str]=None,
         gen_id: Optional[int]=None,
-        on_press: Optional[Callable]=None, 
-        on_release: Optional[Callable]=None, 
-        on_right_press: Optional[Callable]=None, 
-        on_right_release: Optional[Callable]=None, 
-        on_middle_press: Optional[Callable]=None, 
+        on_press: Optional[Callable]=None,
+        on_release: Optional[Callable]=None,
+        on_right_press: Optional[Callable]=None,
+        on_right_release: Optional[Callable]=None,
+        on_middle_press: Optional[Callable]=None,
         on_middle_release: Optional[Callable]=None,
         on_enter: Optional[Callable]=None,
         on_move: Optional[Callable]=None,
         on_exit: Optional[Callable]=None,
         mouse_pointer: Optional[IpgMousePointer]=None,
-        show: bool=True,  
+        show: bool=True,
         user_data: Optional[any]=None,
     ) -> None: ...
     def __enter__(self) -> int: ...
-    def __exit__(self, exc_type: type[BaseException] | None, exc_val: BaseException | None, exc_tb: TracebackType | None) -> bool: ...
+    def __exit__(self, exc_type: type[BaseException] | None, \
+        exc_val: BaseException | None, \
+            exc_tb: TracebackType | None) -> bool: ...
 
 
 class Row:
@@ -551,21 +746,25 @@ class Row:
     def __init__(
         self,
         *,
-        id: Optional[str] = None,
         window_id: Optional[str] = None,
+        container_id: Optional[str] = None,
         parent_id: Optional[str] = None,
-        align: Align = ...,
         width: Optional[float] = None,
+        width_fill: Optional[bool] = None,
         height: Optional[float] = None,
-        width_fill: bool = False,
-        height_fill: bool = False,
-        padding: Optional[list[float]] = None,
-        spacing: float = 20.0,
-        clip: bool = False,
+        height_fill: Optional[bool] = None,
+        align_bottom: Optional[bool] = None,
+        align_center: Optional[bool] = None,
+        align_top: Optional[bool] = None,
+        padding: Optional[list] = None,
+        spacing: Optional[float] = None,
+        clip: Optional[bool] = None,
         show: bool = True,
     ) -> None: ...
     def __enter__(self) -> int: ...
-    def __exit__(self, exc_type: type[BaseException] | None, exc_val: BaseException | None, exc_tb: TracebackType | None) -> bool: ...
+    def __exit__(self, exc_type: type[BaseException] | None, \
+        exc_val: BaseException | None,\
+            exc_tb: TracebackType | None) -> bool: ...
 
 
 class Stack:
@@ -583,8 +782,8 @@ class Stack:
     def __init__(
         self,
         *,
-        id: Optional[str] = None,
         window_id: Optional[str] = None,
+        container_id: Optional[str] = None,
         parent_id: Optional[str] = None,
         width: Optional[float] = None,
         height: Optional[float] = None,
@@ -594,7 +793,9 @@ class Stack:
         show: bool = True,
     ) -> None: ...
     def __enter__(self) -> int: ...
-    def __exit__(self, exc_type: type[BaseException] | None, exc_val: BaseException | None, exc_tb: TracebackType | None) -> bool: ...
+    def __exit__(self, exc_type: type[BaseException] | None, \
+        exc_val: BaseException | None, \
+            exc_tb: TracebackType | None) -> bool: ...
 
 
 class Scrollable:
@@ -610,27 +811,21 @@ class Scrollable:
     def __init__(
         self,
         *,
-        id: Optional[str] = None,
         window_id: Optional[str] = None,
+        container_id: Optional[str] = None,
         parent_id: Optional[str] = None,
         width: Optional[float] = None,
+        width_fill: Optional[bool] = None,
         height: Optional[float] = None,
-        width_fill: bool = False,
-        height_fill: bool = False,
-        direction: Any = None,
-        h_bar_width: float = 10.0,
-        h_bar_margin: float = 0.0,
-        h_scroller_width: float = 10.0,
-        h_spacing: float = 0.0,
-        h_bar_alignment: Align = ...,
-        v_bar_width: float = 10.0,
-        v_bar_margin: float = 0.0,
-        v_scroller_width: float = 10.0,
-        v_spacing: float = 0.0,
-        v_bar_alignment: Align = ...,
-        on_scroll: Optional[Callable] = None,
-        style_id: Optional[str] = None,
-        user_data: Optional[Any] = None,
+        height_fill: Optional[bool] = None,
+        both_scrollers: Optional[float] = None,
+        scroller_x_id: Optional[int] = None,
+        scroller_y_id: Optional[int] = None,
+        on_scroll: Optional[callable] = None,
+        user_data: Optional[callable] = None,
+        style_id: Optional[int] = None,
     ) -> None: ...
     def __enter__(self) -> int: ...
-    def __exit__(self, exc_type: type[BaseException] | None, exc_val: BaseException | None, exc_tb: TracebackType | None) -> bool: ...
+    def __exit__(self, exc_type: type[BaseException] | None, \
+        exc_val: BaseException | None, \
+            exc_tb: TracebackType | None) -> bool: ...

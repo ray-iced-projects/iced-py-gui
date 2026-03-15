@@ -1,5 +1,6 @@
 from typing import Any, Callable, List, Optional
 
+# pylint: disable=no-name-in-module
 
 # Ipg functions
 from .icedpygui import (
@@ -126,7 +127,7 @@ def _wrap_widget(rust_fn, name):
     return wrapper
 
 add_button = _wrap_widget(_add_button, "add_button")
-add_button.__doc__ = add_button.__doc__
+add_button.__doc__ = _add_button.__doc__
 add_checkbox = _wrap_widget(_add_checkbox, "add_checkbox")
 add_checkbox.__doc__ = _add_checkbox.__doc__
 add_color_picker = _wrap_widget(_add_color_picker, "add_color_picker")
@@ -157,7 +158,6 @@ def _wrap_container(rust_fn, name):
         return rust_fn(window_id=window_id, container_id=id, parent_id=parent_id, **kwargs)
     wrapper.__name__ = name
     wrapper.__qualname__ = name
-    return wrapper
     return wrapper
 
 add_container = _wrap_container(_add_container, "add_container")

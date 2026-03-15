@@ -31,7 +31,6 @@ type PyObject = Py<PyAny>;
 pub fn add_scrollable(
     window_id: String,
     container_id: String,
-    // above required
     parent_id: Option<String>,
     width: Option<f32>,
     width_fill: bool,

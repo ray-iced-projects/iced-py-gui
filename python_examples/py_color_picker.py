@@ -26,11 +26,11 @@ def color_selected(cp_id: int, color: list, user_data: any):
     
 
 
-def cp_opened(cp_id: int, user_data: any):
+def cp_opened(_cp_id: int, _user_data: any):
     print("color picker opened")
     
 
-def cp_canceled(cp_id: int, user_data: any):
+def cp_canceled(_cp_id: int, _user_data: any):
     print("color picker canceled")
 
 # Since the color_picker is using a button

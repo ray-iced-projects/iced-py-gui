@@ -1,55 +1,68 @@
-from imports import *
+#!/usr/bin/env python3
+"""
+Mouse Area use demo
+"""
 
-def on_press(id, _user_data):
-    print("on press", id)
+from icedpygui import Window, Container,\
+    add_text, add_mouse_area, start_session
 
-
-def on_release(id, _user_data):
-    print("on release", id)
-
-
-def on_right_press(id, _user_data):
-    print("on right press, id")
-
-
-def on_right_release(id, _user_data):
-    print("on right release", id)
+def on_press(wid, _user_data):
+    """OnLeft press callback"""
+    print("on left press", wid)
 
 
-def on_middle_press(id, _user_data):
-    print("on middle press", id)
+def on_release(ma_id, _user_data):
+    """OnLeft release callback"""
+    print("on left release", ma_id)
 
 
-def on_middle_release(id, _user_data):
-    print("on middle release", id)
+def on_right_press(ma_id, _user_data):
+    """OnRight press callback"""
+    print("on right press", ma_id)
 
 
-def on_enter(id, user_data):
-    print("entered", id, user_data)    
+def on_right_release(ma_id, _user_data):
+    """OnRight release callback"""
+    print("on right release", ma_id)
 
 
-def on_move(id: int, point: dict, _user_data):
-    print("on move", id, point)
+def on_middle_press(ma_id, _user_data):
+    """OnMiddle press callback"""
+    print("on middle press", ma_id)
 
 
-def on_exit(id, _user_data):
-    print("on exit", id)
+def on_middle_release(ma_id, _user_data):
+    """OnMiddle release callback"""
+    print("on mma_iddle release", ma_id)
+
+
+def on_enter(ma_id, user_data):
+    """OnEnter callback"""
+    print("entered", ma_id, user_data)
+
+
+def on_move(ma_id: int, point: dict, _user_data):
+    """OnMove callback"""
+    print("on move", ma_id, point)
+
+
+def on_exit(ma_id, _user_data):
+    """OnExit callback"""
+    print("on exit", ma_id)
 
 
 with Window(
     title="Main",
-    size=(400, 400), 
-    center=True, 
+    size=(400, 400),
+    center=True,
     debug=True):
 
     with Container(
-        id="cont", 
-        width_fill=True, 
+        width_fill=True,
         height_fill=True,
         align_center=True,):
 
         add_mouse_area(
-            id="ma",
             on_enter=on_enter,
             on_exit=on_exit,
             on_move=on_move,

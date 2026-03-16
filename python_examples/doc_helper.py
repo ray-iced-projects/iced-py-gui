@@ -1,3 +1,8 @@
+#!/usr/bin/env python3
+"""
+Help to display the Doc string for a widget
+"""
+
 import icedpygui as ipg
 
 widgets = [
@@ -17,9 +22,10 @@ widgets = [
 ]
 
 def show_help(_btn_id, widget_name):
+    """Shows the doc string if available"""
     fn = getattr(ipg, widget_name)
-    ipg.update_widget(wid=txt_id, 
-                  param=ipg.IpgTextParam.Content, 
+    ipg.update_widget(wid=txt_id,
+                  param=ipg.IpgTextParam.Content,
                   value=fn.__doc__ or f"No docs for {widget_name}")
 
 
@@ -38,7 +44,7 @@ with ipg.Window(title="Widget Help", center=True) as win:
                         on_press=show_help,
                         user_data=name,
                     )
-                    
+
         with ipg.Scrollable():
             txt_id = ipg.add_text(content="Documentation will be displayed here")
 

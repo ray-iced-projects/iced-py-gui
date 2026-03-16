@@ -1,35 +1,53 @@
-from dataclasses import dataclass
+#!/usr/bin/env python3
+"""
+IcedPyGui functions
+"""
+
 from typing import Any, Callable, List, Optional, Union
 
+# pylint: disable=unused-argument
+# pylint: disable=too-many-arguments
 
 # ---------------------------------------------------------------------------
 # Standalone functions (migrated from IPG class methods)
 # ---------------------------------------------------------------------------
 
 def add_window(
-        window_id: str,
-        title: str,
-        width: float,
-        height: float,
-        max_width: Optional[float],
-        max_height: Optional[float],
-        min_width: Optional[float],
-        min_height: Optional[float],
-        pos_x: Optional[float]=None,
-        pos_y: Optional[float]=None,
-        pos_centered: bool=False,
-        resizable: bool=True,
-        decorations: bool=True,
-        transparent: bool=False,
-        level: IpgWindowLevel = IpgWindowLevel.Normal,
-        theme: IpgWindowTheme=IpgWindowTheme.Dark,
-        debug: bool=False,
-        exit_on_close: bool=True,
-        mode: IpgWindowMode=IpgWindowMode.Windowed,
-        gen_id: Optional[int]=None,
+    window_id: str,
+    title: Optional[str]=None,
+    size: Optional[list]=None,
+    maximized: Optional[bool]=None,
+    fullscreen: Optional[bool]=None,
+    center: Optional[bool]=None,
+    position: Optional[list]=None,
+    min_size: Optional[list]=None,
+    max_size: Optional[list]=None,
+    theme: Optional[IpgWindowTheme]=None,
+    visible: Optional[bool]=None,
+    resizable: Optional[bool]=None,
+    minimizable: Optional[bool]=None,
+    closeable: Optional[bool]=None,
+    decorations: Optional[bool]=None,
+    transparent: Optional[bool]=None,
+    blur: Optional[bool]=None,
+    level: Optional[IpgWindowLevel]=None,
+    icon_rgba: Optional[list]=None,
+    icon_width_height: Optional[list]=None,
+    exit_on_close_request: Optional[bool]=None,
+    scale_factor: Optional[float]=None,
+    debug: Optional[bool]=None,
+    on_resize: Optional[Any]=None,
+    user_data: Optional[Any]=None,
+    gen_id: Optional[int]=None,
     ) -> int:
     """
     Adds a window to the gui.
+    
+    Usage::
+
+        add_window(window_id="main", title="Demo"):
+        add_container(container_id="cont", window_id="main", align_center=True, width_fill=True):
+        add_text(parent_id=cont, content="hello")
 
     Parameters
     ----------
@@ -181,8 +199,8 @@ def add_button(
     int
         Internal id of widget.
     """
-    
-    
+
+
 def add_button_style(
         background_color: Optional[IpgColor] = None,
         background_rgba: Optional[list[float, 4]] = None,
@@ -197,7 +215,6 @@ def add_button_style(
         text_color: Optional[IpgColor] = None, 
         text_rgba: Optional[list[float, 4]] = None
     ) -> int:
-        
     """
     Adds styling to button
 
@@ -225,7 +242,8 @@ def add_button_style(
         shadow_blur_radius: Optional[float]
             The blur radius of the shadow.
         text_color: Optional[IpgColor]
-            The text color, if not defined, will either be a Black or White variation based on theme background.
+            The text color, if not defined, will either be a Black\
+                or White variation based on theme background.
         text_rgba: [list, 4]
             The color in rgba used as state above.
     """
@@ -251,7 +269,6 @@ def add_checkbox(
         user_data: Optional[Any]=None,
         show: bool=True,
     ) -> int:
-    
     """
     Adds a checkbox to the gui.
     When styling, the base color appears during a mouse hover and when checked.  
@@ -301,18 +318,17 @@ def add_checkbox(
     id: int
         Internal id of widget and can be used by user if equated.
     """
-    
+
 def add_checkbox_style(
         background_color: Optional[IpgColor]=None,
         background_rgba: Optional[list]=None,
-        border_color: Optional[IpgColor]=None, 
+        border_color: Optional[IpgColor]=None,
         border_rgba: Optional[list]=None,
-        border_radius: list=[0.0], 
-        border_width: float=1.0,
-        text_color: Optional[IpgColor]=None, 
+        border_radius: list=None,
+        border_width: Optional[float]=None,
+        text_color: Optional[IpgColor]=None,
         text_rgba: Optional[list]=None
     ) -> int:
-        
     """
     Adds styling to container
 
@@ -399,7 +415,7 @@ def add_column(
     id: int
         Internal id of widget and can be used by user if equated.
     """
-    
+
 
 def add_container(
         window_id: str,
@@ -499,7 +515,7 @@ def add_container(
     int
         Internal id of the widget.
     """
-    ...
+
 
 def add_container_style(
         background_color: Optional[IpgColor]=None,
@@ -602,7 +618,6 @@ class Container:
 
     def __enter__(self) -> str:
         """Returns the container_id."""
-        ...
 
     def __exit__(self, exc_type: Any, exc_val: Any, exc_tb: Any) -> bool: ...
 
@@ -732,7 +747,6 @@ def add_mousearea(
         show: bool=True,  
         user_data: Optional[any]=None,
     ) -> int:
-    
     """
     Adds a mouse area where the mouse actions have a callback.  
     The mouse area is like a container, you can add one or more items
@@ -798,7 +812,6 @@ def add_opaque_container(
         show: bool,
         style_id: Optional[str],
     ) -> int:
-    
     """
     Adds an opaque container, usually used in the stack widget to hide items.
     """
@@ -871,7 +884,6 @@ def add_stack(
         hide_index: Optional[int],
         show: bool=True,
     ) -> int:
-
     """
     Adds a stack of containers to the gui.
     
@@ -904,7 +916,7 @@ def add_stack(
     id: int
         Internal id of widget and can be used by user if equated.
     """
-        
+    
 def add_scrollable(
         window_id: str,
         container_id: str,
@@ -929,7 +941,6 @@ def add_scrollable(
         style_id: Optional[str]=None,
         user_data: Optional[any]=None,
     ) -> int:
-    
     """
     Wraps a scrollable widget around a container.
 
@@ -1015,7 +1026,6 @@ def add_scrollable_style(
         scroller_rgba_dragged: Optional[list[float, 4]]=None,
         gen_id: Optional[int]=None,
     ) -> int:
-    
     """
     Add styling to the Scrollable widget.
 
@@ -1086,7 +1096,6 @@ def add_tool_tip(
         gap: int=10,
         style_id: str,
         ) -> int:
-    
     """
     Adds a tooltip container to the widget.
 
@@ -1129,7 +1138,6 @@ def add_tooltip_style(
         text_color: Optional[IpgColor]=None,
         text_rgba: Optional[list[float, 4]]=None,
     ) -> int:
-    
     """
     Adds styling to the tool tip
 
@@ -1163,26 +1171,25 @@ def add_tooltip_style(
     """
 
 def add_card(
-        parent_id, 
-        head, 
-        body, 
+        parent_id,
+        head,
+        body,
         foot: Optional[str]=None,
         gen_id: Optional[int]=None,
         is_open: bool=True, 
         close_size: float=0.0, 
         on_close: Optional[Callable]=None,
-        width: Optional[float]=None, 
-        height: Optional[float]=None, 
+        width: Optional[float]=None,
+        height: Optional[float]=None,
         max_width: float="inf",
-        max_height: float="inf", 
-        padding_head: float=5.0, 
-        padding_body: float=5.0, 
+        max_height: float="inf",
+        padding_head: float=5.0,
+        padding_body: float=5.0,
         padding_foot: float=5.0,
         show: bool=True,
         style_id: Optional[int]=None,
-        user_data: Optional[any]=None, 
+        user_data: Optional[any]=None,
     ) -> int:
-    
     """
     Adds a card to hold text strings.  No widgets can be added at this time.
 
@@ -1232,29 +1239,28 @@ def add_card(
     """
 
 def add_card_style(
-        background_color: Optional[IpgColor]=None, 
+        background_color: Optional[IpgColor]=None,
         background_rgba: Optional[list[float, 4]]=None,
-        border_radius: float=10.0, 
+        border_radius: float=10.0,
         border_width: float=1.0, 
         border_color: Optional[IpgColor]=None,
-        border_rgba: Optional[list[float, 4]]=None, 
+        border_rgba: Optional[list[float, 4]]=None,
         head_background_color: Optional[IpgColor]=None,
-        head_background_rgba: Optional[list[float, 4]]=None, 
+        head_background_rgba: Optional[list[float, 4]]=None,
         head_text_color: Optional[IpgColor]=None,
         head_text_rgba: Optional[list[float, 4]]=None,
         body_background_color: Optional[IpgColor]=None,
-        body_background_rgba: Optional[list[float, 4]]=None, 
+        body_background_rgba: Optional[list[float, 4]]=None,
         body_text_color: Optional[IpgColor]=None,
-        body_text_rgba: Optional[list[float, 4]]=None, 
+        body_text_rgba: Optional[list[float, 4]]=None,
         foot_background_color: Optional[IpgColor]=None,
-        foot_background_rgba: Optional[list[float, 4]]=None, 
+        foot_background_rgba: Optional[list[float, 4]]=None,
         foot_text_color: Optional[IpgColor]=None,
-        foot_text_rgba: Optional[list[float, 4]]=None, 
+        foot_text_rgba: Optional[list[float, 4]]=None,
         close_color: Optional[IpgColor]=None,
         close_rgba: Optional[list[float, 4]]=None,
         gen_id: Optional[int]=None,
     ) -> int:
-    
     """
     Adds styling to the Card
 
@@ -1308,126 +1314,6 @@ def add_card_style(
     -------
     id: int
         Id of widget which is used for the style_id of the card.
-    """
-    
-    
-def add_checkbox(
-        parent_id: str,
-        *,
-        on_toggle: Optional[Callable]=None,
-        is_checked: bool=False,
-        label: Optional[str]=None,
-        gen_id: Optional[int]=None,
-        width: Optional[float]=None,
-        width_fill: bool=False,
-        size: float=16.0,
-        spacing: float = 15.0,
-        text_line_height: float=1.3,
-        text_shaping: str = "basic",
-        text_size: float=16.0,
-        icon_x: bool=False,
-        icon_size: float=25.0,
-        style_id: Optional[int]=None,
-        style_standard: Optional[IpgButtonStyleStd]=None,
-        user_data: Optional[Any]=None,
-        show: bool=True,
-    ) -> int:
-    
-    """
-    Adds a checkbox to the gui.
-    When styling, the base color appears during a mouse hover and when checked.  
-    If border color is not assigned, the border color will be the base color.
-    
-    Parameters
-    ----------
-        parent_id: str
-            id of another container or window.
-        on_toggle: Callable
-            The function called when checkbox is toggled.
-        is_checked: bool
-            Whether checked or not.
-        label: str
-            Sets the label to the right of the checkbox.
-        gen_id: int
-            The only allowable entry for this id is the one generated by ipg.generate_id().
-        width: float, optional)
-            Sets the width of the widget.
-        width_fill: bool
-            Sets the width to fill the available space, overrides width.
-        size: float
-            Sets the size of checkbox.
-        spacing: float
-            Sets the spacing between the Checkbox and the text.
-        text_line_height: float
-            Sets the text Line Height of the Checkbox.
-        text_shaping: str
-            When set to "Advanced", requires adding fonts.
-        text_size: float
-            Sets the size of the text beside the checkbox.
-        icon_x: bool
-            If true, uses the x versus the check mark icon.
-        icon_size: float
-            Sets the size of either the check or x icon.
-        style_id: int
-            Id of the add_checkbox_style.
-        style_standard: class
-            IpgStyleStandard: Primary, Success, Danger, Text(not valid)
-        user_data: any 
-            Any data in any form needed by user to be passed through as a callback. 
-        show: bool
-            Shows or hides widget.
-        
-    Returns
-    -------
-    id: int
-        Internal id of widget and can be used by user if equated.
-    """
-    
-def add_checkbox_style(
-        background_color: Optional[IpgColor]=None,
-        background_rgba: Optional[list]=None,
-        accent_color: Optional[IpgColor]=None,
-        accent_rgba: Optional[list[float, 4]]=None,
-        accent_color_hovered: Optional[IpgColor]=None,
-        accent_rgba_hovered: Optional[list[float, 4]]=None,
-        border_color: Optional[IpgColor]=None, 
-        border_rgba: Optional[list]=None,
-        border_radius: list=[0.0], 
-        border_width: float=1.0,
-        text_color: Optional[IpgColor]=None, 
-        text_rgba: Optional[list]=None
-    ) -> int:
-    
-    """
-    Adds styling to container
-
-    Parameters
-    ----------
-        background_color: Optional[IpgColor]=None
-            The background color of the box.
-        background_rgba: list,
-            The background color of the box in rgba format.
-        accent_color: Optional[IpgColor]=None
-            The color of the box when checked.
-        accent_rgba: Optional[list[float, 4]]=None
-            The color of the box in rgba format in rgba format.
-        accent_color_hovered: Optional[IpgColor]=None
-            The color used for the mouse hover over the box that is checked.
-        accent_rgba_hovered: Optional[list[float, 4]]=None
-            The color used for the mouse hover over the box that is checked in rgba format.
-        border_color: Optional[IpgColor]=None
-            The color for the border.
-        border_rgba: Optional[list[float, 4]]=None
-            The color of the border in rgba format used as state above.
-        border_radius: list
-            The radius of the 4 corners, [float]=all corners, 
-            [float, 4] top-left, top-right, bottom-right, bottom-left.
-        border_width: float
-            The border width.
-        text_color: Optional[IpgColor]=None
-            The text color, if not defined, will either be a Black or White variation based on theme background.
-        text_rgba: Optional[list[float, 4]]=None
-            The text color in rgba format.
     """
 
 def add_color_picker(

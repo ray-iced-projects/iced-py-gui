@@ -179,6 +179,16 @@ pub fn try_extract_i32_opt(value: &PyObject) -> Option<i32> {
     })  
 }
 
+pub fn try_extract_vec_u8_opt(value: &PyObject, name: &str) -> Option<Vec<u8>> {
+    Python::attach(|py| {
+        let res = value.extract::<Option<Vec<u8>>>(py);
+        match res {
+            Ok(val) => val,
+            Err(_) => panic!("{}-Unable to extract u8", name),
+        }
+    })  
+}
+
 pub fn try_extract_u16(value: &PyObject, name: &str) -> u16 {
     Python::attach(|py| {
         let res = value.extract::<u16>(py);
@@ -308,6 +318,17 @@ pub fn try_extract_u16_array_2(value: &PyObject, name: &str) -> [u16; 2] {
     Python::attach(|py| {
 
         let res = value.extract::<[u16; 2]>(py);
+        match res {
+            Ok(val) => val,
+            Err(_) => panic!("{}-Unable to extract python object for 2 item list", name),
+        }
+    })
+}
+
+pub fn try_extract_opt_u32_array_2(value: &PyObject, name: &str) -> Option<[u32; 2]> {
+    Python::attach(|py| {
+
+        let res = value.extract::<Option<[u32; 2]>>(py);
         match res {
             Ok(val) => val,
             Err(_) => panic!("{}-Unable to extract python object for 2 item list", name),

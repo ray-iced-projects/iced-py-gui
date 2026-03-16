@@ -4,7 +4,7 @@
 # pylint: disable=unused-argument
 # pylint: disable=unnecessary_ellipsis
 # pylint: disable=too-many-arguments
-
+# pylint: disable=too-many-locals
 """
 Re-Imports
 """
@@ -443,7 +443,7 @@ def add_mouse_area(
         int: widget id
     """
     ...
-    
+
 def add_row(
     *,
     container_id: Optional[str] = None,
@@ -518,7 +518,20 @@ def add_stack(
     """
     ...
 
-def add_table(*, parent_id: Optional[str] = None, **kwargs: Any) -> int: ...
+def add_table(
+    *,
+    parent_id: Optional[str] = None,
+    **kwargs: Any
+) -> int:
+    """_summary_
+
+    Args:
+        parent_id (Optional[str], optional): _description_. Defaults to None.
+
+    Returns:
+        int: widget id
+    """
+    ...
 
 # ---------------------------------------------------------------------------
 # add_window wrapper
@@ -580,25 +593,31 @@ class Window:
         self,
         *,
         window_id: Optional[str] = None,
-        title: str = ...,
-        width: float = ...,
-        height: float = ...,
-        max_width: Optional[float] = None,
-        max_height: Optional[float] = None,
-        min_width: Optional[float] = None,
-        min_height: Optional[float] = None,
-        pos_x: Optional[float] = None,
-        pos_y: Optional[float] = None,
-        center: bool = False,
-        resizable: bool = True,
-        decorations: bool = True,
-        transparent: bool = False,
-        level: IpgWindowLevel = ...,
-        theme: IpgWindowTheme = ...,
-        debug: bool = False,
-        exit_on_close: bool = True,
-        mode: IpgWindowMode = ...,
-        gen_id: Optional[int] = None,
+        title: Optional[str]=None,
+        size: Optional[list]=None,
+        maximized: Optional[bool]=None,
+        fullscreen: Optional[bool]=None,
+        center: Optional[bool]=None,
+        position: Optional[list]=None,
+        min_size: Optional[list]=None,
+        max_size: Optional[list]=None,
+        theme: Optional[IpgWindowTheme]=None,
+        visible: Optional[bool]=None,
+        resizable: Optional[bool]=None,
+        minimizable: Optional[bool]=None,
+        closeable: Optional[bool]=None,
+        decorations: Optional[bool]=None,
+        transparent: Optional[bool]=None,
+        blur: Optional[bool]=None,
+        level: Optional[IpgWindowLevel]=None,
+        icon_rgba: Optional[list]=None,
+        icon_width_height: Optional[list]=None,
+        exit_on_close_request: Optional[bool]=None,
+        scale_factor: Optional[float]=None,
+        debug: Optional[bool]=None,
+        on_resize: Optional[Any]=None,
+        user_data: Optional[Any]=None,
+        gen_id: Optional[int]=None,
     ) -> None: ...
     def __enter__(self) -> int: ...
     def __exit__(self, exc_type: type[BaseException] | None, \

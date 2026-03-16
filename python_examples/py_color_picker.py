@@ -1,36 +1,49 @@
-from imports import *
+#!/usr/bin/env python3
+"""
+Color Picker use demo
+"""
 
-def color_selected(cp_id: int, color: list, user_data: any):
-    # Need to change the list color to a str type
-    # Since the color is being displayed as text
-    # otherwise use as is
+from icedpygui import Window, Column, Container,\
+    add_button_style, add_color_picker, add_text, \
+    start_session, update_widget, IpgTextParam
+
+
+def color_selected(_cp_id: int, color: list, _user_data: any):
+    """
+    Color selected callback
+    Need to change the list color to a str type
+    Since the color is being displayed as text
+    otherwise use as is or convert to what is needed
+    """
+
     string = "["
-    for i in range(0, len(color)):
-        string += str(color[i]) + ", "
+    for c in color:
+        string += str(c) + ", "
     string += "]"
-    
+
     # update the text
     update_widget(
-        wid=text_id, 
-        param=IpgTextParam.Content, 
+        wid=text_id,
+        param=IpgTextParam.Content,
         value=string)
-    
+
     # update the text color
     update_widget(
-        wid=text_id, 
+        wid=text_id,
         # Note the type is Rgba, not IpgColor
         # You could use a value of type IpgColor
         # then use the TextColor without using the colorpicker
-        param=IpgTextParam.TextRgba, 
+        param=IpgTextParam.TextRgba,
         value=color)
-    
 
 
 def cp_opened(_cp_id: int, _user_data: any):
+    """ColorPicker is opened callback"""
     print("color picker opened")
-    
+
 
 def cp_canceled(_cp_id: int, _user_data: any):
+    """ColorPicker selection canceled"""
     print("color picker canceled")
 
 # Since the color_picker is using a button
@@ -41,16 +54,15 @@ cp_style = add_button_style(border_radius=[5.0])
 
 # Add a window first
 with Window(
-    id="main", 
     title="ColorPicker",
     size=(500.0, 500.0),
     center=True):
 
     # Add the container to center both x and y (default).  Holds only one widget.
     with Container(
-        width_fill=True, 
+        width_fill=True,
         height_fill=True,
-        center=True):
+        align_center=True):
 
         # Add a column to hold multiple widgets
         with Column(spacing=20.0):

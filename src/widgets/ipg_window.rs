@@ -94,7 +94,7 @@ pub fn add_windows(state: &mut IpgState) -> Vec<Task<Message>> {
 
         let icon = 
             if state.windows[i].icon_rgba.is_some()  && state.windows[i].icon_width_height.is_some() {
-                    let (width, height) = state.windows[i].icon_width_height.unwrap();
+                    let [width, height] = state.windows[i].icon_width_height.unwrap();
                     let results = 
                     icon::from_rgba(state.windows[i].icon_rgba.clone().unwrap(), width, height);
                     match results {
@@ -246,9 +246,8 @@ impl WidgetParamUpdate for IpgWindow {
             IpgWindowParam::Closeable => set_opt_bool(&mut self.closeable, value, "Closeable"),
             IpgWindowParam::Debug => set_opt_bool(&mut self.debug, value, "Debug"),
             IpgWindowParam::Decorations => {
-                let val = try_extract_usize(value, "Decorations");
                 let mut state = access_window_actions();
-                state.decorations.push(val);
+                state.decorations.push(try_extract_usize(value, "Decorations"));
                 drop(state);
             },
             IpgWindowParam::ExitOnCloseRequest => set_opt_bool(&mut self.exit_on_close_request, value, "ExitOnCloseRequest"),

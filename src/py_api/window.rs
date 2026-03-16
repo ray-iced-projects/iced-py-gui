@@ -54,8 +54,8 @@ type PyObject = Py<PyAny>;
 ///     The stacking level of the window (normal, always-on-top, etc.).
 /// icon_rgba : list of int, optional
 ///     Raw RGBA bytes for the window icon.
-/// icon_width_height : tuple of (int, int), optional
-///     Dimensions ``(width, height)`` of the icon in *icon_rgba*.
+/// icon_width_height : list of [int, int], optional
+///     Dimensions ``[width, height]`` of the icon in *icon_rgba*.
 /// exit_on_close_request : bool, optional
 ///     Whether the application exits when this window is closed.
 /// scale_factor : float, optional
@@ -122,7 +122,7 @@ pub fn add_window(
     blur: Option<bool>,
     level: Option<IpgWindowLevel>,
     icon_rgba: Option<Vec<u8>>,
-    icon_width_height: Option<(u32, u32)>,
+    icon_width_height: Option<[u32; 2]>,
     exit_on_close_request: Option<bool>,
     scale_factor: Option<f32>,
     debug: Option<bool>,

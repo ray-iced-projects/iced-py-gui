@@ -1,4 +1,4 @@
-//! //! Font module - provides add_font pyfunction
+//! Font module - provides add_font pyfunction
 
 use pyo3::prelude::*;
 use pyo3::pyfunction;

@@ -45,6 +45,7 @@ from .icedpygui import (
     add_toggler as _add_toggler,
     add_toggler_style,
     add_window as _add_window,
+    add_event_window,
     Align,
     AlignX,
     AlignY,

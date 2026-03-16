@@ -72,6 +72,7 @@ from .icedpygui import (
     IpgWindowTheme as IpgWindowTheme,
     TextShaping as TextShaping,
     TextWrapping as TextWrapping,
+    add_event_window,
     start_session as start_session,
     update_widget as update_widget,
     generate_id as generate_id,

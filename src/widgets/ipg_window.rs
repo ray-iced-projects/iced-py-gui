@@ -456,6 +456,26 @@ mod tests {
         Python::attach(|py| py.None().into_py_any(py).unwrap())
     }
 
+    // --- Simple bool params ---
+
+    #[test]
+    fn test_center() {
+        let mut w = make_window();
+        w.param_update(IpgWindowParam::Center, &py_obj(true));
+        assert_eq!(w.center, Some(true));
+        w.param_update(IpgWindowParam::Center, &py_none());
+        assert_eq!(w.center, None);
+    }
+
+    #[test]
+    fn test_closeable() {
+        let mut w = make_window();
+        w.param_update(IpgWindowParam::Closeable, &py_obj(false));
+        assert_eq!(w.closeable, Some(false));
+        w.param_update(IpgWindowParam::Closeable, &py_none());
+        assert_eq!(w.closeable, None);
+    }
+
     #[test]
     fn test_debug() {
         let mut w = make_window();
@@ -466,12 +486,191 @@ mod tests {
     }
 
     #[test]
+    fn test_exit_on_close_request() {
+        let mut w = make_window();
+        w.param_update(IpgWindowParam::ExitOnCloseRequest, &py_obj(false));
+        assert_eq!(w.exit_on_close_request, Some(false));
+        w.param_update(IpgWindowParam::ExitOnCloseRequest, &py_none());
+        assert_eq!(w.exit_on_close_request, None);
+    }
+
+    #[test]
+    fn test_maximized() {
+        let mut w = make_window();
+        w.param_update(IpgWindowParam::Maximized, &py_obj(true));
+        assert_eq!(w.maximized, Some(true));
+        w.param_update(IpgWindowParam::Maximized, &py_none());
+        assert_eq!(w.maximized, None);
+    }
+
+    #[test]
+    fn test_minimizable() {
+        let mut w = make_window();
+        w.param_update(IpgWindowParam::Minimizable, &py_obj(false));
+        assert_eq!(w.minimizable, Some(false));
+        w.param_update(IpgWindowParam::Minimizable, &py_none());
+        assert_eq!(w.minimizable, None);
+    }
+
+    #[test]
+    fn test_resizable() {
+        let mut w = make_window();
+        w.param_update(IpgWindowParam::Resizable, &py_obj(false));
+        assert_eq!(w.resizable, Some(false));
+        w.param_update(IpgWindowParam::Resizable, &py_none());
+        assert_eq!(w.resizable, None);
+    }
+
+    #[test]
+    fn test_transparent() {
+        let mut w = make_window();
+        w.param_update(IpgWindowParam::Transparent, &py_obj(true));
+        assert_eq!(w.transparent, Some(true));
+        w.param_update(IpgWindowParam::Transparent, &py_none());
+        assert_eq!(w.transparent, None);
+    }
+
+    // --- Numeric params ---
+
+    #[test]
     fn test_scale_factor() {
         let mut w = make_window();
         w.param_update(IpgWindowParam::ScaleFactor, &py_obj(1.5f32));
         assert_eq!(w.scale_factor, Some(1.5));
         w.param_update(IpgWindowParam::ScaleFactor, &py_none());
         assert_eq!(w.scale_factor, None);
+    }
+
+    // --- String params ---
+
+    #[test]
+    fn test_title() {
+        let mut w = make_window();
+        w.param_update(IpgWindowParam::Title, &py_obj("Hello"));
+        assert_eq!(w.title, Some("Hello".to_string()));
+        w.param_update(IpgWindowParam::Title, &py_none());
+        assert_eq!(w.title, None);
+    }
+
+    // --- Array params ---
+
+    #[test]
+    fn test_max_size() {
+        let mut w = make_window();
+        w.param_update(IpgWindowParam::MaxSize, &py_obj([800.0f32, 600.0f32]));
+        assert_eq!(w.max_size, Some([800.0, 600.0]));
+    }
+
+    #[test]
+    fn test_min_size() {
+        let mut w = make_window();
+        w.param_update(IpgWindowParam::MinSize, &py_obj([200.0f32, 150.0f32]));
+        assert_eq!(w.min_size, Some([200.0, 150.0]));
+    }
+
+    #[test]
+    fn test_icon_rgba() {
+        let mut w = make_window();
+        w.param_update(IpgWindowParam::IconRgba, &py_obj(vec![255u8, 0, 0, 255]));
+        assert_eq!(w.icon_rgba, Some(vec![255, 0, 0, 255]));
+        w.param_update(IpgWindowParam::IconRgba, &py_none());
+        assert_eq!(w.icon_rgba, None);
+    }
+
+    #[test]
+    fn test_icon_width_height() {
+        let mut w = make_window();
+        w.param_update(IpgWindowParam::IconWidthHeight, &py_obj([32u32, 32u32]));
+        assert_eq!(w.icon_width_height, Some([32, 32]));
+        w.param_update(IpgWindowParam::IconWidthHeight, &py_none());
+        assert_eq!(w.icon_width_height, None);
+    }
+
+    // --- Params that push to window_actions ---
+
+    #[test]
+    fn test_fullscreen_pushes_mode() {
+        let mut w = make_window();
+        w.param_update(IpgWindowParam::Fullscreen, &py_obj(true));
+        assert_eq!(w.fullscreen, Some(true));
+        let actions = access_window_actions();
+        assert!(actions.mode.iter().any(|(id, m)| *id == 0 && *m == window::Mode::Fullscreen));
+        drop(actions);
+    }
+
+    #[test]
+    fn test_hidden_pushes_mode() {
+        let mut w = make_window();
+        w.param_update(IpgWindowParam::Hidden, &py_obj(true));
+        assert_eq!(w.hidden, Some(true));
+        let actions = access_window_actions();
+        assert!(actions.mode.iter().any(|(id, m)| *id == 0 && *m == window::Mode::Hidden));
+        drop(actions);
+    }
+
+    #[test]
+    fn test_hidden_false_restores_windowed() {
+        let mut w = make_window();
+        w.param_update(IpgWindowParam::Hidden, &py_obj(false));
+        assert_eq!(w.hidden, Some(false));
+        let actions = access_window_actions();
+        assert!(actions.mode.iter().any(|(id, m)| *id == 0 && *m == window::Mode::Windowed));
+        drop(actions);
+    }
+
+    #[test]
+    fn test_hidden_false_with_fullscreen_restores_fullscreen() {
+        let mut w = make_window();
+        w.fullscreen = Some(true);
+        w.param_update(IpgWindowParam::Hidden, &py_obj(false));
+        assert_eq!(w.hidden, Some(false));
+        let actions = access_window_actions();
+        assert!(actions.mode.iter().any(|(id, m)| *id == 0 && *m == window::Mode::Fullscreen));
+        drop(actions);
+    }
+
+    #[test]
+    fn test_decorations_pushes_action() {
+        let mut w = make_window();
+        w.param_update(IpgWindowParam::Decorations, &py_obj(0usize));
+        let actions = access_window_actions();
+        assert!(actions.decorations.contains(&0));
+        drop(actions);
+    }
+
+    #[test]
+    fn test_position_pushes_action() {
+        let mut w = make_window();
+        w.param_update(IpgWindowParam::Position, &py_obj(vec![100.0f32, 200.0f32]));
+        let actions = access_window_actions();
+        assert!(actions.position.iter().any(|(id, x, y)| *id == 0 && *x == 100.0 && *y == 200.0));
+        drop(actions);
+    }
+
+    #[test]
+    fn test_size_pushes_action() {
+        let mut w = make_window();
+        w.param_update(IpgWindowParam::Size, &py_obj(vec![400.0f32, 300.0f32]));
+        let actions = access_window_actions();
+        assert!(actions.resize.iter().any(|(id, w, h)| *id == 0 && *w == 400.0 && *h == 300.0));
+        drop(actions);
+    }
+
+    #[test]
+    fn test_level_pushes_action() {
+        let mut w = make_window();
+        w.param_update(IpgWindowParam::Level, &py_obj(IpgWindowLevel::AlwaysOnTop));
+        assert_eq!(w.level, Some(IpgWindowLevel::AlwaysOnTop));
+        let actions = access_window_actions();
+        assert!(actions.level.iter().any(|(id, l)| *id == 0 && *l == window::Level::AlwaysOnTop));
+        drop(actions);
+    }
+
+    #[test]
+    fn test_theme() {
+        let mut w = make_window();
+        w.param_update(IpgWindowParam::Theme, &py_obj(IpgWindowTheme::Dark));
+        assert_eq!(w.theme, Some(IpgWindowTheme::Dark));
     }
 }
 

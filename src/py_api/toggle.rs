@@ -10,7 +10,55 @@ use crate::{access_state, add_callback_to_mutex,
         ipg_toggle::{IpgToggler, IpgTogglerStyle}}};
 
 
-
+/// Add a toggler widget.
+///
+/// A toggle switch with an optional text label.
+///
+/// Parameters
+/// ----------
+/// parent_id : str
+///     Sets the parent container ID that this toggler belongs to.
+/// label : str, Optional
+///     Sets the Text label displayed next to the toggler.
+/// gen_id : int, Optional
+///     Obtains an ID of a widget that have not been created, used for the gen_id parameter.
+/// toggled : callable, Optional
+///     Sets the Callback method to invoke when the toggler is toggled.
+/// width : float, Optional
+///     Sets the Fixed width in logical pixels.
+/// width_fill : bool, default False
+///     Whether the toggler fills available width.
+/// size : float, Optional
+///     Sets the size of the toggler in logical pixels.
+/// text_size : float, Optional
+///     Sets the Font size for the label text.
+/// text_line_height : float, Optional
+///     Sets the Line height for the label text.
+/// text_center : bool, Optional
+///     Whether to Align the label to the centre.
+/// text_left : bool, Optional
+///     Whether to Align the label to the left.
+/// text_right : bool, Optional
+///     Whether to Align the label to the right.
+/// text_shaping : TextShaping, Optional
+///     Sets the Text shaping strategy for the label.
+/// text_wrapping : TextWrapping, Optional
+///     Sets the Text wrapping strategy for the label.
+/// spacing : float, Optional
+///     Sets the Spacing between the toggler and the label.
+/// user_data : Any, Optional
+///     Sets the Arbitrary data forwarded to callbacks.
+/// show : bool, default True
+///     Whether the toggler is visible.
+/// font_id : int, Optional
+///     Sets the Font ID for the label text.
+/// style_id : int, Optional
+///     Sets the ID of a custom style created with ``add_toggler_style``.
+///
+/// Returns
+/// -------
+/// int
+///     The numeric widget ID of the newly created toggler.
 #[pyfunction]
 #[pyo3(signature = (
     parent_id, 
@@ -99,6 +147,49 @@ pub fn add_toggler(
 }
 
 
+/// Add styling to a toggler.
+///
+/// Creates a custom style that can be applied to a toggler
+/// via its ``style_id`` parameter.
+///
+/// Parameters
+/// ----------
+/// background_color : IpgColor, Optional
+///     Sets the background color using a predefined color variant.
+/// background_rgba : list of float, Optional
+///     Sets the background color in rgba format as [r, g, b, a].
+/// background_border_color : IpgColor, Optional
+///     Sets the background border color using a predefined color variant.
+/// background_border_rgba : list of float, Optional
+///     Sets the background border color in rgba format as [r, g, b, a].
+/// background_border_width : float, Optional
+///     Sets the background border width in logical pixels.
+/// foreground_color : IpgColor, Optional
+///     Sets the foreground (thumb) color using a predefined color variant.
+/// foreground_rgba : list of float, Optional
+///     Sets the foreground (thumb) color in rgba format as [r, g, b, a].
+/// foreground_border_color : IpgColor, Optional
+///     Sets the foreground border color using a predefined color variant.
+/// foreground_border_rgba : list of float, Optional
+///     Sets the foreground border color in rgba format as [r, g, b, a].
+/// foreground_border_width : float, Optional
+///     Sets the foreground border width in logical pixels.
+/// text_ipg_color : IpgColor, Optional
+///     Sets the text color using a predefined color variant.
+/// text_rgba_color : list of float, Optional
+///     Sets the text color in rgba format as [r, g, b, a].
+/// border_radius : list of float, Optional
+///     Sets the radius of the corners as [all] or
+///     [top-left, top-right, bottom-right, bottom-left].
+/// padding_ratio : float, Optional
+///     Sets the padding ratio for the toggler.
+/// gen_id : int, Optional
+///     Obtains an ID of a widget that have not been created, used for the gen_id parameter.
+///
+/// Returns
+/// -------
+/// int
+///     The numeric style ID to pass to a toggler's ``style_id``.
 #[pyfunction]
 #[pyo3(signature = (
     background_color=None,

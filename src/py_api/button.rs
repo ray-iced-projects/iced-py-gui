@@ -15,62 +15,62 @@ use crate::widgets::ipg_button::{IpgButton,
 
 
 ///"""
-///Add a button widget.
+///Adds a button widget.
 ///A clickable button used for some gui action.
 /// 
 ///Parameters
 ///----------
 ///parent_id : str, Optional
-///    The parent container ID that this button belongs to.
-///label : str, optional
-///    Text label displayed on the button.
-///on_press : callable, optional
-///    Callback invoked when the button is pressed.
-///width : float, optional
-///    Fixed width in logical pixels.
-///height : float, optional
-///    Fixed height in logical pixels.
+///    Sets the parent container ID that this button belongs to.
+///label : str,  Optional
+///    Sets the Text label displayed on the button.
+///on_press : callable,  Optional
+///    Sets the Callback method to invoke when the button is pressed.
+///width : float,  Optional
+///    Sets the Fixed Width in logical pixels.
+///height : float,  Optional
+///    Sets the Fixed Height in logical pixels.
 ///width_fill : bool, default False
 ///    Whether the button fills available width.
 ///height_fill : bool, default False
 ///    Whether the button fills available height.
-///padding : list of float, optional
-///    Padding as [all], [vertical, horizontal], or
+///padding : list of float,  Optional
+///    Sets the Padding as [all], [vertical, horizontal], or
 ///    [top, right, bottom, left].
-///text_top_left : bool, optional
-///    Align the label to the top-left.
-///text_top_center : bool, optional
-///    Align the label to the top-centre.
-///text_top_right : bool, optional
-///    Align the label to the top-right.
-///text_center_left : bool, optional
-///    Align the label to the centre-left.
-///text_center : bool, optional
-///    Align the label to the centre (default True).
-///text_center_right : bool, optional
-///    Align the label to the centre-right.
-///text_bottom_left : bool, optional
-///    Align the label to the bottom-left.
-///text_bottom_center : bool, optional
-///    Align the label to the bottom-centre.
-///text_bottom_right : bool, optional
-///    Align the label to the bottom-right.
-///text_size : float, optional
-///    Font size for the label text.
-///clip : bool, optional
+///text_top_left : bool,  Optional
+///    Whether to Align the label to the top-left.
+///text_top_center : bool,  Optional
+///    Whether to Align the label to the top-centre.
+///text_top_right : bool,  Optional
+///    Whether to Align the label to the top-right.
+///text_center_left : bool,  Optional
+///    Whether to Align the label to the centre-left.
+///text_center : bool,  Optional
+///    Whether to Align the label to the centre (default True).
+///text_center_right : bool,  Optional
+///    Whether to Align the label to the centre-right.
+///text_bottom_left : bool,  Optional
+///    Whether to Align the label to the bottom-left.
+///text_bottom_center : bool,  Optional
+///    Whether to Align the label to the bottom-centre.
+///text_bottom_right : bool,  Optional
+///    Whether to Align the label to the bottom-right.
+///text_size : float,  Optional
+///    Sets the Font size for the label text.
+///clip : bool,  Optional
 ///    Whether to clip content that overflows the button.
-///style_id : int, optional
-///    ID of a custom style created with ``add_button_style``.
-///style_std : IpgButtonStyleStd, optional
-///    A predefined standard style variant.
-///style_arrow : IpgArrow, optional
-///    An arrow icon style for the button.
-///user_data : Any, optional
-///    Arbitrary data forwarded to callbacks.
+///style_id : int,  Optional
+///    Stes the ID of a custom style created with ``add_button_style``.
+///style_std : IpgButtonStyleStd,  Optional
+///    Sets the a predefined standard style variant.
+///style_arrow : IpgArrow,  Optional
+///    Sets an arrow icon style for the button.
+///user_data : Any,  Optional
+///    Sets an arbitrary data forwarded to callbacks.
 ///show : bool, default True
 ///    Whether the button is visible.
-///gen_id : int, optional
-///    Pre-generated numeric ID.  Used to assign ids to widgets that have not benn created yet.
+///gen_id : int,  Optional
+///    Obtains an ID of a widget that have not been created, used for the gen_id parameter.
 ///Returns
 ///-------
 ///int
@@ -191,33 +191,43 @@ pub fn add_button(
 ///
 ///Parameters
 ///----------
-///background_color: Optional[IpgColor]=None
-///    Color of the background.
-///background_rgba: Optional[list[float, 4]]=None
-///    Color of the background in rgba format.
-///border_color: Optional[IpgColor]=None
-///    Color used for the border.
-///border_rgba: list[float; 4]=None
-///    Color of the border in rgba format.
-///border_radius: Optional[list[float]]=None
-///    The radius border, [float]=all corners, 
-///    [float, 4]=[top-left, top-right, bottom-right, bottom-left].
-///border_width: Optional[float]
-///    Border width.
-///shadow_color: Optional[IpgColor]
-///    The color of the shadow.
-///shadow_rgba: Optional[list]
-///    The color in rgba format [float; 4] used as state above.
-///shadow_offset_xy: Optional[float, 2]
-///    Shadow offset in the horizontal direction.
-///shadow_blur_radius: Optional[float]
-///    The blur radius of the shadow.
-///text_color: Optional[IpgColor]
-///    The text color, if not defined, will either be a Black or White variation based on theme background.
-///text_rgba: [list, 4]
-///    The color in rgba used as state above.
-/// gen_id : int, optional
-///     Pre-generated numeric ID.  Used to assign ids to widgets that have not benn created yet.
+///background_color: IpgColor, Optional
+///    Sets the Color of the background.
+///background_rgba: list, Optional
+///    Sets the Color of the background in rgba format, 4 values.
+/// background_gradient_color_stop: IpgColor, Optional
+///    Sets the stop Color of the background gradient.
+/// background_gradient_rgba_stop: list, Optional
+///    Sets the stop rgba color of the background gradient, 4 values.
+/// background_gradient_degrees: float, Optional,
+///    Sets the gradient degrees
+/// background_gradient_radians: float, Optional,
+///    Sets the gradient radians
+/// background_gradient_alpha: float, Optional,
+///    Sets the alpha color parameter.
+///border_color: IpgColor, Optional
+///    Sets the Color used for the border.
+///border_rgba: list[float], Optional
+///    Sets the Color of the border in rgba format, 4 values.
+///border_radius: list[float], Optional
+///    Sets the radius of the border, [float]=all corners, 
+///    [float]=[top-left, top-right, bottom-right, bottom-left].
+///border_width: float, Optional
+///    Sets the border width.
+///shadow_color: IpgColor, Optional
+///    Sets the color of the shadow.
+///shadow_rgba: list[float], Optional
+///    Sets the color in rgba format [float; 4] used as state above.
+///shadow_offset_xy: list[float], Optional
+///    Sets the Shadow offset in the horizontal direction [x, y].
+///shadow_blur_radius: float, Optional
+///    Sets the blur radius of the shadow.
+///text_color: IpgColor, Optional
+///    Sets the text color, if not defined, will either be a Black or White variation based on theme background.
+///text_rgba: list[float], Optional
+///    Sets the color in rgba used as state above, 4 values.
+/// gen_id : int,  Optional
+///     Obtains an ID of a widget that have not been created, used for the gen_id parameter.
 ///"""
 #[pyfunction]
 #[pyo3(signature = (

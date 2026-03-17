@@ -12,7 +12,29 @@ use crate::widgets::ipg_space::IpgSpace;
 
 /// Add a space widget.
 ///
-/// Returns the widget ID.
+/// An empty widget used to add blank space between other widgets.
+///
+/// Parameters
+/// ----------
+/// parent_id : str
+///     Sets the parent container ID that this space belongs to.
+/// gen_id : int, Optional
+///     Obtains an ID of a widget that have not been created, used for the gen_id parameter.
+/// width : float, Optional
+///     Sets the Fixed width in logical pixels.
+/// width_fill : bool, default False
+///     Whether the space fills available width.
+/// height : float, Optional
+///     Sets the Fixed height in logical pixels.
+/// height_fill : bool, default False
+///     Whether the space fills available height.
+/// show : bool, default True
+///     Whether the space is visible.
+///
+/// Returns
+/// -------
+/// int
+///     The numeric widget ID of the newly created space.
 #[pyfunction]
 #[pyo3(signature = (
     parent_id, 

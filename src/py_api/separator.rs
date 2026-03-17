@@ -8,6 +8,55 @@ use crate::{access_state, graphics::colors::IpgColor,
         {IpgSeparator, IpgSeparatorStyle, IpgSeparatorType}};
 
 
+/// Add a separator widget.
+///
+/// A visual separator using lines, dots, or a labelled divider.
+///
+/// Parameters
+/// ----------
+/// parent_id : str
+///     Sets the parent container ID that this separator belongs to.
+/// label : str, Optional
+///     Sets the text label displayed in the separator.
+/// separator_type : IpgSeparatorType, Optional
+///     Sets the type of separator (line, dot, label, etc.).
+/// label_left_width : float, Optional
+///     Sets the width of the line to the left of the label.
+/// label_right_width : float, Optional
+///     Sets the width of the line to the right of the label.
+/// dot_radius : float, Optional
+///     Sets the radius of each dot in logical pixels.
+/// dot_count : int, Optional
+///     Sets the number of dots to display.
+/// dot_fill : bool, default True
+///     Whether the dots are filled.
+/// dot_border_width : float, Optional
+///     Sets the border width of each dot in logical pixels.
+/// line_length : float, Optional
+///     Sets the length of the separator line in logical pixels.
+/// line_thickness : float, Optional
+///     Sets the thickness of the separator line in logical pixels.
+/// width : float, Optional
+///     Sets the Fixed width in logical pixels.
+/// width_fill : bool, default False
+///     Whether the separator fills available width.
+/// height : float, Optional
+///     Sets the Fixed height in logical pixels.
+/// height_fill : bool, default False
+///     Whether the separator fills available height.
+/// spacing : float, Optional
+///     Sets the spacing between separator elements in logical pixels.
+/// style_id : int, Optional
+///     Sets the ID of a custom style created with ``add_separator_style``.
+/// gen_id : int, Optional
+///     Obtains an ID of a widget that have not been created, used for the gen_id parameter.
+/// show : bool, default True
+///     Whether the separator is visible.
+///
+/// Returns
+/// -------
+/// int
+///     The numeric widget ID of the newly created separator.
 #[pyfunction]
 #[pyo3(signature = (
     parent_id, 
@@ -88,6 +137,28 @@ pub fn add_separator(
 }
 
 
+/// Add styling to a separator.
+///
+/// Creates a custom style that can be applied to a separator
+/// via its ``style_id`` parameter.
+///
+/// Parameters
+/// ----------
+/// ipg_color : IpgColor, Optional
+///     Sets the separator color using a predefined color variant.
+/// rgba_color : list of float, Optional
+///     Sets the separator color in rgba format as [r, g, b, a].
+/// border_ipg_color : IpgColor, Optional
+///     Sets the border color using a predefined color variant.
+/// border_rgba_color : list of float, Optional
+///     Sets the border color in rgba format as [r, g, b, a].
+/// gen_id : int, Optional
+///     Obtains an ID of a widget that have not been created, used for the gen_id parameter.
+///
+/// Returns
+/// -------
+/// int
+///     The numeric style ID to pass to a separator's ``style_id``.
 #[pyfunction]
 #[pyo3(signature = (
     ipg_color=None,

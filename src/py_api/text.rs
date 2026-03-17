@@ -9,7 +9,63 @@ use crate::graphics::colors::IpgColor;
 
 /// Add a text widget.
 ///
-/// Returns the widget ID.
+/// A static text label for displaying content.
+///
+/// Parameters
+/// ----------
+/// parent_id : str
+///     Sets the parent container ID that this text belongs to.
+/// content : str
+///     Sets the text content to display.
+/// gen_id : int, Optional
+///     Obtains an ID of a widget that have not been created, used for the gen_id parameter.
+/// width : float, Optional
+///     Sets the Fixed width in logical pixels.
+/// width_fill : bool, default False
+///     Whether the text fills available width.
+/// height : float, Optional
+///     Sets the Fixed height in logical pixels.
+/// height_fill : bool, default False
+///     Whether the text fills available height.
+/// align_bottom_center : bool, Optional
+///     Whether to Align the text to the bottom-centre.
+/// align_bottom_left : bool, Optional
+///     Whether to Align the text to the bottom-left.
+/// align_bottom_right : bool, Optional
+///     Whether to Align the text to the bottom-right.
+/// align_center_left : bool, Optional
+///     Whether to Align the text to the centre-left.
+/// align_center_right : bool, Optional
+///     Whether to Align the text to the centre-right.
+/// align_center : bool, Optional
+///     Whether to Align the text to the centre.
+/// align_top_center : bool, Optional
+///     Whether to Align the text to the top-centre.
+/// align_top_left : bool, Optional
+///     Whether to Align the text to the top-left.
+/// align_top_right : bool, Optional
+///     Whether to Align the text to the top-right.
+/// line_height : float, Optional
+///     Sets the line height for the text.
+/// size : float, Optional
+///     Sets the font size for the text.
+/// font_id : int, Optional
+///     Sets the Font ID for the text.
+/// text_shaping : TextShaping, Optional
+///     Sets the Text shaping strategy.
+/// text_color : IpgColor, Optional
+///     Sets the text color using a predefined color variant.
+/// text_rgba : list of float, Optional
+///     Sets the text color in rgba format as [r, g, b, a].
+/// text_wrapping : TextWrapping, Optional
+///     Sets the Text wrapping strategy.
+/// show : bool, default True
+///     Whether the text is visible.
+///
+/// Returns
+/// -------
+/// int
+///     The numeric widget ID of the newly created text.
 #[pyfunction]
 #[pyo3(signature = (
     parent_id, 

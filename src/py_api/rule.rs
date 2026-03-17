@@ -6,7 +6,29 @@ use crate::{access_state, graphics::colors::IpgColor,
     widgets::ipg_rule::{IpgRule, IpgRuleStyle}};
 
 
-
+/// Add a rule widget.
+///
+/// A horizontal or vertical line used as a visual separator.
+///
+/// Parameters
+/// ----------
+/// parent_id : str
+///     Sets the parent container ID that this rule belongs to.
+/// is_vertical : bool, Optional
+///     Whether the rule is oriented vertically.
+/// thickness : int, Optional
+///     Sets the thickness of the rule in logical pixels.
+/// style_id : int, Optional
+///     Sets the ID of a custom style created with ``add_rule_style``.
+/// gen_id : int, Optional
+///     Obtains an ID of a widget that have not been created, used for the gen_id parameter.
+/// show : bool, default True
+///     Whether the rule is visible.
+///
+/// Returns
+/// -------
+/// int
+///     The numeric widget ID of the newly created rule.
 #[pyfunction]
 #[pyo3(signature = (
     parent_id,
@@ -47,6 +69,35 @@ pub fn add_rule(
 }
 
 
+/// Add styling to a rule.
+///
+/// Creates a custom style that can be applied to a rule
+/// via its ``style_id`` parameter.
+///
+/// Parameters
+/// ----------
+/// color : IpgColor, Optional
+///     Sets the rule color using a predefined color variant.
+/// color_rgba : list of float, Optional
+///     Sets the rule color in rgba format as [r, g, b, a].
+/// border_radius : list of float, Optional
+///     Sets the radius of the corners as [all] or
+///     [top-left, top-right, bottom-right, bottom-left].
+/// fillmode_percent : float, Optional
+///     Sets the fill mode as a percentage of the available space.
+/// fillmode_padded : int, Optional
+///     Sets the fill mode with equal padding on both sides.
+/// fillmode_asymmetric_padding : list of int, Optional
+///     Sets the fill mode with asymmetric padding as [start, end].
+/// snap : bool, Optional
+///     Whether to snap the rule to the pixel grid.
+/// gen_id : int, Optional
+///     Obtains an ID of a widget that have not been created, used for the gen_id parameter.
+///
+/// Returns
+/// -------
+/// int
+///     The numeric style ID to pass to a rule's ``style_id``.
 #[pyfunction]
 #[pyo3(signature = (
     color=None, 

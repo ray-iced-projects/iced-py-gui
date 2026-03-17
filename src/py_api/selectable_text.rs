@@ -7,6 +7,73 @@ use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex,
     ipg_selectable_text::IpgSelectableText, ipg_text::{TextShaping, TextWrapping}}};
 type PyObject = Py<PyAny>;
 
+/// Add a selectable text widget.
+///
+/// A text widget that supports mouse interaction and text selection.
+///
+/// Parameters
+/// ----------
+/// parent_id : str
+///     Sets the parent container ID that this selectable text belongs to.
+/// text : str
+///     Sets the text content to display.
+/// gen_id : int, Optional
+///     Obtains an ID of a widget that have not been created, used for the gen_id parameter.
+/// on_press : callable, Optional
+///     Sets the Callback method to invoke when the text is pressed.
+/// on_release : callable, Optional
+///     Sets the Callback method to invoke when the text is released.
+/// on_right_press : callable, Optional
+///     Sets the Callback method to invoke when the text is right-pressed.
+/// on_right_release : callable, Optional
+///     Sets the Callback method to invoke when the text is right-released.
+/// on_middle_press : callable, Optional
+///     Sets the Callback method to invoke when the text is middle-pressed.
+/// on_middle_release : callable, Optional
+///     Sets the Callback method to invoke when the text is middle-released.
+/// on_move : callable, Optional
+///     Sets the Callback method to invoke when the mouse moves over the text.
+/// on_enter : callable, Optional
+///     Sets the Callback method to invoke when the mouse enters the text.
+/// on_exit : callable, Optional
+///     Sets the Callback method to invoke when the mouse exits the text.
+/// width : float, Optional
+///     Sets the Fixed width in logical pixels.
+/// width_fill : bool, default False
+///     Whether the text fills available width.
+/// height : float, Optional
+///     Sets the Fixed height in logical pixels.
+/// height_fill : bool, default False
+///     Whether the text fills available height.
+/// center : bool, Optional
+///     Whether to center the text.
+/// align_x : AlignX, Optional
+///     Sets the horizontal alignment of the text.
+/// align_y : AlignY, Optional
+///     Sets the vertical alignment of the text.
+/// line_height : float, Optional
+///     Sets the line height for the text.
+/// size : float, Optional
+///     Sets the font size for the text.
+/// text_color : IpgColor, Optional
+///     Sets the text color using a predefined color variant.
+/// text_rgba : list of float, Optional
+///     Sets the text color in rgba format as [r, g, b, a].
+/// show : bool, default True
+///     Whether the selectable text is visible.
+/// font_id : int, Optional
+///     Sets the Font ID for the text.
+/// shaping : TextShaping, Optional
+///     Sets the Text shaping strategy.
+/// wrapping : TextWrapping, Optional
+///     Sets the Text wrapping strategy.
+/// user_data : Any, Optional
+///     Sets the Arbitrary data forwarded to callbacks.
+///
+/// Returns
+/// -------
+/// int
+///     The numeric widget ID of the newly created selectable text.
 #[pyfunction]
 #[pyo3(signature = (
     parent_id, 

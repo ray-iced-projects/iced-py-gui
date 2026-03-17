@@ -9,6 +9,68 @@ use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex,
         ipg_mouse_area::IpgMousePointer}};
 
 
+/// Add an image widget.
+///
+/// Displays an image from a file path with optional mouse interaction.
+///
+/// Parameters
+/// ----------
+/// parent_id : str
+///     Sets the parent container ID that this image belongs to.
+/// image_path : str
+///     Sets the file path to the image.
+/// gen_id : int, Optional
+///     Obtains an ID of a widget that have not been created, used for the gen_id parameter.
+/// width : float, Optional
+///     Sets the Fixed width in logical pixels.
+/// width_fill : bool, default False
+///     Whether the image fills available width.
+/// height : float, Optional
+///     Sets the Fixed height in logical pixels.
+/// height_fill : bool, default False
+///     Whether the image fills available height.
+/// padding : list of float, Optional
+///     Sets the Padding as [all], [vertical, horizontal], or
+///     [top, right, bottom, left].
+/// content_fit : IpgContentFit, Optional
+///     Sets the content fit strategy for the image.
+/// filter_method : IpgColorFilter, Optional
+///     Sets the color filter method applied to the image.
+/// rotation_method : IpgRotation, Optional
+///     Sets the rotation method for the image.
+/// rotation_radians : float, Optional
+///     Sets the rotation angle in radians.
+/// opacity : float, Optional
+///     Sets the opacity of the image (0.0 to 1.0).
+/// mouse_pointer : IpgMousePointer, Optional
+///     Sets the mouse pointer style when hovering over the image.
+/// on_press : callable, Optional
+///     Sets the Callback method to invoke when the image is pressed.
+/// on_release : callable, Optional
+///     Sets the Callback method to invoke when the image is released.
+/// on_right_press : callable, Optional
+///     Sets the Callback method to invoke when the image is right-pressed.
+/// on_right_release : callable, Optional
+///     Sets the Callback method to invoke when the image is right-released.
+/// on_middle_press : callable, Optional
+///     Sets the Callback method to invoke when the image is middle-pressed.
+/// on_middle_release : callable, Optional
+///     Sets the Callback method to invoke when the image is middle-released.
+/// on_enter : callable, Optional
+///     Sets the Callback method to invoke when the mouse enters the image.
+/// on_move : callable, Optional
+///     Sets the Callback method to invoke when the mouse moves over the image.
+/// on_exit : callable, Optional
+///     Sets the Callback method to invoke when the mouse exits the image.
+/// user_data : Any, Optional
+///     Sets the Arbitrary data forwarded to callbacks.
+/// show : bool, default True
+///     Whether the image is visible.
+///
+/// Returns
+/// -------
+/// int
+///     The numeric widget ID of the newly created image.
 #[pyfunction]
 #[pyo3(signature = (
     parent_id, 

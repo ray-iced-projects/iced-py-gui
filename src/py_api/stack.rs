@@ -6,6 +6,36 @@ state::{IpgContainers, get_id, set_state_cont_wnd_ids,
     set_state_of_container}, widgets::ipg_stack::IpgStack};
 
 
+/// Add a stack container widget.
+///
+/// A stack lays out its children on top of each other,
+/// with later children drawn above earlier ones.
+///
+/// Parameters
+/// ----------
+/// window_id : str
+///     Sets the window this stack belongs to.
+/// container_id : str
+///     Sets the Unique string identifier for the stack.
+/// parent_id : str, Optional
+///     Sets the parent container ID.  Defaults to the window itself.
+/// width : float, Optional
+///     Sets the Fixed width in logical pixels.
+/// height : float, Optional
+///     Sets the Fixed height in logical pixels.
+/// width_fill : bool, default False
+///     Whether the stack fills available width.
+/// height_fill : bool, default False
+///     Whether the stack fills available height.
+/// hide_index : int, Optional
+///     Sets the index of the child to hide.
+/// show : bool, default True
+///     Whether the stack is visible.
+///
+/// Returns
+/// -------
+/// int
+///     The numeric widget ID of the newly created stack.
 #[pyfunction]
 #[pyo3(signature = (
     window_id, 

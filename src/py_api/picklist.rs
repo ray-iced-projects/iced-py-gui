@@ -17,9 +17,63 @@ use crate::widgets::{ipg_text::TextShaping,
 
 
 
-/// Add a cpick list widget.
+/// Add a pick list widget.
 ///
-/// Returns the widget ID.
+/// A dropdown pick list that lets the user select one option
+/// from a list of choices.
+///
+/// Parameters
+/// ----------
+/// parent_id : str
+///     Sets the parent container ID that this pick list belongs to.
+/// options : list of str
+///     Sets the list of selectable options.
+/// gen_id : int, Optional
+///     Obtains an ID of a widget that have not been created, used for the gen_id parameter.
+/// on_select : callable, Optional
+///     Sets the Callback method to invoke when an option is selected.
+/// width : float, Optional
+///     Sets the Fixed width in logical pixels.
+/// width_fill : bool, default False
+///     Whether the pick list fills available width.
+/// menu_height : float, Optional
+///     Sets the Fixed height of the dropdown menu in logical pixels.
+/// menu_height_fill : bool, default False
+///     Whether the dropdown menu fills available height.
+/// padding : list of float, Optional
+///     Sets the Padding as [all], [vertical, horizontal], or
+///     [top, right, bottom, left].
+/// placeholder : str, Optional
+///     Sets the placeholder text shown when no option is selected.
+/// selected : str, Optional
+///     Sets the currently selected option.
+/// text_size : float, Optional
+///     Sets the Font size for the text.
+/// text_line_height : float, Optional
+///     Sets the Line height for the text.
+/// text_shaping : TextShaping, Optional
+///     Sets the Text shaping strategy.
+/// handle : IpgPickListHandle, Optional
+///     Sets the handle type for the pick list.
+/// arrow_size : float, Optional
+///     Sets the size of the arrow icon.
+/// dynamic_closed : IpgArrow, Optional
+///     Sets the arrow icon when the pick list is closed.
+/// dynamic_open : IpgArrow, Optional
+///     Sets the arrow icon when the pick list is open.
+/// custom_static : IpgArrow, Optional
+///     Sets the static custom arrow icon.
+/// style_id : int, Optional
+///     Sets the ID of a custom style created with ``add_pick_list_style``.
+/// user_data : Any, Optional
+///     Sets the Arbitrary data forwarded to callbacks.
+/// show : bool, default True
+///     Whether the pick list is visible.
+///
+/// Returns
+/// -------
+/// int
+///     The numeric widget ID of the newly created pick list.
 #[pyfunction]
 #[pyo3(signature = (
     parent_id, 
@@ -117,9 +171,49 @@ pub fn add_pick_list(
     Ok(id)
 }
 
-/// Add a pick list style widget.
+/// Add styling to a pick list.
 ///
-/// Returns the widget ID.
+/// Creates a custom style that can be applied to a pick list
+/// via its ``style_id`` parameter.
+///
+/// Parameters
+/// ----------
+/// background_color : IpgColor, Optional
+///     Sets the background color using a predefined color variant.
+/// background_rgba : list of float, Optional
+///     Sets the background color in rgba format as [r, g, b, a].
+/// text_color : IpgColor, Optional
+///     Sets the text color using a predefined color variant.
+/// text_rgba : list of float, Optional
+///     Sets the text color in rgba format as [r, g, b, a].
+/// handle_color : IpgColor, Optional
+///     Sets the handle color using a predefined color variant.
+/// handle_rgba : list of float, Optional
+///     Sets the handle color in rgba format as [r, g, b, a].
+/// placeholder_color : IpgColor, Optional
+///     Sets the placeholder text color using a predefined color variant.
+/// placeholder_rgba : list of float, Optional
+///     Sets the placeholder text color in rgba format as [r, g, b, a].
+/// border_color : IpgColor, Optional
+///     Sets the border color using a predefined color variant.
+/// border_rgba : list of float, Optional
+///     Sets the border color in rgba format as [r, g, b, a].
+/// border_color_hovered : IpgColor, Optional
+///     Sets the border color when hovered using a predefined color variant.
+/// border_rgba_hovered : list of float, Optional
+///     Sets the border color when hovered in rgba format as [r, g, b, a].
+/// border_radius : list of float, Optional
+///     Sets the radius of the corners as [all] or
+///     [top-left, top-right, bottom-right, bottom-left].
+/// border_width : float, Optional
+///     Sets the border width in logical pixels.
+/// gen_id : int, Optional
+///     Obtains an ID of a widget that have not been created, used for the gen_id parameter.
+///
+/// Returns
+/// -------
+/// int
+///     The numeric style ID to pass to a pick list's ``style_id``.
 #[pyfunction]
 #[pyo3(signature = (
     background_color=None,

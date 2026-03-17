@@ -9,6 +9,52 @@ use pyo3::{Py, PyAny, pyfunction, PyResult};
 type PyObject = Py<PyAny>;
 
 
+/// Add a text input widget.
+///
+/// A single-line text input field with placeholder text.
+///
+/// Parameters
+/// ----------
+/// parent_id : str
+///     Sets the parent container ID that this text input belongs to.
+/// placeholder : str
+///     Sets the placeholder text shown when the input is empty.
+/// gen_id : int, Optional
+///     Obtains an ID of a widget that have not been created, used for the gen_id parameter.
+/// on_input : callable, Optional
+///     Sets the Callback method to invoke when the input text changes.
+/// on_submit : callable, Optional
+///     Sets the Callback method to invoke when the user presses enter.
+/// on_paste : callable, Optional
+///     Sets the Callback method to invoke when text is pasted.
+/// width : float, Optional
+///     Sets the Fixed width in logical pixels.
+/// width_fill : bool, default False
+///     Whether the text input fills available width.
+/// padding : list of float, Optional
+///     Sets the Padding as [all], [vertical, horizontal], or
+///     [top, right, bottom, left].
+/// size : float, Optional
+///     Sets the font size for the input text.
+/// line_height : float, Optional
+///     Sets the line height for the input text.
+/// align_x : AlignX, Optional
+///     Sets the horizontal alignment of the input text.
+/// user_data : Any, Optional
+///     Sets the Arbitrary data forwarded to callbacks.
+/// is_secure : bool, Optional
+///     Whether the input text is obscured (password mode).
+/// font_id : int, Optional
+///     Sets the Font ID for the input text.
+/// style_id : int, Optional
+///     Sets the ID of a custom style created with ``add_text_input_style``.
+/// show : bool, default True
+///     Whether the text input is visible.
+///
+/// Returns
+/// -------
+/// int
+///     The numeric widget ID of the newly created text input.
 #[pyfunction]
 #[pyo3(signature = (
     parent_id, 
@@ -97,6 +143,60 @@ pub fn add_text_input(
 
 }
 
+/// Add styling to a text input.
+///
+/// Creates a custom style that can be applied to a text input
+/// via its ``style_id`` parameter.
+///
+/// Parameters
+/// ----------
+/// background_color : IpgColor, Optional
+///     Sets the background color using a predefined color variant.
+/// background_rgba : list of float, Optional
+///     Sets the background color in rgba format as [r, g, b, a].
+/// border_color_active : IpgColor, Optional
+///     Sets the border color in active state using a predefined color variant.
+/// border_rgba_active : list of float, Optional
+///     Sets the border color in active state in rgba format as [r, g, b, a].
+/// border_color_hovered : IpgColor, Optional
+///     Sets the border color when hovered using a predefined color variant.
+/// border_rgba_hovered : list of float, Optional
+///     Sets the border color when hovered in rgba format as [r, g, b, a].
+/// border_color_focused : IpgColor, Optional
+///     Sets the border color when focused using a predefined color variant.
+/// border_rgba_focused : list of float, Optional
+///     Sets the border color when focused in rgba format as [r, g, b, a].
+/// border_color_disabled : IpgColor, Optional
+///     Sets the border color when disabled using a predefined color variant.
+/// border_rgba_disabled : list of float, Optional
+///     Sets the border color when disabled in rgba format as [r, g, b, a].
+/// border_width : float, Optional
+///     Sets the border width in logical pixels.
+/// border_radius : float, Optional
+///     Sets the border radius in logical pixels.
+/// placeholder_color_active : IpgColor, Optional
+///     Sets the placeholder text color in active state using a predefined color variant.
+/// placeholder_rgba_active : list of float, Optional
+///     Sets the placeholder text color in active state in rgba format as [r, g, b, a].
+/// placeholder_color_disabled : IpgColor, Optional
+///     Sets the placeholder text color when disabled using a predefined color variant.
+/// placeholder_rgba_disabled : list of float, Optional
+///     Sets the placeholder text color when disabled in rgba format as [r, g, b, a].
+/// value_color : IpgColor, Optional
+///     Sets the input value text color using a predefined color variant.
+/// value_rgba : list of float, Optional
+///     Sets the input value text color in rgba format as [r, g, b, a].
+/// selection_color : IpgColor, Optional
+///     Sets the text selection highlight color using a predefined color variant.
+/// selection_rgba : list of float, Optional
+///     Sets the text selection highlight color in rgba format as [r, g, b, a].
+/// gen_id : int, Optional
+///     Obtains an ID of a widget that have not been created, used for the gen_id parameter.
+///
+/// Returns
+/// -------
+/// int
+///     The numeric style ID to pass to a text input's ``style_id``.
 #[pyfunction]
 #[pyo3(signature = ( 
     background_color=None,

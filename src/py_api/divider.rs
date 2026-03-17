@@ -15,7 +15,50 @@ type PyObject = Py<PyAny>;
 
 /// Add a divider widget.
 ///
-/// Returns the widget ID.
+/// A divider splits an area into resizable sections with
+/// draggable handles between them.
+///
+/// Parameters
+/// ----------
+/// parent_id : str
+///     Sets the parent container ID that this divider belongs to.
+/// direction : IpgDividerDirection
+///     Sets the direction of the divider (horizontal or vertical).
+/// sizes : list of float
+///     Sets the initial sizes of each section in logical pixels.
+/// handle_width : float
+///     Sets the width of the drag handle in logical pixels.
+/// handle_height : float
+///     Sets the height of the drag handle in logical pixels.
+/// handle_offsets : list of float, Optional
+///     Sets the offsets for each handle in logical pixels.
+/// include_last_handle : bool, default True
+///     Whether to include a handle after the last section.
+/// on_change : callable, Optional
+///     Sets the Callback method to invoke when a handle is dragged.
+/// on_release : callable, Optional
+///     Sets the Callback method to invoke when a handle is released.
+/// width : float, Optional
+///     Sets the Fixed width in logical pixels.
+/// width_fill : bool, default True
+///     Whether the divider fills available width.
+/// height : float, Optional
+///     Sets the Fixed height in logical pixels.
+/// height_fill : bool, default True
+///     Whether the divider fills available height.
+/// style_id : int, Optional
+///     Sets the ID of a custom style created with ``add_divider_style``.
+/// gen_id : int, Optional
+///     Obtains an ID of a widget that have not been created, used for the gen_id parameter.
+/// user_data : Any, Optional
+///     Sets the Arbitrary data forwarded to callbacks.
+/// show : bool, default True
+///     Whether the divider is visible.
+///
+/// Returns
+/// -------
+/// int
+///     The numeric widget ID of the newly created divider.
 #[pyfunction]
 #[pyo3(signature = (
     parent_id,
@@ -100,9 +143,39 @@ pub fn add_divider(
     Ok(id)
 }
 
-/// Add a divider_style widget.
+/// Add styling to a divider.
 ///
-/// Returns the widget ID.
+/// Creates a custom style that can be applied to a divider
+/// via its ``style_id`` parameter.
+///
+/// Parameters
+/// ----------
+/// background_color : IpgColor, Optional
+///     Sets the background color using a predefined color variant.
+/// background_rgba : list of float, Optional
+///     Sets the background color in rgba format as [r, g, b, a].
+/// background_color_hovered : IpgColor, Optional
+///     Sets the background color when hovered using a predefined color variant.
+/// background_rgba_hovered : list of float, Optional
+///     Sets the background color when hovered in rgba format as [r, g, b, a].
+/// background_transparent : bool, Optional
+///     Whether the background is transparent.
+/// border_color : IpgColor, Optional
+///     Sets the border color using a predefined color variant.
+/// border_rgba : list of float, Optional
+///     Sets the border color in rgba format as [r, g, b, a].
+/// border_radius : list of float, Optional
+///     Sets the radius of the corners as [all] or
+///     [top-left, top-right, bottom-right, bottom-left].
+/// border_width : float, Optional
+///     Sets the border width in logical pixels.
+/// gen_id : int, Optional
+///     Obtains an ID of a widget that have not been created, used for the gen_id parameter.
+///
+/// Returns
+/// -------
+/// int
+///     The numeric style ID to pass to a divider's ``style_id``.
 #[pyfunction]
 #[pyo3(signature = (
         background_color=None, 

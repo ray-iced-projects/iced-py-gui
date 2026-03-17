@@ -16,33 +16,35 @@ use crate::widgets::ipg_column::IpgColumn;
 /// Parameters
 /// ----------
 /// window_id : str
-///     The window this column belongs to.
+///     Sets the window this column belongs to.
 /// container_id : str
-///     Unique string identifier for the column.
-/// parent_id : str, optional
-///     The parent container ID.  Defaults to the window itself.
-/// width : float, optional
-///     Fixed width in logical pixels.
+///     Sets the Unique string identifier for the column.
+/// parent_id : str,  Optional
+///     Sets the parent container ID.  Defaults to the window itself.
+/// width : float,  Optional
+///     Sets the Fixed width in logical pixels.
 /// width_fill : bool, default False
 ///     Whether the column fills available width.
-/// height : float, optional
-///     Fixed height in logical pixels.
+/// height : float,  Optional
+///     Sets the Fixed height in logical pixels.
 /// height_fill : bool, default False
 ///     Whether the column fills available height.
-/// max_width : float, optional
-///     Maximum width in logical pixels.
-/// padding : list of float, optional
-///     Padding as ``[all]``, ``[vertical, horizontal]``, or
+/// fill : bool, Optional
+///     Whether to fill both the available width and height
+/// max_width : float,  Optional
+///     Sets the Maximum width in logical pixels.
+/// padding : list of float,  Optional
+///     Sets the Padding as ``[all]``, ``[vertical, horizontal]``, or
 ///     ``[top, right, bottom, left]``.
-/// spacing : float, optional
-///     Vertical spacing between children in logical pixels.
-/// align_left : bool, optional
-///     Align children to the left.
-/// align_center : bool, optional
-///     Align children to the horizontal centre.
-/// align_right : bool, optional
-///     Align children to the right.
-/// clip : bool, optional
+/// spacing : float,  Optional
+///     Sets the Vertical spacing between children in logical pixels.
+/// align_left : bool,  Optional
+///     Whether to Align children to the left.
+/// align_center : bool,  Optional
+///     Whether to Align children to the horizontal centre.
+/// align_right : bool,  Optional
+///     Whether to Align children to the right.
+/// clip : bool,  Optional
 ///     Whether to clip content that overflows the column.
 /// show : bool, default True
 ///     Whether the column is visible.
@@ -60,6 +62,7 @@ use crate::widgets::ipg_column::IpgColumn;
         width_fill=false,
         height=None, 
         height_fill=false,
+        fill=None,
         max_width=None,
         padding=None,
         spacing=None,
@@ -78,6 +81,7 @@ pub fn add_column(
     width_fill: bool,
     height: Option<f32>,
     height_fill: bool,
+    fill: Option<bool>,
     max_width: Option<f32>,
     padding: Option<Vec<f32>>,
     spacing: Option<f32>,
@@ -90,9 +94,12 @@ pub fn add_column(
 {
     let id = get_id(None);
     
-    let width = get_length(width, width_fill);
-    let height = get_length(height, height_fill);
-
+    let (width, height) = if fill == Some(true) {
+        (get_length(None, true), get_length(None, true))
+    } else {
+        (get_length(width, width_fill), get_length(height, height_fill))
+    };
+    
     let prt_id = match parent_id {
         Some(id) => id,
         None => window_id.clone(),

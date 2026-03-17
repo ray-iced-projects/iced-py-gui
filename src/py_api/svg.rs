@@ -12,6 +12,68 @@ use crate::{access_state, add_callback_to_mutex,
 use crate::py_api::helpers::get_length;
 
 
+/// Add an SVG widget.
+///
+/// Displays a scalable vector graphic from a file path with
+/// optional mouse interaction.
+///
+/// Parameters
+/// ----------
+/// parent_id : str
+///     Sets the parent container ID that this SVG belongs to.
+/// svg_path : str
+///     Sets the file path to the SVG image.
+/// gen_id : int, Optional
+///     Obtains an ID of a widget that have not been created, used for the gen_id parameter.
+/// width : float, Optional
+///     Sets the Fixed width in logical pixels.
+/// width_fill : bool, default False
+///     Whether the SVG fills available width.
+/// height : float, Optional
+///     Sets the Fixed height in logical pixels.
+/// height_fill : bool, default False
+///     Whether the SVG fills available height.
+/// ipg_color_filter : IpgColor, Optional
+///     Sets the color filter using a predefined color variant.
+/// rgba_filter : list of float, Optional
+///     Sets the color filter in rgba format as [r, g, b, a].
+/// content_fit : IpgContentFit, Optional
+///     Sets the content fit strategy for the SVG.
+/// rotation_type : IpgRotation, Optional
+///     Sets the rotation method for the SVG.
+/// rotation_radians : float, Optional
+///     Sets the rotation angle in radians.
+/// opacity : float, Optional
+///     Sets the opacity of the SVG (0.0 to 1.0).
+/// mouse_pointer : IpgMousePointer, Optional
+///     Sets the mouse pointer style when hovering over the SVG.
+/// show : bool, default True
+///     Whether the SVG is visible.
+/// on_press : callable, Optional
+///     Sets the Callback method to invoke when the SVG is pressed.
+/// on_release : callable, Optional
+///     Sets the Callback method to invoke when the SVG is released.
+/// on_right_press : callable, Optional
+///     Sets the Callback method to invoke when the SVG is right-pressed.
+/// on_right_release : callable, Optional
+///     Sets the Callback method to invoke when the SVG is right-released.
+/// on_middle_press : callable, Optional
+///     Sets the Callback method to invoke when the SVG is middle-pressed.
+/// on_middle_release : callable, Optional
+///     Sets the Callback method to invoke when the SVG is middle-released.
+/// on_enter : callable, Optional
+///     Sets the Callback method to invoke when the mouse enters the SVG.
+/// on_move : callable, Optional
+///     Sets the Callback method to invoke when the mouse moves over the SVG.
+/// on_exit : callable, Optional
+///     Sets the Callback method to invoke when the mouse exits the SVG.
+/// user_data : Any, Optional
+///     Sets the Arbitrary data forwarded to callbacks.
+///
+/// Returns
+/// -------
+/// int
+///     The numeric widget ID of the newly created SVG.
 #[pyfunction]
 
 #[pyo3(signature = (

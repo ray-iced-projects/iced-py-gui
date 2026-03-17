@@ -14,7 +14,55 @@ use crate::graphics::bootstrap_arrow::IpgArrow;
 
 /// Add a color_picker widget.
 ///
-/// Returns the widget ID.
+/// A color picker that opens from a button, allowing the user
+/// to select a color interactively.
+///
+/// Parameters
+/// ----------
+/// parent_id : str
+///     Sets the parent container ID that this color picker belongs to.
+/// label : str,  Optional
+///     Sets the Text label displayed on the button.
+/// gen_id : int,  Optional
+///     Obtains an ID of a widget that have not been created, used for the gen_id parameter.
+/// on_press : callable,  Optional
+///     Sets the Callback method to invoke when the button is pressed.
+/// on_select : callable,  Optional
+///     Sets the Callback method to invoke when a color is selected.
+/// on_cancel : callable,  Optional
+///     Sets the Callback method to invoke when the color selection is cancelled.
+/// color : IpgColor,  Optional
+///     Sets the initial color using a predefined color variant.
+/// color_rgba : list of float,  Optional
+///     Sets the initial color in rgba format as [r, g, b, a].
+/// width : float,  Optional
+///     Sets the Fixed width in logical pixels.
+/// width_fill : bool, default False
+///     Whether the button fills available width.
+/// height : float,  Optional
+///     Sets the Fixed height in logical pixels.
+/// height_fill : bool, default False
+///     Whether the button fills available height.
+/// padding : list of float,  Optional
+///     Sets the Padding as [all], [vertical, horizontal], or
+///     [top, right, bottom, left].
+/// clip : bool,  Optional
+///     Whether to clip content that overflows the button.
+/// style_id : int,  Optional
+///     Sets the ID of a custom style created with ``add_button_style``.
+/// style_standard : IpgButtonStyleStd,  Optional
+///     Sets the predefined standard style variant.
+/// style_arrow : IpgArrow,  Optional
+///     Sets the arrow icon style for the button.
+/// user_data : Any,  Optional
+///     Sets the Arbitrary data forwarded to callbacks.
+/// show : bool, default False
+///     Whether the color picker is visible.
+///
+/// Returns
+/// -------
+/// int
+///     The numeric widget ID of the newly created color picker.
 #[pyfunction]
 #[pyo3(signature = (
     parent_id, 

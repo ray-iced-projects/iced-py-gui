@@ -15,7 +15,39 @@ type PyObject = Py<PyAny>;
 
 /// Add a date picker widget.
 ///
-/// Returns the widget ID.
+/// A date picker that opens a calendar from a button, allowing
+/// the user to select a date.
+///
+/// Parameters
+/// ----------
+/// parent_id : str
+///     Sets the parent container ID that this date picker belongs to.
+/// label : str, Optional
+///     Sets the Text label displayed on the button.
+/// gen_id : int, Optional
+///     Obtains an ID of a widget that have not been created, used for the gen_id parameter.
+/// size_factor : float, Optional
+///     Sets the size scaling factor for the calendar.
+/// padding : list of float, Optional
+///     Sets the Padding as [all], [vertical, horizontal], or
+///     [top, right, bottom, left].
+/// on_submit : callable, Optional
+///     Sets the Callback method to invoke when a date is submitted.
+/// user_data : Any, Optional
+///     Sets the Arbitrary data forwarded to callbacks.
+/// show : bool, default True
+///     Whether the date picker is visible.
+/// show_calendar : bool, Optional
+///     Whether the calendar popup is shown.
+/// button_style_standard : IpgButtonStyleStd, Optional
+///     Sets the predefined standard style variant for the button.
+/// button_style_id : int, Optional
+///     Sets the ID of a custom style created with ``add_button_style``.
+///
+/// Returns
+/// -------
+/// int
+///     The numeric widget ID of the newly created date picker.
 #[pyfunction]
 #[pyo3(signature = (
     parent_id, 

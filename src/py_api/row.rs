@@ -17,30 +17,32 @@ use crate::widgets::ipg_row::IpgRow;
 /// Parameters
 /// ----------
 /// window_id : str
-///     The window this row belongs to.
+///     Sets the window this row belongs to.
 /// container_id : str
-///     Unique string identifier for the row.
+///     Sets the Unique string identifier for the row.
 /// parent_id : str, optional
-///     The parent container ID.  Defaults to the window itself.
+///     Sets the parent container ID.  Defaults to the window itself.
 /// width : float, optional
-///     Fixed width in logical pixels.
+///     Sets the Fixed width in logical pixels.
 /// width_fill : bool, default False
 ///     Whether the row fills available width.
 /// height : float, optional
-///     Fixed height in logical pixels.
+///     Sets the Fixed height in logical pixels.
 /// height_fill : bool, default False
 ///     Whether the row fills available height.
+/// fill : bool, Optional
+///     Whether to fill both the available width and height
 /// align_bottom : bool, optional
-///     Align children to the bottom.
+///     Whether to Align children to the bottom.
 /// align_center : bool, optional
-///     Align children to the vertical centre.
+///     Whether to Align children to the vertical centre.
 /// align_top : bool, optional
-///     Align children to the top.
+///     Whether to Align children to the top.
 /// padding : list of float, optional
-///     Padding as ``[all]``, ``[vertical, horizontal]``, or
+///     Sets the Padding as ``[all]``, ``[vertical, horizontal]``, or
 ///     ``[top, right, bottom, left]``.
 /// spacing : float, optional
-///     Horizontal spacing between children in logical pixels.
+///     Sets the Horizontal spacing between children in logical pixels.
 /// clip : bool, optional
 ///     Whether to clip content that overflows the row.
 /// show : bool, default True
@@ -59,6 +61,7 @@ use crate::widgets::ipg_row::IpgRow;
         width_fill=false,  
         height=None, 
         height_fill=false,
+        fill=None,
         align_bottom=None,
         align_center=None,
         align_top=None,
@@ -75,6 +78,7 @@ pub fn add_row(
     width_fill: bool,
     height: Option<f32>,
     height_fill: bool,
+    fill: Option<bool>,
     align_bottom: Option<bool>,
     align_center: Option<bool>,
     align_top: Option<bool>,
@@ -86,8 +90,11 @@ pub fn add_row(
 {
     let id = get_id(None);
 
-    let width = get_length(width, width_fill);
-    let height = get_length(height, height_fill);
+    let (width, height) = if fill == Some(true) {
+        (get_length(None, true), get_length(None, true))
+    } else {
+        (get_length(width, width_fill), get_length(height, height_fill))
+    };
 
     let prt_id = match parent_id {
         Some(id) => id,

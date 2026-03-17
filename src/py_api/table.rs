@@ -9,6 +9,111 @@ use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex,
         widgets::ipg_table::{IpgTable}};
 
 
+/// Add a table widget.
+///
+/// A table with headers, body rows, footers, and resizable columns.
+///
+/// Parameters
+/// ----------
+/// window_id : str
+///     Sets the window this table belongs to.
+/// table_id : str
+///     Sets the Unique string identifier for the table.
+/// headers : list of str
+///     Sets the column header labels.
+/// body : list of list of float
+///     Sets the table body data as rows of float values.
+/// footers : list of str
+///     Sets the column footer labels.
+/// column_widths : list of float
+///     Sets the initial width of each column in logical pixels.
+/// height : float
+///     Sets the height of the table in logical pixels.
+/// parent_id : str, Optional
+///     Sets the parent container ID.  Defaults to the window itself.
+/// width : float, Optional
+///     Sets the Fixed width in logical pixels.
+/// resizer_width : float, Optional
+///     Sets the width of the column resizer handle.
+/// header_enabled : bool, default True
+///     Whether the header row is displayed.
+/// header_row_height : float, Optional
+///     Sets the height of the header row.
+/// header_scrollbar_height : float, Optional
+///     Sets the height of the header scrollbar.
+/// header_scrollbar_margin : float, Optional
+///     Sets the margin around the header scrollbar.
+/// header_scroller_height : float, Optional
+///     Sets the height of the header scroller thumb.
+/// header_scrollbar_spacing : float, Optional
+///     Sets the spacing around the header scrollbar.
+/// header_row_spacing : float, Optional
+///     Sets the spacing between header rows.
+/// footer_height : float, Optional
+///     Sets the height of the footer row.
+/// footer_scrollbar_height : float, Optional
+///     Sets the height of the footer scrollbar.
+/// footer_scrollbar_margin : float, Optional
+///     Sets the margin around the footer scrollbar.
+/// footer_scroller_height : float, Optional
+///     Sets the height of the footer scroller thumb.
+/// footer_scrollbar_spacing : float, Optional
+///     Sets the spacing around the footer scrollbar.
+/// footer_spacing : float, Optional
+///     Sets the spacing between footer rows.
+/// body_scrollbar_width : float, Optional
+///     Sets the width of the body scrollbar.
+/// body_scrollbar_margin : float, Optional
+///     Sets the margin around the body scrollbar.
+/// body_scroller_width : float, Optional
+///     Sets the width of the body scroller thumb.
+/// body_scrollbar_spacing : float, Optional
+///     Sets the spacing around the body scrollbar.
+/// body_row_highlight : bool, default True
+///     Whether to highlight body rows on hover.
+/// custom_header_rows : int, Optional
+///     Sets the number of custom header rows.
+/// custom_footer_rows : int, Optional
+///     Sets the number of custom footer rows.
+/// control_columns : list of int, default []
+///     Sets the indices of columns that contain control widgets.
+/// column_proportional_resize : bool, default True
+///     Whether columns resize proportionally.
+/// row_spacing : float, Optional
+///     Sets the spacing between body rows.
+/// row_height : float, Optional
+///     Sets the height of each body row.
+/// header_body_spacing : float, Optional
+///     Sets the spacing between the header and body.
+/// body_footer_spacing : float, Optional
+///     Sets the spacing between the body and footer.
+/// resize_columns_enabled : bool, default True
+///     Whether the user can resize columns.
+/// min_column_width : float, Optional
+///     Sets the minimum column width in logical pixels.
+/// text_size : float, Optional
+///     Sets the font size for table text.
+/// table_width_fixed : bool, default True
+///     Whether the table has a fixed width.
+/// gen_id : int, Optional
+///     Obtains an ID of a widget that have not been created, used for the gen_id parameter.
+/// style_id : int, Optional
+///     Sets the ID of a custom style.
+/// scrollable_style_id : int, Optional
+///     Sets the ID of a scrollable style for the table.
+/// show : bool, default True
+///     Whether the table is visible.
+/// on_column_resize : callable, Optional
+///     Sets the Callback method to invoke when a column is being resized.
+/// on_column_resize_release : callable, Optional
+///     Sets the Callback method to invoke when a column resize is released.
+/// user_data : Any, Optional
+///     Sets the Arbitrary data forwarded to callbacks.
+///
+/// Returns
+/// -------
+/// int
+///     The numeric widget ID of the newly created table.
 #[pyfunction]
 #[pyo3(signature = (
     window_id, 

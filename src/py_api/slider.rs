@@ -9,7 +9,47 @@ use crate::{access_state, add_callback_to_mutex,
 type PyObject = Py<PyAny>;
 
 
-
+/// Add a slider widget.
+///
+/// A horizontal slider for selecting a numeric value within a range.
+///
+/// Parameters
+/// ----------
+/// parent_id : str
+///     Sets the parent container ID that this slider belongs to.
+/// min : float
+///     Sets the minimum value of the slider.
+/// max : float
+///     Sets the maximum value of the slider.
+/// step : float
+///     Sets the step increment of the slider.
+/// value : float
+///     Sets the current value of the slider.
+/// shift_step : float, Optional
+///     Sets the step increment when shift is held.
+/// gen_id : int, Optional
+///     Obtains an ID of a widget that have not been created, used for the gen_id parameter.
+/// width : float, Optional
+///     Sets the Fixed width in logical pixels.
+/// height : float, Optional
+///     Sets the height of the slider track in logical pixels.
+/// width_fill : bool, default False
+///     Whether the slider fills available width.
+/// on_change : callable, Optional
+///     Sets the Callback method to invoke when the slider value changes.
+/// on_release : callable, Optional
+///     Sets the Callback method to invoke when the slider handle is released.
+/// style_id : int, Optional
+///     Sets the ID of a custom style created with ``add_slider_style``.
+/// user_data : Any, Optional
+///     Sets the Arbitrary data forwarded to callbacks.
+/// show : bool, default True
+///     Whether the slider is visible.
+///
+/// Returns
+/// -------
+/// int
+///     The numeric widget ID of the newly created slider.
 #[pyfunction]
 #[pyo3(signature = (
     parent_id, 
@@ -87,6 +127,49 @@ pub fn add_slider(
 
 }
 
+/// Add styling to a slider.
+///
+/// Creates a custom style that can be applied to a slider
+/// via its ``style_id`` parameter.
+///
+/// Parameters
+/// ----------
+/// rail_color : IpgColor, Optional
+///     Sets the rail color using a predefined color variant.
+/// rail_rgba : list of float, Optional
+///     Sets the rail color in rgba format as [r, g, b, a].
+/// rail_color_hovered : IpgColor, Optional
+///     Sets the rail color when hovered using a predefined color variant.
+/// rail_rgba_hovered : list of float, Optional
+///     Sets the rail color when hovered in rgba format as [r, g, b, a].
+/// rail_width : float, Optional
+///     Sets the rail width in logical pixels.
+/// rail_border_radius : list of float, Optional
+///     Sets the radius of the rail corners as [all] or
+///     [top-left, top-right, bottom-right, bottom-left].
+/// handle_circle_radius : float, Optional
+///     Sets the radius of a circular handle.
+/// handle_rectangle_width : int, Optional
+///     Sets the width of a rectangular handle.
+/// handle_rectangle_border_radius : list of float, Optional
+///     Sets the radius of the rectangular handle corners.
+/// handle_color : IpgColor, Optional
+///     Sets the handle color using a predefined color variant.
+/// handle_rgba : list of float, Optional
+///     Sets the handle color in rgba format as [r, g, b, a].
+/// handle_border_width : float, Optional
+///     Sets the handle border width in logical pixels.
+/// handle_border_color : IpgColor, Optional
+///     Sets the handle border color using a predefined color variant.
+/// handle_border_rgba : list of float, Optional
+///     Sets the handle border color in rgba format as [r, g, b, a].
+/// gen_id : int, Optional
+///     Obtains an ID of a widget that have not been created, used for the gen_id parameter.
+///
+/// Returns
+/// -------
+/// int
+///     The numeric style ID to pass to a slider's ``style_id``.
 #[pyfunction]
 #[pyo3(signature = (
     rail_color=None,

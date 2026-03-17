@@ -11,6 +11,44 @@ use crate::widgets::styling::IpgStyleStandard;
 
 
 
+/// Add a progress bar widget.
+///
+/// A horizontal or vertical bar that visually indicates progress
+/// between a minimum and maximum value.
+///
+/// Parameters
+/// ----------
+/// parent_id : str
+///     Sets the parent container ID that this progress bar belongs to.
+/// min : float
+///     Sets the minimum value of the progress bar.
+/// max : float
+///     Sets the maximum value of the progress bar.
+/// value : float
+///     Sets the current value of the progress bar.
+/// gen_id : int, Optional
+///     Obtains an ID of a widget that have not been created, used for the gen_id parameter.
+/// is_vertical : bool, Optional
+///     Whether the progress bar is oriented vertically.
+/// width : float, Optional
+///     Sets the Fixed width in logical pixels.
+/// width_fill : bool, default True
+///     Whether the progress bar fills available width.
+/// height : float, Optional
+///     Sets the Fixed height in logical pixels.
+/// height_fill : bool, default False
+///     Whether the progress bar fills available height.
+/// style_standard : IpgStyleStandard, Optional
+///     Sets the predefined standard style variant.
+/// style_id : int, Optional
+///     Sets the ID of a custom style created with ``add_progress_bar_style``.
+/// show : bool, default True
+///     Whether the progress bar is visible.
+///
+/// Returns
+/// -------
+/// int
+///     The numeric widget ID of the newly created progress bar.
 #[pyfunction]
 #[pyo3(signature = (
     parent_id, 
@@ -74,6 +112,37 @@ pub fn add_progress_bar(
 }
 
 
+/// Add styling to a progress bar.
+///
+/// Creates a custom style that can be applied to a progress bar
+/// via its ``style_id`` parameter.
+///
+/// Parameters
+/// ----------
+/// background_color : IpgColor, Optional
+///     Sets the background color using a predefined color variant.
+/// background_rgba : list of float, Optional
+///     Sets the background color in rgba format as [r, g, b, a].
+/// bar_color : IpgColor, Optional
+///     Sets the bar fill color using a predefined color variant.
+/// bar_rgba : list of float, Optional
+///     Sets the bar fill color in rgba format as [r, g, b, a].
+/// border_color : IpgColor, Optional
+///     Sets the border color using a predefined color variant.
+/// border_rgba : list of float, Optional
+///     Sets the border color in rgba format as [r, g, b, a].
+/// border_radius : list of float, Optional
+///     Sets the radius of the corners as [all] or
+///     [top-left, top-right, bottom-right, bottom-left].
+/// border_width : float, Optional
+///     Sets the border width in logical pixels.
+/// gen_id : int, Optional
+///     Obtains an ID of a widget that have not been created, used for the gen_id parameter.
+///
+/// Returns
+/// -------
+/// int
+///     The numeric style ID to pass to a progress bar's ``style_id``.
 #[pyfunction]
 #[pyo3(signature = (
     background_color=None, 

@@ -14,9 +14,50 @@ use crate::state::{IpgContainers, IpgWidgets, access_state,
 use crate::widgets::enums::{AlignX, 
     AlignY};
 
-/// Add a container widget.
+/// Add an opaque container widget.
 ///
-/// Returns the widget ID.
+/// An opaque container blocks mouse events from passing through
+/// to widgets underneath it, useful for overlay scenarios.
+///
+/// Parameters
+/// ----------
+/// window_id : str
+///     Sets the window this opaque container belongs to.
+/// container_id : str
+///     Sets the Unique string identifier for the opaque container.
+/// parent_id : str, Optional
+///     Sets the parent container ID.  Defaults to the window itself.
+/// width : float, Optional
+///     Sets the Fixed width in logical pixels.
+/// width_fill : bool, default False
+///     Whether the container fills available width.
+/// height : float, Optional
+///     Sets the Fixed height in logical pixels.
+/// height_fill : bool, default False
+///     Whether the container fills available height.
+/// fill : bool, Optional
+///     Whether to fill both the available width and height
+/// center : bool, Optional
+///     Whether to center the child within the container.
+/// align_x : AlignX, Optional
+///     Sets the horizontal alignment of the child.
+/// align_y : AlignY, Optional
+///     Sets the vertical alignment of the child.
+/// mouse_on_press : callable, Optional
+///     Sets the Callback method to invoke when the mouse is pressed in the area.
+/// user_data : Any, Optional
+///     Sets the Arbitrary data forwarded to callbacks.
+/// show : bool, default True
+///     Whether the opaque container is visible.
+/// style_id : int, Optional
+///     Sets the ID of a custom style created with ``add_opaque_style``.
+/// gen_id : int, Optional
+///     Obtains an ID of a widget that have not been created, used for the gen_id parameter.
+///
+/// Returns
+/// -------
+/// int
+///     The numeric widget ID of the newly created opaque container.
 #[pyfunction]
 #[pyo3(signature = (
     window_id, 
@@ -26,6 +67,7 @@ use crate::widgets::enums::{AlignX,
     width_fill=false,
     height=None, 
     height_fill=false,
+    fill=None,
     center=None,
     align_x=None, 
     align_y=None,
@@ -44,6 +86,7 @@ pub fn add_opaque_container(
     width_fill: bool,
     height: Option<f32>,
     height_fill: bool,
+    fill: Option<bool>,
     center: Option<bool>,
     align_x: Option<AlignX>,
     align_y: Option<AlignY>,
@@ -56,8 +99,11 @@ pub fn add_opaque_container(
 {
     let id = get_id(gen_id);
 
-    let width = get_length(width, width_fill);
-    let height = get_length(height, height_fill);
+    let (width, height) = if fill == Some(true) {
+        (get_length(None, true), get_length(None, true))
+    } else {
+        (get_length(width, width_fill), get_length(height, height_fill))
+    };
 
     let include_mouse_area = if let Some(py) = mouse_on_press {
         add_callback_to_mutex(id, "on_press".to_string(), py);
@@ -95,6 +141,24 @@ pub fn add_opaque_container(
     Ok(id)
 }
 
+/// Add styling to an opaque container.
+///
+/// Creates a custom style that can be applied to an opaque
+/// container via its ``style_id`` parameter.
+///
+/// Parameters
+/// ----------
+/// background_color : IpgColor, Optional
+///     Sets the background color using a predefined color variant.
+/// background_rgba : list of float, Optional
+///     Sets the background color in rgba format as [r, g, b, a].
+/// gen_id : int, Optional
+///     Obtains an ID of a widget that have not been created, used for the gen_id parameter.
+///
+/// Returns
+/// -------
+/// int
+///     The numeric style ID to pass to an opaque container's ``style_id``.
 #[pyfunction]
 #[pyo3(signature = ( 
     background_color=None, 

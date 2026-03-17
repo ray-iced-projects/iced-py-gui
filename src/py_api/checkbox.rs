@@ -21,51 +21,51 @@ use crate::widgets::ipg_text::{TextShaping, TextWrapping};
 /// Parameters
 /// ----------
 /// parent_id : str
-///     The parent container ID that this checkbox belongs to.
-/// on_toggle : callable, optional
-///     Callback invoked when the checkbox is toggled.
+///     Sets the parent container ID that this checkbox belongs to.
+/// on_toggle : callable,  Optional
+///     Sets the Callback method to invoke when the checkbox is toggled.
 /// is_checked : bool, default False
 ///     Whether the checkbox starts in the checked state.
-/// label : str, optional
-///     Text label displayed next to the checkbox.
-/// width : float, optional
-///     Fixed width in logical pixels.
+/// label : str,  Optional
+///     Sets the Text label displayed next to the checkbox.
+/// width : float,  Optional
+///     Sets the Fixed width in logical pixels.
 /// width_fill : bool, default False
 ///     Whether the checkbox fills available width.
-/// size : float, optional
-///     The size of the checkbox square in logical pixels.
-/// spacing : float, optional
-///     Spacing between the checkbox square and the label.
-/// text_size : float, optional
-///     Font size for the label text.
-/// text_line_height : float, optional
-///     Line height for the label text.
-/// text_shaping : TextShaping, optional
-///     Text shaping strategy for the label.
-/// text_wrapping : TextWrapping, optional
-///     Text wrapping strategy for the label.
-/// text_font_id : int, optional
-///     Font ID for the label text.
-/// icon_font_id : int, optional
-///     Font ID for the checkbox icon.
-/// icon : IpgIcon, optional
-///     Icon displayed inside the checkbox when checked.
-/// icon_size : float, optional
-///     Size of the checkbox icon.
-/// icon_line_height : float, optional
-///     Line height of the checkbox icon.
-/// icon_shaping : TextShaping, optional
-///     Text shaping strategy for the icon.
-/// user_data : Any, optional
-///     Arbitrary data forwarded to callbacks.
+/// size : float,  Optional
+///     Sets the size of the checkbox square in logical pixels.
+/// spacing : float,  Optional
+///     Sets the Spacing between the checkbox square and the label.
+/// text_size : float,  Optional
+///     Sets the Font size for the label text.
+/// text_line_height : float,  Optional
+///     Sets the Line height for the label text.
+/// text_shaping : TextShaping,  Optional
+///     Sets the Text shaping strategy for the label.
+/// text_wrapping : TextWrapping,  Optional
+///     Sets the Text wrapping strategy for the label.
+/// text_font_id : int,  Optional
+///     Sets the Font ID for the label text.
+/// icon_font_id : int,  Optional
+///     Sets the Font ID for the checkbox icon.
+/// icon : IpgIcon,  Optional
+///     Sets the Icon displayed inside the checkbox when checked.
+/// icon_size : float,  Optional
+///     Sets the Size of the checkbox icon.
+/// icon_line_height : float,  Optional
+///     Sets the Line height of the checkbox icon.
+/// icon_shaping : TextShaping,  Optional
+///     Sets the Text shaping strategy for the icon.
+/// user_data : Any,  Optional
+///     Sets the Arbitrary data forwarded to callbacks.
 /// show : bool, default True
 ///     Whether the checkbox is visible.
-/// style_id : int, optional
-///     ID of a custom style created with ``add_checkbox_style``.
-/// style_std : IpgCheckboxStyleStd, optional
-///     A predefined standard style variant.
-/// gen_id : int, optional
-///     Pre-generated numeric ID.  Used to assign ids to widgets that have not benn created yet.
+/// style_id : int,  Optional
+///     Sets the ID of a custom style created with ``add_checkbox_style``.
+/// style_std : IpgCheckboxStyleStd,  Optional
+///     Sets the predefined standard style variant.
+/// gen_id : int,  Optional
+///     Obtains an ID of a widget that have not been created, used for the gen_id parameter.
 ///
 /// Returns
 /// -------
@@ -175,29 +175,29 @@ pub fn add_checkbox(
 ///
 ///Parameters
 ///----------
-///background_color: Optional[IpgColor]=None
+///background_color: IpgColor, Optional
 ///    The background color of the box.
-///background_rgba: list,
+///background_rgba: list, Optional,
 ///    The background color of the box in rgba format.
-///dark_mode: bool=false
-///    Indicates wheter the custom bkg color is dark.
+///dark_mode: bool, Optional
+///    Whether the custom bkg color is dark.
 ///    Will adjust the border and text color from the bkg color
 ///    unless the border color is set.
-///border_color: Optional[IpgColor]=None
+///border_color: IpgColor, Optional
 ///    The color for the border.
-///border_rgba: Optional[list[float, 4]]=None
+///border_rgba: list[float]
 ///    The color of the border in rgba format used as state above.
-///border_radius: list
+///border_radius: list[float]
 ///    The radius of the 4 corners, [float]=all corners, 
-///    [float, 4] top-left, top-right, bottom-right, bottom-left.
+///    [float] top-left, top-right, bottom-right, bottom-left.
 ///border_width: float
 ///    The border width.
-///text_color: Optional[IpgColor]=None
+///text_color: IpgColor, Optional
 ///    The text color, if not defined, will either be a Black or White variation based on theme background.
-///text_rgba: Optional[list[float, 4]]=None
+///text_rgba: list[float], Optional
 ///    The text color in rgba format.
-/// /// gen_id : int, optional
-///     Pre-generated numeric ID.  
+/// /// gen_id : int,  Optional
+///     Obtains an ID of a widget that have not been created, used for the gen_id parameter.
 ///    """
 /// 
 #[pyfunction]

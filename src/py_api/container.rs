@@ -18,52 +18,54 @@ use crate::widgets::ipg_container::{IpgContainer,
 /// Parameters
 /// ----------
 /// window_id : str
-///     The window this container belongs to.
+///     Sets the window this container belongs to.
 /// container_id : str
-///     Unique string identifier for the container.
-/// parent_id : str, optional
-///     The parent container ID.  Defaults to the window itself.
-/// width : float, optional
-///     Fixed width in logical pixels.
+///     Sets the Unique string identifier for the container.
+/// parent_id : str,  Optional
+///     Sets the parent container ID.  Defaults to the window itself.
+/// width : float,  Optional
+///     Sets the Fixed width in logical pixels.
 /// width_fill : bool, default False
 ///     Whether the container fills available width.
-/// height : float, optional
-///     Fixed height in logical pixels.
+/// fill : bool, Optional
+///     Whether to fill both the available width and height
+/// height : float,  Optional
+///     Sets the Fixed height in logical pixels.
 /// height_fill : bool, default False
 ///     Whether the container fills available height.
-/// clip : bool, optional
+/// clip : bool,  Optional
 ///     Whether to clip content that overflows the container.
-/// max_height : float, optional
-///     Maximum height in logical pixels.
-/// max_width : float, optional
-///     Maximum width in logical pixels.
-/// align_top_left : bool, optional
-///     Align the child to the top-left corner.
-/// align_top_center : bool, optional
-///     Align the child to the top-centre.
-/// align_top_right : bool, optional
-///     Align the child to the top-right corner.
-/// align_center_left : bool, optional
-///     Align the child to the centre-left.
-/// align_center : bool, optional
-///     Align the child to the centre.
-/// align_center_right : bool, optional
-///     Align the child to the centre-right.
-/// align_bottom_left : bool, optional
-///     Align the child to the bottom-left corner.
-/// align_bottom_center : bool, optional
-///     Align the child to the bottom-centre.
-/// align_bottom_right : bool, optional
-///     Align the child to the bottom-right corner.
-/// padding : list of float, optional
-///     Padding as ``[all]``, ``[vertical, horizontal]``, or
+/// max_height : float,  Optional
+///     Sets the Maximum height in logical pixels.
+/// max_width : float,  Optional
+///     Sets the Maximum width in logical pixels.
+/// align_top_left : bool,  Optional
+///     Whether to Align the child to the top-left corner.
+/// align_top_center : bool,  Optional
+///     Whether to Align the child to the top-centre.
+/// align_top_right : bool,  Optional
+///     Whether to Align the child to the top-right corner.
+/// align_center_left : bool,  Optional
+///     Whether to Align the child to the centre-left.
+/// align_center : bool,  Optional
+///     Whether to Align the child to the centre.
+/// align_center_right : bool,  Optional
+///     Whether to Align the child to the centre-right.
+/// align_bottom_left : bool,  Optional
+///     Whether to Align the child to the bottom-left corner.
+/// align_bottom_center : bool,  Optional
+///     Whether to Align the child to the bottom-centre.
+/// align_bottom_right : bool,  Optional
+///     Whether to Align the child to the bottom-right corner.
+/// padding : list of float,  Optional
+///     Sets the Padding as ``[all]``, ``[vertical, horizontal]``, or
 ///     ``[top, right, bottom, left]``.
 /// show : bool, default True
 ///     Whether the container is visible.
-/// style_id : int, optional
-///     ID of a custom style created with ``add_container_style``.
-/// style_std : IpgContainerStyleStd, optional
-///     A predefined standard style variant.
+/// style_id : int,  Optional
+///     Sets the ID of a custom style created with ``add_container_style``.
+/// style_std : IpgContainerStyleStd,  Optional
+///     Sets the predefined standard style variant.
 ///
 /// Returns
 /// -------
@@ -77,7 +79,8 @@ use crate::widgets::ipg_container::{IpgContainer,
     width=None, 
     width_fill=false, 
     height=None, 
-    height_fill=false, 
+    height_fill=false,
+    fill=None,
     clip=None, 
     max_height=None, 
     max_width=None,
@@ -104,6 +107,7 @@ pub fn add_container(
     width_fill: bool,
     height: Option<f32>,
     height_fill: bool,
+    fill: Option<bool>,
     clip: Option<bool>,
     max_height: Option<f32>,
     max_width: Option<f32>,
@@ -124,8 +128,11 @@ pub fn add_container(
 {
     let id = get_id(None);
 
-    let width = get_length(width, width_fill);
-    let height = get_length(height, height_fill);
+    let (width, height) = if fill == Some(true) {
+        (get_length(None, true), get_length(None, true))
+    } else {
+        (get_length(width, width_fill), get_length(height, height_fill))
+    };
     
     let prt_id = match parent_id {
         Some(id) => id,
@@ -166,6 +173,66 @@ pub fn add_container(
 
 }
 
+
+/// Add styling to a container.
+///
+/// Creates a custom style that can be applied to a container
+/// via its ``style_id`` parameter.
+///
+/// Parameters
+/// ----------
+/// background_color : IpgColor, Optional
+///     Sets the background color using a predefined color variant.
+/// background_rgba : list of float, Optional
+///     Sets the background color in rgba format as [r, g, b, a].
+/// background_alpha : float, Optional
+///     Sets the alpha transparency for the background color.
+/// background_gradient_color_stop : IpgColor, Optional
+///     Sets the stop color of the background gradient.
+/// background_gradient_rgba_stop : list of float, Optional
+///     Sets the stop color of the background gradient in rgba format as [r, g, b, a].
+/// background_gradient_degrees : float, Optional
+///     Sets the background gradient angle in degrees.
+/// background_gradient_radians : float, Optional
+///     Sets the background gradient angle in radians.
+/// background_gradient_alpha : float, Optional
+///     Sets the alpha transparency for the gradient stop color.
+/// border_color : IpgColor, Optional
+///     Sets the border color using a predefined color variant.
+/// border_rgba : list of float, Optional
+///     Sets the border color in rgba format as [r, g, b, a].
+/// border_alpha : float, Optional
+///     Sets the alpha transparency for the border color.
+/// border_radius : list of float, Optional
+///     Sets the radius of the corners as [all] or
+///     [top-left, top-right, bottom-right, bottom-left].
+/// border_width : float, Optional
+///     Sets the border width in logical pixels.
+/// shadow_color : IpgColor, Optional
+///     Sets the shadow color using a predefined color variant.
+/// shadow_rgba : list of float, Optional
+///     Sets the shadow color in rgba format as [r, g, b, a].
+/// shadow_alpha : float, Optional
+///     Sets the alpha transparency for the shadow color.
+/// shadow_offset_xy : list of float, Optional
+///     Sets the shadow offset as [x, y] in logical pixels.
+/// shadow_blur_radius : float, Optional
+///     Sets the shadow blur radius in logical pixels.
+/// text_color : IpgColor, Optional
+///     Sets the text color using a predefined color variant.
+/// text_rgba : list of float, Optional
+///     Sets the text color in rgba format as [r, g, b, a].
+/// text_alpha : float, Optional
+///     Sets the alpha transparency for the text color.
+/// snap : bool, Optional
+///     Whether to snap the container to the pixel grid.
+/// gen_id : int, Optional
+///     Obtains an ID of a widget that have not been created, used for the gen_id parameter.
+///
+/// Returns
+/// -------
+/// int
+///     The numeric style ID to pass to a container's ``style_id``.
 #[pyfunction]
 #[pyo3(signature = (
     background_color=None, 

@@ -1,5 +1,4 @@
 //! Window module - provides add_window pyfunction
-use iced::Size;
 use pyo3::{Py, PyAny, PyResult, pyfunction};
 
 use crate::state::{access_state, add_callback_to_mutex, 
@@ -80,12 +79,12 @@ type PyObject = Py<PyAny>;
     size=None, 
     maximized=None,
     fullscreen=None,
+    hidden=None,
     center=None,
     position=None,
     min_size=None,
     max_size=None,
     theme=None,
-    visible=None,
     resizable=None,
     minimizable=None,
     closeable=None,
@@ -105,15 +104,15 @@ type PyObject = Py<PyAny>;
 pub fn add_window(
     window_id: String,
     title: Option<String>,
-    size: Option<(f32, f32)>,
+    size: Option<[f32; 2]>,
     maximized: Option<bool>,
     fullscreen: Option<bool>,
+    hidden: Option<bool>,
     center: Option<bool>,
-    position: Option<(f32, f32)>,
-    min_size: Option<(f32, f32)>,
-    max_size: Option<(f32, f32)>,
+    position: Option<[f32; 2]>,
+    min_size: Option<[f32; 2]>,
+    max_size: Option<[f32; 2]>,
     theme: Option<IpgWindowTheme>,
-    visible: Option<bool>,
     resizable: Option<bool>,
     minimizable: Option<bool>,
     closeable: Option<bool>,
@@ -141,18 +140,6 @@ pub fn add_window(
             state.last_id
         }
     };
-
-    let size = if let Some(wh) = size {
-        Some(Size::new(wh.0, wh.1))
-    } else { None };
-
-    let min_size = if let Some(wh) = min_size {
-        Some(Size::new(wh.0, wh.1))
-    } else { None };
-
-    let max_size = if let Some(wh) = max_size {
-        Some(Size::new(wh.0, wh.1))
-    } else { None };
 
     // Check for duplicate window IDs
     if state.windows_str_ids.get(&window_id).is_some() {
@@ -190,12 +177,12 @@ pub fn add_window(
         size,
         maximized,
         fullscreen,
+        hidden,
         center,
         position,
         min_size,
         max_size,
         theme,
-        visible,
         resizable,
         minimizable,
         closeable,

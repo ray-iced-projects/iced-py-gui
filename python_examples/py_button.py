@@ -19,7 +19,7 @@ def print_user_data(_btn_id, some_data):
 
 
 #  First add a window
-with Window(id="main", title="App",
+with Window(title="App",
             size=(800, 600), center=True):
 
     # Need a Scrollable since long content

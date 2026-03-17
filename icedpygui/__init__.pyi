@@ -6,7 +6,8 @@
 # pylint: disable=too-many-arguments
 # pylint: disable=too-many-locals
 """
-Re-Imports
+Re-Imports for Type stubs for the wrapper layer,
+Wwhat users see with pylance, mypy, IDE hover, etc
 """
 from typing import Any, Callable, Optional
 from types import TracebackType

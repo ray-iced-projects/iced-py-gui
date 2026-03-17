@@ -1160,14 +1160,14 @@ fn clone_state(state: &mut IpgState) {
     state.window_theme = mutex_state.window_theme.to_owned();
     state.window_mode = mutex_state.window_mode.to_owned();
     
-    // state.keyboard_event_id_enabled = mutex_state.keyboard_event_id_enabled.to_owned();
-    // state.mouse_event_id_enabled = mutex_state.mouse_event_id_enabled.to_owned();
-    // state.timer_event_id_enabled = mutex_state.timer_event_id_enabled.to_owned();
-    // state.canvas_timer_event_id_enabled = mutex_state.canvas_timer_event_id_enabled.to_owned();
-    // state.window_event_id_enabled = mutex_state.window_event_id_enabled.to_owned();
-    // state.touch_event_id_enabled = mutex_state.touch_event_id_enabled.to_owned();
-    // state.timer_duration = mutex_state.timer_duration.to_owned();
-    // state.canvas_timer_duration = mutex_state.canvas_timer_duration.to_owned();
+    state.keyboard_event_id_enabled = mutex_state.keyboard_event_id_enabled.to_owned();
+    state.mouse_event_id_enabled = mutex_state.mouse_event_id_enabled.to_owned();
+    state.timer_event_id_enabled = mutex_state.timer_event_id_enabled.to_owned();
+    state.canvas_timer_event_id_enabled = mutex_state.canvas_timer_event_id_enabled.to_owned();
+    state.window_event_id_enabled = mutex_state.window_event_id_enabled.to_owned();
+    state.touch_event_id_enabled = mutex_state.touch_event_id_enabled.to_owned();
+    state.timer_duration = mutex_state.timer_duration.to_owned();
+    state.canvas_timer_duration = mutex_state.canvas_timer_duration.to_owned();
 
     // zeroing out any unneeded vecs and hashmaps
     mutex_state.widgets = Lazy::new(||HashMap::new());

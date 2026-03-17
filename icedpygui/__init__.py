@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-__init__.pyi imports and wrappers
+Runtime Python imports for Ptthon interpreter
 """
 
 from typing import Any, Callable, List, Optional
@@ -88,7 +88,6 @@ from .icedpygui import (
     IpgTogglerParam,
     IpgTogglerStyleParam,
     IpgWindowLevel,
-    IpgWindowMode,
     IpgWindowParam,
     IpgWindowTheme,
     TextShaping,

@@ -84,12 +84,18 @@ use crate::widgets::ipg_divider::{IpgDividerDirection, IpgDividerParam, IpgDivid
 use crate::widgets::ipg_pick_list::IpgPickListHandle;
 use crate::widgets::ipg_text::{IpgTextParam, TextWrapping};
 
+// events
+use crate::py_api::event_window::add_event_window;
+
 /// Python module definition
 #[pymodule]
 fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     // Session functions
     m.add_function(wrap_pyfunction!(start_session, m)?)?;
     m.add_function(wrap_pyfunction!(generate_id, m)?)?;
+
+    // Event functions
+    m.add_function(wrap_pyfunction!(add_event_window, m)?)?;
     
     // Widget functions
     m.add_function(wrap_pyfunction!(add_window, m)?)?;

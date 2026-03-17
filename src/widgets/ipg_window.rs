@@ -13,22 +13,22 @@ use crate::py_api::helpers::{try_extract_boolean,
     try_extract_f32, try_extract_usize, try_extract_vec_f32};
 use crate::state::access_window_actions;
 use crate::widgets::widget_param_update::{
-    WidgetParamUpdate, extract_param, set_opt_bool, set_opt_f32, set_opt_u32_array_2, set_opt_vec_u8
+    WidgetParamUpdate, extract_param, set_opt_bool, set_opt_f32, set_opt_f32_array_2, set_opt_string, set_opt_u32_array_2, set_opt_vec_u8
 };
 
 #[derive(Debug, Clone)]
 pub struct IpgWindow {
     pub id: usize,
     pub title: Option<String>,
-    pub size: Option<Size>,
+    pub size: Option<[f32; 2]>,
     pub maximized: Option<bool>,
     pub fullscreen: Option<bool>,
+    pub hidden: Option<bool>,
     pub center: Option<bool>,
-    pub position: Option<(f32, f32)>,
-    pub min_size: Option<Size>,
-    pub max_size: Option<Size>,
+    pub position: Option<[f32; 2]>,
+    pub min_size: Option<[f32; 2]>,
+    pub max_size: Option<[f32; 2]>,
     pub theme: Option<IpgWindowTheme>,
-    pub visible: Option<bool>,
     pub resizable: Option<bool>,
     pub minimizable: Option<bool>,
     pub closeable: Option<bool>,
@@ -53,25 +53,22 @@ pub enum WndMessage {
 
 pub fn add_windows(state: &mut IpgState) -> Vec<Task<Message>> {
 
-    let mut modes: Vec<(usize, window::Mode)> = vec![];
-
     let mut spawn_window: Vec<Task<Message>> = vec![];
 
     for i in 0..state.windows.len() {
         
-        let (visible, mode) = if let Some(vis) = state.windows[i].visible {
-            modes.push((state.windows[i].id, window::Mode::Hidden));
-           ( false, window::Mode::Hidden)
+        let win = &state.windows[i];
+        let is_hidden = win.hidden.unwrap_or(false);
+        let is_fullscreen = !is_hidden && win.fullscreen.unwrap_or(false);
+        let visible = !is_hidden;
+        let mode = if is_hidden {
+            window::Mode::Hidden
+        } else if is_fullscreen {
+            window::Mode::Fullscreen
         } else {
-            modes.push((state.windows[i].id, window::Mode::Windowed));
-            (true, window::Mode::Windowed)
+            window::Mode::Windowed
         };
         
-        let (fullscreen, mode) = if let Some(full) = state.windows[i].fullscreen {
-            modes.push((state.windows[i].id, window::Mode::Fullscreen));
-            (true, window::Mode::Fullscreen)
-        } else { (false, mode) };
-
         let def_setting = window::Settings::default();
         
         let level = if let Some(lv) = &state.windows[i].level {
@@ -84,13 +81,30 @@ pub fn add_windows(state: &mut IpgState) -> Vec<Task<Message>> {
             Position::Centered
         } else {
             if let Some(pos) = state.windows[i].position {
-                let point = iced::Point::new(pos.0, pos.1);
+                let point = iced::Point::new(pos[0], pos[1]);
                 Position::Specific(point)
             } else {
                 Position::default()
             }
         };
         
+        let size = if let Some(s) = state.windows[i].size {
+            Size::new(s[0], s[1])
+        } else {
+            def_setting.size
+        };
+
+        let min_size = if let Some(s) = state.windows[i].min_size {
+            Some(Size::new(s[0], s[1]))
+        } else {
+            def_setting.min_size
+        };
+
+        let max_size = if let Some(s) = state.windows[i].max_size {
+            Some(Size::new(s[0], s[1]))
+        } else {
+            def_setting.max_size
+        };
 
         let icon = 
             if state.windows[i].icon_rgba.is_some()  && state.windows[i].icon_width_height.is_some() {
@@ -105,12 +119,12 @@ pub fn add_windows(state: &mut IpgState) -> Vec<Task<Message>> {
 
 
         let (iced_id, open) = window::open(window::Settings {
-            size: state.windows[i].size.unwrap_or(def_setting.size),
+            size,
             maximized: state.windows[i].maximized.unwrap_or(def_setting.maximized),
-            fullscreen,
+            fullscreen: is_fullscreen,
             position,
-            min_size: state.windows[i].min_size,
-            max_size: state.windows[i].max_size,
+            min_size,
+            max_size,
             visible,
             resizable: state.windows[i].resizable.unwrap_or(def_setting.resizable),
             minimizable: state.windows[i].minimizable.unwrap_or(def_setting.minimizable),
@@ -148,11 +162,6 @@ pub fn add_windows(state: &mut IpgState) -> Vec<Task<Message>> {
 
         let ipg_id = state.windows[i].id;
         state.windows_iced_ipg_ids.insert(iced_id, ipg_id);
-        let size = if let Some(sz) = state.windows[i].size {
-            sz
-        } else {
-            Size::new(1024.0, 768.0)
-        };
         spawn_window.push(open.map(move|_|Message::WindowOpened(iced_id, None, size)));
         
     }
@@ -216,6 +225,7 @@ pub enum IpgWindowParam {
     Decorations,
     ExitOnCloseRequest,
     Fullscreen,
+    Hidden,
     IconRgba,
     IconWidthHeight,
     Level,
@@ -230,7 +240,6 @@ pub enum IpgWindowParam {
     Theme,
     Title,
     Transparent,
-    Visible,
 }
 
 // ---------------------------------------------------------------------------
@@ -251,7 +260,30 @@ impl WidgetParamUpdate for IpgWindow {
                 drop(state);
             },
             IpgWindowParam::ExitOnCloseRequest => set_opt_bool(&mut self.exit_on_close_request, value, "ExitOnCloseRequest"),
-            IpgWindowParam::Fullscreen => set_opt_bool(&mut self.fullscreen, value, "Fullscreen"),
+            IpgWindowParam::Fullscreen => {
+                set_opt_bool(&mut self.fullscreen, value, "Fullscreen");
+                let mode = if self.fullscreen == Some(true) {
+                    window::Mode::Fullscreen
+                } else {
+                    window::Mode::Windowed
+                };
+                let mut state = access_window_actions();
+                state.mode.push((self.id, mode));
+                drop(state);
+            },
+            IpgWindowParam::Hidden => {
+                set_opt_bool(&mut self.hidden, value, "Hidden");
+                let mode = if self.hidden == Some(true) {
+                    window::Mode::Hidden
+                } else if self.fullscreen == Some(true) {
+                    window::Mode::Fullscreen
+                } else {
+                    window::Mode::Windowed
+                };
+                let mut state = access_window_actions();
+                state.mode.push((self.id, mode));
+                drop(state);
+            },
             IpgWindowParam::IconRgba => set_opt_vec_u8(&mut self.icon_rgba, value, "IconRgba"),
             IpgWindowParam::IconWidthHeight => set_opt_u32_array_2(&mut self.icon_width_height, value, "IconWidthHeight"),
             IpgWindowParam::Level => {
@@ -262,17 +294,17 @@ impl WidgetParamUpdate for IpgWindow {
                 state.level.push((self.id, level));
                 drop(state);
             },
-            IpgWindowParam::MaxSize => todo!(),
-            IpgWindowParam::Maximized => todo!(),
-            IpgWindowParam::MinSize => todo!(),
-            IpgWindowParam::Minimizable => todo!(),
+            IpgWindowParam::MaxSize => set_opt_f32_array_2(&mut self.max_size, value, "MaxSize"),
+            IpgWindowParam::Maximized => set_opt_bool(&mut self.maximized, value, "Maximized"),
+            IpgWindowParam::MinSize => set_opt_f32_array_2(&mut self.min_size, value, "MinSize"),
+            IpgWindowParam::Minimizable => set_opt_bool(&mut self.minimizable, value, "Minimizable"),
             IpgWindowParam::Position => {
                 let val = try_extract_vec_f32(value, "Position");
                 let mut state = access_window_actions();
                 state.position.push((self.id, val[0], val[1]));
                 drop(state);
             },
-            IpgWindowParam::Resizable => todo!(),
+            IpgWindowParam::Resizable => set_opt_bool(&mut self.resizable, value, "Resizable"),
             IpgWindowParam::ScaleFactor => set_opt_f32(&mut self.scale_factor, value, "ScaleFactor"),
             IpgWindowParam::Size => {
                 let val = try_extract_vec_f32(value, "Size");
@@ -283,9 +315,8 @@ impl WidgetParamUpdate for IpgWindow {
             IpgWindowParam::Theme => {
                 self.theme = Some(extract_param::<IpgWindowTheme>(value));
             },
-            IpgWindowParam::Title => todo!(),
-            IpgWindowParam::Transparent => todo!(),
-            IpgWindowParam::Visible => todo!(),
+            IpgWindowParam::Title => set_opt_string(&mut self.title, value, "Title"),
+            IpgWindowParam::Transparent => set_opt_bool(&mut self.transparent, value, "Transparent"),
         }
     }
 }
@@ -394,12 +425,12 @@ mod tests {
             size: None,
             maximized: None,
             fullscreen: None,
+            hidden: None,
             center: None,
             position: None,
             min_size: None,
             max_size: None,
             theme: None,
-            visible: None,
             resizable: None,
             minimizable: None,
             closeable: None,

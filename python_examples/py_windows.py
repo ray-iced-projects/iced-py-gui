@@ -3,15 +3,23 @@
 Window use demo
 """
 
-from icedpygui import Window, Container, \
-    add_text, add_event_window,\
+from icedpygui import Window, Column, Container, \
+    add_button, add_space, add_text, add_text_input,\
+    add_toggler, start_session, add_event_window,\
     update_widget, generate_id, IpgWindowParam, IpgWindowLevel,\
-    IpgWindowMode, IpgTextParam, IpgWindowTheme
+    IpgTextParam, IpgWindowTheme
 
 popup_id = generate_id()
 wnd2 = generate_id()
 wnd4 = generate_id()
 
+wnd1_pos = [100, 25]
+wnd2_pos = [550, 25]
+popup_pos = [600.0, 300.0]
+wnd4_pos = [1000.0, 25.0]
+
+
+print("popup = ", popup_id, "wnd2 = ", wnd2, "wnd4 =" , wnd4)
 
 # ****************Functions for modifying the window 4 parameters*************
 
@@ -66,13 +74,13 @@ def change_scale(_input_id: int, value: str):
 
 def show_window(_btn_id: int, window_id: int):
     """The user data is a window_id"""
-    update_widget(window_id, IpgWindowParam.Mode, IpgWindowMode.Windowed)
+    update_widget(window_id, IpgWindowParam.Hidden, False)
     update_widget(s_h_text_id, IpgTextParam.Content, f"Window with id {window_id} is shown")
 
 
 def close_window(_btn_id: int, window_id: int):
     """The user data is a window_id"""
-    update_widget(wnd2, IpgWindowParam.Mode, IpgWindowMode.Closed)
+    update_widget(window_id, IpgWindowParam.Hidden, True)
     update_widget(s_h_text_id, IpgTextParam.Content, f"Window with id {window_id} is closed")
 
 # Since the event name is return, normally you would probably just create one def
@@ -105,49 +113,25 @@ def event_unfocused(wnd_id, _event_name: str):
     update_widget(event_unfocused_id, IpgTextParam.Content,\
                   f"Window with id {wnd_id} was unfocused")
 
-
-def event_on_file_hovered(wnd_id: int, _event_name: str, file_name: str):
-    """Window OnFileHovered callback"""
-    update_widget(event_file_hovered_id, IpgTextParam.Content,\
-                  f"File, {file_name}, was hovered over window with id {wnd_id}")
-
-
-def event_on_file_dropped(wnd_id: int, _event_name: str, file_name: str):
-    """Window OnFileDropped callback"""
-    update_widget(event_file_dropped_id, IpgTextParam.Content,\
-       f"File, {file_name}, was dropped on window with id {wnd_id}")
-
-
-def event_on_files_hover_left(wnd_id: int, _event_name: str):
-    """Window OnFilesHoverLeft"""
-    update_widget(event_file_hover_left_id, IpgTextParam.Content, f"File hover left window with id {wnd_id}.")
-
-
 # *******************add functions for close requested ******************************
 
 def event_on_close_requested(wnd_id: int, _event_name: str):
-    """This responds to the close request event
-    IMPORTANT: Once this event is used, you must also update any
-    other window with a close statement since all window are now
-    calling this event function.
-    """
+    """This responds to the close request event"""
+    
     if wnd_id == wnd2:
         # show window to acknowledge close or not
-        update_widget(popup_id, IpgWindowParam.Mode, IpgWindowMode.Windowed)
-    else:
-        # If not the window of interest, close it.
-        update_widget(wnd_id, IpgWindowParam.Mode, IpgWindowMode.Closed)
+        update_widget(wnd2, IpgWindowParam.Hidden, False)
+        update_widget(popup_id, IpgWindowParam.Hidden, False)
+
+def close_window2_and_popup(_btn_id: int):
+    """Close the requested popup window"""
+    update_widget(popup_id, IpgWindowParam.Hidden, True)
+    update_widget(wnd2, IpgWindowParam.Hidden, True)
 
 
-def close_window_using_popup(_btn_id: int, window_ids: list):
-    """Close the requested and popup window"""
-    update_widget(window_ids[0], IpgWindowParam.Mode, IpgWindowMode.Closed)
-    update_widget(window_ids[1], IpgWindowParam.Mode, IpgWindowMode.Closed)
-
-
-def close_window_canceled(btn_id, window_id: int):
+def close_window_canceled(_btn_id: int):
     """Window CloseCanceled callback"""
-    update_widget(window_id, IpgWindowParam.Mode, IpgWindowMode.Closed)
+    update_widget(popup_id, IpgWindowParam.Hidden, True)
 
 # ****************************Add the event widget for the windows*******************************
 add_event_window(
@@ -157,200 +141,129 @@ add_event_window(
         on_resized=event_on_resize,
         on_close_requested=event_on_close_requested,
         on_focused=event_focused,
-        on_unfocused=event_unfocused,
-        on_file_hovered=event_on_file_hovered,
-        on_file_dropped=event_on_file_dropped,
-        on_files_hovered_left=event_on_files_hover_left)
+        on_unfocused=event_unfocused)
 
 # ******************Add the 1st window***************************
 with Window(
-    id="main1",
     title="Window 1",
     size=(400.0, 600.0), 
-    position=(100, 25)) as wnd1:
+    position=wnd1_pos) as wnd1:
 
     # add a container to center things
     with Container(
-            window_id="main1", 
-            id="cont",
             width_fill=True,
             height_fill=True):
 
         # Add a column for multiple widgets
-        add_column(
-                window_id="main1", 
-                id="col", 
-                parent_id="cont")
+        with Column(spacing=20.0):
 
-        # Add some text
-        add_text(
-                parent_id="col", 
-                content="Input scale factor")
+            # Add some text
+            add_text(content="Input scale factor")
 
-        # add the input widget
-        add_text_input(
-                parent_id="col",
-                width=200.0,
-                placeholder="scale factor (float)", 
-                on_submit=change_scale)
+            # add the input widget
+            add_text_input(
+                    width=200.0,
+                    placeholder="scale factor (float)", 
+                    on_submit=change_scale)
 
-        # Add show hide text
-        s_h_text_id = add_text(
-                            parent_id="col", 
-                            content="Window 2 is closed")
+            # Add show hide text
+            s_h_text_id = add_text(content="Window 2 is closed")
 
-        # Add event text
-        event_text_id = add_text(
-                                parent_id="col", 
-                                content="This will change when an event occurs")
+            # Add event text
+            event_text_id = add_text(content="This will change when an event occurs")
 
-        event_resize_id = add_text(
-                                parent_id="col", 
-                                content="This will change when resized event occurs")
+            event_resize_id = add_text(content="This will change when resized event occurs")
 
-        event_close_request_id = add_text(
-                                        parent_id="col", 
-                                        content="You have no close requests")
+            event_close_request_id = add_text(content="You have no close requests")
 
-        event_focused_id = add_text(
-                                    parent_id="col", 
-                                    content="No window has the focus")
+            event_focused_id = add_text(content="No window has the focus")
 
-        event_unfocused_id = add_text(
-                                    parent_id="col", 
-                                    content="No window has the focus")
+            event_unfocused_id = add_text(content="No window has the focus")
 
-        event_file_hovered_id = add_text(
-                                        parent_id="col", 
-                                        content="No file has been hovered")
+            # add a button to show the 2nd window
+            add_button(
+                    label="Show Window",
+                    on_press=show_window,
+                    user_data=wnd2)
 
-        event_file_dropped_id = add_text(
-                                        parent_id="col", 
-                                        content="No file has been dropped")
-
-        event_file_hover_left_id = add_text(
-                                            parent_id="col", 
-                                            content="No file hover has left")
-
-        # add a button to show the 2nd window
-        add_button(
-                parent_id="col",
-                label="Show Window",
-                on_press=show_window,
-                user_data=wnd2)
-
-        add_button(
-                parent_id="col",
-                label="Show Close request window",
-                on_press=show_window,
-                user_data=popup_id)
+            add_button(
+                    label="Show Close request window",
+                    on_press=show_window,
+                    user_data=popup_id)
 
 # ************Add the 2nd window ****************************
 # To get a close request from this window, exit_on_close must be set to False.
 # Windows default to True.
-add_window(
-        id="main2", 
+with Window(
         title="Window 2",
-    size=(400.0, 400.0),  
-        position=(600, 25),
-        mode=IpgWindowMode.Closed,
-        exit_on_close=False,
-        gen_id=wnd2)
-
-add_container(
-        window_id="main2", 
-        id="cont")
-
-add_button(
-        parent_id="cont", 
-        label="Hide Window",
-        on_press=close_window,
-        user_data=wnd2)
+        size=(400.0, 400.0),  
+        position=wnd2_pos,
+        hidden=False,
+        exit_on_close_request=False,
+        gen_id=wnd2):
+    
+    with Container(align_center=True, width_fill=True, height_fill=True):
+        add_text(content="When you try closing the window, a popup will will appear and then you can close me")
 
 
-# **************Add close request window ***********************
+# **************Add close request window or popup window***********************
 # Note the window is closed, acting like a modal in this case.
-add_window(
-        id="close_request",
+with Window(
         title="Close Requested",
-    size=(300.0, 300.0),
-        pos_centered=True,
-        mode=IpgWindowMode.Closed,
-        gen_id=popup_id)
+        size=(300.0, 300.0),
+        position=popup_pos,
+        hidden=True,
+        level=IpgWindowLevel.AlwaysOnTop,
+        exit_on_close_request=False,
+        gen_id=popup_id):
 
-add_container(
-        window_id="close_request",
-        id="cont",
-        width_fill=True, 
-        height_fill=True)
+    with Container(width_fill=True, height_fill=True):
 
-add_column(
-        window_id="close_request",
-        id="col",
-        parent_id="cont")
+        with Column(spacing=20.0):
 
-add_text(
-        parent_id="col", 
-        content="With a little bit more programming, you could place this popup window anyplace on the screen.")
+            add_text(content="With a little bit more programming,\
+                you could place this popup window anyplace on the screen.")
 
-add_space(
-        parent_id="col", 
-        height=30.0)
+            add_space(height=30.0)
 
-add_button(
-        parent_id="col", 
-        label="Close Window 2", 
-        on_press=close_window_using_popup,
-        user_data=[wnd2, popup_id])
+            add_button(
+                    label="Close Window 2", 
+                    on_press=close_window2_and_popup)
 
-add_button(
-        parent_id="col", 
-        label="Cancel Window 2 Closing", 
-        on_press=close_window_canceled,
-        user_data=popup_id)
+            add_button(
+                    label="Cancel Window 2 Closing", 
+                    on_press=close_window_canceled)
 
 
 # ************Add the 4th window ****************************
 # This window is for changing the window parameters
-add_window(
-        id="main4", 
-        title="Window 4",
-    size=(300.0, 600.0),  
-        position=(1000.0, 25.0),
-        gen_id=wnd4)
+with Window(title="Window 4", size=(300.0, 600.0),  
+            position=wnd4_pos, gen_id=wnd4):
 
-add_column(
-        window_id="main4", 
-        id="col")
+    with Column(spacing=20.0):
 
-add_toggler(
-        parent_id="col", 
-        label="Toggle Debug",
-        toggled=toggle_debug)
+        add_toggler(
+                label="Toggle Debug",
+                toggled=toggle_debug)
 
-add_button(
-        parent_id="col", 
-        label="Toggle Decorations",
-        on_press=toggle_decorations)
+        add_button(
+                label="Toggle Decorations",
+                on_press=toggle_decorations)
 
-add_toggler(
-        parent_id="col", 
-        label="Toggle Window Resize",
-        toggled=toggle_resize)
+        add_toggler(
+                label="Toggle Window Resize",
+                toggled=toggle_resize)
 
-add_toggler(
-        parent_id="col", 
-        label="Toggle Position",
-        toggled=toggle_move_to)
+        add_toggler(
+                label="Toggle Position",
+                toggled=toggle_move_to)
 
-add_toggler(
-    parent_id="col", 
-    label="Toggle Level",
-    toggled=toggle_level)
+        add_toggler(
+            label="Toggle Level",
+            toggled=toggle_level)
 
-add_toggler(
-        parent_id="col", 
-        label="Toggle Theme",
-        toggled=toggle_theme)
+        add_toggler( 
+                label="Toggle Theme",
+                toggled=toggle_theme)
 
 start_session()

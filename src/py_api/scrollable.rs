@@ -96,7 +96,7 @@ pub fn add_scrollable(
         add_user_data_to_mutex(id, py);
     }
 
-    let (width, height) = if let Some(f) = fill {
+    let (width, height) = if fill == Some(true) {
         (get_length(None, true), get_length(None, true))
     } else {
         (get_length(width, width_fill), get_length(height, height_fill))

@@ -48,6 +48,19 @@ pub fn get_length(value: Option<f32>, fill: bool)-> Length {
     }
 }
 
+// Standard method for Length using Width
+pub fn get_length_fill(fill: Option<bool>)-> [Length; 2] {
+    // fill overrides width and height
+    match fill {
+        Some(f) => 
+            match f {
+                true => [Length::Fill; 2],
+                false => [Length::Shrink; 2],
+            },
+        None => [Length::Shrink; 2],
+    }
+}
+
 
 // Standard method for padding
 pub fn get_padding(padding: &Option<Vec<f32>>)-> Padding {

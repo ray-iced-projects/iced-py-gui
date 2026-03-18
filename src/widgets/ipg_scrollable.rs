@@ -7,6 +7,7 @@ use crate::app::Message;
 use crate::state::IpgWidgets;
 use crate::widgets::ipg_container::IpgContainerStyleStd;
 use crate::widgets::styling::{apply_border_overrides, apply_shadow_overrides_xy};
+use crate::widgets::widget_param_update::set_lengths_fill;
 use crate::widgets::widget_param_update::set_opt_bool;
 use crate::widgets::widget_param_update::set_opt_iced_color_from_rgba;
 use crate::widgets::widget_param_update::{
@@ -313,6 +314,7 @@ let ud1 = access_user_data1();
 #[derive(Debug, Clone, PartialEq)]
 #[pyclass(eq, eq_int)]
 pub enum IpgScrollableParam {
+    Fill,
     Height,
     ScrollerXId,
     ScrollerYId,
@@ -469,6 +471,7 @@ impl WidgetParamUpdate for IpgScrollable {
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
+            IpgScrollableParam::Fill => set_lengths_fill(&mut self.width, &mut self.height, value, "Fill"),
             IpgScrollableParam::Height => set_height(&mut self.height, value, "Height"),
             IpgScrollableParam::ScrollerXId => set_opt_usize(&mut self.scroller_x_id, value, "ScrollerXId"),
             IpgScrollableParam::ScrollerYId => set_opt_usize(&mut self.scroller_y_id, value, "ScrollerYId"),
@@ -610,6 +613,19 @@ mod tests {
     }
 
     // -- IpgScrollable param tests --
+    #[test]
+    fn test_fill() {
+        let mut c = make_scrollable();
+        c.param_update(IpgScrollableParam::Fill, &py_obj(Some(true)));
+        assert_eq!(c.width, Length::Fill);
+        assert_eq!(c.height, Length::Fill);
+        c.param_update(IpgScrollableParam::Fill, &py_obj(Some(false)));
+        assert_eq!(c.width, Length::Shrink);
+        assert_eq!(c.height, Length::Shrink);
+        c.param_update(IpgScrollableParam::Fill, &py_none());
+        assert_eq!(c.width, Length::Shrink);
+        assert_eq!(c.height, Length::Shrink);
+    }
 
     #[test]
     fn test_scrollable_height() {

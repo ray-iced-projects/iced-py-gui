@@ -8,7 +8,7 @@ use crate::state::IpgWidgets;
 use crate::widgets::styling::{apply_background_overrides, 
     apply_border_overrides, apply_shadow_overrides_xy};
 use crate::widgets::widget_param_update::{
-    WidgetParamUpdate, set_bool, set_height, set_height_fill, set_opt_bool, set_opt_f32, set_opt_f32_array_2, set_opt_iced_color, set_opt_iced_color_from_rgba, set_opt_usize, set_opt_vec_f32, set_width, set_width_fill
+    WidgetParamUpdate, set_bool, set_height, set_height_fill, set_opt_bool, set_opt_f32, set_opt_f32_array_2, set_opt_iced_color, set_opt_iced_color_from_rgba, set_opt_usize, set_opt_vec_f32, set_width, set_width_fill, set_lengths_fill
 };
 
 use iced::{Color, Element, Length, Theme, alignment};
@@ -282,6 +282,7 @@ pub enum IpgContainerParam {
     AlignTopLeft,
     AlignTopRight,
     Clip,
+    Fill,
     Height,
     HeightFill,
     MaxHeight,
@@ -330,6 +331,7 @@ impl WidgetParamUpdate for IpgContainer {
             IpgContainerParam::AlignTopLeft => set_opt_bool(&mut self.align_top_left, value, "AlignTopLeft"),
             IpgContainerParam::AlignTopRight => set_opt_bool(&mut self.align_top_right, value, "AlignTopRight"),
             IpgContainerParam::Clip => set_opt_bool(&mut self.clip, value, "Clip"),
+            IpgContainerParam::Fill => set_lengths_fill(&mut self.width, &mut self.height, value, "Fill"),
             IpgContainerParam::Height => set_height(&mut self.height, value, "Height"),
             IpgContainerParam::HeightFill => set_height_fill(&mut self.height, value, "HeightFill"),
             IpgContainerParam::MaxHeight => set_opt_f32(&mut self.max_height, value, "MaxHeight"),
@@ -339,8 +341,7 @@ impl WidgetParamUpdate for IpgContainer {
             IpgContainerParam::WidthFill => set_width_fill(&mut self.width, value, "WidthFill"),
             IpgContainerParam::Show => set_bool(&mut self.show, value, "Show"),
             IpgContainerParam::StyleId => set_opt_usize(&mut self.style_id, value, "StyleId"),
-            
-                    }
+        }
     }
 }
 
@@ -369,7 +370,7 @@ impl WidgetParamUpdate for IpgContainerStyle {
 mod tests {
     use super::*;
     use iced::Length;
-    use pyo3::{Python, IntoPyObjectExt};
+    use pyo3::{IntoPyObjectExt, Python};
 
     fn make_container() -> IpgContainer {
         IpgContainer {
@@ -497,6 +498,20 @@ mod tests {
         assert_eq!(c.clip, Some(true));
         c.param_update(IpgContainerParam::Clip, &py_none());
         assert_eq!(c.clip, None);
+    }
+
+    #[test]
+    fn test_fill() {
+        let mut c = make_container();
+        c.param_update(IpgContainerParam::Fill, &py_obj(Some(true)));
+        assert_eq!(c.width, Length::Fill);
+        assert_eq!(c.height, Length::Fill);
+        c.param_update(IpgContainerParam::Fill, &py_obj(Some(false)));
+        assert_eq!(c.width, Length::Shrink);
+        assert_eq!(c.height, Length::Shrink);
+        c.param_update(IpgContainerParam::Fill, &py_none());
+        assert_eq!(c.width, Length::Shrink);
+        assert_eq!(c.height, Length::Shrink);
     }
 
     #[test]

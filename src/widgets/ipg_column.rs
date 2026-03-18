@@ -2,9 +2,7 @@
 use crate::app::Message;
 use crate::py_api::helpers::get_padding;
 use crate::widgets::widget_param_update::{
-    WidgetParamUpdate, set_height, set_height_fill, 
-    set_opt_bool, set_opt_f32, set_opt_vec_f32, 
-    set_width, set_width_fill
+    WidgetParamUpdate, set_height, set_height_fill, set_lengths_fill, set_opt_bool, set_opt_f32, set_opt_vec_f32, set_width, set_width_fill
 };
 
 use iced::{Alignment, Element, Length};
@@ -80,6 +78,7 @@ pub enum IpgColumnParam {
     AlignCenter,
     AlignRight,
     Clip,
+    Fill,
     Height,
     HeightFill,
     Padding,
@@ -101,6 +100,7 @@ impl WidgetParamUpdate for IpgColumn {
             IpgColumnParam::AlignCenter => set_opt_bool(&mut self.align_center, value, "AlignCenter"),
             IpgColumnParam::AlignRight => set_opt_bool(&mut self.align_right, value, "AlignRight"),
             IpgColumnParam::Clip => set_opt_bool(&mut self.clip, value, "Clip"),
+            IpgColumnParam::Fill => set_lengths_fill(&mut self.width, &mut self.height, value, "Fill"),
             IpgColumnParam::Padding => set_opt_vec_f32(&mut self.padding, value, "Padding"),
             IpgColumnParam::Width  => set_width(&mut self.width, value, "Width"),
             IpgColumnParam::WidthFill => set_width_fill(&mut self.width, value, "WidthFill"),
@@ -177,6 +177,20 @@ mod tests {
         assert_eq!(col.clip, Some(true));
         col.param_update(IpgColumnParam::Clip, &py_none());
         assert_eq!(col.clip, None);
+    }
+
+    #[test]
+    fn test_fill() {
+        let mut c = make_column();
+        c.param_update(IpgColumnParam::Fill, &py_obj(Some(true)));
+        assert_eq!(c.width, Length::Fill);
+        assert_eq!(c.height, Length::Fill);
+        c.param_update(IpgColumnParam::Fill, &py_obj(Some(false)));
+        assert_eq!(c.width, Length::Shrink);
+        assert_eq!(c.height, Length::Shrink);
+        c.param_update(IpgColumnParam::Fill, &py_none());
+        assert_eq!(c.width, Length::Shrink);
+        assert_eq!(c.height, Length::Shrink);
     }
 
     #[test]

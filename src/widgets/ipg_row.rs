@@ -9,9 +9,7 @@ use crate::app::Message;
 
 use crate::py_api::helpers::get_padding;
 use crate::widgets::widget_param_update::{
-    WidgetParamUpdate,
-    set_opt_bool, set_opt_f32, set_opt_vec_f32,
-    set_width, set_width_fill, set_height, set_height_fill,
+    WidgetParamUpdate, set_height, set_height_fill, set_lengths_fill, set_opt_bool, set_opt_f32, set_opt_vec_f32, set_width, set_width_fill
 };
 
 
@@ -81,6 +79,7 @@ pub enum IpgRowParam {
     AlignCenter,
     AlignTop,
     Clip,
+    Fill,
     Padding,
     Width,
     WidthFill,
@@ -103,6 +102,7 @@ impl WidgetParamUpdate for IpgRow {
             IpgRowParam::AlignCenter => set_opt_bool(&mut self.align_center, value, "AlignCenter"),
             IpgRowParam::AlignTop => set_opt_bool(&mut self.align_top, value, "AlignTop"),
             IpgRowParam::Clip => set_opt_bool(&mut self.clip, value, "Clip"),
+            IpgRowParam::Fill => set_lengths_fill(&mut self.width, &mut self.height, value, "Fill"),
             IpgRowParam::Padding => set_opt_vec_f32(&mut self.padding, value, "Padding"),
             IpgRowParam::Width => set_width(&mut self.width, value, "Width"),
             IpgRowParam::WidthFill => set_width_fill(&mut self.width, value, "WidthFill"),
@@ -178,6 +178,20 @@ mod tests {
         assert_eq!(r.clip, Some(true));
         r.param_update(IpgRowParam::Clip, &py_none());
         assert_eq!(r.clip, None);
+    }
+
+    #[test]
+    fn test_fill() {
+        let mut c = make_row();
+        c.param_update(IpgRowParam::Fill, &py_obj(Some(true)));
+        assert_eq!(c.width, Length::Fill);
+        assert_eq!(c.height, Length::Fill);
+        c.param_update(IpgRowParam::Fill, &py_obj(Some(false)));
+        assert_eq!(c.width, Length::Shrink);
+        assert_eq!(c.height, Length::Shrink);
+        c.param_update(IpgRowParam::Fill, &py_none());
+        assert_eq!(c.width, Length::Shrink);
+        assert_eq!(c.height, Length::Shrink);
     }
 
     #[test]

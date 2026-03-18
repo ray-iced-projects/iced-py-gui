@@ -513,16 +513,16 @@ def add_timer_style(
         background_rgba: Optional[list[float, 4]]=None,
         background_color_hovered: Optional[IpgColor]=None,
         background_rgba_hovered: Optional[list[float, 4]]=None,
-        border_color: Optional[IpgColor]=None, 
+        border_color: Optional[IpgColor]=None,
         border_rgba: Optional[list[float, 4]]=None,
-        border_radius: list[float | float, 4]=[0.0], 
+        border_radius: list[float | float, 4]=[0.0],
         border_width: float=1.0,
-        shadow_color: Optional[IpgColor]=None, 
+        shadow_color: Optional[IpgColor]=None,
         shadow_rgba: Optional[list]=None,
-        shadow_offset_x: float=0.0, 
+        shadow_offset_x: float=0.0,
         shadow_offset_y: float=0.0,
         shadow_blur_radius: float=1.0,
-        text_color: Optional[IpgColor]=None, 
+        text_color: Optional[IpgColor]=None,
         text_rgba: Optional[list[float, 4]]=None
     ) -> int:
 
@@ -538,14 +538,14 @@ def add_canvas_timer_style(
         background_rgba_hovered: Optional[list[float, 4]]=None,
         border_color: Optional[IpgColor]=None, 
         border_rgba: Optional[list[float, 4]]=None,
-        border_radius: list[float | float, 4]=[0.0], 
+        border_radius: list[float | float, 4]=[0.0],
         border_width: float=1.0,
-        shadow_color: Optional[IpgColor]=None, 
+        shadow_color: Optional[IpgColor]=None,
         shadow_rgba: Optional[list]=None,
         shadow_offset_x: float=0.0, 
         shadow_offset_y: float=0.0,
         shadow_blur_radius: float=1.0,
-        text_color: Optional[IpgColor]=None, 
+        text_color: Optional[IpgColor]=None,
         text_rgba: Optional[list[float, 4]]=None
     ) -> int:
     

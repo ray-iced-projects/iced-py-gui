@@ -60,8 +60,7 @@ with Window(
 
     # Add the container to center both x and y (default).  Holds only one widget.
     with Container(
-        width_fill=True,
-        height_fill=True,
+        fill=True,
         align_center=True):
 
         # Add a column to hold multiple widgets

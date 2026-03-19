@@ -63,6 +63,8 @@ pub fn param_update(
     match widget {
         IpgWidgets::IpgButton(w) => apply_update(w, item, value),
         IpgWidgets::IpgButtonStyle(w) => apply_update(w, item, value),
+        IpgWidgets::IpgCard(w) => apply_update(w, item, value),
+        IpgWidgets::IpgCardStyle(w) => apply_update(w, item, value),
         IpgWidgets::IpgCheckBox(w) => apply_update(w, item, value),
         IpgWidgets::IpgCheckboxStyle(w) => apply_update(w, item, value),
         IpgWidgets::IpgColorPicker(w) => apply_update(w, item, value),

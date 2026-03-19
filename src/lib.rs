@@ -24,6 +24,7 @@ pub use state::{
 // Import pyfunctions from py_api modules
 use crate::py_api::window::add_window;
 use crate::py_api::button::{add_button, add_button_style};
+use crate::py_api::card::{add_card, add_card_style};
 use crate::py_api::checkbox::{add_checkbox, add_checkbox_style};
 use crate::py_api::color_picker::{add_color_picker};
 use crate::py_api::column::add_column;
@@ -76,6 +77,7 @@ use widgets::styling::IpgStyleStandard;
 use crate::graphics::{bootstrap_icon::IpgIcon, bootstrap_arrow::IpgArrow};
 use crate::graphics::colors::IpgColor;
 use crate::widgets::ipg_button::{IpgButtonParam, IpgButtonStyleParam, IpgButtonStyleStd};
+use crate::widgets::ipg_card::{IpgCardParam, IpgCardStyleParam, IpgCardStyleStd};
 use crate::widgets::ipg_checkbox::{IpgCheckboxParam, IpgCheckboxStyleParam, IpgCheckboxStyleStd};
 use crate::widgets::ipg_column::IpgColumnParam;
 use crate::widgets::ipg_container::{IpgContainerParam, IpgContainerStyleParam, IpgContainerStyleStd};
@@ -100,6 +102,7 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     // Widget functions
     m.add_function(wrap_pyfunction!(add_window, m)?)?;
     m.add_function(wrap_pyfunction!(add_button, m)?)?;
+    m.add_function(wrap_pyfunction!(add_card, m)?)?;
     m.add_function(wrap_pyfunction!(add_checkbox, m)?)?;
     m.add_function(wrap_pyfunction!(add_column, m)?)?;
     m.add_function(wrap_pyfunction!(add_color_picker, m)?)?;
@@ -131,6 +134,7 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     
     // styles
     m.add_function(wrap_pyfunction!(add_button_style, m)?)?;
+    m.add_function(wrap_pyfunction!(add_card_style, m)?)?;
     m.add_function(wrap_pyfunction!(add_checkbox_style, m)?)?;
     m.add_function(wrap_pyfunction!(add_container_style, m)?)?;
     m.add_function(wrap_pyfunction!(add_divider_style, m)?)?;
@@ -151,6 +155,8 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     // style parameters
     m.add_class::<IpgButtonStyleParam>()?;
     m.add_class::<IpgButtonStyleStd>()?;
+    m.add_class::<IpgCardStyleParam>()?;
+    m.add_class::<IpgCardStyleStd>()?;
     m.add_class::<IpgCheckboxStyleParam>()?;
     m.add_class::<IpgCheckboxStyleStd>()?;
     m.add_class::<IpgContainerParam>()?;
@@ -174,6 +180,7 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     // widget params
     m.add_class::<IpgArrow>()?;
     m.add_class::<IpgButtonParam>()?;
+    m.add_class::<IpgCardParam>()?;
     m.add_class::<IpgCheckboxParam>()?;
     m.add_class::<IpgCheckboxStyleParam>()?;
     m.add_class::<IpgColumnParam>()?;

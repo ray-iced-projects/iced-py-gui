@@ -77,6 +77,75 @@ def add_button_style(
     >>> 
     """
 
+def add_card_style(
+        background_color: Optional[IpgColor]=None,
+        background_rgba: Optional[list[float, 4]]=None,
+        border_radius: float=10.0,
+        border_width: float=1.0, 
+        border_color: Optional[IpgColor]=None,
+        border_rgba: Optional[list[float, 4]]=None,
+        head_background_color: Optional[IpgColor]=None,
+        head_background_rgba: Optional[list[float, 4]]=None,
+        head_text_color: Optional[IpgColor]=None,
+        head_text_rgba: Optional[list[float, 4]]=None,
+        body_background_color: Optional[IpgColor]=None,
+        body_background_rgba: Optional[list[float, 4]]=None,
+        body_text_color: Optional[IpgColor]=None,
+        body_text_rgba: Optional[list[float, 4]]=None,
+        foot_background_color: Optional[IpgColor]=None,
+        foot_background_rgba: Optional[list[float, 4]]=None,
+        foot_text_color: Optional[IpgColor]=None,
+        foot_text_rgba: Optional[list[float, 4]]=None,
+        close_color: Optional[IpgColor]=None,
+        close_rgba: Optional[list[float, 4]]=None,
+        gen_id: Optional[int]=None,
+    ) -> int:
+    """
+    Adds styling to the Card
+
+    Run the doc_helper.py to see the individual parameter definitions.
+    
+    Notes
+    --------
+    Two styles can be defined:
+    
+    custom - defined by using an add_style method
+    
+    First, define the style, this can be placed anywhere as long as the add_card can access the style value, type int.
+    
+    Then, add your card(s) as usual and use the style_id=your_style parameter.
+    
+    standard - using the style_std parameter and the IpgCardStyleStd class
+    
+    Just use the style_std=IpgCardStyleStd.Primary parameter in the add_card method.
+
+    Examples
+    --------
+    >>> from icedpygui import Window, Column, Container, IpgCardStyleStd, add_card, add_card_style, IpgColor, start_session
+    >>> 
+    >>> style = add_card_style(
+    >>>             background_color=IpgColor.LIGHT_BLUE,
+    >>>             border_color=IpgColor.ALICE_BLUE,
+    >>>             border_width=2.0,
+    >>>             border_radius=[5.0])
+    >>> 
+    >>> with Window(title="Card Styling", center=True):
+    >>>     with Container(align_center=True, width_fill=True, height_fill=True):
+    >>>         with Column(spacing=20.0):
+    >>>             add_card(
+    >>>                 label="Border Color and Width",
+    >>>                     padding=[5.0],
+    >>>                     style_id=style)
+    >>>             
+    >>>             add_card(
+    >>>                 label="Style Standard-Danger",
+    >>>                     padding=[5.0],
+    >>>                     style_std=IpgButtonStyleStd.Danger)
+    >>> 
+    >>> start_session()
+    >>> 
+    """
+    
 def add_checkbox_style(
         background_color: Optional[IpgColor]=None,
         background_rgba: Optional[list]=None,
@@ -236,34 +305,6 @@ def add_tooltip_style(
     
     """
 
-def add_card_style(
-        background_color: Optional[IpgColor]=None,
-        background_rgba: Optional[list[float, 4]]=None,
-        border_radius: float=10.0,
-        border_width: float=1.0, 
-        border_color: Optional[IpgColor]=None,
-        border_rgba: Optional[list[float, 4]]=None,
-        head_background_color: Optional[IpgColor]=None,
-        head_background_rgba: Optional[list[float, 4]]=None,
-        head_text_color: Optional[IpgColor]=None,
-        head_text_rgba: Optional[list[float, 4]]=None,
-        body_background_color: Optional[IpgColor]=None,
-        body_background_rgba: Optional[list[float, 4]]=None,
-        body_text_color: Optional[IpgColor]=None,
-        body_text_rgba: Optional[list[float, 4]]=None,
-        foot_background_color: Optional[IpgColor]=None,
-        foot_background_rgba: Optional[list[float, 4]]=None,
-        foot_text_color: Optional[IpgColor]=None,
-        foot_text_rgba: Optional[list[float, 4]]=None,
-        close_color: Optional[IpgColor]=None,
-        close_rgba: Optional[list[float, 4]]=None,
-        gen_id: Optional[int]=None,
-    ) -> int:
-    """
-    Adds styling to the Card
-
-    
-    """
 
 def add_color_picker_style(
         background_color: Optional[IpgColor]=None,

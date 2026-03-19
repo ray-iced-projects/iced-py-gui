@@ -11,6 +11,7 @@ use iced::Theme;
 use once_cell::sync::Lazy;
 use pyo3::{Py, PyAny};
 
+use crate::widgets::ipg_card::{IpgCard, IpgCardStyle};
 use crate::widgets::ipg_checkbox::{IpgCheckBox, IpgCheckboxStyle};
 use crate::widgets::ipg_color_picker::IpgColorPicker;
 use crate::widgets::ipg_column::IpgColumn;
@@ -73,8 +74,8 @@ pub enum IpgContainers {
 pub enum IpgWidgets {
     IpgButton(IpgButton),
     IpgButtonStyle(IpgButtonStyle),
-    // IpgCard(IpgCard),
-    // IpgCardStyle(IpgCardStyle),
+    IpgCard(IpgCard),
+    IpgCardStyle(IpgCardStyle),
     IpgCheckBox(IpgCheckBox),
     IpgCheckboxStyle(IpgCheckboxStyle),
     IpgColorPicker(IpgColorPicker),
@@ -151,6 +152,8 @@ macro_rules! ipg_widget_accessors {
 ipg_widget_accessors! {
     IpgButton           => IpgButton,            as_button,              as_button_mut;
     IpgButtonStyle      => IpgButtonStyle,       as_button_style,        as_button_style_mut;
+    IpgCard             => IpgCard,              as_card,                as_card_mut;
+    IpgCardStyle        => IpgCardStyle,         as_card_style,          as_card_style_mut;
     IpgCheckBox         => IpgCheckBox,          as_checkbox,            as_checkbox_mut;
     IpgCheckboxStyle    => IpgCheckboxStyle,     as_checkbox_style,      as_checkbox_style_mut;
     IpgColorPicker      => IpgColorPicker,       as_color_picker,        as_color_picker_mut;

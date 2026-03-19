@@ -11,6 +11,8 @@ from typing import Any, Callable, List, Optional
 from .icedpygui import (
     add_button_style,
     add_button as _add_button,
+    add_card_style,
+    add_card as _add_card,
     add_checkbox_style,
     add_checkbox as _add_checkbox,
     add_color_picker as _add_color_picker,
@@ -53,6 +55,9 @@ from .icedpygui import (
     IpgButtonParam,
     IpgButtonStyleParam,
     IpgButtonStyleStd,
+    IpgCardParam,
+    IpgCardStyleParam,
+    IpgCardStyleStd,
     IpgContainerStyleStd,
     IpgCheckboxParam,
     IpgCheckboxStyleStd,
@@ -134,6 +139,8 @@ def _wrap_widget(rust_fn, name):
 
 add_button = _wrap_widget(_add_button, "add_button")
 add_button.__doc__ = _add_button.__doc__
+add_card = _wrap_widget(_add_card, "add_card")
+add_card.__doc__ = _add_card.__doc__
 add_checkbox = _wrap_widget(_add_checkbox, "add_checkbox")
 add_checkbox.__doc__ = _add_checkbox.__doc__
 add_color_picker = _wrap_widget(_add_color_picker, "add_color_picker")

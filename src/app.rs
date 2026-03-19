@@ -13,6 +13,7 @@ type PyObject = Py<PyAny>;
 use crate::py_api::helpers::find_key_for_value;
 use crate::state::{IpgContainers, IpgIds, IpgState, IpgWidgets, access_state, access_update_widgets, access_window_actions, clone_state_to_runtime, set_state_of_widget_running_state};
 use crate::widgets::ipg_button::{BtnMessage, button_callback};
+use crate::widgets::ipg_card::{CardMessage, card_callback};
 use crate::widgets::ipg_checkbox::{ChkMessage, checkbox_callback};
 use crate::widgets::ipg_color_picker::{ColPikMessage, color_picker_callback};
 use crate::widgets::ipg_date_picker::{DPMessage, date_picker_update};
@@ -42,7 +43,7 @@ use crate::widgets::widget_param_update::{param_update, container_param_update};
 pub enum Message {
     Button(usize, BtnMessage),
 //     Canvas(CanvasMessage),
-//     Card(usize, CardMessage),
+    Card(usize, CardMessage),
     CheckBox(usize, ChkMessage),
     ColorPicker(usize, ColPikMessage),
     DatePicker(usize, DPMessage),
@@ -147,11 +148,11 @@ impl App {
             //     process_updates(&mut self.state, &mut self.canvas_state);
             //     get_tasks(&mut self.state)
             // },
-            // Message::Card(id, message) => {
-            //     card_callback(&mut self.state, id, message);
-            //     process_updates(&mut self.state, &mut self.canvas_state);
-            //     Task::none()
-            // },
+            Message::Card(id, message) => {
+                card_callback(id, message);
+                process_updates(&mut self.state); //, &mut self.canvas_state);
+                Task::none()
+            },
             Message::CheckBox(id, message) => {
                 checkbox_callback(&mut self.state, id, message);
                 // process_updates(&mut self.state, &mut self.canvas_state);
@@ -742,15 +743,10 @@ fn get_widget<'a>(state: &'a IpgState, id: &usize) -> Option<Element<'a, Message
                 IpgWidgets::IpgButton(btn) => {
                     btn.construct(&state.widgets)
                 },
-                // IpgWidgets::IpgCard(crd) => {
-                //     let style_opt = match crd.style_id {
-                //         Some(id) => {
-                //             state.widgets.get(&id)
-                //         },
-                //         None => None,
-                //     };
-                //     construct_card(crd, style_opt)
-                // },
+                IpgWidgets::IpgCard(crd) => {
+                    
+                    crd.construct(&state.widgets)
+                },
                 IpgWidgets::IpgCheckBox(chk) => {
                     chk.construct(&state.widgets)
                 },
@@ -1115,7 +1111,7 @@ fn show_widget(state: &mut IpgState, ids: &[(usize, bool)]) {
         };
         match widget {
             IpgWidgets::IpgButton(bt) => bt.show= *value,
-            // IpgWidgets::IpgCard(cd) => cd.show= *value,
+            IpgWidgets::IpgCard(cd) => cd.show= *value,
             IpgWidgets::IpgCheckBox(cb) => cb.show= *value,
             IpgWidgets::IpgColorPicker(cp) => cp.show= *value,
             IpgWidgets::IpgDatePicker(dp) => dp.show= *value,

@@ -1,0 +1,320 @@
+//! Card module - provides add_card pyfunction
+
+use pyo3::prelude::*;
+use pyo3::{Py, PyAny, pyfunction};
+type PyObject = Py<PyAny>;
+
+use crate::add_user_data_to_mutex;
+use crate::graphics::colors::IpgColor;
+use crate::py_api::helpers::get_length;
+use crate::state::{IpgWidgets, access_state, add_callback_to_mutex, 
+    get_id, set_state_of_widget};
+use crate::widgets::ipg_card::{IpgCard, IpgCardStyle, IpgCardStyleStd};
+
+
+/// Add a card widget.
+///
+/// A card with a head, body, and optional foot section.
+///
+/// Parameters
+/// ----------
+/// parent_id : str
+///     Sets the parent container ID that this card belongs to.
+/// head : str, Optional
+///     Sets the Text displayed in the card header.
+/// body : str, Optional
+///     Sets the Text displayed in the card body.
+/// is_open : bool, default True
+///     Whether the card is open (expanded).
+/// min_max_id : int, Optional
+///     Sets the Widget ID of an external button used to toggle the card open/closed.
+/// foot : str, Optional
+///     Sets the Text displayed in the card footer.
+/// gen_id : int, Optional
+///     Obtains an ID of a widget that have not been created, used for the gen_id parameter.
+/// close_size : float, Optional
+///     Sets the Size of the close button in logical pixels.
+/// on_close : callable, Optional
+///     Sets the Callback method to invoke when the card is closed.
+/// width : float, Optional
+///     Sets the Fixed width in logical pixels.
+/// width_fill : bool, default False
+///     Whether the card fills available width.
+/// height : float, Optional
+///     Sets the Fixed height in logical pixels.
+/// height_fill : bool, default False
+///     Whether the card fills available height.
+/// max_width : float, Optional
+///     Sets the Maximum width in logical pixels.
+/// max_height : float, Optional
+///     Sets the Maximum height in logical pixels.
+/// padding : list of float, Optional
+///     Sets the Padding for all sections as [all], [vertical, horizontal], or
+///     [top, right, bottom, left].
+/// padding_head : list of float, Optional
+///     Sets the Padding for the header section.
+/// padding_body : list of float, Optional
+///     Sets the Padding for the body section.
+/// padding_foot : list of float, Optional
+///     Sets the Padding for the footer section.
+/// style_id : int, Optional
+///     Sets the ID of a custom style created with ``add_card_style``.
+/// style_std : IpgCardStyleStd, Optional
+///     Sets a predefined standard style variant.
+/// style_button : int, Optional
+///     Sets the ID of a button style for the close button.
+/// show : bool, default True
+///     Whether the card is visible.
+/// user_data : Any, Optional
+///     Sets the Arbitrary data forwarded to callbacks.
+///
+/// Returns
+/// -------
+/// int
+///     The numeric widget ID of the newly created card.
+#[pyfunction]
+#[pyo3(signature = (
+    parent_id, 
+    head=None, 
+    body=None,      
+    is_open=true, 
+    min_max_id=None, 
+    foot=None, 
+    gen_id=None, 
+    close_size=None,
+    on_close=None, 
+    width=None, 
+    width_fill=false, 
+    height=None, 
+    height_fill=false, 
+    max_width=None, 
+    max_height=None,
+    padding=None, 
+    padding_head=None, 
+    padding_body=None, 
+    padding_foot=None,
+    style_id=None,
+    style_std=None,
+    style_button=None,
+    show=true, 
+    user_data=None
+    ))]
+pub fn add_card(
+    parent_id: String, 
+    head: Option<String>,
+    body: Option<String>,
+    is_open: bool,
+    min_max_id: Option<usize>,
+    foot: Option<String>,
+    gen_id: Option<usize>,
+    close_size: Option<f32>,
+    on_close: Option<PyObject>,
+    width: Option<f32>,
+    width_fill: bool,
+    height: Option<f32>,
+    height_fill: bool,
+    max_width: Option<f32>,
+    max_height: Option<f32>,
+    padding: Option<Vec<f32>>,
+    padding_head: Option<Vec<f32>>,
+    padding_body: Option<Vec<f32>>,
+    padding_foot: Option<Vec<f32>>,
+    style_id: Option<usize>,
+    style_std: Option<IpgCardStyleStd>,
+    style_button: Option<usize>,
+    show: bool,
+    user_data: Option<PyObject>, 
+    ) -> PyResult<usize> 
+{
+    let id = get_id(gen_id);
+
+    if let Some(py) = on_close {
+        add_callback_to_mutex(id, "on_close".to_string(), py);
+    }
+
+    if let Some(py) = user_data {
+        add_user_data_to_mutex(id, py);
+    }
+
+    let width = get_length(width, width_fill);
+    let height = get_length(height, height_fill);
+
+    set_state_of_widget(id, parent_id.clone());
+
+    let mut state = access_state();
+
+    state.widgets.insert(id, IpgWidgets::IpgCard(
+        IpgCard {
+            id,
+            parent_id,
+            is_open,
+            button_id: min_max_id,
+            width,
+            height,
+            max_width,
+            max_height,
+            padding,
+            padding_head,
+            padding_body,
+            padding_foot,
+            close_size,
+            head,
+            body,
+            foot,
+            style_id,
+            style_std,
+            style_button,
+            show,
+        }));
+
+    drop(state);
+    Ok(id)
+
+}
+
+
+/// Add styling to a card.
+///
+/// Creates a custom style that can be applied to a card
+/// via its ``style_id`` parameter.
+///
+/// Parameters
+/// ----------
+/// background_color : IpgColor, Optional
+///     Sets the background color using a predefined color variant.
+/// background_rgba : list of float, Optional
+///     Sets the background color in rgba format as [r, g, b, a].
+/// border_radius : float, Optional
+///     Sets the border radius in logical pixels.
+/// border_width : float, Optional
+///     Sets the border width in logical pixels.
+/// border_color : IpgColor, Optional
+///     Sets the border color using a predefined color variant.
+/// border_rgba : list of float, Optional
+///     Sets the border color in rgba format as [r, g, b, a].
+/// head_background_color : IpgColor, Optional
+///     Sets the header background color using a predefined color variant.
+/// head_background_rgba : list of float, Optional
+///     Sets the header background color in rgba format as [r, g, b, a].
+/// head_text_color : IpgColor, Optional
+///     Sets the header text color using a predefined color variant.
+/// head_text_rgba : list of float, Optional
+///     Sets the header text color in rgba format as [r, g, b, a].
+/// body_background_color : IpgColor, Optional
+///     Sets the body background color using a predefined color variant.
+/// body_background_rgba : list of float, Optional
+///     Sets the body background color in rgba format as [r, g, b, a].
+/// body_text_color : IpgColor, Optional
+///     Sets the body text color using a predefined color variant.
+/// body_text_rgba : list of float, Optional
+///     Sets the body text color in rgba format as [r, g, b, a].
+/// foot_background_color : IpgColor, Optional
+///     Sets the footer background color using a predefined color variant.
+/// foot_background_rgba : list of float, Optional
+///     Sets the footer background color in rgba format as [r, g, b, a].
+/// foot_text_color : IpgColor, Optional
+///     Sets the footer text color using a predefined color variant.
+/// foot_text_rgba : list of float, Optional
+///     Sets the footer text color in rgba format as [r, g, b, a].
+/// close_color : IpgColor, Optional
+///     Sets the close button color using a predefined color variant.
+/// close_rgba : list of float, Optional
+///     Sets the close button color in rgba format as [r, g, b, a].
+/// gen_id : int, Optional
+///     Obtains an ID of a widget that have not been created, used for the gen_id parameter.
+///
+/// Returns
+/// -------
+/// int
+///     The numeric style ID to pass to a card's ``style_id``.
+#[pyfunction]
+#[pyo3(signature = ( 
+    background_color=None, 
+    background_rgba=None,
+    border_radius=None, 
+    border_width=None,
+    border_color=None,
+    border_rgba=None, 
+    head_background_color=None,
+    head_background_rgba=None, 
+    head_text_color=None,
+    head_text_rgba=None,
+    body_background_color=None,
+    body_background_rgba=None, 
+    body_text_color=None,
+    body_text_rgba=None, 
+    foot_background_color=None,
+    foot_background_rgba=None, 
+    foot_text_color=None,
+    foot_text_rgba=None, 
+    close_color=None,
+    close_rgba=None,
+    gen_id=None
+    ))]
+pub fn add_card_style(
+    background_color: Option<IpgColor>, 
+    background_rgba: Option<[f32; 4]>,
+    border_radius: Option<f32>, 
+    border_width: Option<f32>, 
+    border_color: Option<IpgColor>,
+    border_rgba: Option<[f32; 4]>, 
+    head_background_color: Option<IpgColor>,
+    head_background_rgba: Option<[f32; 4]>, 
+    head_text_color: Option<IpgColor>,
+    head_text_rgba: Option<[f32; 4]>,
+    body_background_color: Option<IpgColor>,
+    body_background_rgba: Option<[f32; 4]>, 
+    body_text_color: Option<IpgColor>,
+    body_text_rgba: Option<[f32; 4]>, 
+    foot_background_color: Option<IpgColor>,
+    foot_background_rgba: Option<[f32; 4]>, 
+    foot_text_color: Option<IpgColor>,
+    foot_text_rgba: Option<[f32; 4]>, 
+    close_color:Option<IpgColor>,
+    close_rgba:Option<[f32; 4]>,
+    gen_id: Option<usize>,
+    ) -> PyResult<usize>
+{
+    let id = get_id(gen_id);
+
+    let background = 
+        IpgColor::rgba_ipg_color_to_iced(background_rgba, background_color, 1.0, false);
+    let border_color = 
+        IpgColor::rgba_ipg_color_to_iced(border_rgba, border_color, 1.0, false);
+    let head_background = 
+        IpgColor::rgba_ipg_color_to_iced(head_background_rgba, head_background_color, 1.0, false);
+    let body_background = 
+        IpgColor::rgba_ipg_color_to_iced(body_background_rgba, body_background_color, 1.0, false);
+    let foot_background = 
+        IpgColor::rgba_ipg_color_to_iced(foot_background_rgba, foot_background_color, 1.0, false);
+    let head_text_color = 
+        IpgColor::rgba_ipg_color_to_iced(head_text_rgba, head_text_color, 1.0, false);
+    let body_text_color = 
+        IpgColor::rgba_ipg_color_to_iced(body_text_rgba, body_text_color, 1.0, false);
+    let foot_text_color = 
+        IpgColor::rgba_ipg_color_to_iced(foot_text_rgba, foot_text_color, 1.0, false);
+    let close_color = 
+        IpgColor::rgba_ipg_color_to_iced(close_rgba, close_color, 1.0, false);
+
+    let mut state = access_state();
+
+    state.widgets.insert(id, IpgWidgets::IpgCardStyle(
+        IpgCardStyle {
+            id,
+            background,
+            border_radius,
+            border_width,
+            border_color,
+            head_background, 
+            head_text_color, 
+            body_background, 
+            body_text_color, 
+            foot_background, 
+            foot_text_color, 
+            close_color,
+        }));
+
+
+    drop(state);
+    Ok(id)
+}

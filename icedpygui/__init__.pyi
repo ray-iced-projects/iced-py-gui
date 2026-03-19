@@ -15,6 +15,7 @@ from types import TracebackType
 # Re-export everything that is directly imported (not wrapped)
 from .icedpygui import (
     add_button_style as add_button_style,
+    add_card_style as add_card_style,
     add_checkbox_style as add_checkbox_style,
     add_container_style as add_container_style,
     add_divider_style as add_divider_style,
@@ -32,6 +33,9 @@ from .icedpygui import (
     IpgButtonParam as IpgButtonParam,
     IpgButtonStyleParam as IpgButtonStyleParam,
     IpgButtonStyleStd as IpgButtonStyleStd,
+    IpgCardParam as IpgCardParam,
+    IpgCardStyleParam as IpgCardStyleParam,
+    IpgCardStyleStd as IpgCardStyleStd,
     IpgContainerStyleStd as IpgContainerStyleStd,
     IpgCheckboxParam as IpgCheckboxParam,
     IpgCheckboxStyleStd as IpgCheckboxStyleStd,
@@ -122,6 +126,48 @@ def add_button(
         with Window(title="My App", pos_centered=True) as wnd_id: (if needed)
             with Container(align_center=True):
                 add_button(label="Press Me")
+
+    """
+    ...
+
+def add_card(
+    *,
+    parent_id: Optional[str] = None,
+    head: Optional[str] = None,
+    body: Optional[str] = None,
+    is_open: bool = True,
+    min_max_id: Optional[int] = None,
+    foot: Optional[str] = None,
+    gen_id: Optional[int] = None,
+    close_size: Optional[float] = None,
+    on_close: Optional[Any] = None,
+    width: Optional[float] = None,
+    width_fill: bool = False,
+    height: Optional[float] = None,
+    height_fill: bool = False,
+    max_width: Optional[float] = None,
+    max_height: Optional[float] = None,
+    padding: Optional[list[float]] = None,
+    padding_head: Optional[list[float]] = None,
+    padding_body: Optional[list[float]] = None,
+    padding_foot: Optional[list[float]] = None,
+    style_id: Optional[int] = None,
+    style_std: Optional[IpgCardStyleStd] = None,
+    style_button: Optional[int] = None,
+    show: bool = True,
+    user_data: Optional[Any] = None,
+) -> int:
+    """Adds a bucardtton widget.
+    
+    A widget must go into a container type,
+    
+    i.e. Container, Column, Row, etc.
+    
+    Usage::
+
+        with Window(title="My App", pos_centered=True) as wnd_id: (if needed)
+            with Container(align_center=True):
+                add_card(head="Card Header", body="Card Body)
 
     """
     ...

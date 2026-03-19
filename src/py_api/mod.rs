@@ -4,6 +4,7 @@
 
 pub mod window;
 pub mod button;
+pub mod card;
 pub mod checkbox;
 pub mod column;
 pub mod container;

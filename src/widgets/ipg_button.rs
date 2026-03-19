@@ -145,7 +145,7 @@ impl IpgButton {
             txt.wrapping(text::Wrapping::None)
         } else { txt };
 
-        let btn: Element<'_, BtnMessage>=
+        let btn: Element<'_, BtnMessage> =
             Button::new(txt)
                 .padding(get_padding(&self.padding))
                 .on_press(BtnMessage::OnPress)
@@ -162,7 +162,8 @@ impl IpgButton {
                         }
                     }
                 }
-            ).into();
+            )
+            .into();
 
         Some(btn.map(move |message| Message::Button(self.id, message)))
 

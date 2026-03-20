@@ -18,7 +18,7 @@ mod widgets;
 pub use state::{
     access_state, access_callbacks, access_user_data1,
     add_callback_to_mutex, add_user_data_to_mutex, clone_state_to_runtime,
-    IpgIds, IpgState
+    IpgWidgetNode, IpgState
 };
 
 // Import pyfunctions from py_api modules
@@ -53,7 +53,7 @@ use crate::py_api::table::add_table;
 use crate::py_api::text_input::{add_text_input, add_text_input_style};
 use crate::py_api::text::add_text;
 use crate::py_api::toggle::{add_toggler, add_toggler_style};
-use crate::py_api::update::update_widget;
+use crate::py_api::update::{update_widget, delete_widget, hide_widget, move_widget, show_widget};
 
 use crate::widgets::ipg_radio::{IpgRadioDirection, IpgRadioParam, IpgRadioStyleParam};
 use crate::widgets::ipg_row::IpgRowParam;
@@ -131,6 +131,10 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(add_toggler, m)?)?;
     m.add_function(wrap_pyfunction!(add_svg, m)?)?;
     m.add_function(wrap_pyfunction!(update_widget, m)?)?;
+    m.add_function(wrap_pyfunction!(delete_widget, m)?)?;
+    m.add_function(wrap_pyfunction!(hide_widget, m)?)?;
+    m.add_function(wrap_pyfunction!(move_widget, m)?)?;
+    m.add_function(wrap_pyfunction!(show_widget, m)?)?;
     
     // styles
     m.add_function(wrap_pyfunction!(add_button_style, m)?)?;

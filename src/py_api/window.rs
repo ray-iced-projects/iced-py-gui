@@ -2,7 +2,7 @@
 use pyo3::{Py, PyAny, PyResult, pyfunction};
 
 use crate::state::{access_state, add_callback_to_mutex, 
-    add_user_data_to_mutex, IpgIds, IpgContainers};
+    add_user_data_to_mutex, IpgWidgetNode, IpgContainers};
 use crate::widgets::ipg_window::{
     IpgWindow, IpgWindowLevel, IpgWindowTheme,
 };
@@ -157,7 +157,7 @@ pub fn add_window(
     // Initialize the IpgIds for this window
     state.ids.insert(
         id,
-        vec![IpgIds {
+        vec![IpgWidgetNode {
             id,
             parent_uid: 0,
             container_id: Some(window_id.clone()),

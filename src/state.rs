@@ -225,11 +225,11 @@ ipg_container_accessors! {
 }
 
 // ============================================================================
-// IpgIds - tracks parent/child relationships
+// IpgWidgetNode - tracks parent/child relationships
 // ============================================================================
 
 #[derive(Debug, Clone)]
-pub struct IpgIds {
+pub struct IpgWidgetNode {
     pub id: usize,
     pub parent_uid: usize,
     pub container_id: Option<String>,
@@ -335,11 +335,10 @@ impl UserData2 {
 pub struct UpdateWidgets {
     // (wid, item, value)
     pub updates: Vec<(usize, PyObject, PyObject)>, 
-    // window_id_widget_id, (window_id, wid, target_container_str_id, move_after(wid), move_before(wid))
-    pub moves: Vec<(String, usize, String, Option<usize>, Option<usize>)>,
-    // window_id, wid
-    pub deletes: Vec<(String, usize)>,
-    pub shows: Vec<(String, Vec<(usize, bool)>)>,
+    // (wid, move_after(wid), move_before(wid), target_parent_id)
+    pub moves: Vec<(usize, Option<usize>, Option<usize>, Option<usize>)>,
+    pub deletes: Vec<usize>,
+    pub shows: Vec<(usize, bool)>,
     pub new_widgets: Lazy<HashMap<usize, IpgWidgets>>,
 }
 
@@ -383,7 +382,7 @@ pub fn access_window_actions() -> MutexGuard<'static, WindowActions> {
 
 #[derive(Debug)]
 pub struct State {
-    pub ids: Lazy<HashMap<usize, Vec<IpgIds>>>,  // <window_id=usize, Vec<IpgIds=structure>>
+    pub ids: Lazy<HashMap<usize, Vec<IpgWidgetNode>>>,  // <window_id=usize, Vec<IpgIds=structure>>
     pub last_id: usize,
     pub gen_ids: Vec<usize>,
 
@@ -465,7 +464,8 @@ impl State {
 
 #[derive(Default, Debug, Clone)]
 pub struct IpgState {
-    pub ids: HashMap<usize, Vec<IpgIds>>,
+    //       usize = window_id
+    pub ids: HashMap<usize, Vec<IpgWidgetNode>>,
     pub last_id: usize,
 
     pub containers: HashMap<usize, IpgContainers>,
@@ -542,7 +542,7 @@ pub fn clone_state_to_runtime(runtime_state: &mut IpgState) {
 // ============================================================================
 
 /// Find the parent container's usize ID from its string ID
-fn find_parent_uid(ipg_ids: &[IpgIds], parent_id: String) -> usize {
+fn find_parent_uid(ipg_ids: &[IpgWidgetNode], parent_id: String) -> usize {
     for id_info in ipg_ids.iter() {
         if id_info.container_id == Some(parent_id.clone()) {
             return id_info.id;
@@ -581,7 +581,7 @@ pub fn set_state_of_widget(id: usize, parent_id: String) {
     state.widget_container_ids.insert(id, parent_id.clone());
 
     // Register this widget with the window's ID tracking
-    state.ids.get_mut(&wnd_id_usize).unwrap().push(IpgIds {
+    state.ids.get_mut(&wnd_id_usize).unwrap().push(IpgWidgetNode {
         id,
         parent_uid,
         container_id: None,
@@ -609,7 +609,7 @@ pub fn set_state_of_widget_running_state(
 
     let parent_uid = find_parent_uid(state.ids.get(&wnd_id_usize).unwrap(), parent_id.clone());
     
-    state.ids.get_mut(&wnd_id_usize).unwrap().push(IpgIds{id, parent_uid, container_id: None,
+    state.ids.get_mut(&wnd_id_usize).unwrap().push(IpgWidgetNode{id, parent_uid, container_id: None,
                                                         parent_id, is_container: false});
 
 }
@@ -637,7 +637,7 @@ pub fn set_state_of_container(
     
     let parent_uid = find_parent_uid(state.ids.get(&wnd_id_usize).unwrap(), parent_id.clone());
     
-    state.ids.get_mut(&wnd_id_usize).unwrap().push(IpgIds{id, parent_uid, container_id,
+    state.ids.get_mut(&wnd_id_usize).unwrap().push(IpgWidgetNode{id, parent_uid, container_id,
                                                         parent_id, is_container: true});
 
     state.container_ids.get_mut(&wnd_id_usize).unwrap().push(id);

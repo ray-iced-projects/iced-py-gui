@@ -11,7 +11,7 @@ use crate::widgets::widget_param_update::{
     set_opt_string, set_opt_usize, set_opt_vec_f32, set_width
 };
 
-use iced::widget::{Button, Column, Text, text};
+use iced::widget::{Column, Text, text};
 use iced::{Color, Element, Length, Theme};
 
 use iced_aw::widgets::card::Card;

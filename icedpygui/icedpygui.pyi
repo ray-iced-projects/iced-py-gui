@@ -1589,28 +1589,30 @@ def update_canvas_item(
     """
 
 def move_widget(
-        window_id: str,
-        widget_id: int,
-        target_container_str_id: str,
+        wid: int,
         move_after: Optional[int]=None,
         move_before: Optional[int]=None,
+        target_parent_id: Optional[int]=None,
     ) -> None:
     
     """
-    Moves a widget to another container
+    Moves a widget to another container.
+
+    The target container is derived from the sibling when move_after or
+    move_before is given.  Use target_parent_id only when appending to
+    the end of a container with no sibling reference.
 
     Parameters
     ----------
-        window_id: str
-            Window id in string form.
-        widget_id: int
-            widget id in integer form.
-        target_container_id: str)
-            target container id in string form.
+        wid: int
+            Widget id to move.
         move_after: Optional[int]
-            target position, None = end of list.
+            Insert after this widget id.
         move_before: Optional[int]
-            target position, None = end of list.
+            Insert before this widget id.
+        target_parent_id: Optional[int]
+            Parent container widget id (only needed when neither
+            move_after nor move_before is supplied).
         
     Returns
     -------

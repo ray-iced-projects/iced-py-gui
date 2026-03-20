@@ -79,6 +79,10 @@ from .icedpygui import (
     TextWrapping as TextWrapping,
     add_event_window,
     start_session as start_session,
+    delete_widget as delete_widget,
+    hide_widget as hide_widget,
+    move_widget as move_widget,
+    show_widget as show_widget,
     update_widget as update_widget,
     generate_id as generate_id,
 )

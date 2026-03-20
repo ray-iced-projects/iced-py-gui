@@ -11,7 +11,7 @@ use pyo3::{Py, PyAny};
 type PyObject = Py<PyAny>;
 
 use crate::py_api::helpers::find_key_for_value;
-use crate::state::{IpgContainers, IpgIds, IpgState, IpgWidgets, access_state, access_update_widgets, access_window_actions, clone_state_to_runtime, set_state_of_widget_running_state};
+use crate::state::{IpgContainers, IpgWidgetNode, IpgState, IpgWidgets, access_state, access_update_widgets, access_window_actions, clone_state_to_runtime, set_state_of_widget_running_state};
 use crate::widgets::ipg_button::{BtnMessage, button_callback};
 use crate::widgets::ipg_card::{CardMessage, card_callback};
 use crate::widgets::ipg_checkbox::{ChkMessage, checkbox_callback};
@@ -139,7 +139,7 @@ impl App {
             },
             Message::Button(id, message) => {
                 button_callback(id, message);
-                process_updates(&mut self.state);
+                process_widget_updates(&mut self.state);
                 // process_updates(&mut self.state, &mut self.canvas_state);
                 get_tasks(&mut self.state)
             },
@@ -150,31 +150,31 @@ impl App {
             // },
             Message::Card(id, message) => {
                 card_callback(id, message);
-                process_updates(&mut self.state); //, &mut self.canvas_state);
+                process_widget_updates(&mut self.state); //, &mut self.canvas_state);
                 Task::none()
             },
             Message::CheckBox(id, message) => {
                 checkbox_callback(&mut self.state, id, message);
                 // process_updates(&mut self.state, &mut self.canvas_state);
-                process_updates(&mut self.state);
+                process_widget_updates(&mut self.state);
                 get_tasks(&mut self.state)
             },
             Message::ColorPicker(id, message ) => {
                 color_picker_callback(&mut self.state, id, message);
                 // process_updates(&mut self.state, &mut self.canvas_state);
-                process_updates(&mut self.state);
+                process_widget_updates(&mut self.state);
                 Task::none()
             },
             Message::DatePicker(id, message) => {
                 date_picker_update(&mut self.state, id, message);
                 // process_updates(&mut self.state, &mut self.canvas_state);
-                process_updates(&mut self.state);
+                process_widget_updates(&mut self.state);
                 Task::none()
             },
             Message::Divider(id, message) => {
                 divider_callback(&mut self.state, id, message);
                 // process_updates(&mut self.state, &mut self.canvas_state);
-                process_updates(&mut self.state);
+                process_widget_updates(&mut self.state);
                 Task::none()
             },
             // Message::EventKeyboard(event) => {
@@ -190,7 +190,7 @@ impl App {
             Message::EventWindow((window_id, event)) => {
                 process_window_event(&mut self.state, event, window_id);
                 // process_updates(&mut self.state, &mut self.canvas_state);
-                process_updates(&mut self.state);
+                process_widget_updates(&mut self.state);
                 if self.state.windows_opened.len() == self.state.windows_hidden.len() {
                     iced::exit()
                 } else {
@@ -209,123 +209,123 @@ impl App {
             Message::Image(id, message) => {
                 image_callback(id, message);
                 // process_updates(&mut self.state, &mut self.canvas_state);
-                process_updates(&mut self.state);
+                process_widget_updates(&mut self.state);
                 Task::none()
             },
             Message::MouseAreaOnPress(id) => {
                 mousearea_callback(&mut self.state, id, "on_press".to_string());
                 // process_updates(&mut self.state, &mut self.canvas_state);
-                process_updates(&mut self.state);
+                process_widget_updates(&mut self.state);
                 Task::none()
             },
             Message::MouseAreaOnRelease(id) => {
                 mousearea_callback(&mut self.state, id, "on_release".to_string());
                 // process_updates(&mut self.state, &mut self.canvas_state);
-                process_updates(&mut self.state);
+                process_widget_updates(&mut self.state);
                 Task::none()
             },
             Message::MouseAreaOnRightPress(id) => {
                 mousearea_callback(&mut self.state, id, "on_right_press".to_string());
                 // process_updates(&mut self.state, &mut self.canvas_state);
-                process_updates(&mut self.state);
+                process_widget_updates(&mut self.state);
                 Task::none()
             },
             Message::MouseAreaOnRightRelease(id) => {
                 mousearea_callback(&mut self.state, id, "on_right_release".to_string());
                 // process_updates(&mut self.state, &mut self.canvas_state);
-                process_updates(&mut self.state);
+                process_widget_updates(&mut self.state);
                 Task::none()
             },
             Message::MouseAreaOnMiddlePress(id) => {
                 mousearea_callback(&mut self.state, id, "on_middle_press".to_string());
                 // process_updates(&mut self.state, &mut self.canvas_state);
-                process_updates(&mut self.state);
+                process_widget_updates(&mut self.state);
                 Task::none()
             },
             Message::MouseAreaOnMiddleRelease(id) => {
                 mousearea_callback(&mut self.state, id, "on_middle_release".to_string());
                 // process_updates(&mut self.state, &mut self.canvas_state);
-                process_updates(&mut self.state);
+                process_widget_updates(&mut self.state);
                 Task::none()
             },
             Message::MouseAreaOnEnter(id) => {
                 mousearea_callback(&mut self.state, id, "on_enter".to_string());
                 // process_updates(&mut self.state, &mut self.canvas_state);
-                process_updates(&mut self.state);
+                process_widget_updates(&mut self.state);
                 Task::none()
             },
             Message::MouseAreaOnMove(point, id) => {
                 mousearea_callback_point(&mut self.state, id, point, "on_move".to_string());
                 // process_updates(&mut self.state, &mut self.canvas_state);
-                process_updates(&mut self.state);
+                process_widget_updates(&mut self.state);
                 Task::none()
             },
             Message::MouseAreaOnExit(id) => {
                 mousearea_callback(&mut self.state, id, "on_exit".to_string());
                 // process_updates(&mut self.state, &mut self.canvas_state);
-                process_updates(&mut self.state);
+                process_widget_updates(&mut self.state);
                 Task::none()
             },
             Message::OpaqueOnPress(id) => {
                 opaque_callback(&mut self.state, id, "on_press".to_string());
                 // process_updates(&mut self.state, &mut self.canvas_state);
-                process_updates(&mut self.state);
+                process_widget_updates(&mut self.state);
                 Task::none()
             },
             Message::PickList(id, message) => {
                 pick_list_callback(&mut self.state, id, message);
                 // process_updates(&mut self.state, &mut self.canvas_state);
-                process_updates(&mut self.state);
+                process_widget_updates(&mut self.state);
                 Task::none()
             },
             Message::Radio(id, message) => {
                 radio_callback(&mut self.state, id, message);
                 // process_updates(&mut self.state, &mut self.canvas_state);
-                process_updates(&mut self.state);
+                process_widget_updates(&mut self.state);
                 Task::none()
             },
             Message::Scrolled(vp, id) => {
                 scrollable_callback(&mut self.state, id, vp);
-                process_updates(&mut self.state); //, &mut self.canvas_state);
+                process_widget_updates(&mut self.state); //, &mut self.canvas_state);
                 Task::none()
             },
             Message::SelectableText(id, message) => {
                 selectable_text_callback(id, message);
                 // process_updates(&mut self.state, &mut self.canvas_state);
-                process_updates(&mut self.state);
+                process_widget_updates(&mut self.state);
                 Task::none()
             },
             Message::Slider(id, message) => {
                 slider_callback(&mut self.state, id, message);
                 // process_updates(&mut self.state, &mut self.canvas_state);
-                process_updates(&mut self.state);
+                process_widget_updates(&mut self.state);
                 Task::none()
             },
             Message::Svg(id, message) => {
                 svg_callback(&mut self.state, id, message);
-                process_updates(&mut self.state); //, &mut self.canvas_state);
+                process_widget_updates(&mut self.state); //, &mut self.canvas_state);
                 Task::none()
             },
             Message::TableScrolled(vp, id) => {
                 scrollable_callback(&mut self.state, id, vp);
-                process_updates(&mut self.state); //, &mut self.canvas_state);
+                process_widget_updates(&mut self.state); //, &mut self.canvas_state);
                 Task::none()
             },
             Message::TableDividerChanged((id, index, value)) => {
                 let message = TableMessage::DivDragging((index, value));
                 table_callback(&mut self.state, id, message);
-                process_updates(&mut self.state); //, &mut self.canvas_state);
+                process_widget_updates(&mut self.state); //, &mut self.canvas_state);
                 Task::none()
             },
             Message::TableDividerReleased(id) => {
                 let message = TableMessage::DivOnRelease;
                 table_callback(&mut self.state, id, message);
-                process_updates(&mut self.state); //, &mut self.canvas_state);
+                process_widget_updates(&mut self.state); //, &mut self.canvas_state);
                 Task::none()
             },
             Message::TextInput(id, message) => {
                 text_input_callback(&mut self.state, id, message);
-                process_updates(&mut self.state); //, &mut self.canvas_state);
+                process_widget_updates(&mut self.state); //, &mut self.canvas_state);
                 Task::none()
             },
             // Message::CanvasTextBlink => {
@@ -365,7 +365,7 @@ impl App {
             Message::Toggler(id, message) => {
                 toggle_callback(&mut self.state, id, message);
                 // process_updates(&mut self.state, &mut self.canvas_state);
-                process_updates(&mut self.state);
+                process_widget_updates(&mut self.state);
                 get_tasks(&mut self.state)
             },
         }
@@ -587,7 +587,7 @@ struct ParentChildIds {
 
 fn get_combine_parents_and_children(
     parent_ids: &Vec<usize>, 
-    ids_opt: Option<&Vec<IpgIds>>) 
+    ids_opt: Option<&Vec<IpgWidgetNode>>) 
     -> Vec<ParentChildIds> {
 
     let mut parent_child_ids: Vec<ParentChildIds> = vec![];
@@ -910,114 +910,105 @@ fn get_window_container(container_opt: Option<&IpgContainers>) -> &IpgWindow {
     }
 }
 
-fn process_updates(
+fn process_widget_updates(
     state: &mut IpgState, 
     // canvas_state: &mut IpgCanvasState
 ) {
     
     let mut all_updates = access_update_widgets();
 
-    // for deletes
-    for (window_id, wid) in all_updates.deletes.iter() {
-        let iced_id = match state.windows_str_ids.get(window_id) {
-            Some(id) => *id,
-            None => panic!("Window_id {} not found in delete_item", window_id)
-        };
-
-        let ipg_ids = match state.ids.get_mut(&iced_id) {
-            Some(ids) => ids,
-            None => panic!("Ids not found for window_id {} in delete_item", window_id)
-        };
-
-        let mut index: i32 = -1;
-
-        for (i, ipg_id) in ipg_ids.iter().enumerate() {
-            if ipg_id.id == *wid {
-                index = i as i32;
-                break;
-            }
-        }
-
-        if index == -1 {
-            panic!("item with id {wid} could not be found to delete")
-        }
-
-        ipg_ids.remove(index as usize);
-
-        state.widgets.remove(wid);   
-    }
+    process_deletes(state, &all_updates.deletes);
     all_updates.deletes = vec![];
 
-    // for moves
-    for (window_id, 
-        widget_id, 
-        target_container_str_id, 
-        move_after, 
-        move_before) in all_updates.moves.iter() {
-
-        let container_str_id_opt = state.container_str_ids.get(target_container_str_id);
-
-        let container_usize_id = match container_str_id_opt {
-            Some(id) => *id,
-            None => panic!("move_widget: unable to find the target container id based on the id {}", target_container_str_id)
-        };
-
-        let window_id_usize_opt = state.windows_str_ids.get(window_id);
-
-        let window_id_usize = match window_id_usize_opt {
-            Some(id) => *id,
-            None => panic!("move_widget: unable to find the window_id using the id {}", window_id)
-        };
-
-        let window_widget_ids_opt = state.ids.get_mut(&window_id_usize);
-
-        let window_widget_ids = match window_widget_ids_opt {
-            Some(ids) => ids,
-            None => panic!("move_widget: unable to find widget using window_id {}", window_id)    
-        };
-
-        let mut before = false;
-        let pos_id = if move_after.is_some() {
-            move_after.unwrap()
-        } else if move_before.is_some() { 
-            before = true;
-            move_before.unwrap()
-        } else {
-            1_000_000
-        };
-
-        //  set some large numbers to break early
-        let mut found_index = 1_000_000;
-        let mut target_index: usize = 1_000_000;
-
-        for (i, ids) in window_widget_ids.iter_mut().enumerate() {
-            if ids.id == *widget_id {
-                ids.parent_uid = container_usize_id;
-                ids.parent_id = target_container_str_id.clone();
-                found_index = i;
-            }
-            if ids.id == pos_id {
-                target_index = i
-            }
-            if found_index != 1_000_000 && (target_index != 1_000_000 || pos_id == 1_000_000) {
-                break;
-            }
-        }
-        
-        let move_ids = window_widget_ids.remove(found_index);
-        
-        if pos_id == 1_000_000 {
-            window_widget_ids.push(move_ids);
-        } else if before {
-            window_widget_ids.insert(target_index-1, move_ids);
-        } else {
-            window_widget_ids.insert(target_index, move_ids);
-        }
-    }  
+    process_moves(state, &all_updates.moves);
     all_updates.moves = vec![];
 
-    // for item updates
-    for ((wid, item, value)) in all_updates.updates.iter() {
+    process_updates(state, &all_updates.updates);
+    all_updates.updates = vec![];
+
+    process_shows(state, &all_updates.shows);
+    all_updates.shows = vec![];
+
+    drop(all_updates);
+
+    process_new_widgets(state);
+}
+
+fn process_deletes(
+    state: &mut IpgState,
+    deletes: &[usize],
+) {
+    for wid in deletes.iter() {
+        for (_, nodes) in state.ids.iter_mut() {
+            if let Some(index) = nodes.iter().position(|node| node.id == *wid) {
+                nodes.remove(index);
+                state.widgets.remove(wid);
+                break;
+            }
+        }   
+    }
+}
+
+fn process_moves(
+    state: &mut IpgState,
+    moves: &[(usize, Option<usize>, Option<usize>, Option<usize>)],
+) {
+    for (widget_id, move_after, move_before, target_parent_id) in moves.iter() {
+
+        // Find the nodes list containing this widget
+        let nodes = state.ids.values_mut()
+            .find(|nodes| nodes.iter().any(|n| n.id == *widget_id))
+            .expect("move_widget: widget not found in any window");
+
+        // Derive the target parent from the sibling, or use explicit target_parent_id
+        let (parent_uid, parent_id) = if let Some(after_id) = move_after {
+            let sibling = nodes.iter().find(|n| n.id == *after_id)
+                .expect("move_widget: move_after target not found");
+            (sibling.parent_uid, sibling.parent_id.clone())
+        } else if let Some(before_id) = move_before {
+            let sibling = nodes.iter().find(|n| n.id == *before_id)
+                .expect("move_widget: move_before target not found");
+            (sibling.parent_uid, sibling.parent_id.clone())
+        } else if let Some(parent_id) = target_parent_id {
+            let parent_node = nodes.iter().find(|n| n.id == *parent_id)
+                .expect("move_widget: target_parent_id not found");
+            let pid = parent_node.container_id.clone()
+                .unwrap_or_else(|| parent_node.parent_id.clone());
+            (*parent_id, pid)
+        } else {
+            panic!("move_widget: at least one of move_after, move_before, or target_parent_id must be provided")
+        };
+
+        // Update the widget's parent references
+        if let Some(node) = nodes.iter_mut().find(|n| n.id == *widget_id) {
+            node.parent_uid = parent_uid;
+            node.parent_id = parent_id;
+        }
+
+        // Remove the widget from its current position
+        let found_index = nodes.iter().position(|n| n.id == *widget_id).unwrap();
+        let moved_node = nodes.remove(found_index);
+
+        // Re-insert at the requested position
+        if let Some(after_id) = move_after {
+            let target = nodes.iter().position(|n| n.id == *after_id)
+                .expect("move_widget: move_after target not found");
+            nodes.insert(target + 1, moved_node);
+        } else if let Some(before_id) = move_before {
+            let target = nodes.iter().position(|n| n.id == *before_id)
+                .expect("move_widget: move_before target not found");
+            nodes.insert(target, moved_node);
+        } else {
+            nodes.push(moved_node);
+        }
+    }  
+}
+
+fn process_updates(
+    state: &mut IpgState,
+    updates: &[(usize, PyObject, PyObject)],
+) {
+    for ((wid, item, value)) in updates.iter() {
         let widget = state.widgets.get_mut(wid);
         if let Some(w) = widget {
             match_widget(w, item, value);
@@ -1038,26 +1029,9 @@ fn process_updates(
             }
         }  
     }
-    all_updates.updates = vec![];
+}
 
-    // updates for shows
-    for (window_id, ids) in all_updates.shows.iter() {
-        let iced_id = match state.windows_str_ids.get(window_id) {
-            Some(id) => *id,
-            None => panic!("Window_id {} not found in hide_item", window_id)
-        };
-
-        let ipg_ids = match state.ids.get_mut(&iced_id) {
-            Some(ids) => ids,
-            None => panic!("Ids not found for window_id {} in hide_item", window_id)
-        };
-
-        show_widget(state, ids);
-    }
-    
-    all_updates.shows = vec![];
-
-    // Transfer any new widgets added during callbacks
+fn process_new_widgets(state: &mut IpgState) {
     let mut mutex_state = access_state();
     if !mutex_state.widgets.is_empty() {
         // Move new widgets into the runtime state
@@ -1076,7 +1050,6 @@ fn process_updates(
     } else {
         drop(mutex_state);
     }
-
 }
 
 // fn process_canvas_updates(cs: &mut IpgCanvasState) {
@@ -1098,41 +1071,42 @@ fn process_updates(
 
 // }
 
-fn show_widget(state: &mut IpgState, ids: &[(usize, bool)]) {
-    
-    for (id, value) in ids.iter() {
-        
+fn process_shows(
+    state: &mut IpgState,
+    shows: &[(usize, bool)],
+) {
+    for (id, val) in shows.iter() {
+
         let mut wid = state.widgets.get_mut(id);
         let widget = if wid.is_some() {
             wid.take().unwrap()
         } else {
-            panic!("Show_items - unable to find id {}", id)
+            panic!("Process shows method- unable to find id {}", id)
         };
         match widget {
-            IpgWidgets::IpgButton(bt) => bt.show= *value,
-            IpgWidgets::IpgCard(cd) => cd.show= *value,
-            IpgWidgets::IpgCheckBox(cb) => cb.show= *value,
-            IpgWidgets::IpgColorPicker(cp) => cp.show= *value,
-            IpgWidgets::IpgDatePicker(dp) => dp.show= *value,
-            IpgWidgets::IpgDivider(d) => d.show = *value,
-            IpgWidgets::IpgImage(im) => im.show= *value,
-            IpgWidgets::IpgPickList(pl) => pl.show= *value,
-            IpgWidgets::IpgProgressBar(pb) => pb.show= *value,
-            IpgWidgets::IpgRadio(rd) => rd.show= *value,
-            IpgWidgets::IpgRule(ru) => ru.show  = * value,
-            IpgWidgets::IpgSelectableText(st) => st.show= *value,
-            IpgWidgets::IpgSeparator(sp) => sp.show= *value,
-            IpgWidgets::IpgSlider(sl) => sl.show= *value,
-            IpgWidgets::IpgSpace(sp) => sp.show= *value,
-            IpgWidgets::IpgSvg(svg) => svg.show= *value,
-            IpgWidgets::IpgText(tx) => tx.show= *value,
-            // IpgWidgets::ti(ipg_text_input) => ti.show= *value,
-            // IpgWidgets::IpgTimer(tm) => tm.show= *value,
-            IpgWidgets::IpgToggler(tog) => tog.show= *value,
+            IpgWidgets::IpgButton(bt) => bt.show= *val,
+            IpgWidgets::IpgCard(cd) => cd.show= *val,
+            IpgWidgets::IpgCheckBox(cb) => cb.show= *val,
+            IpgWidgets::IpgColorPicker(cp) => cp.show= *val,
+            IpgWidgets::IpgDatePicker(dp) => dp.show= *val,
+            IpgWidgets::IpgDivider(d) => d.show = *val,
+            IpgWidgets::IpgImage(im) => im.show= *val,
+            IpgWidgets::IpgPickList(pl) => pl.show= *val,
+            IpgWidgets::IpgProgressBar(pb) => pb.show= *val,
+            IpgWidgets::IpgRadio(rd) => rd.show= *val,
+            IpgWidgets::IpgRule(ru) => ru.show  = *val,
+            IpgWidgets::IpgSelectableText(st) => st.show= *val,
+            IpgWidgets::IpgSeparator(sp) => sp.show= *val,
+            IpgWidgets::IpgSlider(sl) => sl.show= *val,
+            IpgWidgets::IpgSpace(sp) => sp.show= *val,
+            IpgWidgets::IpgSvg(svg) => svg.show= *val,
+            IpgWidgets::IpgText(tx) => tx.show= *val,
+            // IpgWidgets::ti(ipg_text_input) => ti.show= *val,
+            // IpgWidgets::IpgTimer(tm) => tm.show= *val,
+            IpgWidgets::IpgToggler(tog) => tog.show= *val,
             _ => (),
         }
     }
-    
 }
 
 

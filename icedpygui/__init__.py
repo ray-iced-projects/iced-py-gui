@@ -48,6 +48,13 @@ from .icedpygui import (
     add_toggler_style,
     add_window as _add_window,
     add_event_window,
+    delete_widget,
+    hide_widget,
+    move_widget,
+    show_widget,
+    update_widget,
+    start_session,
+    generate_id,
     Align,
     AlignX,
     AlignY,
@@ -97,9 +104,6 @@ from .icedpygui import (
     IpgWindowTheme,
     TextShaping,
     TextWrapping,
-    start_session,
-    update_widget,
-    generate_id,
 )
 
 # ---------------------------------------------------------------------------

@@ -167,6 +167,11 @@ pub fn set_bool(field: &mut bool, value: &PyObject, name: &str) {
     *field = try_extract_boolean(value, name);
 }
 
+pub fn set_toggle_bool(field: &mut bool, value: &PyObject, name: &str) {
+    let b = try_extract_boolean(value, name);
+    *field = !b;
+}
+
 pub fn set_opt_bool(field: &mut Option<bool>, value: &PyObject, name: &str) {
     *field = try_extract_opt_boolean(value, name);
 }

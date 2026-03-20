@@ -744,7 +744,6 @@ fn get_widget<'a>(state: &'a IpgState, id: &usize) -> Option<Element<'a, Message
                     btn.construct(&state.widgets)
                 },
                 IpgWidgets::IpgCard(crd) => {
-                    
                     crd.construct(&state.widgets)
                 },
                 IpgWidgets::IpgCheckBox(chk) => {

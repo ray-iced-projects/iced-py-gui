@@ -1795,19 +1795,19 @@ class IpgCanvasImageParam:
     Rotation: float
 
 
-class IpgCardStyle:
+class IpgCardStyleStd:
     """
     The standard styles for the card widget
     """
-    Primary=''
-    Success=''
     Danger=''
-    Warning=''
+    Dark=''
     Info=''
     Light=''
-    Dark=''
+    Primary=''
+    Secondary=''
+    Success=''
+    Warning=''
     White=''
-    Default=''
 
 
 class IpgChartTheme:

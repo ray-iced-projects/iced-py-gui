@@ -78,11 +78,13 @@ use crate::widgets::ipg_card::{IpgCard, IpgCardStyle, IpgCardStyleStd};
     head=None, 
     body=None,      
     is_open=true, 
-    min_max_id=None, 
+    min_max_id=None,
+    button_label=None,
     foot=None, 
     gen_id=None, 
     close_size=None,
-    on_close=None, 
+    on_close=None,
+    on_open=None, 
     width=None, 
     width_fill=false, 
     height=None, 
@@ -105,10 +107,12 @@ pub fn add_card(
     body: Option<String>,
     is_open: bool,
     min_max_id: Option<usize>,
+    button_label: Option<String>,
     foot: Option<String>,
     gen_id: Option<usize>,
     close_size: Option<f32>,
     on_close: Option<PyObject>,
+    on_open: Option<PyObject>,
     width: Option<f32>,
     width_fill: bool,
     height: Option<f32>,
@@ -132,6 +136,10 @@ pub fn add_card(
         add_callback_to_mutex(id, "on_close".to_string(), py);
     }
 
+    if let Some(py) = on_open {
+        add_callback_to_mutex(id, "on_open".to_string(), py);
+    }
+
     if let Some(py) = user_data {
         add_user_data_to_mutex(id, py);
     }
@@ -149,6 +157,7 @@ pub fn add_card(
             parent_id,
             is_open,
             button_id: min_max_id,
+            button_label,
             width,
             height,
             max_width,

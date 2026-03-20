@@ -6,14 +6,13 @@ use crate::py_api::helpers::get_padding;
 use crate::state::IpgWidgets;
 use crate::widgets::callbacks::invoke_callback;
 use crate::widgets::widget_param_update::{
-    WidgetParamUpdate, set_bool, set_opt_f32, set_opt_string,
-    set_opt_usize, set_opt_vec_f32, set_width, set_height,
-    set_opt_iced_color, set_opt_iced_color_from_rgba,
+    WidgetParamUpdate, set_bool, set_height, set_opt_f32, 
+    set_opt_iced_color, set_opt_iced_color_from_rgba, 
+    set_opt_string, set_opt_usize, set_opt_vec_f32, set_width
 };
 
-use iced::widget::text;
+use iced::widget::{Button, Column, Text, text};
 use iced::{Color, Element, Length, Theme};
-use iced::widget::{Column, Space, Text};
 
 use iced_aw::widgets::card::Card;
 use iced_aw::style;
@@ -29,6 +28,7 @@ pub struct IpgCard {
     pub is_open: bool,
     
     pub button_id: Option<usize>,
+    pub button_label: Option<String>,
     pub width: Length,
     pub height: Length,
     pub max_width: Option<f32>,
@@ -58,12 +58,19 @@ impl IpgCard {
         widgets: &HashMap<usize, IpgWidgets>, 
     )-> Option<Element<'a, Message>> {
 
-        if !self.show {return None}
-        if !self.is_open {
-            let sp: Element<CardMessage> = Space::new().into();
-            let sp_mapped: Element<Message> = sp.map(move |message| Message::Card(self.id, message));
-            return Some(sp_mapped)
-        }
+        if !self.show || !self.is_open {return None}
+        // if !self.is_open {
+            // let label = if let Some(label) = self.button_label.clone() {
+            //     label
+            // } else {
+            //     "Open card".to_string()
+            // };
+            // let btn: Element<CardMessage> = Button::new(Text::new(label))
+            //     .on_press(CardMessage::OnOpen)
+            //     .into();
+            // let btn_mapped: Element<Message> = btn.map(move |message| Message::Card(self.id, message));
+            // return Some(btn_mapped)
+        // }
 
         let style_opt = 
             self.lookup(widgets, self.style_id)
@@ -147,13 +154,17 @@ impl IpgCard {
 #[derive(Debug, Clone)]
 pub enum CardMessage {
     OnClose,
+    OnOpen,
 }
 
 pub fn card_callback(id: usize, message: CardMessage) {
     match message {
         CardMessage::OnClose => {
             invoke_callback(id, "on_close", "Card");
-        }
+        },
+        CardMessage::OnOpen => {
+            invoke_callback(id, "on_open", "Card");
+        },
     }
 }
 
@@ -304,6 +315,7 @@ pub enum IpgCardParam {
     Foot,
     Head,
     Height,
+    IsOpen,
     MaxHeight,
     MaxWidth,
     Padding,
@@ -330,6 +342,7 @@ impl WidgetParamUpdate for IpgCard {
             IpgCardParam::Foot => set_opt_string(&mut self.foot, value, "Foot"),
             IpgCardParam::Head => set_opt_string(&mut self.head, value, "Head"),
             IpgCardParam::Height => set_height(&mut self.height, value, "Height"),
+            IpgCardParam::IsOpen => set_bool(&mut self.is_open, value, "IsOpen"),
             IpgCardParam::MaxHeight => set_opt_f32(&mut self.max_height, value, "MaxHeight"),
             IpgCardParam::MaxWidth => set_opt_f32(&mut self.max_width, value, "MaxWidth"),
             IpgCardParam::Padding => set_opt_vec_f32(&mut self.padding, value, "Padding"),

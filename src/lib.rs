@@ -87,7 +87,9 @@ use crate::widgets::ipg_pick_list::IpgPickListHandle;
 use crate::widgets::ipg_text::{IpgTextParam, TextWrapping};
 
 // events
-use crate::py_api::event_window::add_event_window;
+use crate::py_api::events::add_event_window;
+use crate::py_api::timer::add_event_timer;
+
 
 /// Python module definition
 #[pymodule]
@@ -98,6 +100,7 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
 
     // Event functions
     m.add_function(wrap_pyfunction!(add_event_window, m)?)?;
+    m.add_function(wrap_pyfunction!(add_event_timer, m)?)?;
     
     // Widget functions
     m.add_function(wrap_pyfunction!(add_window, m)?)?;

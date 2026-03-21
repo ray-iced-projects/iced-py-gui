@@ -1,10 +1,12 @@
 #![allow(unused)]
 use std::collections::HashMap;
+use std::time::Instant;
 
+use iced::time::milliseconds;
 use iced::widget::{Column, scrollable};
 use iced::advanced::widget::operation::scrollable::scroll_to;
 use iced::window::{self, Position};
-use iced::{Color, Element, Event, Point, Size, Subscription, Task, Theme, font};
+use iced::{Color, Element, Event, Point, Size, Subscription, Task, Theme, font, message, time};
 
 use palette::chromatic_adaptation::AdaptInto;
 use pyo3::{Py, PyAny};
@@ -18,7 +20,7 @@ use crate::widgets::ipg_checkbox::{ChkMessage, checkbox_callback};
 use crate::widgets::ipg_color_picker::{ColPikMessage, color_picker_callback};
 use crate::widgets::ipg_date_picker::{DPMessage, date_picker_update};
 use crate::widgets::ipg_divider::{DivMessage, divider_callback};
-use crate::widgets::ipg_events::process_window_event;
+use crate::widgets::ipg_events::{process_keyboard_events, process_mouse_events, process_touch_events, process_window_event};
 use crate::widgets::ipg_image::{ImageMessage, construct_image, image_callback};
 use crate::widgets::ipg_mouse_area::{construct_mousearea, mousearea_callback, mousearea_callback_point};
 use crate::widgets::ipg_opaque::{construct_opaque, opaque_callback};
@@ -34,6 +36,7 @@ use crate::widgets::ipg_space::construct_space;
 use crate::widgets::ipg_svg::{SvgMessage, construct_svg, svg_callback};
 use crate::widgets::ipg_table::{TableMessage, table_callback};
 use crate::widgets::ipg_text_input::{TIMessage, text_input_callback};
+use crate::widgets::ipg_timer::{TimerState, timer_callback};
 use crate::widgets::ipg_toggle::{TOGMessage, construct_toggler, toggle_callback};
 use crate::widgets::ipg_window::{IpgWindow, IpgWindowLevel, IpgWindowMode, add_windows, construct_window};
 use crate::widgets::widget_param_update::{param_update, container_param_update};
@@ -48,10 +51,10 @@ pub enum Message {
     ColorPicker(usize, ColPikMessage),
     DatePicker(usize, DPMessage),
     Divider(usize, DivMessage),
-//     EventKeyboard(Event),
-//     EventMouse(Event),
+    EventKeyboard(Event),
+    EventMouse(Event),
     EventWindow((window::Id, Event)),
-//     EventTouch(Event),
+    EventTouch(Event),
     Image(usize, ImageMessage),
 //     // Modal(usize, ModalMessage),
     PickList(usize, PLMessage),
@@ -68,9 +71,8 @@ pub enum Message {
     TextInput(usize, TIMessage),
     Toggler(usize, TOGMessage),
 //     CanvasTextBlink,
-//     Tick,
+    Tick(usize, Instant, Option<u64>, Option<u64>, u64),
 //     CanvasTick,
-//     Timer(usize, TIMMessage),
 //     CanvasTimer(usize, CanvasTimerMessage),
     FontLoaded(Result<(), font::Error>),
     WindowOpened(window::Id, Option<Point>, Size),
@@ -177,16 +179,16 @@ impl App {
                 process_widget_updates(&mut self.state);
                 Task::none()
             },
-            // Message::EventKeyboard(event) => {
-            //     process_keyboard_events(event, self.state.keyboard_event_id_enabled.0);
-            //     process_updates(&mut self.state, &mut self.canvas_state);
-            //     Task::none()
-            // },
-            // Message::EventMouse(event) => {
-            //     process_mouse_events(event, self.state.mouse_event_id_enabled.0);
-            //     process_updates(&mut self.state, &mut self.canvas_state);
-            //     Task::none()
-            // },
+            Message::EventKeyboard(event) => {
+                process_keyboard_events(event, self.state.keyboard_event_id_enabled.0);
+                process_widget_updates(&mut self.state); //, &mut self.canvas_state);
+                Task::none()
+            },
+            Message::EventMouse(event) => {
+                process_mouse_events(event, self.state.mouse_event_id_enabled.0);
+                process_widget_updates(&mut self.state); //, &mut self.canvas_state);
+                Task::none()
+            },
             Message::EventWindow((window_id, event)) => {
                 process_window_event(&mut self.state, event, window_id);
                 // process_updates(&mut self.state, &mut self.canvas_state);
@@ -201,11 +203,11 @@ impl App {
             Message::WindowOpened(_, _, _) => {
                 Task::none()
             },
-            // Message::EventTouch(event) => {
-            //     process_touch_events(event, self.state.touch_event_id_enabled.0);
-            //     process_updates(&mut self.state, &mut self.canvas_state);
-            //     Task::none()
-            // },
+            Message::EventTouch(event) => {
+                process_touch_events(event, self.state.touch_event_id_enabled.0);
+                process_widget_updates(&mut self.state); //, &mut self.canvas_state);
+                Task::none()
+            },
             Message::Image(id, message) => {
                 image_callback(id, message);
                 // process_updates(&mut self.state, &mut self.canvas_state);
@@ -328,15 +330,14 @@ impl App {
                 process_widget_updates(&mut self.state); //, &mut self.canvas_state);
                 Task::none()
             },
+            Message::Tick(id, instant, start, stop, duration) => {
+                timer_callback(&mut self.state, id,instant, start, stop, duration);
+                Task::none()
+            },
             // Message::CanvasTextBlink => {
             //     self.canvas_state.elapsed_time += self.canvas_state.timer_duration;
             //     self.canvas_state.blink = !self.canvas_state.blink;
             //     self.canvas_state.request_text_redraw();
-            //     Task::none()
-            // },
-            // Message::Tick => {
-            //     tick_callback(&mut self.state);
-            //     process_updates(&mut self.state, &mut self.canvas_state);
             //     Task::none()
             // },
             // Message::CanvasTick => {
@@ -344,14 +345,6 @@ impl App {
             //     process_canvas_updates(&mut self.canvas_state);
             //     process_updates(&mut self.state, &mut self.canvas_state); 
             //     self.canvas_state.request_image_redraw();
-            //     Task::none()
-            // },
-            // Message::Timer(id, _) => {
-            //     self.state.timer_event_id_enabled.1 = !self.state.timer_event_id_enabled.1;
-            //     self.state.timer_event_id_enabled.0 = id;
-            //     let started = self.state.timer_event_id_enabled.1;
-            //     self.state.timer_duration = timer_callback(&mut self.state, id, started);
-            //     process_updates(&mut self.state, &mut self.canvas_state);    
             //     Task::none()
             // },
             // Message::CanvasTimer(id, message) => {
@@ -393,30 +386,37 @@ impl App {
 
         let mut subscriptions = vec![];
         
-        // if self.state.timer_event_id_enabled.1 {
-        //     subscriptions
-        //     .push(time::every(iced::time::Duration::from_millis(
-        //         self.state.timer_duration)).map(|_| Message::Tick));
-        // }
+        for (id, timer_state) in self.state.timer_state.iter() {
+            subscriptions.push(match timer_state {
+                TimerState::Idle => Subscription::none(),
+                TimerState::Ticking { last_tick: _, start, stop, duration_ms: duration } => {
+                    let (id, start, stop, duration) = (*id, *start, *stop, *duration);
+                    time::every(milliseconds(duration))
+                        .map(move |instant| Message::Tick(id, instant, start, stop, duration))
+                }
+            });
+        }
+        
         // if self.state.canvas_timer_event_id_enabled.1 {
         //     subscriptions
         //     .push(time::every(iced::time::Duration::from_millis(
         //         self.state.canvas_timer_duration)).map(|_| Message::CanvasTick));
         // }
         
-        // if self.state.keyboard_event_id_enabled.1 {
-        //     subscriptions.push(iced::event::listen().map(Message::EventKeyboard));
-        // }
+        if self.state.keyboard_event_id_enabled.1 {
+            subscriptions.push(iced::event::listen().map(Message::EventKeyboard));
+        }
 
-        // if self.state.mouse_event_id_enabled.1 {
-        //     subscriptions.push(iced::event::listen().map(Message::EventMouse));
-        // }
+        if self.state.mouse_event_id_enabled.1 {
+            subscriptions.push(iced::event::listen().map(Message::EventMouse));
+        }
         // if self.canvas_state.timer_event_enabled {
         //     subscriptions.push(time::every(
         //         iced::time::Duration::from_millis(
         //             self.canvas_state.timer_duration))
         //             .map(|_| Message::CanvasTextBlink));
         // }
+
         // window event is always enabled, since we are using iced::daemon, the windows
         // closing need to be followed and iced exited when the last window is closed.
         // The closing is the only event monitored unless the user enables the window events.
@@ -830,15 +830,6 @@ fn get_widget<'a>(state: &'a IpgState, id: &usize) -> Option<Element<'a, Message
                 IpgWidgets::IpgTextInput(input) => {
                     input.construct(&state.widgets)       
                 },
-                // IpgWidgets::IpgTimer(timer) => {
-                //     let style_opt = match timer.style_id {
-                //         Some(id) => {
-                //             state.widgets.get(&id)
-                //         },
-                //         None => None,
-                //     };
-                //     construct_timer(timer, style_opt)
-                // },
                 // IpgWidgets::IpgCanvasTimer(ctimer) => {
                 //     let style_opt = match ctimer.style_id {
                 //         Some(id) => {
@@ -1100,9 +1091,7 @@ fn process_shows(
             IpgWidgets::IpgSlider(sl) => sl.show= *val,
             IpgWidgets::IpgSpace(sp) => sp.show= *val,
             IpgWidgets::IpgSvg(svg) => svg.show= *val,
-            IpgWidgets::IpgText(tx) => tx.show= *val,
-            // IpgWidgets::ti(ipg_text_input) => ti.show= *val,
-            // IpgWidgets::IpgTimer(tm) => tm.show= *val,
+            IpgWidgets::IpgTextInput(ti) => ti.show= *val,
             IpgWidgets::IpgToggler(tog) => tog.show= *val,
             _ => (),
         }
@@ -1131,11 +1120,10 @@ fn clone_state(state: &mut IpgState) {
     
     state.keyboard_event_id_enabled = mutex_state.keyboard_event_id_enabled.to_owned();
     state.mouse_event_id_enabled = mutex_state.mouse_event_id_enabled.to_owned();
-    state.timer_event_id_enabled = mutex_state.timer_event_id_enabled.to_owned();
     state.canvas_timer_event_id_enabled = mutex_state.canvas_timer_event_id_enabled.to_owned();
     state.window_event_id_enabled = mutex_state.window_event_id_enabled.to_owned();
     state.touch_event_id_enabled = mutex_state.touch_event_id_enabled.to_owned();
-    state.timer_duration = mutex_state.timer_duration.to_owned();
+    state.timer_state = mutex_state.timer_state.to_owned();
     state.canvas_timer_duration = mutex_state.canvas_timer_duration.to_owned();
 
     // zeroing out any unneeded vecs and hashmaps

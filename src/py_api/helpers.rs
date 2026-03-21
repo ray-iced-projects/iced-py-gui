@@ -222,6 +222,16 @@ pub fn try_extract_u32(value: &PyObject, name: &str) -> u32 {
     })  
 }
 
+pub fn try_extract_u64(value: &PyObject, name: &str) -> u64 {
+    Python::attach(|py| {
+        let res = value.extract::<u64>(py);
+        match res {
+            Ok(val) => val,
+            Err(_) => panic!("{}-Unable to extract u64", name),
+        }
+    })  
+}
+
 pub fn try_extract_usize(value: &PyObject, name: &str) -> usize {
     Python::attach(|py| {
         let res = value.extract::<usize>(py);

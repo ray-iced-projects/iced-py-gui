@@ -40,6 +40,7 @@ use crate::widgets::ipg_svg::IpgSvg;
 use crate::widgets::ipg_table::IpgTable;
 use crate::widgets::ipg_text::IpgText;
 use crate::widgets::ipg_text_input::{IpgTextInput, IpgTextInputStyle};
+use crate::widgets::ipg_timer::TimerState;
 use crate::widgets::ipg_toggle::{IpgToggler, IpgTogglerStyle};
 use crate::widgets::ipg_window::IpgWindow;
 use crate::widgets::ipg_button::{IpgButton, IpgButtonStyle};
@@ -112,8 +113,6 @@ pub enum IpgWidgets {
     // IpgTextEditor(IpgTextEditor),
     IpgTextInput(IpgTextInput),
     IpgTextInputStyle(IpgTextInputStyle),
-    // IpgTimer(IpgTimer),
-    // IpgTimerStyle(IpgTimerStyle),
     // IpgCanvasTimer(IpgCanvasTimer),
     // IpgCanvasTimerStyle(IpgCanvasTimerStyle),
     IpgToggler(IpgToggler),
@@ -405,11 +404,10 @@ pub struct State {
     pub events: Vec<IpgEvents>,
     pub keyboard_event_id_enabled: (usize, bool),
     pub mouse_event_id_enabled: (usize, bool),
-    pub timer_event_id_enabled: (usize, bool),
     pub canvas_timer_event_id_enabled: (usize, bool),
     pub window_event_id_enabled: (usize, bool),
     pub touch_event_id_enabled: (usize, bool),
-    pub timer_duration: u64,
+    pub timer_state: Lazy<HashMap<usize, TimerState>>,
     pub canvas_timer_duration: u64,
 }
 
@@ -438,11 +436,10 @@ pub static STATE: Mutex<State> = Mutex::new(
         events: vec![],
         keyboard_event_id_enabled: (0, false),
         mouse_event_id_enabled: (0, false), 
-        timer_event_id_enabled: (0, false),
         canvas_timer_event_id_enabled: (0, false),
         window_event_id_enabled: (0, false),
         touch_event_id_enabled: (0, false),
-        timer_duration: 0,
+        timer_state: Lazy::new(||HashMap::new()),
         canvas_timer_duration: 0,
     }
 );
@@ -489,11 +486,10 @@ pub struct IpgState {
     pub events: Vec<IpgEvents>,
     pub keyboard_event_id_enabled: (usize, bool),
     pub mouse_event_id_enabled: (usize, bool),
-    pub timer_event_id_enabled: (usize, bool),
     pub canvas_timer_event_id_enabled: (usize, bool),
     pub window_event_id_enabled: (usize, bool),
     pub touch_event_id_enabled: (usize, bool),
-    pub timer_duration: u64,
+    pub timer_state: HashMap<usize, TimerState>,
     pub canvas_timer_duration: u64,
 }
 
@@ -522,11 +518,10 @@ pub fn clone_state_to_runtime(runtime_state: &mut IpgState) {
     runtime_state.events = state.events.clone();
     runtime_state.keyboard_event_id_enabled = state.keyboard_event_id_enabled;
     runtime_state.mouse_event_id_enabled = state.mouse_event_id_enabled; 
-    runtime_state.timer_event_id_enabled = state.timer_event_id_enabled;
     runtime_state.canvas_timer_event_id_enabled = state.canvas_timer_event_id_enabled;
     runtime_state.window_event_id_enabled = state.window_event_id_enabled;
     runtime_state.touch_event_id_enabled = state.touch_event_id_enabled;
-    runtime_state.timer_duration = state.timer_duration;
+    runtime_state.timer_state = state.timer_state.clone();
     runtime_state.canvas_timer_duration = state.canvas_timer_duration;
 
     // Zero out transferred data so process_updates won't re-process them

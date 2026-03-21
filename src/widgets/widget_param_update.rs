@@ -7,7 +7,7 @@ use pyo3::{Py, PyAny, Python};
 use crate::graphics::bootstrap_arrow::IpgArrow;
 use crate::graphics::colors::IpgColor;
 use crate::py_api::helpers::{
-    get_length, get_length_fill, try_extract_boolean, try_extract_f32, try_extract_f32_array_2, try_extract_f32_opt, try_extract_f32_opt_array_1_or_upto_4, try_extract_opt_boolean, try_extract_opt_string, try_extract_opt_u32_array_2, try_extract_opt_usize, try_extract_opt_vec_f32, try_extract_string, try_extract_style_standard, try_extract_u16, try_extract_u16_array_2, try_extract_u32, try_extract_usize, try_extract_vec_f32, try_extract_vec_str, try_extract_vec_u8_opt, try_extract_vec_vec_f32
+    get_length, get_length_fill, try_extract_boolean, try_extract_f32, try_extract_f32_array_2, try_extract_f32_opt, try_extract_f32_opt_array_1_or_upto_4, try_extract_opt_boolean, try_extract_opt_string, try_extract_opt_u32_array_2, try_extract_opt_usize, try_extract_opt_vec_f32, try_extract_string, try_extract_style_standard, try_extract_u16, try_extract_u16_array_2, try_extract_u32, try_extract_u64, try_extract_usize, try_extract_vec_f32, try_extract_vec_str, try_extract_vec_u8_opt, try_extract_vec_vec_f32
 };
 use crate::state::{IpgContainers, IpgWidgets};
 use crate::widgets::enums::{Align, AlignX, AlignY};
@@ -250,6 +250,10 @@ pub fn set_vec_vec_f32(field: &mut Vec<Vec<f32>>, value: &PyObject, name: &str) 
 
 pub fn set_opt_u32(field: &mut Option<u32>, value: &PyObject, name: &str) {
     *field = Some(try_extract_u32(value, name));
+}
+
+pub fn set_opt_u64(field: &mut u64, value: &PyObject, name: &str) {
+    *field = try_extract_u64(value, name);
 }
 
 pub fn set_opt_u16(field: &mut Option<u16>, value: &PyObject, name: &str) {

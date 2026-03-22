@@ -66,6 +66,7 @@ use crate::widgets::ipg_stack::IpgStackParam;
 use crate::widgets::ipg_table::IpgTableParam;
 use crate::widgets::ipg_text::TextShaping;
 use crate::widgets::ipg_text_input::{IpgTextInputParam, IpgTextInputStyleParam};
+use crate::widgets::ipg_timer::IpgTimerParam;
 use crate::widgets::ipg_toggle::{IpgTogglerParam, IpgTogglerStyleParam};
 use crate::widgets::ipg_window::IpgWindowParam;
 
@@ -89,6 +90,7 @@ use crate::widgets::ipg_text::{IpgTextParam, TextWrapping};
 // events
 use crate::py_api::events::add_event_window;
 use crate::py_api::timer::add_event_timer;
+use crate::py_api::update::update_timer;
 
 
 /// Python module definition
@@ -138,6 +140,7 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(hide_widget, m)?)?;
     m.add_function(wrap_pyfunction!(move_widget, m)?)?;
     m.add_function(wrap_pyfunction!(show_widget, m)?)?;
+    m.add_function(wrap_pyfunction!(update_timer, m)?)?;
     
     // styles
     m.add_function(wrap_pyfunction!(add_button_style, m)?)?;
@@ -205,6 +208,7 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<IpgTableParam>()?;
     m.add_class::<IpgTextParam>()?;
     m.add_class::<IpgTextInputParam>()?;
+    m.add_class::<IpgTimerParam>()?;
     m.add_class::<IpgTogglerParam>()?;
     m.add_class::<IpgWindowLevel>()?;
     m.add_class::<IpgWindowMode>()?;

@@ -71,7 +71,7 @@ pub enum Message {
     TextInput(usize, TIMessage),
     Toggler(usize, TOGMessage),
 //     CanvasTextBlink,
-    Tick(usize, Instant, Option<u64>, Option<u64>, u64),
+    Tick(TimerState, Instant),
 //     CanvasTick,
 //     CanvasTimer(usize, CanvasTimerMessage),
     FontLoaded(Result<(), font::Error>),
@@ -330,8 +330,8 @@ impl App {
                 process_widget_updates(&mut self.state); //, &mut self.canvas_state);
                 Task::none()
             },
-            Message::Tick(id, instant, start, stop, duration) => {
-                timer_callback(&mut self.state, id,instant, start, stop, duration);
+            Message::Tick(ts, instant) => {
+                timer_callback(&mut self.state, ts);
                 Task::none()
             },
             // Message::CanvasTextBlink => {
@@ -386,15 +386,13 @@ impl App {
 
         let mut subscriptions = vec![];
         
-        for (id, timer_state) in self.state.timer_state.iter() {
-            subscriptions.push(match timer_state {
-                TimerState::Idle => Subscription::none(),
-                TimerState::Ticking { last_tick: _, start, stop, duration_ms: duration } => {
-                    let (id, start, stop, duration) = (*id, *start, *stop, *duration);
-                    time::every(milliseconds(duration))
-                        .map(move |instant| Message::Tick(id, instant, start, stop, duration))
+        for (id, ts) in self.state.timer_state.iter() {
+            if ts.enable {
+                let ts = ts.clone();
+                subscriptions.push(time::every(milliseconds(ts.duration_ms))
+                    .with(ts)
+                    .map(|(ts, last_tick)| Message::Tick(ts, last_tick)));
                 }
-            });
         }
         
         // if self.state.canvas_timer_event_id_enabled.1 {

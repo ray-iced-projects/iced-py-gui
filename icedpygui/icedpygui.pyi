@@ -548,30 +548,7 @@ def add_text_input_style(
     Add textInput styling.
 
     """
-
-def add_timer_style(
-        background_color: Optional[IpgColor]=None,
-        background_rgba: Optional[list[float, 4]]=None,
-        background_color_hovered: Optional[IpgColor]=None,
-        background_rgba_hovered: Optional[list[float, 4]]=None,
-        border_color: Optional[IpgColor]=None,
-        border_rgba: Optional[list[float, 4]]=None,
-        border_radius: list[float | float, 4]=[0.0],
-        border_width: float=1.0,
-        shadow_color: Optional[IpgColor]=None,
-        shadow_rgba: Optional[list]=None,
-        shadow_offset_x: float=0.0,
-        shadow_offset_y: float=0.0,
-        shadow_blur_radius: float=1.0,
-        text_color: Optional[IpgColor]=None,
-        text_rgba: Optional[list[float, 4]]=None
-    ) -> int:
-
-    """
-    Adds styling to timer button
-
-    """
-
+    
 def add_canvas_timer_style(
         background_color: Optional[IpgColor]=None,
         background_rgba: Optional[list[float, 4]]=None,
@@ -1097,20 +1074,56 @@ def add_event_mouse(
         The id of the event which can be used to modify the event through update_item.
     """
 
+def add_event_timer (
+    enabled: bool,
+    start: Optional[int],
+    stop: Optional[int],
+    duration_ms: Optional[int],
+    on_tick: Optional[Any],
+    user_data: Optional[Any],
+    gen_id: Optional[Any],
+    ) -> int:
+    """
+    Add a timer widget.
+
+    A timer event which is attached to another widget.
+
+    Parameters
+    ----------
+    enabled: bool,
+    start: uint, Optional
+        Whether to have a start time in ms, otherwise waits for a widget event
+    stop: uint, Optional
+        Whether to have a stop time in ms, otherwise waits for a widget event
+    duration_ms: uint, Optional
+        The time between ticks in milliseconds.
+    on_tick: Any
+        The callback function when the tick occurs
+    user_data: Any,
+        Any user data passed to the callback function
+    gen_id : int, Optional
+        Obtains an ID of a widget that have not been created, used for the gen_id ameter.
+
+    Returns
+    -------
+    int
+        The numeric widget ID of the newly created toggler.
+    """
+    
 def add_event_window(
-        enabled: bool,
-        *,
-        on_closed: Optional[Callable]=None,
-        on_moved: Optional[Callable]=None,
-        on_resized: Optional[Callable]=None,
-        on_redraw_requested: Optional[Callable]=None,
-        on_close_requested: Optional[Callable]=None,
-        on_focused: Optional[Callable]=None,
-        on_unfocused: Optional[Callable]=None,
-        on_file_hovered: Optional[Callable]=None,
-        on_file_dropped: Optional[Callable]=None,
-        on_files_hovered_left: Optional[Callable]=None,
-        user_data: Optional[Any]=None,
+    enabled: bool,
+    *,
+    on_closed: Optional[Callable]=None,
+    on_moved: Optional[Callable]=None,
+    on_resized: Optional[Callable]=None,
+    on_redraw_requested: Optional[Callable]=None,
+    on_close_requested: Optional[Callable]=None,
+    on_focused: Optional[Callable]=None,
+    on_unfocused: Optional[Callable]=None,
+    on_file_hovered: Optional[Callable]=None,
+    on_file_dropped: Optional[Callable]=None,
+    on_files_hovered_left: Optional[Callable]=None,
+    user_data: Optional[Any]=None,
     ) -> int:
     
     """
@@ -3358,6 +3371,11 @@ class IpgTimerStyleParam:
     TextIpgColor:IpgColor
     TextRgbaColor:list[float]
 
+class IpgTimerParam:
+    DurationMs=''
+    Enable=''
+    Start=''
+    Stop=''
 
 class IpgCanvasTimerParam:
     DurationMs : int
@@ -3525,7 +3543,7 @@ class TextWrapping:
     Glyph=''
     WordOrGlyph=''
     
-    
+
 class IpgWindowTheme:
     """
     Window themes

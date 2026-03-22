@@ -71,7 +71,7 @@ pub enum Message {
     TextInput(usize, TIMessage),
     Toggler(usize, TOGMessage),
 //     CanvasTextBlink,
-    Tick(TimerState, Instant),
+    Tick(usize, Instant),
 //     CanvasTick,
 //     CanvasTimer(usize, CanvasTimerMessage),
     FontLoaded(Result<(), font::Error>),
@@ -330,8 +330,10 @@ impl App {
                 process_widget_updates(&mut self.state); //, &mut self.canvas_state);
                 Task::none()
             },
-            Message::Tick(ts, instant) => {
-                timer_callback(&mut self.state, ts);
+            Message::Tick(id, instant) => {
+                dbg!("message tick");
+                timer_callback(&mut self.state, id, instant);
+                process_widget_updates(&mut self.state); //, &mut self.canvas_state);
                 Task::none()
             },
             // Message::CanvasTextBlink => {
@@ -388,10 +390,10 @@ impl App {
         
         for (id, ts) in self.state.timer_state.iter() {
             if ts.enable {
-                let ts = ts.clone();
+                let id = id.clone();
                 subscriptions.push(time::every(milliseconds(ts.duration_ms))
-                    .with(ts)
-                    .map(|(ts, last_tick)| Message::Tick(ts, last_tick)));
+                    .with(id)
+                    .map(|(id, last_tick)| Message::Tick(id, last_tick)));
                 }
         }
         
@@ -1014,7 +1016,7 @@ fn process_updates(
                         state.last_id = last_id.unwrap();
                     }
                 },
-                None => panic!("Item_update: Widget, Container, or Window with id {wid} not found.")
+                None => panic!("Process_updates: No ids could be found to update with id {wid}.")
             }
         }  
     }

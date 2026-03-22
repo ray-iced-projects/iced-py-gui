@@ -53,6 +53,7 @@ from .icedpygui import (
     hide_widget,
     move_widget,
     show_widget,
+    update_timer,
     update_widget,
     start_session,
     generate_id,

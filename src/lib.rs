@@ -66,7 +66,7 @@ use crate::widgets::ipg_stack::IpgStackParam;
 use crate::widgets::ipg_table::IpgTableParam;
 use crate::widgets::ipg_text::TextShaping;
 use crate::widgets::ipg_text_input::{IpgTextInputParam, IpgTextInputStyleParam};
-use crate::widgets::ipg_timer::IpgTimerParam;
+use crate::widgets::ipg_timer::{IpgTimerParam, update_timer};
 use crate::widgets::ipg_toggle::{IpgTogglerParam, IpgTogglerStyleParam};
 use crate::widgets::ipg_window::IpgWindowParam;
 
@@ -90,7 +90,6 @@ use crate::widgets::ipg_text::{IpgTextParam, TextWrapping};
 // events
 use crate::py_api::events::add_event_window;
 use crate::py_api::timer::add_event_timer;
-use crate::py_api::update::update_timer;
 
 
 /// Python module definition

@@ -85,6 +85,7 @@ from .icedpygui import (
     hide_widget as hide_widget,
     move_widget as move_widget,
     show_widget as show_widget,
+    update_timer as update_timer,
     update_widget as update_widget,
     generate_id as generate_id,
 )

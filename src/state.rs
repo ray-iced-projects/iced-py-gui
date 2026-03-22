@@ -5,10 +5,11 @@
 #![allow(unused)]
 use std::collections::HashMap;
 use std::sync::{Mutex, MutexGuard};
+use once_cell::sync::Lazy;
 
 use iced::window;
 use iced::Theme;
-use once_cell::sync::Lazy;
+
 use pyo3::{Py, PyAny};
 
 use crate::widgets::ipg_card::{IpgCard, IpgCardStyle};
@@ -339,6 +340,7 @@ pub struct UpdateWidgets {
     pub deletes: Vec<usize>,
     pub shows: Vec<(usize, bool)>,
     pub new_widgets: Lazy<HashMap<usize, IpgWidgets>>,
+    pub timers: Lazy<HashMap<usize, TimerState>>,
 }
 
 pub static UPDATE_WIDGETS: Mutex<UpdateWidgets> = Mutex::new(UpdateWidgets {
@@ -347,6 +349,7 @@ pub static UPDATE_WIDGETS: Mutex<UpdateWidgets> = Mutex::new(UpdateWidgets {
     deletes: vec![],
     shows: vec![],
     new_widgets: Lazy::new(||HashMap::new()),
+    timers: Lazy::new(||HashMap::new()),
 });
 
 pub fn access_update_widgets() -> MutexGuard<'static, UpdateWidgets> {

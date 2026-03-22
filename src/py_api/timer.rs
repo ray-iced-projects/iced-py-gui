@@ -1,9 +1,10 @@
 //! Timer module - provides add_timer pyfunction
 
 use pyo3::prelude::*;
-use pyo3::pyfunction;
+use pyo3::{pyfunction, Py, PyAny};
+type PyObject = Py<PyAny>;
 
-use crate::access_state;
+use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex};
 use crate::state::get_id;
 use crate::widgets::ipg_timer::TimerState;
 
@@ -34,6 +35,8 @@ use crate::widgets::ipg_timer::TimerState;
     start=None,
     stop=None,
     duration_ms=None,
+    on_tick=None,
+    user_data=None,
     gen_id=None,
 ))]
 pub fn add_event_timer (
@@ -41,10 +44,20 @@ pub fn add_event_timer (
     start: Option<u64>,
     stop: Option<u64>,
     duration_ms: Option<u64>,
+    on_tick: Option<PyObject>,
+    user_data: Option<PyObject>,
     gen_id: Option<usize>,
     ) -> PyResult<usize>
 {
     let id = get_id(gen_id);
+
+    if let Some(py) = on_tick {
+        add_callback_to_mutex(id, "on_tick".to_string(), py);
+    }
+
+    if let Some(py) = user_data {
+        add_user_data_to_mutex(id, py);
+    }
 
     let mut state = access_state();
 

@@ -1,8 +1,8 @@
 //! Update module - provides update_widget, delete_widget, add_widget, and show_widget pyfunctions
 
-use pyo3::{Py, PyAny, Python, pyfunction};
+use pyo3::{Py, PyAny, pyfunction};
 
-use crate::{access_state, py_api::helpers::{try_extract_boolean, try_extract_u64}, state::access_update_widgets, widgets::ipg_timer::IpgTimerParam};
+use crate::state::access_update_widgets;
 type PyObject = Py<PyAny>;
 
 #[pyfunction]
@@ -73,47 +73,3 @@ pub fn move_widget(
     drop(all_updates);
 }
 
-#[pyfunction]
-#[pyo3(signature = (wid, param, value))]
-pub fn update_timer(
-    wid: usize, 
-    param: PyObject, 
-    value: PyObject) 
-{
-
-    let mut state = access_state();
-
-    if let Some(tmr) = 
-        state.timer_state.get_mut(&wid) {
-            let param = try_extract_param(&param);
-            match param {
-                IpgTimerParam::DurationMs => {
-                    tmr.duration_ms = try_extract_u64(&value, "IpgTimerParam.DurationMs")
-                },
-                IpgTimerParam::Enable => {
-                    tmr.enable = try_extract_boolean(&value, "IpgTimerParam.Enable")
-                },
-                IpgTimerParam::Start => {
-                    tmr.start = Some(try_extract_u64(&value, "IpgTimerParam.Start"))
-                },
-                IpgTimerParam::Stop => {
-                    tmr.stop = Some(try_extract_u64(&value, "IpgTimerParam.Stop"))
-                },
-            }
-        } else {
-            panic!("Update timer: Unable to find timer id {}", wid)
-        };
-    
-
-    drop(state);
-}
-
-fn try_extract_param(value: &PyObject) -> IpgTimerParam {
-    Python::attach(|py| {
-        let res = value.extract::<IpgTimerParam>(py);
-        match res {
-            Ok(val) => val,
-            Err(err) => panic!("Unable to extract IpgTimerParam : {}", err),
-        }
-    })
-}

@@ -331,9 +331,8 @@ impl App {
                 Task::none()
             },
             Message::Tick(id, instant) => {
-                dbg!("message tick");
                 timer_callback(&mut self.state, id, instant);
-                process_widget_updates(&mut self.state); //, &mut self.canvas_state);
+                process_widget_updates(&mut self.state);
                 Task::none()
             },
             // Message::CanvasTextBlink => {
@@ -923,6 +922,11 @@ fn process_widget_updates(
     drop(all_updates);
 
     process_new_widgets(state);
+
+    // Sync timer state from static mutex to runtime state
+    let mutex_state = access_state();
+    state.timer_state = mutex_state.timer_state.to_owned();
+    drop(mutex_state);
 }
 
 fn process_deletes(

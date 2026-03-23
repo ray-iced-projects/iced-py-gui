@@ -1075,39 +1075,43 @@ def add_event_mouse(
     """
 
 def add_event_timer (
-    enabled: bool,
-    start: Optional[int],
-    stop: Optional[int],
-    duration_ms: Optional[int],
-    on_tick: Optional[Any],
-    user_data: Optional[Any],
-    gen_id: Optional[Any],
+    enabled: bool=False,
+    duration_ms: Optional[int]=None,
+    on_start: Optional[Callable]=None,
+    on_tick: Optional[Callable]=None,
+    on_stop: Optional[Callable]=None,
+    user_data: Optional[Any]=None,
+    gen_id: Optional[int]=None,
     ) -> int:
     """
-    Add a timer widget.
+    Add a timer event.
 
-    A timer event which is attached to another widget.
+    A timer event which can be controlled via update_timer.
 
     Parameters
     ----------
-    enabled: bool,
-    start: uint, Optional
-        Whether to have a start time in ms, otherwise waits for a widget event
-    stop: uint, Optional
-        Whether to have a stop time in ms, otherwise waits for a widget event
-    duration_ms: uint, Optional
-        The time between ticks in milliseconds.
-    on_tick: Any
-        The callback function when the tick occurs
-    user_data: Any,
-        Any user data passed to the callback function
+    enabled : bool
+        Whether the timer starts immediately.
+    duration_ms : int, Optional
+        The time between ticks in milliseconds (default 10).
+    on_start : Callable, Optional
+        Callback fired on the first tick after enabling.
+        Receives (timer_id, tick_count, elapsed_ms).
+    on_tick : Callable, Optional
+        Callback fired on each tick.
+        Receives (timer_id, tick_count, elapsed_ms).
+    on_stop : Callable, Optional
+        Callback fired when the timer is disabled.
+        Receives (timer_id, tick_count, elapsed_ms).
+    user_data : Any, Optional
+        Any user data passed to the callback functions.
     gen_id : int, Optional
-        Obtains an ID of a widget that have not been created, used for the gen_id ameter.
+        Obtains an ID of a widget that has not been created.
 
     Returns
     -------
     int
-        The numeric widget ID of the newly created toggler.
+        The numeric ID of the newly created timer.
     """
     
 def add_event_window(
@@ -3374,8 +3378,6 @@ class IpgTimerStyleParam:
 class IpgTimerParam:
     DurationMs=''
     Enable=''
-    Start=''
-    Stop=''
 
 class IpgCanvasTimerParam:
     DurationMs : int

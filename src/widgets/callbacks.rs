@@ -71,6 +71,35 @@ where
     });
 }
 
+pub fn invoke_callback_with_two_args<A, B>(id: usize, event_name: &str, widget_name: &str, arg1: A, arg2: B)
+where
+    A: for<'py> IntoPyObject<'py> + Clone + Send,
+    B: for<'py> IntoPyObject<'py> + Clone + Send,
+{
+    let app_cbs = access_callbacks();
+    
+    let callback = match app_cbs.get(id, event_name) {
+        Some(cb) => Python::attach(|py| cb.clone_ref(py)),
+        None => return,
+    };
+    
+    drop(app_cbs);
+    
+    let user_data_opt = get_user_data(id);
+
+    Python::attach(|py| {
+        let result = if let Some(user_data) = user_data_opt {
+            callback.call1(py, (id, arg1.clone(), arg2.clone(), user_data))
+        } else {
+            callback.call1(py, (id, arg1, arg2))
+        };
+        
+        if let Err(err) = result {
+            panic!("{widget_name} callback error: {err}");
+        }
+    });
+}
+
 /// Get user data for a widget, trying USERDATA1 first with fallback to USERDATA2.
 fn get_user_data(id: usize) -> Option<PyObject> {
     let lock1 = USERDATA1.try_lock();

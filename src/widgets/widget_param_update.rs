@@ -120,6 +120,7 @@ pub fn container_param_update(
         IpgContainers::IpgScrollable(w) => apply_update(w, item, value),
         IpgContainers::IpgStack(w) => apply_update(w, item, value),
         IpgContainers::IpgTable(w) => apply_update(w, item, value),
+        IpgContainers::IpgToolTip(w) => apply_update(w, item, value),
         IpgContainers::IpgWindow(w) => apply_update(w, item, value),
     }
 }
@@ -252,8 +253,8 @@ pub fn set_opt_u32(field: &mut Option<u32>, value: &PyObject, name: &str) {
     *field = Some(try_extract_u32(value, name));
 }
 
-pub fn set_opt_u64(field: &mut u64, value: &PyObject, name: &str) {
-    *field = try_extract_u64(value, name);
+pub fn set_opt_u64(field: &mut Option<u64>, value: &PyObject, name: &str) {
+    *field = Some(try_extract_u64(value, name));
 }
 
 pub fn set_opt_u16(field: &mut Option<u16>, value: &PyObject, name: &str) {

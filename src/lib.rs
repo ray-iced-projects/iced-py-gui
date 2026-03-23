@@ -53,6 +53,7 @@ use crate::py_api::table::add_table;
 use crate::py_api::text_input::{add_text_input, add_text_input_style};
 use crate::py_api::text::add_text;
 use crate::py_api::toggle::{add_toggler, add_toggler_style};
+use crate::py_api::tool_tip::add_tool_tip;
 use crate::py_api::update::{update_widget, delete_widget, hide_widget, move_widget, show_widget};
 
 use crate::widgets::ipg_radio::{IpgRadioDirection, IpgRadioParam, IpgRadioStyleParam};
@@ -68,6 +69,7 @@ use crate::widgets::ipg_text::TextShaping;
 use crate::widgets::ipg_text_input::{IpgTextInputParam, IpgTextInputStyleParam};
 use crate::widgets::ipg_timer::{IpgTimerParam, update_timer};
 use crate::widgets::ipg_toggle::{IpgTogglerParam, IpgTogglerStyleParam};
+use crate::widgets::ipg_tool_tip::{IpgToolTipPosition, IpgToolTipParam};
 use crate::widgets::ipg_window::IpgWindowParam;
 
 // Import enums from widgets module
@@ -86,6 +88,7 @@ use crate::widgets::ipg_date_picker::IpgDatePickerParam;
 use crate::widgets::ipg_divider::{IpgDividerDirection, IpgDividerParam, IpgDividerStyleParam};
 use crate::widgets::ipg_pick_list::IpgPickListHandle;
 use crate::widgets::ipg_text::{IpgTextParam, TextWrapping};
+
 
 // events
 use crate::py_api::events::add_event_window;
@@ -133,6 +136,7 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(add_text, m)?)?;
     m.add_function(wrap_pyfunction!(add_text_input, m)?)?;
     m.add_function(wrap_pyfunction!(add_toggler, m)?)?;
+    m.add_function(wrap_pyfunction!(add_tool_tip, m)?)?;
     m.add_function(wrap_pyfunction!(add_svg, m)?)?;
     m.add_function(wrap_pyfunction!(update_widget, m)?)?;
     m.add_function(wrap_pyfunction!(delete_widget, m)?)?;
@@ -209,6 +213,7 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<IpgTextInputParam>()?;
     m.add_class::<IpgTimerParam>()?;
     m.add_class::<IpgTogglerParam>()?;
+    m.add_class::<IpgToolTipParam>()?;
     m.add_class::<IpgWindowLevel>()?;
     m.add_class::<IpgWindowMode>()?;
     m.add_class::<IpgWindowParam>()?;
@@ -225,6 +230,7 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<IpgRadioDirection>()?;
     m.add_class::<IpgSeparatorType>()?;
     m.add_class::<TextShaping>()?;
+    m.add_class::<IpgToolTipPosition>()?;
     m.add_class::<TextWrapping>()?;
     Ok(())
 }

@@ -43,6 +43,7 @@ use crate::widgets::ipg_text::IpgText;
 use crate::widgets::ipg_text_input::{IpgTextInput, IpgTextInputStyle};
 use crate::widgets::ipg_timer::TimerState;
 use crate::widgets::ipg_toggle::{IpgToggler, IpgTogglerStyle};
+use crate::widgets::ipg_tool_tip::IpgToolTip;
 use crate::widgets::ipg_window::IpgWindow;
 use crate::widgets::ipg_button::{IpgButton, IpgButtonStyle};
 
@@ -68,7 +69,7 @@ pub enum IpgContainers {
     // IpgPane(IpgPane),
     IpgRow(IpgRow),
     IpgScrollable(IpgScrollable),
-    // IpgToolTip(IpgToolTip),
+    IpgToolTip(IpgToolTip),
     IpgWindow(IpgWindow),
 }
 
@@ -118,7 +119,6 @@ pub enum IpgWidgets {
     // IpgCanvasTimerStyle(IpgCanvasTimerStyle),
     IpgToggler(IpgToggler),
     IpgTogglerStyle(IpgTogglerStyle),
-    // IpgToolTipStyle(IpgToolTipStyle),
 }
 
 // ---------------------------------------------------------------------------

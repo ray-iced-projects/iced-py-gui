@@ -72,6 +72,8 @@ from .icedpygui import (
     IptTinerParam as IpgTimerParam,
     IpgTogglerParam as IpgTogglerParam,
     IpgTogglerStyleParam as IpgTogglerStyleParam,
+    IpgToolTipParam as IpgToolTipParam,
+    IpgToolTipPosition as IpgToolTipPosition,
     IpgWindowLevel as IpgWindowLevel,
     IpgWindowMode as IpgWindowMode,
     IpgWindowParam as IpgWindowParam,
@@ -587,6 +589,20 @@ def add_table(
         int: widget id
     """
     ...
+def add_tool_tip(
+    *,
+    parent_id: Optional[str] = None,
+    **kwargs: Any
+) -> int:
+    """_summary_
+
+    Args:
+        parent_id (Optional[str], optional): _description_. Defaults to None.
+
+    Returns:
+        int: widget id
+    """
+    ...
 
 # ---------------------------------------------------------------------------
 # add_window wrapper
@@ -897,6 +913,37 @@ class Scrollable:
         scroller_y_id: Optional[int] = None,
         on_scroll: Optional[callable] = None,
         user_data: Optional[callable] = None,
+        style_id: Optional[int] = None,
+    ) -> None: ...
+    def __enter__(self) -> int: ...
+    def __exit__(self, exc_type: type[BaseException] | None, \
+        exc_val: BaseException | None, \
+            exc_tb: TracebackType | None) -> bool: ...
+
+class ToolTip:
+    """Context manager wrapper around add_tool_tip.
+
+    Usage::
+
+        with Window(title="Demo"):
+            with ToolTip(text="Tool Tip text"):
+                add_container()
+
+    """
+    def __init__(
+        self,
+        text,
+        *,
+        window_id: Optional[str] = None,
+        container_id: Optional[str] = None,
+        parent_id: Optional[str] = None,
+        position = None, 
+        gap = None, 
+        padding = None, 
+        snap_within_viewport = None,
+        delay_sec = None, 
+        container_style_id = None,
+        gen_id = None,
         style_id: Optional[int] = None,
     ) -> None: ...
     def __enter__(self) -> int: ...

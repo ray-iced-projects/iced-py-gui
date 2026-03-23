@@ -3429,20 +3429,22 @@ class IpgTogglerParam:
 
 
 class IpgToolTipPosition:
-    FollowCursor=""
-    Top=""
     Bottom=""
+    FollowCursor=""
     Left=""
     Right=""
+    Top=""
 
 
 class IpgToolTipParam:
-    Position: IpgToolTipPosition
-    TextToDisplay: str
-    Gap: float
-    Padding: list[float]
-    SnapWithinViewport: bool
-    StyleId: int
+    ContainerStyleId='',
+    ContentId='',
+    DelaySec='',
+    Gap='',
+    Padding='',
+    Position='',
+    SnapWithinViewport='',
+    Text='',
     
     
 class IpgWindowParam:

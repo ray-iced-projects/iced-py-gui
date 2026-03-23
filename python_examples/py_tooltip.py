@@ -1,81 +1,70 @@
-from imports import *
+from icedpygui import Window, Container, Column, ToolTip, \
+    add_container_style, add_text, add_card, add_checkbox, \
+    start_session, IpgToolTipParam, IpgToolTipPosition, \
+    IpgContainerStyleStd, IpgColor
 
-positions = [
-    IpgToolTipPosition.Top,
-    IpgToolTipPosition.Right,
-    IpgToolTipPosition.Bottom,
-    IpgToolTipPosition.Left,
-    IpgToolTipPosition.FollowCursor,
-]
 
-index = 0
 
-def change_position(btn_id):
-    global index
-    index += 1
-    if index == 5:
-        index = 0
-    
-    update_widget(
-        wid=tt_id,
-        param=IpgToolTipParam.Position,
-        value=positions[index])
-    
-    match index:
-        case 0:
-            label = "Tool Tip On Top, Press to Change"
-        case 1:
-            label = "Tool Tip On Right, Press to Change"
-        case 2:
-            label = "Tool Tip On Bottom, Press to Change"
-        case 3:
-            label = "Tool Tip On Left, Press to Change"   
-        case 4:
-            label = "Tool Tip Follows Cursor, Press to Change"    
-            
-    update_widget(
-        wid=btn_id,
-        param=IpgButtonParam.Label,
-        value=label)  
-    
-    
-ts_id = add_tooltip_style(
-            background_color=IpgColor.DARK_GRAY,
-            text_color=IpgColor.BLACK,
-            border_radius=[5.0],
-            border_color=IpgColor.WHITE,
-            border_width=2.0)  
+cont_style = add_container_style(background_color=IpgColor.AQUA)
+
     
 # Add a window first
-add_window(
-        id="main", 
-        title="CheckBox Demo",
-    size=(600, 600),  
-        pos_centered=True)
+with Window(title="TooTip Demo", center=True):
 
-# Add a container to center the widgets in the middle
-add_container(
-        window_id="main", 
-        id="cont", 
-        width_fill=True,
-        height_fill=True,
-        centered=True)
+    # Add a container to center the widgets in the middle
+    with Container(fill=True, align_center=True):
+        with Column(spacing=50.0):
+            
+            with ToolTip(
+                text="Tip",
+                padding=5.0,
+                gap=5,
+                style_id= cont_style):
 
+                add_text(content="Some text with a tooltip with custom background style")
+                
+            with ToolTip(
+                text="Tip",
+                padding=5.0,
+                gap=5,
+                position=IpgToolTipPosition.Right,
+                style_std= IpgContainerStyleStd.BorderedBox):
 
-tt_id = add_tool_tip(
-    window_id="main",
-    id="tt",
-    parent_id="cont",
-    text_to_display="Some Tip",
-    position=IpgToolTipPosition.Top,
-    padding=5.0,
-    gap=20,
-    style_id=ts_id)
+                add_text(content="Some text with a tooltip with standard style")    
+                
+            with ToolTip(
+                text="Tip",
+                padding=5.0,
+                gap=5,
+                delay_sec=1):
 
-btn_id = add_button(
-    parent_id="tt",
-    label="Tool Tip On Top, Press to Change",
-    on_press=change_position)
+                add_text(content="Some text with a tooltip with no style and delayed 1 sec") 
+            
+            with ToolTip(
+                text="Tip",
+                padding=5.0,
+                gap=5):
+                
+                with Container(width=200.0, height=50.0, style_std=IpgContainerStyleStd.BorderedBox):
+                    add_text(content="This container has a tooltip")
+                    
+            with ToolTip(
+                text="Tip",
+                padding=5.0,
+                gap=5):
+                
+                add_checkbox(label="Chexbox with tooltip")
+                
+            with ToolTip(padding=5.0, gap=5):
+                
+                add_card(head="Card with head", body="Some info", padding=[5.0], width=200.0)
+
+                add_text(content="Some text with a tooltip that is a widget")
+                
+                # Uncomment the add_text below to see a warning about using too many widgets or containers.
+                # A ToolTip will only use two items or one item if the text parameter is used.
+                
+                # add_text(content="Some text with a tooltip that is a widget or container container widgets")
 
 # Required to be the last widget sent to Iced,  If you start the program
 # and nothing happens, it might mean you forgot to add this command.

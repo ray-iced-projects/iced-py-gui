@@ -711,16 +711,12 @@ fn get_container<'a>(state: &'a IpgState,
                 IpgContainers::IpgStack(stk) => {
                     stk.construct(content)
                 }
-                // IpgContainers::IpgToolTip(tool) => {
-                //     let style_opt = 
-                //         match tool.style_id {
-                //             Some(id) => {
-                //                 state.widgets.get(&id)
-                //             },
-                //             None => None,
-                //         };
-                //     construct_tool_tip(tool, content, style_opt)
-                // },
+                IpgContainers::IpgToolTip(tool) => {
+                    if content.len() > 2 {
+                        eprintln!("[WARNING] A tooltip can have only 2 containers/widgets, place your multiple widgets into a column or row")
+                    }
+                    tool.construct(content, &state.widgets)
+                },
                 IpgContainers::IpgWindow(_wnd) => {
                     construct_window(content)
                 },

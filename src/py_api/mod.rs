@@ -34,6 +34,6 @@ pub mod text;
 pub mod text_input;
 pub mod timer;
 pub mod toggle;
-
+pub mod tool_tip;
 pub mod helpers;
 pub mod update;

@@ -46,6 +46,7 @@ from .icedpygui import (
     add_text as _add_text,
     add_toggler as _add_toggler,
     add_toggler_style,
+    add_tool_tip as _add_tool_tip,
     add_window as _add_window,
     add_event_window,
     add_event_timer,
@@ -102,6 +103,8 @@ from .icedpygui import (
     IpgTimerParam,
     IpgTogglerParam,
     IpgTogglerStyleParam,
+    IpgToolTipParam,
+    IpgToolTipPosition,
     IpgWindowLevel,
     IpgWindowParam,
     IpgWindowTheme,
@@ -163,6 +166,7 @@ add_text_input = _wrap_widget(_add_text_input, "add_text_input")
 add_text = _wrap_widget(_add_text, "add_text")
 add_toggler = _wrap_widget(_add_toggler, "add_toggler")
 
+
 def _wrap_container(rust_fn, name):
     """Create a thin wrapper that injects window_id and container_id
     from the context stacks."""
@@ -188,9 +192,15 @@ add_column.__doc__ = _add_column.__doc__
 add_row = _wrap_container(_add_row, "add_row")
 add_row.__doc__ = _add_row.__doc__
 add_scrollable = _wrap_container(_add_scrollable, "add_scrollable")
+add_scrollable.__doc__ = _add_scrollable.__doc__
 add_mouse_area = _wrap_container(_add_mouse_area, "add_mouse_area")
-add_stack = _wrap_widget(_add_stack, "add_stack")
-add_table = _wrap_widget(_add_table, "add_table")
+add_mouse_area.__doc__ = _add_mouse_area.__doc__
+add_stack = _wrap_container(_add_stack, "add_stack")
+add_stack.__doc__ = _add_stack.__doc__
+add_table = _wrap_container(_add_table, "add_table")
+add_table.__doc__ = _add_table.__doc__
+add_tool_tip = _wrap_container(_add_tool_tip, "_add_tool_tip")
+add_tool_tip.__doc__ = _add_tool_tip.__doc__
 
 def add_window(*, window_id=None, **kwargs):
     """Wrapper for add_window"""
@@ -348,3 +358,29 @@ class Scrollable:
     def __exit__(self, exc_type, exc_val, exc_tb):
         _parent_stack.pop()
         return False
+
+class ToolTip:
+    """Wrapper for add_tool_tip"""
+    def __init__(self, *, container_id=None, window_id=None, parent_id=None, **kwargs):
+        self.window_id = window_id if window_id is not None else _current_window()
+        if self.window_id is None:
+            raise ValueError("ToolTip: window_id is required (either pass it\
+                or use a Window context manager)")
+        self.container_id = container_id if container_id is not None else str(generate_id())
+        self.parent_id = parent_id
+        self.kwargs = kwargs
+
+    def __enter__(self):
+        self.numeric_id = _add_tool_tip(
+            window_id=self.window_id,
+            container_id=self.container_id,
+            parent_id=self.parent_id or _current_parent(),
+            **self.kwargs,
+        )
+        _parent_stack.append(self.container_id)
+        return self.numeric_id
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        _parent_stack.pop()
+        return False
+    

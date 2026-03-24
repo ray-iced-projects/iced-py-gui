@@ -822,6 +822,9 @@ fn get_widget<'a>(state: &'a IpgState, id: &usize) -> Option<Element<'a, Message
                 IpgWidgets::IpgText(txt) => {
                     txt.construct(&state.widgets)
                 },
+                IpgWidgets::IpgRichText(rt) => {
+                    rt.construct()
+                },
                 IpgWidgets::IpgTextInput(input) => {
                     input.construct(&state.widgets)       
                 },

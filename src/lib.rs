@@ -52,6 +52,7 @@ use crate::py_api::svg::add_svg;
 use crate::py_api::table::add_table;
 use crate::py_api::text_input::{add_text_input, add_text_input_style};
 use crate::py_api::text::add_text;
+use crate::py_api::text_rich::{add_rich_text, add_span};
 use crate::py_api::toggle::{add_toggler, add_toggler_style};
 use crate::py_api::tool_tip::add_tool_tip;
 use crate::py_api::update::{update_widget, delete_widget, hide_widget, move_widget, show_widget};
@@ -88,6 +89,7 @@ use crate::widgets::ipg_date_picker::IpgDatePickerParam;
 use crate::widgets::ipg_divider::{IpgDividerDirection, IpgDividerParam, IpgDividerStyleParam};
 use crate::widgets::ipg_pick_list::IpgPickListHandle;
 use crate::widgets::ipg_text::{IpgTextParam, TextWrapping};
+use crate::widgets::ipg_text_rich::{IpgRichTextParam, IpgSpanParam};
 
 
 // events
@@ -134,6 +136,8 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(add_stack, m)?)?;
     m.add_function(wrap_pyfunction!(add_table, m)?)?;
     m.add_function(wrap_pyfunction!(add_text, m)?)?;
+    m.add_function(wrap_pyfunction!(add_rich_text, m)?)?;
+    m.add_function(wrap_pyfunction!(add_span, m)?)?;
     m.add_function(wrap_pyfunction!(add_text_input, m)?)?;
     m.add_function(wrap_pyfunction!(add_toggler, m)?)?;
     m.add_function(wrap_pyfunction!(add_tool_tip, m)?)?;
@@ -211,6 +215,8 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<IpgTableParam>()?;
     m.add_class::<IpgTextParam>()?;
     m.add_class::<IpgTextInputParam>()?;
+    m.add_class::<IpgRichTextParam>()?;
+    m.add_class::<IpgSpanParam>()?;
     m.add_class::<IpgTimerParam>()?;
     m.add_class::<IpgTogglerParam>()?;
     m.add_class::<IpgToolTipParam>()?;

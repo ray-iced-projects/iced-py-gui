@@ -44,6 +44,8 @@ from .icedpygui import (
     add_text_input as _add_text_input,
     add_text_input_style,
     add_text as _add_text,
+    add_rich_text as _add_rich_text,
+    add_span,
     add_toggler as _add_toggler,
     add_toggler_style,
     add_tool_tip as _add_tool_tip,
@@ -100,6 +102,8 @@ from .icedpygui import (
     IpgTableParam,
     IpgTextInputParam,
     IpgTextParam,
+    IpgRichTextParam,
+    IpgSpanParam,
     IpgTimerParam,
     IpgTogglerParam,
     IpgTogglerStyleParam,
@@ -164,6 +168,8 @@ add_slider = _wrap_widget(_add_slider, "add_slider")
 add_space = _wrap_widget(_add_space, "add_space")
 add_text_input = _wrap_widget(_add_text_input, "add_text_input")
 add_text = _wrap_widget(_add_text, "add_text")
+add_rich_text = _wrap_widget(_add_rich_text, "add_rich_text")
+add_rich_text.__doc__ = _add_rich_text.__doc__
 add_toggler = _wrap_widget(_add_toggler, "add_toggler")
 
 

@@ -40,6 +40,7 @@ use crate::widgets::ipg_stack::IpgStack;
 use crate::widgets::ipg_svg::IpgSvg;
 use crate::widgets::ipg_table::IpgTable;
 use crate::widgets::ipg_text::IpgText;
+use crate::widgets::ipg_text_rich::IpgRichText;
 use crate::widgets::ipg_text_input::{IpgTextInput, IpgTextInputStyle};
 use crate::widgets::ipg_timer::TimerState;
 use crate::widgets::ipg_toggle::{IpgToggler, IpgTogglerStyle};
@@ -111,7 +112,7 @@ pub enum IpgWidgets {
     IpgSpace(IpgSpace),
     IpgSvg(IpgSvg),
     IpgText(IpgText),
-    // IpgRichText(IpgRichText),
+    IpgRichText(IpgRichText),
     // IpgTextEditor(IpgTextEditor),
     IpgTextInput(IpgTextInput),
     IpgTextInputStyle(IpgTextInputStyle),
@@ -184,6 +185,7 @@ ipg_widget_accessors! {
     IpgSpace            => IpgSpace,             as_space,               as_space_mut;
     IpgSvg              => IpgSvg,               as_svg,                 as_svg_mut;
     IpgText             => IpgText,              as_text,                as_text_mut;
+    IpgRichText         => IpgRichText,          as_rich_text,           as_rich_text_mut;
     IpgTextInputStyle   => IpgTextInputStyle,    as_text_input_style,    as_text_input_style_mut;
     IpgToggler          => IpgToggler,           as_toggler,             as_toggler_mut;
     IpgTogglerStyle     => IpgTogglerStyle,      as_toggler_style,       as_toggler_style_mut;

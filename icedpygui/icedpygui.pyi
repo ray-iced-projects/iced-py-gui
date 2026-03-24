@@ -3291,6 +3291,69 @@ class IpgTextParam:
     WidthFill: bool
 
 
+class IpgRichTextParam:
+    """
+    Rich text parameters for updating a rich text widget.
+
+    Parameters
+    ----------
+    LineHeight : Optional[float]
+        The line height.
+    Show : bool
+        Whether to show or hide the widget.
+    Size : Optional[float]
+        The text size.
+    TextColor : Optional[IpgColor]
+        The text color.
+    TextRgba : Optional[list[float, 4]]
+        The text color in rgba format.
+    """
+    LineHeight: float
+    Show: bool
+    Size: float
+    TextColor: IpgColor
+    TextRgba: list[float]
+
+
+class IpgSpanParam:
+    """
+    Span parameters for updating a span within a rich text widget.
+
+    Parameters
+    ----------
+    Text : str
+        The text content.
+    Bold : bool
+        Whether the text is bold.
+    Italic : bool
+        Whether the text is italic.
+    Color : Optional[IpgColor]
+        The text color.
+    ColorRgba : Optional[list[float, 4]]
+        The text color in rgba format.
+    LineHeight : Optional[float]
+        The line height.
+    Padding : Optional[list]
+        The padding around the span.
+    Size : Optional[float]
+        The text size.
+    Strikethrough : bool
+        Whether to apply strikethrough.
+    Underline : bool
+        Whether to underline the text.
+    """
+    Text: str
+    Bold: bool
+    Italic: bool
+    Color: IpgColor
+    ColorRgba: list[float]
+    LineHeight: float
+    Padding: list
+    Size: float
+    Strikethrough: bool
+    Underline: bool
+
+
 class IpgTextInputStyleParam:
     BackgroundIpgColor: IpgColor
     BackgroundRgbaColor: list[float, 4]

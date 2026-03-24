@@ -32,6 +32,7 @@ pub mod svg;
 pub mod table;
 pub mod text;
 pub mod text_input;
+pub mod text_rich;
 pub mod timer;
 pub mod toggle;
 pub mod tool_tip;

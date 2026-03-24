@@ -99,6 +99,7 @@ pub fn param_update(
         IpgWidgets::IpgAutoScrollStyle(w) => apply_update(w, item, value),
         IpgWidgets::IpgTextInput(w) => apply_update(w, item, value),
         IpgWidgets::IpgTextInputStyle(w) => apply_update(w, item, value),
+        IpgWidgets::IpgRichText(w) => apply_update(w, item, value),
             }
 }
 

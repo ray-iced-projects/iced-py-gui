@@ -671,27 +671,11 @@ fn get_container<'a>(state: &'a IpgState,
                     if content.len() > 1 {
                         panic!("A container can have only one widget, place your multiple widgets into a column or row")
                     }
-                    
                     cont.construct(content, &state.widgets)
                 },
-                // IpgContainers::IpgMenu(menu) => {
-                //     let bar_style: Option<&IpgWidgets> = 
-                //         match menu.menu_bar_style_id {
-                //             Some(id) => {
-                //                 state.widgets.get(&id)
-                //             },
-                //             None => None,
-                //         };
-                //     let menu_style: Option<&IpgWidgets> = 
-                //         match menu.menu_style_id {
-                //             Some(id) => {
-                //                 state.widgets.get(&id)
-                //             },
-                //             None => None,
-                //         };
-
-                //     construct_menu(menu, content, bar_style, menu_style)
-                // },
+                IpgContainers::IpgMenu(menu) => {
+                    menu.construct(content, &state.widgets)
+                },
                 // IpgContainers::IpgModal(modal) => {
                 //     construct_modal(modal, content)
                 // },

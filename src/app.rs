@@ -35,6 +35,7 @@ use crate::widgets::ipg_slider::{SLMessage, construct_slider, slider_callback};
 use crate::widgets::ipg_space::construct_space;
 use crate::widgets::ipg_svg::{SvgMessage, construct_svg, svg_callback};
 use crate::widgets::ipg_table::{TableMessage, table_callback};
+use crate::widgets::ipg_text_editor::{TxtEdMessage, text_ed_callback};
 use crate::widgets::ipg_text_input::{TIMessage, text_input_callback};
 use crate::widgets::ipg_timer::{TimerState, timer_callback};
 use crate::widgets::ipg_toggle::{TOGMessage, construct_toggler, toggle_callback};
@@ -68,6 +69,7 @@ pub enum Message {
     TableDividerChanged((usize, usize, f32)),
     TableDividerReleased(usize),
 
+    TextEditor(usize, TxtEdMessage),
     TextInput(usize, TIMessage),
     Toggler(usize, TOGMessage),
 //     CanvasTextBlink,
@@ -322,6 +324,11 @@ impl App {
             Message::TableDividerReleased(id) => {
                 let message = TableMessage::DivOnRelease;
                 table_callback(&mut self.state, id, message);
+                process_widget_updates(&mut self.state); //, &mut self.canvas_state);
+                Task::none()
+            },
+            Message::TextEditor(id, message) => {
+                text_ed_callback(id, message, &mut self.state);
                 process_widget_updates(&mut self.state); //, &mut self.canvas_state);
                 Task::none()
             },
@@ -821,6 +828,9 @@ fn get_widget<'a>(state: &'a IpgState, id: &usize) -> Option<Element<'a, Message
                 },
                 IpgWidgets::IpgText(txt) => {
                     txt.construct(&state.widgets)
+                },
+                IpgWidgets::IpgTextEditor(txt) => {
+                    txt.construct()
                 },
                 IpgWidgets::IpgRichText(rt) => {
                     rt.construct()

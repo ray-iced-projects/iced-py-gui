@@ -52,6 +52,7 @@ use crate::py_api::svg::add_svg;
 use crate::py_api::table::add_table;
 use crate::py_api::text_input::{add_text_input, add_text_input_style};
 use crate::py_api::text::add_text;
+use crate::py_api::text_editor::add_text_editor;
 use crate::py_api::text_rich::{add_rich_text, add_span};
 use crate::py_api::toggle::{add_toggler, add_toggler_style};
 use crate::py_api::tool_tip::add_tool_tip;
@@ -135,6 +136,7 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(add_space, m)?)?;
     m.add_function(wrap_pyfunction!(add_stack, m)?)?;
     m.add_function(wrap_pyfunction!(add_table, m)?)?;
+    m.add_function(wrap_pyfunction!(add_text_editor, m)?)?;
     m.add_function(wrap_pyfunction!(add_text, m)?)?;
     m.add_function(wrap_pyfunction!(add_rich_text, m)?)?;
     m.add_function(wrap_pyfunction!(add_span, m)?)?;

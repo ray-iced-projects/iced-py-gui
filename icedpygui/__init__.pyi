@@ -392,6 +392,18 @@ def add_text(
         int: _description_
     """
     ...
+def add_text_editor(
+    *, parent_id: Optional[str] = None,
+    **kwargs: Any) -> int:
+    """_summary_
+
+    Args:
+        parent_id (Optional[str], optional): _description_. Defaults to None.
+
+    Returns:
+        int: _description_
+    """
+    ...
 def add_toggler(
     *, parent_id: Optional[str] = None,
     **kwargs: Any) -> int:

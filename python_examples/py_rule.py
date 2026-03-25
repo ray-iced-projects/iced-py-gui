@@ -1,36 +1,6 @@
-from imports import *
+from icedpygui import Window, Container, Column, start_session, \
+    add_space, add_rule, add_rule_style, add_text, IpgColor
 
-# Add the window
-add_window(
-        id="main", 
-        title="Rule Demo",
-    size=(500, 650),
-        position=(100, 25))
-
-# Add a container for alignment
-add_container(
-        window_id="main", 
-        id="cont", 
-        width_fill=True, 
-        height_fill=True)
-
-# Add a column to hold the widgets
-add_column(
-        window_id="main", 
-        id="col", 
-        parent_id="cont",
-        align=IpgAlignment.Center)
-
-# Add some spacing
-add_space(
-        parent_id="col", 
-        width_fill=True, 
-        height=20.0)
-
-# Add info
-add_text(
-        parent_id="col", 
-        content="Below are vertical and horizontal rules")
 
 # add some styling
 st1 = add_rule_style( 
@@ -52,44 +22,46 @@ st3 = add_rule_style(
 st4 = add_rule_style(
             color=IpgColor.BLUE,
             fillmode_asymmetric_padding=(10, 50))
+            
+            
+# Add the window
+with Window(title="Rule Demo", center=True):
 
+    # Add a container for alignment
+    with Container(fill=True):
 
-# Add the rules
-add_rule_vertical(
-        parent_id="col", 
-        height=250, 
-        thickness=5, 
-        style_id=st1)
+        # Add a column to hold the widgets
+        with Column(align_center=True, spacing=20.0, width=200.0):
 
-add_rule_horizontal(
-        parent_id="col", 
-        width=250, 
-        thickness=15,
-        style_id=st2)
+            # Add some spacing
+            add_space(width_fill=True, height=20.0)
 
-add_text(
-        parent_id="col", 
-        content="Styling added to above with color and corner radius")
+            # Add info
+            add_text( content="Below are vertical and horizontal rules")
 
-add_rule_horizontal(
-        parent_id="col", 
-        width=250, 
-        thickness=15,
-        style_id=st3)
+            # Add the rules
+            add_rule( 
+                thickness=50,
+                is_vertical=True, 
+                style_id=st1)
 
-add_text(
-        parent_id="col", 
-        content="Additional Styling added to above with 50% color fill")
+            add_rule(
+                thickness=5,
+                style_id=st2)
 
-add_rule_horizontal(
-        parent_id="col", 
-        width=250, 
-        thickness=15, 
-        style_id=st4)
+            add_text(content="Styling added to above with color and corner radius")
 
-add_text(
-        parent_id="col", 
-        content="Additional Styling added to above with unsymmetrical padding")
+            add_rule(
+                thickness=5,
+                style_id=st3)
+
+            add_text(content="Additional Styling added to above with 50% color fill")
+
+            add_rule(
+                thickness=5, 
+                style_id=st4)
+
+            add_text(content="Additional Styling added to above with unsymmetrical padding")
 
 # Required to be the last widget sent to Iced,  If you start the program
 # and nothing happens, it might mean you forgot to add this command.

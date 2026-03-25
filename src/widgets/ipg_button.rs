@@ -46,6 +46,7 @@ pub struct IpgButton {
     pub text_bottom_center: Option<bool>,
     pub text_bottom_right: Option<bool>,
     pub text_size: Option<f32>,
+    pub menu: Option<bool>,
     pub clip: Option<bool>,
     pub style_id: Option<usize>,
     pub style_std: Option<IpgButtonStyleStd>,
@@ -85,8 +86,13 @@ impl IpgButton {
         // Center is the default but is overridden by any other alignment
         // so center needs to be the first one tested
         let txt = 
-                txt.align_x(alignment::Horizontal::Center)
-                    .align_y(alignment::Vertical::Center);
+            txt.align_x(alignment::Horizontal::Center)
+                .align_y(alignment::Vertical::Center);
+
+        let txt = if self.menu == Some(true) {
+            txt.align_x(alignment::Horizontal::Left)
+                .align_y(alignment::Vertical::Center)
+        } else { txt };
 
         let txt = 
             if self.text_top_left == Some(true) {
@@ -158,7 +164,13 @@ impl IpgButton {
                     } else {
                        match &self.style_std {
                             Some(std) => std.to_iced(theme, status),
-                            None => button::primary(theme, status),
+                            None => {
+                                if self.menu == Some(true) {
+                                    button::text(theme, status)
+                                } else {
+                                    button::primary(theme, status)
+                                }
+                            },
                         }
                     }
                 }
@@ -479,6 +491,7 @@ mod tests {
             text_bottom_center: None,
             text_bottom_right: None,
             text_size: None,
+            menu: None,
             clip: None,
             style_id: None,
             style_std: None,

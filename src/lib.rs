@@ -33,6 +33,7 @@ use crate::py_api::date_picker::add_date_picker;
 use crate::py_api::divider::{add_divider, add_divider_style};
 use crate::py_api::font::add_font;
 use crate::py_api::image::add_image;
+use crate::py_api::menu::{add_menu, add_menu_bar_item, add_menu_style};
 use crate::py_api::mouse_area::add_mouse_area;
 use crate::py_api::opaque::{add_opaque_container, add_opaque_style};
 use crate::py_api::progress_bar::{add_progress_bar, add_progress_bar_style};
@@ -58,6 +59,21 @@ use crate::py_api::toggle::{add_toggler, add_toggler_style};
 use crate::py_api::tool_tip::add_tool_tip;
 use crate::py_api::update::{update_widget, delete_widget, hide_widget, move_widget, show_widget};
 
+// Import enums from widgets module
+use crate::widgets::enums::{Align, AlignX, AlignY};
+use crate::widgets::styling::IpgStyleStandard;
+use crate::graphics::{bootstrap_icon::IpgIcon, bootstrap_arrow::IpgArrow};
+use crate::graphics::colors::IpgColor;
+
+use crate::widgets::ipg_button::{IpgButtonParam, IpgButtonStyleParam, IpgButtonStyleStd};
+use crate::widgets::ipg_card::{IpgCardParam, IpgCardStyleParam, IpgCardStyleStd};
+use crate::widgets::ipg_checkbox::{IpgCheckboxParam, IpgCheckboxStyleParam, IpgCheckboxStyleStd};
+use crate::widgets::ipg_column::IpgColumnParam;
+use crate::widgets::ipg_container::{IpgContainerParam, IpgContainerStyleParam, IpgContainerStyleStd};
+use crate::widgets::ipg_date_picker::IpgDatePickerParam;
+use crate::widgets::ipg_divider::{IpgDividerDirection, IpgDividerParam, IpgDividerStyleParam};
+use crate::widgets::ipg_menu::{IpgMenuParam, IpgMenuStyleParam};
+use crate::widgets::ipg_pick_list::IpgPickListHandle;
 use crate::widgets::ipg_radio::{IpgRadioDirection, IpgRadioParam, IpgRadioStyleParam};
 use crate::widgets::ipg_row::IpgRowParam;
 use crate::widgets::ipg_rule::{IpgRuleParam, IpgRuleStyleParam};
@@ -67,31 +83,13 @@ use crate::widgets::ipg_separator::{IpgSeparatorParam, IpgSeparatorStyleParam, I
 use crate::widgets::ipg_slider::{IpgSliderParam, IpgSliderStyleParam};
 use crate::widgets::ipg_stack::IpgStackParam;
 use crate::widgets::ipg_table::IpgTableParam;
-use crate::widgets::ipg_text::TextShaping;
 use crate::widgets::ipg_text_input::{IpgTextInputParam, IpgTextInputStyleParam};
+use crate::widgets::ipg_text_rich::{IpgRichTextParam, IpgSpanParam};
+use crate::widgets::ipg_text::{IpgTextParam, TextWrapping, TextShaping};
 use crate::widgets::ipg_timer::{IpgTimerParam, update_timer};
 use crate::widgets::ipg_toggle::{IpgTogglerParam, IpgTogglerStyleParam};
 use crate::widgets::ipg_tool_tip::{IpgToolTipPosition, IpgToolTipParam};
-use crate::widgets::ipg_window::IpgWindowParam;
-
-// Import enums from widgets module
-use widgets::enums::{Align, AlignX, AlignY};
-use widgets::ipg_window::{IpgWindowLevel, IpgWindowMode, IpgWindowTheme};
-use widgets::styling::IpgStyleStandard;
-
-use crate::graphics::{bootstrap_icon::IpgIcon, bootstrap_arrow::IpgArrow};
-use crate::graphics::colors::IpgColor;
-use crate::widgets::ipg_button::{IpgButtonParam, IpgButtonStyleParam, IpgButtonStyleStd};
-use crate::widgets::ipg_card::{IpgCardParam, IpgCardStyleParam, IpgCardStyleStd};
-use crate::widgets::ipg_checkbox::{IpgCheckboxParam, IpgCheckboxStyleParam, IpgCheckboxStyleStd};
-use crate::widgets::ipg_column::IpgColumnParam;
-use crate::widgets::ipg_container::{IpgContainerParam, IpgContainerStyleParam, IpgContainerStyleStd};
-use crate::widgets::ipg_date_picker::IpgDatePickerParam;
-use crate::widgets::ipg_divider::{IpgDividerDirection, IpgDividerParam, IpgDividerStyleParam};
-use crate::widgets::ipg_pick_list::IpgPickListHandle;
-use crate::widgets::ipg_text::{IpgTextParam, TextWrapping};
-use crate::widgets::ipg_text_rich::{IpgRichTextParam, IpgSpanParam};
-
+use crate::widgets::ipg_window::{IpgWindowLevel, IpgWindowMode, IpgWindowTheme, IpgWindowParam};
 
 // events
 use crate::py_api::events::add_event_window;
@@ -121,6 +119,8 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(add_divider, m)?)?;
     m.add_function(wrap_pyfunction!(add_image, m)?)?;
     m.add_function(wrap_pyfunction!(add_font, m)?)?;
+    m.add_function(wrap_pyfunction!(add_menu, m)?)?;
+    m.add_function(wrap_pyfunction!(add_menu_bar_item, m)?)?;
     m.add_function(wrap_pyfunction!(add_mouse_area, m)?)?;
     m.add_function(wrap_pyfunction!(add_opaque_container, m)?)?;
     m.add_function(wrap_pyfunction!(add_pick_list, m)?)?;
@@ -157,6 +157,7 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(add_checkbox_style, m)?)?;
     m.add_function(wrap_pyfunction!(add_container_style, m)?)?;
     m.add_function(wrap_pyfunction!(add_divider_style, m)?)?;
+    m.add_function(wrap_pyfunction!(add_menu_style, m)?)?;
     m.add_function(wrap_pyfunction!(add_opaque_style, m)?)?;
     m.add_function(wrap_pyfunction!(add_pick_list_style, m)?)?;
     m.add_function(wrap_pyfunction!(add_progress_bar_style, m)?)?;
@@ -184,6 +185,7 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<IpgDividerParam>()?;
     m.add_class::<IpgDividerDirection>()?;
     m.add_class::<IpgDividerStyleParam>()?;
+    m.add_class::<IpgMenuStyleParam>()?;
     m.add_class::<IpgRadioStyleParam>()?;
     m.add_class::<IpgRuleStyleParam>()?;
     m.add_class::<IpgSeparatorStyleParam>()?;
@@ -206,6 +208,7 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<IpgContainerParam>()?;
     m.add_class::<IpgDatePickerParam>()?;
     m.add_class::<IpgDividerParam>()?;
+    m.add_class::<IpgMenuParam>()?;
     m.add_class::<IpgRadioParam>()?;
     m.add_class::<IpgRowParam>()?;
     m.add_class::<IpgRuleParam>()?;

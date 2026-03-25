@@ -629,6 +629,16 @@ fn get_children<'a>(parents: &Vec<ParentChildIds>,
 
     let mut content= vec![];
 
+    let id = &parents[*index].parent_id;
+
+    // Special handling for IpgMenu: build grouped content from IpgMenuBarItem children
+    if id != &0 {
+        if let Some(IpgContainers::IpgMenu(menu)) = state.containers.get(id) {
+            let grouped = get_menu_children(parents, index, parent_ids, state);
+            return menu.construct(grouped, &state.widgets);
+        }
+    }
+
     for child in parents[*index].child_ids.iter() {
         if parent_ids.contains(child) {
             let index = parents.iter().position(|r| &r.parent_id == child).unwrap();
@@ -638,7 +648,6 @@ fn get_children<'a>(parents: &Vec<ParentChildIds>,
                 content.push(get_widget(state, child).unwrap());
         }
     }
-    let id = &parents[*index].parent_id;
 
     if id != &0 {
         // get_container(state, id, content, canvas_state)
@@ -646,6 +655,41 @@ fn get_children<'a>(parents: &Vec<ParentChildIds>,
     } else {
         Column::with_children(content).into()  // the final container
     }
+}
+
+/// Build grouped content for a Menu container.
+/// Each child of the Menu should be an IpgMenuBarItem.
+/// For each IpgMenuBarItem, its first child becomes the bar widget and
+/// the remaining children become dropdown menu items.
+fn get_menu_children<'a>(
+    parents: &Vec<ParentChildIds>,
+    menu_index: &usize,
+    parent_ids: &Vec<usize>,
+    state: &'a IpgState,
+) -> Vec<Vec<Element<'a, Message>>> {
+    let mut grouped: Vec<Vec<Element<'a, Message>>> = vec![];
+
+    for child_id in parents[*menu_index].child_ids.iter() {
+        // Each child should be an IpgMenuBarItem container
+        if parent_ids.contains(child_id) {
+            let bar_item_index = parents.iter().position(|r| &r.parent_id == child_id).unwrap();
+
+            let mut group: Vec<Element<'a, Message>> = vec![];
+
+            for grandchild in parents[bar_item_index].child_ids.iter() {
+                if parent_ids.contains(grandchild) {
+                    let idx = parents.iter().position(|r| &r.parent_id == grandchild).unwrap();
+                    group.push(get_children(parents, &idx, parent_ids, state));
+                } else if let Some(widget_el) = get_widget(state, grandchild) {
+                    group.push(widget_el);
+                }
+            }
+
+            grouped.push(group);
+        }
+    }
+
+    grouped
 }
 
 
@@ -673,8 +717,15 @@ fn get_container<'a>(state: &'a IpgState,
                     }
                     cont.construct(content, &state.widgets)
                 },
-                IpgContainers::IpgMenu(menu) => {
-                    menu.construct(content, &state.widgets)
+                IpgContainers::IpgMenu(_) => {
+                    // Menu is handled specially in get_children via get_menu_children;
+                    // it should never reach get_container.
+                    panic!("IpgMenu should not reach get_container directly")
+                },
+                IpgContainers::IpgMenuBarItem(_) => {
+                    // MenuBarItem children are consumed by get_menu_children;
+                    // it should never reach get_container.
+                    panic!("IpgMenuBarItem should not reach get_container directly")
                 },
                 // IpgContainers::IpgModal(modal) => {
                 //     construct_modal(modal, content)

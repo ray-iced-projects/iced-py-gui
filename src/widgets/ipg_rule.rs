@@ -9,7 +9,10 @@ use crate::app;
 
 use crate::py_api::helpers::get_radius;
 use crate::state::IpgWidgets;
-use crate::widgets::widget_param_update::{WidgetParamUpdate, set_opt_bool, set_opt_f32, set_opt_iced_color, set_opt_iced_color_from_rgba, set_opt_u16, set_opt_u16_array_2, set_opt_u32, set_opt_usize, set_opt_vec_f32};
+use crate::widgets::widget_param_update::{WidgetParamUpdate, 
+    set_opt_bool, set_opt_f32, set_opt_iced_color, 
+    set_opt_iced_color_from_rgba, set_opt_u16, set_opt_u16_array_2, 
+    set_opt_u32, set_opt_usize, set_opt_vec_f32};
 
 #[derive(Debug, Clone)]
 pub struct IpgRule {

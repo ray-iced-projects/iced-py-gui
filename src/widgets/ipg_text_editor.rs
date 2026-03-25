@@ -56,13 +56,13 @@ impl IpgTextEditor {
 
 }
 
-#[derive(Debug, Clone)]
-pub enum TxtEdStatus {
-    Active,
-    Hovered,
-    Focused { /* … */ },
-    Disabled,
-}
+// #[derive(Debug, Clone)]
+// pub enum TxtEdStatus {
+//     Active,
+//     Hovered,
+//     Focused { /* … */ },
+//     Disabled,
+// }
 
 #[derive(Debug, Clone)]
 pub enum TxtEdMessage {

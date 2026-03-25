@@ -6,7 +6,7 @@ use pyo3::{Py, PyAny, pyfunction};
 
 use crate::graphics::colors::IpgColor;
 use crate::py_api::helpers::get_length;
-use crate::widgets::ipg_menu::{IpgMenu, IpgBarStyle, IpgMenuStyle};
+use crate::widgets::ipg_menu::{IpgMenu, IpgMenuBarItem, IpgMenuStyle};
 use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex};
 use crate::state::{IpgContainers, IpgWidgets, get_id, set_state_cont_wnd_ids, set_state_of_container};
 type PyObject = Py<PyAny>;
@@ -18,15 +18,13 @@ type PyObject = Py<PyAny>;
 #[pyo3(signature = ( 
     window_id,
     container_id,
-    bar_items,
-    menu_items,
     parent_id=None,
-    item_offset=None,
-    item_padding=None,
-    item_spacing=None,
+    item_offsets=None,
+    item_paddings=None,
+    item_spacings=None,
     item_widths=None,
     bar_height=None,
-    bar_padding=None,
+    bar_paddings=None,
     bar_spacing=None,
     bar_width=None,
     close_on_item_click=None,
@@ -41,15 +39,13 @@ type PyObject = Py<PyAny>;
 pub fn add_menu(
     window_id: String,
     container_id: String,
-    bar_items: usize,
-    menu_items: Vec<usize>,
     parent_id: Option<String>,
-    item_offset: Option<Vec<f32>>,
-    item_padding: Option<Vec<f32>>,
-    item_spacing: Option<Vec<f32>>,
+    item_offsets: Option<Vec<f32>>,
+    item_paddings: Option<Vec<f32>>,
+    item_spacings: Option<Vec<f32>>,
     item_widths: Option<Vec<f32>>,
     bar_height: Option<f32>,
-    bar_padding: Option<Vec<f32>>,
+    bar_paddings: Option<Vec<f32>>,
     bar_spacing: Option<f32>,
     bar_width: Option<f32>,
     close_on_item_click: Option<bool>,
@@ -75,6 +71,24 @@ pub fn add_menu(
     let bar_height = get_length(bar_height, false);
     let bar_width = get_length(bar_width, false);
 
+    let item_offsets = if let Some(offsets) = item_offsets {
+        offsets
+    } else {
+        vec![0.0]
+    };
+
+    let item_paddings = if let Some(pads) = item_paddings {
+        pads
+    } else {
+        vec![0.0]
+    };
+
+    let item_spacings = if let Some(sps) = item_spacings {
+        sps
+    } else {
+        vec![0.0]
+    };
+
     let item_widths = if let Some(widths) = item_widths {
         let mut wds = vec![];
         for w in widths {
@@ -83,6 +97,12 @@ pub fn add_menu(
         wds
     } else {
         vec![Length::Shrink]
+    };
+
+    let bar_paddings = if let Some(pads) = bar_paddings {
+        pads
+    } else {
+        vec![0.0]
     };
 
     let prt_id = match parent_id {
@@ -99,20 +119,19 @@ pub fn add_menu(
     state.containers.insert(id, IpgContainers::IpgMenu(
         IpgMenu {
             id,
-            bar_items,
-            menu_items,
-            item_offset,
-            item_padding,
-            item_spacing,
+            item_offsets,
+            item_paddings,
+            item_spacings,
             item_widths,
             bar_height,
-            bar_padding,
+            bar_paddings,
             bar_spacing,
             bar_width,
             close_on_item_click,
             close_on_background_click,
             style_id,
             style_std_primary,
+            check_bounds_width: None,
             show,
             is_checked: false,
             is_toggled: false,
@@ -251,8 +270,8 @@ pub fn add_menu_style(
 
     let mut state = access_state();
 
-    state.widgets.insert(id, IpgWidgets::IpgMenuBarStyle(
-        IpgBarStyle {
+    state.widgets.insert(id, IpgWidgets::IpgMenuStyle(
+        IpgMenuStyle {
             id,
             bar_background_color,
             bar_border_color,
@@ -261,6 +280,9 @@ pub fn add_menu_style(
             bar_shadow_color,
             bar_shadow_offset_xy,
             bar_shadow_blur_radius,
+            bar_background_alpha: None,
+            bar_border_alpha: None,
+            bar_shadow_alpha: None,
 
             menu_background_color,
             menu_border_color,
@@ -269,14 +291,58 @@ pub fn add_menu_style(
             menu_shadow_color,
             menu_shadow_offset_xy,
             menu_shadow_blur_radius,
+            menu_background_alpha: None,
+            menu_border_alpha: None,
+            menu_shadow_alpha: None,
 
             path_background_color,
             path_border_color,
             path_border_radius,
             path_border_width,
+            path_background_alpha: None,
+            path_border_alpha: None,
         }));
 
     drop(state);
     Ok(id)
 }
 
+
+#[pyfunction]
+#[pyo3(signature = ( 
+    window_id,
+    container_id,
+    parent_id=None,
+    show=true,
+    gen_id=None
+    ))]
+pub fn add_menu_bar_item(
+    window_id: String,
+    container_id: String,
+    parent_id: Option<String>,
+    show: bool,
+    gen_id: Option<usize>,
+) -> PyResult<usize> 
+{
+    let id = get_id(gen_id);
+
+    let prt_id = match parent_id {
+        Some(id) => id,
+        None => window_id.clone(),
+    };
+    
+    set_state_of_container(id, window_id.clone(), Some(container_id.clone()), prt_id);
+
+    let mut state = access_state();
+
+    set_state_cont_wnd_ids(&mut state, &window_id, container_id, id, "add_menu_bar_item".to_string());
+
+    state.containers.insert(id, IpgContainers::IpgMenuBarItem(
+        IpgMenuBarItem {
+            id,
+            show,
+        }));
+
+    drop(state);
+    Ok(id)
+}

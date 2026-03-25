@@ -39,7 +39,7 @@ pub trait WidgetParamUpdate {
 // impl WidgetParamUpdate for IpgRule {
 //     type Param = IpgRuleParam;
 
-//     fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
+//     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
 //         match param {
 //         }
 //     }
@@ -48,7 +48,7 @@ pub trait WidgetParamUpdate {
 // impl WidgetParamUpdate for IpgRuleStyle {
 //     type Param = IpgRuleStyleParam;
 
-//     fn param_update(&mut self, param: Self::Param, value: &PyObject, name: String) {
+//     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
 //         match param {
 //         }
 //     }
@@ -74,6 +74,7 @@ pub fn param_update(
         IpgWidgets::IpgDividerStyle(w) => apply_update(w, item, value),
         IpgWidgets::IpgFont(w) => apply_update(w, item, value),
         IpgWidgets::IpgImage(w) => apply_update(w, item, value),
+        IpgWidgets::IpgMenuStyle(w) => apply_update(w, item, value),
         IpgWidgets::IpgOpaqueStyle(w) => apply_update(w, item, value),
         IpgWidgets::IpgPickList(w) => apply_update(w, item, value),
         IpgWidgets::IpgPickListStyle(w) => apply_update(w, item, value),
@@ -101,6 +102,7 @@ pub fn param_update(
         IpgWidgets::IpgTextInput(w) => apply_update(w, item, value),
         IpgWidgets::IpgTextInputStyle(w) => apply_update(w, item, value),
         IpgWidgets::IpgRichText(w) => apply_update(w, item, value),
+        
             }
 }
 
@@ -116,6 +118,7 @@ pub fn container_param_update(
     match container {
         IpgContainers::IpgColumn(w) => apply_update(w, item, value),
         IpgContainers::IpgContainer(w) => apply_update(w, item, value),
+        IpgContainers::IpgMenu(w) => apply_update(w, item, value),
         IpgContainers::IpgMouseArea(w) => apply_update(w, item, value),
         IpgContainers::IpgOpaque(w) => apply_update(w, item, value),
         IpgContainers::IpgRow(w) => apply_update(w, item, value),
@@ -124,6 +127,9 @@ pub fn container_param_update(
         IpgContainers::IpgTable(w) => apply_update(w, item, value),
         IpgContainers::IpgToolTip(w) => apply_update(w, item, value),
         IpgContainers::IpgWindow(w) => apply_update(w, item, value),
+        IpgContainers::IpgMenuBarItem(_) => {
+            panic!("IpgMenuBarItem does not support param_update")
+        },
     }
 }
 

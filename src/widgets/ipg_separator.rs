@@ -6,7 +6,9 @@ use crate::graphics::colors::IpgColor;
 use crate::app;
 use crate::state::IpgWidgets;
 use crate::widgets::widget_param_update::{
-    WidgetParamUpdate, set_bool, set_height, set_height_fill, set_opt_f32, set_opt_iced_color, set_opt_iced_color_from_rgba, set_opt_string, set_opt_u32, set_opt_usize, set_width, set_width_fill};
+    WidgetParamUpdate, set_bool, set_height, set_height_fill, 
+    set_opt_f32, set_opt_iced_color, set_opt_iced_color_from_rgba, 
+    set_opt_string, set_opt_u32, set_opt_usize, set_width, set_width_fill};
 
 use iced::border::Radius;
 use iced::widget::{row, Row, Text};

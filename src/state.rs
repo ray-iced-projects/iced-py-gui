@@ -23,7 +23,7 @@ use crate::widgets::ipg_divider::{IpgDivider,
 use crate::widgets::ipg_events::IpgEvents;
 use crate::widgets::ipg_font::IpgFont;
 use crate::widgets::ipg_image::IpgImage;
-use crate::widgets::ipg_menu::{IpgMenu, IpgBarStyle, IpgMenuStyle};
+use crate::widgets::ipg_menu::{IpgMenu, IpgMenuBarItem, IpgMenuStyle};
 use crate::widgets::ipg_mouse_area::IpgMouseArea;
 use crate::widgets::ipg_opaque::{IpgOpaque, IpgOpaqueStyle};
 use crate::widgets::ipg_pick_list::{IpgPickList, IpgPickListStyle};
@@ -63,6 +63,7 @@ pub enum IpgContainers {
     IpgColumn(IpgColumn),
     IpgContainer(IpgContainer),
     IpgMenu(IpgMenu),
+    IpgMenuBarItem(IpgMenuBarItem),
     // IpgModal(IpgModal),
     IpgMouseArea(IpgMouseArea),
     IpgOpaque(IpgOpaque),
@@ -92,7 +93,6 @@ pub enum IpgWidgets {
     IpgFont(IpgFont),
     IpgImage(IpgImage),
     IpgMenuStyle(IpgMenuStyle),
-    IpgMenuBarStyle(IpgBarStyle),
     IpgOpaqueStyle(IpgOpaqueStyle),
     IpgPickList(IpgPickList),
     IpgPickListStyle(IpgPickListStyle),
@@ -168,7 +168,6 @@ ipg_widget_accessors! {
     IpgFont             => IpgFont,              as_font,                as_font_mut;
     IpgImage            => IpgImage,             as_image,               as_image_mut;
     IpgMenuStyle        => IpgMenuStyle,         as_menu_style,          as_menu_style_mut;
-    IpgMenuBarStyle     => IpgBarStyle,      as_menu_bar_style,      as_menu_bar_style_mut;
     IpgOpaqueStyle      => IpgOpaqueStyle,       as_opaque_style,        as_opaque_style_mut;
     IpgPickList         => IpgPickList,          as_pick_list,           as_pick_list_mut;
     IpgPickListStyle    => IpgPickListStyle,     as_pick_list_style,     as_pick_list_style_mut;
@@ -225,7 +224,8 @@ macro_rules! ipg_container_accessors {
 ipg_container_accessors! {
     IpgColumn     => IpgColumn,     as_column,     as_column_mut;
     IpgContainer  => IpgContainer,  as_container,  as_container_mut;
-    IpgMenu       => IpgMenu,       as_menu,       as_menu_mut;
+    IpgMenu        => IpgMenu,        as_menu,           as_menu_mut;
+    IpgMenuBarItem => IpgMenuBarItem, as_menu_bar_item, as_menu_bar_item_mut;
     IpgMouseArea  => IpgMouseArea,  as_mouse_area, as_mouse_area_mut;
     IpgOpaque     => IpgOpaque,     as_opaque,     as_opaque_mut;
     IpgRow        => IpgRow,        as_row,        as_row_mut;

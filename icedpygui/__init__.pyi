@@ -19,6 +19,7 @@ from .icedpygui import (
     add_checkbox_style as add_checkbox_style,
     add_container_style as add_container_style,
     add_divider_style as add_divider_style,
+    add_menu_style as add_menu_style,
     add_pick_list_style as add_pick_list_style,
     add_radio_style as add_radio_style,
     add_scrollable_style as add_scrollable_style,
@@ -49,6 +50,8 @@ from .icedpygui import (
     IpgDividerParam as IpgDividerParam,
     IpgDividerStyleParam as IpgDividerStyleParam,
     IpgIcon as IpgIcon,
+    IpgMenuParam as IpgMenuParam,
+    IpgMenuStyleParam as IpgMenuStyleParam,
     IpgMousePointer as IpgMousePointer,
     IpgPickListHandle as IpgPickListHandle,
     IpgRadioDirection as IpgRadioDirection,
@@ -483,7 +486,41 @@ def add_column(
         int: widget id
     """
     ...
+    
+def add_menu(
+    *,
+    window_id: Optional[str] = None,
+    container_id: Optional[str] = None,
+    bar_items: Optional[str] = None,
+    menu_items: list[int],
+    parent_id: Optional[str] = None,
+    item_offset: Optional[list[float]] = None,
+    item_padding: Optional[list[float]] = None,
+    item_spacing: Optional[list[float]] = None,
+    item_widths: Optional[list[float]] = None,
+    bar_height: Optional[float] = None,
+    bar_padding: Optional[list[float]] = None,
+    bar_spacing: Optional[float] = None,
+    bar_width: Optional[float] = None,
+    close_on_item_click: Optional[bool] = None,
+    close_on_background_click: Optional[bool] = None,
+    on_select: Optional[Any] = None,
+    style_id: Optional[int] = None,
+    style_std_primary: Optional[bool] = None,
+    show: bool = True,
+    user_data: Optional[Any] = None,
+    gen_id: Optional[int] = None,
+) -> int:
+    """_summary_
 
+    Args:
+        parent_id (Optional[str], optional): _description_. Defaults to None.
+
+    Returns:
+        int: widget id
+    """
+    ...
+    
 def add_mouse_area(
     *,
     window_id: str,
@@ -792,6 +829,46 @@ class Column:
         exc_val: BaseException | None, \
             exc_tb: TracebackType | None) -> bool: ...
 
+class Menu:
+    """Context manager wrapper around add_menu.
+
+    A container create a menu.
+
+    Usage::
+
+        with Window(title="Demo"):
+            with Menu(bar_items=[], menu_items=[])
+
+    """
+    def __init__(
+        self,
+        *,
+        window_id: Optional[str] = None,
+        container_id: Optional[str] = None,
+        bar_items: Optional[str] = None,
+        menu_items: list[int],
+        parent_id: Optional[str] = None,
+        item_offset: Optional[list[float]] = None,
+        item_padding: Optional[list[float]] = None,
+        item_spacing: Optional[list[float]] = None,
+        item_widths: Optional[list[float]] = None,
+        bar_height: Optional[float] = None,
+        bar_padding: Optional[list[float]] = None,
+        bar_spacing: Optional[float] = None,
+        bar_width: Optional[float] = None,
+        close_on_item_click: Optional[bool] = None,
+        close_on_background_click: Optional[bool] = None,
+        on_select: Optional[Any] = None,
+        style_id: Optional[int] = None,
+        style_std_primary: Optional[bool] = None,
+        show: bool = True,
+        user_data: Optional[Any] = None,
+        gen_id: Optional[int] = None,
+    )  -> None: ...
+    def __enter__(self) -> int: ...
+    def __exit__(self, exc_type: type[BaseException] | None, \
+        exc_val: BaseException | None, \
+            exc_tb: TracebackType | None) -> bool: ...
 
 class MouseArea:
     """Context Manager wrapper for add_mousearea

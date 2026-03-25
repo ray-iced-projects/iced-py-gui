@@ -4,9 +4,10 @@
 
 use std::collections::HashMap;
 
-use iced::{Color, Element, Length, Padding, Renderer, Theme, Vector};
-use iced_aw::{Menu, MenuBar, menu::{DrawPath, Item}};
-use crate::{app, py_api::helpers::{get_padding, get_radius}, state::IpgWidgets};
+use iced::{Background, Border, Color, Element, Length, Renderer, Shadow, Theme, Vector};
+use iced_aw::{Menu, MenuBar, menu::{DrawPath, Item}, style};
+use iced_aw::menu;
+use crate::{app, py_api::helpers::{get_padding, get_radius}, state::IpgWidgets, widgets::styling::apply_background_overrides};
 
 
 
@@ -30,8 +31,8 @@ pub struct IpgMenu {
     pub bar_width: Length,
     pub close_on_item_click: Option<bool>,
     pub close_on_background_click: Option<bool>,
-    pub bar_style_id: Option<usize>, // style_id of add_menu_bar_style()
-    pub style_id: Option<usize>, // style_id of add_menu_style()
+    pub style_id: Option<usize>,
+    pub style_std_primary: Option<bool>,
     pub show: bool,
     pub is_checked: bool,
     pub is_toggled: bool,
@@ -54,11 +55,6 @@ impl IpgMenu {
             self.lookup(widgets, self.style_id)
                 .and_then(IpgWidgets::as_menu_style).cloned();
 
-        let bar_style_opt = 
-            self.lookup(widgets, self.style_id)
-                .and_then(IpgWidgets::as_menu_bar_style).cloned();
-
-    
         let item_spacing = if let Some(sp) = &self.item_spacing {
             if sp.len() != self.bar_items {
                 panic!("Menu spacings: The number of spacings {} must be 1 or match the number of bar items {}.", sp.len(), self.bar_items)
@@ -131,164 +127,78 @@ impl IpgMenu {
                 .spacing(self.bar_spacing.unwrap_or(0.0))
                 .padding(get_padding(&self.bar_padding))
                 .width(self.bar_width)
-                .height(self.bar_height);
+                .height(self.bar_height)
+                .style(move |theme: &Theme, status| {
+                    if let Some(st) = &style_opt {
+                        st.to_iced(theme, status, self.style_std_primary)
+                    } else {
+                        style::menu_bar::primary(theme, status)
+                    }
+                });
 
         mb.into()
     }
 }
 
-#[derive(Debug, Clone, Default)]
-pub struct IpgMenuBarStyle {
-    pub id: usize,
-    pub base_color: Option<Color>, // background
-    pub border_color: Option<Color>,
-    pub border_radius: Option<Vec<f32>>,
-    pub border_width: Option<f32>,
-    pub shadow_color: Option<Color>,
-    pub shadow_offset_xy: Option<[f32; 2]>,
-    pub shadow_blur_radius: Option<f32>,
-}
 
-
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone)]
 pub struct IpgMenuStyle {
     pub id: usize,
-    pub base_color: Option<Color>, // background
-    pub border_color: Option<Color>,
-    pub border_radius: Option<Vec<f32>>,
-    pub border_width: Option<f32>,
-    pub shadow_color: Option<Color>,
-    pub shadow_offset_xy: Option<[f32; 2]>,
-    pub shadow_blur_radius: Option<f32>,
-    pub path_base_color: Option<Color>,
-    pub path_border_color: Option<Color>,
-    pub path_border_radius: Option<Vec<f32>>,
-    pub path_border_width: Option<f32>,
+    bar_background_color: Option<Color>,
+    bar_border_color: Option<Color>,
+    bar_border_radius: Option<Vec<f32>>,
+    bar_border_width: Option<f32>,
+    bar_shadow_color: Option<Color>,
+    bar_shadow_offset_xy: Option<[f32; 2]>,
+    bar_shadow_blur_radius: Option<f32>,
+
+    menu_background_color: Option<Color>,
+    menu_border_color: Option<Color>,
+    menu_border_radius: Option<Vec<f32>>,
+    menu_border_width: Option<f32>,
+    menu_shadow_color: Option<Color>,
+    menu_shadow_offset_xy: Option<[f32; 2]>,
+    menu_shadow_blur_radius: Option<f32>,
+
+    path_background_color: Option<Color>,
+    path_border_color: Option<Color>,
+    path_border_radius: Option<Vec<f32>>,
+    path_border_width: Option<f32>,
 }
 
-fn get_mb_styling(theme: &Theme, 
-                    status: Status,
-                    br_style: Option<IpgMenuBarStyle>,
-                    mn_style: Option<IpgMenuStyle>,
-                ) -> Style {
+impl IpgMenuStyle {
+    fn to_iced(
+        &mut self,
+        theme: &Theme, 
+        status: style::status::Status,
+        mn_style: Option<IpgMenuStyle>,
+        primary: Option<bool>
+        ) -> menu::Style {
 
-    let mut menu_style = primary(theme, status);
+        //The base style will be either default or primary
+        let mut style = 
+            if primary == Some(true) {
+                style::menu_bar::primary(theme, status)
+            } else { menu::Style::default() };
 
-    if br_style.is_none() && mn_style.is_none() {
-        return menu_style
+        
+
+        
+
+        apply_border_overrides(
+            &mut style.border, self.border_color,
+            &self.border_radius, self.border_width, "Container",
+        );
+
+        apply_shadow_overrides_xy(
+            &mut style.shadow, self.shadow_color, 
+            self.shadow_offset_xy, self.shadow_blur_radius);
+        
+
+        style
+
     }
-
-    if br_style.is_some() {
-
-        let b_style = br_style.unwrap();
-
-        if b_style.base_color.is_some() {
-            menu_style.bar_background = b_style.base_color.unwrap().into();
-        }
-
-        if b_style.border_width.is_some() {
-            menu_style.bar_border.width = b_style.border_width.unwrap();
-        }
-
-        if b_style.border_color.is_some() {
-            // just in case the user forget to set width, then something shows
-            if menu_style.bar_border.width == 0.0 {
-                menu_style.bar_border.width = 1.0;
-            }
-            menu_style.bar_border.color = b_style.border_color.unwrap();
-        }
-
-        if b_style.border_radius.is_some() {
-            menu_style.bar_border.radius = get_radius(b_style.border_radius.clone().unwrap(),
-                                                "Menu".to_string());
-        }
-
-        if b_style.shadow_color.is_some() {
-            menu_style.bar_shadow.color = b_style.shadow_color.unwrap();
-        }
-
-        if b_style.shadow_offset_xy.is_some() {
-            let offset = b_style.shadow_offset_xy.unwrap();
-            menu_style.bar_shadow.offset = 
-                Vector{ x: offset[0], y: offset[1] };
-        }
-
-        if b_style.shadow_blur_radius.is_some() {
-            menu_style.bar_shadow.blur_radius = b_style.shadow_blur_radius.unwrap();
-        }
     }
-
-    if mn_style.is_some() {
-
-        let m_style = mn_style.unwrap();
-
-        if m_style.base_color.is_some() {
-            menu_style.menu_background = m_style.base_color.unwrap().into();
-        }
-
-        if m_style.border_width.is_some() {
-            menu_style.menu_border.width = m_style.border_width.unwrap();
-        }
-
-        if m_style.border_color.is_some() {
-            // just in case the user forget to set width, then something shows
-            if menu_style.menu_border.width == 0.0 {
-                menu_style.menu_border.width = 1.0;
-            }
-            menu_style.menu_border.color = m_style.border_color.unwrap();
-        }
-
-        if m_style.border_radius.is_some() {
-            menu_style.menu_border.radius = 
-                get_radius(
-                    m_style.border_radius.clone().unwrap(),
-                    "Menu".to_string()
-                );
-        }
-
-        if m_style.shadow_color.is_some() {
-            menu_style.menu_shadow.color = m_style.shadow_color.unwrap();
-        }
-
-        if m_style.shadow_offset_xy.is_some() {
-            let offset = m_style.shadow_offset_xy.unwrap();
-            menu_style.menu_shadow.offset = 
-                Vector{ x: offset[0], y:offset[1] };
-        }
-
-        if m_style.shadow_blur_radius.is_some() {
-            menu_style.menu_shadow.blur_radius = 
-                m_style.shadow_blur_radius.unwrap();
-        }
-
-        if m_style.path_base_color.is_some() {
-            menu_style.path = m_style.path_base_color.unwrap().into();
-        }
-
-        if m_style.path_border_width.is_some() {
-            menu_style.path_border.width = m_style.path_border_width.unwrap();
-        }
-
-        if m_style.path_border_color.is_some() {
-            // just in case the user forget to set width, then something shows
-            if menu_style.path_border.width == 0.0 {
-                menu_style.path_border.width = 1.0;
-            }
-            menu_style.path_border.color = m_style.path_border_color.unwrap();
-        }
-
-        if m_style.path_border_radius.is_some() {
-            menu_style.path_border.radius = 
-                get_radius(
-                    m_style.path_border_radius.clone().unwrap(),
-                    "Menu".to_string()
-                );
-        }
-    }
-
-    menu_style
-
-}
 
 #[derive(Debug, Clone, PartialEq)]
 #[pyclass(eq, eq_int)]
@@ -329,14 +239,14 @@ pub enum IpgMenuBarStyleParam {
     ShadowBlurRadius,
 }
 
-pub fn menu_bar_style_update_item(style: &mut IpgMenuBarStyle,
+pub fn menu_bar_style_update_item(style: &mut IpgBarStyle,
                             item: &PyObject,
                             value: &PyObject,) 
 {
     
 }
 
-fn get_menu_bar_style(style: Option<&IpgWidgets>) -> Option<IpgMenuBarStyle>{
+fn get_menu_bar_style(style: Option<&IpgWidgets>) -> Option<IpgBarStyle>{
     match style {
         Some(IpgWidgets::IpgMenuBarStyle(style)) => {
             Some(style.clone())

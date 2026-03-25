@@ -15,7 +15,7 @@ crate-type = ["cdylib"]
 pyo3 = { version = "0.26" }
 pyo3-stub-gen = "0.19.0"
 iced = { version = "0.14", features = ["advanced", "canvas", "debug", "highlighter", "image", "lazy", "smol", "svg", "tokio"] }
-iced_aw = { git = "https://github.com/iced-rs/iced_aw", rev = "9e7ec3a", features = ["card", "color_picker"] }
+iced_aw = { git = "https://github.com/iced-rs/iced_aw", rev = "9e7ec3a", features = ["card", "color_picker", "menu"] }
 
 tokio = { version = "1.0", features = ["fs"]}
 rfd = "0.13"

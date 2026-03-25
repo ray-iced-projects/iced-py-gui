@@ -23,7 +23,7 @@ use crate::widgets::ipg_divider::{IpgDivider,
 use crate::widgets::ipg_events::IpgEvents;
 use crate::widgets::ipg_font::IpgFont;
 use crate::widgets::ipg_image::IpgImage;
-use crate::widgets::ipg_menu::{IpgMenu, IpgMenuBarStyle, IpgMenuStyle};
+use crate::widgets::ipg_menu::{IpgMenu, IpgBarStyle, IpgMenuStyle};
 use crate::widgets::ipg_mouse_area::IpgMouseArea;
 use crate::widgets::ipg_opaque::{IpgOpaque, IpgOpaqueStyle};
 use crate::widgets::ipg_pick_list::{IpgPickList, IpgPickListStyle};
@@ -92,7 +92,7 @@ pub enum IpgWidgets {
     IpgFont(IpgFont),
     IpgImage(IpgImage),
     IpgMenuStyle(IpgMenuStyle),
-    IpgMenuBarStyle(IpgMenuBarStyle),
+    IpgMenuBarStyle(IpgBarStyle),
     IpgOpaqueStyle(IpgOpaqueStyle),
     IpgPickList(IpgPickList),
     IpgPickListStyle(IpgPickListStyle),
@@ -168,7 +168,7 @@ ipg_widget_accessors! {
     IpgFont             => IpgFont,              as_font,                as_font_mut;
     IpgImage            => IpgImage,             as_image,               as_image_mut;
     IpgMenuStyle        => IpgMenuStyle,         as_menu_style,          as_menu_style_mut;
-    IpgMenuBarStyle     => IpgMenuBarStyle,      as_menu_bar_style,      as_menu_bar_style_mut;
+    IpgMenuBarStyle     => IpgBarStyle,      as_menu_bar_style,      as_menu_bar_style_mut;
     IpgOpaqueStyle      => IpgOpaqueStyle,       as_opaque_style,        as_opaque_style_mut;
     IpgPickList         => IpgPickList,          as_pick_list,           as_pick_list_mut;
     IpgPickListStyle    => IpgPickListStyle,     as_pick_list_style,     as_pick_list_style_mut;

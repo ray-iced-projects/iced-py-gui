@@ -20,6 +20,7 @@ from .icedpygui import (
     add_container_style as add_container_style,
     add_divider_style as add_divider_style,
     add_menu_style as add_menu_style,
+    add_opaque_style as add_opaque_style,
     add_pick_list_style as add_pick_list_style,
     add_radio_style as add_radio_style,
     add_scrollable_style as add_scrollable_style,
@@ -53,6 +54,7 @@ from .icedpygui import (
     IpgMenuParam as IpgMenuParam,
     IpgMenuStyleParam as IpgMenuStyleParam,
     IpgMousePointer as IpgMousePointer,
+    IpgOpaqueParam as IpgOpaqueParam,
     IpgPickListHandle as IpgPickListHandle,
     IpgRadioDirection as IpgRadioDirection,
     IpgRadioParam as IpgRadioParam,
@@ -525,6 +527,35 @@ def add_menu(
     """
     ...
     
+def add_opaque(
+    *,
+    window_id: Optional[str] = None,
+    container_id: Optional[str] = None,
+    parent_id: Optional[str] = None,
+    width: Optional[float] = None,
+    width_fill: bool = False,
+    height: Optional[float] = None, 
+    height_fill: bool = False,
+    fill: Optional[float] = None,
+    center: Optional[bool] = None,
+    align_x: Optional[str] = None,
+    align_y: Optional[str] = None,
+    mouse_on_press: Optional[Any] = None,
+    user_data: Optional[Any] = None,
+    show: bool = True, 
+    style_id: Optional[int] = None,
+    gen_id: Optional[int] = None,
+) -> int:
+    """_summary_
+
+    Args:
+        parent_id (Optional[str], optional): _description_. Defaults to None.
+
+    Returns:
+        int: container id
+    """
+    ...
+    
 def add_mouse_area(
     *,
     window_id: str,
@@ -550,7 +581,7 @@ def add_mouse_area(
         parent_id (Optional[str], optional): _description_. Defaults to None.
 
     Returns:
-        int: widget id
+        int: container id
     """
     ...
 
@@ -577,7 +608,7 @@ def add_row(
         parent_id (Optional[str], optional): _description_. Defaults to None.
 
     Returns:
-        int: widget id
+        int: container id
     """
     ...
 
@@ -603,7 +634,7 @@ def add_scrollable(
         parent_id (Optional[str], optional): _description_. Defaults to None.
 
     Returns:
-        int: widget id
+        int: wicontainerdget id
     """
     ...
 
@@ -624,7 +655,7 @@ def add_stack(
         parent_id (Optional[str], optional): _description_. Defaults to None.
 
     Returns:
-        int: widget id
+        int: container id
     """
     ...
 
@@ -639,7 +670,7 @@ def add_table(
         parent_id (Optional[str], optional): _description_. Defaults to None.
 
     Returns:
-        int: widget id
+        int: container id
     """
     ...
 def add_tool_tip(
@@ -653,7 +684,7 @@ def add_tool_tip(
         parent_id (Optional[str], optional): _description_. Defaults to None.
 
     Returns:
-        int: widget id
+        int: container id
     """
     ...
 
@@ -691,9 +722,9 @@ def add_window(
     Usage::
 
         add_window(window_id="main", title="My App", center=True)
-            with Container(align_center=True):
-                add_text(content="hello")
-
+        add_container(window_id="main", container_id="cont", align_center=True):
+        add_text(parent="cont", content="hello")
+        start_session
     """
     ...
 
@@ -708,10 +739,10 @@ class Window:
 
     Usage::
 
-        with Window(title="My App", pos_centered=True) as wnd_id: (if needed)
+        with Window(title="My App", center=True) as wnd_id: (if needed)
             with Container(align_center_center=True):
                 add_text(content="hello")
-
+        start_session
     """
     def __init__(
         self,
@@ -759,9 +790,9 @@ class Container:
     Usage::
 
         with Window(title="Demo"):
-            with Container(align_center=True, width_fill=True):
+            with Container(align_center=True, fill=True):
                 add_text(content="hello")
-
+        start_session
     """
     def __init__(
         self,
@@ -773,6 +804,7 @@ class Container:
         width_fill: bool = False,
         height: Optional[float] = None,
         height_fill: bool = False,
+        fill: Optional[bool] = None,
         clip: Optional[bool] = None,
         max_height: Optional[float] = None,
         max_width: Optional[float] = None,
@@ -804,10 +836,12 @@ class Column:
     Usage::
 
         with Window(title="Demo"):
-            with Column(spacing=10.0):
-                add_text(content="hello")
-                add_text(content="hello")
-
+            # Container centers column on screen 
+            with Container(fill=True, align_center=True)
+                with Column(spacing=10.0):
+                    add_text(content="hello")
+                    add_text(content="hello")
+        start_session
     """
     def __init__(
         self,
@@ -822,6 +856,7 @@ class Column:
         width_fill: bool = False,
         height: Optional[float] = None,
         height_fill: bool = False,
+        fill: Optional[bool] = None,
         max_width: float = ...,
         padding: Optional[list[float]] = None,
         spacing: float = 20.0,
@@ -842,7 +877,7 @@ class Menu:
 
         with Window(title="Demo"):
             with Menu(bar_items=[], menu_items=[])
-
+        start_session
     """
     def __init__(
         self,
@@ -885,7 +920,7 @@ class MouseArea:
         with Window(title="Demo"):
             with MouseArea():
                 add_svg() # Your svg will have mouse interaction    
-    
+        start_session
     """
     def __init__(
         self,
@@ -924,7 +959,7 @@ class Row:
             with Row(spacing=10.0):
                 add_text(content="hello")
                 add_text(content="hello")
-
+        start_session
     """
     def __init__(
         self,
@@ -960,7 +995,7 @@ class Stack:
         with Window(title="Demo"):
             with Stack():
                 add_text(content="hello")
-
+        start_session
     """
     def __init__(
         self,
@@ -988,8 +1023,9 @@ class Scrollable:
 
         with Window(title="Demo"):
             with Scrollable(width=200.0, height=100.0):
-                add_text(content="long text...")
-
+                for i in range(0, 20):
+                    add_text(content=f"Some Text {i}")
+        start_session
     """
     def __init__(
         self,
@@ -1019,9 +1055,10 @@ class ToolTip:
     Usage::
 
         with Window(title="Demo"):
-            with ToolTip(text="Tool Tip text"):
-                add_container()
-
+            with Container(fill=True, align_center-True):
+                with ToolTip(text="Tool Tip text"):
+                    add_text(content="Place mouse over me to see tooltip)
+        start_session
     """
     def __init__(
         self,

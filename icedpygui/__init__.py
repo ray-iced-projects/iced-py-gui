@@ -26,6 +26,7 @@ from .icedpygui import (
     add_menu as _add_menu,
     add_menu_bar_item as _add_menu_bar_item,
     add_menu_style,
+    add_opaque as _add_opaque,
     add_pick_list as _add_pick_list,
     add_pick_list_style,
     add_radio as _add_radio,
@@ -217,6 +218,8 @@ add_menu_bar_item = _wrap_container(_add_menu_bar_item, "add_menu_bar_item")
 add_menu_bar_item.__doc__ = _add_menu_bar_item.__doc__
 add_mouse_area = _wrap_container(_add_mouse_area, "add_mouse_area")
 add_mouse_area.__doc__ = _add_mouse_area.__doc__
+add_opaque = _wrap_container(_add_opaque, "add_opaque")
+add_opaque.__doc__ = _add_opaque.__doc__
 add_row = _wrap_container(_add_row, "add_row")
 add_row.__doc__ = _add_row.__doc__
 add_scrollable = _wrap_container(_add_scrollable, "add_scrollable")
@@ -358,6 +361,31 @@ class MenuBarItem:
         _parent_stack.pop()
         return False
 
+class Opaque:
+    """Wrapper for add_container"""
+    def __init__(self, *, container_id=None, window_id=None, parent_id=None, **kwargs):
+        self.window_id = window_id if window_id is not None else _current_window()
+        if self.window_id is None:
+            raise ValueError("Opaque: window_id is required (either pass it\
+                or use a Window context manager)")
+        self.container_id = container_id if container_id is not None else str(generate_id())
+        self.parent_id = parent_id
+        self.kwargs = kwargs
+
+    def __enter__(self):
+        self.numeric_id = _add_container(
+            window_id=self.window_id,
+            container_id=self.container_id,
+            parent_id=self.parent_id or _current_parent(),
+            **self.kwargs,
+        )
+        _parent_stack.append(self.container_id)
+        return self.numeric_id
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        _parent_stack.pop()
+        return False
+    
 class Row:
     """Wrapper for add_row"""
     def __init__(self, *, container_id=None, window_id=None, parent_id=None, **kwargs):

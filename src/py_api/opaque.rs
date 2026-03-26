@@ -150,6 +150,8 @@ pub fn add_opaque_container(
 /// ----------
 /// background_color : IpgColor, Optional
 ///     Sets the background color using a predefined color variant.
+/// background_color_alpha : float, Optional
+///     Sets the alpha of the IpgColor.
 /// background_rgba : list of float, Optional
 ///     Sets the background color in rgba format as [r, g, b, a].
 /// gen_id : int, Optional
@@ -161,12 +163,14 @@ pub fn add_opaque_container(
 ///     The numeric style ID to pass to an opaque container's ``style_id``.
 #[pyfunction]
 #[pyo3(signature = ( 
-    background_color=None, 
+    background_color=None,
+    background_color_alpha=None, 
     background_rgba=None,
     gen_id=None
     ))]
 pub fn add_opaque_style(
     background_color: Option<IpgColor>,
+    background_color_alpha: Option<f32>,
     background_rgba: Option<[f32; 4]>,
     gen_id: Option<usize>,
     ) -> PyResult<usize>
@@ -176,7 +180,7 @@ pub fn add_opaque_style(
     let mut state = access_state();
 
     let background_color: Option<Color> = 
-    IpgColor::rgba_ipg_color_to_iced(background_rgba, background_color, 1.0);
+    IpgColor::rgba_ipg_color_to_iced(background_rgba, background_color, background_color_alpha);
 
     state.widgets.insert(id, IpgWidgets::IpgOpaqueStyle(
         IpgOpaqueStyle {

@@ -180,26 +180,38 @@ pub fn add_pick_list(
 /// ----------
 /// background_color : IpgColor, Optional
 ///     Sets the background color using a predefined color variant.
+/// background_color_alpha : float, Optional
+///     Sets the alpha of the IpgColor.
 /// background_rgba : list of float, Optional
 ///     Sets the background color in rgba format as [r, g, b, a].
 /// text_color : IpgColor, Optional
 ///     Sets the text color using a predefined color variant.
+/// text_color_alpha : float, Optional
+///     Sets the alpha of the IpgColor.
 /// text_rgba : list of float, Optional
 ///     Sets the text color in rgba format as [r, g, b, a].
 /// handle_color : IpgColor, Optional
 ///     Sets the handle color using a predefined color variant.
+/// handle_color_alpha : float, Optional
+///     Sets the alpha of the IpgColor.
 /// handle_rgba : list of float, Optional
 ///     Sets the handle color in rgba format as [r, g, b, a].
 /// placeholder_color : IpgColor, Optional
 ///     Sets the placeholder text color using a predefined color variant.
+/// placeholder_color_alpha : float, Optional
+///     Sets the alpha of the IpgColor.
 /// placeholder_rgba : list of float, Optional
 ///     Sets the placeholder text color in rgba format as [r, g, b, a].
 /// border_color : IpgColor, Optional
 ///     Sets the border color using a predefined color variant.
+/// border_color_alpha : float, Optional
+///     Sets the alpha of the IpgColor.
 /// border_rgba : list of float, Optional
 ///     Sets the border color in rgba format as [r, g, b, a].
 /// border_color_hovered : IpgColor, Optional
 ///     Sets the border color when hovered using a predefined color variant.
+/// border_color_hovered_alpha : float, Optional
+///     Sets the alpha of the IpgColor.
 /// border_rgba_hovered : list of float, Optional
 ///     Sets the border color when hovered in rgba format as [r, g, b, a].
 /// border_radius : list of float, Optional
@@ -217,16 +229,22 @@ pub fn add_pick_list(
 #[pyfunction]
 #[pyo3(signature = (
     background_color=None,
+    background_color_alpha=None,
     background_rgba=None,
     text_color=None,
+    text_color_alpha=None,
     text_rgba=None,
     handle_color=None,
+    handle_color_alpha=None,
     handle_rgba=None,
     placeholder_color=None,
+    placeholder_color_alpha=None,
     placeholder_rgba=None,
     border_color=None,
+    border_color_alpha=None,
     border_rgba=None,
     border_color_hovered=None,
+    border_color_hovered_alpha=None,
     border_rgba_hovered=None,
     border_radius=None,
     border_width=None,
@@ -234,16 +252,22 @@ pub fn add_pick_list(
     ))]
 pub fn add_pick_list_style(
     background_color: Option<IpgColor>,
+    background_color_alpha: Option<f32>,
     background_rgba: Option<[f32; 4]>,
     text_color: Option<IpgColor>,
+    text_color_alpha: Option<f32>,
     text_rgba: Option<[f32; 4]>,
     handle_color: Option<IpgColor>,
+    handle_color_alpha: Option<f32>,
     handle_rgba: Option<[f32; 4]>,
     placeholder_color: Option<IpgColor>,
+    placeholder_color_alpha: Option<f32>,
     placeholder_rgba: Option<[f32; 4]>,
     border_color: Option<IpgColor>,
+    border_color_alpha: Option<f32>,
     border_rgba: Option<[f32; 4]>,
     border_color_hovered: Option<IpgColor>,
+    border_color_hovered_alpha: Option<f32>,
     border_rgba_hovered: Option<[f32; 4]>,
     border_radius: Option<Vec<f32>>,
     border_width: Option<f32>,
@@ -253,17 +277,17 @@ pub fn add_pick_list_style(
     let id = get_id(gen_id);
     
     let background_color: Option<Color> = 
-        IpgColor::rgba_ipg_color_to_iced(background_rgba, background_color, 1.0);
+        IpgColor::rgba_ipg_color_to_iced(background_rgba, background_color, background_color_alpha);
     let border_color: Option<Color> = 
-        IpgColor::rgba_ipg_color_to_iced(border_rgba, border_color, 1.0);
+        IpgColor::rgba_ipg_color_to_iced(border_rgba, border_color, border_color_alpha);
     let border_color_hovered: Option<Color> = 
-        IpgColor::rgba_ipg_color_to_iced(border_rgba_hovered, border_color_hovered, 1.0);
+        IpgColor::rgba_ipg_color_to_iced(border_rgba_hovered, border_color_hovered, border_color_hovered_alpha);
     let handle_color: Option<Color> = 
-        IpgColor::rgba_ipg_color_to_iced(handle_rgba, handle_color, 1.0);
+        IpgColor::rgba_ipg_color_to_iced(handle_rgba, handle_color, handle_color_alpha);
     let placeholder_color = 
-        IpgColor::rgba_ipg_color_to_iced(placeholder_rgba, placeholder_color, 1.0);
+        IpgColor::rgba_ipg_color_to_iced(placeholder_rgba, placeholder_color, placeholder_color_alpha);
     let text_color = 
-        IpgColor::rgba_ipg_color_to_iced(text_rgba, text_color, 1.0);
+        IpgColor::rgba_ipg_color_to_iced(text_rgba, text_color, text_color_alpha);
 
     let mut state = access_state();
 

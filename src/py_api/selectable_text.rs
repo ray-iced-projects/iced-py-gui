@@ -97,7 +97,8 @@ type PyObject = Py<PyAny>;
     align_y=None,
     line_height=None, 
     size=None,
-    text_color=None, 
+    text_color=None,
+    text_color_alpha=None, 
     text_rgba=None, 
     show=true,
     font_id=None, 
@@ -129,6 +130,7 @@ pub fn add_selectable_text(
     line_height: Option<f32>,
     size: Option<f32>,
     text_color: Option<IpgColor>,
+    text_color_alpha: Option<f32>,
     text_rgba: Option<[f32; 4]>,
     show: bool,
     font_id: Option<usize>,
@@ -184,7 +186,7 @@ pub fn add_selectable_text(
     let width = get_length(width, width_fill);
     let height = get_length(height, height_fill);
 
-    let text_color = IpgColor::rgba_ipg_color_to_iced(text_rgba, text_color, 1.0);
+    let text_color = IpgColor::rgba_ipg_color_to_iced(text_rgba, text_color, text_color_alpha);
 
     set_state_of_widget(id, parent_id.clone());
 

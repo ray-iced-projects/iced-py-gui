@@ -176,12 +176,12 @@ pub enum IpgColor {
 }
 
 impl IpgColor {
-    pub fn rgba_ipg_color_to_iced(rgba: Option<[f32; 4]>, color: Option<IpgColor>, alpha: f32) -> Option<Color> {
+    pub fn rgba_ipg_color_to_iced(rgba: Option<[f32; 4]>, color: Option<IpgColor>, alpha: Option<f32>) -> Option<Color> {
         if let Some(rgba) = rgba {
             Some(Color::from_rgba(rgba[0], rgba[1], rgba[2], rgba[3]))
         } else if let Some(c) = color {
             let color: Color = c.to_iced();
-            Some(color.scale_alpha(alpha))
+            Some(color.scale_alpha(alpha.unwrap_or(1.0)))
         } else {
             None
         }

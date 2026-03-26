@@ -7,20 +7,20 @@ use crate::graphics::colors::IpgColor;
 
 
 #[pyfunction]
-#[pyo3(signature = (color, alpha))]
+#[pyo3(signature = (color, alpha=None))]
 pub fn get_rgba_color(
     color: IpgColor,
-    alpha: f32,
+    alpha: Option<f32>,
     ) -> PyResult<[f32; 4]>
 {
-    let rgb = if let Some(base) = 
+    let rgba = if let Some(base) = 
         IpgColor::rgba_ipg_color_to_iced(None, Some(color), alpha) {
         base
     } else {
         panic!("Unable to get the rgba format of the color")
     };
 
-    Ok([rgb.r, rgb.g, rgb.b, alpha])
+    Ok([rgba.r, rgba.g, rgba.b, rgba.a])
 }
 
 #[pyfunction]
@@ -34,13 +34,8 @@ pub fn get_color_palette(
     alpha: Option<f32>,
     ) -> PyResult<([f32; 4], [f32; 4], [f32; 4])>
 {
-    let a = if let Some(a) = alpha {
-        a
-    } else {
-        1.0
-    };
-
-    let base = IpgColor::rgba_ipg_color_to_iced(base_rgba, base_color, a);
+    
+    let base = IpgColor::rgba_ipg_color_to_iced(base_rgba, base_color, alpha);
 
     let text_color = readable(base.unwrap(), iced::Color::WHITE);
 

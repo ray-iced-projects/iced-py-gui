@@ -55,6 +55,8 @@ use crate::graphics::colors::IpgColor;
 ///     Sets the Text shaping strategy.
 /// text_color : IpgColor, Optional
 ///     Sets the text color using a predefined color variant.
+/// text_color_alpha : float, Optional
+///     Sets the alpha of the IpgColor.
 /// text_rgba : list of float, Optional
 ///     Sets the text color in rgba format as [r, g, b, a].
 /// text_wrapping : TextWrapping, Optional
@@ -88,7 +90,8 @@ use crate::graphics::colors::IpgColor;
     size=None,
     font_id=None, 
     text_shaping=None, 
-    text_color=None, 
+    text_color=None,
+    text_color_alpha=None,
     text_rgba=None,
     text_wrapping=None,
     show=true,
@@ -116,6 +119,7 @@ pub fn add_text(
     font_id: Option<usize>,
     text_shaping: Option<TextShaping>,
     text_color: Option<IpgColor>,
+    text_color_alpha: Option<f32>,
     text_rgba: Option<[f32; 4]>,
     text_wrapping: Option<TextWrapping>,
     show: bool,
@@ -125,7 +129,7 @@ pub fn add_text(
     let id = get_id(gen_id);
 
     let color= 
-        IpgColor::rgba_ipg_color_to_iced(text_rgba, text_color, 1.0);
+        IpgColor::rgba_ipg_color_to_iced(text_rgba, text_color, text_color_alpha);
 
     let width = get_length(width, width_fill);
     let height = get_length(height, height_fill);

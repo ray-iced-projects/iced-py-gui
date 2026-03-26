@@ -148,6 +148,8 @@ pub fn add_scrollable(
 ///     Sets the ID of an autoscroll style.
 /// gap_color : IpgColor, Optional
 ///     Sets the gap color using a predefined color variant.
+/// gap_color_alpha : float, Optional
+///     Sets the alpha of the IpgColor.
 /// gap_rgba : list of float, Optional
 ///     Sets the gap color in rgba format as [r, g, b, a].
 /// gen_id : int, Optional
@@ -165,6 +167,7 @@ pub fn add_scrollable(
     horizontal_rail_style_id=None,
     auto_scroll_style_id=None,
     gap_color=None,
+    gap_color_alpha=None,
     gap_rgba=None,
     gen_id=None
     ))]
@@ -175,6 +178,7 @@ pub fn add_scrollable_style(
     horizontal_rail_style_id: Option<usize>,
     auto_scroll_style_id: Option<usize>,
     gap_color: Option<IpgColor>,
+    gap_color_alpha: Option<f32>,
     gap_rgba: Option<[f32; 4]>,
     gen_id: Option<usize>,
     ) -> PyResult<usize>
@@ -182,7 +186,7 @@ pub fn add_scrollable_style(
     let id = get_id(gen_id);
 
     let gap_color = 
-        IpgColor::rgba_ipg_color_to_iced(gap_rgba, gap_color, 1.0);
+        IpgColor::rgba_ipg_color_to_iced(gap_rgba, gap_color, gap_color_alpha);
     
     let mut state = access_state();
 
@@ -277,10 +281,14 @@ pub fn add_scroller_param (
 /// ----------
 /// background_color : IpgColor, Optional
 ///     Sets the rail background color using a predefined color variant.
+/// background_color_alpha : float, Optional
+///     Sets the alpha of the IpgColor.
 /// background_rgba : list of float, Optional
 ///     Sets the rail background color in rgba format as [r, g, b, a].
 /// border_color : IpgColor, Optional
 ///     Sets the rail border color using a predefined color variant.
+/// border_color_alpha : float, Optional
+///     Sets the alpha of the IpgColor.
 /// border_rgba : list of float, Optional
 ///     Sets the rail border color in rgba format as [r, g, b, a].
 /// border_width : float, Optional
@@ -290,10 +298,14 @@ pub fn add_scroller_param (
 ///     [top-left, top-right, bottom-right, bottom-left].
 /// scroller_background_color : IpgColor, Optional
 ///     Sets the scroller thumb background color using a predefined color variant.
+/// scroller_background_color_alpha : float, Optional
+///     Sets the alpha of the IpgColor.
 /// scroller_background_rgba : list of float, Optional
 ///     Sets the scroller thumb background color in rgba format as [r, g, b, a].
 /// scroller_border_color : IpgColor, Optional
 ///     Sets the scroller thumb border color using a predefined color variant.
+/// scroller_border_color_alpha : float, Optional
+///     Sets the alpha of the IpgColor.
 /// scroller_border_rgba : list of float, Optional
 ///     Sets the scroller thumb border color in rgba format as [r, g, b, a].
 /// scroller_border_width : float, Optional
@@ -311,14 +323,18 @@ pub fn add_scroller_param (
 #[pyfunction]
 #[pyo3(signature = ( 
     background_color=None,
+    background_color_alpha=None,
     background_rgba=None,
     border_color=None,
+    border_color_alpha=None,
     border_rgba=None,
     border_width=None,
     border_radius=None,
     scroller_background_color=None,
+    scroller_background_color_alpha=None,
     scroller_background_rgba=None,
     scroller_border_color=None,
+    scroller_border_color_alpha=None,
     scroller_border_rgba=None,
     scroller_border_width=None,
     scroller_border_radius=None,
@@ -326,14 +342,18 @@ pub fn add_scroller_param (
     ))]
 pub fn add_rail_style(
     background_color: Option<IpgColor>,
+    background_color_alpha: Option<f32>,
     background_rgba: Option<[f32; 4]>,
     border_color: Option<IpgColor>,
+    border_color_alpha: Option<f32>,
     border_rgba: Option<[f32; 4]>,
     border_width: Option<f32>,
     border_radius: Option<Vec<f32>>,
     scroller_background_color: Option<IpgColor>,
+    scroller_background_color_alpha: Option<f32>,
     scroller_background_rgba: Option<[f32; 4]>,
     scroller_border_color: Option<IpgColor>,
+    scroller_border_color_alpha: Option<f32>,
     scroller_border_rgba: Option<[f32; 4]>,
     scroller_border_width: Option<f32>,
     scroller_border_radius: Option<Vec<f32>>,
@@ -343,14 +363,14 @@ pub fn add_rail_style(
     let id = get_id(gen_id);
 
     let background: Option<Color> = 
-        IpgColor::rgba_ipg_color_to_iced(background_rgba, background_color, 1.0);
+        IpgColor::rgba_ipg_color_to_iced(background_rgba, background_color, background_color_alpha);
     let border_color: Option<Color> = 
-        IpgColor::rgba_ipg_color_to_iced(border_rgba, border_color, 1.0);
+        IpgColor::rgba_ipg_color_to_iced(border_rgba, border_color, border_color_alpha);
 
     let scroller_background: Option<Color> = 
-        IpgColor::rgba_ipg_color_to_iced(scroller_background_rgba, scroller_background_color, 1.0);
+        IpgColor::rgba_ipg_color_to_iced(scroller_background_rgba, scroller_background_color, scroller_background_color_alpha);
     let scroller_border_color: Option<Color> = 
-        IpgColor::rgba_ipg_color_to_iced(scroller_border_rgba, scroller_border_color, 1.0);
+        IpgColor::rgba_ipg_color_to_iced(scroller_border_rgba, scroller_border_color, scroller_border_color_alpha);
     
     let mut state = access_state();
 
@@ -380,10 +400,14 @@ pub fn add_rail_style(
 /// ----------
 /// background_color : IpgColor, Optional
 ///     Sets the background color using a predefined color variant.
+/// background_color_alpha : float, Optional
+///     Sets the alpha of the IpgColor.
 /// background_rgba : list of float, Optional
 ///     Sets the background color in rgba format as [r, g, b, a].
 /// border_color : IpgColor, Optional
 ///     Sets the border color using a predefined color variant.
+/// border_color_alpha : float, Optional
+///     Sets the alpha of the IpgColor.
 /// border_rgba : list of float, Optional
 ///     Sets the border color in rgba format as [r, g, b, a].
 /// border_width : float, Optional
@@ -393,6 +417,8 @@ pub fn add_rail_style(
 ///     [top-left, top-right, bottom-right, bottom-left].
 /// shadow_color : IpgColor, Optional
 ///     Sets the shadow color using a predefined color variant.
+/// shadow_color_alpha : float, Optional
+///     Sets the alpha of the IpgColor.
 /// shadow_rgba : list of float, Optional
 ///     Sets the shadow color in rgba format as [r, g, b, a].
 /// shadow_offset : list of float, Optional
@@ -401,6 +427,8 @@ pub fn add_rail_style(
 ///     Sets the shadow blur radius in logical pixels.
 /// shadow_icon_color : IpgColor, Optional
 ///     Sets the shadow icon color using a predefined color variant.
+/// shadow_icon_color_alpha : float, Optional
+///     Sets the alpha of the IpgColor.
 /// shadow_icon_rgba : list of float, Optional
 ///     Sets the shadow icon color in rgba format as [r, g, b, a].
 /// gen_id : int, Optional
@@ -413,31 +441,39 @@ pub fn add_rail_style(
 #[pyfunction]
 #[pyo3(signature = ( 
     background_color=None,
+    background_color_alpha=None,
     background_rgba=None,
     border_color=None,
+    border_color_alpha=None,
     border_rgba=None,
     border_width=None,
     border_radius=None,
     shadow_color=None,
+    shadow_color_alpha=None,
     shadow_rgba=None,
     shadow_offset=None,
     shadow_blur_radius=None,
     shadow_icon_color=None,
+    shadow_icon_color_alpha=None,
     shadow_icon_rgba=None,
     gen_id=None
     ))]
 pub fn add_autoscroll_style(
     background_color: Option<IpgColor>,
+    background_color_alpha: Option<f32>,
     background_rgba: Option<[f32; 4]>,
     border_color: Option<IpgColor>,
+    border_color_alpha: Option<f32>,
     border_rgba: Option<[f32; 4]>,
     border_width: Option<f32>,
     border_radius: Option<Vec<f32>>,
     shadow_color: Option<IpgColor>,
+    shadow_color_alpha: Option<f32>,
     shadow_rgba: Option<[f32; 4]>,
     shadow_offset: Option<[f32; 2]>,
     shadow_blur_radius: Option<f32>,
     shadow_icon_color: Option<IpgColor>,
+    shadow_icon_color_alpha: Option<f32>,
     shadow_icon_rgba: Option<[f32; 4]>,
     gen_id: Option<usize>,
     ) -> PyResult<usize>
@@ -445,13 +481,13 @@ pub fn add_autoscroll_style(
     let id = get_id(gen_id);
 
     let background: Option<Color> = 
-        IpgColor::rgba_ipg_color_to_iced(background_rgba, background_color, 1.0);
+        IpgColor::rgba_ipg_color_to_iced(background_rgba, background_color, background_color_alpha);
     let border_color: Option<Color> = 
-        IpgColor::rgba_ipg_color_to_iced(border_rgba, border_color, 1.0);
+        IpgColor::rgba_ipg_color_to_iced(border_rgba, border_color, border_color_alpha);
     let shadow_color: Option<Color> = 
-        IpgColor::rgba_ipg_color_to_iced(shadow_rgba, shadow_color, 1.0);
+        IpgColor::rgba_ipg_color_to_iced(shadow_rgba, shadow_color, shadow_color_alpha);
     let shadow_icon_color: Option<Color> = 
-        IpgColor::rgba_ipg_color_to_iced(shadow_icon_rgba, shadow_icon_color, 1.0);
+        IpgColor::rgba_ipg_color_to_iced(shadow_icon_rgba, shadow_icon_color, shadow_icon_color_alpha);
     
     let mut state = access_state();
 

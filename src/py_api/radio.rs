@@ -182,28 +182,40 @@ pub fn add_radio(
 /// ----------
 /// background_color : IpgColor, Optional
 ///     Sets the background color using a predefined color variant.
+/// background_color_alpha : float, Optional
+///     Sets the alpha of the IpgColor.
 /// background_rgba : list of float, Optional
 ///     Sets the background color in rgba format as [r, g, b, a].
 /// background_color_hovered : IpgColor, Optional
 ///     Sets the background color when hovered using a predefined color variant.
+/// background_color_hovered_alpha : float, Optional
+///     Sets the alpha of the IpgColor.
 /// background_rgba_hovered : list of float, Optional
 ///     Sets the background color when hovered in rgba format as [r, g, b, a].
 /// border_color : IpgColor, Optional
 ///     Sets the border color using a predefined color variant.
+/// border_color_alpha : float, Optional
+///     Sets the alpha of the IpgColor.
 /// border_rgba : list of float, Optional
 ///     Sets the border color in rgba format as [r, g, b, a].
 /// border_width : float, Optional
 ///     Sets the border width in logical pixels.
 /// dot_color : IpgColor, Optional
 ///     Sets the dot color using a predefined color variant.
+/// dot_color_alpha : float, Optional
+///     Sets the alpha of the IpgColor.
 /// dot_rgba : list of float, Optional
 ///     Sets the dot color in rgba format as [r, g, b, a].
 /// dot_color_hovered : IpgColor, Optional
 ///     Sets the dot color when hovered using a predefined color variant.
+/// dot_color_hovered_alpha : float, Optional
+///     Sets the alpha of the IpgColor.
 /// dot_rgba_hovered : list of float, Optional
 ///     Sets the dot color when hovered in rgba format as [r, g, b, a].
 /// text_color : IpgColor, Optional
 ///     Sets the text color using a predefined color variant.
+/// text_color_alpha : float, Optional
+///     Sets the alpha of the IpgColor.
 /// text_rgba : list of float, Optional
 ///     Sets the text color in rgba format as [r, g, b, a].
 /// gen_id : int, Optional
@@ -216,33 +228,45 @@ pub fn add_radio(
 #[pyfunction]
 #[pyo3(signature = (
     background_color=None,
+    background_color_alpha=None,
     background_rgba=None,
     background_color_hovered=None,
+    background_color_hovered_alpha=None,
     background_rgba_hovered=None,
-    border_color=None, 
+    border_color=None,
+    border_color_alpha=None,
     border_rgba=None,
     border_width=None,
-    dot_color=None, 
+    dot_color=None,
+    dot_color_alpha=None,
     dot_rgba=None,
-    dot_color_hovered=None, 
+    dot_color_hovered=None,
+    dot_color_hovered_alpha=None,
     dot_rgba_hovered=None,
-    text_color=None, 
+    text_color=None,
+    text_color_alpha=None,
     text_rgba=None,
     gen_id=None
     ))]
 pub fn add_radio_style(
     background_color: Option<IpgColor>,
+    background_color_alpha: Option<f32>,
     background_rgba: Option<[f32; 4]>,
     background_color_hovered: Option<IpgColor>,
+    background_color_hovered_alpha: Option<f32>,
     background_rgba_hovered: Option<[f32; 4]>,
     border_color: Option<IpgColor>,
+    border_color_alpha: Option<f32>,
     border_rgba: Option<[f32; 4]>,
     border_width: Option<f32>,
     dot_color: Option<IpgColor>,
+    dot_color_alpha: Option<f32>,
     dot_rgba: Option<[f32; 4]>,
     dot_color_hovered: Option<IpgColor>,
+    dot_color_hovered_alpha: Option<f32>,
     dot_rgba_hovered: Option<[f32; 4]>,
     text_color: Option<IpgColor>,
+    text_color_alpha: Option<f32>,
     text_rgba: Option<[f32; 4]>,
     gen_id: Option<usize>,
     ) -> PyResult<usize>
@@ -250,17 +274,17 @@ pub fn add_radio_style(
     let id = get_id(gen_id);
 
     let background_color = 
-        IpgColor::rgba_ipg_color_to_iced(background_rgba, background_color, 1.0);
+        IpgColor::rgba_ipg_color_to_iced(background_rgba, background_color, background_color_alpha);
     let background_color_hovered = 
-        IpgColor::rgba_ipg_color_to_iced(background_rgba_hovered, background_color_hovered, 1.0);
+        IpgColor::rgba_ipg_color_to_iced(background_rgba_hovered, background_color_hovered, background_color_hovered_alpha);
     let dot_color: Option<Color> = 
-        IpgColor::rgba_ipg_color_to_iced(dot_rgba, dot_color, 1.0);
+        IpgColor::rgba_ipg_color_to_iced(dot_rgba, dot_color, dot_color_alpha);
     let dot_color_hovered: Option<Color> = 
-        IpgColor::rgba_ipg_color_to_iced(dot_rgba_hovered, dot_color_hovered, 1.0);
+        IpgColor::rgba_ipg_color_to_iced(dot_rgba_hovered, dot_color_hovered, dot_color_hovered_alpha);
     let border_color: Option<Color> = 
-        IpgColor::rgba_ipg_color_to_iced(border_rgba, border_color, 1.0);
+        IpgColor::rgba_ipg_color_to_iced(border_rgba, border_color, border_color_alpha);
     let text_color: Option<Color> = 
-        IpgColor::rgba_ipg_color_to_iced(text_rgba, text_color, 1.0);
+        IpgColor::rgba_ipg_color_to_iced(text_rgba, text_color, text_color_alpha);
 
     let mut state = access_state();
 

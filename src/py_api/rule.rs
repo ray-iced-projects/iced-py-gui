@@ -78,6 +78,8 @@ pub fn add_rule(
 /// ----------
 /// color : IpgColor, Optional
 ///     Sets the rule color using a predefined color variant.
+/// color_alpha : float, Optional
+///     Sets the alpha of the IpgColor.
 /// color_rgba : list of float, Optional
 ///     Sets the rule color in rgba format as [r, g, b, a].
 /// border_radius : list of float, Optional
@@ -100,7 +102,8 @@ pub fn add_rule(
 ///     The numeric style ID to pass to a rule's ``style_id``.
 #[pyfunction]
 #[pyo3(signature = (
-    color=None, 
+    color=None,
+    color_alpha=None,
     color_rgba=None,
     border_radius=None,
     fillmode_percent=None,
@@ -111,6 +114,7 @@ pub fn add_rule(
     ))]
 pub fn add_rule_style(
     color: Option<IpgColor>,
+    color_alpha: Option<f32>,
     color_rgba: Option<[f32; 4]>,
     border_radius: Option<Vec<f32>>,
     fillmode_percent: Option<f32>,
@@ -122,7 +126,7 @@ pub fn add_rule_style(
 {
     let id = get_id(gen_id);
 
-    let color = IpgColor::rgba_ipg_color_to_iced(color_rgba, color, 1.0);
+    let color = IpgColor::rgba_ipg_color_to_iced(color_rgba, color, color_alpha);
     
     let mut state = access_state();
 

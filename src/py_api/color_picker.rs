@@ -33,6 +33,8 @@ use crate::graphics::bootstrap_arrow::IpgArrow;
 ///     Sets the Callback method to invoke when the color selection is cancelled.
 /// color : IpgColor,  Optional
 ///     Sets the initial color using a predefined color variant.
+/// color_alpha : float,  Optional
+///     Sets the alpha of the IpgColor.
 /// color_rgba : list of float,  Optional
 ///     Sets the initial color in rgba format as [r, g, b, a].
 /// width : float,  Optional
@@ -72,6 +74,7 @@ use crate::graphics::bootstrap_arrow::IpgArrow;
     on_select=None, 
     on_cancel=None,
     color=None,
+    color_alpha=None,
     color_rgba=None, 
     width=None,
     width_fill=false,  
@@ -94,6 +97,7 @@ pub fn add_color_picker(
     on_select: Option<PyObject>,
     on_cancel: Option<PyObject>,
     mut color: Option<IpgColor>,
+    color_alpha: Option<f32>,
     color_rgba: Option<[f32; 4]>,
     width: Option<f32>,
     width_fill: bool,
@@ -122,7 +126,7 @@ pub fn add_color_picker(
     }
 
     let color = 
-        IpgColor::rgba_ipg_color_to_iced(rgba, color, 1.0).unwrap();
+        IpgColor::rgba_ipg_color_to_iced(rgba, color, color_alpha).unwrap();
 
     if let Some(py) = on_press {
         add_callback_to_mutex(id, "on_press".to_string(), py);

@@ -287,22 +287,17 @@ pub fn add_container_style(
 {
     let id = get_id(gen_id);
 
-    let bkg_a = background_alpha.unwrap_or(1.0);
-    let grad_a = background_gradient_alpha.unwrap_or(1.0);
-    let border_a = border_alpha.unwrap_or(1.0);
-    let shadow_a = shadow_alpha.unwrap_or(1.0);
-    let text_a = text_alpha.unwrap_or(1.0);
-
     let background_color: Option<Color> = 
-        IpgColor::rgba_ipg_color_to_iced(background_rgba, background_color, bkg_a);
+        IpgColor::rgba_ipg_color_to_iced(background_rgba, background_color, background_alpha);
     let background_gradient_color_stop = 
-        IpgColor::rgba_ipg_color_to_iced(background_gradient_rgba_stop, background_gradient_color_stop, grad_a);
+        IpgColor::rgba_ipg_color_to_iced(background_gradient_rgba_stop, 
+            background_gradient_color_stop, background_gradient_alpha);
     let border_color: Option<Color> = 
-        IpgColor::rgba_ipg_color_to_iced(border_rgba, border_color, border_a);
+        IpgColor::rgba_ipg_color_to_iced(border_rgba, border_color, border_alpha);
     let shadow_color: Option<Color> = 
-        IpgColor::rgba_ipg_color_to_iced(shadow_rgba, shadow_color, shadow_a);
+        IpgColor::rgba_ipg_color_to_iced(shadow_rgba, shadow_color, shadow_alpha);
     let text_color: Option<Color> = 
-        IpgColor::rgba_ipg_color_to_iced(text_rgba, text_color, text_a);
+        IpgColor::rgba_ipg_color_to_iced(text_rgba, text_color, text_alpha);
 
     let mut state = access_state();
 

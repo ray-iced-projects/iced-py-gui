@@ -177,14 +177,14 @@ pub fn add_checkbox(
 ///----------
 ///background_color: IpgColor, Optional
 ///    The background color of the box.
+///background_color_alpha: float, Optional
+///    Sets the alpha of the IpgColor.
 ///background_rgba: list, Optional,
 ///    The background color of the box in rgba format.
-///dark_mode: bool, Optional
-///    Whether the custom bkg color is dark.
-///    Will adjust the border and text color from the bkg color
-///    unless the border color is set.
 ///border_color: IpgColor, Optional
 ///    The color for the border.
+///border_color_alpha: float, Optional
+///    Sets the alpha of the IpgColor.
 ///border_rgba: list[float]
 ///    The color of the border in rgba format used as state above.
 ///border_radius: list[float]
@@ -192,38 +192,54 @@ pub fn add_checkbox(
 ///    [float] top-left, top-right, bottom-right, bottom-left.
 ///border_width: float
 ///    The border width.
+///icon_color: IpgColor, Optional
+///    The icon color.
+///icon_color_alpha: float, Optional
+///    Sets the alpha of the IpgColor.
+///icon_rgba: list[float], Optional
+///    The icon color in rgba format.
 ///text_color: IpgColor, Optional
 ///    The text color, if not defined, will either be a Black or White variation based on theme background.
+///text_color_alpha: float, Optional
+///    Sets the alpha of the IpgColor.
 ///text_rgba: list[float], Optional
 ///    The text color in rgba format.
-/// /// gen_id : int,  Optional
+/// gen_id : int,  Optional
 ///     Obtains an ID of a widget that have not been created, used for the gen_id parameter.
-///    """
+///"""
 /// 
 #[pyfunction]
 #[pyo3(signature = ( 
-    background_color=None, 
+    background_color=None,
+    background_color_alpha=None,
     background_rgba=None,
-    border_color=None, 
+    border_color=None,
+    border_color_alpha=None,
     border_rgba=None,
     border_radius=None, 
     border_width=None,
-    icon_color=None, 
+    icon_color=None,
+    icon_color_alpha=None,
     icon_rgba=None,
-    text_color=None, 
+    text_color=None,
+    text_color_alpha=None,
     text_rgba=None,
     gen_id=None
     ))]
 pub fn add_checkbox_style(
     background_color: Option<IpgColor>,
+    background_color_alpha: Option<f32>,
     background_rgba: Option<[f32; 4]>,
     border_color: Option<IpgColor>,
+    border_color_alpha: Option<f32>,
     border_rgba: Option<[f32; 4]>,
     border_radius: Option<Vec<f32>>,
     border_width: Option<f32>,
     icon_color: Option<IpgColor>,
+    icon_color_alpha: Option<f32>,
     icon_rgba: Option<[f32; 4]>,
     text_color: Option<IpgColor>,
+    text_color_alpha: Option<f32>,
     text_rgba: Option<[f32; 4]>,
     gen_id: Option<usize>,
     ) -> PyResult<usize>
@@ -231,13 +247,13 @@ pub fn add_checkbox_style(
     let id = get_id(gen_id);
 
     let background_color: Option<Color> = 
-        IpgColor::rgba_ipg_color_to_iced(background_rgba, background_color, 1.0);
+        IpgColor::rgba_ipg_color_to_iced(background_rgba, background_color, background_color_alpha);
     let border_color: Option<Color> = 
-        IpgColor::rgba_ipg_color_to_iced(border_rgba, border_color, 1.0);
+        IpgColor::rgba_ipg_color_to_iced(border_rgba, border_color, border_color_alpha);
     let icon_color: Option<Color> = 
-        IpgColor::rgba_ipg_color_to_iced(icon_rgba, icon_color, 1.0);
+        IpgColor::rgba_ipg_color_to_iced(icon_rgba, icon_color, icon_color_alpha);
     let text_color: Option<Color> = 
-        IpgColor::rgba_ipg_color_to_iced(text_rgba, text_color, 1.0);
+        IpgColor::rgba_ipg_color_to_iced(text_rgba, text_color, text_color_alpha);
 
     let mut state = access_state();
 

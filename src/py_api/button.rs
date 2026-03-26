@@ -196,10 +196,14 @@ pub fn add_button(
 ///----------
 ///background_color: IpgColor, Optional
 ///    Sets the Color of the background.
+///background_color_alpha: float, Optional
+///    Sets the alpha of the IpgColor.
 ///background_rgba: list, Optional
 ///    Sets the Color of the background in rgba format, 4 values.
 /// background_gradient_color_stop: IpgColor, Optional
 ///    Sets the stop Color of the background gradient.
+/// background_gradient_color_stop_alpha: float, Optional
+///    Sets the alpha of the IpgColor.
 /// background_gradient_rgba_stop: list, Optional
 ///    Sets the stop rgba color of the background gradient, 4 values.
 /// background_gradient_degrees: float, Optional,
@@ -210,6 +214,8 @@ pub fn add_button(
 ///    Sets the alpha color parameter.
 ///border_color: IpgColor, Optional
 ///    Sets the Color used for the border.
+///border_color_alpha: float, Optional
+///    Sets the alpha of the IpgColor.
 ///border_rgba: list[float], Optional
 ///    Sets the Color of the border in rgba format, 4 values.
 ///border_radius: list[float], Optional
@@ -219,6 +225,8 @@ pub fn add_button(
 ///    Sets the border width.
 ///shadow_color: IpgColor, Optional
 ///    Sets the color of the shadow.
+///shadow_color_alpha: float, Optional
+///    Sets the alpha of the IpgColor.
 ///shadow_rgba: list[float], Optional
 ///    Sets the color in rgba format [float; 4] used as state above.
 ///shadow_offset_xy: list[float], Optional
@@ -227,6 +235,8 @@ pub fn add_button(
 ///    Sets the blur radius of the shadow.
 ///text_color: IpgColor, Optional
 ///    Sets the text color, if not defined, will either be a Black or White variation based on theme background.
+///text_color_alpha: float, Optional
+///    Sets the alpha of the IpgColor.
 ///text_rgba: list[float], Optional
 ///    Sets the color in rgba used as state above, 4 values.
 /// gen_id : int,  Optional
@@ -234,60 +244,67 @@ pub fn add_button(
 ///"""
 #[pyfunction]
 #[pyo3(signature = (
-        background_color=None, 
+        background_color=None,
+        background_color_alpha=None, 
         background_rgba=None,
         background_gradient_color_stop=None,
+        background_gradient_color_stop_alpha=None,
         background_gradient_rgba_stop=None,
         background_gradient_degrees=None,
         background_gradient_radians=None,
-        background_gradient_alpha=None,
-        border_color=None, 
+        border_color=None,
+        border_color_alpha=None,
         border_rgba=None,
         border_radius=None, 
         border_width=1.0,
-        shadow_color=None, 
+        shadow_color=None,
+        shadow_color_alpha=None,
         shadow_rgba=None,
         shadow_offset_xy=None, 
         shadow_blur_radius=None,
-        text_color=None, 
+        text_color=None,
+        text_color_alpha=None,
         text_rgba=None,
         gen_id=None
         ))]
 pub fn add_button_style(
     background_color: Option<IpgColor>,
+    background_color_alpha: Option<f32>,
     background_rgba: Option<[f32; 4]>,
     background_gradient_color_stop: Option<IpgColor>,
+    background_gradient_color_stop_alpha: Option<f32>,
     background_gradient_rgba_stop: Option<[f32; 4]>,
     background_gradient_degrees: Option<f32>,
     background_gradient_radians: Option<f32>,
-    background_gradient_alpha: Option<f32>,
     border_color: Option<IpgColor>,
+    border_color_alpha: Option<f32>,
     border_rgba: Option<[f32; 4]>,
     border_radius: Option<Vec<f32>>,
     border_width: Option<f32>,
     shadow_color: Option<IpgColor>,
+    shadow_color_alpha: Option<f32>,
     shadow_rgba: Option<[f32; 4]>,
     shadow_offset_xy: Option<[f32; 2]>,
     shadow_blur_radius: Option<f32>,
     text_color: Option<IpgColor>,
+    text_color_alpha: Option<f32>,
     text_rgba: Option<[f32; 4]>,
     gen_id: Option<usize>,
     ) -> PyResult<usize>
 {
     let id = get_id(gen_id);
 
-    let grad_a = background_gradient_alpha.unwrap_or(1.0);
-
     let background_color: Option<Color> = 
-        IpgColor::rgba_ipg_color_to_iced(background_rgba, background_color, 1.0);
+        IpgColor::rgba_ipg_color_to_iced(background_rgba, background_color, background_color_alpha);
     let background_gradient_color_stop: Option<Color> =
-        IpgColor::rgba_ipg_color_to_iced(background_gradient_rgba_stop, background_gradient_color_stop, grad_a);
+        IpgColor::rgba_ipg_color_to_iced(background_gradient_rgba_stop, 
+            background_gradient_color_stop, background_gradient_color_stop_alpha);
     let border_color: Option<Color> = 
-        IpgColor::rgba_ipg_color_to_iced(border_rgba, border_color, 1.0);
+        IpgColor::rgba_ipg_color_to_iced(border_rgba, border_color, border_color_alpha);
     let shadow_color: Option<Color> = 
-        IpgColor::rgba_ipg_color_to_iced(shadow_rgba, shadow_color, 1.0);
+        IpgColor::rgba_ipg_color_to_iced(shadow_rgba, shadow_color, shadow_color_alpha);
     let text_color: Option<Color> = 
-        IpgColor::rgba_ipg_color_to_iced(text_rgba, text_color, 1.0);
+        IpgColor::rgba_ipg_color_to_iced(text_rgba, text_color, text_color_alpha);
 
     let mut state = access_state();
 

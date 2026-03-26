@@ -156,27 +156,37 @@ pub fn add_toggler(
 /// ----------
 /// background_color : IpgColor, Optional
 ///     Sets the background color using a predefined color variant.
+/// background_color_alpha : float, Optional
+///     Sets the alpha of the IpgColor.
 /// background_rgba : list of float, Optional
 ///     Sets the background color in rgba format as [r, g, b, a].
 /// background_border_color : IpgColor, Optional
 ///     Sets the background border color using a predefined color variant.
+/// background_border_color_alpha : float, Optional
+///     Sets the alpha of the IpgColor.
 /// background_border_rgba : list of float, Optional
 ///     Sets the background border color in rgba format as [r, g, b, a].
 /// background_border_width : float, Optional
 ///     Sets the background border width in logical pixels.
 /// foreground_color : IpgColor, Optional
 ///     Sets the foreground (thumb) color using a predefined color variant.
+/// foreground_color_alpha : float, Optional
+///     Sets the alpha of the IpgColor.
 /// foreground_rgba : list of float, Optional
 ///     Sets the foreground (thumb) color in rgba format as [r, g, b, a].
 /// foreground_border_color : IpgColor, Optional
 ///     Sets the foreground border color using a predefined color variant.
+/// foreground_border_color_alpha : float, Optional
+///     Sets the alpha of the IpgColor.
 /// foreground_border_rgba : list of float, Optional
 ///     Sets the foreground border color in rgba format as [r, g, b, a].
 /// foreground_border_width : float, Optional
 ///     Sets the foreground border width in logical pixels.
-/// text_ipg_color : IpgColor, Optional
+/// text_color : IpgColor, Optional
 ///     Sets the text color using a predefined color variant.
-/// text_rgba_color : list of float, Optional
+/// text_ipg_alpha : float, Optional
+///     Sets the alpha of the IpgColor.
+/// text_color_rgba : list of float, Optional
 ///     Sets the text color in rgba format as [r, g, b, a].
 /// border_radius : list of float, Optional
 ///     Sets the radius of the corners as [all] or
@@ -193,34 +203,44 @@ pub fn add_toggler(
 #[pyfunction]
 #[pyo3(signature = (
     background_color=None,
+    background_color_alpha=None,
     background_rgba=None,
     background_border_color=None,
+    background_border_color_alpha=None,
     background_border_rgba=None,
     background_border_width=None,
     foreground_color=None,
+    foreground_color_alpha=None,
     foreground_rgba=None,
     foreground_border_color=None,
+    foreground_border_color_alpha=None,
     foreground_border_rgba=None,
     foreground_border_width=None,
-    text_ipg_color=None,
-    text_rgba_color=None, 
+    text_color=None,
+    text_color_alpha=None,
+    text_color_rgba=None, 
     border_radius=None, 
     padding_ratio=None, 
     gen_id=None,
     ))]
 pub fn add_toggler_style(
     background_color: Option<IpgColor>,
+    background_color_alpha: Option<f32>,
     background_rgba: Option<[f32; 4]>,
     background_border_color: Option<IpgColor>,
+    background_border_color_alpha: Option<f32>,
     background_border_rgba: Option<[f32; 4]>,
     background_border_width: Option<f32>,
     foreground_color: Option<IpgColor>,
+    foreground_color_alpha: Option<f32>,
     foreground_rgba: Option<[f32; 4]>,
     foreground_border_color: Option<IpgColor>,
+    foreground_border_color_alpha: Option<f32>,
     foreground_border_rgba: Option<[f32; 4]>,
     foreground_border_width: Option<f32>,
-    text_ipg_color: Option<IpgColor>,
-    text_rgba_color: Option<[f32; 4]>, 
+    text_color: Option<IpgColor>,
+    text_color_alpha: Option<f32>,
+    text_color_rgba: Option<[f32; 4]>, 
     border_radius: Option<Vec<f32>>,
     padding_ratio: Option<f32>, 
     gen_id: Option<usize>,
@@ -229,16 +249,16 @@ pub fn add_toggler_style(
     let id = get_id(gen_id);
 
     let background_color = 
-        IpgColor::rgba_ipg_color_to_iced(background_rgba, background_color, 1.0);
+        IpgColor::rgba_ipg_color_to_iced(background_rgba, background_color, background_color_alpha);
     let background_border_color = 
-        IpgColor::rgba_ipg_color_to_iced(background_border_rgba, background_border_color, 1.0);
+        IpgColor::rgba_ipg_color_to_iced(background_border_rgba, background_border_color, background_border_color_alpha);
     let foreground_color = 
-        IpgColor::rgba_ipg_color_to_iced(foreground_rgba, foreground_color, 1.0);
+        IpgColor::rgba_ipg_color_to_iced(foreground_rgba, foreground_color, foreground_color_alpha);
     let foreground_border_color = 
-        IpgColor::rgba_ipg_color_to_iced(foreground_border_rgba, foreground_border_color, 1.0);
+        IpgColor::rgba_ipg_color_to_iced(foreground_border_rgba, foreground_border_color, foreground_border_color_alpha);
     
     let text_color = 
-        IpgColor::rgba_ipg_color_to_iced(text_rgba_color, text_ipg_color, 1.0);
+        IpgColor::rgba_ipg_color_to_iced(text_color_rgba, text_color, text_color_alpha);
 
     let mut state = access_state();
     

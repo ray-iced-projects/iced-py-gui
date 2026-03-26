@@ -146,10 +146,14 @@ pub fn add_separator(
 /// ----------
 /// ipg_color : IpgColor, Optional
 ///     Sets the separator color using a predefined color variant.
+/// ipg_color_alpha : float, Optional
+///     Sets the alpha of the IpgColor.
 /// rgba_color : list of float, Optional
 ///     Sets the separator color in rgba format as [r, g, b, a].
 /// border_ipg_color : IpgColor, Optional
 ///     Sets the border color using a predefined color variant.
+/// border_ipg_color_alpha : float, Optional
+///     Sets the alpha of the IpgColor.
 /// border_rgba_color : list of float, Optional
 ///     Sets the border color in rgba format as [r, g, b, a].
 /// gen_id : int, Optional
@@ -162,15 +166,19 @@ pub fn add_separator(
 #[pyfunction]
 #[pyo3(signature = (
     ipg_color=None,
+    ipg_color_alpha=None,
     rgba_color=None,
     border_ipg_color=None,
+    border_ipg_color_alpha=None,
     border_rgba_color=None,
     gen_id=None,
     ))]
 pub fn add_separator_style(
     ipg_color: Option<IpgColor>,
+    ipg_color_alpha: Option<f32>,
     rgba_color: Option<[f32; 4]>,
     border_ipg_color: Option<IpgColor>,
+    border_ipg_color_alpha: Option<f32>,
     border_rgba_color: Option<[f32; 4]>,
     gen_id: Option<usize>,
     ) -> PyResult<usize> 
@@ -178,9 +186,9 @@ pub fn add_separator_style(
     let id = get_id(gen_id);
 
     let color = 
-        IpgColor::rgba_ipg_color_to_iced(rgba_color, ipg_color, 1.0);
+        IpgColor::rgba_ipg_color_to_iced(rgba_color, ipg_color, ipg_color_alpha);
     let border_color = 
-        IpgColor::rgba_ipg_color_to_iced(border_rgba_color, border_ipg_color, 1.0);
+        IpgColor::rgba_ipg_color_to_iced(border_rgba_color, border_ipg_color, border_ipg_color_alpha);
 
     let mut state = access_state();
     

@@ -14,7 +14,7 @@ Internally to Iced, there are 4 special color parameters used in add_styling_col
 
 To keep things simple, when you want to add colors to your widgets, IPG allows you to define the colors you want by using terms like background_color or background_rgba_color.  In some cases if you define, for example, a new background and nothing more, your background color may be incorporated and used to define other colors for the widget using a background strong or weak color.
 
-This program generates the base, strong and weak colors so that you can see how the colors are used. If you have another color you would like to add, just use get_color_palette(base_rgba=[your colors]).
+This program generates the base, strong and weak colors so that you can see how the colors are used. If you have another color you would like to add, just use get_color_palette(base_rgba=[your color]) or if you want to change the alpha on an IpgColor by just changing the alpha, use the same function with the alpha parameter, get_color_palette(ipg_color=your ipg color, alpha= 0.5).  The alpha parameter is in most widgets also.
 """
 
 colors = [IpgColor.PRIMARY, IpgColor.SECONDARY, IpgColor.SUCCESS, IpgColor.DANGER, IpgColor.WARNING, 

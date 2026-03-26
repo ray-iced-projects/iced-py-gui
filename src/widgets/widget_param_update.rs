@@ -221,12 +221,12 @@ pub fn set_iced_color(field: &mut Color, value: &PyObject, name: &str) {
 
 pub fn set_opt_iced_color(field: &mut Option<Color>, value: &PyObject, name: &str) {
     let color = IpgColor::extract_opt(value, name);
-    *field = IpgColor::rgba_ipg_color_to_iced(None, color, 1.0);
+    *field = IpgColor::rgba_ipg_color_to_iced(None, color, None);
 }
 
 pub fn set_opt_iced_color_from_rgba(field: &mut Option<Color>, value: &PyObject, name: &str) {
     let rgba_opt = IpgColor::extract_rgba_opt(value, name);
-    *field = IpgColor::rgba_ipg_color_to_iced(rgba_opt, None, 1.0);
+    *field = IpgColor::rgba_ipg_color_to_iced(rgba_opt, None, None);
 }
 
 pub fn set_ipg_color(field: &mut IpgColor, value: &PyObject, name: &str) {
@@ -307,7 +307,7 @@ pub fn set_vec_string(field: &mut Vec<String>, value: &PyObject, name: &str) {
 
 pub fn set_rgba_color_via_ipg(field: &mut Option<Color>, value: &PyObject, name: &str) {
     let rgba = IpgColor::extract_rgba(value, name);
-    *field = IpgColor::rgba_ipg_color_to_iced(Some(rgba), None, 1.0);
+    *field = IpgColor::rgba_ipg_color_to_iced(Some(rgba), None, None);
 }
 
 pub fn set_halign(field: &mut Option<AlignX>, value: &PyObject, name: &str) {

@@ -121,14 +121,20 @@ pub fn add_progress_bar(
 /// ----------
 /// background_color : IpgColor, Optional
 ///     Sets the background color using a predefined color variant.
+/// background_color_alpha : float, Optional
+///     Sets the alpha of the IpgColor.
 /// background_rgba : list of float, Optional
 ///     Sets the background color in rgba format as [r, g, b, a].
 /// bar_color : IpgColor, Optional
 ///     Sets the bar fill color using a predefined color variant.
+/// bar_color_alpha : float, Optional
+///     Sets the alpha of the IpgColor.
 /// bar_rgba : list of float, Optional
 ///     Sets the bar fill color in rgba format as [r, g, b, a].
 /// border_color : IpgColor, Optional
 ///     Sets the border color using a predefined color variant.
+/// border_color_alpha : float, Optional
+///     Sets the alpha of the IpgColor.
 /// border_rgba : list of float, Optional
 ///     Sets the border color in rgba format as [r, g, b, a].
 /// border_radius : list of float, Optional
@@ -145,11 +151,14 @@ pub fn add_progress_bar(
 ///     The numeric style ID to pass to a progress bar's ``style_id``.
 #[pyfunction]
 #[pyo3(signature = (
-    background_color=None, 
+    background_color=None,
+    background_color_alpha=None,
     background_rgba=None,
-    bar_color=None, 
+    bar_color=None,
+    bar_color_alpha=None,
     bar_rgba=None,
-    border_color=None, 
+    border_color=None,
+    border_color_alpha=None,
     border_rgba=None,
     border_radius=None, 
     border_width=None,
@@ -157,10 +166,13 @@ pub fn add_progress_bar(
     ))]
 pub fn add_progress_bar_style(
     background_color: Option<IpgColor>,
+    background_color_alpha: Option<f32>,
     background_rgba: Option<[f32; 4]>,
     bar_color: Option<IpgColor>,
+    bar_color_alpha: Option<f32>,
     bar_rgba: Option<[f32; 4]>,
     border_color: Option<IpgColor>,
+    border_color_alpha: Option<f32>,
     border_rgba: Option<[f32; 4]>,
     border_radius: Option<Vec<f32>>,
     border_width: Option<f32>,
@@ -170,11 +182,11 @@ pub fn add_progress_bar_style(
     let id = get_id(gen_id);
 
     let background_color = 
-        IpgColor::rgba_ipg_color_to_iced(background_rgba, background_color, 1.0);
+        IpgColor::rgba_ipg_color_to_iced(background_rgba, background_color, background_color_alpha);
     let bar_color = 
-        IpgColor::rgba_ipg_color_to_iced(bar_rgba, bar_color, 1.0);
+        IpgColor::rgba_ipg_color_to_iced(bar_rgba, bar_color, bar_color_alpha);
     let border_color = 
-        IpgColor::rgba_ipg_color_to_iced(border_rgba, border_color, 1.0);
+        IpgColor::rgba_ipg_color_to_iced(border_rgba, border_color, border_color_alpha);
 
     let mut state = access_state();
 

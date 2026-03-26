@@ -24,6 +24,8 @@ use crate::widgets::ipg_text_rich::{IpgRichText, IpgSpan};
 ///     The default line height for all spans.
 /// text_color : IpgColor, Optional
 ///     The default text color for all spans.
+/// text_color_alpha : float, Optional
+///     Sets the alpha of the IpgColor.
 /// text_rgba : list[float, 4], Optional
 ///     The default text color in rgba format.
 /// show : bool
@@ -41,6 +43,7 @@ use crate::widgets::ipg_text_rich::{IpgRichText, IpgSpan};
     size=None,
     line_height=None,
     text_color=None,
+    text_color_alpha=None,
     text_rgba=None,
     show=true,
     gen_id=None,
@@ -50,6 +53,7 @@ pub fn add_rich_text(
     size: Option<f32>,
     line_height: Option<f32>,
     text_color: Option<IpgColor>,
+    text_color_alpha: Option<f32>,
     text_rgba: Option<[f32; 4]>,
     show: bool,
     gen_id: Option<usize>,
@@ -57,7 +61,7 @@ pub fn add_rich_text(
 {
     let id = get_id(gen_id);
 
-    let color = IpgColor::rgba_ipg_color_to_iced(text_rgba, text_color, 1.0);
+    let color = IpgColor::rgba_ipg_color_to_iced(text_rgba, text_color, text_color_alpha);
 
     set_state_of_widget(id, parent_id.clone());
 
@@ -96,6 +100,8 @@ pub fn add_rich_text(
 ///     The line height for this span.
 /// text_color : IpgColor, Optional
 ///     The text color in IpgColor format.
+/// text_color_alpha : float, Optional
+///     Sets the alpha of the IpgColor.
 /// text_rgba : list[float, 4], Optional
 ///     The text color in rgba format.
 /// bold : bool
@@ -120,6 +126,7 @@ pub fn add_rich_text(
     size=None,
     line_height=None,
     text_color=None,
+    text_color_alpha=None,
     text_rgba=None,
     bold=false,
     italic=false,
@@ -133,6 +140,7 @@ pub fn add_span(
     size: Option<f32>,
     line_height: Option<f32>,
     text_color: Option<IpgColor>,
+    text_color_alpha: Option<f32>,
     text_rgba: Option<[f32; 4]>,
     bold: bool,
     italic: bool,
@@ -143,7 +151,7 @@ pub fn add_span(
 {
     let id = get_id(gen_id);
 
-    let color = IpgColor::rgba_ipg_color_to_iced(text_rgba, text_color, 1.0);
+    let color = IpgColor::rgba_ipg_color_to_iced(text_rgba, text_color, text_color_alpha);
 
     let font = if bold || italic {
         let weight = if bold { 

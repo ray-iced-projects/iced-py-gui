@@ -35,6 +35,8 @@ use crate::py_api::helpers::get_length;
 ///     Whether the SVG fills available height.
 /// ipg_color_filter : IpgColor, Optional
 ///     Sets the color filter using a predefined color variant.
+/// ipg_color_filter_alpha : float, Optional
+///     Sets the alpha of the IpgColor.
 /// rgba_filter : list of float, Optional
 ///     Sets the color filter in rgba format as [r, g, b, a].
 /// content_fit : IpgContentFit, Optional
@@ -85,6 +87,7 @@ use crate::py_api::helpers::get_length;
     height=None, 
     height_fill=false,
     ipg_color_filter=None,
+    ipg_color_filter_alpha=None,
     rgba_filter=None,
     content_fit=None,
     rotation_type=None,
@@ -113,6 +116,7 @@ pub fn add_svg(
     height: Option<f32>,
     height_fill: bool,
     ipg_color_filter: Option<IpgColor>,
+    ipg_color_filter_alpha: Option<f32>,
     rgba_filter: Option<[f32; 4]>,
     content_fit: Option<IpgContentFit>,
     rotation_type: Option<IpgRotation>,
@@ -135,7 +139,7 @@ pub fn add_svg(
     let id = get_id(gen_id);
 
     let color_filter = 
-        IpgColor::rgba_ipg_color_to_iced(rgba_filter, ipg_color_filter, 1.0);
+        IpgColor::rgba_ipg_color_to_iced(rgba_filter, ipg_color_filter, ipg_color_filter_alpha);
 
     if let Some(py) = on_press {
         add_callback_to_mutex(id, "on_press".to_string(), py);

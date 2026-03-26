@@ -231,13 +231,13 @@ pub fn add_checkbox_style(
     let id = get_id(gen_id);
 
     let background_color: Option<Color> = 
-        IpgColor::rgba_ipg_color_to_iced(background_rgba, background_color, 1.0, false);
+        IpgColor::rgba_ipg_color_to_iced(background_rgba, background_color, 1.0);
     let border_color: Option<Color> = 
-        IpgColor::rgba_ipg_color_to_iced(border_rgba, border_color, 1.0, false);
+        IpgColor::rgba_ipg_color_to_iced(border_rgba, border_color, 1.0);
     let icon_color: Option<Color> = 
-        IpgColor::rgba_ipg_color_to_iced(icon_rgba, icon_color, 1.0, false);
+        IpgColor::rgba_ipg_color_to_iced(icon_rgba, icon_color, 1.0);
     let text_color: Option<Color> = 
-        IpgColor::rgba_ipg_color_to_iced(text_rgba, text_color, 1.0, false);
+        IpgColor::rgba_ipg_color_to_iced(text_rgba, text_color, 1.0);
 
     let mut state = access_state();
 

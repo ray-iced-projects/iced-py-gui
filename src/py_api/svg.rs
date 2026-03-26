@@ -135,7 +135,7 @@ pub fn add_svg(
     let id = get_id(gen_id);
 
     let color_filter = 
-        IpgColor::rgba_ipg_color_to_iced(rgba_filter, ipg_color_filter, 1.0, false);
+        IpgColor::rgba_ipg_color_to_iced(rgba_filter, ipg_color_filter, 1.0);
 
     if let Some(py) = on_press {
         add_callback_to_mutex(id, "on_press".to_string(), py);

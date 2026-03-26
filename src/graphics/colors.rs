@@ -176,20 +176,12 @@ pub enum IpgColor {
 }
 
 impl IpgColor {
-    pub fn rgba_ipg_color_to_iced(rgba: Option<[f32; 4]>, color: Option<IpgColor>, alpha: f32, invert: bool) -> Option<Color> {
+    pub fn rgba_ipg_color_to_iced(rgba: Option<[f32; 4]>, color: Option<IpgColor>, alpha: f32) -> Option<Color> {
         if let Some(rgba) = rgba {
-            let mut color: Color = Color::from_rgba(rgba[0], rgba[1], rgba[2], rgba[3] * alpha);
-            if invert {
-                color.invert()
-            }
-            Some(color)
+            Some(Color::from_rgba(rgba[0], rgba[1], rgba[2], rgba[3]))
         } else if let Some(c) = color {
-            let mut color: Color = c.to_iced();
-            color = color.scale_alpha(alpha);
-            if invert {
-                color.invert()
-            }
-            Some(color)
+            let color: Color = c.to_iced();
+            Some(color.scale_alpha(alpha))
         } else {
             None
         }

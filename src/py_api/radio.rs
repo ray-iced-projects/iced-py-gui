@@ -250,17 +250,17 @@ pub fn add_radio_style(
     let id = get_id(gen_id);
 
     let background_color = 
-        IpgColor::rgba_ipg_color_to_iced(background_rgba, background_color, 1.0, false);
+        IpgColor::rgba_ipg_color_to_iced(background_rgba, background_color, 1.0);
     let background_color_hovered = 
-        IpgColor::rgba_ipg_color_to_iced(background_rgba_hovered, background_color_hovered, 1.0, false);
+        IpgColor::rgba_ipg_color_to_iced(background_rgba_hovered, background_color_hovered, 1.0);
     let dot_color: Option<Color> = 
-        IpgColor::rgba_ipg_color_to_iced(dot_rgba, dot_color, 1.0, false);
+        IpgColor::rgba_ipg_color_to_iced(dot_rgba, dot_color, 1.0);
     let dot_color_hovered: Option<Color> = 
-        IpgColor::rgba_ipg_color_to_iced(dot_rgba_hovered, dot_color_hovered, 1.0, false);
+        IpgColor::rgba_ipg_color_to_iced(dot_rgba_hovered, dot_color_hovered, 1.0);
     let border_color: Option<Color> = 
-        IpgColor::rgba_ipg_color_to_iced(border_rgba, border_color, 1.0, false);
+        IpgColor::rgba_ipg_color_to_iced(border_rgba, border_color, 1.0);
     let text_color: Option<Color> = 
-        IpgColor::rgba_ipg_color_to_iced(text_rgba, text_color, 1.0, false);
+        IpgColor::rgba_ipg_color_to_iced(text_rgba, text_color, 1.0);
 
     let mut state = access_state();
 

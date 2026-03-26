@@ -279,15 +279,15 @@ pub fn add_button_style(
     let grad_a = background_gradient_alpha.unwrap_or(1.0);
 
     let background_color: Option<Color> = 
-        IpgColor::rgba_ipg_color_to_iced(background_rgba, background_color, 1.0, false);
+        IpgColor::rgba_ipg_color_to_iced(background_rgba, background_color, 1.0);
     let background_gradient_color_stop: Option<Color> =
-        IpgColor::rgba_ipg_color_to_iced(background_gradient_rgba_stop, background_gradient_color_stop, grad_a, false);
+        IpgColor::rgba_ipg_color_to_iced(background_gradient_rgba_stop, background_gradient_color_stop, grad_a);
     let border_color: Option<Color> = 
-        IpgColor::rgba_ipg_color_to_iced(border_rgba, border_color, 1.0, false);
+        IpgColor::rgba_ipg_color_to_iced(border_rgba, border_color, 1.0);
     let shadow_color: Option<Color> = 
-        IpgColor::rgba_ipg_color_to_iced(shadow_rgba, shadow_color, 1.0, false);
+        IpgColor::rgba_ipg_color_to_iced(shadow_rgba, shadow_color, 1.0);
     let text_color: Option<Color> = 
-        IpgColor::rgba_ipg_color_to_iced(text_rgba, text_color, 1.0, false);
+        IpgColor::rgba_ipg_color_to_iced(text_rgba, text_color, 1.0);
 
     let mut state = access_state();
 

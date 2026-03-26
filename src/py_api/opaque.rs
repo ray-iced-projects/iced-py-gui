@@ -176,7 +176,7 @@ pub fn add_opaque_style(
     let mut state = access_state();
 
     let background_color: Option<Color> = 
-    IpgColor::rgba_ipg_color_to_iced(background_rgba, background_color, 1.0, false);
+    IpgColor::rgba_ipg_color_to_iced(background_rgba, background_color, 1.0);
 
     state.widgets.insert(id, IpgWidgets::IpgOpaqueStyle(
         IpgOpaqueStyle {

@@ -66,6 +66,8 @@ from .icedpygui import (
     update_widget,
     start_session,
     generate_id,
+    get_rgba_color,
+    get_color_palette,
     Align,
     AlignX,
     AlignY,

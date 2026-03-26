@@ -125,7 +125,7 @@ pub fn add_text(
     let id = get_id(gen_id);
 
     let color= 
-        IpgColor::rgba_ipg_color_to_iced(text_rgba, text_color, 1.0, false);
+        IpgColor::rgba_ipg_color_to_iced(text_rgba, text_color, 1.0);
 
     let width = get_length(width, width_fill);
     let height = get_length(height, height_fill);

@@ -93,6 +93,8 @@ from .icedpygui import (
     update_timer as update_timer,
     update_widget as update_widget,
     generate_id as generate_id,
+    get_rgba_color,
+    get_color_palette,
 )
 
 # ---------------------------------------------------------------------------

@@ -26,6 +26,7 @@ use crate::py_api::window::add_window;
 use crate::py_api::button::{add_button, add_button_style};
 use crate::py_api::card::{add_card, add_card_style};
 use crate::py_api::checkbox::{add_checkbox, add_checkbox_style};
+use crate::py_api::colors::{get_color_palette, get_rgba_color};
 use crate::py_api::color_picker::{add_color_picker};
 use crate::py_api::column::add_column;
 use crate::py_api::container::{add_container, add_container_style};
@@ -150,6 +151,10 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(move_widget, m)?)?;
     m.add_function(wrap_pyfunction!(show_widget, m)?)?;
     m.add_function(wrap_pyfunction!(update_timer, m)?)?;
+
+    //Color functions
+    m.add_function(wrap_pyfunction!(get_rgba_color, m)?)?;
+    m.add_function(wrap_pyfunction!(get_color_palette, m)?)?;
     
     // styles
     m.add_function(wrap_pyfunction!(add_button_style, m)?)?;

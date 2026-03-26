@@ -122,7 +122,7 @@ pub fn add_color_picker(
     }
 
     let color = 
-        IpgColor::rgba_ipg_color_to_iced(rgba, color, 1.0, false).unwrap();
+        IpgColor::rgba_ipg_color_to_iced(rgba, color, 1.0).unwrap();
 
     if let Some(py) = on_press {
         add_callback_to_mutex(id, "on_press".to_string(), py);

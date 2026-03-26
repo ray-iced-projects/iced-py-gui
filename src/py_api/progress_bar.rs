@@ -170,11 +170,11 @@ pub fn add_progress_bar_style(
     let id = get_id(gen_id);
 
     let background_color = 
-        IpgColor::rgba_ipg_color_to_iced(background_rgba, background_color, 1.0, false);
+        IpgColor::rgba_ipg_color_to_iced(background_rgba, background_color, 1.0);
     let bar_color = 
-        IpgColor::rgba_ipg_color_to_iced(bar_rgba, bar_color, 1.0, false);
+        IpgColor::rgba_ipg_color_to_iced(bar_rgba, bar_color, 1.0);
     let border_color = 
-        IpgColor::rgba_ipg_color_to_iced(border_rgba, border_color, 1.0, false);
+        IpgColor::rgba_ipg_color_to_iced(border_rgba, border_color, 1.0);
 
     let mut state = access_state();
 

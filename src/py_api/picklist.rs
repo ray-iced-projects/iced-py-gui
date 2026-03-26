@@ -253,17 +253,17 @@ pub fn add_pick_list_style(
     let id = get_id(gen_id);
     
     let background_color: Option<Color> = 
-        IpgColor::rgba_ipg_color_to_iced(background_rgba, background_color, 1.0, false);
+        IpgColor::rgba_ipg_color_to_iced(background_rgba, background_color, 1.0);
     let border_color: Option<Color> = 
-        IpgColor::rgba_ipg_color_to_iced(border_rgba, border_color, 1.0, false);
+        IpgColor::rgba_ipg_color_to_iced(border_rgba, border_color, 1.0);
     let border_color_hovered: Option<Color> = 
-        IpgColor::rgba_ipg_color_to_iced(border_rgba_hovered, border_color_hovered, 1.0, false);
+        IpgColor::rgba_ipg_color_to_iced(border_rgba_hovered, border_color_hovered, 1.0);
     let handle_color: Option<Color> = 
-        IpgColor::rgba_ipg_color_to_iced(handle_rgba, handle_color, 1.0, false);
+        IpgColor::rgba_ipg_color_to_iced(handle_rgba, handle_color, 1.0);
     let placeholder_color = 
-        IpgColor::rgba_ipg_color_to_iced(placeholder_rgba, placeholder_color, 1.0, false);
+        IpgColor::rgba_ipg_color_to_iced(placeholder_rgba, placeholder_color, 1.0);
     let text_color = 
-        IpgColor::rgba_ipg_color_to_iced(text_rgba, text_color, 1.0, false);
+        IpgColor::rgba_ipg_color_to_iced(text_rgba, text_color, 1.0);
 
     let mut state = access_state();
 

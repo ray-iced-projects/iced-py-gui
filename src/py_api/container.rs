@@ -294,15 +294,15 @@ pub fn add_container_style(
     let text_a = text_alpha.unwrap_or(1.0);
 
     let background_color: Option<Color> = 
-        IpgColor::rgba_ipg_color_to_iced(background_rgba, background_color, bkg_a, false);
+        IpgColor::rgba_ipg_color_to_iced(background_rgba, background_color, bkg_a);
     let background_gradient_color_stop = 
-        IpgColor::rgba_ipg_color_to_iced(background_gradient_rgba_stop, background_gradient_color_stop, grad_a, false);
+        IpgColor::rgba_ipg_color_to_iced(background_gradient_rgba_stop, background_gradient_color_stop, grad_a);
     let border_color: Option<Color> = 
-        IpgColor::rgba_ipg_color_to_iced(border_rgba, border_color, border_a, false);
+        IpgColor::rgba_ipg_color_to_iced(border_rgba, border_color, border_a);
     let shadow_color: Option<Color> = 
-        IpgColor::rgba_ipg_color_to_iced(shadow_rgba, shadow_color, shadow_a, false);
+        IpgColor::rgba_ipg_color_to_iced(shadow_rgba, shadow_color, shadow_a);
     let text_color: Option<Color> = 
-        IpgColor::rgba_ipg_color_to_iced(text_rgba, text_color, text_a, false);
+        IpgColor::rgba_ipg_color_to_iced(text_rgba, text_color, text_a);
 
     let mut state = access_state();
 

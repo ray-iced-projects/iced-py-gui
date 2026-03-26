@@ -100,7 +100,7 @@ pub fn get_theme_palette_color(theme: &iced::Theme) -> Color {
     let b = theme.palette().background.b;
     let a = theme.palette().background.a;
     let rgba = [r, b, g, a];
-    IpgColor::rgba_ipg_color_to_iced(Some(rgba), None, 1.0, false).unwrap()
+    IpgColor::rgba_ipg_color_to_iced(Some(rgba), None, 1.0).unwrap()
 }
 
 

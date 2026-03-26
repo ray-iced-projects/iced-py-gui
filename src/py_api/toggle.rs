@@ -229,16 +229,16 @@ pub fn add_toggler_style(
     let id = get_id(gen_id);
 
     let background_color = 
-        IpgColor::rgba_ipg_color_to_iced(background_rgba, background_color, 1.0, false);
+        IpgColor::rgba_ipg_color_to_iced(background_rgba, background_color, 1.0);
     let background_border_color = 
-        IpgColor::rgba_ipg_color_to_iced(background_border_rgba, background_border_color, 1.0, false);
+        IpgColor::rgba_ipg_color_to_iced(background_border_rgba, background_border_color, 1.0);
     let foreground_color = 
-        IpgColor::rgba_ipg_color_to_iced(foreground_rgba, foreground_color, 1.0, false);
+        IpgColor::rgba_ipg_color_to_iced(foreground_rgba, foreground_color, 1.0);
     let foreground_border_color = 
-        IpgColor::rgba_ipg_color_to_iced(foreground_border_rgba, foreground_border_color, 1.0, false);
+        IpgColor::rgba_ipg_color_to_iced(foreground_border_rgba, foreground_border_color, 1.0);
     
     let text_color = 
-        IpgColor::rgba_ipg_color_to_iced(text_rgba_color, text_ipg_color, 1.0, false);
+        IpgColor::rgba_ipg_color_to_iced(text_rgba_color, text_ipg_color, 1.0);
 
     let mut state = access_state();
     

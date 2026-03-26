@@ -287,23 +287,23 @@ pub fn add_card_style(
     let id = get_id(gen_id);
 
     let background = 
-        IpgColor::rgba_ipg_color_to_iced(background_rgba, background_color, 1.0, false);
+        IpgColor::rgba_ipg_color_to_iced(background_rgba, background_color, 1.0);
     let border_color = 
-        IpgColor::rgba_ipg_color_to_iced(border_rgba, border_color, 1.0, false);
+        IpgColor::rgba_ipg_color_to_iced(border_rgba, border_color, 1.0);
     let head_background = 
-        IpgColor::rgba_ipg_color_to_iced(head_background_rgba, head_background_color, 1.0, false);
+        IpgColor::rgba_ipg_color_to_iced(head_background_rgba, head_background_color, 1.0);
     let body_background = 
-        IpgColor::rgba_ipg_color_to_iced(body_background_rgba, body_background_color, 1.0, false);
+        IpgColor::rgba_ipg_color_to_iced(body_background_rgba, body_background_color, 1.0);
     let foot_background = 
-        IpgColor::rgba_ipg_color_to_iced(foot_background_rgba, foot_background_color, 1.0, false);
+        IpgColor::rgba_ipg_color_to_iced(foot_background_rgba, foot_background_color, 1.0);
     let head_text_color = 
-        IpgColor::rgba_ipg_color_to_iced(head_text_rgba, head_text_color, 1.0, false);
+        IpgColor::rgba_ipg_color_to_iced(head_text_rgba, head_text_color, 1.0);
     let body_text_color = 
-        IpgColor::rgba_ipg_color_to_iced(body_text_rgba, body_text_color, 1.0, false);
+        IpgColor::rgba_ipg_color_to_iced(body_text_rgba, body_text_color, 1.0);
     let foot_text_color = 
-        IpgColor::rgba_ipg_color_to_iced(foot_text_rgba, foot_text_color, 1.0, false);
+        IpgColor::rgba_ipg_color_to_iced(foot_text_rgba, foot_text_color, 1.0);
     let close_color = 
-        IpgColor::rgba_ipg_color_to_iced(close_rgba, close_color, 1.0, false);
+        IpgColor::rgba_ipg_color_to_iced(close_rgba, close_color, 1.0);
 
     let mut state = access_state();
 

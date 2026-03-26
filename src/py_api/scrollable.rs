@@ -182,7 +182,7 @@ pub fn add_scrollable_style(
     let id = get_id(gen_id);
 
     let gap_color = 
-        IpgColor::rgba_ipg_color_to_iced(gap_rgba, gap_color, 1.0, false);
+        IpgColor::rgba_ipg_color_to_iced(gap_rgba, gap_color, 1.0);
     
     let mut state = access_state();
 
@@ -343,14 +343,14 @@ pub fn add_rail_style(
     let id = get_id(gen_id);
 
     let background: Option<Color> = 
-        IpgColor::rgba_ipg_color_to_iced(background_rgba, background_color, 1.0, false);
+        IpgColor::rgba_ipg_color_to_iced(background_rgba, background_color, 1.0);
     let border_color: Option<Color> = 
-        IpgColor::rgba_ipg_color_to_iced(border_rgba, border_color, 1.0, false);
+        IpgColor::rgba_ipg_color_to_iced(border_rgba, border_color, 1.0);
 
     let scroller_background: Option<Color> = 
-        IpgColor::rgba_ipg_color_to_iced(scroller_background_rgba, scroller_background_color, 1.0, false);
+        IpgColor::rgba_ipg_color_to_iced(scroller_background_rgba, scroller_background_color, 1.0);
     let scroller_border_color: Option<Color> = 
-        IpgColor::rgba_ipg_color_to_iced(scroller_border_rgba, scroller_border_color, 1.0, false);
+        IpgColor::rgba_ipg_color_to_iced(scroller_border_rgba, scroller_border_color, 1.0);
     
     let mut state = access_state();
 
@@ -445,13 +445,13 @@ pub fn add_autoscroll_style(
     let id = get_id(gen_id);
 
     let background: Option<Color> = 
-        IpgColor::rgba_ipg_color_to_iced(background_rgba, background_color, 1.0, false);
+        IpgColor::rgba_ipg_color_to_iced(background_rgba, background_color, 1.0);
     let border_color: Option<Color> = 
-        IpgColor::rgba_ipg_color_to_iced(border_rgba, border_color, 1.0, false);
+        IpgColor::rgba_ipg_color_to_iced(border_rgba, border_color, 1.0);
     let shadow_color: Option<Color> = 
-        IpgColor::rgba_ipg_color_to_iced(shadow_rgba, shadow_color, 1.0, false);
+        IpgColor::rgba_ipg_color_to_iced(shadow_rgba, shadow_color, 1.0);
     let shadow_icon_color: Option<Color> = 
-        IpgColor::rgba_ipg_color_to_iced(shadow_icon_rgba, shadow_icon_color, 1.0, false);
+        IpgColor::rgba_ipg_color_to_iced(shadow_icon_rgba, shadow_icon_color, 1.0);
     
     let mut state = access_state();
 

@@ -184,7 +184,7 @@ pub fn add_selectable_text(
     let width = get_length(width, width_fill);
     let height = get_length(height, height_fill);
 
-    let text_color = IpgColor::rgba_ipg_color_to_iced(text_rgba, text_color, 1.0, false);
+    let text_color = IpgColor::rgba_ipg_color_to_iced(text_rgba, text_color, 1.0);
 
     set_state_of_widget(id, parent_id.clone());
 

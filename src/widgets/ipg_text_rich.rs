@@ -123,10 +123,10 @@ impl WidgetParamUpdate for IpgRichText {
             IpgRichTextParam::Show => set_bool(&mut self.show, value, "IpgRichTextParam::Show"),
             IpgRichTextParam::Size => set_opt_f32(&mut self.size, value, "IpgRichTextParam::Size"),
             IpgRichTextParam::TextColor => {
-                self.color = IpgColor::rgba_ipg_color_to_iced(None, None, 1.0, false);
+                self.color = IpgColor::rgba_ipg_color_to_iced(None, None, 1.0);
             },
             IpgRichTextParam::TextRgba => {
-                self.color = IpgColor::rgba_ipg_color_to_iced(None, None, 1.0, false);
+                self.color = IpgColor::rgba_ipg_color_to_iced(None, None, 1.0);
             },
         }
     }

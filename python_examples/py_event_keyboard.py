@@ -1,4 +1,6 @@
-from imports import *
+from icedpygui import Window, Container, Column, start_session, \
+    add_event_keyboard, IpgTextParam, \
+    add_text, add_space, update_widget
 
 # When ctrl, alt, logo(MAC), or shift are processed, they are keys.  Therefore modifier is "None".
 # When a key follows the command key, then modifier is the command key and key is the key.
@@ -43,6 +45,7 @@ def key_released(
 
 
 # add the event and the two callbacks along with the user_data if needed.
+# Unlike widgets, the events can be added at any time since they are not widgets
 add_event_keyboard(
         enabled=True, 
         on_key_press=key_pressed, 
@@ -50,43 +53,27 @@ add_event_keyboard(
         user_data=[25])
 
 
-# Unlike widgets, the events can be added at any time since they are not widgets
+
 # A window is added before any widgets
-add_window(
-        id="main", 
+with Window(
         title="KeyBoard Handler Demo",
-    size=(600, 400),
-        pos_centered=True)
+        size=(600, 400),
+        center=True):
 
-# A column is added to hold the widgets
-add_column(
-        window_id="main", 
-        id="col",
-        align=IpgAlignment.Center,
-        width_fill=True, 
-        height_fill=True)
+    # A column is added to hold the widgets
+    with Column(align_center=True, fill=True):
 
-# a space for readability
-add_space(
-        parent_id="col", 
-        height=50.0)
+        # a space for readability
+        add_space(height=50.0)
 
-# Some text to display the output
-text_pressed = add_text(
-                    parent_id="col", 
-                    content="Key presses will show here")
+        # Some text to display the output
+        text_pressed = add_text(content="Key presses will show here")
 
-text_released = add_text(
-                    parent_id="col", 
-                    content="Key releases will show here")
+        text_released = add_text(content="Key releases will show here")
 
-add_space(
-        parent_id="col", 
-        height=50.0)
+        add_space(height=50.0)
 
-text_user_data = add_text(
-                    parent_id="col", 
-                    content="Some user data will be displayed here")
+        text_user_data = add_text(content="Some user data will be displayed here")
 
 
 # Required to be the last widget sent to Iced,  If you start the program

@@ -32,6 +32,7 @@ use crate::py_api::column::add_column;
 use crate::py_api::container::{add_container, add_container_style};
 use crate::py_api::date_picker::add_date_picker;
 use crate::py_api::divider::{add_divider, add_divider_style};
+use crate::py_api::events::{add_event_keyboard, add_event_mouse};
 use crate::py_api::font::add_font;
 use crate::py_api::image::add_image;
 use crate::py_api::menu::{add_menu, add_menu_bar_item, add_menu_style};
@@ -107,6 +108,8 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     // Event functions
     m.add_function(wrap_pyfunction!(add_event_window, m)?)?;
     m.add_function(wrap_pyfunction!(add_event_timer, m)?)?;
+    m.add_function(wrap_pyfunction!(add_event_keyboard, m)?)?;
+    m.add_function(wrap_pyfunction!(add_event_mouse, m)?)?;
     
     // Widget functions
     m.add_function(wrap_pyfunction!(add_window, m)?)?;

@@ -57,6 +57,8 @@ from .icedpygui import (
     add_tool_tip as _add_tool_tip,
     add_window as _add_window,
     add_event_window,
+    add_event_keyboard,
+    add_event_mouse,
     add_event_timer,
     delete_widget,
     hide_widget,

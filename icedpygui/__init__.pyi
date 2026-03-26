@@ -84,6 +84,8 @@ from .icedpygui import (
     TextShaping as TextShaping,
     TextWrapping as TextWrapping,
     add_event_window,
+    add_event_keyboard,
+    add_event_mouse,
     add_event_timer,
     start_session as start_session,
     delete_widget as delete_widget,

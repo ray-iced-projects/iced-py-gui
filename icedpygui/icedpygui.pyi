@@ -2207,9 +2207,9 @@ class IpgDividerStyleParam:
     Transparent:bool
     
 
-class IpgImageContentFit:
+class IpgContentFit:
     """
-    Content fit for the image
+    Content fit for a image or svg widget
 
     Parameters
     ---------
@@ -2231,7 +2231,7 @@ class IpgImageContentFit:
     ScaleDown: str
 
 
-class IpgImageFilterMethod:
+class IpgFilterMethod:
     '''
     How the image is filtered
 
@@ -2246,7 +2246,7 @@ class IpgImageFilterMethod:
     Nearest: str
 
 
-class IpgImageRotation:
+class IpgRotation:
     """
     What happens to the container when image is rotated.
 
@@ -3051,23 +3051,6 @@ class IpgSvgParam:
     RotationRadians: float
     Opacity: float
 
-class IpgSvgContentFit:
-    """
-    How the image is sized.
-    """
-    Contain=''
-    Cover=''
-    Fill=''
-    IpgNone=''
-    ScaleDown=''
-
-
-class IpgSvgRotation:
-    """
-    How the images interacts with the background during rotations.
-    """
-    Floating=''
-    Solid=''
 
 
 class IpgTableParam:

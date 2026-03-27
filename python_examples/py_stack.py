@@ -1,4 +1,9 @@
-from imports import *
+from icedpygui import Window, Column, Container, Stack, start_session, \
+    add_image, add_text, add_space, update_widget, IpgTextParam, \
+    IpgContentFit, MouseArea, IpgMousePointer
+    
+import os
+
 
 def card_selected(card_id, name):
     update_widget(
@@ -12,61 +17,35 @@ path = path = cwd + "/python_examples/resources/cards/hearts/"
 
 names = ["Ace", "2", "3", "4", "5", "6", "7", "8", "9", "10", "Jack", "Queen", "King"]
 
-add_window(
-        id="main",
-        title="Stack",
-    size=(400.0, 800.0),
-        pos_centered=True)
+with Window(title="Stack", center=True):
 
-add_container(
-        window_id="main",
-        id="cont",
-        width_fill=True,
-        height_fill=True)
+    with Container(fill=True, align_center=True):
 
-add_column(
-        window_id="main",
-        id="main_col",
-        parent_id="cont",
-        height_fill=True)
+        with Column(width=200, height_fill=True):
+            add_space(height=30)
+            text_id = add_text(content="Card Selected is None")
+            add_space(height=30)
+            # Adds the stack container to the window.
+            with Stack(height_fill=True):
 
-text_id = add_text(
-                parent_id="main_col", 
-                content="Card Selected is None")
+                for i in range(1, 14):
+                    # Adds the column to the stack to hold the space and card.
+                    with Column():
 
-# Adds the stack container to the window.
-stack_id = add_stack(
-                    window_id="main",
-                    id="stack",
-                    parent_id="main_col",
-                    width=200.0,
-                    height=750.0)
+                        file = f"{path}{i}.png"
 
-for i in range(1, 14):
-    # Adds the column to the stack to hold the space and card.
-    add_column(
-            window_id="main",
-            id=f"col_{i}",
-            parent_id="stack")
-
-    file = f"{path}{i}.png"
-
-    # The space, whcich grows with each card, allows for an offset
-    # to be able to see all of the cards.  If not used, they are 
-    # stacked on top of each other.
-    add_space(
-            parent_id=f"col_{i}",
-            height=35*i-35)
-
-    add_image(
-            parent_id=f"col_{i}", 
-            image_path=file,
-            width=200.0, 
-            height=300.0,
-            content_fit=IpgImageContentFit.Fill,
-            mouse_pointer=IpgMousePointer.Grabbing,
-            on_press=card_selected,
-            user_data=f"{names[i-1]}")
+                        # The space, which grows with each card, allows for an offset
+                        # to be able to see all of the cards.  If not used, they are 
+                        # stacked on top of each other.
+                        add_space(height=35*i-35)
+                        with Container(width=150, height=250):
+                            with MouseArea(
+                                mouse_pointer=IpgMousePointer.Grab,
+                                on_press=card_selected,
+                                user_data=names[i-1]):
+                                add_image(
+                                    image_path=file,
+                                    content_fit=IpgContentFit.Fill)
 
 
 start_session()

@@ -287,6 +287,18 @@ def add_divider(
         int: widget id
     """
     ...
+def add_image(
+    *, parent_id: Optional[str] = None,
+    **kwargs: Any) -> int:
+    """_summary_
+
+    Args:
+        parent_id (Optional[str], optional): _description_. Defaults to None.
+
+    Returns:
+        int: widget id
+    """
+    ...
 def add_pick_list(
     *,
     parent_id: Optional[str] = None,
@@ -532,19 +544,6 @@ def add_opaque(
     window_id: Optional[str] = None,
     container_id: Optional[str] = None,
     parent_id: Optional[str] = None,
-    width: Optional[float] = None,
-    width_fill: bool = False,
-    height: Optional[float] = None, 
-    height_fill: bool = False,
-    fill: Optional[float] = None,
-    center: Optional[bool] = None,
-    align_x: Optional[str] = None,
-    align_y: Optional[str] = None,
-    mouse_on_press: Optional[Any] = None,
-    user_data: Optional[Any] = None,
-    show: bool = True, 
-    style_id: Optional[int] = None,
-    gen_id: Optional[int] = None,
 ) -> int:
     """_summary_
 
@@ -947,7 +946,31 @@ class MouseArea:
         exc_val: BaseException | None, \
             exc_tb: TracebackType | None) -> bool: ...
 
+class Opague:
+    """Context manager wrapper around add_row.
 
+    A container that prevents mouse actions for passing throught.
+
+    Usage::
+
+        with Window(title="Demo"):
+            with Row(spacing=10.0):
+                add_text(content="hello")
+                add_text(content="hello")
+        start_session
+    """
+    def __init__(
+        self,
+        *,
+        window_id: Optional[str] = None,
+        container_id: Optional[str] = None,
+        parent_id: Optional[str] = None,
+    ) -> None: ...
+    def __enter__(self) -> int: ...
+    def __exit__(self, exc_type: type[BaseException] | None, \
+        exc_val: BaseException | None,\
+            exc_tb: TracebackType | None) -> bool: ...
+    
 class Row:
     """Context manager wrapper around add_row.
 

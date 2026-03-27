@@ -21,9 +21,8 @@ use crate::widgets::ipg_color_picker::{ColPikMessage, color_picker_callback};
 use crate::widgets::ipg_date_picker::{DPMessage, date_picker_update};
 use crate::widgets::ipg_divider::{DivMessage, divider_callback};
 use crate::widgets::ipg_events::{process_keyboard_events, process_mouse_events, process_touch_events, process_window_event};
-use crate::widgets::ipg_image::{ImageMessage, construct_image, image_callback};
 use crate::widgets::ipg_mouse_area::{construct_mousearea, mousearea_callback, mousearea_callback_point};
-use crate::widgets::ipg_opaque::{construct_opaque, opaque_callback};
+use crate::widgets::ipg_opaque;
 use crate::widgets::ipg_pick_list::{PLMessage, construct_picklist, pick_list_callback};
 use crate::widgets::ipg_progress_bar::construct_progress_bar;
 use crate::widgets::ipg_radio::{RDMessage, construct_radio, radio_callback};
@@ -56,7 +55,6 @@ pub enum Message {
     EventMouse(Event),
     EventWindow((window::Id, Event)),
     EventTouch(Event),
-    Image(usize, ImageMessage),
 //     // Modal(usize, ModalMessage),
     PickList(usize, PLMessage),
     Radio(usize, RDMessage),
@@ -89,7 +87,6 @@ pub enum Message {
     MouseAreaOnMove(Point, usize),
     MouseAreaOnExit(usize),
 
-    OpaqueOnPress(usize),
 }
 
 #[derive(Debug, Clone)]
@@ -210,12 +207,6 @@ impl App {
                 process_widget_updates(&mut self.state); //, &mut self.canvas_state);
                 Task::none()
             },
-            Message::Image(id, message) => {
-                image_callback(id, message);
-                // process_updates(&mut self.state, &mut self.canvas_state);
-                process_widget_updates(&mut self.state);
-                Task::none()
-            },
             Message::MouseAreaOnPress(id) => {
                 mousearea_callback(&mut self.state, id, "on_press".to_string());
                 // process_updates(&mut self.state, &mut self.canvas_state);
@@ -266,12 +257,6 @@ impl App {
             },
             Message::MouseAreaOnExit(id) => {
                 mousearea_callback(&mut self.state, id, "on_exit".to_string());
-                // process_updates(&mut self.state, &mut self.canvas_state);
-                process_widget_updates(&mut self.state);
-                Task::none()
-            },
-            Message::OpaqueOnPress(id) => {
-                opaque_callback(&mut self.state, id, "on_press".to_string());
                 // process_updates(&mut self.state, &mut self.canvas_state);
                 process_widget_updates(&mut self.state);
                 Task::none()
@@ -734,12 +719,7 @@ fn get_container<'a>(state: &'a IpgState,
                     construct_mousearea(m_area, content)
                 },
                 IpgContainers::IpgOpaque(op) => {
-                    let style_opt = 
-                        if let Some(id)  = op.style_id {
-                            state.widgets.get(&id)
-                        } else { None };
-
-                    construct_opaque(op, content, style_opt)
+                    op.construct(content)
                 },
                 IpgContainers::IpgTable(table) => {
                     table.construct(content, &state.widgets)
@@ -793,7 +773,7 @@ fn get_widget<'a>(state: &'a IpgState, id: &usize) -> Option<Element<'a, Message
                     div.construct(&state.widgets)
                 },
                 IpgWidgets::IpgImage(image) => {
-                    construct_image(image)
+                    image.construct()
                 },
                 // IpgWidgets::IpgMenu(menu) => {
                 //     Some(construct_menu(menu.clone(), state))

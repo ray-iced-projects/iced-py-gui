@@ -37,7 +37,7 @@ use crate::py_api::font::add_font;
 use crate::py_api::image::add_image;
 use crate::py_api::menu::{add_menu, add_menu_bar_item, add_menu_style};
 use crate::py_api::mouse_area::add_mouse_area;
-use crate::py_api::opaque::{add_opaque_container, add_opaque_style};
+use crate::py_api::opaque::add_opaque;
 use crate::py_api::progress_bar::{add_progress_bar, add_progress_bar_style};
 use crate::py_api::radio::{add_radio, add_radio_style};
 use crate::py_api::row::add_row;
@@ -62,7 +62,8 @@ use crate::py_api::tool_tip::add_tool_tip;
 use crate::py_api::update::{update_widget, delete_widget, hide_widget, move_widget, show_widget};
 
 // Import enums from widgets module
-use crate::widgets::enums::{Align, AlignX, AlignY};
+use crate::widgets::enums::{Align, AlignX, AlignY, IpgContentFit};
+use crate::widgets::ipg_mouse_area::IpgMousePointer;
 use crate::widgets::styling::IpgStyleStandard;
 use crate::graphics::{bootstrap_icon::IpgIcon, bootstrap_arrow::IpgArrow};
 use crate::graphics::colors::IpgColor;
@@ -126,7 +127,7 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(add_menu, m)?)?;
     m.add_function(wrap_pyfunction!(add_menu_bar_item, m)?)?;
     m.add_function(wrap_pyfunction!(add_mouse_area, m)?)?;
-    m.add_function(wrap_pyfunction!(add_opaque_container, m)?)?;
+    m.add_function(wrap_pyfunction!(add_opaque, m)?)?;
     m.add_function(wrap_pyfunction!(add_pick_list, m)?)?;
     m.add_function(wrap_pyfunction!(add_progress_bar, m)?)?;
     m.add_function(wrap_pyfunction!(add_radio, m)?)?;
@@ -166,7 +167,6 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(add_container_style, m)?)?;
     m.add_function(wrap_pyfunction!(add_divider_style, m)?)?;
     m.add_function(wrap_pyfunction!(add_menu_style, m)?)?;
-    m.add_function(wrap_pyfunction!(add_opaque_style, m)?)?;
     m.add_function(wrap_pyfunction!(add_pick_list_style, m)?)?;
     m.add_function(wrap_pyfunction!(add_progress_bar_style, m)?)?;
     m.add_function(wrap_pyfunction!(add_rail_style, m)?)?;
@@ -245,6 +245,8 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<IpgArrow>()?;
     m.add_class::<IpgColor>()?;
     m.add_class::<IpgIcon>()?;
+    m.add_class::<IpgContentFit>()?;
+    m.add_class::<IpgMousePointer>()?;
     m.add_class::<IpgPickListHandle>()?;
     m.add_class::<IpgRadioDirection>()?;
     m.add_class::<IpgSeparatorType>()?;

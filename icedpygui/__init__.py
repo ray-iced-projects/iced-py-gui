@@ -22,6 +22,7 @@ from .icedpygui import (
     add_date_picker as _add_date_picker,
     add_divider as _add_divider,
     add_divider_style,
+    add_image as _add_image,
     add_mouse_area as _add_mouse_area,
     add_menu as _add_menu,
     add_menu_bar_item as _add_menu_bar_item,
@@ -89,6 +90,7 @@ from .icedpygui import (
     IpgColumnParam,
     IpgContainerParam,
     IpgContainerStyleParam,
+    IpgContentFit,
     IpgDatePickerParam,
     IpgDividerDirection,
     IpgDividerParam,
@@ -96,6 +98,7 @@ from .icedpygui import (
     IpgIcon,
     IpgMenuParam,
     IpgMenuStyleParam,
+    IpgMousePointer,
     IpgPickListHandle,
     IpgRadioDirection,
     IpgRadioParam,
@@ -175,6 +178,7 @@ add_checkbox.__doc__ = _add_checkbox.__doc__
 add_color_picker = _wrap_widget(_add_color_picker, "add_color_picker")
 add_date_picker = _wrap_widget(_add_date_picker, "add_date_picker")
 add_divider = _wrap_widget(_add_divider, "add_divider")
+add_image = _wrap_widget(_add_image, "add_image")
 add_pick_list = _wrap_widget(_add_pick_list, "add_pick_list")
 add_radio = _wrap_widget(_add_radio, "add_radio")
 add_rule = _wrap_widget(_add_rule, "add_rule")
@@ -361,6 +365,31 @@ class MenuBarItem:
         _parent_stack.pop()
         return False
 
+class MouseArea:
+    """Wrapper for add_mouse_area"""
+    def __init__(self, *, container_id=None, window_id=None, parent_id=None, **kwargs):
+        self.window_id = window_id if window_id is not None else _current_window()
+        if self.window_id is None:
+            raise ValueError("MouseArea: window_id is required (either pass it\
+                or use a Window context manager)")
+        self.container_id = container_id if container_id is not None else str(generate_id())
+        self.parent_id = parent_id
+        self.kwargs = kwargs
+
+    def __enter__(self):
+        self.numeric_id = _add_mouse_area(
+            window_id=self.window_id,
+            container_id=self.container_id,
+            parent_id=self.parent_id or _current_parent(),
+            **self.kwargs,
+        )
+        _parent_stack.append(self.container_id)
+        return self.numeric_id
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        _parent_stack.pop()
+        return False
+
 class Opaque:
     """Wrapper for add_container"""
     def __init__(self, *, container_id=None, window_id=None, parent_id=None, **kwargs):
@@ -373,7 +402,7 @@ class Opaque:
         self.kwargs = kwargs
 
     def __enter__(self):
-        self.numeric_id = _add_container(
+        self.numeric_id = _add_opaque(
             window_id=self.window_id,
             container_id=self.container_id,
             parent_id=self.parent_id or _current_parent(),

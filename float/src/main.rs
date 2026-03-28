@@ -14,6 +14,7 @@ struct FloatExample {
 #[derive(Debug, Clone, Copy, Default, PartialEq)]
 enum Mode {
     #[default]
+    Normal,
     Scale,
     ScaleClamped,
     Translate,
@@ -36,27 +37,33 @@ impl FloatExample {
 
     fn view(&self) -> Element<'_, Message> {
         
-        let scale = if self.mode == Mode::ScaleClamped {
-            1.0
-        } else if self.mode == Mode::Scale {
-            1.4
-        } else { 1.0 };
+        let (scale, translate) = 
+        match self.mode {
+            Mode::Normal => (1.0, Vector::ZERO),
+            Mode::Scale => (1.4, Vector::ZERO),
+            Mode::ScaleClamped => (1.0, Vector::ZERO),
+            Mode::Translate => (1.0, Vector::new(80.0, 200.0)),
+            Mode::TranslateScaled => (1.5, Vector::new(40.0, 100.0)),
+        };
         
-
         let mode_buttons = column![
             text("Float modes:").size(16),
+            button(text("Normal"))
+                .on_press(Message::SetMode(Mode::Normal))
+                .width(Fill),
             button(text("Scale only (scale 1.4)"))
                 .on_press(Message::SetMode(Mode::Scale))
                 .width(Fill),
-            button(text("Translate only (+80, +200))"))
-                .on_press(Message::SetMode(Mode::Translate))
-                .width(Fill),
-            button(text("Translate_scaled (+80, +100 * 1.5)"))
-                .on_press(Message::SetMode(Mode::TranslateScaled))
-                .width(Fill),
-            button(text("Clamped to viewport"))
+            button(text("Scale Clamped"))
                 .on_press(Message::SetMode(Mode::ScaleClamped))
                 .width(Fill),
+            button(text("Translate (+80, +200)"))
+                .on_press(Message::SetMode(Mode::Translate))
+                .width(Fill),
+            button(text("Translate_scaled (+40, +100 *1.5)"))
+                .on_press(Message::SetMode(Mode::TranslateScaled))
+                .width(Fill),
+            
         ]
         .spacing(8)
         .width(200);
@@ -67,10 +74,11 @@ impl FloatExample {
                 column![
                     text("I'm a Float!").size(20),
                     text(match self.mode {
+                        Mode::Normal => "Normal",
                         Mode::Scale => "Scaled 1.4x",
-                        Mode::ScaleClamped => "Scale Clamped",
-                        Mode::Translate => "Translate",
-                        Mode::TranslateScaled => "Translate and Scaled",
+                        Mode::ScaleClamped => "Scale Clamped x 10",
+                        Mode::Translate => "Translate (+80, +200)",
+                        Mode::TranslateScaled => "Translate_scaled (+40, +100 *1.5)",
                     })
                     .size(13),
                 ]
@@ -89,24 +97,15 @@ impl FloatExample {
                 }
             }),
         )
-        
-        .translate(move |bounds, viewport| {
-            match self.mode {
-                Mode::Scale => {
-                    Vector::ZERO
-                }
-                Mode::ScaleClamped => {
-                    bounds.zoom(10.0).offset(&viewport.shrink(10))
-                }
-                Mode::Translate => {
-                    Vector::new(80.0, 200.0)
-                }
-                Mode::TranslateScaled => {
-                    Vector::new(40.0, 100.0)
-                }
-            }
-        })
         .scale(scale)
+        .translate(move |bounds, viewport| {
+            if self.mode == Mode::ScaleClamped {
+                bounds.zoom(10.0).offset(&viewport.shrink(10))
+            } else {
+                translate
+            }
+            
+        })
         .style(move |_theme| {
             let active = scale > 1.0;
             float::Style {

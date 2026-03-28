@@ -37,6 +37,7 @@ use crate::state::{IpgContainers, access_state,
     parent_id = None,
     scale = None,
     scale_clamped = None,
+    clamped_padding = None,
     translate = None,
     ))]
 pub fn add_float(
@@ -45,6 +46,7 @@ pub fn add_float(
     parent_id: Option<String>,
     scale: Option<f32>,
     scale_clamped: Option<f32>,
+    clamped_padding: Option<Vec<f32>>,
     translate: Option<[f32; 2]>,
     ) -> PyResult<usize> 
 {
@@ -64,8 +66,9 @@ pub fn add_float(
         IpgFloat {
             id,
             scale,
-            translate,
-            scale_clamped,  
+            scale_clamped,
+            clamped_padding,
+            translate,  
         }));
 
     drop(state);         

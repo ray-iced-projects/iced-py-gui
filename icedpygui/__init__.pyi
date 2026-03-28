@@ -50,7 +50,7 @@ from .icedpygui import (
     IpgDividerDirection as IpgDividerDirection,
     IpgDividerParam as IpgDividerParam,
     IpgDividerStyleParam as IpgDividerStyleParam,
-    FloatParam,
+    FloatParam as FloatParam,
     IpgIcon as IpgIcon,
     IpgMenuParam as IpgMenuParam,
     IpgMenuStyleParam as IpgMenuStyleParam,

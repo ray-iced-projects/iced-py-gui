@@ -14,13 +14,10 @@ struct FloatExample {
 #[derive(Debug, Clone, Copy, Default, PartialEq)]
 enum Mode {
     #[default]
-    Normal,
-    /// Scale only — content enlarges in place
-    ScaleOnly,
-    /// Scale + translate with a fixed offset
-    TranslateFixed,
-    /// Scale + translate clamped to viewport (like the gallery does)
-    TranslateClamped,
+    Scale,
+    ScaleClamped,
+    Translate,
+    TranslateScaled,
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -38,24 +35,27 @@ impl FloatExample {
     }
 
     fn view(&self) -> Element<'_, Message> {
-        let mode = self.mode;
-
-        // Scale is >1.0 for all non-Normal modes to activate floating
-        let scale = if mode == Mode::Normal { 1.0 } else { 1.4 };
+        
+        let scale = if self.mode == Mode::ScaleClamped {
+            1.0
+        } else if self.mode == Mode::Scale {
+            1.4
+        } else { 1.0 };
+        
 
         let mode_buttons = column![
             text("Float modes:").size(16),
-            button(text("Normal (scale 1.0)"))
-                .on_press(Message::SetMode(Mode::Normal))
+            button(text("Scale only (scale 1.4)"))
+                .on_press(Message::SetMode(Mode::Scale))
                 .width(Fill),
-            button(text("Scale only (1.4x, no translate)"))
-                .on_press(Message::SetMode(Mode::ScaleOnly))
+            button(text("Translate only (+80, +200))"))
+                .on_press(Message::SetMode(Mode::Translate))
                 .width(Fill),
-            button(text("Translate fixed (+80, +200)"))
-                .on_press(Message::SetMode(Mode::TranslateFixed))
+            button(text("Translate_scaled (+80, +100 * 1.5)"))
+                .on_press(Message::SetMode(Mode::TranslateScaled))
                 .width(Fill),
-            button(text("Translate clamped to viewport"))
-                .on_press(Message::SetMode(Mode::TranslateClamped))
+            button(text("Clamped to viewport"))
+                .on_press(Message::SetMode(Mode::ScaleClamped))
                 .width(Fill),
         ]
         .spacing(8)
@@ -66,11 +66,11 @@ impl FloatExample {
             container(
                 column![
                     text("I'm a Float!").size(20),
-                    text(match mode {
-                        Mode::Normal => "Not floating (scale 1.0)",
-                        Mode::ScaleOnly => "Scaled 1.4x in place",
-                        Mode::TranslateFixed => "Scaled + shifted right & down",
-                        Mode::TranslateClamped => "Scaled + kept inside viewport",
+                    text(match self.mode {
+                        Mode::Scale => "Scaled 1.4x",
+                        Mode::ScaleClamped => "Scale Clamped",
+                        Mode::Translate => "Translate",
+                        Mode::TranslateScaled => "Translate and Scaled",
                     })
                     .size(13),
                 ]
@@ -89,28 +89,24 @@ impl FloatExample {
                 }
             }),
         )
-        .scale(scale)
+        
         .translate(move |bounds, viewport| {
-            // `bounds` = the original (un-scaled) rectangle of the content
-            // `viewport` = the visible window area
-            // Return a Vector to shift the floating content
-            match mode {
-                Mode::Normal | Mode::ScaleOnly => {
-                    // No translation — content stays centered on its layout position
+            match self.mode {
+                Mode::Scale => {
                     Vector::ZERO
                 }
-                Mode::TranslateFixed => {
-                    // Shift the floating content by a fixed amount
+                Mode::ScaleClamped => {
+                    bounds.zoom(10.0).offset(&viewport.shrink(10))
+                }
+                Mode::Translate => {
                     Vector::new(80.0, 200.0)
                 }
-                Mode::TranslateClamped => {
-                    // Compute where the scaled bounds would be, then nudge
-                    // it back so it stays inside the viewport (with 10px margin).
-                    // This is what the gallery example does.
-                    bounds.zoom(scale).offset(&viewport.shrink(10))
+                Mode::TranslateScaled => {
+                    Vector::new(40.0, 100.0)
                 }
             }
         })
+        .scale(scale)
         .style(move |_theme| {
             let active = scale > 1.0;
             float::Style {

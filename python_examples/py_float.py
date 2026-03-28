@@ -9,14 +9,19 @@ from icedpygui import Window, Container, Column, Row, Float, start_session, \
 
 def set_mode(btn_id, name):
     match name:
-        case: "scale_only"
-            update_widget(wid=float, FloatParam.)
-        case: "translated_only"
-        
-        case: "translate_scaled"
-        
-        case: "scaled_clamped"
-    
+        case "scale_only":
+            print("scale_only")
+            update_widget(wid=float, param=FloatParam.Scale, value=1.4)
+            update_widget(wid=float, param=FloatParam.Translate, value=[0, 0])
+        case "translated_only":
+            update_widget(wid=float, param=FloatParam.Translate, value=[80, 200])
+        case "translated_scaled":
+            update_widget(wid=float, param=FloatParam.Translate, value=[50, 100])
+            update_widget(wid=float, param=FloatParam.Scale, value=1.7)
+        case "scaled_clamped":
+            update_widget(wid=float, param=FloatParam.Scale, value=1.0)
+            update_widget(wid=float, param=FloatParam.ScaleClamped, value=10)
+
 
 with Window(title="Float Example", center=True):
 
@@ -61,7 +66,7 @@ with Window(title="Float Example", center=True):
                 border_radius=[12.0],
             )
 
-            with Float(scale=1.4, translate=[80.0, 50.0]) as float:
+            with Float(scale=1.0, translate=[0.0, 0.0]) as float:
                 with Container(
                     padding=[30.0],
                     style_id=card_style,
@@ -69,7 +74,7 @@ with Window(title="Float Example", center=True):
                 ):
                     with Column(spacing=8.0):
                         add_text(content="I'm a Float!", size=20.0)
-                        add_text(content="Scaled + shifted", size=13.0)
+                        add_text(content="Normal", size=13.0)
 
             # Background items
             bg_style = add_container_style(

@@ -2198,14 +2198,30 @@ class IpgDividerStyleParam:
     Transparent: bool,
         Whether to use the transparent style
     """
-    BackgroundIpgColor:IpgColor
-    BackgroundRgbaColor:list[float, 4]
-    BorderIpgColor:IpgColor
-    BorderRgbaColor:list[float, 4]
-    BorderWidth:float
-    BorderRadius:float
-    Transparent:bool
+    BackgroundIpgColor: IpgColor
+    BackgroundRgbaColor: list[float, 4]
+    BorderIpgColor: IpgColor
+    BorderRgbaColor: list[float, 4]
+    BorderWidth: float
+    BorderRadius: float
+    Transparent: bool
     
+class FloatParam:
+    Scale: float
+    Translate: list[float]
+    ScaleClamped: bool
+    """
+    Parameters for the Float container
+
+    Parameters
+    ---------
+    Scale: FloatParam.Scale
+        Sets the scale of the float content
+    Translate: FloatParam.Translate
+        Sets the translate offset for the float content [x, y]
+    ScaleClamped: FloatParam.ScaleClamped
+        Whether the scaled content exceeds the container size
+    """
 
 class IpgContentFit:
     """

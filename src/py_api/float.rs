@@ -36,16 +36,16 @@ use crate::state::{IpgContainers, access_state,
     container_id, 
     parent_id = None,
     scale = None,
-    translate = None,
     scale_clamped = None,
+    translate = None,
     ))]
 pub fn add_float(
     window_id: String,
     container_id: String,
     parent_id: Option<String>,
     scale: Option<f32>,
+    scale_clamped: Option<f32>,
     translate: Option<[f32; 2]>,
-    scale_clamped: Option<bool>,
     ) -> PyResult<usize> 
 {
     let id = get_id(None);

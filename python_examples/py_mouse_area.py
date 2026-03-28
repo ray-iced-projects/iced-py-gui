@@ -3,7 +3,7 @@
 Mouse Area use demo
 """
 
-from icedpygui import Window, Container,\
+from icedpygui import Window, Container, MouseArea,\
     add_text, add_mouse_area, start_session
 
 def on_press(wid, _user_data):
@@ -52,7 +52,7 @@ def on_exit(ma_id, _user_data):
 
 
 with Window(
-    title="Main",
+    title="Mouse Area",
     size=(400, 400),
     center=True,
     debug=True):
@@ -62,7 +62,7 @@ with Window(
         height_fill=True,
         align_center=True,):
 
-        add_mouse_area(
+        with MouseArea(
             on_enter=on_enter,
             on_exit=on_exit,
             on_move=on_move,
@@ -73,13 +73,13 @@ with Window(
             on_right_press=on_right_press,
             on_right_release=on_right_release,
             user_data="Some Data"
-            )
+            ):
 
-        # A text widget was added here but you can also add containers or other widgets too.
-        add_text(parent_id="ma", content="my content 1")
+            # A text widget was added here but you can also add containers or other widgets too.
+            add_text(content="my content 1")
 
-        # you will probably rarely add more than one item to a mousearea
-        # but the option for more is there.
-        add_text(parent_id="ma", content="my content 2")
+            # you will probably rarely add more than one item to a mousearea
+            # but the option for more is there.
+            add_text(content="my content 2")
 
 start_session()

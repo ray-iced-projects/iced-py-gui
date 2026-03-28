@@ -21,6 +21,7 @@ use crate::widgets::ipg_date_picker::IpgDatePicker;
 use crate::widgets::ipg_divider::{IpgDivider, 
     IpgDividerStyle};
 use crate::widgets::ipg_events::IpgEvents;
+use crate::widgets::ipg_float::IpgFloat;
 use crate::widgets::ipg_font::IpgFont;
 use crate::widgets::ipg_image::IpgImage;
 use crate::widgets::ipg_menu::{IpgMenu, IpgMenuBarItem, IpgMenuStyle};
@@ -62,6 +63,7 @@ pub enum IpgContainers {
     // IpgCanvas(IpgCanvas),
     IpgColumn(IpgColumn),
     IpgContainer(IpgContainer),
+    IpgFloat(IpgFloat),
     IpgMenu(IpgMenu),
     IpgMenuBarItem(IpgMenuBarItem),
     // IpgModal(IpgModal),
@@ -220,15 +222,16 @@ macro_rules! ipg_container_accessors {
 }
 
 ipg_container_accessors! {
-    IpgColumn     => IpgColumn,     as_column,     as_column_mut;
-    IpgContainer  => IpgContainer,  as_container,  as_container_mut;
-    IpgMenu        => IpgMenu,        as_menu,           as_menu_mut;
-    IpgMenuBarItem => IpgMenuBarItem, as_menu_bar_item, as_menu_bar_item_mut;
-    IpgMouseArea  => IpgMouseArea,  as_mouse_area, as_mouse_area_mut;
-    IpgOpaque     => IpgOpaque,     as_opaque,     as_opaque_mut;
-    IpgRow        => IpgRow,        as_row,        as_row_mut;
-    IpgScrollable => IpgScrollable, as_scrollable, as_scrollable_mut;
-    IpgWindow     => IpgWindow,     as_window,     as_window_mut;
+    IpgColumn       => IpgColumn,       as_column,          as_column_mut;
+    IpgContainer    => IpgContainer,    as_container,       as_container_mut;
+    IpgFloat        => IpgFloat,        as_float,           as_float_mut;
+    IpgMenu         => IpgMenu,         as_menu,            as_menu_mut;
+    IpgMenuBarItem  => IpgMenuBarItem,  as_menu_bar_item,   as_menu_bar_item_mut;
+    IpgMouseArea    => IpgMouseArea,    as_mouse_area,      as_mouse_area_mut;
+    IpgOpaque       => IpgOpaque,       as_opaque,          as_opaque_mut;
+    IpgRow          => IpgRow,          as_row,             as_row_mut;
+    IpgScrollable   => IpgScrollable,   as_scrollable,      as_scrollable_mut;
+    IpgWindow       => IpgWindow,       as_window,          as_window_mut;
 }
 
 // ============================================================================

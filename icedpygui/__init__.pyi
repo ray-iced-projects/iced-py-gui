@@ -50,6 +50,7 @@ from .icedpygui import (
     IpgDividerDirection as IpgDividerDirection,
     IpgDividerParam as IpgDividerParam,
     IpgDividerStyleParam as IpgDividerStyleParam,
+    FloatParam,
     IpgIcon as IpgIcon,
     IpgMenuParam as IpgMenuParam,
     IpgMenuStyleParam as IpgMenuStyleParam,
@@ -287,6 +288,18 @@ def add_divider(
         int: widget id
     """
     ...
+def add_float(
+    *, parent_id: Optional[str] = None,
+    **kwargs: Any) -> int:
+    """_summary_
+
+    Args:
+        parent_id (Optional[str], optional): _description_. Defaults to None.
+
+    Returns:
+        int: widget id
+    """
+    ...
 def add_image(
     *, parent_id: Optional[str] = None,
     **kwargs: Any) -> int:
@@ -377,6 +390,18 @@ def add_slider(
     """
     ...
 def add_space(
+    *, parent_id: Optional[str] = None,
+    **kwargs: Any) -> int:
+    """_summary_
+
+    Args:
+        parent_id (Optional[str], optional): _description_. Defaults to None.
+
+    Returns:
+        int: _description_
+    """
+    ...
+def add_svg(
     *, parent_id: Optional[str] = None,
     **kwargs: Any) -> int:
     """_summary_

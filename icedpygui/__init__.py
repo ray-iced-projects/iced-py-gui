@@ -22,6 +22,7 @@ from .icedpygui import (
     add_date_picker as _add_date_picker,
     add_divider as _add_divider,
     add_divider_style,
+    add_float as _add_float,
     add_image as _add_image,
     add_mouse_area as _add_mouse_area,
     add_menu as _add_menu,
@@ -47,6 +48,7 @@ from .icedpygui import (
     add_slider_style,
     add_space as _add_space,
     add_stack as _add_stack,
+    add_svg as _add_svg,
     add_table as _add_table,
     add_text_input as _add_text_input,
     add_text_input_style,
@@ -95,7 +97,9 @@ from .icedpygui import (
     IpgDividerDirection,
     IpgDividerParam,
     IpgDividerStyleParam,
+    FloatParam,
     IpgIcon,
+    IpgImageParam,
     IpgMenuParam,
     IpgMenuStyleParam,
     IpgMousePointer,
@@ -117,6 +121,7 @@ from .icedpygui import (
     IpgSliderStyleParam,
     IpgStackParam,
     IpgStyleStandard,
+    IpgSvgParam,
     IpgTableParam,
     IpgTextInputParam,
     IpgTextParam,
@@ -186,6 +191,7 @@ add_selectable_text = _wrap_widget(_add_selectable_text, "add_selectable_text")
 add_separator = _wrap_widget(_add_separator, "add_separator")
 add_slider = _wrap_widget(_add_slider, "add_slider")
 add_space = _wrap_widget(_add_space, "add_space")
+add_svg = _wrap_widget(_add_svg, "add_svg")
 add_text_input = _wrap_widget(_add_text_input, "add_text_input")
 add_text = _wrap_widget(_add_text, "add_text")
 add_text_editor = _wrap_widget(_add_text_editor, "add_text_editor")
@@ -216,6 +222,8 @@ add_column = _wrap_container(_add_column, "add_column")
 add_column.__doc__ = _add_column.__doc__
 add_container = _wrap_container(_add_container, "add_container")
 add_container.__doc__ = _add_container.__doc__
+add_float = _wrap_container(_add_float, "add_float")
+add_float.__doc__ = _add_float.__doc__
 add_menu = _wrap_container(_add_menu, "add_menu")
 add_menu.__doc__ = _add_menu.__doc__
 add_menu_bar_item = _wrap_container(_add_menu_bar_item, "add_menu_bar_item")
@@ -315,6 +323,31 @@ class Column:
         _parent_stack.pop()
         return False
 
+class Float:
+    """Wrapper for add_column"""
+    def __init__(self, *, container_id=None, window_id=None, parent_id=None, **kwargs):
+        self.window_id = window_id if window_id is not None else _current_window()
+        if self.window_id is None:
+            raise ValueError("Float: window_id is required (either pass it\
+                or use a Window context manager)")
+        self.container_id = container_id if container_id is not None else str(generate_id())
+        self.parent_id = parent_id
+        self.kwargs = kwargs
+
+    def __enter__(self):
+        self.numeric_id = _add_float(
+            window_id=self.window_id,
+            container_id=self.container_id,
+            parent_id=self.parent_id or _current_parent(),
+            **self.kwargs,
+        )
+        _parent_stack.append(self.container_id)
+        return self.numeric_id
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        _parent_stack.pop()
+        return False
+    
 class Menu:
     """Wrapper for add_menu"""
     def __init__(self, *, container_id=None, window_id=None, parent_id=None, **kwargs):

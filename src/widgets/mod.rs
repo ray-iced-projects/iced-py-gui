@@ -14,6 +14,7 @@ pub mod ipg_container;
 pub mod ipg_date_picker;
 pub mod ipg_divider;
 pub mod ipg_events;
+pub mod ipg_float;
 pub mod ipg_font;
 pub mod ipg_image;
 pub mod ipg_menu;

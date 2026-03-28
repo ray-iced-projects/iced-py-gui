@@ -32,7 +32,6 @@ use crate::widgets::ipg_selectable_text::{SLTXTMessage, construct_selectable_tex
 use crate::widgets::ipg_separator::construct_separator;
 use crate::widgets::ipg_slider::{SLMessage, construct_slider, slider_callback};
 use crate::widgets::ipg_space::construct_space;
-use crate::widgets::ipg_svg::{SvgMessage, construct_svg, svg_callback};
 use crate::widgets::ipg_table::{TableMessage, table_callback};
 use crate::widgets::ipg_text_editor::{TxtEdMessage, text_ed_callback};
 use crate::widgets::ipg_text_input::{TIMessage, text_input_callback};
@@ -61,7 +60,6 @@ pub enum Message {
     Scrolled(scrollable::Viewport, usize),
     SelectableText(usize, SLTXTMessage),
     Slider(usize, SLMessage),
-    Svg(usize, SvgMessage),
 
     TableScrolled(scrollable::Viewport, usize),
     TableDividerChanged((usize, usize, f32)),
@@ -288,11 +286,6 @@ impl App {
                 slider_callback(&mut self.state, id, message);
                 // process_updates(&mut self.state, &mut self.canvas_state);
                 process_widget_updates(&mut self.state);
-                Task::none()
-            },
-            Message::Svg(id, message) => {
-                svg_callback(&mut self.state, id, message);
-                process_widget_updates(&mut self.state); //, &mut self.canvas_state);
                 Task::none()
             },
             Message::TableScrolled(vp, id) => {
@@ -702,6 +695,12 @@ fn get_container<'a>(state: &'a IpgState,
                     }
                     cont.construct(content, &state.widgets)
                 },
+                IpgContainers::IpgFloat(float) => {
+                    if content.len() > 1 {
+                        panic!("A float can have only one widget, place your multiple widgets into a column or row")
+                    }
+                    float.construct(content)
+                },
                 IpgContainers::IpgMenu(_) => {
                     // Menu is handled specially in get_children via get_menu_children;
                     // it should never reach get_container.
@@ -839,7 +838,7 @@ fn get_widget<'a>(state: &'a IpgState, id: &usize) -> Option<Element<'a, Message
                     construct_space(sp)
                 },
                 IpgWidgets::IpgSvg(svg) => {
-                    construct_svg(svg)
+                    svg.construct()
                 },
                 IpgWidgets::IpgText(txt) => {
                     txt.construct(&state.widgets)

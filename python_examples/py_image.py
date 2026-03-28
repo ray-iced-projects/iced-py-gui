@@ -1,9 +1,9 @@
-from imports import *
+from icedpygui import Window, Column, Container, MouseArea, Row, start_session, \
+    add_image, add_svg, add_text, add_space, add_event_timer, \
+    update_widget, update_timer, IpgImageParam, IpgSvgParam, IpgTimerParam, \
+    IpgTextParam, IpgMousePointer
 
-# Note: The image is put into a mouse area container, within IPG, where these
-# callbacks can be executed.  If you are using the event_mouse,
-# things will get confusing.  Therefore, you'll need to disable
-# the event_mouse on image entering and then enabling it on image exit.
+import os
 
 
 # Setting up the image path
@@ -19,30 +19,21 @@ tiger_ids = []
 show_ferris = [True, True, True, True, True]
 show_tiger = [False, False, False, False, False]
 
+text_ids = []
+text_points = []
 
 # Callback for when the image is selected
-def image_selected(image_id: int):
+def image_selected(image_id: int, index: int):
     # Get the index of the image which is the index of the text widget
-    try:
-        index = ferris_ids.index(image_id)
-    except:
-        index = tiger_ids.index(image_id)
-
     update_widget(
             wid=text_ids[index], 
             param=IpgTextParam.Content, 
             value="You Pressed Me!")
 
-
 # Callback for when the mouse is moving over the image.
-def on_mouse_move(image_id, point: dict):
-    try:
-        index = ferris_ids.index(image_id)
-    except:
-        index = tiger_ids.index(image_id)
-
-    x = '{:{}.{}}'.format(point.get('x'), 10, 4)
-    y = '{:{}.{}}'.format(point.get('y'), 10, 4)
+def on_mouse_move(ma_id, point: list, index: int):
+    x = '{:{}.{}}'.format(point[1], 10, 4)
+    y = '{:{}.{}}'.format(point[3], 10, 4)
     update_widget(
             wid=text_points[index], 
             param=IpgTextParam.Content, 
@@ -50,11 +41,7 @@ def on_mouse_move(image_id, point: dict):
 
 
 # On exit, reset the text widget
-def on_mouse_exit(image_id):
-    try:
-        index = ferris_ids.index(image_id)
-    except:
-        index = tiger_ids.index(image_id)
+def on_mouse_exit(ma_id, index: int):
     update_widget(
             wid=text_points[index], 
             param=IpgTextParam.Content, 
@@ -63,13 +50,8 @@ def on_mouse_exit(image_id):
 
 # On right_press, ferris shows
 # We need to try both because the image_id could be either the tiger or ferris
-def toggle_images(image_id):
+def toggle_images(image_id, index: int):
     global show_ferris, show_tiger
-
-    try:
-        index = ferris_ids.index(image_id)
-    except:
-        index = tiger_ids.index(image_id)
 
     show_ferris[index] = not show_ferris[index]
     show_tiger[index] = not show_tiger[index]
@@ -78,7 +60,8 @@ def toggle_images(image_id):
     update_widget(wid=tiger_ids[index], param=IpgSvgParam.Show, value=show_tiger[index])
 
 
-def increment_radians(timer_id: int, counter: int):
+def on_tick(_timer_id: int, counter: int, _elapsed_ms: int):
+    print(counter)
     radians = counter*0.048481
     update_widget(wid=ferris_ids[0], param=IpgImageParam.RotationRadians, value=radians)
     update_widget(wid=ferris_ids[1], param=IpgImageParam.RotationRadians, value=radians)
@@ -89,125 +72,74 @@ def increment_radians(timer_id: int, counter: int):
     update_widget(wid=tiger_ids[1], param=IpgSvgParam.RotationRadians, value=radians)
     update_widget(wid=tiger_ids[2], param=IpgSvgParam.RotationRadians, value=radians)
     update_widget(wid=tiger_ids[3], param=IpgSvgParam.RotationRadians, value=radians)
+    
+# add an event timer
+timer_id = add_event_timer(duration_ms=1000, on_tick=on_tick)
+value=False
 
-timer_label = "Start Rotation"
-def change_label(timer_id: int):
-    global timer_label
-    if timer_label == "Start Rotation":
-        timer_label = "Stop Rotation"
-    else:
-        timer_label = "Start Rotation"
-        
-    update_widget(wid=timer_id, param=IpgTimerParam.Label, value=timer_label)
+def toggle_timer(_ma_id, _):
+    global value
+    value = not(value)
+    update_timer(wid=timer_id, param=IpgTimerParam.Enable, value=value)
+
 
 
 # Add the window
-add_window(
-        id="main", 
-        title="Date Picker Demo",
-    size=(600, 500),
-        pos_centered=True)
+with Window(title="Date Picker Demo", center=True):
 
-# Add a column to hold the widgets
-add_column(
-        window_id="main", 
-        id="col", 
-        parent_id="main",
-        width_fill=True, 
-        height_fill=True,
-        align=IpgAlignment.Center)
+    # Add a column to hold the widgets
+    with Column(fill=True, align_center=True, spacing=20):
 
-# Add a space for readability
-add_space(
-        parent_id="col", 
-        height=50.0)
+        # Add a space for readability
+        add_space(height=50.0)
 
-# Add some text info
-add_text(
-        parent_id="col",
-        content="Pressing the left mouse button, while over an image, will display a message.  "
-        "Pressing the right mouse button, while over the "
-        "image, will toggle between ferris and the tiger.  "
-        "While the mouse is over an image the the mouse position will be displayed.",
-        width=600.0)
-
-# adding a row for the line of images
-add_row(
-        window_id="main", 
-        id="row1", 
-        parent_id="col", 
-        spacing=0)
-
-# Looping to add the images, each will have the same callback
-# but they could be different depending on your needs.
-for i in range(0, 4):
-
-    ferris_ids.append(add_image(
-                            parent_id="row1", 
-                            image_path=ferris,
-                            width=100.0, height=50.0,
-                            on_press=image_selected,
-                            on_move=on_mouse_move,
-                            on_exit=on_mouse_exit,
-                            on_right_press=toggle_images,
-                            mouse_pointer=IpgMousePointer.Pointer,
-                            show=True))
-    
-    tiger_ids.append(add_svg(
-                            parent_id="row1", 
-                            svg_path=tiger,
-                            width=100.0, height=50.0,
-                            on_press=image_selected,
-                            on_move=on_mouse_move,
-                            on_exit=on_mouse_exit,
-                            on_right_press=toggle_images,
-                            mouse_pointer=IpgMousePointer.Pointer,
-                            show=False))
-    
-    # Spacing was added last because because the two images occupy the same space
-    # So spacing is between the pairs
-    add_space(
-            parent_id="row1", 
-            width=10.0)
+        # Add some text info
+        add_text(
+                content="Pressing the left mouse button, while over an image, will display a message.  "
+                "Pressing the right mouse button, while over the "
+                "image, will toggle between ferris and the tiger.  "
+                "While the mouse is over an image the the mouse position will be displayed.",
+                width=600.0)
 
 
-# add a row for the information
-add_row(
-        window_id="main", 
-        id="row2", 
-        parent_id="col")
+        # adding a row for the line of images
+        with Row(spacing=20):
+            
+                # Looping to add the images, each will have the same callback
+                # but they could be different depending on your needs.
+                for i in range(0, 4):
+                    with Column(spacing=20, align_center=True, width=200):
+                        with Container(width=100, height=50):
+                            with MouseArea(mouse_pointer=IpgMousePointer.Pointer,
+                                        on_move=on_mouse_move,
+                                        on_exit=on_mouse_exit,
+                                        on_press=image_selected,
+                                        on_right_press=toggle_images,
+                                        on_middle_press=toggle_timer,
+                                        user_data=i):
+                                
+                                ferris_ids.append(add_image(image_path=ferris))
+                        
+                                tiger_ids.append(add_svg(
+                                                svg_path=tiger,
+                                                width=150.0, 
+                                                height=75.0,
+                                                show=False))
+                        
+                        # Spacing was added last because because the two images occupy the same space
+                        # So spacing is between the pairs
+                        add_space(width=10.0)
 
-# Using some global variables for the ids needed for the callbacks
-text_ids = []
-text_points = []
+                        # Add the text below each image.  There are a number of ways this could be done,
+                        # Another way is to add a column with the image, info, and points then put the columns into row.
+                        text_ids.append(add_text(
+                                        content="Press image above me", 
+                                        width=100.0))
 
-# Add the text below each image.  There are a number of ways this could be done,
-# Another way is to add a column with the image, info, and points then put the columns into row.
-for i in range(0, 4):
-    text_ids.append(add_text(
-                        parent_id="row2", 
-                        content="Press image above me", 
-                        width=100.0))
 
-# adding a final row for the points display
-add_row(
-        window_id="main", 
-        id="row3", 
-        parent_id="col")
-
-for i in range(0, 4):
-    text_points.append(add_text(
-                            parent_id="row3", 
-                            content="Point", 
-                            width=100.0))
-
-add_timer(
-        parent_id="col",
-        label="Rotate Image",
-        duration_ms=300, 
-        on_tick=increment_radians,
-        on_start=change_label,
-        on_stop=change_label)
+                        text_points.append(add_text(
+                                            content="Point", 
+                                            width=100.0))
 
 
 # Required to be the last widget sent to Iced,  If you start the program

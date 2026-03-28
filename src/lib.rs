@@ -33,6 +33,7 @@ use crate::py_api::container::{add_container, add_container_style};
 use crate::py_api::date_picker::add_date_picker;
 use crate::py_api::divider::{add_divider, add_divider_style};
 use crate::py_api::events::{add_event_keyboard, add_event_mouse};
+use crate::py_api::float::{add_float, FloatParam};
 use crate::py_api::font::add_font;
 use crate::py_api::image::add_image;
 use crate::py_api::menu::{add_menu, add_menu_bar_item, add_menu_style};
@@ -63,6 +64,7 @@ use crate::py_api::update::{update_widget, delete_widget, hide_widget, move_widg
 
 // Import enums from widgets module
 use crate::widgets::enums::{Align, AlignX, AlignY, IpgContentFit};
+use crate::widgets::ipg_image::IpgImageParam;
 use crate::widgets::ipg_mouse_area::IpgMousePointer;
 use crate::widgets::styling::IpgStyleStandard;
 use crate::graphics::{bootstrap_icon::IpgIcon, bootstrap_arrow::IpgArrow};
@@ -85,6 +87,7 @@ use crate::widgets::ipg_selectable_text::IpgSelectableTextParam;
 use crate::widgets::ipg_separator::{IpgSeparatorParam, IpgSeparatorStyleParam, IpgSeparatorType};
 use crate::widgets::ipg_slider::{IpgSliderParam, IpgSliderStyleParam};
 use crate::widgets::ipg_stack::IpgStackParam;
+use crate::widgets::ipg_svg::IpgSvgParam;
 use crate::widgets::ipg_table::IpgTableParam;
 use crate::widgets::ipg_text_input::{IpgTextInputParam, IpgTextInputStyleParam};
 use crate::widgets::ipg_text_rich::{IpgRichTextParam, IpgSpanParam};
@@ -122,6 +125,7 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(add_container, m)?)?;
     m.add_function(wrap_pyfunction!(add_date_picker, m)?)?;
     m.add_function(wrap_pyfunction!(add_divider, m)?)?;
+    m.add_function(wrap_pyfunction!(add_float, m)?)?;
     m.add_function(wrap_pyfunction!(add_image, m)?)?;
     m.add_function(wrap_pyfunction!(add_font, m)?)?;
     m.add_function(wrap_pyfunction!(add_menu, m)?)?;
@@ -140,6 +144,7 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(add_separator, m)?)?;
     m.add_function(wrap_pyfunction!(add_space, m)?)?;
     m.add_function(wrap_pyfunction!(add_stack, m)?)?;
+    m.add_function(wrap_pyfunction!(add_svg, m)?)?;
     m.add_function(wrap_pyfunction!(add_table, m)?)?;
     m.add_function(wrap_pyfunction!(add_text_editor, m)?)?;
     m.add_function(wrap_pyfunction!(add_text, m)?)?;
@@ -216,6 +221,7 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<IpgContainerParam>()?;
     m.add_class::<IpgDatePickerParam>()?;
     m.add_class::<IpgDividerParam>()?;
+    m.add_class::<IpgImageParam>()?;
     m.add_class::<IpgMenuParam>()?;
     m.add_class::<IpgRadioParam>()?;
     m.add_class::<IpgRowParam>()?;
@@ -225,6 +231,7 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<IpgSelectableTextParam>()?;
     m.add_class::<IpgSeparatorParam>()?;
     m.add_class::<IpgSliderParam>()?;
+    m.add_class::<IpgSvgParam>()?;
     m.add_class::<IpgTableParam>()?;
     m.add_class::<IpgTextParam>()?;
     m.add_class::<IpgTextInputParam>()?;

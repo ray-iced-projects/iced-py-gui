@@ -118,6 +118,7 @@ pub fn container_param_update(
         IpgContainers::IpgColumn(w) => apply_update(w, item, value),
         IpgContainers::IpgContainer(w) => apply_update(w, item, value),
         IpgContainers::IpgFloat(w)=> apply_update(w, item, value),
+        IpgContainers::IpgGrid(w)=> apply_update(w, item, value),
         IpgContainers::IpgMenu(w) => apply_update(w, item, value),
         IpgContainers::IpgMouseArea(w) => apply_update(w, item, value),
         IpgContainers::IpgOpaque(_) => panic!("IpgOpaque does not support param_update"),

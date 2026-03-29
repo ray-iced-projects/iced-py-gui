@@ -15,6 +15,7 @@ pub mod divider;
 pub mod events;
 pub mod float;
 pub mod font;
+pub mod grid;
 pub mod image;
 pub mod menu;
 pub mod mouse_area;

@@ -34,6 +34,7 @@ use crate::py_api::date_picker::add_date_picker;
 use crate::py_api::divider::{add_divider, add_divider_style};
 use crate::py_api::events::{add_event_keyboard, add_event_mouse};
 use crate::py_api::float::add_float;
+use crate::py_api::grid::add_grid;
 use crate::py_api::font::add_font;
 use crate::py_api::image::add_image;
 use crate::py_api::menu::{add_menu, add_menu_bar_item, add_menu_style};
@@ -78,6 +79,7 @@ use crate::widgets::ipg_container::{IpgContainerParam, IpgContainerStyleParam, I
 use crate::widgets::ipg_date_picker::IpgDatePickerParam;
 use crate::widgets::ipg_divider::{IpgDividerDirection, IpgDividerParam, IpgDividerStyleParam};
 use crate::widgets::ipg_float::FloatParam;
+use crate::widgets::ipg_grid::GridParam;
 use crate::widgets::ipg_menu::{IpgMenuParam, IpgMenuStyleParam};
 use crate::widgets::ipg_pick_list::IpgPickListHandle;
 use crate::widgets::ipg_radio::{IpgRadioDirection, IpgRadioParam, IpgRadioStyleParam};
@@ -127,6 +129,7 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(add_date_picker, m)?)?;
     m.add_function(wrap_pyfunction!(add_divider, m)?)?;
     m.add_function(wrap_pyfunction!(add_float, m)?)?;
+    m.add_function(wrap_pyfunction!(add_grid, m)?)?;
     m.add_function(wrap_pyfunction!(add_image, m)?)?;
     m.add_function(wrap_pyfunction!(add_font, m)?)?;
     m.add_function(wrap_pyfunction!(add_menu, m)?)?;
@@ -200,6 +203,7 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<IpgDividerDirection>()?;
     m.add_class::<IpgDividerStyleParam>()?;
     m.add_class::<FloatParam>()?;
+    m.add_class::<GridParam>()?;
     m.add_class::<IpgMenuStyleParam>()?;
     m.add_class::<IpgRadioStyleParam>()?;
     m.add_class::<IpgRuleStyleParam>()?;

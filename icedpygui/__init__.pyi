@@ -51,6 +51,7 @@ from .icedpygui import (
     IpgDividerParam as IpgDividerParam,
     IpgDividerStyleParam as IpgDividerStyleParam,
     FloatParam as FloatParam,
+    GridParam as GridParam,
     IpgIcon as IpgIcon,
     IpgMenuParam as IpgMenuParam,
     IpgMenuStyleParam as IpgMenuStyleParam,

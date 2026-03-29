@@ -16,6 +16,7 @@ pub mod ipg_divider;
 pub mod ipg_events;
 pub mod ipg_float;
 pub mod ipg_font;
+pub mod ipg_grid;
 pub mod ipg_image;
 pub mod ipg_menu;
 pub mod ipg_mouse_area;

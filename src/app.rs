@@ -701,6 +701,9 @@ fn get_container<'a>(state: &'a IpgState,
                     }
                     float.construct(content)
                 },
+                IpgContainers::IpgGrid(grid) => {
+                    grid.construct(content)
+                },
                 IpgContainers::IpgMenu(_) => {
                     // Menu is handled specially in get_children via get_menu_children;
                     // it should never reach get_container.

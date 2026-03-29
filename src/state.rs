@@ -23,6 +23,7 @@ use crate::widgets::ipg_divider::{IpgDivider,
 use crate::widgets::ipg_events::IpgEvents;
 use crate::widgets::ipg_float::IpgFloat;
 use crate::widgets::ipg_font::IpgFont;
+use crate::widgets::ipg_grid::IpgGrid;
 use crate::widgets::ipg_image::IpgImage;
 use crate::widgets::ipg_menu::{IpgMenu, IpgMenuBarItem, IpgMenuStyle};
 use crate::widgets::ipg_mouse_area::IpgMouseArea;
@@ -64,6 +65,7 @@ pub enum IpgContainers {
     IpgColumn(IpgColumn),
     IpgContainer(IpgContainer),
     IpgFloat(IpgFloat),
+    IpgGrid(IpgGrid),
     IpgMenu(IpgMenu),
     IpgMenuBarItem(IpgMenuBarItem),
     // IpgModal(IpgModal),
@@ -225,6 +227,7 @@ ipg_container_accessors! {
     IpgColumn       => IpgColumn,       as_column,          as_column_mut;
     IpgContainer    => IpgContainer,    as_container,       as_container_mut;
     IpgFloat        => IpgFloat,        as_float,           as_float_mut;
+    IpgGrid         => IpgGrid,         as_grid,            as_grid_mut;
     IpgMenu         => IpgMenu,         as_menu,            as_menu_mut;
     IpgMenuBarItem  => IpgMenuBarItem,  as_menu_bar_item,   as_menu_bar_item_mut;
     IpgMouseArea    => IpgMouseArea,    as_mouse_area,      as_mouse_area_mut;

@@ -3,8 +3,9 @@ from icedpygui import Window, Container, Column, Row, Grid, start_session, \
     add_event_timer, IpgContainerStyleStd as std, IpgTimerParam, \
     update_widget, update_timer, GridParam, IpgButtonParam, IpgTextParam
 
-import json
-import os
+import json, os, re
+from dataclasses import dataclass
+
 
 with open(os.path.join(os.path.dirname(__file__), "resources", "jeopardy", "answers.json")) as f:
     answers = json.load(f)
@@ -21,42 +22,67 @@ num_rows = len(cat_list[0])
 p1_score = 0
 p2_score = 0
 timer_status = "stopped"
-current_value_button_pressed = 0
+timer_length = 10
+
+
+@dataclass
+class ids:
+    value_id: int = 0
+    answer_id: int = 0
+    row: int = 0
+    col: int = 0
+
 
 def value_pressed(btn_id: int, ans_id: int):
     timer_status = "running"
     update_widget(btn_id, IpgButtonParam.Show, False)
     update_widget(ans_id, IpgButtonParam.Show, True)
     update_timer(wid=timer_id, param=IpgTimerParam.Enable, value=True)
-    current_value_button_pressed = btn_id
+    ids.value_id = btn_id
+    ids.answer_id = ans_id
 
 
-def answer_pressed(btn_id, qst_id: int):
+# data = qst_id, row, col
+def answer_pressed(btn_id, data: tuple[int, int, int]):
     if timer_status == "running":
         update_widget(btn_id, IpgButtonParam.Show, False)
-        update_widget(qst_id, IpgTextParam.Show, True)
+        update_widget(data[0], IpgTextParam.Show, True)
         update_timer(wid=timer_id, param=IpgTimerParam.Enable, value=False)
+        ids.row = data[1]
+        ids.col = data[2]
+        
+        
+
+def normalize(text: str) -> str:
+    text = text.lower().strip().rstrip("?").strip()
+    text = re.sub(r"^(what\s+is|what's)\s+(a|an|the)?\s*", "", text)
+    text = re.sub(r"[^a-z0-9 ]", "", text)
+    return text.strip()
 
 
-def what_is(_input_id: int, question: str):
-    print(question)
+def what_is(input_id: int, value: str):
+    expected = cat_list[ids.col][ids.row]["question"]
+    if normalize(value) == normalize(expected):
+        print("Correct!")
+    else:
+        print("Wrong!")
 
 
 def on_tick(_timer_id: int, tick_count: int, elapsed_ms: int):
-    if tick_count > 15:
-        update_widget(wid=txt_time, param=IpgTextParam.Content, 
-                  value=f"15")
+    if tick_count > timer_length:
+        update_widget(wid=txt_time, param=IpgTextParam.Content, value=f"15")
         timer_status = "stopped"
-        update_widget(qst_id, IpgTextParam.Show, False)
-        update_widget()
+        update_widget(ids.answer_id, IpgButtonParam.Show, False)
+        update_widget(ids.value_id, IpgButtonParam.Show, True)
+        update_timer(timer_id, IpgTimerParam.Enable, False)
+        ids.value_id = 0
     else:
         update_widget(wid=txt_time, param=IpgTextParam.Content, 
-                  value=f"{15 - tick_count}")
+                  value=f"{timer_length - tick_count}")
 
 
 def on_stop(_timer_id: int, tick_count: int, elapsed_ms: int):
-    update_widget(wid=txt_time, param=IpgTextParam.Content, 
-                  value=f"15")
+    update_widget(wid=txt_time, param=IpgTextParam.Content, value=f"15")
 
 
 timer_id = add_event_timer(duration_ms=1000, on_tick=on_tick, on_stop=on_stop)
@@ -84,14 +110,14 @@ with Window(title="Jeopardy", center=True):
                                 ans_id = add_button(
                                             label=item["answer"], 
                                             on_press=answer_pressed,
-                                            user_data=qst_id,
+                                            user_data=(qst_id, row, col),
                                             show=False)
                                 
                                 # value button
-                                add_button(
-                                    label=str(f"${200 * (row + 1)}"), 
-                                    on_press=value_pressed,
-                                    user_data=ans_id)
+                                value_id = add_button(
+                                            label=str(f"${200 * (row + 1)}"), 
+                                            on_press=value_pressed,
+                                            user_data=ans_id)
             
             add_space(height=10)                
             with Row():

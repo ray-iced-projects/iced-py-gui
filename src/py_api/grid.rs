@@ -20,12 +20,21 @@ use crate::state::{IpgContainers, access_state,
 ///     Sets the Unique string identifier for the grid container.
 /// parent_id : str, Optional
 ///     Sets the parent container ID.  Defaults to the window itself.
-/// scale: grid, Optional
-///     Sets the scale factor for the contents
-/// translate List[float], Optional
-///     Sets for translation vector [x, y]
-/// scale_clamped: bool, Optional
-///     Whether to clamp the scale to the content container
+/// spacing: float, Optional
+///     Sets the spacing between grid items
+/// columns_max_width float, Optional
+///     Makes the amount of columns dynamic, never
+///     exceeding the provided max_width
+/// columns_amount: int, Optional
+///     Sets the number of columns in the grid
+/// width: float, Optional
+///     Sets the width of the grid
+/// height_aspect_ratio: float, Optional
+///     Sets the aspection ratio for a grid.
+/// height_evenly_distribute: float, Optional
+///     Sets how the cels of the grid as distributed
+/// height_evenly_distribute_fill bool
+///     Whether to distribute the cells based on size.
 /// 
 /// Returns
 /// -------
@@ -34,12 +43,12 @@ use crate::state::{IpgContainers, access_state,
 #[pyfunction]
 #[pyo3(signature = (
     window_id, 
-    container_id, 
+    container_id,
+    width, 
     parent_id = None,
     spacing = None,
     columns_max_width = None,
     columns_amount = None,
-    width = None,
     height_aspect_ratio = None,
     height_evenly_distribute = None,
     height_evenly_distribute_fill = false,
@@ -47,11 +56,11 @@ use crate::state::{IpgContainers, access_state,
 pub fn add_grid(
     window_id: String,
     container_id: String,
+    width: f32,
     parent_id: Option<String>,
     spacing: Option<f32>,
     columns_max_width: Option<f32>,
     columns_amount: Option<usize>,
-    width: Option<f32>,
     height_aspect_ratio: Option<f32>,
     height_evenly_distribute: Option<f32>,
     height_evenly_distribute_fill: bool,
@@ -76,10 +85,10 @@ pub fn add_grid(
     state.containers.insert(id, IpgContainers::IpgGrid(
         IpgGrid {
             id,
+            width,
             spacing,
             columns_max_width,
             columns_amount,
-            width,
             height_aspect_ratio,
             height_evenly_distribute, 
         }));

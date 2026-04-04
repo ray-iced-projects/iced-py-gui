@@ -97,126 +97,80 @@ def add_style(_btn_id):
 
 
 # add the window
-add_window(
-        id="main", 
-        title="Text Input Demo",
-        size=(600, 600),
-        center=True)
+with Window(title="Text Input Demo", center=True):
 
-# add the column for the widgets, centered
-add_column(
-        window_id="main", 
-        id="col",
-        align_x=IpgAlignment.Center,
-        height_fill=True, 
-        width_fill=True, 
-        spacing=10)
+    # add the column for the widgets, centered
+    with Column(
+            align_center=True,
+            fill=True, 
+            spacing=10):
 
-# Add some instructions
-add_text(
-        parent_id="col", 
-        content="It's best to see the effects by pressing \nthe buttons left to right and top to bottom")
+        # Add some instructions
+        add_text(
+            content="It's best to see the effects by pressing \nthe buttons left to right and top to bottom")
 
-add_space(
-        parent_id="col", 
-        height=25.0)
+        add_space( height=25.0)
 
-# Add the text_input widget
-ti_id = add_text_input(
-                parent_id="col", 
-                placeholder="Input Some Text",
-                width=250.0,
-                on_input=on_input,
-                on_submit=on_submit,
-                on_paste=on_paste,
-                user_data="User data = Some user data")
+        # Add the text_input widget
+        ti_id = add_text_input(
+                    placeholder="Input Some Text",
+                    width=250.0,
+                    on_input=on_input,
+                    on_submit=on_submit,
+                    on_paste=on_paste,
+                    user_data="User data = Some user data")
 
-# Add the text widget to display the info
-text_on_input_id = add_text(
-                            parent_id="col", 
-                            content="Text here will be added when typed")
+        # Add the text widget to display the info
+        text_on_input_id = add_text(content="Text here will be added when typed")
 
-text_on_submit_id = add_text(
-                            parent_id="col", 
-                            content="Text here will be added when submitted")
+        text_on_submit_id = add_text(content="Text here will be added when submitted")
 
-text_on_paste_id = add_text(
-                            parent_id="col", 
-                            content="Text here will be added when pasted")
+        text_on_paste_id = add_text(content="Text here will be added when pasted")
 
-text_user_data_id = add_text(
-                            parent_id="col", 
-                            content="User data will e here when submitted")
+        text_user_data_id = add_text(content="User data will e here when submitted")
 
-# Add row for buttons
-add_row(window_id="main", 
-        id="row_1", 
-        parent_id="col",
-        spacing=10.0)
+        # Add row for buttons
+        with Row(spacing=10.0):
 
-add_button(
-        parent_id="row_1", 
-        label="Press Me to Change Placeholder", 
-        on_press=change_placeholder)
+            add_button(
+                label="Press Me to Change Placeholder", 
+                on_press=change_placeholder)
 
-add_button(
-        parent_id="row_1", 
-        label="Press Me to Change Value", 
-        on_press=change_value)
+            add_button(
+                label="Press Me to Change Value", 
+                on_press=change_value)
 
-add_row(
-        window_id="main", 
-        id="row_2", 
-        parent_id="col",
-        spacing=10.0)
+        with Row(spacing=10.0):
 
-add_button(
-        parent_id="row_2", 
-        label="Toggle the Secure Setting", 
-        on_press=toggle_secure)
+            add_button(
+                label="Toggle the Secure Setting", 
+                on_press=toggle_secure)
 
-add_button(
-        parent_id="row_2", 
-        label="Press Me to Change the Width", 
-        on_press=change_width)
+            add_button(
+                label="Press Me to Change the Width", 
+                on_press=change_width)
 
-add_row(
-        window_id="main", 
-        id="row_3", 
-        parent_id="col",
-        spacing=10.0)
+        with Row(spacing=10.0):
 
-add_button(
-        parent_id="row_3", 
-        label="Press Me to Change the Padding", 
-        on_press=change_padding)
+            add_button(
+                    label="Press Me to Change the Padding", 
+                    on_press=change_padding)
 
-add_button(
-        parent_id="row_3", 
-        label="Press Me to Change the Size", 
-        on_press=change_size)
+            add_button(
+                    label="Press Me to Change the Size", 
+                    on_press=change_size)
 
-add_row(
-        window_id="main", 
-        id="row_4", 
-        parent_id="col",
-        spacing=10.0)
+        with Row(spacing=10.0):
 
-add_button(
-        parent_id="row_4", 
-        label="Press Me to Change the LineHeight", 
-        on_press=change_line_height)
+            add_button( 
+                label="Press Me to Change the LineHeight", 
+                on_press=change_line_height)
 
-add_row(
-        window_id="main", 
-        id="row_5", 
-        parent_id="col",
-        spacing=10.0)
+        with Row(spacing=10.0):
 
-add_button(
-        parent_id="row_5", 
-        label="Press Me to Add Some Styling", 
-        on_press=add_style)
+            add_button(
+                    label="Press Me to Add Some Styling", 
+                    on_press=add_style)
 
 # the add style functions can be place anywhere as long as they are before the start_session
 ti_style = add_text_input_style( 

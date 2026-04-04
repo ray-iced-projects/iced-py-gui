@@ -34,6 +34,8 @@ use crate::widgets::ipg_button::{IpgButton,
 ///    Whether the button fills available width.
 ///height_fill : bool, default False
 ///    Whether the button fills available height.
+///fill : bool, Optional
+///    Whether the button fills available width and height.
 ///padding : list of float,  Optional
 ///    Sets the Padding as [all], [vertical, horizontal], or
 ///    [top, right, bottom, left].
@@ -85,6 +87,7 @@ use crate::widgets::ipg_button::{IpgButton,
     width_fill=false,
     height=None,
     height_fill=false,
+    fill=None,
     padding=None,
     text_top_left=None,
     text_top_center=None,
@@ -113,6 +116,7 @@ pub fn add_button(
     width_fill: bool,
     height: Option<f32>,
     height_fill: bool,
+    fill: Option<bool>,
     padding: Option<Vec<f32>>,
     text_top_left: Option<bool>,
     text_top_center: Option<bool>,
@@ -136,9 +140,11 @@ pub fn add_button(
 
     let id = get_id(gen_id);
     
-    // Calculate dimensions
-    let width = get_length(width, width_fill);
-    let height = get_length(height, height_fill);
+    let (width, height) = if fill == Some(true) {
+        (get_length(None, true), get_length(None, true))
+    } else {
+        (get_length(width, width_fill), get_length(height, height_fill))
+    };
 
     // Register widget with parent
     set_state_of_widget(id, parent_id.clone());

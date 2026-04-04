@@ -77,6 +77,7 @@ use crate::graphics::colors::IpgColor;
     width_fill=false, 
     height=None, 
     height_fill=false,
+    fill=None,
     align_bottom_center=None,
     align_bottom_left=None,
     align_bottom_right=None,
@@ -99,12 +100,12 @@ use crate::graphics::colors::IpgColor;
 pub fn add_text(
     parent_id: String,
     content: String,
-    // ** above required
     gen_id: Option<usize>,
     width: Option<f32>,
     width_fill: bool,
     height: Option<f32>,
     height_fill: bool,
+    fill: Option<bool>,
     align_bottom_center: Option<bool>,
     align_bottom_left: Option<bool>,
     align_bottom_right: Option<bool>,
@@ -131,8 +132,11 @@ pub fn add_text(
     let color= 
         IpgColor::rgba_ipg_color_to_iced(text_rgba, text_color, text_color_alpha);
 
-    let width = get_length(width, width_fill);
-    let height = get_length(height, height_fill);
+    let (width, height) = if fill == Some(true) {
+        (get_length(None, true), get_length(None, true))
+    } else {
+        (get_length(width, width_fill), get_length(height, height_fill))
+    };
 
     set_state_of_widget(id, parent_id.clone());
 

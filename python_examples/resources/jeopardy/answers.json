@@ -4,137 +4,163 @@
         "Variables": [
             {
                 "answer": "Are you going to tell me the truth or not!",
-                "question": "What is a boolean?"
-            },
-            {
-                "answer": "I think you are int_eresting, Can we get together in my pool so I can try and change your mind?",
-                "question": "What is a float()?"
+                "question": "What is a boolean?",
+                "status": "value"
             },
             {
                 "answer": "I want to string along with you but I am the short type",
-                "question": "What is a \"s t r\"?"
+                "question": "What is a \"s t r\"?",
+                "status": "value"
             },
             {
                 "answer": "You gave me many things, what am I going to do with all these?",
-                "question": "What is a list?"
+                "question": "What is a list?",
+                "status": "value"
             },
             {
                 "answer": "I bet that you thought we were equal but we aren't!",
-                "question": "What is equivalent?"
+                "question": "What is equivalent?",
+                "status": "value"
             },
             {
                 "answer": "I have all the keys but I can't open a single door.",
-                "question": "What's a dictionary?"
+                "question": "What's a dictionary?",
+                "status": "value"
             }
         ],
         "Loop de Loop": [
             {
                 "answer": "I'm staying here until I find the truth",
-                "question": "What is While (False)?"
+                "question": "What is While (False)?",
+                "status": "value"
             },
             {
                 "answer": "Oh, I bet you want to do this 100 times.",
-                "question": "What is For _ in Range(100)?"
+                "question": "What is For _ in Range(100)?",
+                "status": "value"
             },
             {
                 "answer": "I;ve been running in circles and I finally found it, can we go to lunch now?",
-                "question": "What is break"
+                "question": "What is break",
+                "status": "value"
             },
             {
                 "answer": "I wanted to keep going but someone told me to skip ahead.",
-                "question": "What is continue?"
+                "question": "What is continue?",
+                "status": "value"
             },
             {
                 "answer": "I keep counting but I never remember where I started.",
-                "question": "What is enumerate?"
+                "question": "What is enumerate?",
+                "status": "value"
             }
         ],
         "You are exceptional": [
             {
                 "answer": "I tried my best but you just wouldn't accept me.",
-                "question": "What is try/except?"
+                "question": "What is try/except?",
+                "status": "value"
             },
             {
                 "answer": "No matter what happens, I always get the last word.",
-                "question": "What is finally?"
+                "question": "What is finally?",
+                "status": "value"
             },
             {
                 "answer": "Something went wrong and I'm not going to keep it to myself!",
-                "question": "What is raise?"
+                "question": "What is raise?",
+                "status": "value"
             },
             {
                 "answer": "I asked for a number but you gave me a love letter.",
-                "question": "What is a TypeError?"
+                "question": "What is a TypeError?",
+                "status": "value"
             },
             {
                 "answer": "I only have 5 things but you asked for number 10!",
-                "question": "What is an IndexError?"
+                "question": "What is an IndexError?",
+                "status": "value"
             }
         ],
         "Some say I'm a Anaconda": [
             {
                 "answer": "I was born in the late 80s and named after a British comedy show, not a reptile.",
-                "question": "What is Monty Python?"
+                "question": "What is Monty Python?",
+                "status": "value"
             },
             {
                 "answer": "I don't need curly braces — my whitespace speaks volumes.",
-                "question": "What is indentation?"
+                "question": "What is indentation?",
+                "status": "value"
             },
             {
                 "answer": "I'm version 2 and my younger sibling refuses to talk to me.",
-                "question": "What is Python 2 vs Python 3?"
+                "question": "What is Python 2 vs Python 3?",
+                "status": "value"
             },
             {
                 "answer": "I come with batteries included so you don't have to build everything from scratch.",
-                "question": "What is the standard library?"
+                "question": "What is the standard library?",
+                "status": "value"
             },
             {
                 "answer": "I shed my skin every year or so and they give me a new number.",
-                "question": "What is a Python version?"
+                "question": "What is a Python version?",
+                "status": "value"
             }
         ],
         "Stay Classy": [
             {
                 "answer": "I define who you are but I'm not a therapist.",
-                "question": "What is class?"
+                "question": "What is class?",
+                "status": "value"
             },
             {
                 "answer": "I'm always the first one invited to the party but nobody ever picks me.",
-                "question": "What is self?"
+                "question": "What is self?",
+                "status": "value"
             },
             {
                 "answer": "I know what I'm supposed to do, I just haven't been told how yet.",
-                "question": "What is def?"
+                "question": "What is def?",
+                "status": "value"
             },
             {
                 "answer": "My parents gave me everything and I still wanted more.",
-                "question": "What is inheritance?"
+                "question": "What is inheritance?",
+                "status": "value"
             },
             {
                 "answer": "We have the same name but we do completely different things — it depends on who you ask.",
-                "question": "What is polymorphism?"
+                "question": "What is polymorphism?",
+                "status": "value"
             }
         ],
         "Potpyri": [
             {
                 "answer": "I bring things in from the outside so you don't have to build them yourself.",
-                "question": "What is import?"
+                "question": "What is import?",
+                "status": "value"
             },
             {
                 "answer": "I have nothing to say and I'm proud of it.",
-                "question": "What is None?"
+                "question": "What is None?",
+                "status": "value"
             },
             {
                 "answer": "Everyone sees me first but nobody remembers my name.",
-                "question": "What is print()?"
+                "question": "What is print()?",
+                "status": "value"
             },
             {
                 "answer": "I'm a little function that was too shy to get a real name.",
-                "question": "What is lambda?"
+                "question": "What is lambda?",
+                "status": "value"
             },
             {
                 "answer": "I have something to say but nobody will ever hear me.",
-                "question": "What is a # comment?"
+                "question": "What is a # comment?",
+                "status": "value"
             }
         ]
     }

@@ -1,7 +1,7 @@
 //! ipg_color_picker
 use std::collections::HashMap;
 
-use crate::graphics::bootstrap_arrow::IpgArrow;
+use crate::graphics::bootstrap_arrow::Arrow;
 use crate::state::IpgWidgets;
 use crate::widgets::ipg_button::{ButtonStyleStd, extract_button_style_standard};
 use crate::widgets::widget_param_update::{WidgetParamUpdate, set_bool, set_height, set_height_fill, set_iced_color, set_opt_bool, set_opt_ipg_arrow, set_opt_string, set_opt_usize, set_opt_vec_f32, set_width, set_width_fill};
@@ -31,7 +31,7 @@ pub struct IpgColorPicker {
     pub clip: Option<bool>,
     pub style_id: Option<usize>,
     pub style_standard: Option<ButtonStyleStd>,
-    pub style_arrow: Option<IpgArrow>,
+    pub style_arrow: Option<Arrow>,
 }
 
 impl IpgColorPicker {

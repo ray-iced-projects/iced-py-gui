@@ -1,8 +1,8 @@
 
-LD_LIBRARY_PATH=/home/charles/.pyenv/versions/3.14.2/lib cargo test --no-default-features --lib ipg_text::tests
+LD_LIBRARY_PATH=/home/charles/.pyenv/versions/3.14.2/lib cargo test --no-default-features --lib -- widgets::ipg_button::tests --nocapture
 
 
-Some code for later aybe
+Some code for later maybe
 def add_button(label: str, parent_id=None, **kwargs):
     if parent_id is None:
         parent_id = _current_parent()

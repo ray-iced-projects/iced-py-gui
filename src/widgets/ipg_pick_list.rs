@@ -1,7 +1,7 @@
 //! ipg_pick_list
 use crate::app;
 use crate::IpgState;
-use crate::graphics::bootstrap_arrow::IpgArrow;
+use crate::graphics::bootstrap_arrow::Arrow;
 use crate::py_api::helpers::{get_padding, get_radius};
 use crate::state::IpgWidgets;
 use crate::widgets::widget_param_update::set_opt_iced_color_from_rgba;
@@ -41,9 +41,9 @@ pub struct IpgPickList {
     pub text_shaping: Option<TextShaping>,
     pub handle: Option<IpgPickListHandle>,
     pub arrow_size: Option<f32>,
-    pub dynamic_closed: Option<IpgArrow>,
-    pub dynamic_open: Option<IpgArrow>,
-    pub custom_static: Option<IpgArrow>,
+    pub dynamic_closed: Option<Arrow>,
+    pub dynamic_open: Option<Arrow>,
+    pub custom_static: Option<Arrow>,
     pub style_id: Option<usize>,
 }
 
@@ -231,9 +231,9 @@ impl IpgPickListHandle {
 
 fn get_handle(ipg_handle: &IpgPickListHandle, 
                 arrow_size: Option<f32>,
-                closed: &Option<IpgArrow>,
-                opened: &Option<IpgArrow>,
-                custom: &Option<IpgArrow>,
+                closed: &Option<Arrow>,
+                opened: &Option<Arrow>,
+                custom: &Option<Arrow>,
             ) -> Handle<Font> 
 {
     match ipg_handle {
@@ -246,13 +246,13 @@ fn get_handle(ipg_handle: &IpgPickListHandle,
         },
         IpgPickListHandle::Dynamic => {
             let arrow_closed = match closed {
-                Some(cls) => IpgArrow::to_char(cls),
-                None => IpgArrow::to_char(&IpgArrow::ArrowBarRight),
+                Some(cls) => Arrow::to_char(cls),
+                None => Arrow::to_char(&Arrow::ArrowBarRight),
             };
 
             let arrow_opened = match opened {
-                Some(op) => IpgArrow::to_char(op),
-                None => IpgArrow::to_char(&IpgArrow::ArrowBarRight),
+                Some(op) => Arrow::to_char(op),
+                None => Arrow::to_char(&Arrow::ArrowBarRight),
             };
 
             let size = arrow_size.map(Pixels);
@@ -276,8 +276,8 @@ fn get_handle(ipg_handle: &IpgPickListHandle,
         IpgPickListHandle::None => Handle::None,
         IpgPickListHandle::Static => {
                 let custom_type = match custom {
-                    Some(cust) => IpgArrow::to_char(cust),
-                    None => IpgArrow::to_char(&IpgArrow::ArrowBarRight),
+                    Some(cust) => Arrow::to_char(cust),
+                    None => Arrow::to_char(&Arrow::ArrowBarRight),
                 };
 
                 let size = arrow_size.map(Pixels);

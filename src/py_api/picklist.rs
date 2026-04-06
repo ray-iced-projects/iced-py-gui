@@ -8,7 +8,7 @@ type PyObject = Py<PyAny>;
 use crate::{access_state, add_callback_to_mutex, 
     add_user_data_to_mutex};
 use crate::graphics::{colors::IpgColor, 
-        bootstrap_arrow::IpgArrow}; 
+        bootstrap_arrow::Arrow}; 
 use crate::py_api::helpers::get_length; 
 use crate::state::{IpgWidgets, get_id, set_state_of_widget}; 
 use crate::widgets::{ipg_text::TextShaping, 
@@ -117,9 +117,9 @@ pub fn add_pick_list(
     text_shaping: Option<TextShaping>,
     handle: Option<IpgPickListHandle>,
     arrow_size: Option<f32>,
-    dynamic_closed: Option<IpgArrow>,
-    dynamic_open: Option<IpgArrow>,
-    custom_static: Option<IpgArrow>,
+    dynamic_closed: Option<Arrow>,
+    dynamic_open: Option<Arrow>,
+    custom_static: Option<Arrow>,
     style_id: Option<usize>,
     user_data: Option<PyObject>,
     show: bool,

@@ -31,10 +31,10 @@ from .icedpygui import (
     add_slider_style as add_slider_style,
     add_text_input_style as add_text_input_style,
     add_toggler_style as add_toggler_style,
-    IpgArrow as IpgArrow,
-    IpgButtonParam as IpgButtonParam,
-    IpgButtonStyleParam as IpgButtonStyleParam,
-    IpgButtonStyleStd as IpgButtonStyleStd,
+    Arrow as Arrow,
+    ButtonParam as ButtonParam,
+    ButtonStyleParam as ButtonStyleParam,
+    ButtonStyleStd as ButtonStyleStd,
     IpgCardParam as IpgCardParam,
     IpgCardStyleParam as IpgCardStyleParam,
     IpgCardStyleStd as IpgCardStyleStd,
@@ -65,7 +65,6 @@ from .icedpygui import (
     IpgScrollableParam as IpgScrollableParam,
     IpgScrollableStyleParam as IpgScrollableStyleParam,
     IpgScrollerParam as IpgScrollerParam,
-    IpgSelectableTextParam as IpgSelectableTextParam,
     IpgSeparatorParam as IpgSeparatorParam,
     IpgSeparatorType as IpgSeparatorType,
     IpgSeparatorStyleParam as IpgSeparatorStyleParam,
@@ -103,9 +102,6 @@ from .icedpygui import (
     get_color_palette,
 )
 
-# ---------------------------------------------------------------------------
-# Wrapped widget functions — full signatures with parent_id made optional
-# ---------------------------------------------------------------------------
 
 def add_button(
     *,
@@ -117,6 +113,7 @@ def add_button(
     width_fill: bool = False,
     height: Optional[float] = None,
     height_fill: bool = False,
+    if_menu_btn: bool = False,
     padding: Optional[list[float]] = None,
     text_top_left: Optional[bool] = None,
     text_top_center: Optional[bool] = None,
@@ -130,8 +127,8 @@ def add_button(
     text_size: Optional[float] = None,
     clip: Optional[bool] = None,
     style_id: Optional[int] = None,
-    style_standard: Optional[IpgButtonStyleStd] = None,
-    style_arrow: Optional[IpgArrow] = None,
+    style_standard: Optional[ButtonStyleStd] = None,
+    style_arrow: Optional[Arrow] = None,
     user_data: Optional[Any] = None,
     show: bool = True,
 ) -> int:
@@ -341,19 +338,6 @@ def add_pick_list(
     """
     ...
 def add_radio(
-    *,
-    parent_id: Optional[str] = None,
-    **kwargs: Any) -> int:
-    """_summary_
-
-    Args:
-        parent_id (Optional[str], optional): _description_. Defaults to None.
-
-    Returns:
-        int: _description_
-    """
-    ...
-def add_selectable_text(
     *,
     parent_id: Optional[str] = None,
     **kwargs: Any) -> int:

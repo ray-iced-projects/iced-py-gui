@@ -2,7 +2,7 @@
 use std::collections::HashMap;
 
 use crate::app::Message;
-use crate::graphics::bootstrap_arrow::IpgArrow;
+use crate::graphics::bootstrap_arrow::Arrow;
 use crate::state::IpgWidgets;
 use crate::widgets::callbacks::invoke_callback;
 use crate::py_api::helpers::get_padding;
@@ -46,11 +46,11 @@ pub struct IpgButton {
     pub text_bottom_center: Option<bool>,
     pub text_bottom_right: Option<bool>,
     pub text_size: Option<f32>,
-    pub menu: Option<bool>,
+    pub if_menu_btn: Option<bool>,
     pub clip: Option<bool>,
     pub style_id: Option<usize>,
     pub style_std: Option<ButtonStyleStd>,
-    pub style_arrow: Option<IpgArrow>,
+    pub style_arrow: Option<Arrow>,
 }
 
 impl IpgButton {
@@ -72,7 +72,7 @@ impl IpgButton {
 
         let txt = 
             if let Some(sa) = self.style_arrow.clone() {
-                let arrow = IpgArrow::to_string(&sa);
+                let arrow = Arrow::to_string(&sa);
                 text(arrow).font(iced::Font::with_name("bootstrap-icons"))
             } else {
                 let label = if let Some(lb) = &self.label {
@@ -89,7 +89,7 @@ impl IpgButton {
             txt.align_x(alignment::Horizontal::Center)
                 .align_y(alignment::Vertical::Center);
 
-        let txt = if self.menu == Some(true) {
+        let txt = if self.if_menu_btn == Some(true) {
             txt.align_x(alignment::Horizontal::Left)
                 .align_y(alignment::Vertical::Center)
         } else { txt };
@@ -165,7 +165,7 @@ impl IpgButton {
                        match &self.style_std {
                             Some(std) => std.to_iced(theme, status),
                             None => {
-                                if self.menu == Some(true) {
+                                if self.if_menu_btn == Some(true) {
                                     button::text(theme, status)
                                 } else {
                                     button::primary(theme, status)
@@ -339,11 +339,12 @@ impl ButtonStyleStd {
 #[pyclass(eq, eq_int)]
 pub enum ButtonParam {
     ArrowStyle,
+    Clip,
     Height,
     HeightFill,
+    IfMenuBtn,
     Label,
     Padding,
-    Clip,
     Show,
     StyleId,
     StyleStandard,
@@ -405,30 +406,31 @@ impl WidgetParamUpdate for IpgButton {
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
             ButtonParam::ArrowStyle => {
-                self.style_arrow = IpgArrow::extract(value);
+                self.style_arrow = Arrow::extract(value);
             }
-            ButtonParam::Clip => set_opt_bool(&mut self.clip, value, "Clip"),
-            ButtonParam::Height => set_height(&mut self.height, value, "Height"),
-            ButtonParam::HeightFill => set_height_fill(&mut self.height, value, "HeightFill"),
-            ButtonParam::Label => set_opt_string(&mut self.label, value, "Label"),
-            ButtonParam::Padding => set_opt_vec_f32(&mut self.padding, value, "Padding"),
+            ButtonParam::Clip => set_opt_bool(&mut self.clip, value, "ButtonParam::Clip"),
+            ButtonParam::Height => set_height(&mut self.height, value, "ButtonParam::Height"),
+            ButtonParam::HeightFill => set_height_fill(&mut self.height, value, "ButtonParam::HeightFill"),
+            ButtonParam::IfMenuBtn => set_opt_bool(&mut self.if_menu_btn, value, "ButtonParam::IfMenuBtn"),
+            ButtonParam::Label => set_opt_string(&mut self.label, value, "ButtonParam::Label"),
+            ButtonParam::Padding => set_opt_vec_f32(&mut self.padding, value, "ButtonParam::Padding"),
             ButtonParam::Show => set_bool(&mut self.show, value, "Show"),
-            ButtonParam::StyleId => set_opt_usize(&mut self.style_id, value, "StyleId"),
+            ButtonParam::StyleId => set_opt_usize(&mut self.style_id, value, "ButtonParam::StyleId"),
             ButtonParam::StyleStandard => {
-                self.style_std = Some(extract_button_style_standard(value, "StyleStandard"));
+                self.style_std = Some(extract_button_style_standard(value, "ButtonParam::StyleStandard"));
             },
-            ButtonParam::TextSize => set_opt_f32(&mut self.text_size, value, "TextSize"),
-            ButtonParam::Width => set_width(&mut self.width, value, "Width"),
-            ButtonParam::WidthFill => set_width_fill(&mut self.width, value, "WidthFill"),
-            ButtonParam::TextAlignBottomCenter => set_opt_bool(&mut self.text_bottom_center, value, "TextAlignBottomCenter"),
-            ButtonParam::TextAlignBottomLeft => set_opt_bool(&mut self.text_bottom_left, value, "TextAlignBottomLeft"),
-            ButtonParam::TextAlignBottomRight => set_opt_bool(&mut self.text_bottom_right, value, "TextAlignBottomRight"),
-            ButtonParam::TextAlignCenter => set_opt_bool(&mut self.text_center, value, "TextAlignCenter"),
-            ButtonParam::TextAlignCenterLeft => set_opt_bool(&mut self.text_center_left, value, "TextAlignCenterLeft"),
-            ButtonParam::TextAlignCenterRight => set_opt_bool(&mut self.text_bottom_right, value, "TextAlignCenterRight"),
-            ButtonParam::TextAlignTopCenter => set_opt_bool(&mut self.text_top_center, value, "TextAlignTopCenter"),
-            ButtonParam::TextAlignTopLeft => set_opt_bool(&mut self.text_top_left, value, "TextAlignTopLeft"),
-            ButtonParam::TextAlignTopRight => set_opt_bool(&mut self.text_top_right, value, "TextAlignTopRight"),
+            ButtonParam::TextSize => set_opt_f32(&mut self.text_size, value, "ButtonParam::TextSize"),
+            ButtonParam::Width => set_width(&mut self.width, value, "ButtonParam::Width"),
+            ButtonParam::WidthFill => set_width_fill(&mut self.width, value, "ButtonParam::WidthFill"),
+            ButtonParam::TextAlignBottomCenter => set_opt_bool(&mut self.text_bottom_center, value, "ButtonParam::TextAlignBottomCenter"),
+            ButtonParam::TextAlignBottomLeft => set_opt_bool(&mut self.text_bottom_left, value, "ButtonParam::TextAlignBottomLeft"),
+            ButtonParam::TextAlignBottomRight => set_opt_bool(&mut self.text_bottom_right, value, "ButtonParam::TextAlignBottomRight"),
+            ButtonParam::TextAlignCenter => set_opt_bool(&mut self.text_center, value, "ButtonParam::TextAlignCenter"),
+            ButtonParam::TextAlignCenterLeft => set_opt_bool(&mut self.text_center_left, value, "ButtonParam::TextAlignCenterLeft"),
+            ButtonParam::TextAlignCenterRight => set_opt_bool(&mut self.text_center_right, value, "ButtonParam::TextAlignCenterRight"),
+            ButtonParam::TextAlignTopCenter => set_opt_bool(&mut self.text_top_center, value, "ButtonParam::TextAlignTopCenter"),
+            ButtonParam::TextAlignTopLeft => set_opt_bool(&mut self.text_top_left, value, "ButtonParam::TextAlignTopLeft"),
+            ButtonParam::TextAlignTopRight => set_opt_bool(&mut self.text_top_right, value, "ButtonParam::TextAlignTopRight"),
         }
     }
 }
@@ -491,7 +493,7 @@ mod tests {
             text_bottom_center: None,
             text_bottom_right: None,
             text_size: None,
-            menu: None,
+            if_menu_btn: None,
             clip: None,
             style_id: None,
             style_std: None,

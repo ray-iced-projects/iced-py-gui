@@ -66,12 +66,12 @@ def add_button_style(
     >>>             add_button(
     >>>                 label="Style Standard-Danger",
     >>>                     padding=[5.0],
-    >>>                     style_std=IpgButtonStyleStd.Danger)
+    >>>                     style_std=ButtonStyleStd.Danger)
     >>>             
     >>>             add_button(
     >>>                 label="Style Standard-Text",
     >>>                     padding=[5.0],
-    >>>                     style_std=IpgButtonStyleStd.Text)
+    >>>                     style_std=ButtonStyleStd.Text)
     >>> 
     >>> start_session()
     >>> 
@@ -1236,7 +1236,7 @@ def add_chart_title(
         title_font_rgba: Optional[list[float, 4]],
         title_font_weight: Optional[str],
         title_margin: Optional[list[float, 4]],
-        title_align: AlignX,
+        title_align: Optional[bool],
         title_height: float,
         sub_title_text: Optional[str],
         sub_title_font_size: Optional[float],
@@ -1244,7 +1244,7 @@ def add_chart_title(
         sub_title_font_rgba: Optional[list[float, 4]],
         sub_title_font_weight: Optional[str],
         sub_title_margin: Optional[list[float, 4]],
-        sub_title_align: AlignX,
+        sub_title_align: Optional[bool],
         sub_title_height: float,
         gen_id: Optional[int],
     ) -> int:
@@ -1281,7 +1281,7 @@ def add_chart_legend(
         legend_font_ipgcolor: Optional[IpgColor],
         legend_font_rgba: Optional[list[float, 4]],
         legend_font_weight: Optional[str],
-        legend_align: AlignX,
+        legend_align: Optional[bool],
         legend_margin: Optional[list[float, 4]],
         legend_category: IpgChartLegendCategory,
         legend_show: bool,
@@ -1373,7 +1373,7 @@ def add_chart_y_axis(
         y_axis_width: Optional[float],
         y_axis_split_number: int,
         y_axis_name_gap: float,
-        y_axis_name_align: Optional[AlignX],
+        y_axis_name_align: Optional[bool],
         y_axis_margin: Optional[list[float, 4]],
         y_axis_formatter: Optional[str],
         y_axis_min: Optional[float],
@@ -1636,36 +1636,8 @@ def move_widget(
     None
     """
     
-        
-class Align:
-    """
-    How items placed in a container or widget are aligned
-    """
-    Start=''
-    Center=''
-    End=''
 
-
-class AlignX:
-    """
-    How items placed in a container or widget are aligned in the horizontal direction\n
-    Left, Center, Right
-    """
-    Left=''
-    Center=''
-    Right=''
-
-
-class AlignY:
-    """
-    How items placed in a container or widget are aligned in the vertical direction\n
-    Top, Center, Bottom
-    """
-    Top=''
-    Center=''
-    Bottom=''
-
-class IpgButtonParam:
+class ButtonParam:
     """
     Button parameters
 
@@ -1694,7 +1666,7 @@ class IpgButtonParam:
     WidthFill: bool
          Whether the button width fills the available space of a container.
     """
-    ArrowStyle: IpgArrow
+    ArrowStyle: Arrow
     Height: float
     HeightFill: bool
     Label: str
@@ -1998,7 +1970,7 @@ class IpgColorPickerParam:
     WidthFill: bool
          Whether the button width fills the available space of a container.
     """
-    ArrowStyle: IpgArrow
+    ArrowStyle: Arrow
     CanvasColor: list
     DrawColor: list
     Height: float
@@ -2068,14 +2040,17 @@ class IpgColorPickerStyleParam:
 
 
 class IpgColumnParam:
-    AlignX:Align
-    Clip:bool
-    Padding:list[float]
-    Width:float
-    WidthFill:bool
-    Height:float
-    HeightFill:bool
-    Spacing:float
+    AlignLeft: bool
+    AlignCenter: bool
+    AlignRight: bool
+    Clip: bool
+    Fill: bool
+    Height: float
+    HeightFill: bool
+    Padding: list[float]
+    Spacing: float
+    Width: float
+    WidthFill: bool
     
 
 class IpgContainerParam:
@@ -2733,14 +2708,17 @@ class IpgRadioStyleParam:
 
 
 class IpgRowParam:
-    Align:Align
-    Clip:bool
-    Padding:list[float]
-    Width:float
-    WidthFill:bool
-    Height:float
-    HeightFill:bool
-    Spacing:float
+    AlignBottom: bool
+    AlignCenter: bool
+    AlignTop: bool
+    Clip: bool
+    Fill: bool
+    Height: float
+    HeightFill: bool
+    Padding: list[float]
+    Spacing: float
+    Width: float
+    WidthFill: bool
 
 
 class IpgRuleStyleParam:
@@ -2767,6 +2745,8 @@ class IpgScrollableParam:
 
     Parameters
     ----------
+    Fill: bool
+        Whether the scrollable fills both width and height of a holding container
     Width: float
         The width of the scrollable.
     WidthFill: bool
@@ -2775,46 +2755,18 @@ class IpgScrollableParam:
         The height of the scrollable.
     HeightFill: bool
         Whether the scrollable fills the height container.
-    HBarWidth: float
-        The horizontal bar width
-    HBarMargin: float
-        The horizontal bar margin.
-    HScrollerWidth: float
-        The horizontal scroller width.
-    HSpacing: float
-        If > 0.0 lowers the scroller
-    HBarAlignment: Align
-        The horizontal bar alignment.
-    VBarWidth: float
-        The vertical bar width.
-    VBarMargin: float
-        The vertical margin.
-    VScrollerWidth: float
-        The vertical scroller width.
-    VSpacing: float
-    If > 0.0 moves scroller right.
-    VBarAlignment: Align
-        The vertical bar alignment.
-        
+    
     Examples
     --------
     >>> ipg.update_item(wid=0, param=IpgScrollableParam.Width , 300.0)
     >>> sipg.update_item(wid=0, param=IpgScrollableParam.HeightFill, True)
     """
-    Width: float
-    WidthFill: bool
+    Fill: bool
     Height: float
-    HeightFill: bool
-    HBarWidth: float
-    HBarMargin: float
-    HScrollerWidth: float
-    HSpacing: float
-    HBarAlignment: Align
-    VBarWidth: float
-    VBarMargin: float
-    VScrollerWidth: float
-    VSpacing: float
-    VBarAlignment: Align
+    ScrollerXId: int
+    ScrollerYId: int
+    StyleId: int
+    Width: float
 
 
 class IpgScrollableStyleParam:
@@ -2899,51 +2851,6 @@ class IpgScrollableStyleParam:
     ScrollerRgbaColorHovered:list[float, 4]
     ScrollerIpgColorDragged:IpgColor
     ScrollerRgbaColorDragged:list[float, 4]
-
-
-class IpgSelectableTextParam:
-    """
-    SelectableText parameters
-
-    Parameters
-    ----------
-    Text: str
-        The text
-    Width: float
-        The width of the widget.
-    WidthFill: bool
-        Whether the widget fills the container width.
-    Height: float
-        The height of the widget.
-    HeightFill: bool
-        Whether the widget fills the container height.
-    HorizontalAlign: IpgHorizontalAlignment
-        The horizontal alignment using the IpgHorizontalAlignment class
-    VerticalAlign: IpgVerticalAlignment
-        The vertical alignment using the IpgVerticalAlignment class
-    LineHeight: float
-        The size of the box the text.
-    Size: float
-        The size of the text.
-    TextColor: IpgColor
-        The color of the text.
-    TextRgba: list[float, 4]
-        The color of the text in rgba format.
-    Show: bool
-        Whether to show or hide the widget.
-    """
-    Text: str
-    Width: float
-    WidthFill: bool
-    Height: float
-    HeightFill: bool
-    HorizontalAlign: AlignX
-    VerticalAlign: AlignY
-    LineHeight: float
-    Size: float
-    TextColor: IpgColor
-    TextRgba: list[float, 4]
-    Show: bool
 
 
 class IpgSeparatorParam:
@@ -3474,31 +3381,23 @@ class IpgTogglerParam:
 
     Parameters
     ----------
-    Alignment: Align
-        Align widget using Align
-    Label: str
-        String label for widget.
-    LineHeight: float
-        The height of the text box for the widget.
-    Show: bool
-        Whether to show or hide the widget.
-    Size: float
-        The size of the toggler.
-    TextSize: float
-        The text size of the label.
-    Width: float
-        The width of the widget.
-    WidthFill: bool
-        Whether the width fills the container.
+    
     """
-    Alignment : Align
-    Label : str
-    LineHeight : float
-    Show : bool
-    Size : float
-    TextSize : float
-    Width : float
-    WidthFill : bool
+    FontId: int
+    Label: str
+    Show: bool
+    Size: float
+    Spacing: float
+    StyleId: int
+    TextCenter: bool
+    TextLeft: bool
+    TextRight: bool
+    TextLineHeight: float
+    TextShaping: TextShaping
+    TextSize: float
+    TextWrapping: TextWrapping
+    Width: float
+    WidthFill: bool
 
 
 class IpgToolTipPosition:
@@ -3649,7 +3548,7 @@ class IpgWindowTheme:
     TokyoNightLight=''
 
 
-class IpgArrow:
+class Arrow:
     """
     The various arrows for the widgets
     """

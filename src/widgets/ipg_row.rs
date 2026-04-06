@@ -80,12 +80,12 @@ pub enum IpgRowParam {
     AlignTop,
     Clip,
     Fill,
-    Padding,
-    Width,
-    WidthFill,
     Height,
     HeightFill,
+    Padding,
     Spacing,
+    Width,
+    WidthFill,
 }
 
 

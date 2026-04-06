@@ -9,7 +9,7 @@ readme = "README.md"
 
 [lib]
 name = "icedpygui"
-crate-type = ["cdylib"]
+crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 pyo3 = { version = "0.26" }

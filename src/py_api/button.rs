@@ -6,7 +6,7 @@ use pyo3::{Py, PyAny, pyfunction};
 type PyObject = Py<PyAny>;
 
 use crate::add_user_data_to_mutex;
-use crate::graphics::{colors::IpgColor, bootstrap_arrow::IpgArrow};
+use crate::graphics::{colors::IpgColor, bootstrap_arrow::Arrow};
 use crate::py_api::helpers::get_length;
 use crate::state::{IpgWidgets, access_state, add_callback_to_mutex, 
     get_id, set_state_of_widget};
@@ -59,6 +59,8 @@ use crate::widgets::ipg_button::{IpgButton,
 ///    Whether to Align the label to the bottom-right.
 ///text_size : float,  Optional
 ///    Sets the Font size for the label text.
+/// if_menu_btn: bool, Optional
+///     Whether the button is used in the menu widget, effects the alignment.
 ///clip : bool,  Optional
 ///    Whether to clip content that overflows the button.
 ///style_id : int,  Optional
@@ -99,7 +101,7 @@ use crate::widgets::ipg_button::{IpgButton,
     text_bottom_center=None,
     text_bottom_right=None,
     text_size=None,
-    menu=None,
+    if_menu_btn=None,
     clip=None,
     style_id=None,
     style_std=None,
@@ -128,11 +130,11 @@ pub fn add_button(
     text_bottom_center: Option<bool>,
     text_bottom_right: Option<bool>,
     text_size: Option<f32>,
-    menu: Option<bool>,
+    if_menu_btn: Option<bool>,
     clip: Option<bool>,
     style_id: Option<usize>,
     style_std: Option<ButtonStyleStd>,
-    style_arrow: Option<IpgArrow>,
+    style_arrow: Option<Arrow>,
     user_data: Option<PyObject>,
     show: bool,
     gen_id: Option<usize>,
@@ -182,7 +184,7 @@ pub fn add_button(
                 text_bottom_center,
                 text_bottom_right,
                 text_size,
-                menu,
+                if_menu_btn,
                 clip,
                 style_id,
                 style_std,

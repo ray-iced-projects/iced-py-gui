@@ -42,7 +42,6 @@ from .icedpygui import (
     add_scroller_param,
     add_autoscroll_style,
     add_rail_style,
-    add_selectable_text as _add_selectable_text,
     add_separator as _add_separator,
     add_separator_style,
     add_slider as _add_slider,
@@ -75,13 +74,10 @@ from .icedpygui import (
     generate_id,
     get_rgba_color,
     get_color_palette,
-    Align,
-    AlignX,
-    AlignY,
-    IpgArrow,
-    IpgButtonParam,
-    IpgButtonStyleParam,
-    IpgButtonStyleStd,
+    Arrow,
+    ButtonParam,
+    ButtonStyleParam,
+    ButtonStyleStd,
     IpgCardParam,
     IpgCardStyleParam,
     IpgCardStyleStd,
@@ -115,7 +111,6 @@ from .icedpygui import (
     IpgScrollableParam,
     IpgScrollableStyleParam,
     IpgScrollerParam,
-    IpgSelectableTextParam,
     IpgSeparatorParam,
     IpgSeparatorType,
     IpgSeparatorStyleParam,
@@ -189,7 +184,6 @@ add_image = _wrap_widget(_add_image, "add_image")
 add_pick_list = _wrap_widget(_add_pick_list, "add_pick_list")
 add_radio = _wrap_widget(_add_radio, "add_radio")
 add_rule = _wrap_widget(_add_rule, "add_rule")
-add_selectable_text = _wrap_widget(_add_selectable_text, "add_selectable_text")
 add_separator = _wrap_widget(_add_separator, "add_separator")
 add_slider = _wrap_widget(_add_slider, "add_slider")
 add_space = _wrap_widget(_add_space, "add_space")

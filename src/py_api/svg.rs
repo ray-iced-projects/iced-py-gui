@@ -2,7 +2,7 @@
 
 use pyo3::{pyfunction, PyResult};
 
-use crate::graphics::colors::IpgColor;
+use crate::graphics::colors::Color;
 use crate::state::{IpgWidgets, get_id, set_state_of_widget};
 use crate::widgets::enums::{IpgContentFit, IpgRotation};
 use crate::widgets::ipg_svg::IpgSvg;
@@ -77,7 +77,7 @@ pub fn add_svg(
     width_fill: bool,
     height: Option<f32>,
     height_fill: bool,
-    ipg_color_filter: Option<IpgColor>,
+    ipg_color_filter: Option<Color>,
     ipg_color_filter_alpha: Option<f32>,
     rgba_filter: Option<[f32; 4]>,
     content_fit: Option<IpgContentFit>,
@@ -91,7 +91,7 @@ pub fn add_svg(
     let id = get_id(gen_id);
 
     let color_filter = 
-        IpgColor::rgba_ipg_color_to_iced(rgba_filter, ipg_color_filter, ipg_color_filter_alpha);
+        Color::rgba_ipg_color_to_iced(rgba_filter, ipg_color_filter, ipg_color_filter_alpha);
 
     let width = get_length(width, width_fill);
     let height = get_length(height, height_fill);

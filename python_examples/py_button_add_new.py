@@ -5,6 +5,8 @@ from icedpygui import Window, Container, Column, start_session, \
 # button is pressed.  You can dynamically add any widget through a callback
 
 count = 0
+col = 0
+
 def on_press(_btn_id: int):
     global count
     count += 1
@@ -15,6 +17,7 @@ def on_press(_btn_id: int):
     # appends to the column
     add_button(
         label=f"Button_{count}",
+        parent_id=col,
         )
 
 

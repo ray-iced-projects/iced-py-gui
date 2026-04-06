@@ -1,13 +1,16 @@
 //! Widget parameter update — trait-based dispatch with shared helpers.
 #![allow(unused)]
-
-use iced::{Color, Length};
+use iced::Length;
 use pyo3::{Py, PyAny, Python};
 
 use crate::graphics::bootstrap_arrow::Arrow;
-use crate::graphics::colors::IpgColor;
+use crate::graphics::colors::Color;
 use crate::py_api::helpers::{
-    get_length, get_length_fill, try_extract_boolean, try_extract_f32, try_extract_f32_array_2, try_extract_f32_opt, try_extract_f32_opt_array_1_or_upto_4, try_extract_opt_boolean, try_extract_opt_string, try_extract_opt_u32_array_2, try_extract_opt_usize, try_extract_opt_vec_f32, try_extract_string, try_extract_style_standard, try_extract_u16, try_extract_u16_array_2, try_extract_u32, try_extract_u64, try_extract_usize, try_extract_vec_f32, try_extract_vec_str, try_extract_vec_u8_opt, try_extract_vec_vec_f32
+    get_length, get_length_fill, try_extract_boolean, try_extract_f32, try_extract_f32_array_2, 
+    try_extract_f32_opt, try_extract_f32_opt_array_1_or_upto_4, try_extract_opt_boolean, 
+    try_extract_opt_string, try_extract_opt_u32_array_2, try_extract_opt_usize, try_extract_opt_vec_f32, 
+    try_extract_string, try_extract_u16, try_extract_u16_array_2, try_extract_u32, 
+    try_extract_u64,  try_extract_vec_f32, try_extract_vec_str, try_extract_vec_u8_opt, try_extract_vec_vec_f32
 };
 use crate::state::{IpgContainers, IpgWidgets};
 use crate::widgets::ipg_text::{TextShaping, TextWrapping};
@@ -211,23 +214,23 @@ pub fn set_lengths_fill(field1: &mut Length, field2: &mut Length, value: &PyObje
     [*field1, *field2] = get_length_fill(val);
 }
 
-pub fn set_iced_color(field: &mut Color, value: &PyObject, name: &str) {
-    let rgba = IpgColor::extract_rgba(value, name);
-    *field = Color::from(rgba);
+pub fn set_iced_color(field: &mut iced::Color, value: &PyObject, name: &str) {
+    let rgba = Color::extract_rgba(value, name);
+    *field = iced::Color::from(rgba);
 }
 
-pub fn set_opt_iced_color(field: &mut Option<Color>, value: &PyObject, name: &str) {
-    let color = IpgColor::extract_opt(value, name);
-    *field = IpgColor::rgba_ipg_color_to_iced(None, color, None);
+pub fn set_opt_iced_color(field: &mut Option<iced::Color>, value: &PyObject, name: &str) {
+    let color = Color::extract_opt(value, name);
+    *field = Color::rgba_ipg_color_to_iced(None, color, None);
 }
 
-pub fn set_opt_iced_color_from_rgba(field: &mut Option<Color>, value: &PyObject, name: &str) {
-    let rgba_opt = IpgColor::extract_rgba_opt(value, name);
-    *field = IpgColor::rgba_ipg_color_to_iced(rgba_opt, None, None);
+pub fn set_opt_iced_color_from_rgba(field: &mut Option<iced::Color>, value: &PyObject, name: &str) {
+    let rgba_opt = Color::extract_rgba_opt(value, name);
+    *field = Color::rgba_ipg_color_to_iced(rgba_opt, None, None);
 }
 
-pub fn set_ipg_color(field: &mut IpgColor, value: &PyObject, name: &str) {
-    *field = IpgColor::extract(value, name);
+pub fn set_ipg_color(field: &mut Color, value: &PyObject, name: &str) {
+    *field = Color::extract(value, name);
 }
 
 pub fn set_f32(field: &mut f32, value: &PyObject, name: &str) {
@@ -302,9 +305,9 @@ pub fn set_vec_string(field: &mut Vec<String>, value: &PyObject, name: &str) {
     *field = try_extract_vec_str(value, name);
 }
 
-pub fn set_rgba_color_via_ipg(field: &mut Option<Color>, value: &PyObject, name: &str) {
-    let rgba = IpgColor::extract_rgba(value, name);
-    *field = IpgColor::rgba_ipg_color_to_iced(Some(rgba), None, None);
+pub fn set_rgba_color_via_ipg(field: &mut Option<iced::Color>, value: &PyObject, name: &str) {
+    let rgba = Color::extract_rgba(value, name);
+    *field = Color::rgba_ipg_color_to_iced(Some(rgba), None, None);
 }
 
 pub fn set_opt_text_shaping(field: &mut Option<TextShaping>, value: &PyObject, name: &str) {

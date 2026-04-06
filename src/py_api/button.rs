@@ -1,12 +1,11 @@
 //! Button module - provides add_button pyfunction
 
-use iced::Color;
 use pyo3::prelude::*;
 use pyo3::{Py, PyAny, pyfunction};
 type PyObject = Py<PyAny>;
 
 use crate::add_user_data_to_mutex;
-use crate::graphics::{colors::IpgColor, bootstrap_arrow::Arrow};
+use crate::graphics::{colors::Color, bootstrap_arrow::Arrow};
 use crate::py_api::helpers::get_length;
 use crate::state::{IpgWidgets, access_state, add_callback_to_mutex, 
     get_id, set_state_of_widget};
@@ -202,16 +201,16 @@ pub fn add_button(
 ///
 ///Parameters
 ///----------
-///background_color: IpgColor, Optional
+///background_color: Color, Optional
 ///    Sets the Color of the background.
 ///background_color_alpha: float, Optional
-///    Sets the alpha of the IpgColor.
+///    Sets the alpha of the Color.
 ///background_rgba: list, Optional
 ///    Sets the Color of the background in rgba format, 4 values.
-/// background_gradient_color_stop: IpgColor, Optional
+/// background_gradient_color_stop: Color, Optional
 ///    Sets the stop Color of the background gradient.
 /// background_gradient_color_stop_alpha: float, Optional
-///    Sets the alpha of the IpgColor.
+///    Sets the alpha of the Color.
 /// background_gradient_rgba_stop: list, Optional
 ///    Sets the stop rgba color of the background gradient, 4 values.
 /// background_gradient_degrees: float, Optional,
@@ -220,10 +219,10 @@ pub fn add_button(
 ///    Sets the gradient radians
 /// background_gradient_alpha: float, Optional,
 ///    Sets the alpha color parameter.
-///border_color: IpgColor, Optional
+///border_color: Color, Optional
 ///    Sets the Color used for the border.
 ///border_color_alpha: float, Optional
-///    Sets the alpha of the IpgColor.
+///    Sets the alpha of the Color.
 ///border_rgba: list[float], Optional
 ///    Sets the Color of the border in rgba format, 4 values.
 ///border_radius: list[float], Optional
@@ -231,20 +230,20 @@ pub fn add_button(
 ///    [float]=[top-left, top-right, bottom-right, bottom-left].
 ///border_width: float, Optional
 ///    Sets the border width.
-///shadow_color: IpgColor, Optional
+///shadow_color: Color, Optional
 ///    Sets the color of the shadow.
 ///shadow_color_alpha: float, Optional
-///    Sets the alpha of the IpgColor.
+///    Sets the alpha of the Color.
 ///shadow_rgba: list[float], Optional
 ///    Sets the color in rgba format [float; 4] used as state above.
 ///shadow_offset_xy: list[float], Optional
 ///    Sets the Shadow offset in the horizontal direction [x, y].
 ///shadow_blur_radius: float, Optional
 ///    Sets the blur radius of the shadow.
-///text_color: IpgColor, Optional
+///text_color: Color, Optional
 ///    Sets the text color, if not defined, will either be a Black or White variation based on theme background.
 ///text_color_alpha: float, Optional
-///    Sets the alpha of the IpgColor.
+///    Sets the alpha of the Color.
 ///text_rgba: list[float], Optional
 ///    Sets the color in rgba used as state above, 4 values.
 /// gen_id : int,  Optional
@@ -276,25 +275,25 @@ pub fn add_button(
         gen_id=None
         ))]
 pub fn add_button_style(
-    background_color: Option<IpgColor>,
+    background_color: Option<Color>,
     background_color_alpha: Option<f32>,
     background_rgba: Option<[f32; 4]>,
-    background_gradient_color_stop: Option<IpgColor>,
+    background_gradient_color_stop: Option<Color>,
     background_gradient_color_stop_alpha: Option<f32>,
     background_gradient_rgba_stop: Option<[f32; 4]>,
     background_gradient_degrees: Option<f32>,
     background_gradient_radians: Option<f32>,
-    border_color: Option<IpgColor>,
+    border_color: Option<Color>,
     border_color_alpha: Option<f32>,
     border_rgba: Option<[f32; 4]>,
     border_radius: Option<Vec<f32>>,
     border_width: Option<f32>,
-    shadow_color: Option<IpgColor>,
+    shadow_color: Option<Color>,
     shadow_color_alpha: Option<f32>,
     shadow_rgba: Option<[f32; 4]>,
     shadow_offset_xy: Option<[f32; 2]>,
     shadow_blur_radius: Option<f32>,
-    text_color: Option<IpgColor>,
+    text_color: Option<Color>,
     text_color_alpha: Option<f32>,
     text_rgba: Option<[f32; 4]>,
     gen_id: Option<usize>,
@@ -302,17 +301,17 @@ pub fn add_button_style(
 {
     let id = get_id(gen_id);
 
-    let background_color: Option<Color> = 
-        IpgColor::rgba_ipg_color_to_iced(background_rgba, background_color, background_color_alpha);
-    let background_gradient_color_stop: Option<Color> =
-        IpgColor::rgba_ipg_color_to_iced(background_gradient_rgba_stop, 
+    let background_color = 
+        Color::rgba_ipg_color_to_iced(background_rgba, background_color, background_color_alpha);
+    let background_gradient_color_stop =
+        Color::rgba_ipg_color_to_iced(background_gradient_rgba_stop, 
             background_gradient_color_stop, background_gradient_color_stop_alpha);
-    let border_color: Option<Color> = 
-        IpgColor::rgba_ipg_color_to_iced(border_rgba, border_color, border_color_alpha);
-    let shadow_color: Option<Color> = 
-        IpgColor::rgba_ipg_color_to_iced(shadow_rgba, shadow_color, shadow_color_alpha);
-    let text_color: Option<Color> = 
-        IpgColor::rgba_ipg_color_to_iced(text_rgba, text_color, text_color_alpha);
+    let border_color = 
+        Color::rgba_ipg_color_to_iced(border_rgba, border_color, border_color_alpha);
+    let shadow_color = 
+        Color::rgba_ipg_color_to_iced(shadow_rgba, shadow_color, shadow_color_alpha);
+    let text_color = 
+        Color::rgba_ipg_color_to_iced(text_rgba, text_color, text_color_alpha);
 
     let mut state = access_state();
 

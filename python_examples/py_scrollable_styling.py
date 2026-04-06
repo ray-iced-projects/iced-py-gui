@@ -21,10 +21,10 @@ from imports import *
 
 # Create an id from each type of style or parameter
 cont_id = add_container_style(
-            background_color=IpgColor.DARK_GREEN)
+            background_color=Color.DARK_GREEN)
 
 rail_x = add_rail_style (
-            background_color=IpgColor.GREEN)
+            background_color=Color.GREEN)
 
 # If any parameters are needed for a scroller, then the
 # scroller parameter widget is needed

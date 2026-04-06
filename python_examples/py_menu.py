@@ -1,6 +1,6 @@
 from icedpygui import Window, Container, start_session, \
     Menu, MenuBarItem, add_menu_style, \
-    IpgMenuParam, IpgMenuStyleParam, IpgColor, \
+    IpgMenuParam, IpgMenuStyleParam, Color, \
     add_button, add_text, IpgButtonStyleStd, \
     add_separator, IpgSeparatorType
 

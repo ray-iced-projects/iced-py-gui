@@ -1,4 +1,5 @@
 //! ipg_card definition
+
 use std::collections::HashMap;
 
 use crate::app::Message;
@@ -12,7 +13,7 @@ use crate::widgets::widget_param_update::{
 };
 
 use iced::widget::{Column, Text, text};
-use iced::{Color, Element, Length, Theme};
+use iced::{Element, Length, Theme};
 
 use iced_aw::widgets::card::Card;
 use iced_aw::style;
@@ -171,17 +172,17 @@ pub fn card_callback(id: usize, message: CardMessage) {
 #[derive(Debug, Clone)]
 pub struct IpgCardStyle {
     pub id: usize,
-    pub background: Option<Color>, 
+    pub background: Option<iced::Color>, 
     pub border_radius: Option<f32>, 
     pub border_width: Option<f32>, 
-    pub border_color: Option<Color>, 
-    pub head_background: Option<Color>, 
-    pub head_text_color: Option<Color>, 
-    pub body_background: Option<Color>, 
-    pub body_text_color: Option<Color>, 
-    pub foot_background: Option<Color>, 
-    pub foot_text_color: Option<Color>, 
-    pub close_color:Option<Color>,
+    pub border_color: Option<iced::Color>, 
+    pub head_background: Option<iced::Color>, 
+    pub head_text_color: Option<iced::Color>, 
+    pub body_background: Option<iced::Color>, 
+    pub body_text_color: Option<iced::Color>, 
+    pub foot_background: Option<iced::Color>, 
+    pub foot_text_color: Option<iced::Color>, 
+    pub close_color:Option<iced::Color>,
 }
 
 impl IpgCardStyle {

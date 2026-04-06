@@ -1,14 +1,11 @@
 //! Divider module - provides add_divider pyfunction
-#![allow(unused)]
 
-use iced::Color;
 use pyo3::{Py, PyAny, pyfunction, PyResult};
 
 use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex, 
-    graphics::colors::IpgColor, py_api::helpers::get_length, state::{IpgWidgets, 
-        get_id, set_state_of_widget}, widgets::{ipg_divider::{self, 
-            IpgDivider, IpgDividerDirection, IpgDividerStyle}, 
-            styling::IpgStyleStandard}};
+    graphics::colors::Color, py_api::helpers::get_length, state::{IpgWidgets, 
+        get_id, set_state_of_widget}, widgets::{ipg_divider::{
+            IpgDivider, IpgDividerDirection, IpgDividerStyle}}};
 type PyObject = Py<PyAny>;
 
 
@@ -150,24 +147,24 @@ pub fn add_divider(
 ///
 /// Parameters
 /// ----------
-/// background_color : IpgColor, Optional
+/// background_color : Color, Optional
 ///     Sets the background color using a predefined color variant.
 /// background_color_alpha : float, Optional
-///     Sets the alpha of the IpgColor.
+///     Sets the alpha of the Color.
 /// background_rgba : list of float, Optional
 ///     Sets the background color in rgba format as [r, g, b, a].
-/// background_color_hovered : IpgColor, Optional
+/// background_color_hovered : Color, Optional
 ///     Sets the background color when hovered using a predefined color variant.
 /// background_color_hovered_alpha : float, Optional
-///     Sets the alpha of the IpgColor.
+///     Sets the alpha of the Color.
 /// background_rgba_hovered : list of float, Optional
 ///     Sets the background color when hovered in rgba format as [r, g, b, a].
 /// background_transparent : bool, Optional
 ///     Whether the background is transparent.
-/// border_color : IpgColor, Optional
+/// border_color : Color, Optional
 ///     Sets the border color using a predefined color variant.
 /// border_color_alpha : float, Optional
-///     Sets the alpha of the IpgColor.
+///     Sets the alpha of the Color.
 /// border_rgba : list of float, Optional
 ///     Sets the border color in rgba format as [r, g, b, a].
 /// border_radius : list of float, Optional
@@ -199,14 +196,14 @@ pub fn add_divider(
         gen_id=None
         ))]
 pub fn add_divider_style(
-    background_color: Option<IpgColor>,
+    background_color: Option<Color>,
     background_color_alpha: Option<f32>,
     background_rgba: Option<[f32; 4]>,
-    background_color_hovered: Option<IpgColor>,
+    background_color_hovered: Option<Color>,
     background_color_hovered_alpha: Option<f32>,
     background_rgba_hovered: Option<[f32; 4]>,
     background_transparent: Option<bool>,
-    border_color: Option<IpgColor>,
+    border_color: Option<Color>,
     border_color_alpha: Option<f32>,
     border_rgba: Option<[f32; 4]>,
     border_radius: Option<Vec<f32>>,
@@ -216,12 +213,12 @@ pub fn add_divider_style(
 {
     let id = get_id(gen_id);
 
-    let background_color: Option<Color> = 
-        IpgColor::rgba_ipg_color_to_iced(background_rgba, background_color, background_color_alpha);
-    let background_color_hovered: Option<Color> = 
-        IpgColor::rgba_ipg_color_to_iced(background_rgba_hovered, background_color_hovered, background_color_hovered_alpha);
-    let border_color: Option<Color> = 
-        IpgColor::rgba_ipg_color_to_iced(border_rgba, border_color, border_color_alpha);
+    let background_color = 
+        Color::rgba_ipg_color_to_iced(background_rgba, background_color, background_color_alpha);
+    let background_color_hovered = 
+        Color::rgba_ipg_color_to_iced(background_rgba_hovered, background_color_hovered, background_color_hovered_alpha);
+    let border_color = 
+        Color::rgba_ipg_color_to_iced(border_rgba, border_color, border_color_alpha);
 
     let mut state = access_state();
 

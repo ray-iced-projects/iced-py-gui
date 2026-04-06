@@ -2,7 +2,7 @@
 use std::collections::HashMap;
 
 use iced::advanced::text;
-use iced::{Color, Element, Length, alignment};
+use iced::{Element, Length, alignment};
 use iced::widget::text::{Shaping, Style};
 use iced::widget::Text;
 
@@ -39,7 +39,7 @@ pub struct IpgText {
     pub font_id: Option<usize>,
     pub shaping: Option<TextShaping>,
     pub show: bool,
-    pub color: Option<Color>,
+    pub color: Option<iced::Color>,
     pub wrapping: Option<TextWrapping>,
 }
 

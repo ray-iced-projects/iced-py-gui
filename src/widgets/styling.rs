@@ -1,7 +1,7 @@
 //! Style standard definitions and shared styling helpers
-use crate::{graphics::colors::IpgColor, py_api::helpers::get_radius};
+use crate::py_api::helpers::get_radius;
 
-use iced::{Background as IcedBackground, Border, Color, Radians, Shadow, Theme, Vector, theme::Palette};
+use iced::{Background as IcedBackground, Border, Radians, Shadow, Theme, Vector, theme::Palette};
 use iced::gradient::{self, Gradient};
 use iced::theme::palette::{Extended, Background, Primary, Secondary, 
     Success, Warning, Danger, is_dark};
@@ -22,7 +22,7 @@ pub enum IpgStyleStandard {
 /// Apply optional border overrides to an existing `Border`.
 pub fn apply_border_overrides(
     border: &mut Border,
-    color: Option<Color>,
+    color: Option<iced::Color>,
     radius: &Option<Vec<f32>>,
     width: Option<f32>,
     widget_name: &str,
@@ -41,7 +41,7 @@ pub fn apply_border_overrides(
 /// Apply optional shadow overrides using a combined `[x, y]` offset array.
 pub fn apply_shadow_overrides_xy(
     shadow: &mut Shadow,
-    color: Option<Color>,
+    color: Option<iced::Color>,
     offset: Option<[f32; 2]>,
     blur_radius: Option<f32>,
 ) {
@@ -67,8 +67,8 @@ pub fn apply_shadow_overrides_xy(
 /// * If neither is set the existing background is left untouched (`None`).
 pub fn apply_background_overrides(
     background: &mut Option<IcedBackground>,
-    background_color: Option<Color>,
-    gradient_color_stop: Option<Color>,
+    background_color: Option<iced::Color>,
+    gradient_color_stop: Option<iced::Color>,
     gradient_degrees: Option<f32>,
     gradient_radians: Option<f32>,
 ) {
@@ -82,7 +82,7 @@ pub fn apply_background_overrides(
             Radians(0.0)
         };
 
-        let start_color = background_color.unwrap_or(Color::TRANSPARENT);
+        let start_color = background_color.unwrap_or(iced::Color::TRANSPARENT);
 
         let linear = gradient::Linear::new(angle)
             .add_stop(0.0, start_color)
@@ -94,22 +94,13 @@ pub fn apply_background_overrides(
     }
 }
 
-pub fn get_theme_palette_color(theme: &iced::Theme) -> Color {
-    let r = theme.palette().background.r;
-    let g = theme.palette().background.g;
-    let b = theme.palette().background.b;
-    let a = theme.palette().background.a;
-    let rgba = [r, b, g, a];
-    IpgColor::rgba_ipg_color_to_iced(Some(rgba), None, None).unwrap()
-}
 
-
-pub fn create_custom_theme(base_color: Color, dark_mode: bool) -> Theme {
+pub fn create_custom_theme(base_color: iced::Color, dark_mode: bool) -> Theme {
     // Build a Palette from your one color
-    let background = if dark_mode { Color::from_rgb(0.15, 0.15, 0.18) } 
-                     else { Color::from_rgb(0.95, 0.95, 0.93) };
-    let text = if dark_mode { Color::from_rgb(0.9, 0.9, 0.9) } 
-               else { Color::from_rgb(0.1, 0.1, 0.1) };
+    let background = if dark_mode { iced::Color::from_rgb(0.15, 0.15, 0.18) } 
+                     else { iced::Color::from_rgb(0.95, 0.95, 0.93) };
+    let text = if dark_mode { iced::Color::from_rgb(0.9, 0.9, 0.9) } 
+               else { iced::Color::from_rgb(0.1, 0.1, 0.1) };
 
     let palette = Palette {
         background,
@@ -134,7 +125,7 @@ pub fn create_custom_theme(base_color: Color, dark_mode: bool) -> Theme {
     })
 }
 
-pub fn get_custom_palette(bkg_color: Color) -> (Extended, Color) {
+pub fn get_custom_palette(bkg_color: iced::Color) -> (Extended, iced::Color) {
     let dark_mode = is_dark(bkg_color);
     let custom_theme = create_custom_theme(bkg_color, dark_mode);
     let text_color = custom_theme.palette().text;

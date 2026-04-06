@@ -1,8 +1,9 @@
 //! Provides Slider py function add_slidder
+
 use pyo3::{pyfunction, Py, PyAny, PyResult};
 
 use crate::{access_state, add_callback_to_mutex, 
-    add_user_data_to_mutex, graphics::colors::IpgColor, 
+    add_user_data_to_mutex, graphics::colors::Color, 
     py_api::helpers::get_length, state::{IpgWidgets, 
         get_id, set_state_of_widget}, 
         widgets::ipg_slider::{IpgSlider, IpgSliderStyle}};
@@ -134,16 +135,16 @@ pub fn add_slider(
 ///
 /// Parameters
 /// ----------
-/// rail_color : IpgColor, Optional
+/// rail_color : Color, Optional
 ///     Sets the rail color using a predefined color variant.
 /// rail_color_alpha : float, Optional
-///     Sets the alpha of the IpgColor.
+///     Sets the alpha of the Color.
 /// rail_rgba : list of float, Optional
 ///     Sets the rail color in rgba format as [r, g, b, a].
-/// rail_color_hovered : IpgColor, Optional
+/// rail_color_hovered : Color, Optional
 ///     Sets the rail color when hovered using a predefined color variant.
 /// rail_color_hovered_alpha : float, Optional
-///     Sets the alpha of the IpgColor.
+///     Sets the alpha of the Color.
 /// rail_rgba_hovered : list of float, Optional
 ///     Sets the rail color when hovered in rgba format as [r, g, b, a].
 /// rail_width : float, Optional
@@ -157,18 +158,18 @@ pub fn add_slider(
 ///     Sets the width of a rectangular handle.
 /// handle_rectangle_border_radius : list of float, Optional
 ///     Sets the radius of the rectangular handle corners.
-/// handle_color : IpgColor, Optional
+/// handle_color : Color, Optional
 ///     Sets the handle color using a predefined color variant.
 /// handle_color_alpha : float, Optional
-///     Sets the alpha of the IpgColor.
+///     Sets the alpha of the Color.
 /// handle_rgba : list of float, Optional
 ///     Sets the handle color in rgba format as [r, g, b, a].
 /// handle_border_width : float, Optional
 ///     Sets the handle border width in logical pixels.
-/// handle_border_color : IpgColor, Optional
+/// handle_border_color : Color, Optional
 ///     Sets the handle border color using a predefined color variant.
 /// handle_border_color_alpha : float, Optional
-///     Sets the alpha of the IpgColor.
+///     Sets the alpha of the Color.
 /// handle_border_rgba : list of float, Optional
 ///     Sets the handle border color in rgba format as [r, g, b, a].
 /// gen_id : int, Optional
@@ -201,10 +202,10 @@ pub fn add_slider(
     gen_id=None,
     ))]
 pub fn add_slider_style(
-    rail_color: Option<IpgColor>,
+    rail_color: Option<Color>,
     rail_color_alpha: Option<f32>,
     rail_rgba: Option<[f32; 4]>,
-    rail_color_hovered: Option<IpgColor>,
+    rail_color_hovered: Option<Color>,
     rail_color_hovered_alpha: Option<f32>,
     rail_rgba_hovered: Option<[f32; 4]>,
     rail_width: Option<f32>,
@@ -212,11 +213,11 @@ pub fn add_slider_style(
     handle_circle_radius: Option<f32>,
     handle_rectangle_width: Option<u16>,
     handle_rectangle_border_radius: Option<Vec<f32>>,
-    handle_color: Option<IpgColor>,
+    handle_color: Option<Color>,
     handle_color_alpha: Option<f32>,
     handle_rgba: Option<[f32; 4]>,
     handle_border_width: Option<f32>,
-    handle_border_color: Option<IpgColor>,
+    handle_border_color: Option<Color>,
     handle_border_color_alpha: Option<f32>,
     handle_border_rgba: Option<[f32; 4]>,
     gen_id: Option<usize>,
@@ -225,13 +226,13 @@ pub fn add_slider_style(
     let id = get_id(gen_id);
 
     let rail_color = 
-        IpgColor::rgba_ipg_color_to_iced(rail_rgba, rail_color, rail_color_alpha);
+        Color::rgba_ipg_color_to_iced(rail_rgba, rail_color, rail_color_alpha);
     let rail_color_hovered = 
-        IpgColor::rgba_ipg_color_to_iced(rail_rgba_hovered, rail_color_hovered, rail_color_hovered_alpha);
+        Color::rgba_ipg_color_to_iced(rail_rgba_hovered, rail_color_hovered, rail_color_hovered_alpha);
     let handle_color = 
-        IpgColor::rgba_ipg_color_to_iced(handle_rgba, handle_color, handle_color_alpha);
+        Color::rgba_ipg_color_to_iced(handle_rgba, handle_color, handle_color_alpha);
     let handle_border_color = 
-        IpgColor::rgba_ipg_color_to_iced(handle_border_rgba, handle_border_color, handle_border_color_alpha);
+        Color::rgba_ipg_color_to_iced(handle_border_rgba, handle_border_color, handle_border_color_alpha);
 
     let mut state = access_state();
     

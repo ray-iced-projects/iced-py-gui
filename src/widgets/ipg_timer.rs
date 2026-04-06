@@ -4,7 +4,8 @@ use std::time::Instant;
 
 use pyo3::{Py, PyAny, Python, pyclass, pyfunction};
 type PyObject = Py<PyAny>;
-use crate::{IpgState, access_state, py_api::helpers::{try_extract_boolean, try_extract_u64}, widgets::callbacks::invoke_callback_with_two_args};
+use crate::{IpgState, access_state, py_api::helpers::{try_extract_boolean, 
+    try_extract_u64}, widgets::callbacks::invoke_callback_with_two_args};
 
 
 #[derive(Clone, Debug, Hash)]

@@ -1,10 +1,10 @@
 //! ipg_menu
-// #![allow(dead_code, unused_variables)]
+
 #![allow(clippy::enum_variant_names)]
 
 use std::collections::HashMap;
 
-use iced::{Color, Element, Length, Renderer, Theme, border};
+use iced::{Element, Length, Renderer, Theme, border};
 use iced_aw::{Menu, MenuBar, menu::{DrawPath, Item}};
 use iced_aw::menu;
 use crate::{app, py_api::helpers::get_padding, 
@@ -148,30 +148,30 @@ pub struct IpgMenuBarItem {
 #[derive(Debug, Clone)]
 pub struct IpgMenuStyle {
     pub id: usize,
-    pub bar_background_color: Option<Color>,
-    pub bar_border_color: Option<Color>,
+    pub bar_background_color: Option<iced::Color>,
+    pub bar_border_color: Option<iced::Color>,
     pub bar_border_radius: Option<Vec<f32>>,
     pub bar_border_width: Option<f32>,
-    pub bar_shadow_color: Option<Color>,
+    pub bar_shadow_color: Option<iced::Color>,
     pub bar_shadow_offset_xy: Option<[f32; 2]>,
     pub bar_shadow_blur_radius: Option<f32>,
     pub bar_background_alpha: Option<f32>,
     pub bar_border_alpha: Option<f32>,
     pub bar_shadow_alpha: Option<f32>,
 
-    pub menu_background_color: Option<Color>,
-    pub menu_border_color: Option<Color>,
+    pub menu_background_color: Option<iced::Color>,
+    pub menu_border_color: Option<iced::Color>,
     pub menu_border_radius: Option<Vec<f32>>,
     pub menu_border_width: Option<f32>,
-    pub menu_shadow_color: Option<Color>,
+    pub menu_shadow_color: Option<iced::Color>,
     pub menu_shadow_offset_xy: Option<[f32; 2]>,
     pub menu_shadow_blur_radius: Option<f32>,
     pub menu_background_alpha: Option<f32>,
     pub menu_border_alpha: Option<f32>,
     pub menu_shadow_alpha: Option<f32>,
 
-    pub path_background_color: Option<Color>,
-    pub path_border_color: Option<Color>,
+    pub path_background_color: Option<iced::Color>,
+    pub path_border_color: Option<iced::Color>,
     pub path_border_radius: Option<Vec<f32>>,
     pub path_border_width: Option<f32>,
     pub path_background_alpha: Option<f32>,

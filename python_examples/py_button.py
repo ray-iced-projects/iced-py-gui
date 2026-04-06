@@ -129,7 +129,7 @@ with Window(title="App",
                 add_button(label="Size", text_size=20.0)
 
 
-            add_text(content="Button Width Height")
+            add_text(content="Button Width and Height parameters, note the spacing around the button label")
 
             # Container needed to show the outline
             with Container(width_fill=True, height=150, style_std=IpgContainerStyleStd.BorderedBox):
@@ -138,17 +138,15 @@ with Window(title="App",
                     # Need row for the first two buttons
                     with Row(spacing=20.0, width_fill=True):
 
-                        add_button(label="Width Height Default=Shrink")
+                        add_button(label="Width Height=Shrink, no space")
 
                         add_button(
-                            label="Width Height Values",
+                            label="Width=200 Height=50",
                             width=200.0,
                             height=50.0)
 
-                    add_button(label="width height Fill - fills with the Column \
-                        values or whatever is left if other widgets",
-                                width_fill=True,
-                                height_fill=True)
+                    add_button(label="width height=Fill - button fills the remaining area in Column",
+                                fill=True)
 
             add_text(content="Button Clipping")
 

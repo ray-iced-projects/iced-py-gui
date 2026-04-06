@@ -1,7 +1,7 @@
 //! ipg_separator
 #![allow(clippy::enum_variant_names)]
 use crate::app::Message;
-use crate::graphics::colors::IpgColor;
+use crate::graphics::colors::Color;
 
 use crate::app;
 use crate::state::IpgWidgets;
@@ -12,7 +12,7 @@ use crate::widgets::widget_param_update::{
 
 use iced::border::Radius;
 use iced::widget::{row, Row, Text};
-use iced::{Background, Border, Color, Element, 
+use iced::{Background, Border, Element, 
     Length, Renderer, Theme };
 
 use crate::widgets::quad::{InnerBounds, Quad};
@@ -43,8 +43,8 @@ pub struct IpgSeparator {
 #[derive(Debug, Clone)]
 pub struct IpgSeparatorStyle {
     pub id: usize,
-    pub color: Option<Color>,
-    pub border_color: Option<Color>,
+    pub color: Option<iced::Color>,
+    pub border_color: Option<iced::Color>,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -67,9 +67,9 @@ pub fn construct_separator<'a>(
     let style_opt = style_opt.and_then(IpgWidgets::as_separator_style).cloned();
 
     let sep_color = 
-        IpgColor::rgba_ipg_color_to_iced(
+        Color::rgba_ipg_color_to_iced(
             None, 
-            Some(IpgColor::PRIMARY), 
+            Some(Color::PRIMARY), 
             None).unwrap();
 
     let mut border = Border::default();
@@ -119,13 +119,13 @@ pub fn construct_separator<'a>(
 }
 
 fn get_dot(sep: &IpgSeparator, 
-            sep_color: Color,
+            sep_color: iced::Color,
             border: Border) 
             -> Element<'_, app::Message>{
     
     let color = if sep.dot_fill {
         sep_color
-    } else  { Color::TRANSPARENT };
+    } else  { iced::Color::TRANSPARENT };
 
     let dot_radius = if let Some(dr) = sep.dot_radius {
         dr
@@ -162,7 +162,7 @@ fn get_dot(sep: &IpgSeparator,
 }
 
 fn get_label(sep: &IpgSeparator,
-            sep_color: Color) 
+            sep_color: iced::Color) 
             -> Element<'_, app::Message> {
     
     let q_1: Element<Message, Theme, Renderer> = Quad {
@@ -193,7 +193,7 @@ fn get_label(sep: &IpgSeparator,
 }
 
 fn get_line(sep: &IpgSeparator,
-            sep_color: Color) 
+            sep_color: iced::Color) 
             -> Element<'_, app::Message> {
     
     let length = if let Some(ll) = sep.line_length {

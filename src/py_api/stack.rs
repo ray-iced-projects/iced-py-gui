@@ -1,4 +1,5 @@
-
+//! Stack module - provides add_stack() or with Stack() pyfunction
+//! 
 use pyo3::{pyfunction, PyResult};
 
 use crate::{access_state, py_api::helpers::get_length, 

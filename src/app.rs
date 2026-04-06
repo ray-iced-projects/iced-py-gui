@@ -6,7 +6,7 @@ use iced::time::milliseconds;
 use iced::widget::{Column, scrollable};
 use iced::advanced::widget::operation::scrollable::scroll_to;
 use iced::window::{self, Position};
-use iced::{Color, Element, Event, Point, Size, Subscription, Task, Theme, font, message, time};
+use iced::{Element, Event, Point, Size, Subscription, Task, Theme, font, message, time};
 
 use palette::chromatic_adaptation::AdaptInto;
 use pyo3::{Py, PyAny};
@@ -867,32 +867,32 @@ fn get_widget<'a>(state: &'a IpgState, id: &usize) -> Option<Element<'a, Message
     }
 }
 
-fn match_theme_with_debug_color(theme: Theme) -> Color {
+fn match_theme_with_debug_color(theme: Theme) -> iced::Color {
 
     match theme {
-        Theme::Light => Color::BLACK,
-        Theme::Dark => Color::WHITE,
-        Theme::Dracula => Color::WHITE,
-        Theme::Ferra => Color::WHITE,
-        Theme::Nord => Color::WHITE,
-        Theme::SolarizedLight => Color::BLACK,
-        Theme::SolarizedDark => Color::WHITE,
-        Theme::GruvboxLight => Color::BLACK,
-        Theme::GruvboxDark => Color::WHITE,
-        Theme::CatppuccinLatte => Color::WHITE,
-        Theme::CatppuccinFrappe => Color::WHITE,
-        Theme::CatppuccinMacchiato => Color::WHITE,
-        Theme::CatppuccinMocha => Color::WHITE,
-        Theme::TokyoNight => Color::WHITE,
-        Theme::TokyoNightStorm => Color::WHITE,
-        Theme::TokyoNightLight => Color::BLACK,
-        Theme::KanagawaWave => Color::WHITE,
-        Theme::KanagawaDragon => Color::WHITE,
-        Theme::KanagawaLotus => Color::BLACK,
-        Theme::Moonfly => Color::WHITE,
-        Theme::Nightfly => Color::WHITE,
-        Theme::Oxocarbon => Color::WHITE,
-        Theme::Custom(_) => Color::WHITE,
+        Theme::Light => iced::Color::BLACK,
+        Theme::Dark => iced::Color::WHITE,
+        Theme::Dracula => iced::Color::WHITE,
+        Theme::Ferra => iced::Color::WHITE,
+        Theme::Nord => iced::Color::WHITE,
+        Theme::SolarizedLight => iced::Color::BLACK,
+        Theme::SolarizedDark => iced::Color::WHITE,
+        Theme::GruvboxLight => iced::Color::BLACK,
+        Theme::GruvboxDark => iced::Color::WHITE,
+        Theme::CatppuccinLatte => iced::Color::WHITE,
+        Theme::CatppuccinFrappe => iced::Color::WHITE,
+        Theme::CatppuccinMacchiato => iced::Color::WHITE,
+        Theme::CatppuccinMocha => iced::Color::WHITE,
+        Theme::TokyoNight => iced::Color::WHITE,
+        Theme::TokyoNightStorm => iced::Color::WHITE,
+        Theme::TokyoNightLight => iced::Color::BLACK,
+        Theme::KanagawaWave => iced::Color::WHITE,
+        Theme::KanagawaDragon => iced::Color::WHITE,
+        Theme::KanagawaLotus => iced::Color::BLACK,
+        Theme::Moonfly => iced::Color::WHITE,
+        Theme::Nightfly => iced::Color::WHITE,
+        Theme::Oxocarbon => iced::Color::WHITE,
+        Theme::Custom(_) => iced::Color::WHITE,
     }
 }
 

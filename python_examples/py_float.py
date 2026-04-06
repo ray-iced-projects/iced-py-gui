@@ -1,6 +1,6 @@
 from icedpygui import Window, Container, Column, Row, Float, start_session, \
     add_button, add_text, add_container_style, \
-    IpgColor, update_widget, FloatParam, IpgContainerStyleStd, \
+    Color, update_widget, FloatParam, IpgContainerStyleStd, \
     IpgTextParam
 
 
@@ -40,8 +40,8 @@ def set_mode(btn_id, name):
 
 # Container styling
 bg_style = add_container_style(
-    background_color=IpgColor.DARK_GRAY,
-    border_color=IpgColor.GRAY,
+    background_color=Color.DARK_GRAY,
+    border_color=Color.GRAY,
     border_width=1.0,
     border_radius=[8.0],
 )
@@ -109,7 +109,7 @@ with Window(title="Float Example", center=True):
                     add_text(
                         content=f"Background item {i}",
                         size=14.0,
-                        text_color=IpgColor.WHITE,
+                        text_color=Color.WHITE,
                     )
 
 

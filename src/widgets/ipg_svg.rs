@@ -11,7 +11,6 @@ use crate::widgets::widget_param_update::set_opt_iced_color;
 use crate::widgets::widget_param_update::set_string;
 use crate::widgets::widget_param_update::set_width;
 
-use iced::Color;
 use iced::{Length, Element};
 use iced::widget::Svg;
 use iced::advanced::svg;
@@ -25,7 +24,7 @@ pub struct IpgSvg {
         pub svg_path: String,
         pub width: Length,
         pub height: Length,
-        pub color_filter: Option<Color>,
+        pub color_filter: Option<iced::Color>,
         pub content_fit: Option<IpgContentFit>,
         pub rotation_type: Option<IpgRotation>,
         pub rotation_radians: Option<f32>,

@@ -16,9 +16,9 @@ with Window(
             # Basic rich text with different colored spans
             rt_id = add_rich_text(size=16.0)
             add_span(rt_id, "Hello ")
-            add_span(rt_id, "World", text_color=IpgColor.RED, bold=True)
+            add_span(rt_id, "World", text_color=Color.RED, bold=True)
             add_span(rt_id, " in ")
-            add_span(rt_id, "rich text!", text_color=IpgColor.BLUE, italic=True)
+            add_span(rt_id, "rich text!", text_color=Color.BLUE, italic=True)
 
             # Rich text with mixed styling
             rt2_id = add_rich_text(size=20.0)

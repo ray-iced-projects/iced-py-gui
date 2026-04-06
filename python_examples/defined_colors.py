@@ -1,5 +1,5 @@
 from icedpygui import Window, Container, Column, Row, start_session, \
-    add_container, add_container_style, add_text, Scrollable, IpgColor, \
+    add_container, add_container_style, add_text, Scrollable, Color, \
     get_color_palette, get_rgba_color
 
 
@@ -14,41 +14,41 @@ Internally to Iced, there are 4 special color parameters used in add_styling_col
 
 To keep things simple, when you want to add colors to your widgets, IPG allows you to define the colors you want by using terms like background_color or background_rgba_color.  In some cases if you define, for example, a new background and nothing more, your background color may be incorporated and used to define other colors for the widget using a background strong or weak color.
 
-This program generates the base, strong and weak colors so that you can see how the colors are used. If you have another color you would like to add, just use get_color_palette(base_rgba=[your color]) or if you want to change the alpha on an IpgColor by just changing the alpha, use the same function with the alpha parameter, get_color_palette(ipg_color=your ipg color, alpha= 0.5).  The alpha parameter is in most widgets also.
+This program generates the base, strong and weak colors so that you can see how the colors are used. If you have another color you would like to add, just use get_color_palette(base_rgba=[your color]) or if you want to change the alpha on an Color by just changing the alpha, use the same function with the alpha parameter, get_color_palette(ipg_color=your ipg color, alpha= 0.5).  The alpha parameter is in most widgets also.
 """
 
-colors = [IpgColor.PRIMARY, IpgColor.SECONDARY, IpgColor.SUCCESS, IpgColor.DANGER, IpgColor.WARNING, 
-          IpgColor.INFO, IpgColor.LIGHT, IpgColor.DARK, IpgColor.ALICE_BLUE, IpgColor.ANTIQUE_WHITE, 
-          IpgColor.AQUA, IpgColor.AQUAMARINE, IpgColor.AZURE, IpgColor.BEIGE, IpgColor.BISQUE, 
-          IpgColor.BLACK, IpgColor.BLANCHED_ALMOND, IpgColor.BLUE, IpgColor.BLUE_VIOLET, IpgColor.BROWN, 
-          IpgColor.BURLY_WOOD, IpgColor.CADET_BLUE, IpgColor.CHARTREUSE, IpgColor.CHOCOLATE, IpgColor.CORAL, 
-          IpgColor.CORNFLOWER_BLUE, IpgColor.CORNSILK, IpgColor.CRIMSON, IpgColor.CYAN, IpgColor.DARK_BLUE, 
-          IpgColor.DARK_CYAN, IpgColor.DARK_GOLDEN_ROD, IpgColor.DARK_GRAY, IpgColor.DARK_GREY, 
-          IpgColor.DARK_GREEN, IpgColor.DARK_KHAKI, IpgColor.DARK_MAGENTA, IpgColor.DARK_OLIVE_GREEN, 
-          IpgColor.DARK_ORANGE, IpgColor.DARK_ORCHID, IpgColor.DARK_RED, IpgColor.DARK_SALMON, 
-          IpgColor.DARK_SEA_GREEN, IpgColor.DARK_SLATE_BLUE, IpgColor.DARK_SLATE_GRAY, IpgColor.DARK_SLATE_GREY, 
-          IpgColor.DARK_TURQUOISE, IpgColor.DARK_VIOLET, IpgColor.DEEP_PINK, IpgColor.DEEP_SKY_BLUE, 
-          IpgColor.DIM_GRAY, IpgColor.DIM_GREY, IpgColor.DODGER_BLUE, IpgColor.FIRE_BRICK, IpgColor.FLORAL_WHITE, 
-          IpgColor.FOREST_GREEN, IpgColor.FUCHSIA, IpgColor.GAINSBORO, IpgColor.GHOST_WHITE, IpgColor.GOLD, 
-          IpgColor.GOLDEN_ROD, IpgColor.GRAY, IpgColor.GREY, IpgColor.GREEN, IpgColor.GREEN_YELLOW, IpgColor.HONEY_DEW, 
-          IpgColor.HOT_PINK, IpgColor.INDIAN_RED, IpgColor.INDIGO, IpgColor.IVORY, IpgColor.KHAKI, IpgColor.LAVENDER, 
-          IpgColor.LAVENDER_BLUSH, IpgColor.LAWN_GREEN, IpgColor.LEMON_CHIFFON, IpgColor.LIGHT_BLUE, IpgColor.LIGHT_CORAL, 
-          IpgColor.LIGHT_CYAN, IpgColor.LIGHT_GOLDEN_ROD_YELLOW, IpgColor.LIGHT_GRAY, IpgColor.LIGHT_GREY, 
-          IpgColor.LIGHT_GREEN, IpgColor.LIGHT_PINK, IpgColor.LIGHT_SALMON, IpgColor.LIGHT_SEA_GREEN, 
-          IpgColor.LIGHT_SKY_BLUE, IpgColor.LIGHT_SLATE_GRAY, IpgColor.LIGHT_SLATE_GREY, IpgColor.LIGHT_STEEL_BLUE, 
-          IpgColor.LIGHT_YELLOW, IpgColor.LIME, IpgColor.LIME_GREEN, IpgColor.LINEN, IpgColor.MAGENTA, IpgColor.MAROON, 
-          IpgColor.MEDIUM_AQUA_MARINE, IpgColor.MEDIUM_BLUE, IpgColor.MEDIUM_ORCHID, IpgColor.MEDIUM_PURPLE, 
-          IpgColor.MEDIUM_SEA_GREEN, IpgColor.MEDIUM_SLATE_BLUE, IpgColor.MEDIUM_SPRING_GREEN, IpgColor.MEDIUM_TURQUOISE, 
-          IpgColor.MEDIUM_VIOLET_RED, IpgColor.MIDNIGHT_BLUE, IpgColor.MINT_CREAM, IpgColor.MISTY_ROSE, IpgColor.MOCCASIN, 
-          IpgColor.NAVAJO_WHITE, IpgColor.NAVY, IpgColor.OLD_LACE, IpgColor.OLIVE, IpgColor.OLIVE_DRAB, IpgColor.ORANGE, 
-          IpgColor.ORANGE_RED, IpgColor.ORCHID, IpgColor.PALE_GOLDEN_ROD, IpgColor.PALE_GREEN, IpgColor.PALE_TURQUOISE, 
-          IpgColor.PALE_VIOLET_RED, IpgColor.PAPAYA_WHIP, IpgColor.PEACH_PUFF, IpgColor.PERU, IpgColor.PINK, IpgColor.PLUM,
-          IpgColor.POWDER_BLUE, IpgColor.PURPLE, IpgColor.REBECCA_PURPLE, IpgColor.RED, IpgColor.ROSY_BROWN, 
-          IpgColor.ROYAL_BLUE, IpgColor.SADDLE_BROWN, IpgColor.SALMON, IpgColor.SANDY_BROWN, IpgColor.SEA_GREEN, 
-          IpgColor.SEA_SHELL, IpgColor.SIENNA, IpgColor.SILVER, IpgColor.SKY_BLUE, IpgColor.SLATE_BLUE, 
-          IpgColor.SLATE_GRAY, IpgColor.SLATE_GREY, IpgColor.SNOW, IpgColor.SPRING_GREEN, IpgColor.STEEL_BLUE, 
-          IpgColor.TAN, IpgColor.TEAL, IpgColor.THISTLE, IpgColor.TOMATO, IpgColor.TRANSPARENT, IpgColor.TURQUOISE, 
-          IpgColor.VIOLET, IpgColor.WHEAT, IpgColor.WHITE, IpgColor.WHITE_SMOKE, IpgColor.YELLOW, IpgColor.YELLOW_GREEN]
+colors = [Color.PRIMARY, Color.SECONDARY, Color.SUCCESS, Color.DANGER, Color.WARNING, 
+          Color.INFO, Color.LIGHT, Color.DARK, Color.ALICE_BLUE, Color.ANTIQUE_WHITE, 
+          Color.AQUA, Color.AQUAMARINE, Color.AZURE, Color.BEIGE, Color.BISQUE, 
+          Color.BLACK, Color.BLANCHED_ALMOND, Color.BLUE, Color.BLUE_VIOLET, Color.BROWN, 
+          Color.BURLY_WOOD, Color.CADET_BLUE, Color.CHARTREUSE, Color.CHOCOLATE, Color.CORAL, 
+          Color.CORNFLOWER_BLUE, Color.CORNSILK, Color.CRIMSON, Color.CYAN, Color.DARK_BLUE, 
+          Color.DARK_CYAN, Color.DARK_GOLDEN_ROD, Color.DARK_GRAY, Color.DARK_GREY, 
+          Color.DARK_GREEN, Color.DARK_KHAKI, Color.DARK_MAGENTA, Color.DARK_OLIVE_GREEN, 
+          Color.DARK_ORANGE, Color.DARK_ORCHID, Color.DARK_RED, Color.DARK_SALMON, 
+          Color.DARK_SEA_GREEN, Color.DARK_SLATE_BLUE, Color.DARK_SLATE_GRAY, Color.DARK_SLATE_GREY, 
+          Color.DARK_TURQUOISE, Color.DARK_VIOLET, Color.DEEP_PINK, Color.DEEP_SKY_BLUE, 
+          Color.DIM_GRAY, Color.DIM_GREY, Color.DODGER_BLUE, Color.FIRE_BRICK, Color.FLORAL_WHITE, 
+          Color.FOREST_GREEN, Color.FUCHSIA, Color.GAINSBORO, Color.GHOST_WHITE, Color.GOLD, 
+          Color.GOLDEN_ROD, Color.GRAY, Color.GREY, Color.GREEN, Color.GREEN_YELLOW, Color.HONEY_DEW, 
+          Color.HOT_PINK, Color.INDIAN_RED, Color.INDIGO, Color.IVORY, Color.KHAKI, Color.LAVENDER, 
+          Color.LAVENDER_BLUSH, Color.LAWN_GREEN, Color.LEMON_CHIFFON, Color.LIGHT_BLUE, Color.LIGHT_CORAL, 
+          Color.LIGHT_CYAN, Color.LIGHT_GOLDEN_ROD_YELLOW, Color.LIGHT_GRAY, Color.LIGHT_GREY, 
+          Color.LIGHT_GREEN, Color.LIGHT_PINK, Color.LIGHT_SALMON, Color.LIGHT_SEA_GREEN, 
+          Color.LIGHT_SKY_BLUE, Color.LIGHT_SLATE_GRAY, Color.LIGHT_SLATE_GREY, Color.LIGHT_STEEL_BLUE, 
+          Color.LIGHT_YELLOW, Color.LIME, Color.LIME_GREEN, Color.LINEN, Color.MAGENTA, Color.MAROON, 
+          Color.MEDIUM_AQUA_MARINE, Color.MEDIUM_BLUE, Color.MEDIUM_ORCHID, Color.MEDIUM_PURPLE, 
+          Color.MEDIUM_SEA_GREEN, Color.MEDIUM_SLATE_BLUE, Color.MEDIUM_SPRING_GREEN, Color.MEDIUM_TURQUOISE, 
+          Color.MEDIUM_VIOLET_RED, Color.MIDNIGHT_BLUE, Color.MINT_CREAM, Color.MISTY_ROSE, Color.MOCCASIN, 
+          Color.NAVAJO_WHITE, Color.NAVY, Color.OLD_LACE, Color.OLIVE, Color.OLIVE_DRAB, Color.ORANGE, 
+          Color.ORANGE_RED, Color.ORCHID, Color.PALE_GOLDEN_ROD, Color.PALE_GREEN, Color.PALE_TURQUOISE, 
+          Color.PALE_VIOLET_RED, Color.PAPAYA_WHIP, Color.PEACH_PUFF, Color.PERU, Color.PINK, Color.PLUM,
+          Color.POWDER_BLUE, Color.PURPLE, Color.REBECCA_PURPLE, Color.RED, Color.ROSY_BROWN, 
+          Color.ROYAL_BLUE, Color.SADDLE_BROWN, Color.SALMON, Color.SANDY_BROWN, Color.SEA_GREEN, 
+          Color.SEA_SHELL, Color.SIENNA, Color.SILVER, Color.SKY_BLUE, Color.SLATE_BLUE, 
+          Color.SLATE_GRAY, Color.SLATE_GREY, Color.SNOW, Color.SPRING_GREEN, Color.STEEL_BLUE, 
+          Color.TAN, Color.TEAL, Color.THISTLE, Color.TOMATO, Color.TRANSPARENT, Color.TURQUOISE, 
+          Color.VIOLET, Color.WHEAT, Color.WHITE, Color.WHITE_SMOKE, Color.YELLOW, Color.YELLOW_GREEN]
 
 # global to define the 3 column widths
 widths = [250, 150, 150]
@@ -76,9 +76,9 @@ with Window(title="Colors", center=True, size=(550, 600)):
                 with Row():
 
                     # get the name by cutting off the first 9 characters
-                    color_name = str(color)[9:]
+                    color_name = str(color)[6:]
 
-                    # Get the 3 colors based on the given IpgColor
+                    # Get the 3 colors based on the given Color
                     # These return colors are rgba format
                     # You can also supply the color in rgba format base_rgba=[]
                     (strong, weak, text) = get_color_palette(base_color=color)

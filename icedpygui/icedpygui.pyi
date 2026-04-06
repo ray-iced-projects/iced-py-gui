@@ -14,17 +14,17 @@ from typing import Any, Callable, List, Optional, Union
 # ---------------------------------------------------------------------------
 
 def add_button_style(
-        background_color: Optional[IpgColor] = None,
+        background_color: Optional[Color] = None,
         background_rgba: Optional[list[float, 4]] = None,
-        border_color: Optional[IpgColor] = None, 
+        border_color: Optional[Color] = None, 
         border_rgba: Optional[list[float, 4]] = None,
         border_radius: Optional[list[float | float, 4]] = None, 
         border_width: Optional[float] = None,
-        shadow_color: Optional[IpgColor] = None, 
+        shadow_color: Optional[Color] = None, 
         shadow_rgba: Optional[list] = None,
         shadow_offset_xy: Optional[float] = None, 
         shadow_blur_radius: Optional[float] = None,
-        text_color: Optional[IpgColor] = None, 
+        text_color: Optional[Color] = None, 
         text_rgba: Optional[list[float, 4]] = None
     ) -> int:
     """Adds styling to a button
@@ -47,11 +47,11 @@ def add_button_style(
 
     Examples
     --------
-    >>> from icedpygui import Window, Column, Container, IpgButtonStyleStd, add_button, add_button_style, IpgColor, start_session
+    >>> from icedpygui import Window, Column, Container, IpgButtonStyleStd, add_button, add_button_style, Color, start_session
     >>> 
     >>> style = add_button_style(
-    >>>             background_color=IpgColor.LIGHT_BLUE,
-    >>>             border_color=IpgColor.ALICE_BLUE,
+    >>>             background_color=Color.LIGHT_BLUE,
+    >>>             border_color=Color.ALICE_BLUE,
     >>>             border_width=2.0,
     >>>             border_radius=[5.0])
     >>> 
@@ -78,25 +78,25 @@ def add_button_style(
     """
 
 def add_card_style(
-        background_color: Optional[IpgColor]=None,
+        background_color: Optional[Color]=None,
         background_rgba: Optional[list[float, 4]]=None,
         border_radius: float=10.0,
         border_width: float=1.0, 
-        border_color: Optional[IpgColor]=None,
+        border_color: Optional[Color]=None,
         border_rgba: Optional[list[float, 4]]=None,
-        head_background_color: Optional[IpgColor]=None,
+        head_background_color: Optional[Color]=None,
         head_background_rgba: Optional[list[float, 4]]=None,
-        head_text_color: Optional[IpgColor]=None,
+        head_text_color: Optional[Color]=None,
         head_text_rgba: Optional[list[float, 4]]=None,
-        body_background_color: Optional[IpgColor]=None,
+        body_background_color: Optional[Color]=None,
         body_background_rgba: Optional[list[float, 4]]=None,
-        body_text_color: Optional[IpgColor]=None,
+        body_text_color: Optional[Color]=None,
         body_text_rgba: Optional[list[float, 4]]=None,
-        foot_background_color: Optional[IpgColor]=None,
+        foot_background_color: Optional[Color]=None,
         foot_background_rgba: Optional[list[float, 4]]=None,
-        foot_text_color: Optional[IpgColor]=None,
+        foot_text_color: Optional[Color]=None,
         foot_text_rgba: Optional[list[float, 4]]=None,
-        close_color: Optional[IpgColor]=None,
+        close_color: Optional[Color]=None,
         close_rgba: Optional[list[float, 4]]=None,
         gen_id: Optional[int]=None,
     ) -> int:
@@ -121,11 +121,11 @@ def add_card_style(
 
     Examples
     --------
-    >>> from icedpygui import Window, Column, Container, IpgCardStyleStd, add_card, add_card_style, IpgColor, start_session
+    >>> from icedpygui import Window, Column, Container, IpgCardStyleStd, add_card, add_card_style, Color, start_session
     >>> 
     >>> style = add_card_style(
-    >>>             background_color=IpgColor.LIGHT_BLUE,
-    >>>             border_color=IpgColor.ALICE_BLUE,
+    >>>             background_color=Color.LIGHT_BLUE,
+    >>>             border_color=Color.ALICE_BLUE,
     >>>             border_width=2.0,
     >>>             border_radius=[5.0])
     >>> 
@@ -147,13 +147,13 @@ def add_card_style(
     """
     
 def add_checkbox_style(
-        background_color: Optional[IpgColor]=None,
+        background_color: Optional[Color]=None,
         background_rgba: Optional[list]=None,
-        border_color: Optional[IpgColor]=None,
+        border_color: Optional[Color]=None,
         border_rgba: Optional[list]=None,
         border_radius: list=None,
         border_width: Optional[float]=None,
-        text_color: Optional[IpgColor]=None,
+        text_color: Optional[Color]=None,
         text_rgba: Optional[list]=None
     ) -> int:
     """Adds styling to a checkbox
@@ -176,10 +176,10 @@ def add_checkbox_style(
 
     Examples
     --------
-    >>> from icedpygui import Window, Column, Container, IpgCheckboxStyleStd, add_checkbox, add_checkbox_style, IpgColor, start_session
+    >>> from icedpygui import Window, Column, Container, IpgCheckboxStyleStd, add_checkbox, add_checkbox_style, Color, start_session
     >>> 
     >>> style = add_checkbox_style(
-    >>>         border_color=IpgColor.RED,
+    >>>         border_color=Color.RED,
     >>>         border_width=3.0)
     >>> 
     >>> with Window(title="Checkbox Styling", center=True):
@@ -198,13 +198,13 @@ def add_checkbox_style(
     """
 
 def add_container_style(
-        background_color: Optional[IpgColor]=None,
+        background_color: Optional[Color]=None,
         background_rgba: Optional[list[float, 4]]=None,
-        border_color: Optional[IpgColor]=None, 
+        border_color: Optional[Color]=None, 
         border_rgba: Optional[list[float, 4]]=None,
         border_radius: list[float]=[0.0], 
         border_width: float=0.0,
-        shadow_color: Optional[IpgColor]=None, 
+        shadow_color: Optional[Color]=None, 
         shadow_rgba: Optional[list]=None,
         shadow_offset_xy: list[float, 2]=[0.0, 0.0], 
         shadow_blur_radius: float=0.0,
@@ -229,14 +229,14 @@ def add_container_style(
     
     Examples
     --------
-    >>> from icedpygui import Window, Column, Container, IpgContainerStyleStd, add_container_style, add_text, IpgColor, start_session
+    >>> from icedpygui import Window, Column, Container, IpgContainerStyleStd, add_container_style, add_text, Color, start_session
     >>> 
     >>> style = add_container_style(
-    >>>             background_color=IpgColor.AQUA,
-    >>>             border_color=IpgColor.BLUE,
+    >>>             background_color=Color.AQUA,
+    >>>             border_color=Color.BLUE,
     >>>             border_radius=[10.0],
     >>>             border_width=5.0,
-    >>>             shadow_color=IpgColor.YELLOW)
+    >>>             shadow_color=Color.YELLOW)
     >>> 
     >>> with Window(title="Container Styling", center=True):
     >>>     with Column(spacing=20.0, padding=[20.0], align_center=True, width_fill=True):
@@ -253,30 +253,30 @@ def add_container_style(
     """
 
 def add_scrollable_style(
-        background_color: Optional[IpgColor]=None,
+        background_color: Optional[Color]=None,
         background_rgba: Optional[list[float, 4]]=None,
-        border_color: Optional[IpgColor]=None,
+        border_color: Optional[Color]=None,
         border_rgba: Optional[list[float, 4]]=None,
         border_radius: list[float]=0.0,
         border_width: float=1.0,
-        shadow_color: Optional[IpgColor]=None,
+        shadow_color: Optional[Color]=None,
         shadow_rgba: Optional[list[float, 4]]=None,
         shadow_offset_x: float=0.0,
         shadow_offset_y: float=0.0,
         shadow_blur_radius: float=2.0,
-        text_color: Optional[IpgColor]=None,
+        text_color: Optional[Color]=None,
         text_rgba: Optional[list[float, 4]]=None,
-        scrollbar_color: Optional[IpgColor]=None,
+        scrollbar_color: Optional[Color]=None,
         scrollbar_rgba: Optional[list[float, 4]]=None,
         scrollbar_border_radius: list[float]=[2.0],
         scrollbar_border_width: float=1.0,
-        scrollbar_border_color: Optional[IpgColor]=None,
+        scrollbar_border_color: Optional[Color]=None,
         scrollbar_border_rgba: Optional[list[float, 4]]=None,
-        scroller_color: Optional[IpgColor]=None,
+        scroller_color: Optional[Color]=None,
         scroller_rgba: Optional[list[float, 4]]=None,
-        scroller_color_hovered: Optional[IpgColor]=None,
+        scroller_color_hovered: Optional[Color]=None,
         scroller_rgba_hovered: Optional[list[float, 4]]=None,
-        scroller_color_dragged: Optional[IpgColor]=None,
+        scroller_color_dragged: Optional[Color]=None,
         scroller_rgba_dragged: Optional[list[float, 4]]=None,
         gen_id: Optional[int]=None,
     ) -> int:
@@ -286,17 +286,17 @@ def add_scrollable_style(
     """
     
 def add_tooltip_style(
-        background_color: Optional[IpgColor]=None,
+        background_color: Optional[Color]=None,
         background_rgba: Optional[list[float, 4]]=None,
-        border_color: Optional[IpgColor]=None, 
+        border_color: Optional[Color]=None, 
         border_rgba: Optional[list[float, 4]]=None,
         border_radius: list[float]=[0.0], 
         border_width: float=0.0,
-        shadow_color: Optional[IpgColor]=None, 
+        shadow_color: Optional[Color]=None, 
         shadow_rgba: Optional[list]=None,
         shadow_offset_xy: list[float, 2]=[0.0, 0.0], 
         shadow_blur_radius: float=0.0,
-        text_color: Optional[IpgColor]=None,
+        text_color: Optional[Color]=None,
         text_rgba: Optional[list[float, 4]]=None,
     ) -> int:
     """
@@ -307,20 +307,20 @@ def add_tooltip_style(
 
 
 def add_color_picker_style(
-        background_color: Optional[IpgColor]=None,
+        background_color: Optional[Color]=None,
         background_rgba: Optional[list[float, 4]]=None,
-        background_color_hovered: Optional[IpgColor]=None,
+        background_color_hovered: Optional[Color]=None,
         background_rgba_hovered: Optional[list[float, 4]]=None,
-        border_color: Optional[IpgColor]=None, 
+        border_color: Optional[Color]=None, 
         border_rgba: Optional[list[float, 4]]=None,
         border_radius: list[float | float, 4]=[0.0], 
         border_width: float=1.0,
-        shadow_color: Optional[IpgColor]=None, 
+        shadow_color: Optional[Color]=None, 
         shadow_rgba: Optional[list]=None,
         shadow_offset_x: float=0.0, 
         shadow_offset_y: float=0.0,
         shadow_blur_radius: float=1.0,
-        text_color: Optional[IpgColor]=None, 
+        text_color: Optional[Color]=None, 
         text_rgba: Optional[list[float, 4]]=None
     ) -> int:
     
@@ -330,13 +330,13 @@ def add_color_picker_style(
     """
         
 def add_menu_bar_style(
-        base_color: Optional[IpgColor]=None,
+        base_color: Optional[Color]=None,
         base_rgba: Optional[list[float, 4]]=None,
-        border_color: Optional[IpgColor]=None,
+        border_color: Optional[Color]=None,
         border_rgba: Optional[list[float, 4]]=None,
         border_radius: Optional[list[float] | list[float, 4]]=None,
         border_width: Optional[float]=None,
-        shadow_color: Optional[IpgColor]=None,
+        shadow_color: Optional[Color]=None,
         shadow_rgba: Optional[list[float, 4]]=None,
         shadow_offset_xy: Optional[list[float, 2]]=None,
         shadow_blur_radius: Optional[float]=None,
@@ -349,19 +349,19 @@ def add_menu_bar_style(
     """
 
 def add_menu_style(
-        base_color: Optional[IpgColor]=None,
+        base_color: Optional[Color]=None,
         base_rgba: Optional[list[float, 4]]=None,
-        border_color: Optional[IpgColor]=None,
+        border_color: Optional[Color]=None,
         border_rgba: Optional[list[float, 4]]=None,
         border_radius: Optional[list[float] | list[float, 4]]=None,
         border_width: Optional[float]=None,
-        shadow_color: Optional[IpgColor]=None,
+        shadow_color: Optional[Color]=None,
         shadow_rgba: Optional[list[float, 4]]=None,
         shadow_offset_xy: Optional[list[float, 2]]=None,
         shadow_blur_radius: Optional[float]=None,
-        path_base_color: Optional[IpgColor]=None,
+        path_base_color: Optional[Color]=None,
         path_base_rgba: Optional[list[float, 4]]=None,
-        path_border_color: Optional[IpgColor]=None,
+        path_border_color: Optional[Color]=None,
         path_border_rgba: Optional[list[float, 4]]=None,
         path_border_radius: Optional[list[float] | list[float, 4]]=None,
         path_border_width: Optional[float]=None,
@@ -382,23 +382,23 @@ def add_menu_separator_style(
         width: Optional[float]=None,
         width_fill: bool=True,
         quad_ratios: Optional[list[float]]=None,
-        separator_color: Optional[IpgColor]=None,
+        separator_color: Optional[Color]=None,
         separator_rgba: Optional[list[float]]=None,
-        separator_border_color: Optional[IpgColor]=None,
+        separator_border_color: Optional[Color]=None,
         separator_border_rgba: Optional[list[float]]=None,
         separator_border_width: Optional[float]=None,
         separator_border_radius: Optional[list[float]]=None,
-        separator_shadow_color: Optional[IpgColor]=None,
+        separator_shadow_color: Optional[Color]=None,
         separator_shadow_rgba: Optional[list[float]]=None,
         separator_shadow_offset: Optional[list[float]]=None,
         separator_shadow_blur_radius: Optional[float]=None,
-        background_color: Optional[IpgColor]=None,
+        background_color: Optional[Color]=None,
         background_rgba: Optional[list[float]]=None,
-        background_border_color: Optional[IpgColor]=None,
+        background_border_color: Optional[Color]=None,
         background_border_rgba: Optional[list[float]]=None,
         background_border_width: Optional[float]=None,
         background_border_radius: Optional[list[float]]=None,
-        background_shadow_color: Optional[IpgColor]=None,
+        background_shadow_color: Optional[Color]=None,
         background_shadow_rgba: Optional[list[float]]=None,
         background_shadow_offset: Optional[list[float]]=None,
         background_shadow_blur_radius: Optional[float]=None,
@@ -411,17 +411,17 @@ def add_menu_separator_style(
     """
 
 def add_pick_list_style(
-        background_color: Optional[IpgColor]=None,
+        background_color: Optional[Color]=None,
         background_rgba: Optional[list[float, 4]]=None,
-        text_color: Optional[IpgColor]=None,
+        text_color: Optional[Color]=None,
         text_rgba: Optional[list[float, 4]]=None,
-        handle_color: Optional[IpgColor]=None,
+        handle_color: Optional[Color]=None,
         handle_rgba: Optional[list[float, 4]]=None,
-        placeholder_color: Optional[IpgColor]=None,
+        placeholder_color: Optional[Color]=None,
         placeholder_rgba: Optional[list[float, 4]]=None,
-        border_color: Optional[IpgColor]=None,
+        border_color: Optional[Color]=None,
         border_rgba: Optional[list[float, 4]]=None,
-        border_color_hovered: Optional[IpgColor]=None,
+        border_color_hovered: Optional[Color]=None,
         border_rgba_hovered: Optional[list[float, 4]]=None,
         border_radius: Optional[list[float]]=None,
         border_width: Optional[float]=None,
@@ -434,11 +434,11 @@ def add_pick_list_style(
     """
 
 def add_progress_bar_style(
-        background_color: Optional[IpgColor]=None,
+        background_color: Optional[Color]=None,
         background_rgba: Optional[list[float, 4]]=None,
-        bar_color: Optional[IpgColor]=None,
+        bar_color: Optional[Color]=None,
         bar_rgba: Optional[list[float, 4]]=None,
-        border_color: Optional[IpgColor]=None,
+        border_color: Optional[Color]=None,
         border_rgba: Optional[list[float, 4]]=None,
         border_radius: Optional[list[float, 4]]=None,
         border_width: Optional[float]=None,
@@ -450,18 +450,18 @@ def add_progress_bar_style(
     """
 
 def add_radio_style(
-        background_color: Optional[IpgColor]=None,
+        background_color: Optional[Color]=None,
         background_rgba: Optional[list[float, 4]]=None,
-        background_color_hover: Optional[IpgColor]=None,
+        background_color_hover: Optional[Color]=None,
         background_color_hovered: Optional[list[float, 4]]=None,
-        border_color: Optional[IpgColor]=None,
+        border_color: Optional[Color]=None,
         border_rgba: Optional[list[float, 4]]=None,
         border_width: Optional[float]=None,
-        dot_color: Optional[IpgColor]=None,
+        dot_color: Optional[Color]=None,
         dot_rgba: Optional[list[float, 4]]=None,
-        dot_color_hovered: Optional[IpgColor]=None,
+        dot_color_hovered: Optional[Color]=None,
         dot_rgba_hovered: Optional[list[float, 4]]=None,
-        text_color: Optional[IpgColor]=None,
+        text_color: Optional[Color]=None,
         text_rgba: Optional[list[float, 4]]=None,
         gen_id: Optional[int]=None,
     ) -> int:
@@ -472,7 +472,7 @@ def add_radio_style(
     """
 
 def add_rule_style(
-        color: Optional[IpgColor],
+        color: Optional[Color],
         color_rgba: Optional[list[float, 4]],
         border_radius: Optional[list[float, 4]],
         fillmode_percent: Optional[float],
@@ -487,9 +487,9 @@ def add_rule_style(
     """
 
 def add_separator_style(
-        ipg_color: Optional[IpgColor]=None,
+        ipg_color: Optional[Color]=None,
         rgba_color: Optional[list[float]]=None,
-        border_ipg_color: Optional[IpgColor]=None,
+        border_ipg_color: Optional[Color]=None,
         border_rgba: Optional[list[float]]=None,
         gen_id: Optional[int]=None,
     ) -> int:
@@ -501,19 +501,19 @@ def add_separator_style(
 
 def add_slider_style(
         style_id: str,
-        rail_color: Optional[IpgColor]=None,
+        rail_color: Optional[Color]=None,
         rail_rgba: Optional[list[float, 4]]=None,
-        rail_color_hovered: Optional[IpgColor]=None,
+        rail_color_hovered: Optional[Color]=None,
         rail_rgba_hovered: Optional[list[float, 4]]=None,
         rail_width: Optional[float]=None,
         rail_border_radius: Optional[list[float]]=None,
         handle_circle_radius: Optional[float]=None,
         handle_rectangle_width: Optional[int]=None,
         handle_rectangle_border_radius: Optional[list[float]]=None,
-        handle_color: Optional[IpgColor]=None,
+        handle_color: Optional[Color]=None,
         handle_rgba: Optional[list[float, 4]]=None,
         handle_border_width: Optional[float]=None,
-        handle_border_color: Optional[IpgColor]=None,
+        handle_border_color: Optional[Color]=None,
         handle_border_rgba: Optional[list[float, 4]]=None,
         gen_id: Union[None, int]=None,
     ) -> int:
@@ -525,21 +525,21 @@ def add_slider_style(
 
 def add_text_input_style(
         style_id: str,
-        background_color: Optional[IpgColor]=None,
+        background_color: Optional[Color]=None,
         background_rgba: Optional[list[float, 4]]=None,
-        border_color: Optional[IpgColor]=None,
+        border_color: Optional[Color]=None,
         border_rgba: Optional[list[float, 4]]=None,
-        border_color_hovered: Optional[IpgColor]=None,
+        border_color_hovered: Optional[Color]=None,
         border_rgba_hovered: Optional[list[float, 4]]=None,
-        border_color_focused: Optional[IpgColor]=None,
+        border_color_focused: Optional[Color]=None,
         border_rgba_focused: Optional[list[float, 4]]=None,
         border_width: Optional[float]=None,
         border_radius: Optional[list[float]]=None,
-        placeholder_color: Optional[IpgColor]=None,
+        placeholder_color: Optional[Color]=None,
         placeholder_rgba: Optional[list[float, 4]]=None,
-        value_color: Optional[IpgColor]=None,
+        value_color: Optional[Color]=None,
         value_rgba: Optional[list[float, 4]]=None,
-        selection_color: Optional[IpgColor]=None,
+        selection_color: Optional[Color]=None,
         selection_rgba: Optional[list[float, 4]]=None,
         gen_id: Optional[int]=None,
     ) -> int:
@@ -550,20 +550,20 @@ def add_text_input_style(
     """
     
 def add_canvas_timer_style(
-        background_color: Optional[IpgColor]=None,
+        background_color: Optional[Color]=None,
         background_rgba: Optional[list[float, 4]]=None,
-        background_color_hovered: Optional[IpgColor]=None,
+        background_color_hovered: Optional[Color]=None,
         background_rgba_hovered: Optional[list[float, 4]]=None,
-        border_color: Optional[IpgColor]=None, 
+        border_color: Optional[Color]=None, 
         border_rgba: Optional[list[float, 4]]=None,
         border_radius: list[float | float, 4]=[0.0],
         border_width: float=1.0,
-        shadow_color: Optional[IpgColor]=None,
+        shadow_color: Optional[Color]=None,
         shadow_rgba: Optional[list]=None,
         shadow_offset_x: float=0.0, 
         shadow_offset_y: float=0.0,
         shadow_blur_radius: float=1.0,
-        text_color: Optional[IpgColor]=None,
+        text_color: Optional[Color]=None,
         text_rgba: Optional[list[float, 4]]=None
     ) -> int:
     
@@ -573,20 +573,20 @@ def add_canvas_timer_style(
     """
 
 def add_toggler_style(
-        background_color: Optional[IpgColor]=None,
+        background_color: Optional[Color]=None,
         background_rgba: Optional[list[float, 4]]=None,
-        background_color_toggled: Optional[IpgColor]=None,
+        background_color_toggled: Optional[Color]=None,
         background_rgba_toggled: Optional[list[float, 4]]=None,
-        background_border_color: Optional[IpgColor]=None,
+        background_border_color: Optional[Color]=None,
         background_border_rgba: Optional[list[float, 4]]=None,
         background_border_width: Optional[float]=None,
-        foreground_color: Optional[IpgColor]=None,
+        foreground_color: Optional[Color]=None,
         foreground_rgba: Optional[list[float, 4]]=None,
-        foreground_color_toggled: Optional[IpgColor]=None,
+        foreground_color_toggled: Optional[Color]=None,
         foreground_rgba_toggled: Optional[list[float, 4]]=None,
-        foreground_border_color: Optional[IpgColor]=None,
+        foreground_border_color: Optional[Color]=None,
         foreground_border_rgba: Optional[list[float, 4]]=None,
-        foreground_border_width: Optional[IpgColor]=None,
+        foreground_border_width: Optional[Color]=None,
     ) -> int:
     
     """
@@ -604,9 +604,9 @@ def add_arc(
         end_angle: float,
         *,
         stroke_width: float=2.0,
-        stroke_ipg_color: Optional[IpgColor]=None,
+        stroke_ipg_color: Optional[Color]=None,
         stroke_rgba_color: Optional[list[float, 4]]=None,
-        fill_ipg_color: Optional[IpgColor]=None,
+        fill_ipg_color: Optional[Color]=None,
         fill_rgba_color: Optional[list[float, 4]]=None,
         gen_id: Optional[int]=None,
     ) -> int:
@@ -628,12 +628,12 @@ def add_arc(
             end angle in radians
         stroke_width: float
             line width
-        stroke_ipg_color: Optional[IpgColor]
-            Whether to use the IpgColor for the stroke
+        stroke_ipg_color: Optional[Color]
+            Whether to use the Color for the stroke
         stroke_rgba_color: Optional[list[float, 4]]
             Whether to use the rgba color for the stroke
-        fill_ipg_color: Optional[IpgColor]
-            Whether to use the IpgColor for the fill or None
+        fill_ipg_color: Optional[Color]
+            Whether to use the Color for the fill or None
         fill_rgba_color: Optional[list[float, 4]]
             Whether to use the rgba color for the fill or None
         gen_id: Optional[int]
@@ -650,9 +650,9 @@ def add_bezier(
         points: list[tuple[float, float], 3],
         *,
         stroke_width: float=2.0,
-        stroke_ipg_color: Optional[IpgColor]=None,
+        stroke_ipg_color: Optional[Color]=None,
         stroke_rgba_color: Optional[list[float, 4]]=None,
-        fill_ipg_color: Optional[IpgColor]=None,
+        fill_ipg_color: Optional[Color]=None,
         fill_rgba_color: Optional[list[float, 4]]=None,
         degrees: float=0.0,
         gen_id: Optional[int]=None,
@@ -668,12 +668,12 @@ def add_bezier(
             3 points are needed to define the bezier
         stroke_width: float
             Line width
-        stroke_ipg_color: Optional[IpgColor]
-            Whether to use the IpgColor for the stroke
+        stroke_ipg_color: Optional[Color]
+            Whether to use the Color for the stroke
         stroke_rgba_color: Optional[list[float, 4]]
             Whether to use the rgba color for the stroke
-        fill_ipg_color: Optional[IpgColor]
-            Whether to use the IpgColor for the fill or None
+        fill_ipg_color: Optional[Color]
+            Whether to use the Color for the fill or None
         fill_rgba_color: Optional[list[float, 4]]
             Whether to use the rgba color for the fill or None
         degrees: float
@@ -695,10 +695,10 @@ def add_circle(
         stroke_width: float=2.0,
         stroke_dash_offset: Optional[int]=None,
         stroke_dash_segments: Optional[list[float]]=None,
-        stroke_ipg_color: Optional[IpgColor]=None,
+        stroke_ipg_color: Optional[Color]=None,
         stroke_rgba_color: Optional[list[float, 4]]=None,
         stroke_color_alpha: float=1.0,
-        fill_ipg_color: Optional[IpgColor]=None,
+        fill_ipg_color: Optional[Color]=None,
         fill_rgba_color: Optional[list[float, 4]]=None,
         fill_color_alpha: float=1.0,
         gen_id: Optional[int]=None,
@@ -717,14 +717,14 @@ def add_circle(
             Radius of the circle
         stroke_width: float
             Width of the stoke.
-        stroke_ipg_color: Optional[IpgColor]
-            Whether to use the IpgColor for the stroke
+        stroke_ipg_color: Optional[Color]
+            Whether to use the Color for the stroke
         stroke_rgba_color: Optional[list[float, 4]]
             Whether to use the rgba color for the stroke
         stroke_color_alpha: float
             The alpha of the color
-        fill_ipg_color: Optional[IpgColor]
-            Whether to use the IpgColor for the fill or None
+        fill_ipg_color: Optional[Color]
+            Whether to use the Color for the fill or None
         fill_rgba_color: Optional[list[float, 4]]
             Whether to use the rgba color for the fill or None
         fill_color_alpha: float
@@ -746,9 +746,9 @@ def add_ellipse(
         *,
         stroke_width: float=2.0,
         degrees: float=0.0,
-        stroke_ipg_color: Optional[IpgColor]=None,
+        stroke_ipg_color: Optional[Color]=None,
         stroke_rgba_color: Optional[list[float, 4]]=None,
-        fill_ipg_color: Optional[IpgColor]=None,
+        fill_ipg_color: Optional[Color]=None,
         fill_rgba_color: Optional[list[float, 4]]=None,
         gen_id: Optional[int]=None,
     ) -> int:
@@ -770,12 +770,12 @@ def add_ellipse(
             The rotation in degrees
         stroke_width: float
             Width of the stoke.
-        stroke_ipg_color: Optional[IpgColor]
-            Whether to use the IpgColor for the stroke
+        stroke_ipg_color: Optional[Color]
+            Whether to use the Color for the stroke
         stroke_rgba_color: Optional[list[float, 4]]
             Whether to use the rgba color for the stroke
-        fill_ipg_color: Optional[IpgColor]
-            Whether to use the IpgColor for the fill or None
+        fill_ipg_color: Optional[Color]
+            Whether to use the Color for the fill or None
         fill_rgba_color: Optional[list[float, 4]]
             Whether to use the rgba color for the fill or None
         gen_id: Optional[int]=None
@@ -794,7 +794,7 @@ def add_line(
         *,
         degrees: float=0.0,
         stroke_width: float=2.0,
-        stroke_ipg_color: Optional[IpgColor]=None,
+        stroke_ipg_color: Optional[Color]=None,
         stroke_rgba_color: Optional[list[float, 4]]=None,
         gen_id: Optional[int]=None,
     ) -> int:
@@ -814,8 +814,8 @@ def add_line(
             The rotation of the line in degrees
         stroke_width: float
             Width of the stoke.
-        stroke_ipg_color: Optional[IpgColor]
-            Whether to use the IpgColor for the stroke
+        stroke_ipg_color: Optional[Color]
+            Whether to use the Color for the stroke
         stroke_rgba_color: Optional[list[float, 4]]
             Whether to use the rgba color for the stroke
         gen_id: Optional[int]=None
@@ -835,9 +835,9 @@ def add_polygon(
         *,
         degrees: float=0.0,
         stroke_width: float=2.0,
-        stroke_ipg_color: Optional[IpgColor]=None,
+        stroke_ipg_color: Optional[Color]=None,
         stroke_rgba_color: Optional[list[float, 4]]=None,
-        fill_ipg_color: Optional[IpgColor]=None,
+        fill_ipg_color: Optional[Color]=None,
         fill_rgba_color: Optional[list[float, 4]]=None,
         gen_id: Optional[int]=None,
     ) -> int:
@@ -859,12 +859,12 @@ def add_polygon(
             The rotation of the polygon in degrees
         stroke_width: float
             Width of the stoke.
-        stroke_ipg_color: Optional[IpgColor]
-            Whether to use the IpgColor for the stroke
+        stroke_ipg_color: Optional[Color]
+            Whether to use the Color for the stroke
         stroke_rgba_color: Optional[list[float, 4]]
             Whether to use the rgba color for the stroke
-        fill_ipg_color: Optional[IpgColor]
-            Whether to use the IpgColor for the fill or None
+        fill_ipg_color: Optional[Color]
+            Whether to use the Color for the fill or None
         fill_rgba_color: Optional[list[float, 4]]
             Whether to use the rgba color for the fill or None
         gen_id: Optional[int]=None
@@ -881,7 +881,7 @@ def add_poly_line(
         points: list[(float, float)],
         *,
         stroke_width: float=2.0,
-        stroke_ipg_color: Optional[IpgColor]=None,
+        stroke_ipg_color: Optional[Color]=None,
         stroke_rgba_color: Optional[list[float, 4]]=None,
         gen_id: Optional[int]=None,
     ) -> int:
@@ -897,8 +897,8 @@ def add_poly_line(
             defines each point in the continous line
         stroke_width: float
             Width of the stoke.
-        stroke_ipg_color: Optional[IpgColor]
-            Whether to use the IpgColor for the stroke
+        stroke_ipg_color: Optional[Color]
+            Whether to use the Color for the stroke
         stroke_rgba_color: Optional[list[float, 4]]
             Whether to use the rgba color for the stroke
         gen_id: Optional[int]=None
@@ -918,9 +918,9 @@ def add_rectangle(
         *,
         degrees: float=0.0,
         stroke_width: float=2.0,
-        stroke_ipg_color: Optional[IpgColor]=None,
+        stroke_ipg_color: Optional[Color]=None,
         stroke_rgba_color: Optional[list[float, 4]]=None,
-        fill_ipg_color: Optional[IpgColor]=None,
+        fill_ipg_color: Optional[Color]=None,
         fill_rgba_color: Optional[list[float, 4]]=None,
         gen_id: Optional[int]=None,
     ) -> int:
@@ -942,12 +942,12 @@ def add_rectangle(
             The rotation of the rectangle in degrees
         stroke_width: float
             Width of the stroke.
-        stroke_ipg_color: Optional[IpgColor]
-            Whether to use the IpgColor for the stroke
+        stroke_ipg_color: Optional[Color]
+            Whether to use the Color for the stroke
         stroke_rgba_color: Optional[list[float, 4]]
             Whether to use the rgba color for the stroke
-        fill_ipg_color: Optional[IpgColor]
-            Whether to use the IpgColor for the fill or None
+        fill_ipg_color: Optional[Color]
+            Whether to use the Color for the fill or None
         fill_rgba_color: Optional[list[float, 4]]
             Whether to use the rgba color for the fill or None
         gen_id: Optional[int]=None
@@ -1178,10 +1178,10 @@ def add_chart(
         theme: Optional[IpgChartTheme],
         margin: Optional[list[float, 4]],
         font_family: str,
-        background_ipgcolor: Optional[IpgColor],
+        background_ipgcolor: Optional[Color],
         background_rgba: Optional[list[float, 4]],
         is_light: bool,
-        grid_stroke_ipgcolor: Optional[IpgColor],
+        grid_stroke_ipgcolor: Optional[Color],
         grid_stroke_rgba: Optional[list[float, 4]],
         grid_stroke_width: float,
         radius: Optional[float],
@@ -1202,10 +1202,10 @@ def add_chart(
         theme (Optional[IpgChartTheme]): _description_
         margin (Optional[list[float, 4]]): _description_
         font_family (str): _description_
-        background_ipgcolor (Optional[IpgColor]): _description_
+        background_ipgcolor (Optional[Color]): _description_
         background_rgba (Optional[list[float, 4]]): _description_
         is_light (bool): _description_
-        grid_stroke_ipgcolor (Optional[IpgColor]): _description_
+        grid_stroke_ipgcolor (Optional[Color]): _description_
         grid_stroke_rgba (Optional[list[float, 4]]): _description_
         grid_stroke_width (float): _description_
         radius (Optional[float]): _description_
@@ -1232,7 +1232,7 @@ def add_chart_title(
         chart_id: str,
         title_text: Optional[str],
         title_font_size: float,
-        title_font_ipgcolor: Optional[IpgColor],
+        title_font_ipgcolor: Optional[Color],
         title_font_rgba: Optional[list[float, 4]],
         title_font_weight: Optional[str],
         title_margin: Optional[list[float, 4]],
@@ -1240,7 +1240,7 @@ def add_chart_title(
         title_height: float,
         sub_title_text: Optional[str],
         sub_title_font_size: Optional[float],
-        sub_title_font_ipgcolor: Optional[IpgColor],
+        sub_title_font_ipgcolor: Optional[Color],
         sub_title_font_rgba: Optional[list[float, 4]],
         sub_title_font_weight: Optional[str],
         sub_title_margin: Optional[list[float, 4]],
@@ -1255,7 +1255,7 @@ def add_chart_title(
         chart_id (str): _description_
         title_text (Optional[str]): _description_
         title_font_size (float): _description_
-        title_font_ipgcolor (Optional[IpgColor]): _description_
+        title_font_ipgcolor (Optional[Color]): _description_
         title_font_rgba (Optional[list[float, 4]]): _description_
         title_font_weight (Optional[str]): _description_
         title_margin (Optional[list[float, 4]]): _description_
@@ -1263,7 +1263,7 @@ def add_chart_title(
         title_height (float): _description_
         sub_title_text (Optional[str]): _description_
         sub_title_font_size (Optional[float]): _description_
-        sub_title_font_ipgcolor (Optional[IpgColor]): _description_
+        sub_title_font_ipgcolor (Optional[Color]): _description_
         sub_title_font_rgba (Optional[list[float, 4]]): _description_
         sub_title_font_weight (Optional[str]): _description_
         sub_title_margin (Optional[list[float, 4]]): _description_
@@ -1278,7 +1278,7 @@ def add_chart_title(
 def add_chart_legend(
         chart_id: str,
         legend_font_size: float,
-        legend_font_ipgcolor: Optional[IpgColor],
+        legend_font_ipgcolor: Optional[Color],
         legend_font_rgba: Optional[list[float, 4]],
         legend_font_weight: Optional[str],
         legend_align: Optional[bool],
@@ -1293,7 +1293,7 @@ def add_chart_legend(
     Args:
         chart_id (str): _description_
         legend_font_size (float): _description_
-        legend_font_ipgcolor (Optional[IpgColor]): _description_
+        legend_font_ipgcolor (Optional[Color]): _description_
         legend_font_rgba (Optional[list[float, 4]]): _description_
         legend_font_weight (Optional[str]): _description_
         legend_align (IpgHorizontalAlignment): _description_
@@ -1310,10 +1310,10 @@ def add_chart_x_axis(
         chart_id: str,
         x_axis_data: list[str],
         x_axis_height: float,
-        x_axis_stroke_ipgcolor: Optional[IpgColor],
+        x_axis_stroke_ipgcolor: Optional[Color],
         x_axis_stroke_rgba: Optional[list[float, 4]],
         x_axis_font_size: float,
-        x_axis_font_ipgcolor: Optional[IpgColor],
+        x_axis_font_ipgcolor: Optional[Color],
         x_axis_font_rgba: Optional[list[float, 4]],
         x_axis_font_weight: Optional[str],
         x_axis_name_gap: float,
@@ -1333,13 +1333,13 @@ def add_chart_x_axis(
             The data points or labels to be displayed along the x-axis.
         x_axis_height (float): 
             The height of the x-axis.
-        x_axis_stroke_ipgcolor (Optional[IpgColor]): 
-            The color of the x-axis stroke using the IpgColor class.
+        x_axis_stroke_ipgcolor (Optional[Color]): 
+            The color of the x-axis stroke using the Color class.
         x_axis_stroke_rgba (Optional[list[float, 4]]): 
             The color of the x-axis stroke in RGBA format.
         x_axis_font_size (float): The font size of the x-axis labels.
-        x_axis_font_ipgcolor (Optional[IpgColor]): 
-            The color of the x-axis font using the IpgColor class.
+        x_axis_font_ipgcolor (Optional[Color]): 
+            The color of the x-axis font using the Color class.
         x_axis_font_rgba (Optional[list[float, 4]]): 
             The color of the x-axis font in RGBA format.
         x_axis_font_weight (Optional[str]): 
@@ -1365,10 +1365,10 @@ def add_chart_y_axis(
         chart_id: str,
         y_axis_hidden: bool,
         y_axis_font_size: float,
-        y_axis_font_ipgcolor: Optional[IpgColor],
+        y_axis_font_ipgcolor: Optional[Color],
         y_axis_font_rgba: Optional[list[float, 4]],
         y_axis_font_weight: Optional[str],
-        y_axis_stroke_ipgcolor: Optional[IpgColor],
+        y_axis_stroke_ipgcolor: Optional[Color],
         y_axis_stroke_rgba: Optional[list[float, 4]],
         y_axis_width: Optional[float],
         y_axis_split_number: int,
@@ -1390,14 +1390,14 @@ def add_chart_y_axis(
             Whether the y-axis is hidden or visible.
         y_axis_font_size (float): 
             The font size of the y-axis labels.
-        y_axis_font_ipgcolor (Optional[IpgColor]): 
-            The color of the y-axis font using the IpgColor class.
+        y_axis_font_ipgcolor (Optional[Color]): 
+            The color of the y-axis font using the Color class.
         y_axis_font_rgba (Optional[list[float, 4]]): 
             The color of the y-axis font in RGBA format.
         y_axis_font_weight (Optional[str]): 
             The weight of the y-axis font (e.g., "bold", "normal").
-        y_axis_stroke_ipgcolor (Optional[IpgColor]): 
-            The color of the y-axis stroke using the IpgColor class.
+        y_axis_stroke_ipgcolor (Optional[Color]): 
+            The color of the y-axis stroke using the Color class.
         y_axis_stroke_rgba (Optional[list[float, 4]]): 
             The color of the y-axis stroke in RGBA format.
         y_axis_width (Optional[float]): 
@@ -1425,15 +1425,15 @@ def add_chart_y_axis(
 def add_chart_series(
         chart_id: str,
         series_stroke_width: float,
-        series_label_font_ipgcolor: Optional[IpgColor],
+        series_label_font_ipgcolor: Optional[Color],
         series_label_font_rgba: Optional[list[float, 4]],
         series_label_font_size: float,
         series_label_font_weight: Optional[str],
         series_label_formatter: Optional[str],
-        series_ipgcolors: list[IpgColor],
+        series_ipgcolors: list[Color],
         series_rgbas: list[float, 4],
         series_symbol: bool,
-        symbol_ipgcolor: Optional[IpgColor],
+        symbol_ipgcolor: Optional[Color],
         symbol_rgba: Optional[list[float, 4]],
         symbol_radius: Optional[float],
         series_smooth: bool,
@@ -1446,8 +1446,8 @@ def add_chart_series(
         chart_id (str): The unique identifier for the chart.
         series_stroke_width (float): 
             The width of the stroke for the series lines.
-        series_label_font_ipgcolor (Optional[IpgColor]): 
-            The color of the series label font using the IpgColor class.
+        series_label_font_ipgcolor (Optional[Color]): 
+            The color of the series label font using the Color class.
         series_label_font_rgba (Optional[list[float, 4]]): 
             The color of the series label font in RGBA format.
         series_label_font_size (float): 
@@ -1456,14 +1456,14 @@ def add_chart_series(
             The weight of the series label font (e.g., "bold", "normal").
         series_label_formatter (Optional[str]): 
             A formatter string for customizing the series label.
-        series_ipgcolors (list[IpgColor]): 
-            A list of colors for the series using the IpgColor class.
+        series_ipgcolors (list[Color]): 
+            A list of colors for the series using the Color class.
         series_rgbas (list[float, 4]): 
             A list of colors for the series in RGBA format.
         series_symbol (bool): 
             Whether to display symbols for the series points.
-        symbol_ipgcolor (Optional[IpgColor]): 
-            The color of the series symbols using the IpgColor class.
+        symbol_ipgcolor (Optional[Color]): 
+            The color of the series symbols using the Color class.
         symbol_rgba (Optional[list[float, 4]]): 
             The color of the series symbols in RGBA format.
         symbol_radius (Optional[float]): 
@@ -1481,7 +1481,7 @@ def add_chart_series(
     """
     
 def get_color_palette(
-        base_color: Optional[IpgColor],
+        base_color: Optional[Color],
         base_rgba: Optional[list[float, 4]],
     ) -> list[list[float], list[float, 4], list[float, 4]]:
     
@@ -1490,8 +1490,8 @@ def get_color_palette(
 
         Parameters:
         -----------
-            base_color: Optional[IpgColor],
-                The color with class IpgColor
+            base_color: Optional[Color],
+                The color with class Color
             base_rgba: Optional[list[float, 4]],
                 The color in rgba format
 
@@ -1685,42 +1685,42 @@ class IpgButtonStyleParam:
 
     Parameters
     ----------
-    BackgroundColor: IpgColor
-        Background color in IpgColor format
+    BackgroundColor: Color
+        Background color in Color format
     BackgroundRbga :list[float, 4]
         Background color in rgba format
-    BorderColor: IpgColor
-        Border color in IpgColor format
+    BorderColor: Color
+        Border color in Color format
     BorderRgba: list[float, 4]
         Border color in rgba format
     BorderRadius: list
         The border radius [float]=all, [float, 4]=each individual one       
     BorderWidth: float
         The width of the border line
-    ShadowColor: IpgColor
-        Shadow color in IpgColor format
+    ShadowColor: Color
+        Shadow color in Color format
     ShadowRgba: list[float, 4]
         Shadow color in rgba format
     ShadowOffsetXY: [float, 2]
         The offfset of the show towards the x and y directions
     ShadowBlurRadius: float
         How much to blur the shadow radius
-    TextColor: IpgColor
-        The label text color in IpgColor format
+    TextColor: Color
+        The label text color in Color format
     TextRgba: list[float, 4]
         The label text color in rgba format
     """
-    BackgroundColor:IpgColor
+    BackgroundColor:Color
     BackgroundRbga:list[float, 4]
-    BorderColor:IpgColor
+    BorderColor:Color
     BorderRgba:list[float, 4]
     BorderRadius:list
     BorderWidth:float
-    ShadowColor:IpgColor
+    ShadowColor:Color
     ShadowRgba:list[float, 4]
     ShadowOffsetXY:list[float, 2]
     ShadowBlurRadius:float
-    TextColor:IpgColor
+    TextColor:Color
     TextRgba:list[float, 4]
     
     
@@ -1898,46 +1898,46 @@ class IpgCheckboxStyleParam:
 
     Parameters
     ----------
-    BackgroundIpgColor: IpgColor
-        Background color in IpgColor format
+    BackgroundIpgColor: Color
+        Background color in Color format
     BackgroundRbgaColor :list[float, 4]
         Background color in rgba format
-    BackgroundIpgColorHovered: IpgColor
-        When hovered, the Background color in IpgColor format
+    BackgroundIpgColorHovered: Color
+        When hovered, the Background color in Color format
     BackgroundIpgRgbaHovered: list[float, 4]
         When hovered, the background color in rgba format
-    AccentIpgColor: IpgColor
+    AccentIpgColor: Color
     AccentRgbaColor: list[float, 4]
-    AccentIpgColorHovered: IpgColor
+    AccentIpgColorHovered: Color
     AccentRgbaColorHovered: list[float, 4]
-    BorderIpgColor: IpgColor
-        Border color in IpgColor format
+    BorderIpgColor: Color
+        Border color in Color format
     BorderRgbaColor: list[float, 4]
         Border color in rgba format
     BorderRadius: list
         The border radius [float]=all, [float, 4]=each individual one       
     BorderWidth: float
         The width of the border line
-    TextIpgColor: IpgColor
-        The label text color in IpgColor format
+    TextIpgColor: Color
+        The label text color in Color format
     TextRgbaColor: list[float, 4]
         The label text color in rgba format
     """
-    BackgroundIpgColor:IpgColor
+    BackgroundIpgColor:Color
     BackgroundRgbaColor:list[float, 4]
-    BackgroundIpgColorHovered:IpgColor
+    BackgroundIpgColorHovered:Color
     BackgroundRgbaColorHovered:list[float, 4]
-    AccentIpgColor:IpgColor
+    AccentIpgColor:Color
     AccentRgbaColor:list[float, 4]
-    AccentIpgColorHovered:IpgColor
+    AccentIpgColorHovered:Color
     AccentRgbaColorHovered:list[float, 4]
-    BorderIpgColor:IpgColor
+    BorderIpgColor:Color
     BorderRgbaColor:list[float, 4]
     BorderRadius:list[float]
     BorderWidth:float
-    IconIpgColor:IpgColor
+    IconIpgColor:Color
     IconRgbaColor:list[float, 4]
-    TextIpgColor:IpgColor
+    TextIpgColor:Color
     TextRgbaColor:list[float, 4]
 
 
@@ -1991,24 +1991,24 @@ class IpgColorPickerStyleParam:
 
     Parameters
     ----------
-    BackgroundIpgColor: IpgColor
-        Background color in IpgColor format
+    BackgroundIpgColor: Color
+        Background color in Color format
     BackgroundRbgaColor :list[float, 4]
         Background color in rgba format
-    BackgroundIpgColorHovered: IpgColor
-        When hovered, the Background color in IpgColor format
+    BackgroundIpgColorHovered: Color
+        When hovered, the Background color in Color format
     BackgroundIpgRgbaHovered: list[float, 4]
         When hovered, the background color in rgba format
-    BorderIpgColor: IpgColor
-        Border color in IpgColor format
+    BorderIpgColor: Color
+        Border color in Color format
     BorderRgbaColor: list[float, 4]
         Border color in rgba format
     BorderRadius: list
         The border radius [float]=all, [float, 4]=each individual one       
     BorderWidth: float
         The width of the border line
-    ShadowIpgColor: IpgColor
-        Shadow color in IpgColor format
+    ShadowIpgColor: Color
+        Shadow color in Color format
     ShadowRgbaColor: list[float, 4]
         Shadow color in rgba format
     ShadowOffsetX: float
@@ -2017,25 +2017,25 @@ class IpgColorPickerStyleParam:
         The offfset of the show towards the y direction
     ShadowBlurRadius: float
         How much to blur the shadow radius
-    TextIpgColor: IpgColor
-        The label text color in IpgColor format
+    TextIpgColor: Color
+        The label text color in Color format
     TextRgbaColor: list[float, 4]
         The label text color in rgba format
     """
-    BackgroundIpg:IpgColor
+    BackgroundIpg:Color
     BackgroundRbga:list[float, 4]
-    BackgroundIpgColorHovered:IpgColor
+    BackgroundIpgColorHovered:Color
     BackgroundIpgRgbaHovered:list[float, 4]
-    BorderIpgColor:IpgColor
+    BorderIpgColor:Color
     BorderRgba:list[float, 4]
     BorderRadius:list
     BorderWidth:float
-    ShadowIpgColor:IpgColor
+    ShadowIpgColor:Color
     ShadowRgba:list[float, 4]
     ShadowOffsetX:float
     ShadowOffsetY:float
     ShadowBlurRadius:float
-    TextIpgColor:IpgColor
+    TextIpgColor:Color
     TextRgbaColor:list[float, 4]
 
 
@@ -2078,17 +2078,17 @@ class IpgContainerParam:
 
 
 class IpgContainerStyleParam:
-    BackgroundIpgColor:IpgColor
+    BackgroundIpgColor:Color
     BackgroundRgbaColor:list[float, 4]
-    BorderIpgColor:IpgColor
+    BorderIpgColor:Color
     BorderRgbaColor:list[float, 4]
     BorderRadius:float
     BorderWidth:float
-    ShadowIpgColor:IpgColor
+    ShadowIpgColor:Color
     ShadowRgbaColor:list[float, 4]
     ShadowOffsetXY:list[float, 4]
     ShadowBlurRadius:float
-    TextIpgColor:IpgColor
+    TextIpgColor:Color
     TextRgbaColor:list[float, 4]
     
 class IpgContainerStyleStd:
@@ -2169,11 +2169,11 @@ class IpgDividerStyleParam:
     
     Parameters
     ----------
-    BackgroundIpgColor: IpgColor,
+    BackgroundIpgColor: Color,
         Background color
     BackgroundRgbaColor: list[float, 4],
         Background color in rgba format
-    BorderIpgColor: IpgColor,
+    BorderIpgColor: Color,
         Border color
     BorderRgbaColor: list[float, 4],
         Border color in rgba format
@@ -2184,9 +2184,9 @@ class IpgDividerStyleParam:
     Transparent: bool,
         Whether to use the transparent style
     """
-    BackgroundIpgColor: IpgColor
+    BackgroundIpgColor: Color
     BackgroundRgbaColor: list[float, 4]
-    BorderIpgColor: IpgColor
+    BorderIpgColor: Color
     BorderRgbaColor: list[float, 4]
     BorderWidth: float
     BorderRadius: float
@@ -2327,31 +2327,31 @@ class IpgMenuParam:
 
 
 class IpgMenuStyleParam:
-    BaseIpgColor:IpgColor
+    BaseIpgColor:Color
     BaseRgbaColor:list[float, 4]
-    BorderIpgColor:IpgColor
+    BorderIpgColor:Color
     BorderRgbaColor:list[float, 4]
     BorderRadius:list[float]
     BorderWidth:float
-    ShadowIpgColor:IpgColor
+    ShadowIpgColor:Color
     ShadowRgbaColor:list[float, 4]
     ShadowOffsetXY:list[float, 2]
     ShadowBlurRadius:float
-    PathBaseIpgColor:IpgColor
+    PathBaseIpgColor:Color
     PathBaseRgbaColor:list[float, 4]
-    PathBorderIpgColor:IpgColor
+    PathBorderIpgColor:Color
     PathBorderRgbaColor:list[float, 4]
     PathBorderRadius:list[float]
     PathBorderWidth:float
 
 class IpgMenuBarStyleParam:
-    BaseIpgColor:IpgColor
+    BaseIpgColor:Color
     BaseRgbaColor:list[float, 4]
-    BorderIpgColor:IpgColor
+    BorderIpgColor:Color
     BorderRgbaColor:list[float, 4]
     BorderRadius:list[float]
     BorderWidth:float
-    ShadowIpgColor:IpgColor
+    ShadowIpgColor:Color
     ShadowRgbaColor:list[float, 4]
     ShadowOffsetXY:list[float, 2]
     ShadowBlurRadius:float
@@ -2364,23 +2364,23 @@ class IpgMenuSeparatorStyleParam:
     Height:float
     HeightFill:bool
     QuadRatios:list[float, 2]
-    SeparatorIpgColor:IpgColor
+    SeparatorIpgColor:Color
     SeparatorRgbaColor:list[float, 4]
-    SeparatorBorderIpgColor:IpgColor
+    SeparatorBorderIpgColor:Color
     SeparatorBorderRgbaColor:list[float, 4]
     SeparatorBorderRadius:list[float]
     SeparatorBorderWidth:float
-    SeparatorShadowIpgColor:IpgColor
+    SeparatorShadowIpgColor:Color
     SeparatorShadowRgbaColor:list[float, 4]
     SeparatorShadowOffset:float
     SeparatorShadowBlurRadius:float
-    BackgroundIpgColor:IpgColor
+    BackgroundIpgColor:Color
     BackgroundRgbaColor:list[float, 4]
-    BackgroundBorderIpgColor:IpgColor
+    BackgroundBorderIpgColor:Color
     BackgroundBorderRbgaColor:list[float, 4]
     BackgroundBorderWidth:float
     BackgroundBorderRadius:list[float]
-    BackgroundShadowIpgColor:IpgColor
+    BackgroundShadowIpgColor:Color
     BackgroundShadowRbgaColor:list[float, 4]
     BackgroundShadowOffset:float
     BackgroundShadowBlurRadius:float
@@ -2487,42 +2487,42 @@ class IpgPickListStyleParam:
 
     Parameters
     ----------
-    BackgroundIpgColor: IpgColor
-        Background color in IpgColor format
+    BackgroundIpgColor: Color
+        Background color in Color format
     BackgroundRbgaColor :list[float, 4]
         Background color in rgba format
-    BorderIpgColor: IpgColor
-        Border color in IpgColor format
+    BorderIpgColor: Color
+        Border color in Color format
     BorderRgbaColor: list[float, 4]
         Border color in rgba format
     BorderRadius: list
         The border radius [float]=all, [float, 4]=each individual one       
     BorderWidth: float
         The width of the border line
-    HandleIpgColor: IpgColor
-        Handle color in IpgColor format
+    HandleIpgColor: Color
+        Handle color in Color format
     HandleRgbaColor: list[float, 4]
         Handle color in rgba format
-    PlaceholderIpgColor: IpgColor
-        Placeholder color in IpgColor format
+    PlaceholderIpgColor: Color
+        Placeholder color in Color format
     PlaceholderRgbaColor: list[float, 4]
         Placeholder color in rgba format
-    TextIpgColor: IpgColor
-        The label text color in IpgColor format
+    TextIpgColor: Color
+        The label text color in Color format
     TextRgbaColor: list[float, 4]
         The label text color in rgba format
     """
-    BackgroundIpgColor:IpgColor
+    BackgroundIpgColor:Color
     BackgroundRbgaColor:List[float, 4]
-    BorderIpgColor:IpgColor
+    BorderIpgColor:Color
     BorderRgbaColor:list[float, 4]
     BorderRadius:list
     BorderWidth:float
-    HandleIpgColor:IpgColor
+    HandleIpgColor:Color
     HandleRgbaColor:list[float, 4]
-    PlaceholderIpgColor:IpgColor
+    PlaceholderIpgColor:Color
     PlaceholderRgbaColor:list[float, 4]
-    TextIpgColor:IpgColor
+    TextIpgColor:Color
     TextRgbaColor:list[float, 4]
 
 class IpgProgressBarParam:
@@ -2570,16 +2570,16 @@ class IpgProgressBarStyleParam:
 
     Parameters
     ----------
-    BackgroundIpgColor: IpgColor
-        Background color in IpgColor format
+    BackgroundIpgColor: Color
+        Background color in Color format
     BackgroundRbgaColor :list[float, 4]
         Background color in rgba format
-    BarIpgColor: IpgColor
-        Bar color in IpgColor format
+    BarIpgColor: Color
+        Bar color in Color format
     BarRgbaColor: list[float, 4]
         Bar color in rgba format
-    BorderIpgColor: IpgColor
-        Border color in IpgColor format
+    BorderIpgColor: Color
+        Border color in Color format
     BorderRgbaColor: list[float, 4]
         Border color in rgba format
     BorderRadius: list
@@ -2587,11 +2587,11 @@ class IpgProgressBarStyleParam:
     BorderWidth: float
         The width of the border line
     """
-    BackgroundIpgColor:IpgColor
+    BackgroundIpgColor:Color
     BackgroundRbgaColor:List[float, 4]
-    BarIpgColor:IpgColor
+    BarIpgColor:Color
     BarRgbaColor:list[float, 4]
-    BorderIpgColor:IpgColor
+    BorderIpgColor:Color
     BorderRgbaColor:list[float, 4]
     BorderRadius:list
     BorderWidth:float
@@ -2671,39 +2671,39 @@ class IpgRadioStyleParam:
 
     Parameters
     ----------
-    BackgroundIpgColor: IpgColor
-        Background color in IpgColor format
+    BackgroundIpgColor: Color
+        Background color in Color format
     BackgroundRbgaColor :list[float, 4]
         Background color in rgba format
-    DotIpgColor: IpgColor
-        Dot color in IpgColor format
+    DotIpgColor: Color
+        Dot color in Color format
     DotRgbaColor: list[float, 4]
         Dot color in rgba format
-    DotIpgColorHovered: IpgColor
-        Dot hover color in IpgColor format
+    DotIpgColorHovered: Color
+        Dot hover color in Color format
     DotRgbaColorHovered: list[float, 4]
         Dot hover color in rgba format
-    BorderIpgColor: IpgColor
-        Border color in IpgColor format
+    BorderIpgColor: Color
+        Border color in Color format
     BorderRgbaColor: list[float, 4]
         Border color in rgba format    
     BorderWidth: float
         The width of the border line
-    TextIpgColor: IpgColor
-        The label text color in IpgColor format
+    TextIpgColor: Color
+        The label text color in Color format
     TextRgbaColor: list[float, 4]
         The label text color in rgba format
     """
-    BackgroundIpgColor:IpgColor
+    BackgroundIpgColor:Color
     BackgroundRbgaColor:List[float, 4]
-    DotIpgColor:IpgColor
+    DotIpgColor:Color
     DotRgbaColor:list[float, 4]
-    DotIpgColorHovered:IpgColor
+    DotIpgColorHovered:Color
     DotRgbaColorHovered:list[float, 4]
-    BorderIpgColor:IpgColor
+    BorderIpgColor:Color
     BorderRgbaColor:list[float, 4]
     BorderWidth:float
-    TextIpgColor:IpgColor
+    TextIpgColor:Color
     TextRgbaColor:list[float, 4]
 
 
@@ -2722,7 +2722,7 @@ class IpgRowParam:
 
 
 class IpgRuleStyleParam:
-    IpgColor:IpgColor
+    Color:Color
     RbgaColor:List[float, 4]
     BorderRadius:float
     FillModePercent:float
@@ -2775,20 +2775,20 @@ class IpgScrollableStyleParam:
 
     Parameters
     ----------
-    BackgroundIpgColor: IpgColor
-        Background color in IpgColor format
+    BackgroundIpgColor: Color
+        Background color in Color format
     BackgroundRbgaColor: list[float, 4]
         Background color in rgba format
-    BorderIpgColor: IpgColor
-        Border color in IpgColor format
+    BorderIpgColor: Color
+        Border color in Color format
     BorderRgbaColor: list[float, 4]
         Border color in rgba format
     BorderRadius: list[float]
         Border radius as a list of 1 or 4
     BorderWidth: float
         Border widt as a float
-    ShadowIpgColor: IpgColor
-        Shadow color in IpgColor format
+    ShadowIpgColor: Color
+        Shadow color in Color format
     ShadowRgbaColor: list[float, 4]
         Shadow color in rgba format
     ShadowOffsetX: float
@@ -2797,59 +2797,59 @@ class IpgScrollableStyleParam:
         Amount of offset shadow in y direction
     ShadowBlurRadius: list[float]
         How much to blur the radius
-    TextIpgColor: IpgColor
-        Text color in IpgColor format
+    TextIpgColor: Color
+        Text color in Color format
     TextRgbaColor: list[float, 4]
         Text color in rgba format
-    ScrollbarIpgColor: IpgColor
-        Scrollbar color in IpgColor format
+    ScrollbarIpgColor: Color
+        Scrollbar color in Color format
     ScrollbarRgbaColor: list[float, 4]
         Scrollbar color in rgba format
     ScrollbarBorderRadius: list[float]
         Border radius as a list of 1 or 4
     ScrollbarBorderWidth: float
         Width of the border
-    ScrollbarBorderIpgColor: IpgColor
-        Scrollbar border color in IpgColor format
+    ScrollbarBorderIpgColor: Color
+        Scrollbar border color in Color format
     ScrollbarBorderRgbaColor: list[float, 4]
         Scrollbar border color in rgba format
-    ScrollerIpgColor: IpgColor
-        Scroller color in IpgColor format
+    ScrollerIpgColor: Color
+        Scroller color in Color format
     ScrollerRgbaColor: list[float, 4]
         Scroller color in rgba format
-    ScrollerIpgColorHovered: IpgColor
-        Scroller hover color in IpgColor format
+    ScrollerIpgColorHovered: Color
+        Scroller hover color in Color format
     ScrollerRgbaColorHovered: list[float, 4]
         Scroller hover color in rgba format
-    ScrollerIpgColorDragged: IpgColor
-        Scroller drag color in IpgColor format
+    ScrollerIpgColorDragged: Color
+        Scroller drag color in Color format
     ScrollerRgbaColorDragged: list[float, 4]
         Scroller drag color in rgba format
     """
-    BackgroundIpgColor:IpgColor
+    BackgroundIpgColor:Color
     BackgroundRbgaColor:list[float, 4]
-    BorderIpgColor:IpgColor
+    BorderIpgColor:Color
     BorderRgbaColor:list[float, 4]
     BorderRadius:list[float]
     BorderWidth:float
-    ShadowIpgColor:IpgColor
+    ShadowIpgColor:Color
     ShadowRgbaColor:list[float, 4]
     ShadowOffsetX:float
     ShadowOffsetY:float
     ShadowBlurRadius:list[float]
-    TextIpgColor:IpgColor
+    TextIpgColor:Color
     TextRgbaColor:list[float, 4]
-    ScrollbarIpgColor:IpgColor
+    ScrollbarIpgColor:Color
     ScrollbarRgbaColor:list[float, 4]
     ScrollbarBorderRadius:list[float]
     ScrollbarBorderWidth:float
-    ScrollbarBorderIpgColor:IpgColor
+    ScrollbarBorderIpgColor:Color
     ScrollbarBorderRgbaColor:list[float, 4]
-    ScrollerIpgColor:IpgColor
+    ScrollerIpgColor:Color
     ScrollerRgbaColor:list[float, 4]
-    ScrollerIpgColorHovered:IpgColor
+    ScrollerIpgColorHovered:Color
     ScrollerRgbaColorHovered:list[float, 4]
-    ScrollerIpgColorDragged:IpgColor
+    ScrollerIpgColorDragged:Color
     ScrollerRgbaColorDragged:list[float, 4]
 
 
@@ -2911,16 +2911,16 @@ class IpgSliderParam:
 
 
 class IpgSliderStyleParam:
-    RailIpgColor:IpgColor
+    RailIpgColor:Color
     RailRbgaColor:list[float, 4]
-    RailIpgColorHovered:IpgColor
+    RailIpgColorHovered:Color
     RailIpgRgbaHovered:list[float, 4]
     RailBorderRadius:list[float]
     RailWidth:float
 
-    HandleIpgColor:IpgColor
+    HandleIpgColor:Color
     HandleRgbaColor:list[float, 4]
-    HandleBorderIpgColor:IpgColor
+    HandleBorderIpgColor:Color
     HandleBorderRgbaColor:list[float, 4]
     HandleBorderWidth:float
     HandleCircleRadius:float
@@ -3059,45 +3059,45 @@ class IpgTableParam:
 
 
 class IpgTableStyleParam:
-    HeaderBackgroundIpgColor:IpgColor
+    HeaderBackgroundIpgColor:Color
     HeaderBackgroundRgbaColor:list[float, 4]
-    HeaderBorderIpgColor:IpgColor
+    HeaderBorderIpgColor:Color
     HeaderBorderRgbaColor:list[float, 4]
     HeaderBorderRadius:float
     HeaderBorderWidth:float
-    HeaderTextIpgColor:IpgColor
+    HeaderTextIpgColor:Color
     HeaderTextRgbaColor:list[float, 4]
 
-    BodyBackgroundIpgColor:IpgColor
+    BodyBackgroundIpgColor:Color
     BodyBackgroundRgbaColor:list[float, 4]
-    BodyBorderIpgColor:IpgColor
+    BodyBorderIpgColor:Color
     BodyBorderRgbaColor:list[float, 4]
     BodyBorderRadius:float
     BodyBorderWidth:float
-    BodyTextIpgColor:IpgColor
+    BodyTextIpgColor:Color
     BodyTextRgbaColor:list[float, 4]
-    BodyRowHighlighColor:IpgColor
+    BodyRowHighlighColor:Color
     BodyRowHighlightRgba:list[float, 4]
 
-    FooterBackgroundIpgColor:IpgColor
+    FooterBackgroundIpgColor:Color
     FooterBackgroundRgbaColor:list[float, 4]
-    FooterBorderIpgColor:IpgColor
+    FooterBorderIpgColor:Color
     FooterBorderRgbaColor:list[float, 4]
     FooterBorderRadius:float
     FooterBorderWidth:float
-    FooterTextIpgColor:IpgColor
+    FooterTextIpgColor:Color
     FooterTextRgbaColor:list[float, 4]
     
-    DividerBackgroundIpgColor:IpgColor
+    DividerBackgroundIpgColor:Color
     DividerBackgroundRgbaColor:list[float, 4]
-    DividerHoverIpgColor:IpgColor
+    DividerHoverIpgColor:Color
     DividerHoverRgbaColor:list[float, 4]
     
-    ScrollerBackgroundIpgColor:IpgColor
+    ScrollerBackgroundIpgColor:Color
     ScrollerBackgroundRgbaColor:list[float, 4]
-    ScrollerHoverIpgColor:IpgColor
+    ScrollerHoverIpgColor:Color
     ScrollerHoverRgbaColor:list[float, 4]
-    ScrollerRailIpgColor:IpgColor
+    ScrollerRailIpgColor:Color
     ScrollerRailRgbaColor:list[float, 4]
 
 
@@ -3174,7 +3174,7 @@ class IpgTextParam:
         The height of the text box.
     Size: Optional[float]
         The size of the text.
-    TextColor: Optional[IpgColor]
+    TextColor: Optional[Color]
         The color of the text.
     TextRgba: Optional[list[float, 4]]
         The color of the text in rgba format.
@@ -3200,7 +3200,7 @@ class IpgTextParam:
     LineHeight: float
     Show: bool
     Size: float
-    TextColor: IpgColor
+    TextColor: Color
     TextRgba: list[float, 4]
     TextShaping: TextShaping
     TextWrapping: TextWrapping
@@ -3220,7 +3220,7 @@ class IpgRichTextParam:
         Whether to show or hide the widget.
     Size : Optional[float]
         The text size.
-    TextColor : Optional[IpgColor]
+    TextColor : Optional[Color]
         The text color.
     TextRgba : Optional[list[float, 4]]
         The text color in rgba format.
@@ -3228,7 +3228,7 @@ class IpgRichTextParam:
     LineHeight: float
     Show: bool
     Size: float
-    TextColor: IpgColor
+    TextColor: Color
     TextRgba: list[float]
 
 
@@ -3244,7 +3244,7 @@ class IpgSpanParam:
         Whether the text is bold.
     Italic : bool
         Whether the text is italic.
-    Color : Optional[IpgColor]
+    Color : Optional[Color]
         The text color.
     ColorRgba : Optional[list[float, 4]]
         The text color in rgba format.
@@ -3262,7 +3262,7 @@ class IpgSpanParam:
     Text: str
     Bold: bool
     Italic: bool
-    Color: IpgColor
+    Color: Color
     ColorRgba: list[float]
     LineHeight: float
     Padding: list
@@ -3272,17 +3272,17 @@ class IpgSpanParam:
 
 
 class IpgTextInputStyleParam:
-    BackgroundIpgColor: IpgColor
+    BackgroundIpgColor: Color
     BackgroundRgbaColor: list[float, 4]
-    BorderIpgColor: IpgColor
+    BorderIpgColor: Color
     BorderRadius: list[float]
     BorderRgbaColor: list[float, 4]
     BorderWidth: float
-    PlaceholderIpgColor: IpgColor
+    PlaceholderIpgColor: Color
     PlaceholderRgbaColor: list[float, 4]
-    SelectionIpgColor: IpgColor
+    SelectionIpgColor: Color
     SelectionRgbaColor: list[float, 4]
-    ValueIpgColor: IpgColor
+    ValueIpgColor: Color
     ValueRgbaColor: list[float, 4]
 
 
@@ -3308,24 +3308,24 @@ class IpgTimerStyleParam:
 
     Parameters
     ----------
-    BackgroundIpgColor: IpgColor
-        Background color in IpgColor format
+    BackgroundIpgColor: Color
+        Background color in Color format
     BackgroundRbgaColor :list[float, 4]
         Background color in rgba format
-    BackgroundIpgColorHovered: IpgColor
-        When hovered, the Background color in IpgColor format
+    BackgroundIpgColorHovered: Color
+        When hovered, the Background color in Color format
     BackgroundIpgRgbaHovered: list[float, 4]
         When hovered, the background color in rgba format
-    BorderIpgColor: IpgColor
-        Border color in IpgColor format
+    BorderIpgColor: Color
+        Border color in Color format
     BorderRgbaColor: list[float, 4]
         Border color in rgba format
     BorderRadius: list
         The border radius [float]=all, [float, 4]=each individual one       
     BorderWidth: float
         The width of the border line
-    ShadowIpgColor: IpgColor
-        Shadow color in IpgColor format
+    ShadowIpgColor: Color
+        Shadow color in Color format
     ShadowRgbaColor: list[float, 4]
         Shadow color in rgba format
     ShadowOffsetX: float
@@ -3334,25 +3334,25 @@ class IpgTimerStyleParam:
         The offfset of the show towards the y direction
     ShadowBlurRadius: float
         How much to blur the shadow radius
-    TextIpgColor: IpgColor
-        The label text color in IpgColor format
+    TextIpgColor: Color
+        The label text color in Color format
     TextRgbaColor: list[float, 4]
         The label text color in rgba format
     """
-    BackgroundIpgColor:IpgColor
+    BackgroundIpgColor:Color
     BackgroundRbgaColor:list[float]
-    BackgroundIpgColorHovered:IpgColor
+    BackgroundIpgColorHovered:Color
     BackgroundIpgRgbaHovered:list[float]
-    BorderIpgColor:IpgColor
+    BorderIpgColor:Color
     BorderRgbaColor:list[float]
     BorderRadius:list
     BorderWidth:float
-    ShadowIpgColor:IpgColor
+    ShadowIpgColor:Color
     ShadowRgbaColor:list[float]
     ShadowOffsetX:float
     ShadowOffsetY:float
     ShadowBlurRadius:float
-    TextIpgColor:IpgColor
+    TextIpgColor:Color
     TextRgbaColor:list[float]
 
 class IpgTimerParam:
@@ -3460,7 +3460,7 @@ class IpgWindowParam:
     Size: list[float]
         Setting for the window size.
     Theme: IpgWindowTheme
-        Setting for the window theme(background color) using IpgColor
+        Setting for the window theme(background color) using Color
     Title: str
         Setting for the window title.
     Transparent: bool
@@ -3624,7 +3624,7 @@ class Arrow:
     ArrowsVertical=''
  
  
-class IpgColor:
+class Color:
     """
     The standard colors available
     """

@@ -94,7 +94,7 @@ def change_size(btn_id):
 
 
 def change_color(btn_id):
-    update_widget(st_id, IpgSelectableTextParam.TextColor, IpgColor.BLUE)
+    update_widget(st_id, IpgSelectableTextParam.TextColor, Color.BLUE)
 
 
 def toggle_debug(btn_id):
@@ -148,7 +148,7 @@ st_id = add_selectable_text(
                 on_right_release=on_right_release,
                 on_middle_press=on_middle_press,
                 on_middle_release=on_middle_release,
-                text_color=IpgColor.YELLOW)
+                text_color=Color.YELLOW)
 
 add_space(
         parent_id="col", 

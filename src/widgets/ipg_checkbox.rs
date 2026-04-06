@@ -1,8 +1,7 @@
 //! ipg_checkbox
-#![allow(unused)]
+
 use std::collections::HashMap;
 
-use crate::graphics::colors::IpgColor;
 use crate::state::IpgState;
 use crate::app::Message;
 use crate::widgets::ipg_text::{TextShaping, TextWrapping};
@@ -15,13 +14,13 @@ use crate::state::IpgWidgets;
 use crate::graphics::BOOTSTRAP_FONT;
 use crate::graphics::bootstrap_icon::{IpgIcon, icon_to_char};
 
-use crate::widgets::styling::{apply_border_overrides, create_custom_theme, get_theme_palette_color};
+use crate::widgets::styling::{apply_border_overrides, create_custom_theme};
 
 use iced::advanced::text;
-use iced::{Background, Element, Color, Length, Theme};
+use iced::{Background, Element, Length, Theme};
 use iced::widget::text::{LineHeight, Shaping};
 use iced::widget::{Checkbox, checkbox};
-use iced::theme::palette::{self, Primary};
+use iced::theme::palette;
 
 use pyo3::{pyclass, Py, PyAny, Python};
 type PyObject = Py<PyAny>;
@@ -173,12 +172,12 @@ pub fn checkbox_callback(state: &mut IpgState, id: usize, message: ChkMessage) {
 #[derive(Debug, Clone, Default)]
 pub struct IpgCheckboxStyle {
     pub id: usize,
-    pub background_color: Option<Color>,
-    pub border_color: Option<Color>,
+    pub background_color: Option<iced::Color>,
+    pub border_color: Option<iced::Color>,
     pub border_radius: Option<Vec<f32>>,
     pub border_width: Option<f32>,
-    pub icon_color: Option<Color>,
-    pub text_color: Option<Color>,
+    pub icon_color: Option<iced::Color>,
+    pub text_color: Option<iced::Color>,
 }
 
 impl IpgCheckboxStyle {
@@ -264,9 +263,9 @@ impl IpgCheckboxStyle {
 }
 
 fn styled(
-    border_color: Color,
+    border_color: iced::Color,
     base: palette::Pair,
-    icon_color: Color,
+    icon_color: iced::Color,
     accent: palette::Pair,
     is_checked: bool,
 ) -> checkbox::Style {

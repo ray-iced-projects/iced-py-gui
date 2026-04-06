@@ -1,6 +1,7 @@
 //! ipg_rule
+
 use iced::widget::rule::{self, FillMode, Style};
-use iced::{Color, Element, Theme};
+use iced::{Element, Theme};
 use iced::widget::Container;
 use pyo3::{pyclass, Py, PyAny};
 type PyObject = Py<PyAny>;
@@ -27,7 +28,7 @@ pub struct IpgRule {
 #[derive(Debug, Clone)]
 pub struct IpgRuleStyle {
     pub id: usize,
-    pub color: Option<Color>,
+    pub color: Option<iced::Color>,
     pub border_radius: Option<Vec<f32>>,
     pub fillmode_percent: Option<f32>,
     pub fillmode_padded: Option<u16>,

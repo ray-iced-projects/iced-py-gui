@@ -1,11 +1,11 @@
 from icedpygui import Window, Container, Column, ToolTip, \
     add_container_style, add_text, add_card, add_checkbox, \
     start_session, IpgToolTipParam, IpgToolTipPosition, \
-    IpgContainerStyleStd, IpgColor
+    IpgContainerStyleStd, Color
 
 
 
-cont_style = add_container_style(background_color=IpgColor.AQUA)
+cont_style = add_container_style(background_color=Color.AQUA)
 
     
 # Add a window first

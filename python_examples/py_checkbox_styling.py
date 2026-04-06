@@ -3,7 +3,7 @@ from imports import *
 
 # Style IDs can be created anywhere before use
 custom_bkg = add_checkbox_style(
-    background_color=IpgColor.LIGHT_BLUE)
+    background_color=Color.LIGHT_BLUE)
 
 
 with Window(title="Checkbox Styling",
@@ -49,7 +49,7 @@ with Window(title="Checkbox Styling",
                 style_id=custom_bkg)
 
             bkg_yellow = add_checkbox_style(
-                background_color=IpgColor.LIGHT_YELLOW)
+                background_color=Color.LIGHT_YELLOW)
 
             add_checkbox(
                 label="Yellow Background",
@@ -63,16 +63,16 @@ with Window(title="Checkbox Styling",
         with Row(spacing=20.0):
 
             border_color = add_checkbox_style(
-                border_color=IpgColor.RED,
+                border_color=Color.RED,
                 border_width=2.0)
 
             border_radius = add_checkbox_style(
-                border_color=IpgColor.BLUE,
+                border_color=Color.BLUE,
                 border_width=2.0,
                 border_radius=[8.0])
 
             border_thick = add_checkbox_style(
-                border_color=IpgColor.DARK_GREEN,
+                border_color=Color.DARK_GREEN,
                 border_width=4.0,
                 border_radius=[4.0])
 
@@ -98,10 +98,10 @@ with Window(title="Checkbox Styling",
         with Row(spacing=20.0):
 
             icon_red = add_checkbox_style(
-                icon_color=IpgColor.RED)
+                icon_color=Color.RED)
 
             icon_green = add_checkbox_style(
-                icon_color=IpgColor.GREEN)
+                icon_color=Color.GREEN)
 
             add_checkbox(
                 label="Red Icon",
@@ -120,10 +120,10 @@ with Window(title="Checkbox Styling",
         with Row(spacing=20.0):
 
             text_blue = add_checkbox_style(
-                text_color=IpgColor.BLUE)
+                text_color=Color.BLUE)
 
             text_red = add_checkbox_style(
-                text_color=IpgColor.RED)
+                text_color=Color.RED)
 
             add_checkbox(
                 label="Blue Text",
@@ -142,12 +142,12 @@ with Window(title="Checkbox Styling",
         with Row(spacing=20.0):
 
             combined = add_checkbox_style(
-                background_color=IpgColor.DARK_BLUE,
-                border_color=IpgColor.GOLD,
+                background_color=Color.DARK_BLUE,
+                border_color=Color.GOLD,
                 border_width=2.0,
                 border_radius=[6.0],
-                icon_color=IpgColor.GOLD,
-                text_color=IpgColor.DARK_BLUE)
+                icon_color=Color.GOLD,
+                text_color=Color.DARK_BLUE)
 
             add_checkbox(
                 label="All Custom Styles",
@@ -155,9 +155,9 @@ with Window(title="Checkbox Styling",
                 style_id=combined)
 
             combined_std = add_checkbox_style(
-                border_color=IpgColor.RED,
+                border_color=Color.RED,
                 border_width=2.0,
-                icon_color=IpgColor.ORANGE)
+                icon_color=Color.ORANGE)
 
             add_checkbox(
                 label="Success + Custom Overrides",

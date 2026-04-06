@@ -68,7 +68,7 @@ use crate::widgets::ipg_image::IpgImageParam;
 use crate::widgets::ipg_mouse_area::IpgMousePointer;
 use crate::widgets::styling::IpgStyleStandard;
 use crate::graphics::{bootstrap_icon::IpgIcon, bootstrap_arrow::Arrow};
-use crate::graphics::colors::IpgColor;
+use crate::graphics::colors::Color;
 
 use crate::widgets::ipg_button::{ButtonParam, ButtonStyleParam, ButtonStyleStd};
 use crate::widgets::ipg_card::{IpgCardParam, IpgCardStyleParam, IpgCardStyleStd};
@@ -250,7 +250,7 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     // Enums
     m.add_class::<Align>()?;
     m.add_class::<Arrow>()?;
-    m.add_class::<IpgColor>()?;
+    m.add_class::<Color>()?;
     m.add_class::<IpgIcon>()?;
     m.add_class::<IpgContentFit>()?;
     m.add_class::<IpgMousePointer>()?;

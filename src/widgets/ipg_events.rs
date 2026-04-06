@@ -1,5 +1,5 @@
 //! ipg_events
-#![allow(unused)]
+
 #![allow(unused_assignments)]
 #![allow(clippy::enum_variant_names)]
 use std::collections::HashMap;

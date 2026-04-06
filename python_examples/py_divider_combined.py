@@ -104,7 +104,7 @@ col_handle_height = sum(rows)
 
      
 cont_style_id = add_container_style(
-                        border_color=IpgColor.WHITE,
+                        border_color=Color.WHITE,
                         border_width=1.0)
 
 divider_style_id = add_divider_style(

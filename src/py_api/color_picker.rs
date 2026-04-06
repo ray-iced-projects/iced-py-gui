@@ -3,7 +3,7 @@ use pyo3::prelude::*;
 use pyo3::{Py, PyAny, pyfunction};
 type PyObject = Py<PyAny>;
 
-use crate::graphics::colors::IpgColor;
+use crate::graphics::colors::Color;
 use crate::py_api::helpers::get_length;
 use crate::{add_callback_to_mutex, add_user_data_to_mutex};
 use crate::state::{IpgWidgets, access_state, get_id, set_state_of_widget};
@@ -31,10 +31,10 @@ use crate::graphics::bootstrap_arrow::Arrow;
 ///     Sets the Callback method to invoke when a color is selected.
 /// on_cancel : callable,  Optional
 ///     Sets the Callback method to invoke when the color selection is cancelled.
-/// color : IpgColor,  Optional
+/// color : Color,  Optional
 ///     Sets the initial color using a predefined color variant.
 /// color_alpha : float,  Optional
-///     Sets the alpha of the IpgColor.
+///     Sets the alpha of the Color.
 /// color_rgba : list of float,  Optional
 ///     Sets the initial color in rgba format as [r, g, b, a].
 /// width : float,  Optional
@@ -96,7 +96,7 @@ pub fn add_color_picker(
     on_press: Option<PyObject>,
     on_select: Option<PyObject>,
     on_cancel: Option<PyObject>,
-    mut color: Option<IpgColor>,
+    mut color: Option<Color>,
     color_alpha: Option<f32>,
     color_rgba: Option<[f32; 4]>,
     width: Option<f32>,
@@ -126,7 +126,7 @@ pub fn add_color_picker(
     }
 
     let color = 
-        IpgColor::rgba_ipg_color_to_iced(rgba, color, color_alpha).unwrap();
+        Color::rgba_ipg_color_to_iced(rgba, color, color_alpha).unwrap();
 
     if let Some(py) = on_press {
         add_callback_to_mutex(id, "on_press".to_string(), py);

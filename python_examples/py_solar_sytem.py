@@ -61,7 +61,7 @@ canvas_id = add_canvas(window_id="main",
                            parent_id="col",
                            width=canvas_width, 
                            height=canvas_height,
-                           background_ipg_color=IpgColor.BLACK)
+                           background_ipg_color=Color.BLACK)
 
 sun_id = add_canvas_image(canvas_id="canvas",
                      image_path=sun_path,
@@ -95,7 +95,7 @@ earth_obit_id = add_circle(canvas_id="canvas",
                position_xy=(canvas_width/2.0, canvas_height/2.0),
                radius=150.0,
                stroke_width=1.0,
-               stroke_ipg_color=IpgColor.WHITE,
+               stroke_ipg_color=Color.WHITE,
                stroke_color_alpha=0.1,
                stroke_dash_offset=0,
                stroke_dash_segments=[3.0, 6.0],
@@ -109,7 +109,7 @@ for _ in range(0, 100):
                  top_left_xy=(x, y),
                  width=0.1,
                  height=0.1,
-                 fill_ipg_color=IpgColor.WHITE
+                 fill_ipg_color=Color.WHITE
                  )
 
 

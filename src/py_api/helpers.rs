@@ -1,21 +1,15 @@
 //! helpers
-#![allow(unused)]
+
 use std::collections::HashMap;
 
-use crate::graphics::colors::IpgColor;
-use crate::widgets::ipg_button::ButtonStyleStd;
 use crate::widgets::styling::IpgStyleStandard;
 use crate::access_state;
 
 use iced::border::Radius;
-use iced::{window, Alignment, Pixels};
-use iced::{alignment::{Horizontal, Vertical}, Length, Padding};
-use iced::widget::text::{Shaping, LineHeight};
+use iced::{window, Length, Padding};
 
 use pyo3::{Py, PyAny, Python};
 type PyObject = Py<PyAny>;
-
-use crate::widgets::enums::Align;
 
 
 pub fn find_key_for_value(ids: HashMap<window::Id, usize>, value: usize) -> window::Id {
@@ -101,23 +95,9 @@ pub fn get_radius(border_radius: &Vec<f32>, widget_name: String) -> Radius {
     }
 }
 
-fn vec_to_array2_f64(arr: &[f64]) -> [f32; 2] {
-    [arr[0] as f32, arr[1] as f32]
-}
 
 fn vec_to_array2_f32(arr: &[f32]) -> [f32; 2] {
     [arr[0], arr[1]]
-}
-
-
-pub fn get_line_height(pixels: Option<u16>, relative: Option<f32>) -> LineHeight {
-    if let Some(pixs) =  pixels {
-        LineHeight::Absolute(Pixels(pixs.into()))
-    } else if let Some(rel) = relative {
-        LineHeight::Relative(rel)
-    } else {
-        LineHeight::default()
-    }
 }
 
 
@@ -178,16 +158,6 @@ pub fn try_extract_f32_opt(value: &PyObject, name: &str) -> Option<f32> {
         match res {
             Ok(val) => val,
             Err(_) => panic!("{}-Unable to extract python optional float", name),
-        }
-    })  
-}
-
-pub fn try_extract_i32_opt(value: &PyObject) -> Option<i32> {
-    Python::attach(|py| {
-        let res = value.extract::<i32>(py);
-        match res {
-            Ok(val) => Some(val),
-            Err(_) => None,
         }
     })  
 }
@@ -280,26 +250,6 @@ pub fn try_extract_vec_vec_f32(value: &PyObject, name: &str) -> Vec<Vec<f32>> {
             Err(_) => panic!("{}-Unable to extract python list[list[float]]", name),
         }
     })
-}
-
-pub fn try_extract_vec_f32_opt(value: &PyObject, name: &str) -> Option<Vec<f32>> {
-    Python::attach(|py| {
-        let res = value.extract::<Vec<f32>>(py);
-        match res {
-            Ok(val) => Some(val),
-            Err(_) => None,
-        }
-    })  
-}
-
-pub fn try_extract_vec_u16(value: &PyObject, name: &str) -> Vec<u16> {
-    Python::attach(|py| {
-        let res = value.extract::<Vec<u16>>(py);
-        match res {
-            Ok(val) => val,
-            Err(_) => panic!("{}-Unable to extract python list[uint]", name),
-        }
-    })  
 }
 
 pub fn try_extract_vec_usize(value: &PyObject, name: &str) -> Vec<usize> {
@@ -419,16 +369,3 @@ pub fn try_extract_style_standard(value: &PyObject, name: &str) -> IpgStyleStand
         }
     })
 }
-
-
-pub fn try_extract_point(value: &PyObject, name: &str) -> [f32; 2] {
-    Python::attach(|py| {
-
-        let res = value.extract::<[f32; 2]>(py);
-        match res {
-            Ok(val) => val,
-            Err(_) => panic!("{}-Unable to extract python object for Point", name),
-        }
-    })
-}
-

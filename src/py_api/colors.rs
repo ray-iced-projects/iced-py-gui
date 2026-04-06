@@ -3,18 +3,18 @@ use iced::theme::palette::readable;
 use pyo3::prelude::*;
 use pyo3::pyfunction;
 
-use crate::graphics::colors::IpgColor;
+use crate::graphics::colors::Color;
 
 
 #[pyfunction]
 #[pyo3(signature = (color, alpha=None))]
 pub fn get_rgba_color(
-    color: IpgColor,
+    color: Color,
     alpha: Option<f32>,
     ) -> PyResult<[f32; 4]>
 {
     let rgba = if let Some(base) = 
-        IpgColor::rgba_ipg_color_to_iced(None, Some(color), alpha) {
+        Color::rgba_ipg_color_to_iced(None, Some(color), alpha) {
         base
     } else {
         panic!("Unable to get the rgba format of the color")
@@ -29,13 +29,13 @@ pub fn get_rgba_color(
     base_rgba=None,
     alpha=None))]
 pub fn get_color_palette(
-    base_color: Option<IpgColor>,
+    base_color: Option<Color>,
     base_rgba: Option<[f32; 4]>,
     alpha: Option<f32>,
     ) -> PyResult<([f32; 4], [f32; 4], [f32; 4])>
 {
     
-    let base = IpgColor::rgba_ipg_color_to_iced(base_rgba, base_color, alpha);
+    let base = Color::rgba_ipg_color_to_iced(base_rgba, base_color, alpha);
 
     let text_color = readable(base.unwrap(), iced::Color::WHITE);
 

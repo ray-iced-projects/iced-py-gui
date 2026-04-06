@@ -1,5 +1,4 @@
 //! DatePicker module - provides add_date_picker pyfunction
-#![allow(unused)]
 
 use pyo3::{Py, PyAny, pyfunction, PyResult};
 
@@ -7,8 +6,7 @@ use crate::{access_state, add_callback_to_mutex,
     add_user_data_to_mutex, state::{IpgWidgets, 
         get_id, set_state_of_widget}, 
         widgets::{ipg_button::ButtonStyleStd, 
-            ipg_date_picker::IpgDatePicker, 
-            styling::IpgStyleStandard}};
+            ipg_date_picker::IpgDatePicker}};
 type PyObject = Py<PyAny>;
 
 

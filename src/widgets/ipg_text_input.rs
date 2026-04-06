@@ -5,7 +5,7 @@ use std::collections::HashMap;
 
 use iced::widget::text_input;
 use iced::widget::text_input::{Style, Status};
-use iced::{Color, Element, Length, Theme, alignment};
+use iced::{Element, Length, Theme, alignment};
 use iced::widget::TextInput;
 use iced::theme::palette;
 
@@ -150,18 +150,18 @@ pub enum TIMessage {
 #[derive(Debug, Clone)]
 pub struct IpgTextInputStyle {
     pub id: usize,
-    pub background_color: Option<Color>,
-    pub border_color_active: Option<Color>,
-    pub border_color_hovered: Option<Color>,
-    pub border_color_focused: Option<Color>,
-    pub border_color_disabled: Option<Color>,
+    pub background_color: Option<iced::Color>,
+    pub border_color_active: Option<iced::Color>,
+    pub border_color_hovered: Option<iced::Color>,
+    pub border_color_focused: Option<iced::Color>,
+    pub border_color_disabled: Option<iced::Color>,
     pub border_width: Option<f32>,
     pub border_radius: Option<f32>,
-    // pub icon_color: Option<Color>,
-    pub placeholder_color_active: Option<Color>,
-     pub placeholder_color_disabled: Option<Color>,
-    pub value_color: Option<Color>,
-    pub selection_color: Option<Color>,
+    // pub icon_color: Option<iced::Color>,
+    pub placeholder_color_active: Option<iced::Color>,
+     pub placeholder_color_disabled: Option<iced::Color>,
+    pub value_color: Option<iced::Color>,
+    pub selection_color: Option<iced::Color>,
 }
 
 impl IpgTextInputStyle {

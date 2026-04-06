@@ -197,9 +197,9 @@ def set_vertical_text_alignment(pick_id: int, selected: str):
             param=IpgCanvasParam.TextAlignment, 
             value=align)    
     
-cp_id_bkg_color = add_color_picker_style(background_color=IpgColor.PRIMARY)
-cp_id_draw_color = add_color_picker_style(background_color=IpgColor.PRIMARY)
-cp_id_fill_color = add_color_picker_style(background_color=IpgColor.TRANSPARENT)
+cp_id_bkg_color = add_color_picker_style(background_color=Color.PRIMARY)
+cp_id_draw_color = add_color_picker_style(background_color=Color.PRIMARY)
+cp_id_fill_color = add_color_picker_style(background_color=Color.TRANSPARENT)
 
 add_window(
         id="main", 

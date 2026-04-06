@@ -15,7 +15,7 @@ use crate::widgets::ipg_text::TextShaping;
 use super::callbacks::invoke_callback_with_args;
 
 use iced::widget::pick_list::{self, Status};
-use iced::{Color, Font, Pixels, Theme};
+use iced::{Font, Pixels, Theme};
 use iced::{Length, Element};
 use iced::widget::PickList;
 use iced::widget::pick_list::{Handle, Icon};
@@ -50,12 +50,12 @@ pub struct IpgPickList {
 #[derive(Debug, Clone, Default)]
 pub struct IpgPickListStyle {
     pub id: usize,
-    pub background_color: Option<Color>,
-    pub text_color: Option<Color>,
-    pub handle_color: Option<Color>,
-    pub placeholder_color: Option<Color>,
-    pub border_color: Option<Color>,
-    pub border_color_hovered: Option<Color>,
+    pub background_color: Option<iced::Color>,
+    pub text_color: Option<iced::Color>,
+    pub handle_color: Option<iced::Color>,
+    pub placeholder_color: Option<iced::Color>,
+    pub border_color: Option<iced::Color>,
+    pub border_color_hovered: Option<iced::Color>,
     pub border_radius: Option<Vec<f32>>,
     pub border_width: Option<f32>,
 }

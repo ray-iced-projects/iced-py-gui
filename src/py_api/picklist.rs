@@ -1,13 +1,11 @@
 //! PickList module - provides add_pick_list pyfunction
 
-use iced::Color;
-
 use pyo3::{Py, PyAny, PyResult, pyfunction};
 type PyObject = Py<PyAny>;
 
 use crate::{access_state, add_callback_to_mutex, 
     add_user_data_to_mutex};
-use crate::graphics::{colors::IpgColor, 
+use crate::graphics::{colors::Color, 
         bootstrap_arrow::Arrow}; 
 use crate::py_api::helpers::get_length; 
 use crate::state::{IpgWidgets, get_id, set_state_of_widget}; 
@@ -178,40 +176,40 @@ pub fn add_pick_list(
 ///
 /// Parameters
 /// ----------
-/// background_color : IpgColor, Optional
+/// background_color : Color, Optional
 ///     Sets the background color using a predefined color variant.
 /// background_color_alpha : float, Optional
-///     Sets the alpha of the IpgColor.
+///     Sets the alpha of the Color.
 /// background_rgba : list of float, Optional
 ///     Sets the background color in rgba format as [r, g, b, a].
-/// text_color : IpgColor, Optional
+/// text_color : Color, Optional
 ///     Sets the text color using a predefined color variant.
 /// text_color_alpha : float, Optional
-///     Sets the alpha of the IpgColor.
+///     Sets the alpha of the Color.
 /// text_rgba : list of float, Optional
 ///     Sets the text color in rgba format as [r, g, b, a].
-/// handle_color : IpgColor, Optional
+/// handle_color : Color, Optional
 ///     Sets the handle color using a predefined color variant.
 /// handle_color_alpha : float, Optional
-///     Sets the alpha of the IpgColor.
+///     Sets the alpha of the Color.
 /// handle_rgba : list of float, Optional
 ///     Sets the handle color in rgba format as [r, g, b, a].
-/// placeholder_color : IpgColor, Optional
+/// placeholder_color : Color, Optional
 ///     Sets the placeholder text color using a predefined color variant.
 /// placeholder_color_alpha : float, Optional
-///     Sets the alpha of the IpgColor.
+///     Sets the alpha of the Color.
 /// placeholder_rgba : list of float, Optional
 ///     Sets the placeholder text color in rgba format as [r, g, b, a].
-/// border_color : IpgColor, Optional
+/// border_color : Color, Optional
 ///     Sets the border color using a predefined color variant.
 /// border_color_alpha : float, Optional
-///     Sets the alpha of the IpgColor.
+///     Sets the alpha of the Color.
 /// border_rgba : list of float, Optional
 ///     Sets the border color in rgba format as [r, g, b, a].
-/// border_color_hovered : IpgColor, Optional
+/// border_color_hovered : Color, Optional
 ///     Sets the border color when hovered using a predefined color variant.
 /// border_color_hovered_alpha : float, Optional
-///     Sets the alpha of the IpgColor.
+///     Sets the alpha of the Color.
 /// border_rgba_hovered : list of float, Optional
 ///     Sets the border color when hovered in rgba format as [r, g, b, a].
 /// border_radius : list of float, Optional
@@ -251,22 +249,22 @@ pub fn add_pick_list(
     gen_id=None
     ))]
 pub fn add_pick_list_style(
-    background_color: Option<IpgColor>,
+    background_color: Option<Color>,
     background_color_alpha: Option<f32>,
     background_rgba: Option<[f32; 4]>,
-    text_color: Option<IpgColor>,
+    text_color: Option<Color>,
     text_color_alpha: Option<f32>,
     text_rgba: Option<[f32; 4]>,
-    handle_color: Option<IpgColor>,
+    handle_color: Option<Color>,
     handle_color_alpha: Option<f32>,
     handle_rgba: Option<[f32; 4]>,
-    placeholder_color: Option<IpgColor>,
+    placeholder_color: Option<Color>,
     placeholder_color_alpha: Option<f32>,
     placeholder_rgba: Option<[f32; 4]>,
-    border_color: Option<IpgColor>,
+    border_color: Option<Color>,
     border_color_alpha: Option<f32>,
     border_rgba: Option<[f32; 4]>,
-    border_color_hovered: Option<IpgColor>,
+    border_color_hovered: Option<Color>,
     border_color_hovered_alpha: Option<f32>,
     border_rgba_hovered: Option<[f32; 4]>,
     border_radius: Option<Vec<f32>>,
@@ -276,18 +274,18 @@ pub fn add_pick_list_style(
 {
     let id = get_id(gen_id);
     
-    let background_color: Option<Color> = 
-        IpgColor::rgba_ipg_color_to_iced(background_rgba, background_color, background_color_alpha);
-    let border_color: Option<Color> = 
-        IpgColor::rgba_ipg_color_to_iced(border_rgba, border_color, border_color_alpha);
-    let border_color_hovered: Option<Color> = 
-        IpgColor::rgba_ipg_color_to_iced(border_rgba_hovered, border_color_hovered, border_color_hovered_alpha);
-    let handle_color: Option<Color> = 
-        IpgColor::rgba_ipg_color_to_iced(handle_rgba, handle_color, handle_color_alpha);
+    let background_color = 
+        Color::rgba_ipg_color_to_iced(background_rgba, background_color, background_color_alpha);
+    let border_color = 
+        Color::rgba_ipg_color_to_iced(border_rgba, border_color, border_color_alpha);
+    let border_color_hovered = 
+        Color::rgba_ipg_color_to_iced(border_rgba_hovered, border_color_hovered, border_color_hovered_alpha);
+    let handle_color = 
+        Color::rgba_ipg_color_to_iced(handle_rgba, handle_color, handle_color_alpha);
     let placeholder_color = 
-        IpgColor::rgba_ipg_color_to_iced(placeholder_rgba, placeholder_color, placeholder_color_alpha);
+        Color::rgba_ipg_color_to_iced(placeholder_rgba, placeholder_color, placeholder_color_alpha);
     let text_color = 
-        IpgColor::rgba_ipg_color_to_iced(text_rgba, text_color, text_color_alpha);
+        Color::rgba_ipg_color_to_iced(text_rgba, text_color, text_color_alpha);
 
     let mut state = access_state();
 

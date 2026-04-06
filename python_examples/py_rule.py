@@ -1,26 +1,26 @@
 from icedpygui import Window, Container, Column, start_session, \
-    add_space, add_rule, add_rule_style, add_text, IpgColor
+    add_space, add_rule, add_rule_style, add_text, Color
 
 
 # add some styling
 st1 = add_rule_style( 
-            color=IpgColor.YELLOW, 
+            color=Color.YELLOW, 
             border_radius=[10.0])
 
 st2 = add_rule_style(
-            color=IpgColor.BLUE, 
+            color=Color.BLUE, 
             border_radius=[10.0])
 
 # The fill_mode styling
 st3 = add_rule_style(
-            color=IpgColor.BLUE, 
+            color=Color.BLUE, 
             fillmode_percent=50.0)
 
 # The padding is almost like percent except it gives you
 # an unsymmetrical ability. It can be seen better if you uncomment the 
 # debug mode in the window.
 st4 = add_rule_style(
-            color=IpgColor.BLUE,
+            color=Color.BLUE,
             fillmode_asymmetric_padding=(10, 50))
             
             

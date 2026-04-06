@@ -2,14 +2,14 @@ from imports import *
 
 # Add the styling container widget
 cont_style = add_container_style(
-                background_color=IpgColor.AQUA,
-                border_color=IpgColor.BLUE,
+                background_color=Color.AQUA,
+                border_color=Color.BLUE,
                 border_radius=[10.0],
                 border_width=10.0,
-                shadow_color=IpgColor.YELLOW,
+                shadow_color=Color.YELLOW,
                 shadow_blur_radius=20.0,
                 shadow_offset_xy=[8.0, 8.0],
-                text_color=IpgColor.BLACK)
+                text_color=Color.BLACK)
 
 # Add the windows
 with Window(title="Container Styling", 

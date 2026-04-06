@@ -1,5 +1,5 @@
 //! ipg_font
-#![allow(unused)]
+
 use iced::font;
 use pyo3::{Py, PyAny, Python, pyclass};
 type PyObject = Py<PyAny>;
@@ -21,7 +21,7 @@ impl IpgFont {
     pub fn to_iced(&self) -> iced::font::Font {
         let mut font = iced::font::Font::default();
         font.family = if let Some(family) = &self.family {
-            let family = if let Some(name) = &self.family_name {
+            let family = if let Some(_) = &self.family_name {
                 family.to_iced(self.family_name.clone())
             } else {
                 eprintln!("[WARNING] family_name must be defined if 

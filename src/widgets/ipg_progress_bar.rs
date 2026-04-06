@@ -1,5 +1,6 @@
 //! ipg_progress_bar
-use iced::{Color, Element, Length, Theme};
+
+use iced::{Element, Length, Theme};
 use iced::widget::{progress_bar, ProgressBar};
 
 use pyo3::{pyclass, Py, PyAny};
@@ -30,9 +31,9 @@ pub struct IpgProgressBar {
 #[derive(Debug, Clone, Default)]
 pub struct IpgProgressBarStyle {
     pub id: usize,
-    pub background_color: Option<Color>,
-    pub bar_color: Option<Color>,
-    pub border_color: Option<Color>,
+    pub background_color: Option<iced::Color>,
+    pub bar_color: Option<iced::Color>,
+    pub border_color: Option<iced::Color>,
     pub border_radius: Option<Vec<f32>>,
     pub border_width: Option<f32>,
 }

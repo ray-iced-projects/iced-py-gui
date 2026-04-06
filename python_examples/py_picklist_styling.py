@@ -119,11 +119,11 @@ add_text(
 
 # Add some styling
 colors = add_pick_list_style( 
-                background_color=IpgColor.DARK_OLIVE_GREEN,
-                border_color=IpgColor.ANTIQUE_WHITE,
-                border_color_hovered=IpgColor.BLUE,
-                handle_color=IpgColor.DARK_SEA_GREEN,
-                text_color=IpgColor.LIGHT_GREEN,
+                background_color=Color.DARK_OLIVE_GREEN,
+                border_color=Color.ANTIQUE_WHITE,
+                border_color_hovered=Color.BLUE,
+                handle_color=Color.DARK_SEA_GREEN,
+                text_color=Color.LIGHT_GREEN,
                 border_width=3.0,)
 
 # add another row for picklist

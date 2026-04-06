@@ -2,7 +2,7 @@
 use pyo3::{pyfunction, PyResult};
 
 use crate::access_state;
-use crate::graphics::colors::IpgColor;
+use crate::graphics::colors::Color;
 use crate::py_api::helpers::get_length;
 use crate::state::{IpgWidgets, get_id, set_state_of_widget};
 use crate::widgets::ipg_progress_bar::{IpgProgressBar, IpgProgressBarStyle};
@@ -70,7 +70,6 @@ pub fn add_progress_bar(
     min: f32,
     max: f32,
     value: f32,
-    // **above required
     gen_id: Option<usize>,
     is_vertical: Option<bool>,
     width: Option<f32>,
@@ -119,22 +118,22 @@ pub fn add_progress_bar(
 ///
 /// Parameters
 /// ----------
-/// background_color : IpgColor, Optional
+/// background_color : Color, Optional
 ///     Sets the background color using a predefined color variant.
 /// background_color_alpha : float, Optional
-///     Sets the alpha of the IpgColor.
+///     Sets the alpha of the Color.
 /// background_rgba : list of float, Optional
 ///     Sets the background color in rgba format as [r, g, b, a].
-/// bar_color : IpgColor, Optional
+/// bar_color : Color, Optional
 ///     Sets the bar fill color using a predefined color variant.
 /// bar_color_alpha : float, Optional
-///     Sets the alpha of the IpgColor.
+///     Sets the alpha of the Color.
 /// bar_rgba : list of float, Optional
 ///     Sets the bar fill color in rgba format as [r, g, b, a].
-/// border_color : IpgColor, Optional
+/// border_color : Color, Optional
 ///     Sets the border color using a predefined color variant.
 /// border_color_alpha : float, Optional
-///     Sets the alpha of the IpgColor.
+///     Sets the alpha of the Color.
 /// border_rgba : list of float, Optional
 ///     Sets the border color in rgba format as [r, g, b, a].
 /// border_radius : list of float, Optional
@@ -165,13 +164,13 @@ pub fn add_progress_bar(
     gen_id=None
     ))]
 pub fn add_progress_bar_style(
-    background_color: Option<IpgColor>,
+    background_color: Option<Color>,
     background_color_alpha: Option<f32>,
     background_rgba: Option<[f32; 4]>,
-    bar_color: Option<IpgColor>,
+    bar_color: Option<Color>,
     bar_color_alpha: Option<f32>,
     bar_rgba: Option<[f32; 4]>,
-    border_color: Option<IpgColor>,
+    border_color: Option<Color>,
     border_color_alpha: Option<f32>,
     border_rgba: Option<[f32; 4]>,
     border_radius: Option<Vec<f32>>,
@@ -182,11 +181,11 @@ pub fn add_progress_bar_style(
     let id = get_id(gen_id);
 
     let background_color = 
-        IpgColor::rgba_ipg_color_to_iced(background_rgba, background_color, background_color_alpha);
+        Color::rgba_ipg_color_to_iced(background_rgba, background_color, background_color_alpha);
     let bar_color = 
-        IpgColor::rgba_ipg_color_to_iced(bar_rgba, bar_color, bar_color_alpha);
+        Color::rgba_ipg_color_to_iced(bar_rgba, bar_color, bar_color_alpha);
     let border_color = 
-        IpgColor::rgba_ipg_color_to_iced(border_rgba, border_color, border_color_alpha);
+        Color::rgba_ipg_color_to_iced(border_rgba, border_color, border_color_alpha);
 
     let mut state = access_state();
 

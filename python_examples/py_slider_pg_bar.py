@@ -54,15 +54,15 @@ def toggle_show(btn_id):
 
 # Add a slider style for the colors
 sl_style = add_slider_style(
-                    rail_color=IpgColor.GREEN, 
-                    rail_color_hovered=IpgColor.GREEN_YELLOW,
-                    handle_color=IpgColor.LIGHT_GREEN,
+                    rail_color=Color.GREEN, 
+                    rail_color_hovered=Color.GREEN_YELLOW,
+                    handle_color=Color.LIGHT_GREEN,
                     rail_width=10.0,
                     rail_border_radius=[8.0],
                     handle_rectangle_width=20,
                     handle_rectangle_border_radius=[5.0],
                     handle_border_width=2.0,
-                    handle_border_color=IpgColor.DARK_GREEN,)
+                    handle_border_color=Color.DARK_GREEN,)
 
 
 # Add the window

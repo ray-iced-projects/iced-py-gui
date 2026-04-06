@@ -1,6 +1,5 @@
 //! Opague module - provides add_opaque pyfunction
 
-
 use pyo3::{PyResult, pyfunction};
 
 use crate::widgets::ipg_opaque::IpgOpaque;

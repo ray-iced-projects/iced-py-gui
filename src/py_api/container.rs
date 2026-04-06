@@ -1,8 +1,8 @@
 //! Container module - provides add_container pyfunction
-use iced::Color;
+
 use pyo3::{PyResult, pyfunction};
 
-use crate::graphics::colors::IpgColor;
+use crate::graphics::colors::Color;
 use crate::py_api::helpers::get_length;
 use crate::state::{IpgContainers, IpgWidgets, access_state, 
     get_id, set_state_cont_wnd_ids, set_state_of_container};
@@ -180,13 +180,13 @@ pub fn add_container(
 ///
 /// Parameters
 /// ----------
-/// background_color : IpgColor, Optional
+/// background_color : Color, Optional
 ///     Sets the background color using a predefined color variant.
 /// background_rgba : list of float, Optional
 ///     Sets the background color in rgba format as [r, g, b, a].
 /// background_alpha : float, Optional
 ///     Sets the alpha transparency for the background color.
-/// background_gradient_color_stop : IpgColor, Optional
+/// background_gradient_color_stop : Color, Optional
 ///     Sets the stop color of the background gradient.
 /// background_gradient_rgba_stop : list of float, Optional
 ///     Sets the stop color of the background gradient in rgba format as [r, g, b, a].
@@ -196,7 +196,7 @@ pub fn add_container(
 ///     Sets the background gradient angle in radians.
 /// background_gradient_alpha : float, Optional
 ///     Sets the alpha transparency for the gradient stop color.
-/// border_color : IpgColor, Optional
+/// border_color : Color, Optional
 ///     Sets the border color using a predefined color variant.
 /// border_rgba : list of float, Optional
 ///     Sets the border color in rgba format as [r, g, b, a].
@@ -207,7 +207,7 @@ pub fn add_container(
 ///     [top-left, top-right, bottom-right, bottom-left].
 /// border_width : float, Optional
 ///     Sets the border width in logical pixels.
-/// shadow_color : IpgColor, Optional
+/// shadow_color : Color, Optional
 ///     Sets the shadow color using a predefined color variant.
 /// shadow_rgba : list of float, Optional
 ///     Sets the shadow color in rgba format as [r, g, b, a].
@@ -217,7 +217,7 @@ pub fn add_container(
 ///     Sets the shadow offset as [x, y] in logical pixels.
 /// shadow_blur_radius : float, Optional
 ///     Sets the shadow blur radius in logical pixels.
-/// text_color : IpgColor, Optional
+/// text_color : Color, Optional
 ///     Sets the text color using a predefined color variant.
 /// text_rgba : list of float, Optional
 ///     Sets the text color in rgba format as [r, g, b, a].
@@ -259,25 +259,25 @@ pub fn add_container(
     gen_id=None
     ))]
 pub fn add_container_style(
-    background_color: Option<IpgColor>,
+    background_color: Option<Color>,
     background_rgba: Option<[f32; 4]>,
     background_alpha: Option<f32>,
-    background_gradient_color_stop: Option<IpgColor>,
+    background_gradient_color_stop: Option<Color>,
     background_gradient_rgba_stop: Option<[f32; 4]>,
     background_gradient_degrees: Option<f32>,
     background_gradient_radians: Option<f32>,
     background_gradient_alpha: Option<f32>,
-    border_color: Option<IpgColor>,
+    border_color: Option<Color>,
     border_rgba: Option<[f32; 4]>,
     border_alpha: Option<f32>,
     border_radius: Option<Vec<f32>>,
     border_width: Option<f32>,
-    shadow_color: Option<IpgColor>,
+    shadow_color: Option<Color>,
     shadow_rgba: Option<[f32; 4]>,
     shadow_alpha: Option<f32>,
     shadow_offset_xy: Option<[f32; 2]>,
     shadow_blur_radius: Option<f32>,
-    text_color: Option<IpgColor>,
+    text_color: Option<Color>,
     text_rgba: Option<[f32; 4]>,
     text_alpha: Option<f32>,
     snap: Option<bool>,
@@ -286,17 +286,17 @@ pub fn add_container_style(
 {
     let id = get_id(gen_id);
 
-    let background_color: Option<Color> = 
-        IpgColor::rgba_ipg_color_to_iced(background_rgba, background_color, background_alpha);
+    let background_color = 
+        Color::rgba_ipg_color_to_iced(background_rgba, background_color, background_alpha);
     let background_gradient_color_stop = 
-        IpgColor::rgba_ipg_color_to_iced(background_gradient_rgba_stop, 
+        Color::rgba_ipg_color_to_iced(background_gradient_rgba_stop, 
             background_gradient_color_stop, background_gradient_alpha);
-    let border_color: Option<Color> = 
-        IpgColor::rgba_ipg_color_to_iced(border_rgba, border_color, border_alpha);
-    let shadow_color: Option<Color> = 
-        IpgColor::rgba_ipg_color_to_iced(shadow_rgba, shadow_color, shadow_alpha);
-    let text_color: Option<Color> = 
-        IpgColor::rgba_ipg_color_to_iced(text_rgba, text_color, text_alpha);
+    let border_color = 
+        Color::rgba_ipg_color_to_iced(border_rgba, border_color, border_alpha);
+    let shadow_color = 
+        Color::rgba_ipg_color_to_iced(shadow_rgba, shadow_color, shadow_alpha);
+    let text_color = 
+        Color::rgba_ipg_color_to_iced(text_rgba, text_color, text_alpha);
 
     let mut state = access_state();
 

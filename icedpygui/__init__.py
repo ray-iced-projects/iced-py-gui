@@ -85,7 +85,7 @@ from .icedpygui import (
     IpgCheckboxParam,
     IpgCheckboxStyleStd,
     IpgCheckboxStyleParam,
-    IpgColor,
+    Color,
     IpgColumnParam,
     IpgContainerParam,
     IpgContainerStyleParam,
@@ -142,6 +142,7 @@ from .icedpygui import (
 # ---------------------------------------------------------------------------
 _window_stack = []
 _parent_stack = []
+_id_to_container_str = {}  # maps numeric widget id -> container_id string
 
 
 def _current_window():
@@ -158,6 +159,20 @@ def _current_parent():
 # Thin wrappers that fall back to the context stacks
 # ---------------------------------------------------------------------------
 
+def _resolve_parent_id(parent_id):
+    """Convert parent_id to a string. If it's an int, look up the container string."""
+    if isinstance(parent_id, int):
+        try:
+            return _id_to_container_str[parent_id]
+        except KeyError:
+            raise ValueError(
+                f"parent_id={parent_id} is not a known container id. "
+                "Use the value returned by a container context manager "
+                "(e.g. 'with Column() as col')."
+            )
+    return parent_id
+
+
 def _wrap_widget(rust_fn, name):
     """Create a thin wrapper that injects parent_id from the context stack."""
     def wrapper(*, parent_id=None, **kwargs):
@@ -166,6 +181,7 @@ def _wrap_widget(rust_fn, name):
         if parent_id is None:
             raise ValueError(f"{name}: parent_id is required (either pass it \
                 or use a context manager)")
+        parent_id = _resolve_parent_id(parent_id)
         return rust_fn(parent_id=parent_id, **kwargs)
     wrapper.__name__ = name
     wrapper.__qualname__ = name
@@ -209,6 +225,8 @@ def _wrap_container(rust_fn, name):
             container_id = str(generate_id())
         if parent_id is None:
             parent_id = _current_parent()
+        if parent_id is not None:
+            parent_id = _resolve_parent_id(parent_id)
         return rust_fn(window_id=window_id, container_id=container_id, parent_id=parent_id, **kwargs)
     wrapper.__name__ = name
     wrapper.__qualname__ = name
@@ -282,12 +300,16 @@ class Container:
         self.kwargs = kwargs
 
     def __enter__(self):
+        pid = self.parent_id or _current_parent()
+        if pid is not None:
+            pid = _resolve_parent_id(pid)
         self.numeric_id = _add_container(
             window_id=self.window_id,
             container_id=self.container_id,
-            parent_id=self.parent_id or _current_parent(),
+            parent_id=pid,
             **self.kwargs,
         )
+        _id_to_container_str[self.numeric_id] = self.container_id
         _parent_stack.append(self.container_id)
         return self.numeric_id
 
@@ -308,12 +330,16 @@ class Column:
         self.kwargs = kwargs
 
     def __enter__(self):
+        pid = self.parent_id or _current_parent()
+        if pid is not None:
+            pid = _resolve_parent_id(pid)
         self.numeric_id = _add_column(
             window_id=self.window_id,
             container_id=self.container_id,
-            parent_id=self.parent_id or _current_parent(),
+            parent_id=pid,
             **self.kwargs,
         )
+        _id_to_container_str[self.numeric_id] = self.container_id
         _parent_stack.append(self.container_id)
         return self.numeric_id
 
@@ -333,12 +359,16 @@ class Float:
         self.kwargs = kwargs
 
     def __enter__(self):
+        pid = self.parent_id or _current_parent()
+        if pid is not None:
+            pid = _resolve_parent_id(pid)
         self.numeric_id = _add_float(
             window_id=self.window_id,
             container_id=self.container_id,
-            parent_id=self.parent_id or _current_parent(),
+            parent_id=pid,
             **self.kwargs,
         )
+        _id_to_container_str[self.numeric_id] = self.container_id
         _parent_stack.append(self.container_id)
         return self.numeric_id
 
@@ -359,12 +389,16 @@ class Grid:
         self.kwargs = kwargs
 
     def __enter__(self):
+        pid = self.parent_id or _current_parent()
+        if pid is not None:
+            pid = _resolve_parent_id(pid)
         self.numeric_id = _add_grid(
             window_id=self.window_id,
             container_id=self.container_id,
-            parent_id=self.parent_id or _current_parent(),
+            parent_id=pid,
             **self.kwargs,
         )
+        _id_to_container_str[self.numeric_id] = self.container_id
         _parent_stack.append(self.container_id)
         return self.numeric_id
 
@@ -384,12 +418,16 @@ class Menu:
         self.kwargs = kwargs
 
     def __enter__(self):
+        pid = self.parent_id or _current_parent()
+        if pid is not None:
+            pid = _resolve_parent_id(pid)
         self.numeric_id = _add_menu(
             window_id=self.window_id,
             container_id=self.container_id,
-            parent_id=self.parent_id or _current_parent(),
+            parent_id=pid,
             **self.kwargs,
         )
+        _id_to_container_str[self.numeric_id] = self.container_id
         _parent_stack.append(self.container_id)
         return self.numeric_id
 
@@ -409,12 +447,16 @@ class MenuBarItem:
         self.kwargs = kwargs
 
     def __enter__(self):
+        pid = self.parent_id or _current_parent()
+        if pid is not None:
+            pid = _resolve_parent_id(pid)
         self.numeric_id = _add_menu_bar_item(
             window_id=self.window_id,
             container_id=self.container_id,
-            parent_id=self.parent_id or _current_parent(),
+            parent_id=pid,
             **self.kwargs,
         )
+        _id_to_container_str[self.numeric_id] = self.container_id
         _parent_stack.append(self.container_id)
         return self.numeric_id
 
@@ -434,12 +476,16 @@ class MouseArea:
         self.kwargs = kwargs
 
     def __enter__(self):
+        pid = self.parent_id or _current_parent()
+        if pid is not None:
+            pid = _resolve_parent_id(pid)
         self.numeric_id = _add_mouse_area(
             window_id=self.window_id,
             container_id=self.container_id,
-            parent_id=self.parent_id or _current_parent(),
+            parent_id=pid,
             **self.kwargs,
         )
+        _id_to_container_str[self.numeric_id] = self.container_id
         _parent_stack.append(self.container_id)
         return self.numeric_id
 
@@ -459,12 +505,16 @@ class Opaque:
         self.kwargs = kwargs
 
     def __enter__(self):
+        pid = self.parent_id or _current_parent()
+        if pid is not None:
+            pid = _resolve_parent_id(pid)
         self.numeric_id = _add_opaque(
             window_id=self.window_id,
             container_id=self.container_id,
-            parent_id=self.parent_id or _current_parent(),
+            parent_id=pid,
             **self.kwargs,
         )
+        _id_to_container_str[self.numeric_id] = self.container_id
         _parent_stack.append(self.container_id)
         return self.numeric_id
 
@@ -484,12 +534,16 @@ class Row:
         self.kwargs = kwargs
 
     def __enter__(self):
+        pid = self.parent_id or _current_parent()
+        if pid is not None:
+            pid = _resolve_parent_id(pid)
         self.numeric_id = _add_row(
             window_id=self.window_id,
             container_id=self.container_id,
-            parent_id=self.parent_id or _current_parent(),
+            parent_id=pid,
             **self.kwargs,
         )
+        _id_to_container_str[self.numeric_id] = self.container_id
         _parent_stack.append(self.container_id)
         return self.numeric_id
 
@@ -509,12 +563,16 @@ class Stack:
         self.kwargs = kwargs
 
     def __enter__(self):
+        pid = self.parent_id or _current_parent()
+        if pid is not None:
+            pid = _resolve_parent_id(pid)
         self.numeric_id = _add_stack(
             window_id=self.window_id,
             container_id=self.container_id,
-            parent_id=self.parent_id or _current_parent(),
+            parent_id=pid,
             **self.kwargs,
         )
+        _id_to_container_str[self.numeric_id] = self.container_id
         _parent_stack.append(self.container_id)
         return self.numeric_id
 
@@ -535,12 +593,16 @@ class Scrollable:
         self.kwargs = kwargs
 
     def __enter__(self):
+        pid = self.parent_id or _current_parent()
+        if pid is not None:
+            pid = _resolve_parent_id(pid)
         self.numeric_id = _add_scrollable(
             window_id=self.window_id,
             container_id=self.container_id,
-            parent_id=self.parent_id or _current_parent(),
+            parent_id=pid,
             **self.kwargs,
         )
+        _id_to_container_str[self.numeric_id] = self.container_id
         _parent_stack.append(self.container_id)
         return self.numeric_id
 
@@ -560,12 +622,16 @@ class ToolTip:
         self.kwargs = kwargs
 
     def __enter__(self):
+        pid = self.parent_id or _current_parent()
+        if pid is not None:
+            pid = _resolve_parent_id(pid)
         self.numeric_id = _add_tool_tip(
             window_id=self.window_id,
             container_id=self.container_id,
-            parent_id=self.parent_id or _current_parent(),
+            parent_id=pid,
             **self.kwargs,
         )
+        _id_to_container_str[self.numeric_id] = self.container_id
         _parent_stack.append(self.container_id)
         return self.numeric_id
 

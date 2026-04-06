@@ -14,7 +14,7 @@ use crate::widgets::widget_param_update::{
     set_rgba_color_via_ipg,
 };
 
-use iced::{Background, Color, Element, Length, Theme};
+use iced::{Background, Element, Length, Theme};
 use pyo3::{pyclass, Py, PyAny};
 type PyObject = Py<PyAny>;
 
@@ -160,10 +160,10 @@ pub fn divider_callback(state: &mut IpgState, id: usize, message: DivMessage) {
 #[derive(Debug, Clone, PartialEq)]
 pub struct IpgDividerStyle {
     pub id: usize,
-    pub background_color: Option<Color>,
-    pub background_color_hovered: Option<Color>,
+    pub background_color: Option<iced::Color>,
+    pub background_color_hovered: Option<iced::Color>,
     pub background_transparent: Option<bool>,
-    pub border_color: Option<Color>,
+    pub border_color: Option<iced::Color>,
     pub border_width: Option<f32>,
     pub border_radius: Option<Vec<f32>>,
 }

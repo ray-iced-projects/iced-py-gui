@@ -1,4 +1,5 @@
 //! Space module - provides add_space pyfunction
+
 use pyo3::prelude::*;
 use pyo3::pyfunction;
 

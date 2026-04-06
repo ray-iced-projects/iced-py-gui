@@ -1,8 +1,9 @@
 //! ipg_text_rich
-use iced::{Background, Border, Color, Element, Font, Padding};
+
+use iced::{Background, Border, Element, Font, Padding};
 use iced::widget::span;
 use crate::app::Message;
-use crate::graphics::colors::IpgColor;
+use crate::graphics::colors::Color;
 use crate::widgets::widget_param_update::{WidgetParamUpdate, set_bool, set_opt_f32};
 
 use pyo3::{pyclass, Py, PyAny};
@@ -19,7 +20,7 @@ pub struct IpgRichText {
     pub spans: Vec<IpgSpan>,
     pub size: Option<f32>,
     pub line_height: Option<f32>,
-    pub color: Option<Color>,
+    pub color: Option<iced::Color>,
     pub padding: Padding,
     pub show: bool,
 }
@@ -32,7 +33,7 @@ pub struct IpgSpan {
     pub text: String,
     pub size: Option<f32>,
     pub line_height: Option<f32>,
-    pub color: Option<Color>,
+    pub color: Option<iced::Color>,
     pub font: Option<Font>,
     pub highlight: Option<IpgHighLight>,
     pub padding: Option<Padding>,
@@ -123,10 +124,10 @@ impl WidgetParamUpdate for IpgRichText {
             IpgRichTextParam::Show => set_bool(&mut self.show, value, "IpgRichTextParam::Show"),
             IpgRichTextParam::Size => set_opt_f32(&mut self.size, value, "IpgRichTextParam::Size"),
             IpgRichTextParam::TextColor => {
-                self.color = IpgColor::rgba_ipg_color_to_iced(None, None, None);
+                self.color = Color::rgba_ipg_color_to_iced(None, None, None);
             },
             IpgRichTextParam::TextRgba => {
-                self.color = IpgColor::rgba_ipg_color_to_iced(None, None, None);
+                self.color = Color::rgba_ipg_color_to_iced(None, None, None);
             },
         }
     }

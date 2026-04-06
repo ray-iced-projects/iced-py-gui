@@ -264,10 +264,10 @@ def change_right_radio_colors(chk_id: int, checked: bool, radio_right_id: int):
 # Define the styling that's used later
 # See the hint for the color discussion.
 color = add_radio_style(
-                background_color=IpgColor.YELLOW,
-                border_color=IpgColor.DARK_ORANGE,
-                dot_color=IpgColor.DARK_ORANGE, 
-                text_color=IpgColor.YELLOW,
+                background_color=Color.YELLOW,
+                border_color=Color.DARK_ORANGE,
+                dot_color=Color.DARK_ORANGE, 
+                text_color=Color.YELLOW,
                 border_width=2.0)
 
 

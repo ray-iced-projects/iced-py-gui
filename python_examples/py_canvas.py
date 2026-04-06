@@ -30,7 +30,7 @@ add_circle(
         position_xy=(100.0, 100.0),
         radius=25.0,
         stroke_width=1.0,
-        fill_ipg_color=IpgColor.DARK_OLIVE_GREEN)
+        fill_ipg_color=Color.DARK_OLIVE_GREEN)
 
 add_ellipse(
         canvas_id="canvas",
@@ -44,7 +44,7 @@ add_line(
         canvas_id="canvas",
         start=(50.0, 350.0), 
         end=(300.0, 370.0),
-        stroke_ipg_color=IpgColor.YELLOW,
+        stroke_ipg_color=Color.YELLOW,
         stroke_width=2.0,)
 
 add_rectangle(

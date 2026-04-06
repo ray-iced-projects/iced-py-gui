@@ -13,7 +13,8 @@ use crate::py_api::helpers::{try_extract_boolean,
     try_extract_f32, try_extract_usize, try_extract_vec_f32};
 use crate::state::access_window_actions;
 use crate::widgets::widget_param_update::{
-    WidgetParamUpdate, extract_param, set_opt_bool, set_opt_f32, set_opt_f32_array_2, set_opt_string, set_opt_u32_array_2, set_opt_vec_u8
+    WidgetParamUpdate, extract_param, set_opt_bool, set_opt_f32, 
+    set_opt_f32_array_2, set_opt_string, set_opt_u32_array_2, set_opt_vec_u8
 };
 
 #[derive(Debug, Clone)]

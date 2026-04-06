@@ -9,7 +9,7 @@ use iced::{
     },
     border::Radius,
     mouse::Cursor,
-    Background, Border, Color, Element, Length, Rectangle, Shadow, Size,
+    Background, Border, Element, Length, Rectangle, Shadow, Size,
 };
 
 #[derive(Debug, Clone, Copy)]
@@ -36,9 +36,9 @@ impl Default for Quad {
             width: Length::Fill,
             height: Length::Fill,
             inner_bounds: InnerBounds::Ratio(0.5, 0.5),
-            quad_color: Color::from([0.5; 3]).into(),
+            quad_color: iced::Color::from([0.5; 3]).into(),
             quad_border: Border {
-                color: Color::TRANSPARENT,
+                color: iced::Color::TRANSPARENT,
                 width: 0.0,
                 radius: Radius::default(),
             },

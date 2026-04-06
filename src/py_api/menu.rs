@@ -4,7 +4,7 @@ use iced::Length;
 use pyo3::prelude::*;
 use pyo3::{Py, PyAny, pyfunction};
 
-use crate::graphics::colors::IpgColor;
+use crate::graphics::colors::Color;
 use crate::py_api::helpers::get_length;
 use crate::widgets::ipg_menu::{IpgMenu, IpgMenuBarItem, IpgMenuStyle};
 use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex};
@@ -183,38 +183,38 @@ pub fn add_menu(
 
     gen_id=None))]
 pub fn add_menu_style(
-    bar_background_color: Option<IpgColor>,
+    bar_background_color: Option<Color>,
     bar_background_rgba: Option<[f32; 4]>,
     bar_background_alpha: Option<f32>,
-    bar_border_color: Option<IpgColor>,
+    bar_border_color: Option<Color>,
     bar_border_rgba: Option<[f32; 4]>,
     bar_border_alpha: Option<f32>,
     bar_border_radius: Option<Vec<f32>>,
     bar_border_width: Option<f32>,
-    bar_shadow_color: Option<IpgColor>,
+    bar_shadow_color: Option<Color>,
     bar_shadow_rgba: Option<[f32; 4]>,
     bar_shadow_alpha: Option<f32>,
     bar_shadow_offset_xy: Option<[f32; 2]>,
     bar_shadow_blur_radius: Option<f32>,
 
-    menu_background_color: Option<IpgColor>,
+    menu_background_color: Option<Color>,
     menu_background_rgba: Option<[f32; 4]>,
     menu_background_alpha: Option<f32>,
-    menu_border_color: Option<IpgColor>,
+    menu_border_color: Option<Color>,
     menu_border_rgba: Option<[f32; 4]>,
     menu_border_alpha: Option<f32>,
     menu_border_radius: Option<Vec<f32>>,
     menu_border_width: Option<f32>,
-    menu_shadow_color: Option<IpgColor>,
+    menu_shadow_color: Option<Color>,
     menu_shadow_rgba: Option<[f32; 4]>,
     menu_shadow_alpha: Option<f32>,
     menu_shadow_offset_xy: Option<[f32; 2]>,
     menu_shadow_blur_radius: Option<f32>,
 
-    path_background_color: Option<IpgColor>,
+    path_background_color: Option<Color>,
     path_background_rgba: Option<[f32; 4]>,
     path_background_alpha: Option<f32>,
-    path_border_color: Option<IpgColor>,
+    path_border_color: Option<Color>,
     path_border_rgba: Option<[f32; 4]>,
     path_border_alpha: Option<f32>,
     path_border_radius: Option<Vec<f32>>,
@@ -226,44 +226,44 @@ pub fn add_menu_style(
     let id = get_id(gen_id);
 
     let bar_background_color = 
-        IpgColor::rgba_ipg_color_to_iced(
+        Color::rgba_ipg_color_to_iced(
             bar_background_rgba, 
             bar_background_color, 
             bar_background_alpha);
     let bar_border_color = 
-        IpgColor::rgba_ipg_color_to_iced(
+        Color::rgba_ipg_color_to_iced(
             bar_border_rgba, 
             bar_border_color, 
             bar_border_alpha);
     let bar_shadow_color = 
-        IpgColor::rgba_ipg_color_to_iced(
+        Color::rgba_ipg_color_to_iced(
             bar_shadow_rgba, 
             bar_shadow_color, 
             bar_shadow_alpha);
 
     let menu_background_color = 
-        IpgColor::rgba_ipg_color_to_iced(
+        Color::rgba_ipg_color_to_iced(
             menu_background_rgba, 
             menu_background_color, 
             menu_background_alpha);
     let menu_border_color = 
-        IpgColor::rgba_ipg_color_to_iced(
+        Color::rgba_ipg_color_to_iced(
             menu_border_rgba, 
             menu_border_color, 
             menu_border_alpha);
     let menu_shadow_color = 
-        IpgColor::rgba_ipg_color_to_iced(
+        Color::rgba_ipg_color_to_iced(
             menu_shadow_rgba, 
             menu_shadow_color, 
             menu_shadow_alpha);
 
     let path_background_color = 
-        IpgColor::rgba_ipg_color_to_iced(
+        Color::rgba_ipg_color_to_iced(
             path_background_rgba, 
             path_background_color, 
             path_background_alpha);
     let path_border_color = 
-        IpgColor::rgba_ipg_color_to_iced(
+        Color::rgba_ipg_color_to_iced(
             path_border_rgba, 
             path_border_color, 
             path_border_alpha);

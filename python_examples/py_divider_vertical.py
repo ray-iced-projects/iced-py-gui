@@ -42,7 +42,7 @@ text_ids = []
 handle_width = 200.0  
 handle_height = 4.0
         
-cont_style_id = add_container_style(border_color=IpgColor.WHITE,
+cont_style_id = add_container_style(border_color=Color.WHITE,
                                         border_width=1.0)
 
 divider_style_id = add_divider_style(background_transparent=True)

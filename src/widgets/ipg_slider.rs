@@ -1,13 +1,16 @@
 //! ipg_slider
+
 use iced::widget::slider::{self, HandleShape, Status, Style};
-use iced::{Background, Color, Element, Length, Theme, border};
+use iced::{Background, Element, Length, Theme, border};
 use iced::widget::Slider;
 
 use pyo3::{Py, PyAny, pyclass};
 type PyObject = Py<PyAny>;
 
 use crate::py_api::helpers::get_radius;
-use crate::widgets::widget_param_update::{WidgetParamUpdate, set_bool, set_f32, set_opt_f32, set_opt_iced_color, set_opt_iced_color_from_rgba, set_opt_u16, set_opt_usize, set_opt_vec_f32, set_width, set_width_fill};
+use crate::widgets::widget_param_update::{WidgetParamUpdate, set_bool, 
+    set_f32, set_opt_f32, set_opt_iced_color, set_opt_iced_color_from_rgba, 
+    set_opt_u16, set_opt_usize, set_opt_vec_f32, set_width, set_width_fill};
 use crate::{IpgState, app};
 use crate::state::IpgWidgets;
 use crate::widgets::callbacks::invoke_callback_with_args;
@@ -35,16 +38,16 @@ pub struct IpgSlider {
 #[derive(Debug, Clone)]
 pub struct IpgSliderStyle {
     pub id: usize,
-    pub rail_color: Option<Color>,
-    pub rail_color_hovered: Option<Color>,
+    pub rail_color: Option<iced::Color>,
+    pub rail_color_hovered: Option<iced::Color>,
     pub rail_width: Option<f32>,
     pub rail_border_radius: Option<Vec<f32>>,
     pub handle_circle_radius: Option<f32>,
     pub handle_rectangle_width: Option<u16>,
     pub handle_rectangle_border_radius: Option<Vec<f32>>,
-    pub handle_color: Option<Color>,
+    pub handle_color: Option<iced::Color>,
     pub handle_border_width: Option<f32>,
-    pub handle_border_color: Option<Color>,
+    pub handle_border_color: Option<iced::Color>,
 }
 
 

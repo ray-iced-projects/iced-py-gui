@@ -42,7 +42,7 @@ from .icedpygui import (
     IpgCheckboxParam as IpgCheckboxParam,
     IpgCheckboxStyleStd as IpgCheckboxStyleStd,
     IpgCheckboxStyleParam as IpgCheckboxStyleParam,
-    IpgColor as IpgColor,
+    Color as Color,
     IpgColumnParam as IpgColumnParam,
     IpgContainerParam as IpgContainerParam,
     IpgContainerStyleParam as IpgContainerStyleParam,

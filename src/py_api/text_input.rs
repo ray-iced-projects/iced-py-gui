@@ -1,7 +1,7 @@
 
 
 use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex, 
-    graphics::colors::IpgColor, py_api::helpers::get_length, 
+    graphics::colors::Color, py_api::helpers::get_length, 
     state::{IpgWidgets, get_id, set_state_of_widget}, 
     widgets::ipg_text_input::{IpgTextInput, IpgTextInputStyle}};
 
@@ -259,35 +259,35 @@ pub fn add_text_input(
     selection_rgba=None,
     gen_id=None))]
 pub fn add_text_input_style(
-        background_color: Option<IpgColor>,
+        background_color: Option<Color>,
         background_color_alpha: Option<f32>,
         background_rgba: Option<[f32; 4]>,
-        border_color_active: Option<IpgColor>,
+        border_color_active: Option<Color>,
         border_color_active_alpha: Option<f32>,
         border_rgba_active: Option<[f32; 4]>,
-        border_color_hovered: Option<IpgColor>,
+        border_color_hovered: Option<Color>,
         border_color_hovered_alpha: Option<f32>,
         border_rgba_hovered: Option<[f32; 4]>,
-        border_color_focused: Option<IpgColor>,
+        border_color_focused: Option<Color>,
         border_color_focused_alpha: Option<f32>,
         border_rgba_focused: Option<[f32; 4]>,
-        border_color_disabled: Option<IpgColor>,
+        border_color_disabled: Option<Color>,
         border_color_disabled_alpha: Option<f32>,
         border_rgba_disabled: Option<[f32; 4]>,
         border_width: Option<f32>,
         border_radius: Option<f32>,
         // icon_color: Option<IpgColor>,
         // icon_rgba: Option<[f32; 4]>,
-        placeholder_color_active: Option<IpgColor>,
+        placeholder_color_active: Option<Color>,
         placeholder_color_active_alpha: Option<f32>,
         placeholder_rgba_active: Option<[f32; 4]>,
-        placeholder_color_disabled: Option<IpgColor>,
+        placeholder_color_disabled: Option<Color>,
         placeholder_color_disabled_alpha: Option<f32>,
         placeholder_rgba_disabled: Option<[f32; 4]>,
-        value_color: Option<IpgColor>,
+        value_color: Option<Color>,
         value_color_alpha: Option<f32>,
         value_rgba: Option<[f32; 4]>,
-        selection_color: Option<IpgColor>,
+        selection_color: Option<Color>,
         selection_color_alpha: Option<f32>,
         selection_rgba: Option<[f32; 4]>,
         gen_id: Option<usize>,
@@ -296,26 +296,26 @@ pub fn add_text_input_style(
     let id = get_id(gen_id);
 
     let background_color = 
-        IpgColor::rgba_ipg_color_to_iced(background_rgba, background_color, background_color_alpha);
+        Color::rgba_ipg_color_to_iced(background_rgba, background_color, background_color_alpha);
     let border_color_active = 
-        IpgColor::rgba_ipg_color_to_iced(border_rgba_active, border_color_active, border_color_active_alpha);
+        Color::rgba_ipg_color_to_iced(border_rgba_active, border_color_active, border_color_active_alpha);
     let border_color_hovered = 
-        IpgColor::rgba_ipg_color_to_iced(border_rgba_hovered, border_color_hovered, border_color_hovered_alpha);
+        Color::rgba_ipg_color_to_iced(border_rgba_hovered, border_color_hovered, border_color_hovered_alpha);
     let border_color_focused = 
-        IpgColor::rgba_ipg_color_to_iced(border_rgba_focused, border_color_focused, border_color_focused_alpha);
+        Color::rgba_ipg_color_to_iced(border_rgba_focused, border_color_focused, border_color_focused_alpha);
     let border_color_disabled = 
-        IpgColor::rgba_ipg_color_to_iced(border_rgba_disabled, border_color_disabled, border_color_disabled_alpha);
+        Color::rgba_ipg_color_to_iced(border_rgba_disabled, border_color_disabled, border_color_disabled_alpha);
     
     // let icon_color = get_color(icon_rgba, icon_color, 1.0);
     let placeholder_color_active = 
-        IpgColor::rgba_ipg_color_to_iced(placeholder_rgba_active, placeholder_color_active, placeholder_color_active_alpha);
+        Color::rgba_ipg_color_to_iced(placeholder_rgba_active, placeholder_color_active, placeholder_color_active_alpha);
     let placeholder_color_disabled = 
-        IpgColor::rgba_ipg_color_to_iced(placeholder_rgba_disabled, placeholder_color_disabled, placeholder_color_disabled_alpha);
+        Color::rgba_ipg_color_to_iced(placeholder_rgba_disabled, placeholder_color_disabled, placeholder_color_disabled_alpha);
 
     let value_color = 
-        IpgColor::rgba_ipg_color_to_iced(value_rgba, value_color, value_color_alpha);
+        Color::rgba_ipg_color_to_iced(value_rgba, value_color, value_color_alpha);
     let selection_color = 
-        IpgColor::rgba_ipg_color_to_iced(selection_rgba, selection_color, selection_color_alpha);
+        Color::rgba_ipg_color_to_iced(selection_rgba, selection_color, selection_color_alpha);
 
     let mut state = access_state();
     

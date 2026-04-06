@@ -3,7 +3,7 @@ use pyo3::{pyfunction, Py, PyAny, PyResult};
 type PyObject = Py<PyAny>;
 
 use crate::{access_state, add_callback_to_mutex, 
-    add_user_data_to_mutex, graphics::colors::IpgColor, 
+    add_user_data_to_mutex, graphics::colors::Color, 
     py_api::helpers::get_length, state::{IpgWidgets, get_id, 
         set_state_of_widget}, widgets::{ 
         ipg_text::{TextShaping, TextWrapping}, 
@@ -224,21 +224,21 @@ pub fn add_toggler(
     gen_id=None,
     ))]
 pub fn add_toggler_style(
-    background_color: Option<IpgColor>,
+    background_color: Option<Color>,
     background_color_alpha: Option<f32>,
     background_rgba: Option<[f32; 4]>,
-    background_border_color: Option<IpgColor>,
+    background_border_color: Option<Color>,
     background_border_color_alpha: Option<f32>,
     background_border_rgba: Option<[f32; 4]>,
     background_border_width: Option<f32>,
-    foreground_color: Option<IpgColor>,
+    foreground_color: Option<Color>,
     foreground_color_alpha: Option<f32>,
     foreground_rgba: Option<[f32; 4]>,
-    foreground_border_color: Option<IpgColor>,
+    foreground_border_color: Option<Color>,
     foreground_border_color_alpha: Option<f32>,
     foreground_border_rgba: Option<[f32; 4]>,
     foreground_border_width: Option<f32>,
-    text_color: Option<IpgColor>,
+    text_color: Option<Color>,
     text_color_alpha: Option<f32>,
     text_color_rgba: Option<[f32; 4]>, 
     border_radius: Option<Vec<f32>>,
@@ -249,16 +249,16 @@ pub fn add_toggler_style(
     let id = get_id(gen_id);
 
     let background_color = 
-        IpgColor::rgba_ipg_color_to_iced(background_rgba, background_color, background_color_alpha);
+        Color::rgba_ipg_color_to_iced(background_rgba, background_color, background_color_alpha);
     let background_border_color = 
-        IpgColor::rgba_ipg_color_to_iced(background_border_rgba, background_border_color, background_border_color_alpha);
+        Color::rgba_ipg_color_to_iced(background_border_rgba, background_border_color, background_border_color_alpha);
     let foreground_color = 
-        IpgColor::rgba_ipg_color_to_iced(foreground_rgba, foreground_color, foreground_color_alpha);
+        Color::rgba_ipg_color_to_iced(foreground_rgba, foreground_color, foreground_color_alpha);
     let foreground_border_color = 
-        IpgColor::rgba_ipg_color_to_iced(foreground_border_rgba, foreground_border_color, foreground_border_color_alpha);
+        Color::rgba_ipg_color_to_iced(foreground_border_rgba, foreground_border_color, foreground_border_color_alpha);
     
     let text_color = 
-        IpgColor::rgba_ipg_color_to_iced(text_color_rgba, text_color, text_color_alpha);
+        Color::rgba_ipg_color_to_iced(text_color_rgba, text_color, text_color_alpha);
 
     let mut state = access_state();
     

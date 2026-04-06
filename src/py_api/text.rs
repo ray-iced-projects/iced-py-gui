@@ -5,7 +5,7 @@ use crate::py_api::helpers::get_length;
 use crate::state::{IpgWidgets, get_id, set_state_of_widget}; 
 use crate::widgets::ipg_text::{IpgText, TextShaping, TextWrapping};
 use crate::access_state; 
-use crate::graphics::colors::IpgColor;
+use crate::graphics::colors::Color;
 
 /// Add a text widget.
 ///
@@ -119,7 +119,7 @@ pub fn add_text(
     size: Option<f32>,
     font_id: Option<usize>,
     shaping: Option<TextShaping>,
-    color: Option<IpgColor>,
+    color: Option<Color>,
     color_alpha: Option<f32>,
     color_rgba: Option<[f32; 4]>,
     wrapping: Option<TextWrapping>,
@@ -130,7 +130,7 @@ pub fn add_text(
     let id = get_id(gen_id);
 
     let color= 
-        IpgColor::rgba_ipg_color_to_iced(color_rgba, color, color_alpha);
+        Color::rgba_ipg_color_to_iced(color_rgba, color, color_alpha);
 
     let (width, height) = if fill == Some(true) {
         (get_length(None, true), get_length(None, true))

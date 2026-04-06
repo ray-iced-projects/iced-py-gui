@@ -20,7 +20,7 @@ use crate::widgets::widget_param_update::{
 use std::collections::HashMap;
 use iced::widget::scrollable::{self, Direction, Scrollable, 
     Viewport, Anchor, Scrollbar};
-use iced::{Color, Element, Length, Theme};
+use iced::{Element, Length, Theme};
 use iced::widget::Column;
 
 use pyo3::pyclass;
@@ -111,7 +111,7 @@ pub struct IpgScrollableStyle {
     pub vertical_rail_style_id: Option<usize>,
     pub horizontal_rail_style_id: Option<usize>,
     pub auto_scroll_style_id: Option<usize>,
-    pub gap_color: Option<Color>,
+    pub gap_color: Option<iced::Color>,
 }
 
 impl IpgScrollableStyle {
@@ -339,12 +339,12 @@ pub enum IpgScrollerParam {
 #[derive(Debug, Clone, PartialEq)]
 pub struct IpgRailStyle { 
     pub id: usize,
-    pub background: Option<Color>,
-    pub border_color: Option<Color>,
+    pub background: Option<iced::Color>,
+    pub border_color: Option<iced::Color>,
     pub border_width: Option<f32>,
     pub border_radius: Option<Vec<f32>>,
-    pub scroller_background: Option<Color>,
-    pub scroller_border_color: Option<Color>,
+    pub scroller_background: Option<iced::Color>,
+    pub scroller_border_color: Option<iced::Color>,
     pub scroller_border_width: Option<f32>,
     pub scroller_border_radius: Option<Vec<f32>>,
     
@@ -382,14 +382,14 @@ impl IpgRailStyle {
 #[derive(Debug, Clone, PartialEq)]
 pub struct IpgAutoScrollStyle {
     pub id: usize,
-    pub background: Option<Color>,
-    pub border_color: Option<Color>,
+    pub background: Option<iced::Color>,
+    pub border_color: Option<iced::Color>,
     pub border_width: Option<f32>,
     pub border_radius: Option<Vec<f32>>,
-    pub shadow_color: Option<Color>,
+    pub shadow_color: Option<iced::Color>,
     pub shadow_offset: Option<[f32; 2]>,
     pub shadow_blur_radius: Option<f32>,
-    pub shadow_icon_color: Option<Color>,
+    pub shadow_icon_color: Option<iced::Color>,
 }
 
 impl IpgAutoScrollStyle {

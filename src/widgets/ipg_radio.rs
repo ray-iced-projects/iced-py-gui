@@ -1,4 +1,5 @@
 //!ipg_radio
+
 use crate::py_api::helpers::get_padding;
 use crate::widgets::ipg_text::TextWrapping;
 use crate::widgets::widget_param_update::{
@@ -9,7 +10,7 @@ use crate::app;
 use crate::state::IpgWidgets;
 
 use iced::widget::radio::{self, Status};
-use iced::{Color, Element, Length, Theme};
+use iced::{Element, Length, Theme};
 use iced::widget::{Column, Radio, Row};
 
 use pyo3::{pyclass, Py, PyAny, Python};
@@ -42,13 +43,13 @@ pub struct IpgRadio {
 #[derive(Debug, Clone, Copy)]
 pub struct IpgRadioStyle {
     pub id: usize,
-    pub background_color: Option<Color>,
-    pub background_color_hovered: Option<Color>,
-    pub dot_color: Option<Color>,
-    pub dot_color_hovered: Option<Color>,
-    pub border_color: Option<Color>,
+    pub background_color: Option<iced::Color>,
+    pub background_color_hovered: Option<iced::Color>,
+    pub dot_color: Option<iced::Color>,
+    pub dot_color_hovered: Option<iced::Color>,
+    pub border_color: Option<iced::Color>,
     pub border_width: Option<f32>,
-    pub text_color: Option<Color>,
+    pub text_color: Option<iced::Color>,
 }
 
 #[derive(Debug, Clone, PartialEq)]

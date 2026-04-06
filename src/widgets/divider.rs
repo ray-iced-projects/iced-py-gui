@@ -1,4 +1,5 @@
 //! A divider for resizing containers.
+
 use iced::border::{Border, Radius};
 use iced::event::Event;
 use iced::advanced::{Clipboard, layout};

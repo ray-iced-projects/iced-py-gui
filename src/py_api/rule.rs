@@ -1,7 +1,7 @@
 
 use pyo3::{PyResult, pyfunction};
 
-use crate::{access_state, graphics::colors::IpgColor, 
+use crate::{access_state, graphics::colors::Color, 
     state::{IpgWidgets, get_id, set_state_of_widget}, 
     widgets::ipg_rule::{IpgRule, IpgRuleStyle}};
 
@@ -76,10 +76,10 @@ pub fn add_rule(
 ///
 /// Parameters
 /// ----------
-/// color : IpgColor, Optional
+/// color : Color, Optional
 ///     Sets the rule color using a predefined color variant.
 /// color_alpha : float, Optional
-///     Sets the alpha of the IpgColor.
+///     Sets the alpha of the Color.
 /// color_rgba : list of float, Optional
 ///     Sets the rule color in rgba format as [r, g, b, a].
 /// border_radius : list of float, Optional
@@ -113,7 +113,7 @@ pub fn add_rule(
     gen_id=None
     ))]
 pub fn add_rule_style(
-    color: Option<IpgColor>,
+    color: Option<Color>,
     color_alpha: Option<f32>,
     color_rgba: Option<[f32; 4]>,
     border_radius: Option<Vec<f32>>,
@@ -126,7 +126,7 @@ pub fn add_rule_style(
 {
     let id = get_id(gen_id);
 
-    let color = IpgColor::rgba_ipg_color_to_iced(color_rgba, color, color_alpha);
+    let color = Color::rgba_ipg_color_to_iced(color_rgba, color, color_alpha);
     
     let mut state = access_state();
 

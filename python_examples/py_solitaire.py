@@ -178,7 +178,7 @@ class solitaire:
                 
     def create_styles(self):
         self.white_border = self.add_container_style( 
-                                        border_color=IpgColor.WHITE,
+                                        border_color=Color.WHITE,
                                         border_width=2.0)
 
     def define_controls(self):

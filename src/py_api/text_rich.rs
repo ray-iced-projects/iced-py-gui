@@ -4,7 +4,7 @@ use pyo3::{pyfunction, PyResult};
 use iced::{Font, Padding};
 
 use crate::access_state;
-use crate::graphics::colors::IpgColor;
+use crate::graphics::colors::Color;
 use crate::state::{IpgWidgets, get_id, set_state_of_widget};
 use crate::widgets::ipg_text_rich::{IpgRichText, IpgSpan};
 
@@ -52,7 +52,7 @@ pub fn add_rich_text(
     parent_id: String,
     size: Option<f32>,
     line_height: Option<f32>,
-    text_color: Option<IpgColor>,
+    text_color: Option<Color>,
     text_color_alpha: Option<f32>,
     text_rgba: Option<[f32; 4]>,
     show: bool,
@@ -61,7 +61,7 @@ pub fn add_rich_text(
 {
     let id = get_id(gen_id);
 
-    let color = IpgColor::rgba_ipg_color_to_iced(text_rgba, text_color, text_color_alpha);
+    let color = Color::rgba_ipg_color_to_iced(text_rgba, text_color, text_color_alpha);
 
     set_state_of_widget(id, parent_id.clone());
 
@@ -139,7 +139,7 @@ pub fn add_span(
     text: String,
     size: Option<f32>,
     line_height: Option<f32>,
-    text_color: Option<IpgColor>,
+    text_color: Option<Color>,
     text_color_alpha: Option<f32>,
     text_rgba: Option<[f32; 4]>,
     bold: bool,
@@ -151,7 +151,7 @@ pub fn add_span(
 {
     let id = get_id(gen_id);
 
-    let color = IpgColor::rgba_ipg_color_to_iced(text_rgba, text_color, text_color_alpha);
+    let color = Color::rgba_ipg_color_to_iced(text_rgba, text_color, text_color_alpha);
 
     let font = if bold || italic {
         let weight = if bold { 

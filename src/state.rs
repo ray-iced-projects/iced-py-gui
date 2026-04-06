@@ -18,8 +18,7 @@ use crate::widgets::ipg_color_picker::IpgColorPicker;
 use crate::widgets::ipg_column::IpgColumn;
 use crate::widgets::ipg_container::{IpgContainer, IpgContainerStyle};
 use crate::widgets::ipg_date_picker::IpgDatePicker;
-use crate::widgets::ipg_divider::{IpgDivider, 
-    IpgDividerStyle};
+use crate::widgets::ipg_divider::{IpgDivider, IpgDividerStyle};
 use crate::widgets::ipg_events::IpgEvents;
 use crate::widgets::ipg_float::IpgFloat;
 use crate::widgets::ipg_font::IpgFont;

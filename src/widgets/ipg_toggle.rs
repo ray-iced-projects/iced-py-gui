@@ -1,8 +1,9 @@
 //! ipg_toggler
+
 use iced::advanced::text;
 use iced::widget::toggler::{self, Status};
 use iced::widget::Toggler;
-use iced::{Color, Element, Length, Theme};
+use iced::{Element, Length, Theme};
 use iced::theme::palette::{deviate, mix};
 
 use pyo3::{pyclass, Py, PyAny};
@@ -11,13 +12,14 @@ use crate::app::Message;
 use crate::py_api::helpers::get_radius;
 use crate::state::IpgWidgets;
 use crate::widgets::ipg_text::TextWrapping;
-use crate::widgets::widget_param_update::{WidgetParamUpdate, set_bool, set_opt_bool, set_opt_f32, set_opt_iced_color, set_opt_iced_color_from_rgba, set_opt_string, set_opt_text_shaping, set_opt_text_wrapping, set_opt_usize, set_opt_vec_f32, set_width, set_width_fill};
+use crate::widgets::widget_param_update::{WidgetParamUpdate, set_bool, 
+    set_opt_bool, set_opt_f32, set_opt_iced_color, set_opt_iced_color_from_rgba, 
+    set_opt_string, set_opt_text_shaping, set_opt_text_wrapping, set_opt_usize, 
+    set_opt_vec_f32, set_width, set_width_fill};
 use crate::IpgState;
 use crate::widgets::callbacks::invoke_callback_with_args;
 use crate::widgets::ipg_text::TextShaping;
 type PyObject = Py<PyAny>;
-
-
 
 
 #[derive(Debug, Clone)]
@@ -158,15 +160,15 @@ pub enum IpgTogglerParam {
 #[derive(Debug, Clone)]
 pub struct IpgTogglerStyle {
     pub id: usize,
-    pub background_color: Option<Color>,
-    pub background_border_color: Option<Color>,
+    pub background_color: Option<iced::Color>,
+    pub background_border_color: Option<iced::Color>,
     pub background_border_width: Option<f32>,
 
-    pub foreground_color: Option<Color>,
-    pub foreground_border_color: Option<Color>,
+    pub foreground_color: Option<iced::Color>,
+    pub foreground_border_color: Option<iced::Color>,
     pub foreground_border_width: Option<f32>,
     
-    pub text_color: Option<Color>,
+    pub text_color: Option<iced::Color>,
     pub border_radius: Option<Vec<f32>>,
     pub padding_ratio: Option<f32>,
 }
@@ -208,7 +210,7 @@ impl IpgTogglerStyle {
         };
 
         let fg_untoggled = deviate(fg_base, 0.15);
-        let fg_hovered_on = Color { a: 0.5, ..fg_base };
+        let fg_hovered_on = iced::Color { a: 0.5, ..fg_base };
         let fg_hovered_off = deviate(fg_base, 0.1);
         let fg_disabled = mix(fg_base, background, 0.4);
 
@@ -230,9 +232,9 @@ impl IpgTogglerStyle {
             background: background.into(),
             foreground: foreground.into(),
             foreground_border_width: self.foreground_border_width.unwrap_or(0.0),
-            foreground_border_color: self.foreground_border_color.unwrap_or(Color::TRANSPARENT),
+            foreground_border_color: self.foreground_border_color.unwrap_or(iced::Color::TRANSPARENT),
             background_border_width: self.background_border_width.unwrap_or(0.0),
-            background_border_color: Color::TRANSPARENT,
+            background_border_color: iced::Color::TRANSPARENT,
             text_color: self.text_color,
             border_radius,
             padding_ratio: self.padding_ratio.unwrap_or(0.1),

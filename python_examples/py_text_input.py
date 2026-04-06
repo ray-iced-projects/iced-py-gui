@@ -174,15 +174,15 @@ with Window(title="Text Input Demo", center=True):
 
 # the add style functions can be place anywhere as long as they are before the start_session
 ti_style = add_text_input_style( 
-                    background_color=IpgColor.CADET_BLUE,
-                    border_color_active=IpgColor.YELLOW,
-                    border_color_focused=IpgColor.PALE_GOLDEN_ROD,
-                    border_color_hovered=IpgColor.CHARTREUSE,
+                    background_color=Color.CADET_BLUE,
+                    border_color_active=Color.YELLOW,
+                    border_color_focused=Color.PALE_GOLDEN_ROD,
+                    border_color_hovered=Color.CHARTREUSE,
                     border_width=5.0,
                     border_radius=8.0,
-                    placeholder_color_active=IpgColor.BLACK,
-                    value_color=IpgColor.LIGHT_STEEL_BLUE,
-                    selection_color=IpgColor.DARK_SLATE_GRAY)
+                    placeholder_color_active=Color.BLACK,
+                    value_color=Color.LIGHT_STEEL_BLUE,
+                    selection_color=Color.DARK_SLATE_GRAY)
 
 
 # Required to be the last widget sent to Iced,  If you start the program

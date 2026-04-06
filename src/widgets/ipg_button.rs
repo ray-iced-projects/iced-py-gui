@@ -21,7 +21,7 @@ use crate::widgets::widget_param_update::{
 use iced::{Background, alignment};
 use iced::border;
 use iced::widget::{button, text};
-use iced::{Color, Element, Length, Theme};
+use iced::{Element, Length, Theme};
 use iced::theme::palette;
 
 use pyo3::{Py, PyAny, Python, pyclass};
@@ -84,7 +84,7 @@ impl IpgButton {
             };
 
         // Center is the default but is overridden by any other alignment
-        // so center needs to be the first one tested
+        // so center needs to be set first
         let txt = 
             txt.align_x(alignment::Horizontal::Center)
                 .align_y(alignment::Vertical::Center);
@@ -198,17 +198,17 @@ pub fn button_callback(id: usize, message: BtnMessage) {
 #[derive(Debug, Clone, Default)]
 pub struct ButtonStyle {
     pub id: usize,
-    pub background_color: Option<Color>,
-    pub background_gradient_color_stop: Option<Color>,
+    pub background_color: Option<iced::Color>,
+    pub background_gradient_color_stop: Option<iced::Color>,
     pub background_gradient_degrees: Option<f32>,
     pub background_gradient_radians: Option<f32>,
-    pub border_color: Option<Color>,
+    pub border_color: Option<iced::Color>,
     pub border_radius: Option<Vec<f32>>,
     pub border_width: Option<f32>,
-    pub shadow_color: Option<Color>,
+    pub shadow_color: Option<iced::Color>,
     pub shadow_offset_xy: Option<[f32; 2]>,
     pub shadow_blur_radius: Option<f32>,
-    pub text_color: Option<Color>,
+    pub text_color: Option<iced::Color>,
 }
 
 impl ButtonStyle {

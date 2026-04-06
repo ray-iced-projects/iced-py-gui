@@ -11,7 +11,7 @@ use crate::py_api::helpers::get_padding;
 use super::callbacks::{invoke_callback, invoke_callback_with_args};
 
 use iced::widget::{Button, button, text};
-use iced::{Color, Element, Length, Theme};
+use iced::{Element, Length, Theme};
 use iced_aw::ColorPicker;
 
 use pyo3::{Py, PyAny, pyclass};
@@ -22,7 +22,7 @@ pub struct IpgColorPicker {
     pub id: usize,
     pub parent_id: String,
     pub show: bool,
-    pub color: Color,
+    pub color: iced::Color,
     //button related
     pub label: Option<String>,
     pub width: Length,
@@ -99,7 +99,7 @@ impl IpgColorPicker {
 pub enum ColPikMessage {
     OnPress,
     OnCancel,
-    OnSubmit(Color),
+    OnSubmit(iced::Color),
 }
 
 pub fn color_picker_callback(state: &mut IpgState, id: usize, message: ColPikMessage) {
@@ -171,7 +171,7 @@ pub enum IpgColorPickerStyleParam {
     TextRgbaColor
 }
 
-fn convert_color_to_list(color: Color) -> Vec<f64> {
+fn convert_color_to_list(color: iced::Color) -> Vec<f64> {
 
     vec![
         rnd_2(color.r),
@@ -224,7 +224,7 @@ mod tests {
             id: 0,
             parent_id: String::new(),
             show: false,
-            color: Color::BLACK,
+            color: iced::Color::BLACK,
             label: None,
             width: Length::Shrink,
             height: Length::Shrink,
@@ -259,7 +259,7 @@ mod tests {
     fn test_color() {
         let mut cp = make_color_picker();
         cp.param_update(IpgColorPickerParam::Color, &py_obj(vec![1.0f32, 0.5, 0.25, 1.0]));
-        assert_eq!(cp.color, Color::from_rgba(1.0, 0.5, 0.25, 1.0));
+        assert_eq!(cp.color, iced::Color::from_rgba(1.0, 0.5, 0.25, 1.0));
     }
 
     #[test]

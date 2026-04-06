@@ -193,10 +193,10 @@ add_button(
 # add some styling to a new bar
 border = add_progress_bar_style( 
                 border_radius=[8.0], 
-                border_color=IpgColor.BLUE,
+                border_color=Color.BLUE,
                 border_width=3.0,
-                background_color=IpgColor.LIGHT_BLUE,
-                bar_color=IpgColor.ALICE_BLUE)
+                background_color=Color.LIGHT_BLUE,
+                bar_color=Color.ALICE_BLUE)
 
 
 # Adding another bar and styling with a new background, bar color, and border.

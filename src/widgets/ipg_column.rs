@@ -2,7 +2,8 @@
 use crate::app::Message;
 use crate::py_api::helpers::get_padding;
 use crate::widgets::widget_param_update::{
-    WidgetParamUpdate, set_height, set_height_fill, set_lengths_fill, set_opt_bool, set_opt_f32, set_opt_vec_f32, set_width, set_width_fill
+    WidgetParamUpdate, set_height, set_height_fill, set_lengths_fill, 
+    set_opt_bool, set_opt_f32, set_opt_vec_f32, set_width, set_width_fill
 };
 
 use iced::{Alignment, Element, Length};

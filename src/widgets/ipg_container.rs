@@ -1,4 +1,5 @@
 //! ipg_container
+
 use std::collections::HashMap;
 
 use crate::app::Message;
@@ -8,10 +9,12 @@ use crate::state::IpgWidgets;
 use crate::widgets::styling::{apply_background_overrides, 
     apply_border_overrides, apply_shadow_overrides_xy};
 use crate::widgets::widget_param_update::{
-    WidgetParamUpdate, set_bool, set_height, set_height_fill, set_opt_bool, set_opt_f32, set_opt_f32_array_2, set_opt_iced_color, set_opt_iced_color_from_rgba, set_opt_usize, set_opt_vec_f32, set_width, set_width_fill, set_lengths_fill
+    WidgetParamUpdate, set_bool, set_height, set_height_fill, set_opt_bool, 
+    set_opt_f32, set_opt_f32_array_2, set_opt_iced_color, set_opt_iced_color_from_rgba, 
+    set_opt_usize, set_opt_vec_f32, set_width, set_width_fill, set_lengths_fill
 };
 
-use iced::{Color, Element, Length, Theme, alignment};
+use iced::{Element, Length, Theme, alignment};
 use iced::widget::{container, Space, Container};
 
 use pyo3::{Py, PyAny, Python, pyclass};
@@ -161,17 +164,17 @@ impl IpgContainer {
 #[derive(Debug, Clone, PartialEq)]
 pub struct IpgContainerStyle {
     pub id: usize,
-    pub background_color: Option<Color>,
-    pub background_gradient_color_stop: Option<Color>,
+    pub background_color: Option<iced::Color>,
+    pub background_gradient_color_stop: Option<iced::Color>,
     pub background_gradient_degrees: Option<f32>,
     pub background_gradient_radians: Option<f32>,
-    pub border_color: Option<Color>,
+    pub border_color: Option<iced::Color>,
     pub border_radius: Option<Vec<f32>>,
     pub border_width: Option<f32>,
-    pub shadow_color: Option<Color>,
+    pub shadow_color: Option<iced::Color>,
     pub shadow_offset_xy: Option<[f32; 2]>,
     pub shadow_blur_radius: Option<f32>,
-    pub text_color: Option<Color>,
+    pub text_color: Option<iced::Color>,
     pub snap: Option<bool>,
 }
 

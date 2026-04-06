@@ -22,10 +22,10 @@ add_space(
 
 # Add some styling to the toggler
 tog_style = add_toggler_style(
-                      background_color=IpgColor.GREEN,
-                      background_color_toggled=IpgColor.LIGHT_GREEN,
-                      foreground_color=IpgColor.ANTIQUE_WHITE,
-                      foreground_color_toggled=IpgColor.BLUE,
+                      background_color=Color.GREEN,
+                      background_color_toggled=Color.LIGHT_GREEN,
+                      foreground_color=Color.ANTIQUE_WHITE,
+                      foreground_color_toggled=Color.BLUE,
                       )
 
 # Add the toggler and change size to see styling better

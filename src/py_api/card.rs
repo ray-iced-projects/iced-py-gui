@@ -5,7 +5,7 @@ use pyo3::{Py, PyAny, pyfunction};
 type PyObject = Py<PyAny>;
 
 use crate::add_user_data_to_mutex;
-use crate::graphics::colors::IpgColor;
+use crate::graphics::colors::Color;
 use crate::py_api::helpers::get_length;
 use crate::state::{IpgWidgets, access_state, add_callback_to_mutex, 
     get_id, set_state_of_widget};
@@ -189,62 +189,62 @@ pub fn add_card(
 ///
 /// Parameters
 /// ----------
-/// background_color : IpgColor, Optional
+/// background_color : Color, Optional
 ///     Sets the background color using a predefined color variant.
 /// background_color_alpha : float, Optional
-///     Sets the alpha of the IpgColor.
+///     Sets the alpha of the Color.
 /// background_rgba : list of float, Optional
 ///     Sets the background color in rgba format as [r, g, b, a].
 /// border_radius : float, Optional
 ///     Sets the border radius in logical pixels.
 /// border_width : float, Optional
 ///     Sets the border width in logical pixels.
-/// border_color : IpgColor, Optional
+/// border_color : Color, Optional
 ///     Sets the border color using a predefined color variant.
 /// border_color_alpha : float, Optional
-///     Sets the alpha of the IpgColor.
+///     Sets the alpha of the Color.
 /// border_rgba : list of float, Optional
 ///     Sets the border color in rgba format as [r, g, b, a].
-/// head_background_color : IpgColor, Optional
+/// head_background_color : Color, Optional
 ///     Sets the header background color using a predefined color variant.
 /// head_background_color_alpha : float, Optional
-///     Sets the alpha of the IpgColor.
+///     Sets the alpha of the Color.
 /// head_background_rgba : list of float, Optional
 ///     Sets the header background color in rgba format as [r, g, b, a].
-/// head_text_color : IpgColor, Optional
+/// head_text_color : Color, Optional
 ///     Sets the header text color using a predefined color variant.
 /// head_text_color_alpha : float, Optional
-///     Sets the alpha of the IpgColor.
+///     Sets the alpha of the Color.
 /// head_text_rgba : list of float, Optional
 ///     Sets the header text color in rgba format as [r, g, b, a].
-/// body_background_color : IpgColor, Optional
+/// body_background_color : Color, Optional
 ///     Sets the body background color using a predefined color variant.
 /// body_background_color_alpha : float, Optional
-///     Sets the alpha of the IpgColor.
+///     Sets the alpha of the Color.
 /// body_background_rgba : list of float, Optional
 ///     Sets the body background color in rgba format as [r, g, b, a].
-/// body_text_color : IpgColor, Optional
+/// body_text_color : Color, Optional
 ///     Sets the body text color using a predefined color variant.
 /// body_text_color_alpha : float, Optional
-///     Sets the alpha of the IpgColor.
+///     Sets the alpha of the Color.
 /// body_text_rgba : list of float, Optional
 ///     Sets the body text color in rgba format as [r, g, b, a].
-/// foot_background_color : IpgColor, Optional
+/// foot_background_color : Color, Optional
 ///     Sets the footer background color using a predefined color variant.
 /// foot_background_color_alpha : float, Optional
-///     Sets the alpha of the IpgColor.
+///     Sets the alpha of the Color.
 /// foot_background_rgba : list of float, Optional
 ///     Sets the footer background color in rgba format as [r, g, b, a].
-/// foot_text_color : IpgColor, Optional
+/// foot_text_color : Color, Optional
 ///     Sets the footer text color using a predefined color variant.
 /// foot_text_color_alpha : float, Optional
-///     Sets the alpha of the IpgColor.
+///     Sets the alpha of the Color.
 /// foot_text_rgba : list of float, Optional
 ///     Sets the footer text color in rgba format as [r, g, b, a].
-/// close_color : IpgColor, Optional
+/// close_color : Color, Optional
 ///     Sets the close button color using a predefined color variant.
 /// close_color_alpha : float, Optional
-///     Sets the alpha of the IpgColor.
+///     Sets the alpha of the Color.
 /// close_rgba : list of float, Optional
 ///     Sets the close button color in rgba format as [r, g, b, a].
 /// gen_id : int, Optional
@@ -288,33 +288,33 @@ pub fn add_card(
     gen_id=None
     ))]
 pub fn add_card_style(
-    background_color: Option<IpgColor>,
+    background_color: Option<Color>,
     background_color_alpha: Option<f32>,
     background_rgba: Option<[f32; 4]>,
     border_radius: Option<f32>, 
     border_width: Option<f32>, 
-    border_color: Option<IpgColor>,
+    border_color: Option<Color>,
     border_color_alpha: Option<f32>,
     border_rgba: Option<[f32; 4]>, 
-    head_background_color: Option<IpgColor>,
+    head_background_color: Option<Color>,
     head_background_color_alpha: Option<f32>,
     head_background_rgba: Option<[f32; 4]>, 
-    head_text_color: Option<IpgColor>,
+    head_text_color: Option<Color>,
     head_text_color_alpha: Option<f32>,
     head_text_rgba: Option<[f32; 4]>,
-    body_background_color: Option<IpgColor>,
+    body_background_color: Option<Color>,
     body_background_color_alpha: Option<f32>,
     body_background_rgba: Option<[f32; 4]>, 
-    body_text_color: Option<IpgColor>,
+    body_text_color: Option<Color>,
     body_text_color_alpha: Option<f32>,
     body_text_rgba: Option<[f32; 4]>, 
-    foot_background_color: Option<IpgColor>,
+    foot_background_color: Option<Color>,
     foot_background_color_alpha: Option<f32>,
     foot_background_rgba: Option<[f32; 4]>, 
-    foot_text_color: Option<IpgColor>,
+    foot_text_color: Option<Color>,
     foot_text_color_alpha: Option<f32>,
     foot_text_rgba: Option<[f32; 4]>, 
-    close_color: Option<IpgColor>,
+    close_color: Option<Color>,
     close_color_alpha: Option<f32>,
     close_rgba: Option<[f32; 4]>,
     gen_id: Option<usize>,
@@ -323,23 +323,23 @@ pub fn add_card_style(
     let id = get_id(gen_id);
 
     let background = 
-        IpgColor::rgba_ipg_color_to_iced(background_rgba, background_color, background_color_alpha);
+        Color::rgba_ipg_color_to_iced(background_rgba, background_color, background_color_alpha);
     let border_color = 
-        IpgColor::rgba_ipg_color_to_iced(border_rgba, border_color, border_color_alpha);
+        Color::rgba_ipg_color_to_iced(border_rgba, border_color, border_color_alpha);
     let head_background = 
-        IpgColor::rgba_ipg_color_to_iced(head_background_rgba, head_background_color, head_background_color_alpha);
+        Color::rgba_ipg_color_to_iced(head_background_rgba, head_background_color, head_background_color_alpha);
     let body_background = 
-        IpgColor::rgba_ipg_color_to_iced(body_background_rgba, body_background_color, body_background_color_alpha);
+        Color::rgba_ipg_color_to_iced(body_background_rgba, body_background_color, body_background_color_alpha);
     let foot_background = 
-        IpgColor::rgba_ipg_color_to_iced(foot_background_rgba, foot_background_color, foot_background_color_alpha);
+        Color::rgba_ipg_color_to_iced(foot_background_rgba, foot_background_color, foot_background_color_alpha);
     let head_text_color = 
-        IpgColor::rgba_ipg_color_to_iced(head_text_rgba, head_text_color, head_text_color_alpha);
+        Color::rgba_ipg_color_to_iced(head_text_rgba, head_text_color, head_text_color_alpha);
     let body_text_color = 
-        IpgColor::rgba_ipg_color_to_iced(body_text_rgba, body_text_color, body_text_color_alpha);
+        Color::rgba_ipg_color_to_iced(body_text_rgba, body_text_color, body_text_color_alpha);
     let foot_text_color = 
-        IpgColor::rgba_ipg_color_to_iced(foot_text_rgba, foot_text_color, foot_text_color_alpha);
+        Color::rgba_ipg_color_to_iced(foot_text_rgba, foot_text_color, foot_text_color_alpha);
     let close_color = 
-        IpgColor::rgba_ipg_color_to_iced(close_rgba, close_color, close_color_alpha);
+        Color::rgba_ipg_color_to_iced(close_rgba, close_color, close_color_alpha);
 
     let mut state = access_state();
 

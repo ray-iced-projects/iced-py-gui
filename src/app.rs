@@ -28,7 +28,6 @@ use crate::widgets::ipg_progress_bar::construct_progress_bar;
 use crate::widgets::ipg_radio::{RDMessage, construct_radio, radio_callback};
 use crate::widgets::ipg_rule::construct_rule;
 use crate::widgets::ipg_scrollable::scrollable_callback;
-use crate::widgets::ipg_selectable_text::{SLTXTMessage, construct_selectable_text, selectable_text_callback};
 use crate::widgets::ipg_separator::construct_separator;
 use crate::widgets::ipg_slider::{SLMessage, construct_slider, slider_callback};
 use crate::widgets::ipg_space::construct_space;
@@ -58,7 +57,6 @@ pub enum Message {
     PickList(usize, PLMessage),
     Radio(usize, RDMessage),
     Scrolled(scrollable::Viewport, usize),
-    SelectableText(usize, SLTXTMessage),
     Slider(usize, SLMessage),
 
     TableScrolled(scrollable::Viewport, usize),
@@ -274,12 +272,6 @@ impl App {
             Message::Scrolled(vp, id) => {
                 scrollable_callback(&mut self.state, id, vp);
                 process_widget_updates(&mut self.state); //, &mut self.canvas_state);
-                Task::none()
-            },
-            Message::SelectableText(id, message) => {
-                selectable_text_callback(id, message);
-                // process_updates(&mut self.state, &mut self.canvas_state);
-                process_widget_updates(&mut self.state);
                 Task::none()
             },
             Message::Slider(id, message) => {
@@ -816,13 +808,6 @@ fn get_widget<'a>(state: &'a IpgState, id: &usize) -> Option<Element<'a, Message
                         } else { None };
                     construct_rule(rule, style_opt)
                 },
-                IpgWidgets::IpgSelectableText(sltxt) => {
-                    let font_opt = 
-                        if let Some(id) = sltxt.font_id {
-                            state.widgets.get(&id)
-                        } else { None };
-                    construct_selectable_text(sltxt, font_opt)
-                },
                 IpgWidgets::IpgSeparator(sep) => {
                     let style_opt = 
                         if let Some(id) = sep.style_id {
@@ -1116,7 +1101,6 @@ fn process_shows(
             IpgWidgets::IpgProgressBar(pb) => pb.show= *val,
             IpgWidgets::IpgRadio(rd) => rd.show= *val,
             IpgWidgets::IpgRule(ru) => ru.show  = *val,
-            IpgWidgets::IpgSelectableText(st) => st.show= *val,
             IpgWidgets::IpgSeparator(sp) => sp.show= *val,
             IpgWidgets::IpgSlider(sl) => sl.show= *val,
             IpgWidgets::IpgSpace(sp) => sp.show= *val,

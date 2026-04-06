@@ -4,7 +4,7 @@ use pyo3::{Python, pyclass, Py, PyAny};
 type PyObject = Py<PyAny>;
 
 use iced::{self, Alignment, Radians, Rotation, 
-    alignment, widget::{image::FilterMethod}};
+    widget::{image::FilterMethod}};
 
 
 #[derive(Debug, Clone, PartialEq)]
@@ -35,65 +35,6 @@ impl Align {
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
-#[pyclass(eq, eq_int)]
-pub enum AlignX {
-    Left,
-    Center,
-    Right,
-}
-
-impl AlignX {
-    pub fn to_iced(&self) -> alignment::Horizontal {
-        match self {
-            AlignX::Left => alignment::Horizontal::Left,
-            AlignX::Center => alignment::Horizontal::Center,
-            AlignX::Right => alignment::Horizontal::Right,
-        }
-    }
-
-    pub fn extract(value: &PyObject) -> Option<AlignX> {
-        Python::attach(|py| {
-            let res = value.extract::<AlignX>(py);
-            match res {
-                Ok(val) => Some(val),
-                Err(_) => panic!("Unable to extract python IpgAlignmentX"),
-            }
-        })  
-    }
-}
-
-#[derive(Debug, Clone, PartialEq)]
-#[pyclass(eq, eq_int)]
-pub enum AlignY {
-    Top,
-    Center,
-    Bottom,
-}
-
-impl AlignY {
-    pub fn to_iced(&self) -> iced::alignment::Vertical {
-        match self {
-            AlignY::Top => alignment::Vertical::Top,
-            AlignY::Center => alignment::Vertical::Center,
-            AlignY::Bottom => alignment::Vertical::Bottom,
-        }
-    }
-
-    pub fn extract(value: &PyObject) -> Option<AlignY> {
-        Python::attach(|py| {
-            let res = value.extract::<AlignY>(py);
-            match res {
-                Ok(val) => Some(val),
-                Err(_) => panic!("Unable to extract python IpgVerticalAlignment"),
-            }
-        })  
-    }
-}
-
-pub fn h_v_centered() -> (alignment::Horizontal, alignment::Vertical) {
-    (alignment::Horizontal::Center, alignment::Vertical::Center)
-}
 
 #[derive(Debug, Clone, PartialEq)]
 #[pyclass(eq, eq_int)]

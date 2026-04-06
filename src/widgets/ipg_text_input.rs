@@ -5,7 +5,7 @@ use std::collections::HashMap;
 
 use iced::widget::text_input;
 use iced::widget::text_input::{Style, Status};
-use iced::{Color, Element, Length, Theme};
+use iced::{Color, Element, Length, Theme, alignment};
 use iced::widget::TextInput;
 use iced::theme::palette;
 
@@ -14,7 +14,6 @@ use pyo3::{Py, PyAny};
 
 use crate::app::Message;
 use crate::py_api::helpers::get_padding;
-use crate::widgets::enums::AlignX;
 use crate::widgets::styling::create_custom_theme;
 use crate::{IpgState};
 use crate::state::IpgWidgets;
@@ -39,7 +38,9 @@ pub struct IpgTextInput {
     pub padding: Option<Vec<f32>>,
     pub size: Option<f32>,
     pub line_height: Option<f32>,
-    pub align_x: Option<AlignX>,
+    pub align_left: Option<bool>,
+    pub align_center: Option<bool>,
+    pub align_right: Option<bool>,
     // icon: Option<Message>,
     pub font_id: Option<usize>,
     pub style_id: Option<usize>,
@@ -93,8 +94,15 @@ impl IpgTextInput {
             txt.line_height(lh)
         } else { txt };
 
-        let txt = if let Some(align) = &self.align_x {
-            txt.align_x(align.to_iced())
+        // default
+        let txt = txt.align_x(alignment::Horizontal::Center);
+
+        let txt = if self.align_center == Some(true) {
+            txt.align_x(alignment::Horizontal::Center)
+        } else { txt };
+
+        let txt = if self.align_right == Some(true) {
+            txt.align_x(alignment::Horizontal::Right)
         } else { txt };
 
         let txt: Element<'_, TIMessage> = txt.into();
@@ -339,7 +347,9 @@ mod tests {
             padding: None,
             size: None,
             line_height: None,
-            align_x: None,
+            align_left: None,
+            align_center: None,
+            align_right: None,
             font_id: None,
             style_id: None,
             show: true,

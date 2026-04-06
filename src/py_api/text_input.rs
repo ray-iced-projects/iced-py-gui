@@ -3,7 +3,7 @@
 use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex, 
     graphics::colors::IpgColor, py_api::helpers::get_length, 
     state::{IpgWidgets, get_id, set_state_of_widget}, 
-    widgets::{enums::AlignX, ipg_text_input::{IpgTextInput, IpgTextInputStyle}}};
+    widgets::ipg_text_input::{IpgTextInput, IpgTextInputStyle}};
 
 use pyo3::{Py, PyAny, pyfunction, PyResult};
 type PyObject = Py<PyAny>;
@@ -38,8 +38,12 @@ type PyObject = Py<PyAny>;
 ///     Sets the font size for the input text.
 /// line_height : float, Optional
 ///     Sets the line height for the input text.
-/// align_x : AlignX, Optional
-///     Sets the horizontal alignment of the input text.
+/// align_left : bool, Optional
+///     Whether to set the horizontal alignment left (default).
+/// align_center : bool, Optional
+///     Whether to set the horizontal alignment center.
+/// align_right : bool, Optional
+///     Whether to set the horizontal alignment right.
 /// user_data : Any, Optional
 ///     Sets the Arbitrary data forwarded to callbacks.
 /// is_secure : bool, Optional
@@ -68,7 +72,9 @@ type PyObject = Py<PyAny>;
     padding=None, 
     size=None, 
     line_height=None,
-    align_x=None, 
+    align_left=None, 
+    align_center=None,
+    align_right=None,
     user_data=None,
     is_secure=None,
     font_id=None, 
@@ -78,7 +84,6 @@ type PyObject = Py<PyAny>;
 pub fn add_text_input(
         parent_id: String,
         placeholder: String,
-        // **above required
         gen_id: Option<usize>,
         on_input: Option<PyObject>,
         on_submit: Option<PyObject>,
@@ -88,7 +93,9 @@ pub fn add_text_input(
         padding: Option<Vec<f32>>,
         size: Option<f32>,
         line_height: Option<f32>,
-        align_x: Option<AlignX>,
+        align_left: Option<bool>,
+        align_center: Option<bool>,
+        align_right: Option<bool>,
         user_data: Option<PyObject>,
         is_secure: Option<bool>,
         font_id: Option<usize>,
@@ -131,7 +138,9 @@ pub fn add_text_input(
             padding,
             size,
             line_height,
-            align_x,
+            align_left,
+            align_center,
+            align_right,
             font_id,
             style_id,
             show,

@@ -6,7 +6,7 @@ use pyo3::{Py, PyAny, pyfunction, PyResult};
 use crate::{access_state, add_callback_to_mutex, 
     add_user_data_to_mutex, state::{IpgWidgets, 
         get_id, set_state_of_widget}, 
-        widgets::{ipg_button::IpgButtonStyleStd, 
+        widgets::{ipg_button::ButtonStyleStd, 
             ipg_date_picker::IpgDatePicker, 
             styling::IpgStyleStandard}};
 type PyObject = Py<PyAny>;
@@ -73,7 +73,7 @@ pub fn add_date_picker(
     user_data: Option<PyObject>,
     show: bool,
     show_calendar: Option<bool>,
-    button_style_standard: Option<IpgButtonStyleStd>,
+    button_style_standard: Option<ButtonStyleStd>,
     button_style_id: Option<usize>,
     ) -> PyResult<usize> 
 {

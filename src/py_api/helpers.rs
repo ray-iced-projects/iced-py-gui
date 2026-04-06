@@ -3,7 +3,7 @@
 use std::collections::HashMap;
 
 use crate::graphics::colors::IpgColor;
-use crate::widgets::ipg_button::IpgButtonStyleStd;
+use crate::widgets::ipg_button::ButtonStyleStd;
 use crate::widgets::styling::IpgStyleStandard;
 use crate::access_state;
 
@@ -15,7 +15,7 @@ use iced::widget::text::{Shaping, LineHeight};
 use pyo3::{Py, PyAny, Python};
 type PyObject = Py<PyAny>;
 
-use crate::widgets::enums::{Align, AlignX, AlignY};
+use crate::widgets::enums::Align;
 
 
 pub fn find_key_for_value(ids: HashMap<window::Id, usize>, value: usize) -> window::Id {

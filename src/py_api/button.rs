@@ -11,7 +11,7 @@ use crate::py_api::helpers::get_length;
 use crate::state::{IpgWidgets, access_state, add_callback_to_mutex, 
     get_id, set_state_of_widget};
 use crate::widgets::ipg_button::{IpgButton,  
-    IpgButtonStyle, IpgButtonStyleStd};
+    ButtonStyle, ButtonStyleStd};
 
 
 ///"""
@@ -131,7 +131,7 @@ pub fn add_button(
     menu: Option<bool>,
     clip: Option<bool>,
     style_id: Option<usize>,
-    style_std: Option<IpgButtonStyleStd>,
+    style_std: Option<ButtonStyleStd>,
     style_arrow: Option<IpgArrow>,
     user_data: Option<PyObject>,
     show: bool,
@@ -315,7 +315,7 @@ pub fn add_button_style(
     let mut state = access_state();
 
     state.widgets.insert(id, IpgWidgets::IpgButtonStyle(
-        IpgButtonStyle {
+        ButtonStyle {
             id,
             background_color,
             background_gradient_color_stop,

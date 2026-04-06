@@ -47,7 +47,6 @@ use crate::py_api::rule::{add_rule, add_rule_style};
 use crate::py_api::picklist::{add_pick_list, add_pick_list_style};
 use crate::py_api::scrollable::{add_scrollable, add_scrollable_style, 
     add_scroller_param, add_autoscroll_style, add_rail_style};
-use crate::py_api::selectable_text::add_selectable_text;
 use crate::py_api::separator::{add_separator, add_separator_style};
 use crate::py_api::session::{start_session, generate_id};
 use crate::py_api::slider::{add_slider, add_slider_style};
@@ -64,14 +63,14 @@ use crate::py_api::tool_tip::add_tool_tip;
 use crate::py_api::update::{update_widget, delete_widget, hide_widget, move_widget, show_widget};
 
 // Import enums from widgets module
-use crate::widgets::enums::{Align, AlignX, AlignY, IpgContentFit};
+use crate::widgets::enums::{Align, IpgContentFit};
 use crate::widgets::ipg_image::IpgImageParam;
 use crate::widgets::ipg_mouse_area::IpgMousePointer;
 use crate::widgets::styling::IpgStyleStandard;
 use crate::graphics::{bootstrap_icon::IpgIcon, bootstrap_arrow::IpgArrow};
 use crate::graphics::colors::IpgColor;
 
-use crate::widgets::ipg_button::{IpgButtonParam, IpgButtonStyleParam, IpgButtonStyleStd};
+use crate::widgets::ipg_button::{ButtonParam, ButtonStyleParam, ButtonStyleStd};
 use crate::widgets::ipg_card::{IpgCardParam, IpgCardStyleParam, IpgCardStyleStd};
 use crate::widgets::ipg_checkbox::{IpgCheckboxParam, IpgCheckboxStyleParam, IpgCheckboxStyleStd};
 use crate::widgets::ipg_column::IpgColumnParam;
@@ -86,7 +85,6 @@ use crate::widgets::ipg_radio::{IpgRadioDirection, IpgRadioParam, IpgRadioStyleP
 use crate::widgets::ipg_row::IpgRowParam;
 use crate::widgets::ipg_rule::{IpgRuleParam, IpgRuleStyleParam};
 use crate::widgets::ipg_scrollable::{IpgAutoScrollStyleParam, IpgRailStyleParam, IpgScrollableParam, IpgScrollableStyleParam, IpgScrollerParam};
-use crate::widgets::ipg_selectable_text::IpgSelectableTextParam;
 use crate::widgets::ipg_separator::{IpgSeparatorParam, IpgSeparatorStyleParam, IpgSeparatorType};
 use crate::widgets::ipg_slider::{IpgSliderParam, IpgSliderStyleParam};
 use crate::widgets::ipg_stack::IpgStackParam;
@@ -144,7 +142,6 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(add_scrollable, m)?)?;
     m.add_function(wrap_pyfunction!(add_scroller_param, m)?)?;
     m.add_function(wrap_pyfunction!(add_slider, m)?)?;
-    m.add_function(wrap_pyfunction!(add_selectable_text, m)?)?;
     m.add_function(wrap_pyfunction!(add_separator, m)?)?;
     m.add_function(wrap_pyfunction!(add_space, m)?)?;
     m.add_function(wrap_pyfunction!(add_stack, m)?)?;
@@ -190,8 +187,8 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(add_toggler_style, m)?)?;
 
     // style parameters
-    m.add_class::<IpgButtonStyleParam>()?;
-    m.add_class::<IpgButtonStyleStd>()?;
+    m.add_class::<ButtonStyleParam>()?;
+    m.add_class::<ButtonStyleStd>()?;
     m.add_class::<IpgCardStyleParam>()?;
     m.add_class::<IpgCardStyleStd>()?;
     m.add_class::<IpgCheckboxStyleParam>()?;
@@ -219,7 +216,7 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
 
     // widget params
     m.add_class::<IpgArrow>()?;
-    m.add_class::<IpgButtonParam>()?;
+    m.add_class::<ButtonParam>()?;
     m.add_class::<IpgCardParam>()?;
     m.add_class::<IpgCheckboxParam>()?;
     m.add_class::<IpgCheckboxStyleParam>()?;
@@ -234,7 +231,6 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<IpgRuleParam>()?;
     m.add_class::<IpgScrollableParam>()?;
     m.add_class::<IpgScrollerParam>()?;
-    m.add_class::<IpgSelectableTextParam>()?;
     m.add_class::<IpgSeparatorParam>()?;
     m.add_class::<IpgSliderParam>()?;
     m.add_class::<IpgSvgParam>()?;
@@ -253,8 +249,6 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
 
     // Enums
     m.add_class::<Align>()?;
-    m.add_class::<AlignX>()?;
-    m.add_class::<AlignY>()?;
     m.add_class::<IpgArrow>()?;
     m.add_class::<IpgColor>()?;
     m.add_class::<IpgIcon>()?;

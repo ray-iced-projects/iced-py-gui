@@ -26,7 +26,6 @@ pub mod radio;
 pub mod row;
 pub mod rule;
 pub mod scrollable;
-pub mod selectable_text;
 pub mod separator;
 pub mod session;
 pub mod slider;

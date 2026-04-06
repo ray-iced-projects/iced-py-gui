@@ -35,7 +35,6 @@ use crate::widgets::ipg_row::IpgRow;
 use crate::widgets::ipg_rule::{IpgRule, IpgRuleStyle};
 use crate::widgets::ipg_scrollable::{IpgAutoScrollStyle, IpgRailStyle, 
     IpgScrollable, IpgScrollableStyle, IpgScroller};
-use crate::widgets::ipg_selectable_text::IpgSelectableText;
 use crate::widgets::ipg_separator::{IpgSeparator, IpgSeparatorStyle};
 use crate::widgets::ipg_slider::{IpgSlider, IpgSliderStyle};
 use crate::widgets::ipg_space::IpgSpace;
@@ -50,7 +49,7 @@ use crate::widgets::ipg_timer::TimerState;
 use crate::widgets::ipg_toggle::{IpgToggler, IpgTogglerStyle};
 use crate::widgets::ipg_tool_tip::IpgToolTip;
 use crate::widgets::ipg_window::IpgWindow;
-use crate::widgets::ipg_button::{IpgButton, IpgButtonStyle};
+use crate::widgets::ipg_button::{IpgButton, ButtonStyle};
 
 // Type alias to replace deprecated PyObject
 type PyObject = Py<PyAny>;
@@ -84,7 +83,7 @@ pub enum IpgContainers {
 #[derive(Debug, Clone)]
 pub enum IpgWidgets {
     IpgButton(IpgButton),
-    IpgButtonStyle(IpgButtonStyle),
+    IpgButtonStyle(ButtonStyle),
     IpgCard(IpgCard),
     IpgCardStyle(IpgCardStyle),
     IpgCheckBox(IpgCheckBox),
@@ -109,7 +108,6 @@ pub enum IpgWidgets {
     IpgScroller(IpgScroller),
     IpgRailStyle(IpgRailStyle),
     IpgAutoScrollStyle(IpgAutoScrollStyle),
-    IpgSelectableText(IpgSelectableText),
     IpgSeparator(IpgSeparator),
     IpgSeparatorStyle(IpgSeparatorStyle),
     IpgSlider(IpgSlider),
@@ -158,7 +156,7 @@ macro_rules! ipg_widget_accessors {
 
 ipg_widget_accessors! {
     IpgButton           => IpgButton,            as_button,              as_button_mut;
-    IpgButtonStyle      => IpgButtonStyle,       as_button_style,        as_button_style_mut;
+    IpgButtonStyle      => ButtonStyle,       as_button_style,        as_button_style_mut;
     IpgCard             => IpgCard,              as_card,                as_card_mut;
     IpgCardStyle        => IpgCardStyle,         as_card_style,          as_card_style_mut;
     IpgCheckBox         => IpgCheckBox,          as_checkbox,            as_checkbox_mut;
@@ -183,7 +181,6 @@ ipg_widget_accessors! {
     IpgScrollableStyle  => IpgScrollableStyle,   as_scrollable_style,    as_scrollable_style_mut;
     IpgRailStyle        => IpgRailStyle,         as_rail_style,          as_rail_style_mut;
     IpgAutoScrollStyle  => IpgAutoScrollStyle,   as_auto_scroll_style,   as_auto_scroll_style_mut;
-    IpgSelectableText   => IpgSelectableText,    as_selectable_text,     as_selectable_text_mut;
     IpgSeparator        => IpgSeparator,         as_separator,           as_separator_mut;
     IpgSeparatorStyle   => IpgSeparatorStyle,    as_separator_style,     as_separator_style_mut;
     IpgSlider           => IpgSlider,            as_slider,              as_slider_mut;

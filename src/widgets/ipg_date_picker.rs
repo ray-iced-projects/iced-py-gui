@@ -4,10 +4,10 @@ use std::collections::HashMap;
 use crate::app::{Message, self};
 use crate::graphics::BOOTSTRAP_FONT;
 use crate::state::IpgWidgets;
-use crate::widgets::ipg_button::IpgButtonStyleStd;
+use crate::widgets::ipg_button::ButtonStyleStd;
 use crate::IpgState;
 use super::callbacks::invoke_callback_with_args;
-use crate::widgets::ipg_button::IpgButtonStyle;
+use crate::widgets::ipg_button::ButtonStyle;
 use crate::py_api::helpers::{DATE_FORMATS, DAYS, 
     MONTH_NAMES, WEEKDAYS, get_padding, format_date};
 use crate::widgets::widget_param_update::{
@@ -49,7 +49,7 @@ pub struct IpgDatePicker {
     pub show: bool,
     pub show_calendar: Option<bool>,
     pub is_submitted: bool,
-    pub button_style_standard: Option<IpgButtonStyleStd>,
+    pub button_style_standard: Option<ButtonStyleStd>,
     pub button_style_id: Option<usize>,
 
     // internal to the app
@@ -74,7 +74,7 @@ impl IpgDatePicker {
         padding: Option<Vec<f32>>,
         show: bool,
         show_calendar: Option<bool>,
-        button_style_standard: Option<IpgButtonStyleStd>,
+        button_style_standard: Option<ButtonStyleStd>,
         button_style_id: Option<usize>,
         ) -> Self {
         Self {
@@ -254,7 +254,7 @@ fn get_days_of_month(year: i32, month: u32) -> i64 {
 
 fn calendar_show_button<'a>(
         dp: &'a IpgDatePicker, 
-        btn_style: Option<IpgButtonStyle>,
+        btn_style: Option<ButtonStyle>,
     ) -> Element<'a, Message, Theme, Renderer> {
     
     let label = if let Some(lb) = dp.label.clone() {

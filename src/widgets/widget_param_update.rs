@@ -10,7 +10,6 @@ use crate::py_api::helpers::{
     get_length, get_length_fill, try_extract_boolean, try_extract_f32, try_extract_f32_array_2, try_extract_f32_opt, try_extract_f32_opt_array_1_or_upto_4, try_extract_opt_boolean, try_extract_opt_string, try_extract_opt_u32_array_2, try_extract_opt_usize, try_extract_opt_vec_f32, try_extract_string, try_extract_style_standard, try_extract_u16, try_extract_u16_array_2, try_extract_u32, try_extract_u64, try_extract_usize, try_extract_vec_f32, try_extract_vec_str, try_extract_vec_u8_opt, try_extract_vec_vec_f32
 };
 use crate::state::{IpgContainers, IpgWidgets};
-use crate::widgets::enums::{Align, AlignX, AlignY};
 use crate::widgets::ipg_text::{TextShaping, TextWrapping};
 
 type PyObject = Py<PyAny>;
@@ -83,7 +82,6 @@ pub fn param_update(
         IpgWidgets::IpgRadioStyle(w) => apply_update(w, item, value),
         IpgWidgets::IpgRule(w) => apply_update(w, item, value),
         IpgWidgets::IpgRuleStyle(w) => apply_update(w, item, value),
-        IpgWidgets::IpgSelectableText(w) => apply_update(w, item, value),
         IpgWidgets::IpgSeparator(w) => apply_update(w, item, value),
         IpgWidgets::IpgSeparatorStyle(w) => apply_update(w, item, value),
         IpgWidgets::IpgSpace(w) => apply_update(w, item, value),
@@ -307,18 +305,6 @@ pub fn set_vec_string(field: &mut Vec<String>, value: &PyObject, name: &str) {
 pub fn set_rgba_color_via_ipg(field: &mut Option<Color>, value: &PyObject, name: &str) {
     let rgba = IpgColor::extract_rgba(value, name);
     *field = IpgColor::rgba_ipg_color_to_iced(Some(rgba), None, None);
-}
-
-pub fn set_halign(field: &mut Option<AlignX>, value: &PyObject, name: &str) {
-    *field = AlignX::extract(value);
-}
-
-pub fn set_valign(field: &mut Option<AlignY>, value: &PyObject, name: &str) {
-    *field = AlignY::extract(value);
-}
-
-pub fn set_align(field: &mut Option<Align>, value: &PyObject, name: &str) {
-    *field = Align::extract(value);
 }
 
 pub fn set_opt_text_shaping(field: &mut Option<TextShaping>, value: &PyObject, name: &str) {

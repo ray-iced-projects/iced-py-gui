@@ -90,11 +90,11 @@ use crate::graphics::colors::IpgColor;
     line_height=None, 
     size=None,
     font_id=None, 
-    text_shaping=None, 
-    text_color=None,
-    text_color_alpha=None,
-    text_rgba=None,
-    text_wrapping=None,
+    shaping=None, 
+    color=None,
+    color_alpha=None,
+    color_rgba=None,
+    wrapping=None,
     show=true,
     ))]
 pub fn add_text(
@@ -118,11 +118,11 @@ pub fn add_text(
     line_height: Option<f32>,
     size: Option<f32>,
     font_id: Option<usize>,
-    text_shaping: Option<TextShaping>,
-    text_color: Option<IpgColor>,
-    text_color_alpha: Option<f32>,
-    text_rgba: Option<[f32; 4]>,
-    text_wrapping: Option<TextWrapping>,
+    shaping: Option<TextShaping>,
+    color: Option<IpgColor>,
+    color_alpha: Option<f32>,
+    color_rgba: Option<[f32; 4]>,
+    wrapping: Option<TextWrapping>,
     show: bool,
     ) -> PyResult<usize> 
 {
@@ -130,14 +130,14 @@ pub fn add_text(
     let id = get_id(gen_id);
 
     let color= 
-        IpgColor::rgba_ipg_color_to_iced(text_rgba, text_color, text_color_alpha);
+        IpgColor::rgba_ipg_color_to_iced(color_rgba, color, color_alpha);
 
     let (width, height) = if fill == Some(true) {
         (get_length(None, true), get_length(None, true))
     } else {
         (get_length(width, width_fill), get_length(height, height_fill))
     };
-
+    
     set_state_of_widget(id, parent_id.clone());
 
     let mut state = access_state();
@@ -161,9 +161,9 @@ pub fn add_text(
             align_top_left,
             align_top_right,
             font_id,
-            shaping: text_shaping,
+            shaping,
             show,
-            wrapping: text_wrapping,
+            wrapping,
             color,
         }));
 

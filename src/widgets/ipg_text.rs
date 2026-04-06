@@ -63,8 +63,9 @@ impl IpgText {
                 .and_then(IpgWidgets::as_font).cloned();
 
         let txt = 
-            Text::new(self.content.clone()
-                )
+            Text::new(self.content.clone())
+                .width(self.width)
+                .height(self.height)
                 .style(move|_|{
                     let mut style = Style::default();
                     style.color = self.color;

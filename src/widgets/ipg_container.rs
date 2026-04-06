@@ -14,7 +14,7 @@ use crate::widgets::widget_param_update::{
 use iced::{Color, Element, Length, Theme, alignment};
 use iced::widget::{container, Space, Container};
 
-use pyo3::{pyclass, Py, PyAny};
+use pyo3::{Py, PyAny, Python, pyclass};
 type PyObject = Py<PyAny>;
 
 #[derive(Debug, Clone)]
@@ -292,6 +292,7 @@ pub enum IpgContainerParam {
     WidthFill,
     Show,
     StyleId,
+    StyleStd,
 }
 
 
@@ -310,6 +311,17 @@ pub enum IpgContainerStyleParam {
     ShadowBlurRadius,
     TextIpgColor,
     TextRgbaColor,
+}
+
+pub fn try_extract_container_style_param(update_obj: &PyObject) -> IpgContainerStyleStd{
+
+    Python::attach(|py| {
+        let res = update_obj.extract::<IpgContainerStyleStd>(py);
+        match res {
+            Ok(update) => update,
+            Err(_) => panic!("IpgContainerStyleStd update extraction failed"),
+        }
+    })
 }
 
 // ---------------------------------------------------------------------------
@@ -341,6 +353,7 @@ impl WidgetParamUpdate for IpgContainer {
             IpgContainerParam::WidthFill => set_width_fill(&mut self.width, value, "WidthFill"),
             IpgContainerParam::Show => set_bool(&mut self.show, value, "Show"),
             IpgContainerParam::StyleId => set_opt_usize(&mut self.style_id, value, "StyleId"),
+            IpgContainerParam::StyleStd => self.style_std = Some(try_extract_container_style_param(value)),
         }
     }
 }

@@ -2079,16 +2079,27 @@ class IpgColumnParam:
     
 
 class IpgContainerParam:
-    AlignX:AlignX
-    AlignY:AlignY
-    Centered:bool
-    Clip:bool
-    Padding:list[float]
-    Width:float
-    WidthFill:bool
-    Height:float
-    HeightFill:bool
-    Show:bool
+    AlignBottomCenter: bool
+    AlignBottomLeft: bool
+    AlignBottomRight: bool
+    AlignCenter: bool
+    AlignCenterLeft: bool
+    AlignCenterRight: bool
+    AlignTopCenter: bool
+    AlignTopLeft: bool
+    AlignTopRight: bool
+    Clip: bool
+    Fill: bool
+    Height: float
+    HeightFill: bool
+    MaxHeight: float
+    MaxWidth: float
+    Padding: list[float]
+    Width: float
+    WidthFill: bool
+    Show: bool
+    StyleId: int
+    StyleStd: IpgContainerStyleStd
 
 
 class IpgContainerStyleParam:

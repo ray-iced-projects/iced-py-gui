@@ -4,12 +4,12 @@
         "Variables": [
             {
                 "answer": "Are you going to tell me the truth or not!",
-                "question": "What is a boolean?",
+                "question": "What is a boolean or bool?",
                 "status": "value"
             },
             {
                 "answer": "I want to string along with you but I am the short type",
-                "question": "What is a \"s t r\"?",
+                "question": "What is a str?",
                 "status": "value"
             },
             {
@@ -24,19 +24,19 @@
             },
             {
                 "answer": "I have all the keys but I can't open a single door.",
-                "question": "What's a dictionary?",
+                "question": "What's a dictionary or dict?",
                 "status": "value"
             }
         ],
         "Loop de Loop": [
             {
                 "answer": "I'm staying here until I find the truth",
-                "question": "What is While (False)?",
+                "question": "What is While False?",
                 "status": "value"
             },
             {
                 "answer": "Oh, I bet you want to do this 100 times.",
-                "question": "What is For _ in Range(100)?",
+                "question": "What is Range?",
                 "status": "value"
             },
             {
@@ -58,7 +58,7 @@
         "You are exceptional": [
             {
                 "answer": "I tried my best but you just wouldn't accept me.",
-                "question": "What is try/except?",
+                "question": "What is try except?",
                 "status": "value"
             },
             {
@@ -82,10 +82,10 @@
                 "status": "value"
             }
         ],
-        "Some say I'm a Anaconda": [
+        "Slithering Through Time": [
             {
                 "answer": "I was born in the late 80s and named after a British comedy show, not a reptile.",
-                "question": "What is Monty Python?",
+                "question": "Who is Monty Python?",
                 "status": "value"
             },
             {
@@ -94,8 +94,8 @@
                 "status": "value"
             },
             {
-                "answer": "I'm version 2 and my younger sibling refuses to talk to me.",
-                "question": "What is Python 2 vs Python 3?",
+                "answer": "I'm version 3 and my younger sibling refuses to talk to me.",
+                "question": "What is Python 2?",
                 "status": "value"
             },
             {

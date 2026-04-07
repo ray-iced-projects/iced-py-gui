@@ -3,8 +3,8 @@
 use pyo3::{pyfunction, PyResult};
 
 use crate::{access_state, 
-    state::{IpgWidgets, get_id, set_state_of_widget}, 
-    widgets::{enums::{IpgContentFit, IpgColorFilter, IpgRotation}, ipg_image::IpgImage}};
+    state::{Widgets, get_id, set_state_of_widget}, 
+    widgets::{enums::{ContentFit, ColorFilter, Rotation}, ipg_image::Image}};
 
 
 /// Add an image widget.
@@ -17,11 +17,11 @@ use crate::{access_state,
 ///     Sets the parent container ID that this image belongs to.
 /// image_path : str
 ///     Sets the file path to the image.
-/// content_fit : IpgContentFit, Optional
+/// content_fit : ContentFit, Optional
 ///     Sets the content fit strategy for the image.
-/// filter_method : IpgColorFilter, Optional
+/// filter_method : ColorFilter, Optional
 ///     Sets the color filter method applied to the image.
-/// rotation_method : IpgRotation, Optional
+/// rotation_method : Rotation, Optional
 ///     Sets the rotation method for the image.
 /// rotation_radians : float, Optional
 ///     Sets the rotation angle in radians.
@@ -51,9 +51,9 @@ use crate::{access_state,
 pub fn add_image(
     parent_id: String,
     image_path: String,
-    content_fit: Option<IpgContentFit>,
-    filter_method: Option<IpgColorFilter>,
-    rotation_method: Option<IpgRotation>,
+    content_fit: Option<ContentFit>,
+    filter_method: Option<ColorFilter>,
+    rotation_method: Option<Rotation>,
     rotation_radians: Option<f32>,
     opacity: Option<f32>,
     show: bool,
@@ -66,8 +66,8 @@ pub fn add_image(
 
     let mut state = access_state();
 
-    state.widgets.insert(id, IpgWidgets::IpgImage(
-        IpgImage {
+    state.widgets.insert(id, Widgets::Image(
+        Image {
             id,
             parent_id,
             image_path,

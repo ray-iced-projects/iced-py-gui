@@ -4,7 +4,7 @@
 #![allow(clippy::enum_variant_names)]
 use std::collections::HashMap;
 
-use iced::event::Event;
+use iced::event;
 use iced::keyboard::Event::{KeyPressed, KeyReleased, ModifiersChanged};
 use iced::keyboard::{Key, Location, Modifiers};
 use iced::mouse::Event::{ButtonPressed, ButtonReleased, CursorEntered, 
@@ -20,12 +20,12 @@ use crate::{IpgState, access_user_data1};
 
 
 #[derive(Debug, Clone, Eq, PartialEq, Default)]
-pub struct IpgKeyBoardEvent {
+pub struct KeyBoardEvent {
     pub id: usize,
     pub enabled: bool,
 }
 
-impl IpgKeyBoardEvent {
+impl KeyBoardEvent {
     pub fn new(
         id: usize,
         enabled: bool,
@@ -38,12 +38,12 @@ impl IpgKeyBoardEvent {
 }
 
 #[derive(Debug, Clone, Eq, PartialEq)]
-pub struct IpgMouseEvent {
+pub struct MouseEvent {
     pub id: usize,
     pub enabled: bool,
 }
 
-impl IpgMouseEvent {
+impl MouseEvent {
     pub fn new( 
         id: usize,
         enabled: bool,
@@ -56,12 +56,12 @@ impl IpgMouseEvent {
 }
 
 #[derive(Debug, Clone, Eq, PartialEq)]
-pub struct IpgWindowEvent {
+pub struct WindowEvent {
     pub id: usize,
     pub enabled: bool,
 }
 
-impl IpgWindowEvent {
+impl WindowEvent {
     pub fn new(
         id: usize,
         enabled: bool,
@@ -74,16 +74,16 @@ impl IpgWindowEvent {
 }
 
 #[derive(Debug, Clone, Eq, PartialEq)]
-pub enum IpgEvents {
-    Keyboard(IpgKeyBoardEvent),
-    Mouse(IpgMouseEvent),
-    Window(IpgWindowEvent),
+pub enum Events {
+    Keyboard(KeyBoardEvent),
+    Mouse(MouseEvent),
+    Window(WindowEvent),
 }
 
-pub fn process_keyboard_events(event: Event, event_id: usize) 
+pub fn process_keyboard_events(event: event::Event, event_id: usize) 
 {   
     match event {
-        Event::Keyboard(KeyPressed { key, 
+        event::Event::Keyboard(KeyPressed { key, 
                                     location, 
                                     modifiers, 
                                     text: _ ,
@@ -113,7 +113,7 @@ pub fn process_keyboard_events(event: Event, event_id: usize)
                                         );
     
         },
-        Event::Keyboard(KeyReleased { 
+        event::Event::Keyboard(KeyReleased { 
             key, 
             location, 
             modifiers,
@@ -141,21 +141,21 @@ pub fn process_keyboard_events(event: Event, event_id: usize)
                                         );
     
         },
-        Event::Keyboard(ModifiersChanged(_)) => (),
-        Event::Mouse(_) => (),
-        Event::Window(_) => (),
-        Event::Touch(_) => (),
-        Event::InputMethod(_) => (),
+        event::Event::Keyboard(ModifiersChanged(_)) => (),
+        event::Event::Mouse(_) => (),
+        event::Event::Window(_) => (),
+        event::Event::Touch(_) => (),
+        event::Event::InputMethod(_) => (),
     }
 }
 
 
-pub fn process_mouse_events(event: Event, event_id: usize)
+pub fn process_mouse_events(event: event::Event, event_id: usize)
 {
     let mut hmap_s_f: Option<HashMap<String, f32>> = None;
     
     match event {
-        Event::Mouse(m_event) => {
+        event::Event::Mouse(m_event) => {
             let event_name = match m_event {
                 CursorEntered => {
                     "enter window".to_string()
@@ -235,18 +235,18 @@ pub fn process_mouse_events(event: Event, event_id: usize)
                                     hmap_s_f,
                                     )
         },
-        Event::Keyboard(_) => (),
-        Event::Window(_) => (),
-        Event::Touch(_) => (),
-        Event::InputMethod(_) => (),
+        event::Event::Keyboard(_) => (),
+        event::Event::Window(_) => (),
+        event::Event::Touch(_) => (),
+        event::Event::InputMethod(_) => (),
     }
         
 }
 
-pub fn process_touch_events(event: Event, event_id: usize) {
+pub fn process_touch_events(event: event::Event, event_id: usize) {
     let mut event_name = "".to_string();
     match event {
-        Event::Touch(tch) => {
+        event::Event::Touch(tch) => {
             let (hmap_s_fg, hmap_s_pt) = match tch {
                 iced::touch::Event::FingerPressed { id, position } => {
                     let hmap_s_fg = HashMap::from([("finger".to_string(), id.0)]);
@@ -280,16 +280,16 @@ pub fn process_touch_events(event: Event, event_id: usize) {
                                 )
     
         },
-        Event::Window(_) => (),
-        Event::Keyboard(_) => (),
-        Event::Mouse(_) => (),
-        Event::InputMethod(_) => (),
+        event::Event::Window(_) => (),
+        event::Event::Keyboard(_) => (),
+        event::Event::Mouse(_) => (),
+        event::Event::InputMethod(_) => (),
     }
 }
 
 
 pub fn process_window_event(state: &mut IpgState,
-                            event: Event,
+                            event: event::Event,
                             window_id: window::Id)
 {
     let event_id = state.window_event_id_enabled.0;
@@ -304,10 +304,10 @@ pub fn process_window_event(state: &mut IpgState,
     };
 
     let event_name: Option<String> = match event {
-        Event::Window(window::Event::Opened { position: _, size: _ } )=> {
+        event::Event::Window(window::Event::Opened { position: _, size: _ } )=> {
             Some("opened".to_string())
         },
-        Event::Window(window::Event::Closed) => {
+        event::Event::Window(window::Event::Closed) => {
             let mut actions = access_window_actions();
                 actions.mode.push((ipg_id, window::Mode::Hidden));
                 drop(actions);
@@ -317,24 +317,24 @@ pub fn process_window_event(state: &mut IpgState,
             }
             Some("closed".to_string())
         },
-        Event::Window(window::Event::Moved(point)) => {
+        event::Event::Window(window::Event::Moved(point)) => {
             hmap_s_f = Some(HashMap::from([
                             ("x".to_string(), point.x),
                             ("y".to_string(), point.y),
                             ]));
             Some("moved".to_string())
         },
-        Event::Window(window::Event::Resized (size)) => {
+        event::Event::Window(window::Event::Resized (size)) => {
             hmap_s_f = Some(HashMap::from([
                             ("width".to_string(), size.width),
                             ("height".to_string(), size.height),
                             ]));
             Some("resized".to_string())
         },
-        Event::Window(window::Event::RedrawRequested(_)) => {
+        event::Event::Window(window::Event::RedrawRequested(_)) => {
             Some("redraw requested".to_string())
         },
-        Event::Window(window::Event::CloseRequested ) => {
+        event::Event::Window(window::Event::CloseRequested ) => {
             let mut actions = access_window_actions();
                 actions.mode.push((ipg_id, window::Mode::Hidden));
                 drop(actions);
@@ -344,34 +344,34 @@ pub fn process_window_event(state: &mut IpgState,
             }
             Some("close requested".to_string())
         },
-        Event::Window(window::Event::Focused) => {
+        event::Event::Window(window::Event::Focused) => {
             Some("focused".to_string())
         },
-        Event::Window(window::Event::Unfocused) => {
+        event::Event::Window(window::Event::Unfocused) => {
             Some("unfocused".to_string())
         },
-        Event::Window(window::Event::FileHovered(path)) => {
+        event::Event::Window(window::Event::FileHovered(path)) => {
             hmap_s_s = Some(HashMap::from([
                                         ("file path".to_string(), 
                                         path.display().to_string()),
                                         ]));
             Some("file hovered".to_string())
         },
-        Event::Window(window::Event::FileDropped(path)) => {
+        event::Event::Window(window::Event::FileDropped(path)) => {
             hmap_s_s = Some(HashMap::from([
                                         ("file path".to_string(), 
                                         path.display().to_string()),
                                         ]));
             Some("file dropped".to_string())
         },
-        Event::Window(window::Event::FilesHoveredLeft) => {
+        event::Event::Window(window::Event::FilesHoveredLeft) => {
             Some("files hovered left".to_string())
         },
-        Event::Window(window::Event::Rescaled(_))=> None,
-        Event::Keyboard(_) => None,
-        Event::Mouse(_) => None,
-        Event::Touch(_) => None,
-        Event::InputMethod(_) => None,
+        event::Event::Window(window::Event::Rescaled(_))=> None,
+        event::Event::Keyboard(_) => None,
+        event::Event::Mouse(_) => None,
+        event::Event::Touch(_) => None,
+        event::Event::InputMethod(_) => None,
     };
 
     if event_name.is_some() {

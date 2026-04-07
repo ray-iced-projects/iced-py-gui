@@ -9,14 +9,14 @@ type PyObject = Py<PyAny>;
 use crate::app;
 
 use crate::py_api::helpers::get_radius;
-use crate::state::IpgWidgets;
+use crate::state::Widgets;
 use crate::widgets::widget_param_update::{WidgetParamUpdate, 
     set_opt_bool, set_opt_f32, set_opt_iced_color, 
     set_opt_iced_color_from_rgba, set_opt_u16, set_opt_u16_array_2, 
     set_opt_u32, set_opt_usize, set_opt_vec_f32};
 
 #[derive(Debug, Clone)]
-pub struct IpgRule {
+pub struct Rule {
     pub id: usize,
     pub parent_id: String,
     pub is_vertical: Option<bool>,
@@ -26,7 +26,7 @@ pub struct IpgRule {
 }
 
 #[derive(Debug, Clone)]
-pub struct IpgRuleStyle {
+pub struct RuleStyle {
     pub id: usize,
     pub color: Option<iced::Color>,
     pub border_radius: Option<Vec<f32>>,
@@ -37,15 +37,15 @@ pub struct IpgRuleStyle {
 }
 
 pub fn construct_rule<'a>(
-    rl: &'a IpgRule, 
-    style_opt: Option<&IpgWidgets>) 
+    rl: &'a Rule, 
+    style_opt: Option<&Widgets>) 
     -> Option<Element<'a, app::Message>> {
 
     if !rl.show {
         return None
     }
 
-    let style = style_opt.and_then(IpgWidgets::as_rule_style).cloned();
+    let style = style_opt.and_then(Widgets::as_rule_style).cloned();
 
     let thickness = if let Some(th) = rl.thickness {
         th
@@ -71,7 +71,7 @@ pub fn construct_rule<'a>(
 
 
 fn get_styling(theme: &Theme,
-                style_opt: Option<IpgRuleStyle>,
+                style_opt: Option<RuleStyle>,
                 ) -> Style {
 
     let mut base_style = rule::default(theme);
@@ -112,18 +112,18 @@ fn get_styling(theme: &Theme,
 
 #[derive(Debug, Clone, PartialEq)]
 #[pyclass(eq, eq_int)]
-pub enum IpgRuleStyleParam {
+pub enum RuleStyleParam {
     BorderRadius,
     FillModeAsymmetricPadding,
     FillModePadded,
     FillModePercent,
-    IpgColor,
+    Color,
     RbgaColor,
 }
 
 #[derive(Debug, Clone, PartialEq)]
 #[pyclass(eq, eq_int)]
-pub enum IpgRuleParam {
+pub enum RuleParam {
     IsVertical,
     Thickness,
     StyleId
@@ -133,29 +133,29 @@ pub enum IpgRuleParam {
 // WidgetParamUpdate implementations
 // ---------------------------------------------------------------------------
 
-impl WidgetParamUpdate for IpgRule {
-    type Param = IpgRuleParam;
+impl WidgetParamUpdate for Rule {
+    type Param = RuleParam;
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
-            IpgRuleParam::IsVertical => set_opt_bool(&mut self.is_vertical, value, "IsVertical"),
-            IpgRuleParam::Thickness => set_opt_u32(&mut self.thickness, value, "Thickness"),
-            IpgRuleParam::StyleId => set_opt_usize(&mut self.style_id, value, "StyleId"),
+            RuleParam::IsVertical => set_opt_bool(&mut self.is_vertical, value, "IsVertical"),
+            RuleParam::Thickness => set_opt_u32(&mut self.thickness, value, "Thickness"),
+            RuleParam::StyleId => set_opt_usize(&mut self.style_id, value, "StyleId"),
         }
     }
 }
 
-impl WidgetParamUpdate for IpgRuleStyle {
-    type Param = IpgRuleStyleParam;
+impl WidgetParamUpdate for RuleStyle {
+    type Param = RuleStyleParam;
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
-            IpgRuleStyleParam::BorderRadius => set_opt_vec_f32(&mut self.border_radius, value, "BorderRadius"),
-            IpgRuleStyleParam::FillModeAsymmetricPadding => set_opt_u16_array_2(&mut self.fillmode_asymmetric_padding, value, "FillModeAsymmetricPadding"),
-            IpgRuleStyleParam::FillModePadded => set_opt_u16(&mut self.fillmode_padded, value, "FillModePadded"),
-            IpgRuleStyleParam::FillModePercent => set_opt_f32(&mut self.fillmode_percent, value, "FillModePercent"),
-            IpgRuleStyleParam::IpgColor => set_opt_iced_color(&mut self.color, value, "IpgColor"),
-            IpgRuleStyleParam::RbgaColor => set_opt_iced_color_from_rgba(&mut self.color, value, "RbgaColor"),
+            RuleStyleParam::BorderRadius => set_opt_vec_f32(&mut self.border_radius, value, "BorderRadius"),
+            RuleStyleParam::FillModeAsymmetricPadding => set_opt_u16_array_2(&mut self.fillmode_asymmetric_padding, value, "FillModeAsymmetricPadding"),
+            RuleStyleParam::FillModePadded => set_opt_u16(&mut self.fillmode_padded, value, "FillModePadded"),
+            RuleStyleParam::FillModePercent => set_opt_f32(&mut self.fillmode_percent, value, "FillModePercent"),
+            RuleStyleParam::Color => set_opt_iced_color(&mut self.color, value, "Color"),
+            RuleStyleParam::RbgaColor => set_opt_iced_color_from_rgba(&mut self.color, value, "RbgaColor"),
         }
     }
 }
@@ -165,8 +165,8 @@ mod tests {
     use super::*;
     use pyo3::{Python, IntoPyObjectExt};
 
-    fn make_rule() -> IpgRule {
-        IpgRule {
+    fn make_rule() -> Rule {
+        Rule {
             id: 0,
             parent_id: String::new(),
             is_vertical: None,
@@ -176,8 +176,8 @@ mod tests {
         }
     }
 
-    fn make_rule_style() -> IpgRuleStyle {
-        IpgRuleStyle {
+    fn make_rule_style() -> RuleStyle {
+        RuleStyle {
             id: 0,
             color: None,
             border_radius: None,
@@ -198,71 +198,71 @@ mod tests {
         Python::attach(|py| py.None().into_py_any(py).unwrap())
     }
 
-    // -- IpgRule param tests --
+    // -- Rule param tests --
 
     #[test]
     fn test_is_vertical() {
         let mut rl = make_rule();
-        rl.param_update(IpgRuleParam::IsVertical, &py_obj(true));
+        rl.param_update(RuleParam::IsVertical, &py_obj(true));
         assert_eq!(rl.is_vertical, Some(true));
-        rl.param_update(IpgRuleParam::IsVertical, &py_none());
+        rl.param_update(RuleParam::IsVertical, &py_none());
         assert_eq!(rl.is_vertical, None);
     }
 
     #[test]
     fn test_thickness() {
         let mut rl = make_rule();
-        rl.param_update(IpgRuleParam::Thickness, &py_obj(3u32));
+        rl.param_update(RuleParam::Thickness, &py_obj(3u32));
         assert_eq!(rl.thickness, Some(3));
     }
 
     #[test]
     fn test_style_id() {
         let mut rl = make_rule();
-        rl.param_update(IpgRuleParam::StyleId, &py_obj(10usize));
+        rl.param_update(RuleParam::StyleId, &py_obj(10usize));
         assert_eq!(rl.style_id, Some(10));
-        rl.param_update(IpgRuleParam::StyleId, &py_none());
+        rl.param_update(RuleParam::StyleId, &py_none());
         assert_eq!(rl.style_id, None);
     }
 
-    // -- IpgRuleStyle param tests --
+    // -- RuleStyle param tests --
 
     #[test]
     fn test_style_border_radius() {
         let mut s = make_rule_style();
-        s.param_update(IpgRuleStyleParam::BorderRadius, &py_obj(vec![2.0f32, 2.0, 2.0, 2.0]));
+        s.param_update(RuleStyleParam::BorderRadius, &py_obj(vec![2.0f32, 2.0, 2.0, 2.0]));
         assert_eq!(s.border_radius, Some(vec![2.0, 2.0, 2.0, 2.0]));
-        s.param_update(IpgRuleStyleParam::BorderRadius, &py_none());
+        s.param_update(RuleStyleParam::BorderRadius, &py_none());
         assert_eq!(s.border_radius, None);
     }
 
     #[test]
     fn test_style_fillmode_asymmetric_padding() {
         let mut s = make_rule_style();
-        s.param_update(IpgRuleStyleParam::FillModeAsymmetricPadding, &py_obj(vec![5u16, 10]));
+        s.param_update(RuleStyleParam::FillModeAsymmetricPadding, &py_obj(vec![5u16, 10]));
         assert_eq!(s.fillmode_asymmetric_padding, Some([5, 10]));
     }
 
     #[test]
     fn test_style_fillmode_padded() {
         let mut s = make_rule_style();
-        s.param_update(IpgRuleStyleParam::FillModePadded, &py_obj(8u16));
+        s.param_update(RuleStyleParam::FillModePadded, &py_obj(8u16));
         assert_eq!(s.fillmode_padded, Some(8));
     }
 
     #[test]
     fn test_style_fillmode_percent() {
         let mut s = make_rule_style();
-        s.param_update(IpgRuleStyleParam::FillModePercent, &py_obj(0.5f32));
+        s.param_update(RuleStyleParam::FillModePercent, &py_obj(0.5f32));
         assert_eq!(s.fillmode_percent, Some(0.5));
-        s.param_update(IpgRuleStyleParam::FillModePercent, &py_none());
+        s.param_update(RuleStyleParam::FillModePercent, &py_none());
         assert_eq!(s.fillmode_percent, None);
     }
 
     #[test]
     fn test_style_rgba_color() {
         let mut s = make_rule_style();
-        s.param_update(IpgRuleStyleParam::RbgaColor, &py_obj(vec![1.0f32, 0.0, 0.0, 1.0]));
+        s.param_update(RuleStyleParam::RbgaColor, &py_obj(vec![1.0f32, 0.0, 0.0, 1.0]));
         assert!(s.color.is_some());
     }
 }

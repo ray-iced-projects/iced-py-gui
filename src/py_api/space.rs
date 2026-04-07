@@ -5,10 +5,10 @@ use pyo3::pyfunction;
 
 use crate::access_state;
 use crate::py_api::helpers::get_length;
-use crate::state::IpgWidgets;
+use crate::state::Widgets;
 use crate::state::get_id;
 use crate::state::set_state_of_widget;
-use crate::widgets::ipg_space::IpgSpace;
+use crate::widgets::ipg_space::Space;
 
 
 /// Add a space widget.
@@ -66,8 +66,8 @@ pub fn add_space(
 
     let mut state = access_state();
 
-    state.widgets.insert(id, IpgWidgets::IpgSpace(
-        IpgSpace {
+    state.widgets.insert(id, Widgets::Space(
+        Space {
             id,
             parent_id,
             width,

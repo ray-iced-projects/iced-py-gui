@@ -13,7 +13,7 @@ use crate::widgets::widget_param_update::{
 
 
 #[derive(Clone, Debug)]
-pub struct IpgFloat {
+pub struct Float {
     pub id: usize,
     pub scale: Option<f32>,
     pub scale_clamped: Option<f32>,
@@ -21,7 +21,7 @@ pub struct IpgFloat {
     pub translate: Option<[f32; 2]>,
 }
 
-impl IpgFloat {
+impl Float {
     pub fn construct<'a>(
         &'a self,
         mut content: Vec<Element<'a, Message>>,
@@ -64,7 +64,7 @@ pub enum FloatParam {
 // WidgetParamUpdate implementations
 // ---------------------------------------------------------------------------
 
-impl WidgetParamUpdate for IpgFloat{
+impl WidgetParamUpdate for Float{
     type Param = FloatParam;
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {

@@ -3,64 +3,35 @@
 use pyo3::{Python, pyclass, Py, PyAny};
 type PyObject = Py<PyAny>;
 
-use iced::{self, Alignment, Radians, Rotation, 
+use iced::{self, Radians, 
     widget::{image::FilterMethod}};
 
 
 #[derive(Debug, Clone, PartialEq)]
 #[pyclass(eq, eq_int)]
-pub enum Align {
-    Start,
-    Center,
-    End,
-}
-
-impl Align {
-    pub fn to_iced(&self) -> Alignment {
-        match self {
-            Align::Start => Alignment::Start,
-            Align::Center => Alignment::Center,
-            Align::End => Alignment::End,
-        }
-    }
-
-    pub fn extract(value: &PyObject) -> Option<Align> {
-        Python::attach(|py| {
-            let res = value.extract::<Align>(py);
-            match res {
-                Ok(val) => Some(val),
-                Err(_) => panic!("Unable to extract python IpgAlignment"),
-            }
-        })  
-    }
-}
-
-
-#[derive(Debug, Clone, PartialEq)]
-#[pyclass(eq, eq_int)]
-pub enum IpgRotation {
+pub enum Rotation {
     Floating,
     Solid,
 }
 
-impl IpgRotation {
-    pub fn default() -> Rotation {
-        Rotation::Floating(Radians(0.0))
+impl Rotation {
+    pub fn default() -> Self {
+        Self::Floating
     }
 
-    pub fn to_iced(&self, rad: Option<f32>) -> Rotation {
+    pub fn to_iced(&self, rad: Option<f32>) -> iced::Rotation {
         let rads = if let Some(rad) = rad {
             rad
         } else { 0.0 };
         match self {
-            IpgRotation::Floating => Rotation::Floating(Radians(rads)),
-            IpgRotation::Solid => Rotation::Solid(Radians(rads)),
+            Rotation::Floating => iced::Rotation::Floating(Radians(rads)),
+            Rotation::Solid => iced::Rotation::Solid(Radians(rads)),
         }
     }
 
     pub fn extract(value: &PyObject) -> Option<Self> {
         Python::attach(|py| {
-            let res = value.extract::<IpgRotation>(py);
+            let res = value.extract::<Rotation>(py);
             match res {
                 Ok(val) => Some(val),
                 Err(_) => None,
@@ -71,32 +42,32 @@ impl IpgRotation {
 
 #[derive(Debug, Clone, PartialEq)]
 #[pyclass(eq, eq_int)]
-pub enum IpgContentFit {
+pub enum ContentFit {
     Contain,
     Cover,
     Fill,
-    IpgNone,
+    None,
     ScaleDown,
 }
 
-impl IpgContentFit {
+impl ContentFit {
     pub fn default() -> Self {
-        IpgContentFit::Contain
+        ContentFit::Contain
     }
 
     pub fn to_iced(&self) -> iced::ContentFit {
         match self {
-            IpgContentFit::Contain => iced::ContentFit::Contain,
-            IpgContentFit::Cover => iced::ContentFit::Cover,
-            IpgContentFit::Fill => iced::ContentFit::Fill,
-            IpgContentFit::IpgNone => iced::ContentFit::None,
-            IpgContentFit::ScaleDown => iced::ContentFit::ScaleDown,
+            ContentFit::Contain => iced::ContentFit::Contain,
+            ContentFit::Cover => iced::ContentFit::Cover,
+            ContentFit::Fill => iced::ContentFit::Fill,
+            ContentFit::None => iced::ContentFit::None,
+            ContentFit::ScaleDown => iced::ContentFit::ScaleDown,
         }
     }
 
     pub fn extract(value: &PyObject) -> Option<Self> {
         Python::attach(|py| {
-            let res = value.extract::<IpgContentFit>(py);
+            let res = value.extract::<ContentFit>(py);
             match res {
                 Ok(val) => Some(val),
                 Err(_) => None,
@@ -107,26 +78,26 @@ impl IpgContentFit {
 
 #[derive(Debug, Clone, PartialEq)]
 #[pyclass(eq, eq_int)]
-pub enum IpgColorFilter {
+pub enum ColorFilter {
     Linear,
     Nearest,
 }
 
-impl IpgColorFilter {
+impl ColorFilter {
     pub fn default() -> Self {
-        IpgColorFilter::Linear
+        ColorFilter::Linear
     }
 
     pub fn to_iced(&self) -> FilterMethod {
         match self {
-            IpgColorFilter::Linear => FilterMethod::Linear,
-            IpgColorFilter::Nearest => FilterMethod::Nearest,
+            ColorFilter::Linear => FilterMethod::Linear,
+            ColorFilter::Nearest => FilterMethod::Nearest,
         }
     }
 
     pub fn extract(value: &PyObject) -> Option<Self> {
         Python::attach(|py| {
-            let res = value.extract::<IpgColorFilter>(py);
+            let res = value.extract::<ColorFilter>(py);
             match res {
                 Ok(val) => Some(val),
                 Err(_) => None,

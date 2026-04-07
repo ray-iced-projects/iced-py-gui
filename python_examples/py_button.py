@@ -4,8 +4,7 @@ Button use demo
 """
 
 from icedpygui import Window, Column, Container, Scrollable, Row,\
-    add_button, add_text,\
-    IpgContainerStyleStd, start_session
+    add_button, add_text, ContainerStyleStd, start_session
 
 
 
@@ -19,7 +18,7 @@ def print_user_data(_btn_id, some_data):
 
 
 #  First add a window
-with Window(title="App",
+with Window(title="Button Demo",
             size=(800, 600), center=True):
 
     # Need a Scrollable since long content
@@ -132,7 +131,7 @@ with Window(title="App",
             add_text(content="Button Width and Height parameters, note the spacing around the button label")
 
             # Container needed to show the outline
-            with Container(width_fill=True, height=150, style_std=IpgContainerStyleStd.BorderedBox):
+            with Container(width_fill=True, height=150, style_std=ContainerStyleStd.BorderedBox):
                 # Need a coloumn to hold the row and then the lone button
                 with Column(width_fill=True, height=200.0, spacing=10.0):
                     # Need row for the first two buttons

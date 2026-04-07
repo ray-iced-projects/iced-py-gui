@@ -8,10 +8,10 @@ use crate::{access_state, add_callback_to_mutex,
 use crate::graphics::{colors::Color, 
         bootstrap_arrow::Arrow}; 
 use crate::py_api::helpers::get_length; 
-use crate::state::{IpgWidgets, get_id, set_state_of_widget}; 
+use crate::state::{Widgets, get_id, set_state_of_widget}; 
 use crate::widgets::{ipg_text::TextShaping, 
-        ipg_pick_list::{IpgPickList, IpgPickListHandle, 
-        IpgPickListStyle, convert_pyobject_vec_string}};
+        ipg_pick_list::{PickList, PickListHandle, 
+        PickListStyle, convert_pyobject_vec_string}};
 
 
 
@@ -51,15 +51,15 @@ use crate::widgets::{ipg_text::TextShaping,
 ///     Sets the Line height for the text.
 /// text_shaping : TextShaping, Optional
 ///     Sets the Text shaping strategy.
-/// handle : IpgPickListHandle, Optional
+/// handle : PickListHandle, Optional
 ///     Sets the handle type for the pick list.
 /// arrow_size : float, Optional
 ///     Sets the size of the arrow icon.
-/// dynamic_closed : IpgArrow, Optional
+/// dynamic_closed : Arrow, Optional
 ///     Sets the arrow icon when the pick list is closed.
-/// dynamic_open : IpgArrow, Optional
+/// dynamic_open : Arrow, Optional
 ///     Sets the arrow icon when the pick list is open.
-/// custom_static : IpgArrow, Optional
+/// custom_static : Arrow, Optional
 ///     Sets the static custom arrow icon.
 /// style_id : int, Optional
 ///     Sets the ID of a custom style created with ``add_pick_list_style``.
@@ -113,7 +113,7 @@ pub fn add_pick_list(
     text_size: Option<f32>,
     text_line_height: Option<f32>,
     text_shaping: Option<TextShaping>,
-    handle: Option<IpgPickListHandle>,
+    handle: Option<PickListHandle>,
     arrow_size: Option<f32>,
     dynamic_closed: Option<Arrow>,
     dynamic_open: Option<Arrow>,
@@ -142,8 +142,8 @@ pub fn add_pick_list(
 
     let mut state = access_state();
 
-    state.widgets.insert(id, IpgWidgets::IpgPickList(
-        IpgPickList { 
+    state.widgets.insert(id, Widgets::PickList(
+        PickList { 
             id,
             parent_id,
             show,
@@ -289,8 +289,8 @@ pub fn add_pick_list_style(
 
     let mut state = access_state();
 
-    state.widgets.insert(id, IpgWidgets::IpgPickListStyle(
-        IpgPickListStyle {
+    state.widgets.insert(id, Widgets::PickListStyle(
+        PickListStyle {
             id,
             background_color,
             text_color,

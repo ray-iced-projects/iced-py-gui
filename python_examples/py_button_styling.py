@@ -1,3 +1,8 @@
+#!/usr/bin/env python3
+"""
+Button styling demo
+"""
+
 from icedpygui import Window, Column, Row, start_session, \
     add_button, add_button_style, ButtonStyleStd, Arrow, \
     add_text, Color

@@ -1,7 +1,8 @@
 //! ipg_text_rich
 
 use iced::{Background, Border, Element, Font, Padding};
-use iced::widget::span;
+use iced::widget::{self, span};
+
 use crate::app::Message;
 use crate::graphics::colors::Color;
 use crate::widgets::widget_param_update::{WidgetParamUpdate, set_bool, set_opt_f32};
@@ -14,10 +15,10 @@ type PyObject = Py<PyAny>;
 
 
 #[derive(Debug, Clone)]
-pub struct IpgRichText {
+pub struct RichText {
     pub id: usize,
     pub parent_id: String,
-    pub spans: Vec<IpgSpan>,
+    pub spans: Vec<Span>,
     pub size: Option<f32>,
     pub line_height: Option<f32>,
     pub color: Option<iced::Color>,
@@ -27,7 +28,7 @@ pub struct IpgRichText {
 
 
 #[derive(Debug, Clone)]
-pub struct IpgSpan {
+pub struct Span {
     pub id: usize,
     pub rich_text_id: usize,
     pub text: String,
@@ -35,7 +36,7 @@ pub struct IpgSpan {
     pub line_height: Option<f32>,
     pub color: Option<iced::Color>,
     pub font: Option<Font>,
-    pub highlight: Option<IpgHighLight>,
+    pub highlight: Option<HighLight>,
     pub padding: Option<Padding>,
     pub underline: bool,
     pub strikethrough: bool, 
@@ -43,12 +44,12 @@ pub struct IpgSpan {
 
 
 #[derive(Debug, Clone, PartialEq)]
-pub struct IpgHighLight {
+pub struct HighLight {
     pub background: Background,
     pub border: Border,
 }
 
-impl IpgRichText {
+impl RichText {
     pub fn construct<'a>(
         &'a self,
         ) -> Option<Element<'a, Message>> {
@@ -87,7 +88,7 @@ impl IpgRichText {
             sp
         }).collect();
 
-        let mut rt = iced::widget::rich_text(spans)
+        let mut rt = widget::rich_text(spans)
             .on_link_click(iced::never);
 
         if let Some(size) = self.size {
@@ -107,7 +108,7 @@ impl IpgRichText {
 
 #[derive(Debug, Clone, PartialEq)]
 #[pyclass(eq, eq_int)]
-pub enum IpgRichTextParam {
+pub enum RichTextParam {
     LineHeight,
     Show,
     Size,
@@ -115,18 +116,18 @@ pub enum IpgRichTextParam {
     TextRgba,
 }
 
-impl WidgetParamUpdate for IpgRichText {
-    type Param = IpgRichTextParam;
+impl WidgetParamUpdate for RichText {
+    type Param = RichTextParam;
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
-            IpgRichTextParam::LineHeight => set_opt_f32(&mut self.line_height, value, "IpgRichTextParam::LineHeight"),
-            IpgRichTextParam::Show => set_bool(&mut self.show, value, "IpgRichTextParam::Show"),
-            IpgRichTextParam::Size => set_opt_f32(&mut self.size, value, "IpgRichTextParam::Size"),
-            IpgRichTextParam::TextColor => {
+            RichTextParam::LineHeight => set_opt_f32(&mut self.line_height, value, "RichTextParam::LineHeight"),
+            RichTextParam::Show => set_bool(&mut self.show, value, "RichTextParam::Show"),
+            RichTextParam::Size => set_opt_f32(&mut self.size, value, "RichTextParam::Size"),
+            RichTextParam::TextColor => {
                 self.color = Color::rgba_ipg_color_to_iced(None, None, None);
             },
-            IpgRichTextParam::TextRgba => {
+            RichTextParam::TextRgba => {
                 self.color = Color::rgba_ipg_color_to_iced(None, None, None);
             },
         }
@@ -135,7 +136,7 @@ impl WidgetParamUpdate for IpgRichText {
 
 #[derive(Debug, Clone, PartialEq)]
 #[pyclass(eq, eq_int)]
-pub enum IpgSpanParam {
+pub enum SpanParam {
     Text,
     Bold,
     Italic,

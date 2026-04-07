@@ -3,7 +3,7 @@ use std::collections::HashMap;
 
 use crate::app::Message;
 use crate::graphics::bootstrap_arrow::Arrow;
-use crate::state::IpgWidgets;
+use crate::state::Widgets;
 use crate::widgets::callbacks::invoke_callback;
 use crate::py_api::helpers::get_padding;
 use crate::widgets::styling::{apply_shadow_overrides_xy, 
@@ -28,7 +28,7 @@ use pyo3::{Py, PyAny, Python, pyclass};
 type PyObject = Py<PyAny>;
 
 #[derive(Debug, Clone)]
-pub struct IpgButton {
+pub struct Button {
     pub id: usize,
     pub parent_id: String,
     pub show: bool,
@@ -53,22 +53,22 @@ pub struct IpgButton {
     pub style_arrow: Option<Arrow>,
 }
 
-impl IpgButton {
+impl Button {
 
-    fn lookup<'a>(&self, widgets: &'a HashMap<usize, IpgWidgets>, id: Option<usize>) -> Option<&'a IpgWidgets> {
+    fn lookup<'a>(&self, widgets: &'a HashMap<usize, Widgets>, id: Option<usize>) -> Option<&'a Widgets> {
         id.and_then(|id| widgets.get(&id))
     }
     
     pub fn construct<'a>(
         &'a self,
-        widgets: &HashMap<usize, IpgWidgets>,
+        widgets: &HashMap<usize, Widgets>,
         ) -> Option<Element<'a, Message>> {
         
         if !self.show { return None }
 
         let style_opt = 
             self.lookup(widgets, self.style_id)
-                .and_then(IpgWidgets::as_button_style).cloned();
+                .and_then(Widgets::as_button_style).cloned();
 
         let txt = 
             if let Some(sa) = self.style_arrow.clone() {
@@ -400,7 +400,7 @@ pub enum ButtonStyleParam {
 // WidgetParamUpdate implementations
 // ---------------------------------------------------------------------------
 
-impl WidgetParamUpdate for IpgButton {
+impl WidgetParamUpdate for Button {
     type Param = ButtonParam;
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
@@ -474,8 +474,8 @@ mod tests {
     use iced::Length;
     use pyo3::IntoPyObjectExt;
 
-    fn make_button() -> IpgButton {
-        IpgButton {
+    fn make_button() -> Button {
+        Button {
             id: 0,
             parent_id: String::new(),
             show: true,
@@ -517,7 +517,7 @@ mod tests {
     }
 
     // -----------------------------------------------------------------------
-    // IpgButton param tests
+    // Button param tests
     // -----------------------------------------------------------------------
 
     #[test]
@@ -675,7 +675,7 @@ mod tests {
     }
 
     // -----------------------------------------------------------------------
-    // IpgButtonStyle param tests
+    // ButtonStyle param tests
     // -----------------------------------------------------------------------
 
     #[test]

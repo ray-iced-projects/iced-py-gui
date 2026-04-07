@@ -9,10 +9,10 @@ use crate::widgets::widget_param_update::{
     WidgetParamUpdate, set_bool, set_opt_f32, set_opt_iced_color, set_opt_iced_color_from_rgba, set_opt_string, set_opt_usize, set_opt_vec_f32, set_width, set_width_fill
 };
 use crate::widgets::callbacks::invoke_callback_with_args;
-use crate::state::IpgWidgets;
+use crate::state::Widgets;
 
 use crate::graphics::BOOTSTRAP_FONT;
-use crate::graphics::bootstrap_icon::{IpgIcon, icon_to_char};
+use crate::graphics::bootstrap_icon::{Icon, icon_to_char};
 
 use crate::widgets::styling::{apply_border_overrides, create_custom_theme};
 
@@ -27,7 +27,7 @@ type PyObject = Py<PyAny>;
 
 
 #[derive(Debug, Clone)]
-pub struct IpgCheckBox {
+pub struct CheckBox {
     pub id: usize,
     pub parent_id: String,
     pub show: bool,
@@ -42,23 +42,23 @@ pub struct IpgCheckBox {
     pub text_wrapping: Option<TextWrapping>,
     pub text_font_id: Option<usize>,
     pub icon_font_id: Option<usize>,
-    pub icon: Option<IpgIcon>,
+    pub icon: Option<Icon>,
     pub icon_size: Option<f32>,
     pub icon_line_height: Option<f32>,
     pub icon_shaping: Option<TextShaping>,
     pub style_id: Option<usize>,
-    pub style_std: Option<IpgCheckboxStyleStd>,
+    pub style_std: Option<CheckboxStyleStd>,
 }
 
-impl IpgCheckBox {
+impl CheckBox {
 
-    fn lookup<'a>(&self, widgets: &'a HashMap<usize, IpgWidgets>, id: Option<usize>) -> Option<&'a IpgWidgets> {
+    fn lookup<'a>(&self, widgets: &'a HashMap<usize, Widgets>, id: Option<usize>) -> Option<&'a Widgets> {
         id.and_then(|id| widgets.get(&id))
     }
 
     pub fn construct<'a>(
         &'a self,
-        widgets: &HashMap<usize, IpgWidgets>,
+        widgets: &HashMap<usize, Widgets>,
     ) -> Option<Element<'a, Message>> {
 
         if !self.show {
@@ -67,14 +67,14 @@ impl IpgCheckBox {
 
         let style_opt = 
             self.lookup(widgets, self.style_id)
-                .and_then(IpgWidgets::as_checkbox_style).cloned();
+                .and_then(Widgets::as_checkbox_style).cloned();
 
         // Icon related
         let code_point = 
             if let Some(ic) = self.icon {
                 icon_to_char(ic)
             } else {
-                icon_to_char(IpgIcon::Check)
+                icon_to_char(Icon::Check)
             };
 
         let size = 
@@ -161,7 +161,7 @@ pub fn checkbox_callback(state: &mut IpgState, id: usize, message: ChkMessage) {
 
     match message {
         ChkMessage::OnToggle(is_checked) => {
-            if let Some(IpgWidgets::IpgCheckBox(cb)) = state.widgets.get_mut(&id) {
+            if let Some(Widgets::CheckBox(cb)) = state.widgets.get_mut(&id) {
                 cb.is_checked = is_checked;
             }
             invoke_callback_with_args(id, "on_toggle", "Checkbox", is_checked);
@@ -170,7 +170,7 @@ pub fn checkbox_callback(state: &mut IpgState, id: usize, message: ChkMessage) {
 }
 
 #[derive(Debug, Clone, Default)]
-pub struct IpgCheckboxStyle {
+pub struct CheckboxStyle {
     pub id: usize,
     pub background_color: Option<iced::Color>,
     pub border_color: Option<iced::Color>,
@@ -180,12 +180,12 @@ pub struct IpgCheckboxStyle {
     pub text_color: Option<iced::Color>,
 }
 
-impl IpgCheckboxStyle {
+impl CheckboxStyle {
     fn to_iced(
          &self, 
         theme: &Theme, 
         status: checkbox::Status,
-        std_style_opt: &Option<IpgCheckboxStyleStd>,
+        std_style_opt: &Option<CheckboxStyleStd>,
         is_label: bool,
         ) -> checkbox::Style {
 
@@ -289,14 +289,14 @@ fn styled(
 
 #[derive(Debug, Clone, PartialEq)]
 #[pyclass(eq, eq_int)]
-pub enum IpgCheckboxStyleStd {
+pub enum CheckboxStyleStd {
     Danger,
     Primary,
     Secondary,
     Success,
 }
 
-impl IpgCheckboxStyleStd {
+impl CheckboxStyleStd {
     pub fn to_iced (
         &self,
         theme: &Theme, 
@@ -304,16 +304,16 @@ impl IpgCheckboxStyleStd {
         ) -> checkbox::Style {
         
         match self {
-            IpgCheckboxStyleStd::Danger => {
+            CheckboxStyleStd::Danger => {
                 checkbox::danger(theme, status)
             },
-            IpgCheckboxStyleStd::Primary => {
+            CheckboxStyleStd::Primary => {
                 checkbox::primary(theme, status)
             },
-            IpgCheckboxStyleStd::Secondary => {
+            CheckboxStyleStd::Secondary => {
                 checkbox::secondary(theme, status)
             },
-            IpgCheckboxStyleStd::Success => {
+            CheckboxStyleStd::Success => {
                 checkbox::success(theme, status)
             },
         }
@@ -323,7 +323,7 @@ impl IpgCheckboxStyleStd {
 
 #[derive(Debug, Clone, PartialEq)]
 #[pyclass(eq, eq_int)]
-pub enum IpgCheckboxParam {
+pub enum CheckboxParam {
     Icon,
     IconFont,
     IconLineHeight,
@@ -345,27 +345,27 @@ pub enum IpgCheckboxParam {
 
 #[derive(Debug, Clone, PartialEq)]
 #[pyclass(eq, eq_int)]
-pub enum IpgCheckboxStyleParam {
-    BackgroundIpgColor,
+pub enum CheckboxStyleParam {
+    BackgroundColor,
     BackgroundRgbaColor,
-    BorderIpgColor,
+    BorderColor,
     BorderRgbaColor,
     BorderRadius,
     BorderWidth,
-    IconIpgColor,
+    IconColor,
     IconRgbaColor,
-    TextIpgColor,
+    TextColor,
     TextRgbaColor,
 }
 
 fn extract_chk_style_standard(
     value: &PyObject, 
-    ) -> IpgCheckboxStyleStd {
+    ) -> CheckboxStyleStd {
     
     Python::attach(|py| {
 
         let res = 
-            value.extract::<IpgCheckboxStyleStd>(py);
+            value.extract::<CheckboxStyleStd>(py);
         match res {
             Ok(val) => val,
             Err(_) => panic!("Unable to extract python object for CheckboxStyleStandard"),
@@ -377,50 +377,50 @@ fn extract_chk_style_standard(
 // WidgetParamUpdate implementations
 // ---------------------------------------------------------------------------
 
-impl WidgetParamUpdate for IpgCheckBox {
-    type Param = IpgCheckboxParam;
+impl WidgetParamUpdate for CheckBox {
+    type Param = CheckboxParam;
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
 
         match param {
-            IpgCheckboxParam::Icon => {
-                self.icon = Some(IpgIcon::extract(value));
+            CheckboxParam::Icon => {
+                self.icon = Some(Icon::extract(value));
             }
-            IpgCheckboxParam::IconFont     => { /* TODO */ }
-            IpgCheckboxParam::IconLineHeight => set_opt_f32(&mut self.icon_line_height, value, "IconLineHeight"),
-            IpgCheckboxParam::IconSize     => set_opt_f32(&mut self.icon_size, value, "IconSize"),
-            IpgCheckboxParam::IconShaping  => self.icon_shaping = TextShaping::extract(value),
-            IpgCheckboxParam::IsChecked    => set_bool(&mut self.is_checked, value, "IsChecked"),
-            IpgCheckboxParam::Label        => set_opt_string(&mut self.label, value, "Label"),
-            IpgCheckboxParam::Show         => set_bool(&mut self.show, value, "Show"),
-            IpgCheckboxParam::Spacing      => set_opt_f32(&mut self.spacing, value, "Spacing"),
-            IpgCheckboxParam::TextLineHeight => set_opt_f32(&mut self.text_line_height, value, "TextLineHeight"),
-            IpgCheckboxParam::TextShaping  => self.text_shaping = TextShaping::extract(value),
-            IpgCheckboxParam::TextSize     => set_opt_f32(&mut self.text_size, value, "TextSize"),
-            IpgCheckboxParam::Style        => set_opt_usize(&mut self.style_id, value, "Style"),
-            IpgCheckboxParam::StyleStandard => self.style_std = Some(extract_chk_style_standard(value)),
-            IpgCheckboxParam::Width        => set_width(&mut self.width, value, "Width"),
-            IpgCheckboxParam::WidthFill    => set_width_fill(&mut self.width, value, "WidthFill"),
-            IpgCheckboxParam::TextFont     => { /* TODO */ }
+            CheckboxParam::IconFont     => { /* TODO */ }
+            CheckboxParam::IconLineHeight => set_opt_f32(&mut self.icon_line_height, value, "IconLineHeight"),
+            CheckboxParam::IconSize     => set_opt_f32(&mut self.icon_size, value, "IconSize"),
+            CheckboxParam::IconShaping  => self.icon_shaping = TextShaping::extract(value),
+            CheckboxParam::IsChecked    => set_bool(&mut self.is_checked, value, "IsChecked"),
+            CheckboxParam::Label        => set_opt_string(&mut self.label, value, "Label"),
+            CheckboxParam::Show         => set_bool(&mut self.show, value, "Show"),
+            CheckboxParam::Spacing      => set_opt_f32(&mut self.spacing, value, "Spacing"),
+            CheckboxParam::TextLineHeight => set_opt_f32(&mut self.text_line_height, value, "TextLineHeight"),
+            CheckboxParam::TextShaping  => self.text_shaping = TextShaping::extract(value),
+            CheckboxParam::TextSize     => set_opt_f32(&mut self.text_size, value, "TextSize"),
+            CheckboxParam::Style        => set_opt_usize(&mut self.style_id, value, "Style"),
+            CheckboxParam::StyleStandard => self.style_std = Some(extract_chk_style_standard(value)),
+            CheckboxParam::Width        => set_width(&mut self.width, value, "Width"),
+            CheckboxParam::WidthFill    => set_width_fill(&mut self.width, value, "WidthFill"),
+            CheckboxParam::TextFont     => { /* TODO */ }
         }
     }
 }
 
-impl WidgetParamUpdate for IpgCheckboxStyle {
-    type Param = IpgCheckboxStyleParam;
+impl WidgetParamUpdate for CheckboxStyle {
+    type Param = CheckboxStyleParam;
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
-            IpgCheckboxStyleParam::BackgroundIpgColor => set_opt_iced_color(&mut self.background_color, value, "BackgroundIpgColor"),
-            IpgCheckboxStyleParam::BackgroundRgbaColor => set_opt_iced_color_from_rgba(&mut self.background_color, value, "BackgroundRgbaColor"),
-            IpgCheckboxStyleParam::BorderIpgColor => set_opt_iced_color(&mut self.border_color, value, "BorderIpgColor"),
-            IpgCheckboxStyleParam::BorderRgbaColor => set_opt_iced_color_from_rgba(&mut self.border_color, value, "BorderRgbaColor"),
-            IpgCheckboxStyleParam::BorderRadius => set_opt_vec_f32(&mut self.border_radius, value, "BorderRadius"),
-            IpgCheckboxStyleParam::BorderWidth => set_opt_f32(&mut self.border_width, value, "BorderWidth"),
-            IpgCheckboxStyleParam::IconIpgColor => set_opt_iced_color(&mut self.icon_color, value, "IconIpgColor"),
-            IpgCheckboxStyleParam::IconRgbaColor => set_opt_iced_color_from_rgba(&mut self.icon_color, value, "IconRgbaColor"),
-            IpgCheckboxStyleParam::TextIpgColor => set_opt_iced_color(&mut self.text_color, value, "TextIpgColor"),
-            IpgCheckboxStyleParam::TextRgbaColor => set_opt_iced_color_from_rgba(&mut self.text_color, value, "TextRgbaColor"),
+            CheckboxStyleParam::BackgroundColor => set_opt_iced_color(&mut self.background_color, value, "BackgroundColor"),
+            CheckboxStyleParam::BackgroundRgbaColor => set_opt_iced_color_from_rgba(&mut self.background_color, value, "BackgroundRgbaColor"),
+            CheckboxStyleParam::BorderColor => set_opt_iced_color(&mut self.border_color, value, "BorderColor"),
+            CheckboxStyleParam::BorderRgbaColor => set_opt_iced_color_from_rgba(&mut self.border_color, value, "BorderRgbaColor"),
+            CheckboxStyleParam::BorderRadius => set_opt_vec_f32(&mut self.border_radius, value, "BorderRadius"),
+            CheckboxStyleParam::BorderWidth => set_opt_f32(&mut self.border_width, value, "BorderWidth"),
+            CheckboxStyleParam::IconColor => set_opt_iced_color(&mut self.icon_color, value, "IconColor"),
+            CheckboxStyleParam::IconRgbaColor => set_opt_iced_color_from_rgba(&mut self.icon_color, value, "IconRgbaColor"),
+            CheckboxStyleParam::TextColor => set_opt_iced_color(&mut self.text_color, value, "TextColor"),
+            CheckboxStyleParam::TextRgbaColor => set_opt_iced_color_from_rgba(&mut self.text_color, value, "TextRgbaColor"),
         }
     }
 }
@@ -431,8 +431,8 @@ mod tests {
     use iced::Length;
     use pyo3::IntoPyObjectExt;
 
-    fn make_checkbox() -> IpgCheckBox {
-        IpgCheckBox {
+    fn make_checkbox() -> CheckBox {
+        CheckBox {
             id: 0,
             parent_id: String::new(),
             show: true,
@@ -456,8 +456,8 @@ mod tests {
         }
     }
 
-    fn make_checkbox_style() -> IpgCheckboxStyle {
-        IpgCheckboxStyle::default()
+    fn make_checkbox_style() -> CheckboxStyle {
+        CheckboxStyle::default()
     }
 
     fn py_obj<T>(val: T) -> PyObject
@@ -472,16 +472,16 @@ mod tests {
     }
 
     // -----------------------------------------------------------------------
-    // IpgCheckBox param tests
+    // CheckBox param tests
     // -----------------------------------------------------------------------
 
     #[test]
     fn test_icon_line_height() {
         Python::initialize();
         let mut c = make_checkbox();
-        c.param_update(IpgCheckboxParam::IconLineHeight, &py_obj(2.0f32));
+        c.param_update(CheckboxParam::IconLineHeight, &py_obj(2.0f32));
         assert_eq!(c.icon_line_height, Some(2.0));
-        c.param_update(IpgCheckboxParam::IconLineHeight, &py_none());
+        c.param_update(CheckboxParam::IconLineHeight, &py_none());
         assert_eq!(c.icon_line_height, None);
     }
 
@@ -489,9 +489,9 @@ mod tests {
     fn test_icon_size() {
         Python::initialize();
         let mut c = make_checkbox();
-        c.param_update(IpgCheckboxParam::IconSize, &py_obj(20.0f32));
+        c.param_update(CheckboxParam::IconSize, &py_obj(20.0f32));
         assert_eq!(c.icon_size, Some(20.0));
-        c.param_update(IpgCheckboxParam::IconSize, &py_none());
+        c.param_update(CheckboxParam::IconSize, &py_none());
         assert_eq!(c.icon_size, None);
     }
 
@@ -499,9 +499,9 @@ mod tests {
     fn test_is_checked() {
         Python::initialize();
         let mut c = make_checkbox();
-        c.param_update(IpgCheckboxParam::IsChecked, &py_obj(true));
+        c.param_update(CheckboxParam::IsChecked, &py_obj(true));
         assert!(c.is_checked);
-        c.param_update(IpgCheckboxParam::IsChecked, &py_obj(false));
+        c.param_update(CheckboxParam::IsChecked, &py_obj(false));
         assert!(!c.is_checked);
     }
 
@@ -509,7 +509,7 @@ mod tests {
     fn test_label() {
         Python::initialize();
         let mut c = make_checkbox();
-        c.param_update(IpgCheckboxParam::Label, &py_obj("Check me"));
+        c.param_update(CheckboxParam::Label, &py_obj("Check me"));
         assert_eq!(c.label, Some("Check me".to_string()));
     }
 
@@ -517,7 +517,7 @@ mod tests {
     fn test_show() {
         Python::initialize();
         let mut c = make_checkbox();
-        c.param_update(IpgCheckboxParam::Show, &py_obj(false));
+        c.param_update(CheckboxParam::Show, &py_obj(false));
         assert!(!c.show);
     }
 
@@ -525,9 +525,9 @@ mod tests {
     fn test_spacing() {
         Python::initialize();
         let mut c = make_checkbox();
-        c.param_update(IpgCheckboxParam::Spacing, &py_obj(8.0f32));
+        c.param_update(CheckboxParam::Spacing, &py_obj(8.0f32));
         assert_eq!(c.spacing, Some(8.0));
-        c.param_update(IpgCheckboxParam::Spacing, &py_none());
+        c.param_update(CheckboxParam::Spacing, &py_none());
         assert_eq!(c.spacing, None);
     }
 
@@ -535,9 +535,9 @@ mod tests {
     fn test_text_line_height() {
         Python::initialize();
         let mut c = make_checkbox();
-        c.param_update(IpgCheckboxParam::TextLineHeight, &py_obj(1.5f32));
+        c.param_update(CheckboxParam::TextLineHeight, &py_obj(1.5f32));
         assert_eq!(c.text_line_height, Some(1.5));
-        c.param_update(IpgCheckboxParam::TextLineHeight, &py_none());
+        c.param_update(CheckboxParam::TextLineHeight, &py_none());
         assert_eq!(c.text_line_height, None);
     }
 
@@ -545,9 +545,9 @@ mod tests {
     fn test_text_size() {
         Python::initialize();
         let mut c = make_checkbox();
-        c.param_update(IpgCheckboxParam::TextSize, &py_obj(14.0f32));
+        c.param_update(CheckboxParam::TextSize, &py_obj(14.0f32));
         assert_eq!(c.text_size, Some(14.0));
-        c.param_update(IpgCheckboxParam::TextSize, &py_none());
+        c.param_update(CheckboxParam::TextSize, &py_none());
         assert_eq!(c.text_size, None);
     }
 
@@ -555,7 +555,7 @@ mod tests {
     fn test_style_id() {
         Python::initialize();
         let mut c = make_checkbox();
-        c.param_update(IpgCheckboxParam::Style, &py_obj(5u64));
+        c.param_update(CheckboxParam::Style, &py_obj(5u64));
         assert_eq!(c.style_id, Some(5));
     }
 
@@ -563,9 +563,9 @@ mod tests {
     fn test_width() {
         Python::initialize();
         let mut c = make_checkbox();
-        c.param_update(IpgCheckboxParam::Width, &py_obj(150.0f32));
+        c.param_update(CheckboxParam::Width, &py_obj(150.0f32));
         assert_eq!(c.width, Length::Fixed(150.0));
-        c.param_update(IpgCheckboxParam::Width, &py_none());
+        c.param_update(CheckboxParam::Width, &py_none());
         assert_eq!(c.width, Length::Shrink);
     }
 
@@ -573,23 +573,23 @@ mod tests {
     fn test_width_fill() {
         Python::initialize();
         let mut c = make_checkbox();
-        c.param_update(IpgCheckboxParam::WidthFill, &py_obj(true));
+        c.param_update(CheckboxParam::WidthFill, &py_obj(true));
         assert_eq!(c.width, Length::Fill);
-        c.param_update(IpgCheckboxParam::WidthFill, &py_obj(false));
+        c.param_update(CheckboxParam::WidthFill, &py_obj(false));
         assert_eq!(c.width, Length::Shrink);
     }
 
     // -----------------------------------------------------------------------
-    // IpgCheckboxStyle param tests
+    // CheckboxStyle param tests
     // -----------------------------------------------------------------------
 
     #[test]
     fn test_style_background_rgba() {
         Python::initialize();
         let mut s = make_checkbox_style();
-        s.param_update(IpgCheckboxStyleParam::BackgroundRgbaColor, &py_obj(vec![1.0f32, 0.0, 0.0, 1.0]));
+        s.param_update(CheckboxStyleParam::BackgroundRgbaColor, &py_obj(vec![1.0f32, 0.0, 0.0, 1.0]));
         assert!(s.background_color.is_some());
-        s.param_update(IpgCheckboxStyleParam::BackgroundRgbaColor, &py_none());
+        s.param_update(CheckboxStyleParam::BackgroundRgbaColor, &py_none());
         assert!(s.background_color.is_none());
     }
 
@@ -597,9 +597,9 @@ mod tests {
     fn test_style_border_rgba() {
         Python::initialize();
         let mut s = make_checkbox_style();
-        s.param_update(IpgCheckboxStyleParam::BorderRgbaColor, &py_obj(vec![0.0f32, 1.0, 0.0, 1.0]));
+        s.param_update(CheckboxStyleParam::BorderRgbaColor, &py_obj(vec![0.0f32, 1.0, 0.0, 1.0]));
         assert!(s.border_color.is_some());
-        s.param_update(IpgCheckboxStyleParam::BorderRgbaColor, &py_none());
+        s.param_update(CheckboxStyleParam::BorderRgbaColor, &py_none());
         assert!(s.border_color.is_none());
     }
 
@@ -607,7 +607,7 @@ mod tests {
     fn test_style_border_radius() {
         Python::initialize();
         let mut s = make_checkbox_style();
-        s.param_update(IpgCheckboxStyleParam::BorderRadius, &py_obj(vec![3.0f32, 3.0, 3.0, 3.0]));
+        s.param_update(CheckboxStyleParam::BorderRadius, &py_obj(vec![3.0f32, 3.0, 3.0, 3.0]));
         assert_eq!(s.border_radius, Some(vec![3.0, 3.0, 3.0, 3.0]));
     }
 
@@ -615,9 +615,9 @@ mod tests {
     fn test_style_border_width() {
         Python::initialize();
         let mut s = make_checkbox_style();
-        s.param_update(IpgCheckboxStyleParam::BorderWidth, &py_obj(2.0f32));
+        s.param_update(CheckboxStyleParam::BorderWidth, &py_obj(2.0f32));
         assert_eq!(s.border_width, Some(2.0));
-        s.param_update(IpgCheckboxStyleParam::BorderWidth, &py_none());
+        s.param_update(CheckboxStyleParam::BorderWidth, &py_none());
         assert_eq!(s.border_width, None);
     }
 
@@ -625,9 +625,9 @@ mod tests {
     fn test_style_icon_rgba() {
         Python::initialize();
         let mut s = make_checkbox_style();
-        s.param_update(IpgCheckboxStyleParam::IconRgbaColor, &py_obj(vec![0.0f32, 0.0, 1.0, 1.0]));
+        s.param_update(CheckboxStyleParam::IconRgbaColor, &py_obj(vec![0.0f32, 0.0, 1.0, 1.0]));
         assert!(s.icon_color.is_some());
-        s.param_update(IpgCheckboxStyleParam::IconRgbaColor, &py_none());
+        s.param_update(CheckboxStyleParam::IconRgbaColor, &py_none());
         assert!(s.icon_color.is_none());
     }
 
@@ -635,9 +635,9 @@ mod tests {
     fn test_style_text_rgba() {
         Python::initialize();
         let mut s = make_checkbox_style();
-        s.param_update(IpgCheckboxStyleParam::TextRgbaColor, &py_obj(vec![1.0f32, 1.0, 1.0, 1.0]));
+        s.param_update(CheckboxStyleParam::TextRgbaColor, &py_obj(vec![1.0f32, 1.0, 1.0, 1.0]));
         assert!(s.text_color.is_some());
-        s.param_update(IpgCheckboxStyleParam::TextRgbaColor, &py_none());
+        s.param_update(CheckboxStyleParam::TextRgbaColor, &py_none());
         assert!(s.text_color.is_none());
     }
 }

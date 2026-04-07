@@ -1,5 +1,5 @@
-from icedpygui import Window, Container, Column, Row, IpgCardParam,\
-    add_card, add_button, IpgButtonParam, update_widget, IpgCardStyleStd, start_session
+from icedpygui import Window, Container, Column, Row, CardParam,\
+    add_card, add_button, ButtonParam, update_widget, CardStyleStd, start_session
 
 card_ids = []
 btn_ids = []
@@ -14,11 +14,11 @@ def minimize_card(card_id: int, index: int):
     # type will be, in this case a boolean.
     update_widget(
         wid=card_id, 
-        param=IpgCardParam.IsOpen, 
+        param=CardParam.IsOpen, 
         value=False)
     update_widget(
         wid=btn_ids[index],
-        param=IpgButtonParam.Show,
+        param=ButtonParam.Show,
         value=True)
 
 
@@ -29,16 +29,16 @@ def maximize_card(_btn_id: int, index: int):
     global card_ids
     update_widget(
         wid=card_ids[index], 
-        param=IpgCardParam.IsOpen, 
+        param=CardParam.IsOpen, 
         value=True)
     update_widget(
         wid=btn_ids[index],
-        param=IpgButtonParam.Show,
+        param=ButtonParam.Show,
         value=False)
 
 # The style id is used in the card style_id to set the style
 # In this case we create 4 std styles for later use
-style_ids = [IpgCardStyleStd.Primary, IpgCardStyleStd.Success, IpgCardStyleStd.Danger, IpgCardStyleStd.Secondary]
+style_ids = [CardStyleStd.Primary, CardStyleStd.Success, CardStyleStd.Danger, CardStyleStd.Secondary]
 
 
 # window added first

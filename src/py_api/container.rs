@@ -4,10 +4,10 @@ use pyo3::{PyResult, pyfunction};
 
 use crate::graphics::colors::Color;
 use crate::py_api::helpers::get_length;
-use crate::state::{IpgContainers, IpgWidgets, access_state, 
+use crate::state::{Containers, Widgets, access_state, 
     get_id, set_state_cont_wnd_ids, set_state_of_container};
-use crate::widgets::ipg_container::{IpgContainer, 
-    IpgContainerStyle, IpgContainerStyleStd};
+use crate::widgets::ipg_container::{Container, 
+    ContainerStyle, ContainerStyleStd};
 
 
 /// Add a container widget.
@@ -64,7 +64,7 @@ use crate::widgets::ipg_container::{IpgContainer,
 ///     Whether the container is visible.
 /// style_id : int,  Optional
 ///     Sets the ID of a custom style created with ``add_container_style``.
-/// style_std : IpgContainerStyleStd,  Optional
+/// style_std : ContainerStyleStd,  Optional
 ///     Sets the predefined standard style variant.
 ///
 /// Returns
@@ -122,7 +122,7 @@ pub fn add_container(
     padding: Option<Vec<f32>>, 
     show: bool,
     style_id: Option<usize>,
-    style_std: Option<IpgContainerStyleStd>,
+    style_std: Option<ContainerStyleStd>,
     ) -> PyResult<usize>
 {
     let id = get_id(None);
@@ -144,8 +144,8 @@ pub fn add_container(
 
     set_state_cont_wnd_ids(&mut state, &window_id, container_id, id, "add_container".to_string());
 
-    state.containers.insert(id, IpgContainers::IpgContainer(
-        IpgContainer {
+    state.containers.insert(id, Containers::Container(
+        Container {
             id,
             show,
             padding,
@@ -300,8 +300,8 @@ pub fn add_container_style(
 
     let mut state = access_state();
 
-    state.widgets.insert(id, IpgWidgets::IpgContainerStyle(
-        IpgContainerStyle {
+    state.widgets.insert(id, Widgets::ContainerStyle(
+        ContainerStyle {
             id,
             background_color,
             background_gradient_color_stop,

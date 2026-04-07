@@ -3,9 +3,9 @@
 use pyo3::{pyfunction, PyResult};
 
 use crate::graphics::colors::Color;
-use crate::state::{IpgWidgets, get_id, set_state_of_widget};
-use crate::widgets::enums::{IpgContentFit, IpgRotation};
-use crate::widgets::ipg_svg::IpgSvg;
+use crate::state::{Widgets, get_id, set_state_of_widget};
+use crate::widgets::enums::{ContentFit, Rotation};
+use crate::widgets::ipg_svg::Svg;
 use crate::access_state; 
 use crate::py_api::helpers::get_length;
 
@@ -29,15 +29,15 @@ use crate::py_api::helpers::get_length;
 ///     Sets the Fixed height in logical pixels.
 /// height_fill : bool, default False
 ///     Whether the SVG fills available height.
-/// ipg_color_filter : IpgColor, Optional
+/// ipg_color_filter : Color, Optional
 ///     Sets the color filter using a predefined color variant.
 /// ipg_color_filter_alpha : float, Optional
-///     Sets the alpha of the IpgColor.
+///     Sets the alpha of the Color.
 /// rgba_filter : list of float, Optional
 ///     Sets the color filter in rgba format as [r, g, b, a].
-/// content_fit : IpgContentFit, Optional
+/// content_fit : ContentFit, Optional
 ///     Sets the content fit strategy for the SVG.
-/// rotation_type : IpgRotation, Optional
+/// rotation_type : Rotation, Optional
 ///     Sets the rotation method for the SVG.
 /// rotation_radians : float, Optional
 ///     Sets the rotation angle in radians.
@@ -80,8 +80,8 @@ pub fn add_svg(
     ipg_color_filter: Option<Color>,
     ipg_color_filter_alpha: Option<f32>,
     rgba_filter: Option<[f32; 4]>,
-    content_fit: Option<IpgContentFit>,
-    rotation_type: Option<IpgRotation>,
+    content_fit: Option<ContentFit>,
+    rotation_type: Option<Rotation>,
     rotation_radians: Option<f32>,
     opacity: Option<f32>,
     show: bool,
@@ -100,8 +100,8 @@ pub fn add_svg(
 
     let mut state = access_state();
 
-    state.widgets.insert(id, IpgWidgets::IpgSvg(
-        IpgSvg {
+    state.widgets.insert(id, Widgets::Svg(
+        Svg {
             id,
             svg_path,
             width,

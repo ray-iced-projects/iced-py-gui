@@ -1,8 +1,7 @@
 //! ipg_toggler
 
 use iced::advanced::text;
-use iced::widget::toggler::{self, Status};
-use iced::widget::Toggler;
+use iced::widget;
 use iced::{Element, Length, Theme};
 use iced::theme::palette::{deviate, mix};
 
@@ -10,7 +9,7 @@ use pyo3::{pyclass, Py, PyAny};
 
 use crate::app::Message;
 use crate::py_api::helpers::get_radius;
-use crate::state::IpgWidgets;
+use crate::state::Widgets;
 use crate::widgets::ipg_text::TextWrapping;
 use crate::widgets::widget_param_update::{WidgetParamUpdate, set_bool, 
     set_opt_bool, set_opt_f32, set_opt_iced_color, set_opt_iced_color_from_rgba, 
@@ -23,7 +22,7 @@ type PyObject = Py<PyAny>;
 
 
 #[derive(Debug, Clone)]
-pub struct IpgToggler {
+pub struct Toggler {
     pub id: usize,
     pub parent_id: String,
     pub show: bool,
@@ -49,9 +48,9 @@ pub enum TOGMessage {
 }
 
 pub fn construct_toggler<'a>(
-    ipg_tog: &'a IpgToggler, 
-    widget: Option<&IpgWidgets>,
-    font_opt:  Option<&'a IpgWidgets>) 
+    ipg_tog: &'a Toggler, 
+    widget: Option<&Widgets>,
+    font_opt:  Option<&'a Widgets>) 
     -> Option<Element<'a, Message>> {
     
     if !ipg_tog.show {
@@ -59,17 +58,17 @@ pub fn construct_toggler<'a>(
     }
 
     let style_opt = 
-        widget.and_then(IpgWidgets::as_toggler_style).cloned();
+        widget.and_then(Widgets::as_toggler_style).cloned();
 
     let mut tog =  
-        Toggler::new(ipg_tog.is_toggled)
+        widget::Toggler::new(ipg_tog.is_toggled)
             .on_toggle(TOGMessage::Toggled)
             .width(ipg_tog.width)
             .style(move|theme: &Theme, status| {
                 if let Some(st) = &style_opt {
                     st.set_style(theme, status)
                 } else {
-                    toggler::default(theme, status)
+                    widget::toggler::default(theme, status)
                 } 
             });
 
@@ -111,7 +110,7 @@ pub fn construct_toggler<'a>(
 
     if let Some(wd) = font_opt {
         match wd {
-            IpgWidgets::IpgFont(font) => {
+            Widgets::Font(font) => {
                 tog = tog.font(font.to_iced());
             },
             _ => ()
@@ -128,7 +127,7 @@ pub fn toggle_callback(state: &mut IpgState, id: usize, message: TOGMessage) {
     match message {
         TOGMessage::Toggled(is_toggled) => {
             // Update widget state directly
-            if let Some(IpgWidgets::IpgToggler(tog)) = state.widgets.get_mut(&id) {
+            if let Some(Widgets::Toggler(tog)) = state.widgets.get_mut(&id) {
                 tog.is_toggled = is_toggled;
             }
             invoke_callback_with_args(id, "toggled", "Toggler", is_toggled);
@@ -139,7 +138,7 @@ pub fn toggle_callback(state: &mut IpgState, id: usize, message: TOGMessage) {
 
 #[derive(Debug, Clone, PartialEq)]
 #[pyclass(eq, eq_int)]
-pub enum IpgTogglerParam {
+pub enum TogglerParam {
     FontId,
     Label,
     Show,
@@ -158,7 +157,7 @@ pub enum IpgTogglerParam {
 }
 
 #[derive(Debug, Clone)]
-pub struct IpgTogglerStyle {
+pub struct TogglerStyle {
     pub id: usize,
     pub background_color: Option<iced::Color>,
     pub background_border_color: Option<iced::Color>,
@@ -180,12 +179,12 @@ pub struct IpgTogglerStyle {
 // Hovered + untoggled	    deviate(bg, 0.15)	deviate(fg, 0.1)
 // Disabled + toggled	    deviate(bg, 0.1)	mix(fg, bg, 0.4)
 // Disabled + untoggled	    deviate(bg, 0.2)	mix(fg, bg, 0.4)
-impl IpgTogglerStyle {
+impl TogglerStyle {
     fn set_style(
         &self, 
         theme: &Theme, 
-        status: Status, 
-        ) -> toggler::Style {
+        status: widget::toggler::Status, 
+        ) -> widget::toggler::Style {
         
         // Use user-supplied base colors or fall back to theme palette colors
         let palette = theme.extended_palette();
@@ -201,10 +200,10 @@ impl IpgTogglerStyle {
         let bg_disabled_off = deviate(bg_base, 0.2);
 
         let background = match status {
-            Status::Active { is_toggled } | Status::Hovered { is_toggled } => {
+            widget::toggler::Status::Active { is_toggled } | widget::toggler::Status::Hovered { is_toggled } => {
                 if is_toggled { bg_base } else { bg_untoggled }
             }
-            Status::Disabled { is_toggled } => {
+            widget::toggler::Status::Disabled { is_toggled } => {
                 if is_toggled { bg_disabled_on } else { bg_disabled_off }
             }
         };
@@ -215,20 +214,20 @@ impl IpgTogglerStyle {
         let fg_disabled = mix(fg_base, background, 0.4);
 
         let foreground = match status {
-            Status::Active { is_toggled } => {
+            widget::toggler::Status::Active { is_toggled } => {
                 if is_toggled { fg_base } else { fg_untoggled }
             }
-            Status::Hovered { is_toggled } => {
+            widget::toggler::Status::Hovered { is_toggled } => {
                 if is_toggled { fg_hovered_on } else { fg_hovered_off }
             }
-            Status::Disabled { .. } => fg_disabled,
+            widget::toggler::Status::Disabled { .. } => fg_disabled,
         };
 
         let border_radius = if let Some(br) = &self.border_radius {
             Some(get_radius(&br, "toggle".to_string()))
         } else { None };
 
-        toggler::Style {
+        widget::toggler::Style {
             background: background.into(),
             foreground: foreground.into(),
             foreground_border_width: self.foreground_border_width.unwrap_or(0.0),
@@ -245,18 +244,18 @@ impl IpgTogglerStyle {
 
 #[derive(Debug, Clone, PartialEq)]
 #[pyclass(eq, eq_int)]
-pub enum IpgTogglerStyleParam {
-    BackgroundIpgColor,
+pub enum TogglerStyleParam {
+    BackgroundColor,
     BackgroundRgbaColor,
-    BackgroundBorderIpgColor,
+    BackgroundBorderColor,
     BackgroundBorderRgbaColor,
     BackgroundBorderWidth,
-    ForegroundIpgColor,
+    ForegroundColor,
     ForegroundRgbaColor,
-    ForegroundBorderIpgColor,
+    ForegroundBorderColor,
     ForegroundBorderRgbaColor,
     ForegroundBorderWidth,
-    TextIpgColor,
+    TextColor,
     TextRgbaColor,
     BorderRadius,
     PaddingRatio,
@@ -268,62 +267,62 @@ pub enum IpgTogglerStyleParam {
 // WidgetParamUpdate implementations
 // ---------------------------------------------------------------------------
 
-impl WidgetParamUpdate for IpgToggler {
-    type Param = IpgTogglerParam;
+impl WidgetParamUpdate for Toggler {
+    type Param = TogglerParam;
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
-            IpgTogglerParam::FontId => set_opt_usize(&mut self.font_id, value, "FontId"),
-            IpgTogglerParam::Label => set_opt_string(&mut self.label, value, "Label"),
-            IpgTogglerParam::Show => set_bool(&mut self.show, value, "Show"),
-            IpgTogglerParam::Size => set_opt_f32(&mut self.size, value, "Size"),
-            IpgTogglerParam::Spacing => set_opt_f32(&mut self.spacing, value, "Spacing"),
-            IpgTogglerParam::StyleId => set_opt_usize(&mut self.style_id, value, "StyleId"),
-            IpgTogglerParam::TextCenter => set_opt_bool(&mut self.text_center, value, "TextCenter"),
-            IpgTogglerParam::TextLeft => set_opt_bool(&mut self.text_left, value, "TextLeft"),
-            IpgTogglerParam::TextRight => set_opt_bool(&mut self.text_right, value, "TextRight"),
-            IpgTogglerParam::TextLineHeight => set_opt_f32(&mut self.text_line_height, value, "TextLineHeight"),
-            IpgTogglerParam::TextShaping => set_opt_text_shaping(&mut self.text_shaping, value, "TextShaping"),
-            IpgTogglerParam::TextSize => set_opt_f32(&mut self.text_size, value, "TextSize"),
-            IpgTogglerParam::TextWrapping => set_opt_text_wrapping(&mut self.text_wrapping, value, "TextWrapping"),
-            IpgTogglerParam::Width => set_width(&mut self.width, value, "Width"),
-            IpgTogglerParam::WidthFill => set_width_fill(&mut self.width, value, "WidthFill"),
+            TogglerParam::FontId => set_opt_usize(&mut self.font_id, value, "FontId"),
+            TogglerParam::Label => set_opt_string(&mut self.label, value, "Label"),
+            TogglerParam::Show => set_bool(&mut self.show, value, "Show"),
+            TogglerParam::Size => set_opt_f32(&mut self.size, value, "Size"),
+            TogglerParam::Spacing => set_opt_f32(&mut self.spacing, value, "Spacing"),
+            TogglerParam::StyleId => set_opt_usize(&mut self.style_id, value, "StyleId"),
+            TogglerParam::TextCenter => set_opt_bool(&mut self.text_center, value, "TextCenter"),
+            TogglerParam::TextLeft => set_opt_bool(&mut self.text_left, value, "TextLeft"),
+            TogglerParam::TextRight => set_opt_bool(&mut self.text_right, value, "TextRight"),
+            TogglerParam::TextLineHeight => set_opt_f32(&mut self.text_line_height, value, "TextLineHeight"),
+            TogglerParam::TextShaping => set_opt_text_shaping(&mut self.text_shaping, value, "TextShaping"),
+            TogglerParam::TextSize => set_opt_f32(&mut self.text_size, value, "TextSize"),
+            TogglerParam::TextWrapping => set_opt_text_wrapping(&mut self.text_wrapping, value, "TextWrapping"),
+            TogglerParam::Width => set_width(&mut self.width, value, "Width"),
+            TogglerParam::WidthFill => set_width_fill(&mut self.width, value, "WidthFill"),
         }
     }
 }
 
-impl WidgetParamUpdate for IpgTogglerStyle {
-    type Param = IpgTogglerStyleParam;
+impl WidgetParamUpdate for TogglerStyle {
+    type Param = TogglerStyleParam;
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
-            IpgTogglerStyleParam::BackgroundIpgColor =>
-                set_opt_iced_color(&mut self.background_color, value, "BackgroundIpgColor"),
-            IpgTogglerStyleParam::BackgroundRgbaColor =>
+            TogglerStyleParam::BackgroundColor =>
+                set_opt_iced_color(&mut self.background_color, value, "BackgroundColor"),
+            TogglerStyleParam::BackgroundRgbaColor =>
                 set_opt_iced_color_from_rgba(&mut self.background_color, value, "BackgroundRgbaColor"),
-            IpgTogglerStyleParam::BackgroundBorderIpgColor =>
-                set_opt_iced_color(&mut self.background_border_color, value, "BackgroundBorderIpgColor"),
-            IpgTogglerStyleParam::BackgroundBorderRgbaColor =>
+            TogglerStyleParam::BackgroundBorderColor =>
+                set_opt_iced_color(&mut self.background_border_color, value, "BackgroundBorderColor"),
+            TogglerStyleParam::BackgroundBorderRgbaColor =>
                 set_opt_iced_color_from_rgba(&mut self.background_border_color, value, "BackgroundBorderRgbaColor"),
-            IpgTogglerStyleParam::BackgroundBorderWidth =>
+            TogglerStyleParam::BackgroundBorderWidth =>
                 set_opt_f32(&mut self.background_border_width, value, "BackgroundBorderWidth"),
-            IpgTogglerStyleParam::ForegroundIpgColor =>
-                set_opt_iced_color(&mut self.foreground_color, value, "ForegroundIpgColor"),
-            IpgTogglerStyleParam::ForegroundRgbaColor =>
+            TogglerStyleParam::ForegroundColor =>
+                set_opt_iced_color(&mut self.foreground_color, value, "ForegroundColor"),
+            TogglerStyleParam::ForegroundRgbaColor =>
                 set_opt_iced_color_from_rgba(&mut self.foreground_color, value, "ForegroundRgbaColor"),
-            IpgTogglerStyleParam::ForegroundBorderIpgColor =>
-                set_opt_iced_color(&mut self.foreground_border_color, value, "ForegroundBorderIpgColor"),
-            IpgTogglerStyleParam::ForegroundBorderRgbaColor =>
+            TogglerStyleParam::ForegroundBorderColor =>
+                set_opt_iced_color(&mut self.foreground_border_color, value, "ForegroundBorderColor"),
+            TogglerStyleParam::ForegroundBorderRgbaColor =>
                 set_opt_iced_color_from_rgba(&mut self.foreground_border_color, value, "ForegroundBorderRgbaColor"),
-            IpgTogglerStyleParam::ForegroundBorderWidth =>
+            TogglerStyleParam::ForegroundBorderWidth =>
                 set_opt_f32(&mut self.foreground_border_width, value, "ForegroundBorderWidth"),
-            IpgTogglerStyleParam::TextIpgColor =>
-                set_opt_iced_color(&mut self.text_color, value, "TextIpgColor"),
-            IpgTogglerStyleParam::TextRgbaColor =>
+            TogglerStyleParam::TextColor =>
+                set_opt_iced_color(&mut self.text_color, value, "TextColor"),
+            TogglerStyleParam::TextRgbaColor =>
                 set_opt_iced_color_from_rgba(&mut self.text_color, value, "TextRgbaColor"),
-            IpgTogglerStyleParam::BorderRadius =>
+            TogglerStyleParam::BorderRadius =>
                 set_opt_vec_f32(&mut self.border_radius, value, "BorderRadius"),
-            IpgTogglerStyleParam::PaddingRatio =>
+            TogglerStyleParam::PaddingRatio =>
                 set_opt_f32(&mut self.padding_ratio, value, "PaddingRatio"),
         }
     }
@@ -335,8 +334,8 @@ mod tests {
     use iced::Length;
     use pyo3::{Python, IntoPyObjectExt};
 
-    fn make_toggler() -> IpgToggler {
-        IpgToggler {
+    fn make_toggler() -> Toggler {
+        Toggler {
             id: 0,
             parent_id: String::new(),
             show: true,
@@ -357,8 +356,8 @@ mod tests {
         }
     }
 
-    fn make_toggler_style() -> IpgTogglerStyle {
-        IpgTogglerStyle {
+    fn make_toggler_style() -> TogglerStyle {
+        TogglerStyle {
             id: 0,
             background_color: None,
             background_border_color: None,
@@ -382,171 +381,171 @@ mod tests {
         Python::attach(|py| py.None().into_py_any(py).unwrap())
     }
 
-    // -- IpgToggler param tests --
+    // -- Toggler param tests --
 
     #[test]
     fn test_font_id() {
         let mut t = make_toggler();
-        t.param_update(IpgTogglerParam::FontId, &py_obj(2usize));
+        t.param_update(TogglerParam::FontId, &py_obj(2usize));
         assert_eq!(t.font_id, Some(2));
-        t.param_update(IpgTogglerParam::FontId, &py_none());
+        t.param_update(TogglerParam::FontId, &py_none());
         assert_eq!(t.font_id, None);
     }
 
     #[test]
     fn test_label() {
         let mut t = make_toggler();
-        t.param_update(IpgTogglerParam::Label, &py_obj("On/Off".to_string()));
+        t.param_update(TogglerParam::Label, &py_obj("On/Off".to_string()));
         assert_eq!(t.label, Some("On/Off".to_string()));
-        t.param_update(IpgTogglerParam::Label, &py_none());
+        t.param_update(TogglerParam::Label, &py_none());
         assert_eq!(t.label, None);
     }
 
     #[test]
     fn test_show() {
         let mut t = make_toggler();
-        t.param_update(IpgTogglerParam::Show, &py_obj(false));
+        t.param_update(TogglerParam::Show, &py_obj(false));
         assert!(!t.show);
     }
 
     #[test]
     fn test_size() {
         let mut t = make_toggler();
-        t.param_update(IpgTogglerParam::Size, &py_obj(24.0f32));
+        t.param_update(TogglerParam::Size, &py_obj(24.0f32));
         assert_eq!(t.size, Some(24.0));
     }
 
     #[test]
     fn test_spacing() {
         let mut t = make_toggler();
-        t.param_update(IpgTogglerParam::Spacing, &py_obj(10.0f32));
+        t.param_update(TogglerParam::Spacing, &py_obj(10.0f32));
         assert_eq!(t.spacing, Some(10.0));
     }
 
     #[test]
     fn test_style_id() {
         let mut t = make_toggler();
-        t.param_update(IpgTogglerParam::StyleId, &py_obj(5usize));
+        t.param_update(TogglerParam::StyleId, &py_obj(5usize));
         assert_eq!(t.style_id, Some(5));
-        t.param_update(IpgTogglerParam::StyleId, &py_none());
+        t.param_update(TogglerParam::StyleId, &py_none());
         assert_eq!(t.style_id, None);
     }
 
     #[test]
     fn test_text_center() {
         let mut t = make_toggler();
-        t.param_update(IpgTogglerParam::TextCenter, &py_obj(true));
+        t.param_update(TogglerParam::TextCenter, &py_obj(true));
         assert_eq!(t.text_center, Some(true));
-        t.param_update(IpgTogglerParam::TextCenter, &py_none());
+        t.param_update(TogglerParam::TextCenter, &py_none());
         assert_eq!(t.text_center, None);
     }
 
     #[test]
     fn test_text_left() {
         let mut t = make_toggler();
-        t.param_update(IpgTogglerParam::TextLeft, &py_obj(true));
+        t.param_update(TogglerParam::TextLeft, &py_obj(true));
         assert_eq!(t.text_left, Some(true));
     }
 
     #[test]
     fn test_text_right() {
         let mut t = make_toggler();
-        t.param_update(IpgTogglerParam::TextRight, &py_obj(true));
+        t.param_update(TogglerParam::TextRight, &py_obj(true));
         assert_eq!(t.text_right, Some(true));
     }
 
     #[test]
     fn test_text_line_height() {
         let mut t = make_toggler();
-        t.param_update(IpgTogglerParam::TextLineHeight, &py_obj(1.5f32));
+        t.param_update(TogglerParam::TextLineHeight, &py_obj(1.5f32));
         assert_eq!(t.text_line_height, Some(1.5));
     }
 
     #[test]
     fn test_text_size() {
         let mut t = make_toggler();
-        t.param_update(IpgTogglerParam::TextSize, &py_obj(14.0f32));
+        t.param_update(TogglerParam::TextSize, &py_obj(14.0f32));
         assert_eq!(t.text_size, Some(14.0));
     }
 
     #[test]
     fn test_width() {
         let mut t = make_toggler();
-        t.param_update(IpgTogglerParam::Width, &py_obj(200.0f32));
+        t.param_update(TogglerParam::Width, &py_obj(200.0f32));
         assert_eq!(t.width, Length::Fixed(200.0));
     }
 
     #[test]
     fn test_width_fill() {
         let mut t = make_toggler();
-        t.param_update(IpgTogglerParam::WidthFill, &py_obj(true));
+        t.param_update(TogglerParam::WidthFill, &py_obj(true));
         assert_eq!(t.width, Length::Fill);
     }
 
-    // -- IpgTogglerStyle param tests --
+    // -- TogglerStyle param tests --
 
     #[test]
     fn test_style_background_rgba() {
         let mut s = make_toggler_style();
-        s.param_update(IpgTogglerStyleParam::BackgroundRgbaColor, &py_obj(vec![1.0f32, 0.0, 0.0, 1.0]));
+        s.param_update(TogglerStyleParam::BackgroundRgbaColor, &py_obj(vec![1.0f32, 0.0, 0.0, 1.0]));
         assert!(s.background_color.is_some());
     }
 
     #[test]
     fn test_style_background_border_rgba() {
         let mut s = make_toggler_style();
-        s.param_update(IpgTogglerStyleParam::BackgroundBorderRgbaColor, &py_obj(vec![0.0f32, 1.0, 0.0, 1.0]));
+        s.param_update(TogglerStyleParam::BackgroundBorderRgbaColor, &py_obj(vec![0.0f32, 1.0, 0.0, 1.0]));
         assert!(s.background_border_color.is_some());
     }
 
     #[test]
     fn test_style_background_border_width() {
         let mut s = make_toggler_style();
-        s.param_update(IpgTogglerStyleParam::BackgroundBorderWidth, &py_obj(2.0f32));
+        s.param_update(TogglerStyleParam::BackgroundBorderWidth, &py_obj(2.0f32));
         assert_eq!(s.background_border_width, Some(2.0));
     }
 
     #[test]
     fn test_style_foreground_rgba() {
         let mut s = make_toggler_style();
-        s.param_update(IpgTogglerStyleParam::ForegroundRgbaColor, &py_obj(vec![0.0f32, 0.0, 1.0, 1.0]));
+        s.param_update(TogglerStyleParam::ForegroundRgbaColor, &py_obj(vec![0.0f32, 0.0, 1.0, 1.0]));
         assert!(s.foreground_color.is_some());
     }
 
     #[test]
     fn test_style_foreground_border_rgba() {
         let mut s = make_toggler_style();
-        s.param_update(IpgTogglerStyleParam::ForegroundBorderRgbaColor, &py_obj(vec![1.0f32, 1.0, 0.0, 1.0]));
+        s.param_update(TogglerStyleParam::ForegroundBorderRgbaColor, &py_obj(vec![1.0f32, 1.0, 0.0, 1.0]));
         assert!(s.foreground_border_color.is_some());
     }
 
     #[test]
     fn test_style_foreground_border_width() {
         let mut s = make_toggler_style();
-        s.param_update(IpgTogglerStyleParam::ForegroundBorderWidth, &py_obj(1.5f32));
+        s.param_update(TogglerStyleParam::ForegroundBorderWidth, &py_obj(1.5f32));
         assert_eq!(s.foreground_border_width, Some(1.5));
     }
 
     #[test]
     fn test_style_text_rgba() {
         let mut s = make_toggler_style();
-        s.param_update(IpgTogglerStyleParam::TextRgbaColor, &py_obj(vec![0.0f32, 0.0, 0.0, 1.0]));
+        s.param_update(TogglerStyleParam::TextRgbaColor, &py_obj(vec![0.0f32, 0.0, 0.0, 1.0]));
         assert!(s.text_color.is_some());
     }
 
     #[test]
     fn test_style_border_radius() {
         let mut s = make_toggler_style();
-        s.param_update(IpgTogglerStyleParam::BorderRadius, &py_obj(vec![4.0f32, 4.0, 4.0, 4.0]));
+        s.param_update(TogglerStyleParam::BorderRadius, &py_obj(vec![4.0f32, 4.0, 4.0, 4.0]));
         assert_eq!(s.border_radius, Some(vec![4.0, 4.0, 4.0, 4.0]));
-        s.param_update(IpgTogglerStyleParam::BorderRadius, &py_none());
+        s.param_update(TogglerStyleParam::BorderRadius, &py_none());
         assert_eq!(s.border_radius, None);
     }
 
     #[test]
     fn test_style_padding_ratio() {
         let mut s = make_toggler_style();
-        s.param_update(IpgTogglerStyleParam::PaddingRatio, &py_obj(0.2f32));
+        s.param_update(TogglerStyleParam::PaddingRatio, &py_obj(0.2f32));
         assert_eq!(s.padding_ratio, Some(0.2));
     }
 }

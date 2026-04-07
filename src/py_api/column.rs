@@ -4,9 +4,9 @@ use pyo3::pyfunction;
 
 use crate::access_state;
 use crate::py_api::helpers::get_length;
-use crate::state::{IpgContainers, get_id, set_state_cont_wnd_ids, 
+use crate::state::{Containers, get_id, set_state_cont_wnd_ids, 
     set_state_of_container};
-use crate::widgets::ipg_column::IpgColumn;
+use crate::widgets::ipg_column::Column;
 
 
 /// Add a column widget.
@@ -112,8 +112,8 @@ pub fn add_column(
     set_state_cont_wnd_ids(&mut state, &window_id, container_id, id, "add_column".to_string());
 
     state.containers
-        .insert(id, IpgContainers::IpgColumn(
-            IpgColumn {
+        .insert(id, Containers::Column(
+            Column {
                 id,  
                 show, 
                 spacing, 

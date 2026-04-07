@@ -4,9 +4,9 @@ use pyo3::{pyfunction, PyResult, Py, PyAny};
 type PyObject = Py<PyAny>;
 use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex, 
     graphics::colors::Color, py_api::helpers::get_length, 
-    state::{IpgWidgets, get_id, set_state_of_widget}, 
-    widgets::{ipg_text::TextShaping, ipg_radio::{IpgRadio, IpgRadioDirection, 
-        IpgRadioStyle}, ipg_text::TextWrapping}};
+    state::{Widgets, get_id, set_state_of_widget}, 
+    widgets::{ipg_text::TextShaping, ipg_radio::{Radio, RadioDirection, 
+        RadioStyle}, ipg_text::TextWrapping}};
 
 
 /// Add a radio button group widget.
@@ -22,7 +22,7 @@ use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex,
 ///     Sets the list of labels for each radio button.
 /// gen_id : int, Optional
 ///     Obtains an ID of a widget that have not been created, used for the gen_id parameter.
-/// direction : IpgRadioDirection, default Vertical
+/// direction : RadioDirection, default Vertical
 ///     Sets the layout direction of the radio buttons.
 /// spacing : float, Optional
 ///     Sets the spacing between radio buttons in logical pixels.
@@ -73,7 +73,7 @@ use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex,
     parent_id, 
     labels, 
     gen_id=None,
-    direction=IpgRadioDirection::Vertical,
+    direction=RadioDirection::Vertical,
     spacing=None,
     radio_spacing=None, 
     padding=None, 
@@ -99,7 +99,7 @@ pub fn add_radio(
     labels: Vec<String>,
     //**above required
     gen_id: Option<usize>,
-    direction: IpgRadioDirection,
+    direction: RadioDirection,
     spacing: Option<f32>,
     radio_spacing: Option<f32>,
     padding: Option<Vec<f32>>,
@@ -144,8 +144,8 @@ pub fn add_radio(
 
     let mut state = access_state();
     
-    state.widgets.insert(id, IpgWidgets::IpgRadio(
-        IpgRadio {
+    state.widgets.insert(id, Widgets::Radio(
+        Radio {
             id,
             parent_id,
             labels,
@@ -288,8 +288,8 @@ pub fn add_radio_style(
 
     let mut state = access_state();
 
-    state.widgets.insert(id, IpgWidgets::IpgRadioStyle(
-        IpgRadioStyle {
+    state.widgets.insert(id, Widgets::RadioStyle(
+        RadioStyle {
             id,
             background_color,
             background_color_hovered,

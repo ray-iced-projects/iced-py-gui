@@ -5,8 +5,8 @@ use pyo3::{Py, PyAny, PyResult, pyfunction};
 type PyObject = Py<PyAny>;
 
 use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex, 
-    state::{IpgContainers, get_id, set_state_cont_wnd_ids, set_state_of_container}, 
-        widgets::ipg_table::{IpgTable}};
+    state::{Containers, get_id, set_state_cont_wnd_ids, set_state_of_container}, 
+        widgets::ipg_table::{Table}};
 
 
 /// Add a table widget.
@@ -244,8 +244,8 @@ pub fn add_table(
 
     set_state_cont_wnd_ids(&mut state, &window_id, table_id, id, "add_table".to_string());
 
-    state.containers.insert(id, IpgContainers::IpgTable(
-        IpgTable {
+    state.containers.insert(id, Containers::Table(
+        Table {
             id,
             headers,
             body,

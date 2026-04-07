@@ -10,7 +10,7 @@ use pyo3::pyclass;
 
 #[derive(Debug, Clone, PartialEq)]
 #[pyclass(eq, eq_int)]
-pub enum IpgStyleStandard {
+pub enum StyleStandard {
     Primary,
     Secondary,
     Success,

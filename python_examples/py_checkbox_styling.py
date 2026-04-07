@@ -1,4 +1,6 @@
-from imports import *
+from icedpygui import Window, Column, Row, start_session, \
+    add_checkbox, add_checkbox_style, add_text, \
+    CheckboxStyleStd, Color
 
 
 # Style IDs can be created anywhere before use
@@ -20,22 +22,22 @@ with Window(title="Checkbox Styling",
             add_checkbox(
                 label="Primary (Default)",
                 is_checked=True,
-                style_std=IpgCheckboxStyleStd.Primary)
+                style_std=CheckboxStyleStd.Primary)
 
             add_checkbox(
                 label="Secondary",
                 is_checked=True,
-                style_std=IpgCheckboxStyleStd.Secondary)
+                style_std=CheckboxStyleStd.Secondary)
 
             add_checkbox(
                 label="Success",
                 is_checked=True,
-                style_std=IpgCheckboxStyleStd.Success)
+                style_std=CheckboxStyleStd.Success)
 
             add_checkbox(
                 label="Danger",
                 is_checked=True,
-                style_std=IpgCheckboxStyleStd.Danger)
+                style_std=CheckboxStyleStd.Danger)
 
         # ***********************Background Color***************************
 
@@ -163,7 +165,7 @@ with Window(title="Checkbox Styling",
                 label="Success + Custom Overrides",
                 is_checked=True,
                 style_id=combined_std,
-                style_std=IpgCheckboxStyleStd.Success)
+                style_std=CheckboxStyleStd.Success)
 
 
 start_session()

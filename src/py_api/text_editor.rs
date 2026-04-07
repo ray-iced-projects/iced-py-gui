@@ -1,14 +1,14 @@
 //! TextEditor module - provides add_text_editor pyfunction
 
-use iced::widget::text_editor::{Content, Status};
 use pyo3::prelude::*;
 use pyo3::pyfunction;
 
 use crate::access_state;
 use crate::py_api::helpers::get_length;
-use crate::state::{IpgWidgets, get_id, set_state_of_widget};
+use crate::state::{Widgets, get_id, set_state_of_widget};
 use crate::widgets::ipg_text::TextWrapping;
-use crate::widgets::ipg_text_editor::IpgTextEditor;
+use crate::widgets::ipg_text_editor::TextEditor;
+use crate::widgets::ipg_text_editor::TxtEdStatus;
 
 
 
@@ -58,10 +58,10 @@ pub fn add_text_editor(
     
     state.widgets.insert(
         id,
-        IpgWidgets::IpgTextEditor(
-            IpgTextEditor { 
+        Widgets::TextEditor(
+            TextEditor { 
                 id, 
-                content: Content::new(),
+                content: iced::widget::text_editor::Content::new(),
                 place_holder, 
                 font_id, 
                 text_size, 
@@ -72,7 +72,7 @@ pub fn add_text_editor(
                 max_height, 
                 padding, 
                 wrapping, 
-                last_status: Status::Disabled
+                last_status: TxtEdStatus::Disabled
             }),
         );
     drop(state);

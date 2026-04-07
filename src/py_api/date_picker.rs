@@ -3,10 +3,10 @@
 use pyo3::{Py, PyAny, pyfunction, PyResult};
 
 use crate::{access_state, add_callback_to_mutex, 
-    add_user_data_to_mutex, state::{IpgWidgets, 
+    add_user_data_to_mutex, state::{Widgets, 
         get_id, set_state_of_widget}, 
         widgets::{ipg_button::ButtonStyleStd, 
-            ipg_date_picker::IpgDatePicker}};
+            ipg_date_picker::DatePicker}};
 type PyObject = Py<PyAny>;
 
 
@@ -37,7 +37,7 @@ type PyObject = Py<PyAny>;
 ///     Whether the date picker is visible.
 /// show_calendar : bool, Optional
 ///     Whether the calendar popup is shown.
-/// button_style_standard : IpgButtonStyleStd, Optional
+/// button_style_standard : ButtonStyleStd, Optional
 ///     Sets the predefined standard style variant for the button.
 /// button_style_id : int, Optional
 ///     Sets the ID of a custom style created with ``add_button_style``.
@@ -89,8 +89,8 @@ pub fn add_date_picker(
 
     let mut state = access_state();
 
-    state.widgets.insert(id, IpgWidgets::IpgDatePicker(
-        IpgDatePicker::new (
+    state.widgets.insert(id, Widgets::DatePicker(
+        DatePicker::new (
             id,
             parent_id,
             label,

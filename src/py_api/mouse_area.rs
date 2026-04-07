@@ -5,8 +5,8 @@ use pyo3::{Py, PyAny, pyfunction};
 type PyObject = Py<PyAny>;
 
 use crate::add_user_data_to_mutex;
-use crate::state::{IpgContainers, access_state, add_callback_to_mutex, get_id, set_state_cont_wnd_ids, set_state_of_container};
-use crate::widgets::ipg_mouse_area::{IpgMouseArea, IpgMousePointer};
+use crate::state::{Containers, access_state, add_callback_to_mutex, get_id, set_state_cont_wnd_ids, set_state_of_container};
+use crate::widgets::ipg_mouse_area::{MouseArea, MousePointer};
 
 
 /// Add a mouse area widget.
@@ -27,7 +27,7 @@ use crate::widgets::ipg_mouse_area::{IpgMouseArea, IpgMousePointer};
 ///     Obtains an ID of a widget that have not been created, used for the gen_id parameter.
 /// show : bool, default True
 ///     Whether the mouse area is visible.
-/// mouse_pointer : IpgMousePointer, Optional
+/// mouse_pointer : MousePointer, Optional
 ///     Sets the mouse pointer style when hovering over the area.
 /// on_press : callable, Optional
 ///     Sets the Callback method to invoke when the left mouse button is pressed.
@@ -79,7 +79,7 @@ pub fn add_mouse_area(
     parent_id: Option<String>,
     gen_id: Option<usize>,
     show: bool,
-    mouse_pointer: Option<IpgMousePointer>,
+    mouse_pointer: Option<MousePointer>,
     on_press: Option<PyObject>,
     on_release: Option<PyObject>,
     on_right_press: Option<PyObject>,
@@ -145,8 +145,8 @@ pub fn add_mouse_area(
 
     set_state_cont_wnd_ids(&mut state, &window_id, container_id, id, "add_mousearea".to_string());
 
-    state.containers.insert(id, IpgContainers::IpgMouseArea(
-        IpgMouseArea {
+    state.containers.insert(id, Containers::MouseArea(
+        MouseArea {
             id,
             mouse_pointer,  
             show, 

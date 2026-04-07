@@ -3,7 +3,7 @@ use std::collections::HashMap;
 
 use crate::{IpgState, app};
 use crate::py_api::helpers::get_radius;
-use crate::state::IpgWidgets;
+use crate::state::Widgets;
 use crate::widgets::callbacks::invoke_callback_with_args;
 use crate::widgets::divider::{self, Direction, Status, Style, 
     divider_horizontal, divider_vertical};
@@ -20,11 +20,11 @@ type PyObject = Py<PyAny>;
 
 
 #[derive(Debug, Clone, PartialEq)]
-pub struct IpgDivider {
+pub struct Divider {
     pub id: usize,
     pub parent_id: String,
     pub show: bool,
-    pub direction: IpgDividerDirection,
+    pub direction: DividerDirection,
     pub sizes: Vec<f32>,
     pub handle_width: f32,
     pub handle_height: f32,
@@ -45,31 +45,31 @@ pub enum DivMessage {
 
 #[derive(Debug, Clone, PartialEq)]
 #[pyclass(eq, eq_int)]
-pub enum IpgDividerDirection {
+pub enum DividerDirection {
     /// Horizontal resizing
     Horizontal,
     /// Vertical resizing
     Vertical,
 }
 
-impl IpgDivider {
+impl Divider {
 
-    fn lookup<'a>(&self, widgets: &'a HashMap<usize, IpgWidgets>, id: Option<usize>) -> Option<&'a IpgWidgets> {
+    fn lookup<'a>(&self, widgets: &'a HashMap<usize, Widgets>, id: Option<usize>) -> Option<&'a Widgets> {
         id.and_then(|id| widgets.get(&id))
     }
 
     pub fn construct<'a>(
         &'a self,
-        widgets: &HashMap<usize, IpgWidgets>,
+        widgets: &HashMap<usize, Widgets>,
     )-> Option<Element<'a, app::Message>> {
 
         if !self.show { return None }
 
         let style_opt = 
             self.lookup(widgets, self.style_id)
-                .and_then(IpgWidgets::as_divider_style).cloned();
+                .and_then(Widgets::as_divider_style).cloned();
 
-        let is_horizontal = self.direction == IpgDividerDirection::Horizontal;
+        let is_horizontal = self.direction == DividerDirection::Horizontal;
 
         let offsets = match self.handle_offsets.clone() {
             Some(offsets) => offsets,
@@ -140,14 +140,14 @@ impl IpgDivider {
 pub fn divider_callback(state: &mut IpgState, id: usize, message: DivMessage) {
     match message {
         DivMessage::OnChange((widget_id, index, value)) => {
-            if let Some(IpgWidgets::IpgDivider(div)) = state.widgets.get_mut(&widget_id) {
+            if let Some(Widgets::Divider(div)) = state.widgets.get_mut(&widget_id) {
                 div.index_in_use = index;
                 div.value_in_use = value;
             }
             invoke_callback_with_args(widget_id, "on_change", "Divider", (index, value));
         },
         DivMessage::OnRelease => {
-            let (index, value) = if let Some(IpgWidgets::IpgDivider(div)) = state.widgets.get(&id) {
+            let (index, value) = if let Some(Widgets::Divider(div)) = state.widgets.get(&id) {
                 (div.index_in_use, div.value_in_use)
             } else {
                 (0, 0.0)
@@ -158,7 +158,7 @@ pub fn divider_callback(state: &mut IpgState, id: usize, message: DivMessage) {
 }
 
 #[derive(Debug, Clone, PartialEq)]
-pub struct IpgDividerStyle {
+pub struct DividerStyle {
     pub id: usize,
     pub background_color: Option<iced::Color>,
     pub background_color_hovered: Option<iced::Color>,
@@ -168,7 +168,7 @@ pub struct IpgDividerStyle {
     pub border_radius: Option<Vec<f32>>,
 }
 
-impl IpgDividerStyle {
+impl DividerStyle {
     fn to_iced(
         &self,
         theme: &Theme, 
@@ -215,11 +215,11 @@ impl IpgDividerStyle {
 }
 #[derive(Debug, Clone, PartialEq)]
 #[pyclass(eq, eq_int)]
-pub enum IpgDividerStyleParam {
-    BackgroundIpgColor,
+pub enum DividerStyleParam {
+    BackgroundColor,
     BackgroundRgbaColor,
     BackgroundTransparent,
-    BorderIpgColor,
+    BorderColor,
     BorderRgbaColor,
     BorderWidth,
     BorderRadius,
@@ -227,7 +227,7 @@ pub enum IpgDividerStyleParam {
 
 #[derive(Debug, Clone, PartialEq)]
 #[pyclass(eq, eq_int)]
-pub enum IpgDividerParam {
+pub enum DividerParam {
     HandleWidth,
     HandleHeight,
     Sizes,
@@ -239,32 +239,32 @@ pub enum IpgDividerParam {
 // WidgetParamUpdate implementations
 // ---------------------------------------------------------------------------
 
-impl WidgetParamUpdate for IpgDivider {
-    type Param = IpgDividerParam;
+impl WidgetParamUpdate for Divider {
+    type Param = DividerParam;
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
-            IpgDividerParam::HandleWidth  => set_f32(&mut self.handle_width, value, "HandleWidth"),
-            IpgDividerParam::HandleHeight => set_f32(&mut self.handle_height, value, "HandleHeight"),
-            IpgDividerParam::Sizes        => set_vec_f32(&mut self.sizes, value, "Sizes"),
-            IpgDividerParam::StyleId      => set_opt_usize(&mut self.style_id, value, "StyleId"),
-            IpgDividerParam::Show         => set_bool(&mut self.show, value, "Show"),
+            DividerParam::HandleWidth  => set_f32(&mut self.handle_width, value, "HandleWidth"),
+            DividerParam::HandleHeight => set_f32(&mut self.handle_height, value, "HandleHeight"),
+            DividerParam::Sizes        => set_vec_f32(&mut self.sizes, value, "Sizes"),
+            DividerParam::StyleId      => set_opt_usize(&mut self.style_id, value, "StyleId"),
+            DividerParam::Show         => set_bool(&mut self.show, value, "Show"),
         }
     }
 }
 
-impl WidgetParamUpdate for IpgDividerStyle {
-    type Param = IpgDividerStyleParam;
+impl WidgetParamUpdate for DividerStyle {
+    type Param = DividerStyleParam;
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
-            IpgDividerStyleParam::BackgroundIpgColor   => set_opt_iced_color(&mut self.background_color, value, "BackgroundIpgColor"),
-            IpgDividerStyleParam::BackgroundRgbaColor  => set_rgba_color_via_ipg(&mut self.background_color, value, "BackgroundRgbaColor"),
-            IpgDividerStyleParam::BackgroundTransparent => set_opt_bool(&mut self.background_transparent, value, "BackgroundTransparent"),
-            IpgDividerStyleParam::BorderIpgColor       => set_opt_iced_color(&mut self.border_color, value, "BorderIpgColor"),
-            IpgDividerStyleParam::BorderRgbaColor      => set_rgba_color_via_ipg(&mut self.border_color, value, "BorderRgbaColor"),
-            IpgDividerStyleParam::BorderWidth          => set_opt_f32(&mut self.border_width, value, "BorderWidth"),
-            IpgDividerStyleParam::BorderRadius         => set_opt_vec_f32(&mut self.border_radius, value, "BorderRadius"),
+            DividerStyleParam::BackgroundColor   => set_opt_iced_color(&mut self.background_color, value, "BackgroundColor"),
+            DividerStyleParam::BackgroundRgbaColor  => set_rgba_color_via_ipg(&mut self.background_color, value, "BackgroundRgbaColor"),
+            DividerStyleParam::BackgroundTransparent => set_opt_bool(&mut self.background_transparent, value, "BackgroundTransparent"),
+            DividerStyleParam::BorderColor       => set_opt_iced_color(&mut self.border_color, value, "BorderColor"),
+            DividerStyleParam::BorderRgbaColor      => set_rgba_color_via_ipg(&mut self.border_color, value, "BorderRgbaColor"),
+            DividerStyleParam::BorderWidth          => set_opt_f32(&mut self.border_width, value, "BorderWidth"),
+            DividerStyleParam::BorderRadius         => set_opt_vec_f32(&mut self.border_radius, value, "BorderRadius"),
         }
     }
 }

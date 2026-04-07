@@ -4,9 +4,9 @@ use pyo3::{pyfunction, Py, PyAny, PyResult};
 
 use crate::{access_state, add_callback_to_mutex, 
     add_user_data_to_mutex, graphics::colors::Color, 
-    py_api::helpers::get_length, state::{IpgWidgets, 
+    py_api::helpers::get_length, state::{Widgets, 
         get_id, set_state_of_widget}, 
-        widgets::ipg_slider::{IpgSlider, IpgSliderStyle}};
+        widgets::ipg_slider::{Slider, SliderStyle}};
 type PyObject = Py<PyAny>;
 
 
@@ -108,8 +108,8 @@ pub fn add_slider(
 
     let mut state = access_state();
 
-    state.widgets.insert(id, IpgWidgets::IpgSlider(
-        IpgSlider { 
+    state.widgets.insert(id, Widgets::Slider(
+        Slider { 
             id,
             parent_id,
             show,
@@ -236,8 +236,8 @@ pub fn add_slider_style(
 
     let mut state = access_state();
     
-    state.widgets.insert(id, IpgWidgets::IpgSliderStyle(
-        IpgSliderStyle {
+    state.widgets.insert(id, Widgets::SliderStyle(
+        SliderStyle {
             id,
             rail_color,
             rail_color_hovered,

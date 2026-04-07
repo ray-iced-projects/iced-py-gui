@@ -2,8 +2,8 @@
 use pyo3::{pyfunction, PyResult};
 
 use crate::py_api::helpers::get_length;
-use crate::state::{IpgWidgets, get_id, set_state_of_widget}; 
-use crate::widgets::ipg_text::{IpgText, TextShaping, TextWrapping};
+use crate::state::{Widgets, get_id, set_state_of_widget}; 
+use crate::widgets::ipg_text::{Text, TextShaping, TextWrapping};
 use crate::access_state; 
 use crate::graphics::colors::Color;
 
@@ -53,10 +53,10 @@ use crate::graphics::colors::Color;
 ///     Sets the Font ID for the text.
 /// text_shaping : TextShaping, Optional
 ///     Sets the Text shaping strategy.
-/// text_color : IpgColor, Optional
+/// text_color : Color, Optional
 ///     Sets the text color using a predefined color variant.
 /// text_color_alpha : float, Optional
-///     Sets the alpha of the IpgColor.
+///     Sets the alpha of the Color.
 /// text_rgba : list of float, Optional
 ///     Sets the text color in rgba format as [r, g, b, a].
 /// text_wrapping : TextWrapping, Optional
@@ -142,8 +142,8 @@ pub fn add_text(
 
     let mut state = access_state();
     
-    state.widgets.insert(id, IpgWidgets::IpgText(
-        IpgText {
+    state.widgets.insert(id, Widgets::Text(
+        Text {
             id,
             parent_id,
             content,

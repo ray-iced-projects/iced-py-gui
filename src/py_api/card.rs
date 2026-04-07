@@ -7,9 +7,9 @@ type PyObject = Py<PyAny>;
 use crate::add_user_data_to_mutex;
 use crate::graphics::colors::Color;
 use crate::py_api::helpers::get_length;
-use crate::state::{IpgWidgets, access_state, add_callback_to_mutex, 
+use crate::state::{Widgets, access_state, add_callback_to_mutex, 
     get_id, set_state_of_widget};
-use crate::widgets::ipg_card::{IpgCard, IpgCardStyle, IpgCardStyleStd};
+use crate::widgets::ipg_card::{Card, CardStyle, CardStyleStd};
 
 
 /// Add a card widget.
@@ -59,7 +59,7 @@ use crate::widgets::ipg_card::{IpgCard, IpgCardStyle, IpgCardStyleStd};
 ///     Sets the Padding for the footer section.
 /// style_id : int, Optional
 ///     Sets the ID of a custom style created with ``add_card_style``.
-/// style_std : IpgCardStyleStd, Optional
+/// style_std : CardStyleStd, Optional
 ///     Sets a predefined standard style variant.
 /// style_button : int, Optional
 ///     Sets the ID of a button style for the close button.
@@ -124,7 +124,7 @@ pub fn add_card(
     padding_body: Option<Vec<f32>>,
     padding_foot: Option<Vec<f32>>,
     style_id: Option<usize>,
-    style_std: Option<IpgCardStyleStd>,
+    style_std: Option<CardStyleStd>,
     style_button: Option<usize>,
     show: bool,
     user_data: Option<PyObject>, 
@@ -151,8 +151,8 @@ pub fn add_card(
 
     let mut state = access_state();
 
-    state.widgets.insert(id, IpgWidgets::IpgCard(
-        IpgCard {
+    state.widgets.insert(id, Widgets::Card(
+        Card {
             id,
             parent_id,
             is_open,
@@ -343,8 +343,8 @@ pub fn add_card_style(
 
     let mut state = access_state();
 
-    state.widgets.insert(id, IpgWidgets::IpgCardStyle(
-        IpgCardStyle {
+    state.widgets.insert(id, Widgets::CardStyle(
+        CardStyle {
             id,
             background,
             border_radius,

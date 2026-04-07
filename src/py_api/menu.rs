@@ -6,9 +6,9 @@ use pyo3::{Py, PyAny, pyfunction};
 
 use crate::graphics::colors::Color;
 use crate::py_api::helpers::get_length;
-use crate::widgets::ipg_menu::{IpgMenu, IpgMenuBarItem, IpgMenuStyle};
+use crate::widgets::ipg_menu::{Menu, MenuBarItem, MenuStyle};
 use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex};
-use crate::state::{IpgContainers, IpgWidgets, get_id, set_state_cont_wnd_ids, set_state_of_container};
+use crate::state::{Containers, Widgets, get_id, set_state_cont_wnd_ids, set_state_of_container};
 type PyObject = Py<PyAny>;
 
 
@@ -116,8 +116,8 @@ pub fn add_menu(
 
     set_state_cont_wnd_ids(&mut state, &window_id, container_id, id, "add_menu".to_string());
 
-    state.containers.insert(id, IpgContainers::IpgMenu(
-        IpgMenu {
+    state.containers.insert(id, Containers::Menu(
+        Menu {
             id,
             item_offsets,
             item_paddings,
@@ -270,8 +270,8 @@ pub fn add_menu_style(
 
     let mut state = access_state();
 
-    state.widgets.insert(id, IpgWidgets::IpgMenuStyle(
-        IpgMenuStyle {
+    state.widgets.insert(id, Widgets::MenuStyle(
+        MenuStyle {
             id,
             bar_background_color,
             bar_border_color,
@@ -337,8 +337,8 @@ pub fn add_menu_bar_item(
 
     set_state_cont_wnd_ids(&mut state, &window_id, container_id, id, "add_menu_bar_item".to_string());
 
-    state.containers.insert(id, IpgContainers::IpgMenuBarItem(
-        IpgMenuBarItem {
+    state.containers.insert(id, Containers::MenuBarItem(
+        MenuBarItem {
             id,
             show,
         }));

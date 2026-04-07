@@ -1,7 +1,7 @@
 //! ipg_stack
 
 use iced::{Element, Length};
-use iced::widget::Stack;
+use iced::widget;
 use pyo3::{pyclass, Py, PyAny};
 
 // Type alias to replace deprecated PyObject
@@ -14,7 +14,7 @@ use crate::widgets::widget_param_update::{WidgetParamUpdate,
 
     
 #[derive(Debug, Clone)]
-pub struct IpgStack {
+pub struct Stack {
     pub id: usize,
     pub width: Length,
     pub height: Length,
@@ -22,7 +22,7 @@ pub struct IpgStack {
     pub show: bool,
 }
 
-impl <'a> IpgStack {
+impl <'a> Stack {
     pub fn construct(
         &self,
         mut content: Vec<Element<'a, Message>> 
@@ -42,7 +42,7 @@ impl <'a> IpgStack {
             content
         };
         
-        Stack::with_children(content)
+        widget::Stack::with_children(content)
                     .width(self.width)
                     .height(self.height)
                     .into()
@@ -52,7 +52,7 @@ impl <'a> IpgStack {
 
 #[derive(Debug, Clone, PartialEq)]
 #[pyclass(eq, eq_int)]
-pub enum IpgStackParam {
+pub enum StackParam {
     Height,
     HeightFill,
     HideIndex,
@@ -65,17 +65,17 @@ pub enum IpgStackParam {
 // WidgetParamUpdate implementation
 // ---------------------------------------------------------------------------
 
-impl WidgetParamUpdate for IpgStack {
-    type Param = IpgStackParam;
+impl WidgetParamUpdate for Stack {
+    type Param = StackParam;
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
-            IpgStackParam::Height => set_height(&mut self.height, value, "Height"),
-            IpgStackParam::HeightFill => set_height_fill(&mut self.height, value, "HeightFill"),
-            IpgStackParam::HideIndex => set_opt_usize(&mut self.hide_index, value, "HideIndex"),
-            IpgStackParam::Show => set_bool(&mut self.show, value, "Show"),
-            IpgStackParam::Width => set_width(&mut self.width, value, "Width"),
-            IpgStackParam::WidthFill => set_width_fill(&mut self.width, value, "WidthFill"),
+            StackParam::Height => set_height(&mut self.height, value, "Height"),
+            StackParam::HeightFill => set_height_fill(&mut self.height, value, "HeightFill"),
+            StackParam::HideIndex => set_opt_usize(&mut self.hide_index, value, "HideIndex"),
+            StackParam::Show => set_bool(&mut self.show, value, "Show"),
+            StackParam::Width => set_width(&mut self.width, value, "Width"),
+            StackParam::WidthFill => set_width_fill(&mut self.width, value, "WidthFill"),
         }
     }
 }
@@ -86,8 +86,8 @@ mod tests {
     use iced::Length;
     use pyo3::{Python, IntoPyObjectExt};
 
-    fn make_stack() -> IpgStack {
-        IpgStack {
+    fn make_stack() -> Stack {
+        Stack {
             id: 0,
             width: Length::Shrink,
             height: Length::Shrink,
@@ -109,44 +109,44 @@ mod tests {
     #[test]
     fn test_height() {
         let mut s = make_stack();
-        s.param_update(IpgStackParam::Height, &py_obj(100.0f32));
+        s.param_update(StackParam::Height, &py_obj(100.0f32));
         assert_eq!(s.height, Length::Fixed(100.0));
     }
 
     #[test]
     fn test_height_fill() {
         let mut s = make_stack();
-        s.param_update(IpgStackParam::HeightFill, &py_obj(true));
+        s.param_update(StackParam::HeightFill, &py_obj(true));
         assert_eq!(s.height, Length::Fill);
     }
 
     #[test]
     fn test_hide_index() {
         let mut s = make_stack();
-        s.param_update(IpgStackParam::HideIndex, &py_obj(2usize));
+        s.param_update(StackParam::HideIndex, &py_obj(2usize));
         assert_eq!(s.hide_index, Some(2));
-        s.param_update(IpgStackParam::HideIndex, &py_none());
+        s.param_update(StackParam::HideIndex, &py_none());
         assert_eq!(s.hide_index, None);
     }
 
     #[test]
     fn test_show() {
         let mut s = make_stack();
-        s.param_update(IpgStackParam::Show, &py_obj(false));
+        s.param_update(StackParam::Show, &py_obj(false));
         assert!(!s.show);
     }
 
     #[test]
     fn test_width() {
         let mut s = make_stack();
-        s.param_update(IpgStackParam::Width, &py_obj(200.0f32));
+        s.param_update(StackParam::Width, &py_obj(200.0f32));
         assert_eq!(s.width, Length::Fixed(200.0));
     }
 
     #[test]
     fn test_width_fill() {
         let mut s = make_stack();
-        s.param_update(IpgStackParam::WidthFill, &py_obj(true));
+        s.param_update(StackParam::WidthFill, &py_obj(true));
         assert_eq!(s.width, Length::Fill);
     }
 }

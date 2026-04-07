@@ -2,7 +2,7 @@
 
 use std::collections::HashMap;
 
-use crate::widgets::styling::IpgStyleStandard;
+use crate::widgets::styling::StyleStandard;
 use crate::access_state;
 
 use iced::border::Radius;
@@ -359,10 +359,10 @@ pub fn try_extract_opt_boolean(value: &PyObject, name: &str) -> Option<bool> {
     })  
 }
 
-pub fn try_extract_style_standard(value: &PyObject, name: &str) -> IpgStyleStandard {
+pub fn try_extract_style_standard(value: &PyObject, name: &str) -> StyleStandard {
     Python::attach(|py| {
 
-        let res = value.extract::<IpgStyleStandard>(py);
+        let res = value.extract::<StyleStandard>(py);
         match res {
             Ok(val) => val,
             Err(_) => panic!("{}-Unable to extract python object for StyleStandard", name),

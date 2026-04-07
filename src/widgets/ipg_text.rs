@@ -4,13 +4,13 @@ use std::collections::HashMap;
 use iced::advanced::text;
 use iced::{Element, Length, alignment};
 use iced::widget::text::{Shaping, Style};
-use iced::widget::Text;
+use iced::widget;
 
 use pyo3::{Py, PyAny, Python, pyclass};
 type PyObject = Py<PyAny>;
 
 use crate::app::Message;
-use crate::state::IpgWidgets;
+use crate::state::Widgets;
 use crate::widgets::widget_param_update::{
     WidgetParamUpdate, set_bool, set_height, set_height_fill, 
     set_opt_bool_from_opt, set_opt_f32, set_opt_iced_color, 
@@ -19,7 +19,7 @@ use crate::widgets::widget_param_update::{
 
 
 #[derive(Debug, Clone)]
-pub struct IpgText {
+pub struct Text {
     pub id: usize,
     pub parent_id: String,
     pub content: String,
@@ -43,15 +43,15 @@ pub struct IpgText {
     pub wrapping: Option<TextWrapping>,
 }
 
-impl IpgText {
+impl Text {
 
-    fn lookup<'a>(&self, widgets: &'a HashMap<usize, IpgWidgets>, id: Option<usize>) -> Option<&'a IpgWidgets> {
+    fn lookup<'a>(&self, widgets: &'a HashMap<usize, Widgets>, id: Option<usize>) -> Option<&'a Widgets> {
         id.and_then(|id| widgets.get(&id))
     }
 
     pub fn construct<'a>(
         &'a self,
-        widgets: &HashMap<usize, IpgWidgets>,
+        widgets: &HashMap<usize, Widgets>,
     ) -> Option<Element<'a, Message>> {
 
         if !self.show {
@@ -60,10 +60,10 @@ impl IpgText {
 
         let font_opt = 
             self.lookup(widgets, self.font_id)
-                .and_then(IpgWidgets::as_font).cloned();
+                .and_then(Widgets::as_font).cloned();
 
         let txt = 
-            Text::new(self.content.clone())
+            widget::Text::new(self.content.clone())
                 .width(self.width)
                 .height(self.height)
                 .style(move|_|{
@@ -161,7 +161,7 @@ impl IpgText {
 
 #[derive(Debug, Clone, PartialEq)]
 #[pyclass(eq, eq_int)]
-pub enum IpgTextParam {
+pub enum TextParam {
     AlignBottomCenter,
     AlignBottomLeft,
     AlignBottomRight,
@@ -276,32 +276,32 @@ impl TextShaping {
 // WidgetParamUpdate implementation
 // ---------------------------------------------------------------------------
 
-impl WidgetParamUpdate for IpgText {
-    type Param = IpgTextParam;
+impl WidgetParamUpdate for Text {
+    type Param = TextParam;
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
-            IpgTextParam::AlignBottomCenter => set_opt_bool_from_opt(&mut self.align_bottom_center, value, "AlignBottomCenter"),
-            IpgTextParam::AlignBottomLeft => set_opt_bool_from_opt(&mut self.align_bottom_left, value, "AlignBottomLeft"),
-            IpgTextParam::AlignBottomRight => set_opt_bool_from_opt(&mut self.align_bottom_right, value, "AlignBottomRight"),
-            IpgTextParam::AlignCenter => set_opt_bool_from_opt(&mut self.align_center, value, "AlignCenter"),
-            IpgTextParam::AlignCenterLeft => set_opt_bool_from_opt(&mut self.align_center_left, value, "AlignCenterLeft"),
-            IpgTextParam::AlignCenterRight => set_opt_bool_from_opt(&mut self.align_center_right, value, "AlignCenterRight"),
-            IpgTextParam::AlignTopCenter => set_opt_bool_from_opt(&mut self.align_top_center, value, "AlignTopCenter"),
-            IpgTextParam::AlignTopLeft => set_opt_bool_from_opt(&mut self.align_top_left, value, "AlignTopLeft"),
-            IpgTextParam::AlignTopRight => set_opt_bool_from_opt(&mut self.align_top_right, value, "AlignTopRight"),
-            IpgTextParam::Content => set_string(&mut self.content, value, "Content"),
-            IpgTextParam::Height => set_height(&mut self.height, value, "Height"),
-            IpgTextParam::HeightFill => set_height_fill(&mut self.height, value, "HeightFill"),
-            IpgTextParam::LineHeight => set_opt_f32(&mut self.line_height, value, "LineHeight"),
-            IpgTextParam::Show => set_bool(&mut self.show, value, "Show"),
-            IpgTextParam::Size => set_opt_f32(&mut self.size, value, "Size"),
-            IpgTextParam::TextColor  => set_opt_iced_color(&mut self.color, value, "TextColor"),
-            IpgTextParam::TextRgba => set_opt_iced_color_from_rgba(&mut self.color, value, "TextRgba"),
-            IpgTextParam::TextShaping => self.shaping = TextShaping::extract_opt(value),
-            IpgTextParam::TextWrapping => self.wrapping = TextWrapping::extract_opt(value),
-            IpgTextParam::Width => set_width(&mut self.width, value, "Width"),
-            IpgTextParam::WidthFill => set_width_fill(&mut self.width, value, "WidthFill"),
+            TextParam::AlignBottomCenter => set_opt_bool_from_opt(&mut self.align_bottom_center, value, "AlignBottomCenter"),
+            TextParam::AlignBottomLeft => set_opt_bool_from_opt(&mut self.align_bottom_left, value, "AlignBottomLeft"),
+            TextParam::AlignBottomRight => set_opt_bool_from_opt(&mut self.align_bottom_right, value, "AlignBottomRight"),
+            TextParam::AlignCenter => set_opt_bool_from_opt(&mut self.align_center, value, "AlignCenter"),
+            TextParam::AlignCenterLeft => set_opt_bool_from_opt(&mut self.align_center_left, value, "AlignCenterLeft"),
+            TextParam::AlignCenterRight => set_opt_bool_from_opt(&mut self.align_center_right, value, "AlignCenterRight"),
+            TextParam::AlignTopCenter => set_opt_bool_from_opt(&mut self.align_top_center, value, "AlignTopCenter"),
+            TextParam::AlignTopLeft => set_opt_bool_from_opt(&mut self.align_top_left, value, "AlignTopLeft"),
+            TextParam::AlignTopRight => set_opt_bool_from_opt(&mut self.align_top_right, value, "AlignTopRight"),
+            TextParam::Content => set_string(&mut self.content, value, "Content"),
+            TextParam::Height => set_height(&mut self.height, value, "Height"),
+            TextParam::HeightFill => set_height_fill(&mut self.height, value, "HeightFill"),
+            TextParam::LineHeight => set_opt_f32(&mut self.line_height, value, "LineHeight"),
+            TextParam::Show => set_bool(&mut self.show, value, "Show"),
+            TextParam::Size => set_opt_f32(&mut self.size, value, "Size"),
+            TextParam::TextColor  => set_opt_iced_color(&mut self.color, value, "TextColor"),
+            TextParam::TextRgba => set_opt_iced_color_from_rgba(&mut self.color, value, "TextRgba"),
+            TextParam::TextShaping => self.shaping = TextShaping::extract_opt(value),
+            TextParam::TextWrapping => self.wrapping = TextWrapping::extract_opt(value),
+            TextParam::Width => set_width(&mut self.width, value, "Width"),
+            TextParam::WidthFill => set_width_fill(&mut self.width, value, "WidthFill"),
         }
     }
 }
@@ -312,8 +312,8 @@ mod tests {
     use iced::Length;
     use pyo3::IntoPyObjectExt;
 
-    fn make_text() -> IpgText {
-        IpgText {
+    fn make_text() -> Text {
+        Text {
             id: 0,
             parent_id: String::new(),
             content: String::from("test"),
@@ -356,9 +356,9 @@ mod tests {
     fn test_align_bottom_center() {
         Python::initialize();
         let mut t = make_text();
-        t.param_update(IpgTextParam::AlignBottomCenter, &py_obj(true));
+        t.param_update(TextParam::AlignBottomCenter, &py_obj(true));
         assert_eq!(t.align_bottom_center, Some(true));
-        t.param_update(IpgTextParam::AlignBottomCenter, &py_none());
+        t.param_update(TextParam::AlignBottomCenter, &py_none());
         assert_eq!(t.align_bottom_center, None);
     }
 
@@ -366,9 +366,9 @@ mod tests {
     fn test_align_bottom_left() {
         Python::initialize();
         let mut t = make_text();
-        t.param_update(IpgTextParam::AlignBottomLeft, &py_obj(true));
+        t.param_update(TextParam::AlignBottomLeft, &py_obj(true));
         assert_eq!(t.align_bottom_left, Some(true));
-        t.param_update(IpgTextParam::AlignBottomLeft, &py_none());
+        t.param_update(TextParam::AlignBottomLeft, &py_none());
         assert_eq!(t.align_bottom_left, None);
     }
 
@@ -376,9 +376,9 @@ mod tests {
     fn test_align_bottom_right() {
         Python::initialize();
         let mut t = make_text();
-        t.param_update(IpgTextParam::AlignBottomRight, &py_obj(true));
+        t.param_update(TextParam::AlignBottomRight, &py_obj(true));
         assert_eq!(t.align_bottom_right, Some(true));
-        t.param_update(IpgTextParam::AlignBottomRight, &py_none());
+        t.param_update(TextParam::AlignBottomRight, &py_none());
         assert_eq!(t.align_bottom_right, None);
     }
 
@@ -386,7 +386,7 @@ mod tests {
     fn test_content() {
         Python::initialize();
         let mut t = make_text();
-        t.param_update(IpgTextParam::Content, &py_obj("Hello"));
+        t.param_update(TextParam::Content, &py_obj("Hello"));
         assert_eq!(t.content, "Hello");
     }
 
@@ -394,9 +394,9 @@ mod tests {
     fn test_height() {
         Python::initialize();
         let mut t = make_text();
-        t.param_update(IpgTextParam::Height, &py_obj(100.0f32));
+        t.param_update(TextParam::Height, &py_obj(100.0f32));
         assert_eq!(t.height, Length::Fixed(100.0));
-        t.param_update(IpgTextParam::Height, &py_none());
+        t.param_update(TextParam::Height, &py_none());
         assert_eq!(t.height, Length::Shrink);
     }
 
@@ -404,9 +404,9 @@ mod tests {
     fn test_height_fill() {
         Python::initialize();
         let mut t = make_text();
-        t.param_update(IpgTextParam::HeightFill, &py_obj(true));
+        t.param_update(TextParam::HeightFill, &py_obj(true));
         assert_eq!(t.height, Length::Fill);
-        t.param_update(IpgTextParam::HeightFill, &py_obj(false));
+        t.param_update(TextParam::HeightFill, &py_obj(false));
         assert_eq!(t.height, Length::Shrink);
     }
 
@@ -414,9 +414,9 @@ mod tests {
     fn test_line_height() {
         Python::initialize();
         let mut t = make_text();
-        t.param_update(IpgTextParam::LineHeight, &py_obj(1.5f32));
+        t.param_update(TextParam::LineHeight, &py_obj(1.5f32));
         assert_eq!(t.line_height, Some(1.5));
-        t.param_update(IpgTextParam::LineHeight, &py_none());
+        t.param_update(TextParam::LineHeight, &py_none());
         assert_eq!(t.line_height, None);
     }
 
@@ -424,7 +424,7 @@ mod tests {
     fn test_show() {
         Python::initialize();
         let mut t = make_text();
-        t.param_update(IpgTextParam::Show, &py_obj(false));
+        t.param_update(TextParam::Show, &py_obj(false));
         assert!(!t.show);
     }
 
@@ -432,9 +432,9 @@ mod tests {
     fn test_size() {
         Python::initialize();
         let mut t = make_text();
-        t.param_update(IpgTextParam::Size, &py_obj(20.0f32));
+        t.param_update(TextParam::Size, &py_obj(20.0f32));
         assert_eq!(t.size, Some(20.0));
-        t.param_update(IpgTextParam::Size, &py_none());
+        t.param_update(TextParam::Size, &py_none());
         assert_eq!(t.size, None);
     }
 
@@ -442,9 +442,9 @@ mod tests {
     fn test_text_rgba() {
         Python::initialize();
         let mut t = make_text();
-        t.param_update(IpgTextParam::TextRgba, &py_obj(vec![1.0f32, 0.0, 0.0, 1.0]));
+        t.param_update(TextParam::TextRgba, &py_obj(vec![1.0f32, 0.0, 0.0, 1.0]));
         assert!(t.color.is_some());
-        t.param_update(IpgTextParam::TextRgba, &py_none());
+        t.param_update(TextParam::TextRgba, &py_none());
         assert!(t.color.is_none());
     }
 
@@ -452,9 +452,9 @@ mod tests {
     fn test_width() {
         Python::initialize();
         let mut t = make_text();
-        t.param_update(IpgTextParam::Width, &py_obj(200.0f32));
+        t.param_update(TextParam::Width, &py_obj(200.0f32));
         assert_eq!(t.width, Length::Fixed(200.0));
-        t.param_update(IpgTextParam::Width, &py_none());
+        t.param_update(TextParam::Width, &py_none());
         assert_eq!(t.width, Length::Shrink);
     }
 
@@ -462,9 +462,9 @@ mod tests {
     fn test_width_fill() {
         Python::initialize();
         let mut t = make_text();
-        t.param_update(IpgTextParam::WidthFill, &py_obj(true));
+        t.param_update(TextParam::WidthFill, &py_obj(true));
         assert_eq!(t.width, Length::Fill);
-        t.param_update(IpgTextParam::WidthFill, &py_obj(false));
+        t.param_update(TextParam::WidthFill, &py_obj(false));
         assert_eq!(t.width, Length::Shrink);
     }
 }

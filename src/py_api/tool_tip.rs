@@ -2,9 +2,9 @@
 
 use pyo3::{PyResult, pyfunction};
 
-use crate::{access_state, state::{IpgContainers, get_id, 
+use crate::{access_state, state::{Containers, get_id, 
     set_state_cont_wnd_ids, set_state_of_container}, 
-    widgets::{ipg_container::IpgContainerStyleStd, ipg_tool_tip::{IpgToolTip, IpgToolTipPosition}}};
+    widgets::{ipg_container::ContainerStyleStd, ipg_tool_tip::{ToolTip, ToolTipPosition}}};
 
 
 
@@ -28,13 +28,13 @@ pub fn add_tool_tip(
     container_id: String,
     text: Option<String>,
     parent_id: Option<String>,
-    position: Option<IpgToolTipPosition>,
+    position: Option<ToolTipPosition>,
     gap: Option<u32>,
     padding: Option<f32>,
     snap_within_viewport: Option<bool>,
     delay_sec: Option<u64>,
     style_id: Option<usize>,
-    style_std: Option<IpgContainerStyleStd>,
+    style_std: Option<ContainerStyleStd>,
     gen_id: Option<usize>,
     ) -> PyResult<usize>
 {
@@ -52,8 +52,8 @@ pub fn add_tool_tip(
 
     set_state_cont_wnd_ids(&mut state, &window_id, container_id, id, "add_tool_tip".to_string());
 
-    state.containers.insert(id, IpgContainers::IpgToolTip(
-        IpgToolTip { 
+    state.containers.insert(id, Containers::ToolTip(
+        ToolTip { 
             id,
             position,
             text,

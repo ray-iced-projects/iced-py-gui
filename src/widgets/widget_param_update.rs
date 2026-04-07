@@ -12,7 +12,7 @@ use crate::py_api::helpers::{
     try_extract_string, try_extract_u16, try_extract_u16_array_2, try_extract_u32, 
     try_extract_u64,  try_extract_vec_f32, try_extract_vec_str, try_extract_vec_u8_opt, try_extract_vec_vec_f32
 };
-use crate::state::{IpgContainers, IpgWidgets};
+use crate::state::{Containers, Widgets};
 use crate::widgets::ipg_text::{TextShaping, TextWrapping};
 
 type PyObject = Py<PyAny>;
@@ -22,7 +22,7 @@ type PyObject = Py<PyAny>;
 // ---------------------------------------------------------------------------
 
 pub trait WidgetParamUpdate {
-    /// The `#[pyclass]` param enum for this widget (e.g. `IpgButtonParam`).
+    /// The `#[pyclass]` param enum for this widget (e.g. `ButtonParam`).
     type Param: for<'py> pyo3::FromPyObject<'py>;
 
     /// Apply a single parameter update.
@@ -38,8 +38,8 @@ pub trait WidgetParamUpdate {
 // WidgetParamUpdate implementations
 // ---------------------------------------------------------------------------
 
-// impl WidgetParamUpdate for IpgRule {
-//     type Param = IpgRuleParam;
+// impl WidgetParamUpdate for Rule {
+//     type Param = RuleParam;
 
 //     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
 //         match param {
@@ -47,8 +47,8 @@ pub trait WidgetParamUpdate {
 //     }
 // }
 
-// impl WidgetParamUpdate for IpgRuleStyle {
-//     type Param = IpgRuleStyleParam;
+// impl WidgetParamUpdate for RuleStyle {
+//     type Param = RuleStyleParam;
 
 //     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
 //         match param {
@@ -58,50 +58,50 @@ pub trait WidgetParamUpdate {
 
 
 pub fn param_update(
-    widget: &mut IpgWidgets,
+    widget: &mut Widgets,
     item: &PyObject,
     value: &PyObject,
 ) {
     match widget {
-        IpgWidgets::IpgButton(w) => apply_update(w, item, value),
-        IpgWidgets::IpgButtonStyle(w) => apply_update(w, item, value),
-        IpgWidgets::IpgCard(w) => apply_update(w, item, value),
-        IpgWidgets::IpgCardStyle(w) => apply_update(w, item, value),
-        IpgWidgets::IpgCheckBox(w) => apply_update(w, item, value),
-        IpgWidgets::IpgCheckboxStyle(w) => apply_update(w, item, value),
-        IpgWidgets::IpgColorPicker(w) => apply_update(w, item, value),
-        IpgWidgets::IpgContainerStyle(w) => apply_update(w, item, value),
-        IpgWidgets::IpgDatePicker(w) => apply_update(w, item, value),
-        IpgWidgets::IpgDivider(w) => apply_update(w, item, value),
-        IpgWidgets::IpgDividerStyle(w) => apply_update(w, item, value),
-        IpgWidgets::IpgFont(w) => apply_update(w, item, value),
-        IpgWidgets::IpgImage(w) => apply_update(w, item, value),
-        IpgWidgets::IpgMenuStyle(w) => apply_update(w, item, value),
-        IpgWidgets::IpgPickList(w) => apply_update(w, item, value),
-        IpgWidgets::IpgPickListStyle(w) => apply_update(w, item, value),
-        IpgWidgets::IpgProgressBar(w) => apply_update(w, item, value),
-        IpgWidgets::IpgProgressBarStyle(w) => apply_update(w, item, value),
-        IpgWidgets::IpgRadio(w) => apply_update(w, item, value),
-        IpgWidgets::IpgRadioStyle(w) => apply_update(w, item, value),
-        IpgWidgets::IpgRule(w) => apply_update(w, item, value),
-        IpgWidgets::IpgRuleStyle(w) => apply_update(w, item, value),
-        IpgWidgets::IpgSeparator(w) => apply_update(w, item, value),
-        IpgWidgets::IpgSeparatorStyle(w) => apply_update(w, item, value),
-        IpgWidgets::IpgSpace(w) => apply_update(w, item, value),
-        IpgWidgets::IpgSlider(w) => apply_update(w, item, value),
-        IpgWidgets::IpgSliderStyle(w) => apply_update(w, item, value),
-        IpgWidgets::IpgText(w) => apply_update(w, item, value),
-        IpgWidgets::IpgToggler(w) => apply_update(w, item, value),
-        IpgWidgets::IpgTogglerStyle(w) => apply_update(w, item, value),
-        IpgWidgets::IpgSvg(w) => apply_update(w, item, value),
-        IpgWidgets::IpgScrollableStyle(w) => apply_update(w, item, value),
-        IpgWidgets::IpgScroller(w) => apply_update(w, item, value),
-        IpgWidgets::IpgRailStyle(w) => apply_update(w, item, value),
-        IpgWidgets::IpgAutoScrollStyle(w) => apply_update(w, item, value),
-        IpgWidgets::IpgTextEditor(w) => apply_update(w, item, value),
-        IpgWidgets::IpgTextInput(w) => apply_update(w, item, value),
-        IpgWidgets::IpgTextInputStyle(w) => apply_update(w, item, value),
-        IpgWidgets::IpgRichText(w) => apply_update(w, item, value),
+        Widgets::Button(w) => apply_update(w, item, value),
+        Widgets::ButtonStyle(w) => apply_update(w, item, value),
+        Widgets::Card(w) => apply_update(w, item, value),
+        Widgets::CardStyle(w) => apply_update(w, item, value),
+        Widgets::CheckBox(w) => apply_update(w, item, value),
+        Widgets::CheckboxStyle(w) => apply_update(w, item, value),
+        Widgets::ColorPicker(w) => apply_update(w, item, value),
+        Widgets::ContainerStyle(w) => apply_update(w, item, value),
+        Widgets::DatePicker(w) => apply_update(w, item, value),
+        Widgets::Divider(w) => apply_update(w, item, value),
+        Widgets::DividerStyle(w) => apply_update(w, item, value),
+        Widgets::Font(w) => apply_update(w, item, value),
+        Widgets::Image(w) => apply_update(w, item, value),
+        Widgets::MenuStyle(w) => apply_update(w, item, value),
+        Widgets::PickList(w) => apply_update(w, item, value),
+        Widgets::PickListStyle(w) => apply_update(w, item, value),
+        Widgets::ProgressBar(w) => apply_update(w, item, value),
+        Widgets::ProgressBarStyle(w) => apply_update(w, item, value),
+        Widgets::Radio(w) => apply_update(w, item, value),
+        Widgets::RadioStyle(w) => apply_update(w, item, value),
+        Widgets::Rule(w) => apply_update(w, item, value),
+        Widgets::RuleStyle(w) => apply_update(w, item, value),
+        Widgets::Separator(w) => apply_update(w, item, value),
+        Widgets::SeparatorStyle(w) => apply_update(w, item, value),
+        Widgets::Space(w) => apply_update(w, item, value),
+        Widgets::Slider(w) => apply_update(w, item, value),
+        Widgets::SliderStyle(w) => apply_update(w, item, value),
+        Widgets::Text(w) => apply_update(w, item, value),
+        Widgets::Toggler(w) => apply_update(w, item, value),
+        Widgets::TogglerStyle(w) => apply_update(w, item, value),
+        Widgets::Svg(w) => apply_update(w, item, value),
+        Widgets::ScrollableStyle(w) => apply_update(w, item, value),
+        Widgets::Scroller(w) => apply_update(w, item, value),
+        Widgets::RailStyle(w) => apply_update(w, item, value),
+        Widgets::AutoScrollStyle(w) => apply_update(w, item, value),
+        Widgets::TextEditor(w) => apply_update(w, item, value),
+        Widgets::TextInput(w) => apply_update(w, item, value),
+        Widgets::TextInputStyle(w) => apply_update(w, item, value),
+        Widgets::RichText(w) => apply_update(w, item, value),
         
             }
 }
@@ -111,25 +111,25 @@ pub fn param_update(
 // ---------------------------------------------------------------------------
 
 pub fn container_param_update(
-    container: &mut IpgContainers,
+    container: &mut Containers,
     item: &PyObject,
     value: &PyObject,
 ) {
     match container {
-        IpgContainers::IpgColumn(w) => apply_update(w, item, value),
-        IpgContainers::IpgContainer(w) => apply_update(w, item, value),
-        IpgContainers::IpgFloat(w)=> apply_update(w, item, value),
-        IpgContainers::IpgGrid(w)=> apply_update(w, item, value),
-        IpgContainers::IpgMenu(w) => apply_update(w, item, value),
-        IpgContainers::IpgMouseArea(w) => apply_update(w, item, value),
-        IpgContainers::IpgOpaque(_) => panic!("IpgOpaque does not support param_update"),
-        IpgContainers::IpgRow(w) => apply_update(w, item, value),
-        IpgContainers::IpgScrollable(w) => apply_update(w, item, value),
-        IpgContainers::IpgStack(w) => apply_update(w, item, value),
-        IpgContainers::IpgTable(w) => apply_update(w, item, value),
-        IpgContainers::IpgToolTip(w) => apply_update(w, item, value),
-        IpgContainers::IpgWindow(w) => apply_update(w, item, value),
-        IpgContainers::IpgMenuBarItem(_) => panic!("IpgMenuBarItem does not support param_update"),
+        Containers::Column(w) => apply_update(w, item, value),
+        Containers::Container(w) => apply_update(w, item, value),
+        Containers::Float(w)=> apply_update(w, item, value),
+        Containers::Grid(w)=> apply_update(w, item, value),
+        Containers::Menu(w) => apply_update(w, item, value),
+        Containers::MouseArea(w) => apply_update(w, item, value),
+        Containers::Opaque(_) => panic!("Opaque does not support param_update"),
+        Containers::Row(w) => apply_update(w, item, value),
+        Containers::Scrollable(w) => apply_update(w, item, value),
+        Containers::Stack(w) => apply_update(w, item, value),
+        Containers::Table(w) => apply_update(w, item, value),
+        Containers::ToolTip(w) => apply_update(w, item, value),
+        Containers::Window(w) => apply_update(w, item, value),
+        Containers::MenuBarItem(_) => panic!("MenuBarItem does not support param_update"),
     }
 }
 

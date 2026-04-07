@@ -3,9 +3,9 @@
 use pyo3::{PyResult, pyfunction};
 
 use crate::{access_state, graphics::colors::Color, 
-    py_api::helpers::get_length, state::{IpgWidgets, 
+    py_api::helpers::get_length, state::{Widgets, 
         get_id, set_state_of_widget}, widgets::ipg_separator::
-        {IpgSeparator, IpgSeparatorStyle, IpgSeparatorType}};
+        {Separator, SeparatorStyle, SeparatorType}};
 
 
 /// Add a separator widget.
@@ -18,7 +18,7 @@ use crate::{access_state, graphics::colors::Color,
 ///     Sets the parent container ID that this separator belongs to.
 /// label : str, Optional
 ///     Sets the text label displayed in the separator.
-/// separator_type : IpgSeparatorType, Optional
+/// separator_type : SeparatorType, Optional
 ///     Sets the type of separator (line, dot, label, etc.).
 /// label_left_width : float, Optional
 ///     Sets the width of the line to the left of the label.
@@ -82,7 +82,7 @@ use crate::{access_state, graphics::colors::Color,
 pub fn add_separator(
     parent_id: String,
     label: Option<String>,
-    separator_type: Option<IpgSeparatorType>,
+    separator_type: Option<SeparatorType>,
     label_left_width: Option<f32>,
     label_right_width: Option<f32>,
     dot_radius: Option<f32>,
@@ -110,8 +110,8 @@ pub fn add_separator(
 
     let mut state = access_state();
 
-    state.widgets.insert(id, IpgWidgets::IpgSeparator(
-        IpgSeparator {
+    state.widgets.insert(id, Widgets::Separator(
+        Separator {
             id,
             parent_id,
             separator_type,
@@ -192,8 +192,8 @@ pub fn add_separator_style(
 
     let mut state = access_state();
     
-    state.widgets.insert(id, IpgWidgets::IpgSeparatorStyle(
-        IpgSeparatorStyle {
+    state.widgets.insert(id, Widgets::SeparatorStyle(
+        SeparatorStyle {
             id,
             color,
             border_color,

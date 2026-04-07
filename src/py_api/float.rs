@@ -2,8 +2,8 @@
 
 use pyo3::{PyResult, pyfunction};
 
-use crate::widgets::ipg_float::IpgFloat;
-use crate::state::{IpgContainers, access_state, 
+use crate::widgets::ipg_float::Float;
+use crate::state::{Containers, access_state, 
     get_id, set_state_cont_wnd_ids, set_state_of_container};
 
 
@@ -62,8 +62,8 @@ pub fn add_float(
 
     set_state_cont_wnd_ids(&mut state, &window_id, container_id, id, "add_opaque".to_string());
 
-    state.containers.insert(id, IpgContainers::IpgFloat(
-        IpgFloat {
+    state.containers.insert(id, Containers::Float(
+        Float {
             id,
             scale,
             scale_clamped,

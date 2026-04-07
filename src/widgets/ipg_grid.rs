@@ -12,7 +12,7 @@ use crate::widgets::widget_param_update::{
 
 
 #[derive(Clone, Debug)]
-pub struct IpgGrid {
+pub struct Grid {
     pub id: usize,
     pub width: f32,
     pub spacing: Option<f32>,
@@ -22,7 +22,7 @@ pub struct IpgGrid {
     pub height_evenly_distribute: Length,
 }
 
-impl IpgGrid{
+impl Grid{
     pub fn construct<'a>(
         &'a self,
         content: Vec<Element<'a, Message>>,
@@ -68,7 +68,7 @@ pub enum GridParam {
 // WidgetParamUpdate implementations
 // ---------------------------------------------------------------------------
 
-impl WidgetParamUpdate for IpgGrid{
+impl WidgetParamUpdate for Grid{
     type Param = GridParam;
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {

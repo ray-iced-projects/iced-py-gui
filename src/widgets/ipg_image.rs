@@ -1,9 +1,9 @@
 //!ipg_image
 
 use crate::app;
-use crate::widgets::enums::IpgContentFit;
-use crate::widgets::enums::IpgColorFilter;
-use crate::widgets::enums::IpgRotation;
+use crate::widgets::enums::ContentFit;
+use crate::widgets::enums::ColorFilter;
+use crate::widgets::enums::Rotation;
 use crate::widgets::widget_param_update::set_bool;
 use crate::widgets::widget_param_update::set_opt_f32;
 use crate::widgets::widget_param_update::set_string;
@@ -13,7 +13,7 @@ use crate::widgets::widget_param_update::{
 
 
 use iced::Element;
-use iced::widget::Image;
+use iced::widget;
 use iced::advanced::image;
 
 use pyo3::pyclass;
@@ -22,19 +22,19 @@ type PyObject = Py<PyAny>;
 
 
 #[derive(Debug, Clone)]
-pub struct IpgImage {
+pub struct Image {
         pub id: usize,
         pub parent_id: String,
         pub image_path: String,
-        pub content_fit: Option<IpgContentFit>,
-        pub filter_method: Option<IpgColorFilter>,
-        pub rotation_method: Option<IpgRotation>,
+        pub content_fit: Option<ContentFit>,
+        pub filter_method: Option<ColorFilter>,
+        pub rotation_method: Option<Rotation>,
         pub rotation_radians: Option<f32>,
         pub opacity: Option<f32>,
         pub show: bool,
 }
 
-impl IpgImage {
+impl Image {
     pub fn construct(&self)
         -> Option<Element<'_, app::Message>> {
 
@@ -45,19 +45,19 @@ impl IpgImage {
         let fit = if let Some(f) = &self.content_fit {
             f.to_iced()
         } else {
-            IpgContentFit::default().to_iced()
+            ContentFit::default().to_iced()
         };
 
         let filter = if let Some(f) = &self.filter_method {
             f.to_iced()
         } else {
-            IpgColorFilter::default().to_iced()
+            ColorFilter::default().to_iced()
         };
 
         let rotation = if let Some(r) = &self.rotation_method {
             r.to_iced(self.rotation_radians)
         } else {
-            IpgRotation::default()
+            iced::Rotation::default()
         };
 
         let op = if let Some(op) = self.opacity {
@@ -65,7 +65,7 @@ impl IpgImage {
         } else { 1.0 };
 
         let img = 
-            Image::<image::Handle>::new(self.image_path.clone())
+            widget::Image::<image::Handle>::new(self.image_path.clone())
                 .content_fit(fit)
                 .filter_method(filter)
                 .rotation(rotation)
@@ -80,7 +80,7 @@ impl IpgImage {
 
 #[derive(Debug, Clone, PartialEq)]
 #[pyclass(eq, eq_int)]
-pub enum IpgImageParam {
+pub enum ImageParam {
     ContentFit,
     FilterMethod,
     ImagePath,
@@ -93,17 +93,17 @@ pub enum IpgImageParam {
 // WidgetParamUpdate implementations
 // ---------------------------------------------------------------------------
 
-impl WidgetParamUpdate for IpgImage {
-    type Param = IpgImageParam;
+impl WidgetParamUpdate for Image {
+    type Param = ImageParam;
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
-            IpgImageParam::ContentFit => self.content_fit = IpgContentFit::extract(value),
-            IpgImageParam::FilterMethod => self.filter_method = IpgColorFilter::extract(value),
-            IpgImageParam::ImagePath => set_string(&mut self.image_path, value, "IpgImageParam::ImagePath"),
-            IpgImageParam::RotationMethod => self.rotation_method = IpgRotation::extract(value),
-            IpgImageParam::RotationRadians => set_opt_f32(&mut self.rotation_radians, value, "IpgImageParam::RotationRadians"),
-            IpgImageParam::Show => set_bool(&mut self.show, value, "IpgImageParam::Show"),
+            ImageParam::ContentFit => self.content_fit = ContentFit::extract(value),
+            ImageParam::FilterMethod => self.filter_method = ColorFilter::extract(value),
+            ImageParam::ImagePath => set_string(&mut self.image_path, value, "ImageParam::ImagePath"),
+            ImageParam::RotationMethod => self.rotation_method = Rotation::extract(value),
+            ImageParam::RotationRadians => set_opt_f32(&mut self.rotation_radians, value, "ImageParam::RotationRadians"),
+            ImageParam::Show => set_bool(&mut self.show, value, "ImageParam::Show"),
         }
     }
 }
@@ -113,8 +113,8 @@ mod tests {
     use super::*;
     use pyo3::{Python, IntoPyObjectExt};
 
-    fn make_image() -> IpgImage {
-        IpgImage {
+    fn make_image() -> Image {
+        Image {
             id: 0,
             parent_id: String::new(),
             image_path: "test.png".to_string(),
@@ -140,23 +140,23 @@ mod tests {
     #[test]
     fn test_image_path() {
         let mut img = make_image();
-        img.param_update(IpgImageParam::ImagePath, &py_obj("new.png".to_string()));
+        img.param_update(ImageParam::ImagePath, &py_obj("new.png".to_string()));
         assert_eq!(img.image_path, "new.png");
     }
 
     #[test]
     fn test_rotation_radians() {
         let mut img = make_image();
-        img.param_update(IpgImageParam::RotationRadians, &py_obj(1.57f32));
+        img.param_update(ImageParam::RotationRadians, &py_obj(1.57f32));
         assert_eq!(img.rotation_radians, Some(1.57));
-        img.param_update(IpgImageParam::RotationRadians, &py_none());
+        img.param_update(ImageParam::RotationRadians, &py_none());
         assert_eq!(img.rotation_radians, None);
     }
 
     #[test]
     fn test_show() {
         let mut img = make_image();
-        img.param_update(IpgImageParam::Show, &py_obj(false));
+        img.param_update(ImageParam::Show, &py_obj(false));
         assert!(!img.show);
     }
 

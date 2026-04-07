@@ -13,9 +13,10 @@ import argparse
 
 # The enums you want to auto-generate stubs for
 ENUMS_TO_GENERATE = [
-    "IpgIcon",
-    # Add more enum names here as needed, e.g.:
-    # "IpgColor",
+    "Arrow",
+    "ButtonParam",
+    "Color",
+    "Icon",
 ]
 
 PYI_PATH = "icedpygui/icedpygui.pyi"

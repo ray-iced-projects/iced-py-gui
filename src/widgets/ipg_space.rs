@@ -1,7 +1,7 @@
 //! ipg_space
 
 use iced::{Element, Length};
-use iced::widget::Space;
+use iced::widget;
 
 use pyo3::{pyclass, Py, PyAny};
 type PyObject = Py<PyAny>;
@@ -13,7 +13,7 @@ use crate::widgets::widget_param_update::{
 
 
 #[derive(Debug, Clone)]
-pub struct IpgSpace {
+pub struct Space {
     pub id: usize,
     pub parent_id: String,
     pub width: Length,
@@ -21,10 +21,10 @@ pub struct IpgSpace {
     pub show: bool,
 }
 
-pub fn construct_space(sp: &IpgSpace) -> Option<Element<'_, Message>> {
+pub fn construct_space(sp: &Space) -> Option<Element<'_, Message>> {
 
     if sp.show {
-        Some(Space::new()
+        Some(widget::Space::new()
             .width(sp.width)
             .height(sp.height).into())
     } else {
@@ -34,7 +34,7 @@ pub fn construct_space(sp: &IpgSpace) -> Option<Element<'_, Message>> {
 
 #[derive(Debug, Clone, PartialEq)]
 #[pyclass(eq, eq_int)]
-pub enum IpgSpaceParam {
+pub enum SpaceParam {
     Height,
     HeightFill,
     Width,
@@ -46,15 +46,15 @@ pub enum IpgSpaceParam {
 // WidgetParamUpdate implementation
 // ---------------------------------------------------------------------------
 
-impl WidgetParamUpdate for IpgSpace {
-    type Param = IpgSpaceParam;
+impl WidgetParamUpdate for Space {
+    type Param = SpaceParam;
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
-            IpgSpaceParam::Width => set_width(&mut self.width, value, "Width"),
-            IpgSpaceParam::WidthFill => set_width_fill(&mut self.width, value, "WidthFill"),
-            IpgSpaceParam::Height => set_height(&mut self.height, value, "Height"),
-            IpgSpaceParam::HeightFill => set_height_fill(&mut self.height, value, "HeightFill"),
+            SpaceParam::Width => set_width(&mut self.width, value, "Width"),
+            SpaceParam::WidthFill => set_width_fill(&mut self.width, value, "WidthFill"),
+            SpaceParam::Height => set_height(&mut self.height, value, "Height"),
+            SpaceParam::HeightFill => set_height_fill(&mut self.height, value, "HeightFill"),
         }
     }
 }
@@ -65,8 +65,8 @@ mod tests {
     use iced::Length;
     use pyo3::{Python, IntoPyObjectExt};
 
-    fn make_space() -> IpgSpace {
-        IpgSpace {
+    fn make_space() -> Space {
+        Space {
             id: 0,
             parent_id: String::new(),
             width: Length::Shrink,
@@ -83,28 +83,28 @@ mod tests {
     #[test]
     fn test_width() {
         let mut s = make_space();
-        s.param_update(IpgSpaceParam::Width, &py_obj(50.0f32));
+        s.param_update(SpaceParam::Width, &py_obj(50.0f32));
         assert_eq!(s.width, Length::Fixed(50.0));
     }
 
     #[test]
     fn test_width_fill() {
         let mut s = make_space();
-        s.param_update(IpgSpaceParam::WidthFill, &py_obj(true));
+        s.param_update(SpaceParam::WidthFill, &py_obj(true));
         assert_eq!(s.width, Length::Fill);
     }
 
     #[test]
     fn test_height() {
         let mut s = make_space();
-        s.param_update(IpgSpaceParam::Height, &py_obj(30.0f32));
+        s.param_update(SpaceParam::Height, &py_obj(30.0f32));
         assert_eq!(s.height, Length::Fixed(30.0));
     }
 
     #[test]
     fn test_height_fill() {
         let mut s = make_space();
-        s.param_update(IpgSpaceParam::HeightFill, &py_obj(true));
+        s.param_update(SpaceParam::HeightFill, &py_obj(true));
         assert_eq!(s.height, Length::Fill);
     }
 }

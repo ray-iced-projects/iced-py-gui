@@ -4,10 +4,10 @@ type PyObject = Py<PyAny>;
 
 use crate::{access_state, add_callback_to_mutex, 
     add_user_data_to_mutex, graphics::colors::Color, 
-    py_api::helpers::get_length, state::{IpgWidgets, get_id, 
+    py_api::helpers::get_length, state::{Widgets, get_id, 
         set_state_of_widget}, widgets::{ 
         ipg_text::{TextShaping, TextWrapping}, 
-        ipg_toggle::{IpgToggler, IpgTogglerStyle}}};
+        ipg_toggle::{Toggler, TogglerStyle}}};
 
 
 /// Add a toggler widget.
@@ -120,8 +120,8 @@ pub fn add_toggler(
 
     let mut state = access_state();
 
-    state.widgets.insert(id, IpgWidgets::IpgToggler(
-        IpgToggler {
+    state.widgets.insert(id, Widgets::Toggler(
+        Toggler {
             id,
             parent_id,
             show,
@@ -154,38 +154,38 @@ pub fn add_toggler(
 ///
 /// Parameters
 /// ----------
-/// background_color : IpgColor, Optional
+/// background_color : Color, Optional
 ///     Sets the background color using a predefined color variant.
 /// background_color_alpha : float, Optional
-///     Sets the alpha of the IpgColor.
+///     Sets the alpha of the Color.
 /// background_rgba : list of float, Optional
 ///     Sets the background color in rgba format as [r, g, b, a].
-/// background_border_color : IpgColor, Optional
+/// background_border_color : Color, Optional
 ///     Sets the background border color using a predefined color variant.
 /// background_border_color_alpha : float, Optional
-///     Sets the alpha of the IpgColor.
+///     Sets the alpha of the Color.
 /// background_border_rgba : list of float, Optional
 ///     Sets the background border color in rgba format as [r, g, b, a].
 /// background_border_width : float, Optional
 ///     Sets the background border width in logical pixels.
-/// foreground_color : IpgColor, Optional
+/// foreground_color : Color, Optional
 ///     Sets the foreground (thumb) color using a predefined color variant.
 /// foreground_color_alpha : float, Optional
-///     Sets the alpha of the IpgColor.
+///     Sets the alpha of the Color.
 /// foreground_rgba : list of float, Optional
 ///     Sets the foreground (thumb) color in rgba format as [r, g, b, a].
-/// foreground_border_color : IpgColor, Optional
+/// foreground_border_color : Color, Optional
 ///     Sets the foreground border color using a predefined color variant.
 /// foreground_border_color_alpha : float, Optional
-///     Sets the alpha of the IpgColor.
+///     Sets the alpha of the Color.
 /// foreground_border_rgba : list of float, Optional
 ///     Sets the foreground border color in rgba format as [r, g, b, a].
 /// foreground_border_width : float, Optional
 ///     Sets the foreground border width in logical pixels.
-/// text_color : IpgColor, Optional
+/// text_color : Color, Optional
 ///     Sets the text color using a predefined color variant.
 /// text_ipg_alpha : float, Optional
-///     Sets the alpha of the IpgColor.
+///     Sets the alpha of the Color.
 /// text_color_rgba : list of float, Optional
 ///     Sets the text color in rgba format as [r, g, b, a].
 /// border_radius : list of float, Optional
@@ -262,8 +262,8 @@ pub fn add_toggler_style(
 
     let mut state = access_state();
     
-    state.widgets.insert(id, IpgWidgets::IpgTogglerStyle(
-        IpgTogglerStyle {
+    state.widgets.insert(id, Widgets::TogglerStyle(
+        TogglerStyle {
             id,
             background_color,
             background_border_color,

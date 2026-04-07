@@ -5,7 +5,7 @@ Color Picker use demo
 
 from icedpygui import Window, Column, Container,\
     add_button_style, add_color_picker, add_text, \
-    start_session, update_widget, IpgTextParam
+    start_session, update_widget, TextParam
 
 
 def color_selected(_cp_id: int, color: list, _user_data: any):
@@ -24,7 +24,7 @@ def color_selected(_cp_id: int, color: list, _user_data: any):
     # update the text
     update_widget(
         wid=text_id,
-        param=IpgTextParam.Content,
+        param=TextParam.Content,
         value=string)
 
     # update the text color
@@ -33,7 +33,7 @@ def color_selected(_cp_id: int, color: list, _user_data: any):
         # Note the type is Rgba, not Color
         # You could use a value of type Color
         # then use the TextColor without using the colorpicker
-        param=IpgTextParam.TextRgba,
+        param=TextParam.TextRgba,
         value=color)
 
 

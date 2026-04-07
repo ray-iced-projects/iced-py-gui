@@ -2,9 +2,9 @@
 use pyo3::{Py, PyAny, PyResult, pyfunction};
 
 use crate::state::{access_state, add_callback_to_mutex, 
-    add_user_data_to_mutex, IpgWidgetNode, IpgContainers};
+    add_user_data_to_mutex, WidgetNode, Containers};
 use crate::widgets::ipg_window::{
-    IpgWindow, IpgWindowLevel, IpgWindowTheme,
+    Window, WindowLevel, WindowTheme,
 };
 
 type PyObject = Py<PyAny>;
@@ -35,7 +35,7 @@ type PyObject = Py<PyAny>;
 ///     Sets the Minimum window size as ``(width, height)``.
 /// max_size : tuple of (float, float), Optional
 ///     Sets the Maximum window size as ``(width, height)``.
-/// theme : IpgWindowTheme, Optional
+/// theme : WindowTheme, Optional
 ///     Sets the Colour theme for the window.
 /// resizable : bool, Optional
 ///     Whether the user can resize the window.
@@ -49,7 +49,7 @@ type PyObject = Py<PyAny>;
 ///     Whether the window background is transparent.
 /// blur : bool, Optional
 ///     Whether to blur the window background.
-/// level : IpgWindowLevel, Optional
+/// level : WindowLevel, Optional
 ///     Sets the Stacking level of the window (normal, always-on-top, etc.).
 /// icon_rgba : list of int, Optional
 ///     Sets the Raw RGBA bytes for the window icon.
@@ -112,14 +112,14 @@ pub fn add_window(
     position: Option<[f32; 2]>,
     min_size: Option<[f32; 2]>,
     max_size: Option<[f32; 2]>,
-    theme: Option<IpgWindowTheme>,
+    theme: Option<WindowTheme>,
     resizable: Option<bool>,
     minimizable: Option<bool>,
     closeable: Option<bool>,
     decorations: Option<bool>,
     transparent: Option<bool>,
     blur: Option<bool>,
-    level: Option<IpgWindowLevel>,
+    level: Option<WindowLevel>,
     icon_rgba: Option<Vec<u8>>,
     icon_width_height: Option<[u32; 2]>,
     exit_on_close_request: Option<bool>,
@@ -154,10 +154,10 @@ pub fn add_window(
     state.container_wnd_str_ids.insert(window_id.clone(), window_id.clone());
     state.container_str_ids.insert(window_id.clone(), id);
 
-    // Initialize the IpgIds for this window
+    // Initialize the Ids for this window
     state.ids.insert(
         id,
-        vec![IpgWidgetNode {
+        vec![WidgetNode {
             id,
             parent_uid: 0,
             container_id: Some(window_id.clone()),
@@ -171,7 +171,7 @@ pub fn add_window(
 
     // Create the window object
     let window = 
-        IpgWindow {
+        Window {
         id,
         title,
         size,
@@ -198,7 +198,7 @@ pub fn add_window(
     };
 
     // Store in containers
-    state.containers.insert(id, IpgContainers::IpgWindow(window.clone()));
+    state.containers.insert(id, Containers::Window(window.clone()));
 
     // Store in windows vec
     state.windows.push(window);

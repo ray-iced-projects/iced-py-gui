@@ -5,10 +5,10 @@
 use std::collections::HashMap;
 
 use iced::{Element, Length, Renderer, Theme, border};
-use iced_aw::{Menu, MenuBar, menu::{DrawPath, Item}};
+use iced_aw::{MenuBar, menu::{DrawPath, Item}};
 use iced_aw::menu;
 use crate::{app, py_api::helpers::get_padding, 
-state::IpgWidgets, widgets::{styling::{apply_border_overrides, apply_shadow_overrides_xy}, widget_param_update::{
+state::Widgets, widgets::{styling::{apply_border_overrides, apply_shadow_overrides_xy}, widget_param_update::{
     WidgetParamUpdate, set_bool, set_height, set_height_fill, set_opt_f32, set_opt_f32_array_2, set_opt_iced_color, set_opt_iced_color_from_rgba, set_opt_vec_f32_1_or_upto_4, set_vec_f32, set_width
 }}};
 
@@ -20,7 +20,7 @@ use pyo3::{pyclass, Py, PyAny};
 type PyObject = Py<PyAny>;
 
 #[derive(Debug, Clone)]
-pub struct IpgMenu {
+pub struct Menu {
     pub id: usize,
     pub item_offsets: Vec<f32>,
     pub item_paddings: Vec<f32>,
@@ -40,22 +40,22 @@ pub struct IpgMenu {
     pub is_toggled: bool,
 }
 
-impl IpgMenu {
+impl Menu {
 
-    fn lookup<'a>(&self, widgets: &'a HashMap<usize, IpgWidgets>, id: Option<usize>) -> Option<&'a IpgWidgets> {
+    fn lookup<'a>(&self, widgets: &'a HashMap<usize, Widgets>, id: Option<usize>) -> Option<&'a Widgets> {
         id.and_then(|id| widgets.get(&id))
     }
 
     pub fn construct<'a>(
         &'a self, 
         grouped_content: Vec<Vec<Element<'a, app::Message>>>,
-        widgets: &HashMap<usize, IpgWidgets>,
+        widgets: &HashMap<usize, Widgets>,
         )-> Element<'a, app::Message, Theme, Renderer> 
     {
         
         let style_opt = 
             self.lookup(widgets, self.style_id)
-                .and_then(IpgWidgets::as_menu_style).cloned();
+                .and_then(Widgets::as_menu_style).cloned();
 
         
         let mut bar_items: Vec<Item<app::Message, Theme, Renderer>> = vec![];
@@ -94,7 +94,7 @@ impl IpgMenu {
                 .collect();
 
             let menu_tpl = 
-            |items| Menu::new(items)
+            |items| iced_aw::Menu::new(items)
                 //.max_width(100.0)
                 .spacing(item_spacings[actual_index])
                 .width(item_widths[actual_index])
@@ -138,7 +138,7 @@ impl IpgMenu {
 
 
 #[derive(Debug, Clone)]
-pub struct IpgMenuBarItem {
+pub struct MenuBarItem {
     pub id: usize,
     pub show: bool,
 }
@@ -146,7 +146,7 @@ pub struct IpgMenuBarItem {
 
 
 #[derive(Debug, Clone)]
-pub struct IpgMenuStyle {
+pub struct MenuStyle {
     pub id: usize,
     pub bar_background_color: Option<iced::Color>,
     pub bar_border_color: Option<iced::Color>,
@@ -178,7 +178,7 @@ pub struct IpgMenuStyle {
     pub path_border_alpha: Option<f32>,
 }
 
-impl IpgMenuStyle {
+impl MenuStyle {
     fn to_iced(
         &self,
         theme: &Theme, 
@@ -254,7 +254,7 @@ pub fn primary(theme: &Theme) -> menu::Style {
 
 #[derive(Debug, Clone, PartialEq)]
 #[pyclass(eq, eq_int)]
-pub enum IpgMenuParam {
+pub enum MenuParam {
     BarHeight,
     BarHeightFill,
     BarPadding,
@@ -267,7 +267,7 @@ pub enum IpgMenuParam {
 
 #[derive(Debug, Clone, PartialEq)]
 #[pyclass(eq, eq_int)]
-pub enum IpgMenuStyleParam {
+pub enum MenuStyleParam {
     BarBackgroundColor,
     BarBackgroundRgba,
     BarBackgroundAlpha,
@@ -311,64 +311,64 @@ pub enum IpgMenuStyleParam {
 // WidgetParamUpdate implementations
 // ---------------------------------------------------------------------------
 
-impl WidgetParamUpdate for IpgMenu {
-    type Param = IpgMenuParam;
+impl WidgetParamUpdate for Menu {
+    type Param = MenuParam;
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
-            IpgMenuParam::BarHeight => set_height(&mut self.bar_height, value, "BarHeight"),
-            IpgMenuParam::BarHeightFill => set_height_fill(&mut self.bar_height, value, "BarHeightFill"),
-            IpgMenuParam::BarPadding => set_vec_f32(&mut self.bar_paddings, value, "BarPadding"),
-            IpgMenuParam::BarSpacing => set_opt_f32(&mut self.bar_spacing, value, "BarSpacing"),
-            IpgMenuParam::BarWidth => set_width(&mut self.bar_width, value, "BarWidth"),
-            IpgMenuParam::CheckBoundsWidth => set_opt_f32(&mut self.check_bounds_width, value, "CheckBoundsWidth"),
-            IpgMenuParam::Show => set_bool(&mut self.show, value, "Show"),
+            MenuParam::BarHeight => set_height(&mut self.bar_height, value, "BarHeight"),
+            MenuParam::BarHeightFill => set_height_fill(&mut self.bar_height, value, "BarHeightFill"),
+            MenuParam::BarPadding => set_vec_f32(&mut self.bar_paddings, value, "BarPadding"),
+            MenuParam::BarSpacing => set_opt_f32(&mut self.bar_spacing, value, "BarSpacing"),
+            MenuParam::BarWidth => set_width(&mut self.bar_width, value, "BarWidth"),
+            MenuParam::CheckBoundsWidth => set_opt_f32(&mut self.check_bounds_width, value, "CheckBoundsWidth"),
+            MenuParam::Show => set_bool(&mut self.show, value, "Show"),
         }
     }
 }
 
-impl WidgetParamUpdate for IpgMenuStyle {
-    type Param = IpgMenuStyleParam;
+impl WidgetParamUpdate for MenuStyle {
+    type Param = MenuStyleParam;
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
             // bar
-            IpgMenuStyleParam::BarBackgroundColor => set_opt_iced_color(&mut self.bar_background_color, value, "BarBackgroundColor"),
-            IpgMenuStyleParam::BarBackgroundRgba => set_opt_iced_color_from_rgba(&mut self.bar_background_color, value, "BarBackgroundRgba"),
-            IpgMenuStyleParam::BarBackgroundAlpha => set_opt_f32(&mut self.bar_background_alpha, value, "BarBackgroundAlpha"),
-            IpgMenuStyleParam::BarBorderColor => set_opt_iced_color(&mut self.bar_border_color, value, "BarBorderColor"),
-            IpgMenuStyleParam::BarBorderRgba => set_opt_iced_color_from_rgba(&mut self.bar_border_color, value, "BarBorderRgba"),
-            IpgMenuStyleParam::BarBorderAlpha => set_opt_f32(&mut self.bar_border_alpha, value, "BarBorderAlpha"),
-            IpgMenuStyleParam::BarBorderRadius => set_opt_vec_f32_1_or_upto_4(&mut self.bar_border_radius, value, "BarBorderRadius"),
-            IpgMenuStyleParam::BarBorderWidth => set_opt_f32(&mut self.bar_border_width, value, "BarBorderWidth"),
-            IpgMenuStyleParam::BarShadowColor => set_opt_iced_color(&mut self.bar_shadow_color, value, "BarShadowColor"),
-            IpgMenuStyleParam::BarShadowRgba => set_opt_iced_color_from_rgba(&mut self.bar_shadow_color, value, "BarShadowRgba"),
-            IpgMenuStyleParam::BarShadowAlpha => set_opt_f32(&mut self.bar_shadow_alpha, value, "BarShadowAlpha"),
-            IpgMenuStyleParam::BarShadowOffsetXY => set_opt_f32_array_2(&mut self.bar_shadow_offset_xy, value, "BarShadowOffsetXY"),
-            IpgMenuStyleParam::BarShadowBlurRadius => set_opt_f32(&mut self.bar_shadow_blur_radius, value, "BarShadowBlurRadius"),
+            MenuStyleParam::BarBackgroundColor => set_opt_iced_color(&mut self.bar_background_color, value, "BarBackgroundColor"),
+            MenuStyleParam::BarBackgroundRgba => set_opt_iced_color_from_rgba(&mut self.bar_background_color, value, "BarBackgroundRgba"),
+            MenuStyleParam::BarBackgroundAlpha => set_opt_f32(&mut self.bar_background_alpha, value, "BarBackgroundAlpha"),
+            MenuStyleParam::BarBorderColor => set_opt_iced_color(&mut self.bar_border_color, value, "BarBorderColor"),
+            MenuStyleParam::BarBorderRgba => set_opt_iced_color_from_rgba(&mut self.bar_border_color, value, "BarBorderRgba"),
+            MenuStyleParam::BarBorderAlpha => set_opt_f32(&mut self.bar_border_alpha, value, "BarBorderAlpha"),
+            MenuStyleParam::BarBorderRadius => set_opt_vec_f32_1_or_upto_4(&mut self.bar_border_radius, value, "BarBorderRadius"),
+            MenuStyleParam::BarBorderWidth => set_opt_f32(&mut self.bar_border_width, value, "BarBorderWidth"),
+            MenuStyleParam::BarShadowColor => set_opt_iced_color(&mut self.bar_shadow_color, value, "BarShadowColor"),
+            MenuStyleParam::BarShadowRgba => set_opt_iced_color_from_rgba(&mut self.bar_shadow_color, value, "BarShadowRgba"),
+            MenuStyleParam::BarShadowAlpha => set_opt_f32(&mut self.bar_shadow_alpha, value, "BarShadowAlpha"),
+            MenuStyleParam::BarShadowOffsetXY => set_opt_f32_array_2(&mut self.bar_shadow_offset_xy, value, "BarShadowOffsetXY"),
+            MenuStyleParam::BarShadowBlurRadius => set_opt_f32(&mut self.bar_shadow_blur_radius, value, "BarShadowBlurRadius"),
             // menu
-            IpgMenuStyleParam::MenuBackgroundColor => set_opt_iced_color(&mut self.menu_background_color, value, "MenuBackgroundColor"),
-            IpgMenuStyleParam::MenuBackgroundRgba => set_opt_iced_color_from_rgba(&mut self.menu_background_color, value, "MenuBackgroundRgba"),
-            IpgMenuStyleParam::MenuBackgroundAlpha => set_opt_f32(&mut self.menu_background_alpha, value, "MenuBackgroundAlpha"),
-            IpgMenuStyleParam::MenuBorderColor => set_opt_iced_color(&mut self.menu_border_color, value, "MenuBorderColor"),
-            IpgMenuStyleParam::MenuBorderRgba => set_opt_iced_color_from_rgba(&mut self.menu_border_color, value, "MenuBorderRgba"),
-            IpgMenuStyleParam::MenuBorderAlpha => set_opt_f32(&mut self.menu_border_alpha, value, "MenuBorderAlpha"),
-            IpgMenuStyleParam::MenuBorderRadius => set_opt_vec_f32_1_or_upto_4(&mut self.menu_border_radius, value, "MenuBorderRadius"),
-            IpgMenuStyleParam::MenuBorderWidth => set_opt_f32(&mut self.menu_border_width, value, "MenuBorderWidth"),
-            IpgMenuStyleParam::MenuShadowColor => set_opt_iced_color(&mut self.menu_shadow_color, value, "MenuShadowColor"),
-            IpgMenuStyleParam::MenuShadowRgba => set_opt_iced_color_from_rgba(&mut self.menu_shadow_color, value, "MenuShadowRgba"),
-            IpgMenuStyleParam::MenuShadowAlpha => set_opt_f32(&mut self.menu_shadow_alpha, value, "MenuShadowAlpha"),
-            IpgMenuStyleParam::MenuShadowOffsetXy => set_opt_f32_array_2(&mut self.menu_shadow_offset_xy, value, "MenuShadowOffsetXy"),
-            IpgMenuStyleParam::MenuShadowBlurRadius => set_opt_f32(&mut self.menu_shadow_blur_radius, value, "MenuShadowBlurRadius"),
+            MenuStyleParam::MenuBackgroundColor => set_opt_iced_color(&mut self.menu_background_color, value, "MenuBackgroundColor"),
+            MenuStyleParam::MenuBackgroundRgba => set_opt_iced_color_from_rgba(&mut self.menu_background_color, value, "MenuBackgroundRgba"),
+            MenuStyleParam::MenuBackgroundAlpha => set_opt_f32(&mut self.menu_background_alpha, value, "MenuBackgroundAlpha"),
+            MenuStyleParam::MenuBorderColor => set_opt_iced_color(&mut self.menu_border_color, value, "MenuBorderColor"),
+            MenuStyleParam::MenuBorderRgba => set_opt_iced_color_from_rgba(&mut self.menu_border_color, value, "MenuBorderRgba"),
+            MenuStyleParam::MenuBorderAlpha => set_opt_f32(&mut self.menu_border_alpha, value, "MenuBorderAlpha"),
+            MenuStyleParam::MenuBorderRadius => set_opt_vec_f32_1_or_upto_4(&mut self.menu_border_radius, value, "MenuBorderRadius"),
+            MenuStyleParam::MenuBorderWidth => set_opt_f32(&mut self.menu_border_width, value, "MenuBorderWidth"),
+            MenuStyleParam::MenuShadowColor => set_opt_iced_color(&mut self.menu_shadow_color, value, "MenuShadowColor"),
+            MenuStyleParam::MenuShadowRgba => set_opt_iced_color_from_rgba(&mut self.menu_shadow_color, value, "MenuShadowRgba"),
+            MenuStyleParam::MenuShadowAlpha => set_opt_f32(&mut self.menu_shadow_alpha, value, "MenuShadowAlpha"),
+            MenuStyleParam::MenuShadowOffsetXy => set_opt_f32_array_2(&mut self.menu_shadow_offset_xy, value, "MenuShadowOffsetXy"),
+            MenuStyleParam::MenuShadowBlurRadius => set_opt_f32(&mut self.menu_shadow_blur_radius, value, "MenuShadowBlurRadius"),
             // path
-            IpgMenuStyleParam::PathBackgroundColor => set_opt_iced_color(&mut self.path_background_color, value, "PathBackgroundColor"),
-            IpgMenuStyleParam::PathBackgroundRgba => set_opt_iced_color_from_rgba(&mut self.path_background_color, value, "PathBackgroundRgba"),
-            IpgMenuStyleParam::PathBackgroundAlpha => set_opt_f32(&mut self.path_background_alpha, value, "PathBackgroundAlpha"),
-            IpgMenuStyleParam::PathBorderColor => set_opt_iced_color(&mut self.path_border_color, value, "PathBorderColor"),
-            IpgMenuStyleParam::PathBorderRgba => set_opt_iced_color_from_rgba(&mut self.path_border_color, value, "PathBorderRgba"),
-            IpgMenuStyleParam::PathBorderAlpha => set_opt_f32(&mut self.path_border_alpha, value, "PathBorderAlpha"),
-            IpgMenuStyleParam::PathBorderRadius => set_opt_vec_f32_1_or_upto_4(&mut self.path_border_radius, value, "PathBorderRadius"),
-            IpgMenuStyleParam::PathBorderWidth => set_opt_f32(&mut self.path_border_width, value, "PathBorderWidth"),
+            MenuStyleParam::PathBackgroundColor => set_opt_iced_color(&mut self.path_background_color, value, "PathBackgroundColor"),
+            MenuStyleParam::PathBackgroundRgba => set_opt_iced_color_from_rgba(&mut self.path_background_color, value, "PathBackgroundRgba"),
+            MenuStyleParam::PathBackgroundAlpha => set_opt_f32(&mut self.path_background_alpha, value, "PathBackgroundAlpha"),
+            MenuStyleParam::PathBorderColor => set_opt_iced_color(&mut self.path_border_color, value, "PathBorderColor"),
+            MenuStyleParam::PathBorderRgba => set_opt_iced_color_from_rgba(&mut self.path_border_color, value, "PathBorderRgba"),
+            MenuStyleParam::PathBorderAlpha => set_opt_f32(&mut self.path_border_alpha, value, "PathBorderAlpha"),
+            MenuStyleParam::PathBorderRadius => set_opt_vec_f32_1_or_upto_4(&mut self.path_border_radius, value, "PathBorderRadius"),
+            MenuStyleParam::PathBorderWidth => set_opt_f32(&mut self.path_border_width, value, "PathBorderWidth"),
         }
     }
 }

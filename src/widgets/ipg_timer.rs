@@ -73,11 +73,11 @@ pub fn update_timer(
         state.timer_state.get_mut(&wid) {
             let param = try_extract_param(&param);
             match param {
-                IpgTimerParam::DurationMs => {
-                    tmr.duration_ms = try_extract_u64(&value, "IpgTimerParam.DurationMs");
+                TimerParam::DurationMs => {
+                    tmr.duration_ms = try_extract_u64(&value, "TimerParam.DurationMs");
                 },
-                IpgTimerParam::Enable => {
-                    let enable = try_extract_boolean(&value, "IpgTimerParam.Enable");
+                TimerParam::Enable => {
+                    let enable = try_extract_boolean(&value, "TimerParam.Enable");
                     if !enable && tmr.enable {
                         // Stopping: fire on_stop and reset counters
                         let tick_count = tmr.tick_count;
@@ -100,12 +100,12 @@ pub fn update_timer(
     drop(state);
 }
 
-fn try_extract_param(value: &PyObject) -> IpgTimerParam {
+fn try_extract_param(value: &PyObject) -> TimerParam {
     Python::attach(|py| {
-        let res = value.extract::<IpgTimerParam>(py);
+        let res = value.extract::<TimerParam>(py);
         match res {
             Ok(val) => val,
-            Err(err) => panic!("Unable to extract IpgTimerParam : {}", err),
+            Err(err) => panic!("Unable to extract TimerParam : {}", err),
         }
     })
 }
@@ -113,7 +113,7 @@ fn try_extract_param(value: &PyObject) -> IpgTimerParam {
 
 #[derive(Debug, Clone, PartialEq)]
 #[pyclass(eq, eq_int)]
-pub enum IpgTimerParam {
+pub enum TimerParam {
     DurationMs,
     Enable,
 }

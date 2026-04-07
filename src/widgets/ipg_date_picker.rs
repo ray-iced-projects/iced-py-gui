@@ -3,7 +3,7 @@ use std::collections::HashMap;
 
 use crate::app::{Message, self};
 use crate::graphics::BOOTSTRAP_FONT;
-use crate::state::IpgWidgets;
+use crate::state::Widgets;
 use crate::widgets::ipg_button::ButtonStyleStd;
 use crate::IpgState;
 use super::callbacks::invoke_callback_with_args;
@@ -40,7 +40,7 @@ pub enum DPMessage {
 } 
 
 #[derive(Debug, Clone, Default)]
-pub struct IpgDatePicker {
+pub struct DatePicker {
     pub id: usize,
     pub parent_id: String,
     pub label: Option<String>,
@@ -65,7 +65,7 @@ pub struct IpgDatePicker {
     pub hide_height: Option<Length>,
 }
 
-impl IpgDatePicker {
+impl DatePicker {
     pub fn new( 
         id: usize,
         parent_id: String,
@@ -117,13 +117,13 @@ impl IpgDatePicker {
         );
     }
 
-    fn lookup<'a>(&self, widgets: &'a HashMap<usize, IpgWidgets>, id: Option<usize>) -> Option<&'a IpgWidgets> {
+    fn lookup<'a>(&self, widgets: &'a HashMap<usize, Widgets>, id: Option<usize>) -> Option<&'a Widgets> {
         id.and_then(|id| widgets.get(&id))
     }
 
     pub fn construct<'a>(
         &'a self, 
-        widgets: &HashMap<usize, IpgWidgets>,
+        widgets: &HashMap<usize, Widgets>,
         ) -> Option<Element<'a, Message, Theme, Renderer>> {
         
         if !self.show {
@@ -132,7 +132,7 @@ impl IpgDatePicker {
 
         let btn_style_opt = 
             self.lookup(widgets, self.button_style_id)
-                .and_then(IpgWidgets::as_button_style).cloned();
+                .and_then(Widgets::as_button_style).cloned();
 
 
         if self.show_calendar == Some(false) {
@@ -253,7 +253,7 @@ fn get_days_of_month(year: i32, month: u32) -> i64 {
 }
 
 fn calendar_show_button<'a>(
-        dp: &'a IpgDatePicker, 
+        dp: &'a DatePicker, 
         btn_style: Option<ButtonStyle>,
     ) -> Element<'a, Message, Theme, Renderer> {
     
@@ -500,7 +500,7 @@ fn create_submit_row(id: usize, size_factor: f32, selected_date: String) -> Elem
 pub fn date_picker_update(state: &mut IpgState, id: usize, message: DPMessage) {
     // Get the date picker widget
     let dp = match state.widgets.get_mut(&id) {
-        Some(IpgWidgets::IpgDatePicker(dp)) => dp,
+        Some(Widgets::DatePicker(dp)) => dp,
         _ => return,
     };
 
@@ -551,7 +551,7 @@ pub fn date_picker_update(state: &mut IpgState, id: usize, message: DPMessage) {
 
 #[derive(Debug, Clone, PartialEq)]
 #[pyclass(eq)]
-pub enum IpgDatePickerParam {
+pub enum DatePickerParam {
     Label,
     Padding,
     SizeFactor,
@@ -564,15 +564,15 @@ pub enum IpgDatePickerParam {
 // WidgetParamUpdate implementation
 // ---------------------------------------------------------------------------
 
-impl WidgetParamUpdate for IpgDatePicker {
-    type Param = IpgDatePickerParam;
+impl WidgetParamUpdate for DatePicker {
+    type Param = DatePickerParam;
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
-            IpgDatePickerParam::Label      => set_opt_string(&mut self.label, value, "Label"),
-            IpgDatePickerParam::Padding    => set_opt_vec_f32(&mut self.padding, value, "Padding"),
-            IpgDatePickerParam::SizeFactor => set_opt_f32(&mut self.size_factor, value, "SizeFactor"),
-            IpgDatePickerParam::Show       => set_bool(&mut self.show, value, "Show"),
+            DatePickerParam::Label      => set_opt_string(&mut self.label, value, "Label"),
+            DatePickerParam::Padding    => set_opt_vec_f32(&mut self.padding, value, "Padding"),
+            DatePickerParam::SizeFactor => set_opt_f32(&mut self.size_factor, value, "SizeFactor"),
+            DatePickerParam::Show       => set_bool(&mut self.show, value, "Show"),
         }
     }
 }
@@ -582,8 +582,8 @@ mod tests {
     use super::*;
     use pyo3::{Python, IntoPyObjectExt};
 
-    fn make_date_picker() -> IpgDatePicker {
-        IpgDatePicker {
+    fn make_date_picker() -> DatePicker {
+        DatePicker {
             id: 0,
             parent_id: String::new(),
             label: None,
@@ -619,34 +619,34 @@ mod tests {
     #[test]
     fn test_label() {
         let mut dp = make_date_picker();
-        dp.param_update(IpgDatePickerParam::Label, &py_obj("Pick Date".to_string()));
+        dp.param_update(DatePickerParam::Label, &py_obj("Pick Date".to_string()));
         assert_eq!(dp.label, Some("Pick Date".to_string()));
-        dp.param_update(IpgDatePickerParam::Label, &py_none());
+        dp.param_update(DatePickerParam::Label, &py_none());
         assert_eq!(dp.label, None);
     }
 
     #[test]
     fn test_padding() {
         let mut dp = make_date_picker();
-        dp.param_update(IpgDatePickerParam::Padding, &py_obj(vec![5.0f32, 10.0]));
+        dp.param_update(DatePickerParam::Padding, &py_obj(vec![5.0f32, 10.0]));
         assert_eq!(dp.padding, Some(vec![5.0, 10.0]));
-        dp.param_update(IpgDatePickerParam::Padding, &py_none());
+        dp.param_update(DatePickerParam::Padding, &py_none());
         assert_eq!(dp.padding, None);
     }
 
     #[test]
     fn test_size_factor() {
         let mut dp = make_date_picker();
-        dp.param_update(IpgDatePickerParam::SizeFactor, &py_obj(2.0f32));
+        dp.param_update(DatePickerParam::SizeFactor, &py_obj(2.0f32));
         assert_eq!(dp.size_factor, Some(2.0));
-        dp.param_update(IpgDatePickerParam::SizeFactor, &py_none());
+        dp.param_update(DatePickerParam::SizeFactor, &py_none());
         assert_eq!(dp.size_factor, None);
     }
 
     #[test]
     fn test_show() {
         let mut dp = make_date_picker();
-        dp.param_update(IpgDatePickerParam::Show, &py_obj(false));
+        dp.param_update(DatePickerParam::Show, &py_obj(false));
         assert!(!dp.show);
     }
 }

@@ -2,8 +2,8 @@
 
 use pyo3::{PyResult, pyfunction};
 
-use crate::widgets::ipg_opaque::IpgOpaque;
-use crate::state::{IpgContainers, access_state, 
+use crate::widgets::ipg_opaque::Opaque;
+use crate::state::{Containers, access_state, 
     get_id, set_state_cont_wnd_ids, set_state_of_container};
 
 
@@ -49,8 +49,8 @@ pub fn add_opaque(
 
     set_state_cont_wnd_ids(&mut state, &window_id, container_id, id, "add_opaque".to_string());
 
-    state.containers.insert(id, IpgContainers::IpgOpaque(
-        IpgOpaque {
+    state.containers.insert(id, Containers::Opaque(
+        Opaque {
             id,  
         }));
 

@@ -1,3 +1,8 @@
+#!/usr/bin/env python3
+"""
+Button adding new demo
+"""
+
 from icedpygui import Window, Container, Column, start_session, \
     add_button
 

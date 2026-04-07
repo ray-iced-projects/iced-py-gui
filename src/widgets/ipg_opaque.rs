@@ -7,11 +7,11 @@ use crate::app::Message;
 
 
 #[derive(Clone, Debug)]
-pub struct IpgOpaque {
+pub struct Opaque {
     pub id: usize,
 }
 
-impl IpgOpaque {
+impl Opaque {
     pub fn construct<'a>(
         &'a self,
         mut content: Vec<Element<'a, Message>>,

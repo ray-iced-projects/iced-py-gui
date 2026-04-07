@@ -1,4 +1,6 @@
-from imports import *
+from icedpygui import Window, Column, Container, Row, start_session, \
+    update_widget, ContainerParam, DividerParam, RowParam, Stack, StackParam, \
+    add_text, add_divider, add_divider_style, DividerDirection, Color, add_container_style
 
 # NOTE: To reduce the number of items that need to be changed,
 # make the changes to the row's height instead of each container
@@ -18,26 +20,26 @@ def divider_row_change(div_id: int, index: int, value: float):
     # Update the row above the divider
     update_widget(
         wid=row_ids[index], 
-        param=IpgRowParam.Height, 
+        param=RowParam.Height, 
         value=value)
 
     # Update the row below the divider
     if index < len(rows)-1:
         update_widget(
             wid=row_ids[index+1],
-            param=IpgRowParam.Height,
+            param=RowParam.Height,
             value=rows[index+1])
             
     # Update the divider
     update_widget(
         wid=div_id,
-        param=IpgDividerParam.Sizes,
+        param=DividerParam.Sizes,
         value=rows)
     
     # Update the height of the column divider
     update_widget(
         wid=col_div,
-        param=IpgDividerParam.HandleHeight,
+        param=DividerParam.HandleHeight,
         value=sum(rows)
     )
     
@@ -55,26 +57,26 @@ def divider_col_change(div_id: int, index: int, value: float):
         # Update all the containers on the left of the divider
         update_widget(
             wid=container_ids[i][index], 
-            param=IpgContainerParam.Width, 
+            param=ContainerParam.Width, 
             value=value)
 
         # Update all the containers on the right of the divider
         if index < len(columns)-1:
             update_widget(
                 wid=container_ids[i][index+1],
-                param=IpgContainerParam.Width,
+                param=ContainerParam.Width,
                 value=columns[index+1])
 
     # Update the column divider
     update_widget(
         wid=div_id,
-        param=IpgDividerParam.Sizes,
+        param=DividerParam.Sizes,
         value=columns)
     
     # Update the width of the row divider
     update_widget(
         wid=row_div,
-        param=IpgDividerParam.HandleWidth,
+        param=DividerParam.HandleWidth,
         value=sum(columns)
     )
     
@@ -88,7 +90,7 @@ def divider_col_change(div_id: int, index: int, value: float):
     # or height needs to be set.
     update_widget(
         wid=stack_id,
-        param=IpgStackParam.Width,
+        param=StackParam.Width,
         value=sum(columns))
 
 # It can be easy visualize to use row/column vs widths/heights
@@ -112,7 +114,7 @@ divider_style_id = add_divider_style(
 
 
 # Add a window first
-with Window(id="main", title="Divider Demo",
+with Window(title="Divider Demo",
             size=(600, 600), center=True):
 
     # Add a container to center the widgets in the middle
@@ -122,60 +124,49 @@ with Window(id="main", title="Divider Demo",
         # add a column to hold the text and the stack
         with Column(spacing=30):
 
-            content = "Pace the cursor over the highlighted divider and drag"
-
-            add_text(content=content)
+            add_text(content="Pace the cursor over the highlighted divider and drag")
 
             # make the stack to lay the dividers over the containers
-            with Stack() as stack:
+            with Stack() as stack_id:
 
                 # make a column to hold the two columns
                 # this is added to stack
                 with Column(width=row_handle_width):
-
                     for i, height in enumerate(rows):
-                        row_ids.append(add_row(
-                            id=f"row{i}",
-                            height=height))
+                        with Row(height=height) as row_id:
+                            row_ids.append(row_id)
 
-                        cont_ids = []
-                        for j, width in enumerate(columns):
-                            cont_ids.append(add_container(
-                                    id=f"cont{i} {j}",
-                                    parent_id=f"row{i}",
-                                    width=width,
+                            cont_ids = []
+                            for j, width in enumerate(columns):
+                                with Container(width=width,
                                     height_fill=True,
-                                    style_id=cont_style_id))
-                            
-                            add_text(parent_id=f"cont{i} {j}",
-                                    content=f"Some Text")
+                                    style_id=cont_style_id) as cont_id:
+                                        add_text(content=f"Some Text")
                             
                         container_ids.append(cont_ids)
                         
                     
-                    # Make the vertical divider (rows)
-                    row_div = add_divider(
-                                parent_id=stack,
-                                direction=IpgDividerDirection.Vertical,
-                                sizes=rows,
-                                handle_width=row_handle_width,
-                                handle_height=row_handle_height,
-                                on_change=divider_row_change,
-                                # use the style to see just the outline and not the divider
-                                # style_id=divider_style_id
-                                )
+                # Make the vertical divider (rows)
+                row_div = add_divider(
+                            direction=DividerDirection.Vertical,
+                            sizes=rows,
+                            handle_width=row_handle_width,
+                            handle_height=row_handle_height,
+                            on_change=divider_row_change,
+                            # use the style to see just the outline and not the divider
+                            # style_id=divider_style_id
+                            )
 
-                    #Make the horizontal divider (columns)
-                    col_div = add_divider(
-                                parent_id=stack,
-                                direction=IpgDividerDirection.Horizontal,
-                                sizes=columns,
-                                handle_width=col_handle_width,
-                                handle_height=col_handle_height,
-                                on_change=divider_col_change,
-                                # use the style to see just the outline and not the divider
-                                # style_id=divider_style_id
-                                )
+                #Make the horizontal divider (columns)
+                col_div = add_divider(
+                            direction=DividerDirection.Horizontal,
+                            sizes=columns,
+                            handle_width=col_handle_width,
+                            handle_height=col_handle_height,
+                            on_change=divider_col_change,
+                            # use the style to see just the outline and not the divider
+                            # style_id=divider_style_id
+                            )
 
 # Required to be the last widget sent to Iced,  If you start the program
 # and nothing happens, it might mean you forgot to add this command.

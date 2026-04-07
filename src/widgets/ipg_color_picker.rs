@@ -2,7 +2,7 @@
 use std::collections::HashMap;
 
 use crate::graphics::bootstrap_arrow::Arrow;
-use crate::state::IpgWidgets;
+use crate::state::Widgets;
 use crate::widgets::ipg_button::{ButtonStyleStd, extract_button_style_standard};
 use crate::widgets::widget_param_update::{WidgetParamUpdate, set_bool, set_height, set_height_fill, set_iced_color, set_opt_bool, set_opt_ipg_arrow, set_opt_string, set_opt_usize, set_opt_vec_f32, set_width, set_width_fill};
 use crate::IpgState;
@@ -12,13 +12,13 @@ use super::callbacks::{invoke_callback, invoke_callback_with_args};
 
 use iced::widget::{Button, button, text};
 use iced::{Element, Length, Theme};
-use iced_aw::ColorPicker;
+use iced_aw;
 
 use pyo3::{Py, PyAny, pyclass};
 type PyObject = Py<PyAny>;
 
 #[derive(Debug, Clone)]
-pub struct IpgColorPicker {
+pub struct ColorPicker {
     pub id: usize,
     pub parent_id: String,
     pub show: bool,
@@ -34,15 +34,15 @@ pub struct IpgColorPicker {
     pub style_arrow: Option<Arrow>,
 }
 
-impl IpgColorPicker {
+impl ColorPicker {
 
-    fn lookup<'a>(&self, widgets: &'a HashMap<usize, IpgWidgets>, id: Option<usize>) -> Option<&'a IpgWidgets> {
+    fn lookup<'a>(&self, widgets: &'a HashMap<usize, Widgets>, id: Option<usize>) -> Option<&'a Widgets> {
         id.and_then(|id| widgets.get(&id))
     }
 
     pub fn construct<'a>(
         &'a self,
-        widgets: &HashMap<usize, IpgWidgets>,
+        widgets: &HashMap<usize, Widgets>,
         ) -> Option<Element<'a, Message>> {
         
         let label = 
@@ -55,7 +55,7 @@ impl IpgColorPicker {
 
         let style_opt = 
             self.lookup(widgets, self.style_id)
-                .and_then(IpgWidgets::as_button_style).cloned();
+                .and_then(Widgets::as_button_style).cloned();
 
 
         let btn: Element<ColPikMessage> = 
@@ -81,7 +81,7 @@ impl IpgColorPicker {
             return Some(btn.map(move |message| Message::ColorPicker(self.id, message)));
         }
 
-        let color_picker: Element<ColPikMessage> = ColorPicker::new(
+        let color_picker: Element<ColPikMessage> = iced_aw::ColorPicker::new(
                                         self.show,
                                         self.color,
                                         btn,
@@ -104,7 +104,7 @@ pub enum ColPikMessage {
 
 pub fn color_picker_callback(state: &mut IpgState, id: usize, message: ColPikMessage) {
     // Update widget state directly
-    if let Some(IpgWidgets::IpgColorPicker(cp)) = state.widgets.get_mut(&id) {
+    if let Some(Widgets::ColorPicker(cp)) = state.widgets.get_mut(&id) {
         match &message {
             ColPikMessage::OnCancel => {
                 cp.show = false;
@@ -136,7 +136,7 @@ pub fn color_picker_callback(state: &mut IpgState, id: usize, message: ColPikMes
 
 #[derive(Debug, Clone, PartialEq)]
 #[pyclass(eq, eq_int)]
-pub enum IpgColorPickerParam {
+pub enum ColorPickerParam {
     ArrowStyle,
     Clip,
     Color,
@@ -153,21 +153,21 @@ pub enum IpgColorPickerParam {
 
 #[derive(Debug, Clone, PartialEq)]
 #[pyclass(eq, eq_int)]
-pub enum IpgColorPickerStyleParam {
-    BackgroundIpgColor,
+pub enum ColorPickerStyleParam {
+    BackgroundColor,
     BackgroundRbga,
-    BackgroundIpgColorHovered,
-    BackgroundIpgRgbaHovered,
-    BorderIpgColor,
+    BackgroundColorHovered,
+    BackgroundRgbaHovered,
+    BorderColor,
     BorderRgba,
     BorderRadius,
     BorderWidth,
-    ShadowIpgColor,
+    ShadowColor,
     ShadowRgba,
     ShadowOffsetX,
     ShadowOffsetY,
     ShadowBlurRadius,
-    TextIpgColor,
+    TextColor,
     TextRgbaColor
 }
 
@@ -190,25 +190,25 @@ fn rnd_2(rgba: f32) -> f64 {
 // WidgetParamUpdate implementations
 // ---------------------------------------------------------------------------
 
-impl WidgetParamUpdate for IpgColorPicker {
-    type Param = IpgColorPickerParam;
+impl WidgetParamUpdate for ColorPicker {
+    type Param = ColorPickerParam;
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
-            IpgColorPickerParam::ArrowStyle => set_opt_ipg_arrow(&mut self.style_arrow, value, "ArrowStyle"),
-            IpgColorPickerParam::Clip => set_opt_bool(&mut self.clip, value, "Clip"),
-            IpgColorPickerParam::Color => set_iced_color(&mut self.color, value, "Color"),
-            IpgColorPickerParam::Height => set_height(&mut self.height, value, "Height"),
-            IpgColorPickerParam::HeightFill => set_height_fill(&mut self.height, value, "HeightFill"),
-            IpgColorPickerParam::Label => set_opt_string(&mut self.label, value, "Label"),
-            IpgColorPickerParam::Padding => set_opt_vec_f32(&mut self.padding, value, "Padding"),
-            IpgColorPickerParam::Show => set_bool(&mut self.show, value, "Show"),
-            IpgColorPickerParam::StyleId => set_opt_usize(&mut self.style_id, value, "StyleId"),
-            IpgColorPickerParam::StyleStandard => {
+            ColorPickerParam::ArrowStyle => set_opt_ipg_arrow(&mut self.style_arrow, value, "ArrowStyle"),
+            ColorPickerParam::Clip => set_opt_bool(&mut self.clip, value, "Clip"),
+            ColorPickerParam::Color => set_iced_color(&mut self.color, value, "Color"),
+            ColorPickerParam::Height => set_height(&mut self.height, value, "Height"),
+            ColorPickerParam::HeightFill => set_height_fill(&mut self.height, value, "HeightFill"),
+            ColorPickerParam::Label => set_opt_string(&mut self.label, value, "Label"),
+            ColorPickerParam::Padding => set_opt_vec_f32(&mut self.padding, value, "Padding"),
+            ColorPickerParam::Show => set_bool(&mut self.show, value, "Show"),
+            ColorPickerParam::StyleId => set_opt_usize(&mut self.style_id, value, "StyleId"),
+            ColorPickerParam::StyleStandard => {
                 self.style_standard = Some(extract_button_style_standard(value, "StyleStandard"));
             },
-            IpgColorPickerParam::Width => set_width(&mut self.width, value, "Width"),
-            IpgColorPickerParam::WidthFill => set_width_fill(&mut self.width, value, "WidthFill"),
+            ColorPickerParam::Width => set_width(&mut self.width, value, "Width"),
+            ColorPickerParam::WidthFill => set_width_fill(&mut self.width, value, "WidthFill"),
         }
     }
 }
@@ -219,8 +219,8 @@ mod tests {
     use iced::Length;
     use pyo3::{Python, IntoPyObjectExt};
 
-    fn make_color_picker() -> IpgColorPicker {
-        IpgColorPicker {
+    fn make_color_picker() -> ColorPicker {
+        ColorPicker {
             id: 0,
             parent_id: String::new(),
             show: false,
@@ -249,78 +249,78 @@ mod tests {
     #[test]
     fn test_clip() {
         let mut cp = make_color_picker();
-        cp.param_update(IpgColorPickerParam::Clip, &py_obj(true));
+        cp.param_update(ColorPickerParam::Clip, &py_obj(true));
         assert_eq!(cp.clip, Some(true));
-        cp.param_update(IpgColorPickerParam::Clip, &py_none());
+        cp.param_update(ColorPickerParam::Clip, &py_none());
         assert_eq!(cp.clip, None);
     }
 
     #[test]
     fn test_color() {
         let mut cp = make_color_picker();
-        cp.param_update(IpgColorPickerParam::Color, &py_obj(vec![1.0f32, 0.5, 0.25, 1.0]));
+        cp.param_update(ColorPickerParam::Color, &py_obj(vec![1.0f32, 0.5, 0.25, 1.0]));
         assert_eq!(cp.color, iced::Color::from_rgba(1.0, 0.5, 0.25, 1.0));
     }
 
     #[test]
     fn test_height() {
         let mut cp = make_color_picker();
-        cp.param_update(IpgColorPickerParam::Height, &py_obj(50.0f32));
+        cp.param_update(ColorPickerParam::Height, &py_obj(50.0f32));
         assert_eq!(cp.height, Length::Fixed(50.0));
     }
 
     #[test]
     fn test_height_fill() {
         let mut cp = make_color_picker();
-        cp.param_update(IpgColorPickerParam::HeightFill, &py_obj(true));
+        cp.param_update(ColorPickerParam::HeightFill, &py_obj(true));
         assert_eq!(cp.height, Length::Fill);
     }
 
     #[test]
     fn test_label() {
         let mut cp = make_color_picker();
-        cp.param_update(IpgColorPickerParam::Label, &py_obj("Pick".to_string()));
+        cp.param_update(ColorPickerParam::Label, &py_obj("Pick".to_string()));
         assert_eq!(cp.label, Some("Pick".to_string()));
-        cp.param_update(IpgColorPickerParam::Label, &py_none());
+        cp.param_update(ColorPickerParam::Label, &py_none());
         assert_eq!(cp.label, None);
     }
 
     #[test]
     fn test_padding() {
         let mut cp = make_color_picker();
-        cp.param_update(IpgColorPickerParam::Padding, &py_obj(vec![5.0f32, 10.0]));
+        cp.param_update(ColorPickerParam::Padding, &py_obj(vec![5.0f32, 10.0]));
         assert_eq!(cp.padding, Some(vec![5.0, 10.0]));
-        cp.param_update(IpgColorPickerParam::Padding, &py_none());
+        cp.param_update(ColorPickerParam::Padding, &py_none());
         assert_eq!(cp.padding, None);
     }
 
     #[test]
     fn test_show() {
         let mut cp = make_color_picker();
-        cp.param_update(IpgColorPickerParam::Show, &py_obj(true));
+        cp.param_update(ColorPickerParam::Show, &py_obj(true));
         assert!(cp.show);
     }
 
     #[test]
     fn test_style_id() {
         let mut cp = make_color_picker();
-        cp.param_update(IpgColorPickerParam::StyleId, &py_obj(42usize));
+        cp.param_update(ColorPickerParam::StyleId, &py_obj(42usize));
         assert_eq!(cp.style_id, Some(42));
-        cp.param_update(IpgColorPickerParam::StyleId, &py_none());
+        cp.param_update(ColorPickerParam::StyleId, &py_none());
         assert_eq!(cp.style_id, None);
     }
 
     #[test]
     fn test_width() {
         let mut cp = make_color_picker();
-        cp.param_update(IpgColorPickerParam::Width, &py_obj(200.0f32));
+        cp.param_update(ColorPickerParam::Width, &py_obj(200.0f32));
         assert_eq!(cp.width, Length::Fixed(200.0));
     }
 
     #[test]
     fn test_width_fill() {
         let mut cp = make_color_picker();
-        cp.param_update(IpgColorPickerParam::WidthFill, &py_obj(true));
+        cp.param_update(ColorPickerParam::WidthFill, &py_obj(true));
         assert_eq!(cp.width, Length::Fill);
     }
 }

@@ -1,8 +1,8 @@
 //! ipg_svg
 
 use crate::app::Message;
-use crate::widgets::enums::IpgContentFit;
-use crate::widgets::enums::IpgRotation;
+use crate::widgets::enums::ContentFit;
+use crate::widgets::enums::Rotation;
 use crate::widgets::widget_param_update::WidgetParamUpdate;
 use crate::widgets::widget_param_update::set_bool;
 use crate::widgets::widget_param_update::set_height;
@@ -12,27 +12,27 @@ use crate::widgets::widget_param_update::set_string;
 use crate::widgets::widget_param_update::set_width;
 
 use iced::{Length, Element};
-use iced::widget::Svg;
+use iced::widget;
 use iced::advanced::svg;
 
 use pyo3::{pyclass, Py, PyAny};
 type PyObject = Py<PyAny>;
 
 #[derive(Debug, Clone)]
-pub struct IpgSvg {
+pub struct Svg {
         pub id: usize,
         pub svg_path: String,
         pub width: Length,
         pub height: Length,
         pub color_filter: Option<iced::Color>,
-        pub content_fit: Option<IpgContentFit>,
-        pub rotation_type: Option<IpgRotation>,
+        pub content_fit: Option<ContentFit>,
+        pub rotation_type: Option<Rotation>,
         pub rotation_radians: Option<f32>,
         pub opacity: Option<f32>,
         pub show: bool,
 }
 
-impl IpgSvg{
+impl Svg{
     pub fn construct(&self) 
         -> Option<Element<'_, Message>> {
 
@@ -42,7 +42,7 @@ impl IpgSvg{
 
         let svg_handle = svg::Handle::from_path(self.svg_path.clone());
 
-        let svg = Svg::new(svg_handle)
+        let svg = widget::Svg::new(svg_handle)
                     .width(self.width)
                     .height(self.height);
 
@@ -65,7 +65,7 @@ impl IpgSvg{
 
 #[derive(Debug, Clone, PartialEq)]
 #[pyclass(eq, eq_int)]
-pub enum IpgSvgParam {
+pub enum SvgParam {
     ColorFilter,
     ContentFit,
     Height,
@@ -81,20 +81,20 @@ pub enum IpgSvgParam {
 // WidgetParamUpdate implementations
 // ---------------------------------------------------------------------------
 
-impl WidgetParamUpdate for IpgSvg {
-    type Param = IpgSvgParam;
+impl WidgetParamUpdate for Svg {
+    type Param = SvgParam;
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
-            IpgSvgParam::ColorFilter => set_opt_iced_color(&mut self.color_filter, value, "ColorFilter"),
-            IpgSvgParam::ContentFit => self.content_fit = IpgContentFit::extract(value),
-            IpgSvgParam::Height => set_height(&mut self.height, value, "Height"),
-            IpgSvgParam::Opacity => set_opt_f32(&mut self.opacity, value, "Opacity"),
-            IpgSvgParam::RotationRadians => set_opt_f32(&mut self.rotation_radians, value, "RotationRadians"),
-            IpgSvgParam::RotationType => self.rotation_type = IpgRotation::extract(value),
-            IpgSvgParam::Show => set_bool(&mut self.show, value, "Show"),
-            IpgSvgParam::SvgPath => set_string(&mut self.svg_path, value, "SvgPath"),
-            IpgSvgParam::Width => set_width(&mut self.width, value, "Width"),
+            SvgParam::ColorFilter => set_opt_iced_color(&mut self.color_filter, value, "ColorFilter"),
+            SvgParam::ContentFit => self.content_fit = ContentFit::extract(value),
+            SvgParam::Height => set_height(&mut self.height, value, "Height"),
+            SvgParam::Opacity => set_opt_f32(&mut self.opacity, value, "Opacity"),
+            SvgParam::RotationRadians => set_opt_f32(&mut self.rotation_radians, value, "RotationRadians"),
+            SvgParam::RotationType => self.rotation_type = Rotation::extract(value),
+            SvgParam::Show => set_bool(&mut self.show, value, "Show"),
+            SvgParam::SvgPath => set_string(&mut self.svg_path, value, "SvgPath"),
+            SvgParam::Width => set_width(&mut self.width, value, "Width"),
         }
     }
 }
@@ -105,8 +105,8 @@ mod tests {
     use iced::Length;
     use pyo3::{Python, IntoPyObjectExt};
 
-    fn make_svg() -> IpgSvg {
-        IpgSvg {
+    fn make_svg() -> Svg {
+        Svg {
             id: 0,
             svg_path: "test.svg".to_string(),
             width: Length::Shrink,
@@ -133,44 +133,44 @@ mod tests {
     #[test]
     fn test_height() {
         let mut s = make_svg();
-        s.param_update(IpgSvgParam::Height, &py_obj(100.0f32));
+        s.param_update(SvgParam::Height, &py_obj(100.0f32));
         assert_eq!(s.height, Length::Fixed(100.0));
     }
 
     #[test]
     fn test_opacity() {
         let mut s = make_svg();
-        s.param_update(IpgSvgParam::Opacity, &py_obj(0.5f32));
+        s.param_update(SvgParam::Opacity, &py_obj(0.5f32));
         assert_eq!(s.opacity, Some(0.5));
-        s.param_update(IpgSvgParam::Opacity, &py_none());
+        s.param_update(SvgParam::Opacity, &py_none());
         assert_eq!(s.opacity, None);
     }
 
     #[test]
     fn test_rotation_radians() {
         let mut s = make_svg();
-        s.param_update(IpgSvgParam::RotationRadians, &py_obj(1.57f32));
+        s.param_update(SvgParam::RotationRadians, &py_obj(1.57f32));
         assert_eq!(s.rotation_radians, Some(1.57));
     }
 
     #[test]
     fn test_show() {
         let mut s = make_svg();
-        s.param_update(IpgSvgParam::Show, &py_obj(false));
+        s.param_update(SvgParam::Show, &py_obj(false));
         assert!(!s.show);
     }
 
     #[test]
     fn test_svg_path() {
         let mut s = make_svg();
-        s.param_update(IpgSvgParam::SvgPath, &py_obj("new.svg".to_string()));
+        s.param_update(SvgParam::SvgPath, &py_obj("new.svg".to_string()));
         assert_eq!(s.svg_path, "new.svg");
     }
 
     #[test]
     fn test_width() {
         let mut s = make_svg();
-        s.param_update(IpgSvgParam::Width, &py_obj(200.0f32));
+        s.param_update(SvgParam::Width, &py_obj(200.0f32));
         assert_eq!(s.width, Length::Fixed(200.0));
     }
 }

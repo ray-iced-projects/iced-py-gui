@@ -7,22 +7,22 @@ use crate::widgets::widget_param_update::{
 use crate::widgets::ipg_text::TextShaping;
 use crate::{access_callbacks, access_user_data1, IpgState};
 use crate::app;
-use crate::state::IpgWidgets;
+use crate::state::Widgets;
 
 use iced::widget::radio::{self, Status};
 use iced::{Element, Length, Theme};
-use iced::widget::{Column, Radio, Row};
+use iced::widget::{self, Column, Row};
 
 use pyo3::{pyclass, Py, PyAny, Python};
 type PyObject = Py<PyAny>;
 
 
 #[derive(Debug, Clone)]
-pub struct IpgRadio {
+pub struct Radio {
     pub id: usize,
     pub parent_id: String,
     pub labels: Vec<String>,
-    pub direction: IpgRadioDirection,
+    pub direction: RadioDirection,
     pub spacing: Option<f32>,
     pub radio_spacing: Option<f32>,
     pub padding: Option<Vec<f32>>,
@@ -41,7 +41,7 @@ pub struct IpgRadio {
 }
 
 #[derive(Debug, Clone, Copy)]
-pub struct IpgRadioStyle {
+pub struct RadioStyle {
     pub id: usize,
     pub background_color: Option<iced::Color>,
     pub background_color_hovered: Option<iced::Color>,
@@ -54,7 +54,7 @@ pub struct IpgRadioStyle {
 
 #[derive(Debug, Clone, PartialEq)]
 #[pyclass(eq, eq_int)]
-pub enum IpgRadioDirection {
+pub enum RadioDirection {
     Horizontal,
     Vertical,
 }
@@ -65,9 +65,9 @@ pub enum RDMessage {
 }
 
 
-pub fn construct_radio<'a>(rad: &'a IpgRadio, 
-                        style_opt: Option<&'a IpgWidgets>,
-                        font_opt:  Option<&'a IpgWidgets>) 
+pub fn construct_radio<'a>(rad: &'a Radio, 
+                        style_opt: Option<&'a Widgets>,
+                        font_opt:  Option<&'a Widgets>) 
                         -> Option<Element<'a, app::Message>> {
     
     if !rad.show {
@@ -81,8 +81,8 @@ pub fn construct_radio<'a>(rad: &'a IpgRadio,
     let mut radio_elements = vec![];
 
     for (i, label) in  rad.labels.iter().enumerate() {
-        let style: Option<IpgRadioStyle> = 
-            style_opt.map(|st| IpgRadioStyle{
+        let style: Option<RadioStyle> = 
+            style_opt.map(|st| RadioStyle{
                 id: st.id, 
                 background_color: st.background_color, 
                 background_color_hovered: st.background_color_hovered, 
@@ -92,7 +92,7 @@ pub fn construct_radio<'a>(rad: &'a IpgRadio,
                 border_width: st.border_width, 
                 text_color: st.text_color });
 
-        let mut rd: Radio<'_, RDMessage> = Radio::new(
+        let mut rd: widget::Radio<'_, RDMessage> = widget::Radio::new(
             label.clone(), 
             i,
             selected,
@@ -132,7 +132,7 @@ pub fn construct_radio<'a>(rad: &'a IpgRadio,
         let rd = 
         if let Some(wd) = font_opt {
             match wd {
-                IpgWidgets::IpgFont(font) => {
+                Widgets::Font(font) => {
                     rd.font(font.to_iced())
                 },
                 _ => rd
@@ -148,7 +148,7 @@ pub fn construct_radio<'a>(rad: &'a IpgRadio,
         radio_elements.into_iter().map(|r| r.into()).collect();
 
     let rd: Element<RDMessage> = match rad.direction {
-            IpgRadioDirection::Horizontal =>{
+            RadioDirection::Horizontal =>{
                 let mut rw: Row<'_, RDMessage> = 
                     Row::with_children(elements)
                         .width(rad.width)
@@ -160,7 +160,7 @@ pub fn construct_radio<'a>(rad: &'a IpgRadio,
                 }
                 rw.into()
             },
-            IpgRadioDirection::Vertical => {
+            RadioDirection::Vertical => {
                 let mut col: Column<'_, RDMessage> = 
                     Column::with_children(elements)
                         .padding(get_padding(&rad.padding))
@@ -188,8 +188,8 @@ pub fn radio_callback(state: &mut IpgState, id: usize, message: RDMessage) {
         None => panic!("Radio callback with id {} could not be found", id),
     };
 
-    let radio: &mut IpgRadio = widgets.as_radio_mut()
-        .expect("Radio expected IpgRadio in IpgWidgets");
+    let radio: &mut Radio = widgets.as_radio_mut()
+        .expect("Radio expected Radio in Widgets");
 
     let ch_usize = match message {
         RDMessage::RadioSelected(index) => index,
@@ -257,7 +257,7 @@ let ud1 = access_user_data1();
 
 #[derive(Debug, Clone, PartialEq)]
 #[pyclass(eq, eq_int)]
-pub enum IpgRadioParam {
+pub enum RadioParam {
     Direction,
     FontId,
     Height,
@@ -280,9 +280,9 @@ pub enum IpgRadioParam {
 }
 
 
-pub fn extract_radio_direction(direct_obj: &PyObject) -> IpgRadioDirection {
+pub fn extract_radio_direction(direct_obj: &PyObject) -> RadioDirection {
     Python::attach(|py| {
-        let res = direct_obj.extract::<IpgRadioDirection>(py);
+        let res = direct_obj.extract::<RadioDirection>(py);
             
         match res {
             Ok(direction) => direction,
@@ -292,7 +292,7 @@ pub fn extract_radio_direction(direct_obj: &PyObject) -> IpgRadioDirection {
 }
 
 pub fn get_styling(theme: &Theme, status: Status, 
-                    style_opt: Option<IpgRadioStyle>,
+                    style_opt: Option<RadioStyle>,
                     ) -> radio::Style {
     
     if style_opt.is_none() {
@@ -340,23 +340,23 @@ pub fn get_styling(theme: &Theme, status: Status,
 
 #[derive(Debug, Clone, PartialEq)]
 #[pyclass(eq, eq_int)]
-pub enum IpgRadioStyleParam {
-    BackgroundIpgColor,
+pub enum RadioStyleParam {
+    BackgroundColor,
     BackgroundRgbaColor,
-    BorderIpgColor,
+    BorderColor,
     BorderRgbaColor,
     BorderWidth,
-    DotIpgColor,
+    DotColor,
     DotRgbaColor,
-    DotIpgColorHovered,
+    DotColorHovered,
     DotRgbaColorHovered,
-    TextIpgColor,
+    TextColor,
     TextRgbaColor,
 }
 
-fn get_radio_style(style: Option<&IpgWidgets>) -> Option<IpgRadioStyle>{
+fn get_radio_style(style: Option<&Widgets>) -> Option<RadioStyle>{
     match style {
-        Some(IpgWidgets::IpgRadioStyle(style)) => {
+        Some(Widgets::RadioStyle(style)) => {
             Some(*style)
         }
         _ => None,
@@ -367,60 +367,60 @@ fn get_radio_style(style: Option<&IpgWidgets>) -> Option<IpgRadioStyle>{
 // WidgetParamUpdate implementations
 // ---------------------------------------------------------------------------
 
-impl WidgetParamUpdate for IpgRadio {
-    type Param = IpgRadioParam;
+impl WidgetParamUpdate for Radio {
+    type Param = RadioParam;
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
-            IpgRadioParam::Direction => self.direction = extract_radio_direction(value),
-            IpgRadioParam::FontId => set_opt_usize(&mut self.font_id, value, "FontId"),
-            IpgRadioParam::Height => set_height(&mut self.height, value, "Height"),
-            IpgRadioParam::HeightFill => set_height_fill(&mut self.height, value, "HeightFill"),
-            IpgRadioParam::IsIndex => set_opt_usize(&mut self.is_selected, value, "IsIndex"),
-            IpgRadioParam::Labels => set_vec_string(&mut self.labels, value, "Labels"),
-            IpgRadioParam::Padding => set_opt_vec_f32(&mut self.padding, value, "Padding"),
-            IpgRadioParam::RadioSpacing => set_opt_f32(&mut self.radio_spacing, value, "RadioSpacing"),
-            IpgRadioParam::Show => set_bool(&mut self.show, value, "Show"),
-            IpgRadioParam::TextShaping => set_opt_text_shaping(&mut self.text_shaping, value, "TextShaping"),
-            IpgRadioParam::Size => set_opt_f32(&mut self.size, value, "Size"),
-            IpgRadioParam::Spacing => set_opt_f32(&mut self.spacing, value, "Spacing"),
-            IpgRadioParam::StyleId => set_opt_usize(&mut self.style_id, value, "StyleId"),
-            IpgRadioParam::TextLineHeight => set_opt_f32(&mut self.text_line_height, value, "TextLineHeight"),
-            IpgRadioParam::TextSize => set_opt_f32(&mut self.text_size, value, "TextSize"),
-            IpgRadioParam::TextSpacing => set_opt_f32(&mut self.text_spacing, value, "TextSpacing"),
-            IpgRadioParam::Width => set_width(&mut self.width, value, "Width"),
-            IpgRadioParam::WidthFill => set_width_fill(&mut self.width, value, "WidthFill"),
-            IpgRadioParam::TextWrapping => set_opt_text_wrapping(&mut self.text_wrapping, value, "TextWrapping"),
+            RadioParam::Direction => self.direction = extract_radio_direction(value),
+            RadioParam::FontId => set_opt_usize(&mut self.font_id, value, "FontId"),
+            RadioParam::Height => set_height(&mut self.height, value, "Height"),
+            RadioParam::HeightFill => set_height_fill(&mut self.height, value, "HeightFill"),
+            RadioParam::IsIndex => set_opt_usize(&mut self.is_selected, value, "IsIndex"),
+            RadioParam::Labels => set_vec_string(&mut self.labels, value, "Labels"),
+            RadioParam::Padding => set_opt_vec_f32(&mut self.padding, value, "Padding"),
+            RadioParam::RadioSpacing => set_opt_f32(&mut self.radio_spacing, value, "RadioSpacing"),
+            RadioParam::Show => set_bool(&mut self.show, value, "Show"),
+            RadioParam::TextShaping => set_opt_text_shaping(&mut self.text_shaping, value, "TextShaping"),
+            RadioParam::Size => set_opt_f32(&mut self.size, value, "Size"),
+            RadioParam::Spacing => set_opt_f32(&mut self.spacing, value, "Spacing"),
+            RadioParam::StyleId => set_opt_usize(&mut self.style_id, value, "StyleId"),
+            RadioParam::TextLineHeight => set_opt_f32(&mut self.text_line_height, value, "TextLineHeight"),
+            RadioParam::TextSize => set_opt_f32(&mut self.text_size, value, "TextSize"),
+            RadioParam::TextSpacing => set_opt_f32(&mut self.text_spacing, value, "TextSpacing"),
+            RadioParam::Width => set_width(&mut self.width, value, "Width"),
+            RadioParam::WidthFill => set_width_fill(&mut self.width, value, "WidthFill"),
+            RadioParam::TextWrapping => set_opt_text_wrapping(&mut self.text_wrapping, value, "TextWrapping"),
         }
     }
 }
 
-impl WidgetParamUpdate for IpgRadioStyle {
-    type Param = IpgRadioStyleParam;
+impl WidgetParamUpdate for RadioStyle {
+    type Param = RadioStyleParam;
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
-            IpgRadioStyleParam::BackgroundIpgColor => 
-                set_opt_iced_color(&mut self.background_color, value, "BackgroundIpgColor"),
-            IpgRadioStyleParam::BackgroundRgbaColor => 
+            RadioStyleParam::BackgroundColor => 
+                set_opt_iced_color(&mut self.background_color, value, "BackgroundColor"),
+            RadioStyleParam::BackgroundRgbaColor => 
                 set_opt_iced_color_from_rgba(&mut self.background_color, value, "BackgroundRgbaColor"),
-            IpgRadioStyleParam::BorderIpgColor => 
-                set_opt_iced_color(&mut self.border_color, value, "BorderIpgColor"),
-            IpgRadioStyleParam::BorderRgbaColor => 
+            RadioStyleParam::BorderColor => 
+                set_opt_iced_color(&mut self.border_color, value, "BorderColor"),
+            RadioStyleParam::BorderRgbaColor => 
                 set_opt_iced_color_from_rgba(&mut self.border_color, value, "BorderRgbaColor"),
-            IpgRadioStyleParam::BorderWidth => 
+            RadioStyleParam::BorderWidth => 
                 set_opt_f32(&mut self.border_width, value, "BorderWidth"),
-            IpgRadioStyleParam::DotIpgColor => 
-                set_opt_iced_color(&mut self.dot_color, value, "DotIpgColor"),
-            IpgRadioStyleParam::DotRgbaColor => 
+            RadioStyleParam::DotColor => 
+                set_opt_iced_color(&mut self.dot_color, value, "DotColor"),
+            RadioStyleParam::DotRgbaColor => 
                 set_opt_iced_color_from_rgba(&mut self.dot_color, value, "DotRgbaColor"),
-            IpgRadioStyleParam::DotIpgColorHovered => 
-                set_opt_iced_color(&mut self.dot_color_hovered, value, "DotIpgColorHovered"),
-            IpgRadioStyleParam::DotRgbaColorHovered => 
+            RadioStyleParam::DotColorHovered => 
+                set_opt_iced_color(&mut self.dot_color_hovered, value, "DotColorHovered"),
+            RadioStyleParam::DotRgbaColorHovered => 
                 set_opt_iced_color_from_rgba(&mut self.dot_color_hovered, value, "DotRgbaColorHovered"),
-            IpgRadioStyleParam::TextIpgColor => 
-                set_opt_iced_color(&mut self.text_color, value, "TextIpgColor"),
-            IpgRadioStyleParam::TextRgbaColor => 
+            RadioStyleParam::TextColor => 
+                set_opt_iced_color(&mut self.text_color, value, "TextColor"),
+            RadioStyleParam::TextRgbaColor => 
                 set_opt_iced_color_from_rgba(&mut self.text_color, value, "TextRgbaColor"),
         }
     }
@@ -432,12 +432,12 @@ mod tests {
     use iced::Length;
     use pyo3::{Python, IntoPyObjectExt};
 
-    fn make_radio() -> IpgRadio {
-        IpgRadio {
+    fn make_radio() -> Radio {
+        Radio {
             id: 0,
             parent_id: String::new(),
             labels: vec!["A".into(), "B".into()],
-            direction: IpgRadioDirection::Vertical,
+            direction: RadioDirection::Vertical,
             spacing: None,
             radio_spacing: None,
             padding: None,
@@ -456,8 +456,8 @@ mod tests {
         }
     }
 
-    fn make_radio_style() -> IpgRadioStyle {
-        IpgRadioStyle {
+    fn make_radio_style() -> RadioStyle {
+        RadioStyle {
             id: 0,
             background_color: None,
             background_color_hovered: None,
@@ -479,169 +479,169 @@ mod tests {
         Python::attach(|py| py.None().into_py_any(py).unwrap())
     }
 
-    // -- IpgRadio param tests --
+    // -- Radio param tests --
 
     #[test]
     fn test_font_id() {
         let mut r = make_radio();
-        r.param_update(IpgRadioParam::FontId, &py_obj(3usize));
+        r.param_update(RadioParam::FontId, &py_obj(3usize));
         assert_eq!(r.font_id, Some(3));
-        r.param_update(IpgRadioParam::FontId, &py_none());
+        r.param_update(RadioParam::FontId, &py_none());
         assert_eq!(r.font_id, None);
     }
 
     #[test]
     fn test_height() {
         let mut r = make_radio();
-        r.param_update(IpgRadioParam::Height, &py_obj(100.0f32));
+        r.param_update(RadioParam::Height, &py_obj(100.0f32));
         assert_eq!(r.height, Length::Fixed(100.0));
     }
 
     #[test]
     fn test_height_fill() {
         let mut r = make_radio();
-        r.param_update(IpgRadioParam::HeightFill, &py_obj(true));
+        r.param_update(RadioParam::HeightFill, &py_obj(true));
         assert_eq!(r.height, Length::Fill);
     }
 
     #[test]
     fn test_is_index() {
         let mut r = make_radio();
-        r.param_update(IpgRadioParam::IsIndex, &py_obj(1usize));
+        r.param_update(RadioParam::IsIndex, &py_obj(1usize));
         assert_eq!(r.is_selected, Some(1));
-        r.param_update(IpgRadioParam::IsIndex, &py_none());
+        r.param_update(RadioParam::IsIndex, &py_none());
         assert_eq!(r.is_selected, None);
     }
 
     #[test]
     fn test_labels() {
         let mut r = make_radio();
-        r.param_update(IpgRadioParam::Labels, &py_obj(vec!["X".to_string(), "Y".to_string()]));
+        r.param_update(RadioParam::Labels, &py_obj(vec!["X".to_string(), "Y".to_string()]));
         assert_eq!(r.labels, vec!["X", "Y"]);
     }
 
     #[test]
     fn test_padding() {
         let mut r = make_radio();
-        r.param_update(IpgRadioParam::Padding, &py_obj(vec![5.0f32, 10.0]));
+        r.param_update(RadioParam::Padding, &py_obj(vec![5.0f32, 10.0]));
         assert_eq!(r.padding, Some(vec![5.0, 10.0]));
-        r.param_update(IpgRadioParam::Padding, &py_none());
+        r.param_update(RadioParam::Padding, &py_none());
         assert_eq!(r.padding, None);
     }
 
     #[test]
     fn test_radio_spacing() {
         let mut r = make_radio();
-        r.param_update(IpgRadioParam::RadioSpacing, &py_obj(8.0f32));
+        r.param_update(RadioParam::RadioSpacing, &py_obj(8.0f32));
         assert_eq!(r.radio_spacing, Some(8.0));
     }
 
     #[test]
     fn test_show() {
         let mut r = make_radio();
-        r.param_update(IpgRadioParam::Show, &py_obj(false));
+        r.param_update(RadioParam::Show, &py_obj(false));
         assert!(!r.show);
     }
 
     #[test]
     fn test_size() {
         let mut r = make_radio();
-        r.param_update(IpgRadioParam::Size, &py_obj(20.0f32));
+        r.param_update(RadioParam::Size, &py_obj(20.0f32));
         assert_eq!(r.size, Some(20.0));
     }
 
     #[test]
     fn test_spacing() {
         let mut r = make_radio();
-        r.param_update(IpgRadioParam::Spacing, &py_obj(12.0f32));
+        r.param_update(RadioParam::Spacing, &py_obj(12.0f32));
         assert_eq!(r.spacing, Some(12.0));
     }
 
     #[test]
     fn test_style_id() {
         let mut r = make_radio();
-        r.param_update(IpgRadioParam::StyleId, &py_obj(7usize));
+        r.param_update(RadioParam::StyleId, &py_obj(7usize));
         assert_eq!(r.style_id, Some(7));
-        r.param_update(IpgRadioParam::StyleId, &py_none());
+        r.param_update(RadioParam::StyleId, &py_none());
         assert_eq!(r.style_id, None);
     }
 
     #[test]
     fn test_text_line_height() {
         let mut r = make_radio();
-        r.param_update(IpgRadioParam::TextLineHeight, &py_obj(1.5f32));
+        r.param_update(RadioParam::TextLineHeight, &py_obj(1.5f32));
         assert_eq!(r.text_line_height, Some(1.5));
     }
 
     #[test]
     fn test_text_size() {
         let mut r = make_radio();
-        r.param_update(IpgRadioParam::TextSize, &py_obj(16.0f32));
+        r.param_update(RadioParam::TextSize, &py_obj(16.0f32));
         assert_eq!(r.text_size, Some(16.0));
     }
 
     #[test]
     fn test_text_spacing() {
         let mut r = make_radio();
-        r.param_update(IpgRadioParam::TextSpacing, &py_obj(4.0f32));
+        r.param_update(RadioParam::TextSpacing, &py_obj(4.0f32));
         assert_eq!(r.text_spacing, Some(4.0));
     }
 
     #[test]
     fn test_width() {
         let mut r = make_radio();
-        r.param_update(IpgRadioParam::Width, &py_obj(200.0f32));
+        r.param_update(RadioParam::Width, &py_obj(200.0f32));
         assert_eq!(r.width, Length::Fixed(200.0));
     }
 
     #[test]
     fn test_width_fill() {
         let mut r = make_radio();
-        r.param_update(IpgRadioParam::WidthFill, &py_obj(true));
+        r.param_update(RadioParam::WidthFill, &py_obj(true));
         assert_eq!(r.width, Length::Fill);
     }
 
-    // -- IpgRadioStyle param tests --
+    // -- RadioStyle param tests --
 
     #[test]
     fn test_style_background_rgba() {
         let mut s = make_radio_style();
-        s.param_update(IpgRadioStyleParam::BackgroundRgbaColor, &py_obj(vec![1.0f32, 0.0, 0.0, 1.0]));
+        s.param_update(RadioStyleParam::BackgroundRgbaColor, &py_obj(vec![1.0f32, 0.0, 0.0, 1.0]));
         assert!(s.background_color.is_some());
     }
 
     #[test]
     fn test_style_border_rgba() {
         let mut s = make_radio_style();
-        s.param_update(IpgRadioStyleParam::BorderRgbaColor, &py_obj(vec![0.0f32, 1.0, 0.0, 1.0]));
+        s.param_update(RadioStyleParam::BorderRgbaColor, &py_obj(vec![0.0f32, 1.0, 0.0, 1.0]));
         assert!(s.border_color.is_some());
     }
 
     #[test]
     fn test_style_border_width() {
         let mut s = make_radio_style();
-        s.param_update(IpgRadioStyleParam::BorderWidth, &py_obj(2.0f32));
+        s.param_update(RadioStyleParam::BorderWidth, &py_obj(2.0f32));
         assert_eq!(s.border_width, Some(2.0));
     }
 
     #[test]
     fn test_style_dot_rgba() {
         let mut s = make_radio_style();
-        s.param_update(IpgRadioStyleParam::DotRgbaColor, &py_obj(vec![0.0f32, 0.0, 1.0, 1.0]));
+        s.param_update(RadioStyleParam::DotRgbaColor, &py_obj(vec![0.0f32, 0.0, 1.0, 1.0]));
         assert!(s.dot_color.is_some());
     }
 
     #[test]
     fn test_style_dot_rgba_hovered() {
         let mut s = make_radio_style();
-        s.param_update(IpgRadioStyleParam::DotRgbaColorHovered, &py_obj(vec![1.0f32, 1.0, 0.0, 1.0]));
+        s.param_update(RadioStyleParam::DotRgbaColorHovered, &py_obj(vec![1.0f32, 1.0, 0.0, 1.0]));
         assert!(s.dot_color_hovered.is_some());
     }
 
     #[test]
     fn test_style_text_rgba() {
         let mut s = make_radio_style();
-        s.param_update(IpgRadioStyleParam::TextRgbaColor, &py_obj(vec![0.0f32, 0.0, 0.0, 1.0]));
+        s.param_update(RadioStyleParam::TextRgbaColor, &py_obj(vec![0.0f32, 0.0, 0.0, 1.0]));
         assert!(s.text_color.is_some());
     }
 }

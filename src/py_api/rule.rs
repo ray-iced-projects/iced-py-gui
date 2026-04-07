@@ -2,8 +2,8 @@
 use pyo3::{PyResult, pyfunction};
 
 use crate::{access_state, graphics::colors::Color, 
-    state::{IpgWidgets, get_id, set_state_of_widget}, 
-    widgets::ipg_rule::{IpgRule, IpgRuleStyle}};
+    state::{Widgets, get_id, set_state_of_widget}, 
+    widgets::ipg_rule::{Rule, RuleStyle}};
 
 
 /// Add a rule widget.
@@ -53,8 +53,8 @@ pub fn add_rule(
 
     let mut state = access_state();
 
-    state.widgets.insert(id, IpgWidgets::IpgRule(
-        IpgRule {
+    state.widgets.insert(id, Widgets::Rule(
+        Rule {
             id,
             parent_id,
             is_vertical,
@@ -130,8 +130,8 @@ pub fn add_rule_style(
     
     let mut state = access_state();
 
-    state.widgets.insert(id, IpgWidgets::IpgRuleStyle(
-        IpgRuleStyle {
+    state.widgets.insert(id, Widgets::RuleStyle(
+        RuleStyle {
             id,
             color,
             border_radius,

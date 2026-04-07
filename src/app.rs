@@ -13,7 +13,7 @@ use pyo3::{Py, PyAny};
 type PyObject = Py<PyAny>;
 
 use crate::py_api::helpers::find_key_for_value;
-use crate::state::{IpgContainers, IpgWidgetNode, IpgState, IpgWidgets, access_state, access_update_widgets, access_window_actions, clone_state_to_runtime, set_state_of_widget_running_state};
+use crate::state::{Containers, WidgetNode, IpgState, Widgets, access_state, access_update_widgets, access_window_actions, clone_state_to_runtime, set_state_of_widget_running_state};
 use crate::widgets::ipg_button::{BtnMessage, button_callback};
 use crate::widgets::ipg_card::{CardMessage, card_callback};
 use crate::widgets::ipg_checkbox::{ChkMessage, checkbox_callback};
@@ -36,7 +36,7 @@ use crate::widgets::ipg_text_editor::{TxtEdMessage, text_ed_callback};
 use crate::widgets::ipg_text_input::{TIMessage, text_input_callback};
 use crate::widgets::ipg_timer::{TimerState, timer_callback};
 use crate::widgets::ipg_toggle::{TOGMessage, construct_toggler, toggle_callback};
-use crate::widgets::ipg_window::{IpgWindow, IpgWindowLevel, IpgWindowMode, add_windows, construct_window};
+use crate::widgets::ipg_window::{Window, WindowLevel, WindowMode, add_windows, construct_window};
 use crate::widgets::widget_param_update::{param_update, container_param_update};
 
 
@@ -88,7 +88,7 @@ pub enum Message {
 #[derive(Debug, Clone)]
 pub struct App {
     state: IpgState,
-    // canvas_state: IpgCanvasState,
+    // canvas_state: CanvasState,
 }
 
 impl App {
@@ -97,7 +97,7 @@ impl App {
         let mut state = IpgState::new();
         clone_state(&mut state);
 
-        // let mut canvas_state = IpgCanvasState::default();
+        // let mut canvas_state = CanvasState::default();
         // clone_canvas_state(&mut canvas_state);
 
         let mut open = add_windows(&mut state);
@@ -563,7 +563,7 @@ struct ParentChildIds {
 
 fn get_combine_parents_and_children(
     parent_ids: &Vec<usize>, 
-    ids_opt: Option<&Vec<IpgWidgetNode>>) 
+    ids_opt: Option<&Vec<WidgetNode>>) 
     -> Vec<ParentChildIds> {
 
     let mut parent_child_ids: Vec<ParentChildIds> = vec![];
@@ -593,7 +593,7 @@ fn get_children<'a>(parents: &Vec<ParentChildIds>,
                 index: &usize, 
                 parent_ids: &Vec<usize>, 
                 state: &'a IpgState,
-                // canvas_state: &'a IpgCanvasState,
+                // canvas_state: &'a CanvasState,
                 ) -> Element<'a, Message> 
 {
 
@@ -601,9 +601,9 @@ fn get_children<'a>(parents: &Vec<ParentChildIds>,
 
     let id = &parents[*index].parent_id;
 
-    // Special handling for IpgMenu: build grouped content from IpgMenuBarItem children
+    // Special handling for Menu: build grouped content from MenuBarItem children
     if id != &0 {
-        if let Some(IpgContainers::IpgMenu(menu)) = state.containers.get(id) {
+        if let Some(Containers::Menu(menu)) = state.containers.get(id) {
             let grouped = get_menu_children(parents, index, parent_ids, state);
             return menu.construct(grouped, &state.widgets);
         }
@@ -628,8 +628,8 @@ fn get_children<'a>(parents: &Vec<ParentChildIds>,
 }
 
 /// Build grouped content for a Menu container.
-/// Each child of the Menu should be an IpgMenuBarItem.
-/// For each IpgMenuBarItem, its first child becomes the bar widget and
+/// Each child of the Menu should be an MenuBarItem.
+/// For each MenuBarItem, its first child becomes the bar widget and
 /// the remaining children become dropdown menu items.
 fn get_menu_children<'a>(
     parents: &Vec<ParentChildIds>,
@@ -640,7 +640,7 @@ fn get_menu_children<'a>(
     let mut grouped: Vec<Vec<Element<'a, Message>>> = vec![];
 
     for child_id in parents[*menu_index].child_ids.iter() {
-        // Each child should be an IpgMenuBarItem container
+        // Each child should be an MenuBarItem container
         if parent_ids.contains(child_id) {
             let bar_item_index = parents.iter().position(|r| &r.parent_id == child_id).unwrap();
 
@@ -666,74 +666,74 @@ fn get_menu_children<'a>(
 fn get_container<'a>(state: &'a IpgState, 
                     id: &usize, 
                     content: Vec<Element<'a, Message>>,
-                    // canvas_state: &'a IpgCanvasState,
+                    // canvas_state: &'a CanvasState,
                     ) -> Element<'a, Message> {
 
-    let container_opt: Option<&IpgContainers> = state.containers.get(id);
+    let container_opt: Option<&Containers> = state.containers.get(id);
 
     match container_opt 
     {
         Some(container) => 
             match container {
-                // IpgContainers::IpgCanvas(canvas) => {
+                // Containers::Canvas(canvas) => {
                 //     construct_canvas(canvas_state)
                 // },
-                IpgContainers::IpgColumn(col) => {
+                Containers::Column(col) => {
                     col.construct(content) 
                 },
-                IpgContainers::IpgContainer(cont) => {
+                Containers::Container(cont) => {
                     if content.len() > 1 {
                         panic!("A container can have only one widget, place your multiple widgets into a column or row")
                     }
                     cont.construct(content, &state.widgets)
                 },
-                IpgContainers::IpgFloat(float) => {
+                Containers::Float(float) => {
                     if content.len() > 1 {
                         panic!("A float can have only one widget, place your multiple widgets into a column or row")
                     }
                     float.construct(content)
                 },
-                IpgContainers::IpgGrid(grid) => {
+                Containers::Grid(grid) => {
                     grid.construct(content)
                 },
-                IpgContainers::IpgMenu(_) => {
+                Containers::Menu(_) => {
                     // Menu is handled specially in get_children via get_menu_children;
                     // it should never reach get_container.
-                    panic!("IpgMenu should not reach get_container directly")
+                    panic!("Menu should not reach get_container directly")
                 },
-                IpgContainers::IpgMenuBarItem(_) => {
+                Containers::MenuBarItem(_) => {
                     // MenuBarItem children are consumed by get_menu_children;
                     // it should never reach get_container.
-                    panic!("IpgMenuBarItem should not reach get_container directly")
+                    panic!("MenuBarItem should not reach get_container directly")
                 },
-                // IpgContainers::IpgModal(modal) => {
+                // Containers::Modal(modal) => {
                 //     construct_modal(modal, content)
                 // },
-                IpgContainers::IpgMouseArea(m_area) => {
+                Containers::MouseArea(m_area) => {
                     construct_mousearea(m_area, content)
                 },
-                IpgContainers::IpgOpaque(op) => {
+                Containers::Opaque(op) => {
                     op.construct(content)
                 },
-                IpgContainers::IpgTable(table) => {
+                Containers::Table(table) => {
                     table.construct(content, &state.widgets)
                 },
-                IpgContainers::IpgRow(row) => {
+                Containers::Row(row) => {
                     row.construct(content)
                 },
-                IpgContainers::IpgScrollable(scroll) => {
+                Containers::Scrollable(scroll) => {
                     scroll.construct(content, &state.widgets)
                 },
-                IpgContainers::IpgStack(stk) => {
+                Containers::Stack(stk) => {
                     stk.construct(content)
                 }
-                IpgContainers::IpgToolTip(tool) => {
+                Containers::ToolTip(tool) => {
                     if content.len() > 2 {
                         eprintln!("[WARNING] A tooltip can have only 2 containers/widgets, place your multiple widgets into a column or row")
                     }
                     tool.construct(content, &state.widgets)
                 },
-                IpgContainers::IpgWindow(_wnd) => {
+                Containers::Window(_wnd) => {
                     construct_window(content)
                 },
             },
@@ -751,31 +751,31 @@ fn get_widget<'a>(state: &'a IpgState, id: &usize) -> Option<Element<'a, Message
     {
         Some(widget) => 
             match widget {      
-                IpgWidgets::IpgButton(btn) => {
+                Widgets::Button(btn) => {
                     btn.construct(&state.widgets)
                 },
-                IpgWidgets::IpgCard(crd) => {
+                Widgets::Card(crd) => {
                     crd.construct(&state.widgets)
                 },
-                IpgWidgets::IpgCheckBox(chk) => {
+                Widgets::CheckBox(chk) => {
                     chk.construct(&state.widgets)
                 },
-                IpgWidgets::IpgColorPicker(cp) => {
+                Widgets::ColorPicker(cp) => {
                     cp.construct(&state.widgets)
                 },
-                IpgWidgets::IpgDivider(div) => {
+                Widgets::Divider(div) => {
                     div.construct(&state.widgets)
                 },
-                IpgWidgets::IpgImage(image) => {
+                Widgets::Image(image) => {
                     image.construct()
                 },
-                // IpgWidgets::IpgMenu(menu) => {
+                // Widgets::Menu(menu) => {
                 //     Some(construct_menu(menu.clone(), state))
                 // },
-                IpgWidgets::IpgDatePicker(dp) => {
+                Widgets::DatePicker(dp) => {
                     dp.construct(&state.widgets)
                 },
-                IpgWidgets::IpgPickList(pick) => {
+                Widgets::PickList(pick) => {
                     let style_opt = 
                         if let Some(id) = pick.style_id {
                             state.widgets.get(&id)
@@ -783,14 +783,14 @@ fn get_widget<'a>(state: &'a IpgState, id: &usize) -> Option<Element<'a, Message
                     
                     construct_picklist(pick, style_opt)
                 },
-                IpgWidgets::IpgProgressBar(bar) => {
+                Widgets::ProgressBar(bar) => {
                     let style_opt = 
                         if let Some(id) = bar.style_id {
                             state.widgets.get(&id)
                         } else { None };
                     construct_progress_bar(bar, style_opt)
                 },
-                IpgWidgets::IpgRadio(rad) => {
+                Widgets::Radio(rad) => {
                     let style_opt = 
                         if let Some(id) = rad.style_id {
                             state.widgets.get(&id)
@@ -801,46 +801,46 @@ fn get_widget<'a>(state: &'a IpgState, id: &usize) -> Option<Element<'a, Message
                         } else { None };
                     construct_radio(rad, style_opt, font_opt)
                 },
-                IpgWidgets::IpgRule(rule) => {
+                Widgets::Rule(rule) => {
                     let style_opt = 
                         if let Some(id) = rule.style_id {
                             state.widgets.get(&id)
                         } else { None };
                     construct_rule(rule, style_opt)
                 },
-                IpgWidgets::IpgSeparator(sep) => {
+                Widgets::Separator(sep) => {
                     let style_opt = 
                         if let Some(id) = sep.style_id {
                             state.widgets.get(&id)
                         } else { None };
                     construct_separator(sep, style_opt)
                 }
-                IpgWidgets::IpgSlider(slider) => {
+                Widgets::Slider(slider) => {
                     let style_opt = 
                         if let Some(id) = slider.style_id {
                             state.widgets.get(&id)
                         } else { None };
                     construct_slider(slider, style_opt)
                 },
-                IpgWidgets::IpgSpace(sp) => {
+                Widgets::Space(sp) => {
                     construct_space(sp)
                 },
-                IpgWidgets::IpgSvg(svg) => {
+                Widgets::Svg(svg) => {
                     svg.construct()
                 },
-                IpgWidgets::IpgText(txt) => {
+                Widgets::Text(txt) => {
                     txt.construct(&state.widgets)
                 },
-                IpgWidgets::IpgTextEditor(txt) => {
+                Widgets::TextEditor(txt) => {
                     txt.construct()
                 },
-                IpgWidgets::IpgRichText(rt) => {
+                Widgets::RichText(rt) => {
                     rt.construct()
                 },
-                IpgWidgets::IpgTextInput(input) => {
+                Widgets::TextInput(input) => {
                     input.construct(&state.widgets)       
                 },
-                // IpgWidgets::IpgCanvasTimer(ctimer) => {
+                // Widgets::CanvasTimer(ctimer) => {
                 //     let style_opt = match ctimer.style_id {
                 //         Some(id) => {
                 //             state.widgets.get(&id)
@@ -849,7 +849,7 @@ fn get_widget<'a>(state: &'a IpgState, id: &usize) -> Option<Element<'a, Message
                 //     };
                 //     construct_canvas_timer(ctimer, style_opt)
                 // },
-                IpgWidgets::IpgToggler(tog) => {
+                Widgets::Toggler(tog) => {
                     let style_opt = 
                         if let Some(id) = tog.style_id {
                             state.widgets.get(&id)
@@ -896,15 +896,15 @@ fn match_theme_with_debug_color(theme: Theme) -> iced::Color {
     }
 }
 
-fn get_window_container(container_opt: Option<&IpgContainers>) -> &IpgWindow {
+fn get_window_container(container_opt: Option<&Containers>) -> &Window {
     
     let container = match container_opt {
         Some(cnt) => cnt,
-        None => panic!("App: get_window_container: Cannot find IpgContainer"),
+        None => panic!("App: get_window_container: Cannot find Container"),
     };
 
     match container {
-        IpgContainers::IpgWindow(wnd) => {
+        Containers::Window(wnd) => {
             wnd
         },
         _ => panic!("get_window: Not a Window")
@@ -913,7 +913,7 @@ fn get_window_container(container_opt: Option<&IpgContainers>) -> &IpgWindow {
 
 fn process_widget_updates(
     state: &mut IpgState, 
-    // canvas_state: &mut IpgCanvasState
+    // canvas_state: &mut CanvasState
 ) {
     
     let mut all_updates = access_update_widgets();
@@ -1041,7 +1041,7 @@ fn process_new_widgets(state: &mut IpgState) {
     let mut mutex_state = access_state();
     if !mutex_state.widgets.is_empty() {
         // Move new widgets into the runtime state
-        let new_widgets: HashMap<usize, IpgWidgets> = mutex_state.widgets.drain().collect();
+        let new_widgets: HashMap<usize, Widgets> = mutex_state.widgets.drain().collect();
         let new_parent_ids: HashMap<usize, String> = mutex_state.widget_container_ids.drain().collect();
         // Sync the last_id so future IDs don't collide
         state.last_id = mutex_state.last_id;
@@ -1058,7 +1058,7 @@ fn process_new_widgets(state: &mut IpgState) {
     }
 }
 
-// fn process_canvas_updates(cs: &mut IpgCanvasState) {
+// fn process_canvas_updates(cs: &mut CanvasState) {
 //     let mut canvas_items = access_canvas_update_items();
 
 //     for ((wid, item, value)) in canvas_items.updates.iter() {
@@ -1090,23 +1090,23 @@ fn process_shows(
             panic!("Process shows method- unable to find id {}", id)
         };
         match widget {
-            IpgWidgets::IpgButton(bt) => bt.show= *val,
-            IpgWidgets::IpgCard(cd) => cd.show= *val,
-            IpgWidgets::IpgCheckBox(cb) => cb.show= *val,
-            IpgWidgets::IpgColorPicker(cp) => cp.show= *val,
-            IpgWidgets::IpgDatePicker(dp) => dp.show= *val,
-            IpgWidgets::IpgDivider(d) => d.show = *val,
-            IpgWidgets::IpgImage(im) => im.show= *val,
-            IpgWidgets::IpgPickList(pl) => pl.show= *val,
-            IpgWidgets::IpgProgressBar(pb) => pb.show= *val,
-            IpgWidgets::IpgRadio(rd) => rd.show= *val,
-            IpgWidgets::IpgRule(ru) => ru.show  = *val,
-            IpgWidgets::IpgSeparator(sp) => sp.show= *val,
-            IpgWidgets::IpgSlider(sl) => sl.show= *val,
-            IpgWidgets::IpgSpace(sp) => sp.show= *val,
-            IpgWidgets::IpgSvg(svg) => svg.show= *val,
-            IpgWidgets::IpgTextInput(ti) => ti.show= *val,
-            IpgWidgets::IpgToggler(tog) => tog.show= *val,
+            Widgets::Button(bt) => bt.show= *val,
+            Widgets::Card(cd) => cd.show= *val,
+            Widgets::CheckBox(cb) => cb.show= *val,
+            Widgets::ColorPicker(cp) => cp.show= *val,
+            Widgets::DatePicker(dp) => dp.show= *val,
+            Widgets::Divider(d) => d.show = *val,
+            Widgets::Image(im) => im.show= *val,
+            Widgets::PickList(pl) => pl.show= *val,
+            Widgets::ProgressBar(pb) => pb.show= *val,
+            Widgets::Radio(rd) => rd.show= *val,
+            Widgets::Rule(ru) => ru.show  = *val,
+            Widgets::Separator(sp) => sp.show= *val,
+            Widgets::Slider(sl) => sl.show= *val,
+            Widgets::Space(sp) => sp.show= *val,
+            Widgets::Svg(svg) => svg.show= *val,
+            Widgets::TextInput(ti) => ti.show= *val,
+            Widgets::Toggler(tog) => tog.show= *val,
             _ => (),
         }
     }
@@ -1153,7 +1153,7 @@ fn clone_state(state: &mut IpgState) {
 }
 
 fn match_widget(
-    widget: &mut IpgWidgets, 
+    widget: &mut Widgets, 
     item: &PyObject, 
     value: &PyObject) 
 {
@@ -1161,10 +1161,10 @@ fn match_widget(
 }
 
 fn match_container(
-    container: &mut IpgContainers, 
+    container: &mut Containers, 
     item: &PyObject, 
     value: &PyObject, 
-    // canvas_state: &mut IpgCanvasState,
+    // canvas_state: &mut CanvasState,
     last_id: usize,
     ) -> Option<usize>
 {

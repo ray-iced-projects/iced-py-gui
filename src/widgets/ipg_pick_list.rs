@@ -3,7 +3,7 @@ use crate::app;
 use crate::IpgState;
 use crate::graphics::bootstrap_arrow::Arrow;
 use crate::py_api::helpers::{get_padding, get_radius};
-use crate::state::IpgWidgets;
+use crate::state::Widgets;
 use crate::widgets::widget_param_update::set_opt_iced_color_from_rgba;
 use crate::widgets::widget_param_update::set_opt_ipg_arrow;
 use crate::widgets::widget_param_update::{WidgetParamUpdate,
@@ -17,7 +17,7 @@ use super::callbacks::invoke_callback_with_args;
 use iced::widget::pick_list::{self, Status};
 use iced::{Font, Pixels, Theme};
 use iced::{Length, Element};
-use iced::widget::PickList;
+use iced::widget;
 use iced::widget::pick_list::{Handle, Icon};
 
 use pyo3::pyclass;
@@ -26,7 +26,7 @@ type PyObject = Py<PyAny>;
 
 
 #[derive(Debug, Clone)]
-pub struct IpgPickList {
+pub struct PickList {
     pub id: usize,
     pub parent_id: String,
     pub show: bool,
@@ -39,7 +39,7 @@ pub struct IpgPickList {
     pub text_size: Option<f32>,
     pub text_line_height: Option<f32>,
     pub text_shaping: Option<TextShaping>,
-    pub handle: Option<IpgPickListHandle>,
+    pub handle: Option<PickListHandle>,
     pub arrow_size: Option<f32>,
     pub dynamic_closed: Option<Arrow>,
     pub dynamic_open: Option<Arrow>,
@@ -48,7 +48,7 @@ pub struct IpgPickList {
 }
 
 #[derive(Debug, Clone, Default)]
-pub struct IpgPickListStyle {
+pub struct PickListStyle {
     pub id: usize,
     pub background_color: Option<iced::Color>,
     pub text_color: Option<iced::Color>,
@@ -67,14 +67,14 @@ pub enum PLMessage {
 
 
 pub fn construct_picklist<'a>(
-    pick: &'a IpgPickList, 
-    style_opt: Option<&IpgWidgets>) 
+    pick: &'a PickList, 
+    style_opt: Option<&Widgets>) 
     -> Option<Element<'a, app::Message>> {
     
     if!pick.show {
         return None
     }
-    let style = style_opt.and_then(IpgWidgets::as_pick_list_style).cloned();
+    let style = style_opt.and_then(Widgets::as_pick_list_style).cloned();
     let placeholder = pick.placeholder.clone().unwrap_or("".to_string());
 
     let handle = if let Some(hd) = &pick.handle {
@@ -87,7 +87,7 @@ pub fn construct_picklist<'a>(
     } else { Handle::None };
 
     let pl = 
-        PickList::new(pick.options.clone(), 
+        widget::PickList::new(pick.options.clone(), 
             pick.selected.clone(), 
             PLMessage::OnSelect,
         )
@@ -123,7 +123,7 @@ pub fn construct_picklist<'a>(
     match message {
         PLMessage::OnSelect(selected) => {
             // Update widget state directly
-            if let Some(IpgWidgets::IpgPickList(pl)) = state.widgets.get_mut(&id) {
+            if let Some(Widgets::PickList(pl)) = state.widgets.get_mut(&id) {
                 pl.selected = Some(selected.clone());
             }
             invoke_callback_with_args(id, "on_select", "PickList", selected);
@@ -185,7 +185,7 @@ pub fn construct_picklist<'a>(
 
  #[derive(Debug, Clone, PartialEq)]
 #[pyclass(eq, eq_int)]
-pub enum IpgPickListParam {
+pub enum PickListParam {
     ArrowSize,
     CustomStatic,
     DynamicClosed,
@@ -208,7 +208,7 @@ pub enum IpgPickListParam {
 
 #[derive(Debug, Clone, PartialEq)]
 #[pyclass(eq, eq_int)]
-pub enum IpgPickListHandle {
+pub enum PickListHandle {
     Default,
     Arrow,
     Dynamic,
@@ -216,20 +216,20 @@ pub enum IpgPickListHandle {
     Static,
 }
 
-impl IpgPickListHandle {
+impl PickListHandle {
     fn extract(value: &PyObject) -> Option<Self> {
         Some(Python::attach(|py| {
 
             let res = value.extract::<Self>(py);
             match res {
                 Ok(val) => val,
-                Err(_) => panic!("Unable to extract python object for IpgPickListHandle"),
+                Err(_) => panic!("Unable to extract python object for PickListHandle"),
             }
         }))
     }
 }
 
-fn get_handle(ipg_handle: &IpgPickListHandle, 
+fn get_handle(ipg_handle: &PickListHandle, 
                 arrow_size: Option<f32>,
                 closed: &Option<Arrow>,
                 opened: &Option<Arrow>,
@@ -237,14 +237,14 @@ fn get_handle(ipg_handle: &IpgPickListHandle,
             ) -> Handle<Font> 
 {
     match ipg_handle {
-        IpgPickListHandle::Default => Handle::default(),
-        IpgPickListHandle::Arrow => {
+        PickListHandle::Default => Handle::default(),
+        PickListHandle::Arrow => {
             match arrow_size {
                 Some(ars) => Handle::Arrow { size: Some(Pixels(ars)) },
                 None => Handle::Arrow { size: None },
             }
         },
-        IpgPickListHandle::Dynamic => {
+        PickListHandle::Dynamic => {
             let arrow_closed = match closed {
                 Some(cls) => Arrow::to_char(cls),
                 None => Arrow::to_char(&Arrow::ArrowBarRight),
@@ -273,8 +273,8 @@ fn get_handle(ipg_handle: &IpgPickListHandle,
                     shaping: Default::default()} 
                 }
         },
-        IpgPickListHandle::None => Handle::None,
-        IpgPickListHandle::Static => {
+        PickListHandle::None => Handle::None,
+        PickListHandle::Static => {
                 let custom_type = match custom {
                     Some(cust) => Arrow::to_char(cust),
                     None => Arrow::to_char(&Arrow::ArrowBarRight),
@@ -296,23 +296,23 @@ fn get_handle(ipg_handle: &IpgPickListHandle,
 
 #[derive(Debug, Clone, PartialEq)]
 #[pyclass(eq, eq_int)]
-pub enum IpgPickListStyleParam {
-    BackgroundIpgColor,
+pub enum PickListStyleParam {
+    BackgroundColor,
     BackgroundRbgaColor,
-    BorderIpgColor,
+    BorderColor,
     BorderRgbaColor,
     BorderRadius,
     BorderWidth,
-    HandleIpgColor,
+    HandleColor,
     HandleRgbaColor,
-    PlaceholderIpgColor,
+    PlaceholderColor,
     PlaceholderRgbaColor,
-    TextIpgColor,
+    TextColor,
     TextRgbaColor,
 }
 
 pub fn get_styling(theme: &Theme, status: Status, 
-                    style_opt: Option<IpgPickListStyle>, 
+                    style_opt: Option<PickListStyle>, 
                     ) -> pick_list::Style {
     
     let mut active_style = pick_list::default(theme, Status::Active);
@@ -372,60 +372,60 @@ pub fn get_styling(theme: &Theme, status: Status,
 // WidgetParamUpdate implementations
 // ---------------------------------------------------------------------------
 
-impl WidgetParamUpdate for IpgPickList {
-    type Param = IpgPickListParam;
+impl WidgetParamUpdate for PickList {
+    type Param = PickListParam;
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
-            IpgPickListParam::ArrowSize => set_opt_f32(&mut self.arrow_size, value, "ArrowSize"),
-            IpgPickListParam::CustomStatic => set_opt_ipg_arrow(&mut self.custom_static, value, "CustomStatic"),
-            IpgPickListParam::DynamicClosed => set_opt_ipg_arrow(&mut self.dynamic_closed, value, "DynamicClosed"),
-            IpgPickListParam::DynamicOpen => set_opt_ipg_arrow(&mut self.dynamic_open, value, "DynamicOpen"),
-            IpgPickListParam::Handle => self.handle = IpgPickListHandle::extract(value),
-            IpgPickListParam::MenuHeight => set_height(&mut self.menu_height, value, "MenuHeight"),
-            IpgPickListParam::MenuHeightFill => set_height_fill(&mut self.menu_height, value, "MenuHeightFill"),
-            IpgPickListParam::Options => set_vec_string(&mut self.options, value, "Options"),
-            IpgPickListParam::Padding => set_opt_vec_f32(&mut self.padding, value, "Padding"),
-            IpgPickListParam::Placeholder => set_opt_string(&mut self.placeholder, value, "Placeholder"),
-            IpgPickListParam::Selected => set_opt_string(&mut self.selected, value, "Selected"),
-            IpgPickListParam::Show => set_bool(&mut self.show, value, "Show"),
-            IpgPickListParam::StyleId => set_opt_usize(&mut self.style_id, value, "StyleId"),
-            IpgPickListParam::TextLineHeight => set_opt_f32(&mut self.text_line_height,value, "TextLineHeight"),
-            IpgPickListParam::TextShaping => set_opt_text_shaping(&mut self.text_shaping, value, "TextShaping"),
-            IpgPickListParam::TextSize => set_opt_f32(&mut self.text_size, value, "TextSize"),
-            IpgPickListParam::Width => set_width(&mut self.width, value, "Width"),
+            PickListParam::ArrowSize => set_opt_f32(&mut self.arrow_size, value, "ArrowSize"),
+            PickListParam::CustomStatic => set_opt_ipg_arrow(&mut self.custom_static, value, "CustomStatic"),
+            PickListParam::DynamicClosed => set_opt_ipg_arrow(&mut self.dynamic_closed, value, "DynamicClosed"),
+            PickListParam::DynamicOpen => set_opt_ipg_arrow(&mut self.dynamic_open, value, "DynamicOpen"),
+            PickListParam::Handle => self.handle = PickListHandle::extract(value),
+            PickListParam::MenuHeight => set_height(&mut self.menu_height, value, "MenuHeight"),
+            PickListParam::MenuHeightFill => set_height_fill(&mut self.menu_height, value, "MenuHeightFill"),
+            PickListParam::Options => set_vec_string(&mut self.options, value, "Options"),
+            PickListParam::Padding => set_opt_vec_f32(&mut self.padding, value, "Padding"),
+            PickListParam::Placeholder => set_opt_string(&mut self.placeholder, value, "Placeholder"),
+            PickListParam::Selected => set_opt_string(&mut self.selected, value, "Selected"),
+            PickListParam::Show => set_bool(&mut self.show, value, "Show"),
+            PickListParam::StyleId => set_opt_usize(&mut self.style_id, value, "StyleId"),
+            PickListParam::TextLineHeight => set_opt_f32(&mut self.text_line_height,value, "TextLineHeight"),
+            PickListParam::TextShaping => set_opt_text_shaping(&mut self.text_shaping, value, "TextShaping"),
+            PickListParam::TextSize => set_opt_f32(&mut self.text_size, value, "TextSize"),
+            PickListParam::Width => set_width(&mut self.width, value, "Width"),
         }
     }
 }
 
-impl WidgetParamUpdate for IpgPickListStyle {
-    type Param = IpgPickListStyleParam;
+impl WidgetParamUpdate for PickListStyle {
+    type Param = PickListStyleParam;
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
-            IpgPickListStyleParam::BackgroundIpgColor => 
-                set_opt_iced_color(&mut self.background_color, value, "BackgroundIpgColor"),
-            IpgPickListStyleParam::BackgroundRbgaColor => 
+            PickListStyleParam::BackgroundColor => 
+                set_opt_iced_color(&mut self.background_color, value, "BackgroundColor"),
+            PickListStyleParam::BackgroundRbgaColor => 
                 set_opt_iced_color_from_rgba(&mut self.background_color, value, "BackgroundRbgaColor"),
-            IpgPickListStyleParam::BorderIpgColor => 
-                set_opt_iced_color(&mut self.border_color, value, "BorderIpgColor"),
-            IpgPickListStyleParam::BorderRadius => 
+            PickListStyleParam::BorderColor => 
+                set_opt_iced_color(&mut self.border_color, value, "BorderColor"),
+            PickListStyleParam::BorderRadius => 
                 set_opt_vec_f32(&mut self.border_radius, value, "BorderRadius"),
-            IpgPickListStyleParam::BorderRgbaColor => 
+            PickListStyleParam::BorderRgbaColor => 
                 set_opt_iced_color_from_rgba(&mut self.border_color, value, "BorderRgbaColor"),
-            IpgPickListStyleParam::BorderWidth => 
+            PickListStyleParam::BorderWidth => 
                 set_opt_f32(&mut self.border_width, value, "BorderWidth"),
-            IpgPickListStyleParam::HandleIpgColor => 
-                set_opt_iced_color(&mut self.handle_color, value, "HandleIpgColor"),
-            IpgPickListStyleParam::HandleRgbaColor => 
+            PickListStyleParam::HandleColor => 
+                set_opt_iced_color(&mut self.handle_color, value, "HandleColor"),
+            PickListStyleParam::HandleRgbaColor => 
                 set_opt_iced_color_from_rgba(&mut self.handle_color, value, "HandleRgbaColor"),
-            IpgPickListStyleParam::PlaceholderIpgColor => 
-                set_opt_iced_color(&mut self.placeholder_color, value, "PlaceholderIpgColor"),
-            IpgPickListStyleParam::PlaceholderRgbaColor => 
+            PickListStyleParam::PlaceholderColor => 
+                set_opt_iced_color(&mut self.placeholder_color, value, "PlaceholderColor"),
+            PickListStyleParam::PlaceholderRgbaColor => 
                 set_opt_iced_color_from_rgba(&mut self.placeholder_color, value, "PlaceholderRgbaColor"),
-            IpgPickListStyleParam::TextIpgColor => 
-                set_opt_iced_color(&mut self.text_color, value, "TextIpgColor"),
-            IpgPickListStyleParam::TextRgbaColor => 
+            PickListStyleParam::TextColor => 
+                set_opt_iced_color(&mut self.text_color, value, "TextColor"),
+            PickListStyleParam::TextRgbaColor => 
                 set_opt_iced_color_from_rgba(&mut self.text_color, value, "TextRgbaColor"),
         }
     }
@@ -437,8 +437,8 @@ mod tests {
     use iced::Length;
     use pyo3::{Python, IntoPyObjectExt};
 
-    fn make_picklist() -> IpgPickList {
-        IpgPickList {
+    fn make_picklist() -> PickList {
+        PickList {
             id: 0,
             parent_id: String::new(),
             show: true,
@@ -460,8 +460,8 @@ mod tests {
         }
     }
 
-    fn make_picklist_style() -> IpgPickListStyle {
-        IpgPickListStyle::default()
+    fn make_picklist_style() -> PickListStyle {
+        PickListStyle::default()
     }
 
     fn py_obj<T: for<'py> IntoPyObjectExt<'py>>(val: T) -> PyObject {
@@ -474,158 +474,158 @@ mod tests {
         Python::attach(|py| py.None().into_py_any(py).unwrap())
     }
 
-    // -- IpgPickList param tests --
+    // -- PickList param tests --
 
     #[test]
     fn test_arrow_size() {
         let mut pl = make_picklist();
-        pl.param_update(IpgPickListParam::ArrowSize, &py_obj(16.0f32));
+        pl.param_update(PickListParam::ArrowSize, &py_obj(16.0f32));
         assert_eq!(pl.arrow_size, Some(16.0));
-        pl.param_update(IpgPickListParam::ArrowSize, &py_none());
+        pl.param_update(PickListParam::ArrowSize, &py_none());
         assert_eq!(pl.arrow_size, None);
     }
 
     #[test]
     fn test_options() {
         let mut pl = make_picklist();
-        pl.param_update(IpgPickListParam::Options, &py_obj(vec!["x".to_string(), "y".to_string()]));
+        pl.param_update(PickListParam::Options, &py_obj(vec!["x".to_string(), "y".to_string()]));
         assert_eq!(pl.options, vec!["x", "y"]);
     }
 
     #[test]
     fn test_menu_height() {
         let mut pl = make_picklist();
-        pl.param_update(IpgPickListParam::MenuHeight, &py_obj(200.0f32));
+        pl.param_update(PickListParam::MenuHeight, &py_obj(200.0f32));
         assert_eq!(pl.menu_height, Length::Fixed(200.0));
     }
 
     #[test]
     fn test_menu_height_fill() {
         let mut pl = make_picklist();
-        pl.param_update(IpgPickListParam::MenuHeightFill, &py_obj(true));
+        pl.param_update(PickListParam::MenuHeightFill, &py_obj(true));
         assert_eq!(pl.menu_height, Length::Fill);
     }
 
     #[test]
     fn test_padding() {
         let mut pl = make_picklist();
-        pl.param_update(IpgPickListParam::Padding, &py_obj(vec![5.0f32, 10.0]));
+        pl.param_update(PickListParam::Padding, &py_obj(vec![5.0f32, 10.0]));
         assert_eq!(pl.padding, Some(vec![5.0, 10.0]));
-        pl.param_update(IpgPickListParam::Padding, &py_none());
+        pl.param_update(PickListParam::Padding, &py_none());
         assert_eq!(pl.padding, None);
     }
 
     #[test]
     fn test_placeholder() {
         let mut pl = make_picklist();
-        pl.param_update(IpgPickListParam::Placeholder, &py_obj("Choose...".to_string()));
+        pl.param_update(PickListParam::Placeholder, &py_obj("Choose...".to_string()));
         assert_eq!(pl.placeholder, Some("Choose...".to_string()));
-        pl.param_update(IpgPickListParam::Placeholder, &py_none());
+        pl.param_update(PickListParam::Placeholder, &py_none());
         assert_eq!(pl.placeholder, None);
     }
 
     #[test]
     fn test_selected() {
         let mut pl = make_picklist();
-        pl.param_update(IpgPickListParam::Selected, &py_obj("a".to_string()));
+        pl.param_update(PickListParam::Selected, &py_obj("a".to_string()));
         assert_eq!(pl.selected, Some("a".to_string()));
-        pl.param_update(IpgPickListParam::Selected, &py_none());
+        pl.param_update(PickListParam::Selected, &py_none());
         assert_eq!(pl.selected, None);
     }
 
     #[test]
     fn test_show() {
         let mut pl = make_picklist();
-        pl.param_update(IpgPickListParam::Show, &py_obj(false));
+        pl.param_update(PickListParam::Show, &py_obj(false));
         assert!(!pl.show);
     }
 
     #[test]
     fn test_style_id() {
         let mut pl = make_picklist();
-        pl.param_update(IpgPickListParam::StyleId, &py_obj(42usize));
+        pl.param_update(PickListParam::StyleId, &py_obj(42usize));
         assert_eq!(pl.style_id, Some(42));
-        pl.param_update(IpgPickListParam::StyleId, &py_none());
+        pl.param_update(PickListParam::StyleId, &py_none());
         assert_eq!(pl.style_id, None);
     }
 
     #[test]
     fn test_text_line_height() {
         let mut pl = make_picklist();
-        pl.param_update(IpgPickListParam::TextLineHeight, &py_obj(1.5f32));
+        pl.param_update(PickListParam::TextLineHeight, &py_obj(1.5f32));
         assert_eq!(pl.text_line_height, Some(1.5));
-        pl.param_update(IpgPickListParam::TextLineHeight, &py_none());
+        pl.param_update(PickListParam::TextLineHeight, &py_none());
         assert_eq!(pl.text_line_height, None);
     }
 
     #[test]
     fn test_text_size() {
         let mut pl = make_picklist();
-        pl.param_update(IpgPickListParam::TextSize, &py_obj(18.0f32));
+        pl.param_update(PickListParam::TextSize, &py_obj(18.0f32));
         assert_eq!(pl.text_size, Some(18.0));
-        pl.param_update(IpgPickListParam::TextSize, &py_none());
+        pl.param_update(PickListParam::TextSize, &py_none());
         assert_eq!(pl.text_size, None);
     }
 
     #[test]
     fn test_width() {
         let mut pl = make_picklist();
-        pl.param_update(IpgPickListParam::Width, &py_obj(250.0f32));
+        pl.param_update(PickListParam::Width, &py_obj(250.0f32));
         assert_eq!(pl.width, Length::Fixed(250.0));
     }
 
-    // -- IpgPickListStyle param tests --
+    // -- PickListStyle param tests --
 
     #[test]
     fn test_style_background_rgba() {
         let mut s = make_picklist_style();
-        s.param_update(IpgPickListStyleParam::BackgroundRbgaColor, &py_obj(vec![1.0f32, 0.0, 0.0, 1.0]));
+        s.param_update(PickListStyleParam::BackgroundRbgaColor, &py_obj(vec![1.0f32, 0.0, 0.0, 1.0]));
         assert!(s.background_color.is_some());
     }
 
     #[test]
     fn test_style_border_rgba() {
         let mut s = make_picklist_style();
-        s.param_update(IpgPickListStyleParam::BorderRgbaColor, &py_obj(vec![0.0f32, 1.0, 0.0, 1.0]));
+        s.param_update(PickListStyleParam::BorderRgbaColor, &py_obj(vec![0.0f32, 1.0, 0.0, 1.0]));
         assert!(s.border_color.is_some());
     }
 
     #[test]
     fn test_style_border_radius() {
         let mut s = make_picklist_style();
-        s.param_update(IpgPickListStyleParam::BorderRadius, &py_obj(vec![4.0f32, 4.0, 4.0, 4.0]));
+        s.param_update(PickListStyleParam::BorderRadius, &py_obj(vec![4.0f32, 4.0, 4.0, 4.0]));
         assert_eq!(s.border_radius, Some(vec![4.0, 4.0, 4.0, 4.0]));
-        s.param_update(IpgPickListStyleParam::BorderRadius, &py_none());
+        s.param_update(PickListStyleParam::BorderRadius, &py_none());
         assert_eq!(s.border_radius, None);
     }
 
     #[test]
     fn test_style_border_width() {
         let mut s = make_picklist_style();
-        s.param_update(IpgPickListStyleParam::BorderWidth, &py_obj(2.0f32));
+        s.param_update(PickListStyleParam::BorderWidth, &py_obj(2.0f32));
         assert_eq!(s.border_width, Some(2.0));
-        s.param_update(IpgPickListStyleParam::BorderWidth, &py_none());
+        s.param_update(PickListStyleParam::BorderWidth, &py_none());
         assert_eq!(s.border_width, None);
     }
 
     #[test]
     fn test_style_handle_rgba() {
         let mut s = make_picklist_style();
-        s.param_update(IpgPickListStyleParam::HandleRgbaColor, &py_obj(vec![0.5f32, 0.5, 0.5, 1.0]));
+        s.param_update(PickListStyleParam::HandleRgbaColor, &py_obj(vec![0.5f32, 0.5, 0.5, 1.0]));
         assert!(s.handle_color.is_some());
     }
 
     #[test]
     fn test_style_placeholder_rgba() {
         let mut s = make_picklist_style();
-        s.param_update(IpgPickListStyleParam::PlaceholderRgbaColor, &py_obj(vec![0.7f32, 0.7, 0.7, 1.0]));
+        s.param_update(PickListStyleParam::PlaceholderRgbaColor, &py_obj(vec![0.7f32, 0.7, 0.7, 1.0]));
         assert!(s.placeholder_color.is_some());
     }
 
     #[test]
     fn test_style_text_rgba() {
         let mut s = make_picklist_style();
-        s.param_update(IpgPickListStyleParam::TextRgbaColor, &py_obj(vec![0.0f32, 0.0, 0.0, 1.0]));
+        s.param_update(PickListStyleParam::TextRgbaColor, &py_obj(vec![0.0f32, 0.0, 0.0, 1.0]));
         assert!(s.text_color.is_some());
     }
 }

@@ -1,10 +1,8 @@
 
 
 use iced::{highlighter, Length};
-use iced::widget::text_editor::{Content, Status};
-use iced::widget::{
-    text, text_editor,
-};
+use iced::widget;
+use iced::widget::text;
 
 use iced::{Element, Fill};
 use pyo3::{pyclass, Py, PyAny};
@@ -17,9 +15,9 @@ use crate::widgets::widget_param_update::{WidgetParamUpdate, set_opt_usize};
 
 
 #[derive(Debug, Clone)]
-pub struct IpgTextEditor {
+pub struct TextEditor {
     pub id: usize,
-    pub content: Content,
+    pub content: widget::text_editor::Content,
     pub place_holder: Option<String>, 
     pub font_id: Option<usize>,
     pub text_size: Option<f32>,
@@ -30,10 +28,10 @@ pub struct IpgTextEditor {
     pub max_height: Option<f32>,
     pub padding: Option<Vec<f32>>,
     pub wrapping: Option<TextWrapping>,
-    pub last_status: Status,
+    pub last_status: TxtEdStatus,
 }
 
-impl IpgTextEditor {
+impl TextEditor {
     pub fn construct<'a>(
         &'a self,
     ) -> Option<Element<'a, Message>> {
@@ -44,7 +42,7 @@ impl IpgTextEditor {
             text::Wrapping::None
         };
 
-        let te: Element<'_, TxtEdMessage> = text_editor(&self.content)
+        let te: Element<'_, TxtEdMessage> = widget::text_editor(&self.content)
                 .placeholder("Type something here...")
                 .height(Fill)
                 .on_action(TxtEdMessage::ActionPerformed)
@@ -56,17 +54,17 @@ impl IpgTextEditor {
 
 }
 
-// #[derive(Debug, Clone)]
-// pub enum TxtEdStatus {
-//     Active,
-//     Hovered,
-//     Focused { /* … */ },
-//     Disabled,
-// }
+#[derive(Debug, Clone)]
+pub enum TxtEdStatus {
+    Active,
+    Hovered,
+    Focused { /* … */ },
+    Disabled,
+}
 
 #[derive(Debug, Clone)]
 pub enum TxtEdMessage {
-    ActionPerformed(text_editor::Action),
+    ActionPerformed(widget::text_editor::Action),
     ThemeSelected(highlighter::Theme),
     WordWrapToggled(bool),
     // NewFile,
@@ -84,7 +82,7 @@ pub fn text_ed_callback(id: usize, message: TxtEdMessage, state: &mut IpgState) 
             let widget = state.widgets.get_mut(&id)
                 .expect("text_ed_callback: widget id not found");
             let ed = widget.as_text_editor_mut()
-                .expect("text_ed_callback: widget is not an IpgTextEditor");
+                .expect("text_ed_callback: widget is not an TextEditor");
             ed.content.perform(action);
         },
         TxtEdMessage::ThemeSelected(_theme) => todo!(),
@@ -94,7 +92,7 @@ pub fn text_ed_callback(id: usize, message: TxtEdMessage, state: &mut IpgState) 
 
 #[derive(Debug, Clone, PartialEq)]
 #[pyclass(eq, eq_int)]
-pub enum IpgTextEditorParam {
+pub enum TextEditorParam {
     FontId, 
     Height, 
     LineHeight, 
@@ -112,21 +110,21 @@ pub enum IpgTextEditorParam {
 // WidgetParamUpdate implementations
 // ---------------------------------------------------------------------------
 
-impl WidgetParamUpdate for IpgTextEditor {
-    type Param = IpgTextEditorParam;
+impl WidgetParamUpdate for TextEditor {
+    type Param = TextEditorParam;
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
-            IpgTextEditorParam::FontId => set_opt_usize(&mut self.font_id, value, "IpgTextEditorParam::FontId"),
-            IpgTextEditorParam::Height => todo!(),
-            IpgTextEditorParam::LineHeight => todo!(),
-            IpgTextEditorParam::MaxHeight => todo!(),
-            IpgTextEditorParam::MinHeight => todo!(),
-            IpgTextEditorParam::Padding => todo!(),
-            IpgTextEditorParam::PlaceHolder => todo!(),
-            IpgTextEditorParam::TextSize => todo!(),
-            IpgTextEditorParam::Width => todo!(),
-            IpgTextEditorParam::Wrapping => todo!(),
+            TextEditorParam::FontId => set_opt_usize(&mut self.font_id, value, "TextEditorParam::FontId"),
+            TextEditorParam::Height => todo!(),
+            TextEditorParam::LineHeight => todo!(),
+            TextEditorParam::MaxHeight => todo!(),
+            TextEditorParam::MinHeight => todo!(),
+            TextEditorParam::Padding => todo!(),
+            TextEditorParam::PlaceHolder => todo!(),
+            TextEditorParam::TextSize => todo!(),
+            TextEditorParam::Width => todo!(),
+            TextEditorParam::Wrapping => todo!(),
         }
     }
 }

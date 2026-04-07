@@ -5,9 +5,9 @@ use pyo3::pyfunction;
 
 use crate::access_state;
 use crate::py_api::helpers::get_length;
-use crate::state::{IpgContainers, get_id, 
+use crate::state::{Containers, get_id, 
     set_state_cont_wnd_ids, set_state_of_container};
-use crate::widgets::ipg_row::IpgRow;
+use crate::widgets::ipg_row::Row;
 
 
 /// Add a row widget.
@@ -108,8 +108,8 @@ pub fn add_row(
     set_state_cont_wnd_ids(&mut state, &window_id, container_id, id, "add_row".to_string());
 
     state.containers.
-        insert(id, IpgContainers::IpgRow(
-            IpgRow {
+        insert(id, Containers::Row(
+            Row {
             id,  
             show, 
             spacing, 

@@ -4,7 +4,7 @@ use std::collections::HashMap;
 
 use crate::app::Message;
 use crate::py_api::helpers::get_padding;
-use crate::state::IpgWidgets;
+use crate::state::Widgets;
 use crate::widgets::callbacks::invoke_callback;
 use crate::widgets::widget_param_update::{
     WidgetParamUpdate, set_bool, set_height, set_opt_f32, 
@@ -15,7 +15,7 @@ use crate::widgets::widget_param_update::{
 use iced::widget::{Column, Text, text};
 use iced::{Element, Length, Theme};
 
-use iced_aw::widgets::card::Card;
+use iced_aw::widgets::card;
 use iced_aw::style;
 
 use pyo3::{pyclass, Py, PyAny};
@@ -23,7 +23,7 @@ type PyObject = Py<PyAny>;
 
 
 #[derive(Debug, Clone)]
-pub struct IpgCard {
+pub struct Card {
     pub id: usize,
     pub parent_id: String,
     pub is_open: bool,
@@ -43,20 +43,20 @@ pub struct IpgCard {
     pub body: Option<String>,
     pub foot: Option<String>,
     pub style_id: Option<usize>,
-    pub style_std: Option<IpgCardStyleStd>,
+    pub style_std: Option<CardStyleStd>,
     pub style_button: Option<usize>,
     pub show: bool,
 }
 
-impl IpgCard {
+impl Card {
 
-    fn lookup<'a>(&self, widgets: &'a HashMap<usize, IpgWidgets>, id: Option<usize>) -> Option<&'a IpgWidgets> {
+    fn lookup<'a>(&self, widgets: &'a HashMap<usize, Widgets>, id: Option<usize>) -> Option<&'a Widgets> {
         id.and_then(|id| widgets.get(&id))
     }
 
     pub fn construct<'a>(
         &'a self,
-        widgets: &HashMap<usize, IpgWidgets>, 
+        widgets: &HashMap<usize, Widgets>, 
     )-> Option<Element<'a, Message>> {
 
         if !self.show || !self.is_open {return None}
@@ -75,7 +75,7 @@ impl IpgCard {
 
         let style_opt = 
             self.lookup(widgets, self.style_id)
-                .and_then(IpgWidgets::as_card_style).cloned();
+                .and_then(Widgets::as_card_style).cloned();
 
         let head: Element<CardMessage> = if let Some(head) = &self.head {
             Text::new(head)
@@ -107,7 +107,7 @@ impl IpgCard {
         }
 
         let card  = 
-            Card::new(head, body)
+            card::Card::new(head, body)
                 .width(self.width)
                 .height(self.height)
                 .padding_head(hd_pad)
@@ -170,7 +170,7 @@ pub fn card_callback(id: usize, message: CardMessage) {
 }
 
 #[derive(Debug, Clone)]
-pub struct IpgCardStyle {
+pub struct CardStyle {
     pub id: usize,
     pub background: Option<iced::Color>, 
     pub border_radius: Option<f32>, 
@@ -185,13 +185,13 @@ pub struct IpgCardStyle {
     pub close_color:Option<iced::Color>,
 }
 
-impl IpgCardStyle {
+impl CardStyle {
     /// Apply user-defined style overrides to an existing iced button::Style
     pub fn to_iced(
         &self, 
         theme: &Theme, 
         status: iced_aw::card::Status,
-        std_style_opt: &Option<IpgCardStyleStd>,
+        std_style_opt: &Option<CardStyleStd>,
         ) -> style::card::Style {
 
             let mut style = if let Some(std) = std_style_opt {
@@ -250,7 +250,7 @@ impl IpgCardStyle {
 
 #[derive(Debug, Clone, PartialEq)]
 #[pyclass(eq, eq_int)]
-pub enum IpgCardStyleStd {
+pub enum CardStyleStd {
     Danger,
     Dark,
     Info,
@@ -262,7 +262,7 @@ pub enum IpgCardStyleStd {
     White,
 }
 
-impl IpgCardStyleStd {
+impl CardStyleStd {
     pub fn to_iced(
         &self,
         theme: &Theme, 
@@ -270,47 +270,47 @@ impl IpgCardStyleStd {
         ) -> style::card::Style {
         
         match self {
-            IpgCardStyleStd::Danger => style::card::danger(theme, status),
-            IpgCardStyleStd::Dark => style::card::dark(theme, status),
-            IpgCardStyleStd::Info => style::card::info(theme, status),
-            IpgCardStyleStd::Light => style::card::light(theme, status),
-            IpgCardStyleStd::Primary => style::card::primary(theme, status),
-            IpgCardStyleStd::Secondary => style::card::secondary(theme, status),
-            IpgCardStyleStd::Success => style::card::success(theme, status),
-            IpgCardStyleStd::Warning => style::card::warning(theme, status),
-            IpgCardStyleStd::White => style::card::white(theme, status),
+            CardStyleStd::Danger => style::card::danger(theme, status),
+            CardStyleStd::Dark => style::card::dark(theme, status),
+            CardStyleStd::Info => style::card::info(theme, status),
+            CardStyleStd::Light => style::card::light(theme, status),
+            CardStyleStd::Primary => style::card::primary(theme, status),
+            CardStyleStd::Secondary => style::card::secondary(theme, status),
+            CardStyleStd::Success => style::card::success(theme, status),
+            CardStyleStd::Warning => style::card::warning(theme, status),
+            CardStyleStd::White => style::card::white(theme, status),
         }
     }
 }
 
 #[derive(Debug, Clone, PartialEq)]
 #[pyclass(eq, eq_int)]
-pub enum IpgCardStyleParam {
-    BackgroundIpgColor,
+pub enum CardStyleParam {
+    BackgroundColor,
     BackgroundRgbaColor,
-    BorderIpgColor,
+    BorderColor,
     BorderRgbaColor,
     BorderRadius,
     BorderWidth,
-    HeadBackgroundIpgColor,
+    HeadBackgroundColor,
     HeadBackgroundRgbaColor,
-    HeadTextIpgColor,
+    HeadTextColor,
     HeadTextRgbaColor,
-    BodyBackgroundIpgColor,
+    BodyBackgroundColor,
     BodyBackgroundRgbaColor,
-    BodyTextIpgColor,
+    BodyTextColor,
     BodyTextRgbaColor,
-    FootBackgroundIpgColor,
+    FootBackgroundColor,
     FootBackgroundRgbaColor,
-    FootTextIpgColor,
+    FootTextColor,
     FootTextRgbaColor,
-    CloseIpgColor,
+    CloseColor,
     CloseRgbaColor,
 }
 
 #[derive(Debug, Clone, PartialEq)]
 #[pyclass(eq, eq_int)]
-pub enum IpgCardParam {
+pub enum CardParam {
     Body,
     CloseSize,
     Foot,
@@ -333,56 +333,56 @@ pub enum IpgCardParam {
 // WidgetParamUpdate implementations
 // ---------------------------------------------------------------------------
 
-impl WidgetParamUpdate for IpgCard {
-    type Param = IpgCardParam;
+impl WidgetParamUpdate for Card {
+    type Param = CardParam;
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
-            IpgCardParam::Body => set_opt_string(&mut self.body, value, "Body"),
-            IpgCardParam::CloseSize => set_opt_f32(&mut self.close_size, value, "CloseSize"),
-            IpgCardParam::Foot => set_opt_string(&mut self.foot, value, "Foot"),
-            IpgCardParam::Head => set_opt_string(&mut self.head, value, "Head"),
-            IpgCardParam::Height => set_height(&mut self.height, value, "Height"),
-            IpgCardParam::IsOpen => set_bool(&mut self.is_open, value, "IsOpen"),
-            IpgCardParam::MaxHeight => set_opt_f32(&mut self.max_height, value, "MaxHeight"),
-            IpgCardParam::MaxWidth => set_opt_f32(&mut self.max_width, value, "MaxWidth"),
-            IpgCardParam::Padding => set_opt_vec_f32(&mut self.padding, value, "Padding"),
-            IpgCardParam::PaddingBody => set_opt_vec_f32(&mut self.padding_body, value, "PaddingBody"),
-            IpgCardParam::PaddingFoot => set_opt_vec_f32(&mut self.padding_foot, value, "PaddingFoot"),
-            IpgCardParam::PaddingHead => set_opt_vec_f32(&mut self.padding_head, value, "PaddingHead"),
-            IpgCardParam::Show => set_bool(&mut self.show, value, "Show"),
-            IpgCardParam::StyleButton => set_opt_usize(&mut self.style_button, value, "StyleButton"),
-            IpgCardParam::StyleId => set_opt_usize(&mut self.style_id, value, "StyleId"),
-            IpgCardParam::Width => set_width(&mut self.width, value, "Width"),
+            CardParam::Body => set_opt_string(&mut self.body, value, "Body"),
+            CardParam::CloseSize => set_opt_f32(&mut self.close_size, value, "CloseSize"),
+            CardParam::Foot => set_opt_string(&mut self.foot, value, "Foot"),
+            CardParam::Head => set_opt_string(&mut self.head, value, "Head"),
+            CardParam::Height => set_height(&mut self.height, value, "Height"),
+            CardParam::IsOpen => set_bool(&mut self.is_open, value, "IsOpen"),
+            CardParam::MaxHeight => set_opt_f32(&mut self.max_height, value, "MaxHeight"),
+            CardParam::MaxWidth => set_opt_f32(&mut self.max_width, value, "MaxWidth"),
+            CardParam::Padding => set_opt_vec_f32(&mut self.padding, value, "Padding"),
+            CardParam::PaddingBody => set_opt_vec_f32(&mut self.padding_body, value, "PaddingBody"),
+            CardParam::PaddingFoot => set_opt_vec_f32(&mut self.padding_foot, value, "PaddingFoot"),
+            CardParam::PaddingHead => set_opt_vec_f32(&mut self.padding_head, value, "PaddingHead"),
+            CardParam::Show => set_bool(&mut self.show, value, "Show"),
+            CardParam::StyleButton => set_opt_usize(&mut self.style_button, value, "StyleButton"),
+            CardParam::StyleId => set_opt_usize(&mut self.style_id, value, "StyleId"),
+            CardParam::Width => set_width(&mut self.width, value, "Width"),
         }
     }
 }
 
-impl WidgetParamUpdate for IpgCardStyle {
-    type Param = IpgCardStyleParam;
+impl WidgetParamUpdate for CardStyle {
+    type Param = CardStyleParam;
     
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
-            IpgCardStyleParam::BackgroundIpgColor => set_opt_iced_color(&mut self.background, value, "BackgroundIpgColor"),
-            IpgCardStyleParam::BackgroundRgbaColor => set_opt_iced_color_from_rgba(&mut self.background, value, "BackgroundRgbaColor"),
-            IpgCardStyleParam::BorderIpgColor => set_opt_iced_color(&mut self.border_color, value, "BorderIpgColor"),
-            IpgCardStyleParam::BorderRgbaColor => set_opt_iced_color_from_rgba(&mut self.border_color, value, "BorderRgbaColor"),
-            IpgCardStyleParam::BorderRadius => set_opt_f32(&mut self.border_radius, value, "BorderRadius"),
-            IpgCardStyleParam::BorderWidth => set_opt_f32(&mut self.border_width, value, "BorderWidth"),
-            IpgCardStyleParam::HeadBackgroundIpgColor => set_opt_iced_color(&mut self.head_background, value, "HeadBackgroundIpgColor"),
-            IpgCardStyleParam::HeadBackgroundRgbaColor => set_opt_iced_color_from_rgba(&mut self.head_background, value, "HeadBackgroundRgbaColor"),
-            IpgCardStyleParam::HeadTextIpgColor => set_opt_iced_color(&mut self.head_text_color, value, "HeadTextIpgColor"),
-            IpgCardStyleParam::HeadTextRgbaColor => set_opt_iced_color_from_rgba(&mut self.head_text_color, value, "HeadTextRgbaColor"),
-            IpgCardStyleParam::BodyBackgroundIpgColor => set_opt_iced_color(&mut self.body_background, value, "BodyBackgroundIpgColor"),
-            IpgCardStyleParam::BodyBackgroundRgbaColor => set_opt_iced_color_from_rgba(&mut self.body_background, value, "BodyBackgroundRgbaColor"),
-            IpgCardStyleParam::BodyTextIpgColor => set_opt_iced_color(&mut self.body_text_color, value, "BodyTextIpgColor"),
-            IpgCardStyleParam::BodyTextRgbaColor => set_opt_iced_color_from_rgba(&mut self.body_text_color, value, "BodyTextRgbaColor"),
-            IpgCardStyleParam::FootBackgroundIpgColor => set_opt_iced_color(&mut self.foot_background, value, "FootBackgroundIpgColor"),
-            IpgCardStyleParam::FootBackgroundRgbaColor => set_opt_iced_color_from_rgba(&mut self.foot_background, value, "FootBackgroundRgbaColor"),
-            IpgCardStyleParam::FootTextIpgColor => set_opt_iced_color(&mut self.foot_text_color, value, "FootTextIpgColor"),
-            IpgCardStyleParam::FootTextRgbaColor => set_opt_iced_color_from_rgba(&mut self.foot_text_color, value, "FootTextRgbaColor"),
-            IpgCardStyleParam::CloseIpgColor => set_opt_iced_color(&mut self.close_color, value, "CloseIpgColor"),
-            IpgCardStyleParam::CloseRgbaColor => set_opt_iced_color_from_rgba(&mut self.close_color, value, "CloseRgbaColor"),
+            CardStyleParam::BackgroundColor => set_opt_iced_color(&mut self.background, value, "BackgroundColor"),
+            CardStyleParam::BackgroundRgbaColor => set_opt_iced_color_from_rgba(&mut self.background, value, "BackgroundRgbaColor"),
+            CardStyleParam::BorderColor => set_opt_iced_color(&mut self.border_color, value, "BorderColor"),
+            CardStyleParam::BorderRgbaColor => set_opt_iced_color_from_rgba(&mut self.border_color, value, "BorderRgbaColor"),
+            CardStyleParam::BorderRadius => set_opt_f32(&mut self.border_radius, value, "BorderRadius"),
+            CardStyleParam::BorderWidth => set_opt_f32(&mut self.border_width, value, "BorderWidth"),
+            CardStyleParam::HeadBackgroundColor => set_opt_iced_color(&mut self.head_background, value, "HeadBackgroundColor"),
+            CardStyleParam::HeadBackgroundRgbaColor => set_opt_iced_color_from_rgba(&mut self.head_background, value, "HeadBackgroundRgbaColor"),
+            CardStyleParam::HeadTextColor => set_opt_iced_color(&mut self.head_text_color, value, "HeadTextColor"),
+            CardStyleParam::HeadTextRgbaColor => set_opt_iced_color_from_rgba(&mut self.head_text_color, value, "HeadTextRgbaColor"),
+            CardStyleParam::BodyBackgroundColor => set_opt_iced_color(&mut self.body_background, value, "BodyBackgroundColor"),
+            CardStyleParam::BodyBackgroundRgbaColor => set_opt_iced_color_from_rgba(&mut self.body_background, value, "BodyBackgroundRgbaColor"),
+            CardStyleParam::BodyTextColor => set_opt_iced_color(&mut self.body_text_color, value, "BodyTextColor"),
+            CardStyleParam::BodyTextRgbaColor => set_opt_iced_color_from_rgba(&mut self.body_text_color, value, "BodyTextRgbaColor"),
+            CardStyleParam::FootBackgroundColor => set_opt_iced_color(&mut self.foot_background, value, "FootBackgroundColor"),
+            CardStyleParam::FootBackgroundRgbaColor => set_opt_iced_color_from_rgba(&mut self.foot_background, value, "FootBackgroundRgbaColor"),
+            CardStyleParam::FootTextColor => set_opt_iced_color(&mut self.foot_text_color, value, "FootTextColor"),
+            CardStyleParam::FootTextRgbaColor => set_opt_iced_color_from_rgba(&mut self.foot_text_color, value, "FootTextRgbaColor"),
+            CardStyleParam::CloseColor => set_opt_iced_color(&mut self.close_color, value, "CloseColor"),
+            CardStyleParam::CloseRgbaColor => set_opt_iced_color_from_rgba(&mut self.close_color, value, "CloseRgbaColor"),
         }
     }
 }

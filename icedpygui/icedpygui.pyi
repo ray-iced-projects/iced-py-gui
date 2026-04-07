@@ -41,13 +41,13 @@ def add_button_style(
     
     Then, add your button(s) as usual and use the style_id=your_style parameter.
     
-    standard - using the style_std parameter and the IpgButtonStyleStd class
+    standard - using the style_std parameter and the ButtonStyleStd class
     
-    Just use the style_std=IpgButtonStyleStd.Primary parameter in the add_button method.
+    Just use the style_std=ButtonStyleStd.Primary parameter in the add_button method.
 
     Examples
     --------
-    >>> from icedpygui import Window, Column, Container, IpgButtonStyleStd, add_button, add_button_style, Color, start_session
+    >>> from icedpygui import Window, Column, Container, ButtonStyleStd, add_button, add_button_style, Color, start_session
     >>> 
     >>> style = add_button_style(
     >>>             background_color=Color.LIGHT_BLUE,
@@ -115,13 +115,13 @@ def add_card_style(
     
     Then, add your card(s) as usual and use the style_id=your_style parameter.
     
-    standard - using the style_std parameter and the IpgCardStyleStd class
+    standard - using the style_std parameter and the CardStyleStd class
     
-    Just use the style_std=IpgCardStyleStd.Primary parameter in the add_card method.
+    Just use the style_std=CardStyleStd.Primary parameter in the add_card method.
 
     Examples
     --------
-    >>> from icedpygui import Window, Column, Container, IpgCardStyleStd, add_card, add_card_style, Color, start_session
+    >>> from icedpygui import Window, Column, Container, CardStyleStd, add_card, add_card_style, Color, start_session
     >>> 
     >>> style = add_card_style(
     >>>             background_color=Color.LIGHT_BLUE,
@@ -140,7 +140,7 @@ def add_card_style(
     >>>             add_card(
     >>>                 label="Style Standard-Danger",
     >>>                     padding=[5.0],
-    >>>                     style_std=IpgButtonStyleStd.Danger)
+    >>>                     style_std=ButtonStyleStd.Danger)
     >>> 
     >>> start_session()
     >>> 
@@ -170,13 +170,13 @@ def add_checkbox_style(
     
     Then, add your checkbox(es) as usual and use the style_id=your_style parameter.
     
-    standard - using the style_std parameter and the IpgCheckboxStyleStd class
+    standard - using the style_std parameter and the CheckboxStyleStd class
     
-    Just use the style_std=IpgCheckboxStyleStd.Primary parameter in the add_checkbox method.
+    Just use the style_std=CheckboxStyleStd.Primary parameter in the add_checkbox method.
 
     Examples
     --------
-    >>> from icedpygui import Window, Column, Container, IpgCheckboxStyleStd, add_checkbox, add_checkbox_style, Color, start_session
+    >>> from icedpygui import Window, Column, Container, CheckboxStyleStd, add_checkbox, add_checkbox_style, Color, start_session
     >>> 
     >>> style = add_checkbox_style(
     >>>         border_color=Color.RED,
@@ -191,7 +191,7 @@ def add_checkbox_style(
     >>> 
     >>>             add_checkbox(
     >>>                 label="Secondary",
-    >>>                 style_std=IpgCheckboxStyleStd.Secondary)
+    >>>                 style_std=CheckboxStyleStd.Secondary)
     >>> 
     >>> start_session()
     >>> 
@@ -223,13 +223,13 @@ def add_container_style(
     
     Then, add your container(s) as usual and use the style_id=your_style parameter.
     
-    standard - using the style_std parameter and the IpgContainerStyleStd class
+    standard - using the style_std parameter and the ContainerStyleStd class
     
-    Just use the style_std=IpgContainerStyleStd.Primary parameter in the add_container or Container method.
+    Just use the style_std=ContainerStyleStd.Primary parameter in the add_container or Container method.
     
     Examples
     --------
-    >>> from icedpygui import Window, Column, Container, IpgContainerStyleStd, add_container_style, add_text, Color, start_session
+    >>> from icedpygui import Window, Column, Container, ContainerStyleStd, add_container_style, add_text, Color, start_session
     >>> 
     >>> style = add_container_style(
     >>>             background_color=Color.AQUA,
@@ -245,7 +245,7 @@ def add_container_style(
     >>>             add_text(content="Some Container Custom Styling")
     >>>             
     >>>         with Container(align_center=True, width=400.0, height=200.0, 
-    >>>                        style_std=IpgContainerStyleStd.BorderedBox):
+    >>>                        style_std=ContainerStyleStd.BorderedBox):
     >>>             add_text(content="Some Container Standard Styling\n BorderedBox")
     >>> 
     >>> start_session()
@@ -375,7 +375,7 @@ def add_menu_style(
 
 def add_menu_separator_style(
         style_id: str,
-        separator_type: IpgMenuSeparatorType,
+        separator_type: MenuSeparatorType,
         *,
         height: float=20.0,
         height_fill: bool=False,
@@ -1175,7 +1175,7 @@ def add_chart(
         width: float,
         height: float,
         position_xy: Optional[list[float, 2]],
-        theme: Optional[IpgChartTheme],
+        theme: Optional[ChartTheme],
         margin: Optional[list[float, 4]],
         font_family: str,
         background_ipgcolor: Optional[Color],
@@ -1199,7 +1199,7 @@ def add_chart(
         width (float): _description_
         height (float): _description_
         position_xy (Optional[list[float, 2]]): _description_
-        theme (Optional[IpgChartTheme]): _description_
+        theme (Optional[ChartTheme]): _description_
         margin (Optional[list[float, 4]]): _description_
         font_family (str): _description_
         background_ipgcolor (Optional[Color]): _description_
@@ -1259,7 +1259,7 @@ def add_chart_title(
         title_font_rgba (Optional[list[float, 4]]): _description_
         title_font_weight (Optional[str]): _description_
         title_margin (Optional[list[float, 4]]): _description_
-        title_align (IpgHorizontalAlignment): _description_
+        title_align (HorizontalAlignment): _description_
         title_height (float): _description_
         sub_title_text (Optional[str]): _description_
         sub_title_font_size (Optional[float]): _description_
@@ -1267,7 +1267,7 @@ def add_chart_title(
         sub_title_font_rgba (Optional[list[float, 4]]): _description_
         sub_title_font_weight (Optional[str]): _description_
         sub_title_margin (Optional[list[float, 4]]): _description_
-        sub_title_align (IpgHorizontalAlignment): _description_
+        sub_title_align (HorizontalAlignment): _description_
         sub_title_height (float): _description_
         gen_id (Optional[int]): _description_
 
@@ -1283,7 +1283,7 @@ def add_chart_legend(
         legend_font_weight: Optional[str],
         legend_align: Optional[bool],
         legend_margin: Optional[list[float, 4]],
-        legend_category: IpgChartLegendCategory,
+        legend_category: ChartLegendCategory,
         legend_show: bool,
         gen_id: Optional[int],
     ) -> int:
@@ -1296,9 +1296,9 @@ def add_chart_legend(
         legend_font_ipgcolor (Optional[Color]): _description_
         legend_font_rgba (Optional[list[float, 4]]): _description_
         legend_font_weight (Optional[str]): _description_
-        legend_align (IpgHorizontalAlignment): _description_
+        legend_align (HorizontalAlignment): _description_
         legend_margin (Optional[list[float, 4]]): _description_
-        legend_category (IpgLegendCategory): _description_
+        legend_category (LegendCategory): _description_
         legend_show (bool): _description_
         gen_id (Optional[int]): _description_
 
@@ -1406,7 +1406,7 @@ def add_chart_y_axis(
             The number of splits or intervals on the y-axis.
         y_axis_name_gap (float): 
             The gap between the y-axis name and the axis line.
-        y_axis_name_align (Optional[IpgHorizontalAlignment]): 
+        y_axis_name_align (Optional[HorizontalAlignment]): 
             The alignment of the y-axis name (e.g., "Left", "Center", "Right").
         y_axis_margin (Optional[list[float, 4]]): 
             The margin around the y-axis in the format [top, right, bottom, left].
@@ -1568,10 +1568,10 @@ def update_widget(
     wid: int
         The widget id of the widget to be updated.
     param: class property
-        Example: a button has a parameter IpgButtonParams.Width and value=float
+        Example: a button has a parameter ButtonParams.Width and value=float
     value: any 
         Any value which matches that used by the widget.  For example, to set a checkbox to true,
-        param=IpgCheckboxParams.IsChecked, value=True  
+        param=CheckboxParams.IsChecked, value=True  
 
     Returns
     -------
@@ -1593,12 +1593,12 @@ def update_canvas_item(
     wid: int
         The widget id of the widget to be updated.
     param: class property
-        Example: a canvas has a class IpgCanvasParams with properties of Position
+        Example: a canvas has a class CanvasParams with properties of Position
         Therefore, a circle's position could be changed by using the circle's is
-        and the IpgCanvasParam.Position where the value would be a new point.
+        and the CanvasParam.Position where the value would be a new point.
     value: any 
         Any value which matches that used by the widget.  For example, to set a circle position,
-        param=IpgCanvasParams.Position, value=[100.0, 100.0]  
+        param=CanvasParams.Position, value=[100.0, 100.0]  
 
     Returns
     -------
@@ -1643,7 +1643,7 @@ class ButtonParam:
 
     Parameters
     ----------
-    ArrowStyle: IpgButtonArrow
+    ArrowStyle: ButtonArrow
         A button becomes a type of arrow.
     Height: float
         The height of the button.
@@ -1659,7 +1659,7 @@ class ButtonParam:
         Whether to show the button
     StyleId: int
         The id of the add_button_style() function
-    StyleStandard: IpgStyleStandard
+    StyleStandard: StyleStandard
         One of the standard styles
     Width: float
         The width of the button
@@ -1674,12 +1674,12 @@ class ButtonParam:
     Clip: bool
     Show: bool
     StyleId: int
-    StyleStandard: IpgButtonStyleStd
+    StyleStandard: ButtonStyleStd
     Width: float
     WidthFill: bool
 
 
-class IpgButtonStyleParam:
+class ButtonStyleParam:
     """
     Button parameters
 
@@ -1724,14 +1724,14 @@ class IpgButtonStyleParam:
     TextRgba:list[float, 4]
     
     
-class IpgDrawMode:
+class DrawMode:
     Display: str
     New: str
     Edit: str
     Rotate: str
 
 
-class IpgCanvasParam:
+class CanvasParam:
     """
     Canvas Parameters
     
@@ -1748,11 +1748,11 @@ class IpgCanvasParam:
     FilePath str
         Path to file.
     Mode str
-        The IpgCanvasDrawMode selected.
+        The CanvasDrawMode selected.
     PolyPoints int
         The number of points to use for polygon and polyline.
-    Widget IpgCanvasWidget
-        One of the IpgCanvasWidgets to use.
+    Widget CanvasWidget
+        One of the CanvasWidgets to use.
     
     """
     Clear: bool
@@ -1762,12 +1762,12 @@ class IpgCanvasParam:
     FilePath: str
     Mode: str
     PolyPoints: int
-    Widget: IpgCanvasWidget
+    Widget: CanvasWidget
     Load: None
     Save: None
     
     
-class IpgCanvasWidget:
+class CanvasWidget:
     Arc: str
     Bezier: str
     Circle: str
@@ -1781,12 +1781,12 @@ class IpgCanvasWidget:
     Text: str
 
 
-class IpgCanvasImageParam:
+class CanvasImageParam:
     Position: tuple[float, float]
     Rotation: float
 
 
-class IpgCardStyleStd:
+class CardStyleStd:
     """
     The standard styles for the card widget
     """
@@ -1801,7 +1801,7 @@ class IpgCardStyleStd:
     White=''
 
 
-class IpgChartTheme:
+class ChartTheme:
     DarkTheme=''
     AntTheme=''
     VintageTheme=''
@@ -1813,14 +1813,14 @@ class IpgChartTheme:
     ShadcnTheme=''
     
 
-class IpgChartLegendCategory:
+class ChartLegendCategory:
     Normal=''
     RoundRect=''
     Circle=''
     Rect=''
 
 
-class IpgCardParam:
+class CardParam:
     """
     The card parameters
 
@@ -1834,7 +1834,7 @@ class IpgCardParam:
         The header string
     IsOpen: bool
         Whether the card is open or minimized
-    Style: IpgCardStyle
+    Style: CardStyle
         The string id of the add_card_style()
     """
     Body: str
@@ -1844,7 +1844,7 @@ class IpgCardParam:
     Style: str
 
 
-class IpgCheckboxParam:
+class CheckboxParam:
     """
     The Checkbox parameters
 
@@ -1866,7 +1866,7 @@ class IpgCheckboxParam:
         The spacing between the square and label.
     StyleId: int
         The id of the add_checkbox_style() function.
-    StyleStandard: IpgStyleStandard
+    StyleStandard: StyleStandard
         One of the standard styles.
     TextLineHeight: float
         The height of the text box holding the label.
@@ -1885,32 +1885,32 @@ class IpgCheckboxParam:
     Size: float
     Spacing: float
     StyleId: int
-    StyleStandard: IpgButtonStyleStd
+    StyleStandard: ButtonStyleStd
     TextLineHeight: float
     TextSize: float
     Width: float
     WidthFill: bool
 
 
-class IpgCheckboxStyleParam:
+class CheckboxStyleParam:
     """
     Checkbox style parameters
 
     Parameters
     ----------
-    BackgroundIpgColor: Color
+    BackgroundColor: Color
         Background color in Color format
     BackgroundRbgaColor :list[float, 4]
         Background color in rgba format
-    BackgroundIpgColorHovered: Color
+    BackgroundColorHovered: Color
         When hovered, the Background color in Color format
-    BackgroundIpgRgbaHovered: list[float, 4]
+    BackgroundRgbaHovered: list[float, 4]
         When hovered, the background color in rgba format
-    AccentIpgColor: Color
+    AccentColor: Color
     AccentRgbaColor: list[float, 4]
-    AccentIpgColorHovered: Color
+    AccentColorHovered: Color
     AccentRgbaColorHovered: list[float, 4]
-    BorderIpgColor: Color
+    BorderColor: Color
         Border color in Color format
     BorderRgbaColor: list[float, 4]
         Border color in rgba format
@@ -1918,36 +1918,36 @@ class IpgCheckboxStyleParam:
         The border radius [float]=all, [float, 4]=each individual one       
     BorderWidth: float
         The width of the border line
-    TextIpgColor: Color
+    TextColor: Color
         The label text color in Color format
     TextRgbaColor: list[float, 4]
         The label text color in rgba format
     """
-    BackgroundIpgColor:Color
+    BackgroundColor:Color
     BackgroundRgbaColor:list[float, 4]
-    BackgroundIpgColorHovered:Color
+    BackgroundColorHovered:Color
     BackgroundRgbaColorHovered:list[float, 4]
-    AccentIpgColor:Color
+    AccentColor:Color
     AccentRgbaColor:list[float, 4]
-    AccentIpgColorHovered:Color
+    AccentColorHovered:Color
     AccentRgbaColorHovered:list[float, 4]
-    BorderIpgColor:Color
+    BorderColor:Color
     BorderRgbaColor:list[float, 4]
     BorderRadius:list[float]
     BorderWidth:float
-    IconIpgColor:Color
+    IconColor:Color
     IconRgbaColor:list[float, 4]
-    TextIpgColor:Color
+    TextColor:Color
     TextRgbaColor:list[float, 4]
 
 
-class IpgColorPickerParam:
+class ColorPickerParam:
     """
     Button parameters
 
     Parameters
     ----------
-    ArrowStyle: IpgButtonArrow
+    ArrowStyle: ButtonArrow
         A button becomes a type of arrow.
     Height: float
         The height of the button.
@@ -1963,7 +1963,7 @@ class IpgColorPickerParam:
         Whether to show the button
     StyleId: int
         The id of the add_button_style()
-    StyleStandard: IpgStyleStandard
+    StyleStandard: StyleStandard
         One of the standard styles
     Width: float
         The width of the button
@@ -1980,26 +1980,26 @@ class IpgColorPickerParam:
     Clip: bool
     Show: bool
     StyleId: int
-    StyleStandard: IpgButtonStyleStd
+    StyleStandard: ButtonStyleStd
     Width: float
     WidthFill: bool
 
 
-class IpgColorPickerStyleParam:
+class ColorPickerStyleParam:
     """
     Color Picker Style parameters
 
     Parameters
     ----------
-    BackgroundIpgColor: Color
+    BackgroundColor: Color
         Background color in Color format
     BackgroundRbgaColor :list[float, 4]
         Background color in rgba format
-    BackgroundIpgColorHovered: Color
+    BackgroundColorHovered: Color
         When hovered, the Background color in Color format
-    BackgroundIpgRgbaHovered: list[float, 4]
+    BackgroundRgbaHovered: list[float, 4]
         When hovered, the background color in rgba format
-    BorderIpgColor: Color
+    BorderColor: Color
         Border color in Color format
     BorderRgbaColor: list[float, 4]
         Border color in rgba format
@@ -2007,7 +2007,7 @@ class IpgColorPickerStyleParam:
         The border radius [float]=all, [float, 4]=each individual one       
     BorderWidth: float
         The width of the border line
-    ShadowIpgColor: Color
+    ShadowColor: Color
         Shadow color in Color format
     ShadowRgbaColor: list[float, 4]
         Shadow color in rgba format
@@ -2017,29 +2017,29 @@ class IpgColorPickerStyleParam:
         The offfset of the show towards the y direction
     ShadowBlurRadius: float
         How much to blur the shadow radius
-    TextIpgColor: Color
+    TextColor: Color
         The label text color in Color format
     TextRgbaColor: list[float, 4]
         The label text color in rgba format
     """
-    BackgroundIpg:Color
+    Background:Color
     BackgroundRbga:list[float, 4]
-    BackgroundIpgColorHovered:Color
-    BackgroundIpgRgbaHovered:list[float, 4]
-    BorderIpgColor:Color
+    BackgroundColorHovered:Color
+    BackgroundRgbaHovered:list[float, 4]
+    BorderColor:Color
     BorderRgba:list[float, 4]
     BorderRadius:list
     BorderWidth:float
-    ShadowIpgColor:Color
+    ShadowColor:Color
     ShadowRgba:list[float, 4]
     ShadowOffsetX:float
     ShadowOffsetY:float
     ShadowBlurRadius:float
-    TextIpgColor:Color
+    TextColor:Color
     TextRgbaColor:list[float, 4]
 
 
-class IpgColumnParam:
+class ColumnParam:
     AlignLeft: bool
     AlignCenter: bool
     AlignRight: bool
@@ -2053,7 +2053,7 @@ class IpgColumnParam:
     WidthFill: bool
     
 
-class IpgContainerParam:
+class ContainerParam:
     AlignBottomCenter: bool
     AlignBottomLeft: bool
     AlignBottomRight: bool
@@ -2074,24 +2074,24 @@ class IpgContainerParam:
     WidthFill: bool
     Show: bool
     StyleId: int
-    StyleStd: IpgContainerStyleStd
+    StyleStd: ContainerStyleStd
 
 
-class IpgContainerStyleParam:
-    BackgroundIpgColor:Color
+class ContainerStyleParam:
+    BackgroundColor:Color
     BackgroundRgbaColor:list[float, 4]
-    BorderIpgColor:Color
+    BorderColor:Color
     BorderRgbaColor:list[float, 4]
     BorderRadius:float
     BorderWidth:float
-    ShadowIpgColor:Color
+    ShadowColor:Color
     ShadowRgbaColor:list[float, 4]
     ShadowOffsetXY:list[float, 4]
     ShadowBlurRadius:float
-    TextIpgColor:Color
+    TextColor:Color
     TextRgbaColor:list[float, 4]
     
-class IpgContainerStyleStd:
+class ContainerStyleStd:
     BorderedBox='',
     Danger='',
     Dark='',
@@ -2103,7 +2103,7 @@ class IpgContainerStyleStd:
     Warning='',
 
 
-class IpgDatePickerParam:
+class DatePickerParam:
     """
     Date Picker parameters
 
@@ -2124,7 +2124,7 @@ class IpgDatePickerParam:
     Show: bool
 
     
-class IpgDividerDirection:
+class DividerDirection:
     """
     Direction of the divider.
     
@@ -2139,7 +2139,7 @@ class IpgDividerDirection:
     Vertical: ...
 
 
-class IpgDividerParam:
+class DividerParam:
     """
     Divider parameters
     
@@ -2163,17 +2163,17 @@ class IpgDividerParam:
     Show:bool
     
     
-class IpgDividerStyleParam:
+class DividerStyleParam:
     """_
     Divider style parameters
     
     Parameters
     ----------
-    BackgroundIpgColor: Color,
+    BackgroundColor: Color,
         Background color
     BackgroundRgbaColor: list[float, 4],
         Background color in rgba format
-    BorderIpgColor: Color,
+    BorderColor: Color,
         Border color
     BorderRgbaColor: list[float, 4],
         Border color in rgba format
@@ -2184,9 +2184,9 @@ class IpgDividerStyleParam:
     Transparent: bool,
         Whether to use the transparent style
     """
-    BackgroundIpgColor: Color
+    BackgroundColor: Color
     BackgroundRgbaColor: list[float, 4]
-    BorderIpgColor: Color
+    BorderColor: Color
     BorderRgbaColor: list[float, 4]
     BorderWidth: float
     BorderRadius: float
@@ -2209,61 +2209,58 @@ class FloatParam:
         Whether the scaled content exceeds the container size
     """
 
-class IpgContentFit:
+class ContentFit:
     """
     Content fit for a image or svg widget
 
     Parameters
     ---------
-    Contain: IpgImageContentFit.Contain
+    Contain: ImageContentFit.Contain
         The image will be scaled (preserving aspect ratio) so that it just fits within the window.
-    Cover: IpgImageContentFit.Cover 
+    Cover: ImageContentFit.Cover 
         Scale the image to cover all of the bounding box, cropping if needed.
-    Fill: IpgImageContentFit.Fill
+    Fill: ImageContentFit.Fill
         Distort the image so the widget is 100% covered without cropping.
-    IpgNoneIpgImageContentFit.IpgNone
-        Don't resize or scale the image at all.  This is best for when you've sized the image yourself.
-    ScaleDown: IpgImageContentFit.ScaleDown
+    ScaleDown: ImageContentFit.ScaleDown
         Scale the image down if it's too big for the space, but never scale it up.
     """
     Contain: str
     Cover: str
     Fill: str
-    IpgNone: str
     ScaleDown: str
 
 
-class IpgFilterMethod:
+class FilterMethod:
     '''
     How the image is filtered
 
     Parameters
     ----------
-    Linear: IpgImageMethodFilter.Linear
+    Linear: ImageMethodFilter.Linear
         Bi-linear interpolation image filtering strategy.
-    Nearest: IpgImageMethodFilter.Nearest
+    Nearest: ImageMethodFilter.Nearest
         Nearest neighbor image filtering strategy.
     '''
     Linear: str
     Nearest: str
 
 
-class IpgRotation:
+class Rotation:
     """
     What happens to the container when image is rotated.
 
     Parameters
     ----------
-    Floating: IpgImageRotation.Floating
+    Floating: ImageRotation.Floating
         When image is rotated, it floats above the container, not distorting it.
-    Solid: IpgImageRotation.Solid
+    Solid: ImageRotation.Solid
         When the image is rotated, the container resizes to fit.
     """
     Floating: str
     Solid: str
 
 
-class IpgImageParam:
+class ImageParam:
     """
     Image parameters
 
@@ -2299,7 +2296,7 @@ class IpgImageParam:
     WidthFill: bool
 
 
-class IpgMenuParam:
+class MenuParam:
     """
     Menu Bar parameters
 
@@ -2326,67 +2323,67 @@ class IpgMenuParam:
     Show:bool
 
 
-class IpgMenuStyleParam:
-    BaseIpgColor:Color
+class MenuStyleParam:
+    BaseColor:Color
     BaseRgbaColor:list[float, 4]
-    BorderIpgColor:Color
+    BorderColor:Color
     BorderRgbaColor:list[float, 4]
     BorderRadius:list[float]
     BorderWidth:float
-    ShadowIpgColor:Color
+    ShadowColor:Color
     ShadowRgbaColor:list[float, 4]
     ShadowOffsetXY:list[float, 2]
     ShadowBlurRadius:float
-    PathBaseIpgColor:Color
+    PathBaseColor:Color
     PathBaseRgbaColor:list[float, 4]
-    PathBorderIpgColor:Color
+    PathBorderColor:Color
     PathBorderRgbaColor:list[float, 4]
     PathBorderRadius:list[float]
     PathBorderWidth:float
 
-class IpgMenuBarStyleParam:
-    BaseIpgColor:Color
+class MenuBarStyleParam:
+    BaseColor:Color
     BaseRgbaColor:list[float, 4]
-    BorderIpgColor:Color
+    BorderColor:Color
     BorderRgbaColor:list[float, 4]
     BorderRadius:list[float]
     BorderWidth:float
-    ShadowIpgColor:Color
+    ShadowColor:Color
     ShadowRgbaColor:list[float, 4]
     ShadowOffsetXY:list[float, 2]
     ShadowBlurRadius:float
 
 
-class IpgMenuSeparatorStyleParam:
-    SeparatorType:IpgMenuSeparatorType
+class MenuSeparatorStyleParam:
+    SeparatorType:MenuSeparatorType
     Width:float
     WidthFill:bool
     Height:float
     HeightFill:bool
     QuadRatios:list[float, 2]
-    SeparatorIpgColor:Color
+    SeparatorColor:Color
     SeparatorRgbaColor:list[float, 4]
-    SeparatorBorderIpgColor:Color
+    SeparatorBorderColor:Color
     SeparatorBorderRgbaColor:list[float, 4]
     SeparatorBorderRadius:list[float]
     SeparatorBorderWidth:float
-    SeparatorShadowIpgColor:Color
+    SeparatorShadowColor:Color
     SeparatorShadowRgbaColor:list[float, 4]
     SeparatorShadowOffset:float
     SeparatorShadowBlurRadius:float
-    BackgroundIpgColor:Color
+    BackgroundColor:Color
     BackgroundRgbaColor:list[float, 4]
-    BackgroundBorderIpgColor:Color
+    BackgroundBorderColor:Color
     BackgroundBorderRbgaColor:list[float, 4]
     BackgroundBorderWidth:float
     BackgroundBorderRadius:list[float]
-    BackgroundShadowIpgColor:Color
+    BackgroundShadowColor:Color
     BackgroundShadowRbgaColor:list[float, 4]
     BackgroundShadowOffset:float
     BackgroundShadowBlurRadius:float
 
 
-class IpgMenuType:
+class MenuType:
     """
     The type of widgets a menu item can be.  Used in item_styles parameter.
     """
@@ -2399,7 +2396,7 @@ class IpgMenuType:
     Toggler=''
 
 
-class IpgMenuSeparatorType:
+class MenuSeparatorType:
     """
     The separator types id used.
     """
@@ -2409,7 +2406,7 @@ class IpgMenuSeparatorType:
     Line=''
 
 
-class IpgMousePointer:
+class MousePointer:
     """
     Pointer types for the mouse interactions
     """
@@ -2425,14 +2422,14 @@ class IpgMousePointer:
     NotAllowed=''
     ZoomIn=''
 
-class IpgOpaqueParam:
+class OpaqueParam:
     """
     Opaque update parameters.
     """
     Show: bool
 
 
-class IpgPickListParam:
+class PickListParam:
     """
     PickList update parameters
 
@@ -2471,7 +2468,7 @@ class IpgPickListParam:
     WidthFill: bool
 
 
-class IpgPickListHandle:
+class PickListHandle:
     """
     The type of handle for the picklist.
     """
@@ -2481,17 +2478,17 @@ class IpgPickListHandle:
     Static=''
 
 
-class IpgPickListStyleParam:
+class PickListStyleParam:
     """
     PickList style parameters
 
     Parameters
     ----------
-    BackgroundIpgColor: Color
+    BackgroundColor: Color
         Background color in Color format
     BackgroundRbgaColor :list[float, 4]
         Background color in rgba format
-    BorderIpgColor: Color
+    BorderColor: Color
         Border color in Color format
     BorderRgbaColor: list[float, 4]
         Border color in rgba format
@@ -2499,33 +2496,33 @@ class IpgPickListStyleParam:
         The border radius [float]=all, [float, 4]=each individual one       
     BorderWidth: float
         The width of the border line
-    HandleIpgColor: Color
+    HandleColor: Color
         Handle color in Color format
     HandleRgbaColor: list[float, 4]
         Handle color in rgba format
-    PlaceholderIpgColor: Color
+    PlaceholderColor: Color
         Placeholder color in Color format
     PlaceholderRgbaColor: list[float, 4]
         Placeholder color in rgba format
-    TextIpgColor: Color
+    TextColor: Color
         The label text color in Color format
     TextRgbaColor: list[float, 4]
         The label text color in rgba format
     """
-    BackgroundIpgColor:Color
+    BackgroundColor:Color
     BackgroundRbgaColor:List[float, 4]
-    BorderIpgColor:Color
+    BorderColor:Color
     BorderRgbaColor:list[float, 4]
     BorderRadius:list
     BorderWidth:float
-    HandleIpgColor:Color
+    HandleColor:Color
     HandleRgbaColor:list[float, 4]
-    PlaceholderIpgColor:Color
+    PlaceholderColor:Color
     PlaceholderRgbaColor:list[float, 4]
-    TextIpgColor:Color
+    TextColor:Color
     TextRgbaColor:list[float, 4]
 
-class IpgProgressBarParam:
+class ProgressBarParam:
     """
     The ProgressBar update parameters.
 
@@ -2544,7 +2541,7 @@ class IpgProgressBarParam:
     StyleId: int
         The id of the add_progress_bar_style()
     StyleStandard: str
-        The standard style of the IpgStandardStyle class
+        The standard style of the StandardStyle class
     Value: float
         The value of the bar.
     Width: float
@@ -2564,21 +2561,21 @@ class IpgProgressBarParam:
     WidthFill: bool
 
 
-class IpgProgressBarStyleParam:
+class ProgressBarStyleParam:
     """
     Progress Bar style parameters
 
     Parameters
     ----------
-    BackgroundIpgColor: Color
+    BackgroundColor: Color
         Background color in Color format
     BackgroundRbgaColor :list[float, 4]
         Background color in rgba format
-    BarIpgColor: Color
+    BarColor: Color
         Bar color in Color format
     BarRgbaColor: list[float, 4]
         Bar color in rgba format
-    BorderIpgColor: Color
+    BorderColor: Color
         Border color in Color format
     BorderRgbaColor: list[float, 4]
         Border color in rgba format
@@ -2587,17 +2584,17 @@ class IpgProgressBarStyleParam:
     BorderWidth: float
         The width of the border line
     """
-    BackgroundIpgColor:Color
+    BackgroundColor:Color
     BackgroundRbgaColor:List[float, 4]
-    BarIpgColor:Color
+    BarColor:Color
     BarRgbaColor:list[float, 4]
-    BorderIpgColor:Color
+    BorderColor:Color
     BorderRgbaColor:list[float, 4]
     BorderRadius:list
     BorderWidth:float
     
 
-class IpgRadioDirection:
+class RadioDirection:
     """
     Direction the radio button are aligned.
     """
@@ -2605,14 +2602,14 @@ class IpgRadioDirection:
     Vertical=''
 
 
-class IpgRadioParam:
+class RadioParam:
     """
     Radio button parameters
 
     Parameters
     ----------
     Direction: str
-        The IpgRadioDirection class
+        The RadioDirection class
     Labels: list[str]
         The labels for each radio button
     Padding: list[float]
@@ -2665,49 +2662,49 @@ class IpgRadioParam:
     HeightFill: bool
 
 
-class IpgRadioStyleParam:
+class RadioStyleParam:
     """
     Radio style parameters
 
     Parameters
     ----------
-    BackgroundIpgColor: Color
+    BackgroundColor: Color
         Background color in Color format
     BackgroundRbgaColor :list[float, 4]
         Background color in rgba format
-    DotIpgColor: Color
+    DotColor: Color
         Dot color in Color format
     DotRgbaColor: list[float, 4]
         Dot color in rgba format
-    DotIpgColorHovered: Color
+    DotColorHovered: Color
         Dot hover color in Color format
     DotRgbaColorHovered: list[float, 4]
         Dot hover color in rgba format
-    BorderIpgColor: Color
+    BorderColor: Color
         Border color in Color format
     BorderRgbaColor: list[float, 4]
         Border color in rgba format    
     BorderWidth: float
         The width of the border line
-    TextIpgColor: Color
+    TextColor: Color
         The label text color in Color format
     TextRgbaColor: list[float, 4]
         The label text color in rgba format
     """
-    BackgroundIpgColor:Color
+    BackgroundColor:Color
     BackgroundRbgaColor:List[float, 4]
-    DotIpgColor:Color
+    DotColor:Color
     DotRgbaColor:list[float, 4]
-    DotIpgColorHovered:Color
+    DotColorHovered:Color
     DotRgbaColorHovered:list[float, 4]
-    BorderIpgColor:Color
+    BorderColor:Color
     BorderRgbaColor:list[float, 4]
     BorderWidth:float
-    TextIpgColor:Color
+    TextColor:Color
     TextRgbaColor:list[float, 4]
 
 
-class IpgRowParam:
+class RowParam:
     AlignBottom: bool
     AlignCenter: bool
     AlignTop: bool
@@ -2721,7 +2718,7 @@ class IpgRowParam:
     WidthFill: bool
 
 
-class IpgRuleStyleParam:
+class RuleStyleParam:
     Color:Color
     RbgaColor:List[float, 4]
     BorderRadius:float
@@ -2730,7 +2727,7 @@ class IpgRuleStyleParam:
     FillModeAsymmetricPadding:list[int]
 
 
-class IpgScrollableDirection:
+class ScrollableDirection:
     """
     The scroll direction of the Scrollable
     """
@@ -2739,7 +2736,7 @@ class IpgScrollableDirection:
     Both=''
 
 
-class IpgScrollableParam:
+class ScrollableParam:
     """
     The Scrollable parameters
 
@@ -2758,8 +2755,8 @@ class IpgScrollableParam:
     
     Examples
     --------
-    >>> ipg.update_item(wid=0, param=IpgScrollableParam.Width , 300.0)
-    >>> sipg.update_item(wid=0, param=IpgScrollableParam.HeightFill, True)
+    >>> ipg.update_item(wid=0, param=ScrollableParam.Width , 300.0)
+    >>> sipg.update_item(wid=0, param=ScrollableParam.HeightFill, True)
     """
     Fill: bool
     Height: float
@@ -2769,17 +2766,17 @@ class IpgScrollableParam:
     Width: float
 
 
-class IpgScrollableStyleParam:
+class ScrollableStyleParam:
     """
     The Scrollable style parameters
 
     Parameters
     ----------
-    BackgroundIpgColor: Color
+    BackgroundColor: Color
         Background color in Color format
     BackgroundRbgaColor: list[float, 4]
         Background color in rgba format
-    BorderIpgColor: Color
+    BorderColor: Color
         Border color in Color format
     BorderRgbaColor: list[float, 4]
         Border color in rgba format
@@ -2787,7 +2784,7 @@ class IpgScrollableStyleParam:
         Border radius as a list of 1 or 4
     BorderWidth: float
         Border widt as a float
-    ShadowIpgColor: Color
+    ShadowColor: Color
         Shadow color in Color format
     ShadowRgbaColor: list[float, 4]
         Shadow color in rgba format
@@ -2797,11 +2794,11 @@ class IpgScrollableStyleParam:
         Amount of offset shadow in y direction
     ShadowBlurRadius: list[float]
         How much to blur the radius
-    TextIpgColor: Color
+    TextColor: Color
         Text color in Color format
     TextRgbaColor: list[float, 4]
         Text color in rgba format
-    ScrollbarIpgColor: Color
+    ScrollbarColor: Color
         Scrollbar color in Color format
     ScrollbarRgbaColor: list[float, 4]
         Scrollbar color in rgba format
@@ -2809,51 +2806,51 @@ class IpgScrollableStyleParam:
         Border radius as a list of 1 or 4
     ScrollbarBorderWidth: float
         Width of the border
-    ScrollbarBorderIpgColor: Color
+    ScrollbarBorderColor: Color
         Scrollbar border color in Color format
     ScrollbarBorderRgbaColor: list[float, 4]
         Scrollbar border color in rgba format
-    ScrollerIpgColor: Color
+    ScrollerColor: Color
         Scroller color in Color format
     ScrollerRgbaColor: list[float, 4]
         Scroller color in rgba format
-    ScrollerIpgColorHovered: Color
+    ScrollerColorHovered: Color
         Scroller hover color in Color format
     ScrollerRgbaColorHovered: list[float, 4]
         Scroller hover color in rgba format
-    ScrollerIpgColorDragged: Color
+    ScrollerColorDragged: Color
         Scroller drag color in Color format
     ScrollerRgbaColorDragged: list[float, 4]
         Scroller drag color in rgba format
     """
-    BackgroundIpgColor:Color
+    BackgroundColor:Color
     BackgroundRbgaColor:list[float, 4]
-    BorderIpgColor:Color
+    BorderColor:Color
     BorderRgbaColor:list[float, 4]
     BorderRadius:list[float]
     BorderWidth:float
-    ShadowIpgColor:Color
+    ShadowColor:Color
     ShadowRgbaColor:list[float, 4]
     ShadowOffsetX:float
     ShadowOffsetY:float
     ShadowBlurRadius:list[float]
-    TextIpgColor:Color
+    TextColor:Color
     TextRgbaColor:list[float, 4]
-    ScrollbarIpgColor:Color
+    ScrollbarColor:Color
     ScrollbarRgbaColor:list[float, 4]
     ScrollbarBorderRadius:list[float]
     ScrollbarBorderWidth:float
-    ScrollbarBorderIpgColor:Color
+    ScrollbarBorderColor:Color
     ScrollbarBorderRgbaColor:list[float, 4]
-    ScrollerIpgColor:Color
+    ScrollerColor:Color
     ScrollerRgbaColor:list[float, 4]
-    ScrollerIpgColorHovered:Color
+    ScrollerColorHovered:Color
     ScrollerRgbaColorHovered:list[float, 4]
-    ScrollerIpgColorDragged:Color
+    ScrollerColorDragged:Color
     ScrollerRgbaColorDragged:list[float, 4]
 
 
-class IpgSeparatorParam:
+class SeparatorParam:
     DotCount: int
     DotFill: bool
     DotBorderWidth: float
@@ -2868,13 +2865,13 @@ class IpgSeparatorParam:
     WidthFill: bool
 
 
-class IpgSeparatorType:
+class SeparatorType:
     Dot=""
     Label=""
     Line=""
 
 
-class IpgSliderParam:
+class SliderParam:
     """
     Slider update parameters
 
@@ -2910,17 +2907,17 @@ class IpgSliderParam:
     Show: bool
 
 
-class IpgSliderStyleParam:
-    RailIpgColor:Color
+class SliderStyleParam:
+    RailColor:Color
     RailRbgaColor:list[float, 4]
-    RailIpgColorHovered:Color
-    RailIpgRgbaHovered:list[float, 4]
+    RailColorHovered:Color
+    RailRgbaHovered:list[float, 4]
     RailBorderRadius:list[float]
     RailWidth:float
 
-    HandleIpgColor:Color
+    HandleColor:Color
     HandleRgbaColor:list[float, 4]
-    HandleBorderIpgColor:Color
+    HandleBorderColor:Color
     HandleBorderRgbaColor:list[float, 4]
     HandleBorderWidth:float
     HandleCircleRadius:float
@@ -2928,7 +2925,7 @@ class IpgSliderStyleParam:
     HandleRectangleBorderRadius:list[float]
     
     
-class IpgStackParam:
+class StackParam:
     """
     Stack update parameters
 
@@ -2939,7 +2936,7 @@ class IpgStackParam:
     """
     ShowStack: bool
 
-class IpgButtonStyleStd:
+class ButtonStyleStd:
     """
     Standard styles for Button widget
     """
@@ -2953,7 +2950,7 @@ class IpgButtonStyleStd:
     Text='',
 
 
-class IpgSvgParam:
+class SvgParam:
     """
     SVG image parameters
     
@@ -2987,7 +2984,7 @@ class IpgSvgParam:
 
 
 
-class IpgTableParam:
+class TableParam:
     """
     Table parameters
 
@@ -3011,7 +3008,7 @@ class IpgTableParam:
         Spacing between rows
     RowMaxHeight: float
         Max height of the rows
-    RowHighlight: IpgTableRowHighLight
+    RowHighlight: TableRowHighLight
         Sets the color type for highlighting alternate rows.
     HighlightAmount: float
         The highlighting amount.
@@ -3058,50 +3055,50 @@ class IpgTableParam:
     Show:bool
 
 
-class IpgTableStyleParam:
-    HeaderBackgroundIpgColor:Color
+class TableStyleParam:
+    HeaderBackgroundColor:Color
     HeaderBackgroundRgbaColor:list[float, 4]
-    HeaderBorderIpgColor:Color
+    HeaderBorderColor:Color
     HeaderBorderRgbaColor:list[float, 4]
     HeaderBorderRadius:float
     HeaderBorderWidth:float
-    HeaderTextIpgColor:Color
+    HeaderTextColor:Color
     HeaderTextRgbaColor:list[float, 4]
 
-    BodyBackgroundIpgColor:Color
+    BodyBackgroundColor:Color
     BodyBackgroundRgbaColor:list[float, 4]
-    BodyBorderIpgColor:Color
+    BodyBorderColor:Color
     BodyBorderRgbaColor:list[float, 4]
     BodyBorderRadius:float
     BodyBorderWidth:float
-    BodyTextIpgColor:Color
+    BodyTextColor:Color
     BodyTextRgbaColor:list[float, 4]
     BodyRowHighlighColor:Color
     BodyRowHighlightRgba:list[float, 4]
 
-    FooterBackgroundIpgColor:Color
+    FooterBackgroundColor:Color
     FooterBackgroundRgbaColor:list[float, 4]
-    FooterBorderIpgColor:Color
+    FooterBorderColor:Color
     FooterBorderRgbaColor:list[float, 4]
     FooterBorderRadius:float
     FooterBorderWidth:float
-    FooterTextIpgColor:Color
+    FooterTextColor:Color
     FooterTextRgbaColor:list[float, 4]
     
-    DividerBackgroundIpgColor:Color
+    DividerBackgroundColor:Color
     DividerBackgroundRgbaColor:list[float, 4]
-    DividerHoverIpgColor:Color
+    DividerHoverColor:Color
     DividerHoverRgbaColor:list[float, 4]
     
-    ScrollerBackgroundIpgColor:Color
+    ScrollerBackgroundColor:Color
     ScrollerBackgroundRgbaColor:list[float, 4]
-    ScrollerHoverIpgColor:Color
+    ScrollerHoverColor:Color
     ScrollerHoverRgbaColor:list[float, 4]
-    ScrollerRailIpgColor:Color
+    ScrollerRailColor:Color
     ScrollerRailRgbaColor:list[float, 4]
 
 
-class IpgTextInputParam:
+class TextInputParam:
     """
     TextInput parameters
 
@@ -3149,7 +3146,7 @@ class TextWrapping:
     WordOrGlyph=''
     
     
-class IpgTextParam:
+class TextParam:
     """
     Text parameters
 
@@ -3208,7 +3205,7 @@ class IpgTextParam:
     WidthFill: bool
 
 
-class IpgRichTextParam:
+class RichTextParam:
     """
     Rich text parameters for updating a rich text widget.
 
@@ -3232,7 +3229,7 @@ class IpgRichTextParam:
     TextRgba: list[float]
 
 
-class IpgSpanParam:
+class SpanParam:
     """
     Span parameters for updating a span within a rich text widget.
 
@@ -3271,22 +3268,22 @@ class IpgSpanParam:
     Underline: bool
 
 
-class IpgTextInputStyleParam:
-    BackgroundIpgColor: Color
+class TextInputStyleParam:
+    BackgroundColor: Color
     BackgroundRgbaColor: list[float, 4]
-    BorderIpgColor: Color
+    BorderColor: Color
     BorderRadius: list[float]
     BorderRgbaColor: list[float, 4]
     BorderWidth: float
-    PlaceholderIpgColor: Color
+    PlaceholderColor: Color
     PlaceholderRgbaColor: list[float, 4]
-    SelectionIpgColor: Color
+    SelectionColor: Color
     SelectionRgbaColor: list[float, 4]
-    ValueIpgColor: Color
+    ValueColor: Color
     ValueRgbaColor: list[float, 4]
 
 
-class IpgTimerParam:
+class TimerParam:
     DurationMs : int
     ArrowStyle : str
     Counter : int
@@ -3302,21 +3299,21 @@ class IpgTimerParam:
     WidthFill : bool
 
 
-class IpgTimerStyleParam:
+class TimerStyleParam:
     """
     Timer button parameters
 
     Parameters
     ----------
-    BackgroundIpgColor: Color
+    BackgroundColor: Color
         Background color in Color format
     BackgroundRbgaColor :list[float, 4]
         Background color in rgba format
-    BackgroundIpgColorHovered: Color
+    BackgroundColorHovered: Color
         When hovered, the Background color in Color format
-    BackgroundIpgRgbaHovered: list[float, 4]
+    BackgroundRgbaHovered: list[float, 4]
         When hovered, the background color in rgba format
-    BorderIpgColor: Color
+    BorderColor: Color
         Border color in Color format
     BorderRgbaColor: list[float, 4]
         Border color in rgba format
@@ -3324,7 +3321,7 @@ class IpgTimerStyleParam:
         The border radius [float]=all, [float, 4]=each individual one       
     BorderWidth: float
         The width of the border line
-    ShadowIpgColor: Color
+    ShadowColor: Color
         Shadow color in Color format
     ShadowRgbaColor: list[float, 4]
         Shadow color in rgba format
@@ -3334,32 +3331,32 @@ class IpgTimerStyleParam:
         The offfset of the show towards the y direction
     ShadowBlurRadius: float
         How much to blur the shadow radius
-    TextIpgColor: Color
+    TextColor: Color
         The label text color in Color format
     TextRgbaColor: list[float, 4]
         The label text color in rgba format
     """
-    BackgroundIpgColor:Color
+    BackgroundColor:Color
     BackgroundRbgaColor:list[float]
-    BackgroundIpgColorHovered:Color
-    BackgroundIpgRgbaHovered:list[float]
-    BorderIpgColor:Color
+    BackgroundColorHovered:Color
+    BackgroundRgbaHovered:list[float]
+    BorderColor:Color
     BorderRgbaColor:list[float]
     BorderRadius:list
     BorderWidth:float
-    ShadowIpgColor:Color
+    ShadowColor:Color
     ShadowRgbaColor:list[float]
     ShadowOffsetX:float
     ShadowOffsetY:float
     ShadowBlurRadius:float
-    TextIpgColor:Color
+    TextColor:Color
     TextRgbaColor:list[float]
 
-class IpgTimerParam:
+class TimerParam:
     DurationMs=''
     Enable=''
 
-class IpgCanvasTimerParam:
+class CanvasTimerParam:
     DurationMs : int
     ArrowStyle : str
     Counter : int
@@ -3375,7 +3372,7 @@ class IpgCanvasTimerParam:
     WidthFill : bool
 
 
-class IpgTogglerParam:
+class TogglerParam:
     """
     Toggler parameters
 
@@ -3400,7 +3397,7 @@ class IpgTogglerParam:
     WidthFill: bool
 
 
-class IpgToolTipPosition:
+class ToolTipPosition:
     Bottom=""
     FollowCursor=""
     Left=""
@@ -3408,7 +3405,7 @@ class IpgToolTipPosition:
     Top=""
 
 
-class IpgToolTipParam:
+class ToolTipParam:
     ContainerStyleId='',
     ContentId='',
     DelaySec='',
@@ -3419,7 +3416,7 @@ class IpgToolTipParam:
     Text='',
     
     
-class IpgWindowParam:
+class WindowParam:
     '''
     Parameters
     ----------
@@ -3441,8 +3438,8 @@ class IpgWindowParam:
         Setting for the icon color in rgba format.
     IconWidthHeight: list[float]
         Setting for the icon wide and height
-    Level: IpgWindowLevel
-        Setting for how the window is stacked (see IpgWindowLevel)
+    Level: WindowLevel
+        Setting for how the window is stacked (see WindowLevel)
     MaxSize: float
         Setting for maximum size.
     Maximized: float
@@ -3459,7 +3456,7 @@ class IpgWindowParam:
         Setting for the window scale factor.
     Size: list[float]
         Setting for the window size.
-    Theme: IpgWindowTheme
+    Theme: WindowTheme
         Setting for the window theme(background color) using Color
     Title: str
         Setting for the window title.
@@ -3475,7 +3472,7 @@ class IpgWindowParam:
     Hidden : bool
     IconRgba : list[float]
     IconWidthHeight : list[float]
-    Level : IpgWindowLevel
+    Level : WindowLevel
     MaxSize : float
     Maximized : float
     MinSize : float
@@ -3484,12 +3481,12 @@ class IpgWindowParam:
     Resizable : bool
     ScaleFactor : float
     Size : list[float]
-    Theme : IpgWindowTheme
+    Theme : WindowTheme
     Title : str
     Transparent : bool
     
 
-class IpgWindowLevel:
+class WindowLevel:
     """
     The stacking order of the windows
     
@@ -3520,7 +3517,7 @@ class TextWrapping:
     WordOrGlyph=''
     
 
-class IpgWindowTheme:
+class WindowTheme:
     """
     Window themes
     """
@@ -3786,7 +3783,7 @@ class Color:
     YELLOW=''
     YELLOW_GREEN=''
 
-class IpgIcon:
+class Icon:
     Alarm = ...
     AlarmFill = ...
     AlignBottom = ...

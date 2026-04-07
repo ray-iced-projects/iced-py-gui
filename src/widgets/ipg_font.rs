@@ -8,16 +8,16 @@ use crate::widgets::widget_param_update::{WidgetParamUpdate};
 
 
 #[derive(Debug, Clone, Default, PartialEq)]
-pub struct IpgFont {
+pub struct Font {
     pub id: usize,
-    pub family: Option<IpgFontFamily>,
+    pub family: Option<FontFamily>,
     pub family_name: Option<String>,
-    pub weight: Option<IpgFontWeight>,
-    pub stretch: Option<IpgFontStretch>,
-    pub style: Option<IpgFontStyle>,
+    pub weight: Option<FontWeight>,
+    pub stretch: Option<FontStretch>,
+    pub style: Option<FontStyle>,
 }
 
-impl IpgFont {
+impl Font {
     pub fn to_iced(&self) -> iced::font::Font {
         let mut font = iced::font::Font::default();
         font.family = if let Some(family) = &self.family {
@@ -25,7 +25,7 @@ impl IpgFont {
                 family.to_iced(self.family_name.clone())
             } else {
                 eprintln!("[WARNING] family_name must be defined if 
-                IpgFamily::Name selected, default SansSerif used");
+                Family::Name selected, default SansSerif used");
                 iced::font::Family::default()
             };
             family
@@ -50,7 +50,7 @@ impl IpgFont {
 
 #[derive(Debug, Clone, Default, PartialEq)]
 #[pyclass(eq, eq_int)]
-pub enum IpgFontFamily {
+pub enum FontFamily {
     Name,
     Cursive,
     Fantasy,
@@ -60,10 +60,10 @@ pub enum IpgFontFamily {
     Serif,
 }
 
-impl IpgFontFamily {
+impl FontFamily {
     fn to_iced(&self, name: Option<String>) -> font::Family {
         match self {
-            IpgFontFamily::Name => {
+            FontFamily::Name => {
                 if let Some(name) = name {
                     let name: &'static str = Box::leak(name.clone().into_boxed_str());
                     font::Family::Name(name)
@@ -71,11 +71,11 @@ impl IpgFontFamily {
                     font::Family::default()
                 }
             },
-            IpgFontFamily::Cursive => font::Family::Cursive,
-            IpgFontFamily::Fantasy => font::Family::Fantasy,
-            IpgFontFamily::Monospace => font::Family::Monospace,
-            IpgFontFamily::SansSerif => font::Family::SansSerif,
-            IpgFontFamily::Serif => font::Family::Serif,
+            FontFamily::Cursive => font::Family::Cursive,
+            FontFamily::Fantasy => font::Family::Fantasy,
+            FontFamily::Monospace => font::Family::Monospace,
+            FontFamily::SansSerif => font::Family::SansSerif,
+            FontFamily::Serif => font::Family::Serif,
         }
     }
     
@@ -85,7 +85,7 @@ impl IpgFontFamily {
             let res = value.extract::<Self>(py);
             match res {
                 Ok(val) => val,
-                Err(_) => panic!("Unable to extract python object for IpgFontFamily"),
+                Err(_) => panic!("Unable to extract python object for FontFamily"),
             }
         }))
     }
@@ -93,7 +93,7 @@ impl IpgFontFamily {
 
 #[derive(Debug, Clone, Default, PartialEq)]
 #[pyclass(eq, eq_int)]
-pub enum IpgFontWeight {
+pub enum FontWeight {
     Black,
     Bold,
     ExtraBold,
@@ -106,18 +106,18 @@ pub enum IpgFontWeight {
     Thin,
 }
 
-impl IpgFontWeight {
+impl FontWeight {
     fn to_iced(&self) -> font::Weight {
         match self {
-            IpgFontWeight::Black => font::Weight::Black,
-            IpgFontWeight::Bold => font::Weight::Bold,
-            IpgFontWeight::ExtraBold => font::Weight::ExtraBold,
-            IpgFontWeight::ExtraLight => font::Weight::ExtraLight,
-            IpgFontWeight::Light => font::Weight::Light,
-            IpgFontWeight::Medium => font::Weight::Medium,
-            IpgFontWeight::Normal => font::Weight::Normal,
-            IpgFontWeight::Semibold => font::Weight::Semibold,
-            IpgFontWeight::Thin => font::Weight::Thin,
+            FontWeight::Black => font::Weight::Black,
+            FontWeight::Bold => font::Weight::Bold,
+            FontWeight::ExtraBold => font::Weight::ExtraBold,
+            FontWeight::ExtraLight => font::Weight::ExtraLight,
+            FontWeight::Light => font::Weight::Light,
+            FontWeight::Medium => font::Weight::Medium,
+            FontWeight::Normal => font::Weight::Normal,
+            FontWeight::Semibold => font::Weight::Semibold,
+            FontWeight::Thin => font::Weight::Thin,
         }
     }
 
@@ -127,7 +127,7 @@ impl IpgFontWeight {
             let res = value.extract::<Self>(py);
             match res {
                 Ok(val) => val,
-                Err(_) => panic!("Unable to extract python object for IpgFontWeight"),
+                Err(_) => panic!("Unable to extract python object for FontWeight"),
             }
         }))
     }
@@ -135,7 +135,7 @@ impl IpgFontWeight {
 
 #[derive(Debug, Clone, Default, PartialEq)]
 #[pyclass(eq, eq_int)]
-pub enum IpgFontStretch {
+pub enum FontStretch {
     Condensed,
     Expanded,
     ExtraCondensed,
@@ -148,18 +148,18 @@ pub enum IpgFontStretch {
     UltraExpanded,
 }
 
-impl IpgFontStretch {
+impl FontStretch {
     fn to_iced(&self) -> font::Stretch {
         match self {
-            IpgFontStretch::Condensed => font::Stretch::Condensed,
-            IpgFontStretch::Expanded => font::Stretch::Expanded,
-            IpgFontStretch::ExtraCondensed => font::Stretch::ExtraCondensed,
-            IpgFontStretch::ExtraExpanded => font::Stretch::ExtraExpanded,
-            IpgFontStretch::Normal => font::Stretch::Normal,
-            IpgFontStretch::SemiCondensed => font::Stretch::SemiCondensed,
-            IpgFontStretch::SemiExpanded => font::Stretch::SemiExpanded,
-            IpgFontStretch::UltraCondensed => font::Stretch::UltraCondensed,
-            IpgFontStretch::UltraExpanded => font::Stretch::UltraExpanded,
+            FontStretch::Condensed => font::Stretch::Condensed,
+            FontStretch::Expanded => font::Stretch::Expanded,
+            FontStretch::ExtraCondensed => font::Stretch::ExtraCondensed,
+            FontStretch::ExtraExpanded => font::Stretch::ExtraExpanded,
+            FontStretch::Normal => font::Stretch::Normal,
+            FontStretch::SemiCondensed => font::Stretch::SemiCondensed,
+            FontStretch::SemiExpanded => font::Stretch::SemiExpanded,
+            FontStretch::UltraCondensed => font::Stretch::UltraCondensed,
+            FontStretch::UltraExpanded => font::Stretch::UltraExpanded,
         }
     }
 
@@ -169,7 +169,7 @@ impl IpgFontStretch {
             let res = value.extract::<Self>(py);
             match res {
                 Ok(val) => val,
-                Err(_) => panic!("Unable to extract python object for IpgFontStretch"),
+                Err(_) => panic!("Unable to extract python object for FontStretch"),
             }
         }))
     }
@@ -177,19 +177,19 @@ impl IpgFontStretch {
 
 #[derive(Debug, Clone, Default, PartialEq)]
 #[pyclass(eq, eq_int)]
-pub enum IpgFontStyle {
+pub enum FontStyle {
     #[default]
     Normal,
     Italic,
     Oblique,
 }
 
-impl IpgFontStyle {
+impl FontStyle {
     fn to_iced(&self) -> font::Style {
         match self {
-            IpgFontStyle::Normal => font::Style::Normal,
-            IpgFontStyle::Italic => font::Style::Italic,
-            IpgFontStyle::Oblique => font::Style::Oblique,
+            FontStyle::Normal => font::Style::Normal,
+            FontStyle::Italic => font::Style::Italic,
+            FontStyle::Oblique => font::Style::Oblique,
         }
     }
 
@@ -199,7 +199,7 @@ impl IpgFontStyle {
             let res = value.extract::<Self>(py);
             match res {
                 Ok(val) => val,
-                Err(_) => panic!("Unable to extract python object for IpgFontStyle"),
+                Err(_) => panic!("Unable to extract python object for FontStyle"),
             }
         }))
     }
@@ -207,7 +207,7 @@ impl IpgFontStyle {
 
 #[derive(Debug, Clone, PartialEq)]
 #[pyclass(eq, eq_int)]
-pub enum IpgFontParam {
+pub enum FontParam {
     Family,
     Weight,
     Stretch,
@@ -219,15 +219,15 @@ pub enum IpgFontParam {
 // WidgetParamUpdate implementation
 // ---------------------------------------------------------------------------
 
-impl WidgetParamUpdate for IpgFont {
-    type Param = IpgFontParam;
+impl WidgetParamUpdate for Font {
+    type Param = FontParam;
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
-            IpgFontParam::Family => self.family = IpgFontFamily::extract(value),
-            IpgFontParam::Weight => self.weight = IpgFontWeight::extract(value),
-            IpgFontParam::Stretch => self.stretch = IpgFontStretch::extract(value),
-            IpgFontParam::Style => self.style = IpgFontStyle::extract(value),
+            FontParam::Family => self.family = FontFamily::extract(value),
+            FontParam::Weight => self.weight = FontWeight::extract(value),
+            FontParam::Stretch => self.stretch = FontStretch::extract(value),
+            FontParam::Style => self.style = FontStyle::extract(value),
         }
     }
 }

@@ -4,7 +4,7 @@ use std::collections::HashMap;
 
 use crate::app::Message;
 use crate::py_api::helpers::get_padding;
-use crate::state::IpgWidgets;
+use crate::state::Widgets;
 
 use crate::widgets::styling::{apply_background_overrides, 
     apply_border_overrides, apply_shadow_overrides_xy};
@@ -15,13 +15,13 @@ use crate::widgets::widget_param_update::{
 };
 
 use iced::{Element, Length, Theme, alignment};
-use iced::widget::{container, Space, Container};
+use iced::widget::{self, Space};
 
 use pyo3::{Py, PyAny, Python, pyclass};
 type PyObject = Py<PyAny>;
 
 #[derive(Debug, Clone)]
-pub struct IpgContainer {
+pub struct Container {
     pub id: usize,
     pub show: bool,
 
@@ -41,26 +41,26 @@ pub struct IpgContainer {
     pub align_bottom_right: Option<bool>,
     pub clip: Option<bool>,
     pub style_id: Option<usize>,
-    pub style_std: Option<IpgContainerStyleStd>,
+    pub style_std: Option<ContainerStyleStd>,
 }
 
-impl IpgContainer {
+impl Container {
 
-    fn lookup<'a>(&self, widgets: &'a HashMap<usize, IpgWidgets>, id: Option<usize>) -> Option<&'a IpgWidgets> {
+    fn lookup<'a>(&self, widgets: &'a HashMap<usize, Widgets>, id: Option<usize>) -> Option<&'a Widgets> {
         id.and_then(|id| widgets.get(&id))
     }
 
     pub fn construct<'a>(
         &'a self,
         mut content: Vec<Element<'a, Message>>,
-        widgets: &HashMap<usize, IpgWidgets>,
+        widgets: &HashMap<usize, Widgets>,
         ) -> Element<'a, Message> {
         
         if !self.show {return Space::new().into()}
 
         let style_opt = 
             self.lookup(widgets, self.style_id)
-                .and_then(IpgWidgets::as_container_style).cloned();
+                .and_then(Widgets::as_container_style).cloned();
 
         // Since a container can have only one element and the 
         // the process sends a vec then if empty container, put in a
@@ -72,7 +72,7 @@ impl IpgContainer {
         };
 
         let cont = 
-            Container::new(new_content)
+            widget::Container::new(new_content)
                 .width(self.width)
                 .height(self.height)
                 .padding(get_padding(&self.padding))
@@ -82,7 +82,7 @@ impl IpgContainer {
                     } else {
                        match &self.style_std {
                             Some(std) => std.to_iced(theme),
-                            None => container::transparent(theme),
+                            None => widget::container::transparent(theme),
                         }
                     }
                 );
@@ -162,7 +162,7 @@ impl IpgContainer {
 }
 
 #[derive(Debug, Clone, PartialEq)]
-pub struct IpgContainerStyle {
+pub struct ContainerStyle {
     pub id: usize,
     pub background_color: Option<iced::Color>,
     pub background_gradient_color_stop: Option<iced::Color>,
@@ -178,17 +178,17 @@ pub struct IpgContainerStyle {
     pub snap: Option<bool>,
 }
 
-impl IpgContainerStyle {
+impl ContainerStyle {
     pub fn to_iced(
         &self, 
         theme: &Theme, 
-        std_style_opt: &Option<IpgContainerStyleStd>,  
-        ) -> container::Style {
+        std_style_opt: &Option<ContainerStyleStd>,  
+        ) -> widget::container::Style {
         
         let mut style = 
             if let Some(st) = std_style_opt {
                 st.to_iced(theme)
-            } else { container::transparent(theme) };
+            } else { widget::container::transparent(theme) };
 
         
 
@@ -222,7 +222,7 @@ impl IpgContainerStyle {
 
 #[derive(Debug, Clone, PartialEq)]
 #[pyclass(eq, eq_int)]
-pub enum IpgContainerStyleStd {
+pub enum ContainerStyleStd {
     BorderedBox,
     Danger,
     Dark,
@@ -234,39 +234,39 @@ pub enum IpgContainerStyleStd {
     Warning,
 }
 
-impl IpgContainerStyleStd {
+impl ContainerStyleStd {
     pub fn to_iced(
         &self,
         theme: &Theme, 
-        ) -> container::Style {
+        ) -> widget::container::Style {
         
         match self {
-            IpgContainerStyleStd::BorderedBox => {
-                container::bordered_box(theme)
+            ContainerStyleStd::BorderedBox => {
+                widget::container::bordered_box(theme)
             },
-            IpgContainerStyleStd::Danger => {
-                container::danger(theme)
+            ContainerStyleStd::Danger => {
+                widget::container::danger(theme)
             },
-            IpgContainerStyleStd::Dark => {
-                container::dark(theme)
+            ContainerStyleStd::Dark => {
+                widget::container::dark(theme)
             },
-            IpgContainerStyleStd::Primary => {
-                container::primary(theme)
+            ContainerStyleStd::Primary => {
+                widget::container::primary(theme)
             },
-            IpgContainerStyleStd::RoundedBox => {
-                container::rounded_box(theme)
+            ContainerStyleStd::RoundedBox => {
+                widget::container::rounded_box(theme)
             },
-            IpgContainerStyleStd::Secondary => {
-                container::secondary(theme)
+            ContainerStyleStd::Secondary => {
+                widget::container::secondary(theme)
             },
-            IpgContainerStyleStd::Success => {
-                container::success(theme)
+            ContainerStyleStd::Success => {
+                widget::container::success(theme)
             },
-            IpgContainerStyleStd::Warning => {
-                container::warning(theme)
+            ContainerStyleStd::Warning => {
+                widget::container::warning(theme)
             },
-            IpgContainerStyleStd::Transparent => {
-                container::transparent(theme)
+            ContainerStyleStd::Transparent => {
+                widget::container::transparent(theme)
             },
         }
     }
@@ -274,7 +274,7 @@ impl IpgContainerStyleStd {
 
 #[derive(Debug, Clone, PartialEq)]
 #[pyclass(eq, eq_int)]
-pub enum IpgContainerParam {
+pub enum ContainerParam {
     AlignBottomCenter,
     AlignBottomLeft,
     AlignBottomRight,
@@ -301,28 +301,28 @@ pub enum IpgContainerParam {
 
 #[derive(Debug, Clone, PartialEq)]
 #[pyclass(eq, eq_int)]
-pub enum IpgContainerStyleParam {
-    BackgroundIpgColor,
+pub enum ContainerStyleParam {
+    BackgroundColor,
     BackgroundRgbaColor,
-    BorderIpgColor,
+    BorderColor,
     BorderRgbaColor,
     BorderRadius,
     BorderWidth,
-    ShadowIpgColor,
+    ShadowColor,
     ShadowRgbaColor,
     ShadowOffsetXY,
     ShadowBlurRadius,
-    TextIpgColor,
+    TextColor,
     TextRgbaColor,
 }
 
-pub fn try_extract_container_style_param(update_obj: &PyObject) -> IpgContainerStyleStd{
+pub fn try_extract_container_style_param(update_obj: &PyObject) -> ContainerStyleStd{
 
     Python::attach(|py| {
-        let res = update_obj.extract::<IpgContainerStyleStd>(py);
+        let res = update_obj.extract::<ContainerStyleStd>(py);
         match res {
             Ok(update) => update,
-            Err(_) => panic!("IpgContainerStyleStd update extraction failed"),
+            Err(_) => panic!("ContainerStyleStd update extraction failed"),
         }
     })
 }
@@ -331,53 +331,53 @@ pub fn try_extract_container_style_param(update_obj: &PyObject) -> IpgContainerS
 // WidgetParamUpdate implementations
 // ---------------------------------------------------------------------------
 
-impl WidgetParamUpdate for IpgContainer {
-    type Param = IpgContainerParam;
+impl WidgetParamUpdate for Container {
+    type Param = ContainerParam;
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
-            IpgContainerParam::AlignBottomCenter => set_opt_bool(&mut self.align_bottom_center, value, "AlignBottomCenter"),
-            IpgContainerParam::AlignBottomLeft => set_opt_bool(&mut self.align_bottom_left, value, "AlignBottomLeft"),
-            IpgContainerParam::AlignBottomRight => set_opt_bool(&mut self.align_bottom_right, value, "AlignBottomRight"),
-            IpgContainerParam::AlignCenter => set_opt_bool(&mut self.align_center, value, "AlignCenter"),
-            IpgContainerParam::AlignCenterLeft => set_opt_bool(&mut self.align_center_left, value, "AlignCenterLeft"),
-            IpgContainerParam::AlignCenterRight => set_opt_bool(&mut self.align_center_right, value, "AlignCenterRight"),
-            IpgContainerParam::AlignTopCenter => set_opt_bool(&mut self.align_top_center, value, "AlignTopCenter"),
-            IpgContainerParam::AlignTopLeft => set_opt_bool(&mut self.align_top_left, value, "AlignTopLeft"),
-            IpgContainerParam::AlignTopRight => set_opt_bool(&mut self.align_top_right, value, "AlignTopRight"),
-            IpgContainerParam::Clip => set_opt_bool(&mut self.clip, value, "Clip"),
-            IpgContainerParam::Fill => set_lengths_fill(&mut self.width, &mut self.height, value, "Fill"),
-            IpgContainerParam::Height => set_height(&mut self.height, value, "Height"),
-            IpgContainerParam::HeightFill => set_height_fill(&mut self.height, value, "HeightFill"),
-            IpgContainerParam::MaxHeight => set_opt_f32(&mut self.max_height, value, "MaxHeight"),
-            IpgContainerParam::MaxWidth => set_opt_f32(&mut self.max_width, value, "MaxWidth"),
-            IpgContainerParam::Padding => set_opt_vec_f32(&mut self.padding, value, "Padding"),
-            IpgContainerParam::Width => set_width(&mut self.width, value, "Width"),
-            IpgContainerParam::WidthFill => set_width_fill(&mut self.width, value, "WidthFill"),
-            IpgContainerParam::Show => set_bool(&mut self.show, value, "Show"),
-            IpgContainerParam::StyleId => set_opt_usize(&mut self.style_id, value, "StyleId"),
-            IpgContainerParam::StyleStd => self.style_std = Some(try_extract_container_style_param(value)),
+            ContainerParam::AlignBottomCenter => set_opt_bool(&mut self.align_bottom_center, value, "AlignBottomCenter"),
+            ContainerParam::AlignBottomLeft => set_opt_bool(&mut self.align_bottom_left, value, "AlignBottomLeft"),
+            ContainerParam::AlignBottomRight => set_opt_bool(&mut self.align_bottom_right, value, "AlignBottomRight"),
+            ContainerParam::AlignCenter => set_opt_bool(&mut self.align_center, value, "AlignCenter"),
+            ContainerParam::AlignCenterLeft => set_opt_bool(&mut self.align_center_left, value, "AlignCenterLeft"),
+            ContainerParam::AlignCenterRight => set_opt_bool(&mut self.align_center_right, value, "AlignCenterRight"),
+            ContainerParam::AlignTopCenter => set_opt_bool(&mut self.align_top_center, value, "AlignTopCenter"),
+            ContainerParam::AlignTopLeft => set_opt_bool(&mut self.align_top_left, value, "AlignTopLeft"),
+            ContainerParam::AlignTopRight => set_opt_bool(&mut self.align_top_right, value, "AlignTopRight"),
+            ContainerParam::Clip => set_opt_bool(&mut self.clip, value, "Clip"),
+            ContainerParam::Fill => set_lengths_fill(&mut self.width, &mut self.height, value, "Fill"),
+            ContainerParam::Height => set_height(&mut self.height, value, "Height"),
+            ContainerParam::HeightFill => set_height_fill(&mut self.height, value, "HeightFill"),
+            ContainerParam::MaxHeight => set_opt_f32(&mut self.max_height, value, "MaxHeight"),
+            ContainerParam::MaxWidth => set_opt_f32(&mut self.max_width, value, "MaxWidth"),
+            ContainerParam::Padding => set_opt_vec_f32(&mut self.padding, value, "Padding"),
+            ContainerParam::Width => set_width(&mut self.width, value, "Width"),
+            ContainerParam::WidthFill => set_width_fill(&mut self.width, value, "WidthFill"),
+            ContainerParam::Show => set_bool(&mut self.show, value, "Show"),
+            ContainerParam::StyleId => set_opt_usize(&mut self.style_id, value, "StyleId"),
+            ContainerParam::StyleStd => self.style_std = Some(try_extract_container_style_param(value)),
         }
     }
 }
 
-impl WidgetParamUpdate for IpgContainerStyle {
-    type Param = IpgContainerStyleParam;
+impl WidgetParamUpdate for ContainerStyle {
+    type Param = ContainerStyleParam;
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
-            IpgContainerStyleParam::BackgroundIpgColor  => set_opt_iced_color(&mut self.background_color, value, "BackgroundIpgColor"),
-            IpgContainerStyleParam::BackgroundRgbaColor => set_opt_iced_color_from_rgba(&mut self.background_color, value, "BackgroundRgbaColor"),
-            IpgContainerStyleParam::BorderIpgColor => set_opt_iced_color(&mut self.border_color, value, "BorderIpgColor"),
-            IpgContainerStyleParam::BorderRgbaColor => set_opt_iced_color_from_rgba(&mut self.border_color, value, "BorderRgbaColor"),
-            IpgContainerStyleParam::BorderRadius => set_opt_vec_f32(&mut self.border_radius, value, "BorderRadius"),
-            IpgContainerStyleParam::BorderWidth => set_opt_f32(&mut self.border_width, value, "BorderWidth"),
-            IpgContainerStyleParam::ShadowIpgColor => set_opt_iced_color(&mut self.shadow_color, value, "ShadowIpgColor"),
-            IpgContainerStyleParam::ShadowRgbaColor => set_opt_iced_color_from_rgba(&mut self.shadow_color, value, "ShadowRgbaColor"),
-            IpgContainerStyleParam::ShadowOffsetXY => set_opt_f32_array_2(&mut self.shadow_offset_xy, value, "ShadowOffsetXY"),
-            IpgContainerStyleParam::ShadowBlurRadius => set_opt_f32(&mut self.shadow_blur_radius, value, "ShadowBlurRadius"),
-            IpgContainerStyleParam::TextIpgColor => set_opt_iced_color(&mut self.text_color, value, "TextIpgColor"),
-            IpgContainerStyleParam::TextRgbaColor => set_opt_iced_color_from_rgba(&mut self.text_color, value, "TextRgbaColor"),
+            ContainerStyleParam::BackgroundColor  => set_opt_iced_color(&mut self.background_color, value, "BackgroundColor"),
+            ContainerStyleParam::BackgroundRgbaColor => set_opt_iced_color_from_rgba(&mut self.background_color, value, "BackgroundRgbaColor"),
+            ContainerStyleParam::BorderColor => set_opt_iced_color(&mut self.border_color, value, "BorderColor"),
+            ContainerStyleParam::BorderRgbaColor => set_opt_iced_color_from_rgba(&mut self.border_color, value, "BorderRgbaColor"),
+            ContainerStyleParam::BorderRadius => set_opt_vec_f32(&mut self.border_radius, value, "BorderRadius"),
+            ContainerStyleParam::BorderWidth => set_opt_f32(&mut self.border_width, value, "BorderWidth"),
+            ContainerStyleParam::ShadowColor => set_opt_iced_color(&mut self.shadow_color, value, "ShadowColor"),
+            ContainerStyleParam::ShadowRgbaColor => set_opt_iced_color_from_rgba(&mut self.shadow_color, value, "ShadowRgbaColor"),
+            ContainerStyleParam::ShadowOffsetXY => set_opt_f32_array_2(&mut self.shadow_offset_xy, value, "ShadowOffsetXY"),
+            ContainerStyleParam::ShadowBlurRadius => set_opt_f32(&mut self.shadow_blur_radius, value, "ShadowBlurRadius"),
+            ContainerStyleParam::TextColor => set_opt_iced_color(&mut self.text_color, value, "TextColor"),
+            ContainerStyleParam::TextRgbaColor => set_opt_iced_color_from_rgba(&mut self.text_color, value, "TextRgbaColor"),
         }
     }
 }
@@ -388,8 +388,8 @@ mod tests {
     use iced::Length;
     use pyo3::{IntoPyObjectExt, Python};
 
-    fn make_container() -> IpgContainer {
-        IpgContainer {
+    fn make_container() -> Container {
+        Container {
             id: 0,
             show: true,
             padding: None,
@@ -412,8 +412,8 @@ mod tests {
         }
     }
 
-    fn make_container_style() -> IpgContainerStyle {
-        IpgContainerStyle {
+    fn make_container_style() -> ContainerStyle {
+        ContainerStyle {
             id: 0,
             background_color: None,
             background_gradient_color_stop: None,
@@ -440,92 +440,92 @@ mod tests {
         Python::attach(|py| py.None().into_py_any(py).unwrap())
     }
 
-    // -- IpgContainer param tests --
+    // -- Container param tests --
 
     #[test]
     fn test_align_bottom_center() {
         let mut c = make_container();
-        c.param_update(IpgContainerParam::AlignBottomCenter, &py_obj(true));
+        c.param_update(ContainerParam::AlignBottomCenter, &py_obj(true));
         assert_eq!(c.align_bottom_center, Some(true));
-        c.param_update(IpgContainerParam::AlignBottomCenter, &py_none());
+        c.param_update(ContainerParam::AlignBottomCenter, &py_none());
         assert_eq!(c.align_bottom_center, None);
     }
 
     #[test]
     fn test_align_bottom_left() {
         let mut c = make_container();
-        c.param_update(IpgContainerParam::AlignBottomLeft, &py_obj(true));
+        c.param_update(ContainerParam::AlignBottomLeft, &py_obj(true));
         assert_eq!(c.align_bottom_left, Some(true));
     }
 
     #[test]
     fn test_align_bottom_right() {
         let mut c = make_container();
-        c.param_update(IpgContainerParam::AlignBottomRight, &py_obj(true));
+        c.param_update(ContainerParam::AlignBottomRight, &py_obj(true));
         assert_eq!(c.align_bottom_right, Some(true));
     }
 
     #[test]
     fn test_align_center() {
         let mut c = make_container();
-        c.param_update(IpgContainerParam::AlignCenter, &py_obj(true));
+        c.param_update(ContainerParam::AlignCenter, &py_obj(true));
         assert_eq!(c.align_center, Some(true));
     }
 
     #[test]
     fn test_align_center_left() {
         let mut c = make_container();
-        c.param_update(IpgContainerParam::AlignCenterLeft, &py_obj(true));
+        c.param_update(ContainerParam::AlignCenterLeft, &py_obj(true));
         assert_eq!(c.align_center_left, Some(true));
     }
 
     #[test]
     fn test_align_center_right() {
         let mut c = make_container();
-        c.param_update(IpgContainerParam::AlignCenterRight, &py_obj(true));
+        c.param_update(ContainerParam::AlignCenterRight, &py_obj(true));
         assert_eq!(c.align_center_right, Some(true));
     }
 
     #[test]
     fn test_align_top_center() {
         let mut c = make_container();
-        c.param_update(IpgContainerParam::AlignTopCenter, &py_obj(true));
+        c.param_update(ContainerParam::AlignTopCenter, &py_obj(true));
         assert_eq!(c.align_top_center, Some(true));
     }
 
     #[test]
     fn test_align_top_left() {
         let mut c = make_container();
-        c.param_update(IpgContainerParam::AlignTopLeft, &py_obj(true));
+        c.param_update(ContainerParam::AlignTopLeft, &py_obj(true));
         assert_eq!(c.align_top_left, Some(true));
     }
 
     #[test]
     fn test_align_top_right() {
         let mut c = make_container();
-        c.param_update(IpgContainerParam::AlignTopRight, &py_obj(true));
+        c.param_update(ContainerParam::AlignTopRight, &py_obj(true));
         assert_eq!(c.align_top_right, Some(true));
     }
 
     #[test]
     fn test_clip() {
         let mut c = make_container();
-        c.param_update(IpgContainerParam::Clip, &py_obj(true));
+        c.param_update(ContainerParam::Clip, &py_obj(true));
         assert_eq!(c.clip, Some(true));
-        c.param_update(IpgContainerParam::Clip, &py_none());
+        c.param_update(ContainerParam::Clip, &py_none());
         assert_eq!(c.clip, None);
     }
 
     #[test]
     fn test_fill() {
         let mut c = make_container();
-        c.param_update(IpgContainerParam::Fill, &py_obj(Some(true)));
+        c.param_update(ContainerParam::Fill, &py_obj(Some(true)));
         assert_eq!(c.width, Length::Fill);
         assert_eq!(c.height, Length::Fill);
-        c.param_update(IpgContainerParam::Fill, &py_obj(Some(false)));
+        c.param_update(ContainerParam::Fill, &py_obj(Some(false)));
         assert_eq!(c.width, Length::Shrink);
         assert_eq!(c.height, Length::Shrink);
-        c.param_update(IpgContainerParam::Fill, &py_none());
+        c.param_update(ContainerParam::Fill, &py_none());
         assert_eq!(c.width, Length::Shrink);
         assert_eq!(c.height, Length::Shrink);
     }
@@ -533,135 +533,135 @@ mod tests {
     #[test]
     fn test_height() {
         let mut c = make_container();
-        c.param_update(IpgContainerParam::Height, &py_obj(50.0f32));
+        c.param_update(ContainerParam::Height, &py_obj(50.0f32));
         assert_eq!(c.height, Length::Fixed(50.0));
     }
 
     #[test]
     fn test_height_fill() {
         let mut c = make_container();
-        c.param_update(IpgContainerParam::HeightFill, &py_obj(true));
+        c.param_update(ContainerParam::HeightFill, &py_obj(true));
         assert_eq!(c.height, Length::Fill);
     }
 
     #[test]
     fn test_max_height() {
         let mut c = make_container();
-        c.param_update(IpgContainerParam::MaxHeight, &py_obj(300.0f32));
+        c.param_update(ContainerParam::MaxHeight, &py_obj(300.0f32));
         assert_eq!(c.max_height, Some(300.0));
-        c.param_update(IpgContainerParam::MaxHeight, &py_none());
+        c.param_update(ContainerParam::MaxHeight, &py_none());
         assert_eq!(c.max_height, None);
     }
 
     #[test]
     fn test_max_width() {
         let mut c = make_container();
-        c.param_update(IpgContainerParam::MaxWidth, &py_obj(500.0f32));
+        c.param_update(ContainerParam::MaxWidth, &py_obj(500.0f32));
         assert_eq!(c.max_width, Some(500.0));
-        c.param_update(IpgContainerParam::MaxWidth, &py_none());
+        c.param_update(ContainerParam::MaxWidth, &py_none());
         assert_eq!(c.max_width, None);
     }
 
     #[test]
     fn test_padding() {
         let mut c = make_container();
-        c.param_update(IpgContainerParam::Padding, &py_obj(vec![5.0f32, 10.0]));
+        c.param_update(ContainerParam::Padding, &py_obj(vec![5.0f32, 10.0]));
         assert_eq!(c.padding, Some(vec![5.0, 10.0]));
-        c.param_update(IpgContainerParam::Padding, &py_none());
+        c.param_update(ContainerParam::Padding, &py_none());
         assert_eq!(c.padding, None);
     }
 
     #[test]
     fn test_width() {
         let mut c = make_container();
-        c.param_update(IpgContainerParam::Width, &py_obj(200.0f32));
+        c.param_update(ContainerParam::Width, &py_obj(200.0f32));
         assert_eq!(c.width, Length::Fixed(200.0));
     }
 
     #[test]
     fn test_width_fill() {
         let mut c = make_container();
-        c.param_update(IpgContainerParam::WidthFill, &py_obj(true));
+        c.param_update(ContainerParam::WidthFill, &py_obj(true));
         assert_eq!(c.width, Length::Fill);
     }
 
     #[test]
     fn test_show() {
         let mut c = make_container();
-        c.param_update(IpgContainerParam::Show, &py_obj(false));
+        c.param_update(ContainerParam::Show, &py_obj(false));
         assert!(!c.show);
     }
 
     #[test]
     fn test_style_id() {
         let mut c = make_container();
-        c.param_update(IpgContainerParam::StyleId, &py_obj(42usize));
+        c.param_update(ContainerParam::StyleId, &py_obj(42usize));
         assert_eq!(c.style_id, Some(42));
-        c.param_update(IpgContainerParam::StyleId, &py_none());
+        c.param_update(ContainerParam::StyleId, &py_none());
         assert_eq!(c.style_id, None);
     }
 
-    // -- IpgContainerStyle param tests --
+    // -- ContainerStyle param tests --
 
     #[test]
     fn test_style_background_rgba() {
         let mut s = make_container_style();
-        s.param_update(IpgContainerStyleParam::BackgroundRgbaColor, &py_obj(vec![1.0f32, 0.0, 0.0, 1.0]));
+        s.param_update(ContainerStyleParam::BackgroundRgbaColor, &py_obj(vec![1.0f32, 0.0, 0.0, 1.0]));
         assert!(s.background_color.is_some());
     }
 
     #[test]
     fn test_style_border_rgba() {
         let mut s = make_container_style();
-        s.param_update(IpgContainerStyleParam::BorderRgbaColor, &py_obj(vec![0.0f32, 1.0, 0.0, 1.0]));
+        s.param_update(ContainerStyleParam::BorderRgbaColor, &py_obj(vec![0.0f32, 1.0, 0.0, 1.0]));
         assert!(s.border_color.is_some());
     }
 
     #[test]
     fn test_style_border_radius() {
         let mut s = make_container_style();
-        s.param_update(IpgContainerStyleParam::BorderRadius, &py_obj(vec![5.0f32, 5.0, 5.0, 5.0]));
+        s.param_update(ContainerStyleParam::BorderRadius, &py_obj(vec![5.0f32, 5.0, 5.0, 5.0]));
         assert_eq!(s.border_radius, Some(vec![5.0, 5.0, 5.0, 5.0]));
-        s.param_update(IpgContainerStyleParam::BorderRadius, &py_none());
+        s.param_update(ContainerStyleParam::BorderRadius, &py_none());
         assert_eq!(s.border_radius, None);
     }
 
     #[test]
     fn test_style_border_width() {
         let mut s = make_container_style();
-        s.param_update(IpgContainerStyleParam::BorderWidth, &py_obj(2.0f32));
+        s.param_update(ContainerStyleParam::BorderWidth, &py_obj(2.0f32));
         assert_eq!(s.border_width, Some(2.0));
-        s.param_update(IpgContainerStyleParam::BorderWidth, &py_none());
+        s.param_update(ContainerStyleParam::BorderWidth, &py_none());
         assert_eq!(s.border_width, None);
     }
 
     #[test]
     fn test_style_shadow_rgba() {
         let mut s = make_container_style();
-        s.param_update(IpgContainerStyleParam::ShadowRgbaColor, &py_obj(vec![0.0f32, 0.0, 0.0, 0.5]));
+        s.param_update(ContainerStyleParam::ShadowRgbaColor, &py_obj(vec![0.0f32, 0.0, 0.0, 0.5]));
         assert!(s.shadow_color.is_some());
     }
 
     #[test]
     fn test_style_shadow_offset_xy() {
         let mut s = make_container_style();
-        s.param_update(IpgContainerStyleParam::ShadowOffsetXY, &py_obj(vec![2.0f32, 3.0]));
+        s.param_update(ContainerStyleParam::ShadowOffsetXY, &py_obj(vec![2.0f32, 3.0]));
         assert_eq!(s.shadow_offset_xy, Some([2.0, 3.0]));
     }
 
     #[test]
     fn test_style_shadow_blur_radius() {
         let mut s = make_container_style();
-        s.param_update(IpgContainerStyleParam::ShadowBlurRadius, &py_obj(4.0f32));
+        s.param_update(ContainerStyleParam::ShadowBlurRadius, &py_obj(4.0f32));
         assert_eq!(s.shadow_blur_radius, Some(4.0));
-        s.param_update(IpgContainerStyleParam::ShadowBlurRadius, &py_none());
+        s.param_update(ContainerStyleParam::ShadowBlurRadius, &py_none());
         assert_eq!(s.shadow_blur_radius, None);
     }
 
     #[test]
     fn test_style_text_rgba() {
         let mut s = make_container_style();
-        s.param_update(IpgContainerStyleParam::TextRgbaColor, &py_obj(vec![1.0f32, 1.0, 1.0, 1.0]));
+        s.param_update(ContainerStyleParam::TextRgbaColor, &py_obj(vec![1.0f32, 1.0, 1.0, 1.0]));
         assert!(s.text_color.is_some());
     }
 }

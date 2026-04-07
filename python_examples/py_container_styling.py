@@ -1,4 +1,5 @@
-from imports import *
+from icedpygui import Window, Column, Container, Row, start_session, \
+    add_container_style, ContainerStyleStd, Color, add_text
 
 # Add the styling container widget
 cont_style = add_container_style(
@@ -31,7 +32,7 @@ with Window(title="Container Styling",
             width=200.0, 
             height=200.0,
             align_center=True,
-            style_std=IpgContainerStyleStd.RoundedBox):
+            style_std=ContainerStyleStd.RoundedBox):
 
             add_text(content="Std Style: RoundedBox")
 

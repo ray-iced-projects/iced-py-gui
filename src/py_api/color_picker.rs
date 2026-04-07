@@ -6,9 +6,9 @@ type PyObject = Py<PyAny>;
 use crate::graphics::colors::Color;
 use crate::py_api::helpers::get_length;
 use crate::{add_callback_to_mutex, add_user_data_to_mutex};
-use crate::state::{IpgWidgets, access_state, get_id, set_state_of_widget};
+use crate::state::{Widgets, access_state, get_id, set_state_of_widget};
 use crate::widgets::ipg_button::{ButtonStyleStd};
-use crate::widgets::ipg_color_picker::{IpgColorPicker};
+use crate::widgets::ipg_color_picker::{ColorPicker};
 use crate::graphics::bootstrap_arrow::Arrow;
 
 
@@ -52,9 +52,9 @@ use crate::graphics::bootstrap_arrow::Arrow;
 ///     Whether to clip content that overflows the button.
 /// style_id : int,  Optional
 ///     Sets the ID of a custom style created with ``add_button_style``.
-/// style_standard : IpgButtonStyleStd,  Optional
+/// style_standard : ButtonStyleStd,  Optional
 ///     Sets the predefined standard style variant.
-/// style_arrow : IpgArrow,  Optional
+/// style_arrow : Arrow,  Optional
 ///     Sets the arrow icon style for the button.
 /// user_data : Any,  Optional
 ///     Sets the Arbitrary data forwarded to callbacks.
@@ -151,8 +151,8 @@ pub fn add_color_picker(
 
     let mut state = access_state();
 
-    state.widgets.insert(id, IpgWidgets::IpgColorPicker(
-        IpgColorPicker {
+    state.widgets.insert(id, Widgets::ColorPicker(
+        ColorPicker {
             id,
             parent_id,
             show,

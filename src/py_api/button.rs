@@ -7,9 +7,9 @@ type PyObject = Py<PyAny>;
 use crate::add_user_data_to_mutex;
 use crate::graphics::{colors::Color, bootstrap_arrow::Arrow};
 use crate::py_api::helpers::get_length;
-use crate::state::{IpgWidgets, access_state, add_callback_to_mutex, 
+use crate::state::{Widgets, access_state, add_callback_to_mutex, 
     get_id, set_state_of_widget};
-use crate::widgets::ipg_button::{IpgButton,  
+use crate::widgets::ipg_button::{Button,  
     ButtonStyle, ButtonStyleStd};
 
 
@@ -27,10 +27,10 @@ use crate::widgets::ipg_button::{IpgButton,
 ///    Sets the Callback method to invoke when the button is pressed.
 ///width : float,  Optional
 ///    Sets the Fixed Width in logical pixels.
-///height : float,  Optional
-///    Sets the Fixed Height in logical pixels.
 ///width_fill : bool, default False
 ///    Whether the button fills available width.
+///height : float,  Optional
+///    Sets the Fixed Height in logical pixels.
 ///height_fill : bool, default False
 ///    Whether the button fills available height.
 ///fill : bool, Optional
@@ -64,9 +64,9 @@ use crate::widgets::ipg_button::{IpgButton,
 ///    Whether to clip content that overflows the button.
 ///style_id : int,  Optional
 ///    Stes the ID of a custom style created with ``add_button_style``.
-///style_std : IpgButtonStyleStd,  Optional
+///style_std : ButtonStyleStd,  Optional
 ///    Sets the a predefined standard style variant.
-///style_arrow : IpgArrow,  Optional
+///style_arrow : Arrow,  Optional
 ///    Sets an arrow icon style for the button.
 ///user_data : Any,  Optional
 ///    Sets an arbitrary data forwarded to callbacks.
@@ -164,8 +164,8 @@ pub fn add_button(
     let mut state = access_state();
     state.widgets.insert(
         id,
-        IpgWidgets::IpgButton(
-            IpgButton {
+        Widgets::Button(
+            Button {
                 id,
                 parent_id,
                 show,
@@ -315,7 +315,7 @@ pub fn add_button_style(
 
     let mut state = access_state();
 
-    state.widgets.insert(id, IpgWidgets::IpgButtonStyle(
+    state.widgets.insert(id, Widgets::ButtonStyle(
         ButtonStyle {
             id,
             background_color,

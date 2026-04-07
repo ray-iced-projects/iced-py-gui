@@ -3,9 +3,9 @@
 use pyo3::{Py, PyAny, pyfunction, PyResult};
 
 use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex, 
-    graphics::colors::Color, py_api::helpers::get_length, state::{IpgWidgets, 
+    graphics::colors::Color, py_api::helpers::get_length, state::{Widgets, 
         get_id, set_state_of_widget}, widgets::{ipg_divider::{
-            IpgDivider, IpgDividerDirection, IpgDividerStyle}}};
+            Divider, DividerDirection, DividerStyle}}};
 type PyObject = Py<PyAny>;
 
 
@@ -19,7 +19,7 @@ type PyObject = Py<PyAny>;
 /// ----------
 /// parent_id : str
 ///     Sets the parent container ID that this divider belongs to.
-/// direction : IpgDividerDirection
+/// direction : DividerDirection
 ///     Sets the direction of the divider (horizontal or vertical).
 /// sizes : list of float
 ///     Sets the initial sizes of each section in logical pixels.
@@ -78,7 +78,7 @@ type PyObject = Py<PyAny>;
     ))]
 pub fn add_divider(
     parent_id: String,
-    direction: IpgDividerDirection,
+    direction: DividerDirection,
     sizes: Vec<f32>,
     handle_width: f32,
     handle_height: f32,
@@ -118,8 +118,8 @@ pub fn add_divider(
 
     let mut state = access_state();
 
-    state.widgets.insert(id, IpgWidgets::IpgDivider(
-        IpgDivider {
+    state.widgets.insert(id, Widgets::Divider(
+        Divider {
             id,
             parent_id,
             show,
@@ -222,8 +222,8 @@ pub fn add_divider_style(
 
     let mut state = access_state();
 
-    state.widgets.insert(id, IpgWidgets::IpgDividerStyle(
-        IpgDividerStyle {
+    state.widgets.insert(id, Widgets::DividerStyle(
+        DividerStyle {
             id,
             background_color,
             background_color_hovered,

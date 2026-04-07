@@ -5,9 +5,9 @@ use pyo3::{Py, PyAny, PyResult, pyfunction};
 
 use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex, 
     graphics::colors::Color, py_api::helpers::get_length, 
-    state::{IpgContainers, IpgWidgets, get_id, set_state_cont_wnd_ids, 
-        set_state_of_container}, widgets::{ipg_container::IpgContainerStyleStd, ipg_scrollable::{
-            IpgAnchor, IpgAutoScrollStyle, IpgRailStyle, IpgScrollable, IpgScrollableStyle, IpgScroller}}};
+    state::{Containers, Widgets, get_id, set_state_cont_wnd_ids, 
+        set_state_of_container}, widgets::{ipg_container::ContainerStyleStd, ipg_scrollable::{
+            Anchor, AutoScrollStyle, RailStyle, Scrollable, ScrollableStyle, Scroller}}};
 type PyObject = Py<PyAny>;
 
 
@@ -112,8 +112,8 @@ pub fn add_scrollable(
 
     set_state_cont_wnd_ids(&mut state, &window_id, container_id, id, "add_scrollable".to_string());
     
-    state.containers.insert(id, IpgContainers::IpgScrollable(
-        IpgScrollable { 
+    state.containers.insert(id, Containers::Scrollable(
+        Scrollable { 
             id,
             width,
             height,
@@ -137,7 +137,7 @@ pub fn add_scrollable(
 /// ----------
 /// container_style_id : int, Optional
 ///     Sets the ID of a container style for the scrollable background.
-/// container_style_std : IpgContainerStyleStd, Optional
+/// container_style_std : ContainerStyleStd, Optional
 ///     Sets the predefined standard container style variant.
 /// vertical_rail_style_id : int, Optional
 ///     Sets the ID of a rail style for the vertical scrollbar.
@@ -172,7 +172,7 @@ pub fn add_scrollable(
     ))]
 pub fn add_scrollable_style(
     container_style_id: Option<usize>,
-    container_style_std: Option<IpgContainerStyleStd>,
+    container_style_std: Option<ContainerStyleStd>,
     vertical_rail_style_id: Option<usize>,
     horizontal_rail_style_id: Option<usize>,
     auto_scroll_style_id: Option<usize>,
@@ -189,8 +189,8 @@ pub fn add_scrollable_style(
     
     let mut state = access_state();
 
-    state.widgets.insert(id, IpgWidgets::IpgScrollableStyle(
-        IpgScrollableStyle {
+    state.widgets.insert(id, Widgets::ScrollableStyle(
+        ScrollableStyle {
             container_style_id,
             container_style_std,
             vertical_rail_style_id,
@@ -218,7 +218,7 @@ pub fn add_scrollable_style(
 ///     Sets the width of the scroller thumb.
 /// spacing : float, Optional
 ///     Sets the spacing between the scrollbar and content.
-/// anchor : IpgAnchor, Optional
+/// anchor : Anchor, Optional
 ///     Sets the anchor position of the scrollbar.
 /// hidden : bool, Optional
 ///     Whether the scrollbar is hidden.
@@ -244,7 +244,7 @@ pub fn add_scroller_param (
     margin: Option<f32>,
     scroller_width: Option<f32>,
     spacing: Option<f32>,
-    anchor: Option<IpgAnchor>,
+    anchor: Option<Anchor>,
     hidden: Option<bool>,
     gen_id: Option<usize>,
     )-> PyResult<usize>
@@ -254,8 +254,8 @@ pub fn add_scroller_param (
 
     let mut state = access_state();
 
-    state.widgets.insert(id, IpgWidgets::IpgScroller (
-        IpgScroller {
+    state.widgets.insert(id, Widgets::Scroller (
+        Scroller {
         id,
         width,
         margin,
@@ -373,8 +373,8 @@ pub fn add_rail_style(
     
     let mut state = access_state();
 
-    state.widgets.insert(id, IpgWidgets::IpgRailStyle(
-        IpgRailStyle { 
+    state.widgets.insert(id, Widgets::RailStyle(
+        RailStyle { 
             id,
             background,
             border_color,
@@ -490,8 +490,8 @@ pub fn add_autoscroll_style(
     
     let mut state = access_state();
 
-    state.widgets.insert(id, IpgWidgets::IpgAutoScrollStyle(
-        IpgAutoScrollStyle { 
+    state.widgets.insert(id, Widgets::AutoScrollStyle(
+        AutoScrollStyle { 
             id,
             background,
             border_color,

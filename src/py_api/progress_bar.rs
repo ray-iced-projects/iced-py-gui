@@ -4,9 +4,9 @@ use pyo3::{pyfunction, PyResult};
 use crate::access_state;
 use crate::graphics::colors::Color;
 use crate::py_api::helpers::get_length;
-use crate::state::{IpgWidgets, get_id, set_state_of_widget};
-use crate::widgets::ipg_progress_bar::{IpgProgressBar, IpgProgressBarStyle};
-use crate::widgets::styling::IpgStyleStandard;
+use crate::state::{Widgets, get_id, set_state_of_widget};
+use crate::widgets::ipg_progress_bar::{ProgressBar, ProgressBarStyle};
+use crate::widgets::styling::StyleStandard;
 
 
 
@@ -38,7 +38,7 @@ use crate::widgets::styling::IpgStyleStandard;
 ///     Sets the Fixed height in logical pixels.
 /// height_fill : bool, default False
 ///     Whether the progress bar fills available height.
-/// style_standard : IpgStyleStandard, Optional
+/// style_standard : StyleStandard, Optional
 ///     Sets the predefined standard style variant.
 /// style_id : int, Optional
 ///     Sets the ID of a custom style created with ``add_progress_bar_style``.
@@ -76,7 +76,7 @@ pub fn add_progress_bar(
     width_fill: bool,
     height: Option<f32>,
     height_fill: bool,
-    style_standard: Option<IpgStyleStandard>,
+    style_standard: Option<StyleStandard>,
     style_id: Option<usize>,
     show: bool,
     ) -> PyResult<usize> 
@@ -90,8 +90,8 @@ pub fn add_progress_bar(
 
     let mut state = access_state();
 
-    state.widgets.insert(id, IpgWidgets::IpgProgressBar(
-        IpgProgressBar {   
+    state.widgets.insert(id, Widgets::ProgressBar(
+        ProgressBar {   
             id,
             parent_id,
             show,
@@ -189,8 +189,8 @@ pub fn add_progress_bar_style(
 
     let mut state = access_state();
 
-        state.widgets.insert(id, IpgWidgets::IpgProgressBarStyle(
-        IpgProgressBarStyle { 
+        state.widgets.insert(id, Widgets::ProgressBarStyle(
+        ProgressBarStyle { 
             id,
             background_color,
             bar_color,

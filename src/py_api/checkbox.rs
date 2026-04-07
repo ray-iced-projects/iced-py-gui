@@ -5,12 +5,12 @@ use pyo3::{Py, PyAny, pyfunction};
 type PyObject = Py<PyAny>;
 
 use crate::add_user_data_to_mutex;
-use crate::graphics::bootstrap_icon::IpgIcon;
+use crate::graphics::bootstrap_icon::Icon;
 use crate::graphics::colors::Color;
 use crate::py_api::helpers::get_length;
-use crate::state::{IpgWidgets, access_state, 
+use crate::state::{Widgets, access_state, 
     add_callback_to_mutex, get_id, set_state_of_widget};
-use crate::widgets::ipg_checkbox::{IpgCheckBox, IpgCheckboxStyle, IpgCheckboxStyleStd};
+use crate::widgets::ipg_checkbox::{CheckBox, CheckboxStyle, CheckboxStyleStd};
 use crate::widgets::ipg_text::{TextShaping, TextWrapping};
 
 
@@ -48,7 +48,7 @@ use crate::widgets::ipg_text::{TextShaping, TextWrapping};
 ///     Sets the Font ID for the label text.
 /// icon_font_id : int,  Optional
 ///     Sets the Font ID for the checkbox icon.
-/// icon : IpgIcon,  Optional
+/// icon : Icon,  Optional
 ///     Sets the Icon displayed inside the checkbox when checked.
 /// icon_size : float,  Optional
 ///     Sets the Size of the checkbox icon.
@@ -62,7 +62,7 @@ use crate::widgets::ipg_text::{TextShaping, TextWrapping};
 ///     Whether the checkbox is visible.
 /// style_id : int,  Optional
 ///     Sets the ID of a custom style created with ``add_checkbox_style``.
-/// style_std : IpgCheckboxStyleStd,  Optional
+/// style_std : CheckboxStyleStd,  Optional
 ///     Sets the predefined standard style variant.
 /// gen_id : int,  Optional
 ///     Obtains an ID of a widget that have not been created, used for the gen_id parameter.
@@ -113,14 +113,14 @@ pub fn add_checkbox(
     text_wrapping: Option<TextWrapping>,
     text_font_id: Option<usize>,
     icon_font_id: Option<usize>,
-    icon: Option<IpgIcon>,
+    icon: Option<Icon>,
     icon_size: Option<f32>,
     icon_line_height: Option<f32>,
     icon_shaping: Option<TextShaping>,
     user_data: Option<PyObject>,
     show: bool,
     style_id: Option<usize>,
-    style_std: Option<IpgCheckboxStyleStd>,
+    style_std: Option<CheckboxStyleStd>,
     gen_id: Option<usize>,
     ) -> PyResult<usize> 
 {
@@ -140,8 +140,8 @@ pub fn add_checkbox(
 
     let mut state = access_state();
 
-    state.widgets.insert(id, IpgWidgets::IpgCheckBox(
-        IpgCheckBox {
+    state.widgets.insert(id, Widgets::CheckBox(
+        CheckBox {
             id,
             parent_id,
             show,
@@ -257,8 +257,8 @@ pub fn add_checkbox_style(
 
     let mut state = access_state();
 
-    state.widgets.insert(id, IpgWidgets::IpgCheckboxStyle(
-        IpgCheckboxStyle {
+    state.widgets.insert(id, Widgets::CheckboxStyle(
+        CheckboxStyle {
             id,
             background_color,
             border_color,

@@ -5,8 +5,8 @@ use iced::{Font, Padding};
 
 use crate::access_state;
 use crate::graphics::colors::Color;
-use crate::state::{IpgWidgets, get_id, set_state_of_widget};
-use crate::widgets::ipg_text_rich::{IpgRichText, IpgSpan};
+use crate::state::{Widgets, get_id, set_state_of_widget};
+use crate::widgets::ipg_text_rich::{RichText, Span};
 
 
 /// Add a rich text widget.
@@ -22,10 +22,10 @@ use crate::widgets::ipg_text_rich::{IpgRichText, IpgSpan};
 ///     The default text size for all spans.
 /// line_height : float, Optional
 ///     The default line height for all spans.
-/// text_color : IpgColor, Optional
+/// text_color : Color, Optional
 ///     The default text color for all spans.
 /// text_color_alpha : float, Optional
-///     Sets the alpha of the IpgColor.
+///     Sets the alpha of the Color.
 /// text_rgba : list[float, 4], Optional
 ///     The default text color in rgba format.
 /// show : bool
@@ -67,8 +67,8 @@ pub fn add_rich_text(
 
     let mut state = access_state();
 
-    state.widgets.insert(id, IpgWidgets::IpgRichText(
-        IpgRichText {
+    state.widgets.insert(id, Widgets::RichText(
+        RichText {
             id,
             parent_id,
             spans: vec![],
@@ -98,10 +98,10 @@ pub fn add_rich_text(
 ///     The text size for this span.
 /// line_height : float, Optional
 ///     The line height for this span.
-/// text_color : IpgColor, Optional
-///     The text color in IpgColor format.
+/// text_color : Color, Optional
+///     The text color in Color format.
 /// text_color_alpha : float, Optional
-///     Sets the alpha of the IpgColor.
+///     Sets the alpha of the Color.
 /// text_rgba : list[float, 4], Optional
 ///     The text color in rgba format.
 /// bold : bool
@@ -175,9 +175,9 @@ pub fn add_span(
         .expect("add_span: rich_text_id not found in widgets");
 
     let rt = rt.as_rich_text_mut()
-        .expect("add_span: widget is not an IpgRichText");
+        .expect("add_span: widget is not an RichText");
 
-    rt.spans.push(IpgSpan {
+    rt.spans.push(Span {
         id,
         rich_text_id,
         text,

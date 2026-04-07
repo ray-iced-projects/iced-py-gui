@@ -6,7 +6,7 @@ use std::collections::HashMap;
 use iced::widget::text_input;
 use iced::widget::text_input::{Style, Status};
 use iced::{Element, Length, Theme, alignment};
-use iced::widget::TextInput;
+use iced::widget;
 use iced::theme::palette;
 
 use pyo3::pyclass;
@@ -16,7 +16,7 @@ use crate::app::Message;
 use crate::py_api::helpers::get_padding;
 use crate::widgets::styling::create_custom_theme;
 use crate::{IpgState};
-use crate::state::IpgWidgets;
+use crate::state::Widgets;
 use crate::widgets::callbacks::invoke_callback_with_args;
 use crate::widgets::widget_param_update::{
     WidgetParamUpdate, set_string, set_opt_bool, set_width,
@@ -28,7 +28,7 @@ type PyObject = Py<PyAny>;
 
 
 #[derive(Debug, Clone)]
-pub struct IpgTextInput {
+pub struct TextInput {
     pub id: usize,
     pub parent_id: String,
     pub placeholder: String,
@@ -47,15 +47,15 @@ pub struct IpgTextInput {
     pub show: bool,
 }
 
-impl IpgTextInput { 
+impl TextInput { 
 
-    fn lookup<'a>(&self, widgets: &'a HashMap<usize, IpgWidgets>, id: Option<usize>) -> Option<&'a IpgWidgets> {
+    fn lookup<'a>(&self, widgets: &'a HashMap<usize, Widgets>, id: Option<usize>) -> Option<&'a Widgets> {
         id.and_then(|id| widgets.get(&id))
     }
     
     pub fn construct<'a>( 
         &'a self,
-        widgets: &HashMap<usize, IpgWidgets>,
+        widgets: &HashMap<usize, Widgets>,
     ) -> Option<Element<'a, Message>> {
        
         if !self.show {
@@ -64,10 +64,10 @@ impl IpgTextInput {
 
         let style_opt = 
             self.lookup(widgets, self.style_id)
-                .and_then(IpgWidgets::as_text_input_style).cloned();
+                .and_then(Widgets::as_text_input_style).cloned();
 
-        let txt: TextInput<'_, TIMessage> =  
-            TextInput::new(
+        let txt: widget::TextInput<'_, TIMessage> =  
+            widget::TextInput::new(
                     self.placeholder.as_str(), 
                     self.value.as_str()
                 )
@@ -119,19 +119,19 @@ pub fn text_input_callback(state: &mut IpgState, id: usize, message: TIMessage) 
 
     match message {
         TIMessage::OnInput(value) => {
-            if let Some(IpgWidgets::IpgTextInput(ti)) = state.widgets.get_mut(&id) {
+            if let Some(Widgets::TextInput(ti)) = state.widgets.get_mut(&id) {
                 ti.value = value.clone();
             }
             invoke_callback_with_args(id, "on_input", "TextInput", value);
         },
         TIMessage::OnSubmit(value) => {
-            if let Some(IpgWidgets::IpgTextInput(ti)) = state.widgets.get_mut(&id) {
+            if let Some(Widgets::TextInput(ti)) = state.widgets.get_mut(&id) {
                 ti.value = String::new();
             }
             invoke_callback_with_args(id, "on_submit", "TextInput", value);
         }
         TIMessage::OnPaste(value) => {
-            if let Some(IpgWidgets::IpgTextInput(ti)) = state.widgets.get_mut(&id) {
+            if let Some(Widgets::TextInput(ti)) = state.widgets.get_mut(&id) {
                 ti.value = value.clone();
             }
             invoke_callback_with_args(id, "on_paste", "TextInput", value);
@@ -148,7 +148,7 @@ pub enum TIMessage {
 }
 
 #[derive(Debug, Clone)]
-pub struct IpgTextInputStyle {
+pub struct TextInputStyle {
     pub id: usize,
     pub background_color: Option<iced::Color>,
     pub border_color_active: Option<iced::Color>,
@@ -164,7 +164,7 @@ pub struct IpgTextInputStyle {
     pub selection_color: Option<iced::Color>,
 }
 
-impl IpgTextInputStyle {
+impl TextInputStyle {
     fn to_iced(
         &self,
         theme: &Theme, 
@@ -250,7 +250,7 @@ impl IpgTextInputStyle {
 
 #[derive(Debug, Clone, PartialEq)]
 #[pyclass(eq, eq_int)]
-pub enum IpgTextInputParam {
+pub enum TextInputParam {
     IsSecure,
     LineHeight,
     Padding,
@@ -263,7 +263,7 @@ pub enum IpgTextInputParam {
 
 #[derive(Debug, Clone, PartialEq)]
 #[pyclass(eq, eq_int)]
-pub enum IpgTextInputStyleParam {
+pub enum TextInputStyleParam {
     BackgroundColor,
     BorderColorActive,
     BorderColorHovered,
@@ -282,49 +282,49 @@ pub enum IpgTextInputStyleParam {
 // WidgetParamUpdate implementations
 // ---------------------------------------------------------------------------
 
-impl WidgetParamUpdate for IpgTextInput {
-    type Param = IpgTextInputParam;
+impl WidgetParamUpdate for TextInput {
+    type Param = TextInputParam;
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
-            IpgTextInputParam::Placeholder => set_string(&mut self.placeholder, value, "Placeholder"),
-            IpgTextInputParam::Value => set_string(&mut self.value, value, "Value"),
-            IpgTextInputParam::IsSecure => set_opt_bool(&mut self.is_secure, value, "IsSecure"),
-            IpgTextInputParam::Width => set_width(&mut self.width, value, "Width"),
-            IpgTextInputParam::Padding => set_opt_vec_f32(&mut self.padding, value, "Padding"),
-            IpgTextInputParam::Size => set_opt_f32(&mut self.size, value, "Size"),
-            IpgTextInputParam::LineHeight => set_opt_f32(&mut self.line_height, value, "LineHeight"),
-            IpgTextInputParam::StyleId => set_opt_usize(&mut self.style_id, value, "StyleId"),
+            TextInputParam::Placeholder => set_string(&mut self.placeholder, value, "Placeholder"),
+            TextInputParam::Value => set_string(&mut self.value, value, "Value"),
+            TextInputParam::IsSecure => set_opt_bool(&mut self.is_secure, value, "IsSecure"),
+            TextInputParam::Width => set_width(&mut self.width, value, "Width"),
+            TextInputParam::Padding => set_opt_vec_f32(&mut self.padding, value, "Padding"),
+            TextInputParam::Size => set_opt_f32(&mut self.size, value, "Size"),
+            TextInputParam::LineHeight => set_opt_f32(&mut self.line_height, value, "LineHeight"),
+            TextInputParam::StyleId => set_opt_usize(&mut self.style_id, value, "StyleId"),
         }
     }
 }
 
-impl WidgetParamUpdate for IpgTextInputStyle {
-    type Param = IpgTextInputStyleParam;
+impl WidgetParamUpdate for TextInputStyle {
+    type Param = TextInputStyleParam;
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
-            IpgTextInputStyleParam::BackgroundColor =>
+            TextInputStyleParam::BackgroundColor =>
                 set_opt_iced_color(&mut self.background_color, value, "BackgroundColor"),
-            IpgTextInputStyleParam::BorderColorActive =>
+            TextInputStyleParam::BorderColorActive =>
                 set_opt_iced_color(&mut self.border_color_active, value, "BorderColorActive"),
-            IpgTextInputStyleParam::BorderColorHovered =>
+            TextInputStyleParam::BorderColorHovered =>
                 set_opt_iced_color(&mut self.border_color_hovered, value, "BorderColorHovered"),
-            IpgTextInputStyleParam::BorderColorFocused =>
+            TextInputStyleParam::BorderColorFocused =>
                 set_opt_iced_color(&mut self.border_color_focused, value, "BorderColorFocused"),
-            IpgTextInputStyleParam::BorderColorDisabled =>
+            TextInputStyleParam::BorderColorDisabled =>
                 set_opt_iced_color(&mut self.border_color_disabled, value, "BorderColorDisabled"),
-            IpgTextInputStyleParam::BorderWidth =>
+            TextInputStyleParam::BorderWidth =>
                 set_opt_f32(&mut self.border_width, value, "BorderWidth"),
-            IpgTextInputStyleParam::BorderRadius =>
+            TextInputStyleParam::BorderRadius =>
                 set_opt_f32(&mut self.border_radius, value, "BorderRadius"),
-            IpgTextInputStyleParam::PlaceholderColorActive =>
+            TextInputStyleParam::PlaceholderColorActive =>
                 set_opt_iced_color(&mut self.placeholder_color_active, value, "PlaceholderColorActive"),
-            IpgTextInputStyleParam::PlaceholderColorDisabled =>
+            TextInputStyleParam::PlaceholderColorDisabled =>
                 set_opt_iced_color(&mut self.placeholder_color_disabled, value, "PlaceholderColorDisabled"),
-            IpgTextInputStyleParam::ValueColor =>
+            TextInputStyleParam::ValueColor =>
                 set_opt_iced_color(&mut self.value_color, value, "ValueColor"),
-            IpgTextInputStyleParam::SelectionColor =>
+            TextInputStyleParam::SelectionColor =>
                 set_opt_iced_color(&mut self.selection_color, value, "SelectionColor"),
         }
     }
@@ -336,8 +336,8 @@ mod tests {
     use iced::Length;
     use pyo3::{Python, IntoPyObjectExt};
 
-    fn make_text_input() -> IpgTextInput {
-        IpgTextInput {
+    fn make_text_input() -> TextInput {
+        TextInput {
             id: 0,
             parent_id: String::new(),
             placeholder: "enter".to_string(),
@@ -356,8 +356,8 @@ mod tests {
         }
     }
 
-    fn make_text_input_style() -> IpgTextInputStyle {
-        IpgTextInputStyle {
+    fn make_text_input_style() -> TextInputStyle {
+        TextInputStyle {
             id: 0,
             background_color: None,
             border_color_active: None,
@@ -383,83 +383,83 @@ mod tests {
         Python::attach(|py| py.None().into_py_any(py).unwrap())
     }
 
-    // -- IpgTextInput param tests --
+    // -- TextInput param tests --
 
     #[test]
     fn test_placeholder() {
         let mut t = make_text_input();
-        t.param_update(IpgTextInputParam::Placeholder, &py_obj("type here".to_string()));
+        t.param_update(TextInputParam::Placeholder, &py_obj("type here".to_string()));
         assert_eq!(t.placeholder, "type here");
     }
 
     #[test]
     fn test_value() {
         let mut t = make_text_input();
-        t.param_update(IpgTextInputParam::Value, &py_obj("hello".to_string()));
+        t.param_update(TextInputParam::Value, &py_obj("hello".to_string()));
         assert_eq!(t.value, "hello");
     }
 
     #[test]
     fn test_is_secure() {
         let mut t = make_text_input();
-        t.param_update(IpgTextInputParam::IsSecure, &py_obj(true));
+        t.param_update(TextInputParam::IsSecure, &py_obj(true));
         assert_eq!(t.is_secure, Some(true));
-        t.param_update(IpgTextInputParam::IsSecure, &py_none());
+        t.param_update(TextInputParam::IsSecure, &py_none());
         assert_eq!(t.is_secure, None);
     }
 
     #[test]
     fn test_width() {
         let mut t = make_text_input();
-        t.param_update(IpgTextInputParam::Width, &py_obj(300.0f32));
+        t.param_update(TextInputParam::Width, &py_obj(300.0f32));
         assert_eq!(t.width, Length::Fixed(300.0));
     }
 
     #[test]
     fn test_padding() {
         let mut t = make_text_input();
-        t.param_update(IpgTextInputParam::Padding, &py_obj(vec![5.0f32, 10.0]));
+        t.param_update(TextInputParam::Padding, &py_obj(vec![5.0f32, 10.0]));
         assert_eq!(t.padding, Some(vec![5.0, 10.0]));
-        t.param_update(IpgTextInputParam::Padding, &py_none());
+        t.param_update(TextInputParam::Padding, &py_none());
         assert_eq!(t.padding, None);
     }
 
     #[test]
     fn test_size() {
         let mut t = make_text_input();
-        t.param_update(IpgTextInputParam::Size, &py_obj(16.0f32));
+        t.param_update(TextInputParam::Size, &py_obj(16.0f32));
         assert_eq!(t.size, Some(16.0));
     }
 
     #[test]
     fn test_line_height() {
         let mut t = make_text_input();
-        t.param_update(IpgTextInputParam::LineHeight, &py_obj(1.5f32));
+        t.param_update(TextInputParam::LineHeight, &py_obj(1.5f32));
         assert_eq!(t.line_height, Some(1.5));
     }
 
     #[test]
     fn test_style_id() {
         let mut t = make_text_input();
-        t.param_update(IpgTextInputParam::StyleId, &py_obj(4usize));
+        t.param_update(TextInputParam::StyleId, &py_obj(4usize));
         assert_eq!(t.style_id, Some(4));
-        t.param_update(IpgTextInputParam::StyleId, &py_none());
+        t.param_update(TextInputParam::StyleId, &py_none());
         assert_eq!(t.style_id, None);
     }
 
-    // -- IpgTextInputStyle param tests --
+    // -- TextInputStyle param tests --
 
     #[test]
     fn test_style_border_width() {
         let mut s = make_text_input_style();
-        s.param_update(IpgTextInputStyleParam::BorderWidth, &py_obj(2.0f32));
+        s.param_update(TextInputStyleParam::BorderWidth, &py_obj(2.0f32));
         assert_eq!(s.border_width, Some(2.0));
     }
 
     #[test]
     fn test_style_border_radius() {
         let mut s = make_text_input_style();
-        s.param_update(IpgTextInputStyleParam::BorderRadius, &py_obj(5.0f32));
+        s.param_update(TextInputStyleParam::BorderRadius, &py_obj(5.0f32));
         assert_eq!(s.border_radius, Some(5.0));
     }
 }

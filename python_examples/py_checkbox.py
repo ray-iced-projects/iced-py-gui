@@ -1,4 +1,5 @@
-from imports import *
+from icedpygui import Window, Column, Container, Row, Scrollable, start_session, \
+    add_checkbox, add_text, ContainerStyleStd, Icon
 
 
 # callback to simply print if checkbox is checked
@@ -118,18 +119,18 @@ with Window(title="Checkbox Demo",
 
             with Row(spacing=20.0, width_fill=True):
                 # Added to container to better show background
-                with Container(style_std=IpgContainerStyleStd.BorderedBox):
+                with Container(style_std=ContainerStyleStd.BorderedBox):
                     add_checkbox(
                         label="Default Width=Shrink",
                         is_checked=True)
 
-                with Container(style_std=IpgContainerStyleStd.BorderedBox):
+                with Container(style_std=ContainerStyleStd.BorderedBox):
                     add_checkbox(
                         label="Width 200",
                         width=200.0,
                         is_checked=True)
 
-                with Container(style_std=IpgContainerStyleStd.BorderedBox, width_fill=True):
+                with Container(style_std=ContainerStyleStd.BorderedBox, width_fill=True):
                     add_checkbox(
                         label="Width Fill, fills remaining area",
                         width_fill=True,
@@ -147,17 +148,17 @@ with Window(title="Checkbox Demo",
 
                 add_checkbox(
                     label="X Icon",
-                    icon=IpgIcon.X,
+                    icon=Icon.X,
                     is_checked=True)
 
                 add_checkbox(
                     label="Asterisk Icon",
-                    icon=IpgIcon.Asterisk,
+                    icon=Icon.Asterisk,
                     is_checked=True)
 
                 add_checkbox(
                     label="Heart Icon",
-                    icon=IpgIcon.HeartFill,
+                    icon=Icon.HeartFill,
                     is_checked=True)
 
             # ***********************Checkbox Icon Sizing***************************

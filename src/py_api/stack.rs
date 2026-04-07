@@ -3,8 +3,8 @@
 use pyo3::{pyfunction, PyResult};
 
 use crate::{access_state, py_api::helpers::get_length, 
-state::{IpgContainers, get_id, set_state_cont_wnd_ids, 
-    set_state_of_container}, widgets::ipg_stack::IpgStack};
+state::{Containers, get_id, set_state_cont_wnd_ids, 
+    set_state_of_container}, widgets::ipg_stack::Stack};
 
 
 /// Add a stack container widget.
@@ -78,8 +78,8 @@ pub fn add_stack(
 
     set_state_cont_wnd_ids(&mut state, &window_id, container_id, id, "add_stack".to_string());
 
-    state.containers.insert(id, IpgContainers::IpgStack(
-        IpgStack {
+    state.containers.insert(id, Containers::Stack(
+        Stack {
             id,  
             width, 
             height,

@@ -3,8 +3,8 @@
 use pyo3::{PyResult, pyfunction};
 
 use crate::py_api::helpers::get_length;
-use crate::widgets::ipg_grid::IpgGrid;
-use crate::state::{IpgContainers, access_state, 
+use crate::widgets::ipg_grid::Grid;
+use crate::state::{Containers, access_state, 
     get_id, set_state_cont_wnd_ids, set_state_of_container};
 
 
@@ -82,8 +82,8 @@ pub fn add_grid(
 
     set_state_cont_wnd_ids(&mut state, &window_id, container_id, id, "add_opaque".to_string());
 
-    state.containers.insert(id, IpgContainers::IpgGrid(
-        IpgGrid {
+    state.containers.insert(id, Containers::Grid(
+        Grid {
             id,
             width,
             spacing,

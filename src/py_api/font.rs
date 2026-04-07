@@ -3,8 +3,8 @@
 use pyo3::prelude::*;
 use pyo3::pyfunction;
 
-use crate::state::{IpgWidgets, access_state, get_id};
-use crate::widgets::ipg_font::{IpgFont, IpgFontStretch, IpgFontStyle, IpgFontFamily, IpgFontWeight};
+use crate::state::{Widgets, access_state, get_id};
+use crate::widgets::ipg_font::{Font, FontStretch, FontStyle, FontFamily, FontWeight};
 
 
 /// Add a font widget.
@@ -20,11 +20,11 @@ use crate::widgets::ipg_font::{IpgFont, IpgFontStretch, IpgFontStyle, IpgFontFam
     gen_id=None
     ))]
 pub fn add_font(
-    family: Option<IpgFontFamily>,
+    family: Option<FontFamily>,
     family_name: Option<String>,
-    weight: Option<IpgFontWeight>,
-    stretch: Option<IpgFontStretch>,
-    style: Option<IpgFontStyle>,
+    weight: Option<FontWeight>,
+    stretch: Option<FontStretch>,
+    style: Option<FontStyle>,
     gen_id: Option<usize>,
     ) -> PyResult<usize>
 {
@@ -32,8 +32,8 @@ pub fn add_font(
 
     let mut state = access_state();
 
-    state.widgets.insert(id, IpgWidgets::IpgFont(
-        IpgFont {
+    state.widgets.insert(id, Widgets::Font(
+        Font {
             id,
             family,
             family_name,

@@ -2,8 +2,8 @@
 
 use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex, 
     graphics::colors::Color, py_api::helpers::get_length, 
-    state::{IpgWidgets, get_id, set_state_of_widget}, 
-    widgets::ipg_text_input::{IpgTextInput, IpgTextInputStyle}};
+    state::{Widgets, get_id, set_state_of_widget}, 
+    widgets::ipg_text_input::{TextInput, TextInputStyle}};
 
 use pyo3::{Py, PyAny, pyfunction, PyResult};
 type PyObject = Py<PyAny>;
@@ -127,8 +127,8 @@ pub fn add_text_input(
 
     let mut state = access_state();
     
-    state.widgets.insert(id, IpgWidgets::IpgTextInput(
-        IpgTextInput {
+    state.widgets.insert(id, Widgets::TextInput(
+        TextInput {
             id,
             parent_id,
             placeholder,
@@ -159,62 +159,62 @@ pub fn add_text_input(
 ///
 /// Parameters
 /// ----------
-/// background_color : IpgColor, Optional
+/// background_color : Color, Optional
 ///     Sets the background color using a predefined color variant.
 /// background_color_alpha : float, Optional
-///     Sets the alpha of the IpgColor.
+///     Sets the alpha of the Color.
 /// background_rgba : list of float, Optional
 ///     Sets the background color in rgba format as [r, g, b, a].
-/// border_color_active : IpgColor, Optional
+/// border_color_active : Color, Optional
 ///     Sets the border color in active state using a predefined color variant.
 /// border_color_active_alpha : float, Optional
-///     Sets the alpha of the IpgColor.
+///     Sets the alpha of the Color.
 /// border_rgba_active : list of float, Optional
 ///     Sets the border color in active state in rgba format as [r, g, b, a].
-/// border_color_hovered : IpgColor, Optional
+/// border_color_hovered : Color, Optional
 ///     Sets the border color when hovered using a predefined color variant.
 /// border_color_hovered_alpha : float, Optional
-///     Sets the alpha of the IpgColor.
+///     Sets the alpha of the Color.
 /// border_rgba_hovered : list of float, Optional
 ///     Sets the border color when hovered in rgba format as [r, g, b, a].
-/// border_color_focused : IpgColor, Optional
+/// border_color_focused : Color, Optional
 ///     Sets the border color when focused using a predefined color variant.
 /// border_color_focused_alpha : float, Optional
-///     Sets the alpha of the IpgColor.
+///     Sets the alpha of the Color.
 /// border_rgba_focused : list of float, Optional
 ///     Sets the border color when focused in rgba format as [r, g, b, a].
-/// border_color_disabled : IpgColor, Optional
+/// border_color_disabled : Color, Optional
 ///     Sets the border color when disabled using a predefined color variant.
 /// border_color_disabled_alpha : float, Optional
-///     Sets the alpha of the IpgColor.
+///     Sets the alpha of the Color.
 /// border_rgba_disabled : list of float, Optional
 ///     Sets the border color when disabled in rgba format as [r, g, b, a].
 /// border_width : float, Optional
 ///     Sets the border width in logical pixels.
 /// border_radius : float, Optional
 ///     Sets the border radius in logical pixels.
-/// placeholder_color_active : IpgColor, Optional
+/// placeholder_color_active : Color, Optional
 ///     Sets the placeholder text color in active state using a predefined color variant.
 /// placeholder_color_active_alpha : float, Optional
-///     Sets the alpha of the IpgColor.
+///     Sets the alpha of the Color.
 /// placeholder_rgba_active : list of float, Optional
 ///     Sets the placeholder text color in active state in rgba format as [r, g, b, a].
-/// placeholder_color_disabled : IpgColor, Optional
+/// placeholder_color_disabled : Color, Optional
 ///     Sets the placeholder text color when disabled using a predefined color variant.
 /// placeholder_color_disabled_alpha : float, Optional
-///     Sets the alpha of the IpgColor.
+///     Sets the alpha of the Color.
 /// placeholder_rgba_disabled : list of float, Optional
 ///     Sets the placeholder text color when disabled in rgba format as [r, g, b, a].
-/// value_color : IpgColor, Optional
+/// value_color : Color, Optional
 ///     Sets the input value text color using a predefined color variant.
 /// value_color_alpha : float, Optional
-///     Sets the alpha of the IpgColor.
+///     Sets the alpha of the Color.
 /// value_rgba : list of float, Optional
 ///     Sets the input value text color in rgba format as [r, g, b, a].
-/// selection_color : IpgColor, Optional
+/// selection_color : Color, Optional
 ///     Sets the text selection highlight color using a predefined color variant.
 /// selection_color_alpha : float, Optional
-///     Sets the alpha of the IpgColor.
+///     Sets the alpha of the Color.
 /// selection_rgba : list of float, Optional
 ///     Sets the text selection highlight color in rgba format as [r, g, b, a].
 /// gen_id : int, Optional
@@ -276,7 +276,7 @@ pub fn add_text_input_style(
         border_rgba_disabled: Option<[f32; 4]>,
         border_width: Option<f32>,
         border_radius: Option<f32>,
-        // icon_color: Option<IpgColor>,
+        // icon_color: Option<Color>,
         // icon_rgba: Option<[f32; 4]>,
         placeholder_color_active: Option<Color>,
         placeholder_color_active_alpha: Option<f32>,
@@ -319,8 +319,8 @@ pub fn add_text_input_style(
 
     let mut state = access_state();
     
-    state.widgets.insert(id, IpgWidgets::IpgTextInputStyle(
-        IpgTextInputStyle { 
+    state.widgets.insert(id, Widgets::TextInputStyle(
+        TextInputStyle { 
             id,
             background_color,
             border_color_active,

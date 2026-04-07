@@ -25,7 +25,7 @@ def show_help(_btn_id, widget_name):
     """Shows the doc string if available"""
     fn = getattr(ipg, widget_name)
     ipg.update_widget(wid=txt_id,
-                  param=ipg.IpgTextParam.Content,
+                  param=ipg.TextParam.Content,
                   value=fn.__doc__ or f"No docs for {widget_name}")
 
 

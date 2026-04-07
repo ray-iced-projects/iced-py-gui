@@ -321,3 +321,10 @@ pub fn set_opt_text_wrapping(field: &mut Option<TextWrapping>, value: &PyObject,
 pub fn set_opt_ipg_arrow(field: &mut Option<Arrow>, value: &PyObject, name: &str) {
     *field = Arrow::extract(value)
 }
+
+pub fn set_color_alpha(field: &mut Option<iced::Color>, value: &PyObject, name: &str) {
+    let alpha = try_extract_f32(value, name);
+    if let Some(color) = field {
+        color.a = alpha;
+    }
+}

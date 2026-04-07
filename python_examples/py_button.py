@@ -13,23 +13,30 @@ from icedpygui import Window, Column, Container, \
 counter = 1
 txt_id = 0
 
-#  Various style to demonstrate
-bkg_color = add_button_style(background_color=Color.LIGHT_YELLOW)
-bkg_color_alpha = add_button_style()
+# Various style to demonstrate
+# Note, unlike the parameter updaing, the style resets all of the style parameters
+# back to there default values, so they are not additive like the params.
+# see how the alpha was used below, the bkg color needed to be added back in.
+bkg_color = add_button_style(background_color=Color.LIGHT_BLUE)
+bkg_color_alpha = add_button_style(background_color=Color.LIGHT_BLUE, background_color_alpha=0.5)
 bkg_rgba = add_button_style(background_color_alpha=0.5)
 bkg_gradient = add_button_style(
     background_gradient_color_stop=Color.BLUE,
     background_gradient_degrees=45.0,
     background_color=Color.RED)
 
-border_color = add_button_style(border_color=Color.RED, border_width=3.0)
-border_color_alphga = add_button_style()
-border_rgba = add_button_style(border_rgba=[0.0, 0.8, 0.2, 1.0], border_width=3.0)
+border_color = add_button_style(border_color=Color.RED, border_width=10.0)
+border_color_alpha = add_button_style(border_color=Color.RED, border_width=10.0, border_color_alpha=0.5)
+border_rgba = add_button_style(border_rgba=[0.0, 0.8, 0.2, 1.0], border_width=10.0)
 border_radius_style = add_button_style(border_radius=[20.0], border_color=Color.BLUE, border_width=2.0)
-border_width_style = add_button_style(border_width=5.0, border_color=Color.GREEN)
+border_width_style = add_button_style(border_width=10.0, border_color=Color.GREEN)
 
 shadow_color_style = add_button_style(
-    shadow_color=Color.RED, shadow_offset_xy=[5.0, 5.0], shadow_blur_radius=10.0)
+    shadow_color=Color.TAN, shadow_offset_xy=[10.0, 15.0])
+shadow_color_alpha = add_button_style(
+    shadow_color=Color.TAN, 
+    shadow_offset_xy=[10.0, 15.0], 
+    shadow_color_alpha=0.5)
 shadow_rgba_style = add_button_style(
     shadow_rgba=[0.5, 0.0, 0.5, 0.8], shadow_offset_xy=[5.0, 5.0], shadow_blur_radius=10.0)
 shadow_offset_style = add_button_style(
@@ -38,7 +45,7 @@ shadow_blur_style = add_button_style(
     shadow_color=Color.LIGHT_BLUE, shadow_offset_xy=[3.0, 3.0], shadow_blur_radius=20.0)
 
 text_color_style = add_button_style(text_color=Color.RED)
-text_color_alpha = add_button_style(text_color_alpha=0.5)
+text_color_alpha = add_button_style(text_color=Color.RED, text_color_alpha=0.5)
 text_rgba_style = add_button_style(text_rgba=[0.0, 0.6, 0.0, 1.0])
 
 def on_press(btn_id: int):
@@ -202,73 +209,98 @@ def on_press(btn_id: int):
             # param to set
             ButtonParam.StyleId: bkg_color})
         case 19:
+            update_widget(txt_id, TextParam.Content, "Param = background_color_alpha, keep pressing") 
+            update_widget_params(btn_id, {
+            # reset some of the previous parameters
+            ButtonParam.Label: "background color alpha",
+            # param to set
+            ButtonParam.StyleId: bkg_color_alpha})
+        case 20:
             update_widget(txt_id, TextParam.Content, "Param = background_rgba, keep pressing") 
             update_widget_params(btn_id, {
             # reset some of the previous parameters
             ButtonParam.Label: "background rgba",
             # param to set
             ButtonParam.StyleId: bkg_rgba})
-        case 20:
+        case 21:
             update_widget(txt_id, TextParam.Content, "Param = background_gradient, keep pressing") 
             update_widget_params(btn_id, {
             ButtonParam.Label: "background gradient",
             # param to set
             ButtonParam.StyleId: bkg_gradient})
-        case 21:
+        case 22:
             update_widget(txt_id, TextParam.Content, "Param = border_color, keep pressing") 
             update_widget_params(btn_id, {
             ButtonParam.Label: "border color",
             # param to set
             ButtonParam.StyleId: border_color})
-        case 22:
+        case 23:
+            update_widget(txt_id, TextParam.Content, "Param = border_color alpha, keep pressing") 
+            update_widget_params(btn_id, {
+            ButtonParam.Label: "border color alpha",
+            # param to set
+            ButtonParam.StyleId: border_color_alpha})
+        case 24:
             update_widget(txt_id, TextParam.Content, "Param = border_rgba, keep pressing") 
             update_widget_params(btn_id, {
             ButtonParam.Label: "border rgba",
             # param to set
             ButtonParam.StyleId: border_rgba})
-        case 23:
+        case 25:
             update_widget(txt_id, TextParam.Content, "Param = border_radius, keep pressing") 
             update_widget_params(btn_id, {
             ButtonParam.Label: "border radius",
             # param to set
             ButtonParam.StyleId: border_radius_style})
-        case 24:
+        case 26:
             update_widget(txt_id, TextParam.Content, "Param = border_width, keep pressing") 
             update_widget_params(btn_id, {
             ButtonParam.Label: "border width",
             # param to set
             ButtonParam.StyleId: border_width_style})
-        case 25:
+        case 27:
             update_widget(txt_id, TextParam.Content, "Param = shadow_color, keep pressing") 
             update_widget_params(btn_id, {
             ButtonParam.Label: "shadow color",
             # param to set
             ButtonParam.StyleId: shadow_color_style})
-        case 26:
+        case 28:
+            update_widget(txt_id, TextParam.Content, "Param = shadow_color alpha, keep pressing") 
+            update_widget_params(btn_id, {
+            ButtonParam.Label: "shadow color alpha",
+            # param to set
+            ButtonParam.StyleId: shadow_color_alpha})
+        case 29:
             update_widget(txt_id, TextParam.Content, "Param = shadow_rgba, keep pressing") 
             update_widget_params(btn_id, {
             ButtonParam.Label: "shadow rgba",
             # param to set
             ButtonParam.StyleId: shadow_rgba_style})
-        case 27:
+        case 30:
             update_widget(txt_id, TextParam.Content, "Param = shadow_offset_xy, keep pressing") 
             update_widget_params(btn_id, {
             ButtonParam.Label: "shadow offset",
             # param to set
             ButtonParam.StyleId: shadow_offset_style})
-        case 28:
+        case 31:
             update_widget(txt_id, TextParam.Content, "Param = shadow_blur_radius, keep pressing") 
             update_widget_params(btn_id, {
             ButtonParam.Label: "shadow blur radius",
             # param to set
             ButtonParam.StyleId: shadow_blur_style})
-        case 29:
+        case 32:
             update_widget(txt_id, TextParam.Content, "Param = text_color, keep pressing") 
             update_widget_params(btn_id, {
             ButtonParam.Label: "text color",
             # param to set
             ButtonParam.StyleId: text_color_style})
-        case 30:
+        case 33:
+            update_widget(txt_id, TextParam.Content, "Param = text_color_alpha, keep pressing") 
+            update_widget_params(btn_id, {
+            ButtonParam.Label: "text color alpha",
+            # param to set
+            ButtonParam.StyleId: text_color_alpha})
+        case 34:
             update_widget(txt_id, TextParam.Content, "Param = text_rgba, keep pressing") 
             update_widget_params(btn_id, {
             ButtonParam.Label: "text rgba",
@@ -277,7 +309,7 @@ def on_press(btn_id: int):
     
     
     counter += 1
-    if counter > 30:
+    if counter > 34:
         counter = 0
     
 #  First add a window

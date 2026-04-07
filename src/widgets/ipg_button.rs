@@ -9,8 +9,7 @@ use crate::py_api::helpers::get_padding;
 use crate::widgets::styling::{apply_shadow_overrides_xy, 
     apply_border_overrides, apply_background_overrides, 
     get_custom_palette};
-use crate::widgets::widget_param_update::{set_opt_f32_array_2, 
-    set_opt_iced_color_from_rgba, set_opt_vec_f32_1_or_upto_4};
+use crate::widgets::widget_param_update::{set_color_alpha, set_opt_f32_array_2, set_opt_iced_color_from_rgba, set_opt_vec_f32_1_or_upto_4};
 use crate::widgets::widget_param_update::{
     WidgetParamUpdate, set_bool, set_height, 
     set_height_fill, set_opt_bool, 
@@ -382,16 +381,20 @@ pub fn extract_button_style_standard(
 #[pyclass(eq, eq_int, hash, frozen)]
 pub enum ButtonStyleParam {
     BackgroundColor,
+    BackgroundColorAlpha,
     BackgroundRbga,
     BorderColor,
+    BorderColorAlpha,
     BorderRgba,
     BorderRadius,
     BorderWidth,
     ShadowColor,
+    ShadowColorAlpha,
     ShadowRgba,
     ShadowOffsetXY,
     ShadowBlurRadius,
     TextColor,
+    TextColorAlpha,
     TextRgba,
 }
 
@@ -446,35 +449,41 @@ impl WidgetParamUpdate for ButtonStyle {
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
             ButtonStyleParam::BackgroundColor => 
-                set_opt_iced_color(&mut self.background_color, value, "BackgroundColor"),
+                set_opt_iced_color(&mut self.background_color, value, "ButtonStyleParam::BackgroundColor"),
+            ButtonStyleParam::BackgroundColorAlpha => set_color_alpha(&mut self.background_color, value, "ButtonStyleParam::BackgroundColorAlpha"),
             ButtonStyleParam::BackgroundRbga => 
-                set_opt_iced_color_from_rgba(&mut self.background_color, value, "BackgroundRbga"),
+                set_opt_iced_color_from_rgba(&mut self.background_color, value, "ButtonStyleParam::BackgroundRbga"),
             ButtonStyleParam::BorderColor => 
-                set_opt_iced_color(&mut self.border_color, value, "BorderColor"),
+                set_opt_iced_color(&mut self.border_color, value, "ButtonStyleParam::BorderColor"),
+            ButtonStyleParam::BorderColorAlpha => set_color_alpha(&mut self.border_color, value, "ButtonStyleParam::BorderColorAlpha"),
             ButtonStyleParam::BorderRgba => 
-                set_opt_iced_color_from_rgba(&mut self.border_color, value, "BorderRgba"),
+                set_opt_iced_color_from_rgba(&mut self.border_color, value, "ButtonStyleParam::BorderRgba"),
             ButtonStyleParam::BorderRadius => 
-                set_opt_vec_f32_1_or_upto_4(&mut self.border_radius, value, "BorderRadius"),
+                set_opt_vec_f32_1_or_upto_4(&mut self.border_radius, value, "ButtonStyleParam::BorderRadius"),
             ButtonStyleParam::BorderWidth => 
-                set_opt_f32(&mut self.border_width, value, "BorderWidth"),
+                set_opt_f32(&mut self.border_width, value, "ButtonStyleParam::BorderWidth"),
             ButtonStyleParam::ShadowColor => 
-                set_opt_iced_color(&mut self.shadow_color, value, "ShadowColor"),
+                set_opt_iced_color(&mut self.shadow_color, value, "ButtonStyleParam::ShadowColor"),
+            ButtonStyleParam::ShadowColorAlpha => set_color_alpha(&mut self.shadow_color, value, "ButtonStyleParam::ShadowColorAlpha"),
             ButtonStyleParam::ShadowRgba => 
-                set_opt_iced_color_from_rgba(&mut self.shadow_color, value, "ShadowRgba"),
+                set_opt_iced_color_from_rgba(&mut self.shadow_color, value, "ButtonStyleParam::ShadowRgba"),
             ButtonStyleParam::ShadowOffsetXY => 
-                set_opt_f32_array_2(&mut self.shadow_offset_xy, value, "ShadowOffsetXY"),
+                set_opt_f32_array_2(&mut self.shadow_offset_xy, value, "ButtonStyleParam::ShadowOffsetXY"),
             ButtonStyleParam::ShadowBlurRadius => 
-                set_opt_f32(&mut self.shadow_blur_radius, value, "ShadowBlurRadius"),
+                set_opt_f32(&mut self.shadow_blur_radius, value, "ButtonStyleParam::ShadowBlurRadius"),
             ButtonStyleParam::TextColor => 
-                set_opt_iced_color(&mut self.text_color, value, "TextColor"),
+                set_opt_iced_color(&mut self.text_color, value, "ButtonStyleParam::TextColor"),
+            ButtonStyleParam::TextColorAlpha => set_color_alpha(&mut self.text_color, value, "ButtonStyleParam::TextColorAlpha"),
             ButtonStyleParam::TextRgba => 
-                set_opt_iced_color_from_rgba(&mut self.text_color, value, "TextRgba"),
+                set_opt_iced_color_from_rgba(&mut self.text_color, value, "ButtonStyleParam::TextRgba"),
         }
     }
 }
 
 #[cfg(test)]
 mod tests {
+    use crate::graphics::colors::Color;
+
     use super::*;
     use iced::Length;
     use pyo3::IntoPyObjectExt;
@@ -692,6 +701,19 @@ mod tests {
         assert!(s.background_color.is_some());
         s.param_update(ButtonStyleParam::BackgroundRbga, &py_none());
         assert!(s.background_color.is_none());
+    }
+
+    #[test]
+    fn test_style_background_color_alpha() {
+        Python::initialize();
+        let mut s = make_button_style();
+        let color = Color::BLUE; // [0, 0, 1, 1]
+        s.param_update(ButtonStyleParam::BackgroundColor, &py_obj(color));
+        assert!(s.background_color.is_some());
+        s.param_update(ButtonStyleParam::BackgroundColorAlpha, &py_obj(0.5));
+        let bkg = s.background_color.unwrap();
+        let b = [bkg.r, bkg.g, bkg.b, bkg.a];
+        assert!(b == [0.0, 0.0, 1.0, 0.5]);
     }
 
     #[test]

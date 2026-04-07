@@ -43,8 +43,8 @@ pub enum DivMessage {
     OnRelease,
 }
 
-#[derive(Debug, Clone, PartialEq)]
-#[pyclass(eq, eq_int)]
+#[derive(Debug, Clone, PartialEq, Hash)]
+#[pyclass(eq, eq_int, hash, frozen)]
 pub enum DividerDirection {
     /// Horizontal resizing
     Horizontal,
@@ -213,8 +213,8 @@ impl DividerStyle {
 
     }
 }
-#[derive(Debug, Clone, PartialEq)]
-#[pyclass(eq, eq_int)]
+#[derive(Debug, Clone, PartialEq, Hash)]
+#[pyclass(eq, eq_int, hash, frozen)]
 pub enum DividerStyleParam {
     BackgroundColor,
     BackgroundRgbaColor,
@@ -225,8 +225,8 @@ pub enum DividerStyleParam {
     BorderRadius,
 }
 
-#[derive(Debug, Clone, PartialEq)]
-#[pyclass(eq, eq_int)]
+#[derive(Debug, Clone, PartialEq, Hash)]
+#[pyclass(eq, eq_int, hash, frozen)]
 pub enum DividerParam {
     HandleWidth,
     HandleHeight,

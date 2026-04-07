@@ -217,8 +217,8 @@ fn try_extract_level(level: &PyObject) -> WindowLevel {
     })
 }
 
-#[derive(Debug, Clone, PartialEq)]
-#[pyclass(eq, eq_int)]
+#[derive(Debug, Clone, PartialEq, Hash)]
+#[pyclass(eq, eq_int, hash, frozen)]
 pub enum WindowParam {
     Center,
     Closeable,
@@ -322,8 +322,8 @@ impl WidgetParamUpdate for Window {
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
-#[pyclass(eq, eq_int)]
+#[derive(Debug, Clone, PartialEq, Hash)]
+#[pyclass(eq, eq_int, hash, frozen)]
 pub enum WindowTheme {
     Dark,
     Light,
@@ -378,8 +378,8 @@ impl WindowTheme {
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
-#[pyclass(eq, eq_int)]
+#[derive(Debug, Clone, PartialEq, Hash)]
+#[pyclass(eq, eq_int, hash, frozen)]
 pub enum WindowLevel {
     Normal,
     AlwaysOnBottom,
@@ -396,8 +396,8 @@ impl WindowLevel {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
-#[pyclass(eq, eq_int)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[pyclass(eq, eq_int, hash, frozen)]
 pub enum WindowMode {
     Windowed,
     FullScreen,

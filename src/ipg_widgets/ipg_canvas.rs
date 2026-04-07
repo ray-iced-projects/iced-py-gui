@@ -133,8 +133,8 @@ pub fn canvas_callback(canvas_message: CanvasMessage, app_state: &mut IpgState, 
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
-#[pyclass(eq, eq_int)]
+#[derive(Debug, Clone, PartialEq, Hash)]
+#[pyclass(eq, eq_int, hash, frozen)]
 pub enum IpgCanvasParam {
     Clear,
     CanvasColor,
@@ -273,8 +273,8 @@ fn try_extract_widget(update_obj: &PyObject) -> IpgCanvasWidget {
     })
 }
 
-#[derive(Debug, Clone, PartialEq)]
-#[pyclass(eq, eq_int)]
+#[derive(Debug, Clone, PartialEq, Hash)]
+#[pyclass(eq, eq_int, hash, frozen)]
 pub enum IpgCanvasGeometryParam {
     Position,
     Rotation,

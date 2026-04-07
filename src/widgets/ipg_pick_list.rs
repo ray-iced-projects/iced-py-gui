@@ -183,8 +183,8 @@ pub fn construct_picklist<'a>(
  }
 
 
- #[derive(Debug, Clone, PartialEq)]
-#[pyclass(eq, eq_int)]
+ #[derive(Debug, Clone, PartialEq, Hash)]
+#[pyclass(eq, eq_int, hash, frozen)]
 pub enum PickListParam {
     ArrowSize,
     CustomStatic,
@@ -206,8 +206,8 @@ pub enum PickListParam {
     // WidthFill,  see comment below
 }
 
-#[derive(Debug, Clone, PartialEq)]
-#[pyclass(eq, eq_int)]
+#[derive(Debug, Clone, PartialEq, Hash)]
+#[pyclass(eq, eq_int, hash, frozen)]
 pub enum PickListHandle {
     Default,
     Arrow,
@@ -294,8 +294,8 @@ fn get_handle(ipg_handle: &PickListHandle,
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
-#[pyclass(eq, eq_int)]
+#[derive(Debug, Clone, PartialEq, Hash)]
+#[pyclass(eq, eq_int, hash, frozen)]
 pub enum PickListStyleParam {
     BackgroundColor,
     BackgroundRbgaColor,

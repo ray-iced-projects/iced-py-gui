@@ -30,8 +30,8 @@ pub struct ToolTip {
 }
 
 
-#[derive(Debug, Clone, PartialEq)]
-#[pyclass(eq, eq_int)]
+#[derive(Debug, Clone, PartialEq, Hash)]
+#[pyclass(eq, eq_int, hash, frozen)]
 pub enum ToolTipPosition {
     FollowCursor,
     Top,
@@ -104,8 +104,8 @@ impl ToolTip {
 
 
 
-#[derive(Debug, Clone, PartialEq)]
-#[pyclass(eq, eq_int)]
+#[derive(Debug, Clone, PartialEq, Hash)]
+#[pyclass(eq, eq_int, hash, frozen)]
 pub enum ToolTipParam {
     ContainerStyleId,
     ContentId,

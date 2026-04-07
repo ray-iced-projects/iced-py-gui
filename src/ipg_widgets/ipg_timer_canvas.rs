@@ -123,8 +123,8 @@ pub enum CanvasTimerMessage {
 }
 
 
-#[derive(Debug, Clone, PartialEq)]
-#[pyclass(eq, eq_int)]
+#[derive(Debug, Clone, PartialEq, Hash)]
+#[pyclass(eq, eq_int, hash, frozen)]
 pub enum IpgCanvasTimerParam {
     DurationMs,
     ArrowStyle,
@@ -410,8 +410,8 @@ fn disabled(style: button::Style) -> button::Style {
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
-#[pyclass(eq, eq_int)]
+#[derive(Debug, Clone, PartialEq, Hash)]
+#[pyclass(eq, eq_int, hash, frozen)]
 pub enum IpgCanvasTimerStyleParam {
     BackgroundIpgColor,
     BackgroundRbgaColor,

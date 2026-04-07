@@ -105,8 +105,8 @@ pub fn slider_callback(state: &mut IpgState, id: usize, message: SLMessage) {
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
-#[pyclass(eq, eq_int)]
+#[derive(Debug, Clone, PartialEq, Hash)]
+#[pyclass(eq, eq_int, hash, frozen)]
 pub enum SliderParam {
     Min,
     Max,
@@ -206,8 +206,8 @@ fn get_styling(theme: &Theme,
 
 }
 
-#[derive(Debug, Clone, PartialEq)]
-#[pyclass(eq, eq_int)]
+#[derive(Debug, Clone, PartialEq, Hash)]
+#[pyclass(eq, eq_int, hash, frozen)]
 pub enum SliderStyleParam {
     RailColor,
     RailRbgaColor,

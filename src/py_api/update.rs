@@ -1,6 +1,8 @@
 //! Update module - provides update_widget, delete_widget, add_widget, and show_widget pyfunctions
 
 use pyo3::{Py, PyAny, pyfunction};
+use pyo3::types::PyDict;
+use pyo3::prelude::*;
 
 use crate::state::access_update_widgets;
 type PyObject = Py<PyAny>;
@@ -17,6 +19,19 @@ pub fn update_widget(
 
     all_updates.updates.push((wid, param, value));
 
+    drop(all_updates);
+}
+
+#[pyfunction]
+#[pyo3(signature = (wid, updates))]
+pub fn update_widget_params(
+    wid: usize,
+    updates: &Bound<'_, PyDict>,
+) {
+    let mut all_updates = access_update_widgets();
+    for (param, value) in updates.iter() {
+        all_updates.updates.push((wid, param.unbind(), value.unbind()));
+    }
     drop(all_updates);
 }
 

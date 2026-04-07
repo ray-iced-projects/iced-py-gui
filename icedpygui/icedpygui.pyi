@@ -15,16 +15,25 @@ from typing import Any, Callable, List, Optional, Union
 
 def add_button_style(
         background_color: Optional[Color] = None,
+        background_color_alpha: Optional[float] = None,
         background_rgba: Optional[list[float, 4]] = None,
-        border_color: Optional[Color] = None, 
+        background_gradient_color_stop: Optional[Color] = None,
+        background_gradient_color_stop_alpha: Optional[float] = None,
+        background_gradient_rgba_stop: Optional[float] = None,
+        background_gradient_degrees: Optional[float] = None,
+        background_gradient_radians: Optional[float] = None,
+        border_color: Optional[Color] = None,
+        border_color_alpha: Optional[float] = None,
         border_rgba: Optional[list[float, 4]] = None,
-        border_radius: Optional[list[float | float, 4]] = None, 
+        border_radius: Optional[list[float | float, 4]] = None,
         border_width: Optional[float] = None,
-        shadow_color: Optional[Color] = None, 
+        shadow_color: Optional[Color] = None,
+        shadow_color_alpha: Optional[float] = None, 
         shadow_rgba: Optional[list] = None,
-        shadow_offset_xy: Optional[float] = None, 
+        shadow_offset_xy: Optional[list[float, 2]] = None, 
         shadow_blur_radius: Optional[float] = None,
-        text_color: Optional[Color] = None, 
+        text_color: Optional[Color] = None,
+        text_color_alpha: Optional[float] = None,
         text_rgba: Optional[list[float, 4]] = None
     ) -> int:
     """Adds styling to a button
@@ -1643,38 +1652,71 @@ class ButtonParam:
 
     Parameters
     ----------
-    ArrowStyle: ButtonArrow
-        A button becomes a type of arrow.
+    Clip: bool
+        Whether the label is clipped or not
     Height: float
         The height of the button.
     HeightFill: bool
         Whether the button height fills the available space of a container.
+    IfMenuBtn: bool
+        Whether the button is used in a mnau widget, effects alignment
     Label: str
         The label of the button.
-    Padding: list
-        The padding around the button.
-    Clip: bool
-        Whether the label is clipped or not
+    Padding: list[float], one or four items
+        The padding around the button, [all sides], [top, right, bottom, left].
     Show: bool
         Whether to show the button
+    StyleArrow: ButtonArrow
+        A button becomes a type of arrow.
     StyleId: int
         The id of the add_button_style() function
-    StyleStandard: StyleStandard
-        One of the standard styles
+    StyleStd: ButtonStyleStd
+        The standard styles for a button
+    TextAlignBottomCenter: bool
+        Whether to align label botton center.
+    TextAlignBottomLeft: bool
+        Whether to align the label bottom left.
+    TextAlignBottomRight: bool
+        Whether to align the label bottom right.
+    TextAlignCenter: bool
+        Whether to align the label centered (default).
+    TextAlignCenterLeft: bool
+        Whether to align the label center left.
+    TextAlignCenterRight: bool
+        Whether to align the label center right
+    TextAlignTopCenter: bool
+        Whether to align the label top center.
+    TextAlignTopLeft: bool
+        Whether to align the label top left.
+    TextAlignTopRight: bool
+        Whether to align the label top right.
+    TextSize: float
+        The size of the text.
     Width: float
         The width of the button
     WidthFill: bool
          Whether the button width fills the available space of a container.
     """
-    ArrowStyle: Arrow
+    Clip: bool
     Height: float
     HeightFill: bool
+    IfMenuBtn: bool
     Label: str
-    Padding: list
-    Clip: bool
+    Padding: list[float]
     Show: bool
+    StyleArrow: Arrow
     StyleId: int
-    StyleStandard: ButtonStyleStd
+    StyleStd: ButtonStyleStd
+    TextAlignBottomCenter: bool
+    TextAlignBottomLeft: bool
+    TextAlignBottomRight: bool
+    TextAlignCenter: bool
+    TextAlignCenterLeft: bool
+    TextAlignCenterRight: bool
+    TextAlignTopCenter: bool
+    TextAlignTopLeft: bool
+    TextAlignTopRight: bool
+    TextSize: float
     Width: float
     WidthFill: bool
 
@@ -3549,6 +3591,7 @@ class Arrow:
     """
     The various arrows for the widgets
     """
+    ArrowNone=''
     ArrowBarLeft=''
     ArrowBarRight=''
     ArrowBarUp=''

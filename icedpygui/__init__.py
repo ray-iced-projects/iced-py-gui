@@ -70,6 +70,7 @@ from .icedpygui import (
     show_widget,
     update_timer,
     update_widget,
+    update_widget_params,
     start_session,
     generate_id,
     get_rgba_color,

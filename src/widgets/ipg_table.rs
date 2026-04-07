@@ -596,8 +596,8 @@ fn get_divider_style(
 }
 
 
-#[derive(Debug, Clone, PartialEq)]
-#[pyclass(eq, eq_int)]
+#[derive(Debug, Clone, PartialEq, Hash)]
+#[pyclass(eq, eq_int, hash, frozen)]
 pub enum TableParam {
     Headers,
     Body,

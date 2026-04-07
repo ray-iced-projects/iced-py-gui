@@ -7,9 +7,10 @@ use crate::graphics::bootstrap::{self, icon_to_char, icon_to_string};
 
 
 
-#[derive(Debug, Clone, PartialEq)]
-#[pyclass(eq, eq_int)]
+#[derive(Debug, Clone, PartialEq, Hash)]
+#[pyclass(eq, eq_int, hash, frozen)]
 pub enum Arrow {
+    ArrowNone,
     ArrowBarLeft,
     ArrowBarRight,
     ArrowBarUp,
@@ -155,6 +156,7 @@ impl Arrow {
             Arrow::ArrowsFullscreen => icon_to_string(bootstrap::Bootstrap::ArrowsFullscreen),
             Arrow::ArrowsMove => icon_to_string(bootstrap::Bootstrap::ArrowsMove),
             Arrow::ArrowsVertical => icon_to_string(bootstrap::Bootstrap::ArrowsVertical),
+            Arrow::ArrowNone => String::new(),
         }
     }
 
@@ -231,6 +233,7 @@ impl Arrow {
             Arrow::ArrowsFullscreen => icon_to_char(bootstrap::Bootstrap::ArrowsFullscreen),
             Arrow::ArrowsMove => icon_to_char(bootstrap::Bootstrap::ArrowsMove),
             Arrow::ArrowsVertical => icon_to_char(bootstrap::Bootstrap::ArrowsVertical),
+            Arrow::ArrowNone => '\0',
         }
     }
 

@@ -218,8 +218,8 @@ impl Scroller {
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
-#[pyclass(eq, eq_int)]
+#[derive(Debug, Clone, PartialEq, Hash)]
+#[pyclass(eq, eq_int, hash, frozen)]
 pub enum Anchor {
     Start,
     End,
@@ -310,8 +310,8 @@ let ud1 = access_user_data1();
 }
 
 
-#[derive(Debug, Clone, PartialEq)]
-#[pyclass(eq, eq_int)]
+#[derive(Debug, Clone, PartialEq, Hash)]
+#[pyclass(eq, eq_int, hash, frozen)]
 pub enum ScrollableParam {
     Fill,
     Height,
@@ -323,8 +323,8 @@ pub enum ScrollableParam {
 
 
 
-#[derive(Debug, Clone, PartialEq)]
-#[pyclass(eq, eq_int)]
+#[derive(Debug, Clone, PartialEq, Hash)]
+#[pyclass(eq, eq_int, hash, frozen)]
 pub enum ScrollerParam {
     Anchor,
     Hidden,
@@ -421,8 +421,8 @@ impl AutoScrollStyle {
 
 }
 
-#[derive(Debug, Clone, PartialEq)]
-#[pyclass(eq, eq_int)]
+#[derive(Debug, Clone, PartialEq, Hash)]
+#[pyclass(eq, eq_int, hash, frozen)]
 pub enum ScrollableStyleParam { 
     AutoScrollStyleId,
     ContainerStyleId,
@@ -433,8 +433,8 @@ pub enum ScrollableStyleParam {
     VerticalRailStyleId,
 }
 
-#[derive(Debug, Clone, PartialEq)]
-#[pyclass(eq, eq_int)]
+#[derive(Debug, Clone, PartialEq, Hash)]
+#[pyclass(eq, eq_int, hash, frozen)]
 pub enum RailStyleParam { 
     BackgroundColor,
     BackgroundRgba,
@@ -444,8 +444,8 @@ pub enum RailStyleParam {
     BorderRadius,
 }
 
-#[derive(Debug, Clone, PartialEq)]
-#[pyclass(eq, eq_int)]
+#[derive(Debug, Clone, PartialEq, Hash)]
+#[pyclass(eq, eq_int, hash, frozen)]
 pub enum AutoScrollStyleParam {
     BackgroundColor,
     BackgroundRgba,

@@ -47,8 +47,8 @@ pub struct SeparatorStyle {
     pub border_color: Option<iced::Color>,
 }
 
-#[derive(Debug, Clone, PartialEq)]
-#[pyclass(eq, eq_int)]
+#[derive(Debug, Clone, PartialEq, Hash)]
+#[pyclass(eq, eq_int, hash, frozen)]
 pub enum SeparatorType {
     Dot,
     Label,
@@ -215,8 +215,8 @@ fn get_line(sep: &Separator,
 }
 
 
-#[derive(Debug, Clone, PartialEq)]
-#[pyclass(eq, eq_int)]
+#[derive(Debug, Clone, PartialEq, Hash)]
+#[pyclass(eq, eq_int, hash, frozen)]
 pub enum SeparatorParam {
     DotCount,
     DotFill,
@@ -233,8 +233,8 @@ pub enum SeparatorParam {
 }
 
 
-#[derive(Debug, Clone, PartialEq)]
-#[pyclass(eq, eq_int)]
+#[derive(Debug, Clone, PartialEq, Hash)]
+#[pyclass(eq, eq_int, hash, frozen)]
 pub enum SeparatorStyleParam {
     Color,
     RbgaColor,

@@ -220,8 +220,8 @@ impl ContainerStyle {
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
-#[pyclass(eq, eq_int)]
+#[derive(Debug, Clone, PartialEq, Hash)]
+#[pyclass(eq, eq_int, hash, frozen)]
 pub enum ContainerStyleStd {
     BorderedBox,
     Danger,
@@ -272,8 +272,8 @@ impl ContainerStyleStd {
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
-#[pyclass(eq, eq_int)]
+#[derive(Debug, Clone, PartialEq, Hash)]
+#[pyclass(eq, eq_int, hash, frozen)]
 pub enum ContainerParam {
     AlignBottomCenter,
     AlignBottomLeft,
@@ -299,8 +299,8 @@ pub enum ContainerParam {
 }
 
 
-#[derive(Debug, Clone, PartialEq)]
-#[pyclass(eq, eq_int)]
+#[derive(Debug, Clone, PartialEq, Hash)]
+#[pyclass(eq, eq_int, hash, frozen)]
 pub enum ContainerStyleParam {
     BackgroundColor,
     BackgroundRgbaColor,

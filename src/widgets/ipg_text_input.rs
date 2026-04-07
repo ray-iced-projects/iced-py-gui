@@ -248,8 +248,8 @@ impl TextInputStyle {
 }}
 
 
-#[derive(Debug, Clone, PartialEq)]
-#[pyclass(eq, eq_int)]
+#[derive(Debug, Clone, PartialEq, Hash)]
+#[pyclass(eq, eq_int, hash, frozen)]
 pub enum TextInputParam {
     IsSecure,
     LineHeight,
@@ -261,8 +261,8 @@ pub enum TextInputParam {
     Width,
 }
 
-#[derive(Debug, Clone, PartialEq)]
-#[pyclass(eq, eq_int)]
+#[derive(Debug, Clone, PartialEq, Hash)]
+#[pyclass(eq, eq_int, hash, frozen)]
 pub enum TextInputStyleParam {
     BackgroundColor,
     BorderColorActive,

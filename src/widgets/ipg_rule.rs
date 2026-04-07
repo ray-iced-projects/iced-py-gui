@@ -110,8 +110,8 @@ fn get_styling(theme: &Theme,
 
 }
 
-#[derive(Debug, Clone, PartialEq)]
-#[pyclass(eq, eq_int)]
+#[derive(Debug, Clone, PartialEq, Hash)]
+#[pyclass(eq, eq_int, hash, frozen)]
 pub enum RuleStyleParam {
     BorderRadius,
     FillModeAsymmetricPadding,
@@ -121,8 +121,8 @@ pub enum RuleStyleParam {
     RbgaColor,
 }
 
-#[derive(Debug, Clone, PartialEq)]
-#[pyclass(eq, eq_int)]
+#[derive(Debug, Clone, PartialEq, Hash)]
+#[pyclass(eq, eq_int, hash, frozen)]
 pub enum RuleParam {
     IsVertical,
     Thickness,

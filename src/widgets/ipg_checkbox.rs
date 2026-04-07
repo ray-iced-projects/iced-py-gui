@@ -287,8 +287,8 @@ fn styled(
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
-#[pyclass(eq, eq_int)]
+#[derive(Debug, Clone, PartialEq, Hash)]
+#[pyclass(eq, eq_int, hash, frozen)]
 pub enum CheckboxStyleStd {
     Danger,
     Primary,
@@ -321,8 +321,8 @@ impl CheckboxStyleStd {
 }
 
 
-#[derive(Debug, Clone, PartialEq)]
-#[pyclass(eq, eq_int)]
+#[derive(Debug, Clone, PartialEq, Hash)]
+#[pyclass(eq, eq_int, hash, frozen)]
 pub enum CheckboxParam {
     Icon,
     IconFont,
@@ -343,8 +343,8 @@ pub enum CheckboxParam {
     Show,
 }
 
-#[derive(Debug, Clone, PartialEq)]
-#[pyclass(eq, eq_int)]
+#[derive(Debug, Clone, PartialEq, Hash)]
+#[pyclass(eq, eq_int, hash, frozen)]
 pub enum CheckboxStyleParam {
     BackgroundColor,
     BackgroundRgbaColor,

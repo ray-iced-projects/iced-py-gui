@@ -31,8 +31,8 @@ pub enum ChartWidget {
 }
 
 
-#[derive(Clone, Copy, Debug, Default, PartialEq, Eq,)]
-#[pyclass(eq, eq_int)]
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Hash)]
+#[pyclass(eq, eq_int, hash, frozen)]
 pub enum ChartDrawMode {
     #[default]
     Display,

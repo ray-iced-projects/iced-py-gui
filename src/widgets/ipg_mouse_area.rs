@@ -20,8 +20,8 @@ pub struct MouseArea {
         pub show: bool,
 }
 
-#[derive(Debug, Clone, PartialEq)]
-#[pyclass(eq, eq_int)]
+#[derive(Debug, Clone, PartialEq, Hash)]
+#[pyclass(eq, eq_int, hash, frozen)]
 pub enum MousePointer {
     None,
     Alias,
@@ -220,8 +220,8 @@ fn process_callback(
 }
 
 
-#[derive(Debug, Clone, PartialEq)]
-#[pyclass(eq, eq_int)]
+#[derive(Debug, Clone, PartialEq, Hash)]
+#[pyclass(eq, eq_int, hash, frozen)]
 pub enum MouseAreaParam {
     MousePointer,
     Show,

@@ -33,7 +33,7 @@ pub trait WidgetParamUpdate {
 // Dispatch — one line per widget variant
 // ---------------------------------------------------------------------------
 
-// Helper copy and paste
+// Helper for copy and paste to new widget
 // ---------------------------------------------------------------------------
 // WidgetParamUpdate implementations
 // ---------------------------------------------------------------------------

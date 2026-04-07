@@ -6,7 +6,7 @@ type PyObject = Py<PyAny>;
 
 /// Bootstrap icons
 #[derive(Debug, Clone, Copy, Hash, PartialEq)]
-#[pyclass(eq, eq_int)]
+#[pyclass(eq, eq_int, hash, frozen)]
 pub enum Icon {
     /// alarm
     Alarm,

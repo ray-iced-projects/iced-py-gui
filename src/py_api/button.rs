@@ -205,27 +205,27 @@ pub fn add_button(
 ///    Sets the Color of the background.
 ///background_color_alpha: float, Optional
 ///    Sets the alpha of the Color.
-///background_rgba: list, Optional
-///    Sets the Color of the background in rgba format, 4 values.
-/// background_gradient_color_stop: Color, Optional
+///background_rgba: list[float, 4], Optional
+///    Sets the Color of the background in rgba format.
+///background_gradient_color_stop: Color, Optional
 ///    Sets the stop Color of the background gradient.
-/// background_gradient_color_stop_alpha: float, Optional
+///background_gradient_color_stop_alpha: float, Optional
 ///    Sets the alpha of the Color.
-/// background_gradient_rgba_stop: list, Optional
-///    Sets the stop rgba color of the background gradient, 4 values.
+///background_gradient_rgba_stop: list[float, 4], Optional
+///    Sets the stop rgba color of the background gradient.
 /// background_gradient_degrees: float, Optional,
 ///    Sets the gradient degrees
-/// background_gradient_radians: float, Optional,
+///background_gradient_radians: float, Optional,
 ///    Sets the gradient radians
-/// background_gradient_alpha: float, Optional,
+///background_gradient_alpha: float, Optional,
 ///    Sets the alpha color parameter.
 ///border_color: Color, Optional
 ///    Sets the Color used for the border.
 ///border_color_alpha: float, Optional
 ///    Sets the alpha of the Color.
-///border_rgba: list[float], Optional
-///    Sets the Color of the border in rgba format, 4 values.
-///border_radius: list[float], Optional
+///border_rgba: list[float, 4], Optional
+///    Sets the Color of the border in rgba format.
+///border_radius: list[float | float, 4], Optional
 ///    Sets the radius of the border, [float]=all corners, 
 ///    [float]=[top-left, top-right, bottom-right, bottom-left].
 ///border_width: float, Optional
@@ -234,19 +234,19 @@ pub fn add_button(
 ///    Sets the color of the shadow.
 ///shadow_color_alpha: float, Optional
 ///    Sets the alpha of the Color.
-///shadow_rgba: list[float], Optional
-///    Sets the color in rgba format [float; 4] used as state above.
-///shadow_offset_xy: list[float], Optional
+///shadow_rgba: list[float, 4], Optional
+///    Sets the color in rgba format.
+///shadow_offset_xy: list[float, 2], Optional
 ///    Sets the Shadow offset in the horizontal direction [x, y].
 ///shadow_blur_radius: float, Optional
 ///    Sets the blur radius of the shadow.
 ///text_color: Color, Optional
-///    Sets the text color, if not defined, will either be a Black or White variation based on theme background.
+///    Sets the text color, if not defined, will be a Black or White variation based on the background.
 ///text_color_alpha: float, Optional
 ///    Sets the alpha of the Color.
 ///text_rgba: list[float], Optional
 ///    Sets the color in rgba used as state above, 4 values.
-/// gen_id : int,  Optional
+///gen_id : int,  Optional
 ///     Obtains an ID of a widget that have not been created, used for the gen_id parameter.
 ///"""
 #[pyfunction]

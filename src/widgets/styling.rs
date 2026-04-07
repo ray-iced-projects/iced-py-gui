@@ -8,8 +8,8 @@ use iced::theme::palette::{Extended, Background, Primary, Secondary,
 
 use pyo3::pyclass;
 
-#[derive(Debug, Clone, PartialEq)]
-#[pyclass(eq, eq_int)]
+#[derive(Debug, Clone, PartialEq, Hash)]
+#[pyclass(eq, eq_int, hash, frozen)]
 pub enum StyleStandard {
     Primary,
     Secondary,

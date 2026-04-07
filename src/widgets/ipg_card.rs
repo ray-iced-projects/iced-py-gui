@@ -248,8 +248,8 @@ impl CardStyle {
         }
 }
 
-#[derive(Debug, Clone, PartialEq)]
-#[pyclass(eq, eq_int)]
+#[derive(Debug, Clone, PartialEq, Hash)]
+#[pyclass(eq, eq_int, hash, frozen)]
 pub enum CardStyleStd {
     Danger,
     Dark,
@@ -283,8 +283,8 @@ impl CardStyleStd {
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
-#[pyclass(eq, eq_int)]
+#[derive(Debug, Clone, PartialEq, Hash)]
+#[pyclass(eq, eq_int, hash, frozen)]
 pub enum CardStyleParam {
     BackgroundColor,
     BackgroundRgbaColor,
@@ -308,8 +308,8 @@ pub enum CardStyleParam {
     CloseRgbaColor,
 }
 
-#[derive(Debug, Clone, PartialEq)]
-#[pyclass(eq, eq_int)]
+#[derive(Debug, Clone, PartialEq, Hash)]
+#[pyclass(eq, eq_int, hash, frozen)]
 pub enum CardParam {
     Body,
     CloseSize,

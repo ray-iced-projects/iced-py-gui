@@ -7,8 +7,8 @@ use iced::{self, Radians,
     widget::{image::FilterMethod}};
 
 
-#[derive(Debug, Clone, PartialEq)]
-#[pyclass(eq, eq_int)]
+#[derive(Debug, Clone, PartialEq, Hash)]
+#[pyclass(eq, eq_int, hash, frozen)]
 pub enum Rotation {
     Floating,
     Solid,
@@ -40,8 +40,8 @@ impl Rotation {
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
-#[pyclass(eq, eq_int)]
+#[derive(Debug, Clone, PartialEq, Hash)]
+#[pyclass(eq, eq_int, hash, frozen)]
 pub enum ContentFit {
     Contain,
     Cover,
@@ -76,8 +76,8 @@ impl ContentFit {
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
-#[pyclass(eq, eq_int)]
+#[derive(Debug, Clone, PartialEq, Hash)]
+#[pyclass(eq, eq_int, hash, frozen)]
 pub enum ColorFilter {
     Linear,
     Nearest,

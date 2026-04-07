@@ -48,8 +48,8 @@ impl Font {
     }
 }
 
-#[derive(Debug, Clone, Default, PartialEq)]
-#[pyclass(eq, eq_int)]
+#[derive(Debug, Clone, Default, PartialEq, Hash)]
+#[pyclass(eq, eq_int, hash, frozen)]
 pub enum FontFamily {
     Name,
     Cursive,
@@ -91,8 +91,8 @@ impl FontFamily {
     }
 }
 
-#[derive(Debug, Clone, Default, PartialEq)]
-#[pyclass(eq, eq_int)]
+#[derive(Debug, Clone, Default, PartialEq, Hash)]
+#[pyclass(eq, eq_int, hash, frozen)]
 pub enum FontWeight {
     Black,
     Bold,
@@ -133,8 +133,8 @@ impl FontWeight {
     }
 }
 
-#[derive(Debug, Clone, Default, PartialEq)]
-#[pyclass(eq, eq_int)]
+#[derive(Debug, Clone, Default, PartialEq, Hash)]
+#[pyclass(eq, eq_int, hash, frozen)]
 pub enum FontStretch {
     Condensed,
     Expanded,
@@ -175,8 +175,8 @@ impl FontStretch {
     }
 }
 
-#[derive(Debug, Clone, Default, PartialEq)]
-#[pyclass(eq, eq_int)]
+#[derive(Debug, Clone, Default, PartialEq, Hash)]
+#[pyclass(eq, eq_int, hash, frozen)]
 pub enum FontStyle {
     #[default]
     Normal,
@@ -205,8 +205,8 @@ impl FontStyle {
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
-#[pyclass(eq, eq_int)]
+#[derive(Debug, Clone, PartialEq, Hash)]
+#[pyclass(eq, eq_int, hash, frozen)]
 pub enum FontParam {
     Family,
     Weight,

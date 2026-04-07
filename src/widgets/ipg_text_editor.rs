@@ -90,8 +90,8 @@ pub fn text_ed_callback(id: usize, message: TxtEdMessage, state: &mut IpgState) 
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
-#[pyclass(eq, eq_int)]
+#[derive(Debug, Clone, PartialEq, Hash)]
+#[pyclass(eq, eq_int, hash, frozen)]
 pub enum TextEditorParam {
     FontId, 
     Height, 

@@ -11,7 +11,10 @@ widgets = [
     "add_grid", "add_mouse_area","add_row",
     "add_opaque", "add_stack",
     # widgets
-    "add_button", "add_button_style", "add_checkbox", "add_checkbox_style", "add_color_picker",
+    "add_button", "add_button_style", 
+    
+    "add_checkbox", "add_checkbox_style", 
+    "add_color_picker",
     "add_date_picker", "add_divider", "add_image", 
     "add_picklist", "add_progress_bar", "add_radio", 
     "add_rule", "add_scrollable", "add_selectable_text", 
@@ -31,8 +34,8 @@ def show_help(_btn_id, widget_name):
 
 btn_style = ipg.add_button_style(border_radius=[5.0])
 
-with ipg.Window(title="Widget Help", center=True) as win:
-    with ipg.Row():
+with ipg.Window(title="Widget Help", center=True):
+    with ipg.Row(fill=True):
         with ipg.Scrollable():
             with ipg.Column(spacing=10.0, width=250.0, padding=[20.0]):
                 for name in widgets:
@@ -40,12 +43,11 @@ with ipg.Window(title="Widget Help", center=True) as win:
                         label=name,
                         padding=[5.0],
                         style_id=btn_style,
-                        # on_press=lambda _btn_id, name=name: show_help(name),
                         on_press=show_help,
                         user_data=name,
                     )
 
-        with ipg.Scrollable():
+        with ipg.Scrollable(width_fill=True):
             txt_id = ipg.add_text(content="Documentation will be displayed here")
 
 

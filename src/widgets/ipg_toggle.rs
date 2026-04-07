@@ -136,8 +136,8 @@ pub fn toggle_callback(state: &mut IpgState, id: usize, message: TOGMessage) {
 }
 
 
-#[derive(Debug, Clone, PartialEq)]
-#[pyclass(eq, eq_int)]
+#[derive(Debug, Clone, PartialEq, Hash)]
+#[pyclass(eq, eq_int, hash, frozen)]
 pub enum TogglerParam {
     FontId,
     Label,
@@ -242,8 +242,8 @@ impl TogglerStyle {
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
-#[pyclass(eq, eq_int)]
+#[derive(Debug, Clone, PartialEq, Hash)]
+#[pyclass(eq, eq_int, hash, frozen)]
 pub enum TogglerStyleParam {
     BackgroundColor,
     BackgroundRgbaColor,

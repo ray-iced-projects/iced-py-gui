@@ -52,8 +52,8 @@ pub struct RadioStyle {
     pub text_color: Option<iced::Color>,
 }
 
-#[derive(Debug, Clone, PartialEq)]
-#[pyclass(eq, eq_int)]
+#[derive(Debug, Clone, PartialEq, Hash)]
+#[pyclass(eq, eq_int, hash, frozen)]
 pub enum RadioDirection {
     Horizontal,
     Vertical,
@@ -255,8 +255,8 @@ let ud1 = access_user_data1();
 
 
 
-#[derive(Debug, Clone, PartialEq)]
-#[pyclass(eq, eq_int)]
+#[derive(Debug, Clone, PartialEq, Hash)]
+#[pyclass(eq, eq_int, hash, frozen)]
 pub enum RadioParam {
     Direction,
     FontId,
@@ -338,8 +338,8 @@ pub fn get_styling(theme: &Theme, status: Status,
 
 }
 
-#[derive(Debug, Clone, PartialEq)]
-#[pyclass(eq, eq_int)]
+#[derive(Debug, Clone, PartialEq, Hash)]
+#[pyclass(eq, eq_int, hash, frozen)]
 pub enum RadioStyleParam {
     BackgroundColor,
     BackgroundRgbaColor,

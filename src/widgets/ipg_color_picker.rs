@@ -134,8 +134,8 @@ pub fn color_picker_callback(state: &mut IpgState, id: usize, message: ColPikMes
 }
 
 
-#[derive(Debug, Clone, PartialEq)]
-#[pyclass(eq, eq_int)]
+#[derive(Debug, Clone, PartialEq, Hash)]
+#[pyclass(eq, eq_int, hash, frozen)]
 pub enum ColorPickerParam {
     ArrowStyle,
     Clip,
@@ -151,8 +151,8 @@ pub enum ColorPickerParam {
     WidthFill,
 }
 
-#[derive(Debug, Clone, PartialEq)]
-#[pyclass(eq, eq_int)]
+#[derive(Debug, Clone, PartialEq, Hash)]
+#[pyclass(eq, eq_int, hash, frozen)]
 pub enum ColorPickerStyleParam {
     BackgroundColor,
     BackgroundRbga,

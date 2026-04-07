@@ -159,8 +159,8 @@ impl Text {
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
-#[pyclass(eq, eq_int)]
+#[derive(Debug, Clone, PartialEq, Hash)]
+#[pyclass(eq, eq_int, hash, frozen)]
 pub enum TextParam {
     AlignBottomCenter,
     AlignBottomLeft,
@@ -187,7 +187,7 @@ pub enum TextParam {
 
 // The wrapping strategy of some text.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
-#[pyclass(eq, eq_int)]
+#[pyclass(eq, eq_int, hash, frozen)]
 pub enum TextWrapping {
     TextNone,
     #[default]
@@ -231,8 +231,8 @@ impl TextWrapping {
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
-#[pyclass(eq, eq_int)]
+#[derive(Debug, Clone, PartialEq, Hash)]
+#[pyclass(eq, eq_int, hash, frozen)]
 pub enum TextShaping {
     Auto,
     Basic,

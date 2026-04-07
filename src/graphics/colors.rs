@@ -10,8 +10,8 @@ use pyo3::{Py, PyAny, Python, pyclass};
 type PyObject = Py<PyAny>;
 
 
-#[derive(Debug, Clone, Default, PartialEq)]
-#[pyclass(eq, eq_int)]
+#[derive(Debug, Clone, Default, PartialEq, Hash)]
+#[pyclass(eq, eq_int, hash, frozen)]
 pub enum Color {
     #[default]
     PRIMARY,

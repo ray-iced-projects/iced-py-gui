@@ -106,8 +106,8 @@ impl RichText {
 }
 
 
-#[derive(Debug, Clone, PartialEq)]
-#[pyclass(eq, eq_int)]
+#[derive(Debug, Clone, PartialEq, Hash)]
+#[pyclass(eq, eq_int, hash, frozen)]
 pub enum RichTextParam {
     LineHeight,
     Show,
@@ -134,8 +134,8 @@ impl WidgetParamUpdate for RichText {
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
-#[pyclass(eq, eq_int)]
+#[derive(Debug, Clone, PartialEq, Hash)]
+#[pyclass(eq, eq_int, hash, frozen)]
 pub enum SpanParam {
     Text,
     Bold,

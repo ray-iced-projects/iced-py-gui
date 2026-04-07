@@ -252,8 +252,8 @@ pub fn primary(theme: &Theme) -> menu::Style {
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
-#[pyclass(eq, eq_int)]
+#[derive(Debug, Clone, PartialEq, Hash)]
+#[pyclass(eq, eq_int, hash, frozen)]
 pub enum MenuParam {
     BarHeight,
     BarHeightFill,
@@ -265,8 +265,8 @@ pub enum MenuParam {
 }
 
 
-#[derive(Debug, Clone, PartialEq)]
-#[pyclass(eq, eq_int)]
+#[derive(Debug, Clone, PartialEq, Hash)]
+#[pyclass(eq, eq_int, hash, frozen)]
 pub enum MenuStyleParam {
     BarBackgroundColor,
     BarBackgroundRgba,

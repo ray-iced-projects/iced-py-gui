@@ -286,8 +286,8 @@ fn disabled(style: button::Style) -> button::Style {
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
-#[pyclass(eq, eq_int)]
+#[derive(Debug, Clone, PartialEq, Hash)]
+#[pyclass(eq, eq_int, hash, frozen)]
 pub enum ButtonStyleStd {
     Background,
     Danger,
@@ -335,10 +335,9 @@ impl ButtonStyleStd {
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
-#[pyclass(eq, eq_int)]
+#[derive(Debug, Clone, PartialEq, Hash)]
+#[pyclass(eq, eq_int, hash, frozen)]
 pub enum ButtonParam {
-    ArrowStyle,
     Clip,
     Height,
     HeightFill,
@@ -346,8 +345,9 @@ pub enum ButtonParam {
     Label,
     Padding,
     Show,
+    StyleArrow,
     StyleId,
-    StyleStandard,
+    StyleStd,
     TextAlignBottomCenter,
     TextAlignBottomLeft,
     TextAlignBottomRight,
@@ -378,8 +378,8 @@ pub fn extract_button_style_standard(
     })
 }
 
-#[derive(Debug, Clone, PartialEq)]
-#[pyclass(eq, eq_int)]
+#[derive(Debug, Clone, PartialEq, Hash)]
+#[pyclass(eq, eq_int, hash, frozen)]
 pub enum ButtonStyleParam {
     BackgroundColor,
     BackgroundRbga,
@@ -405,9 +405,6 @@ impl WidgetParamUpdate for Button {
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
-            ButtonParam::ArrowStyle => {
-                self.style_arrow = Arrow::extract(value);
-            }
             ButtonParam::Clip => set_opt_bool(&mut self.clip, value, "ButtonParam::Clip"),
             ButtonParam::Height => set_height(&mut self.height, value, "ButtonParam::Height"),
             ButtonParam::HeightFill => set_height_fill(&mut self.height, value, "ButtonParam::HeightFill"),
@@ -415,8 +412,16 @@ impl WidgetParamUpdate for Button {
             ButtonParam::Label => set_opt_string(&mut self.label, value, "ButtonParam::Label"),
             ButtonParam::Padding => set_opt_vec_f32(&mut self.padding, value, "ButtonParam::Padding"),
             ButtonParam::Show => set_bool(&mut self.show, value, "Show"),
+            ButtonParam::StyleArrow => {
+                let value = Arrow::extract(value);
+                if value == Some(Arrow::ArrowNone) {
+                    self.style_arrow = None;
+                } else {
+                    self.style_arrow = value;
+                }
+            }
             ButtonParam::StyleId => set_opt_usize(&mut self.style_id, value, "ButtonParam::StyleId"),
-            ButtonParam::StyleStandard => {
+            ButtonParam::StyleStd => {
                 self.style_std = Some(extract_button_style_standard(value, "ButtonParam::StyleStandard"));
             },
             ButtonParam::TextSize => set_opt_f32(&mut self.text_size, value, "ButtonParam::TextSize"),

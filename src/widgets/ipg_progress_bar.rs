@@ -63,8 +63,8 @@ pub fn construct_progress_bar<'a>(bar: &'a ProgressBar,
 }
 
 
-#[derive(Debug, Clone, PartialEq)]
-#[pyclass(eq, eq_int)]
+#[derive(Debug, Clone, PartialEq, Hash)]
+#[pyclass(eq, eq_int, hash, frozen)]
 pub enum ProgressBarParam {
     Height,
     HeightFill,
@@ -158,8 +158,8 @@ pub fn get_styling(theme: &Theme,
  
 }
 
-#[derive(Debug, Clone, PartialEq)]
-#[pyclass(eq, eq_int)]
+#[derive(Debug, Clone, PartialEq, Hash)]
+#[pyclass(eq, eq_int, hash, frozen)]
 pub enum ProgressBarStyleParam {
     BackgroundColor,
     BackgroundRgbaColor,

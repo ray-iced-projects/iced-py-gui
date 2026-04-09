@@ -9,7 +9,7 @@ use crate::graphics::{colors::Color,
         bootstrap_arrow::Arrow}; 
 use crate::py_api::helpers::get_length; 
 use crate::state::{Widgets, get_id, set_state_of_widget}; 
-use crate::widgets::{ipg_text::TextShaping, 
+use crate::widgets::{
         ipg_pick_list::{PickList, PickListHandle, 
         PickListStyle, convert_pyobject_vec_string}};
 
@@ -87,7 +87,8 @@ use crate::widgets::{ipg_text::TextShaping,
     selected=None, 
     text_size=None, 
     text_line_height=None, 
-    text_shaping=None, 
+    text_shaping_advanced=None,
+    text_shaping_basic=None,
     handle=None, 
     arrow_size=None, 
     dynamic_closed=None, 
@@ -100,7 +101,6 @@ use crate::widgets::{ipg_text::TextShaping,
 pub fn add_pick_list(
     parent_id: String,
     options: PyObject,
-    // **above required
     gen_id: Option<usize>,
     on_select: Option<PyObject>,
     width: Option<f32>,
@@ -112,7 +112,8 @@ pub fn add_pick_list(
     selected: Option<String>,
     text_size: Option<f32>,
     text_line_height: Option<f32>,
-    text_shaping: Option<TextShaping>,
+    text_shaping_advanced: Option<bool>,
+    text_shaping_basic: Option<bool>,
     handle: Option<PickListHandle>,
     arrow_size: Option<f32>,
     dynamic_closed: Option<Arrow>,
@@ -155,7 +156,8 @@ pub fn add_pick_list(
             padding,
             text_size,
             text_line_height,
-            text_shaping,
+            text_shaping_advanced,
+            text_shaping_basic,
             handle,
             arrow_size,
             dynamic_closed,
@@ -275,17 +277,17 @@ pub fn add_pick_list_style(
     let id = get_id(gen_id);
     
     let background_color = 
-        Color::rgba_ipg_color_to_iced(background_rgba, background_color, background_color_alpha);
+        Color::rgba_ipg_color_to_iced(background_rgba, &background_color, background_color_alpha);
     let border_color = 
-        Color::rgba_ipg_color_to_iced(border_rgba, border_color, border_color_alpha);
+        Color::rgba_ipg_color_to_iced(border_rgba, &border_color, border_color_alpha);
     let border_color_hovered = 
-        Color::rgba_ipg_color_to_iced(border_rgba_hovered, border_color_hovered, border_color_hovered_alpha);
+        Color::rgba_ipg_color_to_iced(border_rgba_hovered, &border_color_hovered, border_color_hovered_alpha);
     let handle_color = 
-        Color::rgba_ipg_color_to_iced(handle_rgba, handle_color, handle_color_alpha);
+        Color::rgba_ipg_color_to_iced(handle_rgba, &handle_color, handle_color_alpha);
     let placeholder_color = 
-        Color::rgba_ipg_color_to_iced(placeholder_rgba, placeholder_color, placeholder_color_alpha);
+        Color::rgba_ipg_color_to_iced(placeholder_rgba, &placeholder_color, placeholder_color_alpha);
     let text_color = 
-        Color::rgba_ipg_color_to_iced(text_rgba, text_color, text_color_alpha);
+        Color::rgba_ipg_color_to_iced(text_rgba, &text_color, text_color_alpha);
 
     let mut state = access_state();
 

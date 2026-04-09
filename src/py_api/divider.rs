@@ -214,11 +214,11 @@ pub fn add_divider_style(
     let id = get_id(gen_id);
 
     let background_color = 
-        Color::rgba_ipg_color_to_iced(background_rgba, background_color, background_color_alpha);
+        Color::rgba_ipg_color_to_iced(background_rgba, &background_color, background_color_alpha);
     let background_color_hovered = 
-        Color::rgba_ipg_color_to_iced(background_rgba_hovered, background_color_hovered, background_color_hovered_alpha);
+        Color::rgba_ipg_color_to_iced(background_rgba_hovered, &background_color_hovered, background_color_hovered_alpha);
     let border_color = 
-        Color::rgba_ipg_color_to_iced(border_rgba, border_color, border_color_alpha);
+        Color::rgba_ipg_color_to_iced(border_rgba, &border_color, border_color_alpha);
 
     let mut state = access_state();
 

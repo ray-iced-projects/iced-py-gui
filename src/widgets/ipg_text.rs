@@ -1,20 +1,19 @@
 //! ipg_text
 use std::collections::HashMap;
 
-use iced::advanced::text;
-use iced::{Element, Length, alignment};
-use iced::widget::text::{Shaping, Style};
+use iced::{Element, alignment};
+use iced::widget::text::{Shaping, Style, Wrapping};
 use iced::widget;
 
-use pyo3::{Py, PyAny, Python, pyclass};
+use pyo3::{Py, PyAny, pyclass};
 type PyObject = Py<PyAny>;
 
 use crate::app::Message;
+use crate::graphics::colors::Color;
+use crate::py_api::helpers::get_len;
 use crate::state::Widgets;
 use crate::widgets::widget_param_update::{
-    WidgetParamUpdate, set_bool, set_height, set_height_fill, 
-    set_opt_bool_from_opt, set_opt_f32, set_opt_iced_color, 
-    set_opt_iced_color_from_rgba, set_string, set_width, set_width_fill
+    WidgetParamUpdate, set_t_value
 };
 
 
@@ -25,8 +24,11 @@ pub struct Text {
     pub content: String,
     pub size: Option<f32>,
     pub line_height: Option<f32>,  // defaults 1.3 relative
-    pub width: Length,
-    pub height: Length,
+    pub width: Option<f32>,
+    pub width_fill: Option<bool>,
+    pub height: Option<f32>,
+    pub height_fill: Option<bool>,
+    pub fill: Option<bool>,
     pub align_bottom_center: Option<bool>,
     pub align_bottom_left: Option<bool>,
     pub align_bottom_right: Option<bool>,
@@ -37,10 +39,15 @@ pub struct Text {
     pub align_top_left: Option<bool>,
     pub align_top_right: Option<bool>,
     pub font_id: Option<usize>,
-    pub shaping: Option<TextShaping>,
+    pub shaping_advanced: Option<bool>,
+    pub shaping_basic: Option<bool>,
     pub show: bool,
-    pub color: Option<iced::Color>,
-    pub wrapping: Option<TextWrapping>,
+    pub color: Option<Color>,
+    pub color_alpha: Option<f32>,
+    pub color_rgba: Option<[f32; 4]>,
+    pub wrapping_none: Option<bool>,
+    pub wrapping_glyph: Option<bool>,
+    pub wrapping_word_glyph: Option<bool>,
 }
 
 impl Text {
@@ -61,18 +68,20 @@ impl Text {
         let font_opt = 
             self.lookup(widgets, self.font_id)
                 .and_then(Widgets::as_font).cloned();
+        let color= 
+            Color::rgba_ipg_color_to_iced(self.color_rgba, &self.color, self.color_alpha);
 
         let txt = 
             widget::Text::new(self.content.clone())
-                .width(self.width)
-                .height(self.height)
+                .width(get_len(self.fill, self.width_fill, self.width))
+                .height(get_len(self.fill, self.height_fill, self.height))
                 .style(move|_|{
                     let mut style = Style::default();
-                    style.color = self.color;
+                    style.color = color;
                     style
                     }
                 );
-
+            
         let txt = 
             if let Some(sz) = self.size {
                 txt.size(sz)
@@ -144,14 +153,24 @@ impl Text {
                 txt.font(f.to_iced())
             } else { txt };
 
+        // default is word so not checked
+        // set to Some(true) in case user sets to false versus None
         let txt = 
-            if let Some(sh) = &self.shaping {
-                txt.shaping(sh.to_iced())
+            if self.wrapping_none == Some(true) {
+                txt.wrapping(Wrapping::None)
+            } else if self.wrapping_glyph == Some(true) {
+                txt.wrapping(Wrapping::Glyph)
+            } else if self.wrapping_word_glyph == Some(true) {
+                txt.wrapping(Wrapping::WordOrGlyph)
             } else { txt };
 
+        // default is auto so not checked
+        // set to Some(true) in case user sets to false versus None
         let txt = 
-            if let Some(wr) = &self.wrapping {
-                txt.wrapping(wr.to_iced())
+            if self.shaping_advanced == Some(true) {
+                txt.shaping(Shaping::Advanced)
+            } else if self.shaping_basic == Some(true) {
+                txt.shaping(Shaping::Basic)
             } else { txt };
 
         Some(txt.into())
@@ -171,106 +190,25 @@ pub enum TextParam {
     AlignTopCenter,
     AlignTopLeft,
     AlignTopRight,
+    Color,
+    ColorAlpha,
+    ColorRgba, 
     Content,
+    Fill,
     Height,
     HeightFill,
     LineHeight,
+    ShapingAdvanced,
+    ShapingBasic,
     Show,
     Size,
-    TextColor, 
-    TextRgba,
-    TextShaping,
-    TextWrapping,
     Width,
     WidthFill,
+    WrappingGlyph,
+    WrappingNone,
+    WrappingWordGlyph,
 }
 
-// The wrapping strategy of some text.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
-#[pyclass(eq, eq_int, hash, frozen)]
-pub enum TextWrapping {
-    TextNone,
-    #[default]
-    Glyph,
-    Word,
-    WordOrGlyph,
-}
-
-impl TextWrapping {
-    pub fn to_iced(&self) -> text::Wrapping {
-        match self {
-            TextWrapping::TextNone => text::Wrapping::None,
-            TextWrapping::Glyph => text::Wrapping::Glyph,
-            TextWrapping::Word => text::Wrapping::Word,
-            TextWrapping::WordOrGlyph => text::Wrapping::WordOrGlyph,
-        }
-    }
-
-    pub fn extract(value: &PyObject) -> Option<Self> {
-        Some(Python::attach(|py| {
-
-            let res = value.extract::<Self>(py);
-            match res {
-                Ok(val) => val,
-                Err(err) => panic!("Unable to extract python object for TextWrapping: {}", err),
-            }
-        }))
-    }
-
-    pub fn extract_opt(value: &PyObject) -> Option<Self> {
-        Python::attach(|py| {
-            let res = value.extract::<Option<Self>>(py);
-            match res {
-                Ok(val) => {
-                    if val.is_none() { return None }
-                    val
-                },
-                Err(err) => panic!("Unable to extract python TextWrapping: {}", err),
-            }
-        })  
-    }
-}
-
-#[derive(Debug, Clone, PartialEq, Hash)]
-#[pyclass(eq, eq_int, hash, frozen)]
-pub enum TextShaping {
-    Auto,
-    Basic,
-    Advanced,
-}
-
-impl TextShaping {
-    pub fn to_iced(&self) -> Shaping {
-        match self {
-            TextShaping::Auto => Shaping::Auto,
-            TextShaping::Basic => Shaping::Basic,
-            TextShaping::Advanced => Shaping::Advanced,
-        }
-    }
-
-    pub fn extract(value: &PyObject) -> Option<Self> {
-        Python::attach(|py| {
-            let res = value.extract::<Self>(py);
-            match res {
-                Ok(val) => Some(val),
-                Err(err) => panic!("Unable to extract python TextShaping: {}", err),
-            }
-        })  
-    }
-
-    pub fn extract_opt(value: &PyObject) -> Option<Self> {
-        Python::attach(|py| {
-            let res = value.extract::<Option<Self>>(py);
-            match res {
-                Ok(val) => {
-                    if val.is_none() { return None }
-                    val
-                },
-                Err(err) => panic!("Unable to extract python TextShaping: {}", err),
-            }
-        })  
-    }
-}
 
 // ---------------------------------------------------------------------------
 // WidgetParamUpdate implementation
@@ -281,27 +219,32 @@ impl WidgetParamUpdate for Text {
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
-            TextParam::AlignBottomCenter => set_opt_bool_from_opt(&mut self.align_bottom_center, value, "AlignBottomCenter"),
-            TextParam::AlignBottomLeft => set_opt_bool_from_opt(&mut self.align_bottom_left, value, "AlignBottomLeft"),
-            TextParam::AlignBottomRight => set_opt_bool_from_opt(&mut self.align_bottom_right, value, "AlignBottomRight"),
-            TextParam::AlignCenter => set_opt_bool_from_opt(&mut self.align_center, value, "AlignCenter"),
-            TextParam::AlignCenterLeft => set_opt_bool_from_opt(&mut self.align_center_left, value, "AlignCenterLeft"),
-            TextParam::AlignCenterRight => set_opt_bool_from_opt(&mut self.align_center_right, value, "AlignCenterRight"),
-            TextParam::AlignTopCenter => set_opt_bool_from_opt(&mut self.align_top_center, value, "AlignTopCenter"),
-            TextParam::AlignTopLeft => set_opt_bool_from_opt(&mut self.align_top_left, value, "AlignTopLeft"),
-            TextParam::AlignTopRight => set_opt_bool_from_opt(&mut self.align_top_right, value, "AlignTopRight"),
-            TextParam::Content => set_string(&mut self.content, value, "Content"),
-            TextParam::Height => set_height(&mut self.height, value, "Height"),
-            TextParam::HeightFill => set_height_fill(&mut self.height, value, "HeightFill"),
-            TextParam::LineHeight => set_opt_f32(&mut self.line_height, value, "LineHeight"),
-            TextParam::Show => set_bool(&mut self.show, value, "Show"),
-            TextParam::Size => set_opt_f32(&mut self.size, value, "Size"),
-            TextParam::TextColor  => set_opt_iced_color(&mut self.color, value, "TextColor"),
-            TextParam::TextRgba => set_opt_iced_color_from_rgba(&mut self.color, value, "TextRgba"),
-            TextParam::TextShaping => self.shaping = TextShaping::extract_opt(value),
-            TextParam::TextWrapping => self.wrapping = TextWrapping::extract_opt(value),
-            TextParam::Width => set_width(&mut self.width, value, "Width"),
-            TextParam::WidthFill => set_width_fill(&mut self.width, value, "WidthFill"),
+            TextParam::AlignBottomCenter => set_t_value(&mut self.align_bottom_center, value, "TextParam::AlignBottomCenter"),
+            TextParam::AlignBottomLeft => set_t_value(&mut self.align_bottom_left, value, "AlignBottomLeft"),
+            TextParam::AlignBottomRight => set_t_value(&mut self.align_bottom_right, value, "AlignBottomRight"),
+            TextParam::AlignCenter => set_t_value(&mut self.align_center, value, "TextParam::AlignCenter"),
+            TextParam::AlignCenterLeft => set_t_value(&mut self.align_center_left, value, "TextParam::AlignCenterLeft"),
+            TextParam::AlignCenterRight => set_t_value(&mut self.align_center_right, value, "TextParam::AlignCenterRight"),
+            TextParam::AlignTopCenter => set_t_value(&mut self.align_top_center, value, "TextParam::AlignTopCenter"),
+            TextParam::AlignTopLeft => set_t_value(&mut self.align_top_left, value, "TextParam::AlignTopLeft"),
+            TextParam::AlignTopRight => set_t_value(&mut self.align_top_right, value, "TextParam::AlignTopRight"),
+            TextParam::Color => set_t_value(&mut self.color, value, "TextParam::Color"),
+            TextParam::ColorAlpha => set_t_value(&mut self.color_alpha, value, "TextParam::ColorAlpha"),
+            TextParam::ColorRgba => set_t_value(&mut self.color_rgba, value, "TextParam::ColorRgba"),
+            TextParam::Content => set_t_value(&mut self.content, value, "TextParam::Content"),
+            TextParam::Fill => set_t_value(&mut self.fill, value, "TextParam::Fill"),
+            TextParam::Height => set_t_value(&mut self.height, value, "TextParam::Height"),
+            TextParam::HeightFill => set_t_value(&mut self.height_fill, value, "TextParam::HeightFill"),
+            TextParam::LineHeight => set_t_value(&mut self.line_height, value, "TextParam::LineHeight"),
+            TextParam::ShapingAdvanced => set_t_value(&mut self.shaping_advanced, value, "TextParam::ShapingAdvanced"),
+            TextParam::ShapingBasic => set_t_value(&mut self.shaping_basic, value, "TextParam::ShapingBasic"),
+            TextParam::Show => set_t_value(&mut self.show, value, "TextParam::Show"),
+            TextParam::Size => set_t_value(&mut self.size, value, "TextParam::Size"),
+            TextParam::Width => set_t_value(&mut self.width, value, "TextParam::Width"),
+            TextParam::WidthFill => set_t_value(&mut self.width_fill, value, "TextParam::WidthFill"),
+            TextParam::WrappingGlyph => set_t_value(&mut self.wrapping_glyph, value, "TextParam::WrappingGlyph"),
+            TextParam::WrappingNone => set_t_value(&mut self.wrapping_none, value, "TextParam::WrappingNone"),
+            TextParam::WrappingWordGlyph => set_t_value(&mut self.wrapping_word_glyph, value, "TextParam::WrappingWordGlyph"),
         }
     }
 }
@@ -310,7 +253,7 @@ impl WidgetParamUpdate for Text {
 mod tests {
     use super::*;
     use iced::Length;
-    use pyo3::IntoPyObjectExt;
+    use pyo3::{IntoPyObjectExt, Python};
 
     fn make_text() -> Text {
         Text {
@@ -319,8 +262,11 @@ mod tests {
             content: String::from("test"),
             size: None,
             line_height: None,
-            width: Length::Shrink,
-            height: Length::Shrink,
+            width: None,
+            width_fill: None,
+            height: None,
+            height_fill: None,
+            fill: None,
             align_bottom_center: None,
             align_bottom_left: None,
             align_bottom_right: None,
@@ -331,10 +277,15 @@ mod tests {
             align_top_left: None,
             align_top_right: None,
             font_id: None,
-            shaping: None,
+            shaping_advanced: None,
+            shaping_basic: None,
             show: true,
             color: None,
-            wrapping: None,
+            color_alpha: None,
+            color_rgba: None,
+            wrapping_none: None,
+            wrapping_glyph: None,
+            wrapping_word_glyph: None,
         }
     }
 
@@ -383,6 +334,36 @@ mod tests {
     }
 
     #[test]
+    fn test_color() {
+        Python::initialize();
+        let mut t = make_text();
+        t.param_update(TextParam::Color, &py_obj(Color::BLACK));
+        assert_eq!(t.color, Some(Color::BLACK));
+        t.param_update(TextParam::Color, &py_none());
+        assert!(t.color.is_none());
+    }
+
+    #[test]
+    fn test_color_alpha() {
+        Python::initialize();
+        let mut t = make_text();
+        t.param_update(TextParam::ColorAlpha, &py_obj(0.5));
+        assert_eq!(t.color_alpha, Some(0.5));
+        t.param_update(TextParam::ColorAlpha, &py_none());
+        assert!(t.color_alpha.is_none());
+    }
+
+    #[test]
+    fn test_color_rgba() {
+        Python::initialize();
+        let mut t = make_text();
+        t.param_update(TextParam::ColorRgba, &py_obj(vec![1.0f32, 0.0, 0.0, 1.0]));
+        assert_eq!(t.color_rgba, Some([1.0f32, 0.0, 0.0, 1.0]));
+        t.param_update(TextParam::ColorRgba, &py_none());
+        assert!(t.color.is_none());
+    }
+
+    #[test]
     fn test_content() {
         Python::initialize();
         let mut t = make_text();
@@ -395,9 +376,9 @@ mod tests {
         Python::initialize();
         let mut t = make_text();
         t.param_update(TextParam::Height, &py_obj(100.0f32));
-        assert_eq!(t.height, Length::Fixed(100.0));
+        assert_eq!(get_len(t.fill, t.height_fill, t.height), Length::Fixed(100.0f32));
         t.param_update(TextParam::Height, &py_none());
-        assert_eq!(t.height, Length::Shrink);
+        assert_eq!(get_len(t.fill, t.height_fill, t.height), Length::Shrink);
     }
 
     #[test]
@@ -405,9 +386,19 @@ mod tests {
         Python::initialize();
         let mut t = make_text();
         t.param_update(TextParam::HeightFill, &py_obj(true));
-        assert_eq!(t.height, Length::Fill);
+        assert_eq!(get_len(t.fill, t.height_fill, t.height), Length::Fill);
         t.param_update(TextParam::HeightFill, &py_obj(false));
-        assert_eq!(t.height, Length::Shrink);
+        assert_eq!(get_len(t.fill, t.height_fill, t.height), Length::Shrink);
+    }
+
+    #[test]
+    fn test_fill() {
+        Python::initialize();
+        let mut t = make_text();
+        t.param_update(TextParam::Fill, &py_obj(true));
+        assert_eq!(t.fill, Some(true));
+        t.param_update(TextParam::Fill, &py_obj(false));
+        assert_eq!(t.fill, Some(false));
     }
 
     #[test]
@@ -439,23 +430,13 @@ mod tests {
     }
 
     #[test]
-    fn test_text_rgba() {
-        Python::initialize();
-        let mut t = make_text();
-        t.param_update(TextParam::TextRgba, &py_obj(vec![1.0f32, 0.0, 0.0, 1.0]));
-        assert!(t.color.is_some());
-        t.param_update(TextParam::TextRgba, &py_none());
-        assert!(t.color.is_none());
-    }
-
-    #[test]
     fn test_width() {
         Python::initialize();
         let mut t = make_text();
         t.param_update(TextParam::Width, &py_obj(200.0f32));
-        assert_eq!(t.width, Length::Fixed(200.0));
+        assert_eq!(get_len(t.fill, t.width_fill, t.width), Length::Fixed(200.0));
         t.param_update(TextParam::Width, &py_none());
-        assert_eq!(t.width, Length::Shrink);
+        assert_eq!(get_len(t.fill, t.width_fill, t.width), Length::Shrink);
     }
 
     #[test]
@@ -463,8 +444,8 @@ mod tests {
         Python::initialize();
         let mut t = make_text();
         t.param_update(TextParam::WidthFill, &py_obj(true));
-        assert_eq!(t.width, Length::Fill);
+        assert_eq!(get_len(t.fill, t.width_fill, t.width), Length::Fill);
         t.param_update(TextParam::WidthFill, &py_obj(false));
-        assert_eq!(t.width, Length::Shrink);
+        assert_eq!(get_len(t.fill, t.width_fill, t.width), Length::Shrink);
     }
 }

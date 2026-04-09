@@ -185,7 +185,7 @@ pub fn add_scrollable_style(
     let id = get_id(gen_id);
 
     let gap_color = 
-        Color::rgba_ipg_color_to_iced(gap_rgba, gap_color, gap_color_alpha);
+        Color::rgba_ipg_color_to_iced(gap_rgba, &gap_color, gap_color_alpha);
     
     let mut state = access_state();
 
@@ -362,14 +362,14 @@ pub fn add_rail_style(
     let id = get_id(gen_id);
 
     let background = 
-        Color::rgba_ipg_color_to_iced(background_rgba, background_color, background_color_alpha);
+        Color::rgba_ipg_color_to_iced(background_rgba, &background_color, background_color_alpha);
     let border_color = 
-        Color::rgba_ipg_color_to_iced(border_rgba, border_color, border_color_alpha);
+        Color::rgba_ipg_color_to_iced(border_rgba, &border_color, border_color_alpha);
 
     let scroller_background = 
-        Color::rgba_ipg_color_to_iced(scroller_background_rgba, scroller_background_color, scroller_background_color_alpha);
+        Color::rgba_ipg_color_to_iced(scroller_background_rgba, &scroller_background_color, scroller_background_color_alpha);
     let scroller_border_color = 
-        Color::rgba_ipg_color_to_iced(scroller_border_rgba, scroller_border_color, scroller_border_color_alpha);
+        Color::rgba_ipg_color_to_iced(scroller_border_rgba, &scroller_border_color, scroller_border_color_alpha);
     
     let mut state = access_state();
 
@@ -480,13 +480,13 @@ pub fn add_autoscroll_style(
     let id = get_id(gen_id);
 
     let background = 
-        Color::rgba_ipg_color_to_iced(background_rgba, background_color, background_color_alpha);
+        Color::rgba_ipg_color_to_iced(background_rgba, &background_color, background_color_alpha);
     let border_color = 
-        Color::rgba_ipg_color_to_iced(border_rgba, border_color, border_color_alpha);
+        Color::rgba_ipg_color_to_iced(border_rgba, &border_color, border_color_alpha);
     let shadow_color = 
-        Color::rgba_ipg_color_to_iced(shadow_rgba, shadow_color, shadow_color_alpha);
+        Color::rgba_ipg_color_to_iced(shadow_rgba, &shadow_color, shadow_color_alpha);
     let shadow_icon_color = 
-        Color::rgba_ipg_color_to_iced(shadow_icon_rgba, shadow_icon_color, shadow_icon_color_alpha);
+        Color::rgba_ipg_color_to_iced(shadow_icon_rgba, &shadow_icon_color, shadow_icon_color_alpha);
     
     let mut state = access_state();
 

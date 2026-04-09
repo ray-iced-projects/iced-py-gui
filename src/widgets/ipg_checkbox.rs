@@ -4,9 +4,8 @@ use std::collections::HashMap;
 
 use crate::state::IpgState;
 use crate::app::Message;
-use crate::widgets::ipg_text::{TextShaping, TextWrapping};
 use crate::widgets::widget_param_update::{
-    WidgetParamUpdate, set_bool, set_opt_f32, set_opt_iced_color, set_opt_iced_color_from_rgba, set_opt_string, set_opt_usize, set_opt_vec_f32, set_width, set_width_fill
+    WidgetParamUpdate, set_bool, set_opt_f32, set_opt_iced_color, set_opt_iced_color_from_rgba, set_opt_string, set_opt_usize, set_opt_vec_f32, set_t_value, set_width, set_width_fill
 };
 use crate::widgets::callbacks::invoke_callback_with_args;
 use crate::state::Widgets;
@@ -18,7 +17,7 @@ use crate::widgets::styling::{apply_border_overrides, create_custom_theme};
 
 use iced::advanced::text;
 use iced::{Background, Element, Length, Theme};
-use iced::widget::text::{LineHeight, Shaping};
+use iced::widget::text::{LineHeight, Shaping, Wrapping};
 use iced::widget::{Checkbox, checkbox};
 use iced::theme::palette;
 
@@ -38,14 +37,18 @@ pub struct CheckBox {
     pub spacing: Option<f32>,
     pub text_size: Option<f32>,
     pub text_line_height: Option<f32>,
-    pub text_shaping: Option<TextShaping>,
-    pub text_wrapping: Option<TextWrapping>,
+    pub text_shaping_advanced: Option<bool>,
+    pub text_shaping_basic: Option<bool>,
+    pub text_wrapping_none: Option<bool>,
+    pub text_wrapping_glyph: Option<bool>,
+    pub text_wrapping_word_glyph: Option<bool>,
     pub text_font_id: Option<usize>,
     pub icon_font_id: Option<usize>,
     pub icon: Option<Icon>,
     pub icon_size: Option<f32>,
     pub icon_line_height: Option<f32>,
-    pub icon_shaping: Option<TextShaping>,
+    pub icon_shaping_advanced: Option<bool>,
+    pub icon_shaping_basic: Option<bool>,
     pub style_id: Option<usize>,
     pub style_std: Option<CheckboxStyleStd>,
 }
@@ -82,23 +85,26 @@ impl CheckBox {
                 Some(iced::Pixels(sz))
             } else { None };
 
-        let shaping = 
-            if let Some(sh) = &self.icon_shaping {
-                TextShaping::to_iced(sh)
-            } else { Shaping::default() };
-
         let line_height = 
             if let Some(lh) = self.icon_line_height {
                 LineHeight::Relative(lh)
             } else { LineHeight::default() };
 
+        // default is auto so not checked
+        let icon_s = 
+            if self.icon_shaping_advanced.is_some() {
+                Shaping::Advanced
+            } else if self.icon_shaping_basic.is_some() {
+                Shaping::Basic
+            } else { Shaping::Auto };
+        
         let icon = 
             checkbox::Icon {
                 font: BOOTSTRAP_FONT,
                 code_point,
                 size,
                 line_height,
-                shaping,
+                shaping: icon_s,
             };
         
         // Text related
@@ -107,17 +113,11 @@ impl CheckBox {
                 text::LineHeight::Relative(lh)
             } else { text::LineHeight::default() };
 
-        let text_shaping = 
-            if let Some(ts) = &self.text_shaping {
-                TextShaping::to_iced(ts)
-            } else { Shaping::default() };
-
-    let chk = 
+        let chk = 
             Checkbox::new(self.is_checked)
                 .on_toggle(ChkMessage::OnToggle)
                 .width(self.width)
                 .text_line_height(text_line_height)
-                .text_shaping(text_shaping)
                 .icon(icon)
                 .style(move|theme: &Theme, status| {   
                     if let Some(st) = &style_opt {
@@ -142,11 +142,30 @@ impl CheckBox {
                 chk.size(sz)
             } else { chk };
 
-        let chk: Element<'_, ChkMessage> = 
+        let chk = 
             if let Some(sp) = self.spacing {
-                chk.spacing(sp).into()
-            } else { chk.into() };
+                chk.spacing(sp)
+            } else { chk };
 
+        // default is word so not checked
+        let chk = 
+            if self.text_wrapping_none.is_some() {
+                chk.text_wrapping(Wrapping::None)
+            } else if self.text_wrapping_glyph.is_some() {
+                chk.text_wrapping(Wrapping::Glyph)
+            } else if self.text_wrapping_word_glyph.is_some() {
+                chk.text_wrapping(Wrapping::WordOrGlyph)
+            } else { chk };
+
+        // default is auto so not checked
+        let chk = 
+            if self.text_shaping_advanced.is_some() {
+                chk.text_shaping(Shaping::Advanced)
+            } else if self.text_shaping_basic.is_some() {
+                chk.text_shaping(Shaping::Basic)
+            } else { chk };
+
+        let chk: Element<'_, ChkMessage> = chk.into();
         Some(chk.map(move |message| Message::CheckBox(self.id, message)))
 
     }
@@ -328,7 +347,8 @@ pub enum CheckboxParam {
     IconFont,
     IconLineHeight,
     IconSize,
-    IconShaping,
+    IconShapingAdvanced,
+    IconShapingBasic,
     IsChecked,
     Label,
     Spacing,
@@ -336,7 +356,11 @@ pub enum CheckboxParam {
     StyleStandard,
     TextFont,
     TextLineHeight,
-    TextShaping,
+    TextShapingAdvanced,
+    TextShapingBasic,
+    TextWrappingNone,
+    TextWrappingGlyph,
+    TextWrappingWordGlyph,
     TextSize,
     Width,
     WidthFill,
@@ -387,21 +411,26 @@ impl WidgetParamUpdate for CheckBox {
                 self.icon = Some(Icon::extract(value));
             }
             CheckboxParam::IconFont     => { /* TODO */ }
-            CheckboxParam::IconLineHeight => set_opt_f32(&mut self.icon_line_height, value, "IconLineHeight"),
-            CheckboxParam::IconSize     => set_opt_f32(&mut self.icon_size, value, "IconSize"),
-            CheckboxParam::IconShaping  => self.icon_shaping = TextShaping::extract(value),
-            CheckboxParam::IsChecked    => set_bool(&mut self.is_checked, value, "IsChecked"),
-            CheckboxParam::Label        => set_opt_string(&mut self.label, value, "Label"),
-            CheckboxParam::Show         => set_bool(&mut self.show, value, "Show"),
-            CheckboxParam::Spacing      => set_opt_f32(&mut self.spacing, value, "Spacing"),
-            CheckboxParam::TextLineHeight => set_opt_f32(&mut self.text_line_height, value, "TextLineHeight"),
-            CheckboxParam::TextShaping  => self.text_shaping = TextShaping::extract(value),
-            CheckboxParam::TextSize     => set_opt_f32(&mut self.text_size, value, "TextSize"),
-            CheckboxParam::Style        => set_opt_usize(&mut self.style_id, value, "Style"),
+            CheckboxParam::IconLineHeight => set_t_value(&mut self.icon_line_height, value, "CheckboxParam::IconLineHeight"),
+            CheckboxParam::IconShapingAdvanced => set_t_value(&mut self.icon_shaping_advanced, value, "CheckboxParam::IconShapingAdvanced"),
+            CheckboxParam::IconShapingBasic => set_t_value(&mut self.icon_shaping_basic, value, "CheckboxParam::IconShapingBasic"),
+            CheckboxParam::IconSize     => set_opt_f32(&mut self.icon_size, value, "CheckboxParam::IconSize"),
+            CheckboxParam::IsChecked    => set_bool(&mut self.is_checked, value, "CheckboxParam::IsChecked"),
+            CheckboxParam::Label        => set_opt_string(&mut self.label, value, "CheckboxParam::Label"),
+            CheckboxParam::Show         => set_bool(&mut self.show, value, "CheckboxParam::Show"),
+            CheckboxParam::Spacing      => set_opt_f32(&mut self.spacing, value, "CheckboxParam::Spacing"),
+            CheckboxParam::Style        => set_opt_usize(&mut self.style_id, value, "CheckboxParam::Style"),
             CheckboxParam::StyleStandard => self.style_std = Some(extract_chk_style_standard(value)),
-            CheckboxParam::Width        => set_width(&mut self.width, value, "Width"),
-            CheckboxParam::WidthFill    => set_width_fill(&mut self.width, value, "WidthFill"),
             CheckboxParam::TextFont     => { /* TODO */ }
+            CheckboxParam::TextLineHeight => set_opt_f32(&mut self.text_line_height, value, "CheckboxParam::TextLineHeight"),
+            CheckboxParam::TextShapingAdvanced => set_t_value(&mut self.text_shaping_advanced, value, "CheckboxParam::TextShapingAdvanced"),
+            CheckboxParam::TextShapingBasic => set_t_value(&mut self.text_shaping_basic, value, "CheckboxParam::TextShapingBasic"),
+            CheckboxParam::TextSize     => set_opt_f32(&mut self.text_size, value, "CheckboxParam::TextSize"),
+            CheckboxParam::TextWrappingGlyph => set_t_value(&mut self.text_wrapping_glyph, value, "CheckboxParam::TextWrappingGlyph"),
+            CheckboxParam::TextWrappingNone => set_t_value(&mut self.text_wrapping_none, value, "CheckboxParam::TextWrappingNone"),
+            CheckboxParam::TextWrappingWordGlyph => set_t_value(&mut self.text_wrapping_word_glyph, value, "CheckboxParam::TextWrappingWordGlyph"),
+            CheckboxParam::Width        => set_width(&mut self.width, value, "CheckboxParam::Width"),
+            CheckboxParam::WidthFill    => set_width_fill(&mut self.width, value, "CheckboxParam::WidthFill"),
         }
     }
 }
@@ -443,14 +472,18 @@ mod tests {
             spacing: None,
             text_size: None,
             text_line_height: None,
-            text_shaping: None,
-            text_wrapping: None,
+            text_shaping_advanced: None,
+            text_shaping_basic: None,
+            text_wrapping_none: None,
+            text_wrapping_glyph: None,
+            text_wrapping_word_glyph: None,
             text_font_id: None,
             icon_font_id: None,
             icon: None,
             icon_size: None,
             icon_line_height: None,
-            icon_shaping: None,
+            icon_shaping_advanced: None,
+            icon_shaping_basic: None,
             style_id: None,
             style_std: None,
         }

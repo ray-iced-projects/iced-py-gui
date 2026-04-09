@@ -2,6 +2,7 @@
 
 use iced::advanced::text;
 use iced::widget;
+use iced::widget::text::{Shaping, Wrapping};
 use iced::{Element, Length, Theme};
 use iced::theme::palette::{deviate, mix};
 
@@ -10,14 +11,12 @@ use pyo3::{pyclass, Py, PyAny};
 use crate::app::Message;
 use crate::py_api::helpers::get_radius;
 use crate::state::Widgets;
-use crate::widgets::ipg_text::TextWrapping;
 use crate::widgets::widget_param_update::{WidgetParamUpdate, set_bool, 
     set_opt_bool, set_opt_f32, set_opt_iced_color, set_opt_iced_color_from_rgba, 
-    set_opt_string, set_opt_text_shaping, set_opt_text_wrapping, set_opt_usize, 
+    set_opt_string, set_opt_usize, 
     set_opt_vec_f32, set_width, set_width_fill};
 use crate::IpgState;
 use crate::widgets::callbacks::invoke_callback_with_args;
-use crate::widgets::ipg_text::TextShaping;
 type PyObject = Py<PyAny>;
 
 
@@ -35,8 +34,11 @@ pub struct Toggler {
     pub text_center: Option<bool>,
     pub text_left: Option<bool>,
     pub text_right: Option<bool>,
-    pub text_shaping: Option<TextShaping>,
-    pub text_wrapping: Option<TextWrapping>,
+    pub shaping_advanced: Option<bool>,
+    pub shaping_basic: Option<bool>,
+    pub wrapping_none: Option<bool>,
+    pub wrapping_glyph: Option<bool>,
+    pub wrapping_word_glyph: Option<bool>,
     pub spacing: Option<f32>,
     pub font_id: Option<usize>,
     pub style_id: Option<usize>,
@@ -100,10 +102,6 @@ pub fn construct_toggler<'a>(
         tog = tog.text_size(ts);
     }
 
-    if let Some(tw) = ipg_tog.text_wrapping {
-        tog = tog.text_wrapping(tw.to_iced());
-    }
-
     if let Some(sp) = ipg_tog.spacing {
         tog = tog.spacing(sp);
     }
@@ -116,6 +114,24 @@ pub fn construct_toggler<'a>(
             _ => ()
         }
     }
+
+    // default is word so not checked
+    let tog = 
+        if ipg_tog.wrapping_none.is_some() {
+            tog.text_wrapping(Wrapping::None)
+        } else if ipg_tog.wrapping_glyph.is_some() {
+            tog.text_wrapping(Wrapping::Glyph)
+        } else if ipg_tog.wrapping_word_glyph.is_some() {
+            tog.text_wrapping(Wrapping::WordOrGlyph)
+        } else { tog };
+
+    // default is auto so not checked
+    let tog = 
+        if ipg_tog.shaping_advanced.is_some() {
+            tog.text_shaping(Shaping::Advanced)
+        } else if ipg_tog.shaping_basic.is_some() {
+            tog.text_shaping(Shaping::Basic)
+        } else { tog };
 
     let tog: Element<'_, TOGMessage> = tog.into();
     Some(tog.map(move |message| Message::Toggler(ipg_tog.id, message)))
@@ -141,19 +157,22 @@ pub fn toggle_callback(state: &mut IpgState, id: usize, message: TOGMessage) {
 pub enum TogglerParam {
     FontId,
     Label,
+    ShapingAdvanced,
+    ShapingBasic,
     Show,
     Size,
     Spacing,
     StyleId,
     TextCenter,
     TextLeft,
-    TextRight,
     TextLineHeight,
-    TextShaping,
+    TextRight,
     TextSize,
-    TextWrapping,
     Width,
     WidthFill,
+    WrappingGlyph,
+    WrappingNone,
+    WrappingWordGlyph,
 }
 
 #[derive(Debug, Clone)]
@@ -274,19 +293,22 @@ impl WidgetParamUpdate for Toggler {
         match param {
             TogglerParam::FontId => set_opt_usize(&mut self.font_id, value, "FontId"),
             TogglerParam::Label => set_opt_string(&mut self.label, value, "Label"),
+            TogglerParam::ShapingAdvanced => todo!(),
+            TogglerParam::ShapingBasic => todo!(),
             TogglerParam::Show => set_bool(&mut self.show, value, "Show"),
             TogglerParam::Size => set_opt_f32(&mut self.size, value, "Size"),
             TogglerParam::Spacing => set_opt_f32(&mut self.spacing, value, "Spacing"),
             TogglerParam::StyleId => set_opt_usize(&mut self.style_id, value, "StyleId"),
             TogglerParam::TextCenter => set_opt_bool(&mut self.text_center, value, "TextCenter"),
             TogglerParam::TextLeft => set_opt_bool(&mut self.text_left, value, "TextLeft"),
-            TogglerParam::TextRight => set_opt_bool(&mut self.text_right, value, "TextRight"),
             TogglerParam::TextLineHeight => set_opt_f32(&mut self.text_line_height, value, "TextLineHeight"),
-            TogglerParam::TextShaping => set_opt_text_shaping(&mut self.text_shaping, value, "TextShaping"),
+            TogglerParam::TextRight => set_opt_bool(&mut self.text_right, value, "TextRight"),
             TogglerParam::TextSize => set_opt_f32(&mut self.text_size, value, "TextSize"),
-            TogglerParam::TextWrapping => set_opt_text_wrapping(&mut self.text_wrapping, value, "TextWrapping"),
             TogglerParam::Width => set_width(&mut self.width, value, "Width"),
             TogglerParam::WidthFill => set_width_fill(&mut self.width, value, "WidthFill"),
+            TogglerParam::WrappingGlyph => todo!(),
+            TogglerParam::WrappingNone => todo!(),
+            TogglerParam::WrappingWordGlyph => todo!(),
         }
     }
 }
@@ -348,8 +370,11 @@ mod tests {
             text_center: None,
             text_left: None,
             text_right: None,
-            text_shaping: None,
-            text_wrapping: None,
+            shaping_advanced: None,
+            shaping_basic: None,
+            wrapping_none: None,
+            wrapping_glyph: None,
+            wrapping_word_glyph: None,
             spacing: None,
             font_id: None,
             style_id: None,

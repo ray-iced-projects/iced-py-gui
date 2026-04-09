@@ -125,10 +125,10 @@ impl WidgetParamUpdate for RichText {
             RichTextParam::Show => set_bool(&mut self.show, value, "RichTextParam::Show"),
             RichTextParam::Size => set_opt_f32(&mut self.size, value, "RichTextParam::Size"),
             RichTextParam::TextColor => {
-                self.color = Color::rgba_ipg_color_to_iced(None, None, None);
+                self.color = Color::rgba_ipg_color_to_iced(None, &None, None);
             },
             RichTextParam::TextRgba => {
-                self.color = Color::rgba_ipg_color_to_iced(None, None, None);
+                self.color = Color::rgba_ipg_color_to_iced(None, &None, None);
             },
         }
     }

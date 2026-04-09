@@ -226,13 +226,13 @@ pub fn add_slider_style(
     let id = get_id(gen_id);
 
     let rail_color = 
-        Color::rgba_ipg_color_to_iced(rail_rgba, rail_color, rail_color_alpha);
+        Color::rgba_ipg_color_to_iced(rail_rgba, &rail_color, rail_color_alpha);
     let rail_color_hovered = 
-        Color::rgba_ipg_color_to_iced(rail_rgba_hovered, rail_color_hovered, rail_color_hovered_alpha);
+        Color::rgba_ipg_color_to_iced(rail_rgba_hovered, &rail_color_hovered, rail_color_hovered_alpha);
     let handle_color = 
-        Color::rgba_ipg_color_to_iced(handle_rgba, handle_color, handle_color_alpha);
+        Color::rgba_ipg_color_to_iced(handle_rgba, &handle_color, handle_color_alpha);
     let handle_border_color = 
-        Color::rgba_ipg_color_to_iced(handle_border_rgba, handle_border_color, handle_border_color_alpha);
+        Color::rgba_ipg_color_to_iced(handle_border_rgba, &handle_border_color, handle_border_color_alpha);
 
     let mut state = access_state();
     

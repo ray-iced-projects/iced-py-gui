@@ -91,7 +91,7 @@ pub fn add_svg(
     let id = get_id(gen_id);
 
     let color_filter = 
-        Color::rgba_ipg_color_to_iced(rgba_filter, ipg_color_filter, ipg_color_filter_alpha);
+        Color::rgba_ipg_color_to_iced(rgba_filter, &ipg_color_filter, ipg_color_filter_alpha);
 
     let width = get_length(width, width_fill);
     let height = get_length(height, height_fill);

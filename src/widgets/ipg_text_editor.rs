@@ -2,7 +2,7 @@
 
 use iced::{highlighter, Length};
 use iced::widget;
-use iced::widget::text;
+use iced::widget::text::Wrapping;
 
 use iced::{Element, Fill};
 use pyo3::{pyclass, Py, PyAny};
@@ -10,7 +10,6 @@ type PyObject = Py<PyAny>;
 
 use crate::IpgState;
 use crate::app::Message;
-use crate::widgets::ipg_text::TextWrapping;
 use crate::widgets::widget_param_update::{WidgetParamUpdate, set_opt_usize};
 
 
@@ -27,7 +26,9 @@ pub struct TextEditor {
     pub min_height: Option<f32>,
     pub max_height: Option<f32>,
     pub padding: Option<Vec<f32>>,
-    pub wrapping: Option<TextWrapping>,
+    pub wrapping_none: Option<bool>,
+    pub wrapping_glyph: Option<bool>,
+    pub wrapping_word_glyph: Option<bool>,
     pub last_status: TxtEdStatus,
 }
 
@@ -36,17 +37,21 @@ impl TextEditor {
         &'a self,
     ) -> Option<Element<'a, Message>> {
 
-        let word_wrap = if let Some(tw) = self.wrapping {
-            tw.to_iced()
-        } else {
-            text::Wrapping::None
-        };
+        // default is word so not checked
+        let wrapping = 
+            if self.wrapping_none.is_some() {
+                Wrapping::None
+            } else if self.wrapping_glyph.is_some() {
+                Wrapping::Glyph
+            } else if self.wrapping_word_glyph.is_some() {
+                Wrapping::WordOrGlyph
+            } else { Wrapping::Word };
 
         let te: Element<'_, TxtEdMessage> = widget::text_editor(&self.content)
                 .placeholder("Type something here...")
                 .height(Fill)
                 .on_action(TxtEdMessage::ActionPerformed)
-                .wrapping(word_wrap)
+                .wrapping(wrapping)
                 .into();
 
         Some(te.map(move |message| Message::TextEditor(self.id, message)))
@@ -102,7 +107,9 @@ pub enum TextEditorParam {
     PlaceHolder, 
     TextSize, 
     Width, 
-    Wrapping, 
+    WrappingGlyph,
+    WrappingNone,
+    WrappingWordGlyph,
 }
 
 
@@ -124,8 +131,10 @@ impl WidgetParamUpdate for TextEditor {
             TextEditorParam::PlaceHolder => todo!(),
             TextEditorParam::TextSize => todo!(),
             TextEditorParam::Width => todo!(),
-            TextEditorParam::Wrapping => todo!(),
-        }
+            TextEditorParam::WrappingGlyph => todo!(),
+            TextEditorParam::WrappingNone => todo!(),
+            TextEditorParam::WrappingWordGlyph => todo!(),
+                    }
     }
 }
 

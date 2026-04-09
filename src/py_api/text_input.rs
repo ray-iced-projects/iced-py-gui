@@ -296,26 +296,26 @@ pub fn add_text_input_style(
     let id = get_id(gen_id);
 
     let background_color = 
-        Color::rgba_ipg_color_to_iced(background_rgba, background_color, background_color_alpha);
+        Color::rgba_ipg_color_to_iced(background_rgba, &background_color, background_color_alpha);
     let border_color_active = 
-        Color::rgba_ipg_color_to_iced(border_rgba_active, border_color_active, border_color_active_alpha);
+        Color::rgba_ipg_color_to_iced(border_rgba_active, &border_color_active, border_color_active_alpha);
     let border_color_hovered = 
-        Color::rgba_ipg_color_to_iced(border_rgba_hovered, border_color_hovered, border_color_hovered_alpha);
+        Color::rgba_ipg_color_to_iced(border_rgba_hovered, &border_color_hovered, border_color_hovered_alpha);
     let border_color_focused = 
-        Color::rgba_ipg_color_to_iced(border_rgba_focused, border_color_focused, border_color_focused_alpha);
+        Color::rgba_ipg_color_to_iced(border_rgba_focused, &border_color_focused, border_color_focused_alpha);
     let border_color_disabled = 
-        Color::rgba_ipg_color_to_iced(border_rgba_disabled, border_color_disabled, border_color_disabled_alpha);
+        Color::rgba_ipg_color_to_iced(border_rgba_disabled, &border_color_disabled, border_color_disabled_alpha);
     
     // let icon_color = get_color(icon_rgba, icon_color, 1.0);
     let placeholder_color_active = 
-        Color::rgba_ipg_color_to_iced(placeholder_rgba_active, placeholder_color_active, placeholder_color_active_alpha);
+        Color::rgba_ipg_color_to_iced(placeholder_rgba_active, &placeholder_color_active, placeholder_color_active_alpha);
     let placeholder_color_disabled = 
-        Color::rgba_ipg_color_to_iced(placeholder_rgba_disabled, placeholder_color_disabled, placeholder_color_disabled_alpha);
+        Color::rgba_ipg_color_to_iced(placeholder_rgba_disabled, &placeholder_color_disabled, placeholder_color_disabled_alpha);
 
     let value_color = 
-        Color::rgba_ipg_color_to_iced(value_rgba, value_color, value_color_alpha);
+        Color::rgba_ipg_color_to_iced(value_rgba, &value_color, value_color_alpha);
     let selection_color = 
-        Color::rgba_ipg_color_to_iced(selection_rgba, selection_color, selection_color_alpha);
+        Color::rgba_ipg_color_to_iced(selection_rgba, &selection_color, selection_color_alpha);
 
     let mut state = access_state();
     

@@ -3175,19 +3175,6 @@ class TextInputParam:
     StyleId:int
 
 
-class TextShaping:
-    Auto=''
-    Basic=''
-    Advanced=''
-
-
-class TextWrapping:
-    TextNone=''
-    Glyph=''
-    Word=''
-    WordOrGlyph=''
-    
-    
 class TextParam:
     """
     Text parameters
@@ -3197,30 +3184,51 @@ class TextParam:
     Content: str
         The text.
     AlignBottomCenter: Optional[bool]
+        Whether to align the text to bottom center.
     AlignBottomLeft: Optional[bool]
+        Whether to align the text bottom left,
     AlignBottomRight: Optional[bool]
+        Whether to align the text bottom right.
     AlignCenter: Optional[bool]
+        Whether to align the text centered.
     AlignCenterLeft: Optional[bool]
+        Whether to align the text center left.
     AlignCenterRight: Optional[bool]
+        Whether to align the text center right.
     AlignTopCenter: Optional[bool]
+        Whether to align the text top center.
     AlignTopLeft: Optional[bool]
+        Whether to align the text top left.
     AlignTopRight: Optional[bool]
+        Whether to align the text top right.
     Height: Optional[float]
-        The height of the widget.
-    HeightFill: bool=True
+        The height of the widget, default height shrinks to text height.
+    HeightFill: Optional[bool]
         Whether to fill the height of the container with the widget.
     LineHeight: Optional[float]
         The height of the text box.
     Size: Optional[float]
         The size of the text.
-    TextColor: Optional[Color]
-        The color of the text.
-    TextRgba: Optional[list[float, 4]]
+    ShapingAdvanced: Optional[bool],
+        Wheter to use advanced shaping.
+    ShapingBasic: Optional[bool],
+        Whether to use basic shaping.
+    Color: Optional[Color]
+        The color of the text, default depends on theme.
+    ColorAlpha: Optional[float]
+        The alpha value of the Color.
+    TexColorRgba: Optional[list[float, 4]]
         The color of the text in rgba format.
     Width: Optional[float]
-        The width of the widget.
-    WidthFill: bool=False
+        The width of the widget, default width shrinks to text width.
+    WidthFill: bool
         Whether to fill the width of the container with the widget.
+    WrappingGlyph: Optional[bool]
+        Whether to wrap at a glyph.
+    WrappingNone: Optional[bool]
+        Whether to have no wrapping, default is word.
+    WrappingWordGlyph: Optional[bool]
+        Whether to wrap on a glyph or word.
     Show: bool=True
         Whether to show or hide the widget.
     """
@@ -3237,12 +3245,16 @@ class TextParam:
     Height: float
     HeightFill: bool
     LineHeight: float
+    ShapingAdvanced: bool
+    ShapingBasic: bool
     Show: bool
     Size: float
-    TextColor: Color
-    TextRgba: list[float, 4]
-    TextShaping: TextShaping
-    TextWrapping: TextWrapping
+    Color: Color
+    ColorAlpha: bool
+    ColorRgba: list[float, 4]
+    WrappingGlyph: bool
+    WrappingNone: bool
+    WrappingWordGlyph: bool
     Width: float
     WidthFill: bool
 
@@ -3432,9 +3444,7 @@ class TogglerParam:
     TextLeft: bool
     TextRight: bool
     TextLineHeight: float
-    TextShaping: TextShaping
     TextSize: float
-    TextWrapping: TextWrapping
     Width: float
     WidthFill: bool
 
@@ -3545,19 +3555,6 @@ class WindowLevel:
     AlwaysOnBottom=''
     AlwaysOnTop=''
 
-
-class TextWrapping:
-    """ How the text wrapping is performed.
-    TextNone — no wrapping; text overflows its bounds
-    Word — wrap at word boundaries (spaces/hyphens); the default behavior
-    Glyph — wrap at any character; words can be split mid-letter
-    WordOrGlyph — try word boundaries first, but if a single word is too long to fit, fall back to glyph-level breaking
-    """
-    TextNone=''
-    Word=''
-    Glyph=''
-    WordOrGlyph=''
-    
 
 class WindowTheme:
     """

@@ -5,8 +5,8 @@ type PyObject = Py<PyAny>;
 use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex, 
     graphics::colors::Color, py_api::helpers::get_length, 
     state::{Widgets, get_id, set_state_of_widget}, 
-    widgets::{ipg_text::TextShaping, ipg_radio::{Radio, RadioDirection, 
-        RadioStyle}, ipg_text::TextWrapping}};
+    widgets::{ipg_radio::{Radio, RadioDirection, 
+        RadioStyle}}};
 
 
 /// Add a radio button group widget.
@@ -89,8 +89,11 @@ use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex,
     text_spacing=None, 
     text_size=None,
     text_line_height=None, 
-    text_shaping=None,
-    text_wrapping=None, 
+    text_shaping_advanced=None,
+    text_shaping_basic=None,
+    text_wrapping_none=None,
+    text_wrapping_glyph=None,
+    text_wrapping_word_glyph=None,
     user_data=None, 
     show=true, 
     ))]
@@ -115,8 +118,11 @@ pub fn add_radio(
     text_spacing: Option<f32>,
     text_size: Option<f32>,
     text_line_height: Option<f32>,
-    text_shaping: Option<TextShaping>,
-    text_wrapping: Option<TextWrapping>,
+    text_shaping_advanced: Option<bool>,
+    text_shaping_basic: Option<bool>,
+    text_wrapping_none: Option<bool>,
+    text_wrapping_glyph: Option<bool>,
+    text_wrapping_word_glyph: Option<bool>,
     user_data: Option<PyObject>,
     show: bool,
     ) -> PyResult<usize>
@@ -161,8 +167,11 @@ pub fn add_radio(
             text_spacing,
             text_size,
             text_line_height,
-            text_shaping,
-            text_wrapping,
+            text_shaping_advanced,
+            text_shaping_basic,
+            text_wrapping_none,
+            text_wrapping_glyph,
+            text_wrapping_word_glyph,
             font_id,
             style_id,
         }));
@@ -274,17 +283,17 @@ pub fn add_radio_style(
     let id = get_id(gen_id);
 
     let background_color = 
-        Color::rgba_ipg_color_to_iced(background_rgba, background_color, background_color_alpha);
+        Color::rgba_ipg_color_to_iced(background_rgba, &background_color, background_color_alpha);
     let background_color_hovered = 
-        Color::rgba_ipg_color_to_iced(background_rgba_hovered, background_color_hovered, background_color_hovered_alpha);
+        Color::rgba_ipg_color_to_iced(background_rgba_hovered, &background_color_hovered, background_color_hovered_alpha);
     let dot_color = 
-        Color::rgba_ipg_color_to_iced(dot_rgba, dot_color, dot_color_alpha);
+        Color::rgba_ipg_color_to_iced(dot_rgba, &dot_color, dot_color_alpha);
     let dot_color_hovered = 
-        Color::rgba_ipg_color_to_iced(dot_rgba_hovered, dot_color_hovered, dot_color_hovered_alpha);
+        Color::rgba_ipg_color_to_iced(dot_rgba_hovered, &dot_color_hovered, dot_color_hovered_alpha);
     let border_color = 
-        Color::rgba_ipg_color_to_iced(border_rgba, border_color, border_color_alpha);
+        Color::rgba_ipg_color_to_iced(border_rgba, &border_color, border_color_alpha);
     let text_color = 
-        Color::rgba_ipg_color_to_iced(text_rgba, text_color, text_color_alpha);
+        Color::rgba_ipg_color_to_iced(text_rgba, &text_color, text_color_alpha);
 
     let mut state = access_state();
 

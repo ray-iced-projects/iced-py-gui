@@ -228,44 +228,44 @@ pub fn add_menu_style(
     let bar_background_color = 
         Color::rgba_ipg_color_to_iced(
             bar_background_rgba, 
-            bar_background_color, 
+            &bar_background_color, 
             bar_background_alpha);
     let bar_border_color = 
         Color::rgba_ipg_color_to_iced(
             bar_border_rgba, 
-            bar_border_color, 
+            &bar_border_color, 
             bar_border_alpha);
     let bar_shadow_color = 
         Color::rgba_ipg_color_to_iced(
             bar_shadow_rgba, 
-            bar_shadow_color, 
+            &bar_shadow_color, 
             bar_shadow_alpha);
 
     let menu_background_color = 
         Color::rgba_ipg_color_to_iced(
             menu_background_rgba, 
-            menu_background_color, 
+            &menu_background_color, 
             menu_background_alpha);
     let menu_border_color = 
         Color::rgba_ipg_color_to_iced(
             menu_border_rgba, 
-            menu_border_color, 
+            &menu_border_color, 
             menu_border_alpha);
     let menu_shadow_color = 
         Color::rgba_ipg_color_to_iced(
             menu_shadow_rgba, 
-            menu_shadow_color, 
+            &menu_shadow_color, 
             menu_shadow_alpha);
 
     let path_background_color = 
         Color::rgba_ipg_color_to_iced(
             path_background_rgba, 
-            path_background_color, 
+            &path_background_color, 
             path_background_alpha);
     let path_border_color = 
         Color::rgba_ipg_color_to_iced(
             path_border_rgba, 
-            path_border_color, 
+            &path_border_color, 
             path_border_alpha);
 
     let mut state = access_state();

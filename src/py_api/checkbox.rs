@@ -11,7 +11,6 @@ use crate::py_api::helpers::get_length;
 use crate::state::{Widgets, access_state, 
     add_callback_to_mutex, get_id, set_state_of_widget};
 use crate::widgets::ipg_checkbox::{CheckBox, CheckboxStyle, CheckboxStyleStd};
-use crate::widgets::ipg_text::{TextShaping, TextWrapping};
 
 
 /// Add a checkbox widget.
@@ -40,10 +39,16 @@ use crate::widgets::ipg_text::{TextShaping, TextWrapping};
 ///     Sets the Font size for the label text.
 /// text_line_height : float,  Optional
 ///     Sets the Line height for the label text.
-/// text_shaping : TextShaping,  Optional
-///     Sets the Text shaping strategy for the label.
-/// text_wrapping : TextWrapping,  Optional
-///     Sets the Text wrapping strategy for the label.
+/// text_shaping_advanced: Optional[bool]
+///     Sets the Text shaping strategy for the label to advanced.
+/// text_shaping_basic Optional[bool]
+///     Sets the Text shaping strategy for the label to basic.
+/// text_wrapping_none: Optional[bool]
+///     Sets the wrapping mode of the label to no wrapping, default is on a word.
+/// text_wrapping_glyph: Optional[bool]
+///     Sets the wrapping mode of the label to wrap on a glyph.
+/// text_wrapping_word_glyph: Optional[bool]
+///     Sets the wrapping mode of the label to wrap on a glyph or glyph.
 /// text_font_id : int,  Optional
 ///     Sets the Font ID for the label text.
 /// icon_font_id : int,  Optional
@@ -84,14 +89,18 @@ use crate::widgets::ipg_text::{TextShaping, TextWrapping};
     spacing=None, 
     text_size=None,
     text_line_height=None,
-    text_shaping=None,
-    text_wrapping=None,
+    text_shaping_advanced=None,
+    text_shaping_basic=None,
+    text_wrapping_none=None,
+    text_wrapping_glyph=None,
+    text_wrapping_word_glyph=None,
     text_font_id=None,
     icon_font_id= None,
     icon=None,
     icon_size=None,
     icon_line_height=None,
-    icon_shaping=None,
+    icon_shaping_advanced=None,
+    icon_shaping_basic=None,
     user_data=None, 
     show=true, 
     style_id=None, 
@@ -109,14 +118,18 @@ pub fn add_checkbox(
     spacing: Option<f32>,
     text_size: Option<f32>,
     text_line_height: Option<f32>,
-    text_shaping: Option<TextShaping>,
-    text_wrapping: Option<TextWrapping>,
+    text_shaping_advanced: Option<bool>,
+    text_shaping_basic: Option<bool>,
+    text_wrapping_none: Option<bool>,
+    text_wrapping_glyph: Option<bool>,
+    text_wrapping_word_glyph: Option<bool>,
     text_font_id: Option<usize>,
     icon_font_id: Option<usize>,
     icon: Option<Icon>,
     icon_size: Option<f32>,
     icon_line_height: Option<f32>,
-    icon_shaping: Option<TextShaping>,
+    icon_shaping_advanced: Option<bool>,
+    icon_shaping_basic: Option<bool>,
     user_data: Option<PyObject>,
     show: bool,
     style_id: Option<usize>,
@@ -152,14 +165,18 @@ pub fn add_checkbox(
             spacing,
             text_size,
             text_line_height,
-            text_shaping,
-            text_wrapping,
+            text_shaping_advanced,
+            text_shaping_basic,
+            text_wrapping_none,
+            text_wrapping_glyph,
+            text_wrapping_word_glyph,
             text_font_id,
             icon_font_id,
             icon,
             icon_size,
             icon_line_height,
-            icon_shaping,
+            icon_shaping_advanced,
+            icon_shaping_basic,
             style_id,
             style_std,
             }));
@@ -247,13 +264,13 @@ pub fn add_checkbox_style(
     let id = get_id(gen_id);
 
     let background_color = 
-        Color::rgba_ipg_color_to_iced(background_rgba, background_color, background_color_alpha);
+        Color::rgba_ipg_color_to_iced(background_rgba, &background_color, background_color_alpha);
     let border_color = 
-        Color::rgba_ipg_color_to_iced(border_rgba, border_color, border_color_alpha);
+        Color::rgba_ipg_color_to_iced(border_rgba, &border_color, border_color_alpha);
     let icon_color = 
-        Color::rgba_ipg_color_to_iced(icon_rgba, icon_color, icon_color_alpha);
+        Color::rgba_ipg_color_to_iced(icon_rgba, &icon_color, icon_color_alpha);
     let text_color = 
-        Color::rgba_ipg_color_to_iced(text_rgba, text_color, text_color_alpha);
+        Color::rgba_ipg_color_to_iced(text_rgba, &text_color, text_color_alpha);
 
     let mut state = access_state();
 

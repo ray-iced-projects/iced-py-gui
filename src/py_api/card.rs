@@ -323,23 +323,23 @@ pub fn add_card_style(
     let id = get_id(gen_id);
 
     let background = 
-        Color::rgba_ipg_color_to_iced(background_rgba, background_color, background_color_alpha);
+        Color::rgba_ipg_color_to_iced(background_rgba, &background_color, background_color_alpha);
     let border_color = 
-        Color::rgba_ipg_color_to_iced(border_rgba, border_color, border_color_alpha);
+        Color::rgba_ipg_color_to_iced(border_rgba, &border_color, border_color_alpha);
     let head_background = 
-        Color::rgba_ipg_color_to_iced(head_background_rgba, head_background_color, head_background_color_alpha);
+        Color::rgba_ipg_color_to_iced(head_background_rgba, &head_background_color, head_background_color_alpha);
     let body_background = 
-        Color::rgba_ipg_color_to_iced(body_background_rgba, body_background_color, body_background_color_alpha);
+        Color::rgba_ipg_color_to_iced(body_background_rgba, &body_background_color, body_background_color_alpha);
     let foot_background = 
-        Color::rgba_ipg_color_to_iced(foot_background_rgba, foot_background_color, foot_background_color_alpha);
+        Color::rgba_ipg_color_to_iced(foot_background_rgba, &foot_background_color, foot_background_color_alpha);
     let head_text_color = 
-        Color::rgba_ipg_color_to_iced(head_text_rgba, head_text_color, head_text_color_alpha);
+        Color::rgba_ipg_color_to_iced(head_text_rgba, &head_text_color, head_text_color_alpha);
     let body_text_color = 
-        Color::rgba_ipg_color_to_iced(body_text_rgba, body_text_color, body_text_color_alpha);
+        Color::rgba_ipg_color_to_iced(body_text_rgba, &body_text_color, body_text_color_alpha);
     let foot_text_color = 
-        Color::rgba_ipg_color_to_iced(foot_text_rgba, foot_text_color, foot_text_color_alpha);
+        Color::rgba_ipg_color_to_iced(foot_text_rgba, &foot_text_color, foot_text_color_alpha);
     let close_color = 
-        Color::rgba_ipg_color_to_iced(close_rgba, close_color, close_color_alpha);
+        Color::rgba_ipg_color_to_iced(close_rgba, &close_color, close_color_alpha);
 
     let mut state = access_state();
 

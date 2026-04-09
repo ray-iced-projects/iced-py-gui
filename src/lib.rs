@@ -92,7 +92,7 @@ use crate::widgets::ipg_svg::SvgParam;
 use crate::widgets::ipg_table::TableParam;
 use crate::widgets::ipg_text_input::{TextInputParam, TextInputStyleParam};
 use crate::widgets::ipg_text_rich::{RichTextParam, SpanParam};
-use crate::widgets::ipg_text::{TextParam, TextWrapping, TextShaping};
+use crate::widgets::ipg_text::TextParam;
 use crate::widgets::ipg_timer::{TimerParam, update_timer};
 use crate::widgets::ipg_toggle::{TogglerParam, TogglerStyleParam};
 use crate::widgets::ipg_tool_tip::{ToolTipPosition, ToolTipParam};
@@ -257,8 +257,6 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<PickListHandle>()?;
     m.add_class::<RadioDirection>()?;
     m.add_class::<SeparatorType>()?;
-    m.add_class::<TextShaping>()?;
     m.add_class::<ToolTipPosition>()?;
-    m.add_class::<TextWrapping>()?;
     Ok(())
 }

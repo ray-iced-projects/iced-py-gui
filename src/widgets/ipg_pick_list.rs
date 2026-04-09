@@ -8,13 +8,13 @@ use crate::widgets::widget_param_update::set_opt_iced_color_from_rgba;
 use crate::widgets::widget_param_update::set_opt_ipg_arrow;
 use crate::widgets::widget_param_update::{WidgetParamUpdate,
     set_bool, set_height, set_height_fill,set_opt_iced_color,
-    set_opt_f32, set_opt_string, set_opt_text_shaping,
+    set_opt_f32, set_opt_string,
     set_opt_usize, set_opt_vec_f32, set_vec_string,
     set_width};
-use crate::widgets::ipg_text::TextShaping;
 use super::callbacks::invoke_callback_with_args;
 
 use iced::widget::pick_list::{self, Status};
+use iced::widget::text::Shaping;
 use iced::{Font, Pixels, Theme};
 use iced::{Length, Element};
 use iced::widget;
@@ -38,7 +38,8 @@ pub struct PickList {
     pub padding: Option<Vec<f32>>,
     pub text_size: Option<f32>,
     pub text_line_height: Option<f32>,
-    pub text_shaping: Option<TextShaping>,
+    pub text_shaping_advanced: Option<bool>,
+    pub text_shaping_basic: Option<bool>,
     pub handle: Option<PickListHandle>,
     pub arrow_size: Option<f32>,
     pub dynamic_closed: Option<Arrow>,
@@ -110,10 +111,16 @@ pub fn construct_picklist<'a>(
         pl.text_line_height(lh)
     } else { pl };
 
-    let pl: Element<'_, PLMessage> = if let Some(sh) = &pick.text_shaping {
-        pl.text_shaping(sh.to_iced())
-    } else { pl }.into();
+    // default is auto so not checked
+    let pl = 
+        if pick.text_shaping_advanced.is_some() {
+            pl.text_shaping(Shaping::Advanced)
+        } else if pick.text_shaping_basic.is_some() {
+            pl.text_shaping(Shaping::Basic)
+        } else { pl };
 
+    
+    let pl: Element<'_, PLMessage> = pl.into();
     Some(pl.map(move |message| app::Message::PickList(pick.id, message)))
 
 }
@@ -391,9 +398,9 @@ impl WidgetParamUpdate for PickList {
             PickListParam::Show => set_bool(&mut self.show, value, "Show"),
             PickListParam::StyleId => set_opt_usize(&mut self.style_id, value, "StyleId"),
             PickListParam::TextLineHeight => set_opt_f32(&mut self.text_line_height,value, "TextLineHeight"),
-            PickListParam::TextShaping => set_opt_text_shaping(&mut self.text_shaping, value, "TextShaping"),
             PickListParam::TextSize => set_opt_f32(&mut self.text_size, value, "TextSize"),
             PickListParam::Width => set_width(&mut self.width, value, "Width"),
+            PickListParam::TextShaping => todo!(),
         }
     }
 }
@@ -450,7 +457,8 @@ mod tests {
             padding: None,
             text_size: None,
             text_line_height: None,
-            text_shaping: None,
+            text_shaping_advanced: None,
+            text_shaping_basic: None,
             handle: None,
             arrow_size: None,
             dynamic_closed: None,

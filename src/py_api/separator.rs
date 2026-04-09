@@ -186,9 +186,9 @@ pub fn add_separator_style(
     let id = get_id(gen_id);
 
     let color = 
-        Color::rgba_ipg_color_to_iced(rgba_color, ipg_color, ipg_color_alpha);
+        Color::rgba_ipg_color_to_iced(rgba_color, &ipg_color, ipg_color_alpha);
     let border_color = 
-        Color::rgba_ipg_color_to_iced(border_rgba_color, border_ipg_color, border_ipg_color_alpha);
+        Color::rgba_ipg_color_to_iced(border_rgba_color, &border_ipg_color, border_ipg_color_alpha);
 
     let mut state = access_state();
     

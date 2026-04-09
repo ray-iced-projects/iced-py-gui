@@ -126,7 +126,7 @@ pub fn add_rule_style(
 {
     let id = get_id(gen_id);
 
-    let color = Color::rgba_ipg_color_to_iced(color_rgba, color, color_alpha);
+    let color = Color::rgba_ipg_color_to_iced(color_rgba, &color, color_alpha);
     
     let mut state = access_state();
 

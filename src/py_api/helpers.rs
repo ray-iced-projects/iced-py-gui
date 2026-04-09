@@ -28,6 +28,18 @@ pub fn find_key_for_value(ids: HashMap<window::Id, usize>, value: usize) -> wind
     }
 }
 
+pub fn get_len(fill: Option<bool>, length_fill: Option<bool>, length: Option<f32>) -> Length {
+    if fill == Some(true) || length_fill == Some(true) {
+        return Length::Fill
+    }
+
+    if length.is_some() {
+        return Length::Fixed(length.unwrap())
+    }
+
+    Length::Shrink
+}
+
 // Standard method for Length using Width
 pub fn get_length(value: Option<f32>, fill: bool)-> Length {
     // width overrides width_fill

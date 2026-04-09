@@ -1,15 +1,15 @@
 //!ipg_radio
 
 use crate::py_api::helpers::get_padding;
-use crate::widgets::ipg_text::TextWrapping;
 use crate::widgets::widget_param_update::{
-    WidgetParamUpdate, set_bool, set_height, set_height_fill, set_opt_f32, set_opt_iced_color, set_opt_iced_color_from_rgba, set_opt_text_shaping, set_opt_text_wrapping, set_opt_usize, set_opt_vec_f32, set_vec_string, set_width, set_width_fill};
-use crate::widgets::ipg_text::TextShaping;
+    WidgetParamUpdate, set_bool, set_height, set_height_fill, set_opt_f32, set_opt_iced_color, set_opt_iced_color_from_rgba, set_opt_usize, set_opt_vec_f32, set_vec_string, set_width, set_width_fill};
+
 use crate::{access_callbacks, access_user_data1, IpgState};
 use crate::app;
 use crate::state::Widgets;
 
 use iced::widget::radio::{self, Status};
+use iced::widget::text::{Shaping, Wrapping};
 use iced::{Element, Length, Theme};
 use iced::widget::{self, Column, Row};
 
@@ -34,8 +34,11 @@ pub struct Radio {
     pub text_spacing: Option<f32>,
     pub text_size: Option<f32>,
     pub text_line_height: Option<f32>,
-    pub text_shaping: Option<TextShaping>,
-    pub text_wrapping: Option<TextWrapping>,
+    pub text_shaping_advanced: Option<bool>,
+    pub text_shaping_basic: Option<bool>,
+    pub text_wrapping_none: Option<bool>,
+    pub text_wrapping_glyph: Option<bool>,
+    pub text_wrapping_word_glyph: Option<bool>,
     pub font_id: Option<usize>,
     pub style_id: Option<usize>,
 }
@@ -120,15 +123,6 @@ pub fn construct_radio<'a>(rad: &'a Radio,
             rd = rd.text_line_height(lh);
         }
 
-        if let Some(sh) = &rad.text_shaping {
-            rd = rd.text_shaping(sh.to_iced());
-        }
-
-        if let Some(wp) = &rad.text_wrapping {
-            rd = rd.text_wrapping(wp.to_iced());
-        }
-
-        
         let rd = 
         if let Some(wd) = font_opt {
             match wd {
@@ -138,6 +132,24 @@ pub fn construct_radio<'a>(rad: &'a Radio,
                 _ => rd
             }
         } else { rd };
+
+        // default is word so not checked
+        let rd = 
+            if rad.text_wrapping_none.is_some() {
+                rd.text_wrapping(Wrapping::None)
+            } else if rad.text_wrapping_glyph.is_some() {
+                rd.text_wrapping(Wrapping::Glyph)
+            } else if rad.text_wrapping_word_glyph.is_some() {
+                rd.text_wrapping(Wrapping::WordOrGlyph)
+            } else { rd };
+
+        // default is auto so not checked
+        let rd = 
+            if rad.text_shaping_advanced.is_some() {
+                rd.text_shaping(Shaping::Advanced)
+            } else if rad.text_shaping_basic.is_some() {
+                rd.text_shaping(Shaping::Basic)
+            } else { rd };
         
 
         radio_elements.push(rd);
@@ -381,7 +393,6 @@ impl WidgetParamUpdate for Radio {
             RadioParam::Padding => set_opt_vec_f32(&mut self.padding, value, "Padding"),
             RadioParam::RadioSpacing => set_opt_f32(&mut self.radio_spacing, value, "RadioSpacing"),
             RadioParam::Show => set_bool(&mut self.show, value, "Show"),
-            RadioParam::TextShaping => set_opt_text_shaping(&mut self.text_shaping, value, "TextShaping"),
             RadioParam::Size => set_opt_f32(&mut self.size, value, "Size"),
             RadioParam::Spacing => set_opt_f32(&mut self.spacing, value, "Spacing"),
             RadioParam::StyleId => set_opt_usize(&mut self.style_id, value, "StyleId"),
@@ -390,8 +401,9 @@ impl WidgetParamUpdate for Radio {
             RadioParam::TextSpacing => set_opt_f32(&mut self.text_spacing, value, "TextSpacing"),
             RadioParam::Width => set_width(&mut self.width, value, "Width"),
             RadioParam::WidthFill => set_width_fill(&mut self.width, value, "WidthFill"),
-            RadioParam::TextWrapping => set_opt_text_wrapping(&mut self.text_wrapping, value, "TextWrapping"),
-        }
+            RadioParam::TextShaping => todo!(),
+            RadioParam::TextWrapping => todo!(),
+                    }
     }
 }
 
@@ -449,8 +461,11 @@ mod tests {
             text_spacing: None,
             text_size: None,
             text_line_height: None,
-            text_shaping: None,
-            text_wrapping: None,
+            text_shaping_advanced: None,
+            text_shaping_basic: None,
+            text_wrapping_none: None,
+            text_wrapping_glyph: None,
+            text_wrapping_word_glyph: None,
             font_id: None,
             style_id: None,
         }

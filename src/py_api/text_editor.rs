@@ -6,7 +6,6 @@ use pyo3::pyfunction;
 use crate::access_state;
 use crate::py_api::helpers::get_length;
 use crate::state::{Widgets, get_id, set_state_of_widget};
-use crate::widgets::ipg_text::TextWrapping;
 use crate::widgets::ipg_text_editor::TextEditor;
 use crate::widgets::ipg_text_editor::TxtEdStatus;
 
@@ -26,7 +25,9 @@ use crate::widgets::ipg_text_editor::TxtEdStatus;
     min_height=None,
     max_height=None,
     padding=None,
-    wrapping=None,
+    wrapping_none=None,
+    wrapping_glyph=None,
+    wrapping_word_glyph=None,
 ))]
 pub fn add_text_editor(
     parent_id: String,
@@ -41,7 +42,9 @@ pub fn add_text_editor(
     min_height: Option<f32>,
     max_height: Option<f32>,
     padding: Option<Vec<f32>>,
-    wrapping: Option<TextWrapping>,
+    wrapping_none: Option<bool>,
+    wrapping_glyph: Option<bool>,
+    wrapping_word_glyph: Option<bool>,
 ) ->PyResult<usize> {
 
     let id = get_id(None);
@@ -71,7 +74,9 @@ pub fn add_text_editor(
                 min_height, 
                 max_height, 
                 padding, 
-                wrapping, 
+                wrapping_none,
+                wrapping_glyph,
+                wrapping_word_glyph,
                 last_status: TxtEdStatus::Disabled
             }),
         );

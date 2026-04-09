@@ -1,11 +1,10 @@
 //! Text module - provides add_text pyfunction
 use pyo3::{pyfunction, PyResult};
 
-use crate::py_api::helpers::get_length;
 use crate::state::{Widgets, get_id, set_state_of_widget}; 
-use crate::widgets::ipg_text::{Text, TextShaping, TextWrapping};
 use crate::access_state; 
 use crate::graphics::colors::Color;
+use crate::widgets::ipg_text::Text;
 
 /// Add a text widget.
 ///
@@ -51,15 +50,15 @@ use crate::graphics::colors::Color;
 ///     Sets the font size for the text.
 /// font_id : int, Optional
 ///     Sets the Font ID for the text.
-/// text_shaping : TextShaping, Optional
+/// shaping : Shaping, Optional
 ///     Sets the Text shaping strategy.
-/// text_color : Color, Optional
+/// color : Color, Optional
 ///     Sets the text color using a predefined color variant.
-/// text_color_alpha : float, Optional
+/// color_alpha : float, Optional
 ///     Sets the alpha of the Color.
-/// text_rgba : list of float, Optional
+/// color_rgba : list of float, Optional
 ///     Sets the text color in rgba format as [r, g, b, a].
-/// text_wrapping : TextWrapping, Optional
+/// wrapping : Wrapping, Optional
 ///     Sets the Text wrapping strategy.
 /// show : bool, default True
 ///     Whether the text is visible.
@@ -74,9 +73,9 @@ use crate::graphics::colors::Color;
     content, 
     gen_id=None, 
     width=None, 
-    width_fill=false, 
+    width_fill=None, 
     height=None, 
-    height_fill=false,
+    height_fill=None,
     fill=None,
     align_bottom_center=None,
     align_bottom_left=None,
@@ -90,11 +89,14 @@ use crate::graphics::colors::Color;
     line_height=None, 
     size=None,
     font_id=None, 
-    shaping=None, 
+    shaping_advanced=None,
+    shaping_basic=None, 
     color=None,
     color_alpha=None,
     color_rgba=None,
-    wrapping=None,
+    wrapping_none=None,
+    wrapping_glyph=None,
+    wrapping_word_glyph=None,
     show=true,
     ))]
 pub fn add_text(
@@ -102,9 +104,9 @@ pub fn add_text(
     content: String,
     gen_id: Option<usize>,
     width: Option<f32>,
-    width_fill: bool,
+    width_fill: Option<bool>,
     height: Option<f32>,
-    height_fill: bool,
+    height_fill: Option<bool>,
     fill: Option<bool>,
     align_bottom_center: Option<bool>,
     align_bottom_left: Option<bool>,
@@ -118,26 +120,20 @@ pub fn add_text(
     line_height: Option<f32>,
     size: Option<f32>,
     font_id: Option<usize>,
-    shaping: Option<TextShaping>,
+    shaping_advanced: Option<bool>,
+    shaping_basic: Option<bool>,
     color: Option<Color>,
     color_alpha: Option<f32>,
     color_rgba: Option<[f32; 4]>,
-    wrapping: Option<TextWrapping>,
+    wrapping_none: Option<bool>,
+    wrapping_glyph: Option<bool>,
+    wrapping_word_glyph: Option<bool>,
     show: bool,
     ) -> PyResult<usize> 
 {
 
     let id = get_id(gen_id);
 
-    let color= 
-        Color::rgba_ipg_color_to_iced(color_rgba, color, color_alpha);
-
-    let (width, height) = if fill == Some(true) {
-        (get_length(None, true), get_length(None, true))
-    } else {
-        (get_length(width, width_fill), get_length(height, height_fill))
-    };
-    
     set_state_of_widget(id, parent_id.clone());
 
     let mut state = access_state();
@@ -150,7 +146,10 @@ pub fn add_text(
             size,
             line_height,
             width,
+            width_fill,
             height,
+            height_fill,
+            fill,
             align_bottom_center,
             align_bottom_left,
             align_bottom_right,
@@ -161,10 +160,15 @@ pub fn add_text(
             align_top_left,
             align_top_right,
             font_id,
-            shaping,
+            shaping_advanced,
+            shaping_basic,
             show,
-            wrapping,
+            wrapping_none,
+            wrapping_glyph,
+            wrapping_word_glyph,
             color,
+            color_alpha,
+            color_rgba,
         }));
 
     drop(state);

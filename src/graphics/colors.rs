@@ -175,7 +175,7 @@ pub enum Color {
 }
 
 impl Color {
-    pub fn rgba_ipg_color_to_iced(rgba: Option<[f32; 4]>, color: Option<Color>, alpha: Option<f32>) -> Option<iced::Color> {
+    pub fn rgba_ipg_color_to_iced(rgba: Option<[f32; 4]>, color: &Option<Color>, alpha: Option<f32>) -> Option<iced::Color> {
         if let Some(rgba) = rgba {
             Some(iced::Color::from_rgba(rgba[0], rgba[1], rgba[2], rgba[3]))
         } else if let Some(c) = color {

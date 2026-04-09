@@ -14,7 +14,7 @@ pub fn get_rgba_color(
     ) -> PyResult<[f32; 4]>
 {
     let rgba = if let Some(base) = 
-        Color::rgba_ipg_color_to_iced(None, Some(color), alpha) {
+        Color::rgba_ipg_color_to_iced(None, &Some(color), alpha) {
         base
     } else {
         panic!("Unable to get the rgba format of the color")
@@ -35,7 +35,7 @@ pub fn get_color_palette(
     ) -> PyResult<([f32; 4], [f32; 4], [f32; 4])>
 {
     
-    let base = Color::rgba_ipg_color_to_iced(base_rgba, base_color, alpha);
+    let base = Color::rgba_ipg_color_to_iced(base_rgba, &base_color, alpha);
 
     let text_color = readable(base.unwrap(), iced::Color::WHITE);
 

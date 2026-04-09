@@ -13,7 +13,6 @@ use crate::py_api::helpers::{
     try_extract_u64,  try_extract_vec_f32, try_extract_vec_str, try_extract_vec_u8_opt, try_extract_vec_vec_f32
 };
 use crate::state::{Containers, Widgets};
-use crate::widgets::ipg_text::{TextShaping, TextWrapping};
 
 type PyObject = Py<PyAny>;
 
@@ -221,12 +220,12 @@ pub fn set_iced_color(field: &mut iced::Color, value: &PyObject, name: &str) {
 
 pub fn set_opt_iced_color(field: &mut Option<iced::Color>, value: &PyObject, name: &str) {
     let color = Color::extract_opt(value, name);
-    *field = Color::rgba_ipg_color_to_iced(None, color, None);
+    *field = Color::rgba_ipg_color_to_iced(None, &color, None);
 }
 
 pub fn set_opt_iced_color_from_rgba(field: &mut Option<iced::Color>, value: &PyObject, name: &str) {
     let rgba_opt = Color::extract_rgba_opt(value, name);
-    *field = Color::rgba_ipg_color_to_iced(rgba_opt, None, None);
+    *field = Color::rgba_ipg_color_to_iced(rgba_opt, &None, None);
 }
 
 pub fn set_ipg_color(field: &mut Color, value: &PyObject, name: &str) {
@@ -307,15 +306,7 @@ pub fn set_vec_string(field: &mut Vec<String>, value: &PyObject, name: &str) {
 
 pub fn set_rgba_color_via_ipg(field: &mut Option<iced::Color>, value: &PyObject, name: &str) {
     let rgba = Color::extract_rgba(value, name);
-    *field = Color::rgba_ipg_color_to_iced(Some(rgba), None, None);
-}
-
-pub fn set_opt_text_shaping(field: &mut Option<TextShaping>, value: &PyObject, name: &str) {
-    *field = TextShaping::extract(value)
-}
-
-pub fn set_opt_text_wrapping(field: &mut Option<TextWrapping>, value: &PyObject, name: &str) {
-    *field = TextWrapping::extract(value)
+    *field = Color::rgba_ipg_color_to_iced(Some(rgba), &None, None);
 }
 
 pub fn set_opt_ipg_arrow(field: &mut Option<Arrow>, value: &PyObject, name: &str) {

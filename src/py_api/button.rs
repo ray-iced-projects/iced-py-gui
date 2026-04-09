@@ -302,16 +302,16 @@ pub fn add_button_style(
     let id = get_id(gen_id);
 
     let background_color = 
-        Color::rgba_ipg_color_to_iced(background_rgba, background_color, background_color_alpha);
+        Color::rgba_ipg_color_to_iced(background_rgba, &background_color, background_color_alpha);
     let background_gradient_color_stop =
         Color::rgba_ipg_color_to_iced(background_gradient_rgba_stop, 
-            background_gradient_color_stop, background_gradient_color_stop_alpha);
+            &background_gradient_color_stop, background_gradient_color_stop_alpha);
     let border_color = 
-        Color::rgba_ipg_color_to_iced(border_rgba, border_color, border_color_alpha);
+        Color::rgba_ipg_color_to_iced(border_rgba, &border_color, border_color_alpha);
     let shadow_color = 
-        Color::rgba_ipg_color_to_iced(shadow_rgba, shadow_color, shadow_color_alpha);
+        Color::rgba_ipg_color_to_iced(shadow_rgba, &shadow_color, shadow_color_alpha);
     let text_color = 
-        Color::rgba_ipg_color_to_iced(text_rgba, text_color, text_color_alpha);
+        Color::rgba_ipg_color_to_iced(text_rgba, &text_color, text_color_alpha);
 
     let mut state = access_state();
 

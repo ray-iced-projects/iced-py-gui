@@ -61,7 +61,7 @@ pub fn add_rich_text(
 {
     let id = get_id(gen_id);
 
-    let color = Color::rgba_ipg_color_to_iced(text_rgba, text_color, text_color_alpha);
+    let color = Color::rgba_ipg_color_to_iced(text_rgba, &text_color, text_color_alpha);
 
     set_state_of_widget(id, parent_id.clone());
 
@@ -151,7 +151,7 @@ pub fn add_span(
 {
     let id = get_id(gen_id);
 
-    let color = Color::rgba_ipg_color_to_iced(text_rgba, text_color, text_color_alpha);
+    let color = Color::rgba_ipg_color_to_iced(text_rgba, &text_color, text_color_alpha);
 
     let font = if bold || italic {
         let weight = if bold { 

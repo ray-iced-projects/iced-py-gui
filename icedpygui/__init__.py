@@ -133,8 +133,6 @@ from .icedpygui import (
     WindowLevel,
     WindowParam,
     WindowTheme,
-    TextShaping,
-    TextWrapping,
 )
 
 # ---------------------------------------------------------------------------

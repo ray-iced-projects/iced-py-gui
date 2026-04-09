@@ -69,7 +69,7 @@ pub fn construct_separator<'a>(
     let sep_color = 
         Color::rgba_ipg_color_to_iced(
             None, 
-            Some(Color::PRIMARY), 
+            &Some(Color::PRIMARY), 
             None).unwrap();
 
     let mut border = Border::default();

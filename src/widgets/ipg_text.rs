@@ -92,16 +92,15 @@ impl Text {
                 txt.line_height(lh)
             } else { txt };
 
-    
         let txt = 
-            if self.align_bottom_left == Some(true) {
-                txt.align_x(alignment::Horizontal::Left)
+            if self.align_bottom_center == Some(true) {
+                txt.align_x(alignment::Horizontal::Center)
                     .align_y(alignment::Vertical::Bottom)
             } else { txt };
 
         let txt = 
-            if self.align_bottom_center == Some(true) {
-                txt.align_x(alignment::Horizontal::Center)
+            if self.align_bottom_left == Some(true) {
+                txt.align_x(alignment::Horizontal::Left)
                     .align_y(alignment::Vertical::Bottom)
             } else { txt };
 
@@ -110,6 +109,12 @@ impl Text {
                 txt.align_x(alignment::Horizontal::Right)
                     .align_y(alignment::Vertical::Bottom)
             } else { txt };
+
+        let txt = 
+        if self.align_center == Some(true) {
+            txt.align_x(alignment::Horizontal::Center)
+                .align_y(alignment::Vertical::Center)
+        } else { txt };
 
         let txt = 
             if self.align_center_left == Some(true) {
@@ -124,21 +129,14 @@ impl Text {
             } else { txt };
 
         let txt = 
-        if self.align_center == Some(true) {
-            txt.align_x(alignment::Horizontal::Center)
-                .align_y(alignment::Vertical::Center)
-        } else { txt };
-
-
-        let txt = 
-            if self.align_top_left == Some(true) {
-                txt.align_x(alignment::Horizontal::Left)
+            if self.align_top_center == Some(true) {
+                txt.align_x(alignment::Horizontal::Center)
                     .align_y(alignment::Vertical::Top)
             } else { txt };
 
         let txt = 
-            if self.align_top_center == Some(true) {
-                txt.align_x(alignment::Horizontal::Center)
+            if self.align_top_left == Some(true) {
+                txt.align_x(alignment::Horizontal::Left)
                     .align_y(alignment::Vertical::Top)
             } else { txt };
 

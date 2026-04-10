@@ -421,6 +421,7 @@ pub struct State {
     pub touch_event_id_enabled: (usize, bool),
     pub timer_state: Lazy<HashMap<usize, TimerState>>,
     pub canvas_timer_duration: u64,
+    pub user_fonts: Vec<Vec<u8>>,
 }
 
 pub static STATE: Mutex<State> = Mutex::new(
@@ -453,6 +454,7 @@ pub static STATE: Mutex<State> = Mutex::new(
         touch_event_id_enabled: (0, false),
         timer_state: Lazy::new(||HashMap::new()),
         canvas_timer_duration: 0,
+        user_fonts: vec![],
     }
 );
 
@@ -503,6 +505,7 @@ pub struct IpgState {
     pub touch_event_id_enabled: (usize, bool),
     pub timer_state: HashMap<usize, TimerState>,
     pub canvas_timer_duration: u64,
+    pub user_fonts: Vec<Vec<u8>>,
 }
 
 impl IpgState {

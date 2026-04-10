@@ -19,6 +19,7 @@ from .icedpygui import (
     add_checkbox_style as add_checkbox_style,
     add_container_style as add_container_style,
     add_divider_style as add_divider_style,
+    add_font_style as add_font_style,
     add_menu_style as add_menu_style,
     add_opaque_style as add_opaque_style,
     add_pick_list_style as add_pick_list_style,
@@ -51,6 +52,10 @@ from .icedpygui import (
     DividerParam as DividerParam,
     DividerStyleParam as DividerStyleParam,
     FloatParam as FloatParam,
+    FontFamily as FontFamily,
+    FontWeight as FontWeight,
+    FontStretch as FontStretch,
+    FontStyle as FontStyle,
     GridParam as GridParam,
     Icon as Icon,
     MenuParam as MenuParam,
@@ -75,6 +80,7 @@ from .icedpygui import (
     TableParam as TableParam,
     TextInputParam as TextInputParam,
     TextParam as TextParam,
+    TextColorStd as TextColorStd,
     TinerParam as TimerParam,
     TogglerParam as TogglerParam,
     TogglerStyleParam as TogglerStyleParam,
@@ -172,7 +178,7 @@ def add_card(
     show: bool = True,
     user_data: Optional[Any] = None,
 ) -> int:
-    """Adds a bucardtton widget.
+    """Adds a button widget.
     
     A widget must go into a container type,
     
@@ -411,14 +417,45 @@ def add_text_input(
 def add_text(
     *,
     parent_id: Optional[str] = None,
-    **kwargs: Any) -> int:
-    """_summary_
+    content: str,
+    width: Optional[float] = None,
+    width_fill: Optional[bool] = None,
+    height: Optional[float] = None,
+    height_fill: Optional[bool] = None,
+    fill: Optional[bool] = None,
+    align_bottom_center: Optional[bool] = None,
+    align_bottom_left: Optional[bool] = None,
+    align_bottom_right: Optional[bool] = None,
+    align_center_left: Optional[bool] = None,
+    align_center_right: Optional[bool] = None,
+    align_center: Optional[bool] = None,
+    align_top_center: Optional[bool] = None,
+    align_top_left: Optional[bool] = None,
+    align_top_right: Optional[bool] = None,
+    font_id: Optional[int] = None,
+    size: Optional[float] = None,
+    line_height: Optional[float] = None,
+    shaping_advanced: Optional[bool] = None,
+    shaping_basic: Optional[bool] = None,
+    color: Optional[Color] = None,
+    color_alpha: Optional[float] = None,
+    color_rgba: Optional[list[float, 4]] = None,
+    color_std: Optional[TextColorStd] = None,
+    wrapping_none: Optional[bool] = None,
+    wrapping_glyph: Optional[bool] = None,
+    wrapping_word_glyph: Optional[bool] = None,
+    show: bool = True,
+    gen_id: Optional[int] = None,
+    ) -> int:
+    """Adds a text widget.
+    
+    Usage::
 
-    Args:
-        parent_id (Optional[str], optional): _description_. Defaults to None.
+        with Window(title="My App", pos_centered=True):
+            with Container(align_center=True):
+                add_text(content="Some Text")
 
-    Returns:
-        int: _description_
+    Run the doc_help.py to see arguement descriptions.
     """
     ...
 def add_text_editor(

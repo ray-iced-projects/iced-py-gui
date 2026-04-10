@@ -1,10 +1,10 @@
 //! ipg_font
 
 use iced::font;
-use pyo3::{Py, PyAny, Python, pyclass};
+use pyo3::{Py, PyAny, pyclass};
 type PyObject = Py<PyAny>;
 
-use crate::widgets::widget_param_update::{WidgetParamUpdate};
+use crate::widgets::widget_param_update::{WidgetParamUpdate, set_t_value};
 
 
 #[derive(Debug, Clone, Default, PartialEq)]
@@ -20,15 +20,11 @@ pub struct Font {
 impl Font {
     pub fn to_iced(&self) -> iced::font::Font {
         let mut font = iced::font::Font::default();
-        font.family = if let Some(family) = &self.family {
-            let family = if let Some(_) = &self.family_name {
-                family.to_iced(self.family_name.clone())
-            } else {
-                eprintln!("[WARNING] family_name must be defined if 
-                Family::Name selected, default SansSerif used");
-                iced::font::Family::default()
-            };
-            family
+        font.family = if let Some(name) = &self.family_name {
+            let name: &'static str = Box::leak(name.clone().into_boxed_str());
+            iced::font::Family::Name(name)
+        } else if let Some(family) = &self.family {
+            family.to_iced(None)
         } else { iced::font::Family::default() };
 
         font.weight = if let Some(wt) = &self.weight {
@@ -79,16 +75,6 @@ impl FontFamily {
         }
     }
     
-    fn extract(value: &PyObject) -> Option<Self> {
-        Some(Python::attach(|py| {
-
-            let res = value.extract::<Self>(py);
-            match res {
-                Ok(val) => val,
-                Err(_) => panic!("Unable to extract python object for FontFamily"),
-            }
-        }))
-    }
 }
 
 #[derive(Debug, Clone, Default, PartialEq, Hash)]
@@ -119,17 +105,6 @@ impl FontWeight {
             FontWeight::Semibold => font::Weight::Semibold,
             FontWeight::Thin => font::Weight::Thin,
         }
-    }
-
-    fn extract(value: &PyObject) -> Option<Self> {
-        Some(Python::attach(|py| {
-
-            let res = value.extract::<Self>(py);
-            match res {
-                Ok(val) => val,
-                Err(_) => panic!("Unable to extract python object for FontWeight"),
-            }
-        }))
     }
 }
 
@@ -162,17 +137,6 @@ impl FontStretch {
             FontStretch::UltraExpanded => font::Stretch::UltraExpanded,
         }
     }
-
-    fn extract(value: &PyObject) -> Option<Self> {
-        Some(Python::attach(|py| {
-
-            let res = value.extract::<Self>(py);
-            match res {
-                Ok(val) => val,
-                Err(_) => panic!("Unable to extract python object for FontStretch"),
-            }
-        }))
-    }
 }
 
 #[derive(Debug, Clone, Default, PartialEq, Hash)]
@@ -191,17 +155,6 @@ impl FontStyle {
             FontStyle::Italic => font::Style::Italic,
             FontStyle::Oblique => font::Style::Oblique,
         }
-    }
-
-    fn extract(value: &PyObject) -> Option<Self> {
-        Some(Python::attach(|py| {
-
-            let res = value.extract::<Self>(py);
-            match res {
-                Ok(val) => val,
-                Err(_) => panic!("Unable to extract python object for FontStyle"),
-            }
-        }))
     }
 }
 
@@ -224,10 +177,10 @@ impl WidgetParamUpdate for Font {
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
-            FontParam::Family => self.family = FontFamily::extract(value),
-            FontParam::Weight => self.weight = FontWeight::extract(value),
-            FontParam::Stretch => self.stretch = FontStretch::extract(value),
-            FontParam::Style => self.style = FontStyle::extract(value),
+            FontParam::Family => set_t_value(&mut self.family, value, "FontParam::Family"),
+            FontParam::Weight => set_t_value(&mut self.weight, value, "FontParam::Weight"),
+            FontParam::Stretch => set_t_value(&mut self.stretch, value, "FontParam::Stretch"),
+            FontParam::Style => set_t_value(&mut self.style, value, "FontParam::Style"),
         }
     }
 }

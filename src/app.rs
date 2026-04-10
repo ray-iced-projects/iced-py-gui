@@ -102,9 +102,26 @@ impl App {
 
         let mut open = add_windows(&mut state);
         open.push(font::load(include_bytes!("./graphics/fonts/bootstrap-icons.ttf").as_slice()).map(Message::FontLoaded));
-        open.push(font::load(include_bytes!("./graphics/fonts/Roboto.ttf").as_slice()).map(Message::FontLoaded));
+        open.push(font::load(include_bytes!("./graphics/fonts/Roboto/static/Roboto-Black.ttf").as_slice()).map(Message::FontLoaded));
+        open.push(font::load(include_bytes!("./graphics/fonts/Roboto/static/Roboto-Bold.ttf").as_slice()).map(Message::FontLoaded));
+        open.push(font::load(include_bytes!("./graphics/fonts/Roboto/static/Roboto-ExtraBold.ttf").as_slice()).map(Message::FontLoaded));
+        open.push(font::load(include_bytes!("./graphics/fonts/Roboto/static/Roboto-ExtraLight.ttf").as_slice()).map(Message::FontLoaded));
+        open.push(font::load(include_bytes!("./graphics/fonts/Roboto/static/Roboto-Light.ttf").as_slice()).map(Message::FontLoaded));
+        open.push(font::load(include_bytes!("./graphics/fonts/Roboto/static/Roboto-Medium.ttf").as_slice()).map(Message::FontLoaded));
+        open.push(font::load(include_bytes!("./graphics/fonts/Roboto/static/Roboto-Regular.ttf").as_slice()).map(Message::FontLoaded));
+        open.push(font::load(include_bytes!("./graphics/fonts/Roboto/static/Roboto-SemiBold.ttf").as_slice()).map(Message::FontLoaded));
+        open.push(font::load(include_bytes!("./graphics/fonts/Roboto/static/Roboto-Thin.ttf").as_slice()).map(Message::FontLoaded));
         open.push(font::load(include_bytes!("./graphics/fonts/FiraSans-Regular.ttf").as_slice()).map(Message::FontLoaded));
         open.push(font::load(include_bytes!("./graphics/fonts/Newsreader.ttf").as_slice()).map(Message::FontLoaded));
+
+        // Load user-provided fonts
+        let user_fonts = {
+            let mut mutex_state = access_state();
+            std::mem::take(&mut mutex_state.user_fonts)
+        };
+        for font_bytes in user_fonts {
+            open.push(font::load(font_bytes).map(Message::FontLoaded));
+        }
         
         (
             Self {

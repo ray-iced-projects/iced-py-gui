@@ -2,7 +2,7 @@
 use std::collections::HashMap;
 
 use iced::{Element, alignment};
-use iced::widget::text::{Shaping, Style, Wrapping};
+use iced::widget::text::{Style, Wrapping};
 use iced::widget;
 
 use pyo3::{Py, PyAny, pyclass};
@@ -20,10 +20,7 @@ use crate::widgets::widget_param_update::{
 #[derive(Debug, Clone)]
 pub struct Text {
     pub id: usize,
-    pub parent_id: String,
     pub content: String,
-    pub size: Option<f32>,
-    pub line_height: Option<f32>,  // defaults 1.3 relative
     pub width: Option<f32>,
     pub width_fill: Option<bool>,
     pub height: Option<f32>,
@@ -39,15 +36,16 @@ pub struct Text {
     pub align_top_left: Option<bool>,
     pub align_top_right: Option<bool>,
     pub font_id: Option<usize>,
-    pub shaping_advanced: Option<bool>,
-    pub shaping_basic: Option<bool>,
-    pub show: bool,
+    pub size: Option<f32>,
+    pub line_height: Option<f32>,  // defaults 1.3 relative
     pub color: Option<Color>,
     pub color_alpha: Option<f32>,
     pub color_rgba: Option<[f32; 4]>,
+    pub color_std: Option<TextColorStd>,
     pub wrapping_none: Option<bool>,
     pub wrapping_glyph: Option<bool>,
     pub wrapping_word_glyph: Option<bool>,
+    pub show: bool,
 }
 
 impl Text {
@@ -68,19 +66,31 @@ impl Text {
         let font_opt = 
             self.lookup(widgets, self.font_id)
                 .and_then(Widgets::as_font).cloned();
-        let color= 
-            Color::rgba_ipg_color_to_iced(self.color_rgba, &self.color, self.color_alpha);
 
         let txt = 
             widget::Text::new(self.content.clone())
                 .width(get_len(self.fill, self.width_fill, self.width))
                 .height(get_len(self.fill, self.height_fill, self.height))
-                .style(move|_|{
-                    let mut style = Style::default();
-                    style.color = color;
-                    style
-                    }
-                );
+                .style(move|theme|{
+                    if let Some(cs) = &self.color_std {
+                        match cs {
+                            TextColorStd::Base => widget::text::base(theme),
+                            TextColorStd::Danger => widget::text::danger(theme),
+                            TextColorStd::Primary => widget::text::primary(theme),
+                            TextColorStd::Secondary => widget::text::secondary(theme),
+                            TextColorStd::Success => widget::text::success(theme),
+                            TextColorStd::Warning => widget::text::warning(theme),
+                        }
+                    } else { Style::default() }
+                });
+
+        let color= 
+            Color::rgba_ipg_color_to_iced(self.color_rgba, &self.color, self.color_alpha);
+
+        let txt = 
+            if let Some(c) = color {
+                txt.color(c)
+            } else { txt };
             
         let txt = 
             if let Some(sz) = self.size {
@@ -146,6 +156,7 @@ impl Text {
                     .align_y(alignment::Vertical::Top)
             } else { txt };
         
+        // Set the font
         let txt = 
             if let Some(f) = font_opt {
                 txt.font(f.to_iced())
@@ -160,15 +171,6 @@ impl Text {
                 txt.wrapping(Wrapping::Glyph)
             } else if self.wrapping_word_glyph == Some(true) {
                 txt.wrapping(Wrapping::WordOrGlyph)
-            } else { txt };
-
-        // default is auto so not checked
-        // set to Some(true) in case user sets to false versus None
-        let txt = 
-            if self.shaping_advanced == Some(true) {
-                txt.shaping(Shaping::Advanced)
-            } else if self.shaping_basic == Some(true) {
-                txt.shaping(Shaping::Basic)
             } else { txt };
 
         Some(txt.into())
@@ -190,14 +192,13 @@ pub enum TextParam {
     AlignTopRight,
     Color,
     ColorAlpha,
-    ColorRgba, 
+    ColorRgba,
+    ColorStd,
     Content,
     Fill,
     Height,
     HeightFill,
     LineHeight,
-    ShapingAdvanced,
-    ShapingBasic,
     Show,
     Size,
     Width,
@@ -205,6 +206,17 @@ pub enum TextParam {
     WrappingGlyph,
     WrappingNone,
     WrappingWordGlyph,
+}
+
+#[derive(Debug, Clone, PartialEq, Hash)]
+#[pyclass(eq, eq_int, hash, frozen)]
+pub enum TextColorStd {
+    Base,
+    Danger,
+    Primary,
+    Secondary,
+    Success,
+    Warning,
 }
 
 
@@ -229,13 +241,12 @@ impl WidgetParamUpdate for Text {
             TextParam::Color => set_t_value(&mut self.color, value, "TextParam::Color"),
             TextParam::ColorAlpha => set_t_value(&mut self.color_alpha, value, "TextParam::ColorAlpha"),
             TextParam::ColorRgba => set_t_value(&mut self.color_rgba, value, "TextParam::ColorRgba"),
+            TextParam::ColorStd => set_t_value(&mut self.color_std, value, "TextParam::ColorStd"),
             TextParam::Content => set_t_value(&mut self.content, value, "TextParam::Content"),
             TextParam::Fill => set_t_value(&mut self.fill, value, "TextParam::Fill"),
             TextParam::Height => set_t_value(&mut self.height, value, "TextParam::Height"),
             TextParam::HeightFill => set_t_value(&mut self.height_fill, value, "TextParam::HeightFill"),
             TextParam::LineHeight => set_t_value(&mut self.line_height, value, "TextParam::LineHeight"),
-            TextParam::ShapingAdvanced => set_t_value(&mut self.shaping_advanced, value, "TextParam::ShapingAdvanced"),
-            TextParam::ShapingBasic => set_t_value(&mut self.shaping_basic, value, "TextParam::ShapingBasic"),
             TextParam::Show => set_t_value(&mut self.show, value, "TextParam::Show"),
             TextParam::Size => set_t_value(&mut self.size, value, "TextParam::Size"),
             TextParam::Width => set_t_value(&mut self.width, value, "TextParam::Width"),
@@ -256,10 +267,7 @@ mod tests {
     fn make_text() -> Text {
         Text {
             id: 0,
-            parent_id: String::new(),
             content: String::from("test"),
-            size: None,
-            line_height: None,
             width: None,
             width_fill: None,
             height: None,
@@ -275,15 +283,16 @@ mod tests {
             align_top_left: None,
             align_top_right: None,
             font_id: None,
-            shaping_advanced: None,
-            shaping_basic: None,
-            show: true,
+            size: None,
+            line_height: None,
             color: None,
             color_alpha: None,
             color_rgba: None,
+            color_std: None,
             wrapping_none: None,
             wrapping_glyph: None,
             wrapping_word_glyph: None,
+            show: true,
         }
     }
 

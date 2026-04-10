@@ -206,6 +206,28 @@ def add_checkbox_style(
     >>> 
     """
 
+def add_color_picker_style(
+        background_color: Optional[Color]=None,
+        background_rgba: Optional[list[float, 4]]=None,
+        background_color_hovered: Optional[Color]=None,
+        background_rgba_hovered: Optional[list[float, 4]]=None,
+        border_color: Optional[Color]=None, 
+        border_rgba: Optional[list[float, 4]]=None,
+        border_radius: list[float | float, 4]=[0.0], 
+        border_width: float=1.0,
+        shadow_color: Optional[Color]=None, 
+        shadow_rgba: Optional[list]=None,
+        shadow_offset_x: float=0.0, 
+        shadow_offset_y: float=0.0,
+        shadow_blur_radius: float=1.0,
+        text_color: Optional[Color]=None, 
+        text_rgba: Optional[list[float, 4]]=None
+    ) -> int:
+    
+    """
+    Adds styling to color picker button
+
+    """
 def add_container_style(
         background_color: Optional[Color]=None,
         background_rgba: Optional[list[float, 4]]=None,
@@ -261,83 +283,68 @@ def add_container_style(
     >>> 
     """
 
-def add_scrollable_style(
-        background_color: Optional[Color]=None,
-        background_rgba: Optional[list[float, 4]]=None,
-        border_color: Optional[Color]=None,
-        border_rgba: Optional[list[float, 4]]=None,
-        border_radius: list[float]=0.0,
-        border_width: float=1.0,
-        shadow_color: Optional[Color]=None,
-        shadow_rgba: Optional[list[float, 4]]=None,
-        shadow_offset_x: float=0.0,
-        shadow_offset_y: float=0.0,
-        shadow_blur_radius: float=2.0,
-        text_color: Optional[Color]=None,
-        text_rgba: Optional[list[float, 4]]=None,
-        scrollbar_color: Optional[Color]=None,
-        scrollbar_rgba: Optional[list[float, 4]]=None,
-        scrollbar_border_radius: list[float]=[2.0],
-        scrollbar_border_width: float=1.0,
-        scrollbar_border_color: Optional[Color]=None,
-        scrollbar_border_rgba: Optional[list[float, 4]]=None,
-        scroller_color: Optional[Color]=None,
-        scroller_rgba: Optional[list[float, 4]]=None,
-        scroller_color_hovered: Optional[Color]=None,
-        scroller_rgba_hovered: Optional[list[float, 4]]=None,
-        scroller_color_dragged: Optional[Color]=None,
-        scroller_rgba_dragged: Optional[list[float, 4]]=None,
-        gen_id: Optional[int]=None,
-    ) -> int:
-    """_summary_
-
-    
-    """
-    
-def add_tooltip_style(
-        background_color: Optional[Color]=None,
-        background_rgba: Optional[list[float, 4]]=None,
-        border_color: Optional[Color]=None, 
-        border_rgba: Optional[list[float, 4]]=None,
-        border_radius: list[float]=[0.0], 
-        border_width: float=0.0,
-        shadow_color: Optional[Color]=None, 
-        shadow_rgba: Optional[list]=None,
-        shadow_offset_xy: list[float, 2]=[0.0, 0.0], 
-        shadow_blur_radius: float=0.0,
-        text_color: Optional[Color]=None,
-        text_rgba: Optional[list[float, 4]]=None,
-    ) -> int:
-    """
-    Adds styling to the tool tip
-
-    
-    """
-
-
-def add_color_picker_style(
-        background_color: Optional[Color]=None,
-        background_rgba: Optional[list[float, 4]]=None,
-        background_color_hovered: Optional[Color]=None,
-        background_rgba_hovered: Optional[list[float, 4]]=None,
-        border_color: Optional[Color]=None, 
-        border_rgba: Optional[list[float, 4]]=None,
-        border_radius: list[float | float, 4]=[0.0], 
-        border_width: float=1.0,
-        shadow_color: Optional[Color]=None, 
-        shadow_rgba: Optional[list]=None,
-        shadow_offset_x: float=0.0, 
-        shadow_offset_y: float=0.0,
-        shadow_blur_radius: float=1.0,
-        text_color: Optional[Color]=None, 
-        text_rgba: Optional[list[float, 4]]=None
+def add_font_style(
+    family: Optional[FontFamily] = None,
+    family_name: Optional[str] = None,
+    weight: Optional[FontWeight] = None,
+    stretch: Optional[FontStretch] = None,
+    style: Optional[FontStyle] = None,
+    gen_id: Optional[int] = None,
     ) -> int:
     
     """
-    Adds styling to color picker button
+    Adds font style
 
     """
-        
+
+def load_font(path: str) -> None:
+    """
+    Load a font from a .ttf or .otf file path.
+    Must be called before start_session().
+
+    """
+
+class FontFamily:
+    Name=''
+    Cursive=''
+    Fantasy=''
+    Monospace=''
+    SansSerif=''
+    Serif=''
+    
+    
+class FontStretch:
+    Condensed=''
+    Expanded=''
+    ExtraCondensed=''
+    ExtraExpanded=''
+    Normal=''
+    SemiCondensed=''
+    SemiExpanded=''
+    UltraCondensed=''
+    UltraExpanded=''
+    
+    
+class FontStyle:
+    Normal=''
+    Italic=''
+    Oblique=''
+    
+    
+class FontWeight:
+    """Adds a font weighting
+    
+    """
+    Black=''
+    Bold=''
+    ExtraBold=''
+    ExtraLight=''
+    Light=''
+    Medium=''
+    Normal=''
+    Semibold=''
+    Thin=''
+
 def add_menu_bar_style(
         base_color: Optional[Color]=None,
         base_rgba: Optional[list[float, 4]]=None,
@@ -494,7 +501,40 @@ def add_rule_style(
     Add Rule styling.
 
     """
+    
+def add_scrollable_style(
+        background_color: Optional[Color]=None,
+        background_rgba: Optional[list[float, 4]]=None,
+        border_color: Optional[Color]=None,
+        border_rgba: Optional[list[float, 4]]=None,
+        border_radius: list[float]=0.0,
+        border_width: float=1.0,
+        shadow_color: Optional[Color]=None,
+        shadow_rgba: Optional[list[float, 4]]=None,
+        shadow_offset_x: float=0.0,
+        shadow_offset_y: float=0.0,
+        shadow_blur_radius: float=2.0,
+        text_color: Optional[Color]=None,
+        text_rgba: Optional[list[float, 4]]=None,
+        scrollbar_color: Optional[Color]=None,
+        scrollbar_rgba: Optional[list[float, 4]]=None,
+        scrollbar_border_radius: list[float]=[2.0],
+        scrollbar_border_width: float=1.0,
+        scrollbar_border_color: Optional[Color]=None,
+        scrollbar_border_rgba: Optional[list[float, 4]]=None,
+        scroller_color: Optional[Color]=None,
+        scroller_rgba: Optional[list[float, 4]]=None,
+        scroller_color_hovered: Optional[Color]=None,
+        scroller_rgba_hovered: Optional[list[float, 4]]=None,
+        scroller_color_dragged: Optional[Color]=None,
+        scroller_rgba_dragged: Optional[list[float, 4]]=None,
+        gen_id: Optional[int]=None,
+    ) -> int:
+    """_summary_
 
+    
+    """
+    
 def add_separator_style(
         ipg_color: Optional[Color]=None,
         rgba_color: Optional[list[float]]=None,
@@ -556,6 +596,26 @@ def add_text_input_style(
     """
     Add textInput styling.
 
+    """
+
+def add_tooltip_style(
+        background_color: Optional[Color]=None,
+        background_rgba: Optional[list[float, 4]]=None,
+        border_color: Optional[Color]=None, 
+        border_rgba: Optional[list[float, 4]]=None,
+        border_radius: list[float]=[0.0], 
+        border_width: float=0.0,
+        shadow_color: Optional[Color]=None, 
+        shadow_rgba: Optional[list]=None,
+        shadow_offset_xy: list[float, 2]=[0.0, 0.0], 
+        shadow_blur_radius: float=0.0,
+        text_color: Optional[Color]=None,
+        text_rgba: Optional[list[float, 4]]=None,
+    ) -> int:
+    """
+    Adds styling to the tool tip
+
+    
     """
     
 def add_canvas_timer_style(
@@ -3209,16 +3269,14 @@ class TextParam:
         The height of the text box.
     Size: Optional[float]
         The size of the text.
-    ShapingAdvanced: Optional[bool],
-        Wheter to use advanced shaping.
-    ShapingBasic: Optional[bool],
-        Whether to use basic shaping.
     Color: Optional[Color]
         The color of the text, default depends on theme.
     ColorAlpha: Optional[float]
         The alpha value of the Color.
-    TexColorRgba: Optional[list[float, 4]]
+    ColorRgba: Optional[list[float, 4]]
         The color of the text in rgba format.
+    ColorStd: Optional[TextColorStd]
+        Some standard colors for the text.
     Width: Optional[float]
         The width of the widget, default width shrinks to text width.
     WidthFill: bool
@@ -3245,19 +3303,30 @@ class TextParam:
     Height: float
     HeightFill: bool
     LineHeight: float
-    ShapingAdvanced: bool
-    ShapingBasic: bool
     Show: bool
     Size: float
     Color: Color
     ColorAlpha: bool
     ColorRgba: list[float, 4]
+    ColorStd: TextColorStd
     WrappingGlyph: bool
     WrappingNone: bool
     WrappingWordGlyph: bool
     Width: float
     WidthFill: bool
 
+
+class TextColorStd:
+    """
+    The standard colors for the text
+    """
+    Base=''
+    Danger=''
+    Primary=''
+    Secondary=''
+    Success=''
+    Warning=''
+    
 
 class RichTextParam:
     """

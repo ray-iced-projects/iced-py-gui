@@ -35,7 +35,7 @@ use crate::py_api::divider::{add_divider, add_divider_style};
 use crate::py_api::events::{add_event_keyboard, add_event_mouse};
 use crate::py_api::float::add_float;
 use crate::py_api::grid::add_grid;
-use crate::py_api::font::add_font;
+use crate::py_api::font::{add_font_style, load_font};
 use crate::py_api::image::add_image;
 use crate::py_api::menu::{add_menu, add_menu_bar_item, add_menu_style};
 use crate::py_api::mouse_area::add_mouse_area;
@@ -64,6 +64,7 @@ use crate::py_api::update::{update_widget, update_widget_params, delete_widget, 
 
 // Import enums from widgets module
 use crate::widgets::enums::ContentFit;
+use crate::widgets::ipg_font::{FontFamily, FontStretch, FontStyle, FontWeight};
 use crate::widgets::ipg_image::ImageParam;
 use crate::widgets::ipg_mouse_area::MousePointer;
 use crate::widgets::styling::StyleStandard;
@@ -92,7 +93,7 @@ use crate::widgets::ipg_svg::SvgParam;
 use crate::widgets::ipg_table::TableParam;
 use crate::widgets::ipg_text_input::{TextInputParam, TextInputStyleParam};
 use crate::widgets::ipg_text_rich::{RichTextParam, SpanParam};
-use crate::widgets::ipg_text::TextParam;
+use crate::widgets::ipg_text::{TextColorStd, TextParam};
 use crate::widgets::ipg_timer::{TimerParam, update_timer};
 use crate::widgets::ipg_toggle::{TogglerParam, TogglerStyleParam};
 use crate::widgets::ipg_tool_tip::{ToolTipPosition, ToolTipParam};
@@ -129,7 +130,8 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(add_float, m)?)?;
     m.add_function(wrap_pyfunction!(add_grid, m)?)?;
     m.add_function(wrap_pyfunction!(add_image, m)?)?;
-    m.add_function(wrap_pyfunction!(add_font, m)?)?;
+    m.add_function(wrap_pyfunction!(add_font_style, m)?)?;
+    m.add_function(wrap_pyfunction!(load_font, m)?)?;
     m.add_function(wrap_pyfunction!(add_menu, m)?)?;
     m.add_function(wrap_pyfunction!(add_menu_bar_item, m)?)?;
     m.add_function(wrap_pyfunction!(add_mouse_area, m)?)?;
@@ -173,6 +175,8 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(add_checkbox_style, m)?)?;
     m.add_function(wrap_pyfunction!(add_container_style, m)?)?;
     m.add_function(wrap_pyfunction!(add_divider_style, m)?)?;
+    m.add_function(wrap_pyfunction!(add_font_style, m)?)?;
+    m.add_function(wrap_pyfunction!(load_font, m)?)?;
     m.add_function(wrap_pyfunction!(add_menu_style, m)?)?;
     m.add_function(wrap_pyfunction!(add_pick_list_style, m)?)?;
     m.add_function(wrap_pyfunction!(add_progress_bar_style, m)?)?;
@@ -212,6 +216,7 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<SliderStyleParam>()?;
     m.add_class::<StackParam>()?;
     m.add_class::<StyleStandard>()?;
+    m.add_class::<TextColorStd>()?;
     m.add_class::<TextInputStyleParam>()?;
     m.add_class::<TogglerStyleParam>()?;
 
@@ -253,6 +258,10 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<Color>()?;
     m.add_class::<Icon>()?;
     m.add_class::<ContentFit>()?;
+    m.add_class::<FontFamily>()?;
+    m.add_class::<FontWeight>()?;
+    m.add_class::<FontStretch>()?;
+    m.add_class::<FontStyle>()?;
     m.add_class::<MousePointer>()?;
     m.add_class::<PickListHandle>()?;
     m.add_class::<RadioDirection>()?;

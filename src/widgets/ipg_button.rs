@@ -150,10 +150,10 @@ impl Button {
             txt.wrapping(text::Wrapping::None)
         } else { txt };
 
-        let btn: Element<'_, BtnMessage> =
+        let btn =
             button(txt)
                 .padding(get_padding(&self.padding))
-                .on_press(BtnMessage::OnPress)
+                .on_press(Message::Button(self.id, BtnMessage::OnPress))
                 .width(self.width)
                 .height(self.height)
                 .clip(self.clip.unwrap_or(false))
@@ -176,7 +176,7 @@ impl Button {
             )
             .into();
 
-        Some(btn.map(move |message| Message::Button(self.id, message)))
+        Some(btn)
 
     }
 }

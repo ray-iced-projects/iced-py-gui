@@ -42,12 +42,8 @@ style_ids = [CardStyleStd.Primary, CardStyleStd.Success, CardStyleStd.Danger, Ca
 
 
 # window added first
-with Window(
-    title="Card Demo",
-    size=(800, 600),
-    center=True):
+with Window(title="Card Demo", center=True):
 
-    
     with Container(fill=True, align_center=True):
         # Add the column to hold the cards
         with Column(
@@ -57,29 +53,30 @@ with Window(
             padding=[10.0]):
 
             # add the the cards.
-            for index in range(0, 4):
-                id = add_card(
-                    head=f"Python Iced_aw Card {index}", 
-                    body="This is the body of the card.", 
-                    foot="Foot",
-                    width=300.0,
-                    height=200.0,
-                    style_std=style_ids[index],
-                    on_close=minimize_card,
-                    user_data=index)
+            # for index in range(0, 4):
+            id = add_card(
+                head=f"Python Iced_aw Card", 
+                body="This is the body of the card.", 
+                foot="Foot",
+                width=300.0,
+                height=200.0,
+                # style_std=style_ids[index],
+                on_close=minimize_card,
+                # user_data=index
+                )
                 
-                card_ids.append(id) # needed by maximize method
+                # card_ids.append(id) # needed by maximize method
 
-            # Add a row to how the buttons
-            with Row(spacing=20.0):
-                for index in range(0, 4):
-                    id = add_button(
-                            label=f"Card {index}",
-                            on_press=maximize_card,
-                            show=False,
-                            user_data=index)
+            # # Add a row to show the buttons
+            # with Row(spacing=20.0):
+            #     for index in range(0, 4):
+            #         id = add_button(
+            #                 label=f"Card {index}",
+            #                 on_press=maximize_card,
+            #                 show=False,
+            #                 user_data=index)
                     
-                    btn_ids.append(id)
+            #         btn_ids.append(id)
             
 # Required to be the last widget sent to Iced,  If you start the program
 # and nothing happens, it might mean you forgot to add this command.

@@ -12,7 +12,6 @@ widgets = [
     "add_opaque", "add_stack",
     # widgets
     "add_button", "add_button_style", 
-    
     "add_checkbox", "add_checkbox_style", 
     "add_color_picker",
     "add_date_picker", "add_divider", "add_image", 
@@ -21,7 +20,10 @@ widgets = [
     "add_separator", "add_slider", "add_space", "add_svg", 
     "add_table", "add_text_input", "add_text", "add_toggle",
     # utilities
-    "update_widget", "add_session", 
+    "update_widget", "update_widget_params", 
+    "delete_widget", "move_widget",
+    "show_widget", "hide_widget",
+    "start_session", "generate_id" 
 ]
 
 def show_help(_btn_id, widget_name):
@@ -48,7 +50,8 @@ with ipg.Window(title="Widget Help", center=True):
                     )
 
         with ipg.Scrollable(width_fill=True):
-            txt_id = ipg.add_text(content="Documentation will be displayed here")
+            with ipg.Container(fill=True, padding=[10]):
+                txt_id = ipg.add_text(content="Documentation will be displayed here")
 
 
 ipg.start_session()

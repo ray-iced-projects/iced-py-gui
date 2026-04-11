@@ -2,13 +2,6 @@
 LD_LIBRARY_PATH=/home/charles/.pyenv/versions/3.14.2/lib cargo test --no-default-features --lib -- widgets::ipg_button::tests --nocapture
 
 
-Some code for later maybe
-def add_button(label: str, parent_id=None, **kwargs):
-    if parent_id is None:
-        parent_id = _current_parent()
-    ...
-    return _add_button(parent_id=parent_id, label=label, **kwargs)
-
 Check that the docs contain all of the method parameters and remove those that are extra.  
 Check that the parameter has the right format, such as bool, Optional ...
 If a parameters is of type bool, the description should start with: Whether the ...

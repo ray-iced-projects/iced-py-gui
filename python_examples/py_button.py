@@ -14,7 +14,7 @@ counter = 1
 txt_id = 0
 
 # Various style to demonstrate
-# Note, unlike the parameter updaing, the style resets all of the style parameters
+# Note, unlike the parameter updating, the style resets all of the style parameters
 # back to there default values, so they are not additive like the params.
 # see how the alpha was used below, the bkg color needed to be added back in.
 bkg_color = add_button_style(background_color=Color.LIGHT_BLUE)

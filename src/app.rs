@@ -102,6 +102,7 @@ impl App {
 
         let mut open = add_windows(&mut state);
         open.push(font::load(include_bytes!("./graphics/fonts/bootstrap-icons.ttf").as_slice()).map(Message::FontLoaded));
+        open.push(font::load(iced_aw::ICED_AW_FONT_BYTES).map(Message::FontLoaded));
         open.push(font::load(include_bytes!("./graphics/fonts/Roboto/static/Roboto-Black.ttf").as_slice()).map(Message::FontLoaded));
         open.push(font::load(include_bytes!("./graphics/fonts/Roboto/static/Roboto-Bold.ttf").as_slice()).map(Message::FontLoaded));
         open.push(font::load(include_bytes!("./graphics/fonts/Roboto/static/Roboto-ExtraBold.ttf").as_slice()).map(Message::FontLoaded));

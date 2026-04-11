@@ -6,7 +6,6 @@ type PyObject = Py<PyAny>;
 
 use crate::add_user_data_to_mutex;
 use crate::graphics::colors::Color;
-use crate::py_api::helpers::get_length;
 use crate::state::{Widgets, access_state, add_callback_to_mutex, 
     get_id, set_state_of_widget};
 use crate::widgets::ipg_card::{Card, CardStyle, CardStyleStd};
@@ -77,18 +76,17 @@ use crate::widgets::ipg_card::{Card, CardStyle, CardStyleStd};
     parent_id, 
     head=None, 
     body=None,      
-    is_open=true, 
-    min_max_id=None,
-    button_label=None,
+    is_open=true,
     foot=None, 
-    gen_id=None, 
+    close_icon=None,
     close_size=None,
     on_close=None,
     on_open=None, 
     width=None, 
-    width_fill=false, 
+    width_fill=None, 
     height=None, 
-    height_fill=false, 
+    height_fill=None,
+    fill=None,
     max_width=None, 
     max_height=None,
     padding=None, 
@@ -99,24 +97,24 @@ use crate::widgets::ipg_card::{Card, CardStyle, CardStyleStd};
     style_std=None,
     style_button=None,
     show=true, 
-    user_data=None
+    user_data=None,
+    gen_id=None,
     ))]
 pub fn add_card(
     parent_id: String, 
     head: Option<String>,
     body: Option<String>,
     is_open: bool,
-    min_max_id: Option<usize>,
-    button_label: Option<String>,
     foot: Option<String>,
-    gen_id: Option<usize>,
+    close_icon: Option<bool>,
     close_size: Option<f32>,
     on_close: Option<PyObject>,
     on_open: Option<PyObject>,
     width: Option<f32>,
-    width_fill: bool,
+    width_fill: Option<bool>,
     height: Option<f32>,
-    height_fill: bool,
+    height_fill: Option<bool>,
+    fill: Option<bool>,
     max_width: Option<f32>,
     max_height: Option<f32>,
     padding: Option<Vec<f32>>,
@@ -128,6 +126,7 @@ pub fn add_card(
     style_button: Option<usize>,
     show: bool,
     user_data: Option<PyObject>, 
+    gen_id: Option<usize>,
     ) -> PyResult<usize> 
 {
     let id = get_id(gen_id);
@@ -144,9 +143,6 @@ pub fn add_card(
         add_user_data_to_mutex(id, py);
     }
 
-    let width = get_length(width, width_fill);
-    let height = get_length(height, height_fill);
-
     set_state_of_widget(id, parent_id.clone());
 
     let mut state = access_state();
@@ -156,16 +152,18 @@ pub fn add_card(
             id,
             parent_id,
             is_open,
-            button_id: min_max_id,
-            button_label,
             width,
+            width_fill,
             height,
+            height_fill,
+            fill,
             max_width,
             max_height,
             padding,
             padding_head,
             padding_body,
             padding_foot,
+            close_icon,
             close_size,
             head,
             body,

@@ -3,13 +3,11 @@
 use std::collections::HashMap;
 
 use crate::app::Message;
-use crate::py_api::helpers::get_padding;
+use crate::py_api::helpers::{get_len, get_padding};
 use crate::state::Widgets;
 use crate::widgets::callbacks::invoke_callback;
 use crate::widgets::widget_param_update::{
-    WidgetParamUpdate, set_bool, set_height, set_opt_f32, 
-    set_opt_iced_color, set_opt_iced_color_from_rgba, 
-    set_opt_string, set_opt_usize, set_opt_vec_f32, set_width
+    WidgetParamUpdate, set_opt_f32, set_opt_iced_color, set_opt_iced_color_from_rgba, set_t_value
 };
 
 use iced::widget::{Column, Text, text};
@@ -27,17 +25,18 @@ pub struct Card {
     pub id: usize,
     pub parent_id: String,
     pub is_open: bool,
-    
-    pub button_id: Option<usize>,
-    pub button_label: Option<String>,
-    pub width: Length,
-    pub height: Length,
+    pub width: Option<f32>,
+    pub width_fill: Option<bool>,
+    pub height: Option<f32>,
+    pub height_fill: Option<bool>,
+    pub fill: Option<bool>,
     pub max_width: Option<f32>,
     pub max_height: Option<f32>,
     pub padding: Option<Vec<f32>>,
     pub padding_head: Option<Vec<f32>>,
     pub padding_body: Option<Vec<f32>>,
     pub padding_foot: Option<Vec<f32>>,
+    pub close_icon: Option<bool>,
     pub close_size: Option<f32>,
     pub head: Option<String>,
     pub body: Option<String>,
@@ -60,18 +59,6 @@ impl Card {
     )-> Option<Element<'a, Message>> {
 
         if !self.show || !self.is_open {return None}
-        // if !self.is_open {
-            // let label = if let Some(label) = self.button_label.clone() {
-            //     label
-            // } else {
-            //     "Open card".to_string()
-            // };
-            // let btn: Element<CardMessage> = Button::new(Text::new(label))
-            //     .on_press(CardMessage::OnOpen)
-            //     .into();
-            // let btn_mapped: Element<Message> = btn.map(move |message| Message::Card(self.id, message));
-            // return Some(btn_mapped)
-        // }
 
         let style_opt = 
             self.lookup(widgets, self.style_id)
@@ -108,25 +95,26 @@ impl Card {
 
         let card  = 
             card::Card::new(head, body)
-                .width(self.width)
-                .height(self.height)
-                .padding_head(hd_pad)
-                .padding_body(bd_pad)
-                .padding_foot(ft_pad)
-                .close_size(self.close_size.unwrap_or(16.0))
+                .width(get_len(self.fill, self.width_fill, self.width))
+                .height(get_len(self.fill, self.height_fill, self.height))
+                // .padding_head(hd_pad)
+                // .padding_body(bd_pad)
+                // .padding_foot(ft_pad)
+                // .close_size(self.close_size.unwrap_or(16.0))
                 .on_close(CardMessage::OnClose)
-                .style(move |theme: &Theme, status| {
-                    if let Some(st) = &style_opt {
-                        st.to_iced(theme, status, &self.style_std)
-                    } else {
-                       match &self.style_std {
-                            Some(std) => std.to_iced(theme, status),
-                            None => style::card::primary(theme, status),
-                        }
-                    }
-                }
-            );
-            
+                // .style(move |theme: &Theme, status| {
+                //     if let Some(st) = &style_opt {
+                //         st.to_iced(theme, status, &self.style_std)
+                //     } else {
+                //        match &self.style_std {
+                //             Some(std) => std.to_iced(theme, status),
+                //             None => style::card::primary(theme, status),
+                //         }
+                //     }
+                // }
+            // )
+            ;
+
         let card = if let Some(foot) = &self.foot {
             card.foot(Some(Text::new(foot)
                 .width(Length::Fill)
@@ -311,22 +299,27 @@ pub enum CardStyleParam {
 #[derive(Debug, Clone, PartialEq, Hash)]
 #[pyclass(eq, eq_int, hash, frozen)]
 pub enum CardParam {
-    Body,
-    CloseSize,
-    Foot,
-    Head,
-    Height,
     IsOpen,
-    MaxHeight,
+    Width,
+    WidthFill,
+    Height,
+    HeightFill,
+    Fill,
     MaxWidth,
+    MaxHeight,
     Padding,
+    PaddingHead,
     PaddingBody,
     PaddingFoot,
-    PaddingHead,
-    Show,
-    StyleButton,
+    CloseIcon,
+    CloseSize,
+    Head,
+    Body,
+    Foot,
     StyleId,
-    Width,
+    StyleStd,
+    StyleButton,
+    Show,
 }
 
 // ---------------------------------------------------------------------------
@@ -338,22 +331,27 @@ impl WidgetParamUpdate for Card {
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
-            CardParam::Body => set_opt_string(&mut self.body, value, "Body"),
-            CardParam::CloseSize => set_opt_f32(&mut self.close_size, value, "CloseSize"),
-            CardParam::Foot => set_opt_string(&mut self.foot, value, "Foot"),
-            CardParam::Head => set_opt_string(&mut self.head, value, "Head"),
-            CardParam::Height => set_height(&mut self.height, value, "Height"),
-            CardParam::IsOpen => set_bool(&mut self.is_open, value, "IsOpen"),
-            CardParam::MaxHeight => set_opt_f32(&mut self.max_height, value, "MaxHeight"),
-            CardParam::MaxWidth => set_opt_f32(&mut self.max_width, value, "MaxWidth"),
-            CardParam::Padding => set_opt_vec_f32(&mut self.padding, value, "Padding"),
-            CardParam::PaddingBody => set_opt_vec_f32(&mut self.padding_body, value, "PaddingBody"),
-            CardParam::PaddingFoot => set_opt_vec_f32(&mut self.padding_foot, value, "PaddingFoot"),
-            CardParam::PaddingHead => set_opt_vec_f32(&mut self.padding_head, value, "PaddingHead"),
-            CardParam::Show => set_bool(&mut self.show, value, "Show"),
-            CardParam::StyleButton => set_opt_usize(&mut self.style_button, value, "StyleButton"),
-            CardParam::StyleId => set_opt_usize(&mut self.style_id, value, "StyleId"),
-            CardParam::Width => set_width(&mut self.width, value, "Width"),
+            CardParam::Body => set_t_value(&mut self.body, value, "CardParam::Body"),
+            CardParam::CloseIcon => todo!(),
+            CardParam::CloseSize => set_t_value(&mut self.close_size, value, "CardParam::CloseSize"),
+            CardParam::Fill => todo!(),
+            CardParam::Foot => set_t_value(&mut self.foot, value, "CardParam::Foot"),
+            CardParam::Head => set_t_value(&mut self.head, value, "CardParam::Head"),
+            CardParam::Height => set_t_value(&mut self.height, value, "CardParam::Height"),
+            CardParam::HeightFill => todo!(),
+            CardParam::IsOpen => set_t_value(&mut self.is_open, value, "CardParam::IsOpen"),
+            CardParam::MaxHeight => set_t_value(&mut self.max_height, value, "CardParam::MaxHeight"),
+            CardParam::MaxWidth => set_t_value(&mut self.max_width, value, "CardParam::MaxWidth"),
+            CardParam::Padding => set_t_value(&mut self.padding, value, "CardParam::Padding"),
+            CardParam::PaddingBody => set_t_value(&mut self.padding_body, value, "CardParam::PaddingBody"),
+            CardParam::PaddingFoot => set_t_value(&mut self.padding_foot, value, "CardParam::PaddingFoot"),
+            CardParam::PaddingHead => set_t_value(&mut self.padding_head, value, "CardParam::PaddingHead"),
+            CardParam::Show => set_t_value(&mut self.show, value, "CardParam::Show"),
+            CardParam::StyleButton => set_t_value(&mut self.style_button, value, "CardParam::StyleButton"),
+            CardParam::StyleId => set_t_value(&mut self.style_id, value, "CardParam::StyleId"),
+            CardParam::StyleStd => todo!(),
+            CardParam::Width => set_t_value(&mut self.width, value, "CardParam::Width"),
+            CardParam::WidthFill => todo!(),
         }
     }
 }

@@ -1646,6 +1646,32 @@ def update_widget(
     -------
     None
     """
+    
+def update_widget_params(
+        wid: int, 
+        updates: dict,
+    ):
+    
+    """
+    Update a widget by supplying the widget id, wid, the parameter to update, 
+    a class property value, and a value based on the type of value used by the widget.
+    
+    Parameters
+    ----------
+    wid: int
+        The widget id of the widget to be updated.
+    updates: dict, {parameter: value}
+        Example: update_widget_params(checkbox_id: {isChecked: True, label: "Checked"})
+    param: class property
+        Example: a button has a parameter ButtonParams.Width and value=float
+    value: any 
+        Any value which matches that used by the widget.  For example, to set a checkbox to true,
+        param=CheckboxParams.IsChecked, value=True  
+
+    Returns
+    -------
+    None
+    """
         
 def update_canvas_item(
         wid: int, 

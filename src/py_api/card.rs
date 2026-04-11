@@ -6,8 +6,7 @@ type PyObject = Py<PyAny>;
 
 use crate::add_user_data_to_mutex;
 use crate::graphics::colors::Color;
-use crate::state::{Widgets, access_state, add_callback_to_mutex, 
-    get_id, set_state_of_widget};
+use crate::state::{Containers, Widgets, access_state, add_callback_to_mutex, get_id, set_state_cont_wnd_ids, set_state_of_container};
 use crate::widgets::ipg_card::{Card, CardStyle, CardStyleStd};
 
 
@@ -73,7 +72,9 @@ use crate::widgets::ipg_card::{Card, CardStyle, CardStyleStd};
 ///     The numeric widget ID of the newly created card.
 #[pyfunction]
 #[pyo3(signature = (
-    parent_id, 
+    window_id, 
+    container_id, 
+    parent_id=None,
     head=None, 
     body=None,      
     is_open=true,
@@ -90,7 +91,7 @@ use crate::widgets::ipg_card::{Card, CardStyle, CardStyleStd};
     max_width=None, 
     max_height=None,
     padding=None, 
-    padding_head=None, 
+    // padding_head=None, 
     padding_body=None, 
     padding_foot=None,
     style_id=None,
@@ -101,7 +102,9 @@ use crate::widgets::ipg_card::{Card, CardStyle, CardStyleStd};
     gen_id=None,
     ))]
 pub fn add_card(
-    parent_id: String, 
+    window_id: String,
+    container_id: String,
+    parent_id: Option<String>, 
     head: Option<String>,
     body: Option<String>,
     is_open: bool,
@@ -118,7 +121,7 @@ pub fn add_card(
     max_width: Option<f32>,
     max_height: Option<f32>,
     padding: Option<Vec<f32>>,
-    padding_head: Option<Vec<f32>>,
+    // padding_head: Option<Vec<f32>>,
     padding_body: Option<Vec<f32>>,
     padding_foot: Option<Vec<f32>>,
     style_id: Option<usize>,
@@ -143,14 +146,20 @@ pub fn add_card(
         add_user_data_to_mutex(id, py);
     }
 
-    set_state_of_widget(id, parent_id.clone());
+    let prt_id = match parent_id {
+        Some(id) => id,
+        None => window_id.clone(),
+    };
+
+    set_state_of_container(id, window_id.clone(), Some(container_id.clone()), prt_id);
 
     let mut state = access_state();
 
-    state.widgets.insert(id, Widgets::Card(
+    set_state_cont_wnd_ids(&mut state, &window_id, container_id, id, "add_container".to_string());
+
+    state.containers.insert(id, Containers::Card(
         Card {
             id,
-            parent_id,
             is_open,
             width,
             width_fill,
@@ -160,7 +169,7 @@ pub fn add_card(
             max_width,
             max_height,
             padding,
-            padding_head,
+            // padding_head,
             padding_body,
             padding_foot,
             close_icon,

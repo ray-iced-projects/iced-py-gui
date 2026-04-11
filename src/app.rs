@@ -696,6 +696,9 @@ fn get_container<'a>(state: &'a IpgState,
                 // Containers::Canvas(canvas) => {
                 //     construct_canvas(canvas_state)
                 // },
+                Containers::Card(crd) => {
+                    crd.construct(content, &state.widgets)
+                },
                 Containers::Column(col) => {
                     col.construct(content) 
                 },
@@ -771,9 +774,6 @@ fn get_widget<'a>(state: &'a IpgState, id: &usize) -> Option<Element<'a, Message
             match widget {      
                 Widgets::Button(btn) => {
                     btn.construct(&state.widgets)
-                },
-                Widgets::Card(crd) => {
-                    crd.construct(&state.widgets)
                 },
                 Widgets::CheckBox(chk) => {
                     chk.construct(&state.widgets)
@@ -1109,7 +1109,6 @@ fn process_shows(
         };
         match widget {
             Widgets::Button(bt) => bt.show= *val,
-            Widgets::Card(cd) => cd.show= *val,
             Widgets::CheckBox(cb) => cb.show= *val,
             Widgets::ColorPicker(cp) => cp.show= *val,
             Widgets::DatePicker(dp) => dp.show= *val,

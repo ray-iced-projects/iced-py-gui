@@ -10,7 +10,7 @@ use crate::widgets::widget_param_update::{
     WidgetParamUpdate, set_opt_f32, set_opt_iced_color, set_opt_iced_color_from_rgba, set_t_value
 };
 
-use iced::widget::{Column, Text, text};
+use iced::widget::{Space, Text};
 use iced::{Element, Length, Theme};
 
 use iced_aw::widgets::card;
@@ -23,7 +23,6 @@ type PyObject = Py<PyAny>;
 #[derive(Debug, Clone)]
 pub struct Card {
     pub id: usize,
-    pub parent_id: String,
     pub is_open: bool,
     pub width: Option<f32>,
     pub width_fill: Option<bool>,
@@ -33,7 +32,7 @@ pub struct Card {
     pub max_width: Option<f32>,
     pub max_height: Option<f32>,
     pub padding: Option<Vec<f32>>,
-    pub padding_head: Option<Vec<f32>>,
+    // pub padding_head: Option<Vec<f32>>,
     pub padding_body: Option<Vec<f32>>,
     pub padding_foot: Option<Vec<f32>>,
     pub close_icon: Option<bool>,
@@ -55,65 +54,62 @@ impl Card {
 
     pub fn construct<'a>(
         &'a self,
+        mut content: Vec<Element<'a, Message>>,
         widgets: &HashMap<usize, Widgets>, 
-    )-> Option<Element<'a, Message>> {
+    )-> Element<'a, Message> {
 
-        if !self.show || !self.is_open {return None}
+        if !self.show || !self.is_open {return Space::new().into()}
 
         let style_opt = 
             self.lookup(widgets, self.style_id)
                 .and_then(Widgets::as_card_style).cloned();
 
-        let head: Element<CardMessage> = if let Some(head) = &self.head {
-            Text::new(head)
-                .width(Length::Fill)
-                .into()
-        } else {
-            text("").into()
-        };
-
-        let body: Element<CardMessage> = if let Some(body) = &self.body {
-            Text::new(body)
-                .width(Length::Fill)
-                .into()
-        } else {
-            text("").into()
-        };
-
-        let body: Element<CardMessage> = Column::new().push(body).into();
-
-        let mut hd_pad = get_padding(&self.padding_head);
+        // expect [body], [head, body] or [head, body, foot]
+        let (head, body, foot) = 
+            if content.len() >= 3 {
+                (content.remove(0), content.remove(0), Some(content.remove(0)))
+            } else if content.len() >= 2 {
+                (content.remove(0), content.remove(0), None)
+            } else if content.len() >= 1 {
+                (Element::from(Space::new()), content.remove(0), None)
+            } else {
+                eprint!("[WARNING] Expected the Card to hold a least one widget, therefore not constructed");
+                return Space::new().into()
+            };
+        
+        // header padding has a bug for now.
+        // let mut hd_pad = get_padding(&self.padding_head);
         let mut bd_pad = get_padding(&self.padding_body);
         let mut ft_pad = get_padding(&self.padding_foot);
             
         if self.padding.is_some() {
             let pd = get_padding(&self.padding);
-            hd_pad = pd;
+            // hd_pad = pd;
             bd_pad = pd;
             ft_pad = pd;
         }
 
         let card  = 
             card::Card::new(head, body)
+                .foot(foot)
                 .width(get_len(self.fill, self.width_fill, self.width))
                 .height(get_len(self.fill, self.height_fill, self.height))
                 // .padding_head(hd_pad)
-                // .padding_body(bd_pad)
-                // .padding_foot(ft_pad)
-                // .close_size(self.close_size.unwrap_or(16.0))
-                .on_close(CardMessage::OnClose)
-                // .style(move |theme: &Theme, status| {
-                //     if let Some(st) = &style_opt {
-                //         st.to_iced(theme, status, &self.style_std)
-                //     } else {
-                //        match &self.style_std {
-                //             Some(std) => std.to_iced(theme, status),
-                //             None => style::card::primary(theme, status),
-                //         }
-                //     }
-                // }
-            // )
-            ;
+                .padding_body(bd_pad)
+                .padding_foot(ft_pad)
+                .close_size(self.close_size.unwrap_or(16.0))
+                .on_close(Message::Card(self.id, CardMessage::OnClose))
+                .style(move |theme: &Theme, status| {
+                    if let Some(st) = &style_opt {
+                        st.to_iced(theme, status, &self.style_std)
+                    } else {
+                       match &self.style_std {
+                            Some(std) => std.to_iced(theme, status),
+                            None => style::card::primary(theme, status),
+                        }
+                    }
+                }
+            );
 
         let card = if let Some(foot) = &self.foot {
             card.foot(Some(Text::new(foot)
@@ -129,13 +125,13 @@ impl Card {
             card
         };
 
-        let card: Element<'_, CardMessage> = if let Some(mh) = self.max_height {
+        let card = if let Some(mh) = self.max_height {
             card.max_height(mh)
         } else {
             card
-        }.into();
-        
-        Some(card.map(move |message: CardMessage| Message::Card(self.id, message)))
+        };
+
+        card.into()
         
     }
 }
@@ -345,7 +341,7 @@ impl WidgetParamUpdate for Card {
             CardParam::Padding => set_t_value(&mut self.padding, value, "CardParam::Padding"),
             CardParam::PaddingBody => set_t_value(&mut self.padding_body, value, "CardParam::PaddingBody"),
             CardParam::PaddingFoot => set_t_value(&mut self.padding_foot, value, "CardParam::PaddingFoot"),
-            CardParam::PaddingHead => set_t_value(&mut self.padding_head, value, "CardParam::PaddingHead"),
+            CardParam::PaddingHead => eprintln!("[WARNING] PaddingHead is currently disabled due to a bug"),
             CardParam::Show => set_t_value(&mut self.show, value, "CardParam::Show"),
             CardParam::StyleButton => set_t_value(&mut self.style_button, value, "CardParam::StyleButton"),
             CardParam::StyleId => set_t_value(&mut self.style_id, value, "CardParam::StyleId"),

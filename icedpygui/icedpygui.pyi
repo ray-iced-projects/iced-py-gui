@@ -1809,7 +1809,7 @@ class ButtonParam:
 
 class ButtonStyleParam:
     """
-    Button parameters
+    Button style parameters
 
     Parameters
     ----------

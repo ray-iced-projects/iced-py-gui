@@ -60,6 +60,7 @@ type PyObject = Py<PyAny>;
 #[derive(Debug, Clone)]
 pub enum Containers {
     // Canvas(Canvas),
+    Card(Card),
     Column(Column),
     Container(Container),
     Float(Float),
@@ -83,7 +84,6 @@ pub enum Containers {
 pub enum Widgets {
     Button(Button),
     ButtonStyle(ButtonStyle),
-    Card(Card),
     CardStyle(CardStyle),
     CheckBox(CheckBox),
     CheckboxStyle(CheckboxStyle),
@@ -156,7 +156,6 @@ macro_rules! ipg_widget_accessors {
 ipg_widget_accessors! {
     Button           => Button,            as_button,              as_button_mut;
     ButtonStyle      => ButtonStyle,       as_button_style,        as_button_style_mut;
-    Card             => Card,              as_card,                as_card_mut;
     CardStyle        => CardStyle,         as_card_style,          as_card_style_mut;
     CheckBox         => CheckBox,          as_checkbox,            as_checkbox_mut;
     CheckboxStyle    => CheckboxStyle,     as_checkbox_style,      as_checkbox_style_mut;
@@ -220,6 +219,7 @@ macro_rules! ipg_container_accessors {
 }
 
 ipg_container_accessors! {
+    Card         => Card,         as_card,            as_card_mut;
     Column       => Column,       as_column,          as_column_mut;
     Container    => Container,    as_container,       as_container_mut;
     Float        => Float,        as_float,           as_float_mut;

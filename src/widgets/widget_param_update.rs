@@ -64,7 +64,6 @@ pub fn param_update(
     match widget {
         Widgets::Button(w) => apply_update(w, item, value),
         Widgets::ButtonStyle(w) => apply_update(w, item, value),
-        Widgets::Card(w) => apply_update(w, item, value),
         Widgets::CardStyle(w) => apply_update(w, item, value),
         Widgets::CheckBox(w) => apply_update(w, item, value),
         Widgets::CheckboxStyle(w) => apply_update(w, item, value),
@@ -101,7 +100,6 @@ pub fn param_update(
         Widgets::TextInputStyle(w) => apply_update(w, item, value),
         Widgets::Toggler(w) => apply_update(w, item, value),
         Widgets::TogglerStyle(w) => apply_update(w, item, value),
-        
             }
 }
 
@@ -115,6 +113,7 @@ pub fn container_param_update(
     value: &PyObject,
 ) {
     match container {
+        Containers::Card(w) => apply_update(w, item, value),
         Containers::Column(w) => apply_update(w, item, value),
         Containers::Container(w) => apply_update(w, item, value),
         Containers::Float(w)=> apply_update(w, item, value),

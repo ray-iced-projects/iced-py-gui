@@ -7,7 +7,6 @@ type PyObject = Py<PyAny>;
 use crate::add_user_data_to_mutex;
 use crate::graphics::bootstrap_icon::Icon;
 use crate::graphics::colors::Color;
-use crate::py_api::helpers::get_length;
 use crate::state::{Widgets, access_state, 
     add_callback_to_mutex, get_id, set_state_of_widget};
 use crate::widgets::ipg_checkbox::{CheckBox, CheckboxStyle, CheckboxStyleStd};
@@ -39,10 +38,6 @@ use crate::widgets::ipg_checkbox::{CheckBox, CheckboxStyle, CheckboxStyleStd};
 ///     Sets the Font size for the label text.
 /// text_line_height : float,  Optional
 ///     Sets the Line height for the label text.
-/// text_shaping_advanced: Optional[bool]
-///     Sets the Text shaping strategy for the label to advanced.
-/// text_shaping_basic Optional[bool]
-///     Sets the Text shaping strategy for the label to basic.
 /// text_wrapping_none: Optional[bool]
 ///     Sets the wrapping mode of the label to no wrapping, default is on a word.
 /// text_wrapping_glyph: Optional[bool]
@@ -59,8 +54,6 @@ use crate::widgets::ipg_checkbox::{CheckBox, CheckboxStyle, CheckboxStyleStd};
 ///     Sets the Size of the checkbox icon.
 /// icon_line_height : float,  Optional
 ///     Sets the Line height of the checkbox icon.
-/// icon_shaping : TextShaping,  Optional
-///     Sets the Text shaping strategy for the icon.
 /// user_data : Any,  Optional
 ///     Sets the Arbitrary data forwarded to callbacks.
 /// show : bool, default True
@@ -84,13 +77,11 @@ use crate::widgets::ipg_checkbox::{CheckBox, CheckboxStyle, CheckboxStyleStd};
     is_checked=false, 
     label=None, 
     width=None, 
-    width_fill=false, 
+    fill=None, 
     size=None, 
     spacing=None, 
     text_size=None,
     text_line_height=None,
-    text_shaping_advanced=None,
-    text_shaping_basic=None,
     text_wrapping_none=None,
     text_wrapping_glyph=None,
     text_wrapping_word_glyph=None,
@@ -99,8 +90,6 @@ use crate::widgets::ipg_checkbox::{CheckBox, CheckboxStyle, CheckboxStyleStd};
     icon=None,
     icon_size=None,
     icon_line_height=None,
-    icon_shaping_advanced=None,
-    icon_shaping_basic=None,
     user_data=None, 
     show=true, 
     style_id=None, 
@@ -113,13 +102,11 @@ pub fn add_checkbox(
     is_checked: bool,
     label: Option<String>,
     width: Option<f32>,
-    width_fill: bool,
+    fill: Option<bool>,
     size: Option<f32>,
     spacing: Option<f32>,
     text_size: Option<f32>,
     text_line_height: Option<f32>,
-    text_shaping_advanced: Option<bool>,
-    text_shaping_basic: Option<bool>,
     text_wrapping_none: Option<bool>,
     text_wrapping_glyph: Option<bool>,
     text_wrapping_word_glyph: Option<bool>,
@@ -128,8 +115,6 @@ pub fn add_checkbox(
     icon: Option<Icon>,
     icon_size: Option<f32>,
     icon_line_height: Option<f32>,
-    icon_shaping_advanced: Option<bool>,
-    icon_shaping_basic: Option<bool>,
     user_data: Option<PyObject>,
     show: bool,
     style_id: Option<usize>,
@@ -147,8 +132,6 @@ pub fn add_checkbox(
         add_user_data_to_mutex(id, py);
     }
     
-    let width = get_length(width, width_fill);
-    
     set_state_of_widget(id, parent_id.clone());
 
     let mut state = access_state();
@@ -161,12 +144,11 @@ pub fn add_checkbox(
             is_checked,
             label,
             width,
+            fill,
             size,
             spacing,
             text_size,
             text_line_height,
-            text_shaping_advanced,
-            text_shaping_basic,
             text_wrapping_none,
             text_wrapping_glyph,
             text_wrapping_word_glyph,
@@ -175,8 +157,6 @@ pub fn add_checkbox(
             icon,
             icon_size,
             icon_line_height,
-            icon_shaping_advanced,
-            icon_shaping_basic,
             style_id,
             style_std,
             }));
@@ -263,26 +243,25 @@ pub fn add_checkbox_style(
 {
     let id = get_id(gen_id);
 
-    let background_color = 
-        Color::rgba_ipg_color_to_iced(background_rgba, &background_color, background_color_alpha);
-    let border_color = 
-        Color::rgba_ipg_color_to_iced(border_rgba, &border_color, border_color_alpha);
-    let icon_color = 
-        Color::rgba_ipg_color_to_iced(icon_rgba, &icon_color, icon_color_alpha);
-    let text_color = 
-        Color::rgba_ipg_color_to_iced(text_rgba, &text_color, text_color_alpha);
-
     let mut state = access_state();
 
     state.widgets.insert(id, Widgets::CheckboxStyle(
         CheckboxStyle {
             id,
             background_color,
+            background_color_alpha,
+            background_rgba,
             border_color,
-            border_radius,
+            border_color_alpha,
+            border_rgba,
+            border_radius, 
             border_width,
             icon_color,
+            icon_color_alpha,
+            icon_rgba,
             text_color,
+            text_color_alpha,
+            text_rgba,
         }));
 
     drop(state);

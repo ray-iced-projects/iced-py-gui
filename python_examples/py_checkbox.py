@@ -132,8 +132,8 @@ with Window(title="Checkbox Demo",
 
                 with Container(style_std=ContainerStyleStd.BorderedBox, width_fill=True):
                     add_checkbox(
-                        label="Width Fill, fills remaining area",
-                        width_fill=True,
+                        label="Fill, fills remaining area",
+                        fill=True,
                         is_checked=True)
 
             # ***********************Checkbox icons***************************

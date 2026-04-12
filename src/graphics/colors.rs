@@ -236,7 +236,7 @@ impl Color {
         })
     }
 
-    fn to_iced(&self) -> iced::Color {
+    pub fn to_iced(&self) -> iced::Color {
         match self {
             Color::PRIMARY => PRIMARY,
             Color::SECONDARY => SECONDARY,

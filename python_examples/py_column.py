@@ -11,13 +11,12 @@ with Window(
     size=(600, 600),  
     center=True) as wnd:
 
-    # Need a column and row to hold the widget
+    # Need a column and row to hold the widgets
     with Column(spacing=20.0, padding=[20.0], fill=True):
         
         add_text(content="Spacing of 10.0 and 20.0")
         
         with Row(width_fill=True, height=100.0, spacing=20.0):
-            # We use add_column here to show the alternate version
             # We add two text widgets to each column below to demonstrate spacing
             # The container is just for showing a little background for highlighting
             with Container(width=200.0, height_fill=True,

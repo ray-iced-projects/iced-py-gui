@@ -3,7 +3,6 @@ use pyo3::prelude::*;
 use pyo3::pyfunction;
 
 use crate::access_state;
-use crate::py_api::helpers::get_length;
 use crate::state::{Containers, get_id, set_state_cont_wnd_ids, 
     set_state_of_container};
 use crate::widgets::ipg_column::Column;
@@ -59,9 +58,9 @@ use crate::widgets::ipg_column::Column;
         container_id, 
         parent_id=None,
         width=None, 
-        width_fill=false,
+        width_fill=None,
         height=None, 
-        height_fill=false,
+        height_fill=None,
         fill=None,
         max_width=None,
         padding=None,
@@ -78,9 +77,9 @@ pub fn add_column(
     // **above required
     parent_id: Option<String>,
     width: Option<f32>,
-    width_fill: bool,
+    width_fill: Option<bool>,
     height: Option<f32>,
-    height_fill: bool,
+    height_fill: Option<bool>,
     fill: Option<bool>,
     max_width: Option<f32>,
     padding: Option<Vec<f32>>,
@@ -93,12 +92,6 @@ pub fn add_column(
     ) -> PyResult<usize> 
 {
     let id = get_id(None);
-    
-    let (width, height) = if fill == Some(true) {
-        (get_length(None, true), get_length(None, true))
-    } else {
-        (get_length(width, width_fill), get_length(height, height_fill))
-    };
     
     let prt_id = match parent_id {
         Some(id) => id,
@@ -119,7 +112,10 @@ pub fn add_column(
                 spacing, 
                 padding, 
                 width, 
+                width_fill,
                 height, 
+                height_fill,
+                fill, 
                 max_width, 
                 align_left,
                 align_center,

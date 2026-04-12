@@ -259,28 +259,28 @@ pub fn add_card_style(
 {
     let id = get_id(gen_id);
 
-    let background = 
-        Color::rgba_ipg_color_to_iced(background_rgba, &background_color, background_color_alpha);
-    let border_color = 
-        Color::rgba_ipg_color_to_iced(border_rgba, &border_color, border_color_alpha);
-    let head_background = 
-        Color::rgba_ipg_color_to_iced(head_background_rgba, &head_background_color, head_background_color_alpha);
-    let body_background = 
-        Color::rgba_ipg_color_to_iced(body_background_rgba, &body_background_color, body_background_color_alpha);
-    let foot_background = 
-        Color::rgba_ipg_color_to_iced(foot_background_rgba, &foot_background_color, foot_background_color_alpha);
     let mut state = access_state();
 
     state.widgets.insert(id, Widgets::CardStyle(
         CardStyle {
             id,
-            background,
-            border_radius,
+            background_color,
+            background_color_alpha,
+            background_rgba,
+            border_radius, 
             border_width,
             border_color,
-            head_background, 
-            body_background, 
-            foot_background,  
+            border_color_alpha,
+            border_rgba, 
+            head_background_color,
+            head_background_color_alpha,
+            head_background_rgba, 
+            body_background_color,
+            body_background_color_alpha,
+            body_background_rgba, 
+            foot_background_color,
+            foot_background_color_alpha,
+            foot_background_rgba,
         }));
 
 

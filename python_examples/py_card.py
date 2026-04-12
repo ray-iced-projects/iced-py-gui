@@ -1,6 +1,6 @@
 from icedpygui import Window, Container, Column, \
     Card, CardParam, add_card, CardStyleStd, \
-    add_button, ButtonParam, ButtonStyleStd, \
+    add_button, ButtonParam, ButtonStyleStd, TextParam, \
     add_separator, add_text, update_widget, start_session
 
 
@@ -9,10 +9,12 @@ from icedpygui import Window, Container, Column, \
 def minimize_card(card_id: int):
     update_widget(card_id, CardParam.IsOpen, False)
     update_widget(btn_id, ButtonParam.Show, True)
+    update_widget(instr_id, TextParam.Show, False)
 
 def maximize_card(btn_id: int):
     update_widget(card_id, CardParam.IsOpen, True)
     update_widget(btn_id, ButtonParam.Show, False)
+    update_widget(instr_id, TextParam.Show, True)
 
 
 # window added first
@@ -23,7 +25,7 @@ with Window(title="Card Demo", center=True):
         # Even though only one widget shows, multiple widgets needed
         # a parent id, so column was used.
         with Column(spacing=10.0, padding=[10.0]):
-
+            instr_id = add_text(content="Close the Card to see next action")
             # add the the card
             with Card(
                 width=300.0,

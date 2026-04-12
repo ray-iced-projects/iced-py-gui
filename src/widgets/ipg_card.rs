@@ -3,13 +3,12 @@
 use std::collections::HashMap;
 
 use crate::app::Message;
+use crate::graphics::colors::Color;
 use crate::py_api::helpers::{get_len, get_padding};
 use crate::state::Widgets;
 use crate::widgets::callbacks::invoke_callback;
 use crate::widgets::widget_param_update::{
-    WidgetParamUpdate, set_opt_f32, set_opt_iced_color, 
-    set_opt_iced_color_from_rgba, set_t_value
-};
+    WidgetParamUpdate, set_t_value};
 
 use iced::widget::Space;
 use iced::{Element, Theme};
@@ -141,13 +140,23 @@ pub fn card_callback(id: usize, message: CardMessage) {
 #[derive(Debug, Clone)]
 pub struct CardStyle {
     pub id: usize,
-    pub background: Option<iced::Color>, 
+    pub background_color: Option<Color>,
+    pub background_color_alpha: Option<f32>,
+    pub background_rgba: Option<[f32; 4]>,
     pub border_radius: Option<f32>, 
     pub border_width: Option<f32>, 
-    pub border_color: Option<iced::Color>, 
-    pub head_background: Option<iced::Color>, 
-    pub body_background: Option<iced::Color>, 
-    pub foot_background: Option<iced::Color>, 
+    pub border_color: Option<Color>,
+    pub border_color_alpha: Option<f32>,
+    pub border_rgba: Option<[f32; 4]>, 
+    pub head_background_color: Option<Color>,
+    pub head_background_color_alpha: Option<f32>,
+    pub head_background_rgba: Option<[f32; 4]>, 
+    pub body_background_color: Option<Color>,
+    pub body_background_color_alpha: Option<f32>,
+    pub body_background_rgba: Option<[f32; 4]>, 
+    pub foot_background_color: Option<Color>,
+    pub foot_background_color_alpha: Option<f32>,
+    pub foot_background_rgba: Option<[f32; 4]>, 
 }
 
 impl CardStyle {
@@ -159,13 +168,25 @@ impl CardStyle {
         std_style_opt: &Option<CardStyleStd>,
         ) -> style::card::Style {
 
+            // convert colors
+            let background = 
+                Color::rgba_ipg_color_to_iced(self.background_rgba, &self.background_color, self.background_color_alpha);
+            let border_color = 
+                Color::rgba_ipg_color_to_iced(self.border_rgba, &self.border_color, self.border_color_alpha);
+            let head_background = 
+                Color::rgba_ipg_color_to_iced(self.head_background_rgba, &self.head_background_color, self.head_background_color_alpha);
+            let body_background = 
+                Color::rgba_ipg_color_to_iced(self.body_background_rgba, &self.body_background_color, self.body_background_color_alpha);
+            let foot_background = 
+                Color::rgba_ipg_color_to_iced(self.foot_background_rgba, &self.foot_background_color, self.foot_background_color_alpha);
+
             let mut style = if let Some(std) = std_style_opt {
                 std.to_iced(theme, status)
             } else {
                 style::card::Style::default()
             };
             
-            if let Some(bkg) = self.background {
+            if let Some(bkg) = background {
                 style.background = bkg.into();
             }
 
@@ -177,19 +198,19 @@ impl CardStyle {
                 style.border_width = bw;
             }
 
-            if let Some(bc) = self.border_color {
+            if let Some(bc) = border_color {
                 style.border_color = bc;
             }
 
-            if let Some(h_bkg) = self.head_background {
+            if let Some(h_bkg) = head_background {
                 style.head_background = h_bkg.into();
             }
 
-            if let Some(b_bkg) = self.body_background {
+            if let Some(b_bkg) = body_background {
                 style.body_background = b_bkg.into();
             }
 
-            if let Some(f_bkg) = self.foot_background {
+            if let Some(f_bkg) = foot_background {
                 style.foot_background = f_bkg.into();
             }
 
@@ -236,17 +257,22 @@ impl CardStyleStd {
 #[pyclass(eq, eq_int, hash, frozen)]
 pub enum CardStyleParam {
     BackgroundColor,
-    BackgroundRgbaColor,
-    BorderColor,
-    BorderRgbaColor,
-    BorderRadius,
+    BackgroundColorAlpha,
+    BackgroundRgba,
+    BorderRadius, 
     BorderWidth,
+    BorderColor,
+    BorderColorAlpha,
+    BorderRgba, 
     HeadBackgroundColor,
-    HeadBackgroundRgbaColor,
+    HeadBackgroundColorAlpha,
+    HeadBackgroundRgba, 
     BodyBackgroundColor,
-    BodyBackgroundRgbaColor,
+    BodyBackgroundColorAlpha,
+    BodyBackgroundRgba, 
     FootBackgroundColor,
-    FootBackgroundRgbaColor,
+    FootBackgroundColorAlpha,
+    FootBackgroundRgba,
 }
 
 #[derive(Debug, Clone, PartialEq, Hash)]
@@ -280,9 +306,9 @@ impl WidgetParamUpdate for Card {
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
             CardParam::CloseIconSize => set_t_value(&mut self.close_icon_size, value, "CardParam::CloseSize"),
-            CardParam::Fill => todo!(),
+            CardParam::Fill => set_t_value(&mut self.fill, value, "CardParam::Fill"),
             CardParam::Height => set_t_value(&mut self.height, value, "CardParam::Height"),
-            CardParam::HeightFill => todo!(),
+            CardParam::HeightFill => set_t_value(&mut self.height_fill, value, "CardParam::HeightFill"),
             CardParam::IsOpen => set_t_value(&mut self.is_open, value, "CardParam::IsOpen"),
             CardParam::MaxHeight => set_t_value(&mut self.max_height, value, "CardParam::MaxHeight"),
             CardParam::MaxWidth => set_t_value(&mut self.max_width, value, "CardParam::MaxWidth"),
@@ -291,9 +317,9 @@ impl WidgetParamUpdate for Card {
             CardParam::PaddingFoot => set_t_value(&mut self.padding_foot, value, "CardParam::PaddingFoot"),
             CardParam::Show => set_t_value(&mut self.show, value, "CardParam::Show"),
             CardParam::StyleId => set_t_value(&mut self.style_id, value, "CardParam::StyleId"),
-            CardParam::StyleStd => todo!(),
+            CardParam::StyleStd => set_t_value(&mut self.style_std, value, "CardParam::StyleStd"),
             CardParam::Width => set_t_value(&mut self.width, value, "CardParam::Width"),
-            CardParam::WidthFill => todo!(),
+            CardParam::WidthFill => set_t_value(&mut self.width_fill, value, "CardParam::WidthFill"),
         }
     }
 }
@@ -303,18 +329,23 @@ impl WidgetParamUpdate for CardStyle {
     
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
-            CardStyleParam::BackgroundColor => set_opt_iced_color(&mut self.background, value, "BackgroundColor"),
-            CardStyleParam::BackgroundRgbaColor => set_opt_iced_color_from_rgba(&mut self.background, value, "BackgroundRgbaColor"),
-            CardStyleParam::BorderColor => set_opt_iced_color(&mut self.border_color, value, "BorderColor"),
-            CardStyleParam::BorderRgbaColor => set_opt_iced_color_from_rgba(&mut self.border_color, value, "BorderRgbaColor"),
-            CardStyleParam::BorderRadius => set_opt_f32(&mut self.border_radius, value, "BorderRadius"),
-            CardStyleParam::BorderWidth => set_opt_f32(&mut self.border_width, value, "BorderWidth"),
-            CardStyleParam::HeadBackgroundColor => set_opt_iced_color(&mut self.head_background, value, "HeadBackgroundColor"),
-            CardStyleParam::HeadBackgroundRgbaColor => set_opt_iced_color_from_rgba(&mut self.head_background, value, "HeadBackgroundRgbaColor"),
-            CardStyleParam::BodyBackgroundColor => set_opt_iced_color(&mut self.body_background, value, "BodyBackgroundColor"),
-            CardStyleParam::BodyBackgroundRgbaColor => set_opt_iced_color_from_rgba(&mut self.body_background, value, "BodyBackgroundRgbaColor"),
-            CardStyleParam::FootBackgroundColor => set_opt_iced_color(&mut self.foot_background, value, "FootBackgroundColor"),
-            CardStyleParam::FootBackgroundRgbaColor => set_opt_iced_color_from_rgba(&mut self.foot_background, value, "FootBackgroundRgbaColor"),
+            CardStyleParam::BackgroundColor => set_t_value(&mut self.background_color, value, "CardStyleParam::BackgroundColor"),
+            CardStyleParam::BackgroundColorAlpha => set_t_value(&mut self.background_color_alpha, value, "CardStyleParam::BackgroundColorAlpha"),
+            CardStyleParam::BackgroundRgba => set_t_value(&mut self.background_rgba, value, "CardStyleParam::BackgroundRgbaColor"),
+            CardStyleParam::BodyBackgroundColor => set_t_value(&mut self.body_background_color, value, "CardStyleParam::BodyBackgroundColor"),
+            CardStyleParam::BodyBackgroundColorAlpha => set_t_value(&mut self.body_background_color_alpha, value, "CardStyleParam::BodyBackgroundColorAlpha"),
+            CardStyleParam::BodyBackgroundRgba => set_t_value(&mut self.body_background_rgba, value, "CardStyleParam::BodyBackgroundRgbaColor"),
+            CardStyleParam::BorderColor => set_t_value(&mut self.border_color, value, "BorderColor"),
+            CardStyleParam::BorderColorAlpha => set_t_value(&mut self.border_color_alpha, value, "CardStyleParam::BorderColorAlpha"),
+            CardStyleParam::BorderRadius => set_t_value(&mut self.border_radius, value, "CardStyleParam::BorderRadius"),
+            CardStyleParam::BorderRgba => set_t_value(&mut self.border_rgba, value, "CardStyleParam::BorderRgbaColor"),
+            CardStyleParam::BorderWidth => set_t_value(&mut self.border_width, value, "CardStyleParam::BorderWidth"),
+            CardStyleParam::FootBackgroundColor => set_t_value(&mut self.foot_background_color, value, "CardStyleParam::FootBackgroundColor"),
+            CardStyleParam::FootBackgroundColorAlpha => set_t_value(&mut self.foot_background_color_alpha, value, "CardStyleParam::FootBackgroundColorAlpha"),
+            CardStyleParam::FootBackgroundRgba => set_t_value(&mut self.foot_background_rgba, value, "CardStyleParam::FootBackgroundRgbaColor"),
+            CardStyleParam::HeadBackgroundColor => set_t_value(&mut self.head_background_color, value, "CardStyleParam::HeadBackgroundColor"),
+            CardStyleParam::HeadBackgroundColorAlpha => set_t_value(&mut self.head_background_color_alpha, value, "CardStyleParam::HeadBackgroundColorAlpha"),
+            CardStyleParam::HeadBackgroundRgba => set_t_value(&mut self.head_background_rgba, value, "CardStyleParam::HeadBackgroundRgbaColor"),
         }
     }
 }

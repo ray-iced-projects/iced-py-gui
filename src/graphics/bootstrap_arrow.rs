@@ -1,6 +1,6 @@
 //! Arrow
 
-use pyo3::{pyclass, Py, PyAny, Python};
+use pyo3::{pyclass, Py, PyAny};
 type PyObject = Py<PyAny>;
 
 use crate::graphics::bootstrap::{self, icon_to_char, icon_to_string};
@@ -10,7 +10,6 @@ use crate::graphics::bootstrap::{self, icon_to_char, icon_to_string};
 #[derive(Debug, Clone, PartialEq, Hash)]
 #[pyclass(eq, eq_int, hash, frozen)]
 pub enum Arrow {
-    ArrowNone,
     ArrowBarLeft,
     ArrowBarRight,
     ArrowBarUp,
@@ -156,7 +155,6 @@ impl Arrow {
             Arrow::ArrowsFullscreen => icon_to_string(bootstrap::Bootstrap::ArrowsFullscreen),
             Arrow::ArrowsMove => icon_to_string(bootstrap::Bootstrap::ArrowsMove),
             Arrow::ArrowsVertical => icon_to_string(bootstrap::Bootstrap::ArrowsVertical),
-            Arrow::ArrowNone => String::new(),
         }
     }
 
@@ -233,17 +231,7 @@ impl Arrow {
             Arrow::ArrowsFullscreen => icon_to_char(bootstrap::Bootstrap::ArrowsFullscreen),
             Arrow::ArrowsMove => icon_to_char(bootstrap::Bootstrap::ArrowsMove),
             Arrow::ArrowsVertical => icon_to_char(bootstrap::Bootstrap::ArrowsVertical),
-            Arrow::ArrowNone => '\0',
         }
     }
 
-    pub fn extract(update_obj: &PyObject) -> Option<Self> {
-        Python::attach(|py| {
-            let res = update_obj.extract::<Arrow>(py);
-            match res {
-                Ok(update) => Some(update),
-                Err(err) => panic!("Button arrow extraction failed {}", err),
-            }
-        })
-    }
 }

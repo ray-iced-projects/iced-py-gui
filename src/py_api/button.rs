@@ -6,7 +6,6 @@ type PyObject = Py<PyAny>;
 
 use crate::add_user_data_to_mutex;
 use crate::graphics::{colors::Color, bootstrap_arrow::Arrow};
-use crate::py_api::helpers::get_length;
 use crate::state::{Widgets, access_state, add_callback_to_mutex, 
     get_id, set_state_of_widget};
 use crate::widgets::ipg_button::{Button,  
@@ -85,9 +84,9 @@ use crate::widgets::ipg_button::{Button,
     label=None,
     on_press=None,
     width=None,
-    width_fill=false,
+    width_fill=None,
     height=None,
-    height_fill=false,
+    height_fill=None,
     fill=None,
     padding=None,
     text_top_left=None,
@@ -114,9 +113,9 @@ pub fn add_button(
     label: Option<String>,
     on_press: Option<PyObject>,
     width: Option<f32>,
-    width_fill: bool,
+    width_fill: Option<bool>,
     height: Option<f32>,
-    height_fill: bool,
+    height_fill: Option<bool>,
     fill: Option<bool>,
     padding: Option<Vec<f32>>,
     text_top_left: Option<bool>,
@@ -141,12 +140,6 @@ pub fn add_button(
 
     let id = get_id(gen_id);
     
-    let (width, height) = if fill == Some(true) {
-        (get_length(None, true), get_length(None, true))
-    } else {
-        (get_length(width, width_fill), get_length(height, height_fill))
-    };
-
     // Register widget with parent
     set_state_of_widget(id, parent_id.clone());
 
@@ -171,7 +164,10 @@ pub fn add_button(
                 show,
                 label,
                 width,
+                width_fill,
                 height,
+                height_fill,
+                fill,
                 padding,
                 text_top_left,
                 text_top_center,
@@ -301,34 +297,32 @@ pub fn add_button_style(
 {
     let id = get_id(gen_id);
 
-    let background_color = 
-        Color::rgba_ipg_color_to_iced(background_rgba, &background_color, background_color_alpha);
-    let background_gradient_color_stop =
-        Color::rgba_ipg_color_to_iced(background_gradient_rgba_stop, 
-            &background_gradient_color_stop, background_gradient_color_stop_alpha);
-    let border_color = 
-        Color::rgba_ipg_color_to_iced(border_rgba, &border_color, border_color_alpha);
-    let shadow_color = 
-        Color::rgba_ipg_color_to_iced(shadow_rgba, &shadow_color, shadow_color_alpha);
-    let text_color = 
-        Color::rgba_ipg_color_to_iced(text_rgba, &text_color, text_color_alpha);
-
     let mut state = access_state();
 
     state.widgets.insert(id, Widgets::ButtonStyle(
         ButtonStyle {
             id,
             background_color,
+            background_color_alpha, 
+            background_rgba,
             background_gradient_color_stop,
+            background_gradient_color_stop_alpha,
+            background_gradient_rgba_stop,
             background_gradient_degrees,
             background_gradient_radians,
             border_color,
-            border_radius,
+            border_color_alpha,
+            border_rgba,
+            border_radius, 
             border_width,
             shadow_color,
-            shadow_offset_xy,
+            shadow_color_alpha,
+            shadow_rgba,
+            shadow_offset_xy, 
             shadow_blur_radius,
             text_color,
+            text_color_alpha,
+            text_rgba,
         }));
 
     drop(state);

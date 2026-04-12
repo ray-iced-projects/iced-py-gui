@@ -108,7 +108,7 @@ def on_press(btn_id: int):
             update_widget(txt_id, TextParam.Content, "Param = StyleStd - Danger, keep pressing") 
             update_widget_params(btn_id, {
                 # reset some of the previous parameters
-                ButtonParam.StyleArrow: Arrow.ArrowNone, # resets the arrow style to None
+                ButtonParam.StyleArrow: None, # resets the arrow style to None
                 ButtonParam.Label: "I'm a Danger colored button",
                 # param to set
                 ButtonParam.StyleStd: ButtonStyleStd.Danger})

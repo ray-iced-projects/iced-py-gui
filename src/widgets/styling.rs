@@ -65,7 +65,7 @@ pub fn apply_shadow_overrides_xy(
 /// * Otherwise, if `background_color` alone is `Some`, a solid color background
 ///   is returned.
 /// * If neither is set the existing background is left untouched (`None`).
-pub fn apply_background_overrides(
+pub fn apply_background_color_overrides(
     background: &mut Option<IcedBackground>,
     background_color: Option<iced::Color>,
     gradient_color_stop: Option<iced::Color>,

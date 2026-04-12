@@ -6,7 +6,7 @@ use crate::app::Message;
 use crate::py_api::helpers::get_padding;
 use crate::state::Widgets;
 
-use crate::widgets::styling::{apply_background_overrides, 
+use crate::widgets::styling::{apply_background_color_overrides, 
     apply_border_overrides, apply_shadow_overrides_xy};
 use crate::widgets::widget_param_update::{
     WidgetParamUpdate, set_bool, set_height, set_height_fill, set_opt_bool, 
@@ -193,7 +193,7 @@ impl ContainerStyle {
         
 
         // Apply remaining optional overrides
-        apply_background_overrides(
+        apply_background_color_overrides(
             &mut style.background, self.background_color,
             self.background_gradient_color_stop,
             self.background_gradient_degrees,

@@ -3675,7 +3675,6 @@ class Arrow:
     """
     The various arrows for the widgets
     """
-    ArrowNone=''
     ArrowBarLeft=''
     ArrowBarRight=''
     ArrowBarUp=''

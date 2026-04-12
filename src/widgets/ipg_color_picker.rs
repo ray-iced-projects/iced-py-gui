@@ -4,7 +4,7 @@ use std::collections::HashMap;
 use crate::graphics::bootstrap_arrow::Arrow;
 use crate::state::Widgets;
 use crate::widgets::ipg_button::{ButtonStyleStd, extract_button_style_standard};
-use crate::widgets::widget_param_update::{WidgetParamUpdate, set_bool, set_height, set_height_fill, set_iced_color, set_opt_bool, set_opt_ipg_arrow, set_opt_string, set_opt_usize, set_opt_vec_f32, set_width, set_width_fill};
+use crate::widgets::widget_param_update::{WidgetParamUpdate, set_bool, set_height, set_height_fill, set_iced_color, set_opt_bool, set_opt_string, set_opt_usize, set_opt_vec_f32, set_t_value, set_width, set_width_fill};
 use crate::IpgState;
 use crate::app::Message;
 use crate::py_api::helpers::get_padding;
@@ -195,7 +195,7 @@ impl WidgetParamUpdate for ColorPicker {
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
-            ColorPickerParam::ArrowStyle => set_opt_ipg_arrow(&mut self.style_arrow, value, "ArrowStyle"),
+            ColorPickerParam::ArrowStyle => set_t_value(&mut self.style_arrow, value, "ArrowStyle"),
             ColorPickerParam::Clip => set_opt_bool(&mut self.clip, value, "Clip"),
             ColorPickerParam::Color => set_iced_color(&mut self.color, value, "Color"),
             ColorPickerParam::Height => set_height(&mut self.height, value, "Height"),

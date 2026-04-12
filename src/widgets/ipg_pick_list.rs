@@ -5,7 +5,7 @@ use crate::graphics::bootstrap_arrow::Arrow;
 use crate::py_api::helpers::{get_padding, get_radius};
 use crate::state::Widgets;
 use crate::widgets::widget_param_update::set_opt_iced_color_from_rgba;
-use crate::widgets::widget_param_update::set_opt_ipg_arrow;
+use crate::widgets::widget_param_update::set_t_value;
 use crate::widgets::widget_param_update::{WidgetParamUpdate,
     set_bool, set_height, set_height_fill,set_opt_iced_color,
     set_opt_f32, set_opt_string,
@@ -385,9 +385,9 @@ impl WidgetParamUpdate for PickList {
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
             PickListParam::ArrowSize => set_opt_f32(&mut self.arrow_size, value, "ArrowSize"),
-            PickListParam::CustomStatic => set_opt_ipg_arrow(&mut self.custom_static, value, "CustomStatic"),
-            PickListParam::DynamicClosed => set_opt_ipg_arrow(&mut self.dynamic_closed, value, "DynamicClosed"),
-            PickListParam::DynamicOpen => set_opt_ipg_arrow(&mut self.dynamic_open, value, "DynamicOpen"),
+            PickListParam::CustomStatic => set_t_value(&mut self.custom_static, value, "CustomStatic"),
+            PickListParam::DynamicClosed => set_t_value(&mut self.dynamic_closed, value, "DynamicClosed"),
+            PickListParam::DynamicOpen => set_t_value(&mut self.dynamic_open, value, "DynamicOpen"),
             PickListParam::Handle => self.handle = PickListHandle::extract(value),
             PickListParam::MenuHeight => set_height(&mut self.menu_height, value, "MenuHeight"),
             PickListParam::MenuHeightFill => set_height_fill(&mut self.menu_height, value, "MenuHeightFill"),

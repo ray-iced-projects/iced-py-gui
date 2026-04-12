@@ -308,9 +308,6 @@ pub fn set_rgba_color_via_ipg(field: &mut Option<iced::Color>, value: &PyObject,
     *field = Color::rgba_ipg_color_to_iced(Some(rgba), &None, None);
 }
 
-pub fn set_opt_ipg_arrow(field: &mut Option<Arrow>, value: &PyObject, name: &str) {
-    *field = Arrow::extract(value)
-}
 
 pub fn set_color_alpha(field: &mut Option<iced::Color>, value: &PyObject, name: &str) {
     let alpha = try_extract_f32(value, name);

@@ -7,12 +7,17 @@ import icedpygui as ipg
 
 widgets = [
     # containers
-    "add_window", "add_container", "add_column", "add_float",
+    "add_window",
+    "add_card", "add_card_style", 
+    "add_container", "add_container_style", 
+    
+    "add_column", "add_float",
     "add_grid", "add_mouse_area","add_row",
     "add_opaque", "add_stack",
     # widgets
     "add_button", "add_button_style", 
-    "add_checkbox", "add_checkbox_style", 
+    "add_checkbox", "add_checkbox_style",
+     
     "add_color_picker",
     "add_date_picker", "add_divider", "add_image", 
     "add_picklist", "add_progress_bar", "add_radio", 

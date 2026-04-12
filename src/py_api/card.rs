@@ -10,27 +10,22 @@ use crate::state::{Containers, Widgets, access_state, add_callback_to_mutex, get
 use crate::widgets::ipg_card::{Card, CardStyle, CardStyleStd};
 
 
-/// Add a card widget.
+/// Add a card container.
 ///
-/// A card with a head, body, and optional foot section.
+/// Card excepts the addition of 1 to 3 widgets, head, body, and optional foot.
+/// if only 1 widget is added, then it's assumed to be the body
+/// if 2 widgets are added, then they are head, body, respectively.
+/// if 3 widgets are added, then they are head, body, foot, respectively. 
 ///
 /// Parameters
 /// ----------
 /// parent_id : str
 ///     Sets the parent container ID that this card belongs to.
-/// head : str, Optional
-///     Sets the Text displayed in the card header.
-/// body : str, Optional
-///     Sets the Text displayed in the card body.
 /// is_open : bool, default True
 ///     Whether the card is open (expanded).
-/// min_max_id : int, Optional
-///     Sets the Widget ID of an external button used to toggle the card open/closed.
-/// foot : str, Optional
-///     Sets the Text displayed in the card footer.
-/// gen_id : int, Optional
-///     Obtains an ID of a widget that have not been created, used for the gen_id parameter.
-/// close_size : float, Optional
+/// close_icon : bool, Optional
+///     Whether to have a close icon.
+/// close_icon_size : float, Optional
 ///     Sets the Size of the close button in logical pixels.
 /// on_close : callable, Optional
 ///     Sets the Callback method to invoke when the card is closed.
@@ -65,7 +60,8 @@ use crate::widgets::ipg_card::{Card, CardStyle, CardStyleStd};
 ///     Whether the card is visible.
 /// user_data : Any, Optional
 ///     Sets the Arbitrary data forwarded to callbacks.
-///
+/// gen_id : int, Optional
+///     Obtains an ID of a widget that have not been created, used for the gen_id parameter.
 /// Returns
 /// -------
 /// int
@@ -74,15 +70,11 @@ use crate::widgets::ipg_card::{Card, CardStyle, CardStyleStd};
 #[pyo3(signature = (
     window_id, 
     container_id, 
-    parent_id=None,
-    head=None, 
-    body=None,      
+    parent_id=None,     
     is_open=true,
-    foot=None, 
     close_icon=None,
-    close_size=None,
+    close_icon_size=None,
     on_close=None,
-    on_open=None, 
     width=None, 
     width_fill=None, 
     height=None, 
@@ -96,7 +88,6 @@ use crate::widgets::ipg_card::{Card, CardStyle, CardStyleStd};
     padding_foot=None,
     style_id=None,
     style_std=None,
-    style_button=None,
     show=true, 
     user_data=None,
     gen_id=None,
@@ -105,14 +96,10 @@ pub fn add_card(
     window_id: String,
     container_id: String,
     parent_id: Option<String>, 
-    head: Option<String>,
-    body: Option<String>,
     is_open: bool,
-    foot: Option<String>,
     close_icon: Option<bool>,
-    close_size: Option<f32>,
+    close_icon_size: Option<f32>,
     on_close: Option<PyObject>,
-    on_open: Option<PyObject>,
     width: Option<f32>,
     width_fill: Option<bool>,
     height: Option<f32>,
@@ -126,7 +113,6 @@ pub fn add_card(
     padding_foot: Option<Vec<f32>>,
     style_id: Option<usize>,
     style_std: Option<CardStyleStd>,
-    style_button: Option<usize>,
     show: bool,
     user_data: Option<PyObject>, 
     gen_id: Option<usize>,
@@ -136,10 +122,6 @@ pub fn add_card(
 
     if let Some(py) = on_close {
         add_callback_to_mutex(id, "on_close".to_string(), py);
-    }
-
-    if let Some(py) = on_open {
-        add_callback_to_mutex(id, "on_open".to_string(), py);
     }
 
     if let Some(py) = user_data {
@@ -173,13 +155,9 @@ pub fn add_card(
             padding_body,
             padding_foot,
             close_icon,
-            close_size,
-            head,
-            body,
-            foot,
+            close_icon_size,
             style_id,
             style_std,
-            style_button,
             show,
         }));
 
@@ -218,42 +196,18 @@ pub fn add_card(
 ///     Sets the alpha of the Color.
 /// head_background_rgba : list of float, Optional
 ///     Sets the header background color in rgba format as [r, g, b, a].
-/// head_text_color : Color, Optional
-///     Sets the header text color using a predefined color variant.
-/// head_text_color_alpha : float, Optional
-///     Sets the alpha of the Color.
-/// head_text_rgba : list of float, Optional
-///     Sets the header text color in rgba format as [r, g, b, a].
 /// body_background_color : Color, Optional
 ///     Sets the body background color using a predefined color variant.
 /// body_background_color_alpha : float, Optional
 ///     Sets the alpha of the Color.
 /// body_background_rgba : list of float, Optional
 ///     Sets the body background color in rgba format as [r, g, b, a].
-/// body_text_color : Color, Optional
-///     Sets the body text color using a predefined color variant.
-/// body_text_color_alpha : float, Optional
-///     Sets the alpha of the Color.
-/// body_text_rgba : list of float, Optional
-///     Sets the body text color in rgba format as [r, g, b, a].
 /// foot_background_color : Color, Optional
 ///     Sets the footer background color using a predefined color variant.
 /// foot_background_color_alpha : float, Optional
 ///     Sets the alpha of the Color.
 /// foot_background_rgba : list of float, Optional
 ///     Sets the footer background color in rgba format as [r, g, b, a].
-/// foot_text_color : Color, Optional
-///     Sets the footer text color using a predefined color variant.
-/// foot_text_color_alpha : float, Optional
-///     Sets the alpha of the Color.
-/// foot_text_rgba : list of float, Optional
-///     Sets the footer text color in rgba format as [r, g, b, a].
-/// close_color : Color, Optional
-///     Sets the close button color using a predefined color variant.
-/// close_color_alpha : float, Optional
-///     Sets the alpha of the Color.
-/// close_rgba : list of float, Optional
-///     Sets the close button color in rgba format as [r, g, b, a].
 /// gen_id : int, Optional
 ///     Obtains an ID of a widget that have not been created, used for the gen_id parameter.
 ///
@@ -274,24 +228,12 @@ pub fn add_card(
     head_background_color=None,
     head_background_color_alpha=None,
     head_background_rgba=None, 
-    head_text_color=None,
-    head_text_color_alpha=None,
-    head_text_rgba=None,
     body_background_color=None,
     body_background_color_alpha=None,
     body_background_rgba=None, 
-    body_text_color=None,
-    body_text_color_alpha=None,
-    body_text_rgba=None, 
     foot_background_color=None,
     foot_background_color_alpha=None,
-    foot_background_rgba=None, 
-    foot_text_color=None,
-    foot_text_color_alpha=None,
-    foot_text_rgba=None, 
-    close_color=None,
-    close_color_alpha=None,
-    close_rgba=None,
+    foot_background_rgba=None,
     gen_id=None
     ))]
 pub fn add_card_style(
@@ -306,24 +248,12 @@ pub fn add_card_style(
     head_background_color: Option<Color>,
     head_background_color_alpha: Option<f32>,
     head_background_rgba: Option<[f32; 4]>, 
-    head_text_color: Option<Color>,
-    head_text_color_alpha: Option<f32>,
-    head_text_rgba: Option<[f32; 4]>,
     body_background_color: Option<Color>,
     body_background_color_alpha: Option<f32>,
     body_background_rgba: Option<[f32; 4]>, 
-    body_text_color: Option<Color>,
-    body_text_color_alpha: Option<f32>,
-    body_text_rgba: Option<[f32; 4]>, 
     foot_background_color: Option<Color>,
     foot_background_color_alpha: Option<f32>,
     foot_background_rgba: Option<[f32; 4]>, 
-    foot_text_color: Option<Color>,
-    foot_text_color_alpha: Option<f32>,
-    foot_text_rgba: Option<[f32; 4]>, 
-    close_color: Option<Color>,
-    close_color_alpha: Option<f32>,
-    close_rgba: Option<[f32; 4]>,
     gen_id: Option<usize>,
     ) -> PyResult<usize>
 {
@@ -339,15 +269,6 @@ pub fn add_card_style(
         Color::rgba_ipg_color_to_iced(body_background_rgba, &body_background_color, body_background_color_alpha);
     let foot_background = 
         Color::rgba_ipg_color_to_iced(foot_background_rgba, &foot_background_color, foot_background_color_alpha);
-    let head_text_color = 
-        Color::rgba_ipg_color_to_iced(head_text_rgba, &head_text_color, head_text_color_alpha);
-    let body_text_color = 
-        Color::rgba_ipg_color_to_iced(body_text_rgba, &body_text_color, body_text_color_alpha);
-    let foot_text_color = 
-        Color::rgba_ipg_color_to_iced(foot_text_rgba, &foot_text_color, foot_text_color_alpha);
-    let close_color = 
-        Color::rgba_ipg_color_to_iced(close_rgba, &close_color, close_color_alpha);
-
     let mut state = access_state();
 
     state.widgets.insert(id, Widgets::CardStyle(
@@ -358,12 +279,8 @@ pub fn add_card_style(
             border_width,
             border_color,
             head_background, 
-            head_text_color, 
             body_background, 
-            body_text_color, 
-            foot_background, 
-            foot_text_color, 
-            close_color,
+            foot_background,  
         }));
 
 

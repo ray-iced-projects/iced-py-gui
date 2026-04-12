@@ -1,7 +1,7 @@
 from icedpygui import Window, Container, Column, \
     Card, CardParam, add_card, CardStyleStd, \
     add_button, ButtonParam, ButtonStyleStd, \
-    update_widget, start_session
+    add_separator, add_text, update_widget, start_session
 
 
 
@@ -25,15 +25,20 @@ with Window(title="Card Demo", center=True):
         with Column(spacing=10.0, padding=[10.0]):
 
             # add the the card
-            card_id = add_card(
-                head=f"Python Iced_aw Card", 
-                body="This is the body of the card.", 
-                foot="Foot",
+            with Card(
                 width=300.0,
                 height=200.0,
-                close_size=20.0,
+                padding=[5],
                 style_std=CardStyleStd.Success,
-                on_close=minimize_card)
+                on_close=minimize_card
+                ) as card_id:
+                
+                add_text(content="Card") 
+                add_text(content="This is the body of the card.")
+
+                with Column(width_fill=True, height=30):
+                    add_separator(line_length=300)
+                    add_text(content="Foot content")
             
             # add the button but make show=False
             # The button can go anyplace you like,
@@ -47,8 +52,6 @@ with Window(title="Card Demo", center=True):
                 on_press=maximize_card,
                 style_std=ButtonStyleStd.Success)
         
-        
-            
                 
 # Required to be the last widget sent to Iced,  If you start the program
 # and nothing happens, it might mean you forgot to add this command.

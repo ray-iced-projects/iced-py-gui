@@ -7,11 +7,12 @@ use crate::py_api::helpers::{get_len, get_padding};
 use crate::state::Widgets;
 use crate::widgets::callbacks::invoke_callback;
 use crate::widgets::widget_param_update::{
-    WidgetParamUpdate, set_opt_f32, set_opt_iced_color, set_opt_iced_color_from_rgba, set_t_value
+    WidgetParamUpdate, set_opt_f32, set_opt_iced_color, 
+    set_opt_iced_color_from_rgba, set_t_value
 };
 
-use iced::widget::{Space, Text};
-use iced::{Element, Length, Theme};
+use iced::widget::Space;
+use iced::{Element, Theme};
 
 use iced_aw::widgets::card;
 use iced_aw::style;
@@ -36,13 +37,9 @@ pub struct Card {
     pub padding_body: Option<Vec<f32>>,
     pub padding_foot: Option<Vec<f32>>,
     pub close_icon: Option<bool>,
-    pub close_size: Option<f32>,
-    pub head: Option<String>,
-    pub body: Option<String>,
-    pub foot: Option<String>,
+    pub close_icon_size: Option<f32>,
     pub style_id: Option<usize>,
     pub style_std: Option<CardStyleStd>,
-    pub style_button: Option<usize>,
     pub show: bool,
 }
 
@@ -66,14 +63,14 @@ impl Card {
 
         // expect [body], [head, body] or [head, body, foot]
         let (head, body, foot) = 
-            if content.len() >= 3 {
+            if content.len() == 3 {
                 (content.remove(0), content.remove(0), Some(content.remove(0)))
-            } else if content.len() >= 2 {
+            } else if content.len() == 2 {
                 (content.remove(0), content.remove(0), None)
-            } else if content.len() >= 1 {
+            } else if content.len() == 1 {
                 (Element::from(Space::new()), content.remove(0), None)
             } else {
-                eprint!("[WARNING] Expected the Card to hold a least one widget, therefore not constructed");
+                eprint!("[WARNING] Expected the Card to hold a least one widget or less then 3, therefore not constructed");
                 return Space::new().into()
             };
         
@@ -97,7 +94,7 @@ impl Card {
                 // .padding_head(hd_pad)
                 .padding_body(bd_pad)
                 .padding_foot(ft_pad)
-                .close_size(self.close_size.unwrap_or(16.0))
+                .close_size(self.close_icon_size.unwrap_or(16.0))
                 .on_close(Message::Card(self.id, CardMessage::OnClose))
                 .style(move |theme: &Theme, status| {
                     if let Some(st) = &style_opt {
@@ -110,14 +107,6 @@ impl Card {
                     }
                 }
             );
-
-        let card = if let Some(foot) = &self.foot {
-            card.foot(Some(Text::new(foot)
-                .width(Length::Fill)
-                ))
-        } else {
-            card
-        };
 
         let card = if let Some(mw) = self.max_width {
             card.max_width(mw)
@@ -139,16 +128,12 @@ impl Card {
 #[derive(Debug, Clone)]
 pub enum CardMessage {
     OnClose,
-    OnOpen,
 }
 
 pub fn card_callback(id: usize, message: CardMessage) {
     match message {
         CardMessage::OnClose => {
             invoke_callback(id, "on_close", "Card");
-        },
-        CardMessage::OnOpen => {
-            invoke_callback(id, "on_open", "Card");
         },
     }
 }
@@ -161,12 +146,8 @@ pub struct CardStyle {
     pub border_width: Option<f32>, 
     pub border_color: Option<iced::Color>, 
     pub head_background: Option<iced::Color>, 
-    pub head_text_color: Option<iced::Color>, 
     pub body_background: Option<iced::Color>, 
-    pub body_text_color: Option<iced::Color>, 
     pub foot_background: Option<iced::Color>, 
-    pub foot_text_color: Option<iced::Color>, 
-    pub close_color:Option<iced::Color>,
 }
 
 impl CardStyle {
@@ -204,30 +185,14 @@ impl CardStyle {
                 style.head_background = h_bkg.into();
             }
 
-            if let Some(h_tc) = self.head_text_color {
-                style.head_text_color = h_tc;
-            }
-
             if let Some(b_bkg) = self.body_background {
                 style.body_background = b_bkg.into();
-            }
-
-            if let Some(b_tc) = self.body_text_color {
-                style.body_text_color = b_tc;
             }
 
             if let Some(f_bkg) = self.foot_background {
                 style.foot_background = f_bkg.into();
             }
 
-            if let Some(f_tc) = self.foot_text_color {
-                style.foot_text_color = f_tc;
-            }
-        
-            if let Some(c) = self.close_color {
-                style.close_color = c;
-            }
-        
             style
         }
 }
@@ -278,18 +243,10 @@ pub enum CardStyleParam {
     BorderWidth,
     HeadBackgroundColor,
     HeadBackgroundRgbaColor,
-    HeadTextColor,
-    HeadTextRgbaColor,
     BodyBackgroundColor,
     BodyBackgroundRgbaColor,
-    BodyTextColor,
-    BodyTextRgbaColor,
     FootBackgroundColor,
     FootBackgroundRgbaColor,
-    FootTextColor,
-    FootTextRgbaColor,
-    CloseColor,
-    CloseRgbaColor,
 }
 
 #[derive(Debug, Clone, PartialEq, Hash)]
@@ -304,17 +261,12 @@ pub enum CardParam {
     MaxWidth,
     MaxHeight,
     Padding,
-    PaddingHead,
+    // PaddingHead,
     PaddingBody,
     PaddingFoot,
-    CloseIcon,
-    CloseSize,
-    Head,
-    Body,
-    Foot,
+    CloseIconSize,
     StyleId,
     StyleStd,
-    StyleButton,
     Show,
 }
 
@@ -327,12 +279,8 @@ impl WidgetParamUpdate for Card {
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
-            CardParam::Body => set_t_value(&mut self.body, value, "CardParam::Body"),
-            CardParam::CloseIcon => todo!(),
-            CardParam::CloseSize => set_t_value(&mut self.close_size, value, "CardParam::CloseSize"),
+            CardParam::CloseIconSize => set_t_value(&mut self.close_icon_size, value, "CardParam::CloseSize"),
             CardParam::Fill => todo!(),
-            CardParam::Foot => set_t_value(&mut self.foot, value, "CardParam::Foot"),
-            CardParam::Head => set_t_value(&mut self.head, value, "CardParam::Head"),
             CardParam::Height => set_t_value(&mut self.height, value, "CardParam::Height"),
             CardParam::HeightFill => todo!(),
             CardParam::IsOpen => set_t_value(&mut self.is_open, value, "CardParam::IsOpen"),
@@ -341,9 +289,7 @@ impl WidgetParamUpdate for Card {
             CardParam::Padding => set_t_value(&mut self.padding, value, "CardParam::Padding"),
             CardParam::PaddingBody => set_t_value(&mut self.padding_body, value, "CardParam::PaddingBody"),
             CardParam::PaddingFoot => set_t_value(&mut self.padding_foot, value, "CardParam::PaddingFoot"),
-            CardParam::PaddingHead => eprintln!("[WARNING] PaddingHead is currently disabled due to a bug"),
             CardParam::Show => set_t_value(&mut self.show, value, "CardParam::Show"),
-            CardParam::StyleButton => set_t_value(&mut self.style_button, value, "CardParam::StyleButton"),
             CardParam::StyleId => set_t_value(&mut self.style_id, value, "CardParam::StyleId"),
             CardParam::StyleStd => todo!(),
             CardParam::Width => set_t_value(&mut self.width, value, "CardParam::Width"),
@@ -365,18 +311,10 @@ impl WidgetParamUpdate for CardStyle {
             CardStyleParam::BorderWidth => set_opt_f32(&mut self.border_width, value, "BorderWidth"),
             CardStyleParam::HeadBackgroundColor => set_opt_iced_color(&mut self.head_background, value, "HeadBackgroundColor"),
             CardStyleParam::HeadBackgroundRgbaColor => set_opt_iced_color_from_rgba(&mut self.head_background, value, "HeadBackgroundRgbaColor"),
-            CardStyleParam::HeadTextColor => set_opt_iced_color(&mut self.head_text_color, value, "HeadTextColor"),
-            CardStyleParam::HeadTextRgbaColor => set_opt_iced_color_from_rgba(&mut self.head_text_color, value, "HeadTextRgbaColor"),
             CardStyleParam::BodyBackgroundColor => set_opt_iced_color(&mut self.body_background, value, "BodyBackgroundColor"),
             CardStyleParam::BodyBackgroundRgbaColor => set_opt_iced_color_from_rgba(&mut self.body_background, value, "BodyBackgroundRgbaColor"),
-            CardStyleParam::BodyTextColor => set_opt_iced_color(&mut self.body_text_color, value, "BodyTextColor"),
-            CardStyleParam::BodyTextRgbaColor => set_opt_iced_color_from_rgba(&mut self.body_text_color, value, "BodyTextRgbaColor"),
             CardStyleParam::FootBackgroundColor => set_opt_iced_color(&mut self.foot_background, value, "FootBackgroundColor"),
             CardStyleParam::FootBackgroundRgbaColor => set_opt_iced_color_from_rgba(&mut self.foot_background, value, "FootBackgroundRgbaColor"),
-            CardStyleParam::FootTextColor => set_opt_iced_color(&mut self.foot_text_color, value, "FootTextColor"),
-            CardStyleParam::FootTextRgbaColor => set_opt_iced_color_from_rgba(&mut self.foot_text_color, value, "FootTextRgbaColor"),
-            CardStyleParam::CloseColor => set_opt_iced_color(&mut self.close_color, value, "CloseColor"),
-            CardStyleParam::CloseRgbaColor => set_opt_iced_color_from_rgba(&mut self.close_color, value, "CloseRgbaColor"),
         }
     }
 }

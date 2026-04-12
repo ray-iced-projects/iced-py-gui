@@ -95,18 +95,10 @@ def add_card_style(
         border_rgba: Optional[list[float, 4]]=None,
         head_background_color: Optional[Color]=None,
         head_background_rgba: Optional[list[float, 4]]=None,
-        head_text_color: Optional[Color]=None,
-        head_text_rgba: Optional[list[float, 4]]=None,
         body_background_color: Optional[Color]=None,
         body_background_rgba: Optional[list[float, 4]]=None,
-        body_text_color: Optional[Color]=None,
-        body_text_rgba: Optional[list[float, 4]]=None,
         foot_background_color: Optional[Color]=None,
         foot_background_rgba: Optional[list[float, 4]]=None,
-        foot_text_color: Optional[Color]=None,
-        foot_text_rgba: Optional[list[float, 4]]=None,
-        close_color: Optional[Color]=None,
-        close_rgba: Optional[list[float, 4]]=None,
         gen_id: Optional[int]=None,
     ) -> int:
     """

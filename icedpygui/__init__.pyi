@@ -437,8 +437,6 @@ def add_text(
     font_id: Optional[int] = None,
     size: Optional[float] = None,
     line_height: Optional[float] = None,
-    shaping_advanced: Optional[bool] = None,
-    shaping_basic: Optional[bool] = None,
     color: Optional[Color] = None,
     color_alpha: Optional[float] = None,
     color_rgba: Optional[list[float, 4]] = None,
@@ -826,6 +824,65 @@ class Window:
             exc_tb: TracebackType | None) -> bool: ...
 
 
+class Card:
+    """Context manager wrapper around add_card.
+
+    Wraps the iced_aw Card — a widget that aligns its contents inside
+    of its boundaries.  A Card take 1, 2, or 3 widgets.
+    if 1, assumed only body of card.
+    if 2, assumes head and body of card, respectively.
+    if 3, uses head, body, foot, respectively.
+    see demo file py_card.py
+    
+    Usage::
+
+        with Window(title="Demo"):
+            with Card(
+                width=300.0,
+                height=200.0,
+                padding=[5],
+                on_close=minimize_card
+                ):
+
+                add_text(content="Card")
+                add_text(content="This is the body of the card.")
+                with Column(width_fill=True, height=30):
+                    add_separator(line_length=300)
+                    add_text(content="Foot content")
+
+        start_session()
+    """
+    def __init__(
+        self,
+        *,
+        window_id: Optional[str] = None,
+        container_id: Optional[str] = None,
+        parent_id: Optional[str] = None, 
+        is_open: bool = True,
+        close_icon: Optional[bool] = None,
+        close_icon_size: Optional[float] = None,
+        on_close: Optional[Callable] = None,
+        width: Optional[float] = None,
+        width_fill: Optional[bool] = None,
+        height: Optional[float] = None,
+        height_fill: Optional[bool] = None,
+        fill: Optional[bool] = None,
+        max_width: Optional[float] = None,
+        max_height: Optional[float] = None,
+        padding: Optional[list[float]] = None,
+        padding_body: Optional[list[float]] = None,
+        padding_foot: Optional[list[float]] = None,
+        style_id: Optional[int] = None,
+        style_std: Optional[CardStyleStd] = None,
+        show: bool = True,
+        user_data: Optional[Any] = None, 
+        gen_id: Optional[int] = None,
+    ) -> None: ...
+    def __enter__(self) -> int: ...
+    def __exit__(self, exc_type: type[BaseException] | None, \
+        exc_val: BaseException | None, \
+            exc_tb: TracebackType | None) -> bool: ...
+
 class Container:
     """Context manager wrapper around add_container.
 
@@ -882,7 +939,6 @@ class Column:
     Usage::
 
         with Window(title="Demo"):
-            # Container centers column on screen 
             with Container(fill=True, align_center=True)
                 with Column(spacing=10.0):
                     add_text(content="hello")

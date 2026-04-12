@@ -3,7 +3,6 @@
 use pyo3::{PyResult, pyfunction};
 
 use crate::graphics::colors::Color;
-use crate::py_api::helpers::get_length;
 use crate::state::{Containers, Widgets, access_state, 
     get_id, set_state_cont_wnd_ids, set_state_of_container};
 use crate::widgets::ipg_container::{Container, 
@@ -77,9 +76,9 @@ use crate::widgets::ipg_container::{Container,
     container_id, 
     parent_id=None,
     width=None, 
-    width_fill=false, 
+    width_fill=None, 
     height=None, 
-    height_fill=false,
+    height_fill=None,
     fill=None,
     clip=None, 
     max_height=None, 
@@ -103,9 +102,9 @@ pub fn add_container(
     container_id: String,
     parent_id: Option<String>,
     width: Option<f32>,
-    width_fill: bool,
+    width_fill: Option<bool>,
     height: Option<f32>,
-    height_fill: bool,
+    height_fill: Option<bool>,
     fill: Option<bool>,
     clip: Option<bool>,
     max_height: Option<f32>,
@@ -126,12 +125,6 @@ pub fn add_container(
     ) -> PyResult<usize>
 {
     let id = get_id(None);
-
-    let (width, height) = if fill == Some(true) {
-        (get_length(None, true), get_length(None, true))
-    } else {
-        (get_length(width, width_fill), get_length(height, height_fill))
-    };
     
     let prt_id = match parent_id {
         Some(id) => id,
@@ -150,7 +143,10 @@ pub fn add_container(
             show,
             padding,
             width,
-            height,
+            width_fill, 
+            height, 
+            height_fill,
+            fill,
             max_width,
             max_height,
             align_top_left,
@@ -234,68 +230,59 @@ pub fn add_container(
 ///     The numeric style ID to pass to a container's ``style_id``.
 #[pyfunction]
 #[pyo3(signature = (
-    background_color=None, 
+    background_color=None,
+    background_color_alpha=None, 
     background_rgba=None,
-    background_alpha=None,
     background_gradient_color_stop=None,
+    background_gradient_color_stop_alpha=None,
     background_gradient_rgba_stop=None,
     background_gradient_degrees=None,
     background_gradient_radians=None,
     background_gradient_alpha=None,
-    border_color=None, 
+    border_color=None,
+    border_color_alpha=None, 
     border_rgba=None,
-    border_alpha=None,
     border_radius=None, 
     border_width=None,
-    shadow_color=None, 
+    shadow_color=None,
+    shadow_color_alpha=None, 
     shadow_rgba=None,
-    shadow_alpha=None,
     shadow_offset_xy=None,
     shadow_blur_radius=None,
-    text_color=None, 
+    text_color=None,
+    text_color_alpha=None, 
     text_rgba=None,
-    text_alpha=None,
     snap=None,
     gen_id=None
     ))]
 pub fn add_container_style(
     background_color: Option<Color>,
+    background_color_alpha: Option<f32>,
     background_rgba: Option<[f32; 4]>,
-    background_alpha: Option<f32>,
     background_gradient_color_stop: Option<Color>,
+    background_gradient_color_stop_alpha: Option<f32>,
     background_gradient_rgba_stop: Option<[f32; 4]>,
     background_gradient_degrees: Option<f32>,
     background_gradient_radians: Option<f32>,
     background_gradient_alpha: Option<f32>,
     border_color: Option<Color>,
+    border_color_alpha: Option<f32>,
     border_rgba: Option<[f32; 4]>,
-    border_alpha: Option<f32>,
     border_radius: Option<Vec<f32>>,
     border_width: Option<f32>,
     shadow_color: Option<Color>,
+    shadow_color_alpha: Option<f32>,
     shadow_rgba: Option<[f32; 4]>,
-    shadow_alpha: Option<f32>,
     shadow_offset_xy: Option<[f32; 2]>,
     shadow_blur_radius: Option<f32>,
     text_color: Option<Color>,
+    text_color_alpha: Option<f32>,
     text_rgba: Option<[f32; 4]>,
-    text_alpha: Option<f32>,
     snap: Option<bool>,
     gen_id: Option<usize>,
     ) -> PyResult<usize>
 {
     let id = get_id(gen_id);
-
-    let background_color = 
-        Color::rgba_ipg_color_to_iced(background_rgba, &background_color, background_alpha);
-    let background_gradient_color_stop = 
-        Color::rgba_ipg_color_to_iced(background_gradient_rgba_stop, &background_gradient_color_stop, background_gradient_alpha);
-    let border_color = 
-        Color::rgba_ipg_color_to_iced(border_rgba, &border_color, border_alpha);
-    let shadow_color = 
-        Color::rgba_ipg_color_to_iced(shadow_rgba, &shadow_color, shadow_alpha);
-    let text_color = 
-        Color::rgba_ipg_color_to_iced(text_rgba, &text_color, text_alpha);
 
     let mut state = access_state();
 
@@ -303,16 +290,27 @@ pub fn add_container_style(
         ContainerStyle {
             id,
             background_color,
+            background_color_alpha, 
+            background_rgba,
             background_gradient_color_stop,
+            background_gradient_color_stop_alpha,
+            background_gradient_rgba_stop,
             background_gradient_degrees,
             background_gradient_radians,
+            background_gradient_alpha,
             border_color,
-            border_radius,
+            border_color_alpha, 
+            border_rgba,
+            border_radius, 
             border_width,
             shadow_color,
+            shadow_color_alpha, 
+            shadow_rgba,
             shadow_offset_xy,
             shadow_blur_radius,
             text_color,
+            text_color_alpha, 
+            text_rgba,
             snap,
         }));
 

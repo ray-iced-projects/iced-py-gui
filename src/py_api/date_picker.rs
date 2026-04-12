@@ -57,7 +57,7 @@ type PyObject = Py<PyAny>;
     user_data=None,
     show=true,
     show_calendar=None, 
-    button_style_standard=None,
+    button_style_std=None,
     button_style_id=None,
     ))]
 pub fn add_date_picker(
@@ -71,7 +71,7 @@ pub fn add_date_picker(
     user_data: Option<PyObject>,
     show: bool,
     show_calendar: Option<bool>,
-    button_style_standard: Option<ButtonStyleStd>,
+    button_style_std: Option<ButtonStyleStd>,
     button_style_id: Option<usize>,
     ) -> PyResult<usize> 
 {
@@ -98,7 +98,7 @@ pub fn add_date_picker(
             padding,
             show,
             show_calendar,
-            button_style_standard,
+            button_style_std,
             button_style_id,
         )));
 

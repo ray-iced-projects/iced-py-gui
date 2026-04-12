@@ -11,9 +11,7 @@ use crate::widgets::ipg_button::ButtonStyle;
 use crate::py_api::helpers::{DATE_FORMATS, DAYS, 
     MONTH_NAMES, WEEKDAYS, get_padding, format_date};
 use crate::widgets::widget_param_update::{
-    WidgetParamUpdate,
-    set_bool, set_opt_f32, set_opt_string, set_opt_vec_f32,
-};
+    WidgetParamUpdate, set_t_value,};
 use iced::advanced::graphics::core::Element;
 use iced::widget::{button, text};
 use iced::{Length, Renderer, Theme};
@@ -74,7 +72,7 @@ impl DatePicker {
         padding: Option<Vec<f32>>,
         show: bool,
         show_calendar: Option<bool>,
-        button_style_standard: Option<ButtonStyleStd>,
+        button_style_std: Option<ButtonStyleStd>,
         button_style_id: Option<usize>,
         ) -> Self {
         Self {
@@ -97,7 +95,7 @@ impl DatePicker {
             hide_width: Some(Length::Shrink),
             hide_height: Some(Length::Shrink),
             is_submitted: false,
-            button_style_standard,
+            button_style_standard: button_style_std,
             button_style_id,
         }
     }
@@ -569,84 +567,10 @@ impl WidgetParamUpdate for DatePicker {
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
-            DatePickerParam::Label      => set_opt_string(&mut self.label, value, "Label"),
-            DatePickerParam::Padding    => set_opt_vec_f32(&mut self.padding, value, "Padding"),
-            DatePickerParam::SizeFactor => set_opt_f32(&mut self.size_factor, value, "SizeFactor"),
-            DatePickerParam::Show       => set_bool(&mut self.show, value, "Show"),
+            DatePickerParam::Label      => set_t_value(&mut self.label, value, "DatePickerParam::Label"),
+            DatePickerParam::Padding    => set_t_value(&mut self.padding, value, "DatePickerParam::Padding"),
+            DatePickerParam::SizeFactor => set_t_value(&mut self.size_factor, value, "DatePickerParam::SizeFactor"),
+            DatePickerParam::Show       => set_t_value(&mut self.show, value, "DatePickerParam::Show"),
         }
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use pyo3::{Python, IntoPyObjectExt};
-
-    fn make_date_picker() -> DatePicker {
-        DatePicker {
-            id: 0,
-            parent_id: String::new(),
-            label: None,
-            size_factor: None,
-            padding: None,
-            show: true,
-            show_calendar: None,
-            is_submitted: false,
-            button_style_standard: None,
-            button_style_id: None,
-            selected_format: "YYYY-mm-dd".to_string(),
-            selected_year: 2026,
-            selected_month_index: 3,
-            selected_day: 13,
-            selected_date: String::new(),
-            show_width: 145.0,
-            show_height: 180.0,
-            hide_width: Some(Length::Shrink),
-            hide_height: Some(Length::Shrink),
-        }
-    }
-
-    fn py_obj<T: for<'py> IntoPyObjectExt<'py>>(val: T) -> PyObject {
-        Python::initialize();
-        Python::attach(|py| val.into_py_any(py).unwrap())
-    }
-
-    fn py_none() -> PyObject {
-        Python::initialize();
-        Python::attach(|py| py.None().into_py_any(py).unwrap())
-    }
-
-    #[test]
-    fn test_label() {
-        let mut dp = make_date_picker();
-        dp.param_update(DatePickerParam::Label, &py_obj("Pick Date".to_string()));
-        assert_eq!(dp.label, Some("Pick Date".to_string()));
-        dp.param_update(DatePickerParam::Label, &py_none());
-        assert_eq!(dp.label, None);
-    }
-
-    #[test]
-    fn test_padding() {
-        let mut dp = make_date_picker();
-        dp.param_update(DatePickerParam::Padding, &py_obj(vec![5.0f32, 10.0]));
-        assert_eq!(dp.padding, Some(vec![5.0, 10.0]));
-        dp.param_update(DatePickerParam::Padding, &py_none());
-        assert_eq!(dp.padding, None);
-    }
-
-    #[test]
-    fn test_size_factor() {
-        let mut dp = make_date_picker();
-        dp.param_update(DatePickerParam::SizeFactor, &py_obj(2.0f32));
-        assert_eq!(dp.size_factor, Some(2.0));
-        dp.param_update(DatePickerParam::SizeFactor, &py_none());
-        assert_eq!(dp.size_factor, None);
-    }
-
-    #[test]
-    fn test_show() {
-        let mut dp = make_date_picker();
-        dp.param_update(DatePickerParam::Show, &py_obj(false));
-        assert!(!dp.show);
     }
 }

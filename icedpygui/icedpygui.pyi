@@ -14,27 +14,27 @@ from typing import Any, Callable, List, Optional, Union
 # ---------------------------------------------------------------------------
 
 def add_button_style(
-        background_color: Optional[Color] = None,
-        background_color_alpha: Optional[float] = None,
-        background_rgba: Optional[list[float, 4]] = None,
-        background_gradient_color_stop: Optional[Color] = None,
-        background_gradient_color_stop_alpha: Optional[float] = None,
-        background_gradient_rgba_stop: Optional[float] = None,
-        background_gradient_degrees: Optional[float] = None,
-        background_gradient_radians: Optional[float] = None,
-        border_color: Optional[Color] = None,
-        border_color_alpha: Optional[float] = None,
-        border_rgba: Optional[list[float, 4]] = None,
-        border_radius: Optional[list[float | float, 4]] = None,
-        border_width: Optional[float] = None,
-        shadow_color: Optional[Color] = None,
-        shadow_color_alpha: Optional[float] = None, 
-        shadow_rgba: Optional[list] = None,
-        shadow_offset_xy: Optional[list[float, 2]] = None, 
-        shadow_blur_radius: Optional[float] = None,
-        text_color: Optional[Color] = None,
-        text_color_alpha: Optional[float] = None,
-        text_rgba: Optional[list[float, 4]] = None
+        background_color: Optional[Color] | None = None,
+        background_color_alpha: Optional[float] | None = None,
+        background_rgba: Optional[list[float, 4]] | None = None,
+        background_gradient_color_stop: Optional[Color] | None = None,
+        background_gradient_color_stop_alpha: Optional[float] | None = None,
+        background_gradient_rgba_stop: Optional[float] | None = None,
+        background_gradient_degrees: Optional[float] | None = None,
+        background_gradient_radians: Optional[float] | None = None,
+        border_color: Optional[Color] | None = None,
+        border_color_alpha: Optional[float] | None = None,
+        border_rgba: Optional[list[float, 4]] | None = None,
+        border_radius: Optional[list[float | float, 4]] | None = None,
+        border_width: Optional[float] | None = None,
+        shadow_color: Optional[Color] | None = None,
+        shadow_color_alpha: Optional[float] | None = None, 
+        shadow_rgba: Optional[list] | None = None,
+        shadow_offset_xy: Optional[list[float, 2]] | None = None, 
+        shadow_blur_radius: Optional[float] | None = None,
+        text_color: Optional[Color] | None = None,
+        text_color_alpha: Optional[float] | None = None,
+        text_rgba: Optional[list[float, 4]] | None = None
     ) -> int:
     """Adds styling to a button
 
@@ -87,19 +87,24 @@ def add_button_style(
     """
 
 def add_card_style(
-        background_color: Optional[Color]=None,
-        background_rgba: Optional[list[float, 4]]=None,
-        border_radius: float=10.0,
-        border_width: float=1.0, 
-        border_color: Optional[Color]=None,
-        border_rgba: Optional[list[float, 4]]=None,
-        head_background_color: Optional[Color]=None,
-        head_background_rgba: Optional[list[float, 4]]=None,
-        body_background_color: Optional[Color]=None,
-        body_background_rgba: Optional[list[float, 4]]=None,
-        foot_background_color: Optional[Color]=None,
-        foot_background_rgba: Optional[list[float, 4]]=None,
-        gen_id: Optional[int]=None,
+        background_color: Optional[Color] | None = None,
+        background_color_alpha: Optional[float] | None = None,
+        background_rgba: Optional[list[float, 4]] | None = None,
+        border_radius: Optional[float] | None = None,
+        border_width: Optional[float] | None = None, 
+        border_color: Optional[Color] | None = None,
+        border_color_alpha: Optional[float] | None = None,
+        border_rgba: Optional[list[float] | list[float, 4]] | None = None,
+        head_background_color: Optional[Color] | None = None,
+        head_background_color_alpha: Optional[float] | None = None,
+        head_background_rgba: Optional[list[float, 4]] | None = None,
+        body_background_color: Optional[Color] | None = None,
+        body_background_color_alpha: Optional[float] | None = None,
+        body_background_rgba: Optional[list[float, 4]] | None = None,
+        foot_background_color: Optional[Color] | None = None,
+        foot_background_color_alpha: Optional[float] | None = None,
+        foot_background_rgba: Optional[list[float, 4]] | None = None,
+        gen_id: Optional[int] | None = None,
     ) -> int:
     """
     Adds styling to the Card
@@ -148,14 +153,21 @@ def add_card_style(
     """
     
 def add_checkbox_style(
-        background_color: Optional[Color]=None,
-        background_rgba: Optional[list]=None,
-        border_color: Optional[Color]=None,
-        border_rgba: Optional[list]=None,
-        border_radius: list=None,
-        border_width: Optional[float]=None,
-        text_color: Optional[Color]=None,
-        text_rgba: Optional[list]=None
+        background_color: Optional[Color] | None = None,
+        background_color_alpha: Optional[float] | None = None,
+        background_rgba: Optional[list[float, 4]] | None = None,
+        border_color: Optional[Color] | None = None,
+        border_color_alpha: Optional[float] | None = None,
+        border_rgba: Optional[list[float, 4]] | None = None,
+        border_radius: Optional[list[float] | list[float, 4]] | None = None,
+        border_width: Optional[float] | None = None,
+        icon_color: Optional[Color] | None = None,
+        icon_color_alpha: Optional[float] | None = None,
+        icon_rgba: Optional[list[float, 4]] | None = None,
+        text_color: Optional[Color] | None = None,
+        text_color_alpha: Optional[float] | None = None,
+        text_rgba: Optional[list[float, 4]] | None = None,
+        gen_id: Optional[int] | None = None,
     ) -> int:
     """Adds styling to a checkbox
 
@@ -199,21 +211,21 @@ def add_checkbox_style(
     """
 
 def add_color_picker_style(
-        background_color: Optional[Color]=None,
-        background_rgba: Optional[list[float, 4]]=None,
-        background_color_hovered: Optional[Color]=None,
-        background_rgba_hovered: Optional[list[float, 4]]=None,
-        border_color: Optional[Color]=None, 
-        border_rgba: Optional[list[float, 4]]=None,
-        border_radius: list[float | float, 4]=[0.0], 
-        border_width: float=1.0,
-        shadow_color: Optional[Color]=None, 
-        shadow_rgba: Optional[list]=None,
-        shadow_offset_x: float=0.0, 
-        shadow_offset_y: float=0.0,
-        shadow_blur_radius: float=1.0,
-        text_color: Optional[Color]=None, 
-        text_rgba: Optional[list[float, 4]]=None
+        background_color: Optional[Color] | None = None,
+        background_rgba: Optional[list[float, 4]] | None = None,
+        background_color_hovered: Optional[Color] | None = None,
+        background_rgba_hovered: Optional[list[float, 4]] | None = None,
+        border_color: Optional[Color] | None = None,
+        border_rgba: Optional[list[float, 4]] | None = None,
+        border_radius: Optional[list[float] | list[float, 4]] | None = None,
+        border_width: Optional[float | None] = None,
+        shadow_color: Optional[Color] | None = None,
+        shadow_rgba: Optional[list[float, 4]] | None = None,
+        shadow_offset_x: Optional[float] | None = None,
+        shadow_offset_y: Optional[float] | None = None,
+        shadow_blur_radius: Optional[float] | None = None,
+        text_color: Optional[Color] | None = None,
+        text_rgba: Optional[list[float, 4]] | None = None,
     ) -> int:
     
     """
@@ -221,16 +233,30 @@ def add_color_picker_style(
 
     """
 def add_container_style(
-        background_color: Optional[Color]=None,
-        background_rgba: Optional[list[float, 4]]=None,
-        border_color: Optional[Color]=None, 
-        border_rgba: Optional[list[float, 4]]=None,
-        border_radius: list[float]=[0.0], 
-        border_width: float=0.0,
-        shadow_color: Optional[Color]=None, 
-        shadow_rgba: Optional[list]=None,
-        shadow_offset_xy: list[float, 2]=[0.0, 0.0], 
-        shadow_blur_radius: float=0.0,
+        background_color: Optional[Color] | None = None,
+        background_color_alpha: Optional[list[float, 4]] | None = None,
+        background_rgba: Optional[list[float, 4]] | None = None,
+        background_gradient_color_stop: Optional[Color] | None = None,
+        background_gradient_color_stop_alpha: Optional[float] | None = None,
+        background_gradient_rgba_stop: Optional[list[float, 4]] | None = None,
+        background_gradient_degrees: Optional[float] | None = None,
+        background_gradient_radians: Optional[float] | None = None,
+        background_gradient_alpha: Optional[float] | None = None,
+        border_color: Optional[Color] | None = None,
+        border_color_alpha: Optional[float] | None = None,
+        border_rgba: Optional[list[float, 4]] | None = None,
+        border_radius: Optional[list[float]] | None = None,
+        border_width: Optional[float] | None = None,
+        shadow_color: Optional[Color] | None = None,
+        shadow_color_alpha: Optional[float] | None = None,
+        shadow_rgba: Optional[list[float, 4]] | None = None,
+        shadow_offset_xy: Optional[list[float, 2]] | None = None,
+        shadow_blur_radius: Optional[float] | None = None,
+        text_color: Optional[Color] | None = None,
+        text_color_alpha: Optional[float] | None = None,
+        text_rgba: Optional[list[float, 4]] | None = None,
+        snap: Optional[bool] | None = None,
+        gen_id: Optional[int] | None = None,
     ) -> int:
     """Adds styling to a container
 
@@ -338,17 +364,17 @@ class FontWeight:
     Thin=''
 
 def add_menu_bar_style(
-        base_color: Optional[Color]=None,
-        base_rgba: Optional[list[float, 4]]=None,
-        border_color: Optional[Color]=None,
-        border_rgba: Optional[list[float, 4]]=None,
-        border_radius: Optional[list[float] | list[float, 4]]=None,
-        border_width: Optional[float]=None,
-        shadow_color: Optional[Color]=None,
-        shadow_rgba: Optional[list[float, 4]]=None,
-        shadow_offset_xy: Optional[list[float, 2]]=None,
-        shadow_blur_radius: Optional[float]=None,
-        gen_id: Optional[int]=None,
+        base_color: Optional[Color] | None = None,
+        base_rgba: Optional[list[float, 4]] | None = None,
+        border_color: Optional[Color] | None = None,
+        border_rgba: Optional[list[float, 4]] | None = None,
+        border_radius: Optional[list[float] | list[float, 4]] | None = None,
+        border_width: Optional[float] | None = None,
+        shadow_color: Optional[Color] | None = None,
+        shadow_rgba: Optional[list[float, 4]] | None = None,
+        shadow_offset_xy: Optional[list[float, 2]] | None = None,
+        shadow_blur_radius: Optional[float] | None = None,
+        gen_id: Optional[int] | None = None,
     ) -> int:
     
     """

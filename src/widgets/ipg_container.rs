@@ -3,31 +3,33 @@
 use std::collections::HashMap;
 
 use crate::app::Message;
-use crate::py_api::helpers::get_padding;
+use crate::graphics::colors::Color;
+use crate::py_api::helpers::{get_len, get_padding};
 use crate::state::Widgets;
 
 use crate::widgets::styling::{apply_background_color_overrides, 
     apply_border_overrides, apply_shadow_overrides_xy};
 use crate::widgets::widget_param_update::{
-    WidgetParamUpdate, set_bool, set_height, set_height_fill, set_opt_bool, 
-    set_opt_f32, set_opt_f32_array_2, set_opt_iced_color, set_opt_iced_color_from_rgba, 
-    set_opt_usize, set_opt_vec_f32, set_width, set_width_fill, set_lengths_fill
-};
+    WidgetParamUpdate, set_t_value};
 
-use iced::{Element, Length, Theme, alignment};
+use iced::{Element, Theme, alignment};
 use iced::widget::{self, Space};
 
-use pyo3::{Py, PyAny, Python, pyclass};
+use pyo3::{Py, PyAny, pyclass};
 type PyObject = Py<PyAny>;
+
+
 
 #[derive(Debug, Clone)]
 pub struct Container {
     pub id: usize,
     pub show: bool,
-
     pub padding: Option<Vec<f32>>,
-    pub width: Length,
-    pub height: Length,
+    pub width: Option<f32>,
+    pub width_fill: Option<bool>,
+    pub height: Option<f32>,
+    pub height_fill: Option<bool>,
+    pub fill: Option<bool>,
     pub max_width: Option<f32>,
     pub max_height: Option<f32>,
     pub align_top_left: Option<bool>,
@@ -73,8 +75,8 @@ impl Container {
 
         let cont = 
             widget::Container::new(new_content)
-                .width(self.width)
-                .height(self.height)
+                .width(get_len(self.fill, self.width_fill, self.width))
+                .height(get_len(self.fill, self.height_fill, self.height))
                 .padding(get_padding(&self.padding))
                 .style(move|theme|
                     if let Some(st) = &style_opt {
@@ -164,17 +166,28 @@ impl Container {
 #[derive(Debug, Clone, PartialEq)]
 pub struct ContainerStyle {
     pub id: usize,
-    pub background_color: Option<iced::Color>,
-    pub background_gradient_color_stop: Option<iced::Color>,
+    pub background_color: Option<Color>,
+    pub background_color_alpha: Option<f32>,
+    pub background_rgba: Option<[f32; 4]>,
+    pub background_gradient_color_stop: Option<Color>,
+    pub background_gradient_color_stop_alpha: Option<f32>,
+    pub background_gradient_rgba_stop: Option<[f32; 4]>,
     pub background_gradient_degrees: Option<f32>,
     pub background_gradient_radians: Option<f32>,
-    pub border_color: Option<iced::Color>,
+    pub background_gradient_alpha: Option<f32>,
+    pub border_color: Option<Color>,
+    pub border_color_alpha: Option<f32>,
+    pub border_rgba: Option<[f32; 4]>,
     pub border_radius: Option<Vec<f32>>,
     pub border_width: Option<f32>,
-    pub shadow_color: Option<iced::Color>,
+    pub shadow_color: Option<Color>,
+    pub shadow_color_alpha: Option<f32>,
+    pub shadow_rgba: Option<[f32; 4]>,
     pub shadow_offset_xy: Option<[f32; 2]>,
     pub shadow_blur_radius: Option<f32>,
-    pub text_color: Option<iced::Color>,
+    pub text_color: Option<Color>,
+    pub text_color_alpha: Option<f32>,
+    pub text_rgba: Option<[f32; 4]>,
     pub snap: Option<bool>,
 }
 
@@ -190,26 +203,35 @@ impl ContainerStyle {
                 st.to_iced(theme)
             } else { widget::container::transparent(theme) };
 
-        
+        let background_color = 
+            Color::rgba_ipg_color_to_iced(self.background_rgba, &self.background_color, self.background_color_alpha);
+        let background_gradient_color_stop = 
+            Color::rgba_ipg_color_to_iced(self.background_gradient_rgba_stop, &self.background_gradient_color_stop, self.background_gradient_alpha);
+        let border_color = 
+            Color::rgba_ipg_color_to_iced(self.border_rgba, &self.border_color, self.border_color_alpha);
+        let shadow_color = 
+            Color::rgba_ipg_color_to_iced(self.shadow_rgba, &self.shadow_color, self.shadow_color_alpha);
+        let text_color = 
+            Color::rgba_ipg_color_to_iced(self.text_rgba, &self.text_color, self.text_color_alpha);
 
         // Apply remaining optional overrides
         apply_background_color_overrides(
-            &mut style.background, self.background_color,
-            self.background_gradient_color_stop,
+            &mut style.background, background_color,
+            background_gradient_color_stop,
             self.background_gradient_degrees,
             self.background_gradient_radians,
         );
 
         apply_border_overrides(
-            &mut style.border, self.border_color,
+            &mut style.border, border_color,
             &self.border_radius, self.border_width, "Container",
         );
 
         apply_shadow_overrides_xy(
-            &mut style.shadow, self.shadow_color, 
+            &mut style.shadow, shadow_color, 
             self.shadow_offset_xy, self.shadow_blur_radius);
         
-        style.text_color = self.text_color;
+        style.text_color = text_color;
 
         if let Some(sp) = self.snap {
             style.snap = sp;
@@ -302,29 +324,28 @@ pub enum ContainerParam {
 #[derive(Debug, Clone, PartialEq, Hash)]
 #[pyclass(eq, eq_int, hash, frozen)]
 pub enum ContainerStyleParam {
-    BackgroundColor,
-    BackgroundRgbaColor,
-    BorderColor,
-    BorderRgbaColor,
-    BorderRadius,
+    BackgroundColor, 
+    BackgroundRgba,
+    BackgroundColorAlpha,
+    BackgroundGradientColorStop,
+    BackgroundGradientRgbaStop,
+    BackgroundGradientDegrees,
+    BackgroundGradientRadians,
+    BackgroundGradientAlpha,
+    BorderColor, 
+    BorderRgba,
+    BorderColorAlpha,
+    BorderRadius, 
     BorderWidth,
-    ShadowColor,
-    ShadowRgbaColor,
+    ShadowColor, 
+    ShadowRgba,
+    ShadowColorAlpha,
     ShadowOffsetXY,
     ShadowBlurRadius,
-    TextColor,
-    TextRgbaColor,
-}
-
-pub fn try_extract_container_style_param(update_obj: &PyObject) -> ContainerStyleStd{
-
-    Python::attach(|py| {
-        let res = update_obj.extract::<ContainerStyleStd>(py);
-        match res {
-            Ok(update) => update,
-            Err(_) => panic!("ContainerStyleStd update extraction failed"),
-        }
-    })
+    TextColor, 
+    TextRgba,
+    TextColorAlpha,
+    Snap,
 }
 
 // ---------------------------------------------------------------------------
@@ -336,27 +357,27 @@ impl WidgetParamUpdate for Container {
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
-            ContainerParam::AlignBottomCenter => set_opt_bool(&mut self.align_bottom_center, value, "AlignBottomCenter"),
-            ContainerParam::AlignBottomLeft => set_opt_bool(&mut self.align_bottom_left, value, "AlignBottomLeft"),
-            ContainerParam::AlignBottomRight => set_opt_bool(&mut self.align_bottom_right, value, "AlignBottomRight"),
-            ContainerParam::AlignCenter => set_opt_bool(&mut self.align_center, value, "AlignCenter"),
-            ContainerParam::AlignCenterLeft => set_opt_bool(&mut self.align_center_left, value, "AlignCenterLeft"),
-            ContainerParam::AlignCenterRight => set_opt_bool(&mut self.align_center_right, value, "AlignCenterRight"),
-            ContainerParam::AlignTopCenter => set_opt_bool(&mut self.align_top_center, value, "AlignTopCenter"),
-            ContainerParam::AlignTopLeft => set_opt_bool(&mut self.align_top_left, value, "AlignTopLeft"),
-            ContainerParam::AlignTopRight => set_opt_bool(&mut self.align_top_right, value, "AlignTopRight"),
-            ContainerParam::Clip => set_opt_bool(&mut self.clip, value, "Clip"),
-            ContainerParam::Fill => set_lengths_fill(&mut self.width, &mut self.height, value, "Fill"),
-            ContainerParam::Height => set_height(&mut self.height, value, "Height"),
-            ContainerParam::HeightFill => set_height_fill(&mut self.height, value, "HeightFill"),
-            ContainerParam::MaxHeight => set_opt_f32(&mut self.max_height, value, "MaxHeight"),
-            ContainerParam::MaxWidth => set_opt_f32(&mut self.max_width, value, "MaxWidth"),
-            ContainerParam::Padding => set_opt_vec_f32(&mut self.padding, value, "Padding"),
-            ContainerParam::Width => set_width(&mut self.width, value, "Width"),
-            ContainerParam::WidthFill => set_width_fill(&mut self.width, value, "WidthFill"),
-            ContainerParam::Show => set_bool(&mut self.show, value, "Show"),
-            ContainerParam::StyleId => set_opt_usize(&mut self.style_id, value, "StyleId"),
-            ContainerParam::StyleStd => self.style_std = Some(try_extract_container_style_param(value)),
+            ContainerParam::AlignBottomCenter => set_t_value(&mut self.align_bottom_center, value, "ContainerParam::AlignBottomCenter"),
+            ContainerParam::AlignBottomLeft => set_t_value(&mut self.align_bottom_left, value, "ContainerParam::AlignBottomLeft"),
+            ContainerParam::AlignBottomRight => set_t_value(&mut self.align_bottom_right, value, "ContainerParam::AlignBottomRight"),
+            ContainerParam::AlignCenter => set_t_value(&mut self.align_center, value, "ContainerParam::AlignCenter"),
+            ContainerParam::AlignCenterLeft => set_t_value(&mut self.align_center_left, value, "ContainerParam::AlignCenterLeft"),
+            ContainerParam::AlignCenterRight => set_t_value(&mut self.align_center_right, value, "ContainerParam::AlignCenterRight"),
+            ContainerParam::AlignTopCenter => set_t_value(&mut self.align_top_center, value, "ContainerParam::AlignTopCenter"),
+            ContainerParam::AlignTopLeft => set_t_value(&mut self.align_top_left, value, "ContainerParam::AlignTopLeft"),
+            ContainerParam::AlignTopRight => set_t_value(&mut self.align_top_right, value, "ContainerParam::AlignTopRight"),
+            ContainerParam::Clip => set_t_value(&mut self.clip, value, "ContainerParam::Clip"),
+            ContainerParam::Fill => set_t_value(&mut self.fill, value, "ContainerParam::Fill"),
+            ContainerParam::Height => set_t_value(&mut self.height, value, "ContainerParam::Height"),
+            ContainerParam::HeightFill => set_t_value(&mut self.height_fill, value, "ContainerParam::HeightFill"),
+            ContainerParam::MaxHeight => set_t_value(&mut self.max_height, value, "ContainerParam::MaxHeight"),
+            ContainerParam::MaxWidth => set_t_value(&mut self.max_width, value, "ContainerParam::MaxWidth"),
+            ContainerParam::Padding => set_t_value(&mut self.padding, value, "ContainerParam::Padding"),
+            ContainerParam::Width => set_t_value(&mut self.width, value, "ContainerParam::Width"),
+            ContainerParam::WidthFill => set_t_value(&mut self.width_fill, value, "ContainerParam::WidthFill"),
+            ContainerParam::Show => set_t_value(&mut self.show, value, "ContainerParam::Show"),
+            ContainerParam::StyleId => set_t_value(&mut self.style_id, value, "ContainerParam::StyleId"),
+            ContainerParam::StyleStd => set_t_value(&mut self.style_std, value, "ContainerParam::StyleStd"),
         }
     }
 }
@@ -366,302 +387,28 @@ impl WidgetParamUpdate for ContainerStyle {
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
-            ContainerStyleParam::BackgroundColor  => set_opt_iced_color(&mut self.background_color, value, "BackgroundColor"),
-            ContainerStyleParam::BackgroundRgbaColor => set_opt_iced_color_from_rgba(&mut self.background_color, value, "BackgroundRgbaColor"),
-            ContainerStyleParam::BorderColor => set_opt_iced_color(&mut self.border_color, value, "BorderColor"),
-            ContainerStyleParam::BorderRgbaColor => set_opt_iced_color_from_rgba(&mut self.border_color, value, "BorderRgbaColor"),
-            ContainerStyleParam::BorderRadius => set_opt_vec_f32(&mut self.border_radius, value, "BorderRadius"),
-            ContainerStyleParam::BorderWidth => set_opt_f32(&mut self.border_width, value, "BorderWidth"),
-            ContainerStyleParam::ShadowColor => set_opt_iced_color(&mut self.shadow_color, value, "ShadowColor"),
-            ContainerStyleParam::ShadowRgbaColor => set_opt_iced_color_from_rgba(&mut self.shadow_color, value, "ShadowRgbaColor"),
-            ContainerStyleParam::ShadowOffsetXY => set_opt_f32_array_2(&mut self.shadow_offset_xy, value, "ShadowOffsetXY"),
-            ContainerStyleParam::ShadowBlurRadius => set_opt_f32(&mut self.shadow_blur_radius, value, "ShadowBlurRadius"),
-            ContainerStyleParam::TextColor => set_opt_iced_color(&mut self.text_color, value, "TextColor"),
-            ContainerStyleParam::TextRgbaColor => set_opt_iced_color_from_rgba(&mut self.text_color, value, "TextRgbaColor"),
+            ContainerStyleParam::BackgroundColor  => set_t_value(&mut self.background_color, value, "ContainerStyleParam::BackgroundColor"),
+            ContainerStyleParam::BackgroundColorAlpha => set_t_value(&mut self.background_color_alpha, value, "ContainerStyleParam::BackgroundColorAlpha"),
+            ContainerStyleParam::BackgroundGradientAlpha => set_t_value(&mut self.background_gradient_alpha, value, "ContainerStyleParam::BackgroundGradientAlpha"),
+            ContainerStyleParam::BackgroundGradientColorStop => set_t_value(&mut self.background_gradient_color_stop, value, "ContainerStyleParam::BackgroundGradientColorStop"),
+            ContainerStyleParam::BackgroundGradientDegrees => set_t_value(&mut self.background_gradient_degrees, value, "ContainerStyleParam::BackgroundGradientDegrees"),
+            ContainerStyleParam::BackgroundGradientRadians => set_t_value(&mut self.background_gradient_radians, value, "ContainerStyleParam::BackgroundGradientRadians"),
+            ContainerStyleParam::BackgroundGradientRgbaStop => set_t_value(&mut self.background_gradient_rgba_stop, value, "ContainerStyleParam::BackgroundGradientRgbaStop"),
+            ContainerStyleParam::BackgroundRgba => set_t_value(&mut self.background_rgba, value, "ContainerStyleParam::BackgroundRgba"),
+            ContainerStyleParam::BorderColor => set_t_value(&mut self.border_color, value, "ContainerStyleParam::BorderColor"),
+            ContainerStyleParam::BorderColorAlpha => set_t_value(&mut self.border_color_alpha, value, "ContainerStyleParam::BorderColorAlpha"),
+            ContainerStyleParam::BorderRadius => set_t_value(&mut self.border_radius, value, "ContainerStyleParam::BorderRadius"),
+            ContainerStyleParam::BorderRgba => set_t_value(&mut self.border_rgba, value, "ContainerStyleParam::BorderRgba"),
+            ContainerStyleParam::BorderWidth => set_t_value(&mut self.border_width, value, "ContainerStyleParam::BorderWidth"),
+            ContainerStyleParam::ShadowBlurRadius => set_t_value(&mut self.shadow_blur_radius, value, "ContainerStyleParam::ShadowBlurRadius"),
+            ContainerStyleParam::ShadowColor => set_t_value(&mut self.shadow_color, value, "ContainerStyleParam::ShadowColor"),
+            ContainerStyleParam::ShadowColorAlpha => set_t_value(&mut self.shadow_color_alpha, value, "ContainerStyleParam::ShadowColorAlpha"),
+            ContainerStyleParam::ShadowOffsetXY => set_t_value(&mut self.shadow_offset_xy, value, "ContainerStyleParam::ShadowOffsetXY"),
+            ContainerStyleParam::ShadowRgba => set_t_value(&mut self.shadow_rgba, value, "ContainerStyleParam::ShadowRgba"),
+            ContainerStyleParam::Snap => set_t_value(&mut self.snap, value, "ContainerStyleParam::Snap"),
+            ContainerStyleParam::TextColor => set_t_value(&mut self.text_color, value, "ContainerStyleParam::TextColor"),
+            ContainerStyleParam::TextColorAlpha => set_t_value(&mut self.text_color_alpha, value, "ContainerStyleParam::TextColorAlpha"),
+            ContainerStyleParam::TextRgba => set_t_value(&mut self.text_rgba, value, "ContainerStyleParam::TextRgba"),
         }
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use iced::Length;
-    use pyo3::{IntoPyObjectExt, Python};
-
-    fn make_container() -> Container {
-        Container {
-            id: 0,
-            show: true,
-            padding: None,
-            width: Length::Shrink,
-            height: Length::Shrink,
-            max_width: None,
-            max_height: None,
-            align_top_left: None,
-            align_top_center: None,
-            align_top_right: None,
-            align_center_left: None,
-            align_center: None,
-            align_center_right: None,
-            align_bottom_left: None,
-            align_bottom_center: None,
-            align_bottom_right: None,
-            clip: None,
-            style_id: None,
-            style_std: None,
-        }
-    }
-
-    fn make_container_style() -> ContainerStyle {
-        ContainerStyle {
-            id: 0,
-            background_color: None,
-            background_gradient_color_stop: None,
-            background_gradient_degrees: None,
-            background_gradient_radians: None,
-            border_color: None,
-            border_radius: None,
-            border_width: None,
-            shadow_color: None,
-            shadow_offset_xy: None,
-            shadow_blur_radius: None,
-            text_color: None,
-            snap: None,
-        }
-    }
-
-    fn py_obj<T: for<'py> IntoPyObjectExt<'py>>(val: T) -> PyObject {
-        Python::initialize();
-        Python::attach(|py| val.into_py_any(py).unwrap())
-    }
-
-    fn py_none() -> PyObject {
-        Python::initialize();
-        Python::attach(|py| py.None().into_py_any(py).unwrap())
-    }
-
-    // -- Container param tests --
-
-    #[test]
-    fn test_align_bottom_center() {
-        let mut c = make_container();
-        c.param_update(ContainerParam::AlignBottomCenter, &py_obj(true));
-        assert_eq!(c.align_bottom_center, Some(true));
-        c.param_update(ContainerParam::AlignBottomCenter, &py_none());
-        assert_eq!(c.align_bottom_center, None);
-    }
-
-    #[test]
-    fn test_align_bottom_left() {
-        let mut c = make_container();
-        c.param_update(ContainerParam::AlignBottomLeft, &py_obj(true));
-        assert_eq!(c.align_bottom_left, Some(true));
-    }
-
-    #[test]
-    fn test_align_bottom_right() {
-        let mut c = make_container();
-        c.param_update(ContainerParam::AlignBottomRight, &py_obj(true));
-        assert_eq!(c.align_bottom_right, Some(true));
-    }
-
-    #[test]
-    fn test_align_center() {
-        let mut c = make_container();
-        c.param_update(ContainerParam::AlignCenter, &py_obj(true));
-        assert_eq!(c.align_center, Some(true));
-    }
-
-    #[test]
-    fn test_align_center_left() {
-        let mut c = make_container();
-        c.param_update(ContainerParam::AlignCenterLeft, &py_obj(true));
-        assert_eq!(c.align_center_left, Some(true));
-    }
-
-    #[test]
-    fn test_align_center_right() {
-        let mut c = make_container();
-        c.param_update(ContainerParam::AlignCenterRight, &py_obj(true));
-        assert_eq!(c.align_center_right, Some(true));
-    }
-
-    #[test]
-    fn test_align_top_center() {
-        let mut c = make_container();
-        c.param_update(ContainerParam::AlignTopCenter, &py_obj(true));
-        assert_eq!(c.align_top_center, Some(true));
-    }
-
-    #[test]
-    fn test_align_top_left() {
-        let mut c = make_container();
-        c.param_update(ContainerParam::AlignTopLeft, &py_obj(true));
-        assert_eq!(c.align_top_left, Some(true));
-    }
-
-    #[test]
-    fn test_align_top_right() {
-        let mut c = make_container();
-        c.param_update(ContainerParam::AlignTopRight, &py_obj(true));
-        assert_eq!(c.align_top_right, Some(true));
-    }
-
-    #[test]
-    fn test_clip() {
-        let mut c = make_container();
-        c.param_update(ContainerParam::Clip, &py_obj(true));
-        assert_eq!(c.clip, Some(true));
-        c.param_update(ContainerParam::Clip, &py_none());
-        assert_eq!(c.clip, None);
-    }
-
-    #[test]
-    fn test_fill() {
-        let mut c = make_container();
-        c.param_update(ContainerParam::Fill, &py_obj(Some(true)));
-        assert_eq!(c.width, Length::Fill);
-        assert_eq!(c.height, Length::Fill);
-        c.param_update(ContainerParam::Fill, &py_obj(Some(false)));
-        assert_eq!(c.width, Length::Shrink);
-        assert_eq!(c.height, Length::Shrink);
-        c.param_update(ContainerParam::Fill, &py_none());
-        assert_eq!(c.width, Length::Shrink);
-        assert_eq!(c.height, Length::Shrink);
-    }
-
-    #[test]
-    fn test_height() {
-        let mut c = make_container();
-        c.param_update(ContainerParam::Height, &py_obj(50.0f32));
-        assert_eq!(c.height, Length::Fixed(50.0));
-    }
-
-    #[test]
-    fn test_height_fill() {
-        let mut c = make_container();
-        c.param_update(ContainerParam::HeightFill, &py_obj(true));
-        assert_eq!(c.height, Length::Fill);
-    }
-
-    #[test]
-    fn test_max_height() {
-        let mut c = make_container();
-        c.param_update(ContainerParam::MaxHeight, &py_obj(300.0f32));
-        assert_eq!(c.max_height, Some(300.0));
-        c.param_update(ContainerParam::MaxHeight, &py_none());
-        assert_eq!(c.max_height, None);
-    }
-
-    #[test]
-    fn test_max_width() {
-        let mut c = make_container();
-        c.param_update(ContainerParam::MaxWidth, &py_obj(500.0f32));
-        assert_eq!(c.max_width, Some(500.0));
-        c.param_update(ContainerParam::MaxWidth, &py_none());
-        assert_eq!(c.max_width, None);
-    }
-
-    #[test]
-    fn test_padding() {
-        let mut c = make_container();
-        c.param_update(ContainerParam::Padding, &py_obj(vec![5.0f32, 10.0]));
-        assert_eq!(c.padding, Some(vec![5.0, 10.0]));
-        c.param_update(ContainerParam::Padding, &py_none());
-        assert_eq!(c.padding, None);
-    }
-
-    #[test]
-    fn test_width() {
-        let mut c = make_container();
-        c.param_update(ContainerParam::Width, &py_obj(200.0f32));
-        assert_eq!(c.width, Length::Fixed(200.0));
-    }
-
-    #[test]
-    fn test_width_fill() {
-        let mut c = make_container();
-        c.param_update(ContainerParam::WidthFill, &py_obj(true));
-        assert_eq!(c.width, Length::Fill);
-    }
-
-    #[test]
-    fn test_show() {
-        let mut c = make_container();
-        c.param_update(ContainerParam::Show, &py_obj(false));
-        assert!(!c.show);
-    }
-
-    #[test]
-    fn test_style_id() {
-        let mut c = make_container();
-        c.param_update(ContainerParam::StyleId, &py_obj(42usize));
-        assert_eq!(c.style_id, Some(42));
-        c.param_update(ContainerParam::StyleId, &py_none());
-        assert_eq!(c.style_id, None);
-    }
-
-    // -- ContainerStyle param tests --
-
-    #[test]
-    fn test_style_background_rgba() {
-        let mut s = make_container_style();
-        s.param_update(ContainerStyleParam::BackgroundRgbaColor, &py_obj(vec![1.0f32, 0.0, 0.0, 1.0]));
-        assert!(s.background_color.is_some());
-    }
-
-    #[test]
-    fn test_style_border_rgba() {
-        let mut s = make_container_style();
-        s.param_update(ContainerStyleParam::BorderRgbaColor, &py_obj(vec![0.0f32, 1.0, 0.0, 1.0]));
-        assert!(s.border_color.is_some());
-    }
-
-    #[test]
-    fn test_style_border_radius() {
-        let mut s = make_container_style();
-        s.param_update(ContainerStyleParam::BorderRadius, &py_obj(vec![5.0f32, 5.0, 5.0, 5.0]));
-        assert_eq!(s.border_radius, Some(vec![5.0, 5.0, 5.0, 5.0]));
-        s.param_update(ContainerStyleParam::BorderRadius, &py_none());
-        assert_eq!(s.border_radius, None);
-    }
-
-    #[test]
-    fn test_style_border_width() {
-        let mut s = make_container_style();
-        s.param_update(ContainerStyleParam::BorderWidth, &py_obj(2.0f32));
-        assert_eq!(s.border_width, Some(2.0));
-        s.param_update(ContainerStyleParam::BorderWidth, &py_none());
-        assert_eq!(s.border_width, None);
-    }
-
-    #[test]
-    fn test_style_shadow_rgba() {
-        let mut s = make_container_style();
-        s.param_update(ContainerStyleParam::ShadowRgbaColor, &py_obj(vec![0.0f32, 0.0, 0.0, 0.5]));
-        assert!(s.shadow_color.is_some());
-    }
-
-    #[test]
-    fn test_style_shadow_offset_xy() {
-        let mut s = make_container_style();
-        s.param_update(ContainerStyleParam::ShadowOffsetXY, &py_obj(vec![2.0f32, 3.0]));
-        assert_eq!(s.shadow_offset_xy, Some([2.0, 3.0]));
-    }
-
-    #[test]
-    fn test_style_shadow_blur_radius() {
-        let mut s = make_container_style();
-        s.param_update(ContainerStyleParam::ShadowBlurRadius, &py_obj(4.0f32));
-        assert_eq!(s.shadow_blur_radius, Some(4.0));
-        s.param_update(ContainerStyleParam::ShadowBlurRadius, &py_none());
-        assert_eq!(s.shadow_blur_radius, None);
-    }
-
-    #[test]
-    fn test_style_text_rgba() {
-        let mut s = make_container_style();
-        s.param_update(ContainerStyleParam::TextRgbaColor, &py_obj(vec![1.0f32, 1.0, 1.0, 1.0]));
-        assert!(s.text_color.is_some());
     }
 }

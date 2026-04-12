@@ -7,33 +7,18 @@ from icedpygui import Window, Column, Container, Row, start_session, \
 # a global variable. Dataclass is not supported at this time, but you can use a class
 # as seen in other demo files.
 def date_selected(_dp_id: int, date: str):
-    update_widget(
-        wid=selected_date_id,
-        param=TextParam.Content,
-        value=f"You submitted {date}"
+    update_widget(selected_date_id, TextParam.Content, f"You submitted {date}"
     )
 
 # Another callback with some user data
 def date_selected_with_ud(_dp_id: int, date: str, user_data: any):
-    update_widget(
-        wid=selected_with_ud_id,
-        param=TextParam.Content,
-        value=f"You submitted {date} with user_data = {user_data}"
-    )
+    update_widget(selected_with_ud_id, TextParam.Content, f"You submitted {date} with user_data = {user_data}")
 
-    update_widget(
-        wid=btn_id,
-        param=ButtonParam.Show,
-        value=True
-    )
+    update_widget(btn_id, ButtonParam.Show, True)
 
 # Another callback for the date picker that changes its size
 def date_resize(_dp_id: int):
-    update_widget(
-        wid=dp2_id,
-        param=DatePickerParam.SizeFactor,
-        value=1.5
-    )
+    update_widget(dp2_id, DatePickerParam.SizeFactor, 1.5)
 
 
 # Add a window first
@@ -70,7 +55,7 @@ with Window(
                 size_factor=1.2,
                 on_submit=date_selected_with_ud,
                 user_data="Some user data",
-                button_style_standard=ButtonStyleStd.Success
+                button_style_std=ButtonStyleStd.Success
             )
 
             # Text widget id needed for callback.

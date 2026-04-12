@@ -15,35 +15,20 @@ def color_selected(_cp_id: int, color: list, _user_data: any):
     Since the color is being displayed as text
     otherwise use as is or convert to what is needed
     """
-
-    string = "["
-    for c in color:
-        string += str(c) + ", "
-    string += "]"
-
+    string = f"{color}"
+    
     # update the text
-    update_widget(
-        wid=text_id,
-        param=TextParam.Content,
-        value=string)
+    update_widget(text_id, TextParam.Content, string)
 
-    # update the text color
-    update_widget(
-        wid=text_id,
-        # Note the type is Rgba, not Color
-        # You could use a value of type Color
-        # then use the TextColor without using the colorpicker
-        param=TextParam.TextRgba,
-        value=color)
+    # update the text rgba color
+    update_widget(text_id, TextParam.ColorRgba, color)
 
 
 def cp_opened(_cp_id: int, _user_data: any):
-    """ColorPicker is opened callback"""
     print("color picker opened")
 
 
 def cp_canceled(_cp_id: int, _user_data: any):
-    """ColorPicker selection canceled"""
     print("color picker canceled")
 
 # Since the color_picker is using a button
@@ -58,7 +43,7 @@ with Window(
     size=(500.0, 500.0),
     center=True):
 
-    # Add the container to center both x and y (default).  Holds only one widget.
+    # Add the container.
     with Container(
         fill=True,
         align_center=True):
@@ -71,12 +56,11 @@ with Window(
                 on_select=color_selected, # the color selection selected
                 on_cancel=cp_canceled, # the color selection cancel
                 padding=[5.0],
-                style_id=cp_style,
+                style_id=cp_style, # some styling for the button
                 user_data="Something") #user data not used but supplied for testing
                 # If you use user_data, all callback will require the user_data parameter
                 # or whatever name you want for it.
 
-            text_id = add_text(
-                        content="Color value here")
+            text_id = add_text(content="Color value here")
 
 start_session()

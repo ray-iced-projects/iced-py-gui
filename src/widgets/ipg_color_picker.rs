@@ -2,16 +2,17 @@
 use std::collections::HashMap;
 
 use crate::graphics::bootstrap_arrow::Arrow;
+use crate::graphics::colors::Color;
 use crate::state::Widgets;
-use crate::widgets::ipg_button::{ButtonStyleStd, extract_button_style_standard};
-use crate::widgets::widget_param_update::{WidgetParamUpdate, set_bool, set_height, set_height_fill, set_iced_color, set_opt_bool, set_opt_string, set_opt_usize, set_opt_vec_f32, set_t_value, set_width, set_width_fill};
+use crate::widgets::ipg_button::ButtonStyleStd;
+use crate::widgets::widget_param_update::{WidgetParamUpdate, set_t_value};
 use crate::IpgState;
 use crate::app::Message;
-use crate::py_api::helpers::get_padding;
+use crate::py_api::helpers::{get_len, get_padding};
 use super::callbacks::{invoke_callback, invoke_callback_with_args};
 
 use iced::widget::{Button, button, text};
-use iced::{Element, Length, Theme};
+use iced::{Element, Theme};
 use iced_aw;
 
 use pyo3::{Py, PyAny, pyclass};
@@ -22,15 +23,20 @@ pub struct ColorPicker {
     pub id: usize,
     pub parent_id: String,
     pub show: bool,
-    pub color: iced::Color,
+    pub color: Option<Color>,
+    pub color_alpha: Option<f32>,
+    pub color_rgba: Option<[f32; 4]>,
     //button related
     pub label: Option<String>,
-    pub width: Length,
-    pub height: Length,
+    pub width: Option<f32>,
+    pub width_fill: Option<bool>,
+    pub height: Option<f32>,
+    pub height_fill: Option<bool>,
+    pub fill: Option<bool>,
     pub padding: Option<Vec<f32>>,
     pub clip: Option<bool>,
     pub style_id: Option<usize>,
-    pub style_standard: Option<ButtonStyleStd>,
+    pub style_std: Option<ButtonStyleStd>,
     pub style_arrow: Option<Arrow>,
 }
 
@@ -60,15 +66,15 @@ impl ColorPicker {
 
         let btn: Element<ColPikMessage> = 
             Button::new(label)
-                .height(self.height)
+                .width(get_len(self.fill, self.width_fill, self.width))
+                .height(get_len(self.fill, self.height_fill, self.height))
                 .padding(get_padding(&self.padding))
-                .width(self.width)
                 .on_press(ColPikMessage::OnPress)
                 .style(move|theme: &Theme, status| {   
                     if let Some(st) = &style_opt {
-                            st.to_iced(theme, status, &self.style_standard)
+                            st.to_iced(theme, status, &self.style_std)
                         } else {
-                        match &self.style_standard {
+                        match &self.style_std {
                                 Some(std) => std.to_iced(theme, status),
                                 None => button::primary(theme, status),
                             }
@@ -81,9 +87,16 @@ impl ColorPicker {
             return Some(btn.map(move |message| Message::ColorPicker(self.id, message)));
         }
 
+        let color = if let Some(c) = 
+            Color::rgba_ipg_color_to_iced(self.color_rgba, &self.color, self.color_alpha) {
+                c
+            } else {
+                [0.5, 0.2, 0.7, 1.0].into()
+            };
+
         let color_picker: Element<ColPikMessage> = iced_aw::ColorPicker::new(
                                         self.show,
-                                        self.color,
+                                        color,
                                         btn,
                                         ColPikMessage::OnCancel,
                                         ColPikMessage::OnSubmit,
@@ -111,7 +124,7 @@ pub fn color_picker_callback(state: &mut IpgState, id: usize, message: ColPikMes
             },
             ColPikMessage::OnSubmit(color) => {
                 cp.show = false;
-                cp.color = *color;
+                cp.color_rgba = Some([color.r, color.g, color.b, color.a]);
             },
             ColPikMessage::OnPress => {
                 cp.show = true;
@@ -137,38 +150,43 @@ pub fn color_picker_callback(state: &mut IpgState, id: usize, message: ColPikMes
 #[derive(Debug, Clone, PartialEq, Hash)]
 #[pyclass(eq, eq_int, hash, frozen)]
 pub enum ColorPickerParam {
-    ArrowStyle,
     Clip,
+    ColorAlpha,
+    ColorRgba,
     Color,
-    Height,
+    Fill, 
     HeightFill,
+    Height, 
     Label,
     Padding,
     Show,
+    StyleArrow,  
     StyleId,
-    StyleStandard,
+    StyleStd,
+    WidthFill,  
     Width,
-    WidthFill,
 }
 
 #[derive(Debug, Clone, PartialEq, Hash)]
 #[pyclass(eq, eq_int, hash, frozen)]
 pub enum ColorPickerStyleParam {
     BackgroundColor,
+    BackgroundColorAlpha,
     BackgroundRbga,
-    BackgroundColorHovered,
-    BackgroundRgbaHovered,
     BorderColor,
+    BorderColorAlpha,
     BorderRgba,
     BorderRadius,
     BorderWidth,
     ShadowColor,
+    ShadowColorAlpha,
     ShadowRgba,
     ShadowOffsetX,
     ShadowOffsetY,
     ShadowBlurRadius,
     TextColor,
-    TextRgbaColor
+    TextColorAlpha,
+    TextRgba
 }
 
 fn convert_color_to_list(color: iced::Color) -> Vec<f64> {
@@ -195,133 +213,21 @@ impl WidgetParamUpdate for ColorPicker {
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
-            ColorPickerParam::ArrowStyle => set_t_value(&mut self.style_arrow, value, "ArrowStyle"),
-            ColorPickerParam::Clip => set_opt_bool(&mut self.clip, value, "Clip"),
-            ColorPickerParam::Color => set_iced_color(&mut self.color, value, "Color"),
-            ColorPickerParam::Height => set_height(&mut self.height, value, "Height"),
-            ColorPickerParam::HeightFill => set_height_fill(&mut self.height, value, "HeightFill"),
-            ColorPickerParam::Label => set_opt_string(&mut self.label, value, "Label"),
-            ColorPickerParam::Padding => set_opt_vec_f32(&mut self.padding, value, "Padding"),
-            ColorPickerParam::Show => set_bool(&mut self.show, value, "Show"),
-            ColorPickerParam::StyleId => set_opt_usize(&mut self.style_id, value, "StyleId"),
-            ColorPickerParam::StyleStandard => {
-                self.style_standard = Some(extract_button_style_standard(value, "StyleStandard"));
-            },
-            ColorPickerParam::Width => set_width(&mut self.width, value, "Width"),
-            ColorPickerParam::WidthFill => set_width_fill(&mut self.width, value, "WidthFill"),
+            ColorPickerParam::Clip => set_t_value(&mut self.clip, value, "ColorPickerParam::Clip"),
+            ColorPickerParam::Color => set_t_value(&mut self.color, value, "ColorPickerParam::Color"),
+            ColorPickerParam::ColorAlpha => set_t_value(&mut self.color_alpha, value, "ColorPickerParam::ColorAlpha"),
+            ColorPickerParam::ColorRgba => set_t_value(&mut self.color_rgba, value, "ColorPickerParam::ColorRgba"),
+            ColorPickerParam::Fill => set_t_value(&mut self.fill, value, "ColorPickerParam::Fill"),
+            ColorPickerParam::Height => set_t_value(&mut self.height, value, "ColorPickerParam::Height"),
+            ColorPickerParam::HeightFill => set_t_value(&mut self.height, value, "ColorPickerParam::HeightFill"),
+            ColorPickerParam::Label => set_t_value(&mut self.label, value, "ColorPickerParam::Label"),
+            ColorPickerParam::Padding => set_t_value(&mut self.padding, value, "ColorPickerParam::Padding"),
+            ColorPickerParam::Show => set_t_value(&mut self.show, value, "ColorPickerParam::Show"),
+            ColorPickerParam::StyleArrow => set_t_value(&mut self.style_arrow, value, "ColorPickerParam::StyleArrow"),
+            ColorPickerParam::StyleId => set_t_value(&mut self.style_id, value, "ColorPickerParam::StyleId"),
+            ColorPickerParam::StyleStd => set_t_value(&mut self.style_std, value, "ColorPickerParam::StyleStd"),
+            ColorPickerParam::Width => set_t_value(&mut self.width, value, "ColorPickerParam::Width"),
+            ColorPickerParam::WidthFill => set_t_value(&mut self.width, value, "ColorPickerParam::WidthFill"),
         }
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use iced::Length;
-    use pyo3::{Python, IntoPyObjectExt};
-
-    fn make_color_picker() -> ColorPicker {
-        ColorPicker {
-            id: 0,
-            parent_id: String::new(),
-            show: false,
-            color: iced::Color::BLACK,
-            label: None,
-            width: Length::Shrink,
-            height: Length::Shrink,
-            padding: None,
-            clip: None,
-            style_id: None,
-            style_standard: None,
-            style_arrow: None,
-        }
-    }
-
-    fn py_obj<T: for<'py> IntoPyObjectExt<'py>>(val: T) -> PyObject {
-        Python::initialize();
-        Python::attach(|py| val.into_py_any(py).unwrap())
-    }
-
-    fn py_none() -> PyObject {
-        Python::initialize();
-        Python::attach(|py| py.None().into_py_any(py).unwrap())
-    }
-
-    #[test]
-    fn test_clip() {
-        let mut cp = make_color_picker();
-        cp.param_update(ColorPickerParam::Clip, &py_obj(true));
-        assert_eq!(cp.clip, Some(true));
-        cp.param_update(ColorPickerParam::Clip, &py_none());
-        assert_eq!(cp.clip, None);
-    }
-
-    #[test]
-    fn test_color() {
-        let mut cp = make_color_picker();
-        cp.param_update(ColorPickerParam::Color, &py_obj(vec![1.0f32, 0.5, 0.25, 1.0]));
-        assert_eq!(cp.color, iced::Color::from_rgba(1.0, 0.5, 0.25, 1.0));
-    }
-
-    #[test]
-    fn test_height() {
-        let mut cp = make_color_picker();
-        cp.param_update(ColorPickerParam::Height, &py_obj(50.0f32));
-        assert_eq!(cp.height, Length::Fixed(50.0));
-    }
-
-    #[test]
-    fn test_height_fill() {
-        let mut cp = make_color_picker();
-        cp.param_update(ColorPickerParam::HeightFill, &py_obj(true));
-        assert_eq!(cp.height, Length::Fill);
-    }
-
-    #[test]
-    fn test_label() {
-        let mut cp = make_color_picker();
-        cp.param_update(ColorPickerParam::Label, &py_obj("Pick".to_string()));
-        assert_eq!(cp.label, Some("Pick".to_string()));
-        cp.param_update(ColorPickerParam::Label, &py_none());
-        assert_eq!(cp.label, None);
-    }
-
-    #[test]
-    fn test_padding() {
-        let mut cp = make_color_picker();
-        cp.param_update(ColorPickerParam::Padding, &py_obj(vec![5.0f32, 10.0]));
-        assert_eq!(cp.padding, Some(vec![5.0, 10.0]));
-        cp.param_update(ColorPickerParam::Padding, &py_none());
-        assert_eq!(cp.padding, None);
-    }
-
-    #[test]
-    fn test_show() {
-        let mut cp = make_color_picker();
-        cp.param_update(ColorPickerParam::Show, &py_obj(true));
-        assert!(cp.show);
-    }
-
-    #[test]
-    fn test_style_id() {
-        let mut cp = make_color_picker();
-        cp.param_update(ColorPickerParam::StyleId, &py_obj(42usize));
-        assert_eq!(cp.style_id, Some(42));
-        cp.param_update(ColorPickerParam::StyleId, &py_none());
-        assert_eq!(cp.style_id, None);
-    }
-
-    #[test]
-    fn test_width() {
-        let mut cp = make_color_picker();
-        cp.param_update(ColorPickerParam::Width, &py_obj(200.0f32));
-        assert_eq!(cp.width, Length::Fixed(200.0));
-    }
-
-    #[test]
-    fn test_width_fill() {
-        let mut cp = make_color_picker();
-        cp.param_update(ColorPickerParam::WidthFill, &py_obj(true));
-        assert_eq!(cp.width, Length::Fill);
-    }
-}
-

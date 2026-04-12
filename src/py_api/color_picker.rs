@@ -4,7 +4,6 @@ use pyo3::{Py, PyAny, pyfunction};
 type PyObject = Py<PyAny>;
 
 use crate::graphics::colors::Color;
-use crate::py_api::helpers::get_length;
 use crate::{add_callback_to_mutex, add_user_data_to_mutex};
 use crate::state::{Widgets, access_state, get_id, set_state_of_widget};
 use crate::widgets::ipg_button::{ButtonStyleStd};
@@ -52,7 +51,7 @@ use crate::graphics::bootstrap_arrow::Arrow;
 ///     Whether to clip content that overflows the button.
 /// style_id : int,  Optional
 ///     Sets the ID of a custom style created with ``add_button_style``.
-/// style_standard : ButtonStyleStd,  Optional
+/// style_std : ButtonStyleStd,  Optional
 ///     Sets the predefined standard style variant.
 /// style_arrow : Arrow,  Optional
 ///     Sets the arrow icon style for the button.
@@ -77,13 +76,14 @@ use crate::graphics::bootstrap_arrow::Arrow;
     color_alpha=None,
     color_rgba=None, 
     width=None,
-    width_fill=false,  
+    width_fill=None,  
     height=None, 
-    height_fill=false, 
+    height_fill=None,
+    fill=None, 
     padding=None, 
     clip=None, 
     style_id=None, 
-    style_standard=None, 
+    style_std=None, 
     style_arrow=None,
     user_data=None,
     show=false, 
@@ -96,37 +96,24 @@ pub fn add_color_picker(
     on_press: Option<PyObject>,
     on_select: Option<PyObject>,
     on_cancel: Option<PyObject>,
-    mut color: Option<Color>,
+    color: Option<Color>,
     color_alpha: Option<f32>,
     color_rgba: Option<[f32; 4]>,
     width: Option<f32>,
-    width_fill: bool,
+    width_fill: Option<bool>,
     height: Option<f32>,
-    height_fill: bool,
+    height_fill: Option<bool>,
+    fill: Option<bool>,
     padding: Option<Vec<f32>>,
     clip: Option<bool>,
     style_id: Option<usize>,
-    style_standard: Option<ButtonStyleStd>,
+    style_std: Option<ButtonStyleStd>,
     style_arrow: Option<Arrow>,
     user_data: Option<PyObject>,
     show: bool,
     ) -> PyResult<usize> 
 {
     let id = get_id(gen_id);
-
-    // default to rgba if no color
-    let mut rgba = color_rgba;
-    if color.is_none() && rgba.is_none() {
-        rgba = Some([0.5, 0.2, 0.7, 1.0]);
-        color = None;
-    }
-
-    if color.is_some() && rgba.is_some() {
-        rgba = None;
-    }
-
-    let color = 
-        Color::rgba_ipg_color_to_iced(rgba, &color, color_alpha).unwrap();
 
     if let Some(py) = on_press {
         add_callback_to_mutex(id, "on_press".to_string(), py);
@@ -144,9 +131,6 @@ pub fn add_color_picker(
         add_user_data_to_mutex(id, py);
     }
 
-    let width = get_length(width, width_fill);
-    let height = get_length(height, height_fill);
-
     set_state_of_widget(id, parent_id.clone());
 
     let mut state = access_state();
@@ -157,14 +141,19 @@ pub fn add_color_picker(
             parent_id,
             show,
             color,
+            color_alpha,
+            color_rgba,
             // button related
             label,
             width,
-            height,
+            width_fill,  
+            height, 
+            height_fill,
+            fill, 
             padding,
             clip,
             style_id,
-            style_standard,
+            style_std,
             style_arrow,                             
             }));
 

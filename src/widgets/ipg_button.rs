@@ -20,8 +20,9 @@ use iced::widget::{button, text};
 use iced::{Element, Theme};
 use iced::theme::palette;
 
-use pyo3::{Py, PyAny, Python, pyclass};
+use pyo3::{Py, PyAny, pyclass};
 type PyObject = Py<PyAny>;
+
 
 #[derive(Debug, Clone)]
 pub struct Button {
@@ -382,22 +383,6 @@ pub enum ButtonParam {
     TextSize,
     Width,
     WidthFill,
-}
-
-pub fn extract_button_style_standard(
-    value: &PyObject, 
-    name: &str,
-    ) -> ButtonStyleStd {
-    
-    Python::attach(|py| {
-
-        let res = 
-            value.extract::<ButtonStyleStd>(py);
-        match res {
-            Ok(val) => val,
-            Err(_) => panic!("{}-Unable to extract python object for ButtonStyleStandard", name),
-        }
-    })
 }
 
 #[derive(Debug, Clone, PartialEq, Hash)]

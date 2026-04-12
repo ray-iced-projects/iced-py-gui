@@ -269,7 +269,7 @@ impl CheckboxStyle {
             &self.border_radius, self.border_width, "Checkbox",
         );
 
-        if is_label && self.background_color.is_some() {
+        if is_label && background_color.is_some() {
             let color = palette::readable(background_color.unwrap(), text_color);
             style.text_color = Some(color);
         }

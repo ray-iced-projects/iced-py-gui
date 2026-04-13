@@ -92,7 +92,8 @@ pub fn slider_callback(state: &mut IpgState, id: usize, message: SLMessage) {
             if let Some(Widgets::Slider(slider)) = state.widgets.get_mut(&id) {
                 slider.value = value;
             }
-            invoke_callback_with_args(id, "on_change", "Slider", value);
+            invoke_callback_with_args(id, "on_change", "Slider", value,
+                "def cb(wid: int, value: float)");
         },
         SLMessage::OnRelease => {
             // Get current value from widget state
@@ -100,7 +101,8 @@ pub fn slider_callback(state: &mut IpgState, id: usize, message: SLMessage) {
                 .and_then(Widgets::as_slider)
                 .map(|s| s.value)
                 .unwrap_or(0.0);
-            invoke_callback_with_args(id, "on_release", "Slider", value);
+            invoke_callback_with_args(id, "on_release", "Slider", value,
+                "def cb(wid: int, value: float)");
         },
     }
 }

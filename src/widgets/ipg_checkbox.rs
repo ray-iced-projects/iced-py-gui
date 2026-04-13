@@ -165,7 +165,8 @@ pub fn checkbox_callback(state: &mut IpgState, id: usize, message: ChkMessage) {
             if let Some(Widgets::CheckBox(cb)) = state.widgets.get_mut(&id) {
                 cb.is_checked = is_checked;
             }
-            invoke_callback_with_args(id, "on_toggle", "Checkbox", is_checked);
+            invoke_callback_with_args(id, "on_toggle", "Checkbox", is_checked,
+                "def cb(wid: int, is_checked: bool)");
         }
     }
 }

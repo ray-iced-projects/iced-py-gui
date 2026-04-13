@@ -52,10 +52,12 @@ pub fn timer_callback(state: &mut IpgState, id: usize, _instant: Instant) {
     }
 
     if was_disabled {
-        invoke_callback_with_two_args(id, "on_start", "Timer", tick_count, elapsed_ms);
+        invoke_callback_with_two_args(id, "on_start", "Timer", tick_count, elapsed_ms,
+            "def cb(wid: int, tick_count: int, elapsed_ms: int)");
     }
 
-    invoke_callback_with_two_args(id, "on_tick", "Timer", tick_count, elapsed_ms);
+    invoke_callback_with_two_args(id, "on_tick", "Timer", tick_count, elapsed_ms,
+        "def cb(wid: int, tick_count: int, elapsed_ms: int)");
 }
 
 
@@ -86,7 +88,8 @@ pub fn update_timer(
                         tmr.tick_count = 0;
                         tmr.elapsed_ms = 0;
                         drop(state);
-                        invoke_callback_with_two_args(wid, "on_stop", "Timer", tick_count, elapsed_ms);
+                        invoke_callback_with_two_args(wid, "on_stop", "Timer", tick_count, elapsed_ms,
+                            "def cb(wid: int, tick_count: int, elapsed_ms: int)");
                         return;
                     }
                     tmr.enable = enable;

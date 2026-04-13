@@ -87,11 +87,6 @@ where
     Theme: Catalog,
 {
     /// Sets the release message of the [`Divider`].
-    /// This is called when the mouse is released from the Divider.
-    ///
-    /// Typically, the user's interaction with the Divider is finished when this message is produced.
-    /// This is useful if you need to spawn a long-running task from the Divider's result, where
-    /// the default on_change message could create too many events.
     pub fn on_release(mut self, on_release: Message) -> Self {
         self.on_release = Some(on_release);
         self
@@ -218,9 +213,6 @@ where
         _renderer: &Renderer,
         limits: &layout::Limits,
     ) -> layout::Node {
-        // self.content
-        //     .as_widget_mut()
-        //     .layout(&mut tree.children[0], renderer, limits)
         layout::atomic(limits, self.width, self.height)
     }
 

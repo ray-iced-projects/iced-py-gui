@@ -1,6 +1,7 @@
 //! ipg_divider
 use std::collections::HashMap;
 
+use crate::graphics::colors::Color;
 use crate::{IpgState, app};
 use crate::py_api::helpers::get_radius;
 use crate::state::Widgets;
@@ -8,13 +9,9 @@ use crate::widgets::callbacks::invoke_callback_with_args;
 use crate::widgets::divider::{self, Direction, Status, Style, 
     divider_horizontal, divider_vertical};
 use crate::widgets::widget_param_update::{
-    WidgetParamUpdate, set_bool, set_f32, 
-    set_opt_bool, set_opt_f32, set_opt_usize, 
-    set_opt_vec_f32, set_vec_f32, set_opt_iced_color, 
-    set_rgba_color_via_ipg,
-};
+    WidgetParamUpdate, set_t_value};
 
-use iced::{Background, Element, Length, Theme};
+use iced::{Background, Element, Theme};
 use pyo3::{pyclass, Py, PyAny};
 type PyObject = Py<PyAny>;
 
@@ -30,8 +27,6 @@ pub struct Divider {
     pub handle_height: f32,
     pub handle_offsets: Option<Vec<f32>>,
     pub include_last_handle: bool,
-    pub width: Length,
-    pub height: Length,
     pub index_in_use: usize,
     pub value_in_use: f32,
     pub style_id: Option<usize>,
@@ -96,8 +91,6 @@ impl Divider {
                 )
                 .on_release(DivMessage::OnRelease)
                 .direction(Direction::Horizontal)
-                .width(self.width)
-                .height(self.height)
                 .handle_offsets(offsets)
                 .include_last_handle(self.include_last_handle)
                 .style(move |theme: &Theme, status| {
@@ -118,8 +111,6 @@ impl Divider {
                 )
                 .on_release(DivMessage::OnRelease)
                 .direction(Direction::Vertical)
-                .width(self.width)
-                .height(self.height)
                 .handle_offsets(offsets)
                 .include_last_handle(self.include_last_handle)
                 .style(move |theme: &Theme, status| {
@@ -144,7 +135,8 @@ pub fn divider_callback(state: &mut IpgState, id: usize, message: DivMessage) {
                 div.index_in_use = index;
                 div.value_in_use = value;
             }
-            invoke_callback_with_args(widget_id, "on_change", "Divider", (index, value));
+            invoke_callback_with_args(widget_id, "on_change", "Divider", (index, value),
+                "def cb(wid: int, data: tuple[int, float])");
         },
         DivMessage::OnRelease => {
             let (index, value) = if let Some(Widgets::Divider(div)) = state.widgets.get(&id) {
@@ -152,7 +144,8 @@ pub fn divider_callback(state: &mut IpgState, id: usize, message: DivMessage) {
             } else {
                 (0, 0.0)
             };
-            invoke_callback_with_args(id, "on_release", "Divider", (index, value));
+            invoke_callback_with_args(id, "on_release", "Divider", (index, value),
+                "def cb(wid: int, data: tuple[int, float])");
         },
     }
 }
@@ -160,12 +153,18 @@ pub fn divider_callback(state: &mut IpgState, id: usize, message: DivMessage) {
 #[derive(Debug, Clone, PartialEq)]
 pub struct DividerStyle {
     pub id: usize,
-    pub background_color: Option<iced::Color>,
-    pub background_color_hovered: Option<iced::Color>,
+    pub background_color: Option<Color>,
+    pub background_color_alpha: Option<f32>,
+    pub background_rgba: Option<[f32; 4]>,
+    pub background_color_hovered: Option<Color>,
+    pub background_color_hovered_alpha: Option<f32>,
+    pub background_rgba_hovered: Option<[f32; 4]>,
     pub background_transparent: Option<bool>,
-    pub border_color: Option<iced::Color>,
-    pub border_width: Option<f32>,
+    pub border_color: Option<Color>,
+    pub border_color_alpha: Option<f32>,
+    pub border_rgba: Option<[f32; 4]>,
     pub border_radius: Option<Vec<f32>>,
+    pub border_width: Option<f32>,
 }
 
 impl DividerStyle {
@@ -179,9 +178,16 @@ impl DividerStyle {
             return divider::transparent(theme, status);
         }
 
+        let background_color = 
+            Color::rgba_ipg_color_to_iced(self.background_rgba, &self.background_color, self.background_color_alpha);
+        let background_color_hovered = 
+            Color::rgba_ipg_color_to_iced(self.background_rgba_hovered, &self.background_color_hovered, self.background_color_hovered_alpha);
+        let border_color = 
+            Color::rgba_ipg_color_to_iced(self.border_rgba, &self.border_color, self.border_color_alpha);
+
         let mut base_style = divider::primary(theme, status);
 
-        if let Some(bc) = self.background_color {
+        if let Some(bc) = background_color {
             base_style.background = Background::Color(bc);
         };
 
@@ -190,7 +196,7 @@ impl DividerStyle {
                 get_radius(&br,  "Divider".to_string());
             }
 
-        if let Some(bc) = self.border_color {
+        if let Some(bc) = border_color {
             base_style.border_color = bc;
         }
 
@@ -199,7 +205,7 @@ impl DividerStyle {
         }
         let mut hovered_style = base_style;
 
-        if let Some(bch) = self.background_color_hovered {
+        if let Some(bch) = background_color_hovered {
             hovered_style.background = bch.into();
         }
 
@@ -217,22 +223,30 @@ impl DividerStyle {
 #[pyclass(eq, eq_int, hash, frozen)]
 pub enum DividerStyleParam {
     BackgroundColor,
-    BackgroundRgbaColor,
+    BackgroundColorAlpha,
+    BackgroundRgba,
+    BackgroundColorHovered,
+    BackgroundColorHoveredAlpha,
+    BackgroundRgbaHovered,
     BackgroundTransparent,
     BorderColor,
-    BorderRgbaColor,
+    BorderColorAlpha,
+    BorderRgba,
+    BorderRadius, 
     BorderWidth,
-    BorderRadius,
 }
 
 #[derive(Debug, Clone, PartialEq, Hash)]
 #[pyclass(eq, eq_int, hash, frozen)]
 pub enum DividerParam {
-    HandleWidth,
+    Direction,
     HandleHeight,
+    HandleOffsets,
+    HandleWidth,
+    IncludeLastHandle,
+    Show,
     Sizes,
     StyleId,
-    Show,
 }
 
 // ---------------------------------------------------------------------------
@@ -244,11 +258,14 @@ impl WidgetParamUpdate for Divider {
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
-            DividerParam::HandleWidth  => set_f32(&mut self.handle_width, value, "HandleWidth"),
-            DividerParam::HandleHeight => set_f32(&mut self.handle_height, value, "HandleHeight"),
-            DividerParam::Sizes        => set_vec_f32(&mut self.sizes, value, "Sizes"),
-            DividerParam::StyleId      => set_opt_usize(&mut self.style_id, value, "StyleId"),
-            DividerParam::Show         => set_bool(&mut self.show, value, "Show"),
+            DividerParam::Direction => set_t_value(&mut self.direction, value, "DividerParam::Direction"),
+            DividerParam::HandleHeight => set_t_value(&mut self.handle_height, value, "DividerParam::HandleHeight"),
+            DividerParam::HandleOffsets => set_t_value(&mut self.handle_offsets, value, "DividerParam::HandleOffsets"),
+            DividerParam::HandleWidth => set_t_value(&mut self.handle_width, value, "DividerParam::HandleWidth"),
+            DividerParam::IncludeLastHandle => set_t_value(&mut self.include_last_handle, value, "DividerParam::IncludeLastHandle"),
+            DividerParam::Show => set_t_value(&mut self.show, value, "DividerParam::Show"),
+            DividerParam::Sizes => set_t_value(&mut self.sizes, value, "DividerParam::Sizes"),
+            DividerParam::StyleId => set_t_value(&mut self.style_id, value, "DividerParam::StyleId"),
         }
     }
 }
@@ -258,13 +275,18 @@ impl WidgetParamUpdate for DividerStyle {
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
-            DividerStyleParam::BackgroundColor   => set_opt_iced_color(&mut self.background_color, value, "BackgroundColor"),
-            DividerStyleParam::BackgroundRgbaColor  => set_rgba_color_via_ipg(&mut self.background_color, value, "BackgroundRgbaColor"),
-            DividerStyleParam::BackgroundTransparent => set_opt_bool(&mut self.background_transparent, value, "BackgroundTransparent"),
-            DividerStyleParam::BorderColor       => set_opt_iced_color(&mut self.border_color, value, "BorderColor"),
-            DividerStyleParam::BorderRgbaColor      => set_rgba_color_via_ipg(&mut self.border_color, value, "BorderRgbaColor"),
-            DividerStyleParam::BorderWidth          => set_opt_f32(&mut self.border_width, value, "BorderWidth"),
-            DividerStyleParam::BorderRadius         => set_opt_vec_f32(&mut self.border_radius, value, "BorderRadius"),
+            DividerStyleParam::BackgroundColor => set_t_value(&mut self.background_color, value, "DividerStyleParam::BackgroundColor"),
+            DividerStyleParam::BackgroundColorAlpha => set_t_value(&mut self.background_color_alpha, value, "DividerStyleParam::BackgroundColorAlpha"),
+            DividerStyleParam::BackgroundColorHovered => set_t_value(&mut self.background_color_hovered, value, "DividerStyleParam::BackgroundColorHovered"),
+            DividerStyleParam::BackgroundColorHoveredAlpha => set_t_value(&mut self.background_color_hovered_alpha, value, "DividerStyleParam::BackgroundColorHoveredAlpha"),
+            DividerStyleParam::BackgroundRgba => set_t_value(&mut self.background_rgba, value, "DividerStyleParam::BackgroundRgbaColor"),
+            DividerStyleParam::BackgroundRgbaHovered => set_t_value(&mut self.background_rgba_hovered, value, "DividerStyleParam::BackgroundRgbaHovered"),
+            DividerStyleParam::BackgroundTransparent => set_t_value(&mut self.background_transparent, value, "DividerStyleParam::BackgroundTransparent"),
+            DividerStyleParam::BorderColor => set_t_value(&mut self.border_color, value, "DividerStyleParam::BorderColor"),
+            DividerStyleParam::BorderColorAlpha => set_t_value(&mut self.border_color_alpha, value, "DividerStyleParam::BorderColorAlpha"),
+            DividerStyleParam::BorderRadius => set_t_value(&mut self.border_radius, value, "DividerStyleParam::BorderRadius"),
+            DividerStyleParam::BorderRgba => set_t_value(&mut self.border_rgba, value, "DividerStyleParam::BorderRgbaColor"),
+            DividerStyleParam::BorderWidth => set_t_value(&mut self.border_width, value, "DividerStyleParam::BorderWidth"),
         }
     }
 }

@@ -146,7 +146,8 @@ pub fn toggle_callback(state: &mut IpgState, id: usize, message: TOGMessage) {
             if let Some(Widgets::Toggler(tog)) = state.widgets.get_mut(&id) {
                 tog.is_toggled = is_toggled;
             }
-            invoke_callback_with_args(id, "toggled", "Toggler", is_toggled);
+            invoke_callback_with_args(id, "toggled", "Toggler", is_toggled,
+                "def cb(wid: int, is_toggled: bool)");
         }
     }
 }

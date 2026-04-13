@@ -138,7 +138,8 @@ pub fn color_picker_callback(state: &mut IpgState, id: usize, message: ColPikMes
             invoke_callback(id, "on_cancel", "ColorPicker");
         },
         ColPikMessage::OnSubmit(color) => {
-            invoke_callback_with_args(id, "on_select", "ColorPicker", convert_color_to_list(color));
+            invoke_callback_with_args(id, "on_select", "ColorPicker", convert_color_to_list(color),
+                "def cb(wid: int, color: list[float])");
         },
         ColPikMessage::OnPress => {
             invoke_callback(id, "on_press", "ColorPicker");

@@ -3,7 +3,7 @@
 use pyo3::{Py, PyAny, pyfunction, PyResult};
 
 use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex, 
-    graphics::colors::Color, py_api::helpers::get_length, state::{Widgets, 
+    graphics::colors::Color, state::{Widgets, 
         get_id, set_state_of_widget}, widgets::{ipg_divider::{
             Divider, DividerDirection, DividerStyle}}};
 type PyObject = Py<PyAny>;
@@ -35,14 +35,6 @@ type PyObject = Py<PyAny>;
 ///     Sets the Callback method to invoke when a handle is dragged.
 /// on_release : callable, Optional
 ///     Sets the Callback method to invoke when a handle is released.
-/// width : float, Optional
-///     Sets the Fixed width in logical pixels.
-/// width_fill : bool, default True
-///     Whether the divider fills available width.
-/// height : float, Optional
-///     Sets the Fixed height in logical pixels.
-/// height_fill : bool, default True
-///     Whether the divider fills available height.
 /// style_id : int, Optional
 ///     Sets the ID of a custom style created with ``add_divider_style``.
 /// gen_id : int, Optional
@@ -67,10 +59,6 @@ type PyObject = Py<PyAny>;
     include_last_handle=true,
     on_change=None,
     on_release=None,
-    width=None,
-    width_fill=true,
-    height=None,
-    height_fill=true,
     style_id=None,
     gen_id=None,
     user_data=None,
@@ -86,10 +74,6 @@ pub fn add_divider(
     include_last_handle: bool,
     on_change: Option<PyObject>,
     on_release: Option<PyObject>,
-    width: Option<f32>,
-    width_fill: bool,
-    height: Option<f32>,
-    height_fill: bool,
     style_id: Option<usize>,
     gen_id: Option<usize>,
     user_data: Option<PyObject>,
@@ -110,10 +94,6 @@ pub fn add_divider(
         add_user_data_to_mutex(id, py);
     }
 
-    let width = get_length(width, width_fill);
-
-    let height = get_length(height, height_fill);
-
     set_state_of_widget(id, parent_id.clone());
 
     let mut state = access_state();
@@ -129,8 +109,6 @@ pub fn add_divider(
             handle_height,
             handle_offsets,
             include_last_handle,
-            width,
-            height,
             index_in_use: 0,
             value_in_use: 0.0,
             style_id,
@@ -213,23 +191,22 @@ pub fn add_divider_style(
 {
     let id = get_id(gen_id);
 
-    let background_color = 
-        Color::rgba_ipg_color_to_iced(background_rgba, &background_color, background_color_alpha);
-    let background_color_hovered = 
-        Color::rgba_ipg_color_to_iced(background_rgba_hovered, &background_color_hovered, background_color_hovered_alpha);
-    let border_color = 
-        Color::rgba_ipg_color_to_iced(border_rgba, &border_color, border_color_alpha);
-
     let mut state = access_state();
 
     state.widgets.insert(id, Widgets::DividerStyle(
         DividerStyle {
             id,
             background_color,
+            background_color_alpha,
+            background_rgba,
             background_color_hovered,
+            background_color_hovered_alpha,
+            background_rgba_hovered,
             background_transparent,
             border_color,
-            border_radius,
+            border_color_alpha,
+            border_rgba,
+            border_radius, 
             border_width,
         }));
 

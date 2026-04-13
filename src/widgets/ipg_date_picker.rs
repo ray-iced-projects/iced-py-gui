@@ -541,7 +541,8 @@ pub fn date_picker_update(state: &mut IpgState, id: usize, message: DPMessage) {
         DPMessage::OnSubmit => {
             dp.is_submitted = true;
             let selected_date = dp.selected_date.clone();
-            invoke_callback_with_args(id, "on_submit", "DatePicker", selected_date);
+            invoke_callback_with_args(id, "on_submit", "DatePicker", selected_date,
+                "def cb(wid: int, date: str)");
         }
     }
 }

@@ -122,19 +122,22 @@ pub fn text_input_callback(state: &mut IpgState, id: usize, message: TIMessage) 
             if let Some(Widgets::TextInput(ti)) = state.widgets.get_mut(&id) {
                 ti.value = value.clone();
             }
-            invoke_callback_with_args(id, "on_input", "TextInput", value);
+            invoke_callback_with_args(id, "on_input", "TextInput", value,
+                "def cb(wid: int, value: str)");
         },
         TIMessage::OnSubmit(value) => {
             if let Some(Widgets::TextInput(ti)) = state.widgets.get_mut(&id) {
                 ti.value = String::new();
             }
-            invoke_callback_with_args(id, "on_submit", "TextInput", value);
+            invoke_callback_with_args(id, "on_submit", "TextInput", value,
+                "def cb(wid: int, value: str)");
         }
         TIMessage::OnPaste(value) => {
             if let Some(Widgets::TextInput(ti)) = state.widgets.get_mut(&id) {
                 ti.value = value.clone();
             }
-            invoke_callback_with_args(id, "on_paste", "TextInput", value);
+            invoke_callback_with_args(id, "on_paste", "TextInput", value,
+                "def cb(wid: int, value: str)");
         }
             
     }

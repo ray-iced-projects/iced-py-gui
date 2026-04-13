@@ -418,11 +418,13 @@ pub fn table_callback(
                     }
                 }
                     
-                invoke_callback_with_args(id, "dragging", "Table", (index, value));
+                invoke_callback_with_args(id, "dragging", "Table", (index, value),
+                    "def cb(wid: int, data: tuple[int, float])");
             }
         },
         TableMessage::DivOnRelease=> {
-            invoke_callback_with_args(id, "released", "Table", ());
+            invoke_callback_with_args(id, "released", "Table", (),
+                "def cb(wid: int)");
         },
     }
 }

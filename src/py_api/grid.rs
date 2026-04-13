@@ -2,7 +2,6 @@
 
 use pyo3::{PyResult, pyfunction};
 
-use crate::py_api::helpers::get_length;
 use crate::widgets::ipg_grid::Grid;
 use crate::state::{Containers, access_state, 
     get_id, set_state_cont_wnd_ids, set_state_of_container};
@@ -51,7 +50,7 @@ use crate::state::{Containers, access_state,
     columns_amount = None,
     height_aspect_ratio = None,
     height_evenly_distribute = None,
-    height_evenly_distribute_fill = false,
+    height_evenly_distribute_fill = None,
     ))]
 pub fn add_grid(
     window_id: String,
@@ -63,14 +62,10 @@ pub fn add_grid(
     columns_amount: Option<usize>,
     height_aspect_ratio: Option<f32>,
     height_evenly_distribute: Option<f32>,
-    height_evenly_distribute_fill: bool,
+    height_evenly_distribute_fill: Option<bool>,
     ) -> PyResult<usize> 
 {
     let id = get_id(None);
-
-    let height_evenly_distribute = 
-        get_length(height_evenly_distribute, 
-            height_evenly_distribute_fill);
 
     let prt_id = if let Some(id) = parent_id {
         id
@@ -90,7 +85,8 @@ pub fn add_grid(
             columns_max_width,
             columns_amount,
             height_aspect_ratio,
-            height_evenly_distribute, 
+            height_evenly_distribute,
+            height_evenly_distribute_fill,
         }));
 
     drop(state);         

@@ -1,7 +1,7 @@
 from icedpygui import Window, Container, Column, Row, Grid, start_session, \
-    Scrollable, add_button, add_space, add_text, add_text_input, \
-    add_event_timer, IpgContainerParam as cp, IpgContainerStyleStd as std, IpgTimerParam, \
-    update_widget, update_timer, GridParam, IpgButtonParam, IpgTextParam
+    add_button, add_space, add_text, add_text_input, \
+    add_event_timer, ContainerParam as cp, ContainerStyleStd as std, TimerParam, \
+    update_widget, update_timer, GridParam, ButtonParam, TextParam
 
 import json, os, re
 from dataclasses import dataclass
@@ -78,9 +78,9 @@ def value_pressed(btn_id: int, data: tuple[int, int, int, int, int]):
     if not Pdy.timer_running:
         Pdy.timer_running = True
         ans_id = data[0]
-        update_widget(btn_id, IpgButtonParam.Show, False)
-        update_widget(ans_id, IpgTextParam.Show, True)
-        update_timer(Pdy.timer_id, IpgTimerParam.Enable, True)
+        update_widget(btn_id, ButtonParam.Show, False)
+        update_widget(ans_id, TextParam.Show, True)
+        update_timer(Pdy.timer_id, TimerParam.Enable, True)
         Pdy.value_id = btn_id
         Pdy.answer_id = ans_id
         Pdy.question_id = data[1]
@@ -91,19 +91,19 @@ def value_pressed(btn_id: int, data: tuple[int, int, int, int, int]):
 
 def on_tick(_timer_id: int, tick_count: int, elapsed_ms: int):
     if tick_count > Pdy.timer:
-        update_widget(wid=txt_time, param=IpgTextParam.Content, value=f"15")
+        update_widget(wid=txt_time, param=TextParam.Content, value=f"15")
         Pdy.timer_running = False
-        update_widget(Pdy.answer_id, IpgTextParam.Show, False)
-        update_widget(Pdy.value_id, IpgButtonParam.Show, True)
-        update_timer(Pdy.timer_id, IpgTimerParam.Enable, False)
+        update_widget(Pdy.answer_id, TextParam.Show, False)
+        update_widget(Pdy.value_id, ButtonParam.Show, True)
+        update_timer(Pdy.timer_id, TimerParam.Enable, False)
         Pdy.value_id = 0
     else:
-        update_widget(wid=txt_time, param=IpgTextParam.Content, 
+        update_widget(wid=txt_time, param=TextParam.Content, 
                   value=f"{Pdy.timer - tick_count}")
 
 
 def on_stop(_timer_id: int, tick_count: int, elapsed_ms: int):
-    update_widget(txt_time, IpgTextParam.Content, f"15")
+    update_widget(txt_time, TextParam.Content, f"15")
 
 
 Pdy.timer_id = add_event_timer(duration_ms=1000, on_tick=on_tick, on_stop=on_stop)
@@ -129,35 +129,34 @@ def what_is(input_id: int, value: str):
         return
     Pdy.timer_running = False
     expected = Pdy.cat_list[Pdy.col][Pdy.row]["question"]
-    print(normalize(expected), normalize(value))
     results = compare(normalize(expected), normalize(value))
     if  results :
         if Pdy.p1_turn:
             Pdy.p1_score += Pdy.value
-            update_widget(Pdy.p1_score_id, IpgTextParam.Content, f"{Pdy.p1_score}")
+            update_widget(Pdy.p1_score_id, TextParam.Content, f"{Pdy.p1_score}")
         elif Pdy.p2_turn:
             Pdy.p2_score += Pdy.value
-            update_widget(Pdy.p2_score_id, IpgTextParam.Content, f"{Pdy.p2_score}")
+            update_widget(Pdy.p2_score_id, TextParam.Content, f"{Pdy.p2_score}")
         else: 
             print("P1 and P2 turns both set to False")
             quit()
-        update_widget(Pdy.question_id, IpgTextParam.Show, True)
-        update_widget(Pdy.answer_id, IpgTextParam.Show, False)
-        update_timer(Pdy.timer_id, IpgTimerParam.Enable, False)
+        update_widget(Pdy.question_id, TextParam.Show, True)
+        update_widget(Pdy.answer_id, TextParam.Show, False)
+        update_timer(Pdy.timer_id, TimerParam.Enable, False)
     
     else:
         if Pdy.p1_turn:
             Pdy.p1_score -= Pdy.value
-            update_widget(Pdy.p1_score_id, IpgTextParam.Content, f"{Pdy.p1_score}")
+            update_widget(Pdy.p1_score_id, TextParam.Content, f"{Pdy.p1_score}")
         elif Pdy.p2_turn:
             Pdy.p2_score -= Pdy.value
-            update_widget(Pdy.p2_score_id, IpgTextParam.Content, f"{Pdy.p2_score}")
+            update_widget(Pdy.p2_score_id, TextParam.Content, f"{Pdy.p2_score}")
         else:
             print("P1 and P2 turns both set to False")
             quit()
-        update_widget(Pdy.answer_id, IpgTextParam.Show, False)
-        update_widget(Pdy.value_id, IpgButtonParam.Show, True)
-        update_timer(Pdy.timer_id, IpgTimerParam.Enable, False)
+        update_widget(Pdy.answer_id, TextParam.Show, False)
+        update_widget(Pdy.value_id, ButtonParam.Show, True)
+        update_timer(Pdy.timer_id, TimerParam.Enable, False)
         
         # wrong answer so switch players
         Pdy.p1_turn = not Pdy.p1_turn
@@ -179,7 +178,7 @@ with Window(title="Jeopardy", center=True):
             with Row(spacing=3.0):
                 for cat in Pdy.categories:
                     with Container(width=Pdy.cell_width-2.8, height=50, align_center=True, style_std=std.Secondary):
-                        add_text(content=cat, width=Pdy.cell_width)
+                        add_text(content=cat, width=Pdy.cell_width, align_center=True)
             
             # Grid only needs width and the number of columns, spacing is optional
             # Treat it just like a container and put whatever you want into each cell 

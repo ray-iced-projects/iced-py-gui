@@ -1,14 +1,15 @@
 //! ipg_float
 
-use iced::{Element, Length};
+use iced::Element;
 use iced::widget::grid;
 
 use pyo3::{pyclass, Py, PyAny};
 type PyObject = Py<PyAny>;
 
 use crate::app::Message;
+use crate::py_api::helpers::get_len;
 use crate::widgets::widget_param_update::{
-    WidgetParamUpdate, set_f32, set_height, set_height_fill, set_opt_f32, set_opt_usize};
+    WidgetParamUpdate, set_t_value};
 
 
 #[derive(Clone, Debug)]
@@ -19,7 +20,8 @@ pub struct Grid {
     pub columns_max_width: Option<f32>,
     pub columns_amount: Option<usize>,
     pub height_aspect_ratio: Option<f32>,
-    pub height_evenly_distribute: Length,
+    pub height_evenly_distribute: Option<f32>,
+    pub height_evenly_distribute_fill: Option<bool>,
 }
 
 impl Grid{
@@ -31,7 +33,10 @@ impl Grid{
         let grd = 
             grid(content)
                 .spacing(self.spacing.unwrap_or_default())
-                .width(self.width);
+                .width(self.width)
+                .height(get_len(None, 
+                    self.height_evenly_distribute_fill, 
+                    self.height_evenly_distribute));
         
         // columns and fluid equate to the same columns parameter
         let grd = 
@@ -41,19 +46,13 @@ impl Grid{
                 grd.fluid(max)
             } else { grd };
 
-        let grd = if let Some(har) = self.height_aspect_ratio {
-            grd.height(har)
-        } else {
-            grd.height(self.height_evenly_distribute)
-        };
-
         grd.into()
     }
 }
 
 
-#[pyclass]
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Hash)]
+#[pyclass(eq, eq_int, hash, frozen)]
 pub enum GridParam {
     ColumnsAmount,
     ColumnsMaxWidth,
@@ -73,13 +72,13 @@ impl WidgetParamUpdate for Grid{
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
-            GridParam::ColumnsAmount => set_opt_usize(&mut self.columns_amount, value, "GridParam::ColumnsAmount"),
-            GridParam::ColumnsMaxWidth => set_opt_f32(&mut self.columns_max_width, value, "GridParam::ColumnsMaxWidth"),
-            GridParam::HeightAspectRatio => set_opt_f32(&mut self.height_aspect_ratio, value, "GridParam::HeightAspectRatio"),
-            GridParam::HeightEvenlyDistribute => set_height(&mut self.height_evenly_distribute, value, "GridParam::HeightEvenlyDistribute"),
-            GridParam::HeightEvenlyDistributeFill => set_height_fill(&mut self.height_evenly_distribute, value, "GridParam::HeightEvenlyDistributeFill"),
-            GridParam::Spacing => set_opt_f32(&mut self.spacing, value, "GridParam::Spacing"),
-            GridParam::Width => set_f32(&mut self.width, value, "GridParam::Width"),
+            GridParam::ColumnsAmount => set_t_value(&mut self.columns_amount, value, "GridParam::ColumnsAmount"),
+            GridParam::ColumnsMaxWidth => set_t_value(&mut self.columns_max_width, value, "GridParam::ColumnsMaxWidth"),
+            GridParam::HeightAspectRatio => set_t_value(&mut self.height_aspect_ratio, value, "GridParam::HeightAspectRatio"),
+            GridParam::HeightEvenlyDistribute => set_t_value(&mut self.height_evenly_distribute, value, "GridParam::HeightEvenlyDistribute"),
+            GridParam::HeightEvenlyDistributeFill => set_t_value(&mut self.height_evenly_distribute, value, "GridParam::HeightEvenlyDistributeFill"),
+            GridParam::Spacing => set_t_value(&mut self.spacing, value, "GridParam::Spacing"),
+            GridParam::Width => set_t_value(&mut self.width, value, "GridParam::Width"),
         }
     }
 }

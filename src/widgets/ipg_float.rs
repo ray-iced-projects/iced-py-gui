@@ -9,7 +9,7 @@ type PyObject = Py<PyAny>;
 use crate::app::Message;
 use crate::py_api::helpers::get_padding;
 use crate::widgets::widget_param_update::{
-    WidgetParamUpdate, set_opt_f32, set_opt_f32_array_2, set_opt_vec_f32};
+    WidgetParamUpdate, set_t_value};
 
 
 #[derive(Clone, Debug)]
@@ -48,8 +48,8 @@ impl Float {
 }
 
 
-#[pyclass]
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Hash)]
+#[pyclass(eq, eq_int, hash, frozen)]
 pub enum FloatParam {
     Scale,
     ScaleClamped,
@@ -67,10 +67,10 @@ impl WidgetParamUpdate for Float{
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
-            FloatParam::Scale => set_opt_f32(&mut self.scale, value, "FloatParam::Scale"),
-            FloatParam::Translate => set_opt_f32_array_2(&mut self.translate, value, "FloatParam::Translate"),
-            FloatParam::ScaleClamped => set_opt_f32(&mut self.scale_clamped, value, "FloatParam::ScaleClamped"),
-            FloatParam::ClampedPadding => set_opt_vec_f32(&mut self.clamped_padding, value, "FloatParam::ClampedPadding"),
+            FloatParam::Scale => set_t_value(&mut self.scale, value, "FloatParam::Scale"),
+            FloatParam::Translate => set_t_value(&mut self.translate, value, "FloatParam::Translate"),
+            FloatParam::ScaleClamped => set_t_value(&mut self.scale_clamped, value, "FloatParam::ScaleClamped"),
+            FloatParam::ClampedPadding => set_t_value(&mut self.clamped_padding, value, "FloatParam::ClampedPadding"),
         }
     }
 }

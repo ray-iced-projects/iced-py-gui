@@ -1,7 +1,7 @@
 from icedpygui import Window, Container, Column, Row, Float, start_session, \
     add_button, add_text, add_container_style, \
-    Color, update_widget, FloatParam, IpgContainerStyleStd, \
-    IpgTextParam
+    Color, update_widget, update_widget_params, FloatParam, ContainerStyleStd, \
+    TextParam
 
 
 # Float allows a widget to float over others, optionally scaled
@@ -10,32 +10,33 @@ from icedpygui import Window, Container, Column, Row, Float, start_session, \
 # global value for the text_id
 text_id = 0
 
+# Changes the mode when buttons pressed
 def set_mode(btn_id, name):
     match name:
         case "normal":
-            update_widget(wid=flt, param=FloatParam.Scale, value=1.0)
-            update_widget(wid=flt, param=FloatParam.Translate, value=[0, 0])
-            update_widget(wid=flt, param=FloatParam.ScaleClamped, value=None)
-            update_widget(wid=text_id, param=IpgTextParam.Content, value="Normal")
+            update_widget_params(flt, {FloatParam.Scale: 1.0,
+                                       FloatParam.Translate: [0, 0],
+                                       FloatParam.ScaleClamped: None})
+            update_widget(text_id, TextParam.Content, "Normal")
         case "scale_only":
-            update_widget(wid=flt, param=FloatParam.Scale, value=2.0)
-            update_widget(wid=flt, param=FloatParam.Translate, value=[0, 0])
-            update_widget(wid=flt, param=FloatParam.ScaleClamped, value=None)
-            update_widget(wid=text_id, param=IpgTextParam.Content, value="Scaled Only but outside of window, see clamped")
+            update_widget_params(flt, {FloatParam.Scale: 2.0,
+                                       FloatParam.Translate: [0, 0],
+                                       FloatParam.ScaleClamped: None})
+            update_widget(text_id, TextParam.Content, "Scaled Only but outside of window, see clamped")
         case "translated_only":
-            update_widget(wid=flt, param=FloatParam.Translate, value=[80, 200])
-            update_widget(wid=flt, param=FloatParam.ScaleClamped, value=None)
-            update_widget(wid=text_id, param=IpgTextParam.Content, value="Translated Only")
+            update_widget_params(flt, {FloatParam.Translate: [80, 200],
+                                FloatParam.ScaleClamped: None})
+            update_widget(text_id, TextParam.Content, "Translated Only")
         case "translated_scaled":
-            update_widget(wid=flt, param=FloatParam.Translate, value=[50, 100])
-            update_widget(wid=flt, param=FloatParam.Scale, value=1.7)
-            update_widget(wid=flt, param=FloatParam.ScaleClamped, value=None)
-            update_widget(wid=text_id, param=IpgTextParam.Content, value="Translated and Scaled")
+            update_widget_params(flt, {FloatParam.Scale: 1.7,
+                                       FloatParam.Translate: [50, 100],
+                                       FloatParam.ScaleClamped: None})
+            update_widget(text_id, TextParam.Content, "Translated and Scaled")
         case "scaled_clamped":
-            update_widget(wid=flt, param=FloatParam.Scale, value=1.0)
-            update_widget(wid=flt, param=FloatParam.Translate, value=[0, 0])
-            update_widget(wid=flt, param=FloatParam.ScaleClamped, value=2.0)
-            update_widget(wid=text_id, param=IpgTextParam.Content, value="Clamped the Scaling so I remained in window with a padding of [10]")
+            update_widget_params(flt, {FloatParam.Scale: 1.0,
+                                       FloatParam.Translate: [0, 0],
+                                       FloatParam.ScaleClamped: 2})
+            update_widget(text_id, TextParam.Content, "Clamped the Scaling so I remained in window with a padding of [10]")
 
 
 # Container styling
@@ -92,14 +93,14 @@ with Window(title="Float Example", center=True):
                 with Container(
                     width=200,
                     height=100,
-                    style_std=IpgContainerStyleStd.Primary,
+                    style_std=ContainerStyleStd.Primary,
                     align_center=True,
                 ):
                     with Column(spacing=10.0):
                         add_text(content="I'm a Float!", size=20.0)
                         text_id = add_text(content="Normal", size=13.0)
                         
-            # Add the container to show the float overlay better
+            # Add some containers to show the float overlay better
             for i in range(4):
                 with Container(
                     width=300,
@@ -109,9 +110,8 @@ with Window(title="Float Example", center=True):
                     add_text(
                         content=f"Background item {i}",
                         size=14.0,
-                        text_color=Color.WHITE,
+                        color=Color.WHITE,
                     )
-
 
 
 start_session()

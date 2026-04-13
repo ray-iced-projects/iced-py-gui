@@ -33,8 +33,6 @@ impl Float {
             self.scale.unwrap_or(1.0)
         };
 
-        dbg!(&scale, &self.scale, &self.scale_clamped, &self.translate);
-
         float(content.remove(0))
         .scale(scale)
         .translate(move |bounds, viewport| {

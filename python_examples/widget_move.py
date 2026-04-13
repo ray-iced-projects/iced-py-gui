@@ -1,13 +1,20 @@
-from icedpygui import Window, Column, Container, add_button, add_text, move_widget, start_session
+#!/usr/bin/env python3
+"""
+Widget move use demo
+"""
+from icedpygui import Window, Column, Container, add_button, \
+    add_text, move_widget, start_session
 
 
 def move_1_below_2(_id: int):
+    """Frist widget moved"""
     move_widget(
         wid=txt_id1,
         move_after=txt_id2
     )
-    
+
 def move_2_below_3(_id: int):
+    """Second widget moved"""
     move_widget(
         wid=txt_id2,
         move_after=txt_id3
@@ -26,5 +33,5 @@ with Window(title="Test Widget Move", center=True):
                 on_press=move_2_below_3)
             with Column(spacing=20.0):
                 txt_id3 = add_text(content="Hi there, 3")
-    
+
 start_session()

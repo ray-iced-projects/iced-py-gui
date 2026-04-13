@@ -1,42 +1,52 @@
+#!/usr/bin/env python3
+"""
+Float use demo
+Float allows a widget to float over others, optionally scaled
+and translated.
+"""
+
 from icedpygui import Window, Container, Column, Row, Float, start_session, \
     add_button, add_text, add_container_style, \
     Color, update_widget, update_widget_params, FloatParam, ContainerStyleStd, \
     TextParam
 
 
-# Float allows a widget to float over others, optionally scaled
-# and translated.
 
 # global value for the text_id
-text_id = 0
+state = {"text_id": 0}
 
 # Changes the mode when buttons pressed
-def set_mode(btn_id, name):
+def set_mode(_btn_id, name):
+    """Sets the mode of the Float"""
     match name:
         case "normal":
             update_widget_params(flt, {FloatParam.Scale: 1.0,
                                        FloatParam.Translate: [0, 0],
                                        FloatParam.ScaleClamped: None})
-            update_widget(text_id, TextParam.Content, "Normal")
+            update_widget(state["text_id"], TextParam.Content, "Normal")
         case "scale_only":
             update_widget_params(flt, {FloatParam.Scale: 2.0,
                                        FloatParam.Translate: [0, 0],
                                        FloatParam.ScaleClamped: None})
-            update_widget(text_id, TextParam.Content, "Scaled Only but outside of window, see clamped")
+            update_widget(state["text_id"],
+                          TextParam.Content,
+                          "Scaled Only but outside of window, see clamped")
         case "translated_only":
             update_widget_params(flt, {FloatParam.Translate: [80, 200],
                                 FloatParam.ScaleClamped: None})
-            update_widget(text_id, TextParam.Content, "Translated Only")
+            update_widget(state["text_id"], TextParam.Content, "Translated Only")
         case "translated_scaled":
             update_widget_params(flt, {FloatParam.Scale: 1.7,
                                        FloatParam.Translate: [50, 100],
                                        FloatParam.ScaleClamped: None})
-            update_widget(text_id, TextParam.Content, "Translated and Scaled")
+            update_widget(state["text_id"], TextParam.Content, "Translated and Scaled")
         case "scaled_clamped":
             update_widget_params(flt, {FloatParam.Scale: 1.0,
                                        FloatParam.Translate: [0, 0],
                                        FloatParam.ScaleClamped: 2})
-            update_widget(text_id, TextParam.Content, "Clamped the Scaling so I remained in window with a padding of [10]")
+            update_widget(state["text_id"],
+                          TextParam.Content,
+                          "Clamped the Scaling so I remained in window with a padding of [10]")
 
 
 # Container styling
@@ -84,11 +94,11 @@ with Window(title="Float Example", center=True):
                 user_data="translated_scaled",
                 width_fill=True,
             )
-            
+
 
         # Right side: float card over background items
         with Column(width_fill=True, spacing=12.0, align_center=True):
-            
+
             with Float(scale=1.0, translate=[0.0, 0.0], clamped_padding=[10]) as flt:
                 with Container(
                     width=200,
@@ -99,7 +109,7 @@ with Window(title="Float Example", center=True):
                     with Column(spacing=10.0):
                         add_text(content="I'm a Float!", size=20.0)
                         text_id = add_text(content="Normal", size=13.0)
-                        
+
             # Add some containers to show the float overlay better
             for i in range(4):
                 with Container(
@@ -115,5 +125,3 @@ with Window(title="Float Example", center=True):
 
 
 start_session()
-
-

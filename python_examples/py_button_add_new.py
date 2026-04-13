@@ -6,30 +6,27 @@ Button adding new demo
 from icedpygui import Window, Container, Column, start_session, \
     add_button
 
-# The button demo add a new button to the window when the first
-# button is pressed.  You can dynamically add any widget through a callback
+state = {"count": 0}
 
-count = 0
-col = 0
-
+# button callback
 def on_press(_btn_id: int):
-    global count
-    count += 1
+    """Callback to add a new button"""
+    state["count"] += 1
     # any widget can be added
     # you would probably use move_widget
     # to place the new widget properly
     # in this case, the new button just
     # appends to the column
     add_button(
-        label=f"Button_{count}",
+        label=f"Button_{state["count"]}",
         parent_id=col,
         )
 
 
 # Add the windows
 with Window(
-    title="Adding Button", 
-    size=(400, 400),  
+    title="Adding Button",
+    size=(400, 400),
     center=True,
     ):
 
@@ -40,7 +37,7 @@ with Window(
         with Column(spacing=20.0) as col:
 
             add_button(
-                label="Press Me to Add A Button", 
+                label="Press Me to Add A Button",
                 on_press=on_press)
 
 start_session()

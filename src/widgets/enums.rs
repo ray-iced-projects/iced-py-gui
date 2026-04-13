@@ -1,10 +1,9 @@
 //! Common enums used across widgets
 
-use pyo3::{Python, pyclass, Py, PyAny};
-type PyObject = Py<PyAny>;
+use pyo3::pyclass;
 
 use iced::{self, Radians, 
-    widget::{image::FilterMethod}};
+    widget::image};
 
 
 #[derive(Debug, Clone, PartialEq, Hash)]
@@ -28,17 +27,9 @@ impl Rotation {
             Rotation::Solid => iced::Rotation::Solid(Radians(rads)),
         }
     }
-
-    pub fn extract(value: &PyObject) -> Option<Self> {
-        Python::attach(|py| {
-            let res = value.extract::<Rotation>(py);
-            match res {
-                Ok(val) => Some(val),
-                Err(_) => None,
-            }
-        })  
-    }
 }
+
+
 
 #[derive(Debug, Clone, PartialEq, Hash)]
 #[pyclass(eq, eq_int, hash, frozen)]
@@ -64,15 +55,21 @@ impl ContentFit {
             ContentFit::ScaleDown => iced::ContentFit::ScaleDown,
         }
     }
+}
 
-    pub fn extract(value: &PyObject) -> Option<Self> {
-        Python::attach(|py| {
-            let res = value.extract::<ContentFit>(py);
-            match res {
-                Ok(val) => Some(val),
-                Err(_) => None,
-            }
-        })  
+#[derive(Debug, Clone, PartialEq, Hash)]
+#[pyclass(eq, eq_int, hash, frozen)]
+pub enum FilterMethod {
+    Linear,
+    Nearest,
+}
+
+impl FilterMethod {
+    pub fn to_iced(&self) -> image::FilterMethod {
+        match self {
+            FilterMethod::Linear => image::FilterMethod::Linear,
+            FilterMethod::Nearest => image::FilterMethod::Nearest,
+        }
     }
 }
 
@@ -93,15 +90,5 @@ impl ColorFilter {
             ColorFilter::Linear => FilterMethod::Linear,
             ColorFilter::Nearest => FilterMethod::Nearest,
         }
-    }
-
-    pub fn extract(value: &PyObject) -> Option<Self> {
-        Python::attach(|py| {
-            let res = value.extract::<ColorFilter>(py);
-            match res {
-                Ok(val) => Some(val),
-                Err(_) => None,
-            }
-        })  
     }
 }

@@ -5,6 +5,7 @@
 # pylint: disable=unnecessary_ellipsis
 # pylint: disable=too-many-arguments
 # pylint: disable=too-many-locals
+# pylint: disable=too-many-lines
 """
 Re-Imports for Type stubs for the wrapper layer,
 Wwhat users see with pylance, mypy, IDE hover, etc
@@ -40,6 +41,7 @@ from .icedpygui import (
     CardStyleParam as CardStyleParam,
     CardStyleStd as CardStyleStd,
     ContainerStyleStd as ContainerStyleStd,
+    ContentFit,
     CheckboxParam as CheckboxParam,
     CheckboxStyleStd as CheckboxStyleStd,
     CheckboxStyleParam as CheckboxStyleParam,
@@ -51,6 +53,7 @@ from .icedpygui import (
     DividerDirection as DividerDirection,
     DividerParam as DividerParam,
     DividerStyleParam as DividerStyleParam,
+    FilterMethod,
     FloatParam as FloatParam,
     FontFamily as FontFamily,
     FontWeight as FontWeight,
@@ -66,6 +69,7 @@ from .icedpygui import (
     RadioDirection as RadioDirection,
     RadioParam as RadioParam,
     RadioStyleParam as RadioStyleParam,
+    Rotation,
     RowParam as RowParam,
     ScrollableParam as ScrollableParam,
     ScrollableStyleParam as ScrollableStyleParam,
@@ -305,12 +309,88 @@ def add_float(
     """
     ...
 def add_image(
-    *, parent_id: Optional[str] = None,
-    **kwargs: Any) -> int:
-    """_summary_
-
-    Args:
-        parent_id (Optional[str], optional): _description_. Defaults to None.
+    path: str,
+    *,
+    parent_id: Optional[str] = None,
+    border_radius: Optional[list[float, 4] | list[float, 1]] = None,
+    content_fit: Optional[ContentFit] = None,
+    crop_height: Optional[float] = None,
+    crop_width: Optional[float] = None,
+    crop_x: Optional[float] = None,
+    crop_y: Optional[float] = None,
+    expand: Optional[bool] = None,
+    fill: Optional[bool] = None,
+    filter_method: Optional[FilterMethod] = None,
+    gen_id: Optional[int] = None,
+    height_fill: Optional[bool] = None,
+    height: Optional[float] = None,
+    opacity: Optional[float] = None,
+    rotation_degrees: Optional[float] = None,
+    rotation_method: Optional[Rotation] = None,
+    rotation_radians: Optional[float] = None,
+    scale: Optional[float] = None,
+    show: bool = True,
+    width_fill: Optional[bool] = None,
+    width: Optional[float] = None,
+    ) -> int:
+    """
+        add_image parameters
+    Usage::
+        with Window(title="My App", center=True):
+            with Container(align_center=True):
+                add_image(path="my path to image)
+                
+        start_session()
+        
+    Args::
+        path: str
+        Sets the path to where the image is located.
+        parent_id: str, Optional
+            Set the parent_id, if needed.
+        border_radius: list[float, 4] | list[float], Optional
+            Sets the border radius of the image either all corner same 
+            value [float] or independent [float,4].
+        content_fit: ContentFit, Optional
+            Set how the image contents fits see ContentFit class.
+        crop_height: float, Optional
+            Sets the height of the crop rectangle.
+        crop_width: float, Optional
+            Sets the crop width of the crop rectangle.
+        crop_x: float, Optional
+            Sets the origin x of the crop rectangle.
+        crop_y: float, Optional
+            Sets the origin y of the crop rectangle.
+        expand: float, Optional
+            Sets whether the image should try to fill as much space
+            available as possible while keeping aspect ratio and without
+            allocating extra space in any axis.
+        filter_method: FilterMethod, Optional
+            Sets the filter method, see FilterMethod
+        fill: bool, Optional
+            Sets both width_fill and length_fill.
+        height: float, Optional
+            Sets the height of the widget. 
+        height_fill: bool, Optional
+            Sets the height to fill the available space, overrides height.
+        opacity: float, Optional
+            Sets the opacity of the image.
+        padding: list[float], Optional
+            Sets the padding around the image.
+        rotation_degrees: float, Optional
+            Sets the roation of the image in degrees format.
+        rotation_radians: float, Optional
+            Sets the rotate the image in radians.
+        rotation_method: Rotation, Optional
+            Set the rotation method, see Rotation.
+        scale: float, Optional
+            Sets the scale factor of the Image.
+            The region of the Image drawn will be scaled from the center by the given scale factor.
+        show: bool, Optional
+            Whether to show or hide the image.
+        width: float, Optional
+            Sets the width of the image.
+        width_fill: bool, Optional
+            Whether to fill the width to the available container size.
 
     Returns:
         int: widget id
@@ -549,7 +629,7 @@ def add_column(
         int: widget id
     """
     ...
-    
+
 def add_menu(
     *,
     window_id: Optional[str] = None,
@@ -583,7 +663,7 @@ def add_menu(
         int: widget id
     """
     ...
-    
+
 def add_opaque(
     *,
     window_id: Optional[str] = None,
@@ -599,7 +679,7 @@ def add_opaque(
         int: container id
     """
     ...
-    
+
 def add_mouse_area(
     *,
     window_id: str,
@@ -857,7 +937,7 @@ class Card:
         *,
         window_id: Optional[str] = None,
         container_id: Optional[str] = None,
-        parent_id: Optional[str] = None, 
+        parent_id: Optional[str] = None,
         is_open: bool = True,
         close_icon: Optional[bool] = None,
         close_icon_size: Optional[float] = None,
@@ -875,7 +955,7 @@ class Card:
         style_id: Optional[int] = None,
         style_std: Optional[CardStyleStd] = None,
         show: bool = True,
-        user_data: Optional[Any] = None, 
+        user_data: Optional[Any] = None,
         gen_id: Optional[int] = None,
     ) -> None: ...
     def __enter__(self) -> int: ...
@@ -1073,7 +1153,7 @@ class Opague:
     def __exit__(self, exc_type: type[BaseException] | None, \
         exc_val: BaseException | None,\
             exc_tb: TracebackType | None) -> bool: ...
-    
+
 class Row:
     """Context manager wrapper around add_row.
 
@@ -1193,11 +1273,11 @@ class ToolTip:
         window_id: Optional[str] = None,
         container_id: Optional[str] = None,
         parent_id: Optional[str] = None,
-        position = None, 
-        gap = None, 
-        padding = None, 
+        position = None,
+        gap = None,
+        padding = None,
         snap_within_viewport = None,
-        delay_sec = None, 
+        delay_sec = None,
         container_style_id = None,
         gen_id = None,
         style_id: Optional[int] = None,

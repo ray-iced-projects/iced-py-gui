@@ -4,7 +4,7 @@ Mouse Area use demo
 """
 
 from icedpygui import Window, Container, MouseArea,\
-    add_text, add_mouse_area, start_session
+    add_text, start_session
 
 def on_press(wid, _user_data):
     """OnLeft press callback"""

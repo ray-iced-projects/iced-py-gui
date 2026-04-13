@@ -1,15 +1,17 @@
-from imports import *
+#!/usr/bin/env python3
+"""
+Rich text demo use demo
+"""
+from icedpygui import Window, Container, Column, start_session, \
+    add_rich_text, add_span, add_text, Color
 
-"""
-Rich text example demonstrating styled spans of text.
-"""
+
 
 with Window(
     title="Rich Text Demo",
     center=True):
-    
+
     with Container(align_center=True, fill=True):
-    
         with Column(spacing=10.0):
             add_text(content="Rich Text Demo", size=24.0)
 

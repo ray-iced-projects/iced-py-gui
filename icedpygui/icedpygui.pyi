@@ -8,10 +8,28 @@ from typing import Any, Callable, List, Optional, Union
 
 # pylint: disable=unused-argument
 # pylint: disable=too-many-arguments
+# pylint: disable=too-many-locals
+# pylint: disable=too-many-positional-arguments
+# pylint: disable=too-few-public-methods
+# pylint: disable=too-many-lines
 
 # ---------------------------------------------------------------------------
 # Standalone functions (migrated from IPG class methods)
 # ---------------------------------------------------------------------------
+
+class ButtonStyleStd:
+    """
+    Standard styles for Button widget
+    """
+    Background=''
+    Danger=''
+    Primary=''
+    Secondary=''
+    Subtle=''
+    Success=''
+    Warning=''
+    Text=''
+
 
 def add_button_style(
         background_color: Optional[Color] | None = None,
@@ -28,9 +46,9 @@ def add_button_style(
         border_radius: Optional[list[float | float, 4]] | None = None,
         border_width: Optional[float] | None = None,
         shadow_color: Optional[Color] | None = None,
-        shadow_color_alpha: Optional[float] | None = None, 
+        shadow_color_alpha: Optional[float] | None = None,
         shadow_rgba: Optional[list] | None = None,
-        shadow_offset_xy: Optional[list[float, 2]] | None = None, 
+        shadow_offset_xy: Optional[list[float, 2]] | None = None,
         shadow_blur_radius: Optional[float] | None = None,
         text_color: Optional[Color] | None = None,
         text_color_alpha: Optional[float] | None = None,
@@ -43,20 +61,17 @@ def add_button_style(
     Notes
     --------
     Two styles can be defined:
-    
     custom - defined by using an add_style method
-    
-    First, define the style, this can be placed anywhere as long as the add_button can access the style value, type int.
-    
+    First, define the style, this can be placed anywhere as long as the 
+    add_button can access the style value, type int.
     Then, add your button(s) as usual and use the style_id=your_style parameter.
-    
     standard - using the style_std parameter and the ButtonStyleStd class
-    
     Just use the style_std=ButtonStyleStd.Primary parameter in the add_button method.
 
     Examples
     --------
-    >>> from icedpygui import Window, Column, Container, ButtonStyleStd, add_button, add_button_style, Color, start_session
+    >>> from icedpygui import Window, Column, Container, ButtonStyleStd, \
+    >>>       add_button, add_button_style, Color, start_session
     >>> 
     >>> style = add_button_style(
     >>>             background_color=Color.LIGHT_BLUE,
@@ -91,7 +106,7 @@ def add_card_style(
         background_color_alpha: Optional[float] | None = None,
         background_rgba: Optional[list[float, 4]] | None = None,
         border_radius: Optional[float] | None = None,
-        border_width: Optional[float] | None = None, 
+        border_width: Optional[float] | None = None,
         border_color: Optional[Color] | None = None,
         border_color_alpha: Optional[float] | None = None,
         border_rgba: Optional[list[float] | list[float, 4]] | None = None,
@@ -117,8 +132,9 @@ def add_card_style(
     
     custom - defined by using an add_style method
     
-    First, define the style, this can be placed anywhere as long as the add_card can access the style value, type int.
-    
+    First, define the style, this can be placed anywhere as long as the 
+    add_card can access the style value, type int.
+
     Then, add your card(s) as usual and use the style_id=your_style parameter.
     
     standard - using the style_std parameter and the CardStyleStd class
@@ -127,7 +143,8 @@ def add_card_style(
 
     Examples
     --------
-    >>> from icedpygui import Window, Column, Container, CardStyleStd, add_card, add_card_style, Color, start_session
+    >>> from icedpygui import Window, Column, Container, CardStyleStd, \
+    >>>     add_card, add_card_style, Color, start_session
     >>> 
     >>> style = add_card_style(
     >>>             background_color=Color.LIGHT_BLUE,
@@ -151,7 +168,7 @@ def add_card_style(
     >>> start_session()
     >>> 
     """
-    
+
 def add_checkbox_style(
         background_color: Optional[Color] | None = None,
         background_color_alpha: Optional[float] | None = None,
@@ -179,7 +196,8 @@ def add_checkbox_style(
     
     custom - defined by using an add_style method
     
-    First, define the style, this can be placed anywhere as long as the add_checkbox can access the style value, type int.
+    First, define the style, this can be placed anywhere as long as the 
+    add_checkbox can access the style value, type int.
     
     Then, add your checkbox(es) as usual and use the style_id=your_style parameter.
     
@@ -189,7 +207,8 @@ def add_checkbox_style(
 
     Examples
     --------
-    >>> from icedpygui import Window, Column, Container, CheckboxStyleStd, add_checkbox, add_checkbox_style, Color, start_session
+    >>> from icedpygui import Window, Column, Container, CheckboxStyleStd, \
+    >>>     add_checkbox, add_checkbox_style, Color, start_session
     >>> 
     >>> style = add_checkbox_style(
     >>>         border_color=Color.RED,
@@ -227,11 +246,24 @@ def add_color_picker_style(
         text_color: Optional[Color] | None = None,
         text_rgba: Optional[list[float, 4]] | None = None,
     ) -> int:
-    
+
     """
     Adds styling to color picker button
 
     """
+
+class ContainerStyleStd:
+    """Container standard styles"""
+    BorderedBox=''
+    Danger=''
+    Dark=''
+    Primary=''
+    RoundedBox=''
+    Secondary=''
+    Success=''
+    Transparent=''
+    Warning=''
+
 def add_container_style(
         background_color: Optional[Color] | None = None,
         background_color_alpha: Optional[list[float, 4]] | None = None,
@@ -268,17 +300,20 @@ def add_container_style(
     
     custom - defined by using an add_style method
     
-    First, define the style, this can be placed anywhere as long as the add_container or Container can access the style value, type int.
+    First, define the style, this can be placed anywhere as long as the 
+    add_container or Container can access the style value, type int.
     
     Then, add your container(s) as usual and use the style_id=your_style parameter.
     
     standard - using the style_std parameter and the ContainerStyleStd class
     
-    Just use the style_std=ContainerStyleStd.Primary parameter in the add_container or Container method.
+    Just use the style_std=ContainerStyleStd.Primary parameter in the 
+    add_container or Container method.
     
     Examples
     --------
-    >>> from icedpygui import Window, Column, Container, ContainerStyleStd, add_container_style, add_text, Color, start_session
+    >>> from icedpygui import Window, Column, Container, ContainerStyleStd, \
+    >>>     add_container_style, add_text, Color, start_session
     >>> 
     >>> style = add_container_style(
     >>>             background_color=Color.AQUA,
@@ -309,7 +344,7 @@ def add_font_style(
     style: Optional[FontStyle] = None,
     gen_id: Optional[int] = None,
     ) -> int:
-    
+
     """
     Adds font style
 
@@ -323,15 +358,17 @@ def load_font(path: str) -> None:
     """
 
 class FontFamily:
+    """Font fakmily parameters"""
     Name=''
     Cursive=''
     Fantasy=''
     Monospace=''
     SansSerif=''
     Serif=''
-    
-    
+
+
 class FontStretch:
+    """Font stretch parameters"""
     Condensed=''
     Expanded=''
     ExtraCondensed=''
@@ -341,14 +378,15 @@ class FontStretch:
     SemiExpanded=''
     UltraCondensed=''
     UltraExpanded=''
-    
-    
+
+
 class FontStyle:
+    """Font styling"""
     Normal=''
     Italic=''
     Oblique=''
-    
-    
+
+
 class FontWeight:
     """Adds a font weighting
     
@@ -376,7 +414,7 @@ def add_menu_bar_style(
         shadow_blur_radius: Optional[float] | None = None,
         gen_id: Optional[int] | None = None,
     ) -> int:
-    
+
     """
     Adds style in the menu itself, not the menu items or bar items
 
@@ -401,11 +439,21 @@ def add_menu_style(
         path_border_width: Optional[float]=None,
         gen_id: Optional[int]=None,
     ) -> int:
-    
+
     """
     Adds style in the menu itself, not the menu items or bar items
 
     """
+
+class MenuSeparatorType:
+    """
+    The separator types id used.
+    """
+    Circle=''
+    Dot=''
+    Label=''
+    Line=''
+
 
 def add_menu_separator_style(
         style_id: str,
@@ -438,7 +486,7 @@ def add_menu_separator_style(
         background_shadow_blur_radius: Optional[float]=None,
         gen_id: Optional[int]=None,
     ) -> int:
-    
+
     """
     The styling of the separators, if used, in the menu.
 
@@ -461,7 +509,7 @@ def add_pick_list_style(
         border_width: Optional[float]=None,
         gen_id: Optional[int]=None,
     ) -> int:
-    
+
     """
     Add PickList styling.
 
@@ -478,7 +526,7 @@ def add_progress_bar_style(
         border_width: Optional[float]=None,
         gen_id: Optional[int]=None,
     ) -> int:
-    
+
     """
     Add ProgressBar style.
     """
@@ -499,7 +547,7 @@ def add_radio_style(
         text_rgba: Optional[list[float, 4]]=None,
         gen_id: Optional[int]=None,
     ) -> int:
-    
+
     """
     Add Radio style.
 
@@ -514,53 +562,53 @@ def add_rule_style(
         fillmode_asymmetric_padding: Optional[list[int, 2]],
         gen_id: Optional[int],
     ) -> int:
-    
+
     """
     Add Rule styling.
 
     """
-    
+
 def add_scrollable_style(
-        background_color: Optional[Color]=None,
-        background_rgba: Optional[list[float, 4]]=None,
-        border_color: Optional[Color]=None,
-        border_rgba: Optional[list[float, 4]]=None,
-        border_radius: list[float]=0.0,
-        border_width: float=1.0,
-        shadow_color: Optional[Color]=None,
-        shadow_rgba: Optional[list[float, 4]]=None,
-        shadow_offset_x: float=0.0,
-        shadow_offset_y: float=0.0,
-        shadow_blur_radius: float=2.0,
-        text_color: Optional[Color]=None,
-        text_rgba: Optional[list[float, 4]]=None,
-        scrollbar_color: Optional[Color]=None,
-        scrollbar_rgba: Optional[list[float, 4]]=None,
-        scrollbar_border_radius: list[float]=[2.0],
-        scrollbar_border_width: float=1.0,
-        scrollbar_border_color: Optional[Color]=None,
-        scrollbar_border_rgba: Optional[list[float, 4]]=None,
-        scroller_color: Optional[Color]=None,
-        scroller_rgba: Optional[list[float, 4]]=None,
-        scroller_color_hovered: Optional[Color]=None,
-        scroller_rgba_hovered: Optional[list[float, 4]]=None,
-        scroller_color_dragged: Optional[Color]=None,
-        scroller_rgba_dragged: Optional[list[float, 4]]=None,
-        gen_id: Optional[int]=None,
+        background_color: Optional[Color] | None = None,
+        background_rgba: Optional[list[float, 4]] | None = None,
+        border_color: Optional[Color] | None = None,
+        border_rgba: Optional[list[float, 4]] | None = None,
+        border_radius: Optional[float] | None = None,
+        border_width: Optional[float] | None = None,
+        shadow_color: Optional[Color] | None = None,
+        shadow_rgba: Optional[list[float, 4]] | None = None,
+        shadow_offset_x: Optional[float] | None = None,
+        shadow_offset_y: Optional[float] | None = None,
+        shadow_blur_radius: Optional[float] | None = None,
+        text_color: Optional[Color] | None = None,
+        text_rgba: Optional[list[float, 4]] | None = None,
+        scrollbar_color: Optional[Color] | None = None,
+        scrollbar_rgba: Optional[list[float, 4]] | None = None,
+        scrollbar_border_radius: list[float] | None = None,
+        scrollbar_border_width: Optional[float] | None = None,
+        scrollbar_border_color: Optional[Color] | None = None,
+        scrollbar_border_rgba: Optional[list[float, 4]] | None = None,
+        scroller_color: Optional[Color] | None = None,
+        scroller_rgba: Optional[list[float, 4]] | None = None,
+        scroller_color_hovered: Optional[Color] | None = None,
+        scroller_rgba_hovered: Optional[list[float, 4]] | None = None,
+        scroller_color_dragged: Optional[Color] | None = None,
+        scroller_rgba_dragged: Optional[list[float, 4]] | None = None,
+        gen_id: Optional[int] | None = None,
     ) -> int:
     """_summary_
 
     
     """
-    
+
 def add_separator_style(
-        ipg_color: Optional[Color]=None,
-        rgba_color: Optional[list[float]]=None,
-        border_ipg_color: Optional[Color]=None,
-        border_rgba: Optional[list[float]]=None,
-        gen_id: Optional[int]=None,
+        ipg_color: Optional[Color] | None = None,
+        rgba_color: Optional[list[float]] | None = None,
+        border_ipg_color: Optional[Color] | None = None,
+        border_rgba: Optional[list[float]] | None = None,
+        gen_id: Optional[int] | None = None,
     ) -> int:
-    
+
     """
     The styling of the separators.
 
@@ -568,23 +616,23 @@ def add_separator_style(
 
 def add_slider_style(
         style_id: str,
-        rail_color: Optional[Color]=None,
-        rail_rgba: Optional[list[float, 4]]=None,
-        rail_color_hovered: Optional[Color]=None,
-        rail_rgba_hovered: Optional[list[float, 4]]=None,
-        rail_width: Optional[float]=None,
-        rail_border_radius: Optional[list[float]]=None,
-        handle_circle_radius: Optional[float]=None,
-        handle_rectangle_width: Optional[int]=None,
-        handle_rectangle_border_radius: Optional[list[float]]=None,
-        handle_color: Optional[Color]=None,
-        handle_rgba: Optional[list[float, 4]]=None,
-        handle_border_width: Optional[float]=None,
-        handle_border_color: Optional[Color]=None,
-        handle_border_rgba: Optional[list[float, 4]]=None,
-        gen_id: Union[None, int]=None,
+        rail_color: Optional[Color] | None = None,
+        rail_rgba: Optional[list[float, 4]] | None = None,
+        rail_color_hovered: Optional[Color] | None = None,
+        rail_rgba_hovered: Optional[list[float, 4]] | None = None,
+        rail_width: Optional[float] | None = None,
+        rail_border_radius: Optional[list[float]] | None = None,
+        handle_circle_radius: Optional[float] | None = None,
+        handle_rectangle_width: Optional[int] | None = None,
+        handle_rectangle_border_radius: Optional[list[float]] | None = None,
+        handle_color: Optional[Color] | None = None,
+        handle_rgba: Optional[list[float, 4]] | None = None,
+        handle_border_width: Optional[float] | None = None,
+        handle_border_color: Optional[Color] | None = None,
+        handle_border_rgba: Optional[list[float, 4]] | None = None,
+        gen_id: Union[None, int] | None = None,
     ) -> int:
-    
+
     """
     Add styling to the Slider.
     
@@ -592,97 +640,97 @@ def add_slider_style(
 
 def add_text_input_style(
         style_id: str,
-        background_color: Optional[Color]=None,
-        background_rgba: Optional[list[float, 4]]=None,
-        border_color: Optional[Color]=None,
-        border_rgba: Optional[list[float, 4]]=None,
-        border_color_hovered: Optional[Color]=None,
-        border_rgba_hovered: Optional[list[float, 4]]=None,
-        border_color_focused: Optional[Color]=None,
-        border_rgba_focused: Optional[list[float, 4]]=None,
-        border_width: Optional[float]=None,
-        border_radius: Optional[list[float]]=None,
-        placeholder_color: Optional[Color]=None,
-        placeholder_rgba: Optional[list[float, 4]]=None,
-        value_color: Optional[Color]=None,
-        value_rgba: Optional[list[float, 4]]=None,
-        selection_color: Optional[Color]=None,
-        selection_rgba: Optional[list[float, 4]]=None,
-        gen_id: Optional[int]=None,
+        background_color: Optional[Color] | None = None,
+        background_rgba: Optional[list[float, 4]] | None = None,
+        border_color: Optional[Color] | None = None,
+        border_rgba: Optional[list[float, 4]] | None = None,
+        border_color_hovered: Optional[Color] | None = None,
+        border_rgba_hovered: Optional[list[float, 4]] | None = None,
+        border_color_focused: Optional[Color] | None = None,
+        border_rgba_focused: Optional[list[float, 4]] | None = None,
+        border_width: Optional[float] | None = None,
+        border_radius: Optional[list[float]] | None = None,
+        placeholder_color: Optional[Color] | None = None,
+        placeholder_rgba: Optional[list[float, 4]] | None = None,
+        value_color: Optional[Color] | None = None,
+        value_rgba: Optional[list[float, 4]] | None = None,
+        selection_color: Optional[Color] | None = None,
+        selection_rgba: Optional[list[float, 4]] | None = None,
+        gen_id: Optional[int] | None = None,
     ) -> int:
-    
+
     """
     Add textInput styling.
 
     """
 
 def add_tooltip_style(
-        background_color: Optional[Color]=None,
-        background_rgba: Optional[list[float, 4]]=None,
-        border_color: Optional[Color]=None, 
-        border_rgba: Optional[list[float, 4]]=None,
-        border_radius: list[float]=[0.0], 
-        border_width: float=0.0,
-        shadow_color: Optional[Color]=None, 
-        shadow_rgba: Optional[list]=None,
-        shadow_offset_xy: list[float, 2]=[0.0, 0.0], 
-        shadow_blur_radius: float=0.0,
-        text_color: Optional[Color]=None,
-        text_rgba: Optional[list[float, 4]]=None,
+        background_color: Optional[Color] | None = None,
+        background_rgba: Optional[list[float, 4]] | None = None,
+        border_color: Optional[Color] | None = None,
+        border_rgba: Optional[list[float, 4]] | None = None,
+        border_radius: list[float] | None = None,
+        border_width: Optional[float] | None = None,
+        shadow_color: Optional[Color] | None = None,
+        shadow_rgba: Optional[list] | None = None,
+        shadow_offset_xy: list[float, 2] | None = None,
+        shadow_blur_radius: Optional[float] | None = None,
+        text_color: Optional[Color] | None = None,
+        text_rgba: Optional[list[float, 4]] | None = None,
     ) -> int:
     """
     Adds styling to the tool tip
 
     
     """
-    
+
 def add_canvas_timer_style(
-        background_color: Optional[Color]=None,
-        background_rgba: Optional[list[float, 4]]=None,
-        background_color_hovered: Optional[Color]=None,
-        background_rgba_hovered: Optional[list[float, 4]]=None,
-        border_color: Optional[Color]=None, 
-        border_rgba: Optional[list[float, 4]]=None,
-        border_radius: list[float | float, 4]=[0.0],
-        border_width: float=1.0,
-        shadow_color: Optional[Color]=None,
-        shadow_rgba: Optional[list]=None,
-        shadow_offset_x: float=0.0, 
-        shadow_offset_y: float=0.0,
-        shadow_blur_radius: float=1.0,
-        text_color: Optional[Color]=None,
-        text_rgba: Optional[list[float, 4]]=None
+        background_color: Optional[Color] | None = None,
+        background_rgba: Optional[list[float, 4]] | None = None,
+        background_color_hovered: Optional[Color] | None = None,
+        background_rgba_hovered: Optional[list[float, 4]] | None = None,
+        border_color: Optional[Color] | None = None,
+        border_rgba: Optional[list[float, 4]] | None = None,
+        border_radius: list[float | float, 4] | None = None,
+        border_width: Optional[float] | None = None,
+        shadow_color: Optional[Color] | None = None,
+        shadow_rgba: Optional[list] | None = None,
+        shadow_offset_x: float | None = None,
+        shadow_offset_y: float | None = None,
+        shadow_blur_radius: float | None = None,
+        text_color: Optional[Color] | None = None,
+        text_rgba: Optional[list[float, 4]] | None = None
     ) -> int:
-    
+
     """
     Adds styling to canvas timer button
 
     """
 
 def add_toggler_style(
-        background_color: Optional[Color]=None,
-        background_rgba: Optional[list[float, 4]]=None,
-        background_color_toggled: Optional[Color]=None,
-        background_rgba_toggled: Optional[list[float, 4]]=None,
-        background_border_color: Optional[Color]=None,
-        background_border_rgba: Optional[list[float, 4]]=None,
-        background_border_width: Optional[float]=None,
-        foreground_color: Optional[Color]=None,
-        foreground_rgba: Optional[list[float, 4]]=None,
-        foreground_color_toggled: Optional[Color]=None,
-        foreground_rgba_toggled: Optional[list[float, 4]]=None,
-        foreground_border_color: Optional[Color]=None,
-        foreground_border_rgba: Optional[list[float, 4]]=None,
-        foreground_border_width: Optional[Color]=None,
+        background_color: Optional[Color] | None = None,
+        background_rgba: Optional[list[float, 4]] | None = None,
+        background_color_toggled: Optional[Color] | None = None,
+        background_rgba_toggled: Optional[list[float, 4]] | None = None,
+        background_border_color: Optional[Color] | None = None,
+        background_border_rgba: Optional[list[float, 4]] | None = None,
+        background_border_width: Optional[float] | None = None,
+        foreground_color: Optional[Color] | None = None,
+        foreground_rgba: Optional[list[float, 4]] | None = None,
+        foreground_color_toggled: Optional[Color] | None = None,
+        foreground_rgba_toggled: Optional[list[float, 4]] | None = None,
+        foreground_border_color: Optional[Color] | None = None,
+        foreground_border_rgba: Optional[list[float, 4]] | None = None,
+        foreground_border_width: Optional[Color] | None = None,
     ) -> int:
-    
+
     """
     Adds a toggler to the gui
     
     """
-        
+
     # ***************canvas widgets**********************
-    
+
 def add_arc(
         canvas_id: str,
         center_xy: tuple[float, float],
@@ -697,7 +745,7 @@ def add_arc(
         fill_rgba_color: Optional[list[float, 4]]=None,
         gen_id: Optional[int]=None,
     ) -> int:
-    
+
     """
     Adds an Arc to the canvas.
     
@@ -744,7 +792,7 @@ def add_bezier(
         degrees: float=0.0,
         gen_id: Optional[int]=None,
     ) -> int:
-    
+
     """
     Adds an Bezier to the canvas.
     
@@ -780,17 +828,17 @@ def add_circle(
         radius: float,
         *,
         stroke_width: float=2.0,
-        stroke_dash_offset: Optional[int]=None,
-        stroke_dash_segments: Optional[list[float]]=None,
-        stroke_ipg_color: Optional[Color]=None,
-        stroke_rgba_color: Optional[list[float, 4]]=None,
-        stroke_color_alpha: float=1.0,
-        fill_ipg_color: Optional[Color]=None,
-        fill_rgba_color: Optional[list[float, 4]]=None,
-        fill_color_alpha: float=1.0,
-        gen_id: Optional[int]=None,
+        stroke_dash_offset: Optional[int] | None = None,
+        stroke_dash_segments: Optional[list[float]] | None = None,
+        stroke_ipg_color: Optional[Color] | None = None,
+        stroke_rgba_color: Optional[list[float, 4]] | None = None,
+        stroke_color_alpha: Optional[float] | None = None,
+        fill_ipg_color: Optional[Color] | None = None,
+        fill_rgba_color: Optional[list[float, 4]] | None = None,
+        fill_color_alpha: Optional[float] | None = 1.0,
+        gen_id: Optional[int] | None = None,
     ) -> int:
-    
+
     """
     Add Circle to a canvas
 
@@ -833,13 +881,13 @@ def add_ellipse(
         *,
         stroke_width: float=2.0,
         degrees: float=0.0,
-        stroke_ipg_color: Optional[Color]=None,
-        stroke_rgba_color: Optional[list[float, 4]]=None,
-        fill_ipg_color: Optional[Color]=None,
-        fill_rgba_color: Optional[list[float, 4]]=None,
-        gen_id: Optional[int]=None,
+        stroke_ipg_color: Optional[Color] | None = None,
+        stroke_rgba_color: Optional[list[float, 4]] | None = None,
+        fill_ipg_color: Optional[Color] | None = None,
+        fill_rgba_color: Optional[list[float, 4]] | None = None,
+        gen_id: Optional[int] | None = None,
     ) -> int:
-    
+
     """
     Adds an ellipse to the canvas.
     
@@ -881,11 +929,11 @@ def add_line(
         *,
         degrees: float=0.0,
         stroke_width: float=2.0,
-        stroke_ipg_color: Optional[Color]=None,
-        stroke_rgba_color: Optional[list[float, 4]]=None,
-        gen_id: Optional[int]=None,
+        stroke_ipg_color: Optional[Color] | None = None,
+        stroke_rgba_color: Optional[list[float, 4]] | None = None,
+        gen_id: Optional[int] | None = None,
     ) -> int:
-    
+
     """
     Add a line to the canvas.
     
@@ -922,13 +970,13 @@ def add_polygon(
         *,
         degrees: float=0.0,
         stroke_width: float=2.0,
-        stroke_ipg_color: Optional[Color]=None,
-        stroke_rgba_color: Optional[list[float, 4]]=None,
-        fill_ipg_color: Optional[Color]=None,
-        fill_rgba_color: Optional[list[float, 4]]=None,
-        gen_id: Optional[int]=None,
+        stroke_ipg_color: Optional[Color] | None = None,
+        stroke_rgba_color: Optional[list[float, 4]] | None = None,
+        fill_ipg_color: Optional[Color] | None = None,
+        fill_rgba_color: Optional[list[float, 4]] | None = None,
+        gen_id: Optional[int] | None = None,
     ) -> int:
-    
+
     """
     Add a polygon to the canvas.
     
@@ -962,17 +1010,17 @@ def add_polygon(
         id: int
         The id of the event which can be used to modify the event through update_item.
     """
-        
+
 def add_poly_line(
         canvas_id: str,
         points: list[(float, float)],
         *,
         stroke_width: float=2.0,
-        stroke_ipg_color: Optional[Color]=None,
-        stroke_rgba_color: Optional[list[float, 4]]=None,
-        gen_id: Optional[int]=None,
+        stroke_ipg_color: Optional[Color] | None = None,
+        stroke_rgba_color: Optional[list[float, 4]] | None = None,
+        gen_id: Optional[int] | None = None,
     ) -> int:
-    
+
     """
     Add a polygon to the canvas.
     
@@ -996,7 +1044,7 @@ def add_poly_line(
         id: int
         The id of the event which can be used to modify the event through update_item.
     """
-        
+
 def add_rectangle(
         canvas_id: str,
         top_left_xy: tuple[float, float],
@@ -1005,13 +1053,13 @@ def add_rectangle(
         *,
         degrees: float=0.0,
         stroke_width: float=2.0,
-        stroke_ipg_color: Optional[Color]=None,
-        stroke_rgba_color: Optional[list[float, 4]]=None,
-        fill_ipg_color: Optional[Color]=None,
-        fill_rgba_color: Optional[list[float, 4]]=None,
-        gen_id: Optional[int]=None,
+        stroke_ipg_color: Optional[Color] | None = None,
+        stroke_rgba_color: Optional[list[float, 4]] | None = None,
+        fill_ipg_color: Optional[Color] | None = None,
+        fill_rgba_color: Optional[list[float, 4]] | None = None,
+        gen_id: Optional[int] | None = None,
     ) -> int:
-    
+
     """
     Add a rectangle to the canvas.
     
@@ -1045,7 +1093,7 @@ def add_rectangle(
         id: int
         The id of the event which can be used to modify the event through update_item.
     """
-        
+
 def add_canvas_image(
         canvas_id: str,
         image_path: str,
@@ -1057,7 +1105,7 @@ def add_canvas_image(
         align_top_left_xy: Optional[tuple[float, float]]=None,
         gen_id: Optional[int]=None,
     ) -> int:
-    
+
     """
     Add an image to the canvas.
     
@@ -1080,18 +1128,18 @@ def add_canvas_image(
     -------
         id: int
         The id of the event which can be used to modify the event through update_item.    
-    """    
+    """
 
 
     # *********************events***********************
 def add_event_keyboard(
         enabled: bool,
         *,
-        on_key_press: Optional[Callable]=None,
-        on_key_release: Optional[Callable]=None,
-        user_data: Optional[any]=None, 
+        on_key_press: Optional[Callable] | None = None,
+        on_key_release: Optional[Callable] | None = None,
+        user_data: Optional[any] | None = None,
     ) -> int:
-    
+
     """
     Add a keyboard event handler to process keyboard actions.
 
@@ -1115,18 +1163,18 @@ def add_event_keyboard(
 def add_event_mouse(
         enabled: bool,
         *,
-        on_move: Optional[Callable]=None,
-        on_left_press: Optional[Callable]=None,
-        on_left_release: Optional[Callable]=None,
-        on_middle_press: Optional[Callable]=None,
-        on_middle_release: Optional[Callable]=None,
-        on_right_press: Optional[Callable]=None,
-        on_right_release: Optional[Callable]=None,
-        on_middle_scroll_line: Optional[Callable]=None,
-        on_middle_scroll_pixel: Optional[Callable]=None,
-        user_data: Optional[Any]=None,
+        on_move: Optional[Callable] | None = None,
+        on_left_press: Optional[Callable] | None = None,
+        on_left_release: Optional[Callable] | None = None,
+        on_middle_press: Optional[Callable] | None = None,
+        on_middle_release: Optional[Callable] | None = None,
+        on_right_press: Optional[Callable] | None = None,
+        on_right_release: Optional[Callable] | None = None,
+        on_middle_scroll_line: Optional[Callable] | None = None,
+        on_middle_scroll_pixel: Optional[Callable] | None = None,
+        user_data: Optional[Any] | None = None,
     ) ->int:
-    
+
     """
     Add a mouse button handlers to process mouse actions.
 
@@ -1163,12 +1211,12 @@ def add_event_mouse(
 
 def add_event_timer (
     enabled: bool=False,
-    duration_ms: Optional[int]=None,
-    on_start: Optional[Callable]=None,
-    on_tick: Optional[Callable]=None,
-    on_stop: Optional[Callable]=None,
-    user_data: Optional[Any]=None,
-    gen_id: Optional[int]=None,
+    duration_ms: Optional[int] | None = None,
+    on_start: Optional[Callable] | None = None,
+    on_tick: Optional[Callable] | None = None,
+    on_stop: Optional[Callable] | None = None,
+    user_data: Optional[Any] | None = None,
+    gen_id: Optional[int] | None = None,
     ) -> int:
     """
     Add a timer event.
@@ -1200,23 +1248,23 @@ def add_event_timer (
     int
         The numeric ID of the newly created timer.
     """
-    
+
 def add_event_window(
     enabled: bool,
     *,
-    on_closed: Optional[Callable]=None,
-    on_moved: Optional[Callable]=None,
-    on_resized: Optional[Callable]=None,
-    on_redraw_requested: Optional[Callable]=None,
-    on_close_requested: Optional[Callable]=None,
-    on_focused: Optional[Callable]=None,
-    on_unfocused: Optional[Callable]=None,
-    on_file_hovered: Optional[Callable]=None,
-    on_file_dropped: Optional[Callable]=None,
-    on_files_hovered_left: Optional[Callable]=None,
-    user_data: Optional[Any]=None,
+    on_closed: Optional[Callable] | None = None,
+    on_moved: Optional[Callable] | None = None,
+    on_resized: Optional[Callable] | None = None,
+    on_redraw_requested: Optional[Callable] | None = None,
+    on_close_requested: Optional[Callable] | None = None,
+    on_focused: Optional[Callable] | None = None,
+    on_unfocused: Optional[Callable] | None = None,
+    on_file_hovered: Optional[Callable] | None = None,
+    on_file_dropped: Optional[Callable] | None = None,
+    on_files_hovered_left: Optional[Callable] | None = None,
+    user_data: Optional[Any] | None = None,
     ) -> int:
-    
+
     """
     Adds event to the window other than those in the add_window method.
 
@@ -1261,21 +1309,22 @@ def add_chart(
         x_axis_labels: list[str],
         width: float,
         height: float,
-        position_xy: Optional[list[float, 2]],
-        theme: Optional[ChartTheme],
-        margin: Optional[list[float, 4]],
-        font_family: str,
-        background_ipgcolor: Optional[Color],
-        background_rgba: Optional[list[float, 4]],
-        is_light: bool,
-        grid_stroke_ipgcolor: Optional[Color],
-        grid_stroke_rgba: Optional[list[float, 4]],
-        grid_stroke_width: float,
-        radius: Optional[float],
-        parent_id: Optional[str],
-        gen_id: Optional[int],
+        *,
+        position_xy: Optional[list[float, 2]] | None = None,
+        theme: Optional[ChartTheme] | None = None,
+        margin: Optional[list[float, 4]] | None = None,
+        font_family: str = "",
+        background_ipgcolor: Optional[Color] | None = None,
+        background_rgba: Optional[list[float, 4]] | None = None,
+        is_light: bool = False,
+        grid_stroke_ipgcolor: Optional[Color] | None = None,
+        grid_stroke_rgba: Optional[list[float, 4]] | None = None,
+        grid_stroke_width: float = 0,
+        radius: Optional[float] | None = None,
+        parent_id: Optional[str] | None = None,
+        gen_id: Optional[int] | None = None,
     ) -> int:
-    
+
     """_summary_
 
     Args:
@@ -1302,40 +1351,41 @@ def add_chart(
     Returns:
         int: _description_
     """
-    
+
 def construct_chart(
         self,
         chart_ids: list[str]
     ):
-    
+
     """_summary_
 
     Args:
         chart_ids (list[str]): 
             List of string chart ids.
     """
-    
+
 def add_chart_title(
         chart_id: str,
         title_text: Optional[str],
         title_font_size: float,
-        title_font_ipgcolor: Optional[Color],
-        title_font_rgba: Optional[list[float, 4]],
-        title_font_weight: Optional[str],
-        title_margin: Optional[list[float, 4]],
-        title_align: Optional[bool],
+        *,
+        title_font_ipgcolor: Optional[Color] | None = None,
+        title_font_rgba: Optional[list[float, 4]] | None = None,
+        title_font_weight: Optional[str] | None = None,
+        title_margin: Optional[list[float, 4]] | None = None,
+        title_align: Optional[bool] | None = None,
         title_height: float,
-        sub_title_text: Optional[str],
-        sub_title_font_size: Optional[float],
-        sub_title_font_ipgcolor: Optional[Color],
-        sub_title_font_rgba: Optional[list[float, 4]],
-        sub_title_font_weight: Optional[str],
-        sub_title_margin: Optional[list[float, 4]],
-        sub_title_align: Optional[bool],
+        sub_title_text: Optional[str] | None = None,
+        sub_title_font_size: Optional[float] | None = None,
+        sub_title_font_ipgcolor: Optional[Color] | None = None,
+        sub_title_font_rgba: Optional[list[float, 4]] | None = None,
+        sub_title_font_weight: Optional[str] | None = None,
+        sub_title_margin: Optional[list[float, 4]] | None = None,
+        sub_title_align: Optional[bool] | None = None,
         sub_title_height: float,
-        gen_id: Optional[int],
+        gen_id: Optional[int] | None = None,
     ) -> int:
-    
+
     """_summary_
 
     Args:
@@ -1361,20 +1411,29 @@ def add_chart_title(
     Returns:
         The id of the event which can be used to modify the event through update_item.
     """
-        
+
+
+class ChartLegendCategory:
+    """Chart Legend Type"""
+    Normal=''
+    RoundRect=''
+    Circle=''
+    Rect=''
+
+
 def add_chart_legend(
         chart_id: str,
         legend_font_size: float,
-        legend_font_ipgcolor: Optional[Color],
-        legend_font_rgba: Optional[list[float, 4]],
-        legend_font_weight: Optional[str],
-        legend_align: Optional[bool],
-        legend_margin: Optional[list[float, 4]],
-        legend_category: ChartLegendCategory,
-        legend_show: bool,
-        gen_id: Optional[int],
+        legend_font_ipgcolor: Optional[Color] | None = None,
+        legend_font_rgba: Optional[list[float, 4]] | None = None,
+        legend_font_weight: Optional[str] | None = None,
+        legend_align: Optional[bool] | None = None,
+        legend_margin: Optional[list[float, 4]] | None = None,
+        legend_category: Optional[ChartLegendCategory] | None = None,
+        legend_show: bool = True,
+        gen_id: Optional[int] | None = None,
     ) -> int:
-    
+
     """_summary_
 
     Args:
@@ -1397,20 +1456,20 @@ def add_chart_x_axis(
         chart_id: str,
         x_axis_data: list[str],
         x_axis_height: float,
-        x_axis_stroke_ipgcolor: Optional[Color],
-        x_axis_stroke_rgba: Optional[list[float, 4]],
-        x_axis_font_size: float,
-        x_axis_font_ipgcolor: Optional[Color],
-        x_axis_font_rgba: Optional[list[float, 4]],
-        x_axis_font_weight: Optional[str],
-        x_axis_name_gap: float,
-        x_axis_name_rotate: float,
-        x_axis_margin: Optional[list[float, 4]],
-        x_axis_hidden: bool,
-        x_boundary_gap: Optional[bool],
-        gen_id: Optional[int],
+        x_axis_stroke_ipgcolor: Optional[Color] | None = None,
+        x_axis_stroke_rgba: Optional[list[float, 4]] | None = None,
+        x_axis_font_size: Optional[float] | None = None,
+        x_axis_font_ipgcolor: Optional[Color] | None = None,
+        x_axis_font_rgba: Optional[list[float, 4]] | None = None,
+        x_axis_font_weight: Optional[str] | None = None,
+        x_axis_name_gap: Optional[float] | None = None,
+        x_axis_name_rotate: Optional[float] | None = None,
+        x_axis_margin: Optional[list[float, 4]] | None = None,
+        x_axis_hidden: Optional[bool] | None = None,
+        x_boundary_gap: Optional[bool] | None = None,
+        gen_id: Optional[int] | None = None,
     ) -> int:
-    
+
     """_summary_
 
     Args:
@@ -1447,27 +1506,27 @@ def add_chart_x_axis(
     Returns:
         int: _description_
     """
-        
+
 def add_chart_y_axis(
         chart_id: str,
         y_axis_hidden: bool,
         y_axis_font_size: float,
-        y_axis_font_ipgcolor: Optional[Color],
-        y_axis_font_rgba: Optional[list[float, 4]],
-        y_axis_font_weight: Optional[str],
-        y_axis_stroke_ipgcolor: Optional[Color],
-        y_axis_stroke_rgba: Optional[list[float, 4]],
-        y_axis_width: Optional[float],
-        y_axis_split_number: int,
-        y_axis_name_gap: float,
-        y_axis_name_align: Optional[bool],
-        y_axis_margin: Optional[list[float, 4]],
-        y_axis_formatter: Optional[str],
-        y_axis_min: Optional[float],
-        y_axis_max: Optional[float],
-        gen_id: Optional[int],
+        y_axis_font_ipgcolor: Optional[Color] | None = None,
+        y_axis_font_rgba: Optional[list[float, 4]] | None = None,
+        y_axis_font_weight: Optional[str] | None = None,
+        y_axis_stroke_ipgcolor: Optional[Color] | None = None,
+        y_axis_stroke_rgba: Optional[list[float, 4]] | None = None,
+        y_axis_width: Optional[float] | None = None,
+        y_axis_split_number: int = 0,
+        y_axis_name_gap: float = 0,
+        y_axis_name_align: Optional[bool] | None = None,
+        y_axis_margin: Optional[list[float, 4]] | None = None,
+        y_axis_formatter: Optional[str] | None = None,
+        y_axis_min: Optional[float] | None = None,
+        y_axis_max: Optional[float] | None = None,
+        gen_id: Optional[int] | None = None,
     ) -> int:
-    
+
     """_summary_
 
     Args:
@@ -1508,24 +1567,24 @@ def add_chart_y_axis(
     Returns:
         int: _description_
     """
-    
+
 def add_chart_series(
         chart_id: str,
         series_stroke_width: float,
-        series_label_font_ipgcolor: Optional[Color],
-        series_label_font_rgba: Optional[list[float, 4]],
-        series_label_font_size: float,
-        series_label_font_weight: Optional[str],
-        series_label_formatter: Optional[str],
-        series_ipgcolors: list[Color],
-        series_rgbas: list[float, 4],
-        series_symbol: bool,
-        symbol_ipgcolor: Optional[Color],
-        symbol_rgba: Optional[list[float, 4]],
-        symbol_radius: Optional[float],
-        series_smooth: bool,
-        series_fill: bool,
-        gen_id: Optional[int],
+        series_label_font_ipgcolor: Optional[Color] | None = None,
+        series_label_font_rgba: Optional[list[float, 4]] | None = None,
+        series_label_font_size: float = 16.0,
+        series_label_font_weight: Optional[str] | None = None,
+        series_label_formatter: Optional[str] | None = None,
+        series_ipgcolors: list[Color] | None = None,
+        series_rgbas: list[float, 4] | None = None,
+        series_symbol: bool = False,
+        symbol_ipgcolor: Optional[Color] | None = None,
+        symbol_rgba: Optional[list[float, 4]] | None = None,
+        symbol_radius: Optional[float] | None = None,
+        series_smooth: Optional[bool] | None = None,
+        series_fill: Optional[bool] | None = None,
+        gen_id: Optional[int] | None = None,
     ) -> int:
     """_summary_
 
@@ -1566,26 +1625,26 @@ def add_chart_series(
         id: (int):
             Internal id of widget and can be used by user if equated.
     """
-    
+
 def get_color_palette(
-        base_color: Optional[Color],
-        base_rgba: Optional[list[float, 4]],
+        base_color: Optional[Color] | None = None,
+        base_rgba: Optional[list[float, 4]] | None = None,
     ) -> list[list[float], list[float, 4], list[float, 4]]:
-    
-        """
-        Gets the colors strong, weak, and text in rgba format
 
-        Parameters:
-        -----------
-            base_color: Optional[Color],
-                The color with class Color
-            base_rgba: Optional[list[float, 4]],
-                The color in rgba format
+    """
+    Gets the colors strong, weak, and text in rgba format
 
-        Returns:
-        -------
-            list of 3 lists of rgba colors (strong, weak, text)
-        """
+    Parameters:
+    -----------
+        base_color: Optional[Color],
+            The color with class Color
+        base_rgba: Optional[list[float, 4]],
+            The color in rgba format
+
+    Returns:
+    -------
+        list of 3 lists of rgba colors (strong, weak, text)
+    """
 
 # **************all item ops***********
 def start_session(self) -> None:
@@ -1606,7 +1665,7 @@ def generate_id(self) -> int:
     id: int
         Pre-generated id to use for a widget with parameter gen_id.
     """
-    
+
 def delete_item(window_id: str, wid: int):
     """
     Deletes an item using the widgets id.
@@ -1624,12 +1683,12 @@ def delete_item(window_id: str, wid: int):
     -------
     None
     """
-        
+
 def show_items(
         window_id: str,
         ids: List[tuple[int, bool]]
     ):
-    
+
     """
     Shows or hides items
     
@@ -1639,13 +1698,13 @@ def show_items(
         ids (List[tuple[int, bool]]):
             A list of the ids and they bool value to indicate either sgoe(True) or Hide(False).
     """
-           
+
 def update_widget(
-        wid: int, 
-        param: str, 
+        wid: int,
+        param: str,
         value: any,
     ):
-    
+
     """
     Update a widget by supplying the widget id, wid, the parameter to update, 
     a class property value, and a value based on the type of value used by the widget.
@@ -1664,12 +1723,12 @@ def update_widget(
     -------
     None
     """
-    
+
 def update_widget_params(
-        wid: int, 
+        wid: int,
         updates: dict,
     ):
-    
+
     """
     Update a widget by supplying the widget id, wid, the parameter to update, 
     a class property value, and a value based on the type of value used by the widget.
@@ -1690,13 +1749,13 @@ def update_widget_params(
     -------
     None
     """
-        
+
 def update_canvas_item(
-        wid: int, 
-        param: str, 
+        wid: int,
+        param: str,
         value: any,
     ):
-    
+
     """
     Update a canvas widget by supplying the widget id, wid, the parameter to update, 
     a class property value, and a value based on the type of value used by the widget.
@@ -1720,11 +1779,11 @@ def update_canvas_item(
 
 def move_widget(
         wid: int,
-        move_after: Optional[int]=None,
-        move_before: Optional[int]=None,
-        target_parent_id: Optional[int]=None,
+        move_after: Optional[int] | None = None,
+        move_before: Optional[int] | None = None,
+        target_parent_id: Optional[int] | None = None,
     ) -> None:
-    
+
     """
     Moves a widget to another container.
 
@@ -1748,7 +1807,82 @@ def move_widget(
     -------
     None
     """
-    
+
+class Arrow:
+    """
+    The various arrows for the widgets
+    """
+    ArrowBarLeft=''
+    ArrowBarRight=''
+    ArrowBarUp=''
+    ArrowClockwise=''
+    ArrowCounterclockwise=''
+    ArrowDown=''
+    ArrowDownCircle=''
+    ArrowDownCircleFill=''
+    ArrowDownLeft=''
+    ArrowDownLeftCircle=''
+    ArrowDownLeftCircleFill=''
+    ArrowDownLeftSquare=''
+    ArrowDownLeftSquareFill=''
+    ArrowDownRight=''
+    ArrowDownRightCircle=''
+    ArrowDownRightCircleFill=''
+    ArrowDownRightSquare=''
+    ArrowDownRightSquareFill=''
+    ArrowDownShort=''
+    ArrowDownSquare=''
+    ArrowDownSquareFill=''
+    ArrowDownUp=''
+    ArrowLeft=''
+    ArrowLeftCircle=''
+    ArrowLeftCircleFill=''
+    ArrowLeftRight=''
+    ArrowLeftShort=''
+    ArrowLeftSquare=''
+    ArrowLeftSquareFill=''
+    ArrowNinezerodegDown=''
+    ArrowNinezerodegLeft=''
+    ArrowNinezerodegRight=''
+    ArrowNinezerodegUp=''
+    ArrowRepeat=''
+    ArrowReturnLeft=''
+    ArrowReturnRight=''
+    ArrowRight=''
+    ArrowRightCircle=''
+    ArrowRightCircleFill=''
+    ArrowRightShort=''
+    ArrowRightSquare=''
+    ArrowRightSquareFill=''
+    ArrowThroughHeart=''
+    ArrowThroughHeartFill=''
+    ArrowUp=''
+    ArrowUpCircle=''
+    ArrowUpCircleFill=''
+    ArrowUpLeft=''
+    ArrowUpLeftCircle=''
+    ArrowUpLeftCircleFill=''
+    ArrowUpLeftSquare=''
+    ArrowUpLeftSquareFill=''
+    ArrowUpRight=''
+    ArrowUpRightCircle=''
+    ArrowUpRightCircleFill=''
+    ArrowUpRightSquare=''
+    ArrowUpRightSquareFill=''
+    ArrowUpShort=''
+    ArrowUpSquare=''
+    ArrowUpSquareFill=''
+    Arrows=''
+    ArrowsAngleContract=''
+    ArrowsAngleExpand=''
+    ArrowsCollapse=''
+    ArrowsCollapseVertical=''
+    ArrowsExpand=''
+    ArrowsExpandVertical=''
+    ArrowsFullscreen=''
+    ArrowsMove=''
+    ArrowsVertical=''
+
 
 class ButtonParam:
     """
@@ -1868,13 +2002,28 @@ class ButtonStyleParam:
     ShadowBlurRadius:float
     TextColor:Color
     TextRgba:list[float, 4]
-    
-    
+
+
 class DrawMode:
+    """Canvas draw modes"""
     Display: str
     New: str
     Edit: str
     Rotate: str
+
+class CanvasWidget:
+    """List of canvas widget available"""
+    Arc=''
+    Bezier=''
+    Circle=''
+    Ellipse=''
+    Image=''
+    Line=''
+    Polygon=''
+    PolyLine=''
+    RightTriangle=''
+    FreeHand=''
+    Text=''
 
 
 class CanvasParam:
@@ -1911,23 +2060,10 @@ class CanvasParam:
     Widget: CanvasWidget
     Load: None
     Save: None
-    
-    
-class CanvasWidget:
-    Arc: str
-    Bezier: str
-    Circle: str
-    Ellipse: str
-    Image: str
-    Line: str
-    Polygon: str
-    PolyLine: str
-    RightTriangle: str
-    FreeHand: str
-    Text: str
 
 
 class CanvasImageParam:
+    """Canvas image parameters"""
     Position: tuple[float, float]
     Rotation: float
 
@@ -1948,6 +2084,7 @@ class CardStyleStd:
 
 
 class ChartTheme:
+    """Cahrt themes"""
     DarkTheme=''
     AntTheme=''
     VintageTheme=''
@@ -1957,13 +2094,6 @@ class ChartTheme:
     ChalkTheme=''
     GrafanaTheme=''
     ShadcnTheme=''
-    
-
-class ChartLegendCategory:
-    Normal=''
-    RoundRect=''
-    Circle=''
-    Rect=''
 
 
 class CardParam:
@@ -2186,6 +2316,7 @@ class ColorPickerStyleParam:
 
 
 class ColumnParam:
+    """Column Parameters"""
     AlignLeft: bool
     AlignCenter: bool
     AlignRight: bool
@@ -2197,9 +2328,10 @@ class ColumnParam:
     Spacing: float
     Width: float
     WidthFill: bool
-    
+
 
 class ContainerParam:
+    """Container parameters"""
     AlignBottomCenter: bool
     AlignBottomLeft: bool
     AlignBottomRight: bool
@@ -2224,6 +2356,7 @@ class ContainerParam:
 
 
 class ContainerStyleParam:
+    """Container style parameters"""
     BackgroundColor:Color
     BackgroundRgbaColor:list[float, 4]
     BorderColor:Color
@@ -2236,17 +2369,6 @@ class ContainerStyleParam:
     ShadowBlurRadius:float
     TextColor:Color
     TextRgbaColor:list[float, 4]
-    
-class ContainerStyleStd:
-    BorderedBox='',
-    Danger='',
-    Dark='',
-    Primary='',
-    RoundedBox='',
-    Secondary='',
-    Success='',
-    Transparent='',
-    Warning='',
 
 
 class DatePickerParam:
@@ -2269,7 +2391,7 @@ class DatePickerParam:
     SizeFactor: float
     Show: bool
 
-    
+
 class DividerDirection:
     """
     Direction of the divider.
@@ -2307,8 +2429,8 @@ class DividerParam:
     Sizes:list[float]
     Style:int
     Show:bool
-    
-    
+
+
 class DividerStyleParam:
     """_
     Divider style parameters
@@ -2337,8 +2459,9 @@ class DividerStyleParam:
     BorderWidth: float
     BorderRadius: float
     Transparent: bool
-    
+
 class FloatParam:
+    """Float parameters"""
     Scale: float
     Translate: list[float]
     ScaleClamped: bool
@@ -2412,34 +2535,75 @@ class ImageParam:
 
     Parameters
     ----------
+    BorderRadius: list[float, 4] | list[float]
+        Sets the border radius of the image either all corner 
+        same value [float] or independent [float,4].
+    ContentFit: ContentFit
+        Set how the image contents fits see ContentFit class.
+    CropHeight: float
+        sets the height of the crop rectangle.
+    CropWidth: float
+        Sets the crop width of the crop rectangle.
+    CropX: float
+        Sets the origin x of the crop rectangle.
+    CropY: float
+        Sets the origin y of the crop rectangle.
+    Expand: float
+        Sets whether the image should try to fill as much space
+        available as possible while keeping aspect ratio and without
+        allocating extra space in any axis.
+    FilterMethod: FilterMethod
+        Sets the filter method, see FilterMethod
+    Fill: bool
+        Sets both width_fill and length_fill.
     Height: float
         Sets the height of the widget. 
     HeightFill: bool
         Sets the height to fill the available space, overrides height.
     ImagePath: str
-        Path to where the image is.
+        Sets the path to where the image is located.
     Opacity: float
         How much opacity, 1=opaque, 0=transparent
+    Opacity: float
+        Sets the opacity of the image.
     Padding: list[float]
         The padding around the image.
+    RotationDegrees: float
+        Sets the roation of the image in degrees format.
     RotationRadians: float
         How much to rotate the image in radians.
+    RotationMethod: Rotation
+        Set the roation method, see Rotation.
+    Scale: float
+        Sets the scale factor of the Image.
+        The region of the Image drawn will be scaled from the center by the given scale factor.
     Show: bool
         Whether to show or hide the image.
     Width: float
         Width of the image.
     WidthFill: bool
-    Whether to fill the width to the available container size.
+        Whether to fill the width to the available container size.
     """
-    Height: float
+    BorderRadius: list[float, 4] | list[float]
+    ContentFit: ContentFit
+    CropHeight: float
+    CropWidth: float
+    CropX: float
+    CropY: float
+    Expand: float
+    Fill: bool
+    FilterMethod: FilterMethod
     HeightFill: bool
+    Height: float
     ImagePath: str
     Opacity: float
-    Padding: list[float]
+    RotationDegrees: float
+    RotationMethod: Rotation
     RotationRadians: float
+    Scale: float
     Show: bool
-    Width: float
     WidthFill: bool
+    Width: float
 
 
 class MenuParam:
@@ -2470,6 +2634,7 @@ class MenuParam:
 
 
 class MenuStyleParam:
+    """Menu style parameters"""
     BaseColor:Color
     BaseRgbaColor:list[float, 4]
     BorderColor:Color
@@ -2488,6 +2653,7 @@ class MenuStyleParam:
     PathBorderWidth:float
 
 class MenuBarStyleParam:
+    """Menu bar style parameters"""
     BaseColor:Color
     BaseRgbaColor:list[float, 4]
     BorderColor:Color
@@ -2501,6 +2667,7 @@ class MenuBarStyleParam:
 
 
 class MenuSeparatorStyleParam:
+    """Menu Separator style parameters"""
     SeparatorType:MenuSeparatorType
     Width:float
     WidthFill:bool
@@ -2540,17 +2707,6 @@ class MenuType:
     Line=''
     Text=''
     Toggler=''
-
-
-class MenuSeparatorType:
-    """
-    The separator types id used.
-    """
-    Circle=''
-    Dot=''
-    Label=''
-    Line=''
-
 
 class MousePointer:
     """
@@ -2738,7 +2894,7 @@ class ProgressBarStyleParam:
     BorderRgbaColor:list[float, 4]
     BorderRadius:list
     BorderWidth:float
-    
+
 
 class RadioDirection:
     """
@@ -2851,6 +3007,7 @@ class RadioStyleParam:
 
 
 class RowParam:
+    """Row parameters"""
     AlignBottom: bool
     AlignCenter: bool
     AlignTop: bool
@@ -2865,6 +3022,7 @@ class RowParam:
 
 
 class RuleStyleParam:
+    """Rule style parameters"""
     Color:Color
     RbgaColor:List[float, 4]
     BorderRadius:float
@@ -2997,6 +3155,7 @@ class ScrollableStyleParam:
 
 
 class SeparatorParam:
+    """Separator parameters"""
     DotCount: int
     DotFill: bool
     DotBorderWidth: float
@@ -3012,6 +3171,7 @@ class SeparatorParam:
 
 
 class SeparatorType:
+    """Separator types"""
     Dot=""
     Label=""
     Line=""
@@ -3054,6 +3214,7 @@ class SliderParam:
 
 
 class SliderStyleParam:
+    """Slider style parameters"""
     RailColor:Color
     RailRbgaColor:list[float, 4]
     RailColorHovered:Color
@@ -3069,8 +3230,8 @@ class SliderStyleParam:
     HandleCircleRadius:float
     HandleRectangleWidth:int
     HandleRectangleBorderRadius:list[float]
-    
-    
+
+
 class StackParam:
     """
     Stack update parameters
@@ -3081,19 +3242,6 @@ class StackParam:
         Show the top widget of the stack.
     """
     ShowStack: bool
-
-class ButtonStyleStd:
-    """
-    Standard styles for Button widget
-    """
-    Background='',
-    Danger='',
-    Primary='',
-    Secondary='',
-    Subtle='',
-    Success='',
-    Warning='',
-    Text='',
 
 
 class SvgParam:
@@ -3202,6 +3350,7 @@ class TableParam:
 
 
 class TableStyleParam:
+    """Table style parameters"""
     HeaderBackgroundColor:Color
     HeaderBackgroundRgbaColor:list[float, 4]
     HeaderBorderColor:Color
@@ -3230,12 +3379,12 @@ class TableStyleParam:
     FooterBorderWidth:float
     FooterTextColor:Color
     FooterTextRgbaColor:list[float, 4]
-    
+
     DividerBackgroundColor:Color
     DividerBackgroundRgbaColor:list[float, 4]
     DividerHoverColor:Color
     DividerHoverRgbaColor:list[float, 4]
-    
+
     ScrollerBackgroundColor:Color
     ScrollerBackgroundRgbaColor:list[float, 4]
     ScrollerHoverColor:Color
@@ -3277,6 +3426,18 @@ class TextInputParam:
     Size:float
     LineHeight:float
     StyleId:int
+
+
+class TextColorStd:
+    """
+    The standard colors for the text
+    """
+    Base=''
+    Danger=''
+    Primary=''
+    Secondary=''
+    Success=''
+    Warning=''
 
 
 class TextParam:
@@ -3360,18 +3521,6 @@ class TextParam:
     WidthFill: bool
 
 
-class TextColorStd:
-    """
-    The standard colors for the text
-    """
-    Base=''
-    Danger=''
-    Primary=''
-    Secondary=''
-    Success=''
-    Warning=''
-    
-
 class RichTextParam:
     """
     Rich text parameters for updating a rich text widget.
@@ -3436,6 +3585,7 @@ class SpanParam:
 
 
 class TextInputStyleParam:
+    """Text input style parameters"""
     BackgroundColor: Color
     BackgroundRgbaColor: list[float, 4]
     BorderColor: Color
@@ -3451,6 +3601,7 @@ class TextInputStyleParam:
 
 
 class TimerParam:
+    """Parameter for updating the timer"""
     DurationMs : int
     ArrowStyle : str
     Counter : int
@@ -3519,11 +3670,9 @@ class TimerStyleParam:
     TextColor:Color
     TextRgbaColor:list[float]
 
-class TimerParam:
-    DurationMs=''
-    Enable=''
 
 class CanvasTimerParam:
+    """Parametes for updating the canvas timer"""
     DurationMs : int
     ArrowStyle : str
     Counter : int
@@ -3540,13 +3689,7 @@ class CanvasTimerParam:
 
 
 class TogglerParam:
-    """
-    Toggler parameters
-
-    Parameters
-    ----------
-    
-    """
+    """Parameters for updating the Toggler"""
     FontId: int
     Label: str
     Show: bool
@@ -3563,6 +3706,7 @@ class TogglerParam:
 
 
 class ToolTipPosition:
+    """Parameters for tooltip positioning"""
     Bottom=""
     FollowCursor=""
     Left=""
@@ -3571,16 +3715,49 @@ class ToolTipPosition:
 
 
 class ToolTipParam:
-    ContainerStyleId='',
-    ContentId='',
-    DelaySec='',
-    Gap='',
-    Padding='',
-    Position='',
-    SnapWithinViewport='',
-    Text='',
-    
-    
+    """Params for updaing the tooltip"""
+    ContainerStyleId=''
+    ContentId=''
+    DelaySec=''
+    Gap=''
+    Padding=''
+    Position=''
+    SnapWithinViewport=''
+    Text=''
+
+class WindowLevel:
+    """The stacking order of the windows"""
+    Normal=''
+    AlwaysOnBottom=''
+    AlwaysOnTop=''
+
+
+class WindowTheme:
+    """Window themes"""
+    Dark=''
+    Light=''
+    CatppuccinLatte=''
+    CatppuccinFrappe=''
+    CatppuccinMacchiato=''
+    CatppuccinMocha=''
+    Dracula=''
+    Ferra=''
+    GruvboxLight=''
+    GruvboxDark=''
+    KanagawaWave=''
+    KanagawaDragon=''
+    KanagawaLotus=''
+    Moonfly=''
+    Nightfly=''
+    Nord=''
+    Oxocarbon=''
+    SolarizedLight=''
+    SolarizedDark=''
+    TokyoNight=''
+    TokyoNightStorm=''
+    TokyoNightLight=''
+
+
 class WindowParam:
     '''
     Parameters
@@ -3649,134 +3826,10 @@ class WindowParam:
     Theme : WindowTheme
     Title : str
     Transparent : bool
-    
-
-class WindowLevel:
-    """
-    The stacking order of the windows
-    
-    Parameters
-    ----------
-
-    Normal
-    
-    AlwaysOnBottom
-    
-    AlwaysOnTop
-    """
-    Normal=''
-    AlwaysOnBottom=''
-    AlwaysOnTop=''
 
 
-class WindowTheme:
-    """
-    Window themes
-    """
-    Dark=''
-    Light=''
-    CatppuccinLatte=''
-    CatppuccinFrappe=''
-    CatppuccinMacchiato=''
-    CatppuccinMocha=''
-    Dracula=''
-    Ferra=''
-    GruvboxLight=''
-    GruvboxDark=''
-    KanagawaWave=''
-    KanagawaDragon=''
-    KanagawaLotus=''
-    Moonfly=''
-    Nightfly=''
-    Nord=''
-    Oxocarbon=''
-    SolarizedLight=''
-    SolarizedDark=''
-    TokyoNight=''
-    TokyoNightStorm=''
-    TokyoNightLight=''
-
-
-class Arrow:
-    """
-    The various arrows for the widgets
-    """
-    ArrowBarLeft=''
-    ArrowBarRight=''
-    ArrowBarUp=''
-    ArrowClockwise=''
-    ArrowCounterclockwise=''
-    ArrowDown=''
-    ArrowDownCircle=''
-    ArrowDownCircleFill=''
-    ArrowDownLeft=''
-    ArrowDownLeftCircle=''
-    ArrowDownLeftCircleFill=''
-    ArrowDownLeftSquare=''
-    ArrowDownLeftSquareFill=''
-    ArrowDownRight=''
-    ArrowDownRightCircle=''
-    ArrowDownRightCircleFill=''
-    ArrowDownRightSquare=''
-    ArrowDownRightSquareFill=''
-    ArrowDownShort=''
-    ArrowDownSquare=''
-    ArrowDownSquareFill=''
-    ArrowDownUp=''
-    ArrowLeft=''
-    ArrowLeftCircle=''
-    ArrowLeftCircleFill=''
-    ArrowLeftRight=''
-    ArrowLeftShort=''
-    ArrowLeftSquare=''
-    ArrowLeftSquareFill=''
-    ArrowNinezerodegDown=''
-    ArrowNinezerodegLeft=''
-    ArrowNinezerodegRight=''
-    ArrowNinezerodegUp=''
-    ArrowRepeat=''
-    ArrowReturnLeft=''
-    ArrowReturnRight=''
-    ArrowRight=''
-    ArrowRightCircle=''
-    ArrowRightCircleFill=''
-    ArrowRightShort=''
-    ArrowRightSquare=''
-    ArrowRightSquareFill=''
-    ArrowThroughHeart=''
-    ArrowThroughHeartFill=''
-    ArrowUp=''
-    ArrowUpCircle=''
-    ArrowUpCircleFill=''
-    ArrowUpLeft=''
-    ArrowUpLeftCircle=''
-    ArrowUpLeftCircleFill=''
-    ArrowUpLeftSquare=''
-    ArrowUpLeftSquareFill=''
-    ArrowUpRight=''
-    ArrowUpRightCircle=''
-    ArrowUpRightCircleFill=''
-    ArrowUpRightSquare=''
-    ArrowUpRightSquareFill=''
-    ArrowUpShort=''
-    ArrowUpSquare=''
-    ArrowUpSquareFill=''
-    Arrows=''
-    ArrowsAngleContract=''
-    ArrowsAngleExpand=''
-    ArrowsCollapse=''
-    ArrowsCollapseVertical=''
-    ArrowsExpand=''
-    ArrowsExpandVertical=''
-    ArrowsFullscreen=''
-    ArrowsMove=''
-    ArrowsVertical=''
- 
- 
 class Color:
-    """
-    The standard colors available
-    """
+    """The standard colors available"""
     PRIMARY=''
     SUCCESS=''
     DANGER=''
@@ -3936,6 +3989,7 @@ class Color:
     YELLOW_GREEN=''
 
 class Icon:
+    """Icon types"""
     Alarm = ...
     AlarmFill = ...
     AlignBottom = ...
@@ -5137,4 +5191,3 @@ class Icon:
     Youtube = ...
     ZoomIn = ...
     ZoomOut = ...
-

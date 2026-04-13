@@ -1,12 +1,7 @@
-from icedpygui import Window, Container, Column, Row, Grid, start_session, \
-    add_button, add_space, add_text, add_text_input, \
-    add_event_timer, ContainerParam as cp, ContainerStyleStd as std, TimerParam, \
-    update_widget, update_timer, GridParam, ButtonParam, TextParam
-
-import json, os, re
-from dataclasses import dataclass
-
+#!/usr/bin/env python3
 """
+Grid use demo
+
 Just to make a demo more interesting, this grid demo is the
 Jeopardy game.  
 
@@ -34,18 +29,32 @@ Probably not completely debugged but it seems to work well.
 Have fun!
 
 """
+import json
+import os
+import re
+import sys
+from dataclasses import dataclass
+from icedpygui import Window, Container, Column, Row, Grid, start_session, \
+    add_button, add_space, add_text, add_text_input, \
+    add_event_timer, ContainerParam as cp, ContainerStyleStd as std, TimerParam, \
+    update_widget, update_timer, ButtonParam, TextParam
 
-with open(os.path.join(os.path.dirname(__file__), "resources", "jeopardy", "answers.json")) as f:
+
+with open(os.path.join(
+    os.path.dirname(__file__),
+    "resources", "jeopardy", "answers.json"), 
+    encoding="utf-8") as f:
     answers = json.load(f)
 
 
 @dataclass
-class Pdy:
+class Jdy:
+    """Jeopardy data class"""
     grid_width: float = 900.0
     columns: int = 6
     cell_width: float = grid_width/columns
     cell_height = 120.0
-    
+
     categories = answers["categories"]
     cat_list = list(categories.values())
     num_rows = len(cat_list[0])
@@ -54,11 +63,11 @@ class Pdy:
     answer_id: int = 0
     question_id: int = 0
     timer_id: int = 0
-    
+
     row: int = 0
     col: int = 0
     value: int = 0
-    
+
     p1_score: int = 0
     p2_score: int = 0
     p1_turn: bool = True
@@ -67,48 +76,50 @@ class Pdy:
     p2_score_id: int = 0
     p1_cont_score_id: int = 0
     p2_cont_score_id: int = 0
-    
+
     timer_running: bool = False
     timer: int = 10
-    
-
 
 
 def value_pressed(btn_id: int, data: tuple[int, int, int, int, int]):
-    if not Pdy.timer_running:
-        Pdy.timer_running = True
+    """Callback for when any value on the grid is pressed"""
+    if not Jdy.timer_running:
+        Jdy.timer_running = True
         ans_id = data[0]
         update_widget(btn_id, ButtonParam.Show, False)
         update_widget(ans_id, TextParam.Show, True)
-        update_timer(Pdy.timer_id, TimerParam.Enable, True)
-        Pdy.value_id = btn_id
-        Pdy.answer_id = ans_id
-        Pdy.question_id = data[1]
-        Pdy.row = data[2]
-        Pdy.col = data[3]
-        Pdy.value = data[4]
-    
+        update_timer(Jdy.timer_id, TimerParam.Enable, True)
+        Jdy.value_id = btn_id
+        Jdy.answer_id = ans_id
+        Jdy.question_id = data[1]
+        Jdy.row = data[2]
+        Jdy.col = data[3]
+        Jdy.value = data[4]
 
-def on_tick(_timer_id: int, tick_count: int, elapsed_ms: int):
-    if tick_count > Pdy.timer:
-        update_widget(wid=txt_time, param=TextParam.Content, value=f"15")
-        Pdy.timer_running = False
-        update_widget(Pdy.answer_id, TextParam.Show, False)
-        update_widget(Pdy.value_id, ButtonParam.Show, True)
-        update_timer(Pdy.timer_id, TimerParam.Enable, False)
-        Pdy.value_id = 0
+
+def on_tick(_timer_id: int, tick_count: int, _elapsed_ms: int):
+    """Callback for when timmer ticks"""
+    if tick_count > Jdy.timer:
+        update_widget(wid=txt_time, param=TextParam.Content, value=f"{Jdy.timer}")
+        Jdy.timer_running = False
+        update_widget(Jdy.answer_id, TextParam.Show, False)
+        update_widget(Jdy.value_id, ButtonParam.Show, True)
+        update_timer(Jdy.timer_id, TimerParam.Enable, False)
+        Jdy.value_id = 0
     else:
-        update_widget(wid=txt_time, param=TextParam.Content, 
-                  value=f"{Pdy.timer - tick_count}")
+        update_widget(wid=txt_time, param=TextParam.Content,
+                  value=f"{Jdy.timer - tick_count}")
 
 
-def on_stop(_timer_id: int, tick_count: int, elapsed_ms: int):
-    update_widget(txt_time, TextParam.Content, f"15")
+def on_stop(_timer_id: int, _tick_count: int, _elapsed_ms: int):
+    """Callback for when timer stops"""
+    update_widget(txt_time, TextParam.Content, f"{Jdy.timer}")
 
 
-Pdy.timer_id = add_event_timer(duration_ms=1000, on_tick=on_tick, on_stop=on_stop)
+Jdy.timer_id = add_event_timer(duration_ms=1000, on_tick=on_tick, on_stop=on_stop)
 
 def normalize(text: str) -> str:
+    """Stripping common compoents from the answers and questions"""
     text = text.lower().strip().rstrip("?").strip()
     text = re.sub(r"^(what\s+is|what's)\s+(a|an|the)?\s*", "", text)
     text = re.sub(r"\bor\b", "", text)
@@ -116,6 +127,7 @@ def normalize(text: str) -> str:
     return text.strip()
 
 def compare(actual: str, player: str) -> bool:
+    """Does a simple comparison for the correct answer"""
     actual_words = set(actual.lower().split())
     player_words = set(player.lower().split())
     if not actual_words:
@@ -124,102 +136,110 @@ def compare(actual: str, player: str) -> bool:
     return len(matches) / len(actual_words) >= 0.5
 
 
-def what_is(input_id: int, value: str):
-    if not Pdy.timer_running:
+def what_is(_input_id: int, val: str):
+    """Calbback that displays the answer"""
+    if not Jdy.timer_running:
         return
-    Pdy.timer_running = False
-    expected = Pdy.cat_list[Pdy.col][Pdy.row]["question"]
-    results = compare(normalize(expected), normalize(value))
+    Jdy.timer_running = False
+    expected = Jdy.cat_list[Jdy.col][Jdy.row]["question"]
+    results = compare(normalize(expected), normalize(val))
     if  results :
-        if Pdy.p1_turn:
-            Pdy.p1_score += Pdy.value
-            update_widget(Pdy.p1_score_id, TextParam.Content, f"{Pdy.p1_score}")
-        elif Pdy.p2_turn:
-            Pdy.p2_score += Pdy.value
-            update_widget(Pdy.p2_score_id, TextParam.Content, f"{Pdy.p2_score}")
-        else: 
-            print("P1 and P2 turns both set to False")
-            quit()
-        update_widget(Pdy.question_id, TextParam.Show, True)
-        update_widget(Pdy.answer_id, TextParam.Show, False)
-        update_timer(Pdy.timer_id, TimerParam.Enable, False)
-    
-    else:
-        if Pdy.p1_turn:
-            Pdy.p1_score -= Pdy.value
-            update_widget(Pdy.p1_score_id, TextParam.Content, f"{Pdy.p1_score}")
-        elif Pdy.p2_turn:
-            Pdy.p2_score -= Pdy.value
-            update_widget(Pdy.p2_score_id, TextParam.Content, f"{Pdy.p2_score}")
+        if Jdy.p1_turn:
+            Jdy.p1_score += Jdy.value
+            update_widget(Jdy.p1_score_id, TextParam.Content, f"{Jdy.p1_score}")
+        elif Jdy.p2_turn:
+            Jdy.p2_score += Jdy.value
+            update_widget(Jdy.p2_score_id, TextParam.Content, f"{Jdy.p2_score}")
         else:
             print("P1 and P2 turns both set to False")
-            quit()
-        update_widget(Pdy.answer_id, TextParam.Show, False)
-        update_widget(Pdy.value_id, ButtonParam.Show, True)
-        update_timer(Pdy.timer_id, TimerParam.Enable, False)
-        
-        # wrong answer so switch players
-        Pdy.p1_turn = not Pdy.p1_turn
-        Pdy.p2_turn = not Pdy.p2_turn
+            sys.exit()()
+        update_widget(Jdy.question_id, TextParam.Show, True)
+        update_widget(Jdy.answer_id, TextParam.Show, False)
+        update_timer(Jdy.timer_id, TimerParam.Enable, False)
 
-        if Pdy.p1_turn:
-            update_widget(Pdy.p1_cont_score_id, cp.StyleStd, std.Primary)
-            update_widget(Pdy.p2_cont_score_id, cp.StyleStd, std.Transparent)
+    else:
+        if Jdy.p1_turn:
+            Jdy.p1_score -= Jdy.value
+            update_widget(Jdy.p1_score_id, TextParam.Content, f"{Jdy.p1_score}")
+        elif Jdy.p2_turn:
+            Jdy.p2_score -= Jdy.value
+            update_widget(Jdy.p2_score_id, TextParam.Content, f"{Jdy.p2_score}")
         else:
-            update_widget(Pdy.p1_cont_score_id, cp.StyleStd, std.Transparent)
-            update_widget(Pdy.p2_cont_score_id, cp.StyleStd, std.Primary)
+            print("P1 and P2 turns both set to False")
+            quit()
+        update_widget(Jdy.answer_id, TextParam.Show, False)
+        update_widget(Jdy.value_id, ButtonParam.Show, True)
+        update_timer(Jdy.timer_id, TimerParam.Enable, False)
+
+        # wrong answer so switch players
+        Jdy.p1_turn = not Jdy.p1_turn
+        Jdy.p2_turn = not Jdy.p2_turn
+
+        if Jdy.p1_turn:
+            update_widget(Jdy.p1_cont_score_id, cp.StyleStd, std.Primary)
+            update_widget(Jdy.p2_cont_score_id, cp.StyleStd, std.Transparent)
+        else:
+            update_widget(Jdy.p1_cont_score_id, cp.StyleStd, std.Transparent)
+            update_widget(Jdy.p2_cont_score_id, cp.StyleStd, std.Primary)
 
 
 
 with Window(title="Jeopardy", center=True):
     with Container(fill=True, align_center=True):
         with Column(spacing=3.0):
-            
             with Row(spacing=3.0):
-                for cat in Pdy.categories:
-                    with Container(width=Pdy.cell_width-2.8, height=50, align_center=True, style_std=std.Secondary):
-                        add_text(content=cat, width=Pdy.cell_width, align_center=True)
-            
+                for cat in Jdy.categories:
+                    with Container(width=Jdy.cell_width-2.8,
+                                   height=50,
+                                   align_center=True,
+                                   style_std=std.Secondary):
+                        add_text(content=cat, width=Jdy.cell_width, align_center=True)
+
             # Grid only needs width and the number of columns, spacing is optional
-            # Treat it just like a container and put whatever you want into each cell 
-            with Grid(width=Pdy.grid_width, columns_amount=Pdy.columns, spacing=3.0):
+            # Treat it just like a container and put whatever you want into each cell
+            with Grid(width=Jdy.grid_width, columns_amount=Jdy.columns, spacing=3.0):
                 # typical row/column iteration
-                for row in range(Pdy.num_rows):
-                    for col in range(Pdy.columns):
-                        item = Pdy.cat_list[col][row]
-                        with Container(style_std=std.Primary, height=Pdy.cell_height, width=Pdy.cell_width, align_center=True):
+                for row in range(Jdy.num_rows):
+                    for col in range(Jdy.columns):
+                        item = Jdy.cat_list[col][row]
+                        with Container(style_std=std.Primary,
+                                       height=Jdy.cell_height,
+                                       width=Jdy.cell_width,
+                                       align_center=True):
                             with Column():
                                 # question
                                 qst_id = add_text(content=item["question"], show=False)
-                                
+
                                 # answer
-                                ans_id = add_text(content=item["answer"], show=False)
-                                
+                                txt_id = add_text(content=item["answer"], show=False)
+
                                 # value button
                                 value = 200 * (row + 1)
                                 value_id = add_button(
-                                            label=str(f"${value}"), 
+                                            label=str(f"${value}"),
                                             on_press=value_pressed,
-                                            user_data=(ans_id, qst_id, row, col, value))
-            
-            add_space(height=10)                
+                                            user_data=(txt_id, qst_id, row, col, value))
+
+            add_space(height=10)
             with Row():
                 # This is styled because P1 starts first
                 # When it's P2's turn, then the styles are updated
-                with Container(width=175, style_std=std.Primary) as Pdy.p1_cont_score_id:
+                with Container(width=175, style_std=std.Primary) as Jdy.p1_cont_score_id:
                     with Row():
                         add_text(content="Player 1 Score: ")
-                        Pdy.p1_score_id = add_text(content=f"{Pdy.p1_score}", width=150)
+                        Jdy.p1_score_id = add_text(content=f"{Jdy.p1_score}", width=150)
                 add_space(width=20)
-                with Container(width=175) as Pdy.p2_cont_score_id:
+                with Container(width=175) as Jdy.p2_cont_score_id:
                     with Row():
                         add_text(content="Player 2 Score: ")
-                        Pdy.p2_score_id = add_text(content=f"{Pdy.p1_score}", width=150)
+                        Jdy.p2_score_id = add_text(content=f"{Jdy.p1_score}", width=150)
                 add_space(width=20)
                 add_text(content="time: ")
-                txt_time = add_text(content=f"{Pdy.timer}", width=30)
+                txt_time = add_text(content=f"{Jdy.timer}", width=30)
                 add_space(width=20)
                 add_text(content="What is ")
-                add_text_input(placeholder="Type Question, then enter", width=400, on_submit=what_is)            
-                
+                add_text_input(placeholder="Type Question, then enter",
+                               width=400,
+                               on_submit=what_is)
+
 start_session()

@@ -1,29 +1,37 @@
+#!/usr/bin/env python3
+"""
+Timer use demo
+"""
+
 from icedpygui import Window, Column, Container,\
     add_event_timer, add_button, update_timer, add_text, start_session,\
-    IpgTimerParam, IpgTextParam, update_widget
+    TimerParam, TextParam, update_widget
 
 
 def on_start(_timer_id: int, tick_count: int, elapsed_ms: int):
-    update_widget(wid=txt_id, param=IpgTextParam.Content, 
+    """Callback by timer when started"""
+    update_widget(wid=txt_id, param=TextParam.Content,
                   value=f"Timer started: tick_count={tick_count}, elapsed_ms={elapsed_ms}")
 
 def on_tick(_timer_id: int, tick_count: int, elapsed_ms: int):
-    update_widget(wid=txt_id, param=IpgTextParam.Content, 
+    """Callback by timer on each tick"""
+    update_widget(wid=txt_id, param=TextParam.Content,
                   value=f"ticking {tick_count} elapsed_ms={elapsed_ms}")
 
 def on_stop(_timer_id: int, tick_count: int, elapsed_ms: int):
-    update_widget(wid=txt_id, param=IpgTextParam.Content, 
+    """Callback by timer when stopped"""
+    update_widget(wid=txt_id, param=TextParam.Content,
                   value=f"Timer stopped: tick_count={tick_count}, elapsed_ms={elapsed_ms}")
 
-timer_id = add_event_timer(duration_ms=1000, on_start=on_start, on_tick=on_tick, on_stop=on_stop)
-
 def start_timer(_btn_id):
-    update_timer(wid=timer_id, param=IpgTimerParam.Enable, value=True)
+    """Callback via button to update enable the timer"""
+    update_timer(wid=timer_id, param=TimerParam.Enable, value=True)
 
 def stop_timer(_btn_id):
-    update_timer(wid=timer_id, param=IpgTimerParam.Enable, value=False)
-    
-    
+    """Callback vua button to disable the timer"""
+    update_timer(wid=timer_id, param=TimerParam.Enable, value=False)
+
+timer_id = add_event_timer(duration_ms=1000, on_start=on_start, on_tick=on_tick, on_stop=on_stop)
 
 # Add a window
 with Window(title="Timer Demo", center=True):
@@ -39,11 +47,10 @@ with Window(title="Timer Demo", center=True):
             add_button(
                 label="Press to Stop Timer",
                 on_press=stop_timer)
-            
-            txt_id = add_text(content="Timer data")        
+
+            txt_id = add_text(content="Timer data")
 
 
 # Required to be the last widget sent to Iced,  If you start the program
 # and nothing happens, it might mean you forgot to add this command.
 start_session()
-

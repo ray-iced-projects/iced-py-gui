@@ -4,12 +4,8 @@ use crate::app::Message;
 use crate::widgets::enums::ContentFit;
 use crate::widgets::enums::Rotation;
 use crate::widgets::widget_param_update::WidgetParamUpdate;
-use crate::widgets::widget_param_update::set_bool;
-use crate::widgets::widget_param_update::set_height;
-use crate::widgets::widget_param_update::set_opt_f32;
-use crate::widgets::widget_param_update::set_opt_iced_color;
-use crate::widgets::widget_param_update::set_string;
-use crate::widgets::widget_param_update::set_width;
+use crate::widgets::widget_param_update::set_t_value;
+
 
 use iced::{Length, Element};
 use iced::widget;
@@ -86,15 +82,15 @@ impl WidgetParamUpdate for Svg {
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
-            SvgParam::ColorFilter => set_opt_iced_color(&mut self.color_filter, value, "ColorFilter"),
-            SvgParam::ContentFit => self.content_fit = ContentFit::extract(value),
-            SvgParam::Height => set_height(&mut self.height, value, "Height"),
-            SvgParam::Opacity => set_opt_f32(&mut self.opacity, value, "Opacity"),
-            SvgParam::RotationRadians => set_opt_f32(&mut self.rotation_radians, value, "RotationRadians"),
-            SvgParam::RotationType => self.rotation_type = Rotation::extract(value),
-            SvgParam::Show => set_bool(&mut self.show, value, "Show"),
-            SvgParam::SvgPath => set_string(&mut self.svg_path, value, "SvgPath"),
-            SvgParam::Width => set_width(&mut self.width, value, "Width"),
+            SvgParam::ColorFilter => todo!(),
+            SvgParam::ContentFit => todo!(),
+            SvgParam::Height => todo!(),
+            SvgParam::Opacity => set_t_value(&mut self.opacity, value, "Opacity"),
+            SvgParam::RotationRadians => set_t_value(&mut self.rotation_radians, value, "RotationRadians"),
+            SvgParam::RotationType => todo!(),
+            SvgParam::Show => set_t_value(&mut self.show, value, "Show"),
+            SvgParam::SvgPath => set_t_value(&mut self.svg_path, value, "SvgPath"),
+            SvgParam::Width => todo!(),
         }
     }
 }

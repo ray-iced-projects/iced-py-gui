@@ -170,12 +170,12 @@ def _resolve_parent_id(parent_id):
     if isinstance(parent_id, int):
         try:
             return _id_to_container_str[parent_id]
-        except KeyError:
+        except KeyError as exc:
             raise ValueError(
                 f"parent_id={parent_id} is not a known container id. "
                 "Use the value returned by a container context manager "
                 "(e.g. 'with Column() as col')."
-            )
+            ) from exc
     return parent_id
 
 
@@ -233,7 +233,8 @@ def _wrap_container(rust_fn, name):
             parent_id = _current_parent()
         if parent_id is not None:
             parent_id = _resolve_parent_id(parent_id)
-        return rust_fn(window_id=window_id, container_id=container_id, parent_id=parent_id, **kwargs)
+        return rust_fn(window_id=window_id, container_id=container_id,
+                       parent_id=parent_id, **kwargs)
     wrapper.__name__ = name
     wrapper.__qualname__ = name
     return wrapper
@@ -283,6 +284,7 @@ class Window:
     def __init__(self, *, window_id=None, **kwargs):
         self.window_id = window_id if window_id is not None else str(generate_id())
         self.kwargs = kwargs
+        self.numeric_id = 0
 
     def __enter__(self):
         self.numeric_id = add_window(window_id=self.window_id, **self.kwargs)
@@ -303,6 +305,7 @@ class Card:
         self.container_id = container_id if container_id is not None else str(generate_id())
         self.parent_id = parent_id
         self.kwargs = kwargs
+        self.numeric_id = 0
 
     def __enter__(self):
         pid = self.parent_id or _current_parent()
@@ -332,6 +335,7 @@ class Container:
         self.container_id = container_id if container_id is not None else str(generate_id())
         self.parent_id = parent_id
         self.kwargs = kwargs
+        self.numeric_id = 0
 
     def __enter__(self):
         pid = self.parent_id or _current_parent()
@@ -362,6 +366,7 @@ class Column:
         self.container_id = container_id if container_id is not None else str(generate_id())
         self.parent_id = parent_id
         self.kwargs = kwargs
+        self.numeric_id = 0
 
     def __enter__(self):
         pid = self.parent_id or _current_parent()
@@ -391,6 +396,7 @@ class Float:
         self.container_id = container_id if container_id is not None else str(generate_id())
         self.parent_id = parent_id
         self.kwargs = kwargs
+        self.numeric_id = 0
 
     def __enter__(self):
         pid = self.parent_id or _current_parent()
@@ -409,8 +415,7 @@ class Float:
     def __exit__(self, exc_type, exc_val, exc_tb):
         _parent_stack.pop()
         return False
-    
-    
+
 class Grid:
     """Wrapper for add_column"""
     def __init__(self, *, container_id=None, window_id=None, parent_id=None, **kwargs):
@@ -421,6 +426,7 @@ class Grid:
         self.container_id = container_id if container_id is not None else str(generate_id())
         self.parent_id = parent_id
         self.kwargs = kwargs
+        self.numeric_id = 0
 
     def __enter__(self):
         pid = self.parent_id or _current_parent()
@@ -439,7 +445,7 @@ class Grid:
     def __exit__(self, exc_type, exc_val, exc_tb):
         _parent_stack.pop()
         return False
-    
+
 class Menu:
     """Wrapper for add_menu"""
     def __init__(self, *, container_id=None, window_id=None, parent_id=None, **kwargs):
@@ -450,6 +456,7 @@ class Menu:
         self.container_id = container_id if container_id is not None else str(generate_id())
         self.parent_id = parent_id
         self.kwargs = kwargs
+        self.numeric_id = 0
 
     def __enter__(self):
         pid = self.parent_id or _current_parent()
@@ -479,6 +486,7 @@ class MenuBarItem:
         self.container_id = container_id if container_id is not None else str(generate_id())
         self.parent_id = parent_id
         self.kwargs = kwargs
+        self.numeric_id = 0
 
     def __enter__(self):
         pid = self.parent_id or _current_parent()
@@ -508,6 +516,7 @@ class MouseArea:
         self.container_id = container_id if container_id is not None else str(generate_id())
         self.parent_id = parent_id
         self.kwargs = kwargs
+        self.numeric_id = 0
 
     def __enter__(self):
         pid = self.parent_id or _current_parent()
@@ -537,6 +546,7 @@ class Opaque:
         self.container_id = container_id if container_id is not None else str(generate_id())
         self.parent_id = parent_id
         self.kwargs = kwargs
+        self.numeric_id = 0
 
     def __enter__(self):
         pid = self.parent_id or _current_parent()
@@ -555,7 +565,7 @@ class Opaque:
     def __exit__(self, exc_type, exc_val, exc_tb):
         _parent_stack.pop()
         return False
-    
+
 class Row:
     """Wrapper for add_row"""
     def __init__(self, *, container_id=None, window_id=None, parent_id=None, **kwargs):
@@ -566,6 +576,7 @@ class Row:
         self.container_id = container_id if container_id is not None else str(generate_id())
         self.parent_id = parent_id
         self.kwargs = kwargs
+        self.numeric_id = 0
 
     def __enter__(self):
         pid = self.parent_id or _current_parent()
@@ -595,6 +606,7 @@ class Stack:
         self.container_id = container_id if container_id is not None else str(generate_id())
         self.parent_id = parent_id
         self.kwargs = kwargs
+        self.numeric_id = 0
 
     def __enter__(self):
         pid = self.parent_id or _current_parent()
@@ -625,6 +637,7 @@ class Scrollable:
         self.container_id = container_id if container_id is not None else str(generate_id())
         self.parent_id = parent_id
         self.kwargs = kwargs
+        self.numeric_id = 0
 
     def __enter__(self):
         pid = self.parent_id or _current_parent()
@@ -654,6 +667,7 @@ class ToolTip:
         self.container_id = container_id if container_id is not None else str(generate_id())
         self.parent_id = parent_id
         self.kwargs = kwargs
+        self.numeric_id = 0
 
     def __enter__(self):
         pid = self.parent_id or _current_parent()
@@ -672,4 +686,3 @@ class ToolTip:
     def __exit__(self, exc_type, exc_val, exc_tb):
         _parent_stack.pop()
         return False
-    

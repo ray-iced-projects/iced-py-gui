@@ -40,8 +40,6 @@ from .icedpygui import (
     CardParam as CardParam,
     CardStyleParam as CardStyleParam,
     CardStyleStd as CardStyleStd,
-    ContainerStyleStd as ContainerStyleStd,
-    ContentFit,
     CheckboxParam as CheckboxParam,
     CheckboxStyleStd as CheckboxStyleStd,
     CheckboxStyleParam as CheckboxStyleParam,
@@ -49,6 +47,8 @@ from .icedpygui import (
     ColumnParam as ColumnParam,
     ContainerParam as ContainerParam,
     ContainerStyleParam as ContainerStyleParam,
+    ContainerStyleStd as ContainerStyleStd,
+    ContentFit as ContentFit,
     DatePickerParam as DatePickerParam,
     DividerDirection as DividerDirection,
     DividerParam as DividerParam,
@@ -344,7 +344,7 @@ def add_image(
         
     Args::
         path: str
-        Sets the path to where the image is located.
+            Sets the path to where the image is located.
         parent_id: str, Optional
             Set the parent_id, if needed.
         border_radius: list[float, 4] | list[float], Optional

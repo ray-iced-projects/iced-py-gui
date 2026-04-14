@@ -21,7 +21,7 @@ use crate::widgets::ipg_color_picker::{ColPikMessage, color_picker_callback};
 use crate::widgets::ipg_date_picker::{DPMessage, date_picker_update};
 use crate::widgets::ipg_divider::{DivMessage, divider_callback};
 use crate::widgets::ipg_events::{process_keyboard_events, process_mouse_events, process_touch_events, process_window_event};
-use crate::widgets::ipg_mouse_area::{construct_mousearea, mousearea_callback, mousearea_callback_point};
+use crate::widgets::ipg_mouse_area::{MaMessage, mousearea_callback};
 use crate::widgets::ipg_opaque;
 use crate::widgets::ipg_pick_list::{PLMessage, construct_picklist, pick_list_callback};
 use crate::widgets::ipg_progress_bar::construct_progress_bar;
@@ -54,6 +54,7 @@ pub enum Message {
     EventWindow((window::Id, Event)),
     EventTouch(Event),
 //     // Modal(usize, ModalMessage),
+    MouseArea(usize, MaMessage),
     PickList(usize, PLMessage),
     Radio(usize, RDMessage),
     Scrolled(scrollable::Viewport, usize),
@@ -72,16 +73,6 @@ pub enum Message {
 //     CanvasTimer(usize, CanvasTimerMessage),
     FontLoaded(Result<(), font::Error>),
     WindowOpened(window::Id, Option<Point>, Size),
-
-    MouseAreaOnPress(usize),
-    MouseAreaOnRelease(usize),
-    MouseAreaOnRightPress(usize),
-    MouseAreaOnRightRelease(usize),
-    MouseAreaOnMiddlePress(usize),
-    MouseAreaOnMiddleRelease(usize),
-    MouseAreaOnEnter(usize),
-    MouseAreaOnMove(Point, usize),
-    MouseAreaOnExit(usize),
 
 }
 
@@ -143,7 +134,6 @@ impl App {
         
         let window_opt = self.state.containers.get(&ipg_window_id);
         let ipg_window = get_window_container(window_opt);
-
         ipg_window.title.clone().unwrap_or("".to_string())
     }
 
@@ -221,56 +211,8 @@ impl App {
                 process_widget_updates(&mut self.state); //, &mut self.canvas_state);
                 Task::none()
             },
-            Message::MouseAreaOnPress(id) => {
-                mousearea_callback(&mut self.state, id, "on_press".to_string());
-                // process_updates(&mut self.state, &mut self.canvas_state);
-                process_widget_updates(&mut self.state);
-                Task::none()
-            },
-            Message::MouseAreaOnRelease(id) => {
-                mousearea_callback(&mut self.state, id, "on_release".to_string());
-                // process_updates(&mut self.state, &mut self.canvas_state);
-                process_widget_updates(&mut self.state);
-                Task::none()
-            },
-            Message::MouseAreaOnRightPress(id) => {
-                mousearea_callback(&mut self.state, id, "on_right_press".to_string());
-                // process_updates(&mut self.state, &mut self.canvas_state);
-                process_widget_updates(&mut self.state);
-                Task::none()
-            },
-            Message::MouseAreaOnRightRelease(id) => {
-                mousearea_callback(&mut self.state, id, "on_right_release".to_string());
-                // process_updates(&mut self.state, &mut self.canvas_state);
-                process_widget_updates(&mut self.state);
-                Task::none()
-            },
-            Message::MouseAreaOnMiddlePress(id) => {
-                mousearea_callback(&mut self.state, id, "on_middle_press".to_string());
-                // process_updates(&mut self.state, &mut self.canvas_state);
-                process_widget_updates(&mut self.state);
-                Task::none()
-            },
-            Message::MouseAreaOnMiddleRelease(id) => {
-                mousearea_callback(&mut self.state, id, "on_middle_release".to_string());
-                // process_updates(&mut self.state, &mut self.canvas_state);
-                process_widget_updates(&mut self.state);
-                Task::none()
-            },
-            Message::MouseAreaOnEnter(id) => {
-                mousearea_callback(&mut self.state, id, "on_enter".to_string());
-                // process_updates(&mut self.state, &mut self.canvas_state);
-                process_widget_updates(&mut self.state);
-                Task::none()
-            },
-            Message::MouseAreaOnMove(point, id) => {
-                mousearea_callback_point(&mut self.state, id, point, "on_move".to_string());
-                // process_updates(&mut self.state, &mut self.canvas_state);
-                process_widget_updates(&mut self.state);
-                Task::none()
-            },
-            Message::MouseAreaOnExit(id) => {
-                mousearea_callback(&mut self.state, id, "on_exit".to_string());
+            Message::MouseArea(id, message) => {
+                mousearea_callback(id, message);
                 // process_updates(&mut self.state, &mut self.canvas_state);
                 process_widget_updates(&mut self.state);
                 Task::none()
@@ -731,7 +673,7 @@ fn get_container<'a>(state: &'a IpgState,
                 //     construct_modal(modal, content)
                 // },
                 Containers::MouseArea(m_area) => {
-                    construct_mousearea(m_area, content)
+                    m_area.construct(content)
                 },
                 Containers::Opaque(op) => {
                     op.construct(content)

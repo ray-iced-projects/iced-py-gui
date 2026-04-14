@@ -41,9 +41,10 @@ def on_enter(ma_id, user_data):
     print("entered", ma_id, user_data)
 
 
-def on_move(ma_id: int, point: dict, _user_data):
+def on_move(ma_id: int, point: tuple[float, float], _user_data):
     """OnMove callback"""
-    print("on move", ma_id, point)
+    x, y = point
+    print("on move", ma_id, x, y)
 
 
 def on_exit(ma_id, _user_data):

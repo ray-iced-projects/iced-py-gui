@@ -58,9 +58,8 @@ use crate::widgets::ipg_mouse_area::{MouseArea, MousePointer};
 #[pyo3(signature = (
     window_id, 
     container_id, 
-    parent_id=None, 
-    gen_id=None, 
-    show=true, 
+    parent_id=None,
+    enabled=None, 
     mouse_pointer=None,
     on_press=None, 
     on_release=None,
@@ -77,8 +76,7 @@ pub fn add_mouse_area(
     window_id: String,
     container_id: String,
     parent_id: Option<String>,
-    gen_id: Option<usize>,
-    show: bool,
+    enabled: Option<bool>,
     mouse_pointer: Option<MousePointer>,
     on_press: Option<PyObject>,
     on_release: Option<PyObject>,
@@ -92,7 +90,7 @@ pub fn add_mouse_area(
     user_data: Option<PyObject>,
     ) -> PyResult<usize>
 {
-    let id = get_id(gen_id);
+    let id = get_id(None);
 
     let prt_id = match parent_id {
         Some(id) => id,
@@ -104,7 +102,7 @@ pub fn add_mouse_area(
     }
     
     if let Some(py) = on_release {
-        add_callback_to_mutex(id, "event_name".to_string(), py);
+        add_callback_to_mutex(id, "on_release".to_string(), py);
     }
     
     if let Some(py) = on_right_press {
@@ -149,7 +147,7 @@ pub fn add_mouse_area(
         MouseArea {
             id,
             mouse_pointer,  
-            show, 
+            enabled, 
         }));
 
     drop(state);

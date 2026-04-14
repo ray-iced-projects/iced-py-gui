@@ -1,18 +1,24 @@
+#!/usr/bin/env python3
+"""
+Card use demo
+"""
 from icedpygui import Window, Container, Column, \
-    Card, CardParam, add_card, CardStyleStd, \
+    Card, CardParam, CardStyleStd, \
     add_button, ButtonParam, ButtonStyleStd, TextParam, \
     add_separator, add_text, update_widget, start_session
 
-
+state = {"card_id": 0}
 
 # The callback will minimizes the first card, the button at the bottom left will maximize it.
 def minimize_card(card_id: int):
+    """Card callback to minimize the card"""
     update_widget(card_id, CardParam.IsOpen, False)
     update_widget(btn_id, ButtonParam.Show, True)
     update_widget(instr_id, TextParam.Show, False)
 
-def maximize_card(btn_id: int):
-    update_widget(card_id, CardParam.IsOpen, True)
+def maximize_card(_btn_id: int):
+    """Button callback to maximize the card"""
+    update_widget(state["card_id"], CardParam.IsOpen, True)
     update_widget(btn_id, ButtonParam.Show, False)
     update_widget(instr_id, TextParam.Show, True)
 
@@ -33,28 +39,28 @@ with Window(title="Card Demo", center=True):
                 padding=[5],
                 style_std=CardStyleStd.Success,
                 on_close=minimize_card
-                ) as card_id:
-                
-                add_text(content="Card") 
+                ) as state["card_id"]:
+
+                add_text(content="Card")
                 add_text(content="This is the body of the card.")
 
                 with Column(width_fill=True, height=30):
                     add_separator(line_length=300)
                     add_text(content="Foot content")
-            
+
             # add the button but make show=False
             # The button can go anyplace you like,
             # you can make it unhidden all the time
-            # and just change the label, let your 
+            # and just change the label, let your
             # imagination go wild :)
             btn_id = add_button(
-                label="Open Card", 
+                label="Open Card",
                 show=False,
                 padding=[10],
                 on_press=maximize_card,
                 style_std=ButtonStyleStd.Success)
-        
-                
+
+
 # Required to be the last widget sent to Iced,  If you start the program
 # and nothing happens, it might mean you forgot to add this command.
 start_session()

@@ -52,6 +52,32 @@ impl Image {
             return None
         }
 
+        if !std::path::Path::new(&self.path).exists() {
+            eprintln!("[WARNING] Image path '{}' does not exist", self.path);
+            return None
+        }
+
+        let valid_extensions = ["png", "jpg", "jpeg", "gif", "bmp", "ico",
+            "tiff", "tif", "webp", "avif", "pnm", "dds", "tga", "exr",
+            "ff", "farbfeld", "qoi"];
+        let ext = std::path::Path::new(&self.path)
+            .extension()
+            .and_then(|e| e.to_str())
+            .map(|e| e.to_lowercase());
+        match &ext {
+            Some(e) if valid_extensions.contains(&e.as_str()) => {}
+            _ => {
+                eprintln!(
+                    "[WARNING] Image path '{}' has unsupported extension '{}'.\n\
+                     Supported formats: {:?}",
+                    self.path,
+                    ext.as_deref().unwrap_or("none"),
+                    valid_extensions
+                );
+                return None
+            }
+        }
+
         let img: widget::Image<image::Handle> = 
             widget::Image::<image::Handle>::new(self.path.clone())
                 .width(get_len(self.fill, self.width_fill, self.width))
@@ -64,10 +90,7 @@ impl Image {
             let x = self.crop_x.unwrap_or(0);
             let y = self.crop_y.unwrap_or(0);
             img.crop(Rectangle { x, y, width: w, height: h })
-        } else {
-            eprint!("[WARNING] Either crop_width or crop_height image cropping is a None value so the cropping was not performed");
-            img
-        };
+        } else { img };
 
         let img = if let Some(br) = &self.border_radius {
             img.border_radius(get_radius(br, "image".to_string()))
@@ -86,10 +109,7 @@ impl Image {
                 img.rotation(r.to_iced(Some(d.to_radians())))
             } else if let Some(rad) = self.rotation_radians {
                 img.rotation(r.to_iced(Some(rad)))
-            } else {
-                eprint!("[WARNING] Rotation not performed since radians or degrees were not supplied");
-                img
-            }
+            } else { img }
         } else { img };
 
         let img = if let Some(op) = self.opacity {

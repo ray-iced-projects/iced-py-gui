@@ -42,6 +42,7 @@ pub fn start_session() -> PyResult<()> {
         .subscription(App::subscription)
         .theme(App::theme)
         .scale_factor(App::scale_factor)
+        .title(App::title)
         .run();
     
     Ok(())

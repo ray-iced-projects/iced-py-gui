@@ -14,6 +14,88 @@ type PyObject = Py<PyAny>;
 
 
 
+/// Add a menu widget.
+///
+/// A horizontal menu bar with dropdown menus.  Each top-level bar
+/// widget and its dropdown items are grouped inside a ``MenuBarItem``
+/// context manager.  The first child of each ``MenuBarItem`` is
+/// rendered on the bar; the remaining children become dropdown items.
+///
+/// Parameters
+/// ----------
+/// window_id : str
+///     Sets the window this menu belongs to.
+/// container_id : str
+///     Sets the unique string identifier for the menu.
+/// parent_id : str, Optional
+///     Sets the parent container ID.  Defaults to the window itself.
+/// item_offsets : list of float, Optional
+///     Sets the horizontal offset of each dropdown relative to its
+///     bar item.  A single value applies to all items.
+/// item_paddings : list of float, Optional
+///     Sets the padding inside each dropdown item.  A single value
+///     applies to all items.
+/// item_spacings : list of float, Optional
+///     Sets the vertical spacing between dropdown items.  A single
+///     value applies to all menus.
+/// items_close_on_click : list[bool | None], Optional
+///     Per-dropdown override for closing when an item is clicked.
+///     Supply one entry per dropdown (use ``None`` to fall through
+///     to the global default).  Highest priority after per-Item.
+/// items_close_on_background_click : list[bool | None], Optional
+///     Per-dropdown override for closing when the background is
+///     clicked.  Supply one entry per dropdown (use ``None`` to
+///     fall through to the global default).
+/// items_close_on_click_global : bool, Optional
+///     Global default for closing dropdowns on item click.  Used
+///     when neither the per-Item nor per-dropdown value is set.
+///     Defaults to ``False``.
+/// items_close_on_background_click_global : bool, Optional
+///     Global default for closing dropdowns on background click.
+///     Used when neither the per-Item nor per-dropdown value is
+///     set.  Defaults to ``False``.
+/// item_widths : list of float, Optional
+///     Sets the width of each dropdown menu.  A single value applies
+///     to all menus.
+/// bar_height : float, Optional
+///     Sets the fixed height of the menu bar in logical pixels.
+/// bar_paddings : list of float, Optional
+///     Sets the padding inside the menu bar as ``[all]``,
+///     ``[vertical, horizontal]``, or
+///     ``[top, right, bottom, left]``.
+/// bar_spacing : float, Optional
+///     Sets the horizontal spacing between bar items.
+/// bar_width : float, Optional
+///     Sets the fixed width of the menu bar in logical pixels.
+/// close_on_bar_item_click : bool, Optional
+///     Whether the dropdown closes when a menu bar item is clicked.
+/// close_on_bar_background_click : bool, Optional
+///     Whether the dropdown closes when clicking outside the menu bar.
+/// cursor_bounds_margin: float, Optional
+///     Sets the margine where, If the cursor moves outside this area, 
+///     the menu will be closed.
+/// scroll_speed_line: float, Optional,
+/// scroll_speed_pixel: float, Optional,
+/// on_select : callable, Optional
+///     Sets the callback method to invoke when a menu item is
+///     selected.
+/// style_id : int, Optional
+///     Sets the ID of a custom style created with
+///     ``add_menu_style``.
+/// style_std_primary : bool, Optional
+///     Whether to use the primary standard style.
+/// show : bool, default True
+///     Whether the menu is visible.
+/// user_data : Any, Optional
+///     Sets arbitrary data forwarded to callbacks.
+/// gen_id : int, Optional
+///     Obtains an ID of a widget that have not been created, used
+///     for the gen_id parameter.
+///
+/// Returns
+/// -------
+/// int
+///     The numeric widget ID of the newly created menu.
 #[pyfunction]
 #[pyo3(signature = ( 
     window_id,
@@ -23,12 +105,19 @@ type PyObject = Py<PyAny>;
     item_paddings=None,
     item_spacings=None,
     item_widths=None,
+    items_close_on_click=None,
+    items_close_on_background_click=None,
+    items_close_on_click_global=None,
+    items_close_on_background_click_global=None,
     bar_height=None,
     bar_paddings=None,
     bar_spacing=None,
     bar_width=None,
-    close_on_item_click=None,
-    close_on_background_click=None,
+    close_on_bar_item_click=None,
+    close_on_bar_background_click=None,
+    cursor_bounds_margin=None,
+    scroll_speed_line=None,
+    scroll_speed_pixel=None,
     on_select=None,
     style_id=None,
     style_std_primary=None,
@@ -44,12 +133,19 @@ pub fn add_menu(
     item_paddings: Option<Vec<f32>>,
     item_spacings: Option<Vec<f32>>,
     item_widths: Option<Vec<f32>>,
+    items_close_on_click: Option<Vec<Option<bool>>>,
+    items_close_on_background_click: Option<Vec<Option<bool>>>,
+    items_close_on_click_global: Option<bool>,
+    items_close_on_background_click_global: Option<bool>,
     bar_height: Option<f32>,
     bar_paddings: Option<Vec<f32>>,
     bar_spacing: Option<f32>,
     bar_width: Option<f32>,
-    close_on_item_click: Option<bool>,
-    close_on_background_click: Option<bool>,
+    close_on_bar_item_click: Option<bool>,
+    close_on_bar_background_click: Option<bool>,
+    cursor_bounds_margin: Option<f32>,
+    scroll_speed_line: Option<f32>,
+    scroll_speed_pixel: Option<f32>,
     on_select: Option<PyObject>,
     style_id: Option<usize>,
     style_std_primary: Option<bool>,
@@ -123,15 +219,21 @@ pub fn add_menu(
             item_paddings,
             item_spacings,
             item_widths,
+            items_close_on_click,
+            items_close_on_background_click,
+            items_close_on_click_global,
+            items_close_on_background_click_global,
             bar_height,
             bar_paddings,
             bar_spacing,
             bar_width,
-            close_on_item_click,
-            close_on_background_click,
+            close_on_bar_item_click,
+            close_on_bar_background_click,
             style_id,
             style_std_primary,
-            check_bounds_width: None,
+            cursor_bounds_margin,
+            scroll_speed_line,
+            scroll_speed_pixel,
             show,
             is_checked: false,
             is_toggled: false,
@@ -142,6 +244,101 @@ pub fn add_menu(
 }
 
 
+/// Add styling to a menu.
+///
+/// Creates a custom style that can be applied to a menu via its
+/// ``style_id`` parameter.  The style has three sections: **bar**
+/// (the horizontal menu bar), **menu** (the dropdown panels), and
+/// **path** (the highlighted trail from bar item to open menu).
+///
+/// Parameters
+/// ----------
+/// bar_background_color : Color, Optional
+///     Sets the bar background color.
+/// bar_background_rgba : list[float, 4], Optional
+///     Sets the bar background color in rgba format.
+/// bar_background_alpha : float, Optional
+///     Sets the alpha transparency for the bar background color.
+/// bar_border_color : Color, Optional
+///     Sets the bar border color.
+/// bar_border_rgba : list[float, 4], Optional
+///     Sets the bar border color in rgba format.
+/// bar_border_alpha : float, Optional
+///     Sets the alpha transparency for the bar border color.
+/// bar_border_radius : list of float, Optional
+///     Sets the bar border radius, ``[float]`` = all corners,
+///     ``[float, 4]`` = [top-left, top-right, bottom-right,
+///     bottom-left].
+/// bar_border_width : float, Optional
+///     Sets the bar border width.
+/// bar_shadow_color : Color, Optional
+///     Sets the bar shadow color.
+/// bar_shadow_rgba : list[float, 4], Optional
+///     Sets the bar shadow color in rgba format.
+/// bar_shadow_alpha : float, Optional
+///     Sets the alpha transparency for the bar shadow color.
+/// bar_shadow_offset_xy : list[float, 2], Optional
+///     Sets the bar shadow offset as [x, y].
+/// bar_shadow_blur_radius : float, Optional
+///     Sets the bar shadow blur radius.
+/// menu_background_color : Color, Optional
+///     Sets the dropdown menu background color.
+/// menu_background_rgba : list[float, 4], Optional
+///     Sets the dropdown menu background color in rgba format.
+/// menu_background_alpha : float, Optional
+///     Sets the alpha transparency for the dropdown menu
+///     background color.
+/// menu_border_color : Color, Optional
+///     Sets the dropdown menu border color.
+/// menu_border_rgba : list[float, 4], Optional
+///     Sets the dropdown menu border color in rgba format.
+/// menu_border_alpha : float, Optional
+///     Sets the alpha transparency for the dropdown menu border
+///     color.
+/// menu_border_radius : list of float, Optional
+///     Sets the dropdown menu border radius, ``[float]`` = all
+///     corners, ``[float, 4]`` = [top-left, top-right,
+///     bottom-right, bottom-left].
+/// menu_border_width : float, Optional
+///     Sets the dropdown menu border width.
+/// menu_shadow_color : Color, Optional
+///     Sets the dropdown menu shadow color.
+/// menu_shadow_rgba : list[float, 4], Optional
+///     Sets the dropdown menu shadow color in rgba format.
+/// menu_shadow_alpha : float, Optional
+///     Sets the alpha transparency for the dropdown menu shadow
+///     color.
+/// menu_shadow_offset_xy : list[float, 2], Optional
+///     Sets the dropdown menu shadow offset as [x, y].
+/// menu_shadow_blur_radius : float, Optional
+///     Sets the dropdown menu shadow blur radius.
+/// path_background_color : Color, Optional
+///     Sets the path highlight background color.
+/// path_background_rgba : list[float, 4], Optional
+///     Sets the path highlight background color in rgba format.
+/// path_background_alpha : float, Optional
+///     Sets the alpha transparency for the path background color.
+/// path_border_color : Color, Optional
+///     Sets the path highlight border color.
+/// path_border_rgba : list[float, 4], Optional
+///     Sets the path highlight border color in rgba format.
+/// path_border_alpha : float, Optional
+///     Sets the alpha transparency for the path border color.
+/// path_border_radius : list of float, Optional
+///     Sets the path highlight border radius, ``[float]`` = all
+///     corners, ``[float, 4]`` = [top-left, top-right,
+///     bottom-right, bottom-left].
+/// path_border_width : float, Optional
+///     Sets the path highlight border width.
+/// gen_id : int, Optional
+///     Obtains an ID of a widget that have not been created, used
+///     for the gen_id parameter.
+///
+/// Returns
+/// -------
+/// int
+///     The numeric style ID to pass as ``style_id`` to
+///     ``add_menu``.
 #[pyfunction]
 #[pyo3(signature = (
     bar_background_color=None,
@@ -308,6 +505,30 @@ pub fn add_menu_style(
 }
 
 
+/// Add a menu bar item container.
+///
+/// Groups a bar-level widget with its dropdown items.  The first
+/// child added inside the ``MenuBarItem`` is rendered on the menu
+/// bar; all subsequent children become dropdown items.
+///
+/// Parameters
+/// ----------
+/// window_id : str
+///     Sets the window this menu bar item belongs to.
+/// container_id : str
+///     Sets the unique string identifier for the menu bar item.
+/// parent_id : str, Optional
+///     Sets the parent container ID.  Defaults to the window itself.
+/// show : bool, default True
+///     Whether the menu bar item is visible.
+/// gen_id : int, Optional
+///     Obtains an ID of a widget that have not been created, used
+///     for the gen_id parameter.
+///
+/// Returns
+/// -------
+/// int
+///     The numeric widget ID of the newly created menu bar item.
 #[pyfunction]
 #[pyo3(signature = ( 
     window_id,

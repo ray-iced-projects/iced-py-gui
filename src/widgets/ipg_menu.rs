@@ -5,11 +5,11 @@
 use std::collections::HashMap;
 
 use iced::{Element, Length, Renderer, Theme, border};
-use iced_aw::{MenuBar, menu::{DrawPath, Item}};
+use iced_aw::{MenuBar, menu::{DrawPath, Item, ScrollSpeed}};
 use iced_aw::menu;
 use crate::{app, py_api::helpers::get_padding, 
 state::Widgets, widgets::{styling::{apply_border_overrides, apply_shadow_overrides_xy}, widget_param_update::{
-    WidgetParamUpdate, set_bool, set_height, set_height_fill, set_opt_f32, set_opt_f32_array_2, set_opt_iced_color, set_opt_iced_color_from_rgba, set_opt_vec_f32_1_or_upto_4, set_vec_f32, set_width
+    WidgetParamUpdate, set_bool, set_height, set_height_fill, set_opt_f32, set_opt_f32_array_2, set_opt_iced_color, set_opt_iced_color_from_rgba, set_opt_vec_f32_1_or_upto_4, set_t_value, set_vec_f32, set_width
 }}};
 
 
@@ -26,15 +26,21 @@ pub struct Menu {
     pub item_paddings: Vec<f32>,
     pub item_spacings: Vec<f32>,
     pub item_widths: Vec<Length>,
+    pub items_close_on_click: Option<Vec<Option<bool>>>,
+    pub items_close_on_background_click: Option<Vec<Option<bool>>>,
+    pub items_close_on_click_global: Option<bool>,
+    pub items_close_on_background_click_global: Option<bool>,
     pub bar_height: Length,
     pub bar_paddings: Vec<f32>,
     pub bar_spacing: Option<f32>,
     pub bar_width: Length,
-    pub close_on_item_click: Option<bool>,
-    pub close_on_background_click: Option<bool>,
+    pub close_on_bar_item_click: Option<bool>,
+    pub close_on_bar_background_click: Option<bool>,
     pub style_id: Option<usize>,
     pub style_std_primary: Option<bool>,
-    pub check_bounds_width: Option<f32>,
+    pub cursor_bounds_margin: Option<f32>,
+    pub scroll_speed_line: Option<f32>,
+    pub scroll_speed_pixel: Option<f32>,
     pub show: bool,
     pub is_checked: bool,
     pub is_toggled: bool,
@@ -78,7 +84,19 @@ impl Menu {
             self.item_spacings.clone()
         };
 
-        let mut actual_index = 0usize;
+        let items_close_on_click = if let Some(icoc) = &self.items_close_on_click {
+            icoc.clone()
+        } else {
+            vec![None; grouped_content.len()]
+        };
+
+        let items_close_on_background_click = if let Some(icobc) = &self.items_close_on_background_click {
+            icobc.clone()
+        } else {
+            vec![None; grouped_content.len()]
+        };
+
+        let mut index = 0usize;
         
         for (_bar_index, mut group) in grouped_content.into_iter().enumerate() {
             if group.is_empty() {
@@ -93,35 +111,44 @@ impl Menu {
                 .map(|el| Item::new(el))
                 .collect();
 
-            let menu_tpl = 
-            |items| iced_aw::Menu::new(items)
+            let mut menu = iced_aw::Menu::new(items)
                 //.max_width(100.0)
-                .spacing(item_spacings[actual_index])
-                .width(item_widths[actual_index])
-                .offset(item_offsets[actual_index])
-                .padding(get_padding(&Some(self.item_paddings.clone())))
-                .close_on_item_click(self.close_on_item_click.unwrap_or_default())
-                .close_on_background_click(self.close_on_background_click.unwrap_or_default());
+                .spacing(item_spacings[index])
+                .width(item_widths[index])
+                .offset(item_offsets[index])
+                .padding(get_padding(&Some(self.item_paddings.clone())));
+
+            if let Some(v) = items_close_on_click[index] {
+                menu = menu.close_on_item_click(v);
+            }
+            if let Some(v) = items_close_on_background_click[index] {
+                menu = menu.close_on_background_click(v);
+            }
             
             let bar_item = 
                 Item::with_menu(
                     menu_bar, 
-                    menu_tpl(items)
+                    menu
                     );
-            actual_index += 1;
+            index += 1;
             bar_items.push(bar_item);
             
         }
         
-        let mb: MenuBar<'a, app::Message, Theme, Renderer> = 
+        let mut mb: MenuBar<'a, app::Message, Theme, Renderer> = 
             MenuBar::new(bar_items)
-                .close_on_item_click(self.close_on_item_click.unwrap_or(false))
-                .close_on_background_click(self.close_on_background_click.unwrap_or(false))
-                .draw_path(DrawPath::Backdrop)
+                .close_on_item_click_global(self.items_close_on_click_global.unwrap_or_default())
+                .close_on_background_click_global(self.items_close_on_background_click_global.unwrap_or_default())
+                .draw_path(DrawPath::FakeHovering)
                 .spacing(self.bar_spacing.unwrap_or(0.0))
                 .padding(get_padding(&Some(self.bar_paddings.clone())))
                 .width(self.bar_width)
                 .height(self.bar_height)
+                .safe_bounds_margin(self.cursor_bounds_margin.unwrap_or(50.0))
+                .scroll_speed(ScrollSpeed{
+                    line: self.scroll_speed_line.unwrap_or(60.0),
+                    pixel: self.scroll_speed_pixel.unwrap_or(1.0)
+                })
                 .style(move |theme: &Theme, _| {
                     if let Some(st) = &style_opt {
                         st.to_iced(theme, self.style_std_primary)
@@ -131,6 +158,13 @@ impl Menu {
                         primary(theme)
                     }
                 });
+
+        if let Some(v) = self.close_on_bar_item_click {
+            mb = mb.close_on_item_click(v);
+        }
+        if let Some(v) = self.close_on_bar_background_click {
+            mb = mb.close_on_background_click(v);
+        }
 
         mb.into()
     }
@@ -260,7 +294,9 @@ pub enum MenuParam {
     BarPadding,
     BarSpacing,
     BarWidth,
-    CheckBoundsWidth,
+    CursorBoundsMargin,
+    ScrollSpeedLine,
+    ScrollSpeedPixel,
     Show,
 }
 
@@ -321,7 +357,9 @@ impl WidgetParamUpdate for Menu {
             MenuParam::BarPadding => set_vec_f32(&mut self.bar_paddings, value, "BarPadding"),
             MenuParam::BarSpacing => set_opt_f32(&mut self.bar_spacing, value, "BarSpacing"),
             MenuParam::BarWidth => set_width(&mut self.bar_width, value, "BarWidth"),
-            MenuParam::CheckBoundsWidth => set_opt_f32(&mut self.check_bounds_width, value, "CheckBoundsWidth"),
+            MenuParam::CursorBoundsMargin => set_opt_f32(&mut self.cursor_bounds_margin, value, "CheckBoundsMargin"),
+            MenuParam::ScrollSpeedLine => set_t_value(&mut self.scroll_speed_line, value, "MenuParam::ScrollSpeedLine"),
+            MenuParam::ScrollSpeedPixel => set_t_value(&mut self.scroll_speed_pixel, value, "MenuParam::ScrollSpeedPixel"),
             MenuParam::Show => set_bool(&mut self.show, value, "Show"),
         }
     }

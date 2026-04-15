@@ -12,72 +12,70 @@ use crate::widgets::ipg_button::{Button,
     ButtonStyle, ButtonStyleStd};
 
 
-///"""
-///Adds a button widget.
-///A clickable button used for some gui action.
-/// 
-///Parameters
-///----------
-///parent_id : str, Optional
-///    Sets the parent container ID that this button belongs to.
-///label : str,  Optional
-///    Sets the Text label displayed on the button.
-///on_press : callable,  Optional
-///    Sets the Callback method to invoke when the button is pressed.
-///width : float,  Optional
-///    Sets the Fixed Width in logical pixels.
-///width_fill : bool, default False
-///    Whether the button fills available width.
-///height : float,  Optional
-///    Sets the Fixed Height in logical pixels.
-///height_fill : bool, default False
-///    Whether the button fills available height.
-///fill : bool, Optional
-///    Whether the button fills available width and height.
-///padding : list of float,  Optional
-///    Sets the Padding as [all], [vertical, horizontal], or
-///    [top, right, bottom, left].
-///text_top_left : bool,  Optional
-///    Whether to Align the label to the top-left.
-///text_top_center : bool,  Optional
-///    Whether to Align the label to the top-centre.
-///text_top_right : bool,  Optional
-///    Whether to Align the label to the top-right.
-///text_center_left : bool,  Optional
-///    Whether to Align the label to the centre-left.
-///text_center : bool,  Optional
-///    Whether to Align the label to the centre (default True).
-///text_center_right : bool,  Optional
-///    Whether to Align the label to the centre-right.
-///text_bottom_left : bool,  Optional
-///    Whether to Align the label to the bottom-left.
-///text_bottom_center : bool,  Optional
-///    Whether to Align the label to the bottom-centre.
-///text_bottom_right : bool,  Optional
-///    Whether to Align the label to the bottom-right.
-///text_size : float,  Optional
-///    Sets the Font size for the label text.
-/// if_menu_btn: bool, Optional
-///     Whether the button is used in the menu widget, effects the alignment.
-///clip : bool,  Optional
-///    Whether to clip content that overflows the button.
-///style_id : int,  Optional
-///    Stes the ID of a custom style created with ``add_button_style``.
-///style_std : ButtonStyleStd,  Optional
-///    Sets the a predefined standard style variant.
-///style_arrow : Arrow,  Optional
-///    Sets an arrow icon style for the button.
-///user_data : Any,  Optional
-///    Sets an arbitrary data forwarded to callbacks.
-///show : bool, default True
-///    Whether the button is visible.
-///gen_id : int,  Optional
-///    Obtains an ID of a widget that have not been created, used for the gen_id parameter.
-///Returns
-///-------
-///int
+/// Adds a button widget.
+/// A clickable button used for some gui action.
+///  
+/// Parameters
+/// ----------
+/// parent_id : str, Optional
+///     Sets the parent container ID that this button belongs to.
+/// label : str,  Optional
+///     Sets the Text label displayed on the button.
+/// on_press : callable,  Optional
+///     Sets the Callback method to invoke when the button is pressed.
+/// width : float,  Optional
+///     Sets the Fixed Width in logical pixels.
+/// width_fill : bool, default False
+///     Whether the button fills available width.
+/// height : float,  Optional
+///     Sets the Fixed Height in logical pixels.
+/// height_fill : bool, default False
+///     Whether the button fills available height.
+/// fill : bool, Optional
+///     Whether the button fills available width and height.
+/// padding : list of float,  Optional
+///     Sets the Padding as [all], [vertical, horizontal], or
+///     [top, right, bottom, left].
+/// text_top_left : bool,  Optional
+///     Whether to Align the label to the top-left.
+/// text_top_center : bool,  Optional
+///     Whether to Align the label to the top-centre.
+/// text_top_right : bool,  Optional
+///     Whether to Align the label to the top-right.
+/// text_center_left : bool,  Optional
+///     Whether to Align the label to the centre-left.
+/// text_center : bool,  Optional
+///     Whether to Align the label to the centre (default True).
+/// text_center_right : bool,  Optional
+///     Whether to Align the label to the centre-right.
+/// text_bottom_left : bool,  Optional
+///     Whether to Align the label to the bottom-left.
+/// text_bottom_center : bool,  Optional
+///     Whether to Align the label to the bottom-centre.
+/// text_bottom_right : bool,  Optional
+///     Whether to Align the label to the bottom-right.
+/// text_size : float,  Optional
+///     Sets the Font size for the label text.
+///  if_menu_btn: bool, Optional
+///      Whether the button is used in the menu widget, effects the alignment.
+/// clip : bool,  Optional
+///     Whether to clip content that overflows the button.
+/// style_id : int,  Optional
+///     Stes the ID of a custom style created with ``add_button_style``.
+/// style_std : ButtonStyleStd,  Optional
+///     Sets the a predefined standard style variant.
+/// style_arrow : Arrow,  Optional
+///     Sets an arrow icon style for the button.
+/// user_data : Any,  Optional
+///     Sets an arbitrary data forwarded to callbacks.
+/// show : bool, default True
+///     Whether the button is visible.
+/// gen_id : int,  Optional
+///     Obtains an ID of a widget that have not been created, used for the gen_id parameter.
+/// Returns
+/// -------
+/// int
 ///    The numeric widget ID of the newly created button.
-///"""
 #[pyfunction]
 #[pyo3(signature = (
     parent_id,

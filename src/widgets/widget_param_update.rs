@@ -127,7 +127,7 @@ pub fn container_param_update(
         Containers::Table(w) => apply_update(w, item, value),
         Containers::ToolTip(w) => apply_update(w, item, value),
         Containers::Window(w) => apply_update(w, item, value),
-        Containers::MenuBarItem(_) => panic!("MenuBarItem does not support param_update"),
+        Containers::MenuBarItem(w) => apply_update(w, item, value),
     }
 }
 

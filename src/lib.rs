@@ -80,7 +80,7 @@ use crate::widgets::ipg_date_picker::DatePickerParam;
 use crate::widgets::ipg_divider::{DividerDirection, DividerParam, DividerStyleParam};
 use crate::widgets::ipg_float::FloatParam;
 use crate::widgets::ipg_grid::GridParam;
-use crate::widgets::ipg_menu::{MenuParam, MenuStyleParam};
+use crate::widgets::ipg_menu::{MenuBarItemParam, MenuParam, MenuStyleParam};
 use crate::widgets::ipg_pick_list::PickListHandle;
 use crate::widgets::ipg_radio::{RadioDirection, RadioParam, RadioStyleParam};
 use crate::widgets::ipg_row::RowParam;
@@ -232,6 +232,7 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<DividerParam>()?;
     m.add_class::<ImageParam>()?;
     m.add_class::<MenuParam>()?;
+    m.add_class::<MenuBarItemParam>()?;
     m.add_class::<RadioParam>()?;
     m.add_class::<RowParam>()?;
     m.add_class::<RuleParam>()?;

@@ -4,7 +4,6 @@ use pyo3::prelude::*;
 use pyo3::{Py, PyAny, pyfunction};
 
 use crate::graphics::colors::Color;
-use crate::py_api::helpers::get_length;
 use crate::widgets::ipg_menu::{Menu, MenuBarItem, MenuStyle};
 use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex};
 use crate::state::{Containers, Widgets, get_id, set_state_cont_wnd_ids, set_state_of_container};
@@ -12,7 +11,7 @@ type PyObject = Py<PyAny>;
 
 
 
-
+///"""
 /// Add a menu widget.
 ///
 /// A horizontal menu bar with dropdown menus.  Each top-level bar
@@ -40,16 +39,18 @@ type PyObject = Py<PyAny>;
 ///     Global default for closing dropdowns on background click.
 ///     Used when neither the per-Item nor per-dropdown value is
 ///     set.  Defaults to ``False``.
-/// bar_height : float, Optional
+/// height : float, Optional
 ///     Sets the fixed height of the menu bar in logical pixels.
-/// bar_paddings : list of float, Optional
+/// padding : list of float, Optional
 ///     Sets the padding inside the menu bar as ``[all]``,
 ///     ``[vertical, horizontal]``, or
 ///     ``[top, right, bottom, left]``.
-/// bar_spacing : float, Optional
+/// spacing : float, Optional
 ///     Sets the horizontal spacing between bar items.
-/// bar_width : float, Optional
+/// width : float, Optional
 ///     Sets the fixed width of the menu bar in logical pixels.
+/// width_fill : bool, Optional
+///     Whether to fill the width of a container holding the menu bar.
 /// close_on_bar_item_click : bool, Optional
 ///     Whether the dropdown closes when a menu bar item is clicked.
 /// close_on_bar_background_click : bool, Optional
@@ -58,7 +59,13 @@ type PyObject = Py<PyAny>;
 ///     Sets the margin where, if the cursor moves outside this area,
 ///     the menu will be closed.
 /// scroll_speed_line: float, Optional
+///     The speed of the scrolling when items are out of the screen or container.
+///     The default is 60 lines which is 1 notch of the mouse wheel.
 /// scroll_speed_pixel: float, Optional
+///     The scroll_speed_pixels is only for Trackpads and high-precision scroll
+///     wheels that report exact pixel deltas.
+///     Laptops with trackpads typically produce this. The pixel multiplier
+///     (default 1.0) is usually used but you can change if you want.
 /// on_select : callable, Optional
 ///     Sets the callback method to invoke when a menu item is
 ///     selected.
@@ -79,25 +86,27 @@ type PyObject = Py<PyAny>;
 /// -------
 /// int
 ///     The numeric widget ID of the newly created menu.
+/// """
 #[pyfunction]
 #[pyo3(signature = ( 
     window_id,
     container_id,
     parent_id=None,
-    items_close_on_click_global=None,
-    items_close_on_background_click_global=None,
-    bar_height=None,
-    bar_paddings=None,
-    bar_spacing=None,
-    bar_width=None,
+    padding=None,
+    spacing=None,
+    width=None,
+    width_fill=None,
+    height=None,
     close_on_bar_item_click=None,
     close_on_bar_background_click=None,
+    items_close_on_click_global=None,
+    items_close_on_background_click_global=None,
     cursor_bounds_margin=None,
     scroll_speed_line=None,
     scroll_speed_pixel=None,
     on_select=None,
     style_id=None,
-    style_std_primary=None,
+    style_primary=None,
     show=true, 
     user_data=None, 
     gen_id=None
@@ -106,20 +115,21 @@ pub fn add_menu(
     window_id: String,
     container_id: String,
     parent_id: Option<String>,
-    items_close_on_click_global: Option<bool>,
-    items_close_on_background_click_global: Option<bool>,
-    bar_height: Option<f32>,
-    bar_paddings: Option<Vec<f32>>,
-    bar_spacing: Option<f32>,
-    bar_width: Option<f32>,
+    padding: Option<Vec<f32>>,
+    spacing: Option<f32>,
+    width: Option<f32>,
+    width_fill: Option<bool>,
+    height: Option<f32>,
     close_on_bar_item_click: Option<bool>,
     close_on_bar_background_click: Option<bool>,
+    items_close_on_click_global: Option<bool>,
+    items_close_on_background_click_global: Option<bool>,
     cursor_bounds_margin: Option<f32>,
     scroll_speed_line: Option<f32>,
     scroll_speed_pixel: Option<f32>,
     on_select: Option<PyObject>,
     style_id: Option<usize>,
-    style_std_primary: Option<bool>,
+    style_primary: Option<bool>,
     show: bool,
     user_data: Option<PyObject>,
     gen_id: Option<usize>,
@@ -135,15 +145,6 @@ pub fn add_menu(
         add_user_data_to_mutex(id, py);
     }
 
-    let bar_height = get_length(bar_height, false);
-    let bar_width = get_length(bar_width, false);
-
-    let bar_paddings = if let Some(pads) = bar_paddings {
-        pads
-    } else {
-        vec![0.0]
-    };
-
     let prt_id = match parent_id {
         Some(id) => id,
         None => window_id.clone(),
@@ -158,22 +159,21 @@ pub fn add_menu(
     state.containers.insert(id, Containers::Menu(
         Menu {
             id,
-            items_close_on_click_global,
-            items_close_on_background_click_global,
-            bar_height,
-            bar_paddings,
-            bar_spacing,
-            bar_width,
+            padding,
+            spacing,
+            width,
+            width_fill,
+            height,
             close_on_bar_item_click,
             close_on_bar_background_click,
+            items_close_on_click_global,
+            items_close_on_background_click_global,
             style_id,
-            style_std_primary,
+            style_primary,
             cursor_bounds_margin,
             scroll_speed_line,
             scroll_speed_pixel,
             show,
-            is_checked: false,
-            is_toggled: false,
         }));
 
     drop(state);
@@ -279,78 +279,88 @@ pub fn add_menu(
 #[pyfunction]
 #[pyo3(signature = (
     bar_background_color=None,
+    bar_background_color_alpha=None,
     bar_background_rgba=None,
-    bar_background_alpha=None,
+    
     bar_border_color=None,
+    bar_border_color_alpha=None,
     bar_border_rgba=None,
-    bar_border_alpha=None,
     bar_border_radius=None,
     bar_border_width=None,
+
     bar_shadow_color=None,
+    bar_shadow_color_alpha=None,
     bar_shadow_rgba=None,
-    bar_shadow_alpha=None,
     bar_shadow_offset_xy=None,
     bar_shadow_blur_radius=None,
 
     menu_background_color=None,
+    menu_background_color_alpha=None,
     menu_background_rgba=None,
-    menu_background_alpha=None,
+    
     menu_border_color=None,
+    menu_border_color_alpha=None,
     menu_border_rgba=None,
-    menu_border_alpha=None,
     menu_border_radius=None,
     menu_border_width=None,
+
     menu_shadow_color=None,
+    menu_shadow_color_alpha=None,
     menu_shadow_rgba=None,
-    menu_shadow_alpha=None,
     menu_shadow_offset_xy=None,
     menu_shadow_blur_radius=None,
 
     path_background_color=None,
+    path_background_color_alpha=None,
     path_background_rgba=None,
-    path_background_alpha=None,
+    
     path_border_color=None,
+    path_border_color_alpha=None,
     path_border_rgba=None,
-    path_border_alpha=None,
     path_border_radius=None,
     path_border_width=None,
 
     gen_id=None))]
 pub fn add_menu_style(
     bar_background_color: Option<Color>,
+    bar_background_color_alpha: Option<f32>,
     bar_background_rgba: Option<[f32; 4]>,
-    bar_background_alpha: Option<f32>,
+    
     bar_border_color: Option<Color>,
+    bar_border_color_alpha: Option<f32>,
     bar_border_rgba: Option<[f32; 4]>,
-    bar_border_alpha: Option<f32>,
     bar_border_radius: Option<Vec<f32>>,
     bar_border_width: Option<f32>,
+    
     bar_shadow_color: Option<Color>,
+    bar_shadow_color_alpha: Option<f32>,
     bar_shadow_rgba: Option<[f32; 4]>,
-    bar_shadow_alpha: Option<f32>,
     bar_shadow_offset_xy: Option<[f32; 2]>,
     bar_shadow_blur_radius: Option<f32>,
 
     menu_background_color: Option<Color>,
+    menu_background_color_alpha: Option<f32>,
     menu_background_rgba: Option<[f32; 4]>,
-    menu_background_alpha: Option<f32>,
+    
     menu_border_color: Option<Color>,
+    menu_border_color_alpha: Option<f32>,
     menu_border_rgba: Option<[f32; 4]>,
-    menu_border_alpha: Option<f32>,
     menu_border_radius: Option<Vec<f32>>,
     menu_border_width: Option<f32>,
+    
     menu_shadow_color: Option<Color>,
+    menu_shadow_color_alpha: Option<f32>,
     menu_shadow_rgba: Option<[f32; 4]>,
-    menu_shadow_alpha: Option<f32>,
     menu_shadow_offset_xy: Option<[f32; 2]>,
     menu_shadow_blur_radius: Option<f32>,
 
     path_background_color: Option<Color>,
+    path_background_color_alpha: Option<f32>,
     path_background_rgba: Option<[f32; 4]>,
-    path_background_alpha: Option<f32>,
+    
     path_border_color: Option<Color>,
+    path_border_color_alpha: Option<f32>,
     path_border_rgba: Option<[f32; 4]>,
-    path_border_alpha: Option<f32>,
     path_border_radius: Option<Vec<f32>>,
     path_border_width: Option<f32>,
 
@@ -359,48 +369,7 @@ pub fn add_menu_style(
 {
     let id = get_id(gen_id);
 
-    let bar_background_color = 
-        Color::rgba_ipg_color_to_iced(
-            bar_background_rgba, 
-            &bar_background_color, 
-            bar_background_alpha);
-    let bar_border_color = 
-        Color::rgba_ipg_color_to_iced(
-            bar_border_rgba, 
-            &bar_border_color, 
-            bar_border_alpha);
-    let bar_shadow_color = 
-        Color::rgba_ipg_color_to_iced(
-            bar_shadow_rgba, 
-            &bar_shadow_color, 
-            bar_shadow_alpha);
-
-    let menu_background_color = 
-        Color::rgba_ipg_color_to_iced(
-            menu_background_rgba, 
-            &menu_background_color, 
-            menu_background_alpha);
-    let menu_border_color = 
-        Color::rgba_ipg_color_to_iced(
-            menu_border_rgba, 
-            &menu_border_color, 
-            menu_border_alpha);
-    let menu_shadow_color = 
-        Color::rgba_ipg_color_to_iced(
-            menu_shadow_rgba, 
-            &menu_shadow_color, 
-            menu_shadow_alpha);
-
-    let path_background_color = 
-        Color::rgba_ipg_color_to_iced(
-            path_background_rgba, 
-            &path_background_color, 
-            path_background_alpha);
-    let path_border_color = 
-        Color::rgba_ipg_color_to_iced(
-            path_border_rgba, 
-            &path_border_color, 
-            path_border_alpha);
+    
 
     let mut state = access_state();
 
@@ -408,33 +377,46 @@ pub fn add_menu_style(
         MenuStyle {
             id,
             bar_background_color,
+            bar_background_color_alpha,
+            bar_background_rgba,
+            
             bar_border_color,
+            bar_border_color_alpha,
+            bar_border_rgba,
             bar_border_radius,
             bar_border_width,
+
             bar_shadow_color,
+            bar_shadow_color_alpha,
+            bar_shadow_rgba,
             bar_shadow_offset_xy,
             bar_shadow_blur_radius,
-            bar_background_alpha: None,
-            bar_border_alpha: None,
-            bar_shadow_alpha: None,
 
             menu_background_color,
+            menu_background_color_alpha,
+            menu_background_rgba,
+            
             menu_border_color,
+            menu_border_color_alpha,
+            menu_border_rgba,
             menu_border_radius,
             menu_border_width,
+
             menu_shadow_color,
+            menu_shadow_color_alpha,
+            menu_shadow_rgba,
             menu_shadow_offset_xy,
             menu_shadow_blur_radius,
-            menu_background_alpha: None,
-            menu_border_alpha: None,
-            menu_shadow_alpha: None,
 
             path_background_color,
+            path_background_color_alpha,
+            path_background_rgba,
+            
             path_border_color,
+            path_border_color_alpha,
+            path_border_rgba,
             path_border_radius,
             path_border_width,
-            path_background_alpha: None,
-            path_border_alpha: None,
         }));
 
     drop(state);
@@ -491,7 +473,7 @@ pub fn add_menu_style(
     width=None,
     spacing=None,
     offset=None,
-    paddings=None,
+    padding=None,
     close_on_item_click=None,
     close_on_background_click=None,
     show=true,
@@ -504,7 +486,7 @@ pub fn add_menu_bar_item(
     width: Option<f32>,
     spacing: Option<f32>,
     offset: Option<f32>,
-    paddings: Option<Vec<f32>>,
+    padding: Option<Vec<f32>>,
     close_on_item_click: Option<bool>,
     close_on_background_click: Option<bool>,
     show: bool,
@@ -512,14 +494,6 @@ pub fn add_menu_bar_item(
 ) -> PyResult<usize> 
 {
     let id = get_id(gen_id);
-
-    let width = get_length(width, false);
-
-    let paddings = if let Some(pads) = paddings {
-        pads
-    } else {
-        vec![0.0]
-    };
 
     let prt_id = match parent_id {
         Some(id) => id,
@@ -538,7 +512,7 @@ pub fn add_menu_bar_item(
             width,
             spacing,
             offset,
-            paddings,
+            padding,
             close_on_item_click,
             close_on_background_click,
             show,

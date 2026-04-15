@@ -57,12 +57,12 @@ def add_button_style(
     """Adds styling to a button
 
     Run the doc_helper.py to see the individual parameter definitions.
-    
+
     Notes
     --------
     Two styles can be defined:
     custom - defined by using an add_style method
-    First, define the style, this can be placed anywhere as long as the 
+    First, define the style, this can be placed anywhere as long as the
     add_button can access the style value, type int.
     Then, add your button(s) as usual and use the style_id=your_style parameter.
     standard - using the style_std parameter and the ButtonStyleStd class
@@ -72,13 +72,13 @@ def add_button_style(
     --------
     >>> from icedpygui import Window, Column, Container, ButtonStyleStd, \
     >>>       add_button, add_button_style, Color, start_session
-    >>> 
+    >>>
     >>> style = add_button_style(
     >>>             background_color=Color.LIGHT_BLUE,
     >>>             border_color=Color.ALICE_BLUE,
     >>>             border_width=2.0,
     >>>             border_radius=[5.0])
-    >>> 
+    >>>
     >>> with Window(title="Button Styling", center=True):
     >>>     with Container(align_center=True, width_fill=True, height_fill=True):
     >>>         with Column(spacing=20.0):
@@ -86,19 +86,19 @@ def add_button_style(
     >>>                 label="Border Color and Width",
     >>>                     padding=[5.0],
     >>>                     style_id=style)
-    >>>             
+    >>>
     >>>             add_button(
     >>>                 label="Style Standard-Danger",
     >>>                     padding=[5.0],
     >>>                     style_std=ButtonStyleStd.Danger)
-    >>>             
+    >>>
     >>>             add_button(
     >>>                 label="Style Standard-Text",
     >>>                     padding=[5.0],
     >>>                     style_std=ButtonStyleStd.Text)
-    >>> 
+    >>>
     >>> start_session()
-    >>> 
+    >>>
     """
 
 def add_card_style(
@@ -125,33 +125,33 @@ def add_card_style(
     Adds styling to the Card
 
     Run the doc_helper.py to see the individual parameter definitions.
-    
+
     Notes
     --------
     Two styles can be defined:
-    
+
     custom - defined by using an add_style method
-    
-    First, define the style, this can be placed anywhere as long as the 
+
+    First, define the style, this can be placed anywhere as long as the
     add_card can access the style value, type int.
 
     Then, add your card(s) as usual and use the style_id=your_style parameter.
-    
+
     standard - using the style_std parameter and the CardStyleStd class
-    
+
     Just use the style_std=CardStyleStd.Primary parameter in the add_card method.
 
     Examples
     --------
     >>> from icedpygui import Window, Column, Container, CardStyleStd, \
     >>>     add_card, add_card_style, Color, start_session
-    >>> 
+    >>>
     >>> style = add_card_style(
     >>>             background_color=Color.LIGHT_BLUE,
     >>>             border_color=Color.ALICE_BLUE,
     >>>             border_width=2.0,
     >>>             border_radius=[5.0])
-    >>> 
+    >>>
     >>> with Window(title="Card Styling", center=True):
     >>>     with Container(align_center=True, width_fill=True, height_fill=True):
     >>>         with Column(spacing=20.0):
@@ -159,14 +159,14 @@ def add_card_style(
     >>>                 label="Border Color and Width",
     >>>                     padding=[5.0],
     >>>                     style_id=style)
-    >>>             
+    >>>
     >>>             add_card(
     >>>                 label="Style Standard-Danger",
     >>>                     padding=[5.0],
     >>>                     style_std=ButtonStyleStd.Danger)
-    >>> 
+    >>>
     >>> start_session()
-    >>> 
+    >>>
     """
 
 def add_checkbox_style(
@@ -189,44 +189,44 @@ def add_checkbox_style(
     """Adds styling to a checkbox
 
     Run the doc_helper.py to see the individual parameter definitions.
-    
+
     Notes
     --------
     Two styles can be defined:
-    
+
     custom - defined by using an add_style method
-    
-    First, define the style, this can be placed anywhere as long as the 
+
+    First, define the style, this can be placed anywhere as long as the
     add_checkbox can access the style value, type int.
-    
+
     Then, add your checkbox(es) as usual and use the style_id=your_style parameter.
-    
+
     standard - using the style_std parameter and the CheckboxStyleStd class
-    
+
     Just use the style_std=CheckboxStyleStd.Primary parameter in the add_checkbox method.
 
     Examples
     --------
     >>> from icedpygui import Window, Column, Container, CheckboxStyleStd, \
     >>>     add_checkbox, add_checkbox_style, Color, start_session
-    >>> 
+    >>>
     >>> style = add_checkbox_style(
     >>>         border_color=Color.RED,
     >>>         border_width=3.0)
-    >>> 
+    >>>
     >>> with Window(title="Checkbox Styling", center=True):
     >>>     with Container(align_center=True, width_fill=True, height_fill=True):
     >>>         with Column(spacing=20.0):
     >>>             add_checkbox(
     >>>                 label="Border Color and Width",
     >>>                     style_id=style)
-    >>> 
+    >>>
     >>>             add_checkbox(
     >>>                 label="Secondary",
     >>>                 style_std=CheckboxStyleStd.Secondary)
-    >>> 
+    >>>
     >>> start_session()
-    >>> 
+    >>>
     """
 
 def add_color_picker_style(
@@ -297,43 +297,43 @@ def add_container_style(
     Notes
     --------
     Two styles can be defined:
-    
+
     custom - defined by using an add_style method
-    
-    First, define the style, this can be placed anywhere as long as the 
+
+    First, define the style, this can be placed anywhere as long as the
     add_container or Container can access the style value, type int.
-    
+
     Then, add your container(s) as usual and use the style_id=your_style parameter.
-    
+
     standard - using the style_std parameter and the ContainerStyleStd class
-    
-    Just use the style_std=ContainerStyleStd.Primary parameter in the 
+
+    Just use the style_std=ContainerStyleStd.Primary parameter in the
     add_container or Container method.
-    
+
     Examples
     --------
     >>> from icedpygui import Window, Column, Container, ContainerStyleStd, \
     >>>     add_container_style, add_text, Color, start_session
-    >>> 
+    >>>
     >>> style = add_container_style(
     >>>             background_color=Color.AQUA,
     >>>             border_color=Color.BLUE,
     >>>             border_radius=[10.0],
     >>>             border_width=5.0,
     >>>             shadow_color=Color.YELLOW)
-    >>> 
+    >>>
     >>> with Window(title="Container Styling", center=True):
     >>>     with Column(spacing=20.0, padding=[20.0], align_center=True, width_fill=True):
-    >>>         
+    >>>
     >>>         with Container(align_center=True, width=400.0, height=200.0, style_id=style):
     >>>             add_text(content="Some Container Custom Styling")
-    >>>             
-    >>>         with Container(align_center=True, width=400.0, height=200.0, 
+    >>>
+    >>>         with Container(align_center=True, width=400.0, height=200.0,
     >>>                        style_std=ContainerStyleStd.BorderedBox):
     >>>             add_text(content="Some Container Standard Styling\n BorderedBox")
-    >>> 
+    >>>
     >>> start_session()
-    >>> 
+    >>>
     """
 
 def add_font_style(
@@ -389,7 +389,7 @@ class FontStyle:
 
 class FontWeight:
     """Adds a font weighting
-    
+
     """
     Black=''
     Bold=''
@@ -598,7 +598,7 @@ def add_scrollable_style(
     ) -> int:
     """_summary_
 
-    
+
     """
 
 def add_separator_style(
@@ -635,7 +635,7 @@ def add_slider_style(
 
     """
     Add styling to the Slider.
-    
+
     """
 
 def add_text_input_style(
@@ -681,7 +681,7 @@ def add_tooltip_style(
     """
     Adds styling to the tool tip
 
-    
+
     """
 
 def add_canvas_timer_style(
@@ -726,7 +726,7 @@ def add_toggler_style(
 
     """
     Adds a toggler to the gui
-    
+
     """
 
     # ***************canvas widgets**********************
@@ -748,7 +748,7 @@ def add_arc(
 
     """
     Adds an Arc to the canvas.
-    
+
     Parameters
     ----------
         canvas_id: str
@@ -773,7 +773,7 @@ def add_arc(
             Whether to use the rgba color for the fill or None
         gen_id: Optional[int]
             The only allowable entry for this id is that generated by ipg.generate_id().
-            
+
     Returns
     -------
         id: int
@@ -795,7 +795,7 @@ def add_bezier(
 
     """
     Adds an Bezier to the canvas.
-    
+
     Parameters
     ----------
         canvas_id: str
@@ -815,7 +815,7 @@ def add_bezier(
             Rotation of widget using degrees
         gen_id: Optional[int]
             The only allowable entry for this id is that generated by ipg.generate_id().
-            
+
     Returns
     -------
         id: int
@@ -866,7 +866,7 @@ def add_circle(
             The alpha of the color
         gen_id: Optional[int]=None
             The only allowable entry for this id is that generated by ipg.generate_id().
-    
+
     Returns
     -------
         id: int
@@ -890,7 +890,7 @@ def add_ellipse(
 
     """
     Adds an ellipse to the canvas.
-    
+
     Parameters
     ----------
         canvas_id: str
@@ -915,7 +915,7 @@ def add_ellipse(
             Whether to use the rgba color for the fill or None
         gen_id: Optional[int]=None
             The only allowable entry for this id is that generated by ipg.generate_id().
-    
+
     Returns
     -------
         id: int
@@ -936,7 +936,7 @@ def add_line(
 
     """
     Add a line to the canvas.
-    
+
     Parameters
     ----------
         canvas_id: str
@@ -955,7 +955,7 @@ def add_line(
             Whether to use the rgba color for the stroke
         gen_id: Optional[int]=None
             The only allowable entry for this id is that generated by ipg.generate_id().
-    
+
     Returns
     -------
         id: int
@@ -979,7 +979,7 @@ def add_polygon(
 
     """
     Add a polygon to the canvas.
-    
+
     Parameters
     ----------
         canvas_id: str
@@ -1004,7 +1004,7 @@ def add_polygon(
             Whether to use the rgba color for the fill or None
         gen_id: Optional[int]=None
             The only allowable entry for this id is that generated by ipg.generate_id().
-    
+
     Returns
     -------
         id: int
@@ -1023,7 +1023,7 @@ def add_poly_line(
 
     """
     Add a polygon to the canvas.
-    
+
     Parameters
     ----------
         canvas_id: str
@@ -1038,7 +1038,7 @@ def add_poly_line(
             Whether to use the rgba color for the stroke
         gen_id: Optional[int]=None
             The only allowable entry for this id is that generated by ipg.generate_id().
-    
+
     Returns
     -------
         id: int
@@ -1062,7 +1062,7 @@ def add_rectangle(
 
     """
     Add a rectangle to the canvas.
-    
+
     Parameters
     ----------
         canvas_id: str
@@ -1087,7 +1087,7 @@ def add_rectangle(
             Whether to use the rgba color for the fill or None
         gen_id: Optional[int]=None
             The only allowable entry for this id is that generated by ipg.generate_id().
-    
+
     Returns
     -------
         id: int
@@ -1108,7 +1108,7 @@ def add_canvas_image(
 
     """
     Add an image to the canvas.
-    
+
     Parameters
     ----------
         canvas_id: str
@@ -1119,15 +1119,15 @@ def add_canvas_image(
             Location of the top left corner
         width: float
             Defines the width
-        height: float  
+        height: float
             Defines the height
         gen_id: Optional[int]=None
             The only allowable entry for this id is that generated by ipg.generate_id().
-    
+
     Returns
     -------
         id: int
-        The id of the event which can be used to modify the event through update_item.    
+        The id of the event which can be used to modify the event through update_item.
     """
 
 
@@ -1202,7 +1202,7 @@ def add_event_mouse(
         Calls a function when the middle mouse scroll is scrolled, send pixel count.
     user_data: any
         Any data that might be needed in the callback function.
-    
+
     Returns
     -------
     id: int
@@ -1294,7 +1294,7 @@ def add_event_window(
         When the file leaves the window without being dropped.
     user_data: Optional[Any]=None
         Any data that might be needed in the callback function.
-    
+
     Returns
     -------
     id: int
@@ -1360,7 +1360,7 @@ def construct_chart(
     """_summary_
 
     Args:
-        chart_ids (list[str]): 
+        chart_ids (list[str]):
             List of string chart ids.
     """
 
@@ -1473,34 +1473,34 @@ def add_chart_x_axis(
     """_summary_
 
     Args:
-        chart_id (str): 
+        chart_id (str):
             The unique identifier for the chart.
-        x_axis_data (list[str]): 
+        x_axis_data (list[str]):
             The data points or labels to be displayed along the x-axis.
-        x_axis_height (float): 
+        x_axis_height (float):
             The height of the x-axis.
-        x_axis_stroke_ipgcolor (Optional[Color]): 
+        x_axis_stroke_ipgcolor (Optional[Color]):
             The color of the x-axis stroke using the Color class.
-        x_axis_stroke_rgba (Optional[list[float, 4]]): 
+        x_axis_stroke_rgba (Optional[list[float, 4]]):
             The color of the x-axis stroke in RGBA format.
         x_axis_font_size (float): The font size of the x-axis labels.
-        x_axis_font_ipgcolor (Optional[Color]): 
+        x_axis_font_ipgcolor (Optional[Color]):
             The color of the x-axis font using the Color class.
-        x_axis_font_rgba (Optional[list[float, 4]]): 
+        x_axis_font_rgba (Optional[list[float, 4]]):
             The color of the x-axis font in RGBA format.
-        x_axis_font_weight (Optional[str]): 
+        x_axis_font_weight (Optional[str]):
             The weight of the x-axis font (e.g., "bold", "normal").
-        x_axis_name_gap (float): 
+        x_axis_name_gap (float):
             The gap between the x-axis name and the axis line.
-        x_axis_name_rotate (float): 
+        x_axis_name_rotate (float):
             The rotation angle of the x-axis name in degrees.
-        x_axis_margin (Optional[list[float, 4]]): 
+        x_axis_margin (Optional[list[float, 4]]):
             The margin around the x-axis in the format [top, right, bottom, left].
-        x_axis_hidden (bool): 
+        x_axis_hidden (bool):
             Whether the x-axis is hidden or visible.
-        x_boundary_gap (Optional[bool]): 
+        x_boundary_gap (Optional[bool]):
             Whether to leave a gap between the x-axis boundary and the data points.
-        gen_id (Optional[int]): 
+        gen_id (Optional[int]):
             The unique identifier generated by `ipg.generate_id()` for the widget.
 
     Returns:
@@ -1530,38 +1530,38 @@ def add_chart_y_axis(
     """_summary_
 
     Args:
-        chart_id (str): 
+        chart_id (str):
             The unique identifier for the chart.
-        y_axis_hidden (bool): 
+        y_axis_hidden (bool):
             Whether the y-axis is hidden or visible.
-        y_axis_font_size (float): 
+        y_axis_font_size (float):
             The font size of the y-axis labels.
-        y_axis_font_ipgcolor (Optional[Color]): 
+        y_axis_font_ipgcolor (Optional[Color]):
             The color of the y-axis font using the Color class.
-        y_axis_font_rgba (Optional[list[float, 4]]): 
+        y_axis_font_rgba (Optional[list[float, 4]]):
             The color of the y-axis font in RGBA format.
-        y_axis_font_weight (Optional[str]): 
+        y_axis_font_weight (Optional[str]):
             The weight of the y-axis font (e.g., "bold", "normal").
-        y_axis_stroke_ipgcolor (Optional[Color]): 
+        y_axis_stroke_ipgcolor (Optional[Color]):
             The color of the y-axis stroke using the Color class.
-        y_axis_stroke_rgba (Optional[list[float, 4]]): 
+        y_axis_stroke_rgba (Optional[list[float, 4]]):
             The color of the y-axis stroke in RGBA format.
-        y_axis_width (Optional[float]): 
+        y_axis_width (Optional[float]):
             The width of the y-axis stroke.
-        y_axis_split_number (int): 
+        y_axis_split_number (int):
             The number of splits or intervals on the y-axis.
-        y_axis_name_gap (float): 
+        y_axis_name_gap (float):
             The gap between the y-axis name and the axis line.
-        y_axis_name_align (Optional[HorizontalAlignment]): 
+        y_axis_name_align (Optional[HorizontalAlignment]):
             The alignment of the y-axis name (e.g., "Left", "Center", "Right").
-        y_axis_margin (Optional[list[float, 4]]): 
+        y_axis_margin (Optional[list[float, 4]]):
             The margin around the y-axis in the format [top, right, bottom, left].
             y_axis_formatter (Optional[str]): A formatter string for customizing the y-axis labels.
-        y_axis_min (Optional[float]): 
+        y_axis_min (Optional[float]):
             The minimum value of the y-axis.
-        y_axis_max (Optional[float]): 
+        y_axis_max (Optional[float]):
             The maximum value of the y-axis.
-        gen_id (Optional[int]): 
+        gen_id (Optional[int]):
             The unique identifier generated by `ipg.generate_id()` for the widget.
 
     Returns:
@@ -1590,35 +1590,35 @@ def add_chart_series(
 
     Args:
         chart_id (str): The unique identifier for the chart.
-        series_stroke_width (float): 
+        series_stroke_width (float):
             The width of the stroke for the series lines.
-        series_label_font_ipgcolor (Optional[Color]): 
+        series_label_font_ipgcolor (Optional[Color]):
             The color of the series label font using the Color class.
-        series_label_font_rgba (Optional[list[float, 4]]): 
+        series_label_font_rgba (Optional[list[float, 4]]):
             The color of the series label font in RGBA format.
-        series_label_font_size (float): 
+        series_label_font_size (float):
             The size of the series label font.
-        series_label_font_weight (Optional[str]): 
+        series_label_font_weight (Optional[str]):
             The weight of the series label font (e.g., "bold", "normal").
-        series_label_formatter (Optional[str]): 
+        series_label_formatter (Optional[str]):
             A formatter string for customizing the series label.
-        series_ipgcolors (list[Color]): 
+        series_ipgcolors (list[Color]):
             A list of colors for the series using the Color class.
-        series_rgbas (list[float, 4]): 
+        series_rgbas (list[float, 4]):
             A list of colors for the series in RGBA format.
-        series_symbol (bool): 
+        series_symbol (bool):
             Whether to display symbols for the series points.
-        symbol_ipgcolor (Optional[Color]): 
+        symbol_ipgcolor (Optional[Color]):
             The color of the series symbols using the Color class.
-        symbol_rgba (Optional[list[float, 4]]): 
+        symbol_rgba (Optional[list[float, 4]]):
             The color of the series symbols in RGBA format.
-        symbol_radius (Optional[float]): 
+        symbol_radius (Optional[float]):
             The radius of the series symbols.
-        series_smooth (bool): 
+        series_smooth (bool):
             Whether to smooth the series lines.
-        series_fill (bool): 
+        series_fill (bool):
         Whether to fill the area under the series lines.
-        gen_id (Optional[int]): 
+        gen_id (Optional[int]):
             The only allowable entry for this id is the value generated by ipg.generate_id().
 
     Returns:
@@ -1691,7 +1691,7 @@ def show_items(
 
     """
     Shows or hides items
-    
+
     Args:
         window_id (str):
             The window id that the widget is in.
@@ -1706,18 +1706,18 @@ def update_widget(
     ):
 
     """
-    Update a widget by supplying the widget id, wid, the parameter to update, 
+    Update a widget by supplying the widget id, wid, the parameter to update,
     a class property value, and a value based on the type of value used by the widget.
-    
+
     Parameters
     ----------
     wid: int
         The widget id of the widget to be updated.
     param: class property
         Example: a button has a parameter ButtonParams.Width and value=float
-    value: any 
+    value: any
         Any value which matches that used by the widget.  For example, to set a checkbox to true,
-        param=CheckboxParams.IsChecked, value=True  
+        param=CheckboxParams.IsChecked, value=True
 
     Returns
     -------
@@ -1730,9 +1730,9 @@ def update_widget_params(
     ):
 
     """
-    Update a widget by supplying the widget id, wid, the parameter to update, 
+    Update a widget by supplying the widget id, wid, the parameter to update,
     a class property value, and a value based on the type of value used by the widget.
-    
+
     Parameters
     ----------
     wid: int
@@ -1741,9 +1741,9 @@ def update_widget_params(
         Example: update_widget_params(checkbox_id: {isChecked: True, label: "Checked"})
     param: class property
         Example: a button has a parameter ButtonParams.Width and value=float
-    value: any 
+    value: any
         Any value which matches that used by the widget.  For example, to set a checkbox to true,
-        param=CheckboxParams.IsChecked, value=True  
+        param=CheckboxParams.IsChecked, value=True
 
     Returns
     -------
@@ -1757,9 +1757,9 @@ def update_canvas_item(
     ):
 
     """
-    Update a canvas widget by supplying the widget id, wid, the parameter to update, 
+    Update a canvas widget by supplying the widget id, wid, the parameter to update,
     a class property value, and a value based on the type of value used by the widget.
-    
+
     Parameters
     ----------
     wid: int
@@ -1768,9 +1768,9 @@ def update_canvas_item(
         Example: a canvas has a class CanvasParams with properties of Position
         Therefore, a circle's position could be changed by using the circle's is
         and the CanvasParam.Position where the value would be a new point.
-    value: any 
+    value: any
         Any value which matches that used by the widget.  For example, to set a circle position,
-        param=CanvasParams.Position, value=[100.0, 100.0]  
+        param=CanvasParams.Position, value=[100.0, 100.0]
 
     Returns
     -------
@@ -1802,7 +1802,7 @@ def move_widget(
         target_parent_id: Optional[int]
             Parent container widget id (only needed when neither
             move_after nor move_before is supplied).
-        
+
     Returns
     -------
     None
@@ -1974,7 +1974,7 @@ class ButtonStyleParam:
     BorderRgba: list[float, 4]
         Border color in rgba format
     BorderRadius: list
-        The border radius [float]=all, [float, 4]=each individual one       
+        The border radius [float]=all, [float, 4]=each individual one
     BorderWidth: float
         The width of the border line
     ShadowColor: Color
@@ -2029,7 +2029,7 @@ class CanvasWidget:
 class CanvasParam:
     """
     Canvas Parameters
-    
+
     Parameters
     ----------
     Clear bool
@@ -2048,7 +2048,7 @@ class CanvasParam:
         The number of points to use for polygon and polyline.
     Widget CanvasWidget
         One of the CanvasWidgets to use.
-    
+
     """
     Clear: bool
     DrawColor: list
@@ -2191,7 +2191,7 @@ class CheckboxStyleParam:
     BorderRgbaColor: list[float, 4]
         Border color in rgba format
     BorderRadius: list
-        The border radius [float]=all, [float, 4]=each individual one       
+        The border radius [float]=all, [float, 4]=each individual one
     BorderWidth: float
         The width of the border line
     TextColor: Color
@@ -2280,7 +2280,7 @@ class ColorPickerStyleParam:
     BorderRgbaColor: list[float, 4]
         Border color in rgba format
     BorderRadius: list
-        The border radius [float]=all, [float, 4]=each individual one       
+        The border radius [float]=all, [float, 4]=each individual one
     BorderWidth: float
         The width of the border line
     ShadowColor: Color
@@ -2395,7 +2395,7 @@ class DatePickerParam:
 class DividerDirection:
     """
     Direction of the divider.
-    
+
     Parameters
     ----------
     Horizontal:
@@ -2410,7 +2410,7 @@ class DividerDirection:
 class DividerParam:
     """
     Divider parameters
-    
+
     Parameters
     ----------
     HandleWidth: float
@@ -2434,7 +2434,7 @@ class DividerParam:
 class DividerStyleParam:
     """_
     Divider style parameters
-    
+
     Parameters
     ----------
     BackgroundColor: Color,
@@ -2486,7 +2486,7 @@ class ContentFit:
     ---------
     Contain: ImageContentFit.Contain
         The image will be scaled (preserving aspect ratio) so that it just fits within the window.
-    Cover: ImageContentFit.Cover 
+    Cover: ImageContentFit.Cover
         Scale the image to cover all of the bounding box, cropping if needed.
     Fill: ImageContentFit.Fill
         Distort the image so the widget is 100% covered without cropping.
@@ -2536,7 +2536,7 @@ class ImageParam:
     Parameters
     ----------
     BorderRadius: list[float, 4] | list[float]
-        Sets the border radius of the image either all corner 
+        Sets the border radius of the image either all corner
         same value [float] or independent [float,4].
     ContentFit: ContentFit
         Set how the image contents fits see ContentFit class.
@@ -2557,7 +2557,7 @@ class ImageParam:
     Fill: bool
         Sets both width_fill and length_fill.
     Height: float
-        Sets the height of the widget. 
+        Sets the height of the widget.
     HeightFill: bool
         Sets the height to fill the available space, overrides height.
     ImagePath: str
@@ -2612,25 +2612,62 @@ class MenuParam:
 
     Parameters
     ----------
-    BarHeight: float
+    CursorBoundsMargin: float
+        Close menu items if cursor exceed the items bounds
+    Height: float
         The height od the bar
-    BarPadding: list[float]
+    Height: bool | None
+        The height of the bar
+    Padding: list[float]
         The padding around the bar.
-    BarSpacing: float
+    Spacing: float
         The space between the bar and the menu items.
-    BarWidths: list[float]
+    Widths: list[float]
         The width of each menu item in the bar.
-    CheckBoundsWidth: float
-        Widths of the dropdown menu.
+
     Show: bool
         Whether to show or hide the widget
     """
-    BarHeight:float
-    BarPadding:list[float]
-    BarSpacing:float
-    BarWidths:list[float]
-    CheckBoundsWidth:float
-    Show:bool
+    CursorBoundsMargin: float | None
+    Height: float | None
+    Padding: list[float] | list[float, 4] | None
+    ScrollSpeedLine: float | None
+    ScrollSpeedPixel: float | None
+    Show: bool | None
+    Spacing: float | None
+    Width: float | None
+    WidthFill: bool | None
+
+
+class MenuBarItemParam:
+    """
+    Menu Bar Item Parameters
+
+    Parameters
+    ----------
+    CloseOnBackgroundClick: bool
+        Whether to close items on background click
+    CloseOnItemClick: bool
+        Whether to close on items click
+    Offset: float
+        Set the offset of the items column
+    Padding: list[float, 4] | list[float]
+        Set the padding of the items,
+        [float] = all sides, [float, 4]=[top, right, bottom, left]
+    Show: bool
+        Whether to show the items
+    Spacing: float
+        Sets the spacing between the items
+    Width: float
+        Sets the width of the items container
+    """
+    CloseOnBackgroundClick: bool | None
+    CloseOnItemClick: bool | None
+    Offset: float | None
+    Padding: list[float, 4] | list[float] | None
+    Show: bool | None
+    Spacing: float | None
+    Width: float | None
 
 
 class MenuStyleParam:
@@ -2795,7 +2832,7 @@ class PickListStyleParam:
     BorderRgbaColor: list[float, 4]
         Border color in rgba format
     BorderRadius: list
-        The border radius [float]=all, [float, 4]=each individual one       
+        The border radius [float]=all, [float, 4]=each individual one
     BorderWidth: float
         The width of the border line
     HandleColor: Color
@@ -2882,7 +2919,7 @@ class ProgressBarStyleParam:
     BorderRgbaColor: list[float, 4]
         Border color in rgba format
     BorderRadius: list
-        The border radius [float]=all, [float, 4]=each individual one       
+        The border radius [float]=all, [float, 4]=each individual one
     BorderWidth: float
         The width of the border line
     """
@@ -2985,7 +3022,7 @@ class RadioStyleParam:
     BorderColor: Color
         Border color in Color format
     BorderRgbaColor: list[float, 4]
-        Border color in rgba format    
+        Border color in rgba format
     BorderWidth: float
         The width of the border line
     TextColor: Color
@@ -3056,7 +3093,7 @@ class ScrollableParam:
         The height of the scrollable.
     HeightFill: bool
         Whether the scrollable fills the height container.
-    
+
     Examples
     --------
     >>> ipg.update_item(wid=0, param=ScrollableParam.Width , 300.0)
@@ -3247,7 +3284,7 @@ class StackParam:
 class SvgParam:
     """
     SVG image parameters
-    
+
     Parameters
     ----------
     Height: float
@@ -3636,7 +3673,7 @@ class TimerStyleParam:
     BorderRgbaColor: list[float, 4]
         Border color in rgba format
     BorderRadius: list
-        The border radius [float]=all, [float, 4]=each individual one       
+        The border radius [float]=all, [float, 4]=each individual one
     BorderWidth: float
         The width of the border line
     ShadowColor: Color

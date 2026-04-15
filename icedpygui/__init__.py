@@ -105,6 +105,7 @@ from .icedpygui import (
     GridParam,
     Icon,
     ImageParam,
+    MenuBarItemParam,
     MenuParam,
     MenuStyleParam,
     MousePointer,

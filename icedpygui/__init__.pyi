@@ -61,6 +61,7 @@ from .icedpygui import (
     FontStyle as FontStyle,
     GridParam as GridParam,
     Icon as Icon,
+    MenuBarItemParam as MenuBarItemParam,
     MenuParam as MenuParam,
     MenuStyleParam as MenuStyleParam,
     MousePointer as MousePointer,
@@ -143,11 +144,11 @@ def add_button(
     show: bool = True,
 ) -> int:
     """Adds a button widget.
-    
+
     A widget must go into a container type,
-    
+
     i.e. Container, Column, Row, etc.
-    
+
     Usage::
 
         with Window(title="My App", pos_centered=True) as wnd_id: (if needed)
@@ -185,11 +186,11 @@ def add_card(
     user_data: Optional[Any] = None,
 ) -> int:
     """Adds a button widget.
-    
+
     A widget must go into a container type,
-    
+
     i.e. Container, Column, Row, etc.
-    
+
     Usage::
 
         with Window(title="My App", pos_centered=True) as wnd_id: (if needed)
@@ -226,15 +227,15 @@ def add_checkbox(
     gen_id: Optional[int] = None,
 ) -> int:
     """Adds a checkbox widget.
-    
+
     A widget must go into a container type,
-    
+
     i.e. Container, Column, Row, etc.
-    
+
     Usage::
         def checked(chk_id: int, is_checked: bool):
             print(chk_id, is_checked)
-        
+
         with Window(title="My App", pos_centered=True) as wnd_id: (if needed)
             with Container(align_center=True):
                 add_checkbox(
@@ -248,15 +249,15 @@ def add_color_picker(
     parent_id: Optional[str] = None,
     **kwargs: Any) -> int:
     """Adds a Color Picker widget.
-    
+
     Usage::
 
         def color_selected(cp_id: int, color: list):
             print(cp_id, color)
-            
+
         def cp_opened(_cp_id: int, _user_data: any):
             print("color picker opened")
-            
+
 
         def cp_canceled(_cp_id: int, _user_data: any):
             print("color picker canceled")
@@ -266,7 +267,7 @@ def add_color_picker(
             on_select=color_selected, # the color selection selected
             on_cancel=cp_canceled,  # color selection was canceled
             )
-    
+
     Returns:
         int: widget id
     """
@@ -339,16 +340,16 @@ def add_image(
         with Window(title="My App", center=True):
             with Container(align_center=True):
                 add_image(path="my path to image)
-                
+
         start_session()
-        
+
     Args::
         path: str
             Sets the path to where the image is located.
         parent_id: str, Optional
             Set the parent_id, if needed.
         border_radius: list[float, 4] | list[float], Optional
-            Sets the border radius of the image either all corner same 
+            Sets the border radius of the image either all corner same
             value [float] or independent [float,4].
         content_fit: ContentFit, Optional
             Set how the image contents fits see ContentFit class.
@@ -369,7 +370,7 @@ def add_image(
         fill: bool, Optional
             Sets both width_fill and length_fill.
         height: float, Optional
-            Sets the height of the widget. 
+            Sets the height of the widget.
         height_fill: bool, Optional
             Sets the height to fill the available space, overrides height.
         opacity: float, Optional
@@ -403,15 +404,15 @@ def add_pick_list(
     """
     Adds a Pick List widget
     A widget must go into a container type.
-    
+
     i.e. Container, Column, Row, etc.
-    
+
     Usage::
         def picked_item(pl_id: int, data: str):
             print(f"pl_id = {pl_id} data = {data}")
-            
+
         options = ["One", "Two", "Three"]
-        
+
         with Window(title="My App", pos_centered=True) as wnd_id: (if needed)
             with Container(align_center=True):
                 add_pick_list(
@@ -528,7 +529,7 @@ def add_text(
     gen_id: Optional[int] = None,
     ) -> int:
     """Adds a text widget.
-    
+
     Usage::
 
         with Window(title="My App", pos_centered=True):
@@ -849,9 +850,9 @@ def add_window(
     gen_id: Optional[int] | None = None,
 )-> int:
     """Context manager that calls add_window and tracks the window id.
-    
+
     A window is not a container for widgets, only other containers.
-    
+
     Usage::
 
         add_window(window_id="main", title="My App", center=True)
@@ -867,7 +868,7 @@ def add_window(
 
 class Window:
     """Context manager that calls add_window and tracks the window id.
-    
+
     A window is not a container for widgets, only other containers.
 
     Usage::
@@ -922,7 +923,7 @@ class Card:
     if 2, assumes head and body of card, respectively.
     if 3, uses head, body, foot, respectively.
     see demo file py_card.py
-    
+
     Usage::
 
         with Window(title="Demo"):
@@ -1075,22 +1076,16 @@ class Menu:
         *,
         window_id: Optional[str] | None = None,
         container_id: Optional[str] | None = None,
-        bar_items: Optional[str] | None = None,
-        menu_items: list[int],
         parent_id: Optional[str] | None = None,
-        item_offset: Optional[list[float]] | None = None,
-        item_padding: Optional[list[float]] | None = None,
-        item_spacing: Optional[list[float]] | None = None,
-        item_widths: Optional[list[float]] | None = None,
-        bar_height: Optional[float] | None = None,
-        bar_padding: Optional[list[float]] | None = None,
-        bar_spacing: Optional[float] | None = None,
-        bar_width: Optional[float] | None = None,
+        height: Optional[float] | None = None,
+        padding: Optional[list[float]] | None = None,
+        spacing: Optional[float] | None = None,
+        width: Optional[float] | None = None,
         close_on_item_click: Optional[bool] | None = None,
         close_on_background_click: Optional[bool] | None = None,
         on_select: Optional[Any] | None = None,
         style_id: Optional[int] | None = None,
-        style_std_primary: Optional[bool] | None = None,
+        style_primary: Optional[bool] | None = None,
         show: bool = True,
         user_data: Optional[Any] | None = None,
         gen_id: Optional[int] | None = None,
@@ -1102,15 +1097,15 @@ class Menu:
 
 class MouseArea:
     """Context Manager wrapper for add_mousearea
-    
+
     A container that is like Container but allows
     mouse interactions.
-    
+
     Usage::
-    
+
         with Window(title="Demo"):
             with MouseArea():
-                add_svg() # Your svg will have mouse interaction    
+                add_svg() # Your svg will have mouse interaction
         start_session
     """
     def __init__(

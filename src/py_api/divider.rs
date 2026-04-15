@@ -9,7 +9,6 @@ use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex,
 type PyObject = Py<PyAny>;
 
 
-
 /// Add a divider widget.
 ///
 /// A divider splits an area into resizable sections with

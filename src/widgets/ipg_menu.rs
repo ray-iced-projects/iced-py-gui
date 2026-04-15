@@ -8,7 +8,7 @@ use iced::{Element, Length, Renderer, Theme, border};
 use iced_aw::{MenuBar, menu::{DrawPath, Item, ScrollSpeed}};
 use iced_aw::menu;
 use crate::{app, py_api::helpers::get_padding, 
-state::Widgets, widgets::{styling::{apply_border_overrides, apply_shadow_overrides_xy}, widget_param_update::{
+state::{Containers, Widgets}, widgets::{styling::{apply_border_overrides, apply_shadow_overrides_xy}, widget_param_update::{
     WidgetParamUpdate, set_bool, set_height, set_height_fill, set_opt_f32, set_opt_f32_array_2, set_opt_iced_color, set_opt_iced_color_from_rgba, set_opt_vec_f32_1_or_upto_4, set_t_value, set_vec_f32, set_width
 }}};
 
@@ -22,12 +22,6 @@ type PyObject = Py<PyAny>;
 #[derive(Debug, Clone)]
 pub struct Menu {
     pub id: usize,
-    pub item_offsets: Vec<f32>,
-    pub item_paddings: Vec<f32>,
-    pub item_spacings: Vec<f32>,
-    pub item_widths: Vec<Length>,
-    pub items_close_on_click: Option<Vec<Option<bool>>>,
-    pub items_close_on_background_click: Option<Vec<Option<bool>>>,
     pub items_close_on_click_global: Option<bool>,
     pub items_close_on_background_click_global: Option<bool>,
     pub bar_height: Length,
@@ -54,8 +48,9 @@ impl Menu {
 
     pub fn construct<'a>(
         &'a self, 
-        grouped_content: Vec<Vec<Element<'a, app::Message>>>,
+        grouped_content: Vec<(usize, Vec<Element<'a, app::Message>>)>,
         widgets: &HashMap<usize, Widgets>,
+        containers: &HashMap<usize, Containers>,
         )-> Element<'a, app::Message, Theme, Renderer> 
     {
         
@@ -65,43 +60,15 @@ impl Menu {
 
         
         let mut bar_items: Vec<Item<app::Message, Theme, Renderer>> = vec![];
-
-        let item_widths = if self.item_widths.len() == 1 {
-                vec![self.item_widths[0]; grouped_content.len()]
-            } else {
-                self.item_widths.clone()
-            };
         
-        let item_offsets = if self.item_offsets.len() == 1 {
-            vec![self.item_offsets[0]; grouped_content.len()]
-        } else {
-            self.item_offsets.clone()
-        };
-
-        let item_spacings = if self.item_spacings.len() == 1 {
-            vec![self.item_spacings[0]; grouped_content.len()]
-        } else {
-            self.item_spacings.clone()
-        };
-
-        let items_close_on_click = if let Some(icoc) = &self.items_close_on_click {
-            icoc.clone()
-        } else {
-            vec![None; grouped_content.len()]
-        };
-
-        let items_close_on_background_click = if let Some(icobc) = &self.items_close_on_background_click {
-            icobc.clone()
-        } else {
-            vec![None; grouped_content.len()]
-        };
-
-        let mut index = 0usize;
-        
-        for (_bar_index, mut group) in grouped_content.into_iter().enumerate() {
+        for (bar_item_id, mut group) in grouped_content.into_iter() {
             if group.is_empty() {
                 continue;
             }
+
+            let bar_item_data = containers.get(&bar_item_id)
+                .and_then(Containers::as_menu_bar_item)
+                .expect("MenuBarItem not found in containers");
 
             // First element is the bar widget, rest are dropdown items
             let menu_bar = group.remove(0);
@@ -112,16 +79,15 @@ impl Menu {
                 .collect();
 
             let mut menu = iced_aw::Menu::new(items)
-                //.max_width(100.0)
-                .spacing(item_spacings[index])
-                .width(item_widths[index])
-                .offset(item_offsets[index])
-                .padding(get_padding(&Some(self.item_paddings.clone())));
+                .spacing(bar_item_data.spacing.unwrap_or(0.0))
+                .width(bar_item_data.width)
+                .offset(bar_item_data.offset.unwrap_or(0.0))
+                .padding(get_padding(&Some(bar_item_data.paddings.clone())));
 
-            if let Some(v) = items_close_on_click[index] {
+            if let Some(v) = bar_item_data.close_on_item_click {
                 menu = menu.close_on_item_click(v);
             }
-            if let Some(v) = items_close_on_background_click[index] {
+            if let Some(v) = bar_item_data.close_on_background_click {
                 menu = menu.close_on_background_click(v);
             }
             
@@ -130,7 +96,6 @@ impl Menu {
                     menu_bar, 
                     menu
                     );
-            index += 1;
             bar_items.push(bar_item);
             
         }
@@ -174,6 +139,12 @@ impl Menu {
 #[derive(Debug, Clone)]
 pub struct MenuBarItem {
     pub id: usize,
+    pub width: Length,
+    pub spacing: Option<f32>,
+    pub offset: Option<f32>,
+    pub paddings: Vec<f32>,
+    pub close_on_item_click: Option<bool>,
+    pub close_on_background_click: Option<bool>,
     pub show: bool,
 }
 

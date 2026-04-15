@@ -25,11 +25,10 @@ with Window(title="Menu", center=True, size=[400, 400]):
 
     with Container(padding=[20.0], fill=True):
 
-        with Menu(bar_spacing=10.0, item_spacings=[5.0],
-                  item_widths=[75.0], item_paddings=[5.0]):
+        with Menu(bar_spacing=10.0):
 
             # Each MenuBarItem groups a bar widget (first child) with its dropdown items
-            with MenuBarItem():
+            with MenuBarItem(width=75.0, spacing=5.0, paddings=[5.0]):
                 add_text(content="File") # bar item
 
                 # dropdown items
@@ -48,7 +47,7 @@ with Window(title="Menu", center=True, size=[400, 400]):
                            on_press=on_press,
                            user_data="Save")
 
-            with MenuBarItem():
+            with MenuBarItem(width=75.0, spacing=5.0, paddings=[5.0]):
                 add_text(content="Edit") # bar item
 
                 # dropdown items
@@ -72,7 +71,7 @@ with Window(title="Menu", center=True, size=[400, 400]):
                            on_press=on_press,
                            user_data="Paste")
 
-            with MenuBarItem():
+            with MenuBarItem(width=75.0, spacing=5.0, paddings=[5.0]):
                 add_text(content="Help") # bar item
 
                 # dropdown items
@@ -81,7 +80,7 @@ with Window(title="Menu", center=True, size=[400, 400]):
                            on_press=on_press,
                            user_data="About")
 
-            with MenuBarItem():
+            with MenuBarItem(width=100.0, spacing=5.0, paddings=[5.0]):
                 add_text(content="Testing") # bar item
 
                 # dropdown items

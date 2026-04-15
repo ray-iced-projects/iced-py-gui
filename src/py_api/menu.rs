@@ -1,6 +1,5 @@
 //! Menu module - provides add_menu pyfunction
 
-use iced::Length;
 use pyo3::prelude::*;
 use pyo3::{Py, PyAny, pyfunction};
 
@@ -21,6 +20,10 @@ type PyObject = Py<PyAny>;
 /// context manager.  The first child of each ``MenuBarItem`` is
 /// rendered on the bar; the remaining children become dropdown items.
 ///
+/// Per-dropdown settings (width, spacing, offset, padding,
+/// close_on_item_click, close_on_background_click) are now set on
+/// each ``MenuBarItem`` instead of as vectors here.
+///
 /// Parameters
 /// ----------
 /// window_id : str
@@ -29,23 +32,6 @@ type PyObject = Py<PyAny>;
 ///     Sets the unique string identifier for the menu.
 /// parent_id : str, Optional
 ///     Sets the parent container ID.  Defaults to the window itself.
-/// item_offsets : list of float, Optional
-///     Sets the horizontal offset of each dropdown relative to its
-///     bar item.  A single value applies to all items.
-/// item_paddings : list of float, Optional
-///     Sets the padding inside each dropdown item.  A single value
-///     applies to all items.
-/// item_spacings : list of float, Optional
-///     Sets the vertical spacing between dropdown items.  A single
-///     value applies to all menus.
-/// items_close_on_click : list[bool | None], Optional
-///     Per-dropdown override for closing when an item is clicked.
-///     Supply one entry per dropdown (use ``None`` to fall through
-///     to the global default).  Highest priority after per-Item.
-/// items_close_on_background_click : list[bool | None], Optional
-///     Per-dropdown override for closing when the background is
-///     clicked.  Supply one entry per dropdown (use ``None`` to
-///     fall through to the global default).
 /// items_close_on_click_global : bool, Optional
 ///     Global default for closing dropdowns on item click.  Used
 ///     when neither the per-Item nor per-dropdown value is set.
@@ -54,9 +40,6 @@ type PyObject = Py<PyAny>;
 ///     Global default for closing dropdowns on background click.
 ///     Used when neither the per-Item nor per-dropdown value is
 ///     set.  Defaults to ``False``.
-/// item_widths : list of float, Optional
-///     Sets the width of each dropdown menu.  A single value applies
-///     to all menus.
 /// bar_height : float, Optional
 ///     Sets the fixed height of the menu bar in logical pixels.
 /// bar_paddings : list of float, Optional
@@ -72,10 +55,10 @@ type PyObject = Py<PyAny>;
 /// close_on_bar_background_click : bool, Optional
 ///     Whether the dropdown closes when clicking outside the menu bar.
 /// cursor_bounds_margin: float, Optional
-///     Sets the margine where, If the cursor moves outside this area, 
+///     Sets the margin where, if the cursor moves outside this area,
 ///     the menu will be closed.
-/// scroll_speed_line: float, Optional,
-/// scroll_speed_pixel: float, Optional,
+/// scroll_speed_line: float, Optional
+/// scroll_speed_pixel: float, Optional
 /// on_select : callable, Optional
 ///     Sets the callback method to invoke when a menu item is
 ///     selected.
@@ -101,12 +84,6 @@ type PyObject = Py<PyAny>;
     window_id,
     container_id,
     parent_id=None,
-    item_offsets=None,
-    item_paddings=None,
-    item_spacings=None,
-    item_widths=None,
-    items_close_on_click=None,
-    items_close_on_background_click=None,
     items_close_on_click_global=None,
     items_close_on_background_click_global=None,
     bar_height=None,
@@ -129,12 +106,6 @@ pub fn add_menu(
     window_id: String,
     container_id: String,
     parent_id: Option<String>,
-    item_offsets: Option<Vec<f32>>,
-    item_paddings: Option<Vec<f32>>,
-    item_spacings: Option<Vec<f32>>,
-    item_widths: Option<Vec<f32>>,
-    items_close_on_click: Option<Vec<Option<bool>>>,
-    items_close_on_background_click: Option<Vec<Option<bool>>>,
     items_close_on_click_global: Option<bool>,
     items_close_on_background_click_global: Option<bool>,
     bar_height: Option<f32>,
@@ -167,34 +138,6 @@ pub fn add_menu(
     let bar_height = get_length(bar_height, false);
     let bar_width = get_length(bar_width, false);
 
-    let item_offsets = if let Some(offsets) = item_offsets {
-        offsets
-    } else {
-        vec![0.0]
-    };
-
-    let item_paddings = if let Some(pads) = item_paddings {
-        pads
-    } else {
-        vec![0.0]
-    };
-
-    let item_spacings = if let Some(sps) = item_spacings {
-        sps
-    } else {
-        vec![0.0]
-    };
-
-    let item_widths = if let Some(widths) = item_widths {
-        let mut wds = vec![];
-        for w in widths {
-            wds.push(get_length(Some(w), false));
-        }
-        wds
-    } else {
-        vec![Length::Shrink]
-    };
-
     let bar_paddings = if let Some(pads) = bar_paddings {
         pads
     } else {
@@ -215,12 +158,6 @@ pub fn add_menu(
     state.containers.insert(id, Containers::Menu(
         Menu {
             id,
-            item_offsets,
-            item_paddings,
-            item_spacings,
-            item_widths,
-            items_close_on_click,
-            items_close_on_background_click,
             items_close_on_click_global,
             items_close_on_background_click_global,
             bar_height,
@@ -519,6 +456,23 @@ pub fn add_menu_style(
 ///     Sets the unique string identifier for the menu bar item.
 /// parent_id : str, Optional
 ///     Sets the parent container ID.  Defaults to the window itself.
+/// width : float, Optional
+///     Sets the width of this dropdown menu in logical pixels.
+/// spacing : float, Optional
+///     Sets the vertical spacing between dropdown items.
+/// offset : float, Optional
+///     Sets the horizontal offset of the dropdown relative to its
+///     bar item.
+/// paddings : list of float, Optional
+///     Sets the padding inside this dropdown as ``[all]``,
+///     ``[vertical, horizontal]``, or
+///     ``[top, right, bottom, left]``.
+/// close_on_item_click : bool, Optional
+///     Per-dropdown override for closing when an item is clicked.
+///     Overrides the global default set on the Menu.
+/// close_on_background_click : bool, Optional
+///     Per-dropdown override for closing when the background is
+///     clicked.  Overrides the global default set on the Menu.
 /// show : bool, default True
 ///     Whether the menu bar item is visible.
 /// gen_id : int, Optional
@@ -534,6 +488,12 @@ pub fn add_menu_style(
     window_id,
     container_id,
     parent_id=None,
+    width=None,
+    spacing=None,
+    offset=None,
+    paddings=None,
+    close_on_item_click=None,
+    close_on_background_click=None,
     show=true,
     gen_id=None
     ))]
@@ -541,11 +501,25 @@ pub fn add_menu_bar_item(
     window_id: String,
     container_id: String,
     parent_id: Option<String>,
+    width: Option<f32>,
+    spacing: Option<f32>,
+    offset: Option<f32>,
+    paddings: Option<Vec<f32>>,
+    close_on_item_click: Option<bool>,
+    close_on_background_click: Option<bool>,
     show: bool,
     gen_id: Option<usize>,
 ) -> PyResult<usize> 
 {
     let id = get_id(gen_id);
+
+    let width = get_length(width, false);
+
+    let paddings = if let Some(pads) = paddings {
+        pads
+    } else {
+        vec![0.0]
+    };
 
     let prt_id = match parent_id {
         Some(id) => id,
@@ -561,6 +535,12 @@ pub fn add_menu_bar_item(
     state.containers.insert(id, Containers::MenuBarItem(
         MenuBarItem {
             id,
+            width,
+            spacing,
+            offset,
+            paddings,
+            close_on_item_click,
+            close_on_background_click,
             show,
         }));
 

@@ -565,7 +565,7 @@ fn get_children<'a>(parents: &Vec<ParentChildIds>,
     if id != &0 {
         if let Some(Containers::Menu(menu)) = state.containers.get(id) {
             let grouped = get_menu_children(parents, index, parent_ids, state);
-            return menu.construct(grouped, &state.widgets);
+            return menu.construct(grouped, &state.widgets, &state.containers);
         }
     }
 
@@ -591,13 +591,15 @@ fn get_children<'a>(parents: &Vec<ParentChildIds>,
 /// Each child of the Menu should be an MenuBarItem.
 /// For each MenuBarItem, its first child becomes the bar widget and
 /// the remaining children become dropdown menu items.
+/// Returns (MenuBarItem id, elements) tuples so construct() can
+/// look up per-item parameters.
 fn get_menu_children<'a>(
     parents: &Vec<ParentChildIds>,
     menu_index: &usize,
     parent_ids: &Vec<usize>,
     state: &'a IpgState,
-) -> Vec<Vec<Element<'a, Message>>> {
-    let mut grouped: Vec<Vec<Element<'a, Message>>> = vec![];
+) -> Vec<(usize, Vec<Element<'a, Message>>)> {
+    let mut grouped: Vec<(usize, Vec<Element<'a, Message>>)> = vec![];
 
     for child_id in parents[*menu_index].child_ids.iter() {
         // Each child should be an MenuBarItem container
@@ -615,7 +617,7 @@ fn get_menu_children<'a>(
                 }
             }
 
-            grouped.push(group);
+            grouped.push((*child_id, group));
         }
     }
 

@@ -23,7 +23,7 @@ use crate::widgets::ipg_divider::{DivMessage, divider_callback};
 use crate::widgets::ipg_events::{process_keyboard_events, process_mouse_events, process_touch_events, process_window_event};
 use crate::widgets::ipg_mouse_area::{MaMessage, mousearea_callback};
 use crate::widgets::ipg_opaque;
-use crate::widgets::ipg_pick_list::{PLMessage, construct_picklist, pick_list_callback};
+use crate::widgets::ipg_pick_list::{PLMessage, pick_list_callback};
 use crate::widgets::ipg_progress_bar::construct_progress_bar;
 use crate::widgets::ipg_radio::{RDMessage, construct_radio, radio_callback};
 use crate::widgets::ipg_rule::construct_rule;
@@ -731,19 +731,11 @@ fn get_widget<'a>(state: &'a IpgState, id: &usize) -> Option<Element<'a, Message
                 Widgets::Image(image) => {
                     image.construct()
                 },
-                // Widgets::Menu(menu) => {
-                //     Some(construct_menu(menu.clone(), state))
-                // },
                 Widgets::DatePicker(dp) => {
                     dp.construct(&state.widgets)
                 },
                 Widgets::PickList(pick) => {
-                    let style_opt = 
-                        if let Some(id) = pick.style_id {
-                            state.widgets.get(&id)
-                        } else { None };
-                    
-                    construct_picklist(pick, style_opt)
+                    pick.construct(&state.widgets)
                 },
                 Widgets::ProgressBar(bar) => {
                     let style_opt = 

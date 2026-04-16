@@ -8,27 +8,27 @@ import icedpygui as ipg
 widgets = [
     # containers
     "add_window",
-    "add_card", "add_card_style", 
-    "add_container", "add_container_style", 
-    
+    "add_card", "add_card_style",
+    "add_container", "add_container_style",
     "add_column", "add_float",
     "add_grid", "add_mouse_area","add_row",
     "add_opaque", "add_stack",
+
     # widgets
-    "add_button", "add_button_style", 
+    "add_button", "add_button_style",
     "add_checkbox", "add_checkbox_style",
-     
     "add_color_picker",
-    "add_date_picker", "add_divider", "add_image", 
-    "add_picklist", "add_progress_bar", "add_radio", 
-    "add_rule", "add_scrollable", "add_selectable_text", 
-    "add_separator", "add_slider", "add_space", "add_svg", 
+    "add_date_picker", "add_divider", "add_image",
+    "add_picklist", "add_progress_bar", "add_radio",
+    "add_rule", "add_scrollable", "add_selectable_text",
+    "add_separator", "add_slider", "add_space", "add_svg",
     "add_table", "add_text_input", "add_text", "add_toggle",
+
     # utilities
-    "update_widget", "update_widget_params", 
+    "update_widget", "update_widget_params",
     "delete_widget", "move_widget",
     "show_widget", "hide_widget",
-    "start_session", "generate_id" 
+    "start_session", "generate_id"
 ]
 
 def show_help(_btn_id, widget_name):

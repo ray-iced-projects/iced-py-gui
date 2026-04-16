@@ -154,7 +154,7 @@ impl MousePointer {
 #[derive(Debug, Clone, PartialEq, Hash)]
 #[pyclass(eq, eq_int, hash, frozen)]
 pub enum MouseAreaParam {
-    Enalbled,
+    Enabled,
     MousePointer,
 }
 
@@ -167,7 +167,7 @@ impl WidgetParamUpdate for MouseArea {
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
-            MouseAreaParam::Enalbled => set_t_value(&mut self.enabled, value, "MouseAreaParam::Enalbled"),
+            MouseAreaParam::Enabled => set_t_value(&mut self.enabled, value, "MouseAreaParam::Enalbled"),
             MouseAreaParam::MousePointer => set_t_value(&mut self.mouse_pointer, value, "MouseAreaParam::MousePointer"),
         }
     }

@@ -1,17 +1,18 @@
 //! PickList module - provides add_pick_list pyfunction
 
-use pyo3::{Py, PyAny, PyResult, pyfunction};
+use pyo3::{Py, PyAny, PyResult, Python, pyfunction};
+use pyo3::types::{PyAnyMethods, PyListMethods};
 type PyObject = Py<PyAny>;
 
 use crate::{access_state, add_callback_to_mutex, 
     add_user_data_to_mutex};
 use crate::graphics::{colors::Color, 
         bootstrap_arrow::Arrow}; 
-use crate::py_api::helpers::get_length; 
+
 use crate::state::{Widgets, get_id, set_state_of_widget}; 
 use crate::widgets::{
         ipg_pick_list::{PickList, PickListHandle, 
-        PickListStyle, convert_pyobject_vec_string}};
+        PickListStyle}};
 
 
 
@@ -49,8 +50,6 @@ use crate::widgets::{
 ///     Sets the Font size for the text.
 /// text_line_height : float, Optional
 ///     Sets the Line height for the text.
-/// text_shaping : TextShaping, Optional
-///     Sets the Text shaping strategy.
 /// handle : PickListHandle, Optional
 ///     Sets the handle type for the pick list.
 /// arrow_size : float, Optional
@@ -76,52 +75,48 @@ use crate::widgets::{
 #[pyo3(signature = (
     parent_id, 
     options, 
-    gen_id=None, 
     on_select=None, 
     width=None, 
-    width_fill=false,
+    width_fill=None,
     menu_height=None,
-    menu_height_fill=false, 
+    menu_height_fill=None, 
     padding=None,  
     placeholder=None, 
     selected=None, 
     text_size=None, 
     text_line_height=None, 
-    text_shaping_advanced=None,
-    text_shaping_basic=None,
     handle=None, 
     arrow_size=None, 
-    dynamic_closed=None, 
+    dynamic_close=None, 
     dynamic_open=None, 
     custom_static=None,
     style_id=None, 
     user_data=None, 
     show=true,
+    gen_id=None, 
     ))]
 pub fn add_pick_list(
     parent_id: String,
     options: PyObject,
-    gen_id: Option<usize>,
     on_select: Option<PyObject>,
     width: Option<f32>,
-    width_fill: bool,
+    width_fill: Option<bool>,
     menu_height: Option<f32>,
-    menu_height_fill: bool,
+    menu_height_fill: Option<bool>,
     padding: Option<Vec<f32>>,
     placeholder: Option<String>,
     selected: Option<String>,
     text_size: Option<f32>,
     text_line_height: Option<f32>,
-    text_shaping_advanced: Option<bool>,
-    text_shaping_basic: Option<bool>,
     handle: Option<PickListHandle>,
     arrow_size: Option<f32>,
-    dynamic_closed: Option<Arrow>,
+    dynamic_close: Option<Arrow>,
     dynamic_open: Option<Arrow>,
     custom_static: Option<Arrow>,
     style_id: Option<usize>,
     user_data: Option<PyObject>,
     show: bool,
+    gen_id: Option<usize>,
 ) -> PyResult<usize>
 {
     let id = get_id(gen_id);
@@ -134,10 +129,16 @@ pub fn add_pick_list(
         add_user_data_to_mutex(id, py);
     }
 
-    let width = get_length(width, width_fill);
-    let menu_height = get_length(menu_height, menu_height_fill);
-
-    let options =  convert_pyobject_vec_string(options);
+    let options: Vec<String> = Python::attach(|py| {
+        let list = options.bind(py);
+        let py_list = list.downcast::<pyo3::types::PyList>()
+            .expect("options must be a list");
+        py_list.iter()
+            .map(|item| item.str()
+                .expect("option item must be convertible to str")
+                .to_string())
+            .collect()
+    });
 
     set_state_of_widget(id, parent_id.clone());
 
@@ -146,24 +147,23 @@ pub fn add_pick_list(
     state.widgets.insert(id, Widgets::PickList(
         PickList { 
             id,
-            parent_id,
-            show,
             options,
             placeholder,
             selected,
             width,
+            width_fill,
             menu_height,
+            menu_height_fill,
             padding,
             text_size,
             text_line_height,
-            text_shaping_advanced,
-            text_shaping_basic,
             handle,
             arrow_size,
-            dynamic_closed,
+            dynamic_close,
             dynamic_open,
             custom_static,
             style_id,
+            show,
         }));
 
 
@@ -219,6 +219,41 @@ pub fn add_pick_list(
 ///     [top-left, top-right, bottom-right, bottom-left].
 /// border_width : float, Optional
 ///     Sets the border width in logical pixels.
+/// menu_background_color : Color, Optional
+///     Sets the dropdown menu background color using a predefined color variant.
+/// menu_background_color_alpha : float, Optional
+///     Sets the alpha of the dropdown menu background Color.
+/// menu_background_rgba : list of float, Optional
+///     Sets the dropdown menu background color in rgba format as [r, g, b, a].
+/// menu_text_color : Color, Optional
+///     Sets the dropdown menu text color using a predefined color variant.
+/// menu_text_color_alpha : float, Optional
+///     Sets the alpha of the dropdown menu text Color.
+/// menu_text_rgba : list of float, Optional
+///     Sets the dropdown menu text color in rgba format as [r, g, b, a].
+/// menu_selected_text_color : Color, Optional
+///     Sets the dropdown menu selected option text color using a predefined color variant.
+/// menu_selected_text_color_alpha : float, Optional
+///     Sets the alpha of the dropdown menu selected option text Color.
+/// menu_selected_text_rgba : list of float, Optional
+///     Sets the dropdown menu selected option text color in rgba format as [r, g, b, a].
+/// menu_selected_background_color : Color, Optional
+///     Sets the dropdown menu selected option background color using a predefined color variant.
+/// menu_selected_background_color_alpha : float, Optional
+///     Sets the alpha of the dropdown menu selected option background Color.
+/// menu_selected_background_rgba : list of float, Optional
+///     Sets the dropdown menu selected option background color in rgba format as [r, g, b, a].
+/// menu_border_color : Color, Optional
+///     Sets the dropdown menu border color using a predefined color variant.
+/// menu_border_color_alpha : float, Optional
+///     Sets the alpha of the dropdown menu border Color.
+/// menu_border_rgba : list of float, Optional
+///     Sets the dropdown menu border color in rgba format as [r, g, b, a].
+/// menu_border_radius : list of float, Optional
+///     Sets the dropdown menu border radius as [all] or
+///     [top-left, top-right, bottom-right, bottom-left].
+/// menu_border_width : float, Optional
+///     Sets the dropdown menu border width in logical pixels.
 /// gen_id : int, Optional
 ///     Obtains an ID of a widget that have not been created, used for the gen_id parameter.
 ///
@@ -248,6 +283,23 @@ pub fn add_pick_list(
     border_rgba_hovered=None,
     border_radius=None,
     border_width=None,
+    menu_background_color=None,
+    menu_background_color_alpha=None,
+    menu_background_rgba=None,
+    menu_text_color=None,
+    menu_text_color_alpha=None,
+    menu_text_rgba=None,
+    menu_selected_text_color=None,
+    menu_selected_text_color_alpha=None,
+    menu_selected_text_rgba=None,
+    menu_selected_background_color=None,
+    menu_selected_background_color_alpha=None,
+    menu_selected_background_rgba=None,
+    menu_border_color=None,
+    menu_border_color_alpha=None,
+    menu_border_rgba=None,
+    menu_border_radius=None,
+    menu_border_width=None,
     gen_id=None
     ))]
 pub fn add_pick_list_style(
@@ -271,37 +323,70 @@ pub fn add_pick_list_style(
     border_rgba_hovered: Option<[f32; 4]>,
     border_radius: Option<Vec<f32>>,
     border_width: Option<f32>,
+    menu_background_color: Option<Color>,
+    menu_background_color_alpha: Option<f32>,
+    menu_background_rgba: Option<[f32; 4]>,
+    menu_text_color: Option<Color>,
+    menu_text_color_alpha: Option<f32>,
+    menu_text_rgba: Option<[f32; 4]>,
+    menu_selected_text_color: Option<Color>,
+    menu_selected_text_color_alpha: Option<f32>,
+    menu_selected_text_rgba: Option<[f32; 4]>,
+    menu_selected_background_color: Option<Color>,
+    menu_selected_background_color_alpha: Option<f32>,
+    menu_selected_background_rgba: Option<[f32; 4]>,
+    menu_border_color: Option<Color>,
+    menu_border_color_alpha: Option<f32>,
+    menu_border_rgba: Option<[f32; 4]>,
+    menu_border_radius: Option<Vec<f32>>,
+    menu_border_width: Option<f32>,
     gen_id: Option<usize>,
     ) -> PyResult<usize>
 {
     let id = get_id(gen_id);
     
-    let background_color = 
-        Color::rgba_ipg_color_to_iced(background_rgba, &background_color, background_color_alpha);
-    let border_color = 
-        Color::rgba_ipg_color_to_iced(border_rgba, &border_color, border_color_alpha);
-    let border_color_hovered = 
-        Color::rgba_ipg_color_to_iced(border_rgba_hovered, &border_color_hovered, border_color_hovered_alpha);
-    let handle_color = 
-        Color::rgba_ipg_color_to_iced(handle_rgba, &handle_color, handle_color_alpha);
-    let placeholder_color = 
-        Color::rgba_ipg_color_to_iced(placeholder_rgba, &placeholder_color, placeholder_color_alpha);
-    let text_color = 
-        Color::rgba_ipg_color_to_iced(text_rgba, &text_color, text_color_alpha);
-
     let mut state = access_state();
 
     state.widgets.insert(id, Widgets::PickListStyle(
         PickListStyle {
             id,
             background_color,
+            background_color_alpha,
+            background_rgba,
             text_color,
+            text_color_alpha,
+            text_rgba,
             handle_color,
+            handle_color_alpha,
+            handle_rgba,
             placeholder_color,
+            placeholder_color_alpha,
+            placeholder_rgba,
             border_color,
+            border_color_alpha,
+            border_rgba,
             border_color_hovered,
+            border_color_hovered_alpha,
+            border_rgba_hovered,
             border_radius,
             border_width,
+            menu_background_color,
+            menu_background_color_alpha,
+            menu_background_rgba,
+            menu_text_color,
+            menu_text_color_alpha,
+            menu_text_rgba,
+            menu_selected_text_color,
+            menu_selected_text_color_alpha,
+            menu_selected_text_rgba,
+            menu_selected_background_color,
+            menu_selected_background_color_alpha,
+            menu_selected_background_rgba,
+            menu_border_color,
+            menu_border_color_alpha,
+            menu_border_rgba,
+            menu_border_radius,
+            menu_border_width,
         }));
 
     drop(state);

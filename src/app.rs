@@ -24,7 +24,6 @@ use crate::widgets::ipg_events::{process_keyboard_events, process_mouse_events, 
 use crate::widgets::ipg_mouse_area::{MaMessage, mousearea_callback};
 use crate::widgets::ipg_opaque;
 use crate::widgets::ipg_pick_list::{PLMessage, pick_list_callback};
-use crate::widgets::ipg_progress_bar::construct_progress_bar;
 use crate::widgets::ipg_radio::{RDMessage, construct_radio, radio_callback};
 use crate::widgets::ipg_rule::construct_rule;
 use crate::widgets::ipg_scrollable::scrollable_callback;
@@ -738,11 +737,7 @@ fn get_widget<'a>(state: &'a IpgState, id: &usize) -> Option<Element<'a, Message
                     pick.construct(&state.widgets)
                 },
                 Widgets::ProgressBar(bar) => {
-                    let style_opt = 
-                        if let Some(id) = bar.style_id {
-                            state.widgets.get(&id)
-                        } else { None };
-                    construct_progress_bar(bar, style_opt)
+                    bar.construct(&state.widgets)
                 },
                 Widgets::Radio(rad) => {
                     let style_opt = 

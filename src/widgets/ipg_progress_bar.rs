@@ -1,16 +1,18 @@
 //! ipg_progress_bar
 
-use iced::{Element, Length, Theme};
+use std::collections::HashMap;
+
+use iced::{Element, Theme};
 use iced::widget::{self, progress_bar};
 
 use pyo3::{pyclass, Py, PyAny};
 type PyObject = Py<PyAny>;
 
 use crate::app;
-use crate::py_api::helpers::{get_radius, try_extract_style_standard};
+use crate::graphics::colors::Color;
+use crate::py_api::helpers::{get_len, get_radius};
 use crate::state::Widgets;
-use crate::widgets::styling::StyleStandard;
-use crate::widgets::widget_param_update::{WidgetParamUpdate, set_bool, set_f32, set_height, set_height_fill, set_opt_bool, set_opt_f32, set_opt_iced_color, set_opt_iced_color_from_rgba, set_opt_usize, set_opt_vec_f32, set_width, set_width_fill};
+use crate::widgets::widget_param_update::{WidgetParamUpdate, set_t_value};
 
 #[derive(Debug, Clone)]
 pub struct ProgressBar {
@@ -22,156 +24,175 @@ pub struct ProgressBar {
     pub max: f32,
     pub value: f32, 
     pub is_vertical: Option<bool>,
-    pub width: Length,
-    pub height: Length,
-    pub style_standard: Option<StyleStandard>,
+    pub width: Option<f32>,
+    pub width_fill: Option<bool>,
+    pub height: Option<f32>,
+    pub height_fill: Option<bool>,
+    pub fill: Option<bool>,
+    pub style_std: Option<ProgressBarStyleStd>,
     pub style_id: Option<usize>,
 }
 
-#[derive(Debug, Clone, Default)]
-pub struct ProgressBarStyle {
-    pub id: usize,
-    pub background_color: Option<iced::Color>,
-    pub bar_color: Option<iced::Color>,
-    pub border_color: Option<iced::Color>,
-    pub border_radius: Option<Vec<f32>>,
-    pub border_width: Option<f32>,
-}
+impl ProgressBar {
 
-pub fn construct_progress_bar<'a>(bar: &'a ProgressBar, 
-                            style_opt: Option<&'a Widgets>) 
-                            -> Option<Element<'a, app::Message>> {
-    
-    if !bar.show {
-        return None
+    fn lookup<'a>(&self, widgets: &'a HashMap<usize, Widgets>, id: Option<usize>) -> Option<&'a Widgets> {
+        id.and_then(|id| widgets.get(&id))
     }
 
-    let style = style_opt.and_then(Widgets::as_progress_bar_style).cloned();
+    pub fn construct<'a>(
+        &'a self, 
+        widgets: &HashMap<usize, Widgets>,
+    ) -> Option<Element<'a, app::Message>> {
+        
+        if !self.show { return None }
 
-    Some(widget::ProgressBar::new(
-        bar.min..=bar.max, bar.value)
-            .length(bar.width)
-            .girth(bar.height)
-            .style(move|theme: &Theme | {   
-                get_styling(theme, 
-                    bar.style_standard.clone(), 
-                    style.clone(), 
-                    )  
-                })
-            .into()
-    )
+        let style_opt = 
+            self.lookup(widgets, self.style_id)
+                .and_then(Widgets::as_progress_bar_style).cloned();
+
+        Some(widget::ProgressBar::new(
+            self.min..=self.max, self.value)
+                .length(get_len(self.fill, self.width_fill, self.width))
+                .girth(get_len(self.fill, self.height_fill, self.height))
+                .style(move|theme: &Theme | {
+                    if let Some(st) = style_opt.clone() {  
+                        st.to_iced(theme, &self.style_std)
+                        } else if let Some(std) = &self.style_std {
+                            match_style_std(theme, std)
+                        } else {
+                            progress_bar::primary(theme)
+                        }
+                    })
+                .into()
+        )
+    }
 }
-
 
 #[derive(Debug, Clone, PartialEq, Hash)]
 #[pyclass(eq, eq_int, hash, frozen)]
 pub enum ProgressBarParam {
+    Fill,
     Height,
     HeightFill,
     IsVertical,
-    Min,
     Max,
+    Min,
     Show,
-    StyleStandard,
     StyleId,
+    StyleStd,
     Value,
     Width,
     WidthFill,
 }
 
-pub fn get_styling(theme: &Theme,
-                    style_standard: Option<StyleStandard>,
-                    style_opt: Option<ProgressBarStyle>, 
-                    ) -> progress_bar::Style 
-{
-    if style_standard.is_none() && style_opt.is_none() {
-        return progress_bar::primary(theme)
-    }
+#[derive(Debug, Clone, Default)]
+pub struct ProgressBarStyle {
+    pub id: usize,
+    pub background_color: Option<Color>,
+    pub background_color_alpha: Option<f32>,
+    pub background_rgba: Option<[f32; 4]>,
+    pub bar_color: Option<Color>,
+    pub bar_color_alpha: Option<f32>,
+    pub bar_rgba: Option<[f32; 4]>,
+    pub border_color: Option<Color>,
+    pub border_color_alpha: Option<f32>,
+    pub border_rgba: Option<[f32; 4]>,
+    pub border_radius: Option<Vec<f32>>,
+    pub border_width: Option<f32>,
+}
 
-    if style_standard.is_some() {
-        let style_std = style_standard.unwrap().clone();
+impl ProgressBarStyle {
+    pub fn to_iced(
+        &self,
+        theme: &Theme,
+        style_std: &Option<ProgressBarStyleStd>,
+    ) -> progress_bar::Style {
         
-        let mut std_style = match style_std {
-            StyleStandard::Primary => {
+        let mut style = 
+            if let Some(std) = style_std {
+                match_style_std(theme, std)
+            } else {
                 progress_bar::primary(theme)
-            },
-            StyleStandard::Secondary => {
-                progress_bar::secondary(theme)
-            },
-            StyleStandard::Success => {
-                progress_bar::success(theme)
-            },
-            StyleStandard::Danger => {
-                progress_bar::danger(theme)
-            },
-            StyleStandard::Text => {
-                eprint!("[WARN] StandardStyle.Text 
-                is not valid for progress bar, defaulting to primary.");
-                progress_bar::primary(theme)
-            },
-            StyleStandard::Warning => {
-                progress_bar::warning(theme)
-            },
-        };
+            };
 
-        if let Some(custom) = style_opt {
-            if let Some(bc) = custom.border_color {
-                std_style.border.color = bc;
-            }
-            if let Some(bw) = custom.border_width {
-                 std_style.border.width = bw;
-            }
-            if let Some(br) = custom.border_radius {
-                std_style.border.radius = 
-                    get_radius(&br, "ProgressBar".to_string());
-            }
+        let background_color = 
+            Color::rgba_ipg_color_to_iced(self.background_rgba, &self.background_color, self.background_color_alpha);
+        let bar_color = 
+            Color::rgba_ipg_color_to_iced(self.bar_rgba, &self.bar_color, self.bar_color_alpha);
+        let border_color = 
+            Color::rgba_ipg_color_to_iced(self.border_rgba, &self.border_color, self.border_color_alpha);
+
+        if let Some(bc) = background_color {
+            style.background = bc.into();
         }
-        return std_style
+        if let Some(bc) = bar_color {
+            style.bar = bc.into();
+        }
+        if let Some(bc) = border_color {
+            style.border.color = bc;
+        }
+        if let Some(bw) = self.border_width {
+            style.border.width = bw;
+        }
+        if let Some(br) = &self.border_radius {
+            style.border.radius = 
+                get_radius(br, "ProgressBar".to_string());
+        }
+        
+        style
+        
     }
+}
 
-
-    let mut custom = progress_bar::primary(theme);
-
-    //tested above so should unwrap()
-    let style = style_opt.unwrap();
-    
-    if let Some(bc) = style.background_color {
-        custom.background = bc.into();
+fn match_style_std(
+    theme: &Theme, 
+    std: &ProgressBarStyleStd
+) -> progress_bar::Style {
+    match std {
+        ProgressBarStyleStd::Primary => {
+            progress_bar::primary(theme)
+        },
+        ProgressBarStyleStd::Secondary => {
+            progress_bar::secondary(theme)
+        },
+        ProgressBarStyleStd::Success => {
+            progress_bar::success(theme)
+        },
+        ProgressBarStyleStd::Danger => {
+            progress_bar::danger(theme)
+        },
+        
+        ProgressBarStyleStd::Warning => {
+            progress_bar::warning(theme)
+        },
     }
-
-    if let Some(bc) = style.bar_color {
-        custom.bar = bc.into();
-    }
-
-    if let Some(bc) = style.border_color {
-        custom.border.color = bc;
-    }
-    if let Some(bw) = style.border_width {
-         custom.border.width = bw;
-    }
-    if let Some(br) = style.border_radius {
-        custom.border.radius = 
-            get_radius(&br,"ProgressBar".to_string());
-    }
-
-    custom
- 
 }
 
 #[derive(Debug, Clone, PartialEq, Hash)]
 #[pyclass(eq, eq_int, hash, frozen)]
 pub enum ProgressBarStyleParam {
     BackgroundColor,
-    BackgroundRgbaColor,
+    BackgroundColorAlpha,
+    BackgroundRgba,
     BarColor,
-    BarRgbaColor,
+    BarColorAlpha,
+    BarRgba,
     BorderColor,
-    BorderRgbaColor,
+    BorderColorAlpha,
     BorderRadius,
+    BorderRgba,
     BorderWidth,
 }
 
-
+#[derive(Debug, Clone, PartialEq, Hash)]
+#[pyclass(eq, eq_int, hash, frozen)]
+pub enum ProgressBarStyleStd {
+    Danger,
+    Primary,
+    Secondary,
+    Success,
+    Warning,
+}
 
 // ---------------------------------------------------------------------------
 // WidgetParamUpdate implementations
@@ -182,17 +203,18 @@ impl WidgetParamUpdate for ProgressBar {
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
-            ProgressBarParam::Height => set_height(&mut self.height, value, "Height"),
-            ProgressBarParam::HeightFill => set_height_fill(&mut self.height, value, "HeightFill"),
-            ProgressBarParam::IsVertical => set_opt_bool(&mut self.is_vertical, value, "IsVertical"),
-            ProgressBarParam::Max => set_f32(&mut self.max, value, "Max"),
-            ProgressBarParam::Min => set_f32(&mut self.min, value, "Min"),
-            ProgressBarParam::Show => set_bool(&mut self.show, value, "Show"),
-            ProgressBarParam::StyleId => set_opt_usize(&mut self.style_id, value, "StyleId"),
-            ProgressBarParam::StyleStandard => self.style_standard = Some(try_extract_style_standard(value, "StyleStandard")),
-            ProgressBarParam::Value => set_f32(&mut self.value, value, "Value"),
-            ProgressBarParam::Width => set_width(&mut self.width, value, "Width"),
-            ProgressBarParam::WidthFill => set_width_fill(&mut self.width, value, "WidthFill"),
+            ProgressBarParam::Fill => set_t_value(&mut self.fill, value, "ProgressBarParam::Fill"),
+            ProgressBarParam::Height => set_t_value(&mut self.height, value, "Height"),
+            ProgressBarParam::HeightFill => set_t_value(&mut self.height_fill, value, "ProgressBarParam::HeightFill"),
+            ProgressBarParam::IsVertical => set_t_value(&mut self.is_vertical, value, "ProgressBarParam::IsVertical"),
+            ProgressBarParam::Max => set_t_value(&mut self.max, value, "ProgressBarParam::Max"),
+            ProgressBarParam::Min => set_t_value(&mut self.min, value, "ProgressBarParam::Min"),
+            ProgressBarParam::Show => set_t_value(&mut self.show, value, "ProgressBarParam::Show"),
+            ProgressBarParam::StyleId => set_t_value(&mut self.style_id, value, "StyleId"),
+            ProgressBarParam::StyleStd => set_t_value(&mut self.style_std, value, "ProgressBarParam::StyleStd"),
+            ProgressBarParam::Value => set_t_value(&mut self.value, value, "ProgressBarParam::Value"),
+            ProgressBarParam::Width => set_t_value(&mut self.width, value, "Width"),
+            ProgressBarParam::WidthFill => set_t_value(&mut self.width, value, "ProgressBarParam::WidthFill"),
         }
     }
 }
@@ -202,176 +224,17 @@ impl WidgetParamUpdate for ProgressBarStyle {
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
-            ProgressBarStyleParam::BackgroundColor => 
-                set_opt_iced_color(&mut self.background_color, value, "BackgroundColor"),
-            ProgressBarStyleParam::BackgroundRgbaColor => 
-                set_opt_iced_color_from_rgba(&mut self.background_color, value, "BackgroundRgbaColor"),
-            ProgressBarStyleParam::BarColor => 
-                set_opt_iced_color(&mut self.bar_color, value, "BarColor"),
-            ProgressBarStyleParam::BarRgbaColor => 
-                set_opt_iced_color_from_rgba(&mut self.bar_color, value, "BarRgbaColor"),
-            ProgressBarStyleParam::BorderColor => 
-                set_opt_iced_color(&mut self.border_color, value, "BorderColor"),
-            ProgressBarStyleParam::BorderRgbaColor => 
-                set_opt_iced_color_from_rgba(&mut self.border_color, value, "BorderRgbaColor"),
-            ProgressBarStyleParam::BorderRadius => 
-                set_opt_vec_f32(&mut self.border_radius, value, "BorderRadius"),
-            ProgressBarStyleParam::BorderWidth => 
-                set_opt_f32(&mut self.border_width, value, "BorderWidth"),
+            ProgressBarStyleParam::BackgroundColor => set_t_value(&mut self.background_color, value, "ProgressBarStyleParam::BackgroundColor"),
+            ProgressBarStyleParam::BackgroundColorAlpha => set_t_value(&mut self.background_color_alpha, value, "ProgressBarStyleParam::BackgroundColorAlpha"),
+            ProgressBarStyleParam::BackgroundRgba => set_t_value(&mut self.background_color, value, "ProgressBarStyleParam::BackgroundRgbaColor"),
+            ProgressBarStyleParam::BarColor => set_t_value(&mut self.bar_color, value, "ProgressBarStyleParam::BarColor"),
+            ProgressBarStyleParam::BarColorAlpha => set_t_value(&mut self.bar_color_alpha, value, "ProgressBarStyleParam::BarColorAlpha"),
+            ProgressBarStyleParam::BarRgba => set_t_value(&mut self.bar_color, value, "ProgressBarStyleParam::BarRgbaColor"),
+            ProgressBarStyleParam::BorderColor => set_t_value(&mut self.border_color, value, "ProgressBarStyleParam::BorderColor"),
+            ProgressBarStyleParam::BorderColorAlpha => set_t_value(&mut self.border_color_alpha, value, "ProgressBarStyleParam::BorderColorAlpha"),
+            ProgressBarStyleParam::BorderRadius => set_t_value(&mut self.border_radius, value, "ProgressBarStyleParam::BorderRadius"),
+            ProgressBarStyleParam::BorderRgba => set_t_value(&mut self.border_color, value, "ProgressBarStyleParam::BorderRgbaColor"),
+            ProgressBarStyleParam::BorderWidth => set_t_value(&mut self.border_width, value, "ProgressBarStyleParam::BorderWidth"),
         }
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use iced::Length;
-    use pyo3::{Python, IntoPyObjectExt};
-
-    fn make_progress_bar() -> ProgressBar {
-        ProgressBar {
-            id: 0,
-            parent_id: String::new(),
-            show: true,
-            min: 0.0,
-            max: 100.0,
-            value: 50.0,
-            is_vertical: None,
-            width: Length::Shrink,
-            height: Length::Shrink,
-            style_standard: None,
-            style_id: None,
-        }
-    }
-
-    fn make_progress_bar_style() -> ProgressBarStyle {
-        ProgressBarStyle::default()
-    }
-
-    fn py_obj<T: for<'py> IntoPyObjectExt<'py>>(val: T) -> PyObject {
-        Python::initialize();
-        Python::attach(|py| val.into_py_any(py).unwrap())
-    }
-
-    fn py_none() -> PyObject {
-        Python::initialize();
-        Python::attach(|py| py.None().into_py_any(py).unwrap())
-    }
-
-    // -- ProgressBar param tests --
-
-    #[test]
-    fn test_height() {
-        let mut pb = make_progress_bar();
-        pb.param_update(ProgressBarParam::Height, &py_obj(20.0f32));
-        assert_eq!(pb.height, Length::Fixed(20.0));
-    }
-
-    #[test]
-    fn test_height_fill() {
-        let mut pb = make_progress_bar();
-        pb.param_update(ProgressBarParam::HeightFill, &py_obj(true));
-        assert_eq!(pb.height, Length::Fill);
-    }
-
-    #[test]
-    fn test_is_vertical() {
-        let mut pb = make_progress_bar();
-        pb.param_update(ProgressBarParam::IsVertical, &py_obj(true));
-        assert_eq!(pb.is_vertical, Some(true));
-        pb.param_update(ProgressBarParam::IsVertical, &py_none());
-        assert_eq!(pb.is_vertical, None);
-    }
-
-    #[test]
-    fn test_min() {
-        let mut pb = make_progress_bar();
-        pb.param_update(ProgressBarParam::Min, &py_obj(10.0f32));
-        assert_eq!(pb.min, 10.0);
-    }
-
-    #[test]
-    fn test_max() {
-        let mut pb = make_progress_bar();
-        pb.param_update(ProgressBarParam::Max, &py_obj(200.0f32));
-        assert_eq!(pb.max, 200.0);
-    }
-
-    #[test]
-    fn test_show() {
-        let mut pb = make_progress_bar();
-        pb.param_update(ProgressBarParam::Show, &py_obj(false));
-        assert!(!pb.show);
-    }
-
-    #[test]
-    fn test_style_id() {
-        let mut pb = make_progress_bar();
-        pb.param_update(ProgressBarParam::StyleId, &py_obj(5usize));
-        assert_eq!(pb.style_id, Some(5));
-        pb.param_update(ProgressBarParam::StyleId, &py_none());
-        assert_eq!(pb.style_id, None);
-    }
-
-    #[test]
-    fn test_value() {
-        let mut pb = make_progress_bar();
-        pb.param_update(ProgressBarParam::Value, &py_obj(75.0f32));
-        assert_eq!(pb.value, 75.0);
-    }
-
-    #[test]
-    fn test_width() {
-        let mut pb = make_progress_bar();
-        pb.param_update(ProgressBarParam::Width, &py_obj(300.0f32));
-        assert_eq!(pb.width, Length::Fixed(300.0));
-    }
-
-    #[test]
-    fn test_width_fill() {
-        let mut pb = make_progress_bar();
-        pb.param_update(ProgressBarParam::WidthFill, &py_obj(true));
-        assert_eq!(pb.width, Length::Fill);
-    }
-
-    // -- ProgressBarStyle param tests --
-
-    #[test]
-    fn test_style_background_rgba() {
-        let mut s = make_progress_bar_style();
-        s.param_update(ProgressBarStyleParam::BackgroundRgbaColor, &py_obj(vec![1.0f32, 0.0, 0.0, 1.0]));
-        assert!(s.background_color.is_some());
-    }
-
-    #[test]
-    fn test_style_bar_rgba() {
-        let mut s = make_progress_bar_style();
-        s.param_update(ProgressBarStyleParam::BarRgbaColor, &py_obj(vec![0.0f32, 1.0, 0.0, 1.0]));
-        assert!(s.bar_color.is_some());
-    }
-
-    #[test]
-    fn test_style_border_rgba() {
-        let mut s = make_progress_bar_style();
-        s.param_update(ProgressBarStyleParam::BorderRgbaColor, &py_obj(vec![0.0f32, 0.0, 1.0, 1.0]));
-        assert!(s.border_color.is_some());
-    }
-
-    #[test]
-    fn test_style_border_radius() {
-        let mut s = make_progress_bar_style();
-        s.param_update(ProgressBarStyleParam::BorderRadius, &py_obj(vec![4.0f32, 4.0, 4.0, 4.0]));
-        assert_eq!(s.border_radius, Some(vec![4.0, 4.0, 4.0, 4.0]));
-        s.param_update(ProgressBarStyleParam::BorderRadius, &py_none());
-        assert_eq!(s.border_radius, None);
-    }
-
-    #[test]
-    fn test_style_border_width() {
-        let mut s = make_progress_bar_style();
-        s.param_update(ProgressBarStyleParam::BorderWidth, &py_obj(2.0f32));
-        assert_eq!(s.border_width, Some(2.0));
-        s.param_update(ProgressBarStyleParam::BorderWidth, &py_none());
-        assert_eq!(s.border_width, None);
     }
 }

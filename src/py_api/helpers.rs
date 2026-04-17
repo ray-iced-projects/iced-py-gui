@@ -2,7 +2,6 @@
 
 use std::collections::HashMap;
 
-use crate::widgets::styling::StyleStandard;
 use crate::access_state;
 
 use iced::border::Radius;
@@ -369,15 +368,4 @@ pub fn try_extract_opt_boolean(value: &PyObject, name: &str) -> Option<bool> {
             Err(_) => panic!("{}-Unable to extract python bool", name),
         }
     })  
-}
-
-pub fn try_extract_style_standard(value: &PyObject, name: &str) -> StyleStandard {
-    Python::attach(|py| {
-
-        let res = value.extract::<StyleStandard>(py);
-        match res {
-            Ok(val) => val,
-            Err(_) => panic!("{}-Unable to extract python object for StyleStandard", name),
-        }
-    })
 }

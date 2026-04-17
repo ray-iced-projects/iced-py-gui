@@ -3,12 +3,8 @@ use pyo3::{pyfunction, PyResult};
 
 use crate::access_state;
 use crate::graphics::colors::Color;
-use crate::py_api::helpers::get_length;
 use crate::state::{Widgets, get_id, set_state_of_widget};
-use crate::widgets::ipg_progress_bar::{ProgressBar, ProgressBarStyle};
-use crate::widgets::styling::StyleStandard;
-
-
+use crate::widgets::ipg_progress_bar::{ProgressBar, ProgressBarStyle, ProgressBarStyleStd};
 
 
 /// Add a progress bar widget.
@@ -55,36 +51,35 @@ use crate::widgets::styling::StyleStandard;
     min, 
     max, 
     value,
-    gen_id=None,
     is_vertical=None,
     width=None,
-    width_fill=true,  
+    width_fill=None,  
     height=None, 
-    height_fill=false,
-    style_standard=None, 
+    height_fill=None,
+    fill=None,
+    style_std=None, 
     style_id=None, 
-    show=true, 
+    show=true,
+    gen_id=None,
     ))]
 pub fn add_progress_bar(
     parent_id: String,
     min: f32,
     max: f32,
     value: f32,
-    gen_id: Option<usize>,
     is_vertical: Option<bool>,
     width: Option<f32>,
-    width_fill: bool,
+    width_fill: Option<bool>,
     height: Option<f32>,
-    height_fill: bool,
-    style_standard: Option<StyleStandard>,
+    height_fill: Option<bool>,
+    fill: Option<bool>,
+    style_std: Option<ProgressBarStyleStd>,
     style_id: Option<usize>,
     show: bool,
+    gen_id: Option<usize>,
     ) -> PyResult<usize> 
 {
     let id = get_id(gen_id);
-
-    let width = get_length(width, width_fill);
-    let height = get_length(height, height_fill);
 
     set_state_of_widget(id, parent_id.clone());
 
@@ -100,8 +95,11 @@ pub fn add_progress_bar(
             value,
             is_vertical,
             width,
+            width_fill,
             height,
-            style_standard,
+            height_fill,
+            fill,
+            style_std,
             style_id,
         }));
 
@@ -180,22 +178,21 @@ pub fn add_progress_bar_style(
 {
     let id = get_id(gen_id);
 
-    let background_color = 
-        Color::rgba_ipg_color_to_iced(background_rgba, &background_color, background_color_alpha);
-    let bar_color = 
-        Color::rgba_ipg_color_to_iced(bar_rgba, &bar_color, bar_color_alpha);
-    let border_color = 
-        Color::rgba_ipg_color_to_iced(border_rgba, &border_color, border_color_alpha);
-
     let mut state = access_state();
 
         state.widgets.insert(id, Widgets::ProgressBarStyle(
         ProgressBarStyle { 
             id,
             background_color,
+            background_color_alpha,
+            background_rgba,
             bar_color,
+            bar_color_alpha,
+            bar_rgba,
             border_color,
-            border_radius,
+            border_color_alpha,
+            border_rgba,
+            border_radius, 
             border_width,
         }));
 

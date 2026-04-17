@@ -67,6 +67,7 @@ use crate::widgets::enums::ContentFit;
 use crate::widgets::ipg_font::{FontFamily, FontStretch, FontStyle, FontWeight};
 use crate::widgets::ipg_image::ImageParam;
 use crate::widgets::ipg_mouse_area::MousePointer;
+use crate::widgets::ipg_progress_bar::{ProgressBarParam, ProgressBarStyleParam};
 use crate::widgets::styling::StyleStandard;
 use crate::graphics::{bootstrap_icon::Icon, bootstrap_arrow::Arrow};
 use crate::graphics::colors::Color;
@@ -209,6 +210,7 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<MenuStyleParam>()?;
     m.add_class::<RadioStyleParam>()?;
     m.add_class::<RuleStyleParam>()?;
+    m.add_class::<ProgressBarStyleParam>()?;
     m.add_class::<SeparatorStyleParam>()?;
     m.add_class::<ScrollableStyleParam>()?;
     m.add_class::<AutoScrollStyleParam>()?;
@@ -233,6 +235,7 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<ImageParam>()?;
     m.add_class::<MenuParam>()?;
     m.add_class::<MenuBarItemParam>()?;
+    m.add_class::<ProgressBarParam>()?;
     m.add_class::<RadioParam>()?;
     m.add_class::<RowParam>()?;
     m.add_class::<RuleParam>()?;

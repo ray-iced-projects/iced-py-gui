@@ -24,6 +24,7 @@ from .icedpygui import (
     add_menu_style as add_menu_style,
     add_opaque_style as add_opaque_style,
     add_pick_list_style as add_pick_list_style,
+    add_progress_bar_style as add_progress_bar_style,
     add_radio_style as add_radio_style,
     add_scrollable_style as add_scrollable_style,
     add_scroller_param as add_scroller_param,
@@ -67,6 +68,9 @@ from .icedpygui import (
     MousePointer as MousePointer,
     OpaqueParam as OpaqueParam,
     PickListHandle as PickListHandle,
+    ProgressBarParam as ProgressBarParam,
+    ProgressBarStyleParam as ProgressBarStyleParam,
+    ProgressBarStyleStd as ProgressBarStyleStd,
     RadioDirection as RadioDirection,
     RadioParam as RadioParam,
     RadioStyleParam as RadioStyleParam,
@@ -422,6 +426,19 @@ def add_pick_list(
 
     Returns:
         int: widget id
+    """
+    ...
+def add_progress_bar(
+    *,
+    parent_id: Optional[str] = None,
+    **kwargs: Any) -> int:
+    """_summary_
+
+    Args:
+        parent_id (Optional[str], optional): _description_. Defaults to None.
+
+    Returns:
+        int: _description_
     """
     ...
 def add_radio(

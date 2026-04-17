@@ -32,6 +32,8 @@ from .icedpygui import (
     add_opaque as _add_opaque,
     add_pick_list as _add_pick_list,
     add_pick_list_style,
+    add_progress_bar as _add_progress_bar,
+    add_progress_bar_style,
     add_radio as _add_radio,
     add_radio_style,
     add_row as _add_row,
@@ -110,6 +112,9 @@ from .icedpygui import (
     MenuStyleParam,
     MousePointer,
     PickListHandle,
+    ProgressBarParam,
+    ProgressBarStyleParam,
+    ProgressBarStyleStd,
     RadioDirection,
     RadioParam,
     RadioStyleParam,
@@ -205,6 +210,7 @@ add_date_picker = _wrap_widget(_add_date_picker, "add_date_picker")
 add_divider = _wrap_widget(_add_divider, "add_divider")
 add_image = _wrap_widget(_add_image, "add_image")
 add_pick_list = _wrap_widget(_add_pick_list, "add_pick_list")
+add_progress_bar = _wrap_widget(_add_progress_bar, "add_progress_bar")
 add_radio = _wrap_widget(_add_radio, "add_radio")
 add_rule = _wrap_widget(_add_rule, "add_rule")
 add_separator = _wrap_widget(_add_separator, "add_separator")

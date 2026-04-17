@@ -2933,6 +2933,15 @@ class ProgressBarStyleParam:
     BorderWidth:float
 
 
+class ProgressBarStyleStd:
+    """Standard styles for the progress bar"""
+    Danger=''
+    Primary=''
+    Secondary=''
+    Success=''
+    Warning=''
+
+
 class RadioDirection:
     """
     Direction the radio button are aligned.

@@ -2,7 +2,7 @@
 
 use std::collections::HashMap;
 
-use iced::{Element, Theme};
+use iced::{Element, Length, Theme};
 use iced::widget::{self, progress_bar};
 
 use pyo3::{pyclass, Py, PyAny};
@@ -50,10 +50,15 @@ impl ProgressBar {
             self.lookup(widgets, self.style_id)
                 .and_then(Widgets::as_progress_bar_style).cloned();
 
+        let girth = match get_len(self.fill, self.height_fill, self.height) {
+                Length::Shrink => Length::Fixed(30.0),
+                len => len,
+            };
+
         Some(widget::ProgressBar::new(
             self.min..=self.max, self.value)
                 .length(get_len(self.fill, self.width_fill, self.width))
-                .girth(get_len(self.fill, self.height_fill, self.height))
+                .girth(girth)
                 .style(move|theme: &Theme | {
                     if let Some(st) = style_opt.clone() {  
                         st.to_iced(theme, &self.style_std)
@@ -65,7 +70,9 @@ impl ProgressBar {
                     })
                 .into()
         )
+
     }
+    
 }
 
 #[derive(Debug, Clone, PartialEq, Hash)]

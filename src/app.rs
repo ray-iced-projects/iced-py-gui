@@ -24,7 +24,7 @@ use crate::widgets::ipg_events::{process_keyboard_events, process_mouse_events, 
 use crate::widgets::ipg_mouse_area::{MaMessage, mousearea_callback};
 use crate::widgets::ipg_opaque;
 use crate::widgets::ipg_pick_list::{PLMessage, pick_list_callback};
-use crate::widgets::ipg_radio::{RDMessage, construct_radio, radio_callback};
+use crate::widgets::ipg_radio::{RDMessage, radio_callback};
 use crate::widgets::ipg_rule::construct_rule;
 use crate::widgets::ipg_scrollable::scrollable_callback;
 use crate::widgets::ipg_separator::construct_separator;
@@ -740,15 +740,7 @@ fn get_widget<'a>(state: &'a IpgState, id: &usize) -> Option<Element<'a, Message
                     bar.construct(&state.widgets)
                 },
                 Widgets::Radio(rad) => {
-                    let style_opt = 
-                        if let Some(id) = rad.style_id {
-                            state.widgets.get(&id)
-                        } else { None };
-                    let font_opt = 
-                        if let Some(id) = rad.font_id {
-                            state.widgets.get(&id)
-                        } else { None };
-                    construct_radio(rad, style_opt, font_opt)
+                    rad.construct(&state.widgets)
                 },
                 Widgets::Rule(rule) => {
                     let style_opt = 

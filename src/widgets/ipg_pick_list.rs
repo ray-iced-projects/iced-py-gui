@@ -127,7 +127,7 @@ impl PickList {
             if let Some(Widgets::PickList(pl)) = state.widgets.get_mut(&id) {
                 pl.selected = Some(selected.clone());
             }
-    invoke_callback_with_args(id, "on_select", "PickList", selected,
+            invoke_callback_with_args(id, "on_select", "PickList", selected,
                 "def cb(wid: int, selected: str)");
         },
     }

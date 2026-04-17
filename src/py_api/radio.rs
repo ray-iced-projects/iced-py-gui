@@ -3,7 +3,7 @@
 use pyo3::{pyfunction, PyResult, Py, PyAny};
 type PyObject = Py<PyAny>;
 use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex, 
-    graphics::colors::Color, py_api::helpers::get_length, 
+    graphics::colors::Color,
     state::{Widgets, get_id, set_state_of_widget}, 
     widgets::{ipg_radio::{Radio, RadioDirection, 
         RadioStyle}}};
@@ -20,14 +20,12 @@ use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex,
 ///     Sets the parent container ID that this radio group belongs to.
 /// labels : list of str
 ///     Sets the list of labels for each radio button.
-/// gen_id : int, Optional
-///     Obtains an ID of a widget that have not been created, used for the gen_id parameter.
 /// direction : RadioDirection, default Vertical
 ///     Sets the layout direction of the radio buttons.
 /// spacing : float, Optional
-///     Sets the spacing between radio buttons in logical pixels.
-/// radio_spacing : float, Optional
 ///     Sets the spacing between the radio circle and its label.
+/// radio_spacing: float, Optional
+///     Sets the spacing between radio buttons.
 /// padding : list of float, Optional
 ///     Sets the Padding as [all], [vertical, horizontal], or
 ///     [top, right, bottom, left].
@@ -39,7 +37,7 @@ use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex,
 ///     Sets the Fixed height in logical pixels.
 /// height_fill : bool, default False
 ///     Whether the radio group fills available height.
-/// on_select : callable, Optional
+/// on_selected : callable, Optional
 ///     Sets the Callback method to invoke when a radio button is selected.
 /// selected_index : int, Optional
 ///     Sets the index of the initially selected radio button.
@@ -63,7 +61,8 @@ use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex,
 ///     Sets the Arbitrary data forwarded to callbacks.
 /// show : bool, default True
 ///     Whether the radio group is visible.
-///
+/// gen_id : int, Optional
+///     Obtains an ID of a widget that have not been created, used for the gen_id parameter.
 /// Returns
 /// -------
 /// int
@@ -72,74 +71,66 @@ use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex,
 #[pyo3(signature = (
     parent_id, 
     labels, 
-    gen_id=None,
     direction=RadioDirection::Vertical,
     spacing=None,
-    radio_spacing=None, 
+    radio_spacing=None,
     padding=None, 
     width=None, 
-    width_fill=false, 
+    width_fill=None, 
     height=None, 
-    height_fill=false,
-    on_select=None, 
+    height_fill=None,
+    fill=None,
+    on_selected=None, 
     selected_index=None, 
     size=None, 
     style_id=None,
     font_id=None,
-    text_spacing=None, 
     text_size=None,
     text_line_height=None, 
-    text_shaping_advanced=None,
-    text_shaping_basic=None,
     text_wrapping_none=None,
     text_wrapping_glyph=None,
     text_wrapping_word_glyph=None,
     user_data=None, 
     show=true, 
+    gen_id=None,
     ))]
 pub fn add_radio(
     parent_id: String,
     labels: Vec<String>,
-    //**above required
-    gen_id: Option<usize>,
     direction: RadioDirection,
     spacing: Option<f32>,
     radio_spacing: Option<f32>,
     padding: Option<Vec<f32>>,
     width: Option<f32>,
-    width_fill: bool,
+    width_fill: Option<bool>,
     height: Option<f32>,
-    height_fill: bool,
-    on_select: Option<PyObject>,
+    height_fill: Option<bool>,
+    fill: Option<bool>,
+    on_selected: Option<PyObject>,
     selected_index: Option<usize>,
     size: Option<f32>,
     style_id: Option<usize>,
     font_id: Option<usize>,
-    text_spacing: Option<f32>,
     text_size: Option<f32>,
     text_line_height: Option<f32>,
-    text_shaping_advanced: Option<bool>,
-    text_shaping_basic: Option<bool>,
     text_wrapping_none: Option<bool>,
     text_wrapping_glyph: Option<bool>,
     text_wrapping_word_glyph: Option<bool>,
     user_data: Option<PyObject>,
     show: bool,
+    gen_id: Option<usize>,
     ) -> PyResult<usize>
 {
     let id = get_id(gen_id);
 
-    let is_selected = if let Some(val) = selected_index {
+    let selected_index = if let Some(val) = selected_index {
         if val > labels.len()-1 {
             panic!("Radio selected_index is greater than the size of the labels")
         } else { Some(val) }
     } else { None };
 
-    let width = get_length(width, width_fill);
-    let height = get_length(height, height_fill);
-
-    if let Some(py) = on_select {
-        add_callback_to_mutex(id, "on_select".to_string(), py);
+    if let Some(py) = on_selected {
+        add_callback_to_mutex(id, "on_selected".to_string(), py);
     }
 
     if let Some(py) = user_data {
@@ -153,27 +144,26 @@ pub fn add_radio(
     state.widgets.insert(id, Widgets::Radio(
         Radio {
             id,
-            parent_id,
             labels,
             direction,
             spacing,
             radio_spacing,
             padding,
-            show,
-            is_selected,
+            selected_index,
             width,
+            width_fill,
             height,
+            height_fill,
+            fill,
             size,
-            text_spacing,
             text_size,
             text_line_height,
-            text_shaping_advanced,
-            text_shaping_basic,
             text_wrapping_none,
             text_wrapping_glyph,
             text_wrapping_word_glyph,
             font_id,
             style_id,
+            show,
         }));
 
     drop(state);                                      
@@ -282,31 +272,30 @@ pub fn add_radio_style(
 {
     let id = get_id(gen_id);
 
-    let background_color = 
-        Color::rgba_ipg_color_to_iced(background_rgba, &background_color, background_color_alpha);
-    let background_color_hovered = 
-        Color::rgba_ipg_color_to_iced(background_rgba_hovered, &background_color_hovered, background_color_hovered_alpha);
-    let dot_color = 
-        Color::rgba_ipg_color_to_iced(dot_rgba, &dot_color, dot_color_alpha);
-    let dot_color_hovered = 
-        Color::rgba_ipg_color_to_iced(dot_rgba_hovered, &dot_color_hovered, dot_color_hovered_alpha);
-    let border_color = 
-        Color::rgba_ipg_color_to_iced(border_rgba, &border_color, border_color_alpha);
-    let text_color = 
-        Color::rgba_ipg_color_to_iced(text_rgba, &text_color, text_color_alpha);
-
     let mut state = access_state();
 
     state.widgets.insert(id, Widgets::RadioStyle(
         RadioStyle {
             id,
             background_color,
+            background_color_alpha,
+            background_rgba,
             background_color_hovered,
-            dot_color,
-            dot_color_hovered,
+            background_color_hovered_alpha,
+            background_rgba_hovered,
             border_color,
+            border_color_alpha,
+            border_rgba,
             border_width,
+            dot_color,
+            dot_color_alpha,
+            dot_rgba,
+            dot_color_hovered,
+            dot_color_hovered_alpha,
+            dot_rgba_hovered,
             text_color,
+            text_color_alpha,
+            text_rgba,
         }));
 
     drop(state);

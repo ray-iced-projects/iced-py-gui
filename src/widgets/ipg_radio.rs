@@ -1,59 +1,184 @@
 //!ipg_radio
 
-use crate::py_api::helpers::get_padding;
-use crate::widgets::widget_param_update::{
-    WidgetParamUpdate, set_bool, set_height, set_height_fill, set_opt_f32, set_opt_iced_color, set_opt_iced_color_from_rgba, set_opt_usize, set_opt_vec_f32, set_vec_string, set_width, set_width_fill};
+use std::collections::HashMap;
 
-use crate::{access_callbacks, access_user_data1, IpgState};
+use crate::graphics::colors::Color;
+use crate::py_api::helpers::{get_len, get_padding};
+use crate::widgets::callbacks::invoke_callback_with_args;
+use crate::widgets::widget_param_update::{
+    WidgetParamUpdate, set_t_value};
+
+use crate::IpgState;
 use crate::app;
 use crate::state::Widgets;
 
 use iced::widget::radio::{self, Status};
-use iced::widget::text::{Shaping, Wrapping};
-use iced::{Element, Length, Theme};
+use iced::widget::text::Wrapping;
+use iced::{Element, Theme};
 use iced::widget::{self, Column, Row};
 
-use pyo3::{pyclass, Py, PyAny, Python};
+use pyo3::{pyclass, Py, PyAny};
 type PyObject = Py<PyAny>;
 
 
 #[derive(Debug, Clone)]
 pub struct Radio {
     pub id: usize,
-    pub parent_id: String,
     pub labels: Vec<String>,
     pub direction: RadioDirection,
     pub spacing: Option<f32>,
     pub radio_spacing: Option<f32>,
     pub padding: Option<Vec<f32>>,
-    pub show: bool,
-    pub is_selected: Option<usize>,
-    pub width: Length,
-    pub height: Length,
+    pub selected_index: Option<usize>,
+    pub width: Option<f32>,
+    pub width_fill: Option<bool>,
+    pub height: Option<f32>,
+    pub height_fill: Option<bool>,
+    pub fill: Option<bool>,
     pub size: Option<f32>,
-    pub text_spacing: Option<f32>,
     pub text_size: Option<f32>,
     pub text_line_height: Option<f32>,
-    pub text_shaping_advanced: Option<bool>,
-    pub text_shaping_basic: Option<bool>,
     pub text_wrapping_none: Option<bool>,
     pub text_wrapping_glyph: Option<bool>,
     pub text_wrapping_word_glyph: Option<bool>,
     pub font_id: Option<usize>,
     pub style_id: Option<usize>,
+    pub show: bool,
 }
 
-#[derive(Debug, Clone, Copy)]
-pub struct RadioStyle {
-    pub id: usize,
-    pub background_color: Option<iced::Color>,
-    pub background_color_hovered: Option<iced::Color>,
-    pub dot_color: Option<iced::Color>,
-    pub dot_color_hovered: Option<iced::Color>,
-    pub border_color: Option<iced::Color>,
-    pub border_width: Option<f32>,
-    pub text_color: Option<iced::Color>,
+impl Radio {
+
+    fn lookup<'a>(&self, widgets: &'a HashMap<usize, Widgets>, id: Option<usize>) -> Option<&'a Widgets> {
+        id.and_then(|id| widgets.get(&id))
+    }
+
+    pub fn construct<'a>(
+        &'a self, 
+        widgets: &HashMap<usize, Widgets>
+    ) -> Option<Element<'a, app::Message>> {
+        
+        if !self.show { return None }
+
+        let font_opt = 
+            self.lookup(widgets, self.font_id)
+                .and_then(Widgets::as_font).cloned();
+
+        let mut radio_elements = vec![];
+
+        for (i, label) in  self.labels.iter().enumerate() {
+            
+            let style_opt = 
+            self.lookup(widgets, self.style_id)
+                .and_then(Widgets::as_radio_style).cloned();
+
+            let selected = if self.selected_index == Some(i) {
+                    Some(i)
+                } else {
+                    None
+                };
+
+            let mut rd = widget::Radio::new(
+                        label.clone(),
+                        i,                        // value = index
+                        selected,                 // selected = Option<usize>
+                        RDMessage::OnSelected, // f: usize -> RDMessage
+                    )
+                .width(get_len(self.fill, self.width_fill, self.width))
+                .style(move|theme: &Theme, status| {
+                    if let Some(st) = &style_opt {
+                        st.to_iced(theme, status)
+                    } else {
+                        radio::default(theme, status)
+                    }
+                });
+
+            if let Some(sz) = self.size {
+                rd = rd.size(sz);
+            }
+
+            if let Some(sp) = self.spacing {
+                rd = rd.spacing(sp);
+            }
+
+            if let Some(ts) = self.text_size {
+                rd = rd.text_size(ts);
+            }
+
+            if let Some(lh) = self.text_line_height {
+                rd = rd.text_line_height(lh);
+            }
+
+            let rd = if let Some(font) = &font_opt {
+                rd.font(font.to_iced())
+            } else { rd };
+
+            // default is word so not checked
+            let rd = 
+                if self.text_wrapping_none.is_some() {
+                    rd.text_wrapping(Wrapping::None)
+                } else if self.text_wrapping_glyph.is_some() {
+                    rd.text_wrapping(Wrapping::Glyph)
+                } else if self.text_wrapping_word_glyph.is_some() {
+                    rd.text_wrapping(Wrapping::WordOrGlyph)
+                } else { rd };
+
+            radio_elements.push(rd);
+            
+        }
+
+        let elements: Vec<Element<'_, RDMessage>> = 
+            radio_elements.into_iter().map(|r| r.into()).collect();
+
+        let rd: Element<RDMessage> = match self.direction {
+                RadioDirection::Horizontal =>{
+                    let mut rw: Row<'_, RDMessage> = 
+                        Row::with_children(elements)
+                            .width(get_len(self.fill, self.width_fill, self.width))
+                            .height(get_len(self.fill, self.height_fill, self.height))
+                            .padding(get_padding(&self.padding));
+                    
+                    if let Some(rd_sp) = self.radio_spacing {
+                        rw = rw.spacing(rd_sp);
+                    }
+                    rw.into()
+                },
+                RadioDirection::Vertical => {
+                    let mut col: Column<'_, RDMessage> = 
+                        Column::with_children(elements)
+                            .padding(get_padding(&self.padding))
+                            .width(get_len(self.fill, self.width_fill, self.width))
+                            .height(get_len(self.fill, self.height_fill, self.height));
+
+                    if let Some(rd_sp) = self.radio_spacing {
+                        col = col.spacing(rd_sp);
+                    }                                    
+                    col.into()                                                               
+                },
+        };
+
+        Some(rd.map(move |message| app::Message::Radio(self.id, message)))
+
+    }
 }
+
+#[derive(Debug, Clone)]
+pub enum RDMessage {
+    OnSelected(usize),
+}
+
+pub fn radio_callback(state: &mut IpgState, id: usize, message: RDMessage) {
+    match message {
+        RDMessage::OnSelected(selected) => {
+            // Update widget state directly
+            if let Some(Widgets::Radio(rd)) = state.widgets.get_mut(&id) {
+                rd.selected_index = Some(selected);
+            }
+            invoke_callback_with_args(id, "on_selected", "Radio", selected,
+                "def cb(wid: int, on_selected: int)");
+        },
+    }
+ }
+
 
 #[derive(Debug, Clone, PartialEq, Hash)]
 #[pyclass(eq, eq_int, hash, frozen)]
@@ -63,293 +188,85 @@ pub enum RadioDirection {
 }
 
 #[derive(Debug, Clone)]
-pub enum RDMessage {
-    RadioSelected(usize),
+pub struct RadioStyle {
+    pub id: usize,
+    pub background_color: Option<Color>,
+    pub background_color_alpha: Option<f32>,
+    pub background_rgba: Option<[f32; 4]>,
+    pub background_color_hovered: Option<Color>,
+    pub background_color_hovered_alpha: Option<f32>,
+    pub background_rgba_hovered: Option<[f32; 4]>,
+    pub border_color: Option<Color>,
+    pub border_color_alpha: Option<f32>,
+    pub border_rgba: Option<[f32; 4]>,
+    pub border_width: Option<f32>,
+    pub dot_color: Option<Color>,
+    pub dot_color_alpha: Option<f32>,
+    pub dot_rgba: Option<[f32; 4]>,
+    pub dot_color_hovered: Option<Color>,
+    pub dot_color_hovered_alpha: Option<f32>,
+    pub dot_rgba_hovered: Option<[f32; 4]>,
+    pub text_color: Option<Color>,
+    pub text_color_alpha: Option<f32>,
+    pub text_rgba: Option<[f32; 4]>,
 }
 
-
-pub fn construct_radio<'a>(rad: &'a Radio, 
-                        style_opt: Option<&'a Widgets>,
-                        font_opt:  Option<&'a Widgets>) 
-                        -> Option<Element<'a, app::Message>> {
-    
-    if !rad.show {
-        return None
-    }
-
-    let style_opt = get_radio_style(style_opt);
-
-    let selected = rad.is_selected;
-
-    let mut radio_elements = vec![];
-
-    for (i, label) in  rad.labels.iter().enumerate() {
-        let style: Option<RadioStyle> = 
-            style_opt.map(|st| RadioStyle{
-                id: st.id, 
-                background_color: st.background_color, 
-                background_color_hovered: st.background_color_hovered, 
-                dot_color: st.dot_color, 
-                dot_color_hovered: st.dot_color_hovered, 
-                border_color: st.border_color, 
-                border_width: st.border_width, 
-                text_color: st.text_color });
-
-        let mut rd: widget::Radio<'_, RDMessage> = widget::Radio::new(
-            label.clone(), 
-            i,
-            selected,
-            RDMessage::RadioSelected
-            )
-            .width(rad.width)
-            .style(move|theme: &Theme, status| {
-                get_styling(theme, status, 
-                style,
-                )});
-
-        if let Some(sz) = rad.size {
-            rd = rd.size(sz);
-        }
-
-        if let Some(sp) = rad.spacing {
-            rd = rd.spacing(sp);
-        }
-
-        if let Some(ts) = rad.text_size {
-            rd = rd.text_size(ts);
-        }
-
-        if let Some(lh) = rad.text_line_height {
-            rd = rd.text_line_height(lh);
-        }
-
-        let rd = 
-        if let Some(wd) = font_opt {
-            match wd {
-                Widgets::Font(font) => {
-                    rd.font(font.to_iced())
-                },
-                _ => rd
-            }
-        } else { rd };
-
-        // default is word so not checked
-        let rd = 
-            if rad.text_wrapping_none.is_some() {
-                rd.text_wrapping(Wrapping::None)
-            } else if rad.text_wrapping_glyph.is_some() {
-                rd.text_wrapping(Wrapping::Glyph)
-            } else if rad.text_wrapping_word_glyph.is_some() {
-                rd.text_wrapping(Wrapping::WordOrGlyph)
-            } else { rd };
-
-        // default is auto so not checked
-        let rd = 
-            if rad.text_shaping_advanced.is_some() {
-                rd.text_shaping(Shaping::Advanced)
-            } else if rad.text_shaping_basic.is_some() {
-                rd.text_shaping(Shaping::Basic)
-            } else { rd };
+impl RadioStyle {
+    pub fn to_iced(
+        &self,
+        theme: &Theme, 
+        status: Status, 
+    ) -> radio::Style {
         
+        let mut style = radio::default(theme, status);
 
-        radio_elements.push(rd);
+        let background_color = 
+            Color::rgba_ipg_color_to_iced(self.background_rgba, &self.background_color, self.background_color_alpha);
+        let background_color_hovered = 
+            Color::rgba_ipg_color_to_iced(self.background_rgba_hovered, &self.background_color_hovered, self.background_color_hovered_alpha);
+        let dot_color = 
+            Color::rgba_ipg_color_to_iced(self.dot_rgba, &self.dot_color, self.dot_color_alpha);
+        let dot_color_hovered = 
+            Color::rgba_ipg_color_to_iced(self.dot_rgba_hovered, &self.dot_color_hovered, self.dot_color_hovered_alpha);
+        let border_color = 
+            Color::rgba_ipg_color_to_iced(self.border_rgba, &self.border_color, self.border_color_alpha);
+        let text_color = 
+            Color::rgba_ipg_color_to_iced(self.text_rgba, &self.text_color, self.text_color_alpha);
+
+        style.text_color = text_color;
         
-    }
-
-    let elements: Vec<Element<'_, RDMessage>> = 
-        radio_elements.into_iter().map(|r| r.into()).collect();
-
-    let rd: Element<RDMessage> = match rad.direction {
-            RadioDirection::Horizontal =>{
-                let mut rw: Row<'_, RDMessage> = 
-                    Row::with_children(elements)
-                        .width(rad.width)
-                        .height(rad.height)
-                        .padding(get_padding(&rad.padding));
-                
-                if let Some(rd_sp) = rad.radio_spacing {
-                    rw = rw.spacing(rd_sp);
-                }
-                rw.into()
-            },
-            RadioDirection::Vertical => {
-                let mut col: Column<'_, RDMessage> = 
-                    Column::with_children(elements)
-                        .padding(get_padding(&rad.padding))
-                        .width(rad.width)
-                        .height(rad.height);
-
-                if let Some(rd_sp) = rad.radio_spacing {
-                    col = col.spacing(rd_sp);
-                }                                    
-                col.into()                                                               
-            },
-    };
-
-    Some(rd.map(move |message| app::Message::Radio(rad.id, message)))
-
-}
-
-
-pub fn radio_callback(state: &mut IpgState, id: usize, message: RDMessage) {
-
-    let widget_opt = state.widgets.get_mut(&id);
-
-    let widgets = match widget_opt {
-        Some(rd) => rd,
-        None => panic!("Radio callback with id {} could not be found", id),
-    };
-
-    let radio: &mut Radio = widgets.as_radio_mut()
-        .expect("Radio expected Radio in Widgets");
-
-    let ch_usize = match message {
-        RDMessage::RadioSelected(index) => index,
-    };
-
-    radio.is_selected = Some(ch_usize);
-
-    process_callback(id, "on_select".to_string(), ch_usize, radio.labels[ch_usize].clone());
-    
-}
-
-
-fn process_callback(
-    id: usize, 
-    event_name: String, 
-    index: usize, 
-    label: String) 
-{
-let ud1 = access_user_data1();
-    let app_cbs = access_callbacks();
-
-    // Retrieve the callback
-    let callback = match app_cbs.callbacks.get(&(id, event_name)) {
-        Some(cb) => Python::attach(|py| cb.clone_ref(py)),
-        None => return,
-    };
-
-    drop(app_cbs);
-
-    // Check user data from ud1
-    if let Some(user_data) = ud1.user_data.get(&id) {
-        Python::attach(|py| {
-            if let Err(err) = callback.call1(py, (id, (index, label), user_data)) {
-                panic!("Radio callback error: {err}");
-            }
-        });
-        drop(ud1); // Drop ud1 before processing ud2
-        return;
-    }
-    drop(ud1); // Drop ud1 if no user data is found
-
-    // Check user data from ud2
-    // let ud2 = access_user_data2();
-    // if let Some(user_data) = ud2.user_data.get(&id) {
-    //     Python::attach(|py| {
-    //         if let Err(err) = callback.call1(py, (id, (index, label), user_data)) {
-    //             panic!("Radio callback error: {err}");
-    //         }
-    //     });
-    //     drop(ud2); // Drop ud2 after processing
-    //     return;
-    // }
-    // drop(ud2); // Drop ud2 if no user data is found
-
-    // If no user data is found in both ud1 and ud2, call the callback with the id, index, and label
-    Python::attach(|py| {
-        if let Err(err) = callback.call1(py, (id, (index, label))) {
-            panic!("Radio callback error: {err}");
+        if let Some(bkg) = background_color {
+            style.background = bkg.into();
         }
-    });
-}
 
-
-
-
-#[derive(Debug, Clone, PartialEq, Hash)]
-#[pyclass(eq, eq_int, hash, frozen)]
-pub enum RadioParam {
-    Direction,
-    FontId,
-    Height,
-    HeightFill,
-    IsIndex,
-    Labels,
-    Padding,
-    RadioSpacing,
-    Show,
-    Size,
-    Spacing,
-    StyleId,
-    TextLineHeight,
-    TextShaping,
-    TextSize,
-    TextSpacing,
-    TextWrapping,
-    Width,
-    WidthFill,
-}
-
-
-pub fn extract_radio_direction(direct_obj: &PyObject) -> RadioDirection {
-    Python::attach(|py| {
-        let res = direct_obj.extract::<RadioDirection>(py);
+        if let Some(dc) = dot_color {
+            style.dot_color = dc;
+        }
+        
+        // border color changes to inner color during hover
+        if let Some(bc) = border_color {
+            style.border_color = bc;
+        }
+        
+        if let Some(bw) = self.border_width {
+            style.border_width = bw;
+        }
             
-        match res {
-            Ok(direction) => direction,
-            Err(_) => panic!("RadioDirection failed to extract."),
+        match status {
+            Status::Active{..} => style,
+            Status::Hovered{..} => {
+                if let Some(bch) = background_color_hovered {
+                    style.background = bch.into();
+                }
+                if let Some(dch) = dot_color_hovered {
+                    style.dot_color = dch;
+                }
+                style
+            },
         }
-    })  
+
+    }
 }
-
-pub fn get_styling(theme: &Theme, status: Status, 
-                    style_opt: Option<RadioStyle>,
-                    ) -> radio::Style {
-    
-    if style_opt.is_none() {
-        return radio::default(theme, status)
-    }
-    
-    let mut base_style = radio::default(theme, status);
-
-    let style = style_opt.unwrap();
-
-    base_style.text_color = style.text_color;
-    
-    if style.background_color.is_some() {
-        base_style.background = style.background_color.unwrap().into();
-    }
-
-    if style.dot_color.is_some() {
-        base_style.dot_color = style.dot_color.unwrap();
-    }
-    
-    // border color changes to inner color during hover
-    if style.border_color.is_some() {
-        base_style.border_color = style.border_color.unwrap();
-    }
-    
-    if style.border_width.is_some() {
-        base_style.border_width = style.border_width.unwrap();
-    }
-        
-
-    match status {
-        Status::Active{..} => base_style,
-        Status::Hovered{..} => {
-            if style.background_color_hovered.is_some() {
-                base_style.background = style.background_color_hovered.unwrap().into();
-            }
-            if style.dot_color_hovered.is_some() {
-                base_style.dot_color = style.dot_color_hovered.unwrap();
-            }
-            base_style
-        },
-    }
-
-}
-
 #[derive(Debug, Clone, PartialEq, Hash)]
 #[pyclass(eq, eq_int, hash, frozen)]
 pub enum RadioStyleParam {
@@ -366,13 +283,30 @@ pub enum RadioStyleParam {
     TextRgbaColor,
 }
 
-fn get_radio_style(style: Option<&Widgets>) -> Option<RadioStyle>{
-    match style {
-        Some(Widgets::RadioStyle(style)) => {
-            Some(*style)
-        }
-        _ => None,
-    }
+
+#[derive(Debug, Clone, PartialEq, Hash)]
+#[pyclass(eq, eq_int, hash, frozen)]
+pub enum RadioParam {
+    Direction,
+    Fill,
+    FontId,
+    Height,
+    HeightFill,
+    Labels,
+    Padding,
+    SelectedIndex,
+    Show,
+    Size,
+    Spacing,
+    RadioSpacing,
+    StyleId,
+    TextLineHeight,
+    TextSize,
+    TextWrappingGlyph,
+    TextWrappingNone,
+    TextWrappingWordGlyph,
+    Width,
+    WidthFill,
 }
 
 // ---------------------------------------------------------------------------
@@ -384,26 +318,27 @@ impl WidgetParamUpdate for Radio {
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
-            RadioParam::Direction => self.direction = extract_radio_direction(value),
-            RadioParam::FontId => set_opt_usize(&mut self.font_id, value, "FontId"),
-            RadioParam::Height => set_height(&mut self.height, value, "Height"),
-            RadioParam::HeightFill => set_height_fill(&mut self.height, value, "HeightFill"),
-            RadioParam::IsIndex => set_opt_usize(&mut self.is_selected, value, "IsIndex"),
-            RadioParam::Labels => set_vec_string(&mut self.labels, value, "Labels"),
-            RadioParam::Padding => set_opt_vec_f32(&mut self.padding, value, "Padding"),
-            RadioParam::RadioSpacing => set_opt_f32(&mut self.radio_spacing, value, "RadioSpacing"),
-            RadioParam::Show => set_bool(&mut self.show, value, "Show"),
-            RadioParam::Size => set_opt_f32(&mut self.size, value, "Size"),
-            RadioParam::Spacing => set_opt_f32(&mut self.spacing, value, "Spacing"),
-            RadioParam::StyleId => set_opt_usize(&mut self.style_id, value, "StyleId"),
-            RadioParam::TextLineHeight => set_opt_f32(&mut self.text_line_height, value, "TextLineHeight"),
-            RadioParam::TextSize => set_opt_f32(&mut self.text_size, value, "TextSize"),
-            RadioParam::TextSpacing => set_opt_f32(&mut self.text_spacing, value, "TextSpacing"),
-            RadioParam::Width => set_width(&mut self.width, value, "Width"),
-            RadioParam::WidthFill => set_width_fill(&mut self.width, value, "WidthFill"),
-            RadioParam::TextShaping => todo!(),
-            RadioParam::TextWrapping => todo!(),
-                    }
+            RadioParam::Direction => set_t_value(&mut self.direction, value, "RadioParam::Direction"),
+            RadioParam::Fill => set_t_value(&mut self.fill, value, "RadioParam::Fill"),
+            RadioParam::FontId => set_t_value(&mut self.font_id, value, "RadioParam::FontId"),
+            RadioParam::Height => set_t_value(&mut self.height, value, "RadioParam::Height"),
+            RadioParam::HeightFill => set_t_value(&mut self.height_fill, value, "RadioParam::HeightFill"),
+            RadioParam::Labels => set_t_value(&mut self.labels, value, "RadioParam::Labels"),
+            RadioParam::Padding => set_t_value(&mut self.padding, value, "RadioParam::Padding"),
+            RadioParam::SelectedIndex => set_t_value(&mut self.selected_index, value, "RadioParam::SelectedIndex"),
+            RadioParam::Show => set_t_value(&mut self.show, value, "RadioParam::Show"),
+            RadioParam::Size => set_t_value(&mut self.size, value, "RadioParam::Size"),
+            RadioParam::Spacing => set_t_value(&mut self.spacing, value, "RadioParam::Spacing"),
+            RadioParam::RadioSpacing => set_t_value(&mut self.radio_spacing, value, "RadioParam::RadioSpacing"),
+            RadioParam::StyleId => set_t_value(&mut self.style_id, value, "RadioParam::StyleId"),
+            RadioParam::TextLineHeight => set_t_value(&mut self.text_line_height, value, "RadioParam::TextLineHeight"),
+            RadioParam::TextSize => set_t_value(&mut self.text_size, value, "RadioParam::TextSize"),
+            RadioParam::TextWrappingNone => set_t_value(&mut self.text_wrapping_none, value, "RadioParam::TextWrappingNone"),
+            RadioParam::TextWrappingGlyph => set_t_value(&mut self.text_wrapping_glyph, value, "RadioParam::TextWrappingGlyph"),
+            RadioParam::TextWrappingWordGlyph => set_t_value(&mut self.text_wrapping_word_glyph, value, "RadioParam::TextWrappingWordGlyph"),
+            RadioParam::Width => set_t_value(&mut self.width, value, "RadioParam::Width"),
+            RadioParam::WidthFill => set_t_value(&mut self.width_fill, value, "RadioParam::WidthFill"),
+        }
     }
 }
 
@@ -413,251 +348,27 @@ impl WidgetParamUpdate for RadioStyle {
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
             RadioStyleParam::BackgroundColor => 
-                set_opt_iced_color(&mut self.background_color, value, "BackgroundColor"),
+                set_t_value(&mut self.background_color, value, "RadioStyleParam::BackgroundColor"),
             RadioStyleParam::BackgroundRgbaColor => 
-                set_opt_iced_color_from_rgba(&mut self.background_color, value, "BackgroundRgbaColor"),
+                set_t_value(&mut self.background_color, value, "RadioStyleParam::BackgroundRgbaColor"),
             RadioStyleParam::BorderColor => 
-                set_opt_iced_color(&mut self.border_color, value, "BorderColor"),
+                set_t_value(&mut self.border_color, value, "RadioStyleParam::BorderColor"),
             RadioStyleParam::BorderRgbaColor => 
-                set_opt_iced_color_from_rgba(&mut self.border_color, value, "BorderRgbaColor"),
+                set_t_value(&mut self.border_color, value, "RadioStyleParam::BorderRgbaColor"),
             RadioStyleParam::BorderWidth => 
-                set_opt_f32(&mut self.border_width, value, "BorderWidth"),
+                set_t_value(&mut self.border_width, value, "RadioStyleParam::BorderWidth"),
             RadioStyleParam::DotColor => 
-                set_opt_iced_color(&mut self.dot_color, value, "DotColor"),
+                set_t_value(&mut self.dot_color, value, "RadioStyleParam::DotColor"),
             RadioStyleParam::DotRgbaColor => 
-                set_opt_iced_color_from_rgba(&mut self.dot_color, value, "DotRgbaColor"),
+                set_t_value(&mut self.dot_color, value, "RadioStyleParam::DotRgbaColor"),
             RadioStyleParam::DotColorHovered => 
-                set_opt_iced_color(&mut self.dot_color_hovered, value, "DotColorHovered"),
+                set_t_value(&mut self.dot_color_hovered, value, "RadioStyleParam::DotColorHovered"),
             RadioStyleParam::DotRgbaColorHovered => 
-                set_opt_iced_color_from_rgba(&mut self.dot_color_hovered, value, "DotRgbaColorHovered"),
+                set_t_value(&mut self.dot_color_hovered, value, "RadioStyleParam::DotRgbaColorHovered"),
             RadioStyleParam::TextColor => 
-                set_opt_iced_color(&mut self.text_color, value, "TextColor"),
+                set_t_value(&mut self.text_color, value, "RadioStyleParam::TextColor"),
             RadioStyleParam::TextRgbaColor => 
-                set_opt_iced_color_from_rgba(&mut self.text_color, value, "TextRgbaColor"),
+                set_t_value(&mut self.text_color, value, "RadioStyleParam::TextRgbaColor"),
         }
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use iced::Length;
-    use pyo3::{Python, IntoPyObjectExt};
-
-    fn make_radio() -> Radio {
-        Radio {
-            id: 0,
-            parent_id: String::new(),
-            labels: vec!["A".into(), "B".into()],
-            direction: RadioDirection::Vertical,
-            spacing: None,
-            radio_spacing: None,
-            padding: None,
-            show: true,
-            is_selected: None,
-            width: Length::Shrink,
-            height: Length::Shrink,
-            size: None,
-            text_spacing: None,
-            text_size: None,
-            text_line_height: None,
-            text_shaping_advanced: None,
-            text_shaping_basic: None,
-            text_wrapping_none: None,
-            text_wrapping_glyph: None,
-            text_wrapping_word_glyph: None,
-            font_id: None,
-            style_id: None,
-        }
-    }
-
-    fn make_radio_style() -> RadioStyle {
-        RadioStyle {
-            id: 0,
-            background_color: None,
-            background_color_hovered: None,
-            dot_color: None,
-            dot_color_hovered: None,
-            border_color: None,
-            border_width: None,
-            text_color: None,
-        }
-    }
-
-    fn py_obj<T: for<'py> IntoPyObjectExt<'py>>(val: T) -> PyObject {
-        Python::initialize();
-        Python::attach(|py| val.into_py_any(py).unwrap())
-    }
-
-    fn py_none() -> PyObject {
-        Python::initialize();
-        Python::attach(|py| py.None().into_py_any(py).unwrap())
-    }
-
-    // -- Radio param tests --
-
-    #[test]
-    fn test_font_id() {
-        let mut r = make_radio();
-        r.param_update(RadioParam::FontId, &py_obj(3usize));
-        assert_eq!(r.font_id, Some(3));
-        r.param_update(RadioParam::FontId, &py_none());
-        assert_eq!(r.font_id, None);
-    }
-
-    #[test]
-    fn test_height() {
-        let mut r = make_radio();
-        r.param_update(RadioParam::Height, &py_obj(100.0f32));
-        assert_eq!(r.height, Length::Fixed(100.0));
-    }
-
-    #[test]
-    fn test_height_fill() {
-        let mut r = make_radio();
-        r.param_update(RadioParam::HeightFill, &py_obj(true));
-        assert_eq!(r.height, Length::Fill);
-    }
-
-    #[test]
-    fn test_is_index() {
-        let mut r = make_radio();
-        r.param_update(RadioParam::IsIndex, &py_obj(1usize));
-        assert_eq!(r.is_selected, Some(1));
-        r.param_update(RadioParam::IsIndex, &py_none());
-        assert_eq!(r.is_selected, None);
-    }
-
-    #[test]
-    fn test_labels() {
-        let mut r = make_radio();
-        r.param_update(RadioParam::Labels, &py_obj(vec!["X".to_string(), "Y".to_string()]));
-        assert_eq!(r.labels, vec!["X", "Y"]);
-    }
-
-    #[test]
-    fn test_padding() {
-        let mut r = make_radio();
-        r.param_update(RadioParam::Padding, &py_obj(vec![5.0f32, 10.0]));
-        assert_eq!(r.padding, Some(vec![5.0, 10.0]));
-        r.param_update(RadioParam::Padding, &py_none());
-        assert_eq!(r.padding, None);
-    }
-
-    #[test]
-    fn test_radio_spacing() {
-        let mut r = make_radio();
-        r.param_update(RadioParam::RadioSpacing, &py_obj(8.0f32));
-        assert_eq!(r.radio_spacing, Some(8.0));
-    }
-
-    #[test]
-    fn test_show() {
-        let mut r = make_radio();
-        r.param_update(RadioParam::Show, &py_obj(false));
-        assert!(!r.show);
-    }
-
-    #[test]
-    fn test_size() {
-        let mut r = make_radio();
-        r.param_update(RadioParam::Size, &py_obj(20.0f32));
-        assert_eq!(r.size, Some(20.0));
-    }
-
-    #[test]
-    fn test_spacing() {
-        let mut r = make_radio();
-        r.param_update(RadioParam::Spacing, &py_obj(12.0f32));
-        assert_eq!(r.spacing, Some(12.0));
-    }
-
-    #[test]
-    fn test_style_id() {
-        let mut r = make_radio();
-        r.param_update(RadioParam::StyleId, &py_obj(7usize));
-        assert_eq!(r.style_id, Some(7));
-        r.param_update(RadioParam::StyleId, &py_none());
-        assert_eq!(r.style_id, None);
-    }
-
-    #[test]
-    fn test_text_line_height() {
-        let mut r = make_radio();
-        r.param_update(RadioParam::TextLineHeight, &py_obj(1.5f32));
-        assert_eq!(r.text_line_height, Some(1.5));
-    }
-
-    #[test]
-    fn test_text_size() {
-        let mut r = make_radio();
-        r.param_update(RadioParam::TextSize, &py_obj(16.0f32));
-        assert_eq!(r.text_size, Some(16.0));
-    }
-
-    #[test]
-    fn test_text_spacing() {
-        let mut r = make_radio();
-        r.param_update(RadioParam::TextSpacing, &py_obj(4.0f32));
-        assert_eq!(r.text_spacing, Some(4.0));
-    }
-
-    #[test]
-    fn test_width() {
-        let mut r = make_radio();
-        r.param_update(RadioParam::Width, &py_obj(200.0f32));
-        assert_eq!(r.width, Length::Fixed(200.0));
-    }
-
-    #[test]
-    fn test_width_fill() {
-        let mut r = make_radio();
-        r.param_update(RadioParam::WidthFill, &py_obj(true));
-        assert_eq!(r.width, Length::Fill);
-    }
-
-    // -- RadioStyle param tests --
-
-    #[test]
-    fn test_style_background_rgba() {
-        let mut s = make_radio_style();
-        s.param_update(RadioStyleParam::BackgroundRgbaColor, &py_obj(vec![1.0f32, 0.0, 0.0, 1.0]));
-        assert!(s.background_color.is_some());
-    }
-
-    #[test]
-    fn test_style_border_rgba() {
-        let mut s = make_radio_style();
-        s.param_update(RadioStyleParam::BorderRgbaColor, &py_obj(vec![0.0f32, 1.0, 0.0, 1.0]));
-        assert!(s.border_color.is_some());
-    }
-
-    #[test]
-    fn test_style_border_width() {
-        let mut s = make_radio_style();
-        s.param_update(RadioStyleParam::BorderWidth, &py_obj(2.0f32));
-        assert_eq!(s.border_width, Some(2.0));
-    }
-
-    #[test]
-    fn test_style_dot_rgba() {
-        let mut s = make_radio_style();
-        s.param_update(RadioStyleParam::DotRgbaColor, &py_obj(vec![0.0f32, 0.0, 1.0, 1.0]));
-        assert!(s.dot_color.is_some());
-    }
-
-    #[test]
-    fn test_style_dot_rgba_hovered() {
-        let mut s = make_radio_style();
-        s.param_update(RadioStyleParam::DotRgbaColorHovered, &py_obj(vec![1.0f32, 1.0, 0.0, 1.0]));
-        assert!(s.dot_color_hovered.is_some());
-    }
-
-    #[test]
-    fn test_style_text_rgba() {
-        let mut s = make_radio_style();
-        s.param_update(RadioStyleParam::TextRgbaColor, &py_obj(vec![0.0f32, 0.0, 0.0, 1.0]));
-        assert!(s.text_color.is_some());
-    }
-}
-

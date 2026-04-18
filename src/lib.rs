@@ -87,7 +87,7 @@ use crate::widgets::ipg_radio::{RadioDirection, RadioParam, RadioStyleParam};
 use crate::widgets::ipg_row::RowParam;
 use crate::widgets::ipg_rule::{RuleParam, RuleStyleParam};
 use crate::widgets::ipg_scrollable::{AutoScrollStyleParam, RailStyleParam, ScrollableParam, ScrollableStyleParam, ScrollerParam};
-use crate::widgets::ipg_separator::{SeparatorParam, SeparatorStyleParam, SeparatorType};
+use crate::widgets::ipg_separator::{SeparatorParam, SeparatorStyleParam};
 use crate::widgets::ipg_slider::{SliderParam, SliderStyleParam};
 use crate::widgets::ipg_stack::StackParam;
 use crate::widgets::ipg_svg::SvgParam;
@@ -267,7 +267,6 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<MousePointer>()?;
     m.add_class::<PickListHandle>()?;
     m.add_class::<RadioDirection>()?;
-    m.add_class::<SeparatorType>()?;
     m.add_class::<ToolTipPosition>()?;
     Ok(())
 }

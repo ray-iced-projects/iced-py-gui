@@ -26,7 +26,6 @@ use crate::widgets::ipg_opaque;
 use crate::widgets::ipg_pick_list::{PLMessage, pick_list_callback};
 use crate::widgets::ipg_radio::{RDMessage, radio_callback};
 use crate::widgets::ipg_scrollable::scrollable_callback;
-use crate::widgets::ipg_separator::construct_separator;
 use crate::widgets::ipg_slider::{SLMessage, construct_slider, slider_callback};
 use crate::widgets::ipg_space::construct_space;
 use crate::widgets::ipg_table::{TableMessage, table_callback};
@@ -745,11 +744,7 @@ fn get_widget<'a>(state: &'a IpgState, id: &usize) -> Option<Element<'a, Message
                     rule.construct(&state.widgets)
                 },
                 Widgets::Separator(sep) => {
-                    let style_opt = 
-                        if let Some(id) = sep.style_id {
-                            state.widgets.get(&id)
-                        } else { None };
-                    construct_separator(sep, style_opt)
+                    sep.construct(&state.widgets)
                 }
                 Widgets::Slider(slider) => {
                     let style_opt = 

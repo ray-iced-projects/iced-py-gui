@@ -3,9 +3,9 @@
 use pyo3::{PyResult, pyfunction};
 
 use crate::{access_state, graphics::colors::Color, 
-    py_api::helpers::get_length, state::{Widgets, 
+    state::{Widgets, 
         get_id, set_state_of_widget}, widgets::ipg_separator::
-        {Separator, SeparatorStyle, SeparatorType}};
+        {Separator, SeparatorStyle}};
 
 
 /// Add a separator widget.
@@ -59,21 +59,23 @@ use crate::{access_state, graphics::colors::Color,
 ///     The numeric widget ID of the newly created separator.
 #[pyfunction]
 #[pyo3(signature = (
-    parent_id, 
+    parent_id,
+    dot=None,
     label=None,
-    separator_type=None, 
+    line=None,
     label_left_width=None,
     label_right_width=None,
     dot_radius=None, 
     dot_count=None,
-    dot_fill=true, 
+    dot_fill=None, 
     dot_border_width=None,
     line_length=None,
     line_thickness=None,
     width=None, 
-    width_fill=false, 
+    width_fill=None, 
     height=None, 
-    height_fill=false,
+    height_fill=None,
+    fill=None,
     spacing=None, 
     style_id=None,
     gen_id=None, 
@@ -81,20 +83,22 @@ use crate::{access_state, graphics::colors::Color,
     ))]
 pub fn add_separator(
     parent_id: String,
+    dot: Option<bool>,
     label: Option<String>,
-    separator_type: Option<SeparatorType>,
+    line: Option<bool>,
     label_left_width: Option<f32>,
     label_right_width: Option<f32>,
     dot_radius: Option<f32>,
     dot_count: Option<u32>,
-    dot_fill: bool,
+    dot_fill: Option<bool>,
     dot_border_width: Option<f32>,
     line_length: Option<f32>,
     line_thickness: Option<f32>,
     width: Option<f32>, 
-    width_fill: bool,
+    width_fill: Option<bool>,
     height: Option<f32>,
-    height_fill: bool,
+    height_fill: Option<bool>,
+    fill: Option<bool>,
     spacing: Option<f32>,
     style_id: Option<usize>,
     gen_id: Option<usize>,
@@ -103,9 +107,6 @@ pub fn add_separator(
 {
     let id = get_id(gen_id);
 
-    let width = get_length(width, width_fill);
-    let height = get_length(height, height_fill);
-
     set_state_of_widget(id, parent_id.clone());
 
     let mut state = access_state();
@@ -113,9 +114,9 @@ pub fn add_separator(
     state.widgets.insert(id, Widgets::Separator(
         Separator {
             id,
-            parent_id,
-            separator_type,
+            dot,
             label,
+            line,
             label_left_width,
             label_right_width,
             dot_radius,
@@ -124,8 +125,11 @@ pub fn add_separator(
             dot_border_width,
             line_length,
             line_thickness,
-            width,
-            height,
+            width, 
+            width_fill, 
+            height, 
+            height_fill,
+            fill,
             spacing,
             style_id,
             show,
@@ -165,30 +169,25 @@ pub fn add_separator(
 ///     The numeric style ID to pass to a separator's ``style_id``.
 #[pyfunction]
 #[pyo3(signature = (
-    ipg_color=None,
-    ipg_color_alpha=None,
-    rgba_color=None,
-    border_ipg_color=None,
-    border_ipg_color_alpha=None,
-    border_rgba_color=None,
+    color=None,
+    color_alpha=None,
+    rgba=None,
+    border_color=None,
+    border_color_alpha=None,
+    border_rgba=None,
     gen_id=None,
     ))]
 pub fn add_separator_style(
-    ipg_color: Option<Color>,
-    ipg_color_alpha: Option<f32>,
-    rgba_color: Option<[f32; 4]>,
-    border_ipg_color: Option<Color>,
-    border_ipg_color_alpha: Option<f32>,
-    border_rgba_color: Option<[f32; 4]>,
+    color: Option<Color>,
+    color_alpha: Option<f32>,
+    rgba: Option<[f32; 4]>,
+    border_color: Option<Color>,
+    border_color_alpha: Option<f32>,
+    border_rgba: Option<[f32; 4]>,
     gen_id: Option<usize>,
     ) -> PyResult<usize> 
 {
     let id = get_id(gen_id);
-
-    let color = 
-        Color::rgba_ipg_color_to_iced(rgba_color, &ipg_color, ipg_color_alpha);
-    let border_color = 
-        Color::rgba_ipg_color_to_iced(border_rgba_color, &border_ipg_color, border_ipg_color_alpha);
 
     let mut state = access_state();
     
@@ -196,7 +195,11 @@ pub fn add_separator_style(
         SeparatorStyle {
             id,
             color,
+            color_alpha,
+            rgba,
             border_color,
+            border_color_alpha,
+            border_rgba,
         }));
 
     drop(state);

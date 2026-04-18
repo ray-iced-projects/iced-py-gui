@@ -125,7 +125,6 @@ from .icedpygui import (
     ScrollableStyleParam,
     ScrollerParam,
     SeparatorParam,
-    SeparatorType,
     SeparatorStyleParam,
     SliderParam,
     SliderStyleParam,

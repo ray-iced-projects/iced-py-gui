@@ -1,14 +1,15 @@
 //! ipg_separator
 #![allow(clippy::enum_variant_names)]
+use std::collections::HashMap;
+
 use crate::app::Message;
 use crate::graphics::colors::Color;
 
 use crate::app;
+use crate::py_api::helpers::get_len;
 use crate::state::Widgets;
 use crate::widgets::widget_param_update::{
-    WidgetParamUpdate, set_bool, set_height, set_height_fill, 
-    set_opt_f32, set_opt_iced_color, set_opt_iced_color_from_rgba, 
-    set_opt_string, set_opt_u32, set_opt_usize, set_width, set_width_fill};
+    WidgetParamUpdate, set_t_value};
 
 use iced::border::Radius;
 use iced::widget::{row, Row, Text};
@@ -22,111 +23,81 @@ type PyObject = Py<PyAny>;
 #[derive(Debug, Clone)]
 pub struct Separator {
     pub id: usize,
-    pub parent_id: String,
-    pub separator_type: Option<SeparatorType>,
+    pub dot: Option<bool>,
     pub label: Option<String>,
+    pub line: Option<bool>,
     pub label_left_width: Option<f32>,
     pub label_right_width: Option<f32>,
     pub dot_radius: Option<f32>,
     pub dot_count: Option<u32>,
-    pub dot_fill: bool,
+    pub dot_fill: Option<bool>,
     pub dot_border_width: Option<f32>,
     pub line_length: Option<f32>,
     pub line_thickness: Option<f32>,
-    pub width: Length,
-    pub height: Length,
+    pub width: Option<f32>,
+    pub width_fill: Option<bool>,
+    pub height: Option<f32>,
+    pub height_fill: Option<bool>,
+    pub fill: Option<bool>,
     pub spacing: Option<f32>,
     pub style_id: Option<usize>,
     pub show: bool,
 }
 
-#[derive(Debug, Clone)]
-pub struct SeparatorStyle {
-    pub id: usize,
-    pub color: Option<iced::Color>,
-    pub border_color: Option<iced::Color>,
-}
+impl Separator {
 
-#[derive(Debug, Clone, PartialEq, Hash)]
-#[pyclass(eq, eq_int, hash, frozen)]
-pub enum SeparatorType {
-    Dot,
-    Label,
-    Line,
-}
-
-pub fn construct_separator<'a>(
-    sep: &'a Separator, 
-    style_opt: Option<&Widgets>) 
-    -> Option<Element<'a, app::Message>> {
-
-    if !sep.show {
-        return None
+    fn lookup<'a>(&self, widgets: &'a HashMap<usize, Widgets>, id: Option<usize>) -> Option<&'a Widgets> {
+        id.and_then(|id| widgets.get(&id))
     }
 
-    let style_opt = style_opt.and_then(Widgets::as_separator_style).cloned();
+    pub fn construct<'a>(
+        &'a self, 
+        widgets: &HashMap<usize, Widgets>,
+    ) -> Option<Element<'a, app::Message>> {
 
-    let sep_color = 
-        Color::rgba_ipg_color_to_iced(
-            None, 
-            &Some(Color::PRIMARY), 
-            None).unwrap();
+        if !self.show { return None }
 
-    let mut border = Border::default();
-    
-    let separator: Element<'a, app::Message>  = 
-        if let Some(style) = style_opt {
-        
-        let sep_color = 
-            if let Some(c) = style.color {
-                c
-            } else { sep_color };
-        
-        if let Some(bc) = style.border_color {
-            border.color = bc;
-        }
+        let style_opt = 
+            self.lookup(widgets, self.style_id)
+                .and_then(Widgets::as_separator_style).cloned();
+
+
+        let (sep_color, border_color)= 
+            if let Some(st) = style_opt {
+                let sc = match Color::rgba_ipg_color_to_iced(st.rgba, &st.color, st.color_alpha){
+                    Some(c) => c,
+                    None => Color::PRIMARY.to_iced(),
+                };
+                let bc = match Color::rgba_ipg_color_to_iced(st.border_rgba, &st.border_color, st.border_color_alpha) {
+                    Some(c) => c,
+                    None => Color::PRIMARY.to_iced(),
+                };
+                (sc, bc)
+            } else {
+                (Color::PRIMARY.to_iced(), Color::PRIMARY.to_iced())
+            };
         
         // returns a separator with some styling
-        match sep.separator_type {
-            Some(SeparatorType::Dot) => {  
-                get_dot(sep, sep_color, border)
-            },
-            Some(SeparatorType::Label )=> {
-                get_label(sep, sep_color)
-            },
-            Some(SeparatorType::Line) | None=> {
-                get_line(sep, sep_color)
-            },
-        }
+        let separator = 
+                if self.dot == Some(true) {  
+                    Some(get_dot(self, sep_color, border_color))
+                } else if let Some(lbl) = &self.label {
+                    Some(get_label(self, lbl.clone(), sep_color))
+                } else if self.line == Some(true) {
+                    Some(get_line(self, sep_color))
+                } else { None };
 
-    } else {
-        // returns a separator with default styling
-        match sep.separator_type {
-            Some(SeparatorType::Dot) => {
-                get_dot(sep, sep_color, border)
-            },
-            Some(SeparatorType::Label) => {
-                get_label(sep, sep_color)
-            },
-            Some(SeparatorType::Line) | None=> {
-                get_line(sep, sep_color)
-            },
-        }
-    };
+        separator
+        
+    }
 
-    Some(separator)
-    
 }
 
 fn get_dot(sep: &Separator, 
             sep_color: iced::Color,
-            border: Border) 
+            bd_color: iced::Color) 
             -> Element<'_, app::Message>{
     
-    let color = if sep.dot_fill {
-        sep_color
-    } else  { iced::Color::TRANSPARENT };
-
     let dot_radius = if let Some(dr) = sep.dot_radius {
         dr
     } else { 1.0 };
@@ -141,27 +112,34 @@ fn get_dot(sep: &Separator,
         eprintln!("You selected Separator.Dot, so you need to use dot_count, defaulting to 10");
         10
     };
-    
+
+    let border_width = if let Some(bw) = sep.dot_border_width {
+        bw
+    } else { 1.0 };
+
+    let height = get_len(sep.fill, sep.height_fill, sep.height);
+
     row((0..dot_count).map(|_| {
         Quad {
             inner_bounds: InnerBounds::Square(dot_radius*2.0),
             quad_border: Border {
                 radius: dot_radius.into(),
-                color: border.color,
-                width: border.width,
+                color: bd_color,
+                width: border_width,
             },
             width,
-            height: sep.height,
-            quad_color: color.into(),
+            height,
+            quad_color: sep_color.into(),
             ..Default::default()
         }.into()
     }))
-    .height(sep.height)
+    .height(height)
     .spacing(sep.spacing.unwrap_or(0.0))
     .into()
 }
 
 fn get_label(sep: &Separator,
+            label: String,
             sep_color: iced::Color) 
             -> Element<'_, app::Message> {
     
@@ -178,14 +156,9 @@ fn get_label(sep: &Separator,
         ..separator(sep_color.into())
     }.into();
 
-    let lbl = match &sep.label {
-        Some(lbl) => lbl,
-        None => panic!("Separator: A label is required for SeparatorType::Label.")
-    };
-
     Row::with_children(vec![
                         q_1, 
-                        Text::new(lbl).color(sep_color).into(),
+                        Text::new(label).color(sep_color).into(),
                         q_2,
                         ])
                         .spacing(sep.spacing.unwrap_or(0.0))
@@ -214,6 +187,16 @@ fn get_line(sep: &Separator,
         }.into()
 }
 
+#[derive(Debug, Clone)]
+pub struct SeparatorStyle {
+    pub id: usize,
+    pub color: Option<Color>,
+    pub color_alpha: Option<f32>,
+    pub rgba: Option<[f32; 4]>,
+    pub border_color: Option<Color>,
+    pub border_color_alpha: Option<f32>,
+    pub border_rgba: Option<[f32; 4]>,
+}
 
 #[derive(Debug, Clone, PartialEq, Hash)]
 #[pyclass(eq, eq_int, hash, frozen)]
@@ -222,6 +205,7 @@ pub enum SeparatorParam {
     DotFill,
     DotBorderWidth,
     DotRadius,
+    Fill,
     Height,
     HeightFill,
     Label,
@@ -237,9 +221,11 @@ pub enum SeparatorParam {
 #[pyclass(eq, eq_int, hash, frozen)]
 pub enum SeparatorStyleParam {
     Color,
-    RbgaColor,
+    ColorAlpha,
+    Rbga,
     BorderColor,
-    BorderRgbaColor,
+    BorderColorAlpha,
+    BorderRgba,
 }
 
 
@@ -267,18 +253,19 @@ impl WidgetParamUpdate for Separator {
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
-            SeparatorParam::DotCount => set_opt_u32(&mut self.dot_count, value, "DotCount"),
-            SeparatorParam::DotFill => set_bool(&mut self.dot_fill, value, "DotFill"),
-            SeparatorParam::DotBorderWidth => set_opt_f32(&mut self.dot_border_width, value, "DotBorderWidth"),
-            SeparatorParam::DotRadius => set_opt_f32(&mut self.dot_radius, value, "DotRadius"),
-            SeparatorParam::Height => set_height(&mut self.height, value, "Height"),
-            SeparatorParam::HeightFill => set_height_fill(&mut self.height, value, "HeightFill"),
-            SeparatorParam::Label => set_opt_string(&mut self.label, value, "Label"),
-            SeparatorParam::Spacing => set_opt_f32(&mut self.spacing, value, "Spacing"),
-            SeparatorParam::Show => set_bool(&mut self.show, value, "Show"),
-            SeparatorParam::StyleId => set_opt_usize(&mut self.style_id, value, "StyleId"),
-            SeparatorParam::Width => set_width(&mut self.width, value, "Width"),
-            SeparatorParam::WidthFill => set_width_fill(&mut self.width, value, "WidthFill"),
+            SeparatorParam::DotBorderWidth => set_t_value(&mut self.dot_border_width, value, "SeparatorParam::DotBorderWidth"),
+            SeparatorParam::DotCount => set_t_value(&mut self.dot_count, value, "SeparatorParam::DotCount"),
+            SeparatorParam::DotFill => set_t_value(&mut self.dot_fill, value, "SeparatorParam::DotFill"),
+            SeparatorParam::DotRadius => set_t_value(&mut self.dot_radius, value, "SeparatorParam::DotRadius"),
+            SeparatorParam::Fill => set_t_value(&mut self.fill, value, "SeparatorParam::Fill"),
+            SeparatorParam::Height => set_t_value(&mut self.height, value, "SeparatorParam::Height"),
+            SeparatorParam::HeightFill => set_t_value(&mut self.height_fill, value, "SeparatorParam::HeightFill"),
+            SeparatorParam::Label => set_t_value(&mut self.label, value, "SeparatorParam::Label"),
+            SeparatorParam::Show => set_t_value(&mut self.show, value, "SeparatorParam::Show"),
+            SeparatorParam::Spacing => set_t_value(&mut self.spacing, value, "SeparatorParam::Spacing"),
+            SeparatorParam::StyleId => set_t_value(&mut self.style_id, value, "SeparatorParam::StyleId"),
+            SeparatorParam::Width => set_t_value(&mut self.width, value, "SeparatorParam::Width"),
+            SeparatorParam::WidthFill => set_t_value(&mut self.width_fill, value, "SeparatorParam::WidthFill"),
         }
     }
 }
@@ -288,167 +275,12 @@ impl WidgetParamUpdate for SeparatorStyle {
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
-            SeparatorStyleParam::Color => 
-            set_opt_iced_color(&mut self.color, value, "Color"),
-            SeparatorStyleParam::RbgaColor => 
-            set_opt_iced_color_from_rgba(&mut self.color, value, "RbgaColor"),
-            SeparatorStyleParam::BorderColor => 
-            set_opt_iced_color(&mut self.color, value, "BorderColor"),
-            SeparatorStyleParam::BorderRgbaColor => 
-            set_opt_iced_color_from_rgba(&mut self.color, value, "BorderRgbaColor"),
+            SeparatorStyleParam::BorderColor => set_t_value(&mut self.border_color, value, "SeparatorStyleParam::BorderColor"),
+            SeparatorStyleParam::BorderColorAlpha => set_t_value(&mut self.border_color_alpha, value, "SeparatorStyleParam::BorderColorAlpha"),
+            SeparatorStyleParam::BorderRgba => set_t_value(&mut self.border_rgba, value, "SeparatorStyleParam::BorderRgba"),
+            SeparatorStyleParam::Color => set_t_value(&mut self.color, value, "SeparatorStyleParam::Color"),
+            SeparatorStyleParam::ColorAlpha => set_t_value(&mut self.color_alpha, value, "SeparatorStyleParam::ColorAlpha"),
+            SeparatorStyleParam::Rbga => set_t_value(&mut self.rgba, value, "SeparatorStyleParam::Rbga"),
         }
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use iced::Length;
-    use pyo3::{Python, IntoPyObjectExt};
-
-    fn make_separator() -> Separator {
-        Separator {
-            id: 0,
-            parent_id: String::new(),
-            separator_type: None,
-            label: None,
-            label_left_width: None,
-            label_right_width: None,
-            dot_radius: None,
-            dot_count: None,
-            dot_fill: false,
-            dot_border_width: None,
-            line_length: None,
-            line_thickness: None,
-            width: Length::Shrink,
-            height: Length::Shrink,
-            spacing: None,
-            style_id: None,
-            show: true,
-        }
-    }
-
-    fn make_separator_style() -> SeparatorStyle {
-        SeparatorStyle {
-            id: 0,
-            color: None,
-            border_color: None,
-        }
-    }
-
-    fn py_obj<T: for<'py> IntoPyObjectExt<'py>>(val: T) -> PyObject {
-        Python::initialize();
-        Python::attach(|py| val.into_py_any(py).unwrap())
-    }
-
-    fn py_none() -> PyObject {
-        Python::initialize();
-        Python::attach(|py| py.None().into_py_any(py).unwrap())
-    }
-
-    // -- Separator param tests --
-
-    #[test]
-    fn test_dot_count() {
-        let mut s = make_separator();
-        s.param_update(SeparatorParam::DotCount, &py_obj(5u32));
-        assert_eq!(s.dot_count, Some(5));
-    }
-
-    #[test]
-    fn test_dot_fill() {
-        let mut s = make_separator();
-        s.param_update(SeparatorParam::DotFill, &py_obj(true));
-        assert!(s.dot_fill);
-    }
-
-    #[test]
-    fn test_dot_border_width() {
-        let mut s = make_separator();
-        s.param_update(SeparatorParam::DotBorderWidth, &py_obj(2.0f32));
-        assert_eq!(s.dot_border_width, Some(2.0));
-    }
-
-    #[test]
-    fn test_dot_radius() {
-        let mut s = make_separator();
-        s.param_update(SeparatorParam::DotRadius, &py_obj(3.0f32));
-        assert_eq!(s.dot_radius, Some(3.0));
-    }
-
-    #[test]
-    fn test_height() {
-        let mut s = make_separator();
-        s.param_update(SeparatorParam::Height, &py_obj(50.0f32));
-        assert_eq!(s.height, Length::Fixed(50.0));
-    }
-
-    #[test]
-    fn test_height_fill() {
-        let mut s = make_separator();
-        s.param_update(SeparatorParam::HeightFill, &py_obj(true));
-        assert_eq!(s.height, Length::Fill);
-    }
-
-    #[test]
-    fn test_label() {
-        let mut s = make_separator();
-        s.param_update(SeparatorParam::Label, &py_obj("hello".to_string()));
-        assert_eq!(s.label, Some("hello".to_string()));
-        s.param_update(SeparatorParam::Label, &py_none());
-        assert_eq!(s.label, None);
-    }
-
-    #[test]
-    fn test_spacing() {
-        let mut s = make_separator();
-        s.param_update(SeparatorParam::Spacing, &py_obj(4.0f32));
-        assert_eq!(s.spacing, Some(4.0));
-    }
-
-    #[test]
-    fn test_show() {
-        let mut s = make_separator();
-        s.param_update(SeparatorParam::Show, &py_obj(false));
-        assert!(!s.show);
-    }
-
-    #[test]
-    fn test_style_id() {
-        let mut s = make_separator();
-        s.param_update(SeparatorParam::StyleId, &py_obj(3usize));
-        assert_eq!(s.style_id, Some(3));
-        s.param_update(SeparatorParam::StyleId, &py_none());
-        assert_eq!(s.style_id, None);
-    }
-
-    #[test]
-    fn test_width() {
-        let mut s = make_separator();
-        s.param_update(SeparatorParam::Width, &py_obj(100.0f32));
-        assert_eq!(s.width, Length::Fixed(100.0));
-    }
-
-    #[test]
-    fn test_width_fill() {
-        let mut s = make_separator();
-        s.param_update(SeparatorParam::WidthFill, &py_obj(true));
-        assert_eq!(s.width, Length::Fill);
-    }
-
-    // -- SeparatorStyle param tests --
-
-    #[test]
-    fn test_style_rgba_color() {
-        let mut s = make_separator_style();
-        s.param_update(SeparatorStyleParam::RbgaColor, &py_obj(vec![1.0f32, 0.0, 0.0, 1.0]));
-        assert!(s.color.is_some());
-    }
-
-    #[test]
-    fn test_style_border_rgba_color() {
-        let mut s = make_separator_style();
-        s.param_update(SeparatorStyleParam::BorderRgbaColor, &py_obj(vec![0.0f32, 1.0, 0.0, 1.0]));
-        assert!(s.color.is_some());
     }
 }

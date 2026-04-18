@@ -3214,14 +3214,6 @@ class SeparatorParam:
     Width: float
     WidthFill: bool
 
-
-class SeparatorType:
-    """Separator types"""
-    Dot=""
-    Label=""
-    Line=""
-
-
 class SliderParam:
     """
     Slider update parameters

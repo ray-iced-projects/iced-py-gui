@@ -1,45 +1,48 @@
-from icedpygui import Window, Container, Column, start_session, \
-    add_separator, IpgSeparatorType
+"""
+Separator demo
 
+Decorator widget for separating widgets
+"""
+
+from icedpygui import Window, Container, Column, start_session, \
+    add_separator
 
 # Add a window first
-# if you make debug=True, you can see 
+# if you make debug=True, you can see
 # the outline of the box containing
-# the separators and the effect of the 
+# the separators and the effect of the
 # width and height settings.
 with Window(
-    title="Separator Demo", 
+    title="Separator Demo",
+    size=(600, 600),
     center=True,
     debug=False):
 
-        with Container(fill=True, align_center=True):
+    with Container(fill=True, align_center=True):
 
-            # Add a column to hold the widgets
-            with Column(spacing=20.0):
+        with Column(spacing=20.0, align_center=True):
 
-                # for the dot, the width and height are not used
-                # unless one wants a sort of padding around the circle.
-                add_separator(
-                    separator_type=IpgSeparatorType.Dot,
-                    dot_radius=5.0,
-                    dot_count=10,
-                    spacing=5.0,)
+            add_separator(
+                dot=True,
+                dot_radius=3.0,
+                dot_count=10,
+                spacing=10.0,)
 
-                # The height is needed here and needs to be
-                # larger than the height of the text.
-                add_separator(
-                    separator_type=IpgSeparatorType.Label,
-                    height=22.0,
-                    label="Some Label",
-                    spacing=5.0)
+            add_separator(
+                line=True,
+                line_length=150.0,
+                line_thickness=2.0)
 
-                # The line needs both the width and the height
-                add_separator(
-                    width=200.0,
-                    height=50.0,
-                    separator_type=IpgSeparatorType.Line)
+            add_separator(
+                label="label",
+            )
 
-    
+            add_separator(
+                label=" label ",
+                label_left_width=2.0,
+                label_right_width=2.0,
+            )
+
 # Required to be the last widget sent to Iced,  If you start the program
 # and nothing happens, it might mean you forgot to add this command.
 start_session()

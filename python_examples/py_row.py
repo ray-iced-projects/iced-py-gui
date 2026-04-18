@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Row demo use demo
+Row demo
 """
 from icedpygui import Window, Column, Container, Row, start_session, \
     add_text, ContainerStyleStd

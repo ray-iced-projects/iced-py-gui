@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Rich text demo use demo
+Rich text demo
 """
 from icedpygui import Window, Container, Column, start_session, \
     add_rich_text, add_span, add_text, Color

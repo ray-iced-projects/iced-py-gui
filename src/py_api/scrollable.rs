@@ -4,10 +4,10 @@
 use pyo3::{Py, PyAny, PyResult, pyfunction};
 
 use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex, 
-    graphics::colors::Color, py_api::helpers::get_length, 
+    graphics::colors::Color,
     state::{Containers, Widgets, get_id, set_state_cont_wnd_ids, 
         set_state_of_container}, widgets::{ipg_container::ContainerStyleStd, ipg_scrollable::{
-            Anchor, AutoScrollStyle, RailStyle, Scrollable, ScrollableStyle, Scroller}}};
+            AutoScrollStyle, RailStyle, Scrollable, ScrollableStyle, Scroller}}};
 type PyObject = Py<PyAny>;
 
 
@@ -57,11 +57,10 @@ type PyObject = Py<PyAny>;
     container_id, 
     parent_id=None,
     width=None,
-    width_fill=false, 
+    width_fill=None, 
     height=None, 
-    height_fill=false,
+    height_fill=None,
     fill=None,
-    both_scrollers=None,
     scroller_x_id=None,
     scroller_y_id=None,
     on_scroll=None, 
@@ -73,11 +72,10 @@ pub fn add_scrollable(
     container_id: String,
     parent_id: Option<String>,
     width: Option<f32>,
-    width_fill: bool,
+    width_fill: Option<bool>,
     height: Option<f32>,
-    height_fill: bool,
+    height_fill: Option<bool>,
     fill: Option<bool>,
-    both_scrollers: Option<bool>,
     scroller_x_id: Option<usize>,
     scroller_y_id: Option<usize>,
     on_scroll: Option<PyObject>,
@@ -95,12 +93,6 @@ pub fn add_scrollable(
         add_user_data_to_mutex(id, py);
     }
 
-    let (width, height) = if fill == Some(true) {
-        (get_length(None, true), get_length(None, true))
-    } else {
-        (get_length(width, width_fill), get_length(height, height_fill))
-    };
-
     let prt_id = match parent_id {
         Some(id) => id,
         None => window_id.clone(),
@@ -116,8 +108,10 @@ pub fn add_scrollable(
         Scrollable { 
             id,
             width,
+            width_fill,
             height,
-            both_scrollers,
+            height_fill,
+            fill,
             scroller_x_id,
             scroller_y_id,
             style_id,
@@ -184,9 +178,6 @@ pub fn add_scrollable_style(
 {
     let id = get_id(gen_id);
 
-    let gap_color = 
-        Color::rgba_ipg_color_to_iced(gap_rgba, &gap_color, gap_color_alpha);
-    
     let mut state = access_state();
 
     state.widgets.insert(id, Widgets::ScrollableStyle(
@@ -197,6 +188,8 @@ pub fn add_scrollable_style(
             horizontal_rail_style_id,
             auto_scroll_style_id,
             gap_color,
+            gap_color_alpha,
+            gap_rgba,
         }));
 
     drop(state);
@@ -235,16 +228,18 @@ pub fn add_scrollable_style(
     margin=None,
     scroller_width=None,
     spacing=None,
-    anchor=None,
+    anchor_start=None,
+    anchor_end=None,
     hidden=None,
     gen_id=None,
     ))]
-pub fn add_scroller_param (
+pub fn add_scroller (
     width: Option<f32>,
     margin: Option<f32>,
     scroller_width: Option<f32>,
     spacing: Option<f32>,
-    anchor: Option<Anchor>,
+    anchor_start: Option<bool>,
+    anchor_end: Option<bool>,
     hidden: Option<bool>,
     gen_id: Option<usize>,
     )-> PyResult<usize>
@@ -261,7 +256,8 @@ pub fn add_scroller_param (
         margin,
         scroller_width,
         spacing,
-        anchor,
+        anchor_start,
+        anchor_end,
         hidden,
     }));
 
@@ -361,27 +357,25 @@ pub fn add_rail_style(
 {
     let id = get_id(gen_id);
 
-    let background = 
-        Color::rgba_ipg_color_to_iced(background_rgba, &background_color, background_color_alpha);
-    let border_color = 
-        Color::rgba_ipg_color_to_iced(border_rgba, &border_color, border_color_alpha);
-
-    let scroller_background = 
-        Color::rgba_ipg_color_to_iced(scroller_background_rgba, &scroller_background_color, scroller_background_color_alpha);
-    let scroller_border_color = 
-        Color::rgba_ipg_color_to_iced(scroller_border_rgba, &scroller_border_color, scroller_border_color_alpha);
-    
     let mut state = access_state();
 
     state.widgets.insert(id, Widgets::RailStyle(
         RailStyle { 
             id,
-            background,
+            background_color,
+            background_color_alpha,
+            background_rgba,
             border_color,
+            border_color_alpha,
+            border_rgba,
             border_width,
             border_radius,
-            scroller_background,
+            scroller_background_color,
+            scroller_background_color_alpha,
+            scroller_background_rgba,
             scroller_border_color,
+            scroller_border_color_alpha,
+            scroller_border_rgba,
             scroller_border_width,
             scroller_border_radius,
         }));
@@ -479,28 +473,27 @@ pub fn add_autoscroll_style(
 {
     let id = get_id(gen_id);
 
-    let background = 
-        Color::rgba_ipg_color_to_iced(background_rgba, &background_color, background_color_alpha);
-    let border_color = 
-        Color::rgba_ipg_color_to_iced(border_rgba, &border_color, border_color_alpha);
-    let shadow_color = 
-        Color::rgba_ipg_color_to_iced(shadow_rgba, &shadow_color, shadow_color_alpha);
-    let shadow_icon_color = 
-        Color::rgba_ipg_color_to_iced(shadow_icon_rgba, &shadow_icon_color, shadow_icon_color_alpha);
-    
     let mut state = access_state();
 
     state.widgets.insert(id, Widgets::AutoScrollStyle(
         AutoScrollStyle { 
             id,
-            background,
+            background_color,
+            background_color_alpha,
+            background_rgba,
             border_color,
+            border_color_alpha,
+            border_rgba,
             border_width,
             border_radius,
             shadow_color,
+            shadow_color_alpha,
+            shadow_rgba,
             shadow_offset,
             shadow_blur_radius,
             shadow_icon_color,
+            shadow_icon_color_alpha,
+            shadow_icon_rgba,
         }));
 
     drop(state);

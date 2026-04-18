@@ -613,7 +613,25 @@ def add_separator_style(
     The styling of the separators.
 
     """
+def add_scroller(
+    *,
+    width: Optional[float] = None,
+    margin: Optional[float] = None,
+    scroller_width: Optional[float] = None,
+    spacing: Optional[float] = None,
+    anchor_start: Optional[bool] = None,
+    anchor_end: Optional[bool] = None,
+    hidden: Optional[bool] = None,
+    gen_id: Optional[int] = None,
+) -> int:
+    """_summary_
 
+    Args:
+        parent_id (Optional[str], optional): _description_. Defaults to None.
+
+    Returns:
+        int: wicontainerdget id
+    """
 def add_slider_style(
         style_id: str,
         rail_color: Optional[Color] | None = None,

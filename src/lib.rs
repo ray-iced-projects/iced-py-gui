@@ -46,7 +46,7 @@ use crate::py_api::row::add_row;
 use crate::py_api::rule::{add_rule, add_rule_style};
 use crate::py_api::picklist::{add_pick_list, add_pick_list_style};
 use crate::py_api::scrollable::{add_scrollable, add_scrollable_style, 
-    add_scroller_param, add_autoscroll_style, add_rail_style};
+    add_scroller, add_autoscroll_style, add_rail_style};
 use crate::py_api::separator::{add_separator, add_separator_style};
 use crate::py_api::session::{start_session, generate_id};
 use crate::py_api::slider::{add_slider, add_slider_style};
@@ -156,7 +156,7 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(add_rule, m)?)?;
     m.add_function(wrap_pyfunction!(add_scrollable_style, m)?)?;
     m.add_function(wrap_pyfunction!(add_scrollable, m)?)?;
-    m.add_function(wrap_pyfunction!(add_scroller_param, m)?)?;
+    m.add_function(wrap_pyfunction!(add_scroller, m)?)?;
     m.add_function(wrap_pyfunction!(add_separator_style, m)?)?;
     m.add_function(wrap_pyfunction!(add_separator, m)?)?;
     m.add_function(wrap_pyfunction!(add_slider_style, m)?)?;

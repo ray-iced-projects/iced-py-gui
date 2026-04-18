@@ -27,7 +27,7 @@ from .icedpygui import (
     add_progress_bar_style as add_progress_bar_style,
     add_radio_style as add_radio_style,
     add_scrollable_style as add_scrollable_style,
-    add_scroller_param as add_scroller_param,
+    add_scroller as add_scroller,
     add_autoscroll_style as add_autoscroll_style,
     add_rail_style as add_rail_style,
     add_separator_style as add_separator_style,
@@ -779,7 +779,6 @@ def add_scrollable(
         int: wicontainerdget id
     """
     ...
-
 def add_stack(
     *,
     container_id: Optional[str] = None,

@@ -1,32 +1,18 @@
-from imports import *
+"""
+Scrollable demo
+
+Allows scrolling when widgets exceed the container's size
+"""
+
+from icedpygui import Window, Container, Column, Row, start_session, \
+        Scrollable, ScrollableParam, \
+        add_button, add_text, update_widget
 
 class DemoScrollable:
+    """Scrollable demo"""
     def __init__(self) -> None:
-        self.
         self.wnd_width: int = 400
         self.wnd_height: int = 600
-
-        # To help reduce spelling errors,
-        # you can set up you variables
-        # and select from your ide's dropdown list
-        # without having to type in the string.
-        self.wnd_v: str = "window_v"
-        self.cont_v_top: str = "cont_v_top"
-        self.scroll_v: str = "scroll_v"
-        self.cont_v_middle: str = "cont_v_middle"
-        self.cont_v_bottom: str = "cont_v_bottom"
-
-        self.wnd_h: str = "window_h"
-        self.cont_h_top: str = "cont_h_top"
-        self.scroll_h: str = "scroll_h"
-        self.cont_h_middle: str = "cont_h_middle"
-        self.cont_h_bottom: str = "cont_h_bottom"
-
-        self.wnd_b: str = "window_b"
-        self.cont_b_top: str = "cont_b_top"
-        self.scroll_b: str = "scroll_b"
-        self.cont_b: str = "cont_b"
-        self.col_b: str = "col_b"
 
         self.cb_text_v: int = 0
         self.cb_text_h1: int = 0
@@ -45,150 +31,122 @@ class DemoScrollable:
 
     # start_session must be the last function called
     def create_gui(self):
+        """Create the gui"""
         self.create_scroll_vertical()
         self.create_scroll_horizontal()
-        self.create_scroll_both()
+        # self.create_scroll_both()
+
         # Required to be the last widget sent to Iced,  If you start the program
         # and nothing happens, it might mean you forgot to add this command.
-        self.start_session()
+        start_session()
 
-    # ***************Window 1-scrolling a column container vertically**********************************
+    # ***************Window 1-scrolling a column container vertically*******************
     # We will create 3 containers, a header, a scrollable, and an empty bottom container.
     def create_scroll_vertical(self):
+        """Create vertical scrollable"""
+        with Window(title="Scrollable - Vertical",
+            size=(self.wnd_width, self.wnd_height),
+                    position=(50, 25)):
 
-        self.add_window(
-                    id=self.wnd_v, 
-                    title="Scrollable - Vertical",
-    size=(self.wnd_width, self.wnd_height),
-                    position=(50, 25))
+            # The header is just a title of sorts.
+            with Container(height=100.0, padding=[20]):
 
-        # The header is just a title of sorts.
-        self.add_container(
-                    window_id=self.wnd_v, 
-                    id=self.cont_v_top,
-                    width_fill=True, 
-                    height=100.0, 
-                    padding=[20])
+                add_text(content="Try Scrolling a Column Container.")
 
-        self.add_text(
-                    parent_id=self.cont_v_top, 
-                    content="Try Scrolling a Column Container.")
+            # A container is put into a scrollable, so it needs to be added first.
+            # The width and height should be used control the size of the scrollable,
+            # depending if its horizontal or vertical.  In this case, we control
+            # the height by setting it a value.  If you used height_fill=True in this case,
+            # the container and text widget would be pushed out of the window but you
+            # could still scroll because the height is less than the data height.
+            with Scrollable(
+                width_fill=True,
+                height=150.0,
+                on_scroll=self.on_scroll_vertical) as self.scroll_id_1:
 
-        # A container is put into a scrollable, so it needs to be added first.
-        # The width and height should be used control the size of the scrollable,
-        # depending if its horizontal or vertical.  In this case, we control
-        # the height by setting it a value.  If you used height_fill=True in this case,
-        # the container and text widget would be pushed out of the window but you
-        # could still scroll because the height is less than the data height.
-        self.scroll_id_1 = self.add_scrollable(
-                                        window_id=self.wnd_v, 
-                                        id=self.scroll_v,
-                                        width_fill=True, 
-                                        height=150.0, 
-                                        on_scroll=self.on_scroll_v)
+                # A column is next added since the expectation is that you have a long list of
+                # items that need to be scrolled.
+                # NOTE that the column height should be shrink which is the default.
+                # The scrollable size will control the size of the scrollable container.
+                with Column(width_fill=True, align_center=True):
 
-        # A column is next added since the expectation is that you have a long list of
-        # items that need to be scrolled.  This could be anything like buttons, radios, text, etc.
-        # NOTE that the column height should be shrink which is the default, i.e no value.
-        # The scrollable size will control the size of the scrollable container.
-        self.add_column(
-                    window_id=self.wnd_v, 
-                    id=self.cont_v_middle,
-                    parent_id=self.scroll_v, 
-                    width_fill=True,
-                    align=IpgAlignment.Center)
+                    for _ in range(0, 25):
+                        add_text(content="Scroll Me Up and Down! Scroll Me Up and Down!")
 
-        for i in range(0, 25):
-            self.add_text(
-                        parent_id=self.cont_v_middle, 
-                        content="Scroll Me Up and Down! Scroll Me Up and Down!")
+                # Container for the callback text
+                with Container(fill=True):
+                    add_text(content="Some data when scrolled")
 
-        # Container for the callback text
-        self.add_container(
-                    window_id=self.wnd_v, 
-                    id=self.cont_v_bottom, 
-                    parent_id=self.wnd_v,
-                    width_fill=True, 
-                    height_fill=True)
+                # Adding row for buttons to change things
+                with Row():
+                    add_button(
+                        label="Press to Change Width",
+                        on_press=self.change_width)
 
-        self.cb_text_v = self.add_text(
-                                    parent_id=self.cont_v_bottom,
-                                    content=f"Some data when scrolled")
+                    add_button(
+                        label="Press to Change Height",
+                        on_press=self.change_height)
 
-        # Adding row for buttons to change things
-        self.add_row(
-                    window_id=self.wnd_v, 
-                    id="row_v")
-        
-        self.add_button(
-                    parent_id="row_v", 
-                    label="Press to Change Width",
-                    on_press=self.change_width)
-        
-        self.add_button(
-                    parent_id="row_v", 
-                    label="Press to Change Height",
-                    on_press=self.change_height)
+    def change_width(self, _btn_id):
+        """Changing width"""
+        update_widget(
+            self.scroll_id_1,
+            ScrollableParam.Width,
+            300.0)
 
-    def change_width(self, btn_id):
-        self.update_widget(
-            wid=self.scroll_id_1, 
-            param=IpgScrollableParam.Width, 
-            value=300.0)
+    def change_height(self, _btn_id):
+        """Changing height"""
+        update_widget(
+            self.scroll_id_1,
+            ScrollableParam.Height,
+            200.0)
 
-    def change_height(self, btn_id):
-        self.update_widget(
-            wid=self.scroll_id_1, 
-            param=IpgScrollableParam.Height, 
-            value=200.0)
+    def on_scroll_vertical(self, _scroller_id, data: any):
+        """Scroll Vertical"""
+        print("Scrolling Vertical", data)
 
-    # ************Window 2 scrolling a row container horizontally**********************************************
+    # ************Window 2 scrolling a row container horizontally************
 
     def create_scroll_horizontal(self):
-        self.add_window(
-                    id=self.wnd_h, 
-                    title="Scrollable - Horizontal",
-    size=(200, self.wnd_height),
-                    position=(500, 25))
+        """Horizontal Scrollable"""
+        with Window(title="Scrollable - Horizontal",
+                size=(200, self.wnd_height),
+                position=(500, 25)):
 
-        self.add_container(
-                    window_id=self.wnd_h, 
-                    id=self.cont_h_top,
-                    width_fill=True, 
-                    height=200.0, 
-                    padding=[20])
+            with Container(
+                    width_fill=True,
+                    height=200.0,
+                    padding=[20]):
 
-        self.add_text(
-                    parent_id=self.cont_h_top, 
-                    content="Try Scrolling a Row Container.")
+                add_text(content="Try Scrolling a Row Container.")
 
-        # Unlike for the vertical scroller above, it's ok to use the full width
-        # screen because nothing is in the way and the data is larger than the
-        # window width.  However, we wanted to keep the scrollable height small
-        # since there is only a single line of text.
-        self.add_scrollable(
-                    window_id=self.wnd_h, 
-                    id=self.scroll_h,
-                    direction=IpgScrollableDirection.Horizontal,
-                    width_fill=True, 
-                    height=50.0,
-                    on_scroll=self.on_scroll_h,
-                    user_data="Some scrolling Horizontal data")
+            # Unlike for the vertical scroller above, it's ok to use the full width
+            # screen because nothing is in the way and the data is larger than the
+            # window width.  However, we wanted to keep the scrollable height small
+            # since there is only a single line of text.
+            with Scrollable(
+                        window_id=self.wnd_h,
+                        id=self.scroll_h,
+                        direction=ScrollableDirection.Horizontal,
+                        width_fill=True,
+                        height=50.0,
+                        on_scroll=self.on_scroll_h,
+                        user_data="Some scrolling Horizontal data")
 
-        # NOTE: The row width and height should be left at default, no value.
-        self.add_row(
-                    window_id=self.wnd_h, 
-                    id=self.cont_h_middle,
-                    parent_id=self.scroll_h)
+                # NOTE: The row width and height should be left at default, no value.
+                self.add_row(
+                            window_id=self.wnd_h,
+                            id=self.cont_h_middle,
+                            parent_id=self.scroll_h)
 
-        for i in range(0, 25):
-            self.add_text(
-                        self.cont_h_middle, 
-                        content="Scroll Me left or Right!")
+                for i in range(0, 25):
+                    self.add_text(
+                                self.cont_h_middle,
+                                content="Scroll Me left or Right!")
 
         # The final mostly empty container is added at the bottom
         self.add_column(
-                    window_id=self.wnd_h, 
+                    window_id=self.wnd_h,
                     id=self.cont_h_bottom,
                     parent_id=self.wnd_h)
 
@@ -208,10 +166,10 @@ class DemoScrollable:
         text += "\n" + 'rel_y = ' + str(data.get('rel_y'))
         text += "\n" + 'rev_x = ' + str(data.get('rev_x'))
         text += "\n" + 'rev_y = ' + str(data.get('rev_y'))
- 
+
         self.update_widget(
-            wid=self.cb_text_v, 
-            param=IpgTextParam.Content,
+            wid=self.cb_text_v,
+            param=TextParam.Content,
             value=f"scrollable id = {id}\n{text}")
 
     def on_scroll_h(self, id, data, user_data: any):
@@ -221,233 +179,233 @@ class DemoScrollable:
         text += "\n" + 'rel_y = ' + str(data.get('rel_y'))
         text += "\n" + 'rev_x = ' + str(data.get('rev_x'))
         text += "\n" + 'rev_y = ' + str(data.get('rev_y'))
-        
+
         self.update_widget(
-            wid=self.cb_text_h1, 
-            param=IpgTextParam.Content,
+            wid=self.cb_text_h1,
+            param=TextParam.Content,
             value=f"scrollable id = {id}\n{text}")
-        
+
         self.update_widget(
-            wid=self.cb_text_h2, 
-            param=IpgTextParam.Content,
+            wid=self.cb_text_h2,
+            param=TextParam.Content,
             value=f"user data = {user_data}")
 
-    # ***************Window 3-scrolling both directions with other property setting**********************************
+#     # ***************Window 3-scrolling both directions with other property setting****
 
-    def create_scroll_both(self):
-        # Add the 3rd window
-        self.add_window(
-                    id=self.wnd_b, 
-                    title="Scrollable - Both",
-    size=(self.wnd_width + 100, self.wnd_height),
-                    position=(760, 25))
+#     def create_scroll_both(self):
+#         # Add the 3rd window
+#         self.add_window(
+#                     id=self.wnd_b,
+#                     title="Scrollable - Both",
+#     size=(self.wnd_width + 100, self.wnd_height),
+#                     position=(760, 25))
 
-        # The container is added to center the contents below.
-        self.add_container(
-                    window_id=self.wnd_b, 
-                    id=self.cont_b,
-                    width_fill=True, 
-                    height_fill=True)
+#         # The container is added to center the contents below.
+#         self.add_container(
+#                     window_id=self.wnd_b,
+#                     id=self.cont_b,
+#                     width_fill=True,
+#                     height_fill=True)
 
-        # Add a column to hold all the widgets
-        self.add_column(
-                    window_id=self.wnd_b, 
-                    id="col", 
-                    parent_id=self.cont_b,
-                    spacing=10, 
-                    align=IpgAlignment.Center)
-        
-        # Display some info
-        self.add_text(
-                    parent_id="col", 
-                    content="You may have to press buttons many times to see the changes")
-        
-        # The scrollable size controls the viewport for the column container.
-        self.scroll_id_3 = self.add_scrollable(
-                                        window_id=self.wnd_b, 
-                                        id=self.scroll_b,
-                                        parent_id="col",
-                                        width=250, 
-                                        height=100.0,
-                                        direction=IpgScrollableDirection.Both)
+#         # Add a column to hold all the widgets
+#         self.add_column(
+#                     window_id=self.wnd_b,
+#                     id="col",
+#                     parent_id=self.cont_b,
+#                     spacing=10,
+#                     align=Alignment.Center)
 
-        # NOTE:  The column width and height should default to shrink, no value.
-        self.add_column(
-                    window_id=self.wnd_b, 
-                    id=self.col_b, 
-                    parent_id=self.scroll_b,
-                    align=IpgAlignment.Center)
+#         # Display some info
+#         self.add_text(
+#                     parent_id="col",
+#                     content="You may have to press buttons many times to see the changes")
 
-        for _ in range(0, 25):
-            self.add_text(
-                        parent_id=self.col_b, 
-                        content="Scroll Me Up, Down, left, or Right!"
-                                "Scroll Me Up, Down, left, or Right!")
+#         # The scrollable size controls the viewport for the column container.
+#         self.scroll_id_3 = self.add_scrollable(
+#                                         window_id=self.wnd_b,
+#                                         id=self.scroll_b,
+#                                         parent_id="col",
+#                                         width=250,
+#                                         height=100.0,
+#                                         direction=ScrollableDirection.Both)
 
-        # Add row to hold the buttons.
-        self.add_row(
-                    window_id=self.wnd_b, 
-                    id="row_1", 
-                    parent_id="col")
+#         # NOTE:  The column width and height should default to shrink, no value.
+#         self.add_column(
+#                     window_id=self.wnd_b,
+#                     id=self.col_b,
+#                     parent_id=self.scroll_b,
+#                     align=Alignment.Center)
 
-        self.add_button(
-                    parent_id="row_1", 
-                    label="Press to + H Bar Width",
-                    on_press=self.inc_dec_h_bar_width, 
-                    padding=[5], 
-                    user_data=1)
-        
-        self.add_button(
-                    parent_id="row_1", 
-                    label="Press to - H Bar Width",
-                    on_press=self.inc_dec_h_bar_width, 
-                    padding=[5], 
-                    user_data=-1)
+#         for _ in range(0, 25):
+#             self.add_text(
+#                         parent_id=self.col_b,
+#                         content="Scroll Me Up, Down, left, or Right!"
+#                                 "Scroll Me Up, Down, left, or Right!")
 
-        self.add_row(
-                    window_id=self.wnd_b, 
-                    id="row_2", 
-                    padding=[5], 
-                    parent_id="col")
+#         # Add row to hold the buttons.
+#         self.add_row(
+#                     window_id=self.wnd_b,
+#                     id="row_1",
+#                     parent_id="col")
 
-        self.add_button(
-                    parent_id="row_2", 
-                    label="Press to + V Bar Width",
-                    on_press=self.inc_dec_v_bar_width, 
-                    padding=[5], 
-                    user_data=1)
-        
-        self.add_button(
-                    parent_id="row_2", 
-                    label="Press to - V Bar Width",
-                    on_press=self.inc_dec_v_bar_width, 
-                    padding=[5], 
-                    user_data=-1)
+#         self.add_button(
+#                     parent_id="row_1",
+#                     label="Press to + H Bar Width",
+#                     on_press=self.inc_dec_h_bar_width,
+#                     padding=[5],
+#                     user_data=1)
 
-        self.add_row(
-                    window_id=self.wnd_b, 
-                    id="row_3", 
-                    parent_id="col")
+#         self.add_button(
+#                     parent_id="row_1",
+#                     label="Press to - H Bar Width",
+#                     on_press=self.inc_dec_h_bar_width,
+#                     padding=[5],
+#                     user_data=-1)
 
-        self.add_button(
-                    parent_id="row_3", 
-                    label="Press to + H Bar Margin",
-                    on_press=self.inc_dec_h_bar_margin, 
-                    padding=[5], 
-                    user_data=1)
-        
-        self.add_button(
-                    parent_id="row_3", 
-                    label="Press to - H Bar Margin",
-                    on_press=self.inc_dec_h_bar_margin, 
-                    padding=[5], 
-                    user_data=-1)
+#         self.add_row(
+#                     window_id=self.wnd_b,
+#                     id="row_2",
+#                     padding=[5],
+#                     parent_id="col")
 
-        self.add_row(
-                    window_id=self.wnd_b, 
-                    id="row_4", 
-                    parent_id="col")
+#         self.add_button(
+#                     parent_id="row_2",
+#                     label="Press to + V Bar Width",
+#                     on_press=self.inc_dec_v_bar_width,
+#                     padding=[5],
+#                     user_data=1)
 
-        self.add_button(
-                    parent_id="row_4", 
-                    label="Press to + V Bar Margin",
-                    on_press=self.inc_dec_v_bar_margin, 
-                    padding=[5], 
-                    user_data=1)
-        
-        self.add_button(
-                    parent_id="row_4", 
-                    label="Press to - V Bar Margin",
-                    on_press=self.inc_dec_v_bar_margin, 
-                    padding=[5], 
-                    user_data=-1)
+#         self.add_button(
+#                     parent_id="row_2",
+#                     label="Press to - V Bar Width",
+#                     on_press=self.inc_dec_v_bar_width,
+#                     padding=[5],
+#                     user_data=-1)
 
-        self.add_row(
-                    window_id=self.wnd_b, 
-                    id="row_5", 
-                    parent_id="col")
+#         self.add_row(
+#                     window_id=self.wnd_b,
+#                     id="row_3",
+#                     parent_id="col")
 
-        self.add_button(
-                    parent_id="row_5", 
-                    label="Press to + H Scroller Width",
-                    on_press=self.inc_dec_h_scroller_width, 
-                    padding=[5], 
-                    user_data=1)
-        
-        self.add_button(
-                    parent_id="row_5", 
-                    label="Press to - H Scroller Width",
-                    on_press=self.inc_dec_h_scroller_width, 
-                    padding=[5], 
-                    user_data=-1)
+#         self.add_button(
+#                     parent_id="row_3",
+#                     label="Press to + H Bar Margin",
+#                     on_press=self.inc_dec_h_bar_margin,
+#                     padding=[5],
+#                     user_data=1)
 
-        self.add_row(
-                    window_id=self.wnd_b, 
-                    id="row_6", 
-                    parent_id="col")
+#         self.add_button(
+#                     parent_id="row_3",
+#                     label="Press to - H Bar Margin",
+#                     on_press=self.inc_dec_h_bar_margin,
+#                     padding=[5],
+#                     user_data=-1)
 
-        self.add_button(
-                    parent_id="row_6", 
-                    label="Press to Change V Scroller Width",
-                    on_press=self.inc_dec_v_scroller_width, 
-                    padding=[5], 
-                    user_data=1)
-        
-        self.add_button(
-                    parent_id="row_6", 
-                    label="Press to - V Scroller Width",
-                    on_press=self.inc_dec_v_scroller_width, 
-                    padding=[5], 
-                    user_data=-1)
+#         self.add_row(
+#                     window_id=self.wnd_b,
+#                     id="row_4",
+#                     parent_id="col")
 
-        self.add_row(
-                    window_id=self.wnd_b, 
-                    id="row_7", 
-                    parent_id="col")
+#         self.add_button(
+#                     parent_id="row_4",
+#                     label="Press to + V Bar Margin",
+#                     on_press=self.inc_dec_v_bar_margin,
+#                     padding=[5],
+#                     user_data=1)
 
-    def inc_dec_h_bar_width(self, btn_id, inc_dec):
-        self.h_bar_width += inc_dec
-        self.update_widget(
-            wid=self.scroll_id_3, 
-            param=IpgScrollableParam.HBarWidth, 
-            value=self.h_bar_width)
+#         self.add_button(
+#                     parent_id="row_4",
+#                     label="Press to - V Bar Margin",
+#                     on_press=self.inc_dec_v_bar_margin,
+#                     padding=[5],
+#                     user_data=-1)
 
-    def inc_dec_v_bar_width(self, btn_id, inc_dec):
-        self.v_bar_width += inc_dec
-        self.update_widget(
-            wid=self.scroll_id_3, 
-            param=IpgScrollableParam.VBarWidth, 
-            value=self.v_bar_width)
+#         self.add_row(
+#                     window_id=self.wnd_b,
+#                     id="row_5",
+#                     parent_id="col")
 
-    def inc_dec_h_bar_margin(self, btn_id, inc_dec):
-        self.h_bar_margin += inc_dec
-        self.update_widget(
-            wid=self.scroll_id_3, 
-            param=IpgScrollableParam.HBarMargin, 
-            value=self.h_bar_margin)
+#         self.add_button(
+#                     parent_id="row_5",
+#                     label="Press to + H Scroller Width",
+#                     on_press=self.inc_dec_h_scroller_width,
+#                     padding=[5],
+#                     user_data=1)
 
-    def inc_dec_v_bar_margin(self, btn_id, inc_dec):
-        self.v_bar_margin += inc_dec
-        self.update_widget(
-            wid=self.scroll_id_3, 
-            param=IpgScrollableParam.VBarMargin, 
-            value=self.v_bar_margin)
+#         self.add_button(
+#                     parent_id="row_5",
+#                     label="Press to - H Scroller Width",
+#                     on_press=self.inc_dec_h_scroller_width,
+#                     padding=[5],
+#                     user_data=-1)
 
-    def inc_dec_h_scroller_width(self, btn_id: int, inc_dec: float):
-        self.h_scroller_width += inc_dec
-        self.update_widget(
-            wid=self.scroll_id_3, 
-            param=IpgScrollableParam.HScrollerWidth, 
-            value=self.h_scroller_width
-        )
-    
-    def inc_dec_v_scroller_width(self, btn_id: int, inc_dec: float):
-        self.v_scroller_width += inc_dec
-        self.update_widget(
-            wid=self.scroll_id_3, 
-            param=IpgScrollableParam.VScrollerWidth, 
-            value=self.v_scroller_width
-        )
+#         self.add_row(
+#                     window_id=self.wnd_b,
+#                     id="row_6",
+#                     parent_id="col")
+
+#         self.add_button(
+#                     parent_id="row_6",
+#                     label="Press to Change V Scroller Width",
+#                     on_press=self.inc_dec_v_scroller_width,
+#                     padding=[5],
+#                     user_data=1)
+
+#         self.add_button(
+#                     parent_id="row_6",
+#                     label="Press to - V Scroller Width",
+#                     on_press=self.inc_dec_v_scroller_width,
+#                     padding=[5],
+#                     user_data=-1)
+
+#         self.add_row(
+#                     window_id=self.wnd_b,
+#                     id="row_7",
+#                     parent_id="col")
+
+#     def inc_dec_h_bar_width(self, btn_id, inc_dec):
+#         self.h_bar_width += inc_dec
+#         self.update_widget(
+#             wid=self.scroll_id_3,
+#             param=ScrollableParam.HBarWidth,
+#             value=self.h_bar_width)
+
+#     def inc_dec_v_bar_width(self, btn_id, inc_dec):
+#         self.v_bar_width += inc_dec
+#         self.update_widget(
+#             wid=self.scroll_id_3,
+#             param=ScrollableParam.VBarWidth,
+#             value=self.v_bar_width)
+
+#     def inc_dec_h_bar_margin(self, btn_id, inc_dec):
+#         self.h_bar_margin += inc_dec
+#         self.update_widget(
+#             wid=self.scroll_id_3,
+#             param=ScrollableParam.HBarMargin,
+#             value=self.h_bar_margin)
+
+#     def inc_dec_v_bar_margin(self, btn_id, inc_dec):
+#         self.v_bar_margin += inc_dec
+#         self.update_widget(
+#             wid=self.scroll_id_3,
+#             param=ScrollableParam.VBarMargin,
+#             value=self.v_bar_margin)
+
+#     def inc_dec_h_scroller_width(self, btn_id: int, inc_dec: float):
+#         self.h_scroller_width += inc_dec
+#         self.update_widget(
+#             wid=self.scroll_id_3,
+#             param=ScrollableParam.HScrollerWidth,
+#             value=self.h_scroller_width
+#         )
+
+#     def inc_dec_v_scroller_width(self, btn_id: int, inc_dec: float):
+#         self.v_scroller_width += inc_dec
+#         self.update_widget(
+#             wid=self.scroll_id_3,
+#             param=ScrollableParam.VScrollerWidth,
+#             value=self.v_scroller_width
+#         )
 
 
 # instantiate the class

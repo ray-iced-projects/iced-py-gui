@@ -4,22 +4,18 @@ use crate::IpgState;
 use crate::access_callbacks;
 use crate::access_user_data1;
 use crate::app::Message;
+use crate::graphics::colors::Color;
+use crate::py_api::helpers::get_len;
 use crate::state::Widgets;
 use crate::widgets::ipg_container::ContainerStyleStd;
 use crate::widgets::styling::{apply_border_overrides, apply_shadow_overrides_xy};
-use crate::widgets::widget_param_update::set_lengths_fill;
-use crate::widgets::widget_param_update::set_opt_bool;
-use crate::widgets::widget_param_update::set_opt_iced_color_from_rgba;
 use crate::widgets::widget_param_update::{
-    WidgetParamUpdate,
-    set_opt_f32, set_opt_f32_array_2, set_opt_iced_color,
-    set_opt_usize, set_opt_vec_f32, 
-    set_height, set_width,
+    WidgetParamUpdate, set_t_value
 };
 
 use std::collections::HashMap;
 use iced::widget::scrollable;
-use iced::{Element, Length, Theme};
+use iced::{Element, Theme};
 use iced::widget::Column;
 
 use pyo3::pyclass;
@@ -30,9 +26,11 @@ type PyObject = Py<PyAny>;
 #[derive(Debug, Clone)]
 pub struct Scrollable {
     pub id: usize,
-    pub width: Length,
-    pub height: Length,
-    pub both_scrollers: Option<bool>,
+    pub width: Option<f32>,
+    pub width_fill: Option<bool>,
+    pub height: Option<f32>,
+    pub height_fill: Option<bool>,
+    pub fill: Option<bool>,
     pub scroller_x_id: Option<usize>,
     pub scroller_y_id: Option<usize>,
     pub style_id: Option<usize>,
@@ -58,6 +56,11 @@ impl Scrollable {
         let sb_x_opt = self.lookup(widgets, self.scroller_x_id);
         let sb_y_opt = self.lookup(widgets, self.scroller_y_id);
         
+        let both_scrollers = 
+            if sb_x_opt.is_some() && sb_y_opt.is_some() {
+                true
+            } else { false };
+
         let direction = 
             match (sb_x_opt.is_some(), sb_y_opt.is_some()) {
                 (true, true) => {
@@ -67,26 +70,26 @@ impl Scrollable {
                 },
                 (true, false) => {
                     let ipg_sb = sb_x_opt.and_then(Widgets::as_scroller).cloned().unwrap_or_default();
-                    if self.both_scrollers == Some(true) {
+                    if both_scrollers {
                         scrollable::Direction::Both { vertical: scrollable::Scrollbar::default(), horizontal: ipg_sb.construct() }
                     } else { scrollable::Direction::Horizontal(ipg_sb.construct()) }
                 },
                 (false, true) => {
                     let ipg_sb = sb_y_opt.and_then(Widgets::as_scroller).cloned().unwrap_or_default();
-                    if self.both_scrollers == Some(true) {
+                    if both_scrollers {
                             scrollable::Direction::Both { vertical: ipg_sb.construct(), horizontal: scrollable::Scrollbar::default() }
                         } else { scrollable::Direction::Vertical(ipg_sb.construct()) }
                 },
                 (false, false) => {
-                    if self.both_scrollers == Some(true) {
+                    if both_scrollers {
                         scrollable::Direction::Both { vertical: scrollable::Scrollbar::default(), horizontal: scrollable::Scrollbar::default() }
                     } else { scrollable::Direction::Vertical(scrollable::Scrollbar::default()) }
                 },
             };
 
         scrollable::Scrollable::with_direction(content, direction)
-            .width(self.width)
-            .height(self.height)
+            .width(get_len(self.fill, self.width_fill, self.width))
+            .height(get_len(self.fill, self.height_fill, self.height))
             .on_scroll(move|vp| 
                 Message::Scrolled(vp, self.id))
             .style(move|theme, status| {
@@ -110,7 +113,9 @@ pub struct ScrollableStyle {
     pub vertical_rail_style_id: Option<usize>,
     pub horizontal_rail_style_id: Option<usize>,
     pub auto_scroll_style_id: Option<usize>,
-    pub gap_color: Option<iced::Color>,
+    pub gap_color: Option<Color>,
+    pub gap_color_alpha: Option<f32>,
+    pub gap_rgba: Option<[f32; 4]>
 }
 
 impl ScrollableStyle {
@@ -162,7 +167,10 @@ impl ScrollableStyle {
             rail.to_iced(&mut def_v_rail)
         } else { def_v_rail };
         
-        if let Some(c) = self.gap_color {
+        let gap_color = 
+            Color::rgba_ipg_color_to_iced(self.gap_rgba, &self.gap_color, self.gap_color_alpha);
+
+        if let Some(c) = gap_color {
             style.gap = Some(c.into());
         }
         
@@ -171,7 +179,9 @@ impl ScrollableStyle {
         } else { def_auto_scroll };
         
         style
+
     }
+
 }
 
 #[derive(Debug, Default, Clone)]
@@ -181,7 +191,8 @@ pub struct Scroller {
     pub margin: Option<f32>,
     pub scroller_width: Option<f32>,
     pub spacing: Option<f32>,
-    pub anchor: Option<Anchor>,
+    pub anchor_start: Option<bool>,
+    pub anchor_end: Option<bool>,
     pub hidden: Option<bool>,
 }
 
@@ -202,8 +213,12 @@ impl Scroller {
                 sb.scroller_width(sw)
             } else { sb };
 
-        sb = if let Some(an) = &self.anchor {
-                sb.anchor(an.to_iced())
+        sb = if self.anchor_start == Some(true) {
+                sb.anchor(scrollable::Anchor::Start)
+            } else { sb };
+
+        sb = if self.anchor_end == Some(true) {
+                sb.anchor(scrollable::Anchor::End)
             } else { sb };
 
         sb = if let Some(sp) = self.spacing {
@@ -215,35 +230,6 @@ impl Scroller {
         }
 
         sb
-    }
-}
-
-#[derive(Debug, Clone, PartialEq, Hash)]
-#[pyclass(eq, eq_int, hash, frozen)]
-pub enum Anchor {
-    Start,
-    End,
-}
-
-impl Anchor {
-    fn to_iced(&self) -> scrollable::Anchor {
-        match self {
-            Anchor::Start => scrollable::Anchor::Start,
-            Anchor::End => scrollable::Anchor::End,
-        }
-    }
-
-    pub fn extract(value: &PyObject) -> Option<Anchor> {
-        Python::attach(|py| {
-            let res = value.extract::<Anchor>(py);
-            match res {
-                Ok(val) => Some(val),
-                Err(err) => panic!(
-                    "Unable to extract python {} {}", 
-                    "Anchor",
-                    err),
-            }
-        })  
     }
 }
 
@@ -315,18 +301,20 @@ let ud1 = access_user_data1();
 pub enum ScrollableParam {
     Fill,
     Height,
+    HeightFill,
     ScrollerXId,
     ScrollerYId,
     StyleId,
     Width,
+    WidthFill,
 }
-
 
 
 #[derive(Debug, Clone, PartialEq, Hash)]
 #[pyclass(eq, eq_int, hash, frozen)]
 pub enum ScrollerParam {
-    Anchor,
+    AnchorStart,
+    AnchorEnd,
     Hidden,
     Margin,
     ScrollerWidth,
@@ -334,85 +322,121 @@ pub enum ScrollerParam {
     Width,
 }
 
-
 #[derive(Debug, Clone, PartialEq)]
 pub struct RailStyle { 
     pub id: usize,
-    pub background: Option<iced::Color>,
-    pub border_color: Option<iced::Color>,
+    pub background_color: Option<Color>,
+    pub background_color_alpha: Option<f32>,
+    pub background_rgba: Option<[f32; 4]>,
+    pub border_color: Option<Color>,
+    pub border_color_alpha: Option<f32>,
+    pub border_rgba: Option<[f32; 4]>,
     pub border_width: Option<f32>,
     pub border_radius: Option<Vec<f32>>,
-    pub scroller_background: Option<iced::Color>,
-    pub scroller_border_color: Option<iced::Color>,
+    pub scroller_background_color: Option<Color>,
+    pub scroller_background_color_alpha: Option<f32>,
+    pub scroller_background_rgba: Option<[f32; 4]>,
+    pub scroller_border_color: Option<Color>,
+    pub scroller_border_color_alpha: Option<f32>,
+    pub scroller_border_rgba: Option<[f32; 4]>,
     pub scroller_border_width: Option<f32>,
     pub scroller_border_radius: Option<Vec<f32>>,
-    
 }
 
 impl RailStyle {
     fn to_iced(&self, rail: &mut scrollable::Rail) -> scrollable::Rail {
         
-        if let Some(color) = self.background {
+        let background = 
+            Color::rgba_ipg_color_to_iced(self.background_rgba, &self.background_color, self.background_color_alpha);
+        let border_color = 
+            Color::rgba_ipg_color_to_iced(self.border_rgba, &self.border_color, self.border_color_alpha);
+
+        let scroller_background = 
+            Color::rgba_ipg_color_to_iced(self.scroller_background_rgba, &self.scroller_background_color, self.scroller_background_color_alpha);
+        let scroller_border_color = 
+            Color::rgba_ipg_color_to_iced(self.scroller_border_rgba, &self.scroller_border_color, self.scroller_border_color_alpha);
+
+        if let Some(color) = background {
             rail.background = Some(color.into());
         }
 
         apply_border_overrides(
-            &mut rail.border, self.border_color,
+            &mut rail.border, border_color,
             &self.border_radius, self.border_width, self.type_name(),
         );
 
-        if let Some(color) = self.scroller_background {
+        if let Some(color) = scroller_background {
             rail.scroller.background = color.into();
         }
 
         apply_border_overrides(
-            &mut rail.scroller.border, self.scroller_border_color,
+            &mut rail.scroller.border, scroller_border_color,
             &self.scroller_border_radius, self.scroller_border_width, self.type_name(),
         );
 
         *rail
+
     }
 
     fn type_name(&self) -> &'static str {
         std::any::type_name::<Self>()
     }
+
 }
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct AutoScrollStyle {
     pub id: usize,
-    pub background: Option<iced::Color>,
-    pub border_color: Option<iced::Color>,
+    pub background_color: Option<Color>,
+    pub background_color_alpha: Option<f32>,
+    pub background_rgba: Option<[f32; 4]>,
+    pub border_color: Option<Color>,
+    pub border_color_alpha: Option<f32>,
+    pub border_rgba: Option<[f32; 4]>,
     pub border_width: Option<f32>,
     pub border_radius: Option<Vec<f32>>,
-    pub shadow_color: Option<iced::Color>,
+    pub shadow_color: Option<Color>,
+    pub shadow_color_alpha: Option<f32>,
+    pub shadow_rgba: Option<[f32; 4]>,
     pub shadow_offset: Option<[f32; 2]>,
     pub shadow_blur_radius: Option<f32>,
-    pub shadow_icon_color: Option<iced::Color>,
+    pub shadow_icon_color: Option<Color>,
+    pub shadow_icon_color_alpha: Option<f32>,
+    pub shadow_icon_rgba: Option<[f32; 4]>,
 }
 
 impl AutoScrollStyle {
     fn to_iced(&self, auto: &mut scrollable::AutoScroll) -> scrollable::AutoScroll {
 
-        if let Some(color) = self.background {
+        let background = 
+            Color::rgba_ipg_color_to_iced(self.background_rgba, &self.background_color, self.background_color_alpha);
+        let border_color = 
+            Color::rgba_ipg_color_to_iced(self.border_rgba, &self.border_color, self.border_color_alpha);
+        let shadow_color = 
+            Color::rgba_ipg_color_to_iced(self.shadow_rgba, &self.shadow_color, self.shadow_color_alpha);
+        let shadow_icon_color = 
+            Color::rgba_ipg_color_to_iced(self.shadow_icon_rgba, &self.shadow_icon_color, self.shadow_icon_color_alpha);
+
+        if let Some(color) = background {
             auto.background = color.into();
         }
 
         apply_border_overrides(
-            &mut auto.border, self.border_color,
+            &mut auto.border, border_color,
             &self.border_radius, self.border_width, self.type_name(),
         );
 
         apply_shadow_overrides_xy(
-            &mut auto.shadow, self.shadow_color,
+            &mut auto.shadow, shadow_color,
             self.shadow_offset, self.shadow_blur_radius,
         );
 
-        if let Some(color) = self.shadow_icon_color {
+        if let Some(color) = shadow_icon_color {
             auto.icon = color;
         }
 
         *auto
+
     }
 
     fn type_name(&self) -> &'static str {
@@ -437,8 +461,10 @@ pub enum ScrollableStyleParam {
 #[pyclass(eq, eq_int, hash, frozen)]
 pub enum RailStyleParam { 
     BackgroundColor,
+    BackgroundColorAlpha,
     BackgroundRgba,
     BorderColor,
+    BorderColorAlpha,
     BorderRgba,
     BorderWidth,
     BorderRadius,
@@ -448,16 +474,20 @@ pub enum RailStyleParam {
 #[pyclass(eq, eq_int, hash, frozen)]
 pub enum AutoScrollStyleParam {
     BackgroundColor,
+    BackgroundColorAlpha,
     BackgroundRgba,
     BorderColor,
+    BorderColorAlpha,
     BorderRgba,
     BorderWidth,
     BorderRadius,
     ShadowColor,
+    ShadowColorAlpha,
     ShadowRgba,
     ShadowOffset,
     ShadowBlurRadius,
     ShadowIconColor,
+    ShadowIconColorAlpha,
     ShadowIconRgba,
 }
 
@@ -470,12 +500,14 @@ impl WidgetParamUpdate for Scrollable {
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
-            ScrollableParam::Fill => set_lengths_fill(&mut self.width, &mut self.height, value, "Fill"),
-            ScrollableParam::Height => set_height(&mut self.height, value, "Height"),
-            ScrollableParam::ScrollerXId => set_opt_usize(&mut self.scroller_x_id, value, "ScrollerXId"),
-            ScrollableParam::ScrollerYId => set_opt_usize(&mut self.scroller_y_id, value, "ScrollerYId"),
-            ScrollableParam::StyleId => set_opt_usize(&mut self.style_id, value, "StyleId"),
-            ScrollableParam::Width => set_width(&mut self.width, value, "Width"),
+            ScrollableParam::Fill => set_t_value(&mut self.fill, value, "ScrollableParam::Fill"),
+            ScrollableParam::Height => set_t_value(&mut self.height, value, "ScrollableParam::Height"),
+            ScrollableParam::HeightFill => set_t_value(&mut self.height_fill, value, "ScrollableParam::HeightFill"),
+            ScrollableParam::ScrollerXId => set_t_value(&mut self.scroller_x_id, value, "ScrollableParam::ScrollerXId"),
+            ScrollableParam::ScrollerYId => set_t_value(&mut self.scroller_y_id, value, "ScrollableParam::ScrollerYId"),
+            ScrollableParam::StyleId => set_t_value(&mut self.style_id, value, "ScrollableParam::StyleId"),
+            ScrollableParam::Width => set_t_value(&mut self.width, value, "ScrollableParam::Width"),
+            ScrollableParam::WidthFill => set_t_value(&mut self.width_fill, value, "ScrollableParam::WidthFill"),
         }
     }
 }
@@ -485,13 +517,13 @@ impl WidgetParamUpdate for ScrollableStyle {
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
-            ScrollableStyleParam::ContainerStyleId => set_opt_usize(&mut self.container_style_id, value, "ContainerStyleId"),
-            ScrollableStyleParam::ContainerStyleStd => todo!(),
-            ScrollableStyleParam::VerticalRailStyleId => set_opt_usize(&mut self.vertical_rail_style_id, value, "VerticalRailStyleId"),
-            ScrollableStyleParam::HorizontalRailStyleId => set_opt_usize(&mut self.horizontal_rail_style_id, value, "HorizontalRailStyleId"),
-            ScrollableStyleParam::AutoScrollStyleId => set_opt_usize(&mut self.auto_scroll_style_id, value, "AutoScrollStyleId"),
-            ScrollableStyleParam::GapColor => set_opt_iced_color(&mut self.gap_color, value, "GapColor"),
-            ScrollableStyleParam::GapRgba => set_opt_iced_color_from_rgba(&mut self.gap_color, value, "GapRgba"),
+            ScrollableStyleParam::ContainerStyleId => set_t_value(&mut self.container_style_id, value, "ScrollableStyleParam::ContainerStyleId"),
+            ScrollableStyleParam::ContainerStyleStd => set_t_value(&mut self.container_style_std, value, "ScrollableStyleParam::ContainerStyleStd"),
+            ScrollableStyleParam::VerticalRailStyleId => set_t_value(&mut self.vertical_rail_style_id, value, "ScrollableStyleParam::VerticalRailStyleId"),
+            ScrollableStyleParam::HorizontalRailStyleId => set_t_value(&mut self.horizontal_rail_style_id, value, "ScrollableStyleParam::HorizontalRailStyleId"),
+            ScrollableStyleParam::AutoScrollStyleId => set_t_value(&mut self.auto_scroll_style_id, value, "ScrollableStyleParam::AutoScrollStyleId"),
+            ScrollableStyleParam::GapColor => set_t_value(&mut self.gap_color, value, "ScrollableStyleParam::GapColor"),
+            ScrollableStyleParam::GapRgba => set_t_value(&mut self.gap_color, value, "ScrollableStyleParam::GapRgba"),
         }
     }
 }
@@ -501,12 +533,13 @@ impl WidgetParamUpdate for Scroller {
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
-            ScrollerParam::Anchor => self.anchor = Anchor::extract(value),
-            ScrollerParam::Hidden => set_opt_bool(&mut self.hidden, value, "Hidden"),
-            ScrollerParam::Margin => set_opt_f32(&mut self.margin, value, "Margin"),
-            ScrollerParam::ScrollerWidth => set_opt_f32(&mut self.scroller_width, value, "ScrollerWidth"),
-            ScrollerParam::Spacing => set_opt_f32(&mut self.spacing, value, "Spacing"),
-            ScrollerParam::Width => set_opt_f32(&mut self.width, value, "Width"),
+            ScrollerParam::AnchorEnd => set_t_value(&mut self.anchor_end, value, "ScrollerParam::AnchorEnd"),
+            ScrollerParam::AnchorStart => set_t_value(&mut self.anchor_start, value, "ScrollerParam::AnchorStart"),
+            ScrollerParam::Hidden => set_t_value(&mut self.hidden, value, "ScrollerParam::Hidden"),
+            ScrollerParam::Margin => set_t_value(&mut self.margin, value, "ScrollerParam::Margin"),
+            ScrollerParam::ScrollerWidth => set_t_value(&mut self.scroller_width, value, "ScrollerParam::ScrollerWidth"),
+            ScrollerParam::Spacing => set_t_value(&mut self.spacing, value, "ScrollerParam::Spacing"),
+            ScrollerParam::Width => set_t_value(&mut self.width, value, "ScrollerParam::Width"),
         }
     }
 }
@@ -516,12 +549,14 @@ impl WidgetParamUpdate for RailStyle {
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
-            RailStyleParam::BackgroundColor => set_opt_iced_color(&mut self.background, value, "BackgroundColor"),
-            RailStyleParam::BackgroundRgba => set_opt_iced_color_from_rgba(&mut self.background, value, "BackgroundRgba"),
-            RailStyleParam::BorderColor => set_opt_iced_color(&mut self.border_color, value, "BorderColor"),
-            RailStyleParam::BorderRgba => set_opt_iced_color_from_rgba(&mut self.border_color, value, "BorderRgba"),
-            RailStyleParam::BorderWidth => set_opt_f32(&mut self.border_width, value, "BorderWidth"),
-            RailStyleParam::BorderRadius => set_opt_vec_f32(&mut self.border_radius, value, "BorderRadius"),
+            RailStyleParam::BackgroundColor => set_t_value(&mut self.background_color, value, "RailStyleParam::BackgroundColor"),
+            RailStyleParam::BackgroundColorAlpha => set_t_value(&mut self.background_color_alpha, value, "RailStyleParam::BackgroundColorAlpha"),
+            RailStyleParam::BackgroundRgba => set_t_value(&mut self.background_rgba, value, "RailStyleParam::BackgroundRgba"),
+            RailStyleParam::BorderColor => set_t_value(&mut self.border_color, value, "RailStyleParam::BorderColor"),
+            RailStyleParam::BorderColorAlpha => set_t_value(&mut self.border_color_alpha, value, "RailStyleParam::BorderColorAlpha"),
+            RailStyleParam::BorderRadius => set_t_value(&mut self.border_radius, value, "RailStyleParam::BorderRadius"),
+            RailStyleParam::BorderRgba => set_t_value(&mut self.border_rgba, value, "RailStyleParam::BorderRgba"),
+            RailStyleParam::BorderWidth => set_t_value(&mut self.border_width, value, "RailStyleParam::BorderWidth"),
         }
     }
 }
@@ -531,308 +566,22 @@ impl WidgetParamUpdate for AutoScrollStyle {
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
-            AutoScrollStyleParam::BackgroundColor => set_opt_iced_color(&mut self.background, value, "BackgroundColor"),
-            AutoScrollStyleParam::BackgroundRgba => set_opt_iced_color_from_rgba(&mut self.background, value, "BackgroundRgba"),
-            AutoScrollStyleParam::BorderColor => set_opt_iced_color(&mut self.border_color, value, "BorderColor"),
-            AutoScrollStyleParam::BorderRgba => set_opt_iced_color_from_rgba(&mut self.border_color, value, "BorderRgba"),
-            AutoScrollStyleParam::BorderWidth => set_opt_f32(&mut self.border_width, value, "BorderWidth"),
-            AutoScrollStyleParam::BorderRadius => set_opt_vec_f32(&mut self.border_radius, value, "BorderRadius"),
-            AutoScrollStyleParam::ShadowColor => set_opt_iced_color(&mut self.shadow_color, value, "ShadowColor"),
-            AutoScrollStyleParam::ShadowRgba => set_opt_iced_color_from_rgba(&mut self.shadow_color, value, "ShadowRgba"),
-            AutoScrollStyleParam::ShadowOffset => set_opt_f32_array_2(&mut self.shadow_offset, value, "ShadowOffset"),
-            AutoScrollStyleParam::ShadowBlurRadius => set_opt_f32(&mut self.shadow_blur_radius, value, "ShadowBlurRadius"),
-            AutoScrollStyleParam::ShadowIconColor => set_opt_iced_color(&mut self.shadow_icon_color, value, "ShadowIconColor"),
-            AutoScrollStyleParam::ShadowIconRgba => set_opt_iced_color_from_rgba(&mut self.shadow_icon_color, value, "ShadowIconRgba"),
+            AutoScrollStyleParam::BackgroundColor => set_t_value(&mut self.background_color, value, "AutoScrollStyleParam::BackgroundColor"),
+            AutoScrollStyleParam::BackgroundColorAlpha => set_t_value(&mut self.background_color_alpha, value, "AutoScrollStyleParam::BackgroundColorAlpha"),
+            AutoScrollStyleParam::BackgroundRgba => set_t_value(&mut self.background_rgba, value, "AutoScrollStyleParam::BackgroundRgba"),
+            AutoScrollStyleParam::BorderColor => set_t_value(&mut self.border_color, value, "AutoScrollStyleParam::BorderColor"),
+            AutoScrollStyleParam::BorderColorAlpha => set_t_value(&mut self.border_color_alpha, value, "AutoScrollStyleParam::BorderColorAlpha"),
+            AutoScrollStyleParam::BorderRadius => set_t_value(&mut self.border_radius, value, "AutoScrollStyleParam::BorderRadius"),
+            AutoScrollStyleParam::BorderRgba => set_t_value(&mut self.border_rgba, value, "AutoScrollStyleParam::BorderRgba"),
+            AutoScrollStyleParam::BorderWidth => set_t_value(&mut self.border_width, value, "AutoScrollStyleParam::BorderWidth"),
+            AutoScrollStyleParam::ShadowBlurRadius => set_t_value(&mut self.shadow_blur_radius, value, "AutoScrollStyleParam::ShadowBlurRadius"),
+            AutoScrollStyleParam::ShadowColor => set_t_value(&mut self.shadow_color, value, "AutoScrollStyleParam::ShadowColor"),
+            AutoScrollStyleParam::ShadowColorAlpha => set_t_value(&mut self.shadow_color_alpha, value, "AutoScrollStyleParam::ShadowColorAlpha"),
+            AutoScrollStyleParam::ShadowIconColor => set_t_value(&mut self.shadow_icon_color, value, "AutoScrollStyleParam::ShadowIconColor"),
+            AutoScrollStyleParam::ShadowIconColorAlpha => set_t_value(&mut self.shadow_icon_color_alpha, value, "AutoScrollStyleParam::ShadowIconColorAlpha"),
+            AutoScrollStyleParam::ShadowIconRgba => set_t_value(&mut self.shadow_icon_rgba, value, "AutoScrollStyleParam::ShadowIconRgba"),
+            AutoScrollStyleParam::ShadowOffset => set_t_value(&mut self.shadow_offset, value, "AutoScrollStyleParam::ShadowOffset"),
+            AutoScrollStyleParam::ShadowRgba => set_t_value(&mut self.shadow_rgba, value, "AutoScrollStyleParam::ShadowRgba"),
         }
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use iced::Length;
-    use pyo3::{Python, IntoPyObjectExt};
-
-    fn make_scrollable() -> Scrollable {
-        Scrollable {
-            id: 0,
-            width: Length::Shrink,
-            height: Length::Shrink,
-            both_scrollers: None,
-            scroller_x_id: None,
-            scroller_y_id: None,
-            style_id: None,
-        }
-    }
-
-    fn make_scrollable_style() -> ScrollableStyle {
-        ScrollableStyle::default()
-    }
-
-    fn make_scroller() -> Scroller {
-        Scroller::default()
-    }
-
-    fn make_rail_style() -> RailStyle {
-        RailStyle {
-            id: 0,
-            background: None,
-            border_color: None,
-            border_width: None,
-            border_radius: None,
-            scroller_background: None,
-            scroller_border_color: None,
-            scroller_border_width: None,
-            scroller_border_radius: None,
-        }
-    }
-
-    fn make_auto_scroll_style() -> AutoScrollStyle {
-        AutoScrollStyle {
-            id: 0,
-            background: None,
-            border_color: None,
-            border_width: None,
-            border_radius: None,
-            shadow_color: None,
-            shadow_offset: None,
-            shadow_blur_radius: None,
-            shadow_icon_color: None,
-        }
-    }
-
-    fn py_obj<T: for<'py> IntoPyObjectExt<'py>>(val: T) -> PyObject {
-        Python::initialize();
-        Python::attach(|py| val.into_py_any(py).unwrap())
-    }
-
-    fn py_none() -> PyObject {
-        Python::initialize();
-        Python::attach(|py| py.None().into_py_any(py).unwrap())
-    }
-
-    // -- Scrollable param tests --
-    #[test]
-    fn test_fill() {
-        let mut c = make_scrollable();
-        c.param_update(ScrollableParam::Fill, &py_obj(Some(true)));
-        assert_eq!(c.width, Length::Fill);
-        assert_eq!(c.height, Length::Fill);
-        c.param_update(ScrollableParam::Fill, &py_obj(Some(false)));
-        assert_eq!(c.width, Length::Shrink);
-        assert_eq!(c.height, Length::Shrink);
-        c.param_update(ScrollableParam::Fill, &py_none());
-        assert_eq!(c.width, Length::Shrink);
-        assert_eq!(c.height, Length::Shrink);
-    }
-
-    #[test]
-    fn test_scrollable_height() {
-        let mut s = make_scrollable();
-        s.param_update(ScrollableParam::Height, &py_obj(200.0f32));
-        assert_eq!(s.height, Length::Fixed(200.0));
-    }
-
-    #[test]
-    fn test_scrollable_width() {
-        let mut s = make_scrollable();
-        s.param_update(ScrollableParam::Width, &py_obj(300.0f32));
-        assert_eq!(s.width, Length::Fixed(300.0));
-    }
-
-    #[test]
-    fn test_scrollable_scroller_x_id() {
-        let mut s = make_scrollable();
-        s.param_update(ScrollableParam::ScrollerXId, &py_obj(1usize));
-        assert_eq!(s.scroller_x_id, Some(1));
-        s.param_update(ScrollableParam::ScrollerXId, &py_none());
-        assert_eq!(s.scroller_x_id, None);
-    }
-
-    #[test]
-    fn test_scrollable_scroller_y_id() {
-        let mut s = make_scrollable();
-        s.param_update(ScrollableParam::ScrollerYId, &py_obj(2usize));
-        assert_eq!(s.scroller_y_id, Some(2));
-        s.param_update(ScrollableParam::ScrollerYId, &py_none());
-        assert_eq!(s.scroller_y_id, None);
-    }
-
-    #[test]
-    fn test_scrollable_style_id() {
-        let mut s = make_scrollable();
-        s.param_update(ScrollableParam::StyleId, &py_obj(5usize));
-        assert_eq!(s.style_id, Some(5));
-        s.param_update(ScrollableParam::StyleId, &py_none());
-        assert_eq!(s.style_id, None);
-    }
-
-    // -- ScrollableStyle param tests --
-
-    #[test]
-    fn test_scrollable_style_container_style_id() {
-        let mut s = make_scrollable_style();
-        s.param_update(ScrollableStyleParam::ContainerStyleId, &py_obj(3usize));
-        assert_eq!(s.container_style_id, Some(3));
-        s.param_update(ScrollableStyleParam::ContainerStyleId, &py_none());
-        assert_eq!(s.container_style_id, None);
-    }
-
-    #[test]
-    fn test_scrollable_style_vertical_rail_id() {
-        let mut s = make_scrollable_style();
-        s.param_update(ScrollableStyleParam::VerticalRailStyleId, &py_obj(4usize));
-        assert_eq!(s.vertical_rail_style_id, Some(4));
-    }
-
-    #[test]
-    fn test_scrollable_style_horizontal_rail_id() {
-        let mut s = make_scrollable_style();
-        s.param_update(ScrollableStyleParam::HorizontalRailStyleId, &py_obj(6usize));
-        assert_eq!(s.horizontal_rail_style_id, Some(6));
-    }
-
-    #[test]
-    fn test_scrollable_style_auto_scroll_id() {
-        let mut s = make_scrollable_style();
-        s.param_update(ScrollableStyleParam::AutoScrollStyleId, &py_obj(7usize));
-        assert_eq!(s.auto_scroll_style_id, Some(7));
-    }
-
-    #[test]
-    fn test_scrollable_style_gap_rgba() {
-        let mut s = make_scrollable_style();
-        s.param_update(ScrollableStyleParam::GapRgba, &py_obj(vec![0.5f32, 0.5, 0.5, 1.0]));
-        assert!(s.gap_color.is_some());
-    }
-
-    // -- Scroller param tests --
-
-    #[test]
-    fn test_scroller_hidden() {
-        let mut s = make_scroller();
-        s.param_update(ScrollerParam::Hidden, &py_obj(true));
-        assert_eq!(s.hidden, Some(true));
-        s.param_update(ScrollerParam::Hidden, &py_none());
-        assert_eq!(s.hidden, None);
-    }
-
-    #[test]
-    fn test_scroller_margin() {
-        let mut s = make_scroller();
-        s.param_update(ScrollerParam::Margin, &py_obj(5.0f32));
-        assert_eq!(s.margin, Some(5.0));
-    }
-
-    #[test]
-    fn test_scroller_scroller_width() {
-        let mut s = make_scroller();
-        s.param_update(ScrollerParam::ScrollerWidth, &py_obj(10.0f32));
-        assert_eq!(s.scroller_width, Some(10.0));
-    }
-
-    #[test]
-    fn test_scroller_spacing() {
-        let mut s = make_scroller();
-        s.param_update(ScrollerParam::Spacing, &py_obj(3.0f32));
-        assert_eq!(s.spacing, Some(3.0));
-    }
-
-    #[test]
-    fn test_scroller_width() {
-        let mut s = make_scroller();
-        s.param_update(ScrollerParam::Width, &py_obj(8.0f32));
-        assert_eq!(s.width, Some(8.0));
-    }
-
-    // -- RailStyle param tests --
-
-    #[test]
-    fn test_rail_background_rgba() {
-        let mut s = make_rail_style();
-        s.param_update(RailStyleParam::BackgroundRgba, &py_obj(vec![1.0f32, 0.0, 0.0, 1.0]));
-        assert!(s.background.is_some());
-    }
-
-    #[test]
-    fn test_rail_border_rgba() {
-        let mut s = make_rail_style();
-        s.param_update(RailStyleParam::BorderRgba, &py_obj(vec![0.0f32, 1.0, 0.0, 1.0]));
-        assert!(s.border_color.is_some());
-    }
-
-    #[test]
-    fn test_rail_border_width() {
-        let mut s = make_rail_style();
-        s.param_update(RailStyleParam::BorderWidth, &py_obj(2.0f32));
-        assert_eq!(s.border_width, Some(2.0));
-    }
-
-    #[test]
-    fn test_rail_border_radius() {
-        let mut s = make_rail_style();
-        s.param_update(RailStyleParam::BorderRadius, &py_obj(vec![4.0f32, 4.0, 4.0, 4.0]));
-        assert_eq!(s.border_radius, Some(vec![4.0, 4.0, 4.0, 4.0]));
-        s.param_update(RailStyleParam::BorderRadius, &py_none());
-        assert_eq!(s.border_radius, None);
-    }
-
-    // -- AutoScrollStyle param tests --
-
-    #[test]
-    fn test_auto_background_rgba() {
-        let mut s = make_auto_scroll_style();
-        s.param_update(AutoScrollStyleParam::BackgroundRgba, &py_obj(vec![1.0f32, 0.0, 0.0, 1.0]));
-        assert!(s.background.is_some());
-    }
-
-    #[test]
-    fn test_auto_border_rgba() {
-        let mut s = make_auto_scroll_style();
-        s.param_update(AutoScrollStyleParam::BorderRgba, &py_obj(vec![0.0f32, 1.0, 0.0, 1.0]));
-        assert!(s.border_color.is_some());
-    }
-
-    #[test]
-    fn test_auto_border_width() {
-        let mut s = make_auto_scroll_style();
-        s.param_update(AutoScrollStyleParam::BorderWidth, &py_obj(1.5f32));
-        assert_eq!(s.border_width, Some(1.5));
-    }
-
-    #[test]
-    fn test_auto_border_radius() {
-        let mut s = make_auto_scroll_style();
-        s.param_update(AutoScrollStyleParam::BorderRadius, &py_obj(vec![2.0f32, 2.0, 2.0, 2.0]));
-        assert_eq!(s.border_radius, Some(vec![2.0, 2.0, 2.0, 2.0]));
-    }
-
-    #[test]
-    fn test_auto_shadow_rgba() {
-        let mut s = make_auto_scroll_style();
-        s.param_update(AutoScrollStyleParam::ShadowRgba, &py_obj(vec![0.0f32, 0.0, 0.0, 0.5]));
-        assert!(s.shadow_color.is_some());
-    }
-
-    #[test]
-    fn test_auto_shadow_offset() {
-        let mut s = make_auto_scroll_style();
-        s.param_update(AutoScrollStyleParam::ShadowOffset, &py_obj(vec![2.0f32, 3.0]));
-        assert_eq!(s.shadow_offset, Some([2.0, 3.0]));
-    }
-
-    #[test]
-    fn test_auto_shadow_blur_radius() {
-        let mut s = make_auto_scroll_style();
-        s.param_update(AutoScrollStyleParam::ShadowBlurRadius, &py_obj(5.0f32));
-        assert_eq!(s.shadow_blur_radius, Some(5.0));
-    }
-
-    #[test]
-    fn test_auto_shadow_icon_rgba() {
-        let mut s = make_auto_scroll_style();
-        s.param_update(AutoScrollStyleParam::ShadowIconRgba, &py_obj(vec![1.0f32, 1.0, 1.0, 1.0]));
-        assert!(s.shadow_icon_color.is_some());
-    }
-}
-

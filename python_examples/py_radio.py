@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Radio button use demo
+Radio button demo
 
 Radio buttons allows one to select an item from a list of buttons
 """

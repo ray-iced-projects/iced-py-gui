@@ -41,7 +41,7 @@ from .icedpygui import (
     add_rule_style,
     add_scrollable as _add_scrollable,
     add_scrollable_style,
-    add_scroller_param,
+    add_scroller,
     add_autoscroll_style,
     add_rail_style,
     add_separator as _add_separator,

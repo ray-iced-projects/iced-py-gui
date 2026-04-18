@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Rule demo use demo
+Rule demo
 
 The Rule is a widget that can separate items,
 it's essentially a line widget.

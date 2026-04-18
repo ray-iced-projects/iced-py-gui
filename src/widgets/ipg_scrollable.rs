@@ -7,7 +7,6 @@ use crate::app::Message;
 use crate::graphics::colors::Color;
 use crate::py_api::helpers::get_len;
 use crate::state::Widgets;
-use crate::widgets::ipg_container::ContainerStyleStd;
 use crate::widgets::styling::{apply_border_overrides, apply_shadow_overrides_xy};
 use crate::widgets::widget_param_update::{
     WidgetParamUpdate, set_t_value
@@ -108,8 +107,6 @@ impl Scrollable {
 /// The appearance of a scrollable.
 #[derive(Debug, Clone, Default, PartialEq)]
 pub struct ScrollableStyle {
-    pub container_style_id: Option<usize>,
-    pub container_style_std: Option<ContainerStyleStd>,
     pub vertical_rail_style_id: Option<usize>,
     pub horizontal_rail_style_id: Option<usize>,
     pub auto_scroll_style_id: Option<usize>,
@@ -133,9 +130,6 @@ impl ScrollableStyle {
         
         let mut style = scrollable::default(theme, status);
 
-        let ipg_container_style = self.lookup(widgets, self.container_style_id)
-            .and_then(Widgets::as_container_style).cloned();
-
         let ipg_h_rail_style = self.lookup(widgets, self.horizontal_rail_style_id)
             .and_then(Widgets::as_rail_style).cloned();
         
@@ -149,15 +143,6 @@ impl ScrollableStyle {
         let mut def_h_rail = style.horizontal_rail;
         let mut def_v_rail = style.vertical_rail;
         let mut def_auto_scroll = style.auto_scroll;
-        
-        // container style via the container_style_id and std atyle
-        if let Some(ipg_style) = &ipg_container_style {
-            let ipg_std_style = 
-                if let Some(style_std) = self.container_style_std.clone() {
-                    Some(style_std)
-                } else { None };
-                    style.container = ipg_style.to_iced(theme, &ipg_std_style);
-            }
         
         style.horizontal_rail = if let Some(rail) = &ipg_h_rail_style {
             rail.to_iced(&mut def_h_rail)
@@ -449,8 +434,6 @@ impl AutoScrollStyle {
 #[pyclass(eq, eq_int, hash, frozen)]
 pub enum ScrollableStyleParam { 
     AutoScrollStyleId,
-    ContainerStyleId,
-    ContainerStyleStd,
     GapColor,
     GapRgba,
     HorizontalRailStyleId,
@@ -517,8 +500,6 @@ impl WidgetParamUpdate for ScrollableStyle {
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
-            ScrollableStyleParam::ContainerStyleId => set_t_value(&mut self.container_style_id, value, "ScrollableStyleParam::ContainerStyleId"),
-            ScrollableStyleParam::ContainerStyleStd => set_t_value(&mut self.container_style_std, value, "ScrollableStyleParam::ContainerStyleStd"),
             ScrollableStyleParam::VerticalRailStyleId => set_t_value(&mut self.vertical_rail_style_id, value, "ScrollableStyleParam::VerticalRailStyleId"),
             ScrollableStyleParam::HorizontalRailStyleId => set_t_value(&mut self.horizontal_rail_style_id, value, "ScrollableStyleParam::HorizontalRailStyleId"),
             ScrollableStyleParam::AutoScrollStyleId => set_t_value(&mut self.auto_scroll_style_id, value, "ScrollableStyleParam::AutoScrollStyleId"),

@@ -6,7 +6,7 @@ use pyo3::{Py, PyAny, PyResult, pyfunction};
 use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex, 
     graphics::colors::Color,
     state::{Containers, Widgets, get_id, set_state_cont_wnd_ids, 
-        set_state_of_container}, widgets::{ipg_container::ContainerStyleStd, ipg_scrollable::{
+        set_state_of_container}, widgets::{ipg_scrollable::{
             AutoScrollStyle, RailStyle, Scrollable, ScrollableStyle, Scroller}}};
 type PyObject = Py<PyAny>;
 
@@ -129,10 +129,6 @@ pub fn add_scrollable(
 ///
 /// Parameters
 /// ----------
-/// container_style_id : int, Optional
-///     Sets the ID of a container style for the scrollable background.
-/// container_style_std : ContainerStyleStd, Optional
-///     Sets the predefined standard container style variant.
 /// vertical_rail_style_id : int, Optional
 ///     Sets the ID of a rail style for the vertical scrollbar.
 /// horizontal_rail_style_id : int, Optional
@@ -154,8 +150,6 @@ pub fn add_scrollable(
 ///     The numeric style ID to pass to a scrollable's ``style_id``.
 #[pyfunction]
 #[pyo3(signature = ( 
-    container_style_id=None,
-    container_style_std=None,
     vertical_rail_style_id=None,
     horizontal_rail_style_id=None,
     auto_scroll_style_id=None,
@@ -165,8 +159,6 @@ pub fn add_scrollable(
     gen_id=None
     ))]
 pub fn add_scrollable_style(
-    container_style_id: Option<usize>,
-    container_style_std: Option<ContainerStyleStd>,
     vertical_rail_style_id: Option<usize>,
     horizontal_rail_style_id: Option<usize>,
     auto_scroll_style_id: Option<usize>,
@@ -182,8 +174,6 @@ pub fn add_scrollable_style(
 
     state.widgets.insert(id, Widgets::ScrollableStyle(
         ScrollableStyle {
-            container_style_id,
-            container_style_std,
             vertical_rail_style_id,
             horizontal_rail_style_id,
             auto_scroll_style_id,

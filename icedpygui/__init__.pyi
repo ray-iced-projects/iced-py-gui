@@ -10,7 +10,7 @@
 Re-Imports for Type stubs for the wrapper layer,
 Wwhat users see with pylance, mypy, IDE hover, etc
 """
-from typing import Any, Callable, Optional
+from typing import Any, Callable
 from types import TracebackType
 
 # Re-export everything that is directly imported (not wrapped)
@@ -120,31 +120,31 @@ from .icedpygui import (
 
 def add_button(
     *,
-    parent_id: Optional[str] = None,
+    parent_id: str | None = None,
     label: str = ...,
-    gen_id: Optional[int] = None,
-    on_press: Optional[Callable] = None,
-    width: Optional[float] = None,
+    gen_id: int | None = None,
+    on_press: Callable | None = None,
+    width: float | None = None,
     width_fill: bool = False,
-    height: Optional[float] = None,
+    height: float | None = None,
     height_fill: bool = False,
     if_menu_btn: bool = False,
-    padding: Optional[list[float]] = None,
-    text_top_left: Optional[bool] = None,
-    text_top_center: Optional[bool] = None,
-    text_top_right: Optional[bool] = None,
-    text_center_left: Optional[bool] = None,
+    padding: list[float] | None = None,
+    text_top_left: bool | None = None,
+    text_top_center: bool | None = None,
+    text_top_right: bool | None = None,
+    text_center_left: bool | None = None,
     text_center: bool = True,
-    text_center_right: Optional[bool] = None,
-    text_bottom_left: Optional[bool] = None,
-    text_bottom_center: Optional[bool] = None,
-    text_bottom_right: Optional[bool] = None,
-    text_size: Optional[float] = None,
-    clip: Optional[bool] = None,
-    style_id: Optional[int] = None,
-    style_standard: Optional[ButtonStyleStd] = None,
-    style_arrow: Optional[Arrow] = None,
-    user_data: Optional[Any] = None,
+    text_center_right: bool | None = None,
+    text_bottom_left: bool | None = None,
+    text_bottom_center: bool | None = None,
+    text_bottom_right: bool | None = None,
+    text_size: float | None = None,
+    clip: bool | None = None,
+    style_id: int | None = None,
+    style_standard: ButtonStyleStd | None = None,
+    style_arrow: Arrow | None = None,
+    user_data: Any | None = None,
     show: bool = True,
 ) -> int:
     """Adds a button widget.
@@ -164,30 +164,30 @@ def add_button(
 
 def add_card(
     *,
-    parent_id: Optional[str] = None,
-    head: Optional[str] = None,
-    body: Optional[str] = None,
+    parent_id: str | None = None,
+    head: str | None = None,
+    body: str | None = None,
     is_open: bool = True,
-    min_max_id: Optional[int] = None,
-    foot: Optional[str] = None,
-    gen_id: Optional[int] = None,
-    close_size: Optional[float] = None,
-    on_close: Optional[Any] = None,
-    width: Optional[float] = None,
+    min_max_id: int | None = None,
+    foot: str | None = None,
+    gen_id: int | None = None,
+    close_size: float | None = None,
+    on_close: Any | None = None,
+    width: float | None = None,
     width_fill: bool = False,
-    height: Optional[float] = None,
+    height: float | None = None,
     height_fill: bool = False,
-    max_width: Optional[float] = None,
-    max_height: Optional[float] = None,
-    padding: Optional[list[float]] = None,
-    padding_head: Optional[list[float]] = None,
-    padding_body: Optional[list[float]] = None,
-    padding_foot: Optional[list[float]] = None,
-    style_id: Optional[int] = None,
-    style_std: Optional[CardStyleStd] = None,
-    style_button: Optional[int] = None,
+    max_width: float | None = None,
+    max_height: float | None = None,
+    padding: list[float] | None = None,
+    padding_head: list[float] | None = None,
+    padding_body: list[float] | None = None,
+    padding_foot: list[float] | None = None,
+    style_id: int | None = None,
+    style_std: CardStyleStd | None = None,
+    style_button: int | None = None,
     show: bool = True,
-    user_data: Optional[Any] = None,
+    user_data: Any | None = None,
 ) -> int:
     """Adds a button widget.
 
@@ -206,29 +206,29 @@ def add_card(
 
 def add_checkbox(
     *,
-    parent_id: Optional[str] = None,
-    on_toggle: Optional[Callable] = None,
+    parent_id: str | None = None,
+    on_toggle: Callable | None = None,
     is_checked: bool = False,
-    label: Optional[str] = None,
-    width: Optional[float] = None,
+    label: str | None = None,
+    width: float | None = None,
     width_fill: bool = False,
-    size: Optional[float] = None,
-    spacing: Optional[float] = None,
-    text_size: Optional[float] = None,
-    text_line_height: Optional[float] = None,
-    text_shaping: Optional[bool] = None,
-    text_wrapping: Optional[bool] = None,
-    text_font_id: Optional[int] = None,
-    icon_font_id: Optional[int] = None,
-    icon: Optional[Icon] = None,
-    icon_size: Optional[float] = None,
-    icon_line_height: Optional[float] = None,
-    icon_shaping: Optional[bool] = None,
-    user_data: Optional[Any] = None,
+    size: float | None = None,
+    spacing: float | None = None,
+    text_size: float | None = None,
+    text_line_height: float | None = None,
+    text_shaping: bool | None = None,
+    text_wrapping: bool | None = None,
+    text_font_id: int | None = None,
+    icon_font_id: int | None = None,
+    icon: Icon | None = None,
+    icon_size: float | None = None,
+    icon_line_height: float | None = None,
+    icon_shaping: bool | None = None,
+    user_data: Any | None = None,
     show: bool = True,
-    style_id: Optional[int] = None,
-    style_std: Optional[int] = None,
-    gen_id: Optional[int] = None,
+    style_id: int | None = None,
+    style_std: int | None = None,
+    gen_id: int | None = None,
 ) -> int:
     """Adds a checkbox widget.
 
@@ -250,7 +250,7 @@ def add_checkbox(
     ...
 def add_color_picker(
     *,
-    parent_id: Optional[str] = None,
+    parent_id: str | None = None,
     **kwargs: Any) -> int:
     """Adds a Color Picker widget.
 
@@ -278,36 +278,36 @@ def add_color_picker(
     ...
 def add_date_picker(
     *,
-    parent_id: Optional[str] = None,
+    parent_id: str | None = None,
     **kwargs: Any) -> int:
     """_summary_
 
     Args:
-        parent_id (Optional[str], optional): _description_. Defaults to None.
+        parent_id (str | None, optional): _description_. Defaults to None.
 
     Returns:
         int: widget id
     """
     ...
 def add_divider(
-    *, parent_id: Optional[str] = None,
+    *, parent_id: str | None = None,
     **kwargs: Any) -> int:
     """_summary_
 
     Args:
-        parent_id (Optional[str], optional): _description_. Defaults to None.
+        parent_id (str | None, optional): _description_. Defaults to None.
 
     Returns:
         int: widget id
     """
     ...
 def add_float(
-    *, parent_id: Optional[str] = None,
+    *, parent_id: str | None = None,
     **kwargs: Any) -> int:
     """_summary_
 
     Args:
-        parent_id (Optional[str], optional): _description_. Defaults to None.
+        parent_id (str | None, optional): _description_. Defaults to None.
 
     Returns:
         int: widget id
@@ -316,27 +316,27 @@ def add_float(
 def add_image(
     path: str,
     *,
-    parent_id: Optional[str] = None,
-    border_radius: Optional[list[float, 4] | list[float, 1]] = None,
-    content_fit: Optional[ContentFit] = None,
-    crop_height: Optional[float] = None,
-    crop_width: Optional[float] = None,
-    crop_x: Optional[float] = None,
-    crop_y: Optional[float] = None,
-    expand: Optional[bool] = None,
-    fill: Optional[bool] = None,
-    filter_method: Optional[FilterMethod] = None,
-    gen_id: Optional[int] = None,
-    height_fill: Optional[bool] = None,
-    height: Optional[float] = None,
-    opacity: Optional[float] = None,
-    rotation_degrees: Optional[float] = None,
-    rotation_method: Optional[Rotation] = None,
-    rotation_radians: Optional[float] = None,
-    scale: Optional[float] = None,
+    parent_id: str | None = None,
+    border_radius: list[float, 4] | list[float, 1] | None = None,
+    content_fit: ContentFit | None = None,
+    crop_height: float | None = None,
+    crop_width: float | None = None,
+    crop_x: float | None = None,
+    crop_y: float | None = None,
+    expand: bool | None = None,
+    fill: bool | None = None,
+    filter_method: FilterMethod | None = None,
+    gen_id: int | None = None,
+    height_fill: bool | None = None,
+    height: float | None = None,
+    opacity: float | None = None,
+    rotation_degrees: float | None = None,
+    rotation_method: Rotation | None = None,
+    rotation_radians: float | None = None,
+    scale: float | None = None,
     show: bool = True,
-    width_fill: Optional[bool] = None,
-    width: Optional[float] = None,
+    width_fill: bool | None = None,
+    width: float | None = None,
     ) -> int:
     """
         add_image parameters
@@ -403,7 +403,7 @@ def add_image(
     ...
 def add_pick_list(
     *,
-    parent_id: Optional[str] = None,
+    parent_id: str | None = None,
     **kwargs: Any) -> int:
     """
     Adds a Pick List widget
@@ -430,12 +430,12 @@ def add_pick_list(
     ...
 def add_progress_bar(
     *,
-    parent_id: Optional[str] = None,
+    parent_id: str | None = None,
     **kwargs: Any) -> int:
     """_summary_
 
     Args:
-        parent_id (Optional[str], optional): _description_. Defaults to None.
+        parent_id (str | None, optional): _description_. Defaults to None.
 
     Returns:
         int: _description_
@@ -443,72 +443,72 @@ def add_progress_bar(
     ...
 def add_radio(
     *,
-    parent_id: Optional[str] = None,
+    parent_id: str | None = None,
     **kwargs: Any) -> int:
     """_summary_
 
     Args:
-        parent_id (Optional[str], optional): _description_. Defaults to None.
+        parent_id (str | None, optional): _description_. Defaults to None.
 
     Returns:
         int: _description_
     """
     ...
 def add_separator(
-    *, parent_id: Optional[str] = None,
+    *, parent_id: str | None = None,
     **kwargs: Any) -> int:
     """_summary_
 
     Args:
-        parent_id (Optional[str], optional): _description_. Defaults to None.
+        parent_id (str | None, optional): _description_. Defaults to None.
 
     Returns:
         int: _description_
     """
     ...
 def add_slider(
-    *, parent_id: Optional[str] = None,
+    *, parent_id: str | None = None,
     **kwargs: Any) -> int:
     """_summary_
 
     Args:
-        parent_id (Optional[str], optional): _description_. Defaults to None.
+        parent_id (str | None, optional): _description_. Defaults to None.
 
     Returns:
         int: _description_
     """
     ...
 def add_space(
-    *, parent_id: Optional[str] = None,
+    *, parent_id: str | None = None,
     **kwargs: Any) -> int:
     """_summary_
 
     Args:
-        parent_id (Optional[str], optional): _description_. Defaults to None.
+        parent_id (str | None, optional): _description_. Defaults to None.
 
     Returns:
         int: _description_
     """
     ...
 def add_svg(
-    *, parent_id: Optional[str] = None,
+    *, parent_id: str | None = None,
     **kwargs: Any) -> int:
     """_summary_
 
     Args:
-        parent_id (Optional[str], optional): _description_. Defaults to None.
+        parent_id (str | None, optional): _description_. Defaults to None.
 
     Returns:
         int: _description_
     """
     ...
 def add_text_input(
-    *, parent_id: Optional[str] = None,
+    *, parent_id: str | None = None,
     **kwargs: Any) -> int:
     """_summary_
 
     Args:
-        parent_id (Optional[str], optional): _description_. Defaults to None.
+        parent_id (str | None, optional): _description_. Defaults to None.
 
     Returns:
         int: _description_
@@ -516,34 +516,34 @@ def add_text_input(
     ...
 def add_text(
     *,
-    parent_id: Optional[str] = None,
+    parent_id: str | None = None,
     content: str,
-    width: Optional[float] = None,
-    width_fill: Optional[bool] = None,
-    height: Optional[float] = None,
-    height_fill: Optional[bool] = None,
-    fill: Optional[bool] = None,
-    align_bottom_center: Optional[bool] = None,
-    align_bottom_left: Optional[bool] = None,
-    align_bottom_right: Optional[bool] = None,
-    align_center_left: Optional[bool] = None,
-    align_center_right: Optional[bool] = None,
-    align_center: Optional[bool] = None,
-    align_top_center: Optional[bool] = None,
-    align_top_left: Optional[bool] = None,
-    align_top_right: Optional[bool] = None,
-    font_id: Optional[int] = None,
-    size: Optional[float] = None,
-    line_height: Optional[float] = None,
-    color: Optional[Color] = None,
-    color_alpha: Optional[float] = None,
-    color_rgba: Optional[list[float, 4]] = None,
-    color_std: Optional[TextColorStd] = None,
-    wrapping_none: Optional[bool] = None,
-    wrapping_glyph: Optional[bool] = None,
-    wrapping_word_glyph: Optional[bool] = None,
+    width: float | None = None,
+    width_fill: bool | None = None,
+    height: float | None = None,
+    height_fill: bool | None = None,
+    fill: bool | None = None,
+    align_bottom_center: bool | None = None,
+    align_bottom_left: bool | None = None,
+    align_bottom_right: bool | None = None,
+    align_center_left: bool | None = None,
+    align_center_right: bool | None = None,
+    align_center: bool | None = None,
+    align_top_center: bool | None = None,
+    align_top_left: bool | None = None,
+    align_top_right: bool | None = None,
+    font_id: int | None = None,
+    size: float | None = None,
+    line_height: float | None = None,
+    color: Color | None = None,
+    color_alpha: float | None = None,
+    color_rgba: list[float, 4] | None = None,
+    color_std: TextColorStd | None = None,
+    wrapping_none: bool | None = None,
+    wrapping_glyph: bool | None = None,
+    wrapping_word_glyph: bool | None = None,
     show: bool = True,
-    gen_id: Optional[int] = None,
+    gen_id: int | None = None,
     ) -> int:
     """Adds a text widget.
 
@@ -557,23 +557,23 @@ def add_text(
     """
     ...
 def add_text_editor(
-    *, parent_id: Optional[str] = None,
+    *, parent_id: str | None = None,
     **kwargs: Any) -> int:
     """_summary_
 
     Args:
-        parent_id (Optional[str], optional): _description_. Defaults to None.
+        parent_id (str | None, optional): _description_. Defaults to None.
 
     Returns:
         int: _description_
     """
     ...
 def add_toggler(
-    *, parent_id: Optional[str] = None,
+    *, parent_id: str | None = None,
     **kwargs: Any) -> int:
     """
     Args:
-        parent_id (Optional[str], optional): _description_. Defaults to None.
+        parent_id (str | None, optional): _description_. Defaults to None.
 
     Returns:
         int: _description_
@@ -586,34 +586,34 @@ def add_toggler(
 
 def add_container(
     *,
-    container_id: Optional[str] = None,
-    window_id: Optional[str] = None,
-    parent_id: Optional[str] = None,
-    width: Optional[float] = None,
+    container_id: str | None = None,
+    window_id: str | None = None,
+    parent_id: str | None = None,
+    width: float | None = None,
     width_fill: bool = False,
-    height: Optional[float] = None,
+    height: float | None = None,
     height_fill: bool = False,
-    clip: Optional[bool] = None,
-    max_height: Optional[float] = None,
-    max_width: Optional[float] = None,
-    align_bottom_center: Optional[bool] = None,
-    align_bottom_left: Optional[bool] = None,
-    align_bottom_right: Optional[bool] = None,
-    align_center: Optional[bool] = None,
-    align_center_left: Optional[bool] = None,
-    align_center_right: Optional[bool] = None,
-    align_top_center: Optional[bool] = None,
-    align_top_left: Optional[bool] = None,
-    align_top_right: Optional[bool] = None,
-    padding: Optional[list[float]] = None,
+    clip: bool | None = None,
+    max_height: float | None = None,
+    max_width: float | None = None,
+    align_bottom_center: bool | None = None,
+    align_bottom_left: bool | None = None,
+    align_bottom_right: bool | None = None,
+    align_center: bool | None = None,
+    align_center_left: bool | None = None,
+    align_center_right: bool | None = None,
+    align_top_center: bool | None = None,
+    align_top_left: bool | None = None,
+    align_top_right: bool | None = None,
+    padding: list[float] | None = None,
     show: bool = True,
-    style_id: Optional[int] = None,
-    style_std: Optional[ContainerStyleStd] = None,
+    style_id: int | None = None,
+    style_std: ContainerStyleStd | None = None,
 ) -> int:
     """_summary_
 
     Args:
-        parent_id (Optional[str], optional): _description_. Defaults to None.
+        parent_id (str | None, optional): _description_. Defaults to None.
 
     Returns:
         int: widget id
@@ -622,18 +622,18 @@ def add_container(
 
 def add_column(
     *,
-    container_id: Optional[str] = None,
-    window_id: Optional[str] = None,
-    parent_id: Optional[str] = None,
-    align_left: Optional[bool] = None,
-    align_center: Optional[bool] = None,
-    align_right: Optional[bool] = None,
-    width: Optional[float] = None,
-    height: Optional[float] = None,
+    container_id: str | None = None,
+    window_id: str | None = None,
+    parent_id: str | None = None,
+    align_left: bool | None = None,
+    align_center: bool | None = None,
+    align_right: bool | None = None,
+    width: float | None = None,
+    height: float | None = None,
     width_fill: bool = False,
     height_fill: bool = False,
     max_width: float = ...,
-    padding: Optional[list[float]] = None,
+    padding: list[float] | None = None,
     spacing: float = 20.0,
     clip: bool = False,
     show: bool = True,
@@ -641,7 +641,7 @@ def add_column(
     """_summary_
 
     Args:
-        parent_id (Optional[str], optional): _description_. Defaults to None.
+        parent_id (str | None, optional): _description_. Defaults to None.
 
     Returns:
         int: widget id
@@ -650,32 +650,32 @@ def add_column(
 
 def add_menu(
     *,
-    window_id: Optional[str] = None,
-    container_id: Optional[str] = None,
-    bar_items: Optional[str] = None,
+    window_id: str | None = None,
+    container_id: str | None = None,
+    bar_items: str | None = None,
     menu_items: list[int],
-    parent_id: Optional[str] = None,
-    item_offset: Optional[list[float]] = None,
-    item_padding: Optional[list[float]] = None,
-    item_spacing: Optional[list[float]] = None,
-    item_widths: Optional[list[float]] = None,
-    bar_height: Optional[float] = None,
-    bar_padding: Optional[list[float]] = None,
-    bar_spacing: Optional[float] = None,
-    bar_width: Optional[float] = None,
-    close_on_item_click: Optional[bool] = None,
-    close_on_background_click: Optional[bool] = None,
-    on_select: Optional[Any] = None,
-    style_id: Optional[int] = None,
-    style_std_primary: Optional[bool] = None,
+    parent_id: str | None = None,
+    item_offset: list[float] | None = None,
+    item_padding: list[float] | None = None,
+    item_spacing: list[float] | None = None,
+    item_widths: list[float] | None = None,
+    bar_height: float | None = None,
+    bar_padding: list[float] | None = None,
+    bar_spacing: float | None = None,
+    bar_width: float | None = None,
+    close_on_item_click: bool | None = None,
+    close_on_background_click: bool | None = None,
+    on_select: Any | None = None,
+    style_id: int | None = None,
+    style_std_primary: bool | None = None,
     show: bool = True,
-    user_data: Optional[Any] = None,
-    gen_id: Optional[int] = None,
+    user_data: Any | None = None,
+    gen_id: int | None = None,
 ) -> int:
     """_summary_
 
     Args:
-        parent_id (Optional[str], optional): _description_. Defaults to None.
+        parent_id (str | None, optional): _description_. Defaults to None.
 
     Returns:
         int: widget id
@@ -684,14 +684,14 @@ def add_menu(
 
 def add_opaque(
     *,
-    window_id: Optional[str] = None,
-    container_id: Optional[str] = None,
-    parent_id: Optional[str] = None,
+    window_id: str | None = None,
+    container_id: str | None = None,
+    parent_id: str | None = None,
 ) -> int:
     """_summary_
 
     Args:
-        parent_id (Optional[str], optional): _description_. Defaults to None.
+        parent_id (str | None, optional): _description_. Defaults to None.
 
     Returns:
         int: container id
@@ -702,25 +702,25 @@ def add_mouse_area(
     *,
     window_id: str,
     container_id: str,
-    parent_id: Optional[str]=None,
-    gen_id: Optional[int]=None,
-    on_press: Optional[Callable]=None,
-    on_release: Optional[Callable]=None,
-    on_right_press: Optional[Callable]=None,
-    on_right_release: Optional[Callable]=None,
-    on_middle_press: Optional[Callable]=None,
-    on_middle_release: Optional[Callable]=None,
-    on_enter: Optional[Callable]=None,
-    on_move: Optional[Callable]=None,
-    on_exit: Optional[Callable]=None,
-    mouse_pointer: Optional[MousePointer]=None,
+    parent_id: str | None=None,
+    gen_id: int | None=None,
+    on_press: Callable | None=None,
+    on_release: Callable | None=None,
+    on_right_press: Callable | None=None,
+    on_right_release: Callable | None=None,
+    on_middle_press: Callable | None=None,
+    on_middle_release: Callable | None=None,
+    on_enter: Callable | None=None,
+    on_move: Callable | None=None,
+    on_exit: Callable | None=None,
+    mouse_pointer: MousePointer | None=None,
     show: bool=True,
-    user_data: Optional[any]=None,
+    user_data: any | None=None,
 ) -> int:
     """_summary_
 
     Args:
-        parent_id (Optional[str], optional): _description_. Defaults to None.
+        parent_id (str | None, optional): _description_. Defaults to None.
 
     Returns:
         int: container id
@@ -729,17 +729,17 @@ def add_mouse_area(
 
 def add_row(
     *,
-    container_id: Optional[str] = None,
-    window_id: Optional[str] = None,
-    parent_id: Optional[str] = None,
-    align_top: Optional[bool] = None,
-    align_center: Optional[bool] = None,
-    align_bottom: Optional[bool] = None,
-    width: Optional[float] = None,
-    height: Optional[float] = None,
+    container_id: str | None = None,
+    window_id: str | None = None,
+    parent_id: str | None = None,
+    align_top: bool | None = None,
+    align_center: bool | None = None,
+    align_bottom: bool | None = None,
+    width: float | None = None,
+    height: float | None = None,
     width_fill: bool = False,
     height_fill: bool = False,
-    padding: Optional[list[float]] = None,
+    padding: list[float] | None = None,
     spacing: float = 20.0,
     clip: bool = False,
     show: bool = True,
@@ -747,7 +747,7 @@ def add_row(
     """_summary_
 
     Args:
-        parent_id (Optional[str], optional): _description_. Defaults to None.
+        parent_id (str | None, optional): _description_. Defaults to None.
 
     Returns:
         int: container id
@@ -756,24 +756,24 @@ def add_row(
 
 def add_scrollable(
     *,
-    window_id: Optional[str]=None,
-    container_id: Optional[str]=None,
-    parent_id: Optional[str]=None,
-    width: Optional[float]=None,
-    width_fill: Optional[bool]=None,
-    height: Optional[float]=None,
-    height_fill: Optional[bool]=None,
-    both_scrollers: Optional[bool]=None,
-    scroller_x_id: Optional[int]=None,
-    scroller_y_id: Optional[int]=None,
-    on_scroll: Optional[callable]=None,
-    user_data: Optional[callable]=None,
-    style_id: Optional[int]=None,
+    window_id: str | None=None,
+    container_id: str | None=None,
+    parent_id: str | None=None,
+    width: float | None=None,
+    width_fill: bool | None=None,
+    height: float | None=None,
+    height_fill: bool | None=None,
+    both_scrollers: bool | None=None,
+    scroller_x_id: int | None=None,
+    scroller_y_id: int | None=None,
+    on_scroll: callable | None=None,
+    user_data: callable | None=None,
+    style_id: int | None=None,
 ) -> int:
     """_summary_
 
     Args:
-        parent_id (Optional[str], optional): _description_. Defaults to None.
+        parent_id (str | None, optional): _description_. Defaults to None.
 
     Returns:
         int: wicontainerdget id
@@ -781,19 +781,19 @@ def add_scrollable(
     ...
 def add_stack(
     *,
-    container_id: Optional[str] = None,
-    parent_id: Optional[str] = None,
-    width: Optional[float] = None,
-    height: Optional[float] = None,
+    container_id: str | None = None,
+    parent_id: str | None = None,
+    width: float | None = None,
+    height: float | None = None,
     width_fill: bool = False,
     height_fill: bool = False,
-    hide_index: Optional[int] = None,
+    hide_index: int | None = None,
     show: bool = True,
 ) -> int:
     """_summary_
 
     Args:
-        parent_id (Optional[str], optional): _description_. Defaults to None.
+        parent_id (str | None, optional): _description_. Defaults to None.
 
     Returns:
         int: container id
@@ -802,36 +802,36 @@ def add_stack(
 
 def add_table(
     *,
-    parent_id: Optional[str] = None,
+    parent_id: str | None = None,
     **kwargs: Any
 ) -> int:
     """_summary_
 
     Args:
-        parent_id (Optional[str], optional): _description_. Defaults to None.
+        parent_id (str | None, optional): _description_. Defaults to None.
 
     Returns:
         int: container id
     """
     ...
 def add_tool_tip(
-    window_id: Optional[str] | None = None,
-    container_id: Optional[str] | None = None,
-    parent_id: Optional[str] | None = None,
-    text: Optional[str] | None = None,
-    position: Optional[ToolTipPosition] | None = None,
-    gap: Optional[int] | None = None,
-    padding: Optional[list[float, 4] | list[float]] | None = None,
-    snap_within_viewport: Optional[bool] | None = None,
-    delay_sec: Optional[float] | None = None,
+    window_id: str | None = None,
+    container_id: str | None = None,
+    parent_id: str | None = None,
+    text: str | None = None,
+    position: ToolTipPosition | None = None,
+    gap: int | None = None,
+    padding: list[float, 4] | list[float] | None = None,
+    snap_within_viewport: bool | None = None,
+    delay_sec: float | None = None,
     container_style_id = None,
-    gen_id: Optional[str] | None = None,
-    style_id: Optional[int] = None,
+    gen_id: str | None = None,
+    style_id: int | None = None,
 ) -> int:
     """_summary_
 
     Args:
-        parent_id (Optional[str], optional): _description_. Defaults to None.
+        parent_id (str | None, optional): _description_. Defaults to None.
 
     Returns:
         int: container id
@@ -844,26 +844,26 @@ def add_tool_tip(
 
 def add_window(
     *,
-    window_id: Optional[str] | None = None,
-    title: Optional[str] | None = None,
-    width: Optional[float] | None = None,
-    height: Optional[float] | None = None,
-    max_width: Optional[float] | None = None,
-    max_height: Optional[float] | None = None,
-    min_width: Optional[float] | None = None,
-    min_height: Optional[float] | None = None,
-    pos_x: Optional[float] | None = None,
-    pos_y: Optional[float] | None = None,
-    center: Optional[bool] | None = None,
-    resizable: Optional[bool] | None = None,
-    decorations: Optional[bool] | None = None,
-    transparent: Optional[bool] | None = None,
-    level: Optional[WindowLevel] | None = None,
-    theme: Optional[WindowTheme] | None = None,
-    debug: Optional[bool] | None = None,
-    exit_on_close: Optional[bool] | None = True,
-    mode: Optional[WindowMode] | None = None,
-    gen_id: Optional[int] | None = None,
+    window_id: str | None = None,
+    title: str | None = None,
+    width: float | None = None,
+    height: float | None = None,
+    max_width: float | None = None,
+    max_height: float | None = None,
+    min_width: float | None = None,
+    min_height: float | None = None,
+    pos_x: float | None = None,
+    pos_y: float | None = None,
+    center: bool | None = None,
+    resizable: bool | None = None,
+    decorations: bool | None = None,
+    transparent: bool | None = None,
+    level: WindowLevel | None = None,
+    theme: WindowTheme | None = None,
+    debug: bool | None = None,
+    exit_on_close: bool | None = True,
+    mode: WindowMode | None = None,
+    gen_id: int | None = None,
 )-> int:
     """Context manager that calls add_window and tracks the window id.
 
@@ -897,32 +897,32 @@ class Window:
     def __init__(
         self,
         *,
-        window_id: Optional[str] | None = None,
-        title: Optional[str] | None = None,
-        size: Optional[list] | None = None,
-        maximized: Optional[bool] | None = None,
-        fullscreen: Optional[bool] | None = None,
-        center: Optional[bool] | None = None,
-        position: Optional[list] | None = None,
-        min_size: Optional[list] | None = None,
-        max_size: Optional[list] | None = None,
-        theme: Optional[WindowTheme] | None = None,
-        visible: Optional[bool] | None = None,
-        resizable: Optional[bool] | None = None,
-        minimizable: Optional[bool] | None = None,
-        closeable: Optional[bool] | None = None,
-        decorations: Optional[bool] | None = None,
-        transparent: Optional[bool] | None = None,
-        blur: Optional[bool] | None = None,
-        level: Optional[WindowLevel] | None = None,
-        icon_rgba: Optional[list] | None = None,
-        icon_width_height: Optional[list] | None = None,
-        exit_on_close_request: Optional[bool] | None = None,
-        scale_factor: Optional[float] | None = None,
-        debug: Optional[bool] | None = None,
-        on_resize: Optional[Any] | None = None,
-        user_data: Optional[Any] | None = None,
-        gen_id: Optional[int] | None = None,
+        window_id: str | None = None,
+        title: str | None = None,
+        size: list | None = None,
+        maximized: bool | None = None,
+        fullscreen: bool | None = None,
+        center: bool | None = None,
+        position: list | None = None,
+        min_size: list | None = None,
+        max_size: list | None = None,
+        theme: WindowTheme | None = None,
+        visible: bool | None = None,
+        resizable: bool | None = None,
+        minimizable: bool | None = None,
+        closeable: bool | None = None,
+        decorations: bool | None = None,
+        transparent: bool | None = None,
+        blur: bool | None = None,
+        level: WindowLevel | None = None,
+        icon_rgba: list | None = None,
+        icon_width_height: list | None = None,
+        exit_on_close_request: bool | None = None,
+        scale_factor: float | None = None,
+        debug: bool | None = None,
+        on_resize: Any | None = None,
+        user_data: Any | None = None,
+        gen_id: int | None = None,
     ) -> None: ...
     def __enter__(self) -> int: ...
     def __exit__(self, exc_type: type[BaseException] | None, \
@@ -961,28 +961,28 @@ class Card:
     def __init__(
         self,
         *,
-        window_id: Optional[str] | None = None,
-        container_id: Optional[str] | None = None,
-        parent_id: Optional[str] | None = None,
+        window_id: str | None = None,
+        container_id: str | None = None,
+        parent_id: str | None = None,
         is_open: bool | None = True,
-        close_icon: Optional[bool] | None = None,
-        close_icon_size: Optional[float] | None = None,
-        on_close: Optional[Callable] | None = None,
-        width: Optional[float] | None = None,
-        width_fill: Optional[bool] | None = None,
-        height: Optional[float] | None = None,
-        height_fill: Optional[bool] | None = None,
-        fill: Optional[bool] | None = None,
-        max_width: Optional[float] | None = None,
-        max_height: Optional[float] | None = None,
-        padding: Optional[list[float]] | None = None,
-        padding_body: Optional[list[float]] | None = None,
-        padding_foot: Optional[list[float]] | None = None,
-        style_id: Optional[int] | None = None,
-        style_std: Optional[CardStyleStd] | None = None,
+        close_icon: bool | None = None,
+        close_icon_size: float | None = None,
+        on_close: Callable | None = None,
+        width: float | None = None,
+        width_fill: bool | None = None,
+        height: float | None = None,
+        height_fill: bool | None = None,
+        fill: bool | None = None,
+        max_width: float | None = None,
+        max_height: float | None = None,
+        padding: list[float] | None = None,
+        padding_body: list[float] | None = None,
+        padding_foot: list[float] | None = None,
+        style_id: int | None = None,
+        style_std: CardStyleStd | None = None,
         show: bool = True,
-        user_data: Optional[Any] | None = None,
-        gen_id: Optional[int] | None = None,
+        user_data: Any | None = None,
+        gen_id: int | None = None,
     ) -> None: ...
     def __enter__(self) -> int: ...
     def __exit__(self, exc_type: type[BaseException] | None, \
@@ -1006,30 +1006,30 @@ class Container:
     def __init__(
         self,
         *,
-        container_id: Optional[str] | None = None,
-        window_id: Optional[str] | None = None,
-        parent_id: Optional[str] | None = None,
-        width: Optional[float] | None = None,
+        container_id: str | None = None,
+        window_id: str | None = None,
+        parent_id: str | None = None,
+        width: float | None = None,
         width_fill: bool | None = False,
-        height: Optional[float] | None = None,
+        height: float | None = None,
         height_fill: bool | None = False,
-        fill: Optional[bool] | None = None,
-        clip: Optional[bool] | None = None,
-        max_height: Optional[float] | None = None,
-        max_width: Optional[float] | None = None,
-        align_bottom_center: Optional[bool] | None = None,
-        align_bottom_left: Optional[bool] | None = None,
-        align_bottom_right: Optional[bool] | None = None,
-        align_center: Optional[bool] | None = None,
-        align_center_left: Optional[bool] | None = None,
-        align_center_right: Optional[bool] | None = None,
-        align_top_center: Optional[bool] | None = None,
-        align_top_left: Optional[bool] | None = None,
-        align_top_right: Optional[bool] | None = None,
-        padding: Optional[list[float]] | None = None,
+        fill: bool | None = None,
+        clip: bool | None = None,
+        max_height: float | None = None,
+        max_width: float | None = None,
+        align_bottom_center: bool | None = None,
+        align_bottom_left: bool | None = None,
+        align_bottom_right: bool | None = None,
+        align_center: bool | None = None,
+        align_center_left: bool | None = None,
+        align_center_right: bool | None = None,
+        align_top_center: bool | None = None,
+        align_top_left: bool | None = None,
+        align_top_right: bool | None = None,
+        padding: list[float] | None = None,
         show: bool = True,
-        style_id: Optional[int] | None = None,
-        styl_std:Optional[ContainerStyleStd] | None = None,
+        style_id: int | None = None,
+        styl_std:ContainerStyleStd | None = None,
     ) -> None: ...
     def __enter__(self) -> int: ...
     def __exit__(self, exc_type: type[BaseException] | None, \
@@ -1054,21 +1054,21 @@ class Column:
     def __init__(
         self,
         *,
-        container_id: Optional[str] | None = None,
-        window_id: Optional[str] | None = None,
-        parent_id: Optional[str] | None = None,
-        align_left: Optional[bool] | None = None,
-        align_center: Optional[bool] | None = None,
-        align_right: Optional[bool] | None = None,
-        width: Optional[float] | None = None,
+        container_id: str | None = None,
+        window_id: str | None = None,
+        parent_id: str | None = None,
+        align_left: bool | None = None,
+        align_center: bool | None = None,
+        align_right: bool | None = None,
+        width: float | None = None,
         width_fill: bool | None = False,
-        height: Optional[float] | None = None,
+        height: float | None = None,
         height_fill: bool | None = False,
-        fill: Optional[bool] | None = None,
+        fill: bool | None = None,
         max_width: float | None = ...,
-        padding: Optional[list[float]] | None = None,
-        spacing: Optional[float] | None = None,
-        clip: Optional[bool] | None = False,
+        padding: list[float] | None = None,
+        spacing: float | None = None,
+        clip: bool | None = False,
         show: bool = True,
     ) -> None: ...
     def __enter__(self) -> int: ...
@@ -1090,21 +1090,21 @@ class Menu:
     def __init__(
         self,
         *,
-        window_id: Optional[str] | None = None,
-        container_id: Optional[str] | None = None,
-        parent_id: Optional[str] | None = None,
-        height: Optional[float] | None = None,
-        padding: Optional[list[float]] | None = None,
-        spacing: Optional[float] | None = None,
-        width: Optional[float] | None = None,
-        close_on_item_click: Optional[bool] | None = None,
-        close_on_background_click: Optional[bool] | None = None,
-        on_select: Optional[Any] | None = None,
-        style_id: Optional[int] | None = None,
-        style_primary: Optional[bool] | None = None,
+        window_id: str | None = None,
+        container_id: str | None = None,
+        parent_id: str | None = None,
+        height: float | None = None,
+        padding: list[float] | None = None,
+        spacing: float | None = None,
+        width: float | None = None,
+        close_on_item_click: bool | None = None,
+        close_on_background_click: bool | None = None,
+        on_select: Any | None = None,
+        style_id: int | None = None,
+        style_primary: bool | None = None,
         show: bool = True,
-        user_data: Optional[Any] | None = None,
-        gen_id: Optional[int] | None = None,
+        user_data: Any | None = None,
+        gen_id: int | None = None,
     )  -> None: ...
     def __enter__(self) -> int: ...
     def __exit__(self, exc_type: type[BaseException] | None, \
@@ -1127,22 +1127,22 @@ class MouseArea:
     def __init__(
         self,
         *,
-        window_id: Optional[str] | None = None,
-        container_id: Optional[str] | None = None,
-        parent_id: Optional[str] | None = None,
-        gen_id: Optional[int] | None = None,
-        on_press: Optional[Callable] | None = None,
-        on_release: Optional[Callable] | None = None,
-        on_right_press: Optional[Callable] | None = None,
-        on_right_release: Optional[Callable] | None = None,
-        on_middle_press: Optional[Callable] | None = None,
-        on_middle_release: Optional[Callable] | None = None,
-        on_enter: Optional[Callable] | None = None,
-        on_move: Optional[Callable] | None = None,
-        on_exit: Optional[Callable] | None = None,
-        mouse_pointer: Optional[MousePointer] | None = None,
+        window_id: str | None = None,
+        container_id: str | None = None,
+        parent_id: str | None = None,
+        gen_id: int | None = None,
+        on_press: Callable | None = None,
+        on_release: Callable | None = None,
+        on_right_press: Callable | None = None,
+        on_right_release: Callable | None = None,
+        on_middle_press: Callable | None = None,
+        on_middle_release: Callable | None = None,
+        on_enter: Callable | None = None,
+        on_move: Callable | None = None,
+        on_exit: Callable | None = None,
+        mouse_pointer: MousePointer | None = None,
         show: bool | None = True,
-        user_data: Optional[any] | None = None,
+        user_data: any | None = None,
     ) -> None: ...
     def __enter__(self) -> int: ...
     def __exit__(self, exc_type: type[BaseException] | None, \
@@ -1165,9 +1165,9 @@ class Opague:
     def __init__(
         self,
         *,
-        window_id: Optional[str] = None,
-        container_id: Optional[str] = None,
-        parent_id: Optional[str] = None,
+        window_id: str | None = None,
+        container_id: str | None = None,
+        parent_id: str | None = None,
     ) -> None: ...
     def __enter__(self) -> int: ...
     def __exit__(self, exc_type: type[BaseException] | None, \
@@ -1190,19 +1190,19 @@ class Row:
     def __init__(
         self,
         *,
-        window_id: Optional[str] = None,
-        container_id: Optional[str] = None,
-        parent_id: Optional[str] = None,
-        width: Optional[float] = None,
-        width_fill: Optional[bool] = None,
-        height: Optional[float] = None,
-        height_fill: Optional[bool] = None,
-        align_bottom: Optional[bool] = None,
-        align_center: Optional[bool] = None,
-        align_top: Optional[bool] = None,
-        padding: Optional[list] = None,
-        spacing: Optional[float] = None,
-        clip: Optional[bool] = None,
+        window_id: str | None = None,
+        container_id: str | None = None,
+        parent_id: str | None = None,
+        width: float | None = None,
+        width_fill: bool | None = None,
+        height: float | None = None,
+        height_fill: bool | None = None,
+        align_bottom: bool | None = None,
+        align_center: bool | None = None,
+        align_top: bool | None = None,
+        padding: list | None = None,
+        spacing: float | None = None,
+        clip: bool | None = None,
         show: bool = True,
     ) -> None: ...
     def __enter__(self) -> int: ...
@@ -1226,14 +1226,14 @@ class Stack:
     def __init__(
         self,
         *,
-        window_id: Optional[str] = None,
-        container_id: Optional[str] = None,
-        parent_id: Optional[str] = None,
-        width: Optional[float] = None,
-        height: Optional[float] = None,
+        window_id: str | None = None,
+        container_id: str | None = None,
+        parent_id: str | None = None,
+        width: float | None = None,
+        height: float | None = None,
         width_fill: bool = False,
         height_fill: bool = False,
-        hide_index: Optional[int] = None,
+        hide_index: int | None = None,
         show: bool = True,
     ) -> None: ...
     def __enter__(self) -> int: ...
@@ -1256,19 +1256,18 @@ class Scrollable:
     def __init__(
         self,
         *,
-        window_id: Optional[str] = None,
-        container_id: Optional[str] = None,
-        parent_id: Optional[str] = None,
-        width: Optional[float] = None,
-        width_fill: Optional[bool] = None,
-        height: Optional[float] = None,
-        height_fill: Optional[bool] = None,
-        both_scrollers: Optional[float] = None,
-        scroller_x_id: Optional[int] = None,
-        scroller_y_id: Optional[int] = None,
-        on_scroll: Optional[callable] = None,
-        user_data: Optional[callable] = None,
-        style_id: Optional[int] = None,
+        window_id: str | None = None,
+        container_id: str | None = None,
+        parent_id: str | None = None,
+        width: float | None = None,
+        width_fill: bool | None = None,
+        height: float | None = None,
+        height_fill: bool | None = None,
+        scroller_x_id: int | None = None,
+        scroller_y_id: int | None = None,
+        on_scroll: callable | None = None,
+        user_data: callable | None = None,
+        style_id: int | None = None,
     ) -> None: ...
     def __enter__(self) -> int: ...
     def __exit__(self, exc_type: type[BaseException] | None, \
@@ -1290,17 +1289,17 @@ class ToolTip:
         self,
         text,
         *,
-        window_id: Optional[str] | None = None,
-        container_id: Optional[str] | None = None,
-        parent_id: Optional[str] | None = None,
-        position: Optional[ToolTipPosition] | None = None,
-        gap: Optional[int] | None = None,
-        padding: Optional[list[float, 4] | list[float]] | None = None,
-        snap_within_viewport: Optional[bool] | None = None,
-        delay_sec: Optional[float] | None = None,
+        window_id: str | None = None,
+        container_id: str | None = None,
+        parent_id: str | None = None,
+        position: ToolTipPosition | None = None,
+        gap: int | None = None,
+        padding: list[float, 4] | list[float] | None = None,
+        snap_within_viewport: bool | None = None,
+        delay_sec: float | None = None,
         container_style_id = None,
-        gen_id: Optional[str] | None = None,
-        style_id: Optional[int] = None,
+        gen_id: str | None = None,
+        style_id: int | None = None,
     ) -> None: ...
     def __enter__(self) -> int: ...
     def __exit__(self, exc_type: type[BaseException] | None, \

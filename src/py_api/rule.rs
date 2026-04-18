@@ -17,7 +17,7 @@ use crate::{access_state, graphics::colors::Color,
 /// is_vertical : bool, Optional
 ///     Whether the rule is oriented vertically.
 /// thickness : int, Optional
-///     Sets the thickness of the rule in logical pixels.
+///     Sets the thickness of the rule.
 /// style_id : int, Optional
 ///     Sets the ID of a custom style created with ``add_rule_style``.
 /// gen_id : int, Optional
@@ -56,7 +56,6 @@ pub fn add_rule(
     state.widgets.insert(id, Widgets::Rule(
         Rule {
             id,
-            parent_id,
             is_vertical,
             thickness,
             style_id,
@@ -104,7 +103,7 @@ pub fn add_rule(
 #[pyo3(signature = (
     color=None,
     color_alpha=None,
-    color_rgba=None,
+    rgba=None,
     border_radius=None,
     fillmode_percent=None,
     fillmode_padded=None,
@@ -115,7 +114,7 @@ pub fn add_rule(
 pub fn add_rule_style(
     color: Option<Color>,
     color_alpha: Option<f32>,
-    color_rgba: Option<[f32; 4]>,
+    rgba: Option<[f32; 4]>,
     border_radius: Option<Vec<f32>>,
     fillmode_percent: Option<f32>,
     fillmode_padded: Option<u16>,
@@ -126,14 +125,14 @@ pub fn add_rule_style(
 {
     let id = get_id(gen_id);
 
-    let color = Color::rgba_ipg_color_to_iced(color_rgba, &color, color_alpha);
-    
     let mut state = access_state();
 
     state.widgets.insert(id, Widgets::RuleStyle(
         RuleStyle {
             id,
             color,
+            color_alpha,
+            rgba,
             border_radius,
             fillmode_percent,
             fillmode_padded,

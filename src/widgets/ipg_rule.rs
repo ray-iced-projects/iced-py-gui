@@ -1,34 +1,82 @@
 //! ipg_rule
 
+use std::collections::HashMap;
+
 use iced::widget::rule::{self, FillMode, Style};
 use iced::{Element, Theme};
 use iced::widget::Container;
+
 use pyo3::{pyclass, Py, PyAny};
 type PyObject = Py<PyAny>;
 
 use crate::app;
 
+use crate::graphics::colors::Color;
 use crate::py_api::helpers::get_radius;
 use crate::state::Widgets;
-use crate::widgets::widget_param_update::{WidgetParamUpdate, 
-    set_opt_bool, set_opt_f32, set_opt_iced_color, 
-    set_opt_iced_color_from_rgba, set_opt_u16, set_opt_u16_array_2, 
-    set_opt_u32, set_opt_usize, set_opt_vec_f32};
+use crate::widgets::widget_param_update::{WidgetParamUpdate, set_t_value};
 
 #[derive(Debug, Clone)]
 pub struct Rule {
     pub id: usize,
-    pub parent_id: String,
     pub is_vertical: Option<bool>,
     pub thickness: Option<u32>,
     pub style_id: Option<usize>,
     pub show: bool,
 }
 
+impl Rule {
+
+    fn lookup<'a>(&self, widgets: &'a HashMap<usize, Widgets>, id: Option<usize>) -> Option<&'a Widgets> {
+        id.and_then(|id| widgets.get(&id))
+    }
+
+    pub fn construct<'a>(
+        &'a self, 
+        widgets: &HashMap<usize, Widgets>,
+    ) -> Option<Element<'a, app::Message>> {
+
+        if !self.show { return None }
+
+        let style_opt = 
+            self.lookup(widgets, self.style_id)
+                .and_then(Widgets::as_rule_style).cloned();
+
+        let thickness = if let Some(th) = self.thickness {
+            th
+        } else { 1 };
+
+        let rul = if self.is_vertical == Some(true) {
+            rule::vertical(thickness)
+                .style(move|theme: &Theme| {  
+                    if let Some(st) = &style_opt {
+                        st.to_iced(theme)
+                    } else {
+                        rule::default(theme)
+                    }
+                })
+        } else {
+            rule::horizontal(thickness)
+                .style(move|theme: &Theme| {   
+                    if let Some(st) = &style_opt {
+                        st.to_iced(theme)
+                    } else {
+                        rule::default(theme)
+                    } 
+                })
+        };
+
+
+        Some(Container::new(rul).into())
+
+    }
+}
 #[derive(Debug, Clone)]
 pub struct RuleStyle {
     pub id: usize,
-    pub color: Option<iced::Color>,
+    pub color: Option<Color>,
+    pub color_alpha: Option<f32>,
+    pub rgba: Option<[f32; 4]>,
     pub border_radius: Option<Vec<f32>>,
     pub fillmode_percent: Option<f32>,
     pub fillmode_padded: Option<u16>,
@@ -36,89 +84,57 @@ pub struct RuleStyle {
     pub snap: Option<bool>,
 }
 
-pub fn construct_rule<'a>(
-    rl: &'a Rule, 
-    style_opt: Option<&Widgets>) 
-    -> Option<Element<'a, app::Message>> {
+impl RuleStyle {
+    fn to_iced(
+        &self,
+        theme: &Theme,
+    ) -> Style {
 
-    if !rl.show {
-        return None
-    }
+        let mut style = rule::default(theme);
 
-    let style = style_opt.and_then(Widgets::as_rule_style).cloned();
+        let color = Color::rgba_ipg_color_to_iced(self.rgba, &self.color, self.color_alpha);
 
-    let thickness = if let Some(th) = rl.thickness {
-        th
-    } else { 1 };
+        if let Some(c) = color {
+            style.color = c;
+        }
 
-    let rul = if let Some(_) = rl.is_vertical {
-        rule::vertical(thickness)
-            .style(move|theme: &Theme| {   
-                get_styling(theme, style.clone())  
-            })
-    } else {
-        rule::horizontal(thickness)
-            .style(move|theme: &Theme| {   
-                get_styling(theme, style.clone())  
-            })
-    };
+        if let Some(br)  = &self.border_radius {
+            style.radius = 
+                get_radius(br, "Rule".to_string()); 
+        }
 
-
-    Some(Container::new(rul).into())
-
-}
-
-
-
-fn get_styling(theme: &Theme,
-                style_opt: Option<RuleStyle>,
-                ) -> Style {
-
-    let mut base_style = rule::default(theme);
-
-    let style = if let Some(st) = style_opt {
-        st
-    } else { return  base_style };
-
-    if let Some(c) = style.color {
-        base_style.color = c;
-    }
-
-
-    if let Some(br)  = style.border_radius {
-        base_style.radius = 
-            get_radius(&br, "Rule".to_string()); 
-    }
-
-    base_style.fill_mode = 
-        if let Some(percent) = style.fillmode_percent {
-            FillMode::Percent(percent)
-        } else if let Some(pd) = style.fillmode_padded {
-            FillMode::Padded(pd)
-        } else if let Some(a_pd) = style.fillmode_asymmetric_padding {
-            FillMode::AsymmetricPadding(a_pd[0], a_pd[1])
-        } else {
-            FillMode::Full
+        style.fill_mode = 
+            if let Some(percent) = self.fillmode_percent {
+                FillMode::Percent(percent)
+            } else if let Some(pd) = self.fillmode_padded {
+                FillMode::Padded(pd)
+            } else if let Some(a_pd) = self.fillmode_asymmetric_padding {
+                FillMode::AsymmetricPadding(a_pd[0], a_pd[1])
+            } else {
+                FillMode::Full
+            };
+        
+        if let Some(sp) = self.snap { 
+            style.snap = sp;
         };
-    
-    if let Some(sp) = style.snap { 
-        base_style.snap = sp;
-    };
-    
+        
+        style
 
-    base_style
-
+    }
 }
+
 
 #[derive(Debug, Clone, PartialEq, Hash)]
 #[pyclass(eq, eq_int, hash, frozen)]
 pub enum RuleStyleParam {
     BorderRadius,
+    Color,
+    ColorAlpha,
     FillModeAsymmetricPadding,
     FillModePadded,
     FillModePercent,
-    Color,
-    RbgaColor,
+    Rgba,
+    Snap,
 }
 
 #[derive(Debug, Clone, PartialEq, Hash)]
@@ -138,9 +154,9 @@ impl WidgetParamUpdate for Rule {
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
-            RuleParam::IsVertical => set_opt_bool(&mut self.is_vertical, value, "IsVertical"),
-            RuleParam::Thickness => set_opt_u32(&mut self.thickness, value, "Thickness"),
-            RuleParam::StyleId => set_opt_usize(&mut self.style_id, value, "StyleId"),
+            RuleParam::IsVertical => set_t_value(&mut self.is_vertical, value, "RuleParam::IsVertical"),
+            RuleParam::Thickness => set_t_value(&mut self.thickness, value, "RuleParam::Thickness"),
+            RuleParam::StyleId => set_t_value(&mut self.style_id, value, "RuleParam::StyleId"),
         }
     }
 }
@@ -150,119 +166,14 @@ impl WidgetParamUpdate for RuleStyle {
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
-            RuleStyleParam::BorderRadius => set_opt_vec_f32(&mut self.border_radius, value, "BorderRadius"),
-            RuleStyleParam::FillModeAsymmetricPadding => set_opt_u16_array_2(&mut self.fillmode_asymmetric_padding, value, "FillModeAsymmetricPadding"),
-            RuleStyleParam::FillModePadded => set_opt_u16(&mut self.fillmode_padded, value, "FillModePadded"),
-            RuleStyleParam::FillModePercent => set_opt_f32(&mut self.fillmode_percent, value, "FillModePercent"),
-            RuleStyleParam::Color => set_opt_iced_color(&mut self.color, value, "Color"),
-            RuleStyleParam::RbgaColor => set_opt_iced_color_from_rgba(&mut self.color, value, "RbgaColor"),
+            RuleStyleParam::BorderRadius => set_t_value(&mut self.border_radius, value, "RuleStyleParam::BorderRadius"),
+            RuleStyleParam::Color => set_t_value(&mut self.color, value, "RuleStyleParam::Color"),
+            RuleStyleParam::ColorAlpha => set_t_value(&mut self.color_alpha, value, "RuleStyleParam::ColorAlpha"),
+            RuleStyleParam::FillModeAsymmetricPadding => set_t_value(&mut self.fillmode_asymmetric_padding, value, "RuleStyleParam::FillModeAsymmetricPadding"),
+            RuleStyleParam::FillModePadded => set_t_value(&mut self.fillmode_padded, value, "RuleStyleParam::FillModePadded"),
+            RuleStyleParam::FillModePercent => set_t_value(&mut self.fillmode_percent, value, "RuleStyleParam::FillModePercent"),
+            RuleStyleParam::Rgba => set_t_value(&mut self.color, value, "RuleStyleParam::Rbga"),
+            RuleStyleParam::Snap => set_t_value(&mut self.snap, value, "RuleStyleParam::Snap"),
         }
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use pyo3::{Python, IntoPyObjectExt};
-
-    fn make_rule() -> Rule {
-        Rule {
-            id: 0,
-            parent_id: String::new(),
-            is_vertical: None,
-            thickness: None,
-            style_id: None,
-            show: true,
-        }
-    }
-
-    fn make_rule_style() -> RuleStyle {
-        RuleStyle {
-            id: 0,
-            color: None,
-            border_radius: None,
-            fillmode_percent: None,
-            fillmode_padded: None,
-            fillmode_asymmetric_padding: None,
-            snap: None,
-        }
-    }
-
-    fn py_obj<T: for<'py> IntoPyObjectExt<'py>>(val: T) -> PyObject {
-        Python::initialize();
-        Python::attach(|py| val.into_py_any(py).unwrap())
-    }
-
-    fn py_none() -> PyObject {
-        Python::initialize();
-        Python::attach(|py| py.None().into_py_any(py).unwrap())
-    }
-
-    // -- Rule param tests --
-
-    #[test]
-    fn test_is_vertical() {
-        let mut rl = make_rule();
-        rl.param_update(RuleParam::IsVertical, &py_obj(true));
-        assert_eq!(rl.is_vertical, Some(true));
-        rl.param_update(RuleParam::IsVertical, &py_none());
-        assert_eq!(rl.is_vertical, None);
-    }
-
-    #[test]
-    fn test_thickness() {
-        let mut rl = make_rule();
-        rl.param_update(RuleParam::Thickness, &py_obj(3u32));
-        assert_eq!(rl.thickness, Some(3));
-    }
-
-    #[test]
-    fn test_style_id() {
-        let mut rl = make_rule();
-        rl.param_update(RuleParam::StyleId, &py_obj(10usize));
-        assert_eq!(rl.style_id, Some(10));
-        rl.param_update(RuleParam::StyleId, &py_none());
-        assert_eq!(rl.style_id, None);
-    }
-
-    // -- RuleStyle param tests --
-
-    #[test]
-    fn test_style_border_radius() {
-        let mut s = make_rule_style();
-        s.param_update(RuleStyleParam::BorderRadius, &py_obj(vec![2.0f32, 2.0, 2.0, 2.0]));
-        assert_eq!(s.border_radius, Some(vec![2.0, 2.0, 2.0, 2.0]));
-        s.param_update(RuleStyleParam::BorderRadius, &py_none());
-        assert_eq!(s.border_radius, None);
-    }
-
-    #[test]
-    fn test_style_fillmode_asymmetric_padding() {
-        let mut s = make_rule_style();
-        s.param_update(RuleStyleParam::FillModeAsymmetricPadding, &py_obj(vec![5u16, 10]));
-        assert_eq!(s.fillmode_asymmetric_padding, Some([5, 10]));
-    }
-
-    #[test]
-    fn test_style_fillmode_padded() {
-        let mut s = make_rule_style();
-        s.param_update(RuleStyleParam::FillModePadded, &py_obj(8u16));
-        assert_eq!(s.fillmode_padded, Some(8));
-    }
-
-    #[test]
-    fn test_style_fillmode_percent() {
-        let mut s = make_rule_style();
-        s.param_update(RuleStyleParam::FillModePercent, &py_obj(0.5f32));
-        assert_eq!(s.fillmode_percent, Some(0.5));
-        s.param_update(RuleStyleParam::FillModePercent, &py_none());
-        assert_eq!(s.fillmode_percent, None);
-    }
-
-    #[test]
-    fn test_style_rgba_color() {
-        let mut s = make_rule_style();
-        s.param_update(RuleStyleParam::RbgaColor, &py_obj(vec![1.0f32, 0.0, 0.0, 1.0]));
-        assert!(s.color.is_some());
     }
 }

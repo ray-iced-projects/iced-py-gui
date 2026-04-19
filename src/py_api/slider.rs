@@ -4,7 +4,7 @@ use pyo3::{pyfunction, Py, PyAny, PyResult};
 
 use crate::{access_state, add_callback_to_mutex, 
     add_user_data_to_mutex, graphics::colors::Color, 
-    py_api::helpers::get_length, state::{Widgets, 
+    state::{Widgets, 
         get_id, set_state_of_widget}, 
         widgets::ipg_slider::{Slider, SliderStyle}};
 type PyObject = Py<PyAny>;
@@ -59,15 +59,15 @@ type PyObject = Py<PyAny>;
     step, 
     value,
     shift_step=None, 
-    gen_id=None, 
-    width=None, 
-    height=None, 
-    width_fill=false, 
+    width=None,
+    width_fill=None, 
+    height=None,  
     on_change=None, 
     on_release=None, 
     style_id=None,
     user_data=None,
-    show=true, 
+    show=true,
+    gen_id=None,
     ))]
 pub fn add_slider(
     parent_id: String,
@@ -76,15 +76,15 @@ pub fn add_slider(
     step: f32,
     value: f32,
     shift_step: Option<f32>,
-    gen_id: Option<usize>,
     width: Option<f32>,
+    width_fill: Option<bool>,
     height: Option<f32>,
-    width_fill: bool,
     on_change: Option<PyObject>,
     on_release: Option<PyObject>,
     style_id: Option<usize>,
     user_data: Option<PyObject>,
     show: bool,
+    gen_id: Option<usize>,
     ) -> PyResult<usize> 
     {
 
@@ -101,9 +101,6 @@ pub fn add_slider(
         add_user_data_to_mutex(id, py);
     }
     
-    let width = get_length(width, width_fill);
-    let height = height.unwrap_or(16.0);
-
     set_state_of_widget(id, parent_id.clone());
 
     let mut state = access_state();
@@ -119,6 +116,7 @@ pub fn add_slider(
             shift_step,
             value,
             width,
+            width_fill,
             height,
             style_id,
         }));
@@ -225,30 +223,29 @@ pub fn add_slider_style(
 {
     let id = get_id(gen_id);
 
-    let rail_color = 
-        Color::rgba_ipg_color_to_iced(rail_rgba, &rail_color, rail_color_alpha);
-    let rail_color_hovered = 
-        Color::rgba_ipg_color_to_iced(rail_rgba_hovered, &rail_color_hovered, rail_color_hovered_alpha);
-    let handle_color = 
-        Color::rgba_ipg_color_to_iced(handle_rgba, &handle_color, handle_color_alpha);
-    let handle_border_color = 
-        Color::rgba_ipg_color_to_iced(handle_border_rgba, &handle_border_color, handle_border_color_alpha);
-
     let mut state = access_state();
     
     state.widgets.insert(id, Widgets::SliderStyle(
         SliderStyle {
             id,
             rail_color,
+            rail_color_alpha,
+            rail_rgba,
             rail_color_hovered,
+            rail_color_hovered_alpha,
+            rail_rgba_hovered,
             rail_width,
             rail_border_radius,
             handle_circle_radius,
             handle_rectangle_width,
             handle_rectangle_border_radius,
             handle_color,
+            handle_color_alpha,
+            handle_rgba,
             handle_border_width,
             handle_border_color,
+            handle_border_color_alpha,
+            handle_border_rgba,
         }));
 
     drop(state);

@@ -2,7 +2,7 @@
 //! 
 use pyo3::{pyfunction, PyResult};
 
-use crate::{access_state, py_api::helpers::get_length, 
+use crate::{access_state,  
 state::{Containers, get_id, set_state_cont_wnd_ids, 
     set_state_of_container}, widgets::ipg_stack::Stack};
 
@@ -28,6 +28,8 @@ state::{Containers, get_id, set_state_cont_wnd_ids,
 ///     Whether the stack fills available width.
 /// height_fill : bool, default False
 ///     Whether the stack fills available height.
+/// fill : bool, Optional
+///     Whether to fill both the available width and height.
 /// hide_index : int, Optional
 ///     Sets the index of the child to hide.
 /// show : bool, default True
@@ -42,30 +44,28 @@ state::{Containers, get_id, set_state_cont_wnd_ids,
     window_id, 
     container_id, 
     parent_id=None,
-    width=None, 
+    width=None,
+    width_fill=None, 
     height=None, 
-    width_fill=false, 
-    height_fill=false,
+    height_fill=None,
+    fill=None,
     hide_index=None, 
     show=true,
     ))]
 pub fn add_stack(
         window_id: String,
         container_id: String,
-        // required above
         parent_id: Option<String>,
         width: Option<f32>,
+        width_fill: Option<bool>,
         height: Option<f32>,
-        width_fill: bool,
-        height_fill: bool,
+        height_fill: Option<bool>,
+        fill: Option<bool>,
         hide_index: Option<usize>,
         show: bool,
     ) -> PyResult<usize> 
 {
     let id = get_id(None);
-
-    let width = get_length(width, width_fill);
-    let height = get_length(height, height_fill);
 
     let prt_id = match parent_id {
         Some(id) => id,
@@ -81,8 +81,11 @@ pub fn add_stack(
     state.containers.insert(id, Containers::Stack(
         Stack {
             id,  
-            width, 
+            width,
+            width_fill, 
             height,
+            height_fill,
+            fill,
             hide_index,
             show,
         }));

@@ -1,15 +1,21 @@
-from icedpygui import Window, Column, Container, Stack, start_session, \
-    add_image, add_text, add_space, update_widget, IpgTextParam, \
-    IpgContentFit, MouseArea, IpgMousePointer
-    
+#!/usr/bin/env python3
+"""
+Stack demo
+
+Stack allows one the stack widgets on top of each other
+"""
 import os
+from icedpygui import Window, Column, Container, Stack, start_session, \
+    add_image, add_text, add_space, update_widget, TextParam, \
+    ContentFit, MouseArea, MousePointer
 
 
-def card_selected(card_id, name):
+def card_selected(_card_id, name):
+    """Card callback"""
     update_widget(
-        wid=text_id, 
-        param=IpgTextParam.Content, 
-        value=f"Card selected is {name}")
+        text_id,
+        TextParam.Content,
+        f"Card selected is {name}")
 
 
 cwd = os.getcwd()
@@ -32,21 +38,18 @@ with Window(title="Stack", center=True):
                     # Adds the column to the stack to hold the space and card.
                     with Column():
 
-                        file = f"{path}{i}.png"
-
                         # The space, which grows with each card, allows for an offset
-                        # to be able to see all of the cards.  If not used, they are 
+                        # to be able to see all of the cards.  If not used, they are
                         # stacked on top of each other.
                         add_space(height=35*i-35)
                         with Container(width=150, height=250):
                             with MouseArea(
-                                mouse_pointer=IpgMousePointer.Grab,
+                                mouse_pointer=MousePointer.Grab,
                                 on_press=card_selected,
                                 user_data=names[i-1]):
                                 add_image(
-                                    image_path=file,
-                                    content_fit=IpgContentFit.Fill)
+                                    path=f"{path}{i}.png",
+                                    content_fit=ContentFit.Fill)
 
 
 start_session()
-

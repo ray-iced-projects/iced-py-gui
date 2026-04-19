@@ -1,3 +1,8 @@
+#!/usr/bin/env python3
+"""
+Solor System demo
+
+"""
 from imports import *
 
 def point_on_circle(center_x, center_y, radius, angle):
@@ -8,7 +13,7 @@ def point_on_circle(center_x, center_y, radius, angle):
 
 def on_start(timer_id: int):
     update_widget(timer_id, IpgCanvasTimerParam.Label, "Stop Timer")
-    
+
 
 # When the timer is stopped, 2nd parameter is sent for elapsed time.
 def on_stop(timer_id: int, _elapsed: int):
@@ -26,7 +31,7 @@ def on_tick(timer_id: int, elapsed: int):
     moon_point = point_on_circle(earth_point[0], earth_point[1], 15.0, moon_orbit)
     update_canvas_item(moon_id, IpgCanvasGeometryParam.Position, moon_point)
     update_canvas_item(sun_id, IpgCanvasGeometryParam.Rotation, sun_rotation)
-    
+
 
 global default_file_path
 cwd = os.getcwd()
@@ -36,7 +41,7 @@ moon_path = f"{cwd}/python_examples/resources/solar_system_assets/moon.png"
 
 canvas_width = 800.0
 canvas_height = 725.0
-   
+
 add_window(id="main", title="Canvas",
     size=(800.0, 800.0),
                pos_centered=True)
@@ -49,17 +54,17 @@ add_row(window_id="main",
             parent_id="col",
             )
 
-add_canvas_timer(parent_id="row", 
+add_canvas_timer(parent_id="row",
                     duration_ms=15,
                     on_tick=on_tick,
                     on_start=on_start,
                     on_stop=on_stop,
                   )
 
-canvas_id = add_canvas(window_id="main", 
+canvas_id = add_canvas(window_id="main",
                            canvas_id="canvas",
                            parent_id="col",
-                           width=canvas_width, 
+                           width=canvas_width,
                            height=canvas_height,
                            background_ipg_color=Color.BLACK)
 

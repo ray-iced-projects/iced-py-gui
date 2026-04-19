@@ -9,7 +9,7 @@ from operator import is_none
 
 from icedpygui import Window, Column, Container, start_session, \
     Menu, MenuBarItem, MenuParam, MenuBarItemParam,  add_button, add_text, \
-    add_separator, SeparatorType, update_widget
+    add_separator, update_widget
 
 
 state = {"bar_testing_id": 0,
@@ -178,7 +178,7 @@ with Window(title="Menu", center=True, size=[500, 400]):
                             on_press=on_press,
                             user_data="Copy")
 
-                    add_separator(separator_type=SeparatorType.Dot,
+                    add_separator(dot=True,
                                 dot_radius=3.0,
                                 dot_count=10,
                                 spacing=3.0,)

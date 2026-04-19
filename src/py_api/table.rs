@@ -17,7 +17,7 @@ use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex,
 /// ----------
 /// window_id : str
 ///     Sets the window this table belongs to.
-/// table_id : str
+/// container_id : str
 ///     Sets the Unique string identifier for the table.
 /// headers : list of str
 ///     Sets the column header labels.
@@ -117,7 +117,7 @@ use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex,
 #[pyfunction]
 #[pyo3(signature = (
     window_id, 
-    table_id, 
+    container_id, 
     headers,
     body,
     footers,
@@ -166,13 +166,12 @@ use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex,
     ))]
 pub fn add_table(
         window_id: String,
-        table_id: String,
+        container_id: String,
         headers: Vec<String>,
         body: Vec<Vec<f32>>,
         footers: Vec<String>,
         column_widths: Vec<f32>,
         height: f32,
-        // above required
         parent_id: Option<String>,
         width: Option<f32>,
         resizer_width: Option<f32>,
@@ -238,11 +237,11 @@ pub fn add_table(
         false
     };
 
-    set_state_of_container(id, window_id.clone(), Some(table_id.clone()), prt_id);
+    set_state_of_container(id, window_id.clone(), Some(container_id.clone()), prt_id);
 
     let mut state = access_state();
 
-    set_state_cont_wnd_ids(&mut state, &window_id, table_id, id, "add_table".to_string());
+    set_state_cont_wnd_ids(&mut state, &window_id, container_id, id, "add_table".to_string());
 
     state.containers.insert(id, Containers::Table(
         Table {

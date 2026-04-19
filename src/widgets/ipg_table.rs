@@ -33,7 +33,6 @@ pub struct Table {
         pub footers: Vec<String>,
         pub column_widths: Vec<f32>,
         pub height: f32,
-        // above required
         pub width: Option<f32>,
         pub resizer_width: Option<f32>,
         pub header_enabled: bool,

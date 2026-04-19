@@ -1,4 +1,10 @@
-from imports import *
+#!/usr/bin/env python3
+"""
+Table demo
+"""
+
+from icedpygui import Window, Container, start_session, \
+    add_table
 
 column_widths = [100.0] * 4
 width = sum(column_widths)
@@ -21,31 +27,21 @@ footers = ["", "", "", ""]
 
 
 # Add the window
-add_window(
-        id="main", 
+with Window(
         title="Table Demo",
         size=(700, 600),
-        center=True)
+        center=True):
 
-# Add the container for centering the table
-add_container(
-        window_id="main", 
-        id="cont",
-        width_fill=True, 
-        height_fill=True,
-        center=True,)
+    # Add the container for centering the table
+    with Container(fill=True, align_center=True, ):
 
-
-# The table is added.
-table_id = add_table(
-        window_id="main",
-        table_id="table",
-        headers=headers,
-        body=body,
-        footers=footers,
-        parent_id="cont",
-        column_widths=column_widths,
-        height=150.0)
+        # The table is added.
+        table_id = add_table(
+                headers=headers,
+                body=body,
+                footers=footers,
+                column_widths=column_widths,
+                height=150.0)
 
 
 # Required to be the last widget sent to Iced,  If you start the program

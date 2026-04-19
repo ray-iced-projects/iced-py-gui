@@ -663,6 +663,36 @@ class Scrollable:
         _parent_stack.pop()
         return False
 
+class Table:
+    """Wrapper for add_table"""
+    def __init__(self, *, container_id=None, window_id=None, parent_id=None, **kwargs):
+        self.window_id = window_id if window_id is not None else _current_window()
+        if self.window_id is None:
+            raise ValueError("Table: window_id is required (either pass it\
+                or use a Window context manager)")
+        self.container_id = container_id if container_id is not None else str(generate_id())
+        self.parent_id = parent_id
+        self.kwargs = kwargs
+        self.numeric_id = 0
+
+    def __enter__(self):
+        pid = self.parent_id or _current_parent()
+        if pid is not None:
+            pid = _resolve_parent_id(pid)
+        self.numeric_id = _add_table(
+            window_id=self.window_id,
+            container_id=self.container_id,
+            parent_id=pid,
+            **self.kwargs,
+        )
+        _id_to_container_str[self.numeric_id] = self.container_id
+        _parent_stack.append(self.container_id)
+        return self.numeric_id
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        _parent_stack.pop()
+        return False
+
 class ToolTip:
     """Wrapper for add_tool_tip"""
     def __init__(self, *, container_id=None, window_id=None, parent_id=None, **kwargs):

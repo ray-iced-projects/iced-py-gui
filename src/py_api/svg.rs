@@ -4,10 +4,9 @@ use pyo3::{pyfunction, PyResult};
 
 use crate::graphics::colors::Color;
 use crate::state::{Widgets, get_id, set_state_of_widget};
-use crate::widgets::enums::{ContentFit, Rotation};
+use crate::widgets::enums::ContentFit;
 use crate::widgets::ipg_svg::Svg;
 use crate::access_state; 
-use crate::py_api::helpers::get_length;
 
 
 /// Add an SVG widget.
@@ -19,7 +18,7 @@ use crate::py_api::helpers::get_length;
 /// ----------
 /// parent_id : str
 ///     Sets the parent container ID that this SVG belongs to.
-/// svg_path : str
+/// path : str
 ///     Sets the file path to the SVG image.
 /// width : float, Optional
 ///     Sets the Fixed width in logical pixels.
@@ -29,16 +28,20 @@ use crate::py_api::helpers::get_length;
 ///     Sets the Fixed height in logical pixels.
 /// height_fill : bool, default False
 ///     Whether the SVG fills available height.
-/// ipg_color_filter : Color, Optional
+/// color_filter : Color, Optional
 ///     Sets the color filter using a predefined color variant.
-/// ipg_color_filter_alpha : float, Optional
+/// color_filter_alpha : float, Optional
 ///     Sets the alpha of the Color.
 /// rgba_filter : list of float, Optional
 ///     Sets the color filter in rgba format as [r, g, b, a].
 /// content_fit : ContentFit, Optional
 ///     Sets the content fit strategy for the SVG.
-/// rotation_type : Rotation, Optional
-///     Sets the rotation method for the SVG.
+/// rotation_solid : Rotation, Optional
+///     Sets the non-default rotation method to Solid for the SVG.
+///     Floating (default): The element will float while rotating. The layout will be kept exactly as it was
+///     before the rotation.
+///     Solid: The element will be solid while rotating. The layout will be adjusted to fit
+///     the rotated content.
 /// rotation_radians : float, Optional
 ///     Sets the rotation angle in radians.
 /// opacity : float, Optional
@@ -55,46 +58,44 @@ use crate::py_api::helpers::get_length;
 #[pyfunction]
 #[pyo3(signature = (
     parent_id, 
-    svg_path, 
+    path, 
     width=None, 
-    width_fill=false, 
+    width_fill=None, 
     height=None, 
-    height_fill=false,
-    ipg_color_filter=None,
-    ipg_color_filter_alpha=None,
+    height_fill=None,
+    fill=None,
+    color_filter=None,
+    color_filter_alpha=None,
     rgba_filter=None,
     content_fit=None,
-    rotation_type=None,
-    rotation_radians=None, 
+    rotation_solid=None,
+    rotation_radians=None,
+    rotation_degrees=None,
     opacity=None,
     show=true,
     gen_id=None,
     ))]
 pub fn add_svg(
     parent_id: String,
-    svg_path: String,
+    path: String,
     width: Option<f32>,
-    width_fill: bool,
+    width_fill: Option<bool>,
     height: Option<f32>,
-    height_fill: bool,
-    ipg_color_filter: Option<Color>,
-    ipg_color_filter_alpha: Option<f32>,
+    height_fill: Option<bool>,
+    fill: Option<bool>,
+    color_filter: Option<Color>,
+    color_filter_alpha: Option<f32>,
     rgba_filter: Option<[f32; 4]>,
     content_fit: Option<ContentFit>,
-    rotation_type: Option<Rotation>,
+    rotation_solid: Option<bool>, 
     rotation_radians: Option<f32>,
+    rotation_degrees: Option<f32>,
     opacity: Option<f32>,
     show: bool,
     gen_id: Option<usize>,
     ) -> PyResult<usize>
 {
     let id = get_id(gen_id);
-
-    let color_filter = 
-        Color::rgba_ipg_color_to_iced(rgba_filter, &ipg_color_filter, ipg_color_filter_alpha);
-
-    let width = get_length(width, width_fill);
-    let height = get_length(height, height_fill);
 
     set_state_of_widget(id, parent_id.clone());
 
@@ -103,13 +104,19 @@ pub fn add_svg(
     state.widgets.insert(id, Widgets::Svg(
         Svg {
             id,
-            svg_path,
+            path,
             width,
+            width_fill,
             height,
+            height_fill,
+            fill,
             color_filter,
+            color_filter_alpha,
+            rgba_filter,
             content_fit,
-            rotation_type,
+            rotation_solid,
             rotation_radians,
+            rotation_degrees,
             opacity,
             show,
         }));

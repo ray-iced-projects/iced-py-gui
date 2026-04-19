@@ -27,7 +27,6 @@ use crate::widgets::ipg_pick_list::{PLMessage, pick_list_callback};
 use crate::widgets::ipg_radio::{RDMessage, radio_callback};
 use crate::widgets::ipg_scrollable::scrollable_callback;
 use crate::widgets::ipg_slider::{SldMessage, slider_callback};
-use crate::widgets::ipg_space::construct_space;
 use crate::widgets::ipg_table::{TableMessage, table_callback};
 use crate::widgets::ipg_text_editor::{TxtEdMessage, text_ed_callback};
 use crate::widgets::ipg_text_input::{TIMessage, text_input_callback};
@@ -750,7 +749,7 @@ fn get_widget<'a>(state: &'a IpgState, id: &usize) -> Option<Element<'a, Message
                     slider.construct(&state.widgets)
                 },
                 Widgets::Space(sp) => {
-                    construct_space(sp)
+                    sp.construct()
                 },
                 Widgets::Svg(svg) => {
                     svg.construct()

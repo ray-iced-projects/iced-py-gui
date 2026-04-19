@@ -1,12 +1,10 @@
 //! ipg_scrollable
 
-use crate::IpgState;
-use crate::access_callbacks;
-use crate::access_user_data1;
 use crate::app::Message;
 use crate::graphics::colors::Color;
 use crate::py_api::helpers::get_len;
 use crate::state::Widgets;
+use crate::widgets::callbacks::invoke_callback_with_args;
 use crate::widgets::styling::{apply_border_overrides, apply_shadow_overrides_xy};
 use crate::widgets::widget_param_update::{
     WidgetParamUpdate, set_t_value
@@ -14,11 +12,12 @@ use crate::widgets::widget_param_update::{
 
 use std::collections::HashMap;
 use iced::widget::scrollable;
+use iced::widget::scrollable::Viewport;
 use iced::{Element, Theme};
 use iced::widget::Column;
 
 use pyo3::pyclass;
-use pyo3::{Py, PyAny, Python};
+use pyo3::{Py, PyAny};
 type PyObject = Py<PyAny>;
 
 
@@ -30,6 +29,7 @@ pub struct Scrollable {
     pub height: Option<f32>,
     pub height_fill: Option<bool>,
     pub fill: Option<bool>,
+    pub auto_scroll: Option<bool>,
     pub scroller_x_id: Option<usize>,
     pub scroller_y_id: Option<usize>,
     pub style_id: Option<usize>,
@@ -89,6 +89,7 @@ impl Scrollable {
         scrollable::Scrollable::with_direction(content, direction)
             .width(get_len(self.fill, self.width_fill, self.width))
             .height(get_len(self.fill, self.height_fill, self.height))
+            .auto_scroll(self.auto_scroll.unwrap_or(false))
             .on_scroll(move|vp| 
                 Message::Scrolled(vp, self.id))
             .style(move|theme, status| {
@@ -218,7 +219,7 @@ impl Scroller {
     }
 }
 
-pub fn scrollable_callback(_state: &mut IpgState, id: usize, vp: scrollable::Viewport) {
+pub fn scrollable_callback(id: usize, vp: Viewport) {
     let mut hmap = HashMap::new();
     hmap.insert("abs_x".to_string(), vp.absolute_offset().x);
     hmap.insert("abs_y".to_string(), vp.absolute_offset().y);
@@ -227,57 +228,20 @@ pub fn scrollable_callback(_state: &mut IpgState, id: usize, vp: scrollable::Vie
     hmap.insert("rev_x".to_string(), vp.absolute_offset_reversed().x);
     hmap.insert("rev_y".to_string(), vp.absolute_offset_reversed().y);
     
-    process_callback(id, "on_scroll".to_string(), hmap);
-}
+    let bounds = vp.bounds();
+    hmap.insert("bounds_x".to_string(), bounds.x);
+    hmap.insert("bounds_y".to_string(), bounds.y);
+    hmap.insert("bounds_width".to_string(), bounds.width);
+    hmap.insert("bounds_height".to_string(), bounds.height);
 
-
-pub fn process_callback(id: usize, 
-                        event_name: String, 
-                        hmap: HashMap<String, f32>) 
-{
-let ud1 = access_user_data1();
-    let app_cbs = access_callbacks();
-
-    // Retrieve the callback
-    let callback = match app_cbs.callbacks.get(&(id, event_name)) {
-        Some(cb) => Python::attach(|py| cb.clone_ref(py)),
-        None => return,
-    };
-
-    drop(app_cbs);
-
-    // Check user data from ud1
-    if let Some(user_data) = ud1.user_data.get(&id) {
-        Python::attach(|py| {
-            if let Err(err) = callback.call1(py, (id, hmap, user_data)) {
-                panic!("Scollable callback error: {err}");
-            }
-        });
-        drop(ud1); // Drop ud1 before processing ud2
-        return;
-    }
-    drop(ud1); // Drop ud1 if no user data is found
-
-    // Check user data from ud2
-    // let ud2 = access_user_data2();
-    // if let Some(user_data) = ud2.user_data.get(&id) {
-    //     Python::attach(|py| {
-    //         if let Err(err) = callback.call1(py, (id, hmap, user_data)) {
-    //             panic!("Scrollable callback error: {err}");
-    //         }
-    //     });
-    //     drop(ud2); // Drop ud2 after processing
-    //     return;
-    // }
-    // drop(ud2); // Drop ud2 if no user data is found
-
-    // If no user data is found in both ud1 and ud2, call the callback with the id and hmap
-    Python::attach(|py| {
-        if let Err(err) = callback.call1(py, (id, hmap)) {
-            panic!("Scollable callback error: {err}");
-        }
-    });
-
+    let content = vp.content_bounds();
+    hmap.insert("content_x".to_string(), content.x);
+    hmap.insert("content_y".to_string(), content.y);
+    hmap.insert("content_width".to_string(), content.width);
+    hmap.insert("content_height".to_string(), content.height);
+    
+    invoke_callback_with_args(id, "on_scroll", "Scrollable", hmap,
+                "def cb(wid: int, scroll_data: dict)");
 }
 
 

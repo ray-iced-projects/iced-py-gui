@@ -762,6 +762,8 @@ def add_scrollable(
     width_fill: bool | None=None,
     height: float | None=None,
     height_fill: bool | None=None,
+    fill: bool | None=None,
+    auto_scroll: bool | None=None,
     both_scrollers: bool | None=None,
     scroller_x_id: int | None=None,
     scroller_y_id: int | None=None,

@@ -227,7 +227,7 @@ impl App {
                 Task::none()
             },
             Message::Scrolled(vp, id) => {
-                scrollable_callback(&mut self.state, id, vp);
+                scrollable_callback(id, vp);
                 process_widget_updates(&mut self.state); //, &mut self.canvas_state);
                 Task::none()
             },
@@ -238,7 +238,7 @@ impl App {
                 Task::none()
             },
             Message::TableScrolled(vp, id) => {
-                scrollable_callback(&mut self.state, id, vp);
+                scrollable_callback(id, vp);
                 process_widget_updates(&mut self.state); //, &mut self.canvas_state);
                 Task::none()
             },

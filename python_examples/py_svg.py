@@ -19,8 +19,8 @@ def increase_size(_btn_id: int):
     state["width"] += 10
     state["height"] += 10
     update_widget_params(svg_id, {
-        SvgParam.Width, state["width"],
-        SvgParam.Height, state["height"]})
+        SvgParam.Width: state["width"],
+        SvgParam.Height: state["height"]})
 
 
 def decrease_size(_btn_id: int):
@@ -28,8 +28,22 @@ def decrease_size(_btn_id: int):
     state["width"] -= 10
     state["height"] -= 10
     update_widget_params(svg_id, {
-        SvgParam.Width, state["width"],
-        SvgParam.Height, state["height"]})
+        SvgParam.Width: state["width"],
+        SvgParam.Height: state["height"]})
+
+# Floating will not resize the container
+def rotate_with_floating(_btn_id: int):
+    """Rotating with Floating"""
+    update_widget_params(svg_id, {
+        SvgParam.RotationDegrees: 45,
+        SvgParam.RotationSolid: False}) # ensure it's false = Floating
+
+# Floating will not resize the container
+def rotate_with_solid(_btn_id: int):
+    """Rotating with Floating"""
+    update_widget_params(svg_id, {
+        SvgParam.RotationDegrees: 45,
+        SvgParam.RotationSolid: True})
 
 # Setting up the image path
 cwd = os.getcwd()
@@ -43,7 +57,7 @@ with Window(
 
     with Container(width_fill=True, align_center=True):
 
-        with Column(align_center=True):
+        with Column(align_center=True, spacing=10):
 
             svg_id = add_svg(
                         path=tiger_path,
@@ -58,4 +72,11 @@ with Window(
                     label="Decrease Size",
                     on_press=decrease_size)
 
+            add_button(
+                    label="Rotate Float (default)",
+                    on_press=rotate_with_floating)
+
+            add_button(
+                    label="Rotate Solid",
+                    on_press=rotate_with_solid)
 start_session()

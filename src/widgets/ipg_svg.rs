@@ -4,16 +4,16 @@ use crate::app::Message;
 use crate::graphics::colors::Color;
 use crate::py_api::helpers::get_len;
 use crate::widgets::enums::ContentFit;
-use crate::widgets::enums::Rotation;
 use crate::widgets::widget_param_update::WidgetParamUpdate;
 use crate::widgets::widget_param_update::set_t_value;
 
 
 use iced::Element;
+use iced::Radians;
+use iced::Rotation;
 use iced::widget;
 use iced::advanced::svg;
-
-use iced::widget::svg::Style;
+use iced::widget::svg::{Style, };
 use pyo3::{pyclass, Py, PyAny};
 type PyObject = Py<PyAny>;
 
@@ -62,6 +62,13 @@ impl Svg{
             svg.content_fit(cf.to_iced())
         } else { svg };
 
+        let svg = match (self.rotation_solid, self.rotation_degrees, self.rotation_radians) {
+            (Some(true), Some(deg), _) => svg.rotation(Rotation::Solid(Radians(deg.to_radians()))),
+            (Some(true), _, Some(rad)) => svg.rotation(Rotation::Solid(Radians(rad))),
+            (_, Some(deg), _) => svg.rotation(Rotation::Floating(Radians(deg.to_radians()))),
+            (_, _, Some(rad)) => svg.rotation(Rotation::Floating(Radians(rad))),
+            _ => svg,
+        };
         
 
         let svg = if let Some(op) = self.opacity {
@@ -86,8 +93,8 @@ pub enum SvgParam {
     Path,
     RgbaFilter,
     RotationDegrees,
-    RotationMethod,
     RotationRadians,
+    RotationSolid,
     WidthFill,
     Width,
 }
@@ -102,19 +109,19 @@ impl WidgetParamUpdate for Svg {
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
             SvgParam::ColorFilterAlpha => set_t_value(&mut self.color_filter_alpha, value, "SvgParam::ColorFilterAlpha"),
-            SvgParam::ColorFilter => todo!(),
-            SvgParam::ContentFit => todo!(),
-            SvgParam::Fill => todo!(),
-            SvgParam::HeightFill => todo!(),
-            SvgParam::Height => todo!(),
-            SvgParam::Opacity => todo!(),
-            SvgParam::Path => todo!(),
-            SvgParam::RgbaFilter => todo!(),
-            SvgParam::RotationDegrees => todo!(),
-            SvgParam::RotationMethod => todo!(),
-            SvgParam::RotationRadians => todo!(),
-            SvgParam::WidthFill => todo!(),
-            SvgParam::Width => todo!(),
+            SvgParam::ColorFilter => set_t_value(&mut self.color_filter, value, "SvgParam::ColorFilter"),
+            SvgParam::ContentFit => set_t_value(&mut self.content_fit, value, "SvgParam::ContentFit"),
+            SvgParam::Fill => set_t_value(&mut self.fill, value, "SvgParam::Fill"),
+            SvgParam::HeightFill => set_t_value(&mut self.height_fill, value, "SvgParam::HeightFill"),
+            SvgParam::Height => set_t_value(&mut self.height, value, "SvgParam::Height"),
+            SvgParam::Opacity => set_t_value(&mut self.opacity, value, "SvgParam::Opacity"),
+            SvgParam::Path => set_t_value(&mut self.path, value, "SvgParam::Path"),
+            SvgParam::RgbaFilter => set_t_value(&mut self.rgba_filter, value, "SvgParam::RgbaFilter"),
+            SvgParam::RotationDegrees => set_t_value(&mut self.rotation_degrees, value, "SvgParam::RotationDegrees"),
+            SvgParam::RotationRadians => set_t_value(&mut self.rotation_radians, value, "SvgParam::RotationRadians"),
+            SvgParam::RotationSolid => set_t_value(&mut self.rotation_solid, value, "SvgParam::RotationSolid"),
+            SvgParam::WidthFill => set_t_value(&mut self.width_fill, value, "SvgParam::WidthFill"),
+            SvgParam::Width => set_t_value(&mut self.width, value, "SvgParam::Width"),
         }
     }
 }

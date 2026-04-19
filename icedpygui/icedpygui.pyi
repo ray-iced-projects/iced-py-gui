@@ -3287,32 +3287,51 @@ class SvgParam:
 
     Parameters
     ----------
+    ColorFilter: Color
+        Sets the color filter for the svg.
+    ColorFilterAlpha: float
+        Sets the alpha of the ColorFilter.
+    ContentFit: ContentFit
+        Set how the svg fits in a container.
+    Fill: bool
+        Whether to fill both the width and height of the container.
     Height: float
-        The height of the widget.
+        TSets the height of the widget.
     HeightFill: bool
         Whether the height of the widget fills the container.
-    ImagePath: str
-        The path to the image.
+    Opacity: float
+        Sets the opacity of the widget.
+    Path: str
+        Sets the file path to the svg
+    RgbaFilter: list[float, 4]
+        Sets the color filter in rgba format.
+    RotationDegrees: float
+        Sets the rotation in degrees.
+    RotationRadians: float
+        Set the rotation in radians.
+    RotationSolid: bool
+        Sets the roation type to solid versus the default floating
     Show: bool
         Whether to show or hide the widget.
     Width: float
-        The width of the widget.
+        Sets the width of the widget.
     WidthFill: bool
         Whether the width of the widget fills the container.
-    RotationRadians: float
-        How much to rotate the svg image in radians.
-    Opacity: float
-        The opacity of the widget.
     """
-    Height: float
+    ColorFilterAlpha: float
+    ColorFilter: Color
+    ContentFit: ContentFit
+    Fill: bool
     HeightFill: bool
-    ImagePath: str
-    Show: bool
-    Width: float
-    WidthFill: bool
-    RotationRadians: float
+    Height: float
     Opacity: float
-
+    Path: str
+    RgbaFilter: list[float, 4]
+    RotationDegrees: float
+    RotationRadians: float
+    RotationSolid: bool
+    WidthFill: bool
+    Width: float
 
 
 class TableParam:

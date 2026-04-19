@@ -85,6 +85,7 @@ from .icedpygui import (
     SliderStyleParam as SliderStyleParam,
     StackParam as StackParam,
     StyleStandard as StyleStandard,
+    SvgParam as SvgParam,
     TableParam as TableParam,
     TextInputParam as TextInputParam,
     TextParam as TextParam,

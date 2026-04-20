@@ -503,15 +503,78 @@ def add_svg(
     """
     ...
 def add_text_input(
-    *, parent_id: str | None = None,
-    **kwargs: Any) -> int:
-    """_summary_
+    *,
+    parent_id: str | None = None,
+    placeholder: str | None = None,
+    on_input: Any | None = None,
+    on_submit: Any | None = None,
+    on_paste: Any | None = None,
+    width: float | None = None,
+    width_fill: bool | None = None,
+    padding: list[float, 4 | list[float]] | None = None,
+    size: float | None = None,
+    line_height: float | None = None,
+    align_left: bool | None = None,
+    align_center: bool | None = None,
+    align_right: bool | None = None,
+    user_data: Any | None = None,
+    is_secure: bool | None = None,
+    font_id: int | None = None,
+    style_id: int | None = None,
+    show: bool = True,
+    gen_id: int | None = None,
+    ) -> int:
+    """
+    Add a text input widget.
 
-    Args:
-        parent_id (str | None, optional): _description_. Defaults to None.
+    A single-line text input field with placeholder text.
 
-    Returns:
-        int: _description_
+    Parameters
+    ----------
+    parent_id : str
+        Sets the parent container ID that this text input belongs to.
+    placeholder : str
+        Sets the placeholder text shown when the input is empty.
+    gen_id : int, Optional
+        Obtains an ID of a widget that have not been created, used for the gen_id parameter.
+    on_input : callable, Optional
+        Sets the Callback method to invoke when the input text changes.
+    on_submit : callable, Optional
+        Sets the Callback method to invoke when the user presses enter.
+    on_paste : callable, Optional
+        Sets the Callback method to invoke when text is pasted.
+    width : float, Optional
+        Sets the Fixed width in logical pixels.
+    width_fill : bool, default False
+        Whether the text input fills available width.
+    padding : list of float, Optional
+        Sets the Padding as [all], [vertical, horizontal], or
+        [top, right, bottom, left].
+    size : float, Optional
+        Sets the font size for the input text.
+    line_height : float, Optional
+        Sets the line height for the input text.
+    align_left : bool, Optional
+        Whether to set the horizontal alignment left (default).
+    align_center : bool, Optional
+        Whether to set the horizontal alignment center.
+    align_right : bool, Optional
+        Whether to set the horizontal alignment right.
+    user_data : Any, Optional
+        Sets the Arbitrary data forwarded to callbacks.
+    is_secure : bool, Optional
+        Whether the input text is obscured (password mode).
+    font_id : int, Optional
+        Sets the Font ID for the input text.
+    style_id : int, Optional
+        Sets the ID of a custom style created with ``add_text_input_style``.
+    show : bool, default True
+        Whether the text input is visible.
+
+    Returns
+    -------
+    int
+        The numeric widget ID of the newly created text input.
     """
     ...
 def add_text(
@@ -804,8 +867,53 @@ def add_stack(
 
 def add_table(
     *,
+    window_id: str,
+    container_id: str,
+    headers: list[str],
+    body: list[list[float]],
+    footers: list[str],
+    column_widths: list[float],
+    height: float,
     parent_id: str | None = None,
-    **kwargs: Any
+    width: float | None = None,
+    resizer_width: float | None = None,
+    header_enabled: bool = True,
+    header_row_height: float | None = None,
+    header_scrollbar_height: float | None = None,
+    header_scrollbar_margin: float | None = None,
+    header_scroller_height: float | None = None,
+    header_scrollbar_spacing: float | None = None,
+    header_row_spacing: float | None = None,
+    footer_height: float | None = None,
+    footer_scrollbar_height: float | None = None,
+    footer_scrollbar_margin: float | None = None,
+    footer_scroller_height: float | None = None,
+    footer_scrollbar_spacing: float | None = None,
+    footer_spacing: float | None = None,
+    body_scrollbar_width: float | None = None,
+    body_scrollbar_margin: float | None = None,
+    body_scroller_width: float | None = None,
+    body_scrollbar_spacing: float | None = None,
+    body_row_highlight: bool = True,
+    custom_header_rows: int | None = None,
+    custom_footer_rows: int | None = None,
+    control_columns: list[int] | None = None,
+    column_proportional_resize: bool = True,
+    row_spacing: float | None = None,
+    row_height: float | None = None,
+    header_body_spacing: float | None = None,
+    body_footer_spacing: float | None = None,
+    resize_columns_enabled: bool = True,
+    min_column_width: float | None = None,
+    text_size: float | None = None,
+    table_width_fixed: bool = True,
+    gen_id: int | None = None,
+    style_id: int | None = None,
+    scrollable_style_id: int | None = None,
+    show: bool,
+    on_column_resize: Any | None = None,
+    on_column_resize_release: Any | None = None,
+    user_data: Any | None = None,
 ) -> int:
     """_summary_
 

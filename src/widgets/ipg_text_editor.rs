@@ -134,7 +134,7 @@ impl WidgetParamUpdate for TextEditor {
             TextEditorParam::WrappingGlyph => todo!(),
             TextEditorParam::WrappingNone => todo!(),
             TextEditorParam::WrappingWordGlyph => todo!(),
-                    }
+        }
     }
 }
 

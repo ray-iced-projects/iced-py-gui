@@ -659,8 +659,58 @@ def add_text_input_style(
     ) -> int:
 
     """
-    Add textInput styling.
+    Add styling to a text input.
 
+    Creates a custom style that can be applied to a text input
+    via its ``style_id`` parameter.
+
+    Parameters
+    ----------
+    background_color : Color, Optional
+        Sets the background color using a predefined color variant.
+    background_color_alpha : float, Optional
+        Sets the alpha of the Color.
+    background_rgba : list of float, Optional
+        Sets the background color in rgba format as [r, g, b, a].
+    border_color_<status> : Color, Optional
+        Status: active, hovered, focused, disabled
+        Sets the border color in status state using a predefined color variant.
+    border_color_<status>_alpha : float, Optional
+        Sets the alpha of the Color.
+    border_rgba_<status>: list of float, Optional
+        Sets the border color in <status> state in rgba format as [r, g, b, a].
+    border_width : float, Optional
+        Sets the border width in logical pixels.
+    border_radius : float, Optional
+        Sets the border radius in logical pixels.
+    placeholder_color_<status> : Color, Optional
+        Status: active, hovered, focused, disabled
+        Sets the placeholder text color in <status> state using a predefined color variant.
+    placeholder_color_<status>_alpha : float, Optional
+        Sets the alpha of the Color.
+    placeholder_rgba_<status> : list of float, Optional
+        Sets the placeholder text color in <status> state in rgba format as [r, g, b, a].
+    value_color_<status> : Color, Optional
+        Status: active, hovered, focused, disabled
+        Sets the input value text color in <status> state using a predefined color variant.
+    value_color<status>_alpha : float, Optional
+        Sets the alpha of the Color.
+    value_rgba_<status> : list of float, Optional
+        Sets the input value text color in <status> state in rgba format as [r, g, b, a].
+    selection_color_<status> : Color, Optional
+        Status: active, hovered, focused, disabled
+        Sets the text selection highlight color <status> state using a predefined color variant.
+    selection_color_active_alpha : float, Optional
+        Sets the alpha of the Color.
+    selection_rgba_active : list of float, Optional
+        Sets the text selection highlight color in <status> state in rgba format as [r, g, b, a].
+    gen_id : int, Optional
+        Obtains an ID of a widget that have not been created, used for the gen_id parameter.
+
+    Returns
+    -------
+    int
+        The numeric style ID to pass to a text input's ``style_id``.
     """
 
 def add_tooltip_style(

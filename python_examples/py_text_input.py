@@ -1,6 +1,15 @@
-from imports import *
+#!/usr/bin/env python3
+"""
+Text Input demo
 
-secure = False
+Text input allows one to input text then submit it to perform some action
+"""
+from icedpygui import Window, Column, Row, start_session, \
+    add_text_input, add_text, TextParam, TextInputParam, update_widget, \
+    add_button, add_space, Color, add_text_input_style
+
+
+state = {"secure": False}
 
 # Currently, Ipg only has the text_input widget.
 # They could be used for anything, just convert them
@@ -14,20 +23,23 @@ secure = False
 # widget is not used.
 # When you type in the text, this fires each time
 def on_input(_txt_input_id, data, _user_data: any):
-    update_widget(text_on_input_id, IpgTextParam.Content, value=data)
+    """Text input callback"""
+    update_widget(text_on_input_id, TextParam.Content, value=data)
 
 
 # This only fires when you press enter to submit, it passes na value like
 # as does the on_input.
 def on_submit(_txt_input_id, value: str, user_data: any):
-    update_widget(text_on_submit_id, IpgTextParam.Content, value=value)
-    update_widget(text_user_data_id, IpgTextParam.Content, value=user_data)
+    """Text input callback"""
+    update_widget(text_on_submit_id, TextParam.Content, value=value)
+    update_widget(text_user_data_id, TextParam.Content, value=user_data)
 
 
 # This fired when you paste something into the field
 # To submit it, press enter.
 def on_paste(_txt_input_id, data, _user_data: any):
-    update_widget(text_on_paste_id, IpgTextParam.Content, value=data)
+    """Text input callback"""
+    update_widget(text_on_paste_id, TextParam.Content, value=data)
 
 
 # The callbacks below allow you to change all of the parameters for a widget.
@@ -38,26 +50,29 @@ def on_paste(_txt_input_id, data, _user_data: any):
 
 # Based on some action, you may want to change the placeholder instructions.
 def change_placeholder(_btn_id):
-    update_widget(ti_id, IpgTextInputParam.Placeholder, "Replaced Placeholder")
+    """Button callback"""
+    update_widget(ti_id, TextInputParam.Placeholder, "Replaced Placeholder")
 
 
 # Changing the value or creating an entry for the user
 def change_value(_btn_id):
-    update_widget(ti_id, IpgTextInputParam.Value, "New Value")
+    """Button callback"""
+    update_widget(ti_id, TextInputParam.Value, "New Value")
 
 
 # Lets make the value secure, you could have a button to show or hide the entry.
 def toggle_secure(_btn_id):
-    global secure
-    secure = not secure
+    """Button callback"""
+    state["secure"] = not state["secure"]
     # Let's make sure a value is there
-    update_widget(ti_id, IpgTextInputParam.Value, "New Value")
+    update_widget(ti_id, TextInputParam.Value, "New Value")
     # Let's secure it.
-    update_widget(ti_id, IpgTextInputParam.IsSecure, secure)
+    update_widget(ti_id, TextInputParam.IsSecure, state["secure"])
 
 
 def change_width(_btn_id):
-    update_widget(ti_id, IpgTextInputParam.Width, 300.0)
+    """Button callback"""
+    update_widget(ti_id, TextInputParam.Width, 300.0)
 
 
 # Note padding is a list, effects the space around the text
@@ -65,35 +80,39 @@ def change_width(_btn_id):
 # 2 elements effect [Top & Bottom, Left & Right]
 # 4 elements effect [Top, Right, Bottom, Left]
 def change_padding(_btn_id):
+    """Button callback"""
     # Let's make sure a value is there
-    update_widget(ti_id, IpgTextInputParam.Value, "Text moved left due to Padding")
+    update_widget(ti_id, TextInputParam.Value, "Text moved left due to Padding")
     # let's make it bigger to hold the text
-    update_widget(ti_id, IpgTextInputParam.Width, 300.0)
+    update_widget(ti_id, TextInputParam.Width, 300.0)
     # Use only two entries for the list
-    update_widget(ti_id, IpgTextInputParam.Padding, [0.0, 0.0, 0.0, 30.0])
+    update_widget(ti_id, TextInputParam.Padding, [0.0, 0.0, 0.0, 30.0])
 
 
 # Change the size of the text
 def change_size(_btn_id):
+    """Button callback"""
     # Let's make sure a value is there
-    update_widget(ti_id, IpgTextInputParam.Value, "The Size Increased")
+    update_widget(ti_id, TextInputParam.Value, "The Size Increased")
     # let's make it bigger to hold the text
-    update_widget(ti_id, IpgTextInputParam.Width, 300.0)
-    update_widget(ti_id, IpgTextInputParam.Size, 30.0)
+    update_widget(ti_id, TextInputParam.Width, 300.0)
+    update_widget(ti_id, TextInputParam.Size, 30.0)
 
 
 # Change the line height
 def change_line_height(_btn_id):
+    """Button callback"""
     # Let's make sure a value is there
-    update_widget(ti_id, IpgTextInputParam.Value, "The LineHeight Increased")
+    update_widget(ti_id, TextInputParam.Value, "The LineHeight Increased")
     # let's make it bigger to hold the text
-    update_widget(ti_id, IpgTextInputParam.Width, 300.0)
-    update_widget(ti_id, IpgTextInputParam.LineHeight, 3.0)
+    update_widget(ti_id, TextInputParam.Width, 300.0)
+    update_widget(ti_id, TextInputParam.LineHeight, 3.0)
 
 
 # Add some styling
 def add_style(_btn_id):
-    update_widget(ti_id, IpgTextInputParam.StyleId, ti_style)
+    """Button callback"""
+    update_widget(ti_id, TextInputParam.StyleId, ti_style)
 
 
 # add the window
@@ -102,12 +121,12 @@ with Window(title="Text Input Demo", center=True):
     # add the column for the widgets, centered
     with Column(
             align_center=True,
-            fill=True, 
+            fill=True,
             spacing=10):
 
         # Add some instructions
-        add_text(
-            content="It's best to see the effects by pressing \nthe buttons left to right and top to bottom")
+        add_text(content="It's best to see the effects by pressing")
+        add_text(content="the buttons left to right and top to bottom")
 
         add_space( height=25.0)
 
@@ -133,47 +152,48 @@ with Window(title="Text Input Demo", center=True):
         with Row(spacing=10.0):
 
             add_button(
-                label="Press Me to Change Placeholder", 
+                label="Press Me to Change Placeholder",
                 on_press=change_placeholder)
 
             add_button(
-                label="Press Me to Change Value", 
+                label="Press Me to Change Value",
                 on_press=change_value)
 
         with Row(spacing=10.0):
 
             add_button(
-                label="Toggle the Secure Setting", 
+                label="Toggle the Secure Setting",
                 on_press=toggle_secure)
 
             add_button(
-                label="Press Me to Change the Width", 
+                label="Press Me to Change the Width",
                 on_press=change_width)
 
         with Row(spacing=10.0):
 
             add_button(
-                    label="Press Me to Change the Padding", 
+                    label="Press Me to Change the Padding",
                     on_press=change_padding)
 
             add_button(
-                    label="Press Me to Change the Size", 
+                    label="Press Me to Change the Size",
                     on_press=change_size)
 
         with Row(spacing=10.0):
 
-            add_button( 
-                label="Press Me to Change the LineHeight", 
+            add_button(
+                label="Press Me to Change the LineHeight",
                 on_press=change_line_height)
 
         with Row(spacing=10.0):
 
             add_button(
-                    label="Press Me to Add Some Styling", 
+                    label="Press Me to Add Some Styling",
                     on_press=add_style)
 
 # the add style functions can be place anywhere as long as they are before the start_session
-ti_style = add_text_input_style( 
+# This is exaggerated, color wise, but it shows you have full control over the styling of a widget.
+ti_style = add_text_input_style(
                     background_color=Color.CADET_BLUE,
                     border_color_active=Color.YELLOW,
                     border_color_focused=Color.PALE_GOLDEN_ROD,
@@ -181,8 +201,8 @@ ti_style = add_text_input_style(
                     border_width=5.0,
                     border_radius=8.0,
                     placeholder_color_active=Color.BLACK,
-                    value_color=Color.LIGHT_STEEL_BLUE,
-                    selection_color=Color.DARK_SLATE_GRAY)
+                    value_color_active=Color.LIGHT_STEEL_BLUE,
+                    selection_color_active=Color.DARK_SLATE_GRAY)
 
 
 # Required to be the last widget sent to Iced,  If you start the program

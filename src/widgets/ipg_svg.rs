@@ -7,7 +7,6 @@ use crate::widgets::enums::ContentFit;
 use crate::widgets::widget_param_update::WidgetParamUpdate;
 use crate::widgets::widget_param_update::set_t_value;
 
-
 use iced::Element;
 use iced::Radians;
 use iced::Rotation;

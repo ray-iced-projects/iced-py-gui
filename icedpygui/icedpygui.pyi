@@ -4,8 +4,6 @@ IcedPyGui functions
 Type stubs for the Rust native module
 """
 
-from typing import Any, Callable, List
-
 # pylint: disable=unused-argument
 # pylint: disable=too-many-arguments
 # pylint: disable=too-many-locals
@@ -1179,177 +1177,6 @@ def add_canvas_image(
         The id of the event which can be used to modify the event through update_item.
     """
 
-
-    # *********************events***********************
-def add_event_keyboard(
-        enabled: bool,
-        *,
-        on_key_press: Callable | None = None,
-        on_key_release: Callable | None = None,
-        user_data: any | None = None,
-    ) -> int:
-
-    """
-    Add a keyboard event handler to process keyboard actions.
-
-    Parameters
-    ----------
-    enabled: bool
-        Enables the event
-    on_key_press: Callable
-        Calls a function when a key is pressed.
-    on_key_release: Callable
-        Calls a function when a key is released.
-    user_data: any
-        Any data that might be needed in the callback function.
-
-    Returns
-    -------
-    id: int
-        The id of the event which can be used to modify the event through update_item.
-    """
-
-def add_event_mouse(
-        enabled: bool,
-        *,
-        on_move: Callable | None = None,
-        on_left_press: Callable | None = None,
-        on_left_release: Callable | None = None,
-        on_middle_press: Callable | None = None,
-        on_middle_release: Callable | None = None,
-        on_right_press: Callable | None = None,
-        on_right_release: Callable | None = None,
-        on_middle_scroll_line: Callable | None = None,
-        on_middle_scroll_pixel: Callable | None = None,
-        user_data: Any | None = None,
-    ) ->int:
-
-    """
-    Add a mouse button handlers to process mouse actions.
-
-    Parameters
-    ----------
-    enabled: bool
-        Enables the event
-    on_move: Callable
-        Calls a function when the mouse is moved.
-    on_left_press: Callable
-        Calls a function when the left mouse button is pressed.
-    on_left_release: Callable
-        Calls a function when the left mouse button is released.
-    on_middle_press: Callable
-        Calls a function when the middle mouse button is pressed.
-    on_middle_release: Callable
-        Calls a function when the middle mouse button is released.
-    on_right_press: Callable
-        Calls a function when the right mouse button is pressed.
-    on_right_release: Callable
-        Calls a function when the right mouse button is released.
-    on_middle_scroll_line: Callable
-        Calls a function when the middle mouse scroll is scrolled, sends line count.
-    on_middle_scroll_pixel: Callable
-        Calls a function when the middle mouse scroll is scrolled, send pixel count.
-    user_data: any
-        Any data that might be needed in the callback function.
-
-    Returns
-    -------
-    id: int
-        The id of the event which can be used to modify the event through update_item.
-    """
-
-def add_event_timer (
-    enabled: bool=False,
-    duration_ms: int | None = None,
-    on_start: Callable | None = None,
-    on_tick: Callable | None = None,
-    on_stop: Callable | None = None,
-    user_data: Any | None = None,
-    gen_id: int | None = None,
-    ) -> int:
-    """
-    Add a timer event.
-
-    A timer event which can be controlled via update_timer.
-
-    Parameters
-    ----------
-    enabled : bool
-        Whether the timer starts immediately.
-    duration_ms : int, Optional
-        The time between ticks in milliseconds (default 10).
-    on_start : Callable, Optional
-        Callback fired on the first tick after enabling.
-        Receives (timer_id, tick_count, elapsed_ms).
-    on_tick : Callable, Optional
-        Callback fired on each tick.
-        Receives (timer_id, tick_count, elapsed_ms).
-    on_stop : Callable, Optional
-        Callback fired when the timer is disabled.
-        Receives (timer_id, tick_count, elapsed_ms).
-    user_data : Any, Optional
-        Any user data passed to the callback functions.
-    gen_id : int, Optional
-        Obtains an ID of a widget that has not been created.
-
-    Returns
-    -------
-    int
-        The numeric ID of the newly created timer.
-    """
-
-def add_event_window(
-    enabled: bool,
-    *,
-    on_closed: Callable | None = None,
-    on_moved: Callable | None = None,
-    on_resized: Callable | None = None,
-    on_redraw_requested: Callable | None = None,
-    on_close_requested: Callable | None = None,
-    on_focused: Callable | None = None,
-    on_unfocused: Callable | None = None,
-    on_file_hovered: Callable | None = None,
-    on_file_dropped: Callable | None = None,
-    on_files_hovered_left: Callable | None = None,
-    user_data: Any | None = None,
-    ) -> int:
-
-    """
-    Adds event to the window other than those in the add_window method.
-
-    Parameters
-    ----------
-    enabled: bool
-        Enables the event
-    on_closed: Callable | None=None
-        Calls a function when the window is closed.
-    on_moved: Callable | None=None
-        Calls a function when the window is moved.
-    on_resized: Callable | None=None
-        Calls a function when the window id resized.
-    on_redraw_requested: Callable | None=None
-        When a redraw command is requested.
-    on_close_requested: Callable | None=None
-        When a window close is requested, the window setting on_close_request must be set to False.
-    on_focused: Callable | None=None
-        When an unfocused window is brought into focus.
-    on_unfocused: Callable | None=None
-        When another window is focused or unfocused.
-    on_file_hovered: Callable | None=None
-        When a file is dragged over the window. The file path is delivered.
-    on_file_dropped: Callable | None=None
-        When a file is dropped onto the window. The file path is delivered.
-    on_files_hovered_left: Callable | None=None
-        When the file leaves the window without being dropped.
-    user_data: Any | None=None
-        Any data that might be needed in the callback function.
-
-    Returns
-    -------
-    id: int
-        The id of the event which can be used to modify the event through update_item.
-    """
-
 def add_chart(
         self,
         window_id: str,
@@ -1735,7 +1562,7 @@ def delete_item(window_id: str, wid: int):
 
 def show_items(
         window_id: str,
-        ids: List[tuple[int, bool]]
+        ids: list[tuple[int, bool]]
     ):
 
     """
@@ -2897,18 +2724,18 @@ class PickListStyleParam:
     TextRgbaColor: list[float, 4]
         The label text color in rgba format
     """
-    BackgroundColor:Color
-    BackgroundRbgaColor:List[float, 4]
-    BorderColor:Color
-    BorderRgbaColor:list[float, 4]
-    BorderRadius:list
-    BorderWidth:float
-    HandleColor:Color
-    HandleRgbaColor:list[float, 4]
-    PlaceholderColor:Color
-    PlaceholderRgbaColor:list[float, 4]
-    TextColor:Color
-    TextRgbaColor:list[float, 4]
+    BackgroundColor: Color
+    BackgroundRbgaColor: list[float, 4]
+    BorderColor: Color
+    BorderRgbaColor: list[float, 4]
+    BorderRadius: list
+    BorderWidth: float
+    HandleColor: Color
+    HandleRgbaColor: list[float, 4]
+    PlaceholderColor: Color
+    PlaceholderRgbaColor: list[float, 4]
+    TextColor: Color
+    TextRgbaColor: list[float, 4]
 
 class ProgressBarParam:
     """
@@ -2973,13 +2800,13 @@ class ProgressBarStyleParam:
         The width of the border line
     """
     BackgroundColor:Color
-    BackgroundRbgaColor:List[float, 4]
-    BarColor:Color
-    BarRgbaColor:list[float, 4]
+    BackgroundRbgaColor: list[float, 4]
+    BarColor: Color
+    BarRgbaColor: list[float, 4]
     BorderColor:Color
-    BorderRgbaColor:list[float, 4]
-    BorderRadius:list
-    BorderWidth:float
+    BorderRgbaColor: list[float, 4]
+    BorderRadius: list
+    BorderWidth: float
 
 
 class ProgressBarStyleStd:
@@ -3089,16 +2916,16 @@ class RadioStyleParam:
         The label text color in rgba format
     """
     BackgroundColor:Color
-    BackgroundRbgaColor:List[float, 4]
-    DotColor:Color
-    DotRgbaColor:list[float, 4]
+    BackgroundRbgaColor: list[float, 4]
+    DotColor: Color
+    DotRgbaColor: list[float, 4]
     DotColorHovered:Color
-    DotRgbaColorHovered:list[float, 4]
-    BorderColor:Color
-    BorderRgbaColor:list[float, 4]
-    BorderWidth:float
-    TextColor:Color
-    TextRgbaColor:list[float, 4]
+    DotRgbaColorHovered: list[float, 4]
+    BorderColor: Color
+    BorderRgbaColor: list[float, 4]
+    BorderWidth: float
+    TextColor: Color
+    TextRgbaColor: list[float, 4]
 
 
 class RowParam:
@@ -3118,12 +2945,12 @@ class RowParam:
 
 class RuleStyleParam:
     """Rule style parameters"""
-    Color:Color
-    RbgaColor:List[float, 4]
-    BorderRadius:float
-    FillModePercent:float
-    FillModePadded:int
-    FillModeAsymmetricPadding:list[int]
+    Color: Color
+    RbgaColor: list[float, 4]
+    BorderRadius: float
+    FillModePercent: float
+    FillModePadded: int
+    FillModeAsymmetricPadding: list[int]
 
 
 class ScrollableDirection:

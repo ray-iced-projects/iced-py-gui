@@ -1,15 +1,12 @@
 //! Widget parameter update — trait-based dispatch with shared helpers.
-#![allow(unused)]
 use iced::Length;
 use pyo3::{Py, PyAny, Python};
 
-use crate::graphics::bootstrap_arrow::Arrow;
 use crate::graphics::colors::Color;
 use crate::py_api::helpers::{
-    get_length, get_length_fill, try_extract_boolean, try_extract_f32, try_extract_f32_array_2, 
-    try_extract_f32_opt, try_extract_f32_opt_array_1_or_upto_4, try_extract_opt_boolean, 
-    try_extract_opt_string, try_extract_opt_u32_array_2, try_extract_opt_usize, try_extract_opt_vec_f32, 
-    try_extract_string, try_extract_u16, try_extract_u16_array_2, try_extract_u32, 
+    get_length, try_extract_boolean, try_extract_f32, try_extract_f32_array_2, 
+    try_extract_f32_opt, try_extract_opt_boolean, 
+    try_extract_opt_string, try_extract_opt_u32_array_2, try_extract_opt_usize, try_extract_opt_vec_f32, try_extract_u32, 
     try_extract_u64,  try_extract_vec_f32, try_extract_vec_str, try_extract_vec_u8_opt, try_extract_vec_vec_f32
 };
 use crate::state::{Containers, Widgets};
@@ -37,8 +34,8 @@ pub trait WidgetParamUpdate {
 // WidgetParamUpdate implementations
 // ---------------------------------------------------------------------------
 
-// impl WidgetParamUpdate for Rule {
-//     type Param = RuleParam;
+// impl WidgetParamUpdate for <widget> {
+//     type Param = <WidgetParam>;
 
 //     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
 //         match param {
@@ -46,8 +43,8 @@ pub trait WidgetParamUpdate {
 //     }
 // }
 
-// impl WidgetParamUpdate for RuleStyle {
-//     type Param = RuleStyleParam;
+// impl WidgetParamUpdate for <WidgetStyle> {
+//     type Param = <WidgetStyleParam>;
 
 //     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
 //         match param {
@@ -131,6 +128,7 @@ pub fn container_param_update(
     }
 }
 
+
 fn apply_update<W: WidgetParamUpdate>(
     widget: &mut W,
     item: &PyObject,
@@ -139,6 +137,7 @@ fn apply_update<W: WidgetParamUpdate>(
     let param = extract_param::<W::Param>(item);
     widget.param_update(param, value);
 }
+
 
 // ---------------------------------------------------------------------------
 // Generic param extraction (works for any #[pyclass] enum)
@@ -174,16 +173,7 @@ pub fn set_bool(field: &mut bool, value: &PyObject, name: &str) {
     *field = try_extract_boolean(value, name);
 }
 
-pub fn set_toggle_bool(field: &mut bool, value: &PyObject, name: &str) {
-    let b = try_extract_boolean(value, name);
-    *field = !b;
-}
-
 pub fn set_opt_bool(field: &mut Option<bool>, value: &PyObject, name: &str) {
-    *field = try_extract_opt_boolean(value, name);
-}
-
-pub fn set_opt_bool_from_opt(field: &mut Option<bool>, value: &PyObject, name: &str) {
     *field = try_extract_opt_boolean(value, name);
 }
 
@@ -197,26 +187,6 @@ pub fn set_width_fill(field: &mut Length, value: &PyObject, name: &str) {
     *field = get_length(None, val);
 }
 
-pub fn set_height(field: &mut Length, value: &PyObject, name: &str) {
-    let val = try_extract_f32_opt(value, name);
-    *field = get_length(val, false);
-}
-
-pub fn set_height_fill(field: &mut Length, value: &PyObject, name: &str) {
-    let val = try_extract_boolean(value, name);
-    *field = get_length(None, val);
-}
-
-pub fn set_lengths_fill(field1: &mut Length, field2: &mut Length, value: &PyObject, name: &str) {
-    let val = try_extract_opt_boolean(value, name);
-    [*field1, *field2] = get_length_fill(val);
-}
-
-pub fn set_iced_color(field: &mut iced::Color, value: &PyObject, name: &str) {
-    let rgba = Color::extract_rgba(value, name);
-    *field = iced::Color::from(rgba);
-}
-
 pub fn set_opt_iced_color(field: &mut Option<iced::Color>, value: &PyObject, name: &str) {
     let color = Color::extract_opt(value, name);
     *field = Color::rgba_ipg_color_to_iced(None, &color, None);
@@ -225,10 +195,6 @@ pub fn set_opt_iced_color(field: &mut Option<iced::Color>, value: &PyObject, nam
 pub fn set_opt_iced_color_from_rgba(field: &mut Option<iced::Color>, value: &PyObject, name: &str) {
     let rgba_opt = Color::extract_rgba_opt(value, name);
     *field = Color::rgba_ipg_color_to_iced(rgba_opt, &None, None);
-}
-
-pub fn set_ipg_color(field: &mut Color, value: &PyObject, name: &str) {
-    *field = Color::extract(value, name);
 }
 
 pub fn set_f32(field: &mut f32, value: &PyObject, name: &str) {
@@ -241,10 +207,6 @@ pub fn set_opt_f32(field: &mut Option<f32>, value: &PyObject, name: &str) {
 
 pub fn set_opt_vec_f32(field: &mut Option<Vec<f32>>, value: &PyObject, name: &str) {
     *field = try_extract_opt_vec_f32(value, name);
-}
-
-pub fn set_opt_vec_f32_1_or_upto_4(field: &mut Option<Vec<f32>>, value: &PyObject, name: &str) {
-    *field = try_extract_f32_opt_array_1_or_upto_4(value, name);
 }
 
 pub fn set_vec_f32(field: &mut Vec<f32>, value: &PyObject, name: &str) {
@@ -263,10 +225,6 @@ pub fn set_opt_u64(field: &mut Option<u64>, value: &PyObject, name: &str) {
     *field = Some(try_extract_u64(value, name));
 }
 
-pub fn set_opt_u16(field: &mut Option<u16>, value: &PyObject, name: &str) {
-    *field = Some(try_extract_u16(value, name));
-}
-
 pub fn set_opt_vec_u8(field: &mut Option<Vec<u8>>, value: &PyObject, name: &str) {
     *field = try_extract_vec_u8_opt(value, name);
 }
@@ -279,20 +237,8 @@ pub fn set_opt_f32_array_2(field: &mut Option<[f32; 2]>, value: &PyObject, name:
     *field = Some(try_extract_f32_array_2(value, name));
 }
 
-pub fn set_opt_f32_array_1_or_to_4(field: &mut Option<Vec<f32>>, value: &PyObject, name: &str) {
-    *field = try_extract_f32_opt_array_1_or_upto_4(value, name);
-}
-
-pub fn set_opt_u16_array_2(field: &mut Option<[u16; 2]>, value: &PyObject, name: &str) {
-    *field = Some(try_extract_u16_array_2(value, name));
-}
-
 pub fn set_opt_u32_array_2(field: &mut Option<[u32; 2]>, value: &PyObject, name: &str) {
     *field = try_extract_opt_u32_array_2(value, name);
-}
-
-pub fn set_string(field: &mut String, value: &PyObject, name: &str) {
-    *field = try_extract_string(value, name);
 }
 
 pub fn set_opt_string(field: &mut Option<String>, value: &PyObject, name: &str) {
@@ -301,17 +247,4 @@ pub fn set_opt_string(field: &mut Option<String>, value: &PyObject, name: &str) 
 
 pub fn set_vec_string(field: &mut Vec<String>, value: &PyObject, name: &str) {
     *field = try_extract_vec_str(value, name);
-}
-
-pub fn set_rgba_color_via_ipg(field: &mut Option<iced::Color>, value: &PyObject, name: &str) {
-    let rgba = Color::extract_rgba(value, name);
-    *field = Color::rgba_ipg_color_to_iced(Some(rgba), &None, None);
-}
-
-
-pub fn set_color_alpha(field: &mut Option<iced::Color>, value: &PyObject, name: &str) {
-    let alpha = try_extract_f32(value, name);
-    if let Some(color) = field {
-        color.a = alpha;
-    }
 }

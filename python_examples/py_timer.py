@@ -31,7 +31,7 @@ def stop_timer(_btn_id):
     """Callback vua button to disable the timer"""
     update_timer(wid=timer_id, param=TimerParam.Enable, value=False)
 
-timer_id = add_event_timer(duration_ms=1000, on_start=on_start, on_tick=on_tick, on_stop=on_stop)
+timer_id = add_event_timer(duration_ms=100, on_start=on_start, on_tick=on_tick, on_stop=on_stop)
 
 # Add a window
 with Window(title="Timer Demo", center=True):
@@ -40,7 +40,7 @@ with Window(title="Timer Demo", center=True):
     with Container(fill=True, align_center=True):
 
         # Add the column to hold the widgets
-        with Column(spacing=20.0):
+        with Column(spacing=20.0, width=200, height=300):
             add_button(
                 label="Press to Start Timer",
                 on_press=start_timer)
@@ -48,7 +48,11 @@ with Window(title="Timer Demo", center=True):
                 label="Press to Stop Timer",
                 on_press=stop_timer)
 
-            txt_id = add_text(content="Timer data")
+            # Put the text in a conainer to keep the
+            # buttoms from jumping around as the text changes
+            # The columns width and height needed to be added too.
+            with Container():
+                txt_id = add_text(content="Timer data")
 
 
 # Required to be the last widget sent to Iced,  If you start the program

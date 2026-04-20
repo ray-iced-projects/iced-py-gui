@@ -1,5 +1,6 @@
 //! Timer module - provides add_timer pyfunction
 
+use iced::time;
 use pyo3::prelude::*;
 use pyo3::{pyfunction, Py, PyAny};
 type PyObject = Py<PyAny>;
@@ -36,8 +37,8 @@ use crate::widgets::ipg_timer::TimerState;
 ///     The numeric ID of the newly created timer.
 #[pyfunction]
 #[pyo3(signature = (
+    duration_ms,
     enable=false,
-    duration_ms=None,
     on_start=None,
     on_tick=None,
     on_stop=None,
@@ -45,8 +46,8 @@ use crate::widgets::ipg_timer::TimerState;
     gen_id=None,
 ))]
 pub fn add_event_timer (
+    duration_ms: u64,
     enable: bool,
-    duration_ms: Option<u64>,
     on_start: Option<PyObject>,
     on_tick: Option<PyObject>,
     on_stop: Option<PyObject>,
@@ -74,16 +75,14 @@ pub fn add_event_timer (
 
     let mut state = access_state();
 
-    let duration_ms = if let Some(d) = duration_ms {
-        d
-    } else { 10 };
-
     state.timer_state.insert(id, 
         TimerState {
             id,
             enable,
             duration_ms,
-            ..Default::default()
+            elapsed_ms: 0,
+            last_tick: time::Instant::now(),
+            tick_count: 0,
         });
     
     drop(state);

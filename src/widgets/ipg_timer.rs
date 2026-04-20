@@ -4,8 +4,9 @@ use std::time::Instant;
 
 use pyo3::{Py, PyAny, Python, pyclass, pyfunction};
 type PyObject = Py<PyAny>;
-use crate::{IpgState, access_state, py_api::helpers::{try_extract_boolean, 
-    try_extract_u64}, widgets::callbacks::invoke_callback_with_two_args};
+
+use crate::{IpgState, access_state, 
+    widgets::{callbacks::invoke_callback_with_two_args, widget_param_update::extract_param}};
 
 
 #[derive(Clone, Debug, Hash)]
@@ -18,20 +19,8 @@ pub struct TimerState {
     pub elapsed_ms: u64,
 }
 
-impl Default for TimerState {
-    fn default() -> Self {
-        Self {
-            id: 0,
-            enable: false,
-            last_tick: Instant::now(),
-            duration_ms: 0,
-            tick_count: 0,
-            elapsed_ms: 0,
-        }
-    }
-}
-
 pub fn timer_callback(state: &mut IpgState, id: usize, _instant: Instant) {
+    
     let ts = state.timer_state.get_mut(&id)
         .expect("timer_callback: timer not found");
 
@@ -76,10 +65,10 @@ pub fn update_timer(
             let param = try_extract_param(&param);
             match param {
                 TimerParam::DurationMs => {
-                    tmr.duration_ms = try_extract_u64(&value, "TimerParam.DurationMs");
+                    tmr.duration_ms = extract_param(&value);
                 },
                 TimerParam::Enable => {
-                    let enable = try_extract_boolean(&value, "TimerParam.Enable");
+                    let enable: bool = extract_param(&value);
                     if !enable && tmr.enable {
                         // Stopping: fire on_stop and reset counters
                         let tick_count = tmr.tick_count;
@@ -120,5 +109,3 @@ pub enum TimerParam {
     DurationMs,
     Enable,
 }
-
-

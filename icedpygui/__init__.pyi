@@ -99,10 +99,6 @@ from .icedpygui import (
     WindowMode as WindowMode,
     WindowParam as WindowParam,
     WindowTheme as WindowTheme,
-    add_event_window,
-    add_event_keyboard,
-    add_event_mouse,
-    add_event_timer,
     start_session as start_session,
     delete_widget as delete_widget,
     hide_widget as hide_widget,
@@ -299,6 +295,158 @@ def add_divider(
 
     Returns:
         int: widget id
+    """
+    ...
+def add_event_keyboard(
+        enabled: bool,
+        *,
+        on_key_press: Callable | None = None,
+        on_key_release: Callable | None = None,
+        user_data: any | None = None,
+    ) -> int:
+
+    """
+    Add a keyboard event handler to process keyboard actions.
+
+    Parameters
+    ----------
+    enabled: bool
+        Enables the event
+    on_key_press: Callable
+        Calls a function when a key is pressed.
+    on_key_release: Callable
+        Calls a function when a key is released.
+    user_data: any
+        Any data that might be needed in the callback function.
+
+    Returns
+    -------
+    id: int
+        The id of the event which can be used to modify the event through update_item.
+    """
+    ...
+def add_event_mouse(
+        enabled: bool,
+        *,
+        on_move: Callable | None = None,
+        on_left_press: Callable | None = None,
+        on_left_release: Callable | None = None,
+        on_middle_press: Callable | None = None,
+        on_middle_release: Callable | None = None,
+        on_right_press: Callable | None = None,
+        on_right_release: Callable | None = None,
+        on_middle_scroll_line: Callable | None = None,
+        on_middle_scroll_pixel: Callable | None = None,
+        user_data: Any | None = None,
+    ) ->int:
+
+    """
+    Add a mouse button handlers to process mouse actions.
+
+    Parameters
+    ----------
+    enabled: bool
+        Enables the event
+    on_move: Callable
+        Calls a function when the mouse is moved.
+    on_left_press: Callable
+        Calls a function when the left mouse button is pressed.
+    on_left_release: Callable
+        Calls a function when the left mouse button is released.
+    on_middle_press: Callable
+        Calls a function when the middle mouse button is pressed.
+    on_middle_release: Callable
+        Calls a function when the middle mouse button is released.
+    on_right_press: Callable
+        Calls a function when the right mouse button is pressed.
+    on_right_release: Callable
+        Calls a function when the right mouse button is released.
+    on_middle_scroll_line: Callable
+        Calls a function when the middle mouse scroll is scrolled, sends line count.
+    on_middle_scroll_pixel: Callable
+        Calls a function when the middle mouse scroll is scrolled, send pixel count.
+    user_data: any
+        Any data that might be needed in the callback function.
+
+    Returns
+    -------
+    id: int
+        The id of the event which can be used to modify the event through update_item.
+    """
+    ...
+def add_event_timer(
+    enabled: bool,
+    *,
+    duration_ms: int | None = None,
+    on_start: Callable | None = None,
+    on_tick: Callable | None = None,
+    on_stop: Callable | None = None,
+    user_data: Any | None = None,
+    gen_id: int | None = None,
+    ) -> int:
+    """
+    Args:
+        enabled (bool, optional): _description_. Defaults to False.
+        duration_ms (int | None, optional): _description_. Defaults to None.
+        on_start (Callable | None, optional): _description_. Defaults to None.
+        on_tick (Callable | None, optional): _description_. Defaults to None.
+        on_stop (Callable | None, optional): _description_. Defaults to None.
+        user_data (Any | None, optional): _description_. Defaults to None.
+        gen_id (int | None, optional): _description_. Defaults to None.
+
+    Returns:
+        int: _description_
+    """
+    ...
+def add_event_window(
+    enabled: bool,
+    *,
+    on_closed: Callable | None = None,
+    on_moved: Callable | None = None,
+    on_resized: Callable | None = None,
+    on_redraw_requested: Callable | None = None,
+    on_close_requested: Callable | None = None,
+    on_focused: Callable | None = None,
+    on_unfocused: Callable | None = None,
+    on_file_hovered: Callable | None = None,
+    on_file_dropped: Callable | None = None,
+    on_files_hovered_left: Callable | None = None,
+    user_data: Any | None = None,
+    ) -> int:
+    """
+    Adds event to the window other than those in the add_window method.
+
+    Parameters
+    ----------
+    enabled: bool
+        Enables the event
+    on_closed: Callable | None=None
+        Calls a function when the window is closed.
+    on_moved: Callable | None=None
+        Calls a function when the window is moved.
+    on_resized: Callable | None=None
+        Calls a function when the window id resized.
+    on_redraw_requested: Callable | None=None
+        When a redraw command is requested.
+    on_close_requested: Callable | None=None
+        When a window close is requested, the window setting on_close_request must be set to False.
+    on_focused: Callable | None=None
+        When an unfocused window is brought into focus.
+    on_unfocused: Callable | None=None
+        When another window is focused or unfocused.
+    on_file_hovered: Callable | None=None
+        When a file is dragged over the window. The file path is delivered.
+    on_file_dropped: Callable | None=None
+        When a file is dropped onto the window. The file path is delivered.
+    on_files_hovered_left: Callable | None=None
+        When the file leaves the window without being dropped.
+    user_data: Any | None=None
+        Any data that might be needed in the callback function.
+
+    Returns
+    -------
+    id: int
+        The id of the event which can be used to modify the event through update_item.
     """
     ...
 def add_float(

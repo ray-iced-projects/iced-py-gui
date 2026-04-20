@@ -53,20 +53,6 @@ pub fn get_length(value: Option<f32>, fill: bool)-> Length {
     }
 }
 
-// Standard method for Length using Width
-pub fn get_length_fill(fill: Option<bool>)-> [Length; 2] {
-    // fill overrides width and height
-    match fill {
-        Some(f) => 
-            match f {
-                true => [Length::Fill; 2],
-                false => [Length::Shrink; 2],
-            },
-        None => [Length::Shrink; 2],
-    }
-}
-
-
 // Standard method for padding
 pub fn get_padding(padding: &Option<Vec<f32>>)-> Padding {
     let pd = if let Some(pd) = padding {
@@ -183,16 +169,6 @@ pub fn try_extract_vec_u8_opt(value: &PyObject, name: &str) -> Option<Vec<u8>> {
     })  
 }
 
-pub fn try_extract_u16(value: &PyObject, name: &str) -> u16 {
-    Python::attach(|py| {
-        let res = value.extract::<u16>(py);
-        match res {
-            Ok(val) => val,
-            Err(_) => panic!("{}-Unable to extract u16", name),
-        }
-    })  
-}
-
 pub fn try_extract_u32(value: &PyObject, name: &str) -> u32 {
     Python::attach(|py| {
         let res = value.extract::<u32>(py);
@@ -284,31 +260,6 @@ pub fn try_extract_f32_array_2(value: &PyObject, name: &str) -> [f32; 2] {
     })
 }
 
-pub fn try_extract_f32_opt_array_1_or_upto_4(value: &PyObject, name: &str) -> Option<Vec<f32>> {
-    Python::attach(|py| {
-
-        let res = value.extract::<Vec<f32>>(py);
-        match res {
-            Ok(val) => {
-                if val.len() > 4 {panic!("{}-The radius must be a list of length 1 or < 4", name)}
-                Some(val)
-            },
-            Err(_) => panic!("{}-Unable to extract python object for 2 item list", name),
-        }
-    })
-}
-
-pub fn try_extract_u16_array_2(value: &PyObject, name: &str) -> [u16; 2] {
-    Python::attach(|py| {
-
-        let res = value.extract::<[u16; 2]>(py);
-        match res {
-            Ok(val) => val,
-            Err(_) => panic!("{}-Unable to extract python object for 2 item list", name),
-        }
-    })
-}
-
 pub fn try_extract_opt_u32_array_2(value: &PyObject, name: &str) -> Option<[u32; 2]> {
     Python::attach(|py| {
 
@@ -318,16 +269,6 @@ pub fn try_extract_opt_u32_array_2(value: &PyObject, name: &str) -> Option<[u32;
             Err(_) => panic!("{}-Unable to extract python object for 2 item list", name),
         }
     })
-}
-
-pub fn try_extract_string(value: &PyObject, name: &str) -> String {
-    Python::attach(|py| {
-        let res = value.extract::<String>(py);
-        match res {
-            Ok(val) => val,
-            Err(_) => panic!("{}-Unable to extract python str", name),
-        }
-    })  
 }
 
 pub fn try_extract_opt_string(value: &PyObject, name: &str) -> Option<String> {

@@ -65,7 +65,6 @@ use crate::widgets::ipg_text_rich::{RichText, Span};
     wrapping_none=None,
     wrapping_glyph=None,
     wrapping_word_glyph=None,
-    hovered_link=None,
     on_link_click=None,
     user_data=None,
     show=true,
@@ -97,7 +96,6 @@ pub fn add_rich_text(
     wrapping_none: Option<bool>,
     wrapping_glyph: Option<bool>,
     wrapping_word_glyph: Option<bool>,
-    hovered_link: Option<usize>,
     on_link_click: Option<PyObject>,
     user_data: Option<PyObject>,
     show: bool,
@@ -152,7 +150,6 @@ pub fn add_rich_text(
             wrapping_none,
             wrapping_glyph,
             wrapping_word_glyph,
-            hovered_link,
             show,
         }));
 
@@ -189,6 +186,8 @@ pub fn add_rich_text(
 ///     Whether the text is underlined.
 /// strikethrough : bool
 ///     Whether the text has strikethrough.
+/// link : int, Optional
+///     The span link identifier passed to the rich text ``on_link_click`` callback.
 /// gen_id : int, Optional
 ///     Obtains an ID for the span.
 ///
@@ -208,6 +207,7 @@ pub fn add_rich_text(
     font_id=None,
     underline=None,
     strikethrough=None,
+    link=None,
     background_color=None,
     background_color_alpha=None,
     background_rgba=None,
@@ -224,7 +224,7 @@ pub fn add_rich_text(
     gen_id=None,
 ))]
 pub fn add_span(
-    parent_id: string,
+    parent_id: String,
     text: String,
     size: Option<f32>,
     line_height: Option<f32>,
@@ -234,6 +234,7 @@ pub fn add_span(
     font_id: Option<usize>,
     underline: Option<bool>,
     strikethrough: Option<bool>,
+    link: Option<usize>,
     background_color: Option<Color>,
     background_color_alpha: Option<f32>,
     background_rgba: Option<[f32; 4]>,
@@ -269,6 +270,7 @@ pub fn add_span(
             padding: None,
             underline,
             strikethrough,
+            link,
             background_color,
             background_color_alpha,
             background_rgba,

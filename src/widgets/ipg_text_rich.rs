@@ -2,13 +2,15 @@
 
 use std::collections::HashMap;
 
-use iced::{Background, Border, Element, Padding};
-use iced::widget::{self, Space, span};
+use iced::widget::{self, span, text, Space};
+use iced::{Border, Element};
 
 use crate::app::Message;
 use crate::graphics::colors::Color;
+use crate::py_api::helpers::{get_len, get_padding, get_radius};
 use crate::state::Widgets;
-use crate::widgets::widget_param_update::{WidgetParamUpdate, set_t_value};
+use crate::widgets::callbacks::invoke_callback_with_args;
+use crate::widgets::widget_param_update::{set_t_value, WidgetParamUpdate};
 
 use pyo3::{pyclass, Py, PyAny};
 
@@ -41,21 +43,30 @@ pub struct RichText {
     pub wrapping_none: Option<bool>,
     pub wrapping_glyph: Option<bool>,
     pub wrapping_word_glyph: Option<bool>,
-    pub hovered_link: Option<usize>,
     pub show: bool,
 }
 
 impl RichText {
-
     pub fn construct<'a>(
         &'a self,
+        child_ids: &[usize],
         widgets: &HashMap<usize, Widgets>,
     ) -> Element<'a, Message> {
+        if !self.show {
+            return Space::new().into();
+        }
 
-        if !self.show {return Space::new().into()}
+        let spans: Vec<text::Span<'static, usize, iced::Font>> = child_ids
+            .iter()
+            .filter_map(|id| widgets.get(id))
+            .filter_map(Widgets::as_span)
+            .map(|span| span.to_iced(widgets))
+            .collect();
 
-        let mut rt = widget::rich_text()
-            .on_link_click(iced::never);
+        let mut rt = widget::rich_text(spans);
+
+        rt = rt.width(get_len(self.fill, self.width_fill, self.width));
+        rt = rt.height(get_len(self.fill, self.height_fill, self.height));
 
         if let Some(size) = self.size {
             rt = rt.size(size);
@@ -64,14 +75,78 @@ impl RichText {
             rt = rt.line_height(lh);
         }
 
-        let color_opt = Color::rgba_ipg_color_to_iced(self.rgba, &self.color, self.color_alpha);
+        if self.wrapping_none == Some(true) {
+            rt = rt.wrapping(text::Wrapping::None);
+        } else if self.wrapping_glyph == Some(true) {
+            rt = rt.wrapping(text::Wrapping::Glyph);
+        } else if self.wrapping_word_glyph == Some(true) {
+            rt = rt.wrapping(text::Wrapping::WordOrGlyph);
+        }
 
+        let font_opt = self
+            .font_id
+            .and_then(|id| widgets.get(&id))
+            .and_then(Widgets::as_font)
+            .map(|font| font.to_iced());
+
+        if let Some(font) = font_opt {
+            rt = rt.font(font);
+        }
+
+        let color_opt = Color::rgba_ipg_color_to_iced(self.rgba, &self.color, self.color_alpha);
         if let Some(color) = color_opt {
             rt = rt.color(color);
         }
 
-        rt.into()
+        if self.align_bottom_center == Some(true) {
+            rt = rt
+                .align_x(text::Alignment::Center)
+                .align_y(iced::alignment::Vertical::Bottom);
+        }
+        if self.align_bottom_left == Some(true) {
+            rt = rt
+                .align_x(text::Alignment::Left)
+                .align_y(iced::alignment::Vertical::Bottom);
+        }
+        if self.align_bottom_right == Some(true) {
+            rt = rt
+                .align_x(text::Alignment::Right)
+                .align_y(iced::alignment::Vertical::Bottom);
+        }
+        if self.align_center == Some(true) {
+            rt = rt
+                .align_x(text::Alignment::Center)
+                .align_y(iced::alignment::Vertical::Center);
+        }
+        if self.align_center_left == Some(true) {
+            rt = rt
+                .align_x(text::Alignment::Left)
+                .align_y(iced::alignment::Vertical::Center);
+        }
+        if self.align_center_right == Some(true) {
+            rt = rt
+                .align_x(text::Alignment::Right)
+                .align_y(iced::alignment::Vertical::Center);
+        }
+        if self.align_top_center == Some(true) {
+            rt = rt
+                .align_x(text::Alignment::Center)
+                .align_y(iced::alignment::Vertical::Top);
+        }
+        if self.align_top_left == Some(true) {
+            rt = rt
+                .align_x(text::Alignment::Left)
+                .align_y(iced::alignment::Vertical::Top);
+        }
+        if self.align_top_right == Some(true) {
+            rt = rt
+                .align_x(text::Alignment::Right)
+                .align_y(iced::alignment::Vertical::Top);
+        }
 
+        rt = rt.on_link_click(move |link| Message::RichTextLinkClicked(self.id, link));
+
+        rt.into()
     }
 }
 
@@ -85,10 +160,10 @@ pub struct Span {
     pub color_alpha: Option<f32>,
     pub rgba: Option<[f32; 4]>,
     pub font_id: Option<usize>,
-    pub padding: Option<Padding>,
+    pub padding: Option<Vec<f32>>,
     pub underline: Option<bool>,
     pub strikethrough: Option<bool>,
-    
+
     // Highlight
     pub background_color: Option<Color>,
     pub background_color_alpha: Option<f32>,
@@ -103,16 +178,13 @@ pub struct Span {
     pub border_rgba: Option<[f32; 4]>,
     pub border_radius: Option<Vec<f32>>,
     pub border_width: Option<f32>,
-    
-    // Link ?
-    // pub link: Option<>, 
+
+    // Link
+    pub link: Option<usize>,
 }
 
 impl Span {
-    pub fn construct<'a>(
-        &'a self,
-    ) -> Span<'a, Link, Renderer::Font> {
-        
+    pub fn to_iced(&self, widgets: &HashMap<usize, Widgets>) -> text::Span<'static, usize, iced::Font> {
         let mut sp = span(self.text.clone());
 
         if let Some(size) = self.size {
@@ -121,49 +193,104 @@ impl Span {
         if let Some(lh) = self.line_height {
             sp = sp.line_height(lh);
         }
-        if let Some(font) = self.font {
+
+        let font_opt = self
+            .font_id
+            .and_then(|id| widgets.get(&id))
+            .and_then(Widgets::as_font)
+            .map(|font| font.to_iced());
+
+        if let Some(font) = font_opt {
             sp = sp.font(font);
         }
 
         let color_opt = Color::rgba_ipg_color_to_iced(self.rgba, &self.color, self.color_alpha);
-
         if let Some(color) = color_opt {
             sp = sp.color(color);
         }
 
-        if let Some(padding) = self.padding {
-            sp = sp.padding(padding);
+        let background_color = Color::rgba_ipg_color_to_iced(
+            self.background_rgba,
+            &self.background_color,
+            self.background_color_alpha,
+        );
+        if let Some(background) = background_color {
+            sp = sp.background(background);
         }
-        if s.underline {
-            sp = sp.underline(true);
+
+        let border_color =
+            Color::rgba_ipg_color_to_iced(self.border_rgba, &self.border_color, self.border_color_alpha);
+
+        if border_color.is_some() || self.border_radius.is_some() || self.border_width.is_some() {
+            let radius = if let Some(radius) = &self.border_radius {
+                get_radius(radius, "Span".to_string())
+            } else {
+                iced::border::Radius::default()
+            };
+
+            let border = Border {
+                color: border_color.unwrap_or(iced::Color::TRANSPARENT),
+                width: self.border_width.unwrap_or(0.0),
+                radius,
+            };
+
+            sp = sp.border(border);
         }
-        if s.strikethrough {
-            sp = sp.strikethrough(true);
+        
+        if self.padding.is_some() {
+            sp = sp.padding(get_padding(&self.padding));
+        }
+        if let Some(underline) = self.underline {
+            sp = sp.underline(underline);
+        }
+        if let Some(strikethrough) = self.strikethrough {
+            sp = sp.strikethrough(strikethrough);
+        }
+        if let Some(link) = self.link {
+            sp = sp.link(link);
         }
 
         sp
-
     }
-    
-}
-#[derive(Debug, Clone, PartialEq)]
-pub struct HighLight {
-    pub background: Background,
-    pub border: Border,
 }
 
-
-
+pub fn rich_text_callback(id: usize, link_id: usize) {
+    invoke_callback_with_args(
+        id,
+        "on_link_click",
+        "RichText",
+        link_id,
+        "def callback(wid: int, link_id: int)",
+    );
+}
 
 #[derive(Debug, Clone, PartialEq, Hash)]
 #[pyclass(eq, eq_int, hash, frozen)]
 pub enum RichTextParam {
+    AlignBottomCenter,
+    AlignBottomLeft,
+    AlignBottomRight,
+    AlignCenter,
+    AlignCenterLeft,
+    AlignCenterRight,
+    AlignTopCenter,
+    AlignTopLeft,
+    AlignTopRight,
     Color,
     ColorAlpha,
-    Rgba,
+    Fill,
+    FontId,
+    Height,
+    HeightFill,
     LineHeight,
+    Rgba,
     Show,
     Size,
+    Width,
+    WidthFill,
+    WrappingGlyph,
+    WrappingNone,
+    WrappingWordGlyph,
 }
 
 impl WidgetParamUpdate for RichText {
@@ -171,12 +298,30 @@ impl WidgetParamUpdate for RichText {
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
+            RichTextParam::AlignBottomCenter => set_t_value(&mut self.align_bottom_center, value, "RichTextParam::AlignBottomCenter"),
+            RichTextParam::AlignBottomLeft => set_t_value(&mut self.align_bottom_left, value, "RichTextParam::AlignBottomLeft"),
+            RichTextParam::AlignBottomRight => set_t_value(&mut self.align_bottom_right, value, "RichTextParam::AlignBottomRight"),
+            RichTextParam::AlignCenter => set_t_value(&mut self.align_center, value, "RichTextParam::AlignCenter"),
+            RichTextParam::AlignCenterLeft => set_t_value(&mut self.align_center_left, value, "RichTextParam::AlignCenterLeft"),
+            RichTextParam::AlignCenterRight => set_t_value(&mut self.align_center_right, value, "RichTextParam::AlignCenterRight"),
+            RichTextParam::AlignTopCenter => set_t_value(&mut self.align_top_center, value, "RichTextParam::AlignTopCenter"),
+            RichTextParam::AlignTopLeft => set_t_value(&mut self.align_top_left, value, "RichTextParam::AlignTopLeft"),
+            RichTextParam::AlignTopRight => set_t_value(&mut self.align_top_right, value, "RichTextParam::AlignTopRight"),
             RichTextParam::Color => set_t_value(&mut self.color, value, "RichTextParam::Color"),
             RichTextParam::ColorAlpha => set_t_value(&mut self.color_alpha, value, "RichTextParam::ColorAlpha"),
-            RichTextParam::Rgba => set_t_value(&mut self.rgba, value, "RichTextParam::Rgba"),
+            RichTextParam::Fill => set_t_value(&mut self.fill, value, "RichTextParam::Fill"),
+            RichTextParam::FontId => set_t_value(&mut self.font_id, value, "RichTextParam::FontId"),
+            RichTextParam::Height => set_t_value(&mut self.height, value, "RichTextParam::Height"),
+            RichTextParam::HeightFill => set_t_value(&mut self.height_fill, value, "RichTextParam::HeightFill"),
             RichTextParam::LineHeight => set_t_value(&mut self.line_height, value, "RichTextParam::LineHeight"),
+            RichTextParam::Rgba => set_t_value(&mut self.rgba, value, "RichTextParam::Rgba"),
             RichTextParam::Show => set_t_value(&mut self.show, value, "RichTextParam::Show"),
             RichTextParam::Size => set_t_value(&mut self.size, value, "RichTextParam::Size"),
+            RichTextParam::Width => set_t_value(&mut self.width, value, "RichTextParam::Width"),
+            RichTextParam::WidthFill => set_t_value(&mut self.width_fill, value, "RichTextParam::WidthFill"),
+            RichTextParam::WrappingGlyph => set_t_value(&mut self.wrapping_glyph, value, "RichTextParam::WrappingGlyph"),
+            RichTextParam::WrappingNone => set_t_value(&mut self.wrapping_none, value, "RichTextParam::WrappingNone"),
+            RichTextParam::WrappingWordGlyph => set_t_value(&mut self.wrapping_word_glyph, value, "RichTextParam::WrappingWordGlyph"),
         }
     }
 }
@@ -184,15 +329,29 @@ impl WidgetParamUpdate for RichText {
 #[derive(Debug, Clone, PartialEq, Hash)]
 #[pyclass(eq, eq_int, hash, frozen)]
 pub enum SpanParam {
+    BackgroundColor,
+    BackgroundColorAlpha,
+    BackgroundGradientColorStop,
+    BackgroundGradientColorStopAlpha,
+    BackgroundGradientDegrees,
+    BackgroundGradientRadians,
+    BackgroundGradientRgbaStop,
+    BackgroundRgba,
+    BorderColor,
+    BorderColorAlpha,
+    BorderRadius,
+    BorderRgba,
+    BorderWidth,
     Color,
     ColorAlpha,
     FontId,
-    Highlight,
     LineHeight,
-    Padding,
+    Link,
     Rgba,
     Size,
+    Strikethrough,
     Text,
+    Underline,
 }
 
 impl WidgetParamUpdate for Span {
@@ -200,7 +359,29 @@ impl WidgetParamUpdate for Span {
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
-            _ => ()
+            SpanParam::BackgroundColor => set_t_value(&mut self.background_color, value, "SpanParam::BackgroundColor"),
+            SpanParam::BackgroundColorAlpha => set_t_value(&mut self.background_color_alpha, value, "SpanParam::BackgroundColorAlpha"),
+            SpanParam::BackgroundGradientColorStop => set_t_value(&mut self.background_gradient_color_stop, value, "SpanParam::BackgroundGradientColorStop"),
+            SpanParam::BackgroundGradientColorStopAlpha => set_t_value(&mut self.background_gradient_color_stop_alpha, value, "SpanParam::BackgroundGradientColorStopAlpha"),
+            SpanParam::BackgroundGradientDegrees => set_t_value(&mut self.background_gradient_degrees, value, "SpanParam::BackgroundGradientDegrees"),
+            SpanParam::BackgroundGradientRadians => set_t_value(&mut self.background_gradient_radians, value, "SpanParam::BackgroundGradientRadians"),
+            SpanParam::BackgroundGradientRgbaStop => set_t_value(&mut self.background_gradient_rgba_stop, value, "SpanParam::BackgroundGradientRgbaStop"),
+            SpanParam::BackgroundRgba => set_t_value(&mut self.background_rgba, value, "SpanParam::BackgroundRgba"),
+            SpanParam::BorderColor => set_t_value(&mut self.border_color, value, "SpanParam::BorderColor"),
+            SpanParam::BorderColorAlpha => set_t_value(&mut self.border_color_alpha, value, "SpanParam::BorderColorAlpha"),
+            SpanParam::BorderRadius => set_t_value(&mut self.border_radius, value, "SpanParam::BorderRadius"),
+            SpanParam::BorderRgba => set_t_value(&mut self.border_rgba, value, "SpanParam::BorderRgba"),
+            SpanParam::BorderWidth => set_t_value(&mut self.border_width, value, "SpanParam::BorderWidth"),
+            SpanParam::Color => set_t_value(&mut self.color, value, "SpanParam::Color"),
+            SpanParam::ColorAlpha => set_t_value(&mut self.color_alpha, value, "SpanParam::ColorAlpha"),
+            SpanParam::FontId => set_t_value(&mut self.font_id, value, "SpanParam::FontId"),
+            SpanParam::LineHeight => set_t_value(&mut self.line_height, value, "SpanParam::LineHeight"),
+            SpanParam::Link => set_t_value(&mut self.link, value, "SpanParam::Link"),
+            SpanParam::Rgba => set_t_value(&mut self.rgba, value, "SpanParam::Rgba"),
+            SpanParam::Size => set_t_value(&mut self.size, value, "SpanParam::Size"),
+            SpanParam::Strikethrough => set_t_value(&mut self.strikethrough, value, "SpanParam::Strikethrough"),
+            SpanParam::Text => set_t_value(&mut self.text, value, "SpanParam::Text"),
+            SpanParam::Underline => set_t_value(&mut self.underline, value, "SpanParam::Underline"),
         }
     }
 }

@@ -184,7 +184,7 @@ ipg_widget_accessors! {
     Slider           => Slider,            as_slider,              as_slider_mut;
     SliderStyle      => SliderStyle,       as_slider_style,        as_slider_style_mut;
     Space            => Space,             as_space,               as_space_mut;
-    Span             => Span               as_span,                as span_mut;
+    Span             => Span,              as_span,                as_span_mut;
     Svg              => Svg,               as_svg,                 as_svg_mut;
     Text             => Text,              as_text,                as_text_mut;
     TextEditor       => TextEditor,        as_text_editor,         as_text_editor_mut;

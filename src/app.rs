@@ -28,6 +28,7 @@ use crate::widgets::ipg_radio::{RDMessage, radio_callback};
 use crate::widgets::ipg_scrollable::scrollable_callback;
 use crate::widgets::ipg_slider::{SldMessage, slider_callback};
 use crate::widgets::ipg_table::{TableMessage, table_callback};
+use crate::widgets::ipg_text_rich::rich_text_callback;
 use crate::widgets::ipg_text_editor::{TxtEdMessage, text_ed_callback};
 use crate::widgets::ipg_text_input::{TIMessage, text_input_callback};
 use crate::widgets::ipg_timer::{TimerState, timer_callback};
@@ -53,6 +54,7 @@ pub enum Message {
     MouseArea(usize, MaMessage),
     PickList(usize, PLMessage),
     Radio(usize, RDMessage),
+    RichTextLinkClicked(usize, usize),
     Scrolled(scrollable::Viewport, usize),
     Slider(usize, SldMessage),
 
@@ -222,6 +224,11 @@ impl App {
             Message::Radio(id, message) => {
                 radio_callback(&mut self.state, id, message);
                 // process_updates(&mut self.state, &mut self.canvas_state);
+                process_widget_updates(&mut self.state);
+                Task::none()
+            },
+            Message::RichTextLinkClicked(id, link_id) => {
+                rich_text_callback(id, link_id);
                 process_widget_updates(&mut self.state);
                 Task::none()
             },
@@ -563,6 +570,10 @@ fn get_children<'a>(parents: &Vec<ParentChildIds>,
             let grouped = get_menu_children(parents, index, parent_ids, state);
             return menu.construct(grouped, &state.widgets, &state.containers);
         }
+
+        if let Some(Containers::RichText(rt)) = state.containers.get(id) {
+            return rt.construct(&parents[*index].child_ids, &state.widgets);
+        }
     }
 
     for child in parents[*index].child_ids.iter() {
@@ -680,7 +691,7 @@ fn get_container<'a>(state: &'a IpgState,
                     table.construct(content, &state.widgets)
                 },
                 Containers::RichText(rt) => {
-                    rt.construct(&state.widgets)
+                    rt.construct(&[], &state.widgets)
                 },
                 Containers::Row(row) => {
                     row.construct(content)

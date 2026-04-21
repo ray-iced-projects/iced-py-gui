@@ -57,7 +57,7 @@ from .icedpygui import (
     add_text as _add_text,
     add_text_editor as _add_text_editor,
     add_rich_text as _add_rich_text,
-    add_span,
+    add_span as _add_span,
     add_toggler as _add_toggler,
     add_toggler_style,
     add_tool_tip as _add_tool_tip,
@@ -215,12 +215,11 @@ add_rule = _wrap_widget(_add_rule, "add_rule")
 add_separator = _wrap_widget(_add_separator, "add_separator")
 add_slider = _wrap_widget(_add_slider, "add_slider")
 add_space = _wrap_widget(_add_space, "add_space")
+add_span = _wrap_widget(_add_span, "add_span")
 add_svg = _wrap_widget(_add_svg, "add_svg")
 add_text_input = _wrap_widget(_add_text_input, "add_text_input")
 add_text = _wrap_widget(_add_text, "add_text")
 add_text_editor = _wrap_widget(_add_text_editor, "add_text_editor")
-add_rich_text = _wrap_widget(_add_rich_text, "add_rich_text")
-add_rich_text.__doc__ = _add_rich_text.__doc__
 add_toggler = _wrap_widget(_add_toggler, "add_toggler")
 
 
@@ -261,6 +260,8 @@ add_mouse_area = _wrap_container(_add_mouse_area, "add_mouse_area")
 add_mouse_area.__doc__ = _add_mouse_area.__doc__
 add_opaque = _wrap_container(_add_opaque, "add_opaque")
 add_opaque.__doc__ = _add_opaque.__doc__
+add_rich_text = _wrap_container(_add_rich_text, "add_rich_text")
+add_rich_text.__doc__ = _add_rich_text.__doc__
 add_row = _wrap_container(_add_row, "add_row")
 add_row.__doc__ = _add_row.__doc__
 add_scrollable = _wrap_container(_add_scrollable, "add_scrollable")
@@ -543,7 +544,7 @@ class MouseArea:
         return False
 
 class Opaque:
-    """Wrapper for add_container"""
+    """Wrapper for add_opaque"""
     def __init__(self, *, container_id=None, window_id=None, parent_id=None, **kwargs):
         self.window_id = window_id if window_id is not None else _current_window()
         if self.window_id is None:
@@ -559,6 +560,37 @@ class Opaque:
         if pid is not None:
             pid = _resolve_parent_id(pid)
         self.numeric_id = _add_opaque(
+            window_id=self.window_id,
+            container_id=self.container_id,
+            parent_id=pid,
+            **self.kwargs,
+        )
+        _id_to_container_str[self.numeric_id] = self.container_id
+        _parent_stack.append(self.container_id)
+        return self.numeric_id
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        _parent_stack.pop()
+        return False
+
+
+class RichText:
+    """Wrapper for add_rich_text"""
+    def __init__(self, *, container_id=None, window_id=None, parent_id=None, **kwargs):
+        self.window_id = window_id if window_id is not None else _current_window()
+        if self.window_id is None:
+            raise ValueError("RichText: window_id is required (either pass it\
+                or use a Window context manager)")
+        self.container_id = container_id if container_id is not None else str(generate_id())
+        self.parent_id = parent_id
+        self.kwargs = kwargs
+        self.numeric_id = 0
+
+    def __enter__(self):
+        pid = self.parent_id or _current_parent()
+        if pid is not None:
+            pid = _resolve_parent_id(pid)
+        self.numeric_id = _add_rich_text(
             window_id=self.window_id,
             container_id=self.container_id,
             parent_id=pid,

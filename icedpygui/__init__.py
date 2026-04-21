@@ -141,7 +141,6 @@ from .icedpygui import (
     TogglerParam,
     TogglerStyleParam,
     ToolTipParam,
-    ToolTipPosition,
     WindowLevel,
     WindowParam,
     WindowTheme,

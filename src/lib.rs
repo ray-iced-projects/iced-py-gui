@@ -97,7 +97,7 @@ use crate::widgets::ipg_text_rich::{RichTextParam, SpanParam};
 use crate::widgets::ipg_text::{TextColorStd, TextParam};
 use crate::widgets::ipg_timer::{TimerParam, update_timer};
 use crate::widgets::ipg_toggle::{TogglerParam, TogglerStyleParam};
-use crate::widgets::ipg_tool_tip::{ToolTipPosition, ToolTipParam};
+use crate::widgets::ipg_tool_tip::ToolTipParam;
 use crate::widgets::ipg_window::{WindowLevel, WindowMode, WindowTheme, WindowParam};
 
 // events
@@ -267,6 +267,5 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<MousePointer>()?;
     m.add_class::<PickListHandle>()?;
     m.add_class::<RadioDirection>()?;
-    m.add_class::<ToolTipPosition>()?;
     Ok(())
 }

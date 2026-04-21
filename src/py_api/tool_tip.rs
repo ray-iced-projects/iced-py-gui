@@ -4,7 +4,7 @@ use pyo3::{PyResult, pyfunction};
 
 use crate::{access_state, state::{Containers, get_id, 
     set_state_cont_wnd_ids, set_state_of_container}, 
-    widgets::{ipg_container::ContainerStyleStd, ipg_tool_tip::{ToolTip, ToolTipPosition}}};
+    widgets::{ipg_container::ContainerStyleStd, ipg_tool_tip::ToolTip}};
 
 
 
@@ -14,7 +14,11 @@ use crate::{access_state, state::{Containers, get_id,
     container_id,
     text=None,
     parent_id=None,
-    position=None, 
+    position_follow_cursor=None,
+    position_bottom=None,
+    position_left=None,
+    position_top=None,
+    position_right=None, 
     gap=None, 
     padding=None, 
     snap_within_viewport=None,
@@ -28,7 +32,11 @@ pub fn add_tool_tip(
     container_id: String,
     text: Option<String>,
     parent_id: Option<String>,
-    position: Option<ToolTipPosition>,
+    position_follow_cursor: Option<bool>,
+    position_bottom: Option<bool>,
+    position_left: Option<bool>,
+    position_top: Option<bool>,
+    position_right: Option<bool>,
     gap: Option<u32>,
     padding: Option<f32>,
     snap_within_viewport: Option<bool>,
@@ -55,7 +63,11 @@ pub fn add_tool_tip(
     state.containers.insert(id, Containers::ToolTip(
         ToolTip { 
             id,
-            position,
+            position_follow_cursor,
+            position_bottom,
+            position_left,
+            position_top,
+            position_right,
             text,
             gap,
             padding,

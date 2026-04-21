@@ -3638,15 +3638,6 @@ class TogglerParam:
     WidthFill: bool
 
 
-class ToolTipPosition:
-    """Parameters for tooltip positioning"""
-    Bottom=""
-    FollowCursor=""
-    Left=""
-    Right=""
-    Top=""
-
-
 class ToolTipParam:
     """Params for updaing the tooltip"""
     ContainerStyleId=''
@@ -3654,7 +3645,11 @@ class ToolTipParam:
     DelaySec=''
     Gap=''
     Padding=''
-    Position=''
+    PositionFollowCursor=''
+    PositionBottom=''
+    PositionLeft=''
+    PositionTop=''
+    PositionRight=''
     SnapWithinViewport=''
     Text=''
 

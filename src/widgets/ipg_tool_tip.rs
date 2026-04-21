@@ -5,21 +5,23 @@ use std::collections::HashMap;
 use iced::Element;
 use iced::time::seconds;
 use iced::widget::{self, container, text};
-use pyo3::{pyclass, Py, PyAny, Python};
+use pyo3::{pyclass, Py, PyAny};
 type PyObject = Py<PyAny>;
 
 use crate::app::Message;
 use crate::state::Widgets;
 use crate::widgets::ipg_container::ContainerStyleStd;
-use crate::widgets::widget_param_update::{WidgetParamUpdate, 
-    set_opt_bool, set_opt_f32, set_opt_string, set_opt_u32, 
-    set_opt_u64, set_opt_usize};
+use crate::widgets::widget_param_update::{WidgetParamUpdate, set_t_value};
 
 
 #[derive(Debug, Clone)]
 pub struct ToolTip {
     pub id: usize,
-    pub position: Option<ToolTipPosition>,
+    pub position_follow_cursor: Option<bool>,
+    pub position_bottom: Option<bool>,
+    pub position_left: Option<bool>,
+    pub position_top: Option<bool>,
+    pub position_right: Option<bool>,
     pub text: Option<String>,
     pub gap: Option<u32>,
     pub padding: Option<f32>,
@@ -27,17 +29,6 @@ pub struct ToolTip {
     pub delay_sec: Option<u64>,
     pub style_id: Option<usize>,
     pub style_std: Option<ContainerStyleStd>,
-}
-
-
-#[derive(Debug, Clone, PartialEq, Hash)]
-#[pyclass(eq, eq_int, hash, frozen)]
-pub enum ToolTipPosition {
-    FollowCursor,
-    Top,
-    Bottom,
-    Left,
-    Right,
 }
 
 impl ToolTip {
@@ -57,13 +48,17 @@ impl ToolTip {
             self.lookup(widgets, self.style_id)
                 .and_then(Widgets::as_container_style).cloned();
 
-        let position: widget::tooltip::Position = match self.position {
-            Some(ToolTipPosition::FollowCursor) => widget::tooltip::Position::FollowCursor,
-            Some(ToolTipPosition::Top) => widget::tooltip::Position::Top,
-            Some(ToolTipPosition::Bottom) => widget::tooltip::Position::Bottom,
-            Some(ToolTipPosition::Left)   => widget::tooltip::Position::Left,
-            Some(ToolTipPosition::Right)  => widget::tooltip::Position::Right,
-            None => widget::tooltip::Position::Top,
+        let position: widget::tooltip::Position = 
+        if self.position_follow_cursor == Some(true) {
+            widget::tooltip::Position::FollowCursor
+        } else if self.position_bottom == Some(true) {
+            widget::tooltip::Position::Bottom
+        } else if self.position_left == Some(true) {
+            widget::tooltip::Position::Left
+        } else if self.position_right == Some(true) {
+            widget::tooltip::Position::Right
+        } else {
+            widget::tooltip::Position::Top
         };
 
         let tooltip: Element<'a, Message> = 
@@ -112,21 +107,13 @@ pub enum ToolTipParam {
     DelaySec,
     Gap,
     Padding,
-    Position,
+    PositionFollowCursor,
+    PositionBottom,
+    PositionLeft,
+    PositionTop,
+    PositionRight,
     SnapWithinViewport,
     Text,
-}
-
-
-
-pub fn try_extract_position(value: &PyObject, name: String) -> ToolTipPosition {
-    Python::attach(|py| {
-        let res = value.extract::<ToolTipPosition>(py);
-        match res {
-            Ok(val) => val,
-            Err(_) => panic!("{}-Unable to extract tooltip position", name),
-        }
-    })  
 }
 
 // ---------------------------------------------------------------------------
@@ -138,17 +125,18 @@ impl WidgetParamUpdate for ToolTip {
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
-            ToolTipParam::ContainerStyleId => set_opt_usize(&mut self.style_id, value, "ContainerStyleId"),
-            ToolTipParam::ContentId => set_opt_usize(&mut self.style_id, value, "ContentId"),
-            ToolTipParam::DelaySec => set_opt_u64(&mut self.delay_sec, value, "DelaySec"),
-            ToolTipParam::Gap => set_opt_u32(&mut self.gap, value, "Gap"),
-            ToolTipParam::Padding => set_opt_f32(&mut self.padding, value, "Padding"),
-            ToolTipParam::Position => {
-                let pos = try_extract_position(value, "ToolTipParam::Position".to_string());
-                self.position = Some(pos);
-            },
-            ToolTipParam::SnapWithinViewport => set_opt_bool(&mut self.snap_within_viewport, value, "SnapWithinViewport"),
-            ToolTipParam::Text => set_opt_string(&mut self.text, value, "Text"),
+            ToolTipParam::ContainerStyleId => set_t_value(&mut self.style_id, value, "ToolTipParam::ContainerStyleId"),
+            ToolTipParam::ContentId => set_t_value(&mut self.style_id, value, "ToolTipParam::ContentId"),
+            ToolTipParam::DelaySec => set_t_value(&mut self.delay_sec, value, "ToolTipParam::DelaySec"),
+            ToolTipParam::Gap => set_t_value(&mut self.gap, value, "ToolTipParam::Gap"),
+            ToolTipParam::Padding => set_t_value(&mut self.padding, value, "ToolTipParam::Padding"),
+            ToolTipParam::PositionBottom => set_t_value(&mut self.position_bottom, value, "ToolTipParam::PositionBottom"),
+            ToolTipParam::PositionFollowCursor => set_t_value(&mut self.position_follow_cursor, value, "ToolTipParam::PositionFollowCursor"),
+            ToolTipParam::PositionLeft => set_t_value(&mut self.position_left, value, "ToolTipParam::PositionBottom"),
+            ToolTipParam::PositionRight => set_t_value(&mut self.position_right, value, "ToolTipParam::PositionRight"),
+            ToolTipParam::PositionTop => set_t_value(&mut self.position_top, value, "ToolTipParam::PositionLeft"),
+            ToolTipParam::SnapWithinViewport => set_t_value(&mut self.snap_within_viewport, value, "ToolTipParam::SnapWithinViewport"),
+            ToolTipParam::Text => set_t_value(&mut self.text, value, "ToolTipParamText"),
         }
     }
 }

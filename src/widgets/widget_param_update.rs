@@ -1,12 +1,10 @@
 //! Widget parameter update — trait-based dispatch with shared helpers.
-use iced::Length;
 use pyo3::{Py, PyAny, Python};
 
-use crate::graphics::colors::Color;
 use crate::py_api::helpers::{
-    get_length, try_extract_boolean, try_extract_f32, try_extract_f32_array_2, 
+    try_extract_boolean, try_extract_f32, try_extract_f32_array_2, 
     try_extract_f32_opt, try_extract_opt_boolean, 
-    try_extract_opt_string, try_extract_opt_u32_array_2, try_extract_opt_usize, try_extract_opt_vec_f32, try_extract_u32, 
+    try_extract_opt_string, try_extract_opt_u32_array_2, try_extract_opt_usize, try_extract_u32, 
     try_extract_u64,  try_extract_vec_f32, try_extract_vec_str, try_extract_vec_u8_opt, try_extract_vec_vec_f32
 };
 use crate::state::{Containers, Widgets};
@@ -178,36 +176,12 @@ pub fn set_opt_bool(field: &mut Option<bool>, value: &PyObject, name: &str) {
     *field = try_extract_opt_boolean(value, name);
 }
 
-pub fn set_width(field: &mut Length, value: &PyObject, name: &str) {
-    let val = try_extract_f32_opt(value, name);
-    *field = get_length(val, false);
-}
-
-pub fn set_width_fill(field: &mut Length, value: &PyObject, name: &str) {
-    let val = try_extract_boolean(value, name);
-    *field = get_length(None, val);
-}
-
-pub fn set_opt_iced_color(field: &mut Option<iced::Color>, value: &PyObject, name: &str) {
-    let color = Color::extract_opt(value, name);
-    *field = Color::rgba_ipg_color_to_iced(None, &color, None);
-}
-
-pub fn set_opt_iced_color_from_rgba(field: &mut Option<iced::Color>, value: &PyObject, name: &str) {
-    let rgba_opt = Color::extract_rgba_opt(value, name);
-    *field = Color::rgba_ipg_color_to_iced(rgba_opt, &None, None);
-}
-
 pub fn set_f32(field: &mut f32, value: &PyObject, name: &str) {
     *field = try_extract_f32(value, name);
 }
 
 pub fn set_opt_f32(field: &mut Option<f32>, value: &PyObject, name: &str) {
     *field = try_extract_f32_opt(value, name);
-}
-
-pub fn set_opt_vec_f32(field: &mut Option<Vec<f32>>, value: &PyObject, name: &str) {
-    *field = try_extract_opt_vec_f32(value, name);
 }
 
 pub fn set_vec_f32(field: &mut Vec<f32>, value: &PyObject, name: &str) {

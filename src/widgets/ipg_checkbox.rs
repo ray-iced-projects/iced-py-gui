@@ -61,9 +61,7 @@ impl CheckBox {
         widgets: &HashMap<usize, Widgets>,
     ) -> Option<Element<'a, Message>> {
 
-        if !self.show {
-            return None
-        };
+        if !self.show { return None };
 
         let style_opt = 
             self.lookup(widgets, self.style_id)

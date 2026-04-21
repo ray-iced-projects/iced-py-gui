@@ -32,7 +32,7 @@ use crate::widgets::ipg_text_rich::rich_text_callback;
 use crate::widgets::ipg_text_editor::{TxtEdMessage, text_ed_callback};
 use crate::widgets::ipg_text_input::{TIMessage, text_input_callback};
 use crate::widgets::ipg_timer::{TimerState, timer_callback};
-use crate::widgets::ipg_toggle::{TOGMessage, construct_toggler, toggle_callback};
+use crate::widgets::ipg_toggle::{TOGMessage, toggle_callback};
 use crate::widgets::ipg_window::{Window, WindowLevel, WindowMode, add_windows, construct_window};
 use crate::widgets::widget_param_update::{param_update, container_param_update};
 
@@ -787,15 +787,7 @@ fn get_widget<'a>(state: &'a IpgState, id: &usize) -> Option<Element<'a, Message
                 //     construct_canvas_timer(ctimer, style_opt)
                 // },
                 Widgets::Toggler(tog) => {
-                    let style_opt = 
-                        if let Some(id) = tog.style_id {
-                            state.widgets.get(&id)
-                        } else { None };
-                    let font_opt = 
-                        if let Some(id) = tog.font_id {
-                            state.widgets.get(&id)
-                        } else { None };
-                    construct_toggler(tog, style_opt, font_opt)   
+                    tog.construct(&state.widgets)   
                 },
                 _ => None,
 

@@ -4,7 +4,7 @@ type PyObject = Py<PyAny>;
 
 use crate::{access_state, add_callback_to_mutex, 
     add_user_data_to_mutex, graphics::colors::Color, 
-    py_api::helpers::get_length, state::{Widgets, get_id, 
+    state::{Widgets, get_id, 
         set_state_of_widget}, widgets::{  
         ipg_toggle::{Toggler, TogglerStyle}}};
 
@@ -39,10 +39,6 @@ use crate::{access_state, add_callback_to_mutex,
 ///     Whether to Align the label to the left.
 /// text_right : bool, Optional
 ///     Whether to Align the label to the right.
-/// text_shaping : TextShaping, Optional
-///     Sets the Text shaping strategy for the label.
-/// text_wrapping : TextWrapping, Optional
-///     Sets the Text wrapping strategy for the label.
 /// spacing : float, Optional
 ///     Sets the Spacing between the toggler and the label.
 /// user_data : Any, Optional
@@ -65,15 +61,13 @@ use crate::{access_state, add_callback_to_mutex,
     gen_id=None, 
     toggled=None, 
     width=None, 
-    width_fill=false, 
+    width_fill=None, 
     size=None, 
     text_size=None,
     text_line_height=None, 
     text_center=None,
     text_left=None,
     text_right=None,
-    shaping_advanced=None,
-    shaping_basic=None,
     wrapping_none=None,
     wrapping_glyph=None,
     wrapping_word_glyph=None,
@@ -85,20 +79,17 @@ use crate::{access_state, add_callback_to_mutex,
     ))]
 pub fn add_toggler(
     parent_id: String,
-    // ** above required
     label: Option<String>,
     gen_id: Option<usize>,
     toggled: Option<PyObject>,
     width: Option<f32>,
-    width_fill: bool,
+    width_fill: Option<bool>,
     size: Option<f32>,
     text_size: Option<f32>,
     text_line_height: Option<f32>,
     text_center: Option<bool>,
     text_left: Option<bool>,
     text_right: Option<bool>,
-    shaping_advanced: Option<bool>,
-    shaping_basic: Option<bool>,
     wrapping_none: Option<bool>,
     wrapping_glyph: Option<bool>,
     wrapping_word_glyph: Option<bool>,
@@ -119,8 +110,6 @@ pub fn add_toggler(
         add_user_data_to_mutex(id, py);
     }
 
-    let width = get_length(width, width_fill);
-
     set_state_of_widget(id, parent_id.clone());
 
     let mut state = access_state();
@@ -131,6 +120,7 @@ pub fn add_toggler(
             show,
             label,
             width,
+            width_fill,
             is_toggled: false,
             size,
             text_size,
@@ -138,8 +128,6 @@ pub fn add_toggler(
             text_center,
             text_left,
             text_right,
-            shaping_advanced,
-            shaping_basic,
             wrapping_none,
             wrapping_glyph,
             wrapping_word_glyph,
@@ -191,7 +179,7 @@ pub fn add_toggler(
 ///     Sets the foreground border width in logical pixels.
 /// text_color : Color, Optional
 ///     Sets the text color using a predefined color variant.
-/// text_ipg_alpha : float, Optional
+/// text_alpha : float, Optional
 ///     Sets the alpha of the Color.
 /// text_color_rgba : list of float, Optional
 ///     Sets the text color in rgba format as [r, g, b, a].
@@ -225,7 +213,7 @@ pub fn add_toggler(
     foreground_border_width=None,
     text_color=None,
     text_color_alpha=None,
-    text_color_rgba=None, 
+    text_rgba=None, 
     border_radius=None, 
     padding_ratio=None, 
     gen_id=None,
@@ -247,7 +235,7 @@ pub fn add_toggler_style(
     foreground_border_width: Option<f32>,
     text_color: Option<Color>,
     text_color_alpha: Option<f32>,
-    text_color_rgba: Option<[f32; 4]>, 
+    text_rgba: Option<[f32; 4]>, 
     border_radius: Option<Vec<f32>>,
     padding_ratio: Option<f32>, 
     gen_id: Option<usize>,
@@ -255,30 +243,28 @@ pub fn add_toggler_style(
 {
     let id = get_id(gen_id);
 
-    let background_color = 
-        Color::rgba_ipg_color_to_iced(background_rgba, &background_color, background_color_alpha);
-    let background_border_color = 
-        Color::rgba_ipg_color_to_iced(background_border_rgba, &background_border_color, background_border_color_alpha);
-    let foreground_color = 
-        Color::rgba_ipg_color_to_iced(foreground_rgba, &foreground_color, foreground_color_alpha);
-    let foreground_border_color = 
-        Color::rgba_ipg_color_to_iced(foreground_border_rgba, &foreground_border_color, foreground_border_color_alpha);
-    
-    let text_color = 
-        Color::rgba_ipg_color_to_iced(text_color_rgba, &text_color, text_color_alpha);
-
     let mut state = access_state();
     
     state.widgets.insert(id, Widgets::TogglerStyle(
         TogglerStyle {
             id,
             background_color,
+            background_color_alpha,
+            background_rgba,
             background_border_color,
+            background_border_color_alpha,
+            background_border_rgba,
             background_border_width,
             foreground_color,
+            foreground_color_alpha,
+            foreground_rgba,
             foreground_border_color,
-            foreground_border_width, 
-            text_color, 
+            foreground_border_color_alpha,
+            foreground_border_rgba,
+            foreground_border_width,
+            text_color,
+            text_color_alpha,
+            text_rgba, 
             border_radius, 
             padding_ratio, 
         }));

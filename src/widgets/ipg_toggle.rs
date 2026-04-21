@@ -1,20 +1,20 @@
 //! ipg_toggler
 
+use std::collections::HashMap;
+
 use iced::advanced::text;
 use iced::widget;
-use iced::widget::text::{Shaping, Wrapping};
-use iced::{Element, Length, Theme};
+use iced::widget::text::Wrapping;
+use iced::{Element, Theme};
 use iced::theme::palette::{deviate, mix};
 
 use pyo3::{pyclass, Py, PyAny};
 
 use crate::app::Message;
-use crate::py_api::helpers::get_radius;
+use crate::graphics::colors::Color;
+use crate::py_api::helpers::{get_len, get_radius};
 use crate::state::Widgets;
-use crate::widgets::widget_param_update::{WidgetParamUpdate, set_bool, 
-    set_opt_bool, set_opt_f32, set_opt_iced_color, set_opt_iced_color_from_rgba, 
-    set_opt_string, set_opt_usize, 
-    set_opt_vec_f32, set_width, set_width_fill};
+use crate::widgets::widget_param_update::{WidgetParamUpdate, set_t_value};
 use crate::IpgState;
 use crate::widgets::callbacks::invoke_callback_with_args;
 type PyObject = Py<PyAny>;
@@ -26,15 +26,14 @@ pub struct Toggler {
     pub show: bool,
     pub is_toggled: bool,
     pub label: Option<String>,
-    pub width: Length,
+    pub width: Option<f32>,
+    pub width_fill: Option<bool>,
     pub size: Option<f32>,
     pub text_size: Option<f32>,
     pub text_line_height: Option<f32>,
     pub text_center: Option<bool>,
     pub text_left: Option<bool>,
     pub text_right: Option<bool>,
-    pub shaping_advanced: Option<bool>,
-    pub shaping_basic: Option<bool>,
     pub wrapping_none: Option<bool>,
     pub wrapping_glyph: Option<bool>,
     pub wrapping_word_glyph: Option<bool>,
@@ -48,95 +47,91 @@ pub enum TOGMessage {
     Toggled(bool),
 }
 
-pub fn construct_toggler<'a>(
-    ipg_tog: &'a Toggler, 
-    widget: Option<&Widgets>,
-    font_opt:  Option<&'a Widgets>) 
-    -> Option<Element<'a, Message>> {
+impl Toggler {
+
+    fn lookup<'a>(&self, widgets: &'a HashMap<usize, Widgets>, id: Option<usize>) -> Option<&'a Widgets> {
+        id.and_then(|id| widgets.get(&id))
+    }
     
-    if !ipg_tog.show {
-        return None
-    }
+    pub fn construct<'a>(
+        &'a self, 
+        widgets: &HashMap<usize, Widgets>,
+    ) -> Option<Element<'a, Message>> {
+        
+        if !self.show { return None }
 
-    let style_opt = 
-        widget.and_then(Widgets::as_toggler_style).cloned();
+        let style_opt = 
+            self.lookup(widgets, self.style_id)
+                .and_then(Widgets::as_toggler_style).cloned();
 
-    let mut tog =  
-        widget::Toggler::new(ipg_tog.is_toggled)
-            .on_toggle(TOGMessage::Toggled)
-            .width(ipg_tog.width)
-            .style(move|theme: &Theme, status| {
-                if let Some(st) = &style_opt {
-                    st.set_style(theme, status)
-                } else {
-                    widget::toggler::default(theme, status)
-                } 
-            });
+        let font_opt = 
+            self.lookup(widgets, self.font_id)
+                .and_then(Widgets::as_font).cloned();
 
-    if let Some(lb)  = &ipg_tog.label {
-        tog = tog.label(lb);
-    }
+        let mut tog =  
+            widget::Toggler::new(self.is_toggled)
+                .on_toggle(TOGMessage::Toggled)
+                .width(get_len(None, self.width_fill, self.width))
+                .style(move|theme: &Theme, status| {
+                    if let Some(st) = &style_opt {
+                        st.set_style(theme, status)
+                    } else {
+                        widget::toggler::default(theme, status)
+                    } 
+                });
 
-    if let Some(sz) = ipg_tog.size {
-        tog = tog.size(sz);
-    }
-
-    if ipg_tog.text_center == Some(true){
-        tog = tog.text_alignment(text::Alignment::Center);
-    }
-
-    if ipg_tog.text_left == Some(true){
-        tog = tog.text_alignment(text::Alignment::Left);
-    }
-
-    if ipg_tog.text_right == Some(true){
-        tog = tog.text_alignment(text::Alignment::Right);
-    }
-
-    if let Some(lh) = ipg_tog.text_line_height {
-        tog = tog.text_line_height(lh);
-    }
-
-    if let Some(ts) = ipg_tog.text_size {
-        tog = tog.text_size(ts);
-    }
-
-    if let Some(sp) = ipg_tog.spacing {
-        tog = tog.spacing(sp);
-    }
-
-    if let Some(wd) = font_opt {
-        match wd {
-            Widgets::Font(font) => {
-                tog = tog.font(font.to_iced());
-            },
-            _ => ()
+        if let Some(lb)  = &self.label {
+            tog = tog.label(lb);
         }
+
+        if let Some(sz) = self.size {
+            tog = tog.size(sz);
+        }
+
+        if self.text_center == Some(true){
+            tog = tog.text_alignment(text::Alignment::Center);
+        }
+
+        if self.text_left == Some(true){
+            tog = tog.text_alignment(text::Alignment::Left);
+        }
+
+        if self.text_right == Some(true){
+            tog = tog.text_alignment(text::Alignment::Right);
+        }
+
+        if let Some(lh) = self.text_line_height {
+            tog = tog.text_line_height(lh);
+        }
+
+        if let Some(ts) = self.text_size {
+            tog = tog.text_size(ts);
+        }
+
+        if let Some(sp) = self.spacing {
+            tog = tog.spacing(sp);
+        }
+
+        if let Some(f) = font_opt {
+            tog = tog.font(f.to_iced())
+        };
+        
+
+        // default is word so not checked
+        let tog = 
+            if self.wrapping_none.is_some() {
+                tog.text_wrapping(Wrapping::None)
+            } else if self.wrapping_glyph.is_some() {
+                tog.text_wrapping(Wrapping::Glyph)
+            } else if self.wrapping_word_glyph.is_some() {
+                tog.text_wrapping(Wrapping::WordOrGlyph)
+            } else { tog };
+
+        let tog: Element<'_, TOGMessage> = tog.into();
+        Some(tog.map(move |message| Message::Toggler(self.id, message)))
+
     }
-
-    // default is word so not checked
-    let tog = 
-        if ipg_tog.wrapping_none.is_some() {
-            tog.text_wrapping(Wrapping::None)
-        } else if ipg_tog.wrapping_glyph.is_some() {
-            tog.text_wrapping(Wrapping::Glyph)
-        } else if ipg_tog.wrapping_word_glyph.is_some() {
-            tog.text_wrapping(Wrapping::WordOrGlyph)
-        } else { tog };
-
-    // default is auto so not checked
-    let tog = 
-        if ipg_tog.shaping_advanced.is_some() {
-            tog.text_shaping(Shaping::Advanced)
-        } else if ipg_tog.shaping_basic.is_some() {
-            tog.text_shaping(Shaping::Basic)
-        } else { tog };
-
-    let tog: Element<'_, TOGMessage> = tog.into();
-    Some(tog.map(move |message| Message::Toggler(ipg_tog.id, message)))
-
 }
-
 
 pub fn toggle_callback(state: &mut IpgState, id: usize, message: TOGMessage) {
     match message {
@@ -157,8 +152,6 @@ pub fn toggle_callback(state: &mut IpgState, id: usize, message: TOGMessage) {
 pub enum TogglerParam {
     FontId,
     Label,
-    ShapingAdvanced,
-    ShapingBasic,
     Show,
     Size,
     Spacing,
@@ -178,15 +171,23 @@ pub enum TogglerParam {
 #[derive(Debug, Clone)]
 pub struct TogglerStyle {
     pub id: usize,
-    pub background_color: Option<iced::Color>,
-    pub background_border_color: Option<iced::Color>,
+    pub background_color: Option<Color>,
+    pub background_color_alpha: Option<f32>,
+    pub background_rgba: Option<[f32; 4]>,
+    pub background_border_color: Option<Color>,
+    pub background_border_color_alpha: Option<f32>,
+    pub background_border_rgba: Option<[f32; 4]>,
     pub background_border_width: Option<f32>,
-
-    pub foreground_color: Option<iced::Color>,
-    pub foreground_border_color: Option<iced::Color>,
+    pub foreground_color: Option<Color>,
+    pub foreground_color_alpha: Option<f32>,
+    pub foreground_rgba: Option<[f32; 4]>,
+    pub foreground_border_color: Option<Color>,
+    pub foreground_border_color_alpha: Option<f32>,
+    pub foreground_border_rgba: Option<[f32; 4]>,
     pub foreground_border_width: Option<f32>,
-    
-    pub text_color: Option<iced::Color>,
+    pub text_color: Option<Color>,
+    pub text_color_alpha: Option<f32>,
+    pub text_rgba: Option<[f32; 4]>, 
     pub border_radius: Option<Vec<f32>>,
     pub padding_ratio: Option<f32>,
 }
@@ -204,13 +205,25 @@ impl TogglerStyle {
         theme: &Theme, 
         status: widget::toggler::Status, 
         ) -> widget::toggler::Style {
+
+        let background_color = 
+            Color::rgba_ipg_color_to_iced(self.background_rgba, &self.background_color, self.background_color_alpha);
+        let _background_border_color = 
+            Color::rgba_ipg_color_to_iced(self.background_border_rgba, &self.background_border_color, self.background_border_color_alpha);
+        let foreground_color = 
+            Color::rgba_ipg_color_to_iced(self.foreground_rgba, &self.foreground_color, self.foreground_color_alpha);
+        let foreground_border_color = 
+            Color::rgba_ipg_color_to_iced(self.foreground_border_rgba, &self.foreground_border_color, self.foreground_border_color_alpha);
+        
+        let text_color = 
+            Color::rgba_ipg_color_to_iced(self.text_rgba, &self.text_color, self.text_color_alpha);
         
         // Use user-supplied base colors or fall back to theme palette colors
         let palette = theme.extended_palette();
 
-        let bg_base = self.background_color
+        let bg_base = background_color
             .unwrap_or(palette.primary.base.color);
-        let fg_base = self.foreground_color
+        let fg_base = foreground_color
             .unwrap_or(palette.primary.base.text);
 
         // Derive variants: deviate auto-lightens dark colors and darkens light ones
@@ -250,10 +263,10 @@ impl TogglerStyle {
             background: background.into(),
             foreground: foreground.into(),
             foreground_border_width: self.foreground_border_width.unwrap_or(0.0),
-            foreground_border_color: self.foreground_border_color.unwrap_or(iced::Color::TRANSPARENT),
+            foreground_border_color: foreground_border_color.unwrap_or(iced::Color::TRANSPARENT),
             background_border_width: self.background_border_width.unwrap_or(0.0),
             background_border_color: iced::Color::TRANSPARENT,
-            text_color: self.text_color,
+            text_color: text_color,
             border_radius,
             padding_ratio: self.padding_ratio.unwrap_or(0.1),
         }
@@ -264,20 +277,25 @@ impl TogglerStyle {
 #[derive(Debug, Clone, PartialEq, Hash)]
 #[pyclass(eq, eq_int, hash, frozen)]
 pub enum TogglerStyleParam {
-    BackgroundColor,
-    BackgroundRgbaColor,
     BackgroundBorderColor,
-    BackgroundBorderRgbaColor,
+    BackgroundBorderColorAlpha,
+    BackgroundBorderRgba,
     BackgroundBorderWidth,
-    ForegroundColor,
-    ForegroundRgbaColor,
-    ForegroundBorderColor,
-    ForegroundBorderRgbaColor,
-    ForegroundBorderWidth,
-    TextColor,
-    TextRgbaColor,
+    BackgroundColor,
+    BackgroundColorAlpha,
+    BackgroundRgba,
     BorderRadius,
+    ForegroundBorderColor,
+    ForegroundBorderColorAlpha,
+    ForegroundBorderRgba,
+    ForegroundBorderWidth,
+    ForegroundColor,
+    ForegroundColorAlpha,
+    ForegroundRgba,
     PaddingRatio,
+    TextColor,
+    TextColorAlpha,
+    TextRgba,
 }
 
 
@@ -291,24 +309,22 @@ impl WidgetParamUpdate for Toggler {
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
-            TogglerParam::FontId => set_opt_usize(&mut self.font_id, value, "FontId"),
-            TogglerParam::Label => set_opt_string(&mut self.label, value, "Label"),
-            TogglerParam::ShapingAdvanced => todo!(),
-            TogglerParam::ShapingBasic => todo!(),
-            TogglerParam::Show => set_bool(&mut self.show, value, "Show"),
-            TogglerParam::Size => set_opt_f32(&mut self.size, value, "Size"),
-            TogglerParam::Spacing => set_opt_f32(&mut self.spacing, value, "Spacing"),
-            TogglerParam::StyleId => set_opt_usize(&mut self.style_id, value, "StyleId"),
-            TogglerParam::TextCenter => set_opt_bool(&mut self.text_center, value, "TextCenter"),
-            TogglerParam::TextLeft => set_opt_bool(&mut self.text_left, value, "TextLeft"),
-            TogglerParam::TextLineHeight => set_opt_f32(&mut self.text_line_height, value, "TextLineHeight"),
-            TogglerParam::TextRight => set_opt_bool(&mut self.text_right, value, "TextRight"),
-            TogglerParam::TextSize => set_opt_f32(&mut self.text_size, value, "TextSize"),
-            TogglerParam::Width => set_width(&mut self.width, value, "Width"),
-            TogglerParam::WidthFill => set_width_fill(&mut self.width, value, "WidthFill"),
-            TogglerParam::WrappingGlyph => todo!(),
-            TogglerParam::WrappingNone => todo!(),
-            TogglerParam::WrappingWordGlyph => todo!(),
+            TogglerParam::FontId => set_t_value(&mut self.font_id, value, "TogglerParam::FontId"),
+            TogglerParam::Label => set_t_value(&mut self.label, value, "TogglerParam::Label"),
+            TogglerParam::Show => set_t_value(&mut self.show, value, "TogglerParam::Show"),
+            TogglerParam::Size => set_t_value(&mut self.size, value, "TogglerParam::Size"),
+            TogglerParam::Spacing => set_t_value(&mut self.spacing, value, "TogglerParam::Spacing"),
+            TogglerParam::StyleId => set_t_value(&mut self.style_id, value, "TogglerParam::StyleId"),
+            TogglerParam::TextCenter => set_t_value(&mut self.text_center, value, "TogglerParam::TextCenter"),
+            TogglerParam::TextLeft => set_t_value(&mut self.text_left, value, "TogglerParam::TextLeft"),
+            TogglerParam::TextLineHeight => set_t_value(&mut self.text_line_height, value, "TogglerParam::TextLineHeight"),
+            TogglerParam::TextRight => set_t_value(&mut self.text_right, value, "TogglerParam::TextRight"),
+            TogglerParam::TextSize => set_t_value(&mut self.text_size, value, "TogglerParam::TextSize"),
+            TogglerParam::Width => set_t_value(&mut self.width, value, "TogglerParam::Width"),
+            TogglerParam::WidthFill => set_t_value(&mut self.width_fill, value, "TogglerParam::WidthFill"),
+            TogglerParam::WrappingGlyph => set_t_value(&mut self.wrapping_glyph, value, "TogglerParam::WrappingGlyph"),
+            TogglerParam::WrappingNone => set_t_value(&mut self.wrapping_none, value, "TogglerParam::WrappingNone"),
+            TogglerParam::WrappingWordGlyph => set_t_value(&mut self.wrapping_word_glyph, value, "TogglerParam::WrappingWordGlyph"),
         }
     }
 }
@@ -318,258 +334,25 @@ impl WidgetParamUpdate for TogglerStyle {
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
-            TogglerStyleParam::BackgroundColor =>
-                set_opt_iced_color(&mut self.background_color, value, "BackgroundColor"),
-            TogglerStyleParam::BackgroundRgbaColor =>
-                set_opt_iced_color_from_rgba(&mut self.background_color, value, "BackgroundRgbaColor"),
-            TogglerStyleParam::BackgroundBorderColor =>
-                set_opt_iced_color(&mut self.background_border_color, value, "BackgroundBorderColor"),
-            TogglerStyleParam::BackgroundBorderRgbaColor =>
-                set_opt_iced_color_from_rgba(&mut self.background_border_color, value, "BackgroundBorderRgbaColor"),
-            TogglerStyleParam::BackgroundBorderWidth =>
-                set_opt_f32(&mut self.background_border_width, value, "BackgroundBorderWidth"),
-            TogglerStyleParam::ForegroundColor =>
-                set_opt_iced_color(&mut self.foreground_color, value, "ForegroundColor"),
-            TogglerStyleParam::ForegroundRgbaColor =>
-                set_opt_iced_color_from_rgba(&mut self.foreground_color, value, "ForegroundRgbaColor"),
-            TogglerStyleParam::ForegroundBorderColor =>
-                set_opt_iced_color(&mut self.foreground_border_color, value, "ForegroundBorderColor"),
-            TogglerStyleParam::ForegroundBorderRgbaColor =>
-                set_opt_iced_color_from_rgba(&mut self.foreground_border_color, value, "ForegroundBorderRgbaColor"),
-            TogglerStyleParam::ForegroundBorderWidth =>
-                set_opt_f32(&mut self.foreground_border_width, value, "ForegroundBorderWidth"),
-            TogglerStyleParam::TextColor =>
-                set_opt_iced_color(&mut self.text_color, value, "TextColor"),
-            TogglerStyleParam::TextRgbaColor =>
-                set_opt_iced_color_from_rgba(&mut self.text_color, value, "TextRgbaColor"),
-            TogglerStyleParam::BorderRadius =>
-                set_opt_vec_f32(&mut self.border_radius, value, "BorderRadius"),
-            TogglerStyleParam::PaddingRatio =>
-                set_opt_f32(&mut self.padding_ratio, value, "PaddingRatio"),
+            TogglerStyleParam::BackgroundBorderColor => set_t_value(&mut self.background_border_color, value, "TogglerStyleParam:BackgroundBorderColor"),
+            TogglerStyleParam::BackgroundBorderColorAlpha => set_t_value(&mut self.background_border_color_alpha, value, "TogglerStyleParam::BackgroundBorderColorAlpha"),
+            TogglerStyleParam::BackgroundBorderRgba => set_t_value(&mut self.background_border_rgba, value, "TogglerStyleParam:BackgroundBorderRgba"),
+            TogglerStyleParam::BackgroundBorderWidth => set_t_value(&mut self.background_border_width, value, "TogglerStyleParam:BackgroundBorderWidth"),
+            TogglerStyleParam::BackgroundColor => set_t_value(&mut self.background_color, value, "TogglerStyleParam:BackgroundColor"),
+            TogglerStyleParam::BackgroundColorAlpha => set_t_value(&mut self.background_color_alpha, value, "TogglerStyleParam::BackgroundColorAlpha"),
+            TogglerStyleParam::BackgroundRgba => set_t_value(&mut self.background_rgba, value, "TogglerStyleParam:BackgroundRgba"),
+            TogglerStyleParam::BorderRadius => set_t_value(&mut self.border_radius, value, "TogglerStyleParam:BorderRadius"),
+            TogglerStyleParam::ForegroundBorderColor => set_t_value(&mut self.foreground_border_color, value, "TogglerStyleParam:ForegroundBorderColor"),
+            TogglerStyleParam::ForegroundBorderColorAlpha => set_t_value(&mut self.foreground_border_color_alpha, value, "TogglerStyleParam::ForegroundBorderColorAlpha"),
+            TogglerStyleParam::ForegroundBorderRgba => set_t_value(&mut self.foreground_border_rgba, value, "TogglerStyleParam:ForegroundBorderRgba"),
+            TogglerStyleParam::ForegroundBorderWidth => set_t_value(&mut self.foreground_border_width, value, "TogglerStyleParam:ForegroundBorderWidth"),
+            TogglerStyleParam::ForegroundColor => set_t_value(&mut self.foreground_color, value, "TogglerStyleParam:ForegroundColor"),
+            TogglerStyleParam::ForegroundColorAlpha => set_t_value(&mut self.foreground_color_alpha, value, "TogglerStyleParam::ForegroundColorAlpha"),
+            TogglerStyleParam::ForegroundRgba => set_t_value(&mut self.foreground_rgba, value, "TogglerStyleParam:ForegroundRgba"),
+            TogglerStyleParam::PaddingRatio => set_t_value(&mut self.padding_ratio, value, "TogglerStyleParam:PaddingRatio"),
+            TogglerStyleParam::TextColor => set_t_value(&mut self.text_color, value, "TogglerStyleParam:extColor"),
+            TogglerStyleParam::TextColorAlpha => set_t_value(&mut self.text_color_alpha, value, "TogglerStyleParam::TextColorAlpha"),
+            TogglerStyleParam::TextRgba => set_t_value(&mut self.text_rgba, value, "TogglerStyleParam:TextRgba"),
         }
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use iced::Length;
-    use pyo3::{Python, IntoPyObjectExt};
-
-    fn make_toggler() -> Toggler {
-        Toggler {
-            id: 0,
-            show: true,
-            is_toggled: false,
-            label: None,
-            width: Length::Shrink,
-            size: None,
-            text_size: None,
-            text_line_height: None,
-            text_center: None,
-            text_left: None,
-            text_right: None,
-            shaping_advanced: None,
-            shaping_basic: None,
-            wrapping_none: None,
-            wrapping_glyph: None,
-            wrapping_word_glyph: None,
-            spacing: None,
-            font_id: None,
-            style_id: None,
-        }
-    }
-
-    fn make_toggler_style() -> TogglerStyle {
-        TogglerStyle {
-            id: 0,
-            background_color: None,
-            background_border_color: None,
-            background_border_width: None,
-            foreground_color: None,
-            foreground_border_color: None,
-            foreground_border_width: None,
-            text_color: None,
-            border_radius: None,
-            padding_ratio: None,
-        }
-    }
-
-    fn py_obj<T: for<'py> IntoPyObjectExt<'py>>(val: T) -> PyObject {
-        Python::initialize();
-        Python::attach(|py| val.into_py_any(py).unwrap())
-    }
-
-    fn py_none() -> PyObject {
-        Python::initialize();
-        Python::attach(|py| py.None().into_py_any(py).unwrap())
-    }
-
-    // -- Toggler param tests --
-
-    #[test]
-    fn test_font_id() {
-        let mut t = make_toggler();
-        t.param_update(TogglerParam::FontId, &py_obj(2usize));
-        assert_eq!(t.font_id, Some(2));
-        t.param_update(TogglerParam::FontId, &py_none());
-        assert_eq!(t.font_id, None);
-    }
-
-    #[test]
-    fn test_label() {
-        let mut t = make_toggler();
-        t.param_update(TogglerParam::Label, &py_obj("On/Off".to_string()));
-        assert_eq!(t.label, Some("On/Off".to_string()));
-        t.param_update(TogglerParam::Label, &py_none());
-        assert_eq!(t.label, None);
-    }
-
-    #[test]
-    fn test_show() {
-        let mut t = make_toggler();
-        t.param_update(TogglerParam::Show, &py_obj(false));
-        assert!(!t.show);
-    }
-
-    #[test]
-    fn test_size() {
-        let mut t = make_toggler();
-        t.param_update(TogglerParam::Size, &py_obj(24.0f32));
-        assert_eq!(t.size, Some(24.0));
-    }
-
-    #[test]
-    fn test_spacing() {
-        let mut t = make_toggler();
-        t.param_update(TogglerParam::Spacing, &py_obj(10.0f32));
-        assert_eq!(t.spacing, Some(10.0));
-    }
-
-    #[test]
-    fn test_style_id() {
-        let mut t = make_toggler();
-        t.param_update(TogglerParam::StyleId, &py_obj(5usize));
-        assert_eq!(t.style_id, Some(5));
-        t.param_update(TogglerParam::StyleId, &py_none());
-        assert_eq!(t.style_id, None);
-    }
-
-    #[test]
-    fn test_text_center() {
-        let mut t = make_toggler();
-        t.param_update(TogglerParam::TextCenter, &py_obj(true));
-        assert_eq!(t.text_center, Some(true));
-        t.param_update(TogglerParam::TextCenter, &py_none());
-        assert_eq!(t.text_center, None);
-    }
-
-    #[test]
-    fn test_text_left() {
-        let mut t = make_toggler();
-        t.param_update(TogglerParam::TextLeft, &py_obj(true));
-        assert_eq!(t.text_left, Some(true));
-    }
-
-    #[test]
-    fn test_text_right() {
-        let mut t = make_toggler();
-        t.param_update(TogglerParam::TextRight, &py_obj(true));
-        assert_eq!(t.text_right, Some(true));
-    }
-
-    #[test]
-    fn test_text_line_height() {
-        let mut t = make_toggler();
-        t.param_update(TogglerParam::TextLineHeight, &py_obj(1.5f32));
-        assert_eq!(t.text_line_height, Some(1.5));
-    }
-
-    #[test]
-    fn test_text_size() {
-        let mut t = make_toggler();
-        t.param_update(TogglerParam::TextSize, &py_obj(14.0f32));
-        assert_eq!(t.text_size, Some(14.0));
-    }
-
-    #[test]
-    fn test_width() {
-        let mut t = make_toggler();
-        t.param_update(TogglerParam::Width, &py_obj(200.0f32));
-        assert_eq!(t.width, Length::Fixed(200.0));
-    }
-
-    #[test]
-    fn test_width_fill() {
-        let mut t = make_toggler();
-        t.param_update(TogglerParam::WidthFill, &py_obj(true));
-        assert_eq!(t.width, Length::Fill);
-    }
-
-    // -- TogglerStyle param tests --
-
-    #[test]
-    fn test_style_background_rgba() {
-        let mut s = make_toggler_style();
-        s.param_update(TogglerStyleParam::BackgroundRgbaColor, &py_obj(vec![1.0f32, 0.0, 0.0, 1.0]));
-        assert!(s.background_color.is_some());
-    }
-
-    #[test]
-    fn test_style_background_border_rgba() {
-        let mut s = make_toggler_style();
-        s.param_update(TogglerStyleParam::BackgroundBorderRgbaColor, &py_obj(vec![0.0f32, 1.0, 0.0, 1.0]));
-        assert!(s.background_border_color.is_some());
-    }
-
-    #[test]
-    fn test_style_background_border_width() {
-        let mut s = make_toggler_style();
-        s.param_update(TogglerStyleParam::BackgroundBorderWidth, &py_obj(2.0f32));
-        assert_eq!(s.background_border_width, Some(2.0));
-    }
-
-    #[test]
-    fn test_style_foreground_rgba() {
-        let mut s = make_toggler_style();
-        s.param_update(TogglerStyleParam::ForegroundRgbaColor, &py_obj(vec![0.0f32, 0.0, 1.0, 1.0]));
-        assert!(s.foreground_color.is_some());
-    }
-
-    #[test]
-    fn test_style_foreground_border_rgba() {
-        let mut s = make_toggler_style();
-        s.param_update(TogglerStyleParam::ForegroundBorderRgbaColor, &py_obj(vec![1.0f32, 1.0, 0.0, 1.0]));
-        assert!(s.foreground_border_color.is_some());
-    }
-
-    #[test]
-    fn test_style_foreground_border_width() {
-        let mut s = make_toggler_style();
-        s.param_update(TogglerStyleParam::ForegroundBorderWidth, &py_obj(1.5f32));
-        assert_eq!(s.foreground_border_width, Some(1.5));
-    }
-
-    #[test]
-    fn test_style_text_rgba() {
-        let mut s = make_toggler_style();
-        s.param_update(TogglerStyleParam::TextRgbaColor, &py_obj(vec![0.0f32, 0.0, 0.0, 1.0]));
-        assert!(s.text_color.is_some());
-    }
-
-    #[test]
-    fn test_style_border_radius() {
-        let mut s = make_toggler_style();
-        s.param_update(TogglerStyleParam::BorderRadius, &py_obj(vec![4.0f32, 4.0, 4.0, 4.0]));
-        assert_eq!(s.border_radius, Some(vec![4.0, 4.0, 4.0, 4.0]));
-        s.param_update(TogglerStyleParam::BorderRadius, &py_none());
-        assert_eq!(s.border_radius, None);
-    }
-
-    #[test]
-    fn test_style_padding_ratio() {
-        let mut s = make_toggler_style();
-        s.param_update(TogglerStyleParam::PaddingRatio, &py_obj(0.2f32));
-        assert_eq!(s.padding_ratio, Some(0.2));
     }
 }

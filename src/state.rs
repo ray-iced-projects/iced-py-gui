@@ -42,7 +42,7 @@ use crate::widgets::ipg_svg::Svg;
 use crate::widgets::ipg_table::Table;
 use crate::widgets::ipg_text::Text;
 use crate::widgets::ipg_text_editor::TextEditor;
-use crate::widgets::ipg_text_rich::RichText;
+use crate::widgets::ipg_text_rich::{RichText, Span};
 use crate::widgets::ipg_text_input::{TextInput, TextInputStyle};
 use crate::widgets::ipg_timer::TimerState;
 use crate::widgets::ipg_toggle::{Toggler, TogglerStyle};
@@ -70,6 +70,7 @@ pub enum Containers {
     // Modal(Modal),
     MouseArea(MouseArea),
     Opaque(Opaque),
+    RichText(RichText),
     Stack(Stack),
     Table(Table),
     // PaneGrid(PaneGrid),
@@ -112,11 +113,10 @@ pub enum Widgets {
     Slider(Slider),
     SliderStyle(SliderStyle),
     Space(Space),
+    Span(Span),
     Svg(Svg),
     Text(Text),
     TextEditor(TextEditor),
-    RichText(RichText),
-    // TextEditor(TextEditor),
     TextInput(TextInput),
     TextInputStyle(TextInputStyle),
     // CanvasTimer(CanvasTimer),
@@ -184,10 +184,10 @@ ipg_widget_accessors! {
     Slider           => Slider,            as_slider,              as_slider_mut;
     SliderStyle      => SliderStyle,       as_slider_style,        as_slider_style_mut;
     Space            => Space,             as_space,               as_space_mut;
+    Span             => Span               as_span,                as span_mut;
     Svg              => Svg,               as_svg,                 as_svg_mut;
     Text             => Text,              as_text,                as_text_mut;
     TextEditor       => TextEditor,        as_text_editor,         as_text_editor_mut;
-    RichText         => RichText,          as_rich_text,           as_rich_text_mut;
     TextInputStyle   => TextInputStyle,    as_text_input_style,    as_text_input_style_mut;
     Toggler          => Toggler,           as_toggler,             as_toggler_mut;
     TogglerStyle     => TogglerStyle,      as_toggler_style,       as_toggler_style_mut;
@@ -228,6 +228,7 @@ ipg_container_accessors! {
     MenuBarItem  => MenuBarItem,  as_menu_bar_item,   as_menu_bar_item_mut;
     MouseArea    => MouseArea,    as_mouse_area,      as_mouse_area_mut;
     Opaque       => Opaque,       as_opaque,          as_opaque_mut;
+    RichText     => RichText,     as_rich_text,       as_rich_text_mut;
     Row          => Row,          as_row,             as_row_mut;
     Scrollable   => Scrollable,   as_scrollable,      as_scrollable_mut;
     Window       => Window,       as_window,          as_window_mut;

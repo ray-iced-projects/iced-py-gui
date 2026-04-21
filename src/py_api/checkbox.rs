@@ -139,7 +139,6 @@ pub fn add_checkbox(
     state.widgets.insert(id, Widgets::CheckBox(
         CheckBox {
             id,
-            parent_id,
             show,
             is_checked,
             label,

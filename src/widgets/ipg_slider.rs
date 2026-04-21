@@ -20,9 +20,7 @@ use crate::widgets::callbacks::invoke_callback_with_args;
 #[derive(Debug, Clone)]
 pub struct Slider {
     pub id: usize,
-    pub parent_id: String,
     pub show: bool,
-    
     pub min: f32,
     pub max: f32,
     pub step: f32,

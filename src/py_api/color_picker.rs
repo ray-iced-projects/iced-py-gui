@@ -138,7 +138,6 @@ pub fn add_color_picker(
     state.widgets.insert(id, Widgets::ColorPicker(
         ColorPicker {
             id,
-            parent_id,
             show,
             color,
             color_alpha,

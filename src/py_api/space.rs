@@ -69,7 +69,6 @@ pub fn add_space(
     state.widgets.insert(id, Widgets::Space(
         Space {
             id,
-            parent_id,
             width,
             width_fill,
             height,

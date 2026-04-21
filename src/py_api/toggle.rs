@@ -128,7 +128,6 @@ pub fn add_toggler(
     state.widgets.insert(id, Widgets::Toggler(
         Toggler {
             id,
-            parent_id,
             show,
             label,
             width,

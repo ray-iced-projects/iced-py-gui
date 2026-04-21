@@ -92,7 +92,6 @@ pub fn add_date_picker(
     state.widgets.insert(id, Widgets::DatePicker(
         DatePicker::new (
             id,
-            parent_id,
             label,
             size_factor,
             padding,

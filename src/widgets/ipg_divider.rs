@@ -19,7 +19,6 @@ type PyObject = Py<PyAny>;
 #[derive(Debug, Clone, PartialEq)]
 pub struct Divider {
     pub id: usize,
-    pub parent_id: String,
     pub show: bool,
     pub direction: DividerDirection,
     pub sizes: Vec<f32>,

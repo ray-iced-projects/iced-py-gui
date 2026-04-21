@@ -158,7 +158,6 @@ pub fn add_button(
         Widgets::Button(
             Button {
                 id,
-                parent_id,
                 show,
                 label,
                 width,

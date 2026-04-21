@@ -15,7 +15,6 @@ use crate::widgets::widget_param_update::{
 #[derive(Debug, Clone)]
 pub struct Space {
     pub id: usize,
-    pub parent_id: String,
     pub width: Option<f32>,
     pub width_fill: Option<bool>,
     pub height: Option<f32>,

@@ -40,7 +40,6 @@ pub enum DPMessage {
 #[derive(Debug, Clone, Default)]
 pub struct DatePicker {
     pub id: usize,
-    pub parent_id: String,
     pub label: Option<String>,
     pub size_factor: Option<f32>,
     pub padding: Option<Vec<f32>>,
@@ -66,7 +65,6 @@ pub struct DatePicker {
 impl DatePicker {
     pub fn new( 
         id: usize,
-        parent_id: String,
         label: Option<String>,
         size_factor: Option<f32>,
         padding: Option<Vec<f32>>,
@@ -77,7 +75,6 @@ impl DatePicker {
         ) -> Self {
         Self {
             id,
-            parent_id,
             label,
             size_factor,
             padding,

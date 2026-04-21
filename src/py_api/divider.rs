@@ -100,7 +100,6 @@ pub fn add_divider(
     state.widgets.insert(id, Widgets::Divider(
         Divider {
             id,
-            parent_id,
             show,
             direction,
             sizes,

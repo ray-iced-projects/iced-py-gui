@@ -17,7 +17,6 @@ use crate::widgets::widget_param_update::{
 pub struct Row {
     pub id: usize,
     pub show: bool,
-
     pub spacing: Option<f32>,
     pub padding: Option<Vec<f32>>,
     pub width: Option<f32>,

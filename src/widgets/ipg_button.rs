@@ -27,7 +27,6 @@ type PyObject = Py<PyAny>;
 #[derive(Debug, Clone)]
 pub struct Button {
     pub id: usize,
-    pub parent_id: String,
     pub show: bool,
     pub label: Option<String>,
     pub width: Option<f32>,

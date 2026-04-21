@@ -1,11 +1,11 @@
 //! Rich text module - provides add_rich_text and add_span pyfunctions
-use pyo3::{pyfunction, PyResult};
+use pyo3::{pyfunction, PyResult, Py, PyAny};
+type PyObject = Py<PyAny>;
 
-use iced::{Font, Padding};
 
-use crate::access_state;
+use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex};
 use crate::graphics::colors::Color;
-use crate::state::{Widgets, get_id, set_state_of_widget};
+use crate::state::{Containers, Widgets, get_id, set_state_cont_wnd_ids, set_state_of_container, set_state_of_widget};
 use crate::widgets::ipg_text_rich::{RichText, Span};
 
 
@@ -22,11 +22,11 @@ use crate::widgets::ipg_text_rich::{RichText, Span};
 ///     The default text size for all spans.
 /// line_height : float, Optional
 ///     The default line height for all spans.
-/// text_color : Color, Optional
+/// color : Color, Optional
 ///     The default text color for all spans.
-/// text_color_alpha : float, Optional
+/// color_alpha : float, Optional
 ///     Sets the alpha of the Color.
-/// text_rgba : list[float, 4], Optional
+/// rgba : list[float, 4], Optional
 ///     The default text color in rgba format.
 /// show : bool
 ///     Whether the widget is visible.
@@ -39,43 +39,120 @@ use crate::widgets::ipg_text_rich::{RichText, Span};
 ///     The numeric widget ID of the newly created rich text.
 #[pyfunction]
 #[pyo3(signature = (
-    parent_id,
+    window_id, 
+    container_id,
+    parent_id=None,
     size=None,
     line_height=None,
-    text_color=None,
-    text_color_alpha=None,
-    text_rgba=None,
+    width=None,
+    width_fill=None,
+    height=None,
+    height_fill=None,
+    fill=None,
+    font_id=None,
+    color=None,
+    color_alpha=None,
+    rgba=None,
+    align_bottom_center=None,
+    align_bottom_left=None,
+    align_bottom_right=None,
+    align_center_left=None,
+    align_center_right=None,
+    align_center=None,
+    align_top_center=None,
+    align_top_left=None,
+    align_top_right=None,
+    wrapping_none=None,
+    wrapping_glyph=None,
+    wrapping_word_glyph=None,
+    hovered_link=None,
+    on_link_click=None,
+    user_data=None,
     show=true,
-    gen_id=None,
 ))]
 pub fn add_rich_text(
-    parent_id: String,
+    window_id: String,
+    container_id: String,
+    parent_id: Option<String>,
     size: Option<f32>,
     line_height: Option<f32>,
-    text_color: Option<Color>,
-    text_color_alpha: Option<f32>,
-    text_rgba: Option<[f32; 4]>,
+    width: Option<f32>,
+    width_fill: Option<bool>,
+    height: Option<f32>,
+    height_fill: Option<bool>,
+    fill: Option<bool>,
+    font_id: Option<usize>,
+    color: Option<Color>,
+    color_alpha: Option<f32>,
+    rgba: Option<[f32; 4]>,
+    align_bottom_center: Option<bool>,
+    align_bottom_left: Option<bool>,
+    align_bottom_right: Option<bool>,
+    align_center_left: Option<bool>,
+    align_center_right: Option<bool>,
+    align_center: Option<bool>,
+    align_top_center: Option<bool>,
+    align_top_left: Option<bool>,
+    align_top_right: Option<bool>,
+    wrapping_none: Option<bool>,
+    wrapping_glyph: Option<bool>,
+    wrapping_word_glyph: Option<bool>,
+    hovered_link: Option<usize>,
+    on_link_click: Option<PyObject>,
+    user_data: Option<PyObject>,
     show: bool,
-    gen_id: Option<usize>,
 ) -> PyResult<usize> 
 {
-    let id = get_id(gen_id);
+    let id = get_id(None);
+    
+    let prt_id = match parent_id {
+        Some(id) => id,
+        None => window_id.clone(),
+    };
 
-    let color = Color::rgba_ipg_color_to_iced(text_rgba, &text_color, text_color_alpha);
+    // Store callback if provided
+    if let Some(py) = on_link_click {
+        add_callback_to_mutex(id, "on_link_click".to_string(), py);
+    }
 
-    set_state_of_widget(id, parent_id.clone());
+    // Store user data if provided
+    if let Some(py) = user_data {
+        add_user_data_to_mutex(id, py);
+    }
+
+    set_state_of_container(id, window_id.clone(), Some(container_id.clone()), prt_id);
 
     let mut state = access_state();
 
-    state.widgets.insert(id, Widgets::RichText(
+    set_state_cont_wnd_ids(&mut state, &window_id, container_id, id, "add_rich_text".to_string());
+
+    state.containers.insert(id, Containers::RichText(
         RichText {
             id,
-            parent_id,
-            spans: vec![],
             size,
             line_height,
+            width,
+            width_fill,
+            height,
+            height_fill,
+            fill,
+            font_id,
             color,
-            padding: Padding::ZERO,
+            color_alpha,
+            rgba,
+            align_bottom_center,
+            align_bottom_left,
+            align_bottom_right,
+            align_center_left,
+            align_center_right,
+            align_center,
+            align_top_center,
+            align_top_left,
+            align_top_right,
+            wrapping_none,
+            wrapping_glyph,
+            wrapping_word_glyph,
+            hovered_link,
             show,
         }));
 
@@ -98,11 +175,11 @@ pub fn add_rich_text(
 ///     The text size for this span.
 /// line_height : float, Optional
 ///     The line height for this span.
-/// text_color : Color, Optional
+/// color : Color, Optional
 ///     The text color in Color format.
-/// text_color_alpha : float, Optional
+/// color_alpha : float, Optional
 ///     Sets the alpha of the Color.
-/// text_rgba : list[float, 4], Optional
+/// rgba : list[float, 4], Optional
 ///     The text color in rgba format.
 /// bold : bool
 ///     Whether the text is bold.
@@ -121,75 +198,91 @@ pub fn add_rich_text(
 ///     The numeric ID of the newly created span.
 #[pyfunction]
 #[pyo3(signature = (
-    rich_text_id,
+    parent_id,
     text,
     size=None,
     line_height=None,
-    text_color=None,
-    text_color_alpha=None,
-    text_rgba=None,
-    bold=false,
-    italic=false,
-    underline=false,
-    strikethrough=false,
+    color=None,
+    color_alpha=None,
+    rgba=None,
+    font_id=None,
+    underline=None,
+    strikethrough=None,
+    background_color=None,
+    background_color_alpha=None,
+    background_rgba=None,
+    background_gradient_color_stop=None,
+    background_gradient_color_stop_alpha=None,
+    background_gradient_rgba_stop=None,
+    background_gradient_degrees=None,
+    background_gradient_radians=None,
+    border_color=None,
+    border_color_alpha=None,
+    border_rgba=None,
+    border_radius=None,
+    border_width=None,
     gen_id=None,
 ))]
 pub fn add_span(
-    rich_text_id: usize,
+    parent_id: string,
     text: String,
     size: Option<f32>,
     line_height: Option<f32>,
-    text_color: Option<Color>,
-    text_color_alpha: Option<f32>,
-    text_rgba: Option<[f32; 4]>,
-    bold: bool,
-    italic: bool,
-    underline: bool,
-    strikethrough: bool,
+    color: Option<Color>,
+    color_alpha: Option<f32>,
+    rgba: Option<[f32; 4]>,
+    font_id: Option<usize>,
+    underline: Option<bool>,
+    strikethrough: Option<bool>,
+    background_color: Option<Color>,
+    background_color_alpha: Option<f32>,
+    background_rgba: Option<[f32; 4]>,
+    background_gradient_color_stop: Option<Color>,
+    background_gradient_color_stop_alpha: Option<f32>,
+    background_gradient_rgba_stop: Option<[f32; 4]>,
+    background_gradient_degrees: Option<f32>,
+    background_gradient_radians: Option<f32>,
+    border_color: Option<Color>,
+    border_color_alpha: Option<f32>,
+    border_rgba: Option<[f32; 4]>,
+    border_radius: Option<Vec<f32>>,
+    border_width: Option<f32>,
     gen_id: Option<usize>,
 ) -> PyResult<usize> 
 {
     let id = get_id(gen_id);
-
-    let color = Color::rgba_ipg_color_to_iced(text_rgba, &text_color, text_color_alpha);
-
-    let font = if bold || italic {
-        let weight = if bold { 
-            iced::font::Weight::Bold 
-        } else { 
-            iced::font::Weight::Normal 
-        };
-        let style = if italic { 
-            iced::font::Style::Italic 
-        } else { 
-            iced::font::Style::Normal 
-        };
-        Some(Font { weight, style, ..Font::default() })
-    } else {
-        None
-    };
+    
+    set_state_of_widget(id, parent_id.clone());
 
     let mut state = access_state();
 
-    let rt = state.widgets.get_mut(&rich_text_id)
-        .expect("add_span: rich_text_id not found in widgets");
-
-    let rt = rt.as_rich_text_mut()
-        .expect("add_span: widget is not an RichText");
-
-    rt.spans.push(Span {
-        id,
-        rich_text_id,
-        text,
-        size,
-        line_height,
-        color,
-        font,
-        highlight: None,
-        padding: None,
-        underline,
-        strikethrough,
-    });
+    state.widgets.insert(id, Widgets::Span(
+        Span {
+            id,
+            text,
+            size,
+            line_height,
+            color,
+            color_alpha,
+            rgba,
+            font_id,
+            padding: None,
+            underline,
+            strikethrough,
+            background_color,
+            background_color_alpha,
+            background_rgba,
+            background_gradient_color_stop,
+            background_gradient_color_stop_alpha,
+            background_gradient_rgba_stop,
+            background_gradient_degrees,
+            background_gradient_radians,
+            border_color,
+            border_color_alpha,
+            border_rgba,
+            border_radius,
+            border_width,
+        }));
 
     drop(state);
     Ok(id)

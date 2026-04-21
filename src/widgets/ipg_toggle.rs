@@ -23,7 +23,6 @@ type PyObject = Py<PyAny>;
 #[derive(Debug, Clone)]
 pub struct Toggler {
     pub id: usize,
-    pub parent_id: String,
     pub show: bool,
     pub is_toggled: bool,
     pub label: Option<String>,
@@ -360,7 +359,6 @@ mod tests {
     fn make_toggler() -> Toggler {
         Toggler {
             id: 0,
-            parent_id: String::new(),
             show: true,
             is_toggled: false,
             label: None,

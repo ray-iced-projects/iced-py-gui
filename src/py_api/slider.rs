@@ -108,7 +108,6 @@ pub fn add_slider(
     state.widgets.insert(id, Widgets::Slider(
         Slider { 
             id,
-            parent_id,
             show,
             min,
             max,

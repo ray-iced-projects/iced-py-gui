@@ -21,7 +21,6 @@ type PyObject = Py<PyAny>;
 #[derive(Debug, Clone)]
 pub struct ColorPicker {
     pub id: usize,
-    pub parent_id: String,
     pub show: bool,
     pub color: Option<Color>,
     pub color_alpha: Option<f32>,

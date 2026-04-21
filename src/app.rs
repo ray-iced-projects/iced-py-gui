@@ -679,6 +679,9 @@ fn get_container<'a>(state: &'a IpgState,
                 Containers::Table(table) => {
                     table.construct(content, &state.widgets)
                 },
+                Containers::RichText(rt) => {
+                    rt.construct(&state.widgets)
+                },
                 Containers::Row(row) => {
                     row.construct(content)
                 },
@@ -759,9 +762,6 @@ fn get_widget<'a>(state: &'a IpgState, id: &usize) -> Option<Element<'a, Message
                 },
                 Widgets::TextEditor(txt) => {
                     txt.construct()
-                },
-                Widgets::RichText(rt) => {
-                    rt.construct()
                 },
                 Widgets::TextInput(input) => {
                     input.construct(&state.widgets)       

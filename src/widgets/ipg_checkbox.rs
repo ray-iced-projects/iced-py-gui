@@ -29,7 +29,6 @@ type PyObject = Py<PyAny>;
 #[derive(Debug, Clone)]
 pub struct CheckBox {
     pub id: usize,
-    pub parent_id: String,
     pub show: bool,
     pub is_checked: bool,
     pub label: Option<String>,

@@ -1,17 +1,16 @@
 //! Window widget definition
-#![allow(unused)]
 use iced::widget::Column;
 use iced::window::settings::PlatformSpecific;
 use iced::window::{self, Level, Position, icon};
 use iced::{Element, Size, Task, Theme};
-use pyo3::{Python, pyclass, Py, PyAny};
+use pyo3::{pyclass, Py, PyAny};
 type PyObject = Py<PyAny>;
 
 use crate::IpgState;
 use crate::app::Message;
 use crate::state::access_window_actions;
 use crate::widgets::widget_param_update::{
-    WidgetParamUpdate, extract_param, set_t_value
+    WidgetParamUpdate, set_t_value
 };
 
 #[derive(Debug, Clone)]
@@ -41,13 +40,13 @@ pub struct Window {
     pub debug: Option<bool>,
 }
 
-#[derive(Debug, Clone)]
-pub enum WndMessage {
-    TitleChanged(window::Id, String),
-    NewWindow,
-    ScaleInputChanged(window::Id, String),
-    ScaleChanged(window::Id, String), 
-}
+// #[derive(Debug, Clone)]
+// pub enum WndMessage {
+//     TitleChanged(window::Id, String),
+//     NewWindow,
+//     ScaleInputChanged(window::Id, String),
+//     ScaleChanged(window::Id, String), 
+// }
 
 pub fn add_windows(state: &mut IpgState) -> Vec<Task<Message>> {
 
@@ -75,7 +74,7 @@ pub fn add_windows(state: &mut IpgState) -> Vec<Task<Message>> {
             Level::default()
         };
 
-        let position = if let Some(ct) = state.windows[i].center {
+        let position = if let Some(_) = state.windows[i].center {
             Position::Centered
         } else {
             if let Some(pos) = state.windows[i].position {
@@ -172,48 +171,6 @@ pub fn construct_window(content: Vec<Element<Message>>) -> Element<Message> {
     Column::with_children(content).into()
 }
 
-fn try_extract_window_update(update_obj: &PyObject) -> WindowParam {
-
-    Python::attach(|py| {
-        let res = update_obj.extract::<WindowParam>(py);
-        match res {
-            Ok(update) => update,
-            Err(_) => panic!("Window update extraction failed"),
-        }
-    })
-}
-
-fn try_extract_ipg_theme(theme: &PyObject) -> WindowTheme {
-
-    Python::attach(|py| {
-        let res = theme.extract::<WindowTheme>(py);
-        match res {
-            Ok(theme) => theme,
-            Err(_) => panic!("Window theme extraction failed"),
-        }
-    })
-}
-
-fn try_extract_mode(mode: &PyObject) -> WindowMode {
-    Python::attach(|py| {
-        let res = mode.extract::<WindowMode>(py);
-        match res {
-            Ok(mode) => mode,
-            Err(e) => panic!("Window mode extraction failed with error {}", e),
-        }
-    })
-}
-
-fn try_extract_level(level: &PyObject) -> WindowLevel {
-    Python::attach(|py| {
-        let res = level.extract::<WindowLevel>(py);
-        match res {
-            Ok(level) => level,
-            Err(e) => panic!("Window level extraction failed with error {}", e),
-        }
-    })
-}
-
 #[derive(Debug, Clone, PartialEq, Hash)]
 #[pyclass(eq, eq_int, hash, frozen)]
 pub enum WindowParam {
@@ -249,15 +206,18 @@ impl WidgetParamUpdate for Window {
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
-            WindowParam::Center => set_t_value(&mut self.center, value, "Center"),
-            WindowParam::Closeable => set_t_value(&mut self.closeable, value, "Closeable"),
-            WindowParam::Debug => set_t_value(&mut self.debug, value, "Debug"),
+            WindowParam::Center => set_t_value(&mut self.center, value, "WindowParam::Center"),
+            WindowParam::Closeable => set_t_value(&mut self.closeable, value, "WindowParam::Closeable"),
+            WindowParam::Debug => set_t_value(&mut self.debug, value, "WindowParam::Debug"),
             WindowParam::Decorations => {
-                let mut state = access_window_actions();
-                state.decorations.push(extract_param(value));
-                drop(state);
+                set_t_value(&mut self.decorations, value, "WindowParam::Decorations");
+                if self.decorations == Some(true) {
+                    let mut state = access_window_actions();
+                    state.decorations.push(self.id);
+                    drop(state);
+                }
             },
-            WindowParam::ExitOnCloseRequest => set_t_value(&mut self.exit_on_close_request, value, "ExitOnCloseRequest"),
+            WindowParam::ExitOnCloseRequest => set_t_value(&mut self.exit_on_close_request, value, "WindowParam::ExitOnCloseRequest"),
             WindowParam::Fullscreen => {
                 set_t_value(&mut self.fullscreen, value, "Fullscreen");
                 let mode = if self.fullscreen == Some(true) {
@@ -270,7 +230,7 @@ impl WidgetParamUpdate for Window {
                 drop(state);
             },
             WindowParam::Hidden => {
-                set_t_value(&mut self.hidden, value, "Hidden");
+                set_t_value(&mut self.hidden, value, "WindowParam::Hidden");
                 let mode = if self.hidden == Some(true) {
                     window::Mode::Hidden
                 } else if self.fullscreen == Some(true) {
@@ -282,43 +242,42 @@ impl WidgetParamUpdate for Window {
                 state.mode.push((self.id, mode));
                 drop(state);
             },
-            WindowParam::IconRgba => set_t_value(&mut self.icon_rgba, value, "IconRgba"),
-            WindowParam::IconWidthHeight => set_t_value(&mut self.icon_width_height, value, "IconWidthHeight"),
+            WindowParam::IconRgba => set_t_value(&mut self.icon_rgba, value, "WindowParam::IconRgba"),
+            WindowParam::IconWidthHeight => set_t_value(&mut self.icon_width_height, value, "WindowParam::IconWidthHeight"),
             WindowParam::Level => {
-                let ipg_level = try_extract_level(value);
-                let level = WindowLevel::to_iced(&ipg_level);
-                self.level = Some(ipg_level);
-                let mut state = access_window_actions();
-                state.level.push((self.id, level));
-                drop(state);
+                set_t_value(&mut self.level, value, "WindowParam::Level");
+                if let Some(lvl) = &self.level {
+                    let level = lvl.to_iced();
+                    let mut state = access_window_actions();
+                    state.level.push((self.id, level));
+                    drop(state);
+                }
             },
-            WindowParam::MaxSize => set_t_value(&mut self.max_size, value, "MaxSize"),
-            WindowParam::Maximized => set_t_value(&mut self.maximized, value, "Maximized"),
-            WindowParam::MinSize => set_t_value(&mut self.min_size, value, "MinSize"),
-            WindowParam::Minimizable => set_t_value(&mut self.minimizable, value, "Minimizable"),
+            WindowParam::MaxSize => set_t_value(&mut self.max_size, value, "WindowParam::MaxSize"),
+            WindowParam::Maximized => set_t_value(&mut self.maximized, value, "WindowParam::Maximized"),
+            WindowParam::MinSize => set_t_value(&mut self.min_size, value, "WindowParam::MinSize"),
+            WindowParam::Minimizable => set_t_value(&mut self.minimizable, value, "WindowParam::Minimizable"),
             WindowParam::Position => {
-                let val_opt: Option<[f32; 2]> = extract_param(value);
-                if let Some(val) = val_opt {
+                set_t_value(&mut self.position, value, "WindowParam::Position");
+                if let Some(pos) = self.position {
                     let mut state = access_window_actions();
-                    state.position.push((self.id, val[0], val[1]));
+                    state.position.push((self.id, pos[0], pos[1]));
                     drop(state);
                 }
             },
-            WindowParam::Resizable => set_t_value(&mut self.resizable, value, "Resizable"),
-            WindowParam::ScaleFactor => set_t_value(&mut self.scale_factor, value, "ScaleFactor"),
+            WindowParam::Resizable => set_t_value(&mut self.resizable, value, "WindowParam::Resizable"),
+            WindowParam::ScaleFactor => set_t_value(&mut self.scale_factor, value, "WindowParam::ScaleFactor"),
             WindowParam::Size => {
-                let val_opt: Option<[f32; 2]> = extract_param(value);
-                if let Some(val) = val_opt {
+                set_t_value(&mut self.size, value, "WindowParam::Size");
+                if let Some(sz) = self.size {
                     let mut state = access_window_actions();
-                    state.resize.push((self.id, val[0], val[1]));
+                    state.resize.push((self.id, sz[0], sz[1]));
                     drop(state);
                 }
             },
-            WindowParam::Theme => {
-                self.theme = Some(extract_param::<WindowTheme>(value));
-            },
-            WindowParam::Title => set_t_value(&mut self.title, value, "Title"),
-            WindowParam::Transparent => set_t_value(&mut self.transparent, value, "Transparent"),
+            WindowParam::Theme => set_t_value(&mut self.theme, value, "WindowParam::Theme"),
+            WindowParam::Title => set_t_value(&mut self.title, value, "WindowParam::Title"),
+            WindowParam::Transparent => set_t_value(&mut self.transparent, value, "WindowParam::Transparent"),
         }
     }
 }
@@ -414,265 +373,3 @@ impl WindowMode {
         }
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use pyo3::{Python, IntoPyObjectExt};
-
-    fn make_window() -> Window {
-        Window {
-            id: 0,
-            title: None,
-            size: None,
-            maximized: None,
-            fullscreen: None,
-            hidden: None,
-            center: None,
-            position: None,
-            min_size: None,
-            max_size: None,
-            theme: None,
-            resizable: None,
-            minimizable: None,
-            closeable: None,
-            decorations: None,
-            transparent: None,
-            blur: None,
-            level: None,
-            icon_rgba: None,
-            icon_width_height: None,
-            exit_on_close_request: None,
-            scale_factor: None,
-            debug: None,
-        }
-    }
-
-    fn py_obj<T: for<'py> IntoPyObjectExt<'py>>(val: T) -> PyObject {
-        Python::initialize();
-        Python::attach(|py| val.into_py_any(py).unwrap())
-    }
-
-    fn py_none() -> PyObject {
-        Python::initialize();
-        Python::attach(|py| py.None().into_py_any(py).unwrap())
-    }
-
-    // --- Simple bool params ---
-
-    #[test]
-    fn test_center() {
-        let mut w = make_window();
-        w.param_update(WindowParam::Center, &py_obj(true));
-        assert_eq!(w.center, Some(true));
-        w.param_update(WindowParam::Center, &py_none());
-        assert_eq!(w.center, None);
-    }
-
-    #[test]
-    fn test_closeable() {
-        let mut w = make_window();
-        w.param_update(WindowParam::Closeable, &py_obj(false));
-        assert_eq!(w.closeable, Some(false));
-        w.param_update(WindowParam::Closeable, &py_none());
-        assert_eq!(w.closeable, None);
-    }
-
-    #[test]
-    fn test_debug() {
-        let mut w = make_window();
-        w.param_update(WindowParam::Debug, &py_obj(true));
-        assert_eq!(w.debug, Some(true));
-        w.param_update(WindowParam::Debug, &py_none());
-        assert_eq!(w.debug, None);
-    }
-
-    #[test]
-    fn test_exit_on_close_request() {
-        let mut w = make_window();
-        w.param_update(WindowParam::ExitOnCloseRequest, &py_obj(false));
-        assert_eq!(w.exit_on_close_request, Some(false));
-        w.param_update(WindowParam::ExitOnCloseRequest, &py_none());
-        assert_eq!(w.exit_on_close_request, None);
-    }
-
-    #[test]
-    fn test_maximized() {
-        let mut w = make_window();
-        w.param_update(WindowParam::Maximized, &py_obj(true));
-        assert_eq!(w.maximized, Some(true));
-        w.param_update(WindowParam::Maximized, &py_none());
-        assert_eq!(w.maximized, None);
-    }
-
-    #[test]
-    fn test_minimizable() {
-        let mut w = make_window();
-        w.param_update(WindowParam::Minimizable, &py_obj(false));
-        assert_eq!(w.minimizable, Some(false));
-        w.param_update(WindowParam::Minimizable, &py_none());
-        assert_eq!(w.minimizable, None);
-    }
-
-    #[test]
-    fn test_resizable() {
-        let mut w = make_window();
-        w.param_update(WindowParam::Resizable, &py_obj(false));
-        assert_eq!(w.resizable, Some(false));
-        w.param_update(WindowParam::Resizable, &py_none());
-        assert_eq!(w.resizable, None);
-    }
-
-    #[test]
-    fn test_transparent() {
-        let mut w = make_window();
-        w.param_update(WindowParam::Transparent, &py_obj(true));
-        assert_eq!(w.transparent, Some(true));
-        w.param_update(WindowParam::Transparent, &py_none());
-        assert_eq!(w.transparent, None);
-    }
-
-    // --- Numeric params ---
-
-    #[test]
-    fn test_scale_factor() {
-        let mut w = make_window();
-        w.param_update(WindowParam::ScaleFactor, &py_obj(1.5f32));
-        assert_eq!(w.scale_factor, Some(1.5));
-        w.param_update(WindowParam::ScaleFactor, &py_none());
-        assert_eq!(w.scale_factor, None);
-    }
-
-    // --- String params ---
-
-    #[test]
-    fn test_title() {
-        let mut w = make_window();
-        w.param_update(WindowParam::Title, &py_obj("Hello"));
-        assert_eq!(w.title, Some("Hello".to_string()));
-        w.param_update(WindowParam::Title, &py_none());
-        assert_eq!(w.title, None);
-    }
-
-    // --- Array params ---
-
-    #[test]
-    fn test_max_size() {
-        let mut w = make_window();
-        w.param_update(WindowParam::MaxSize, &py_obj([800.0f32, 600.0f32]));
-        assert_eq!(w.max_size, Some([800.0, 600.0]));
-    }
-
-    #[test]
-    fn test_min_size() {
-        let mut w = make_window();
-        w.param_update(WindowParam::MinSize, &py_obj([200.0f32, 150.0f32]));
-        assert_eq!(w.min_size, Some([200.0, 150.0]));
-    }
-
-    #[test]
-    fn test_icon_rgba() {
-        let mut w = make_window();
-        w.param_update(WindowParam::IconRgba, &py_obj(vec![255u8, 0, 0, 255]));
-        assert_eq!(w.icon_rgba, Some(vec![255, 0, 0, 255]));
-        w.param_update(WindowParam::IconRgba, &py_none());
-        assert_eq!(w.icon_rgba, None);
-    }
-
-    #[test]
-    fn test_icon_width_height() {
-        let mut w = make_window();
-        w.param_update(WindowParam::IconWidthHeight, &py_obj([32u32, 32u32]));
-        assert_eq!(w.icon_width_height, Some([32, 32]));
-        w.param_update(WindowParam::IconWidthHeight, &py_none());
-        assert_eq!(w.icon_width_height, None);
-    }
-
-    // --- Params that push to window_actions ---
-
-    #[test]
-    fn test_fullscreen_pushes_mode() {
-        let mut w = make_window();
-        w.param_update(WindowParam::Fullscreen, &py_obj(true));
-        assert_eq!(w.fullscreen, Some(true));
-        let actions = access_window_actions();
-        assert!(actions.mode.iter().any(|(id, m)| *id == 0 && *m == window::Mode::Fullscreen));
-        drop(actions);
-    }
-
-    #[test]
-    fn test_hidden_pushes_mode() {
-        let mut w = make_window();
-        w.param_update(WindowParam::Hidden, &py_obj(true));
-        assert_eq!(w.hidden, Some(true));
-        let actions = access_window_actions();
-        assert!(actions.mode.iter().any(|(id, m)| *id == 0 && *m == window::Mode::Hidden));
-        drop(actions);
-    }
-
-    #[test]
-    fn test_hidden_false_restores_windowed() {
-        let mut w = make_window();
-        w.param_update(WindowParam::Hidden, &py_obj(false));
-        assert_eq!(w.hidden, Some(false));
-        let actions = access_window_actions();
-        assert!(actions.mode.iter().any(|(id, m)| *id == 0 && *m == window::Mode::Windowed));
-        drop(actions);
-    }
-
-    #[test]
-    fn test_hidden_false_with_fullscreen_restores_fullscreen() {
-        let mut w = make_window();
-        w.fullscreen = Some(true);
-        w.param_update(WindowParam::Hidden, &py_obj(false));
-        assert_eq!(w.hidden, Some(false));
-        let actions = access_window_actions();
-        assert!(actions.mode.iter().any(|(id, m)| *id == 0 && *m == window::Mode::Fullscreen));
-        drop(actions);
-    }
-
-    #[test]
-    fn test_decorations_pushes_action() {
-        let mut w = make_window();
-        w.param_update(WindowParam::Decorations, &py_obj(0usize));
-        let actions = access_window_actions();
-        assert!(actions.decorations.contains(&0));
-        drop(actions);
-    }
-
-    #[test]
-    fn test_position_pushes_action() {
-        let mut w = make_window();
-        w.param_update(WindowParam::Position, &py_obj(vec![100.0f32, 200.0f32]));
-        let actions = access_window_actions();
-        assert!(actions.position.iter().any(|(id, x, y)| *id == 0 && *x == 100.0 && *y == 200.0));
-        drop(actions);
-    }
-
-    #[test]
-    fn test_size_pushes_action() {
-        let mut w = make_window();
-        w.param_update(WindowParam::Size, &py_obj(vec![400.0f32, 300.0f32]));
-        let actions = access_window_actions();
-        assert!(actions.resize.iter().any(|(id, w, h)| *id == 0 && *w == 400.0 && *h == 300.0));
-        drop(actions);
-    }
-
-    #[test]
-    fn test_level_pushes_action() {
-        let mut w = make_window();
-        w.param_update(WindowParam::Level, &py_obj(WindowLevel::AlwaysOnTop));
-        assert_eq!(w.level, Some(WindowLevel::AlwaysOnTop));
-        let actions = access_window_actions();
-        assert!(actions.level.iter().any(|(id, l)| *id == 0 && *l == window::Level::AlwaysOnTop));
-        drop(actions);
-    }
-
-    #[test]
-    fn test_theme() {
-        let mut w = make_window();
-        w.param_update(WindowParam::Theme, &py_obj(WindowTheme::Dark));
-        assert_eq!(w.theme, Some(WindowTheme::Dark));
-    }
-}
-

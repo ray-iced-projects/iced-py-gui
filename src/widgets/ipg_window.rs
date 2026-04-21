@@ -9,12 +9,9 @@ type PyObject = Py<PyAny>;
 
 use crate::IpgState;
 use crate::app::Message;
-use crate::py_api::helpers::{try_extract_boolean, 
-    try_extract_f32, try_extract_usize, try_extract_vec_f32};
 use crate::state::access_window_actions;
 use crate::widgets::widget_param_update::{
-    WidgetParamUpdate, extract_param, set_opt_bool, set_opt_f32, 
-    set_opt_f32_array_2, set_opt_string, set_opt_u32_array_2, set_opt_vec_u8
+    WidgetParamUpdate, extract_param, set_t_value
 };
 
 #[derive(Debug, Clone)]
@@ -252,17 +249,17 @@ impl WidgetParamUpdate for Window {
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
-            WindowParam::Center => set_opt_bool(&mut self.center, value, "Center"),
-            WindowParam::Closeable => set_opt_bool(&mut self.closeable, value, "Closeable"),
-            WindowParam::Debug => set_opt_bool(&mut self.debug, value, "Debug"),
+            WindowParam::Center => set_t_value(&mut self.center, value, "Center"),
+            WindowParam::Closeable => set_t_value(&mut self.closeable, value, "Closeable"),
+            WindowParam::Debug => set_t_value(&mut self.debug, value, "Debug"),
             WindowParam::Decorations => {
                 let mut state = access_window_actions();
-                state.decorations.push(try_extract_usize(value, "Decorations"));
+                state.decorations.push(extract_param(value));
                 drop(state);
             },
-            WindowParam::ExitOnCloseRequest => set_opt_bool(&mut self.exit_on_close_request, value, "ExitOnCloseRequest"),
+            WindowParam::ExitOnCloseRequest => set_t_value(&mut self.exit_on_close_request, value, "ExitOnCloseRequest"),
             WindowParam::Fullscreen => {
-                set_opt_bool(&mut self.fullscreen, value, "Fullscreen");
+                set_t_value(&mut self.fullscreen, value, "Fullscreen");
                 let mode = if self.fullscreen == Some(true) {
                     window::Mode::Fullscreen
                 } else {
@@ -273,7 +270,7 @@ impl WidgetParamUpdate for Window {
                 drop(state);
             },
             WindowParam::Hidden => {
-                set_opt_bool(&mut self.hidden, value, "Hidden");
+                set_t_value(&mut self.hidden, value, "Hidden");
                 let mode = if self.hidden == Some(true) {
                     window::Mode::Hidden
                 } else if self.fullscreen == Some(true) {
@@ -285,8 +282,8 @@ impl WidgetParamUpdate for Window {
                 state.mode.push((self.id, mode));
                 drop(state);
             },
-            WindowParam::IconRgba => set_opt_vec_u8(&mut self.icon_rgba, value, "IconRgba"),
-            WindowParam::IconWidthHeight => set_opt_u32_array_2(&mut self.icon_width_height, value, "IconWidthHeight"),
+            WindowParam::IconRgba => set_t_value(&mut self.icon_rgba, value, "IconRgba"),
+            WindowParam::IconWidthHeight => set_t_value(&mut self.icon_width_height, value, "IconWidthHeight"),
             WindowParam::Level => {
                 let ipg_level = try_extract_level(value);
                 let level = WindowLevel::to_iced(&ipg_level);
@@ -295,29 +292,33 @@ impl WidgetParamUpdate for Window {
                 state.level.push((self.id, level));
                 drop(state);
             },
-            WindowParam::MaxSize => set_opt_f32_array_2(&mut self.max_size, value, "MaxSize"),
-            WindowParam::Maximized => set_opt_bool(&mut self.maximized, value, "Maximized"),
-            WindowParam::MinSize => set_opt_f32_array_2(&mut self.min_size, value, "MinSize"),
-            WindowParam::Minimizable => set_opt_bool(&mut self.minimizable, value, "Minimizable"),
+            WindowParam::MaxSize => set_t_value(&mut self.max_size, value, "MaxSize"),
+            WindowParam::Maximized => set_t_value(&mut self.maximized, value, "Maximized"),
+            WindowParam::MinSize => set_t_value(&mut self.min_size, value, "MinSize"),
+            WindowParam::Minimizable => set_t_value(&mut self.minimizable, value, "Minimizable"),
             WindowParam::Position => {
-                let val = try_extract_vec_f32(value, "Position");
-                let mut state = access_window_actions();
-                state.position.push((self.id, val[0], val[1]));
-                drop(state);
+                let val_opt: Option<[f32; 2]> = extract_param(value);
+                if let Some(val) = val_opt {
+                    let mut state = access_window_actions();
+                    state.position.push((self.id, val[0], val[1]));
+                    drop(state);
+                }
             },
-            WindowParam::Resizable => set_opt_bool(&mut self.resizable, value, "Resizable"),
-            WindowParam::ScaleFactor => set_opt_f32(&mut self.scale_factor, value, "ScaleFactor"),
+            WindowParam::Resizable => set_t_value(&mut self.resizable, value, "Resizable"),
+            WindowParam::ScaleFactor => set_t_value(&mut self.scale_factor, value, "ScaleFactor"),
             WindowParam::Size => {
-                let val = try_extract_vec_f32(value, "Size");
-                let mut state = access_window_actions();
-                state.resize.push((self.id, val[0], val[1]));
-                drop(state);
+                let val_opt: Option<[f32; 2]> = extract_param(value);
+                if let Some(val) = val_opt {
+                    let mut state = access_window_actions();
+                    state.resize.push((self.id, val[0], val[1]));
+                    drop(state);
+                }
             },
             WindowParam::Theme => {
                 self.theme = Some(extract_param::<WindowTheme>(value));
             },
-            WindowParam::Title => set_opt_string(&mut self.title, value, "Title"),
-            WindowParam::Transparent => set_opt_bool(&mut self.transparent, value, "Transparent"),
+            WindowParam::Title => set_t_value(&mut self.title, value, "Title"),
+            WindowParam::Transparent => set_t_value(&mut self.transparent, value, "Transparent"),
         }
     }
 }

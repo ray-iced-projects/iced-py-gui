@@ -10,7 +10,7 @@ type PyObject = Py<PyAny>;
 
 use crate::IpgState;
 use crate::app::Message;
-use crate::widgets::widget_param_update::{WidgetParamUpdate, set_opt_usize};
+use crate::widgets::widget_param_update::{WidgetParamUpdate, set_t_value};
 
 
 #[derive(Debug, Clone)]
@@ -122,7 +122,7 @@ impl WidgetParamUpdate for TextEditor {
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
-            TextEditorParam::FontId => set_opt_usize(&mut self.font_id, value, "TextEditorParam::FontId"),
+            TextEditorParam::FontId => set_t_value(&mut self.font_id, value, "TextEditorParam::FontId"),
             TextEditorParam::Height => todo!(),
             TextEditorParam::LineHeight => todo!(),
             TextEditorParam::MaxHeight => todo!(),

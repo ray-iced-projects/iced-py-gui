@@ -7,10 +7,8 @@ use crate::app::Message;
 use crate::state::{Containers, Widgets};
 use crate::widgets::callbacks::invoke_callback_with_args;
 use crate::widgets::divider::{self, divider_horizontal};
-use crate::py_api::helpers::try_extract_vec_usize;
 use crate::widgets::widget_param_update::{
-    WidgetParamUpdate, set_bool, set_f32, set_opt_f32, set_opt_usize,
-    set_vec_f32, set_vec_string, set_vec_vec_f32
+    WidgetParamUpdate, set_t_value
 };
 use crate::IpgState;
 
@@ -639,35 +637,33 @@ impl WidgetParamUpdate for Table {
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
-            TableParam::Headers => set_vec_string(&mut self.headers, value, "Headers"),
-            TableParam::Body => set_vec_vec_f32(&mut self.body, value, "Body"),
-            TableParam::Footers => set_vec_string(&mut self.footers, value, "Footers"),
-            TableParam::ColumnWidths => set_vec_f32(&mut self.column_widths, value, "ColumnWidths"),
-            TableParam::Height => set_f32(&mut self.height, value, "Height"),
-            TableParam::Width => set_opt_f32(&mut self.width, value, "Width"),
-            TableParam::ResizerWidth => set_opt_f32(&mut self.resizer_width, value, "ResizerWidth"),
-            TableParam::HeaderEnabled => set_bool(&mut self.header_enabled, value, "HeaderEnabled"),
-            TableParam::HeaderHeight => set_opt_f32(&mut self.header_row_height, value, "HeaderHeight"),
-            TableParam::HeaderRowSpacing => set_opt_f32(&mut self.header_row_spacing, value, "HeaderRowSpacing"),
-            TableParam::FooterHeight => set_opt_f32(&mut self.footer_height, value, "FooterHeight"),
-            TableParam::FooterSpacing => set_opt_f32(&mut self.footer_spacing, value, "FooterSpacing"),
-            TableParam::CustomHeaderRows => set_opt_usize(&mut self.custom_header_rows, value, "CustomHeaderRows"),
-            TableParam::CustomFooterRows => set_opt_usize(&mut self.custom_footer_rows, value, "CustomFooterRows"),
-            TableParam::ControlColumns => {
-                self.control_columns = try_extract_vec_usize(value, "ControlColumns");
-            }
-            TableParam::ColumnProportionalResize => set_bool(&mut self.column_proportional_resize, value, "ColumnProportionalResize"),
-            TableParam::RowSpacing => set_opt_f32(&mut self.row_spacing, value, "RowSpacing"),
-            TableParam::RowHeight => set_opt_f32(&mut self.row_height, value, "RowHeight"),
-            TableParam::HeaderBodySpacing => set_opt_f32(&mut self.header_body_spacing, value, "HeaderBodySpacing"),
-            TableParam::BodyFooterSpacing => set_opt_f32(&mut self.body_footer_spacing, value, "BodyFooterSpacing"),
-            TableParam::ResizeColumnsEnabled => set_bool(&mut self.resize_columns_enabled, value, "ResizeColumnsEnabled"),
-            TableParam::MinColumnWidth => set_opt_f32(&mut self.min_column_width, value, "MinColumnWidth"),
-            TableParam::TextSize => set_opt_f32(&mut self.text_size, value, "TextSize"),
-            TableParam::Show => set_bool(&mut self.show, value, "Show"),
-            TableParam::TableWidthFixed => set_bool(&mut self.table_width_fixed, value, "TableWidthFixed"),
-            TableParam::StyleId => set_opt_usize(&mut self.style_id, value, "StyleId"),
-            TableParam::ScrollableStyleId => set_opt_usize(&mut self.scrollable_style_id, value, "ScrollableStyleId"),
+            TableParam::Headers => set_t_value(&mut self.headers, value, "TableParam::Headers"),
+            TableParam::Body => set_t_value(&mut self.body, value, "TableParam::Body"),
+            TableParam::Footers => set_t_value(&mut self.footers, value, "TableParam::Footers"),
+            TableParam::ColumnWidths => set_t_value(&mut self.column_widths, value, "TableParam::ColumnWidths"),
+            TableParam::Height => set_t_value(&mut self.height, value, "TableParam::Height"),
+            TableParam::Width => set_t_value(&mut self.width, value, "TableParam::Width"),
+            TableParam::ResizerWidth => set_t_value(&mut self.resizer_width, value, "TableParam::ResizerWidth"),
+            TableParam::HeaderEnabled => set_t_value(&mut self.header_enabled, value, "TableParam::HeaderEnabled"),
+            TableParam::HeaderHeight => set_t_value(&mut self.header_row_height, value, "TableParam::HeaderHeight"),
+            TableParam::HeaderRowSpacing => set_t_value(&mut self.header_row_spacing, value, "TableParam::HeaderRowSpacing"),
+            TableParam::FooterHeight => set_t_value(&mut self.footer_height, value, "TableParam::FooterHeight"),
+            TableParam::FooterSpacing => set_t_value(&mut self.footer_spacing, value, "TableParam::FooterSpacing"),
+            TableParam::CustomHeaderRows => set_t_value(&mut self.custom_header_rows, value, "TableParam::CustomHeaderRows"),
+            TableParam::CustomFooterRows => set_t_value(&mut self.custom_footer_rows, value, "TableParam::CustomFooterRows"),
+            TableParam::ControlColumns => set_t_value(&mut self.control_columns, value, "TableParam::ControlColumns"),
+            TableParam::ColumnProportionalResize => set_t_value(&mut self.column_proportional_resize, value, "TableParam::ColumnProportionalResize"),
+            TableParam::RowSpacing => set_t_value(&mut self.row_spacing, value, "TableParam::RowSpacing"),
+            TableParam::RowHeight => set_t_value(&mut self.row_height, value, "TableParam::RowHeight"),
+            TableParam::HeaderBodySpacing => set_t_value(&mut self.header_body_spacing, value, "TableParam::HeaderBodySpacing"),
+            TableParam::BodyFooterSpacing => set_t_value(&mut self.body_footer_spacing, value, "TableParam::BodyFooterSpacing"),
+            TableParam::ResizeColumnsEnabled => set_t_value(&mut self.resize_columns_enabled, value, "TableParam::ResizeColumnsEnabled"),
+            TableParam::MinColumnWidth => set_t_value(&mut self.min_column_width, value, "TableParam::MinColumnWidth"),
+            TableParam::TextSize => set_t_value(&mut self.text_size, value, "TableParam::TextSize"),
+            TableParam::Show => set_t_value(&mut self.show, value, "TableParam::Show"),
+            TableParam::TableWidthFixed => set_t_value(&mut self.table_width_fixed, value, "TableParam::TableWidthFixed"),
+            TableParam::StyleId => set_t_value(&mut self.style_id, value, "TableParam::StyleId"),
+            TableParam::ScrollableStyleId => set_t_value(&mut self.scrollable_style_id, value, "TableParam::ScrollableStyleId"),
         }
     }
 }

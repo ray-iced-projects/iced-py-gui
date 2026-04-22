@@ -115,7 +115,6 @@ from .icedpygui import (
     ProgressBarParam,
     ProgressBarStyleParam,
     ProgressBarStyleStd,
-    RadioDirection,
     RadioParam,
     RadioStyleParam,
     RowParam,
@@ -153,6 +152,8 @@ from .icedpygui import (
 _window_stack = []
 _parent_stack = []
 _id_to_container_str = {}  # maps numeric widget id -> container_id string
+_container_to_window_str = {}  # maps container_id string -> window_id string
+_id_to_window_str = {}  # maps numeric window id -> window_id string
 
 
 def _current_window():
@@ -163,6 +164,12 @@ def _current_window():
 def _current_parent():
     """Return the current parent_id from the stack, or None."""
     return _parent_stack[-1] if _parent_stack else None
+
+
+def _register_container(numeric_id, container_id, window_id):
+    """Register id mappings for container instances."""
+    _id_to_container_str[numeric_id] = container_id
+    _container_to_window_str[container_id] = window_id
 
 
 # ---------------------------------------------------------------------------
@@ -181,6 +188,29 @@ def _resolve_parent_id(parent_id):
                 "(e.g. 'with Column() as col')."
             ) from exc
     return parent_id
+
+
+def _resolve_window_id(window_id):
+    """Convert window_id to a string.
+
+    If it is an int, map numeric window id to the window string id.
+    """
+    if isinstance(window_id, int):
+        return _id_to_window_str.get(window_id, str(window_id))
+    return window_id
+
+
+def _current_window_or_parent(parent_id=None):
+    """Resolve window_id from window stack, or infer from parent container."""
+    window_id = _current_window()
+    if window_id is not None:
+        return window_id
+    if parent_id is None:
+        parent_id = _current_parent()
+    if parent_id is None:
+        return None
+    parent_id = _resolve_parent_id(parent_id)
+    return _container_to_window_str.get(parent_id)
 
 
 def _wrap_widget(rust_fn, name):
@@ -204,41 +234,61 @@ add_card.__doc__ = _add_card.__doc__
 add_checkbox = _wrap_widget(_add_checkbox, "add_checkbox")
 add_checkbox.__doc__ = _add_checkbox.__doc__
 add_color_picker = _wrap_widget(_add_color_picker, "add_color_picker")
+add_color_picker.__doc__ = _add_color_picker.__doc__
 add_date_picker = _wrap_widget(_add_date_picker, "add_date_picker")
+add_date_picker.__doc__ = _add_date_picker.__doc__
 add_divider = _wrap_widget(_add_divider, "add_divider")
+add_divider.__doc__ = _add_divider.__doc__
 add_image = _wrap_widget(_add_image, "add_image")
+add_image.__doc__ = _add_image.__doc__
 add_pick_list = _wrap_widget(_add_pick_list, "add_pick_list")
+add_pick_list.__doc__ = _add_pick_list.__doc__
 add_progress_bar = _wrap_widget(_add_progress_bar, "add_progress_bar")
+add_progress_bar.__doc__ = _add_progress_bar.__doc__
 add_radio = _wrap_widget(_add_radio, "add_radio")
+add_radio.__doc__ = _add_radio.__doc__
 add_rule = _wrap_widget(_add_rule, "add_rule")
+add_rule.__doc__ = _add_rule.__doc__
 add_separator = _wrap_widget(_add_separator, "add_separator")
+add_separator.__doc__ = _add_separator.__doc__
 add_slider = _wrap_widget(_add_slider, "add_slider")
+add_slider.__doc__ = _add_slider.__doc__
 add_space = _wrap_widget(_add_space, "add_space")
+add_space.__doc__ = _add_space.__doc__
 add_span = _wrap_widget(_add_span, "add_span")
+add_span.__doc__ = _add_span.__doc__
 add_svg = _wrap_widget(_add_svg, "add_svg")
+add_svg.__doc__ = _add_svg.__doc__
 add_text_input = _wrap_widget(_add_text_input, "add_text_input")
+add_text_input.__doc__ = _add_text_input.__doc__
 add_text = _wrap_widget(_add_text, "add_text")
+add_text.__doc__ = _add_text.__doc__
 add_text_editor = _wrap_widget(_add_text_editor, "add_text_editor")
+add_text_editor.__doc__ = _add_text_editor.__doc__
 add_toggler = _wrap_widget(_add_toggler, "add_toggler")
+add_toggler.__doc__ = _add_toggler.__doc__
 
 
 def _wrap_container(rust_fn, name):
     """Create a thin wrapper that injects window_id and container_id
     from the context stacks."""
     def wrapper(*, container_id=None, window_id=None, parent_id=None, **kwargs):
-        if window_id is None:
-            window_id = _current_window()
-        if window_id is None:
-            raise ValueError(f"{name}: window_id is required (either pass it\
-                or use a Window context manager)")
-        if container_id is None:
-            container_id = str(generate_id())
         if parent_id is None:
             parent_id = _current_parent()
         if parent_id is not None:
             parent_id = _resolve_parent_id(parent_id)
-        return rust_fn(window_id=window_id, container_id=container_id,
-                       parent_id=parent_id, **kwargs)
+        if window_id is None:
+            window_id = _current_window_or_parent(parent_id)
+        if window_id is None:
+            raise ValueError(f"{name}: window_id is required (either pass it\
+                or use a Window context manager)")
+        window_id = _resolve_window_id(window_id)
+        if container_id is None:
+            container_id = str(generate_id())
+        numeric_id = rust_fn(window_id=window_id, container_id=container_id,
+                             parent_id=parent_id, **kwargs)
+        _register_container(numeric_id, container_id, window_id)
+        return numeric_id
     wrapper.__name__ = name
     wrapper.__qualname__ = name
     return wrapper
@@ -276,7 +326,10 @@ def add_window(*, window_id=None, **kwargs):
     """Wrapper for add_window"""
     if window_id is None:
         window_id = str(generate_id())
-    return _add_window(window_id=window_id, **kwargs)
+    window_id = _resolve_window_id(window_id)
+    numeric_id = _add_window(window_id=window_id, **kwargs)
+    _id_to_window_str[numeric_id] = window_id
+    return numeric_id
 
 add_window.__doc__ = _add_window.__doc__
 
@@ -288,12 +341,17 @@ add_window.__doc__ = _add_window.__doc__
 class Window:
     """Wrapper for add_window"""
     def __init__(self, *, window_id=None, **kwargs):
-        self.window_id = window_id if window_id is not None else str(generate_id())
+        self.window_id = (
+            _resolve_window_id(window_id)
+            if window_id is not None
+            else str(generate_id())
+        )
         self.kwargs = kwargs
         self.numeric_id = 0
 
     def __enter__(self):
         self.numeric_id = add_window(window_id=self.window_id, **self.kwargs)
+        _id_to_window_str[self.numeric_id] = self.window_id
         _window_stack.append(self.window_id)
         return self.numeric_id
 
@@ -304,11 +362,19 @@ class Window:
 class Card:
     """Wrapper for add_card"""
     def __init__(self, *, container_id=None, window_id=None, parent_id=None, **kwargs):
-        self.window_id = window_id if window_id is not None else _current_window()
+        self.window_id = (
+            _resolve_window_id(window_id)
+            if window_id is not None
+            else _current_window_or_parent(parent_id)
+        )
         if self.window_id is None:
             raise ValueError("Container: window_id is required (either pass it\
                 or use a Window context manager)")
-        self.container_id = container_id if container_id is not None else str(generate_id())
+        self.container_id = (
+            container_id
+            if container_id is not None
+            else str(generate_id())
+        )
         self.parent_id = parent_id
         self.kwargs = kwargs
         self.numeric_id = 0
@@ -323,7 +389,7 @@ class Card:
             parent_id=pid,
             **self.kwargs,
         )
-        _id_to_container_str[self.numeric_id] = self.container_id
+        _register_container(self.numeric_id, self.container_id, self.window_id)
         _parent_stack.append(self.container_id)
         return self.numeric_id
 
@@ -334,11 +400,19 @@ class Card:
 class Container:
     """Wrapper for add_container"""
     def __init__(self, *, container_id=None, window_id=None, parent_id=None, **kwargs):
-        self.window_id = window_id if window_id is not None else _current_window()
+        self.window_id = (
+            _resolve_window_id(window_id)
+            if window_id is not None
+            else _current_window_or_parent(parent_id)
+        )
         if self.window_id is None:
             raise ValueError("Container: window_id is required (either pass it\
                 or use a Window context manager)")
-        self.container_id = container_id if container_id is not None else str(generate_id())
+        self.container_id = (
+            container_id
+            if container_id is not None
+            else str(generate_id())
+        )
         self.parent_id = parent_id
         self.kwargs = kwargs
         self.numeric_id = 0
@@ -353,7 +427,7 @@ class Container:
             parent_id=pid,
             **self.kwargs,
         )
-        _id_to_container_str[self.numeric_id] = self.container_id
+        _register_container(self.numeric_id, self.container_id, self.window_id)
         _parent_stack.append(self.container_id)
         return self.numeric_id
 
@@ -365,11 +439,19 @@ class Container:
 class Column:
     """Wrapper for add_column"""
     def __init__(self, *, container_id=None, window_id=None, parent_id=None, **kwargs):
-        self.window_id = window_id if window_id is not None else _current_window()
+        self.window_id = (
+            _resolve_window_id(window_id)
+            if window_id is not None
+            else _current_window_or_parent(parent_id)
+        )
         if self.window_id is None:
             raise ValueError("Column: window_id is required (either pass it\
                 or use a Window context manager)")
-        self.container_id = container_id if container_id is not None else str(generate_id())
+        self.container_id = (
+            container_id
+            if container_id is not None
+            else str(generate_id())
+        )
         self.parent_id = parent_id
         self.kwargs = kwargs
         self.numeric_id = 0
@@ -384,7 +466,7 @@ class Column:
             parent_id=pid,
             **self.kwargs,
         )
-        _id_to_container_str[self.numeric_id] = self.container_id
+        _register_container(self.numeric_id, self.container_id, self.window_id)
         _parent_stack.append(self.container_id)
         return self.numeric_id
 
@@ -395,11 +477,19 @@ class Column:
 class Float:
     """Wrapper for add_column"""
     def __init__(self, *, container_id=None, window_id=None, parent_id=None, **kwargs):
-        self.window_id = window_id if window_id is not None else _current_window()
+        self.window_id = (
+            _resolve_window_id(window_id)
+            if window_id is not None
+            else _current_window_or_parent(parent_id)
+        )
         if self.window_id is None:
             raise ValueError("Float: window_id is required (either pass it\
                 or use a Window context manager)")
-        self.container_id = container_id if container_id is not None else str(generate_id())
+        self.container_id = (
+            container_id
+            if container_id is not None
+            else str(generate_id())
+        )
         self.parent_id = parent_id
         self.kwargs = kwargs
         self.numeric_id = 0
@@ -414,7 +504,7 @@ class Float:
             parent_id=pid,
             **self.kwargs,
         )
-        _id_to_container_str[self.numeric_id] = self.container_id
+        _register_container(self.numeric_id, self.container_id, self.window_id)
         _parent_stack.append(self.container_id)
         return self.numeric_id
 
@@ -425,11 +515,19 @@ class Float:
 class Grid:
     """Wrapper for add_column"""
     def __init__(self, *, container_id=None, window_id=None, parent_id=None, **kwargs):
-        self.window_id = window_id if window_id is not None else _current_window()
+        self.window_id = (
+            _resolve_window_id(window_id)
+            if window_id is not None
+            else _current_window_or_parent(parent_id)
+        )
         if self.window_id is None:
             raise ValueError("Grid: window_id is required (either pass it\
                 or use a Window context manager)")
-        self.container_id = container_id if container_id is not None else str(generate_id())
+        self.container_id = (
+            container_id
+            if container_id is not None
+            else str(generate_id())
+        )
         self.parent_id = parent_id
         self.kwargs = kwargs
         self.numeric_id = 0
@@ -444,7 +542,7 @@ class Grid:
             parent_id=pid,
             **self.kwargs,
         )
-        _id_to_container_str[self.numeric_id] = self.container_id
+        _register_container(self.numeric_id, self.container_id, self.window_id)
         _parent_stack.append(self.container_id)
         return self.numeric_id
 
@@ -455,11 +553,19 @@ class Grid:
 class Menu:
     """Wrapper for add_menu"""
     def __init__(self, *, container_id=None, window_id=None, parent_id=None, **kwargs):
-        self.window_id = window_id if window_id is not None else _current_window()
+        self.window_id = (
+            _resolve_window_id(window_id)
+            if window_id is not None
+            else _current_window_or_parent(parent_id)
+        )
         if self.window_id is None:
             raise ValueError("Menu: window_id is required (either pass it\
                 or use a Window context manager)")
-        self.container_id = container_id if container_id is not None else str(generate_id())
+        self.container_id = (
+            container_id
+            if container_id is not None
+            else str(generate_id())
+        )
         self.parent_id = parent_id
         self.kwargs = kwargs
         self.numeric_id = 0
@@ -474,7 +580,7 @@ class Menu:
             parent_id=pid,
             **self.kwargs,
         )
-        _id_to_container_str[self.numeric_id] = self.container_id
+        _register_container(self.numeric_id, self.container_id, self.window_id)
         _parent_stack.append(self.container_id)
         return self.numeric_id
 
@@ -485,11 +591,19 @@ class Menu:
 class MenuBarItem:
     """Wrapper for add_menu_bar_item"""
     def __init__(self, *, container_id=None, window_id=None, parent_id=None, **kwargs):
-        self.window_id = window_id if window_id is not None else _current_window()
+        self.window_id = (
+            _resolve_window_id(window_id)
+            if window_id is not None
+            else _current_window_or_parent(parent_id)
+        )
         if self.window_id is None:
             raise ValueError("MenuBarItem: window_id is required (either pass it\
                 or use a Window context manager)")
-        self.container_id = container_id if container_id is not None else str(generate_id())
+        self.container_id = (
+            container_id
+            if container_id is not None
+            else str(generate_id())
+        )
         self.parent_id = parent_id
         self.kwargs = kwargs
         self.numeric_id = 0
@@ -504,7 +618,7 @@ class MenuBarItem:
             parent_id=pid,
             **self.kwargs,
         )
-        _id_to_container_str[self.numeric_id] = self.container_id
+        _register_container(self.numeric_id, self.container_id, self.window_id)
         _parent_stack.append(self.container_id)
         return self.numeric_id
 
@@ -515,11 +629,19 @@ class MenuBarItem:
 class MouseArea:
     """Wrapper for add_mouse_area"""
     def __init__(self, *, container_id=None, window_id=None, parent_id=None, **kwargs):
-        self.window_id = window_id if window_id is not None else _current_window()
+        self.window_id = (
+            _resolve_window_id(window_id)
+            if window_id is not None
+            else _current_window_or_parent(parent_id)
+        )
         if self.window_id is None:
             raise ValueError("MouseArea: window_id is required (either pass it\
                 or use a Window context manager)")
-        self.container_id = container_id if container_id is not None else str(generate_id())
+        self.container_id = (
+            container_id
+            if container_id is not None
+            else str(generate_id())
+        )
         self.parent_id = parent_id
         self.kwargs = kwargs
         self.numeric_id = 0
@@ -534,7 +656,7 @@ class MouseArea:
             parent_id=pid,
             **self.kwargs,
         )
-        _id_to_container_str[self.numeric_id] = self.container_id
+        _register_container(self.numeric_id, self.container_id, self.window_id)
         _parent_stack.append(self.container_id)
         return self.numeric_id
 
@@ -545,11 +667,19 @@ class MouseArea:
 class Opaque:
     """Wrapper for add_opaque"""
     def __init__(self, *, container_id=None, window_id=None, parent_id=None, **kwargs):
-        self.window_id = window_id if window_id is not None else _current_window()
+        self.window_id = (
+            _resolve_window_id(window_id)
+            if window_id is not None
+            else _current_window_or_parent(parent_id)
+        )
         if self.window_id is None:
             raise ValueError("Opaque: window_id is required (either pass it\
                 or use a Window context manager)")
-        self.container_id = container_id if container_id is not None else str(generate_id())
+        self.container_id = (
+            container_id
+            if container_id is not None
+            else str(generate_id())
+        )
         self.parent_id = parent_id
         self.kwargs = kwargs
         self.numeric_id = 0
@@ -564,7 +694,7 @@ class Opaque:
             parent_id=pid,
             **self.kwargs,
         )
-        _id_to_container_str[self.numeric_id] = self.container_id
+        _register_container(self.numeric_id, self.container_id, self.window_id)
         _parent_stack.append(self.container_id)
         return self.numeric_id
 
@@ -576,11 +706,19 @@ class Opaque:
 class RichText:
     """Wrapper for add_rich_text"""
     def __init__(self, *, container_id=None, window_id=None, parent_id=None, **kwargs):
-        self.window_id = window_id if window_id is not None else _current_window()
+        self.window_id = (
+            _resolve_window_id(window_id)
+            if window_id is not None
+            else _current_window_or_parent(parent_id)
+        )
         if self.window_id is None:
             raise ValueError("RichText: window_id is required (either pass it\
                 or use a Window context manager)")
-        self.container_id = container_id if container_id is not None else str(generate_id())
+        self.container_id = (
+            container_id
+            if container_id is not None
+            else str(generate_id())
+        )
         self.parent_id = parent_id
         self.kwargs = kwargs
         self.numeric_id = 0
@@ -595,7 +733,7 @@ class RichText:
             parent_id=pid,
             **self.kwargs,
         )
-        _id_to_container_str[self.numeric_id] = self.container_id
+        _register_container(self.numeric_id, self.container_id, self.window_id)
         _parent_stack.append(self.container_id)
         return self.numeric_id
 
@@ -606,11 +744,19 @@ class RichText:
 class Row:
     """Wrapper for add_row"""
     def __init__(self, *, container_id=None, window_id=None, parent_id=None, **kwargs):
-        self.window_id = window_id if window_id is not None else _current_window()
+        self.window_id = (
+            _resolve_window_id(window_id)
+            if window_id is not None
+            else _current_window_or_parent(parent_id)
+        )
         if self.window_id is None:
             raise ValueError("Row: window_id is required (either pass it\
                 or use a Window context manager)")
-        self.container_id = container_id if container_id is not None else str(generate_id())
+        self.container_id = (
+            container_id
+            if container_id is not None
+            else str(generate_id())
+        )
         self.parent_id = parent_id
         self.kwargs = kwargs
         self.numeric_id = 0
@@ -625,7 +771,7 @@ class Row:
             parent_id=pid,
             **self.kwargs,
         )
-        _id_to_container_str[self.numeric_id] = self.container_id
+        _register_container(self.numeric_id, self.container_id, self.window_id)
         _parent_stack.append(self.container_id)
         return self.numeric_id
 
@@ -636,11 +782,19 @@ class Row:
 class Stack:
     """Wrapper for add_stack"""
     def __init__(self, *, container_id=None, window_id=None, parent_id=None, **kwargs):
-        self.window_id = window_id if window_id is not None else _current_window()
+        self.window_id = (
+            _resolve_window_id(window_id)
+            if window_id is not None
+            else _current_window_or_parent(parent_id)
+        )
         if self.window_id is None:
             raise ValueError("Stack: window_id is required (either pass it\
                 or use a Window context manager)")
-        self.container_id = container_id if container_id is not None else str(generate_id())
+        self.container_id = (
+            container_id
+            if container_id is not None
+            else str(generate_id())
+        )
         self.parent_id = parent_id
         self.kwargs = kwargs
         self.numeric_id = 0
@@ -655,7 +809,7 @@ class Stack:
             parent_id=pid,
             **self.kwargs,
         )
-        _id_to_container_str[self.numeric_id] = self.container_id
+        _register_container(self.numeric_id, self.container_id, self.window_id)
         _parent_stack.append(self.container_id)
         return self.numeric_id
 
@@ -667,11 +821,19 @@ class Stack:
 class Scrollable:
     """Wrapper for add_scrollable"""
     def __init__(self, *, container_id=None, window_id=None, parent_id=None, **kwargs):
-        self.window_id = window_id if window_id is not None else _current_window()
+        self.window_id = (
+            _resolve_window_id(window_id)
+            if window_id is not None
+            else _current_window_or_parent(parent_id)
+        )
         if self.window_id is None:
             raise ValueError("Scrollable: window_id is required (either pass it\
                 or use a Window context manager)")
-        self.container_id = container_id if container_id is not None else str(generate_id())
+        self.container_id = (
+            container_id
+            if container_id is not None
+            else str(generate_id())
+        )
         self.parent_id = parent_id
         self.kwargs = kwargs
         self.numeric_id = 0
@@ -686,7 +848,7 @@ class Scrollable:
             parent_id=pid,
             **self.kwargs,
         )
-        _id_to_container_str[self.numeric_id] = self.container_id
+        _register_container(self.numeric_id, self.container_id, self.window_id)
         _parent_stack.append(self.container_id)
         return self.numeric_id
 
@@ -697,11 +859,19 @@ class Scrollable:
 class Table:
     """Wrapper for add_table"""
     def __init__(self, *, container_id=None, window_id=None, parent_id=None, **kwargs):
-        self.window_id = window_id if window_id is not None else _current_window()
+        self.window_id = (
+            _resolve_window_id(window_id)
+            if window_id is not None
+            else _current_window_or_parent(parent_id)
+        )
         if self.window_id is None:
             raise ValueError("Table: window_id is required (either pass it\
                 or use a Window context manager)")
-        self.container_id = container_id if container_id is not None else str(generate_id())
+        self.container_id = (
+            container_id
+            if container_id is not None
+            else str(generate_id())
+        )
         self.parent_id = parent_id
         self.kwargs = kwargs
         self.numeric_id = 0
@@ -716,7 +886,7 @@ class Table:
             parent_id=pid,
             **self.kwargs,
         )
-        _id_to_container_str[self.numeric_id] = self.container_id
+        _register_container(self.numeric_id, self.container_id, self.window_id)
         _parent_stack.append(self.container_id)
         return self.numeric_id
 
@@ -727,11 +897,19 @@ class Table:
 class ToolTip:
     """Wrapper for add_tool_tip"""
     def __init__(self, *, container_id=None, window_id=None, parent_id=None, **kwargs):
-        self.window_id = window_id if window_id is not None else _current_window()
+        self.window_id = (
+            _resolve_window_id(window_id)
+            if window_id is not None
+            else _current_window_or_parent(parent_id)
+        )
         if self.window_id is None:
             raise ValueError("ToolTip: window_id is required (either pass it\
                 or use a Window context manager)")
-        self.container_id = container_id if container_id is not None else str(generate_id())
+        self.container_id = (
+            container_id
+            if container_id is not None
+            else str(generate_id())
+        )
         self.parent_id = parent_id
         self.kwargs = kwargs
         self.numeric_id = 0
@@ -746,7 +924,7 @@ class ToolTip:
             parent_id=pid,
             **self.kwargs,
         )
-        _id_to_container_str[self.numeric_id] = self.container_id
+        _register_container(self.numeric_id, self.container_id, self.window_id)
         _parent_stack.append(self.container_id)
         return self.numeric_id
 

@@ -25,7 +25,7 @@ type PyObject = Py<PyAny>;
 pub struct Radio {
     pub id: usize,
     pub labels: Vec<String>,
-    pub direction: RadioDirection,
+    pub horizontal: Option<bool>,
     pub spacing: Option<f32>,
     pub radio_spacing: Option<f32>,
     pub padding: Option<Vec<f32>>,
@@ -79,7 +79,7 @@ impl Radio {
 
             let mut rd = widget::Radio::new(
                         label.clone(),
-                        i,                        // value = index
+                        i,                  // value = index
                         selected,                 // selected = Option<usize>
                         RDMessage::OnSelected, // f: usize -> RDMessage
                     )
@@ -129,8 +129,7 @@ impl Radio {
         let elements: Vec<Element<'_, RDMessage>> = 
             radio_elements.into_iter().map(|r| r.into()).collect();
 
-        let rd: Element<RDMessage> = match self.direction {
-                RadioDirection::Horizontal =>{
+        let rd: Element<RDMessage> = if self.horizontal == Some(true) {
                     let mut rw: Row<'_, RDMessage> = 
                         Row::with_children(elements)
                             .width(get_len(self.fill, self.width_fill, self.width))
@@ -141,8 +140,7 @@ impl Radio {
                         rw = rw.spacing(rd_sp);
                     }
                     rw.into()
-                },
-                RadioDirection::Vertical => {
+                } else {
                     let mut col: Column<'_, RDMessage> = 
                         Column::with_children(elements)
                             .padding(get_padding(&self.padding))
@@ -153,8 +151,7 @@ impl Radio {
                         col = col.spacing(rd_sp);
                     }                                    
                     col.into()                                                               
-                },
-        };
+                };
 
         Some(rd.map(move |message| app::Message::Radio(self.id, message)))
 
@@ -178,14 +175,6 @@ pub fn radio_callback(state: &mut IpgState, id: usize, message: RDMessage) {
         },
     }
  }
-
-
-#[derive(Debug, Clone, PartialEq, Hash)]
-#[pyclass(eq, eq_int, hash, frozen)]
-pub enum RadioDirection {
-    Horizontal,
-    Vertical,
-}
 
 #[derive(Debug, Clone)]
 pub struct RadioStyle {
@@ -287,11 +276,11 @@ pub enum RadioStyleParam {
 #[derive(Debug, Clone, PartialEq, Hash)]
 #[pyclass(eq, eq_int, hash, frozen)]
 pub enum RadioParam {
-    Direction,
     Fill,
     FontId,
     Height,
     HeightFill,
+    Horizontal,
     Labels,
     Padding,
     SelectedIndex,
@@ -318,11 +307,11 @@ impl WidgetParamUpdate for Radio {
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
-            RadioParam::Direction => set_t_value(&mut self.direction, value, "RadioParam::Direction"),
             RadioParam::Fill => set_t_value(&mut self.fill, value, "RadioParam::Fill"),
             RadioParam::FontId => set_t_value(&mut self.font_id, value, "RadioParam::FontId"),
             RadioParam::Height => set_t_value(&mut self.height, value, "RadioParam::Height"),
             RadioParam::HeightFill => set_t_value(&mut self.height_fill, value, "RadioParam::HeightFill"),
+            RadioParam::Horizontal => set_t_value(&mut self.horizontal, value, "RadioParam::Horizontal"),
             RadioParam::Labels => set_t_value(&mut self.labels, value, "RadioParam::Labels"),
             RadioParam::Padding => set_t_value(&mut self.padding, value, "RadioParam::Padding"),
             RadioParam::SelectedIndex => set_t_value(&mut self.selected_index, value, "RadioParam::SelectedIndex"),

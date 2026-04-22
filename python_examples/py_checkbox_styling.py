@@ -1,3 +1,8 @@
+#!/usr/bin/env python3
+"""
+Checkbox styling use demo
+"""
+
 from icedpygui import Window, Column, Row, start_session, \
     add_checkbox, add_checkbox_style, add_text, \
     CheckboxStyleStd, Color

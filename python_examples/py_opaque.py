@@ -21,7 +21,8 @@ def on_press(_btn_id: int):
 with Window(center=True):
     with Container(fill=True, align_center=True):
         with Stack():
-            with Container(width=200, height=100, align_top_center=True, style_std=ContainerStyleStd.BorderedBox):
+            with Container(width=200, height=100, align_top_center=True,
+                           style_std=ContainerStyleStd.BorderedBox):
                 add_button(label="I'm on the bottom, so you can't press me", on_press=no_press)
             # The opaque in this case needed to include the container too because
             # the container is stacked on top of the previous container which

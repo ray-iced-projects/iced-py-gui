@@ -16,7 +16,7 @@ def color_selected(_cp_id: int, color: list, _user_data: any):
     otherwise use as is or convert to what is needed
     """
     string = f"{color}"
-    
+
     # update the text
     update_widget(text_id, TextParam.Content, string)
 
@@ -25,10 +25,12 @@ def color_selected(_cp_id: int, color: list, _user_data: any):
 
 
 def cp_opened(_cp_id: int, _user_data: any):
+    """Color Picker Callback"""
     print("color picker opened")
 
 
 def cp_canceled(_cp_id: int, _user_data: any):
+    """Color Picker Callback"""
     print("color picker canceled")
 
 # Since the color_picker is using a button

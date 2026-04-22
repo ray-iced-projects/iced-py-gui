@@ -138,11 +138,12 @@ with Window(title="Menu", center=True, size=[500, 400]):
     with Container(padding=[20.0], fill=True):
         with Column(spacing=20):
             add_text(content="Select menu items to see the callback printing")
-            add_text(content="Select the Testing to see the effect of setting parameters")
+            add_text(content="Select the Testing to see the effect of setting parameters, \
+                it's best if you toggle back to the first setting(i.e. toggle twice) on each")
 
             with Menu(spacing=10.0) as state["bar_testing_id"]:
 
-                # Each MenuBarItem groups a bar widget (first child) with its dropdown items
+                # First item of the MenuBarItem is the bar item followed by the dropdown items
                 with MenuBarItem(width=75.0, spacing=5.0):
 
                     add_text(content="File") # bar item

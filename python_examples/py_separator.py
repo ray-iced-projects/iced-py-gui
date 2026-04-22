@@ -38,6 +38,7 @@ with Window(
                 label="label",
             )
 
+            # adding small lines before and after label
             add_separator(
                 label=" label ",
                 label_left_width=2.0,

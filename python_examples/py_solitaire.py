@@ -2,17 +2,30 @@
 """
 Solitare demo
 """
-from imports import *
+
+import random, os
+from icedpygui import Window, Column, Container, MouseArea, Row, Stack, start_session, \
+        add_button, add_mouse_area, add_space, add_stack, add_text, TextParam, \
+        add_pick_list, add_image, update_widget, \
+        add_container_style, move_widget, \
+        Color, MousePointer, ContentFit, generate_id, \
+        add_container \
 
 class solitaire:
     def __init__(self) -> None:
-        self.
+        # container ids
+        self.wnd: int = 0,
+        self.main_col = 0,
+        self.tab_stack_ids = []
+        self.tab_stack_ma_ids = []
+        self.tab_col = []
+
         self.cwd = os.getcwd()
         self.path = self.cwd + "/python_examples/resources/cards/"
         self.card_width: float=100.0
         self.card_height: float=150.0
         self.shuffled_indexes: list=[]
-        self.cards: dict=defaultdict(dict)
+        self.cards: dict={}
         self.stock: list=[]
         self.waste: list=[]
         self.covers: list=[]
@@ -42,56 +55,38 @@ class solitaire:
         self.stack_height = 470.0
 
     def start_game(self):
+        """Start Game"""
         self.create_styles()
-        # add the main containers
-        self.add_window(id="main",
-                            title="Solitaire",
-    size=(1000.0, 700.0),
-                            pos_centered=True,
-                            # debug=True
-                            )
-
-        self.add_row(window_id="main",
-                         id="main_row",
-                         width_fill=True,
-                         height_fill=True,
-                         spacing=2.0)
-
-        self.add_container(window_id="main",
-                               id="control_cont",
-                               parent_id="main_row",
-                               width=175.0,
-                               height_fill=True,
-                               style_id=self.white_border)
-
-        self.add_column(window_id="main",
-                            id="control_col",
-                            parent_id="control_cont",
-                            padding=[20.0],
-                            height_fill=True)
-
-        self.add_container(window_id="main",
-                               id="main_cont",
-                               parent_id="main_row",
-                               width_fill=True,
-                               height_fill=True,
-                               style_id=self.white_border)
-
-        self.add_column(window_id="main",
-                            id="main_col",
-                            parent_id="main_cont",
-                            width_fill=True,
-                            height_fill=True)
-
-        self.define_controls()
-        self.create_slots()
         self.load_shuffle_cards()
-        self.deal_cards()
-        self.start_session()
 
-    def restart_play(self, btn_id: int):
+        # add the main containers
+        with Window(title="Solitaire", size=(1000.0, 700.0), center=True) as self.wnd:
+
+            with Row(fill=True, spacing=2.0) as main_row:
+
+                with Container(
+                    width=175.0,
+                    height_fill=True,
+                    style_id=self.white_border) as control_cont:
+
+                    with Column(padding=[20.0], height_fill=True) as ctrl_col:
+                        self.define_controls(ctrl_col)
+
+                with Container(fill=True, style_id=self.white_border):
+
+                    with Column(fill=True) as self.main_col:
+                        self.create_top_slots()
+                        self.create_status_row()
+                        self.create_tableau_cards()
+                        self.deal_cards()
+                        self.add_remaining_to_stock()
+
+        start_session()
+
+    def restart_play(self, _btn_id: int):
+        """Restart"""
         self.rounds = 0
-        self.update_item(self.rounds_id, IpgTextParam.Content, f"Card Play Rounds: {self.rounds}")
+        update_widget(self.rounds_id, TextParam.Content, f"Card Play Rounds: {self.rounds}")
 
         # reshuffle the original card indexes
         random.shuffle(self.shuffled_indexes)
@@ -99,7 +94,7 @@ class solitaire:
         # get the stock cover card amd mouseareas from the cards before re-initializing
         stock_cover_card = self.cards.get(self.stock_cover_id)
         mas = []
-        tab_cover_cards = defaultdict(dict)
+        tab_cover_cards = {}
         for wid in self.cards:
             card = self.cards.get(wid)
             name = card.get("name")
@@ -113,7 +108,7 @@ class solitaire:
                 tab_cover_cards[wid] = card
 
         # fill the tableau
-        self.cards = defaultdict(dict)
+        self.cards = {}
         self.tableau = []
         self.content = ""
         index = 0
@@ -133,7 +128,7 @@ class solitaire:
                     wid = card.get("wid")
                     self.cards[wid] = card
                     self.tableau[i].append(wid)
-                    self.move_widget(window_id="main",
+                    move_widget(window_id="main",
                                 widget_id=wid,
                                 target_container_str_id=f"tabcol_{i}_{j}"
                                 )
@@ -148,7 +143,7 @@ class solitaire:
                     cover["is_cover"] = True
                     cover["tableau"] = True
                     cover_index += 1
-                    self.move_widget(window_id="main",
+                    move_widget(window_id="main",
                                 widget_id=wid,
                                 target_container_str_id=f"tab_blank_{i}_{j}"
                                 )
@@ -168,204 +163,169 @@ class solitaire:
             wid = card.get("wid")
             self.stock.append(wid)
             self.cards[wid] = card
-            self.move_widget(window_id="main",
+            move_widget(window_id="main",
                                  widget_id=wid,
                                  target_container_str_id="stack_stock_pile"
                                  )
 
         # restore the stock cover card and mouseares cards
-        self.move_widget("main", self.stock_cover_id, "stack_stock_pile")
+        move_widget("main", self.stock_cover_id, "stack_stock_pile")
         self.cards[self.stock_cover_id] = stock_cover_card
 
         for ma in mas:
             self.cards[ma.get("wid")] = ma
 
     def create_styles(self):
-        self.white_border = self.add_container_style(
-                                        border_color=Color.WHITE,
-                                        border_width=2.0)
+        """Create Style"""
+        self.white_border = add_container_style(
+                                border_color=Color.WHITE,
+                                border_width=2.0)
 
-    def define_controls(self):
-        self.add_button(parent_id="control_col",
-                            label="Restart Play",
-                            on_press=self.restart_play)
-        self.rounds_id = self.add_text(parent_id="control_col",
+    def define_controls(self, ctrl_col):
+        """Define Controls"""
+        add_button(parent_id=ctrl_col,
+                        label="Restart Play",
+                        on_press=self.restart_play)
+
+        self.rounds_id = add_text(parent_id=ctrl_col,
                           content="Card Play Rounds:")
-        self.add_text(parent_id="control_col",
+
+        add_text(parent_id=ctrl_col,
                           content="Cards to Play:")
-        self.add_pick_list(parent_id="control_col",
+
+        add_pick_list(parent_id=ctrl_col,
                                options=["1", "3"],
                                on_select=self.select_cards_to_play,
                                selected=self.cards_to_play)
-        self.add_space(parent_id="control_col", height=50.0)
-        self.add_text(parent_id="control_col",
+
+        add_space(parent_id=ctrl_col, height=50.0)
+        add_text(parent_id=ctrl_col,
                           content="Instructions:\nCards are moved by selecting source and destination using mouse.  If a card fails to move it means the validation failed, wrong color or value.\nTo cancel a move, click any other place on the canvas")
 
-    def select_cards_to_play(self, picklist_id: int, value: str):
+    def select_cards_to_play(self, _picklist_id: int, value: str):
+        """Select the Cards"""
         self.cards_to_play = int(value)
 
-    def create_slots(self):
-        self.cards = defaultdict(dict)
+    def create_top_slots(self):
+        """Create the slots for the cards"""
+        self.cards = {}
         # add row for stock, waste, and foundation cards
-        self.add_row(window_id="main",
-                         id="stock_row",
-                         parent_id="main_col",
-                         height=self.card_height,
-                         spacing=10.0,
-                         padding=[5.0]
-                         )
+        with Row(window_id=self.wnd,
+            parent_id=self.main_col,
+            height=self.card_height,
+            spacing=10.0,
+            padding=[5.0]): # stock_row
 
-        # add some beginning space
-        self.add_space(parent_id="stock_row",
-                           width=20.0)
+            # add some beginning space
+            add_space(width=20.0)
 
-        # add the stock container to the row
-        self.add_container(window_id="main",
-                        id="stock",
-                        parent_id="stock_row",
-                        padding=[0.0],
-                        style_id=self.white_border)
+            # add the stock container to the row
+            with Container(
+                padding=[0.0],
+                style_id=self.white_border): #id=stock
 
-        # add the stack in
-        self.add_stack(window_id="main",
-                           id="stack_stock_pile",
-                           parent_id="stock",
+                # add the stack in
+                with Stack(
                            width=self.card_width,
-                           height=self.card_height)
-        wid = self.add_mousearea(window_id="main",
-                                    id="mouse_stock_pile",
-                                    parent_id="stack_stock_pile",
-                                    mouse_pointer=IpgMousePointer.Grab,
+                           height=self.card_height): # "stack_stock_pile"
+
+                    wid = add_mouse_area(
+                                    mouse_pointer=MousePointer.Grab,
                                     on_press=self.card_selected,
                                     )
-        stock = {}
-        stock["wid"] = wid
-        stock["name"] = "stock blank"
-        stock["value"] = 0
-        stock["suite"] = None
-        stock["color"] = None
-        stock["foundation"] = False
-        stock["tableau"] = False
-        stock["stock"] = True
-        stock["waste"] = False
-        stock["is_cover"] = True
-        stock["reload"] = True
-        self.cards[wid] = stock
+            stock = {}
+            stock["wid"] = wid
+            stock["name"] = "stock blank"
+            stock["value"] = 0
+            stock["suite"] = None
+            stock["color"] = None
+            stock["foundation"] = False
+            stock["tableau"] = False
+            stock["stock"] = True
+            stock["waste"] = False
+            stock["is_cover"] = True
+            stock["reload"] = True
+            self.cards[wid] = stock
 
-        # add the waste container to the row
-        self.add_container(window_id="main",
-                                id="waste",
-                                parent_id="stock_row",
-                                width=self.card_width,
-                                height=self.card_height,
-                                padding=[0.0],
-                                style_id=self.white_border)
+            # add the waste container to the row
+            with Container(
+                width=self.card_width,
+                height=self.card_height,
+                padding=[0.0],
+                style_id=self.white_border): # waste
 
-        # add the stack in
-        self.add_stack(window_id="main",
-                           id="stack_waste_pile",
-                           parent_id="waste",
+                # add the stack in
+                # stack_waste_pile
+                add_stack(
+                    width=self.card_width,
+                    height=self.card_height)
+
+            # add a space between waste and foundation
+            add_space(width=self.card_width)
+
+            # Add the 4 foundation slots
+            for i in range(0, 4):
+                with Stack(
                            width=self.card_width,
-                           height=self.card_height,
-                           )
+                           height=self.card_height):
 
-        # add a space between waste and foundation
-        self.add_space(parent_id="stock_row",
-                           width=self.card_width
-                           )
+                    with MouseArea(
+                        mouse_pointer=MousePointer.Grab,
+                        on_press=self.card_selected):
 
-        # Add the 4 foundation slots
-        for i in range(0, 4):
-            self.add_stack(window_id="main",
-                           id=f"foundation_{i}",
-                           parent_id="stock_row",
-                           width=self.card_width,
-                           height=self.card_height,
-                           )
+                        fd = {}
+                        fd["wid"] = wid
+                        fd["name"] = f"foundation {i}"
+                        fd["value"] = 0
+                        fd["suite"] = None
+                        fd["color"] = None
+                        fd["foundation"] = True
+                        fd["tableau"] = False
+                        fd["fd_index"] = i
+                        self.cards[wid] = fd
 
-            wid = self.add_mousearea(window_id="main",
-                                    id=f"foundation_mouse_{i}",
-                                    parent_id=f"foundation_{i}",
-                                    mouse_pointer=IpgMousePointer.Grab,
-                                    on_press=self.card_selected,
-                                    )
-            fd = {}
-            fd["wid"] = wid
-            fd["name"] = f"foundation {i}"
-            fd["value"] = 0
-            fd["suite"] = None
-            fd["color"] = None
-            fd["foundation"] = True
-            fd["tableau"] = False
-            fd["fd_index"] = i
-            self.cards[wid] = fd
-
-            self.add_container(window_id="main",
-                                    id=f"foundation_container_{i}",
-                                    parent_id=f"foundation_{i}",
+                        add_container(
+                                    # id=f"foundation_container_{i}",
                                     width=self.card_width,
                                     height=self.card_height,
                                     padding=[0.0],
                                     style_id=self.white_border)
 
-        # add a container off screen to hide widget that become unused
-        self.add_space(parent_id="stock_row",
-                           width=200.0)
-        self.add_stack(window_id="main",
-                               id="hidden",
-                               parent_id="stock_row",
-                               show=False)
+            # add a container off screen to hide widget that become unused
+            add_space(width=200.0)
+            add_stack(container_id="hidden", show=False)
 
         # Add a space between the rows
-        self.add_space(parent_id="main_col", height=20.0)
+        add_space(parent_id=self.main_col, height=20.0)
 
-        # add a sttus row
-        self.add_row(window_id="main",
-                         id="status_row",
-                         parent_id="main_col")
-        self.add_space(parent_id="status_row", width=20.0)
-        self.status_id = self.add_text(parent_id="status_row", content="Status: Selected None")
+    def create_status_row(self):
+        """Status Row"""
+        with Row(parent_id=self.main_col):
+            add_space(width=20.0)
+            self.status_id = add_text(content="Status: Selected None")
 
-        # Add a row for the tableau cards
-        self.add_row(window_id="main",
-                         id="tableau_row",
-                         parent_id="main_col",
-                         spacing=10.0
-                         )
+    def create_tableau_cards(self):
+        """Tableau Cards"""
+        with Row(spacing=10.0):
 
-        # Add a space at the beginning of the row
-        self.add_space(parent_id="tableau_row",
-                           width=20.0)
+            # Add a space at the beginning of the row
+            add_space(width=20.0)
 
-        # Add the 7 card tableau slots
-        for i in range(0, 7):
-            # initialize the tableau list
-            self.tableau.append([])
-            # Add in the stacks
-            self.add_stack(window_id="main",
-                                id=f"tab_stack_{i}",
-                                parent_id="tableau_row",
-                                width=self.card_width,
-                                height=self.stack_height,
-                                )
-            wid = self.add_mousearea(window_id="main",
-                                        id=f"tab_stack_ma_{i}",
-                                        parent_id=f"tab_stack_{i}",
-                                        mouse_pointer=IpgMousePointer.Grab,
-                                        on_press=self.card_selected,
-                                        )
-            ma = {}
-            ma["wid"] = wid
-            ma["name"] = "tab_mousearea"
-            ma["tableau"] = True
-            ma["stock"] = False
-            ma["waste"] = False
-            ma["foundation"] = False
-            ma["tab_column"] = i
-            ma["tab_index"] = -1
-            self.cards[wid] = ma
+            # Add the 7 card tableau slots
+            for _ in range(7):
+                with Container():
+                    with Column():
+                        # Add in the stacks
+                        self.tab_stack_ids.append(add_stack(
+                            width=self.card_width,
+                            height=self.stack_height))
+
+                        self.tab_stack_ma_ids.append(add_mouse_area(
+                                mouse_pointer=MousePointer.Grab,
+                                on_press=self.card_selected))
 
     def load_shuffle_cards(self):
+        """Shuffle Cards"""
         suites = [
             ("hearts", "RED"),
             ("diamonds", "RED"),
@@ -412,107 +372,108 @@ class solitaire:
         random.shuffle(self.shuffled_indexes)
 
     def deal_cards(self):
+        """Dealing the cards"""
         self.content = ""
         index = 0
-        for i in range(0, 7):
-            for j in range(0, 13):
-                self.add_column(window_id="main",
-                                    id=f"tabcol_{i}_{j}",
-                                    parent_id=f"tab_stack_{i}",)
-
-                # Add a blank at top to hide the card below
-                self.add_space(parent_id=f"tabcol_{i}_{j}",
-                                    height=20*j)
-
-                if j <= i:
-                    card = self.shuffled_indexes[index]
-                    card["tab_column"] = i
-                    card["tab_index"] = j
-                    card["tableau"] = True
-                    file = f"{self.path}/{card.get('suite')}/{card.get('value')}.png"
-                    wid = self.add_image(parent_id=f"tabcol_{i}_{j}",
-                                        image_path=file,
-                                        width=self.card_width,
-                                        height=self.card_height,
-                                        content_fit=IpgImageContentFit.Fill,
-                                        mouse_pointer=IpgMousePointer.Grab,
-                                        on_press=self.card_selected,
-                                        )
-                    self.shuffled_indexes[index]["wid"] = wid  # needed later when restarting
-                    card["wid"] = wid
-                    self.cards[wid] = card
-                    self.tableau[i].append(wid)
-                    index += 1
-
-                if j < i:
-                    # add the blank over the card unless last one.
-                    self.add_column(window_id="main",
-                                    id=f"tab_blank_{i}_{j}",
-                                    parent_id=f"tab_stack_{i}",)
+        #  row, cols
+        self.tableau = [[0 for _ in range(13)] for _ in range(7)]
+        self.tab_col = [[0 for _ in range(13)] for _ in range(7)]
+        for i in range(7):
+            for j in range(13):
+                with Column(window_id=self.wnd, parent_id=self.tab_stack_ids[i]) as tab_col:
+                    self.tab_col[i][j] = tab_col
 
                     # Add a blank at top to hide the card below
-                    self.add_space(parent_id=f"tab_blank_{i}_{j}",
-                                        height=20*j)
-                    cover = {}
-                    cover["name"] = "tab_cover"
-                    cover["index"] = index-1
-                    cover["tab_column"] = i
-                    cover["tab_index"] = j
-                    cover["is_cover"] = True
-                    cover["tableau"] = True
-                    file = f"{self.path}/card_back.png"
-                    wid = self.add_image(
-                            parent_id=f"tab_blank_{i}_{j}",
-                            image_path=file,
-                            width=self.card_width,
-                            height=self.card_height,
-                            content_fit=IpgImageContentFit.Fill,
-                            on_press=self.card_selected,
-                            )
-                    self.cards[wid] = cover
-                    self.tab_cover_cards_wids.append(wid)
+                    add_space(height=20*j)
 
-        # add cards left to stock
-        self.stock = []
-        for idx in range(index, len(self.shuffled_indexes)):
-            card = self.shuffled_indexes[idx]
-            file = f"{self.path}/{card.get('suite')}/{card.get('value')}.png"
-            card["stock"] = True
-
-            wid = self.add_image(parent_id="stack_stock_pile",
-                                image_path=file,
+                    if j == i:
+                        # Show card
+                        card = self.shuffled_indexes[index]
+                        card["tab_column"] = i
+                        card["tab_index"] = j
+                        card["tableau"] = True
+                        file = f"{self.path}/{card.get('suite')}/{card.get('value')}.png"
+                        image_id = generate_id()
+                        with MouseArea(mouse_pointer=MousePointer.Grab,
+                                        on_press=self.card_selected,
+                                        user_data=image_id) as wid:
+                            add_image(
+                                path=file,
                                 width=self.card_width,
                                 height=self.card_height,
-                                content_fit=IpgImageContentFit.Fill,
-                                mouse_pointer=IpgMousePointer.Grabbing,
-                                on_press=self.card_selected,
-                                )
-            self.stock.append(wid)
-            card["wid"] = wid
-            self.cards[wid] = card
+                                content_fit=ContentFit.Fill,
+                                gen_id=image_id)
 
-        # add a cover
-        file = f"{self.path}/card_back.png"
-        wid = self.add_image(parent_id=f"stack_stock_pile",
-                            image_path=file,
-                            width=self.card_width,
-                            height=self.card_height,
-                            content_fit=IpgImageContentFit.Fill,
-                            mouse_pointer=IpgMousePointer.Grabbing,
-                            on_press=self.card_selected,
-                            )
-        cover = {}
-        cover["name"] = "stock_cover"
-        cover["is_cover"] = True
-        cover["stock"] = True
-        cover["foundatiuon"] = False
-        cover["waste"] = False
-        cover["tableau"] = False
-        cover["wid"] = wid
-        self.stock_cover_id = wid
-        self.cards[wid] = cover
+                        self.shuffled_indexes[index]["wid"] = wid  # needed later when restarting
+                        card["wid"] = wid
+                        self.cards[wid] = card
+                        self.tableau[i][j] = wid
+                        index += 1
 
-    def card_selected(self, card_id: int):
+                    if j < i:
+                        # add the blank over the card unless last one.
+                        with Column():
+                            cover = {}
+                            cover["name"] = "tab_cover"
+                            cover["index"] = index-1
+                            cover["tab_column"] = i
+                            cover["tab_index"] = j
+                            cover["is_cover"] = True
+                            cover["tableau"] = True
+                            file = f"{self.path}/card_back.png"
+
+                            wid = add_image(
+                                        path=file,
+                                        width=self.card_width,
+                                        height=self.card_height,
+                                        content_fit=ContentFit.Fill)
+
+                            self.cards[wid] = cover
+                            self.tab_cover_cards_wids.append(wid)
+
+    def add_remaining_to_stock():
+        """add cards left to stock"""
+        # self.stock = []
+        # for idx in range(index, len(self.shuffled_indexes)):
+        #     card = self.shuffled_indexes[idx]
+        #     file = f"{self.path}/{card.get('suite')}/{card.get('value')}.png"
+        #     card["stock"] = True
+
+        #     wid = add_image(parent_id="stack_stock_pile",
+        #                         image_path=file,
+        #                         width=self.card_width,
+        #                         height=self.card_height,
+        #                         content_fit=ContentFit.Fill,
+        #                         mouse_pointer=MousePointer.Grabbing,
+        #                         on_press=self.card_selected,
+        #                         )
+        #     self.stock.append(wid)
+        #     card["wid"] = wid
+        #     self.cards[wid] = card
+
+        # # add a cover
+        # file = f"{self.path}/card_back.png"
+        # wid = add_image(parent_id=f"stack_stock_pile",
+        #                     image_path=file,
+        #                     width=self.card_width,
+        #                     height=self.card_height,
+        #                     content_fit=ContentFit.Fill,
+        #                     mouse_pointer=MousePointer.Grabbing,
+        #                     on_press=self.card_selected,
+        #                     )
+        # cover = {}
+        # cover["name"] = "stock_cover"
+        # cover["is_cover"] = True
+        # cover["stock"] = True
+        # cover["foundatiuon"] = False
+        # cover["waste"] = False
+        # cover["tableau"] = False
+        # cover["wid"] = wid
+        # self.stock_cover_id = wid
+        # self.cards[wid] = cover
+
+    def card_selected(self, _mouse_id: int, card_id: int):
+        """Card Selected"""
         if self.origin is None:
             self.origin = card_id
             card = self.cards.get(card_id)
@@ -547,9 +508,10 @@ class solitaire:
 
         if self.origin is not None and self.target is not None:
             self.move_card()
-            self.update_item(self.status_id, IpgTextParam.Content, self.content)
+            update_widget(self.status_id, TextParam.Content, self.content)
 
     def move_card(self):
+        """Move Card"""
         ids = []
         if self.cards.get(self.origin).get("tableau") and self.cards.get(self.target).get("tableau"):
             ids = self.move_tab_to_tab()
@@ -573,7 +535,7 @@ class solitaire:
 
         if ids is not None:
             for wid, str_id in ids:
-                self.move_widget(window_id="main",
+                move_widget(window_id="main",
                                     widget_id=wid,
                                     target_container_str_id=str_id,
                                     move_before=None,
@@ -584,7 +546,7 @@ class solitaire:
 
     def turn_tab_cover_over(self):
         # hide the cover card by moving it off screen
-        self.move_widget(window_id="main",
+        move_widget(window_id="main",
                                 widget_id=self.origin,
                                 target_container_str_id="hidden"
                                 )
@@ -722,7 +684,7 @@ class solitaire:
         ids_to_move = []
 
         if len(self.stock) == 0:
-            self.move_widget("main", self.stock_cover_id, "hidden")
+            move_widget("main", self.stock_cover_id, "hidden")
 
         if self.cards_to_play == "3":
             if len(self.stock) >= 3:
@@ -746,7 +708,7 @@ class solitaire:
         for wid in ids_to_move:
             self.cards.get(wid)["stock"] = False
             self.cards.get(wid)["waste"] = True
-            self.move_widget(window_id="main",
+            move_widget(window_id="main",
                                 widget_id=wid,
                                 target_container_str_id="stack_waste_pile",
                                 )
@@ -764,11 +726,11 @@ class solitaire:
         for wid in self.stock:
             self.cards.get(wid)["stock"] = True
             self.cards.get(wid)["waste"] = False
-            self.move_widget("main", wid, "stack_stock_pile")
+            move_widget("main", wid, "stack_stock_pile")
         # Move the cover card on top
-        self.move_widget("main", self.stock_cover_id, "stack_stock_pile")
+        move_widget("main", self.stock_cover_id, "stack_stock_pile")
         self.rounds += 1
-        self.update_item(self.rounds_id, IpgTextParam.Content, f"Card Play Rounds: {self.rounds}")
+        update_widget(self.rounds_id, TextParam.Content, f"Card Play Rounds: {self.rounds}")
 
     def move_waste_to_foundation(self):
         target = self.cards.get(self.target)

@@ -1,4 +1,9 @@
-from icedpygui import Window, Column, Container, Row, start_session, \
+#!/usr/bin/env python3
+"""
+Date Picker use demo
+"""
+
+from icedpygui import Window, Column, Container, start_session, \
     add_date_picker, DatePickerParam, add_button, ButtonStyleStd, \
     update_widget, add_text, ButtonParam, TextParam
 
@@ -7,17 +12,19 @@ from icedpygui import Window, Column, Container, Row, start_session, \
 # a global variable. Dataclass is not supported at this time, but you can use a class
 # as seen in other demo files.
 def date_selected(_dp_id: int, date: str):
-    update_widget(selected_date_id, TextParam.Content, f"You submitted {date}"
-    )
+    """Date Picker Callback"""
+    update_widget(selected_date_id, TextParam.Content, f"You submitted {date}")
 
 # Another callback with some user data
 def date_selected_with_ud(_dp_id: int, date: str, user_data: any):
+    """Date Picker Callback"""
     update_widget(selected_with_ud_id, TextParam.Content, f"You submitted {date} with user_data = {user_data}")
 
     update_widget(btn_id, ButtonParam.Show, True)
 
 # Another callback for the date picker that changes its size
 def date_resize(_dp_id: int):
+    """Date Picker Callback"""
     update_widget(dp2_id, DatePickerParam.SizeFactor, 1.5)
 
 

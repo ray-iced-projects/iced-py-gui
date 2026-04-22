@@ -1,3 +1,8 @@
+#!/usr/bin/env python3
+"""
+Checkbox use demo
+"""
+
 from icedpygui import Window, Column, Container, Row, Scrollable, start_session, \
     add_checkbox, add_text, ContainerStyleStd, Icon
 
@@ -9,9 +14,11 @@ from icedpygui import Window, Column, Container, Row, Scrollable, start_session,
 # good practise to remind yourself, that the id is the source
 # and that you probably need other ids to do the operations.
 def on_toggle(chk_id, is_checked):
+    """Checkbox Callback"""
     print(f"Checkbox id {chk_id} toggled to {is_checked}")
 
 def on_toggle_user_data(chk_id, is_checked, user_data):
+    """Checkbox Callback"""
     print(f"Checkbox id {chk_id}, checked={is_checked}, user_data={user_data}")
 
 with Window(title="Checkbox Demo",
@@ -20,7 +27,7 @@ with Window(title="Checkbox Demo",
     with Scrollable(width_fill=True):
 
         with Column(spacing=20.0, padding=[20.0], width_fill=True):
-            
+
             # ***********************Checkbox Basics***************************
 
             add_text(content="Basic Checkbox\nCheck the ones for callback and user_data to see results printed")
@@ -38,7 +45,7 @@ with Window(title="Checkbox Demo",
                     on_toggle=on_toggle_user_data,
                     user_data="some info"
                     )
-            
+
             # ***********************Checkbox state***************************
 
             add_text(content="Checkbox is_checked State")
@@ -94,7 +101,7 @@ with Window(title="Checkbox Demo",
                     is_checked=True)
 
             # ***********************Text sizes***************************
-            
+
             add_text(content="Checkbox Text Size")
 
             with Row(spacing=20.0):
@@ -114,7 +121,7 @@ with Window(title="Checkbox Demo",
                     is_checked=True)
 
             # *************************Widths/Heights**********************
-            
+
             add_text(content="Checkbox Width")
 
             with Row(spacing=20.0, width_fill=True):

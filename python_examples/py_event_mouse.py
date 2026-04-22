@@ -1,48 +1,59 @@
+#!/usr/bin/env python3
+"""
+Mouse Event use demo
+"""
+
 from icedpygui import Window, Column, start_session, \
-    update_widget, IpgTextParam, add_event_mouse, \
+    update_widget, TextParam, add_event_mouse, \
         add_text, add_space
 
 # make a global var to hold some scroll data
-scroll_total_line_y = 0
+state = {"scroll_total_line_y": 0}
 
 
 # The mouse move callback will fire when the window opens.
 # The user_data is not used here, but needed since it was supplied as a parameter
 # The mouse_id is not used since we're just updating the text widget.
 # The move data is a dictionary as all of the events data are.
-def mouse_move(_mouse_id: int, point: dict, user_data: any):
-    update_widget(text_for_moved, IpgTextParam.Content, f"Moved {point}")
+def mouse_move(_mouse_id: int, point: dict, _user_data: any):
+    """Mouse Callback"""
+    update_widget(text_for_moved, TextParam.Content, f"Moved {point}")
 
 
 # Mouse callbacks
 def left_mouse_button_pressed(_mouse_id: int, user_data: any):
-    update_widget(text_for_pressed, IpgTextParam.Content, f"Left Button pressed")
-    update_widget(text_for_user_data, IpgTextParam.Content, f"user data = {user_data}")
-    
+    """Mouse Callback"""
+    update_widget(text_for_pressed, TextParam.Content, "Left Button pressed")
+    update_widget(text_for_user_data, TextParam.Content, f"user data = {user_data}")
+
 def middle_mouse_button_pressed(_mouse_id: int, user_data: any):
-    update_widget(text_for_pressed, IpgTextParam.Content, f"Middle Button pressed")
-    update_widget(text_for_user_data, IpgTextParam.Content, f"user data = {user_data}")
+    """Mouse Callback"""
+    update_widget(text_for_pressed, TextParam.Content, "Middle Button pressed")
+    update_widget(text_for_user_data, TextParam.Content, f"user data = {user_data}")
 
 def right_mouse_button_pressed(_mouse_id: int, user_data: any):
-    update_widget(text_for_pressed, IpgTextParam.Content, f"Right Button pressed")
-    update_widget(text_for_user_data, IpgTextParam.Content, f"user data = {user_data}")
-    
+    """Mouse Callback"""
+    update_widget(text_for_pressed, TextParam.Content, "Right Button pressed")
+    update_widget(text_for_user_data, TextParam.Content, f"user data = {user_data}")
+
 def left_mouse_button_released(_mouse_id: int, _user_data: any):
-    update_widget(text_for_released, IpgTextParam.Content, f"Left Button released")
+    """Mouse Callback"""
+    update_widget(text_for_released, TextParam.Content, "Left Button released")
 
 def middle_mouse_button_released(_mouse_id: int, _user_data: any):
-    update_widget(text_for_released, IpgTextParam.Content, f"Middle Button released")
-    
-def right_mouse_button_released(_mouse_id: int, _user_data: any):
-    update_widget(text_for_released, IpgTextParam.Content, f"Right Button released")
+    """Mouse Callback"""
+    update_widget(text_for_released, TextParam.Content, "Middle Button released")
 
+def right_mouse_button_released(_mouse_id: int, _user_data: any):
+    """Mouse Callback"""
+    update_widget(text_for_released, TextParam.Content, "Right Button released")
 
 # The scroll data is a dictionary
 def mouse_button_scrolled_line(_mouse_id: int, scroll: dict, _user_data: any):
-    global scroll_total_line_y
-    scroll_total_line_y += scroll.get("y")
-    update_widget(text_for_scroll_line, IpgTextParam.Content, 
-                    f"Scrolled {scroll} total = {scroll_total_line_y}")
+    """Mouse Callback"""
+    state["scroll_total_line_y"] += scroll.get("y")
+    update_widget(text_for_scroll_line, TextParam.Content,
+                    f"Scrolled {scroll} total = {state["scroll_total_line_y"]}")
 
 
 # An event can be added at any time since they are not widgets or containers.

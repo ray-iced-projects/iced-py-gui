@@ -90,7 +90,6 @@ use crate::graphics::bootstrap_arrow::Arrow;
     ))]
 pub fn add_color_picker(
     parent_id: String,
-    // ** above required
     label: Option<String>,
     gen_id: Option<usize>,
     on_press: Option<PyObject>,

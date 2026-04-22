@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """
-Button adding new demo
+Button adding new button, dynamically
+Any widget can be added in this way.
 """
 
 from icedpygui import Window, Container, Column, start_session, \

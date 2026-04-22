@@ -49,8 +49,11 @@ def divider_row_change(div_id: int, data: tuple[int, float]):
 
 def divider_col_change(div_id: int, data: tuple[int, float]):
     """Divider callback column changed"""
+    print(data)
+    print(state["container_ids"])
     index = data[0]
     value = data[1]
+
     # get the difference to be added to the right side of the divider
     diff = state["columns"][index] - value
 
@@ -59,17 +62,17 @@ def divider_col_change(div_id: int, data: tuple[int, float]):
     if index < len(state["columns"])-1:
         state["columns"][index+1] += diff
 
-    for _ in range(0, len(state["rows"])):
+    for r in range(0, len(state["rows"])):
         # Update all the containers on the left of the divider
         update_widget(
-            state["container_ids"][i][index],
+            state["container_ids"][index][r],
             ContainerParam.Width,
             value)
 
         # Update all the containers on the right of the divider
         if index < len(state["columns"])-1:
             update_widget(
-                state["container_ids"][i][index+1],
+                state["container_ids"][index+1][r],
                 ContainerParam.Width,
                 state["columns"][index+1])
 
@@ -136,14 +139,16 @@ with Window(title="Divider Demo",
                         with Row(height=height) as row_id:
                             state["row_ids"].append(row_id)
 
+                            row_cont_ids = []
                             for j, width in enumerate(state["columns"]):
                                 with Container(width=width,
                                     height_fill=True,
                                     style_id=cont_style_id) as cont_id:
 
                                     add_text(content=f"Cell {i} {j}")
+                                    row_cont_ids.append(cont_id)
 
-                        state["container_ids"].append(cont_id)
+                        state["container_ids"].append(row_cont_ids)
 
 
                 # Make the vertical divider (rows)
@@ -163,7 +168,7 @@ with Window(title="Divider Demo",
                             sizes=state["columns"],
                             handle_width=state["col_handle_width"],
                             handle_height=state["col_handle_height"],
-                            on_change=divider_col_change,
+                            # on_change=divider_col_change,
                             # use the style to see just the outline and not the divider
                             # style_id=divider_style_id
                             )

@@ -2818,22 +2818,14 @@ class ProgressBarStyleStd:
     Warning=''
 
 
-class RadioDirection:
-    """
-    Direction the radio button are aligned.
-    """
-    Horizontal=''
-    Vertical=''
-
-
 class RadioParam:
     """
     Radio button parameters
 
     Parameters
     ----------
-    Direction: str
-        The RadioDirection class
+    horizontal: bool, Optional
+        Whether to align the radios in a horizontal direction.
     Labels: list[str]
         The labels for each radio button
     Padding: list[float]
@@ -2867,7 +2859,7 @@ class RadioParam:
     HeightFill: bool
         Whether the widget group fill the container height.
     """
-    Direction: str
+    horizontal: str
     Labels: list[str]
     Padding: list[float]
     SelectedIndex: int

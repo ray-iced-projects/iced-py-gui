@@ -5,8 +5,7 @@ type PyObject = Py<PyAny>;
 use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex, 
     graphics::colors::Color,
     state::{Widgets, get_id, set_state_of_widget}, 
-    widgets::{ipg_radio::{Radio, RadioDirection, 
-        RadioStyle}}};
+    widgets::{ipg_radio::{Radio, RadioStyle}}};
 
 
 /// Add a radio button group widget.
@@ -20,8 +19,8 @@ use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex,
 ///     Sets the parent container ID that this radio group belongs to.
 /// labels : list of str
 ///     Sets the list of labels for each radio button.
-/// direction : RadioDirection, default Vertical
-///     Sets the layout direction of the radio buttons.
+/// horizontal : bool, default false
+///     Whether the layout direction is horizontal (default vertical).
 /// spacing : float, Optional
 ///     Sets the spacing between the radio circle and its label.
 /// radio_spacing: float, Optional
@@ -71,7 +70,7 @@ use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex,
 #[pyo3(signature = (
     parent_id, 
     labels, 
-    direction=RadioDirection::Vertical,
+    horizontal=None,
     spacing=None,
     radio_spacing=None,
     padding=None, 
@@ -97,7 +96,7 @@ use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex,
 pub fn add_radio(
     parent_id: String,
     labels: Vec<String>,
-    direction: RadioDirection,
+    horizontal: Option<bool>,
     spacing: Option<f32>,
     radio_spacing: Option<f32>,
     padding: Option<Vec<f32>>,
@@ -145,7 +144,7 @@ pub fn add_radio(
         Radio {
             id,
             labels,
-            direction,
+            horizontal,
             spacing,
             radio_spacing,
             padding,

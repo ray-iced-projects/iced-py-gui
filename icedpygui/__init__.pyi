@@ -71,7 +71,6 @@ from .icedpygui import (
     ProgressBarParam as ProgressBarParam,
     ProgressBarStyleParam as ProgressBarStyleParam,
     ProgressBarStyleStd as ProgressBarStyleStd,
-    RadioDirection as RadioDirection,
     RadioParam as RadioParam,
     RadioStyleParam as RadioStyleParam,
     Rotation,
@@ -153,7 +152,7 @@ def add_button(
         with Window(title="My App", pos_centered=True) as wnd_id: (if needed)
             with Container(align_center=True):
                 add_button(label="Press Me")
-
+        start_session()
     """
     ...
 
@@ -195,7 +194,7 @@ def add_card(
         with Window(title="My App", pos_centered=True) as wnd_id: (if needed)
             with Container(align_center=True):
                 add_card(head="Card Header", body="Card Body)
-
+        start_session()
     """
     ...
 
@@ -240,13 +239,33 @@ def add_checkbox(
                 add_checkbox(
                     label="Check Me",
                     on_toggle=checked)
-
+        start_session()
     """
     ...
 def add_color_picker(
     *,
     parent_id: str | None = None,
-    **kwargs: Any) -> int:
+    label: str | None = None,
+    on_press: Any | None = None,
+    on_select: Any | None = None,
+    on_cancel: Any | None = None,
+    color: Color | None = None,
+    color_alpha: float | None = None,
+    color_rgba: list[float, 4] | None = None,
+    width: float | None = None,
+    width_fill: bool | None = None,
+    height: float | None = None,
+    height_fill: bool | None = None,
+    fill: bool | None = None,
+    padding: list[float] | None = None,
+    clip: bool | None = None,
+    style_id: int | None = None,
+    style_std: ButtonStyleStd | None = None,
+    style_arrow: Arrow | None = None,
+    user_data: Any | None = None,
+    show: bool = True,
+    gen_id: int | None = None,
+    ) -> int:
     """Adds a Color Picker widget.
 
     Usage::
@@ -257,15 +276,17 @@ def add_color_picker(
         def cp_opened(_cp_id: int, _user_data: any):
             print("color picker opened")
 
-
         def cp_canceled(_cp_id: int, _user_data: any):
             print("color picker canceled")
 
-        add_color_picker(
-            on_press=cp_opened, # Button to open color picker
-            on_select=color_selected, # the color selection selected
-            on_cancel=cp_canceled,  # color selection was canceled
-            )
+        with Window(title="My App", pos_centered=True) as wnd_id: (if needed)
+            with Container(align_center=True):
+                add_color_picker(
+                    on_press=cp_opened, # Button to open color picker
+                    on_select=color_selected, # the color selection selected
+                    on_cancel=cp_canceled,  # color selection was canceled)
+
+        start_session()
 
     Returns:
         int: widget id
@@ -762,6 +783,7 @@ def add_text(
         with Window(title="My App", pos_centered=True):
             with Container(align_center=True):
                 add_text(content="Some Text")
+        start_session()
 
     Run the doc_help.py to see arguement descriptions.
     """
@@ -1194,11 +1216,11 @@ class Card:
     """Context manager wrapper around add_card.
 
     Wraps the iced_aw Card — a widget that aligns its contents inside
-    of its boundaries.  A Card take 1, 2, or 3 widgets.
-    if 1, assumed only body of card.
-    if 2, assumes head and body of card, respectively.
+    of its boundaries.\n
+    A Card take 1, 2, or 3 widgets.\n
+    if 1, assumed only body of card.\n
+    if 2, assumes head and body of card, respectively.\n
     if 3, uses head, body, foot, respectively.
-    see demo file py_card.py
 
     Usage::
 
@@ -1345,7 +1367,7 @@ class Menu:
 
         with Window(title="Demo"):
             with Menu(bar_items=[], menu_items=[])
-        start_session
+        start_session()
     """
     def __init__(
         self,
@@ -1371,6 +1393,46 @@ class Menu:
         exc_val: BaseException | None, \
             exc_tb: TracebackType | None) -> bool: ...
 
+class MenuBarItem:
+    """Context manager wrapper around add_menu_bar_item.
+
+    A container which hold the dropdown menu item.
+
+    Usage::
+
+        with Menu(spacing=10.0) as state["bar_testing_id"]:
+                # First item of the MenuBarItem is the bar item followed by the dropdown items
+                with MenuBarItem(width=75.0, spacing=5.0):
+                    add_text(content="File") # bar item
+                    # dropdown items
+                    add_button(label="New",
+                            if_menu_btn=True,
+                            on_press=on_press)
+                    add_button(label="Open",
+                            if_menu_btn=True,
+                            on_press=on_press)
+        start_session()
+    """
+    def __init__(
+        self,
+        *,
+        window_id: str | None = None,
+        container_id: str | None = None,
+        parent_id: str | None = None,
+        width: float | None = None,
+        spacing: float | None = None,
+        offset: float | None = None,
+        padding: list[float] | None = None,
+        close_on_item_click: bool | None = None,
+        close_on_background_click: bool | None = None,
+        show: bool = True,
+        gen_id: int | None = None,
+    )  -> None: ...
+    def __enter__(self) -> int: ...
+    def __exit__(self, exc_type: type[BaseException] | None, \
+        exc_val: BaseException | None, \
+            exc_tb: TracebackType | None) -> bool: ...
+
 class MouseArea:
     """Context Manager wrapper for add_mousearea
 
@@ -1382,7 +1444,7 @@ class MouseArea:
         with Window(title="Demo"):
             with MouseArea():
                 add_svg() # Your svg will have mouse interaction
-        start_session
+        start_session()
     """
     def __init__(
         self,
@@ -1409,18 +1471,27 @@ class MouseArea:
         exc_val: BaseException | None, \
             exc_tb: TracebackType | None) -> bool: ...
 
-class Opague:
-    """Context manager wrapper around add_row.
+class Opaque:
+    """Context manager wrapper around add_opaque.
 
-    A container that prevents mouse actions for passing throught.
+    A container that prevents mouse actions from passing throught.
 
     Usage::
 
-        with Window(title="Demo"):
-            with Row(spacing=10.0):
-                add_text(content="hello")
-                add_text(content="hello")
-        start_session
+        with Window(center=True):
+            with Container(fill=True, align_center=True):
+                with Stack():
+                    with Container(width=200, height=100, align_top_center=True,
+                                    style_std=ContainerStyleStd.BorderedBox):
+                        add_button(
+                            label="I'm on the bottom, so you can't press me",
+                            on_press=no_press)
+                    with Opaque():
+                        with Container(width=200, height=100, align_bottom_center=True):
+                            add_button(
+                                label="I'm on the top so my call back works",
+                                on_press=on_press)
+        start_session()
     """
     def __init__(
         self,
@@ -1428,6 +1499,59 @@ class Opague:
         window_id: str | None = None,
         container_id: str | None = None,
         parent_id: str | None = None,
+    ) -> None: ...
+    def __enter__(self) -> int: ...
+    def __exit__(self, exc_type: type[BaseException] | None, \
+        exc_val: BaseException | None,\
+            exc_tb: TracebackType | None) -> bool: ...
+
+class RichText:
+    """Context manager wrapper around add_rich_text.
+
+    A container that holds text spans.
+
+    Usage::
+
+        with Window(title="Demo"):
+            with RichText():
+                add_span(
+                    text="I am Light Blue and have an underline!",
+                    color=Color.LIGHT_BLUE,
+                    underline=True)
+        start_session()
+    """
+    def __init__(
+        self,
+        *,
+        window_id: str | None = None,
+        container_id: str | None = None,
+        parent_id: str | None = None,
+        size: float | None = None,
+        line_height: float | None = None,
+        width: float,
+        width_fill: bool | None = None,
+        height: float,
+        height_fill: bool | None = None,
+        fill: bool | None = None,
+        font_id: int | None = None,
+        color: Color | None = None,
+        color_alpha: float | None = None,
+        rgba: list[float, 4] | None = None,
+        align_bottom_center: bool | None = None,
+        align_bottom_left: bool | None = None,
+        align_bottom_right: bool | None = None,
+        align_center_left: bool | None = None,
+        align_center_right: bool | None = None,
+        align_center: bool | None = None,
+        align_top_center: bool | None = None,
+        align_top_left: bool | None = None,
+        align_top_right: bool | None = None,
+        wrapping_none: bool | None = None,
+        wrapping_glyph: bool | None = None,
+        wrapping_word_glyph: bool | None = None,
+        on_link_click: Any | None = None,
+        user_data: Any | None = None,
+        show: bool = True,
     ) -> None: ...
     def __enter__(self) -> int: ...
     def __exit__(self, exc_type: type[BaseException] | None, \
@@ -1445,7 +1569,7 @@ class Row:
             with Row(spacing=10.0):
                 add_text(content="hello")
                 add_text(content="hello")
-        start_session
+        start_session()
     """
     def __init__(
         self,
@@ -1481,7 +1605,7 @@ class Stack:
         with Window(title="Demo"):
             with Stack():
                 add_text(content="hello")
-        start_session
+        start_session()
     """
     def __init__(
         self,
@@ -1511,7 +1635,7 @@ class Scrollable:
             with Scrollable(width=200.0, height=100.0):
                 for i in range(0, 20):
                     add_text(content=f"Some Text {i}")
-        start_session
+        start_session()
     """
     def __init__(
         self,
@@ -1543,7 +1667,7 @@ class ToolTip:
             with Container(fill=True, align_center-True):
                 with ToolTip(text="Tool Tip text"):
                     add_text(content="Place mouse over me to see tooltip)
-        start_session
+        start_session()
     """
     def __init__(
         self,

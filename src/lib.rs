@@ -83,7 +83,7 @@ use crate::widgets::ipg_float::FloatParam;
 use crate::widgets::ipg_grid::GridParam;
 use crate::widgets::ipg_menu::{MenuBarItemParam, MenuParam, MenuStyleParam};
 use crate::widgets::ipg_pick_list::PickListHandle;
-use crate::widgets::ipg_radio::{RadioDirection, RadioParam, RadioStyleParam};
+use crate::widgets::ipg_radio::{RadioParam, RadioStyleParam};
 use crate::widgets::ipg_row::RowParam;
 use crate::widgets::ipg_rule::{RuleParam, RuleStyleParam};
 use crate::widgets::ipg_scrollable::{AutoScrollStyleParam, RailStyleParam, ScrollableParam, ScrollableStyleParam, ScrollerParam};
@@ -266,6 +266,5 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<FontStyle>()?;
     m.add_class::<MousePointer>()?;
     m.add_class::<PickListHandle>()?;
-    m.add_class::<RadioDirection>()?;
     Ok(())
 }

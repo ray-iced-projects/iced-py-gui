@@ -108,7 +108,7 @@ with Window(title="Float Example", center=True):
                 ):
                     with Column(spacing=10.0):
                         add_text(content="I'm a Float!", size=20.0)
-                        text_id = add_text(content="Normal", size=13.0)
+                        state["text_id"] = add_text(content="Normal", size=13.0)
 
             # Add some containers to show the float overlay better
             for i in range(4):

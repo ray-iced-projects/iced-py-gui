@@ -3,6 +3,8 @@
 Stack demo
 
 Stack allows one the stack widgets on top of each other
+If you are stacking and have issues with any mouse events being transferred
+to the widgets below them, then add an opaque layer to block.
 """
 import os
 from icedpygui import Window, Column, Container, Stack, start_session, \

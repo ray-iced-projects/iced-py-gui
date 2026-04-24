@@ -1033,9 +1033,10 @@ fn process_shows(
             Widgets::Slider(sl) => sl.show= *val,
             Widgets::Space(sp) => sp.show= *val,
             Widgets::Svg(svg) => svg.show= *val,
+            Widgets::Text(text) => text.show= *val,
             Widgets::TextInput(ti) => ti.show= *val,
             Widgets::Toggler(tog) => tog.show= *val,
-            _ => (),
+            _ => eprintln!("The widget: {:?} does not have a show parameter", widget)
         }
     }
 }

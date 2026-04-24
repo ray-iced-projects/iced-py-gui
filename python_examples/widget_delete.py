@@ -1,8 +1,14 @@
+#!/usr/bin/env python3
+"""
+Delete widget demo
+"""
+
 from icedpygui import Window, Column, Container, add_button, delete_widget, start_session
 
 
-def delete(id: int):
-    delete_widget(id)
+def delete(wid: int):
+    """Delete"""
+    delete_widget(wid)
     delete_widget(btn_id)
 
 
@@ -15,6 +21,6 @@ with Window(title="Test Widget Delete", center=True):
             btn_id = add_button(
                 label="Press me to delete me",
                 on_press=delete)
-    
-    
+
+
 start_session()

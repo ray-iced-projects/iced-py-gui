@@ -387,6 +387,21 @@ pub fn access_window_actions() -> MutexGuard<'static, WindowActions> {
     WINDOW_ACTIONS.lock().unwrap()
 }
 
+#[derive(Debug)]
+pub struct ClipboardActions {
+    pub writes: Vec<String>,
+    pub reads: Vec<usize>,
+}
+
+pub static CLIPBOARD_ACTIONS: Mutex<ClipboardActions> = Mutex::new(ClipboardActions {
+    writes: vec![],
+    reads: vec![],
+});
+
+pub fn access_clipboard_actions() -> MutexGuard<'static, ClipboardActions> {
+    CLIPBOARD_ACTIONS.lock().unwrap()
+}
+
 
 // ============================================================================
 // Main State - stores all widget/container definitions before Iced starts

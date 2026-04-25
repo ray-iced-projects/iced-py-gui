@@ -3,6 +3,71 @@
 Button use demo
 
 By repeatedly pressing the button, the parameters and styles are cycled through
+
+Adds a button widget.
+A clickable button used for some gui action.
+
+Parameters
+----------
+parent_id : str, Optional
+    Sets the parent container ID that this button belongs to.
+label : str,  Optional
+    Sets the Text label displayed on the button.
+on_press : callable,  Optional
+    Sets the Callback method to invoke when the button is pressed.
+width : float,  Optional
+    Sets the Fixed Width in logical pixels.
+width_fill : bool, default False
+    Whether the button fills available width.
+height : float,  Optional
+    Sets the Fixed Height in logical pixels.
+height_fill : bool, default False
+    Whether the button fills available height.
+fill : bool, Optional
+    Whether the button fills available width and height.
+padding : list of float,  Optional
+    Sets the Padding as [all], [vertical, horizontal], or
+    [top, right, bottom, left].
+text_top_left : bool,  Optional
+    Whether to Align the label to the top-left.
+text_top_center : bool,  Optional
+    Whether to Align the label to the top-centre.
+text_top_right : bool,  Optional
+    Whether to Align the label to the top-right.
+text_center_left : bool,  Optional
+    Whether to Align the label to the centre-left.
+text_center : bool,  Optional
+    Whether to Align the label to the centre (default True).
+text_center_right : bool,  Optional
+    Whether to Align the label to the centre-right.
+text_bottom_left : bool,  Optional
+    Whether to Align the label to the bottom-left.
+text_bottom_center : bool,  Optional
+    Whether to Align the label to the bottom-centre.
+text_bottom_right : bool,  Optional
+    Whether to Align the label to the bottom-right.
+text_size : float,  Optional
+    Sets the Font size for the label text.
+ if_menu_btn: bool, Optional
+     Whether the button is used in the menu widget, effects the alignment.
+clip : bool,  Optional
+    Whether to clip content that overflows the button.
+style_id : int,  Optional
+    Stes the ID of a custom style created with ``add_button_style``.
+style_std : ButtonStyleStd,  Optional
+    Sets the a predefined standard style variant.
+style_arrow : Arrow,  Optional
+    Sets an arrow icon style for the button.
+user_data : Any,  Optional
+    Sets an arbitrary data forwarded to callbacks.
+show : bool, default True
+    Whether the button is visible.
+gen_id : int,  Optional
+    Obtains an ID of a widget that have not been created, used for the gen_id parameter.
+Returns
+-------
+int
+   The numeric widget ID of the newly created button.
 """
 
 from icedpygui import Window, Column, Container, \
@@ -111,7 +176,7 @@ def on_press(btn_id: int):
         case 6:
             update_widget(state["txt_id"],
                           TextParam.Content,
-                          "Param = StyleArrow, keep pressing") 
+                          "Param = StyleArrow, keep pressing")
             update_widget_params(btn_id, {
                 ButtonParam.Padding: [10], # just the show the arrow better
                 # param to set
@@ -119,7 +184,7 @@ def on_press(btn_id: int):
         case 7:
             update_widget(state["txt_id"],
                           TextParam.Content,
-                          "Param = StyleStd - Danger, keep pressing") 
+                          "Param = StyleStd - Danger, keep pressing")
             update_widget_params(btn_id, {
                 # reset some of the previous parameters
                 ButtonParam.StyleArrow: None, # resets the arrow style to None
@@ -129,7 +194,7 @@ def on_press(btn_id: int):
         case 8:
             update_widget(state["txt_id"],
                           TextParam.Content,
-                          "Param = TextAlignBottomCenter=True, keep pressing") 
+                          "Param = TextAlignBottomCenter=True, keep pressing")
             update_widget_params(btn_id, {
                 # reset some of the previous parameters
                 ButtonParam.Padding: None,
@@ -143,7 +208,7 @@ def on_press(btn_id: int):
         case 9:
             update_widget(state["txt_id"],
                           TextParam.Content,
-                          "Param = TextAlignBottomLeft=True, keep pressing") 
+                          "Param = TextAlignBottomLeft=True, keep pressing")
             update_widget_params(btn_id, {
                 # reset some of the previous parameters
                 ButtonParam.Label: "Param = TextAlignBottomLeft, keep pressing",
@@ -153,7 +218,7 @@ def on_press(btn_id: int):
         case 10:
             update_widget(state["txt_id"],
                           TextParam.Content,
-                          "Param = TextAlignBottomRight=True, keep pressing") 
+                          "Param = TextAlignBottomRight=True, keep pressing")
             update_widget_params(btn_id, {
                 # reset some of the previous parameters
                 ButtonParam.Label: "Param = TextAlignBottomRight, keep pressing",
@@ -163,7 +228,7 @@ def on_press(btn_id: int):
         case 11:
             update_widget(state["txt_id"],
                           TextParam.Content,
-                          "Param = TextAlignCenter=True, keep pressing") 
+                          "Param = TextAlignCenter=True, keep pressing")
             update_widget_params(btn_id, {
                 # reset some of the previous parameters
                 ButtonParam.Label: "Param = TextAlignCenter, keep pressing",
@@ -173,7 +238,7 @@ def on_press(btn_id: int):
         case 12:
             update_widget(state["txt_id"],
                           TextParam.Content,
-                          "Param = TextAlignCenterLeft=True, keep pressing") 
+                          "Param = TextAlignCenterLeft=True, keep pressing")
             update_widget_params(btn_id, {
                 # reset some of the previous parameters
                 ButtonParam.Label: "Param = TextAlignCenterLeft, keep pressing",
@@ -183,7 +248,7 @@ def on_press(btn_id: int):
         case 13:
             update_widget(state["txt_id"],
                           TextParam.Content,
-                          "Param = TextAlignCenterRight=True, keep pressing") 
+                          "Param = TextAlignCenterRight=True, keep pressing")
             update_widget_params(btn_id, {
                 # reset some of the previous parameters
                 ButtonParam.Label: "Param = TextAlignCenterRight, keep pressing",
@@ -193,7 +258,7 @@ def on_press(btn_id: int):
         case 14:
             update_widget(state["txt_id"],
                           TextParam.Content,
-                          "Param = TextAlignTopCenter=True, keep pressing") 
+                          "Param = TextAlignTopCenter=True, keep pressing")
             update_widget_params(btn_id, {
                 # reset some of the previous parameters
                 ButtonParam.Label: "Param = TextAlignTopCenter, keep pressing",
@@ -203,7 +268,7 @@ def on_press(btn_id: int):
         case 15:
             update_widget(state["txt_id"],
                           TextParam.Content,
-                          "Param = TextAlignTopLeft=True, keep pressing") 
+                          "Param = TextAlignTopLeft=True, keep pressing")
             update_widget_params(btn_id, {
                 # reset some of the previous parameters
                 ButtonParam.Label: "Param = TextAlignTopLeft, keep pressing",
@@ -213,7 +278,7 @@ def on_press(btn_id: int):
         case 16:
             update_widget(state["txt_id"],
                           TextParam.Content,
-                          "Param = TextAlignTopRight=True, keep pressing") 
+                          "Param = TextAlignTopRight=True, keep pressing")
             update_widget_params(btn_id, {
                 # reset some of the previous parameters
                 ButtonParam.Label: "Param = TextAlignTopRight, keep pressing",
@@ -223,7 +288,7 @@ def on_press(btn_id: int):
         case 17:
             update_widget(state["txt_id"],
                           TextParam.Content,
-                          "Param = default, keep pressing") 
+                          "Param = default, keep pressing")
             update_widget_params(btn_id, {
             # reset some of the previous parameters
             ButtonParam.Width: None,
@@ -235,7 +300,7 @@ def on_press(btn_id: int):
         case 18:
             update_widget(state["txt_id"],
                           TextParam.Content,
-                          "Param = background_color, keep pressing") 
+                          "Param = background_color, keep pressing")
             update_widget_params(btn_id, {
             # reset some of the previous parameters
             ButtonParam.Width: 300,
@@ -247,7 +312,7 @@ def on_press(btn_id: int):
         case 19:
             update_widget(state["txt_id"],
                           TextParam.Content,
-                          "Param = background_color_alpha, keep pressing") 
+                          "Param = background_color_alpha, keep pressing")
             update_widget_params(btn_id, {
             # reset some of the previous parameters
             ButtonParam.Label: "background color alpha",
@@ -256,7 +321,7 @@ def on_press(btn_id: int):
         case 20:
             update_widget(state["txt_id"],
                           TextParam.Content,
-                          "Param = background_rgba, keep pressing") 
+                          "Param = background_rgba, keep pressing")
             update_widget_params(btn_id, {
             # reset some of the previous parameters
             ButtonParam.Label: "background rgba",
@@ -265,7 +330,7 @@ def on_press(btn_id: int):
         case 21:
             update_widget(state["txt_id"],
                           TextParam.Content,
-                          "Param = background_gradient, keep pressing") 
+                          "Param = background_gradient, keep pressing")
             update_widget_params(btn_id, {
             ButtonParam.Label: "background gradient",
             # param to set
@@ -273,7 +338,7 @@ def on_press(btn_id: int):
         case 22:
             update_widget(state["txt_id"],
                           TextParam.Content,
-                          "Param = border_color, keep pressing") 
+                          "Param = border_color, keep pressing")
             update_widget_params(btn_id, {
             ButtonParam.Label: "border color",
             # param to set
@@ -281,7 +346,7 @@ def on_press(btn_id: int):
         case 23:
             update_widget(state["txt_id"],
                           TextParam.Content,
-                          "Param = border_color alpha, keep pressing") 
+                          "Param = border_color alpha, keep pressing")
             update_widget_params(btn_id, {
             ButtonParam.Label: "border color alpha",
             # param to set

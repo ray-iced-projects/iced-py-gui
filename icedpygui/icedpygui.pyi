@@ -15,6 +15,17 @@ Type stubs for the Rust native module
 # Standalone functions (migrated from IPG class methods)
 # ---------------------------------------------------------------------------
 
+def clipboard_write(text: str) -> None:
+    """Write text to the system clipboard."""
+
+
+def clipboard_read(
+        on_read: callable,
+        user_data: object | None = None,
+        gen_id: int | None = None,
+    ) -> int:
+    """Read text from the system clipboard and invoke callback(req_id, text)."""
+
 class ButtonStyleStd:
     """
     Standard styles for Button widget

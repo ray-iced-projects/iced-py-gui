@@ -24,6 +24,7 @@ pub use state::{
 // Import pyfunctions from py_api modules
 use crate::py_api::window::add_window;
 use crate::py_api::button::{add_button, add_button_style};
+use crate::py_api::clipboard::{clipboard_read, clipboard_write};
 use crate::py_api::card::{add_card, add_card_style};
 use crate::py_api::checkbox::{add_checkbox, add_checkbox_style};
 use crate::py_api::colors::{get_color_palette, get_rgba_color};
@@ -122,6 +123,8 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(add_autoscroll_style, m)?)?;
     m.add_function(wrap_pyfunction!(add_button_style, m)?)?;
     m.add_function(wrap_pyfunction!(add_button, m)?)?;
+    m.add_function(wrap_pyfunction!(clipboard_read, m)?)?;
+    m.add_function(wrap_pyfunction!(clipboard_write, m)?)?;
     m.add_function(wrap_pyfunction!(add_card_style, m)?)?;
     m.add_function(wrap_pyfunction!(add_card, m)?)?;
     m.add_function(wrap_pyfunction!(add_checkbox_style, m)?)?;

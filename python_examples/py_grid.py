@@ -2,10 +2,44 @@
 """
 Grid use demo
 
-Just to make a demo more interesting, this grid demo is the
-Jeopardy game.  
+Add an grid container widget.
 
-The player scores are at the bottom and the player 
+Allows a widget to foat over others
+
+Parameters
+----------
+window_id : str
+    Sets the window this grid container belongs to.
+container_id : str
+    Sets the Unique string identifier for the grid container.
+parent_id : str, Optional
+    Sets the parent container ID.  Defaults to the window itself.
+spacing: float, Optional
+    Sets the spacing between grid items
+columns_max_width float, Optional
+    Makes the amount of columns dynamic, never
+    exceeding the provided max_width
+columns_amount: int, Optional
+    Sets the number of columns in the grid
+width: float, Optional
+    Sets the width of the grid
+height_aspect_ratio: float, Optional
+    Sets the aspection ratio for a grid.
+height_evenly_distribute: float, Optional
+    Sets how the cels of the grid as distributed
+height_evenly_distribute_fill bool
+    Whether to distribute the cells based on size.
+
+Returns
+-------
+int
+    The numeric widget ID of the newly created opaque container.
+
+******************************************************************
+Just to make a demo more interesting, this grid demo is the
+Jeopardy game.
+
+The player scores are at the bottom and the player
 that is highlighted with color has the turn.
 
 Click on a value and the answer is displayed
@@ -19,8 +53,8 @@ The answer is displayed if correct or back to the value.
 
 You have 10 seconds (changeable) to type in the answer or the grid cell converts back.
 
-The compare() function is simple but you could connect with an AI and input 
-with voice recognition, etc., to make a great game. 
+The compare() function is simple but you could connect with an AI and input
+with voice recognition, etc., to make a great game.
 
 It's never been completed, so no winning actions.
 
@@ -42,7 +76,7 @@ from icedpygui import Window, Container, Column, Row, Grid, start_session, \
 
 with open(os.path.join(
     os.path.dirname(__file__),
-    "resources", "jeopardy", "answers.json"), 
+    "resources", "jeopardy", "answers.json"),
     encoding="utf-8") as f:
     answers = json.load(f)
 

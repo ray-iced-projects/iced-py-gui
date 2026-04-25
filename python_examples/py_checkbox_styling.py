@@ -1,6 +1,42 @@
 #!/usr/bin/env python3
 """
 Checkbox styling use demo
+
+Adds styling to container
+
+Parameters
+----------
+background_color: Color, Optional
+    The background color of the box.
+background_color_alpha: float, Optional
+    Sets the alpha of the Color.
+background_rgba: list, Optional,
+    The background color of the box in rgba format.
+border_color: Color, Optional
+    The color for the border.
+border_color_alpha: float, Optional
+    Sets the alpha of the Color.
+border_rgba: list[float]
+    The color of the border in rgba format used as state above.
+border_radius: list[float]
+    The radius of the 4 corners, [float]=all corners,
+    [float] top-left, top-right, bottom-right, bottom-left.
+border_width: float
+    The border width.
+icon_color: Color, Optional
+    The icon color.
+icon_color_alpha: float, Optional
+    Sets the alpha of the Color.
+icon_rgba: list[float], Optional
+    The icon color in rgba format.
+text_color: Color, Optional
+    The text color, if not defined, will either be a Black or White variation based on theme background.
+text_color_alpha: float, Optional
+    Sets the alpha of the Color.
+text_rgba: list[float], Optional
+    The text color in rgba format.
+ gen_id : int,  Optional
+     Obtains an ID of a widget that have not been created, used for the gen_id parameter.
 """
 
 from icedpygui import Window, Column, Row, start_session, \

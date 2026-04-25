@@ -169,11 +169,10 @@ pub fn add_container(
 }
 
 
-/// """
 /// Add styling to a container.
 ///
 /// Creates a custom style that can be applied to a container
-/// via its ``style_id`` parameter.
+/// via its style_id parameter.
 ///
 /// Parameters
 /// ----------
@@ -228,8 +227,8 @@ pub fn add_container(
 /// Returns
 /// -------
 /// int
-///     The numeric style ID to pass to a container's ``style_id``.
-/// """
+///     The numeric style ID to pass to a container's style_id.
+///
 #[pyfunction]
 #[pyo3(signature = (
     background_color=None,

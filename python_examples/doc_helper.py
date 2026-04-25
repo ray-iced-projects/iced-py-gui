@@ -5,13 +5,16 @@ Help to display the Doc string for a widget
 
 import icedpygui as ipg
 
+state = { "copy": False }
+
 widgets = [
     # containers
     "add_window",
     "add_card", "add_card_style",
     "add_container", "add_container_style",
     "add_column", "add_float",
-    "add_grid", "add_mouse_area","add_row",
+    "add_grid", "add_menu", "add_menu_bar_item", "add_menu_style",
+    "add_mouse_area","add_row",
     "add_opaque", "add_stack", "add_table",
 
     # widgets
@@ -32,13 +35,20 @@ widgets = [
     "start_session", "generate_id"
 ]
 
+widgets.sort()
+
+def set_clipboard_action(_chk_id: int, checked: bool):
+    """Sets whether to copy display values to clipboard"""
+    state["copy"] = checked
+
 def show_help(_btn_id, widget_name):
     """Shows the doc string if available"""
     fn = getattr(ipg, widget_name)
     ipg.update_widget(wid=txt_id,
                   param=ipg.TextParam.Content,
                   value=fn.__doc__ or f"No docs for {widget_name}")
-
+    if state["copy"]:
+        ipg.clipboard_write(fn.__doc__ or f"No docs for {widget_name}")
 
 btn_style = ipg.add_button_style(border_radius=[5.0])
 
@@ -46,6 +56,7 @@ with ipg.Window(title="Widget Help", center=True):
     with ipg.Row(fill=True):
         with ipg.Scrollable():
             with ipg.Column(spacing=10.0, width=250.0, padding=[20.0]):
+                ipg.add_checkbox(label="Copy to clipboard", on_toggle=set_clipboard_action)
                 for name in widgets:
                     ipg.add_button(
                         label=name,

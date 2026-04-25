@@ -6,6 +6,7 @@ use iced::time::milliseconds;
 use iced::widget::{Column, scrollable};
 use iced::advanced::widget::operation::scrollable::scroll_to;
 use iced::window::{self, Position};
+use iced::clipboard;
 use iced::{Element, Event, Point, Size, Subscription, Task, Theme, font, message, time};
 
 use palette::chromatic_adaptation::AdaptInto;
@@ -13,7 +14,8 @@ use pyo3::{Py, PyAny};
 type PyObject = Py<PyAny>;
 
 use crate::py_api::helpers::find_key_for_value;
-use crate::state::{Containers, WidgetNode, IpgState, Widgets, access_state, access_update_widgets, access_window_actions, clone_state_to_runtime, set_state_of_widget_running_state};
+use crate::state::{Containers, WidgetNode, IpgState, Widgets, access_clipboard_actions, access_state, access_update_widgets, access_window_actions, clone_state_to_runtime, set_state_of_widget_running_state};
+use crate::widgets::callbacks::invoke_callback_with_args;
 use crate::widgets::ipg_button::{BtnMessage, button_callback};
 use crate::widgets::ipg_card::{CardMessage, card_callback};
 use crate::widgets::ipg_checkbox::{ChkMessage, checkbox_callback};
@@ -69,6 +71,7 @@ pub enum Message {
     Tick(usize, Instant),
 //     CanvasTick,
 //     CanvasTimer(usize, CanvasTimerMessage),
+    ClipboardReadResult(usize, Option<String>),
     FontLoaded(Result<(), font::Error>),
     WindowOpened(window::Id, Option<Point>, Size),
 
@@ -275,6 +278,17 @@ impl App {
                 process_widget_updates(&mut self.state);
                 Task::none()
             },
+            Message::ClipboardReadResult(id, text) => {
+                invoke_callback_with_args(
+                    id,
+                    "on_read",
+                    "Clipboard",
+                    text,
+                    "def callback(req_id: int, text: str | None)",
+                );
+                process_widget_updates(&mut self.state);
+                get_tasks(&mut self.state)
+            },
             // Message::CanvasTextBlink => {
             //     self.canvas_state.elapsed_time += self.canvas_state.timer_duration;
             //     self.canvas_state.blink = !self.canvas_state.blink;
@@ -467,6 +481,23 @@ fn get_tasks(ipg_state: &mut IpgState) -> Task<Message> {
     state.level = vec![];
 
     drop(state);
+
+    let mut clipboard_actions = access_clipboard_actions();
+
+    for text in clipboard_actions.writes.iter() {
+        actions.push(clipboard::write::<Message>(text.clone()).discard());
+    }
+    clipboard_actions.writes = vec![];
+
+    for req_id in clipboard_actions.reads.iter() {
+        let rid = *req_id;
+        actions.push(
+            clipboard::read().map(move |text| Message::ClipboardReadResult(rid, text)),
+        );
+    }
+    clipboard_actions.reads = vec![];
+
+    drop(clipboard_actions);
 
     if actions.is_empty() {
         actions.push(Task::none());

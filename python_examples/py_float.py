@@ -1,8 +1,30 @@
 #!/usr/bin/env python3
 """
 Float use demo
-Float allows a widget to float over others, optionally scaled
-and translated.
+
+Add an float container widget.
+
+Allows a widget to float over others
+
+Parameters
+----------
+window_id : str
+    Sets the window this float container belongs to.
+container_id : str
+    Sets the Unique string identifier for the float container.
+parent_id : str, Optional
+    Sets the parent container ID.  Defaults to the window itself.
+scale: float, Optional
+    Sets the scale factor for the contents
+translate List[float], Optional
+    Sets for translation vector [x, y]
+scale_clamped: bool, Optional
+    Whether to clamp the scale to the content container
+
+Returns
+-------
+int
+    The numeric widget ID of the newly created opaque container.
 """
 
 from icedpygui import Window, Container, Column, Row, Float, start_session, \

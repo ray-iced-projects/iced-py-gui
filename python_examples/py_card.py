@@ -1,6 +1,63 @@
 #!/usr/bin/env python3
 """
 Card use demo
+
+Add a card container.
+
+Card excepts the addition of 1 to 3 widgets, head, body, and optional foot.
+if only 1 widget is added, then it's assumed to be the body
+if 2 widgets are added, then they are head, body, respectively.
+if 3 widgets are added, then they are head, body, foot, respectively.
+
+Parameters
+----------
+parent_id : str
+    Sets the parent container ID that this card belongs to.
+is_open : bool, default True
+    Whether the card is open (expanded).
+close_icon : bool, Optional
+    Whether to have a close icon.
+close_icon_size : float, Optional
+    Sets the Size of the close button in logical pixels.
+on_close : callable, Optional
+    Sets the Callback method to invoke when the card is closed.
+width : float, Optional
+    Sets the Fixed width in logical pixels.
+width_fill : bool, default False
+    Whether the card fills available width.
+height : float, Optional
+    Sets the Fixed height in logical pixels.
+height_fill : bool, default False
+    Whether the card fills available height.
+max_width : float, Optional
+    Sets the Maximum width in logical pixels.
+max_height : float, Optional
+    Sets the Maximum height in logical pixels.
+padding : list of float, Optional
+    Sets the Padding for all sections as [all], [vertical, horizontal], or
+    [top, right, bottom, left].
+padding_head : list of float, Optional
+    Sets the Padding for the header section.
+padding_body : list of float, Optional
+    Sets the Padding for the body section.
+padding_foot : list of float, Optional
+    Sets the Padding for the footer section.
+style_id : int, Optional
+    Sets the ID of a custom style created with ``add_card_style``.
+style_std : CardStyleStd, Optional
+    Sets a predefined standard style variant.
+style_button : int, Optional
+    Sets the ID of a button style for the close button.
+show : bool, default True
+    Whether the card is visible.
+user_data : Any, Optional
+    Sets the Arbitrary data forwarded to callbacks.
+gen_id : int, Optional
+    Obtains an ID of a widget that have not been created, used for the gen_id parameter.
+Returns
+-------
+int
+    The numeric widget ID of the newly created card.
 """
 from icedpygui import Window, Container, Column, \
     Card, CardParam, CardStyleStd, \

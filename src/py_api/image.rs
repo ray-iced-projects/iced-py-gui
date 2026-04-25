@@ -7,7 +7,6 @@ use crate::{access_state,
     widgets::{enums::{ContentFit, FilterMethod, Rotation}, ipg_image::Image}};
 
 
-/// """
 /// add_image or Image parameters
 /// 
 /// Parameters
@@ -62,7 +61,7 @@ use crate::{access_state,
 /// -------
 /// int
 ///     The numeric widget ID of the newly created image.
-/// """
+///
 #[pyfunction]
 #[pyo3(signature = (
     path,

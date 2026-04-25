@@ -2,54 +2,73 @@
 """
 Image use demo with interactive cropping via MouseArea.
 
+The iced Image widget displays raster images (PNG, JPG, GIF, BMP, ICO,
+TIFF, WebP, AVIF, PNM, DDS, TGA, EXR, Farbfeld, QOI) while preserving
+aspect ratio by default.
+
+
+add_image or Image parameters
+
+Parameters
+----------
+ImagePath: str
+    Sets the path to where the image is located.
+BorderRadius: list[float, 4] | list[float]
+    Sets the border radius of the image either all corner same
+    value [float] or independent [float,4].
+ContentFit: ContentFit
+    Set how the image contents fits see ContentFit class.
+CropHeight: float
+    Sets the height of the crop rectangle.
+CropWidth: float
+    Sets the crop width of the crop rectangle.
+CropX: float
+    Sets the origin x of the crop rectangle.
+CropY: float
+    Sets the origin y of the crop rectangle.
+Expand: float
+    Sets whether the image should try to fill as much space
+    available as possible while keeping aspect ratio and without
+    allocating extra space in any axis.
+FilterMethod: FilterMethod
+    Sets the filter method, see FilterMethod
+Fill: bool
+    Sets both width_fill and length_fill.
+Height: float
+    Sets the height of the widget.
+HeightFill: bool
+    Sets the height to fill the available space, overrides height.
+Opacity: float
+    Sets the opacity of the image.
+Padding: list[float]
+    Sets the padding around the image.
+RotationDegrees: float
+    Sets the roation of the image in degrees format.
+RotationRadians: float
+    Sets the rotate the image in radians.
+RotationMethod: Rotation
+    Set the roation method, see Rotation.
+Scale: float
+    Sets the scale factor of the Image.
+    The region of the Image drawn will be scaled from the center by the given scale factor.
+Show: bool
+    Whether to show or hide the image.
+Width: float
+    Sets the width of the image.
+WidthFill: bool
+    Whether to fill the width to the available container size.
+
+Returns
+-------
+int
+    The numeric widget ID of the newly created image.
+
 Usage:
   1. Click "Crop Mode" to enter cropping mode.
   2. Press and drag on the image to select a crop rectangle.
   3. Release the mouse — the button changes to "Press to Crop".
   4. Click the button to apply the crop.
   5. Click "Undo Crop" to restore the original image.
-
-Image Widget Notes (iced 0.14)
-==============================
-The iced Image widget displays raster images (PNG, JPG, GIF, BMP, ICO,
-TIFF, WebP, AVIF, PNM, DDS, TGA, EXR, Farbfeld, QOI) while preserving
-aspect ratio by default.
-
-Key Parameters
---------------
-- content_fit (ContentFit)  — controls how the image fills its
-    container.  Default is ContentFit.Contain.
-
-    Contain — scale to fit entirely inside the container (no
-      cropping), preserving aspect ratio.  May leave whitespace.
-    Cover — scale to completely cover the container, cropping
-      edges if the aspect ratios differ.
-    Fill — stretch to fill exactly, ignoring aspect ratio.
-    None — no scaling at all; image is drawn at its native
-      pixel size.
-    ScaleDown — like Contain but never scales up.
-
-- crop(x, y, w, h) — crops in *source-pixel* coordinates before
-    any scaling or ContentFit is applied.  Uses GPU scissoring so it is
-    as cheap as not cropping.  Coordinates are clamped to the image size.
-
-- rotation — apply a rotation (degrees or radians) around the
-    center of the image.
-
-- opacity — 0.0 (transparent) to 1.0 (opaque, default).
-
-- scale — zoom the drawn region from the center; useful for smooth
-    zoom-in/out animations.
-
-- expand — if True, fills as much available space as possible while
-    keeping aspect ratio without allocating extra blank space, acts
-    like Length.Fill for both axes but without whitespace.
-
-- filter_method — Nearest or Linear interpolation when the
-    image is scaled.
-
-- border_radius — rounds the corners of the rectangular bounding
-    box.
 
 Container Sizing & Cropping
 ----------------------------
@@ -65,13 +84,13 @@ cropping, you may need to fix the Container's width and
 height to the desired size.  Without fixed dimensions the
 Container may resize when sibling widgets (buttons, text) change size,
 which breaks the coordinate mapping between mouse position and source
-pixels.  If you set the sizing of all containers or have a simpler layout 
-where nothing causes the container to resize, then you could probably 
-eliminate to ContentFit setting/resetting.  If you crop manually, preset the 
+pixels.  If you set the sizing of all containers or have a simpler layout
+where nothing causes the container to resize, then you could probably
+eliminate to ContentFit setting/resetting.  If you crop manually, preset the
 width and height of the image, you won't have any issues.
 
 In this demo, only cropping was performed but additional methods
-like scaling and even mouse rotation could be added using the same 
+like scaling and even mouse rotation could be added using the same
 methods as cropping.
 """
 import os

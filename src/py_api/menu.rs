@@ -10,8 +10,6 @@ use crate::state::{Containers, Widgets, get_id, set_state_cont_wnd_ids, set_stat
 type PyObject = Py<PyAny>;
 
 
-
-///"""
 /// Add a menu widget.
 ///
 /// A horizontal menu bar with dropdown menus.  Each top-level bar
@@ -86,7 +84,7 @@ type PyObject = Py<PyAny>;
 /// -------
 /// int
 ///     The numeric widget ID of the newly created menu.
-/// """
+///
 #[pyfunction]
 #[pyo3(signature = ( 
     window_id,

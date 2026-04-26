@@ -158,7 +158,7 @@ impl WidgetParamUpdate for TextEditor {
 //         load_file(picked_file).await
 //     }
 // }
-
+ 
 // async fn load_file(path: impl Into<PathBuf>) -> Result<(PathBuf, Arc<String>), Error> {
 //     let path = path.into();
 

@@ -9,7 +9,6 @@ from icedpygui import Window, Container, start_session, \
 
 
 
-
 with Window(title="Text Editor", center=True):
     with Container(fill=True, align_center=True):
         add_text_editor()

@@ -1,0 +1,4 @@
+I want to speculate first by taking some very simple actions so that I get a better feel for how this would work.
+1.  Assume the interface is present in some form
+2.  Assume this menu gui is coupled with the text editor.
+3. So based on this interfaces data and the programs data, you have all your info that is required to perform some task.

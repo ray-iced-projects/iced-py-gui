@@ -1,0 +1,85 @@
+Core Idea
+Expose the GUI to the AI as a live, queryable model:
+
+A semantic widget tree (what exists, labels, state, capabilities)
+A constrained action API (what can be done)
+An event/state stream (what changed after each action)
+That gives the AI a closed loop: observe → plan → act → verify.
+
+What The AI Should See
+Use a normalized “UI state snapshot” with fields like:
+
+Widget identity: stable id, type, parent/children
+Semantics: label, role, purpose, group/menu context
+State: visible, enabled, selected, checked, value, focused
+Actions supported: click, open_menu, set_value, select_item, etc.
+Constraints: min/max, allowed options, validation rules
+Think of this as an accessibility-style tree plus domain metadata.
+
+Control Surface (High-Level API)
+The AI should not send raw mouse coordinates by default. It should call intentful commands like:
+
+discover_ui()
+find_widgets(filter)
+get_widget(id)
+perform_action(widget_id, action, params)
+batch_actions([...]) with rollback behavior if possible
+wait_for(condition, timeout)
+subscribe_events()
+This makes automation deterministic and robust across layout/theme changes.
+
+Execution Model
+A practical loop:
+
+Interpret user intent into a goal
+Map goal to target widgets and actions
+Execute one atomic action at a time
+Re-read UI state and confirm expected result
+Continue or recover if mismatch
+This avoids blind multi-step failures.
+
+Intent Layer Above Widgets
+Add a thin “app-intent” layer so the AI can use domain verbs instead of low-level UI commands:
+
+open_file(path)
+export_chart(format)
+apply_filter(name, value)
+start_timer(seconds)
+Under the hood, these map to widget actions. This is usually the biggest reliability boost.
+
+Safety and Guardrails
+For AI control, include:
+
+Permission levels: read-only, normal, destructive
+Confirmation policy for risky actions (delete, overwrite, quit with unsaved)
+Dry-run mode: return planned steps without executing
+Audit log: every action + before/after state hash
+Rate limiting and max-step budget per request
+Disambiguation Strategy
+Menus often have repeated labels. Require selectors that can combine:
+
+label
+role/type
+path (menu hierarchy)
+index fallback
+nearest context container
+Example concept: “Open in File menu” is more precise than “Open”.
+
+Eventing and Feedback
+After each action, return:
+
+success/failure
+reason/error code
+changed widgets
+any modal/dialog appearance
+next suggested actions (optional)
+This lets the AI recover without guessing.
+
+Minimal Contract To Start
+If you built only one first version:
+
+get_ui_snapshot()
+execute(widget_id, action, params)
+get_recent_events()
+policy_check(plan)
+That is enough for an AI agent to control most menu-driven workflows reliably.

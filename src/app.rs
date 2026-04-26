@@ -803,7 +803,7 @@ fn get_widget<'a>(state: &'a IpgState, id: &usize) -> Option<Element<'a, Message
                     txt.construct(&state.widgets)
                 },
                 Widgets::TextEditor(txt) => {
-                    txt.construct()
+                    txt.construct(&state.widgets)
                 },
                 Widgets::TextInput(input) => {
                     input.construct(&state.widgets)       

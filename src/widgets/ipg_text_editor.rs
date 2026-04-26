@@ -1,16 +1,22 @@
 
 
+use std::collections::HashMap;
+
+use iced::Length;
+use iced::Padding;
 use iced::highlighter;
 use iced::widget;
-use iced::widget::text::Wrapping;
 
 use iced::Element;
+use iced::widget::text::Wrapping;
 use pyo3::{pyclass, Py, PyAny};
 type PyObject = Py<PyAny>;
 
 use crate::IpgState;
 use crate::app::Message;
 use crate::py_api::helpers::get_len;
+use crate::py_api::helpers::get_padding;
+use crate::state::Widgets;
 use crate::widgets::widget_param_update::{WidgetParamUpdate, set_t_value};
 
 
@@ -37,8 +43,14 @@ pub struct TextEditor {
 }
 
 impl TextEditor {
+
+    fn lookup<'a>(&self, widgets: &'a HashMap<usize, Widgets>, id: Option<usize>) -> Option<&'a Widgets> {
+        id.and_then(|id| widgets.get(&id))
+    }
+
     pub fn construct<'a>(
         &'a self,
+        widgets: &HashMap<usize, Widgets>,
     ) -> Option<Element<'a, Message>> {
 
         // default is word so not checked
@@ -51,13 +63,53 @@ impl TextEditor {
                 Wrapping::WordOrGlyph
             } else { Wrapping::Word };
 
-        let te: Element<'_, TxtEdMessage> = widget::text_editor(&self.content)
-                .placeholder("Type something here...")
-                .height(get_len(self.fill, self.height_fill, self.height))
-                .on_action(TxtEdMessage::ActionPerformed)
-                .wrapping(wrapping)
-                .into();
+        let hgt = if self.fill.is_none() && 
+                        self.height_fill.is_none() && 
+                        self.height.is_none() {
+            Length::Fill
+        } else {
+            get_len(self.fill, self.height_fill, self.height)
+        };
 
+        let ph = if let Some(ph) = &self.place_holder {
+            ph
+        } else { "Type something here..." };
+
+        let font_opt = 
+            self.lookup(widgets, self.font_id)
+                .and_then(Widgets::as_font).cloned();
+
+        let te = widget::text_editor(&self.content)
+                .placeholder(ph)
+                .height(hgt)
+                .min_height(self.min_height.unwrap_or_default())
+                .max_height(self.max_height.unwrap_or(f32::INFINITY))
+                .on_action(TxtEdMessage::ActionPerformed)
+                .wrapping(wrapping);
+
+        let te = if let Some(ft) = font_opt {
+            te.font(ft.to_iced())
+        } else { te };
+
+        let te = if let Some(lh) = self.line_height {
+            te.line_height(lh)
+        } else { te };
+
+        let te = if let Some(ts) = self.text_size {
+            te.size(ts)
+        } else { te };
+
+        let te = if let Some(wd) = self.width {
+            te.width(wd)
+        } else { te };
+
+        let te = if self.padding.is_some() {
+            te.padding(get_padding(&self.padding))
+        } else {
+            te.padding(Padding::new(5.0))
+        };
+
+        let te: Element<'_, TxtEdMessage> = te.into();
         Some(te.map(move |message| Message::TextEditor(self.id, message)))
     }
 
@@ -102,15 +154,18 @@ pub fn text_ed_callback(id: usize, message: TxtEdMessage, state: &mut IpgState) 
 #[derive(Debug, Clone, PartialEq, Hash)]
 #[pyclass(eq, eq_int, hash, frozen)]
 pub enum TextEditorParam {
-    FontId, 
-    Height, 
-    LineHeight, 
-    MaxHeight, 
-    MinHeight, 
-    Padding, 
+    Fill,
+    FontId,
+    Height,
+    HeightFill,
+    LineHeight,
+    MaxHeight,
+    MinHeight,
+    Padding,
     PlaceHolder, 
-    TextSize, 
-    Width, 
+    TextSize,
+    Width,
+    WidthFill,
     WrappingGlyph,
     WrappingNone,
     WrappingWordGlyph,
@@ -126,18 +181,21 @@ impl WidgetParamUpdate for TextEditor {
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
+            TextEditorParam::Fill => set_t_value(&mut self.fill, value, "TextEditorParam::Fill"),
             TextEditorParam::FontId => set_t_value(&mut self.font_id, value, "TextEditorParam::FontId"),
-            TextEditorParam::Height => todo!(),
-            TextEditorParam::LineHeight => todo!(),
-            TextEditorParam::MaxHeight => todo!(),
-            TextEditorParam::MinHeight => todo!(),
-            TextEditorParam::Padding => todo!(),
-            TextEditorParam::PlaceHolder => todo!(),
-            TextEditorParam::TextSize => todo!(),
-            TextEditorParam::Width => todo!(),
-            TextEditorParam::WrappingGlyph => todo!(),
-            TextEditorParam::WrappingNone => todo!(),
-            TextEditorParam::WrappingWordGlyph => todo!(),
+            TextEditorParam::Height => set_t_value(&mut self.height, value, "TextEditorParam::Height"),
+            TextEditorParam::HeightFill => set_t_value(&mut self.height_fill, value, "TextEditorParam::HeightFill"),
+            TextEditorParam::LineHeight => set_t_value(&mut self.line_height, value, "TextEditorParam::LineHeight"),
+            TextEditorParam::MaxHeight => set_t_value(&mut self.max_height, value, "TextEditorParam::MaxHeightname"),
+            TextEditorParam::MinHeight => set_t_value(&mut self.min_height, value, "TextEditorParam::MinHeight"),
+            TextEditorParam::Padding => set_t_value(&mut self.padding, value, "TextEditorParam::Padding"),
+            TextEditorParam::PlaceHolder => set_t_value(&mut self.place_holder, value, "TextEditorParam::PlaceHolder"),
+            TextEditorParam::TextSize => set_t_value(&mut self.text_size, value, "TextEditorParam::TextSize"),
+            TextEditorParam::Width => set_t_value(&mut self.width, value, "TextEditorParam::Width"),
+            TextEditorParam::WidthFill => set_t_value(&mut self.width_fill, value, "TextEditorParam::WidthFill"),
+            TextEditorParam::WrappingGlyph => set_t_value(&mut self.wrapping_glyph, value, "TextEditorParam::WrappingGlyph"),
+            TextEditorParam::WrappingNone => set_t_value(&mut self.wrapping_none, value, "TextEditorParam::WrappingNone"),
+            TextEditorParam::WrappingWordGlyph => set_t_value(&mut self.wrapping_word_glyph, value, "TextEditorParam::WrappingWordGlyph"),
         }
     }
 }

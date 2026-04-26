@@ -36,20 +36,6 @@ pub fn get_len(fill: Option<bool>, length_fill: Option<bool>, length: Option<f32
     Length::Shrink
 }
 
-// Standard method for Length using Width
-pub fn get_length(value: Option<f32>, fill: bool)-> Length {
-    // width overrides width_fill
-    match value {
-        Some(wd) => Length::Fixed(wd),
-        None => {
-                match fill {
-                    true => Length::Fill,
-                    false => Length::Shrink,
-                }
-        },
-    }
-}
-
 // Standard method for padding
 pub fn get_padding(padding: &Option<Vec<f32>>)-> Padding {
     let pd = if let Some(pd) = padding {

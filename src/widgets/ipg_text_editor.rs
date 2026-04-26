@@ -1,15 +1,16 @@
 
 
-use iced::{highlighter, Length};
+use iced::highlighter;
 use iced::widget;
 use iced::widget::text::Wrapping;
 
-use iced::{Element, Fill};
+use iced::Element;
 use pyo3::{pyclass, Py, PyAny};
 type PyObject = Py<PyAny>;
 
 use crate::IpgState;
 use crate::app::Message;
+use crate::py_api::helpers::get_len;
 use crate::widgets::widget_param_update::{WidgetParamUpdate, set_t_value};
 
 
@@ -21,8 +22,11 @@ pub struct TextEditor {
     pub font_id: Option<usize>,
     pub text_size: Option<f32>,
     pub line_height: Option<f32>,
-    pub width: Length,
-    pub height: Length,
+    pub width: Option<f32>,
+    pub width_fill: Option<bool>,
+    pub height: Option<f32>,
+    pub height_fill: Option<bool>,
+    pub fill: Option<bool>,
     pub min_height: Option<f32>,
     pub max_height: Option<f32>,
     pub padding: Option<Vec<f32>>,
@@ -49,7 +53,7 @@ impl TextEditor {
 
         let te: Element<'_, TxtEdMessage> = widget::text_editor(&self.content)
                 .placeholder("Type something here...")
-                .height(Fill)
+                .height(get_len(self.fill, self.height_fill, self.height))
                 .on_action(TxtEdMessage::ActionPerformed)
                 .wrapping(wrapping)
                 .into();

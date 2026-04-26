@@ -4,7 +4,6 @@ use pyo3::prelude::*;
 use pyo3::pyfunction;
 
 use crate::access_state;
-use crate::py_api::helpers::get_length;
 use crate::state::{Widgets, get_id, set_state_of_widget};
 use crate::widgets::ipg_text_editor::TextEditor;
 use crate::widgets::ipg_text_editor::TxtEdStatus;
@@ -19,9 +18,10 @@ use crate::widgets::ipg_text_editor::TxtEdStatus;
     text_size=None,
     line_height=None,
     width=None,
-    width_fill=false,
+    width_fill=None,
     height=None,
-    height_fill=false,
+    height_fill=None,
+    fill=None,
     min_height=None,
     max_height=None,
     padding=None,
@@ -36,9 +36,10 @@ pub fn add_text_editor(
     text_size: Option<f32>,
     line_height: Option<f32>,
     width: Option<f32>,
-    width_fill: bool,
+    width_fill: Option<bool>,
     height: Option<f32>,
-    height_fill: bool,
+    height_fill: Option<bool>,
+    fill: Option<bool>,
     min_height: Option<f32>,
     max_height: Option<f32>,
     padding: Option<Vec<f32>>,
@@ -49,10 +50,6 @@ pub fn add_text_editor(
 
     let id = get_id(None);
     
-    // Calculate dimensions
-    let width = get_length(width, width_fill);
-    let height = get_length(height, height_fill);
-
     // Register widget with parent
     set_state_of_widget(id, parent_id.clone());
 
@@ -69,8 +66,11 @@ pub fn add_text_editor(
                 font_id, 
                 text_size, 
                 line_height, 
-                width, 
-                height, 
+                width,
+                width_fill, 
+                height,
+                height_fill,
+                fill,
                 min_height, 
                 max_height, 
                 padding, 

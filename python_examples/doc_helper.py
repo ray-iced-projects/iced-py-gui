@@ -12,8 +12,8 @@ widgets = [
     "add_window",
     "add_card", "add_card_style",
     "add_container", "add_container_style",
-    "add_column", "add_float",
-    "add_grid", "add_menu", "add_menu_bar_item", "add_menu_style",
+    "add_column", "add_float", "add_grid",
+    "add_menu", "add_menu_bar_item", "add_menu_style",
     "add_mouse_area","add_row",
     "add_opaque", "add_stack", "add_table",
 
@@ -22,11 +22,17 @@ widgets = [
     "add_checkbox", "add_checkbox_style",
     "add_color_picker", "add_date_picker",
     "add_divider", "add_image",
-    "add_pick_list", "add_progress_bar",
-    "add_radio", "add_rule", "add_scrollable",
-    "add_separator", "add_slider", "add_space",
-    "add_span", "add_svg", "add_text_input",
-    "add_text", "add_text_editor", "add_toggler",
+    "add_pick_list", "add_pick_list_style",
+    "add_progress_bar", "add_progress_bar_style",
+    "add_radio", "add_radio_style",
+    "add_rule", "add_rule_style",
+    "add_scrollable", "add_scrollable_style", "add_scroller",
+    "add_rail_style", "add_autoscroll_style",
+    "add_separator", "add_separator_style",
+    "add_slider", "add_slider_style", "add_space",
+    "add_svg", "add_text_editor",
+    "add_text_input",
+    "add_text", "add_span", "add_toggler",
 
     # utilities
     "update_widget", "update_widget_params",
@@ -35,7 +41,6 @@ widgets = [
     "start_session", "generate_id"
 ]
 
-widgets.sort()
 
 def set_clipboard_action(_chk_id: int, checked: bool):
     """Sets whether to copy display values to clipboard"""

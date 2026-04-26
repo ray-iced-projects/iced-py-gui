@@ -1,6 +1,47 @@
 #!/usr/bin/env python3
 """
 Row demo
+
+A row lays out its children horizontally from left to right.
+
+Parameters
+----------
+window_id : str
+    Sets the window this row belongs to.
+container_id : str
+    Sets the Unique string identifier for the row.
+parent_id : str, optional
+    Sets the parent container ID.  Defaults to the window itself.
+width : float, optional
+    Sets the Fixed width in logical pixels.
+width_fill : bool, Optional
+    Whether the row fills available width.
+height : float, optional
+    Sets the Fixed height in logical pixels.
+height_fill : bool, Optional
+    Whether the row fills available height.
+fill : bool, Optional
+    Whether to fill both the available width and height
+align_bottom : bool, optional
+    Whether to Align children to the bottom.
+align_center : bool, optional
+    Whether to Align children to the vertical centre.
+align_top : bool, optional
+    Whether to Align children to the top.
+padding : list of float, optional
+    Sets the Padding as ``[all]``, ``[vertical, horizontal]``, or
+    ``[top, right, bottom, left]``.
+spacing : float, optional
+    Sets the Horizontal spacing between children in logical pixels.
+clip : bool, optional
+    Whether to clip content that overflows the row.
+show : bool, default True
+    Whether the row is visible.
+
+Returns
+-------
+int
+    The numeric widget ID of the newly created row.
 """
 from icedpygui import Window, Column, Container, Row, start_session, \
     add_text, ContainerStyleStd

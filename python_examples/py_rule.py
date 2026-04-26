@@ -2,13 +2,73 @@
 """
 Rule demo
 
-The Rule is a widget that can separate items,
-it's essentially a line widget.
+Add a rule widget.
+
+A horizontal or vertical line used as a visual separator.
+
+Parameters
+----------
+parent_id : str
+    Sets the parent container ID that this rule belongs to.
+is_vertical : bool, Optional
+    Whether the rule is oriented vertically.
+thickness : int, Optional
+    Sets the thickness of the rule.
+style_id : int, Optional
+    Sets the ID of a custom style created with ``add_rule_style``.
+gen_id : int, Optional
+    Obtains an ID of a widget that have not been created, used for the gen_id parameter.
+show : bool, default True
+    Whether the rule is visible.
+
+Returns
+-------
+int
+    The numeric widget ID of the newly created rule.
+****************************************************
+Add styling to a rule.
+
+Creates a custom style that can be applied to a rule
+via its ``style_id`` parameter.
+
+Parameters
+----------
+color : Color, Optional
+    Sets the rule color using a predefined color variant.
+color_alpha : float, Optional
+    Sets the alpha of the Color.
+color_rgba : list of float, Optional
+    Sets the rule color in rgba format as [r, g, b, a].
+border_radius : list of float, Optional
+    Sets the radius of the corners as [all] or
+    [top-left, top-right, bottom-right, bottom-left].
+fillmode_percent : float, Optional
+    Sets the fill mode as a percentage of the available space.
+fillmode_padded : int, Optional
+    Sets the fill mode with equal padding on both sides.
+fillmode_asymmetric_padding : list of int, Optional
+    Sets the fill mode with asymmetric padding as [start, end].
+snap : bool, Optional
+    Whether to snap the rule to the pixel grid.
+gen_id : int, Optional
+    Obtains an ID of a widget that have not been created, used for the gen_id parameter.
+
+Returns
+-------
+int
+    The numeric style ID to pass to a rule's ``style_id``.
+
 """
 
 from icedpygui import Window, Container, Column, start_session, \
     add_space, add_rule, add_rule_style, add_text, Color, ContainerStyleStd
 
+
+CONTENT = "The rule's length are determined by the container they are in\n\
+The holding containers' width=200 controls the horizontal\n\
+The holding container's height=100 controls the vertical\n\
+All of these could hve used a single Column, except for the vertical\n\
+The Container helps highlight the rule's position better, in this case"
 
 # add some styling
 st1 = add_rule_style(
@@ -46,11 +106,7 @@ with Window(title="Rule Demo", center=True):
             add_space(width_fill=True, height=20.0)
 
             # Add info
-            add_text(content="The rule's length are determined by the container they are in")
-            add_text(content="The holding containers' width=200 controls the horizontal")
-            add_text(content="The holding container's height=100 controls the vertical")
-            add_text(content="All of these could hve used a single Column, except for the vertical")
-            add_text(content="The Container helps highlight the rule's position better, in this case")
+            add_text(content=CONTENT)
 
             with Container(style_std=ContainerStyleStd.BorderedBox,
                            width=200, height=100, align_center=True):

@@ -37,7 +37,7 @@ pub struct CheckBox {
     pub size: Option<f32>,
     pub spacing: Option<f32>,
     pub text_size: Option<f32>,
-    pub text_line_height: Option<f32>,
+    pub line_height: Option<f32>,
     pub text_wrapping_none: Option<bool>,
     pub text_wrapping_glyph: Option<bool>,
     pub text_wrapping_word_glyph: Option<bool>,
@@ -95,8 +95,8 @@ impl CheckBox {
             };
         
         // Text related
-        let text_line_height = 
-            if let Some(lh) = self.text_line_height {
+        let line_height = 
+            if let Some(lh) = self.line_height {
                 text::LineHeight::Relative(lh)
             } else { text::LineHeight::default() };
 
@@ -104,7 +104,7 @@ impl CheckBox {
             Checkbox::new(self.is_checked)
                 .on_toggle(ChkMessage::OnToggle)
                 .width(get_len(self.fill, None, self.width))
-                .text_line_height(text_line_height)
+                .line_height(line_height)
                 .icon(icon)
                 .style(move|theme: &Theme, status| {   
                     if let Some(st) = &style_opt {
@@ -137,11 +137,11 @@ impl CheckBox {
         // default is word so not checked
         let chk = 
             if self.text_wrapping_none.is_some() {
-                chk.text_wrapping(Wrapping::None)
+                chk.wrapping(Wrapping::None)
             } else if self.text_wrapping_glyph.is_some() {
-                chk.text_wrapping(Wrapping::Glyph)
+                chk.wrapping(Wrapping::Glyph)
             } else if self.text_wrapping_word_glyph.is_some() {
-                chk.text_wrapping(Wrapping::WordOrGlyph)
+                chk.wrapping(Wrapping::WordOrGlyph)
             } else { chk };
 
         let chk: Element<'_, ChkMessage> = chk.into();
@@ -232,10 +232,10 @@ impl CheckboxStyle {
             let dark_mode = palette::is_dark(bkg);
             custom_theme = create_custom_theme(bkg, dark_mode);
             text_color = custom_theme.palette().text;
-            custom_theme.extended_palette()
+            custom_theme.palette()
         } else {
             text_color = theme.palette().text;
-            theme.extended_palette()
+            theme.palette()
         };
 
         let mut style = match status {
@@ -403,7 +403,7 @@ impl WidgetParamUpdate for CheckBox {
             CheckboxParam::StyleId => set_t_value(&mut self.style_id, value, "CheckboxParam::StyleId"),
             CheckboxParam::StyleStd => set_t_value(&mut self.style_std, value, "CheckboxParam::StyleStd"),
             CheckboxParam::TextFontId => set_t_value(&mut self.text_font_id, value, "CheckboxParam::TextFontId"),
-            CheckboxParam::TextLineHeight => set_t_value(&mut self.text_line_height, value, "CheckboxParam::TextLineHeight"),
+            CheckboxParam::TextLineHeight => set_t_value(&mut self.line_height, value, "CheckboxParam::TextLineHeight"),
             CheckboxParam::TextSize => set_t_value(&mut self.text_size, value, "CheckboxParam::TextSize"),
             CheckboxParam::TextWrappingGlyph => set_t_value(&mut self.text_wrapping_glyph, value, "CheckboxParam::TextWrappingGlyph"),
             CheckboxParam::TextWrappingNone => set_t_value(&mut self.text_wrapping_none, value, "CheckboxParam::TextWrappingNone"),

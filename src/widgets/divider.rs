@@ -1,8 +1,9 @@
 //! A divider for resizing containers.
 
+use iced::advanced::clipboard::Clipboard;
 use iced::border::{Border, Radius};
 use iced::event::Event;
-use iced::advanced::{Clipboard, layout};
+use iced::advanced::layout;
 use iced::{Background, Element};
 use iced::advanced::renderer;
 use iced::touch;
@@ -223,7 +224,6 @@ where
         layout: Layout<'_>,
         cursor: mouse::Cursor,
         _renderer: &Renderer,
-        _clipboard: &mut dyn Clipboard,
         shell: &mut Shell<'_, Message>,
         _viewport: &Rectangle,
     ) {
@@ -671,7 +671,7 @@ impl Catalog for Theme {
 
 /// The default style of a [`Divider`].
 pub fn primary(theme: &Theme, status: Status) -> Style {
-    let palette = theme.extended_palette();
+    let palette = theme.palette();
 
     let color = match status {
         Status::Active => palette.primary.strong.color,
@@ -688,7 +688,7 @@ pub fn primary(theme: &Theme, status: Status) -> Style {
 }
 
 pub fn transparent(theme: &Theme, status: Status) -> Style {
-    let palette = theme.extended_palette();
+    let palette = theme.palette();
 
     let color = match status {
         Status::Active => Color::TRANSPARENT,

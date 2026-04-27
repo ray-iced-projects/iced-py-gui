@@ -85,6 +85,7 @@ pub fn param_update(
         Widgets::Svg(w) => apply_update(w, item, value),
         Widgets::Text(w) => apply_update(w, item, value),
         Widgets::TextEditor(w) => apply_update(w, item, value),
+        Widgets::TextEditorStyle(w) => apply_update(w, item, value),
         Widgets::TextInput(w) => apply_update(w, item, value),
         Widgets::TextInputStyle(w) => apply_update(w, item, value),
         Widgets::Toggler(w) => apply_update(w, item, value),

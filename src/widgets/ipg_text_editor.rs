@@ -156,7 +156,7 @@ pub fn text_ed_callback(id: usize, message: TxtEdMessage, state: &mut IpgState) 
 
 
 #[derive(Debug, Clone, Default)]
-pub struct EditorStyle {
+pub struct TextEditorStyle {
     pub id: usize,
     pub background_color: Option<Color>,
     pub background_color_alpha: Option<f32>,
@@ -195,7 +195,7 @@ pub struct EditorStyle {
     pub selection_rgba: Option<[f32; 4]>,
 }
 
-impl EditorStyle {
+impl TextEditorStyle {
     /// Apply user-defined style overrides to an existing iced button::Style
     pub fn to_iced(
         &self, 
@@ -219,6 +219,9 @@ impl EditorStyle {
             Color::rgba_ipg_color_to_iced(self.border_rgba_hovered, &self.border_color_hovered, self.border_color_alpha_focused);
         let bdr_color_focused = 
             Color::rgba_ipg_color_to_iced(self.border_rgba_focused, &self.border_color_focused, self.border_color_alpha_focused);
+        let bdr_color_disabled = 
+            Color::rgba_ipg_color_to_iced(self.border_rgba_disabled, &self.border_color_disabled, self.border_color_alpha_disabled);
+        
         let ph_color =
             Color::rgba_ipg_color_to_iced(self.placeholder_rgba, &self.placeholder_color, self.placeholder_color_alpha);
         let val_color = 
@@ -226,7 +229,7 @@ impl EditorStyle {
         let sel_color = 
             Color::rgba_ipg_color_to_iced(self.selection_rgba, &self.selection_color, self.selection_color_alpha);
 
-        let palette = theme.extended_palette();
+        let mut palette = theme.extended_palette();
 
         let bkg_a = if let Some(bkg) = bkg_color_active {
             bkg
@@ -252,6 +255,29 @@ impl EditorStyle {
             palette.background.weak.color
         };
         
+        let bdr_a = if let Some(color) = bdr_color {
+            color
+        } else {
+            palette.background.strong.color
+        };
+
+        let bdr_h = if let Some(color) = bdr_color_hovered {
+            color 
+        } else  {
+            palette.background.base.text
+        };
+
+        let bdr_f = if let Some(color) = bdr_color_focused {
+            color
+        } else {
+            palette.primary.strong.color
+        };
+
+        let bdr_d = if let Some(color) = bdr_color_disabled {
+            color
+        } else {
+            palette.background.strong.color
+        };
         
         match status {
             text_editor::Status::Active => 
@@ -260,7 +286,7 @@ impl EditorStyle {
                     border: Border {
                         radius: 2.0.into(),
                         width: 1.0,
-                        color: palette.background.strong.color,
+                        color: bdr_a,
                     },
                     placeholder: palette.secondary.base.color,
                     value: palette.background.base.text,
@@ -271,7 +297,7 @@ impl EditorStyle {
                     border: Border {
                         radius: 2.0.into(),
                         width: 1.0,
-                        color: palette.background.base.text,,
+                        color: bdr_h,
                     },
                     placeholder: palette.secondary.base.color,
                     value: palette.background.base.text,
@@ -282,7 +308,7 @@ impl EditorStyle {
                 border: Border {
                     radius: 2.0.into(),
                     width: 1.0,
-                    color: palette.primary.strong.color,
+                    color: bdr_f,
                 },
                 placeholder: palette.secondary.base.color,
                 value: palette.background.base.text,
@@ -307,25 +333,6 @@ impl EditorStyle {
 }
 
 
-fn styled(pair: palette::Pair) -> button::Style {
-    button::Style {
-        background: Some(iced::Background::Color(pair.color)),
-        text_color: pair.text,
-        border: border::rounded(2),
-        ..button::Style::default()
-    }
-}
-
-fn disabled(style: button::Style) -> button::Style {
-    button::Style {
-        background: style
-            .background
-            .map(|background| background.scale_alpha(0.5)),
-        text_color: style.text_color.scale_alpha(0.5),
-        ..style
-    }
-}
-
 #[derive(Debug, Clone, PartialEq, Hash)]
 #[pyclass(eq, eq_int, hash, frozen)]
 pub enum TextEditorParam {
@@ -346,6 +353,45 @@ pub enum TextEditorParam {
     WrappingWordGlyph,
 }
 
+#[derive(Debug, Clone, PartialEq, Hash)]
+#[pyclass(eq, eq_int, hash, frozen)]
+pub enum TextEditorStyleParam {
+    BackgroundColor,
+    BackgroundColorAlpha,
+    BackgroundRgba,
+    BackgroundColorHovered,
+    BackgroundColorAlphaHovered,
+    BackgroundRgbaHovered,
+    BackgroundColorFocused,
+    BackgroundColorAlphaFocused,
+    BackgroundRgbaFocused,
+    BackgroundColorDisabled,
+    BackgroundColorAlphaDisabled,
+    BackgroundRgbaDisabled,
+    BorderColor,
+    BorderColorAlpha,
+    BorderRgba,
+    BorderColorHovered,
+    BorderColorAlphaHovered,
+    BorderRgbaHovered,
+    BorderColorFocused,
+    BorderColorAlphaFocused,
+    BorderRgbaFocused,
+    BorderColorDisabled,
+    BorderColorAlphaDisabled,
+    BorderRgbaDisabled,
+    BorderRadius,
+    BorderWidth,
+    PlaceholderColor,
+    PlaceholderColorAlpha,
+    PlaceholderRgba,
+    ValueColor,
+    ValueColorAlpha,
+    ValueRgba,
+    SelectionColor,
+    SelectionColorAlpha,
+    SelectionRgba,
+}
 
 // ---------------------------------------------------------------------------
 // WidgetParamUpdate implementations
@@ -375,6 +421,49 @@ impl WidgetParamUpdate for TextEditor {
     }
 }
 
+impl WidgetParamUpdate for TextEditorStyle {
+    type Param = TextEditorStyleParam;
+
+    fn param_update(&mut self, param: Self::Param, value: &PyObject) {
+        match param {
+            TextEditorStyleParam::BackgroundColor => todo!(),
+            TextEditorStyleParam::BackgroundColorAlpha => todo!(),
+            TextEditorStyleParam::BackgroundRgba => todo!(),
+            TextEditorStyleParam::BackgroundColorHovered => todo!(),
+            TextEditorStyleParam::BackgroundColorAlphaHovered => todo!(),
+            TextEditorStyleParam::BackgroundRgbaHovered => todo!(),
+            TextEditorStyleParam::BackgroundColorFocused => todo!(),
+            TextEditorStyleParam::BackgroundColorAlphaFocused => todo!(),
+            TextEditorStyleParam::BackgroundRgbaFocused => todo!(),
+            TextEditorStyleParam::BackgroundColorDisabled => todo!(),
+            TextEditorStyleParam::BackgroundColorAlphaDisabled => todo!(),
+            TextEditorStyleParam::BackgroundRgbaDisabled => todo!(),
+            TextEditorStyleParam::BorderColor => todo!(),
+            TextEditorStyleParam::BorderColorAlpha => todo!(),
+            TextEditorStyleParam::BorderRgba => todo!(),
+            TextEditorStyleParam::BorderColorHovered => todo!(),
+            TextEditorStyleParam::BorderColorAlphaHovered => todo!(),
+            TextEditorStyleParam::BorderRgbaHovered => todo!(),
+            TextEditorStyleParam::BorderColorFocused => todo!(),
+            TextEditorStyleParam::BorderColorAlphaFocused => todo!(),
+            TextEditorStyleParam::BorderRgbaFocused => todo!(),
+            TextEditorStyleParam::BorderColorDisabled => todo!(),
+            TextEditorStyleParam::BorderColorAlphaDisabled => todo!(),
+            TextEditorStyleParam::BorderRgbaDisabled => todo!(),
+            TextEditorStyleParam::BorderRadius => todo!(),
+            TextEditorStyleParam::BorderWidth => todo!(),
+            TextEditorStyleParam::PlaceholderColor => todo!(),
+            TextEditorStyleParam::PlaceholderColorAlpha => todo!(),
+            TextEditorStyleParam::PlaceholderRgba => todo!(),
+            TextEditorStyleParam::ValueColor => todo!(),
+            TextEditorStyleParam::ValueColorAlpha => todo!(),
+            TextEditorStyleParam::ValueRgba => todo!(),
+            TextEditorStyleParam::SelectionColor => todo!(),
+            TextEditorStyleParam::SelectionColorAlpha => todo!(),
+            TextEditorStyleParam::SelectionRgba => todo!(),
+        }
+    }
+}
 
 // #[derive(Debug, Clone)]
 // pub enum Error {

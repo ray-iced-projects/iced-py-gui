@@ -1,5 +1,4 @@
-
-
+//! Text inputs display fields that can be filled with text.
 use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex, 
     graphics::colors::Color, 
     state::{Widgets, get_id, set_state_of_widget}, 
@@ -154,15 +153,55 @@ pub fn add_text_input(
 ///
 /// Creates a custom style that can be applied to a text input
 /// via its ``style_id`` parameter.
+/// 
+/// The style are keyed to a background, text, primary, and secondary colors
+/// Each color generates a weak, strong, etc. type
+/// 
+/// if you want to produce your own colors from a new background,
+/// then you will need to define the new background, text, primary, 
+/// and secondary colors.  Based on these, the color types will be 
+/// generated for you based on the widget status.
+/// 
+/// You also have the ability to define all the colors individually or
+/// define an active color which replaces all the colors for that parameter.
+/// 
+/// Active: background: background.base.color
+///         border: background.strong.color,
+///         icon: background.weak.text,
+///         placeholder: secondary.base.color,
+///         value: background.base.text,
+///         selection: primary.weak.color,
+/// 
+/// Hovered: same as Active except
+///          border: background.base.text
+/// 
+/// Focused: same as primary except
+///          border: primary.strong.color
+/// 
+/// Disabled: same as primary except
+///           background: background.weak.color
+///           placeholder: background.strongest.color
 ///
 /// Parameters
 /// ----------
-/// background_color : Color, Optional
-///     Sets the background color using a predefined color variant.
+/// Colors for auto generate type background, text, primary, and secondary.
+/// These color must all be defined to generate the status states.
+/// background/_color/_rgba : Color/[float, 4], Optional
+///     Sets the background color using a predefined color variant or as [r, g, b, a].
 /// background_color_alpha : float, Optional
 ///     Sets the alpha of the Color.
-/// background_rgba : list of float, Optional
-///     Sets the background color in rgba format as [r, g, b, a].
+/// text/_color/_rgba : Color/[float, 4], Optional
+///     Sets the text color using a predefined color variant or as [r, g, b, a].
+/// text_color_alpha : float, Optional
+///     Sets the alpha of the Color.
+/// primary/_color/_rgba : Color/[float, 4], Optional
+///     Sets the primary color using a predefined color variant or as [r, g, b, a].
+/// primary_color_alpha : float, Optional
+///     Sets the alpha of the Color.
+/// secondary/_color/_rgba : Color/[float, 4], Optional
+///     Sets the secondary color using a predefined color variant or as [r, g, b, a].
+/// secondary_color_alpha : float, Optional
+///     Sets the alpha of the Color.
 /// border_color_<status> : Color, Optional
 ///     Status: active, hovered, focused, disabled
 ///     Sets the border color in status state using a predefined color variant.
@@ -174,6 +213,13 @@ pub fn add_text_input(
 ///     Sets the border width in logical pixels.
 /// border_radius : float, Optional
 ///     Sets the border radius in logical pixels.
+/// icon_color_<status> : Color, Optional
+///     Status: active, hovered, focused, disabled
+///     Sets the icon text color in <status> state using a predefined color variant.
+/// icon_color_<status>_alpha : float, Optional
+///     Sets the alpha of the Color.
+/// icon_rgba_<status> : list of float, Optional
+///     Sets the icon text color in <status> state in rgba format as [r, g, b, a].
 /// placeholder_color_<status> : Color, Optional
 ///     Status: active, hovered, focused, disabled
 ///     Sets the placeholder text color in <status> state using a predefined color variant.
@@ -204,150 +250,223 @@ pub fn add_text_input(
 ///     The numeric style ID to pass to a text input's ``style_id``.
 #[pyfunction]
 #[pyo3(signature = ( 
-    background_color=None,
-    background_color_alpha=None,
-    background_rgba=None,
-    
-    border_color_active=None,
-    border_color_active_alpha=None,
-    border_rgba_active=None,
-    
-    border_color_hovered=None,
-    border_color_hovered_alpha=None,
-    border_rgba_hovered=None,
-    
-    border_color_focused=None,
-    border_color_focused_alpha=None,
-    border_rgba_focused=None,
-    
-    border_color_disabled=None,
-    border_color_disabled_alpha=None,
-    border_rgba_disabled=None,
-    
-    border_width=None,
-    border_radius=None,
+    background_color = None,
+    background_color_alpha = None,
+    background_rgba = None,
 
-    placeholder_color_active=None,
-    placeholder_color_active_alpha=None,
-    placeholder_rgba_active=None,
+    text_color = None,
+    text_color_alpha = None,
+    text_rgba = None,
 
-    placeholder_color_hovered=None,
-    placeholder_color_hovered_alpha=None,
-    placeholder_rgba_hovered=None,
+    primary_color = None,
+    primary_color_alpha = None,
+    primary_rgba = None,
 
-    placeholder_color_focused=None,
-    placeholder_color_focused_alpha=None,
-    placeholder_rgba_focused=None,
+    secondary_color = None,
+    secondary_color_alpha = None,
+    secondary_rgba = None,
 
-    placeholder_color_disabled=None,
-    placeholder_color_disabled_alpha=None,
-    placeholder_rgba_disabled=None,
+    border_color_active = None,
+    border_color_alpha_active = None,
+    border_rgba_active = None,
 
-    value_color_active=None,
-    value_color_active_alpha=None,
-    value_rgba_active=None,
+    border_color_hovered = None,
+    border_color_alpha_hovered = None,
+    border_rgba_hovered = None,
 
-    value_color_hovered=None,
-    value_color_hovered_alpha=None,
-    value_rgba_hovered=None,
+    border_color_focused = None,
+    border_color_alpha_focused = None,
+    border_rgba_focused = None,
 
-    value_color_focused=None,
-    value_color_focused_alpha=None,
-    value_rgba_focused=None,
+    border_color_disabled = None,
+    border_color_alpha_disabled = None,
+    border_rgba_disabled = None,
 
-    value_color_disabled=None,
-    value_color_disabled_alpha=None,
-    value_rgba_disabled=None,
+    border_width = None,
+    border_radius = None,
 
-    selection_color_active=None,
-    selection_color_active_alpha=None,
-    selection_rgba_active=None,
+    // overrides all other icon colors
+    // if not defined
+    icon_color_active = None,
+    icon_color_alpha_active = None,
+    icon_rgba_active = None,
 
-    selection_color_hovered=None,
-    selection_color_hovered_alpha=None,
-    selection_rgba_hovered=None,
+    icon_color_hovered = None,
+    icon_color_alpha_hovered = None,
+    icon_rgba_hovered = None,
 
-    selection_color_focused=None,
-    selection_color_focused_alpha=None,
-    selection_rgba_focused=None,
+    icon_color_focused = None,
+    icon_color_alpha_focused = None,
+    icon_rgba_focused = None,
 
-    selection_color_disabled=None,
-    selection_color_disabled_alpha=None,
-    selection_rgba_disabled=None,
+    icon_color_disabled = None,
+    icon_color_alpha_disabled = None,
+    icon_rgba_disabled = None,
 
-    gen_id=None))]
+    // overrides all other icon colors
+    // if not defined
+    placeholder_color_active = None,
+    placeholder_color_alpha_active = None,
+    placeholder_rgba_active = None,
+
+    placeholder_color_hovered = None,
+    placeholder_color_alpha_hovered = None,
+    placeholder_rgba_hovered = None,
+
+    placeholder_color_focused = None,
+    placeholder_color_alpha_focused = None,
+    placeholder_rgba_focused = None,
+
+    placeholder_color_disabled = None,
+    placeholder_color_alpha_disabled = None,
+    placeholder_rgba_disabled = None,
+
+    // overrides all other icon colors
+    // if not defined
+    value_color_active = None,
+    value_color_alpha_active = None,
+    value_rgba_active = None,
+
+    value_color_hovered = None,
+    value_color_alpha_hovered = None,
+    value_rgba_hovered = None,
+
+    value_color_focused = None,
+    value_color_alpha_focused = None,
+    value_rgba_focused = None,
+
+    value_color_disabled = None,
+    value_color_alpha_disabled = None,
+    value_rgba_disabled = None,
+
+    // overrides all other icon colors
+    // if not defined
+    selection_color_active = None,
+    selection_color_alpha_active = None,
+    selection_rgba_active = None,
+
+    selection_color_hovered = None,
+    selection_color_alpha_hovered = None,
+    selection_rgba_hovered = None,
+
+    selection_color_focused = None,
+    selection_color_alpha_focused = None,
+    selection_rgba_focused = None,
+
+    selection_color_disabled = None,
+    selection_color_alpha_disabled = None,
+    selection_rgba_disabled = None,
+
+    gen_id=None
+))]
 pub fn add_text_input_style(
         background_color: Option<Color>,
         background_color_alpha: Option<f32>,
         background_rgba: Option<[f32; 4]>,
-        
+
+        text_color: Option<Color>,
+        text_color_alpha: Option<f32>,
+        text_rgba: Option<[f32; 4]>,
+
+        primary_color: Option<Color>,
+        primary_color_alpha: Option<f32>,
+        primary_rgba: Option<[f32; 4]>,
+
+        secondary_color: Option<Color>,
+        secondary_color_alpha: Option<f32>,
+        secondary_rgba: Option<[f32; 4]>,
+
         border_color_active: Option<Color>,
-        border_color_active_alpha: Option<f32>,
+        border_color_alpha_active: Option<f32>,
         border_rgba_active: Option<[f32; 4]>,
-        
+
         border_color_hovered: Option<Color>,
-        border_color_hovered_alpha: Option<f32>,
+        border_color_alpha_hovered: Option<f32>,
         border_rgba_hovered: Option<[f32; 4]>,
-        
+
         border_color_focused: Option<Color>,
-        border_color_focused_alpha: Option<f32>,
+        border_color_alpha_focused: Option<f32>,
         border_rgba_focused: Option<[f32; 4]>,
-        
+
         border_color_disabled: Option<Color>,
-        border_color_disabled_alpha: Option<f32>,
+        border_color_alpha_disabled: Option<f32>,
         border_rgba_disabled: Option<[f32; 4]>,
-        
+
         border_width: Option<f32>,
         border_radius: Option<f32>,
-        
+
+        // overrides all other icon colors
+        // if not defined
+        icon_color_active: Option<Color>,
+        icon_color_alpha_active: Option<f32>,
+        icon_rgba_active: Option<[f32; 4]>,
+
+        icon_color_hovered: Option<Color>,
+        icon_color_alpha_hovered: Option<f32>,
+        icon_rgba_hovered: Option<[f32; 4]>,
+
+        icon_color_focused: Option<Color>,
+        icon_color_alpha_focused: Option<f32>,
+        icon_rgba_focused: Option<[f32; 4]>,
+
+        icon_color_disabled: Option<Color>,
+        icon_color_alpha_disabled: Option<f32>,
+        icon_rgba_disabled: Option<[f32; 4]>,
+
+        // overrides all other icon colors
+        // if not defined
         placeholder_color_active: Option<Color>,
-        placeholder_color_active_alpha: Option<f32>,
+        placeholder_color_alpha_active: Option<f32>,
         placeholder_rgba_active: Option<[f32; 4]>,
 
         placeholder_color_hovered: Option<Color>,
-        placeholder_color_hovered_alpha: Option<f32>,
+        placeholder_color_alpha_hovered: Option<f32>,
         placeholder_rgba_hovered: Option<[f32; 4]>,
 
         placeholder_color_focused: Option<Color>,
-        placeholder_color_focused_alpha: Option<f32>,
+        placeholder_color_alpha_focused: Option<f32>,
         placeholder_rgba_focused: Option<[f32; 4]>,
-    
+
         placeholder_color_disabled: Option<Color>,
-        placeholder_color_disabled_alpha: Option<f32>,
+        placeholder_color_alpha_disabled: Option<f32>,
         placeholder_rgba_disabled: Option<[f32; 4]>,
 
+        // overrides all other icon colors
+        // if not defined
         value_color_active: Option<Color>,
-        value_color_active_alpha: Option<f32>,
+        value_color_alpha_active: Option<f32>,
         value_rgba_active: Option<[f32; 4]>,
 
         value_color_hovered: Option<Color>,
-        value_color_hovered_alpha: Option<f32>,
+        value_color_alpha_hovered: Option<f32>,
         value_rgba_hovered: Option<[f32; 4]>,
 
         value_color_focused: Option<Color>,
-        value_color_focused_alpha: Option<f32>,
+        value_color_alpha_focused: Option<f32>,
         value_rgba_focused: Option<[f32; 4]>,
 
         value_color_disabled: Option<Color>,
-        value_color_disabled_alpha: Option<f32>,
+        value_color_alpha_disabled: Option<f32>,
         value_rgba_disabled: Option<[f32; 4]>,
 
+        // overrides all other icon colors
+        // if not defined
         selection_color_active: Option<Color>,
-        selection_color_active_alpha: Option<f32>,
+        selection_color_alpha_active: Option<f32>,
         selection_rgba_active: Option<[f32; 4]>,
 
         selection_color_hovered: Option<Color>,
-        selection_color_hovered_alpha: Option<f32>,
+        selection_color_alpha_hovered: Option<f32>,
         selection_rgba_hovered: Option<[f32; 4]>,
 
         selection_color_focused: Option<Color>,
-        selection_color_focused_alpha: Option<f32>,
+        selection_color_alpha_focused: Option<f32>,
         selection_rgba_focused: Option<[f32; 4]>,
 
         selection_color_disabled: Option<Color>,
-        selection_color_disabled_alpha: Option<f32>,
+        selection_color_alpha_disabled: Option<f32>,
         selection_rgba_disabled: Option<[f32; 4]>,
-        
+            
         gen_id: Option<usize>,
     ) -> PyResult<usize>
 {
@@ -361,72 +480,100 @@ pub fn add_text_input_style(
             background_color,
             background_color_alpha,
             background_rgba,
-            
+
+            text_color,
+            text_color_alpha,
+            text_rgba,
+
+            primary_color,
+            primary_color_alpha,
+            primary_rgba,
+
+            secondary_color,
+            secondary_color_alpha,
+            secondary_rgba,
+
             border_color_active,
-            border_color_active_alpha,
+            border_color_alpha_active,
             border_rgba_active,
-            
+
             border_color_hovered,
-            border_color_hovered_alpha,
+            border_color_alpha_hovered,
             border_rgba_hovered,
-            
+
             border_color_focused,
-            border_color_focused_alpha,
+            border_color_alpha_focused,
             border_rgba_focused,
-            
+
             border_color_disabled,
-            border_color_disabled_alpha,
+            border_color_alpha_disabled,
             border_rgba_disabled,
-            
+
             border_width,
             border_radius,
-            
+
+            icon_color_active,
+            icon_color_alpha_active,
+            icon_rgba_active,
+
+            icon_color_hovered,
+            icon_color_alpha_hovered,
+            icon_rgba_hovered,
+
+            icon_color_focused,
+            icon_color_alpha_focused,
+            icon_rgba_focused,
+
+            icon_color_disabled,
+            icon_color_alpha_disabled,
+            icon_rgba_disabled,
+
             placeholder_color_active,
-            placeholder_color_active_alpha,
+            placeholder_color_alpha_active,
             placeholder_rgba_active,
 
             placeholder_color_hovered,
-            placeholder_color_hovered_alpha,
+            placeholder_color_alpha_hovered,
             placeholder_rgba_hovered,
 
             placeholder_color_focused,
-            placeholder_color_focused_alpha,
+            placeholder_color_alpha_focused,
             placeholder_rgba_focused,
-        
+
             placeholder_color_disabled,
-            placeholder_color_disabled_alpha,
+            placeholder_color_alpha_disabled,
             placeholder_rgba_disabled,
 
             value_color_active,
-            value_color_active_alpha,
+            value_color_alpha_active,
             value_rgba_active,
 
             value_color_hovered,
-            value_color_hovered_alpha,
+            value_color_alpha_hovered,
             value_rgba_hovered,
 
             value_color_focused,
-            value_color_focused_alpha,
+            value_color_alpha_focused,
             value_rgba_focused,
 
             value_color_disabled,
-            value_color_disabled_alpha,
+            value_color_alpha_disabled,
             value_rgba_disabled,
 
             selection_color_active,
-            selection_color_active_alpha,
+            selection_color_alpha_active,
             selection_rgba_active,
 
             selection_color_hovered,
-            selection_color_hovered_alpha,
+            selection_color_alpha_hovered,
             selection_rgba_hovered,
 
             selection_color_focused,
-            selection_color_focused_alpha,
+            selection_color_alpha_focused,
             selection_rgba_focused,
 
             selection_color_disabled,
-            selection_color_disabled_alpha,
+            selection_color_alpha_disabled,
             selection_rgba_disabled,
         }));
                 

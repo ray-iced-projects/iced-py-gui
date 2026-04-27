@@ -1,14 +1,13 @@
 //! TextEditor module - provides add_text_editor pyfunction
 
-use pyo3::prelude::*;
 use pyo3::{pyfunction, PyResult, Py, PyAny};
 type PyObject = Py<PyAny>;
 
 
-use crate::access_state;
+use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex};
 use crate::graphics::colors::Color;
 use crate::state::{Widgets, get_id, set_state_of_widget};
-use crate::widgets::ipg_text_editor::{EditorStyle, TextEditor};
+use crate::widgets::ipg_text_editor::{TextEditorStyle, TextEditor};
 use crate::widgets::ipg_text_editor::TxtEdStatus;
 
 
@@ -31,6 +30,8 @@ use crate::widgets::ipg_text_editor::TxtEdStatus;
     wrapping_none=None,
     wrapping_glyph=None,
     wrapping_word_glyph=None,
+    on_edit = None,
+    user_data = None,
 ))]
 pub fn add_text_editor(
     parent_id: String,
@@ -49,9 +50,21 @@ pub fn add_text_editor(
     wrapping_none: Option<bool>,
     wrapping_glyph: Option<bool>,
     wrapping_word_glyph: Option<bool>,
+    on_edit: Option<PyObject>,
+    user_data: Option<PyObject>,
 ) ->PyResult<usize> {
 
     let id = get_id(None);
+
+    // Store callback if provided
+    if let Some(py) = on_edit {
+        add_callback_to_mutex(id, "on_edit".to_string(), py);
+    }
+
+    // Store user data if provided
+    if let Some(py) = user_data {
+        add_user_data_to_mutex(id, py);
+    }
     
     // Register widget with parent
     set_state_of_widget(id, parent_id.clone());
@@ -99,9 +112,27 @@ pub fn add_text_editor(
     background_color = None,
     background_color_alpha = None,
     background_rgba = None,
+    background_color_hovered = None,
+    background_color_alpha_hovered = None,
+    background_rgba_hovered = None,
+    background_color_focused = None,
+    background_color_alpha_focused = None,
+    background_rgba_focused = None,
+    background_color_disabled = None,
+    background_color_alpha_disabled = None,
+    background_rgba_disabled = None,
     border_color = None,
     border_color_alpha = None,
     border_rgba = None,
+    border_color_hovered = None,
+    border_color_alpha_hovered = None,
+    border_rgba_hovered = None,
+    border_color_focused = None,
+    border_color_alpha_focused = None,
+    border_rgba_focused = None,
+    border_color_disabled = None,
+    border_color_alpha_disabled = None,
+    border_rgba_disabled = None,
     border_radius = None,
     border_width = None,
     placeholder_color = None,
@@ -115,13 +146,31 @@ pub fn add_text_editor(
     selection_rgba = None,
     gen_id = None,
 ))]
-fn add_editor_style(
+pub fn add_text_editor_style(
     background_color: Option<Color>,
     background_color_alpha: Option<f32>,
     background_rgba: Option<[f32; 4]>,
+    background_color_hovered: Option<Color>,
+    background_color_alpha_hovered: Option<f32>,
+    background_rgba_hovered: Option<[f32; 4]>,
+    background_color_focused: Option<Color>,
+    background_color_alpha_focused: Option<f32>,
+    background_rgba_focused: Option<[f32; 4]>,
+    background_color_disabled: Option<Color>,
+    background_color_alpha_disabled: Option<f32>,
+    background_rgba_disabled: Option<[f32; 4]>,
     border_color: Option<Color>,
     border_color_alpha: Option<f32>,
     border_rgba: Option<[f32; 4]>,
+    border_color_hovered: Option<Color>,
+    border_color_alpha_hovered: Option<f32>,
+    border_rgba_hovered: Option<[f32; 4]>,
+    border_color_focused: Option<Color>,
+    border_color_alpha_focused: Option<f32>,
+    border_rgba_focused: Option<[f32; 4]>,
+    border_color_disabled: Option<Color>,
+    border_color_alpha_disabled: Option<f32>,
+    border_rgba_disabled: Option<[f32; 4]>,
     border_radius: Option<Vec<f32>>,
     border_width: Option<f32>,
     placeholder_color: Option<Color>,
@@ -140,16 +189,34 @@ fn add_editor_style(
 
     let mut state = access_state();
 
-    state.widgets.insert(id, Widgets::EditorStyle(
-        EditorStyle {
+    state.widgets.insert(id, Widgets::TextEditorStyle(
+        TextEditorStyle {
             id,
             background_color,
-            background_color_alpha, 
+            background_color_alpha,
             background_rgba,
+            background_color_hovered,
+            background_color_alpha_hovered,
+            background_rgba_hovered,
+            background_color_focused,
+            background_color_alpha_focused,
+            background_rgba_focused,
+            background_color_disabled,
+            background_color_alpha_disabled,
+            background_rgba_disabled,
             border_color,
             border_color_alpha,
             border_rgba,
-            border_radius, 
+            border_color_hovered,
+            border_color_alpha_hovered,
+            border_rgba_hovered,
+            border_color_focused,
+            border_color_alpha_focused,
+            border_rgba_focused,
+            border_color_disabled,
+            border_color_alpha_disabled,
+            border_rgba_disabled,
+            border_radius,
             border_width,
             placeholder_color,
             placeholder_color_alpha,

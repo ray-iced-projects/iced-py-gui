@@ -1,13 +1,13 @@
-//! ipg_text_input
+//! Text inputs display fields that can be filled with text.
 #![allow(clippy::enum_variant_names)]
 
 use std::collections::HashMap;
 
 use iced::widget::text_input;
 use iced::widget::text_input::{Style, Status};
-use iced::{Element, Theme, alignment};
+use iced::{Border, Element, Theme, alignment};
 use iced::widget;
-use iced::theme::palette;
+use iced::theme::palette::{self, Background};
 
 use pyo3::pyclass;
 use pyo3::{Py, PyAny};
@@ -15,7 +15,6 @@ use pyo3::{Py, PyAny};
 use crate::app::Message;
 use crate::graphics::colors::Color;
 use crate::py_api::helpers::{get_len, get_padding};
-use crate::widgets::styling::create_custom_theme;
 use crate::{IpgState};
 use crate::state::Widgets;
 use crate::widgets::callbacks::invoke_callback_with_args;
@@ -155,75 +154,112 @@ pub enum TIMessage {
 #[derive(Debug, Clone)]
 pub struct TextInputStyle {
     pub id: usize,
+
     pub background_color: Option<Color>,
     pub background_color_alpha: Option<f32>,
     pub background_rgba: Option<[f32; 4]>,
 
+    pub text_color: Option<Color>,
+    pub text_color_alpha: Option<f32>,
+    pub text_rgba: Option<[f32; 4]>,
+
+    pub primary_color: Option<Color>,
+    pub primary_color_alpha: Option<f32>,
+    pub primary_rgba: Option<[f32; 4]>,
+
+    pub secondary_color: Option<Color>,
+    pub secondary_color_alpha: Option<f32>,
+    pub secondary_rgba: Option<[f32; 4]>,
+
     pub border_color_active: Option<Color>,
-    pub border_color_active_alpha: Option<f32>,
+    pub border_color_alpha_active: Option<f32>,
     pub border_rgba_active: Option<[f32; 4]>,
 
     pub border_color_hovered: Option<Color>,
-    pub border_color_hovered_alpha: Option<f32>,
+    pub border_color_alpha_hovered: Option<f32>,
     pub border_rgba_hovered: Option<[f32; 4]>,
 
     pub border_color_focused: Option<Color>,
-    pub border_color_focused_alpha: Option<f32>,
+    pub border_color_alpha_focused: Option<f32>,
     pub border_rgba_focused: Option<[f32; 4]>,
 
     pub border_color_disabled: Option<Color>,
-    pub border_color_disabled_alpha: Option<f32>,
+    pub border_color_alpha_disabled: Option<f32>,
     pub border_rgba_disabled: Option<[f32; 4]>,
 
     pub border_width: Option<f32>,
     pub border_radius: Option<f32>,
 
+    // overrides all other icon colors
+    // if not defined
+    pub icon_color_active: Option<Color>,
+    pub icon_color_alpha_active: Option<f32>,
+    pub icon_rgba_active: Option<[f32; 4]>,
+
+    pub icon_color_hovered: Option<Color>,
+    pub icon_color_alpha_hovered: Option<f32>,
+    pub icon_rgba_hovered: Option<[f32; 4]>,
+
+    pub icon_color_focused: Option<Color>,
+    pub icon_color_alpha_focused: Option<f32>,
+    pub icon_rgba_focused: Option<[f32; 4]>,
+
+    pub icon_color_disabled: Option<Color>,
+    pub icon_color_alpha_disabled: Option<f32>,
+    pub icon_rgba_disabled: Option<[f32; 4]>,
+
+    // overrides all other icon colors
+    // if not defined
     pub placeholder_color_active: Option<Color>,
-    pub placeholder_color_active_alpha: Option<f32>,
+    pub placeholder_color_alpha_active: Option<f32>,
     pub placeholder_rgba_active: Option<[f32; 4]>,
 
     pub placeholder_color_hovered: Option<Color>,
-    pub placeholder_color_hovered_alpha: Option<f32>,
+    pub placeholder_color_alpha_hovered: Option<f32>,
     pub placeholder_rgba_hovered: Option<[f32; 4]>,
 
     pub placeholder_color_focused: Option<Color>,
-    pub placeholder_color_focused_alpha: Option<f32>,
+    pub placeholder_color_alpha_focused: Option<f32>,
     pub placeholder_rgba_focused: Option<[f32; 4]>,
     
     pub placeholder_color_disabled: Option<Color>,
-    pub placeholder_color_disabled_alpha: Option<f32>,
+    pub placeholder_color_alpha_disabled: Option<f32>,
     pub placeholder_rgba_disabled: Option<[f32; 4]>,
 
+    // overrides all other icon colors
+    // if not defined
     pub value_color_active: Option<Color>,
-    pub value_color_active_alpha: Option<f32>,
+    pub value_color_alpha_active: Option<f32>,
     pub value_rgba_active: Option<[f32; 4]>,
 
     pub value_color_hovered: Option<Color>,
-    pub value_color_hovered_alpha: Option<f32>,
+    pub value_color_alpha_hovered: Option<f32>,
     pub value_rgba_hovered: Option<[f32; 4]>,
 
     pub value_color_focused: Option<Color>,
-    pub value_color_focused_alpha: Option<f32>,
+    pub value_color_alpha_focused: Option<f32>,
     pub value_rgba_focused: Option<[f32; 4]>,
 
     pub value_color_disabled: Option<Color>,
-    pub value_color_disabled_alpha: Option<f32>,
+    pub value_color_alpha_disabled: Option<f32>,
     pub value_rgba_disabled: Option<[f32; 4]>,
 
+    // overrides all other icon colors
+    // if not defined
     pub selection_color_active: Option<Color>,
-    pub selection_color_active_alpha: Option<f32>,
+    pub selection_color_alpha_active: Option<f32>,
     pub selection_rgba_active: Option<[f32; 4]>,
 
     pub selection_color_hovered: Option<Color>,
-    pub selection_color_hovered_alpha: Option<f32>,
+    pub selection_color_alpha_hovered: Option<f32>,
     pub selection_rgba_hovered: Option<[f32; 4]>,
 
     pub selection_color_focused: Option<Color>,
-    pub selection_color_focused_alpha: Option<f32>,
+    pub selection_color_alpha_focused: Option<f32>,
     pub selection_rgba_focused: Option<[f32; 4]>,
 
     pub selection_color_disabled: Option<Color>,
-    pub selection_color_disabled_alpha: Option<f32>,
+    pub selection_color_alpha_disabled: Option<f32>,
     pub selection_rgba_disabled: Option<[f32; 4]>,
 }
 
@@ -236,53 +272,61 @@ impl TextInputStyle {
 
     let background_color = 
         Color::rgba_ipg_color_to_iced(self.background_rgba, &self.background_color, self.background_color_alpha);
+
+    let text_color = 
+        Color::rgba_ipg_color_to_iced(self.text_rgba, &self.text_color, self.text_color_alpha);
+
+    let primary_color = 
+        Color::rgba_ipg_color_to_iced(self.primary_rgba, &self.primary_color, self.primary_color_alpha);
+
+    let secondary_color = 
+        Color::rgba_ipg_color_to_iced(self.secondary_rgba, &self.secondary_color, self.secondary_color_alpha);
     
+    let icon_color_active = 
+        Color::rgba_ipg_color_to_iced(self.icon_rgba_active, &self.icon_color_active, self.icon_color_alpha_active);
+    let icon_color_hovered = 
+        Color::rgba_ipg_color_to_iced(self.icon_rgba_hovered, &self.icon_color_hovered, self.icon_color_alpha_hovered);
+    let icon_color_focused = 
+        Color::rgba_ipg_color_to_iced(self.icon_rgba_focused, &self.icon_color_focused, self.icon_color_alpha_focused);
+    let icon_color_disabled = 
+        Color::rgba_ipg_color_to_iced(self.icon_rgba_disabled, &self.icon_color_disabled, self.icon_color_alpha_disabled);
+
     let border_color_active = 
-        Color::rgba_ipg_color_to_iced(self.border_rgba_active, &self.border_color_active, self.border_color_active_alpha);
+        Color::rgba_ipg_color_to_iced(self.border_rgba_active, &self.border_color_active, self.border_color_alpha_active);
     let border_color_hovered = 
-        Color::rgba_ipg_color_to_iced(self.border_rgba_hovered, &self.border_color_hovered, self.border_color_hovered_alpha);
+        Color::rgba_ipg_color_to_iced(self.border_rgba_hovered, &self.border_color_hovered, self.border_color_alpha_hovered);
     let border_color_focused = 
-        Color::rgba_ipg_color_to_iced(self.border_rgba_focused, &self.border_color_focused, self.border_color_focused_alpha);
+        Color::rgba_ipg_color_to_iced(self.border_rgba_focused, &self.border_color_focused, self.border_color_alpha_focused);
     let border_color_disabled = 
-        Color::rgba_ipg_color_to_iced(self.border_rgba_disabled, &self.border_color_disabled, self.border_color_disabled_alpha);
+        Color::rgba_ipg_color_to_iced(self.border_rgba_disabled, &self.border_color_disabled, self.border_color_alpha_disabled);
     
     let placeholder_color_active = 
-        Color::rgba_ipg_color_to_iced(self.placeholder_rgba_active, &self.placeholder_color_active, self.placeholder_color_active_alpha);
+        Color::rgba_ipg_color_to_iced(self.placeholder_rgba_active, &self.placeholder_color_active, self.placeholder_color_alpha_active);
     let placeholder_color_hovered = 
-        Color::rgba_ipg_color_to_iced(self.placeholder_rgba_hovered, &self.placeholder_color_hovered, self.placeholder_color_hovered_alpha);
+        Color::rgba_ipg_color_to_iced(self.placeholder_rgba_hovered, &self.placeholder_color_hovered, self.placeholder_color_alpha_hovered);
     let placeholder_color_focused = 
-        Color::rgba_ipg_color_to_iced(self.placeholder_rgba_focused, &self.placeholder_color_focused, self.placeholder_color_focused_alpha);
+        Color::rgba_ipg_color_to_iced(self.placeholder_rgba_focused, &self.placeholder_color_focused, self.placeholder_color_alpha_focused);
     let placeholder_color_disabled = 
-        Color::rgba_ipg_color_to_iced(self.placeholder_rgba_disabled, &self.placeholder_color_disabled, self.placeholder_color_disabled_alpha);
+        Color::rgba_ipg_color_to_iced(self.placeholder_rgba_disabled, &self.placeholder_color_disabled, self.placeholder_color_alpha_disabled);
 
     let value_color_active = 
-        Color::rgba_ipg_color_to_iced(self.value_rgba_active, &self.value_color_active, self.value_color_active_alpha);
+        Color::rgba_ipg_color_to_iced(self.value_rgba_active, &self.value_color_active, self.value_color_alpha_active);
     let value_color_hovered = 
-        Color::rgba_ipg_color_to_iced(self.value_rgba_hovered, &self.value_color_hovered, self.value_color_hovered_alpha);
+        Color::rgba_ipg_color_to_iced(self.value_rgba_hovered, &self.value_color_hovered, self.value_color_alpha_hovered);
     let value_color_focused = 
-        Color::rgba_ipg_color_to_iced(self.value_rgba_focused, &self.value_color_focused, self.value_color_focused_alpha);
+        Color::rgba_ipg_color_to_iced(self.value_rgba_focused, &self.value_color_focused, self.value_color_alpha_focused);
     let value_color_disabled = 
-        Color::rgba_ipg_color_to_iced(self.value_rgba_disabled, &self.value_color_disabled, self.value_color_disabled_alpha);
+        Color::rgba_ipg_color_to_iced(self.value_rgba_disabled, &self.value_color_disabled, self.value_color_alpha_disabled);
     
     
     let selection_color_active = 
-        Color::rgba_ipg_color_to_iced(self.selection_rgba_active, &self.selection_color_active, self.selection_color_active_alpha);
+        Color::rgba_ipg_color_to_iced(self.selection_rgba_active, &self.selection_color_active, self.selection_color_alpha_active);
     let selection_color_hovered = 
-        Color::rgba_ipg_color_to_iced(self.selection_rgba_hovered, &self.selection_color_hovered, self.selection_color_hovered_alpha);
+        Color::rgba_ipg_color_to_iced(self.selection_rgba_hovered, &self.selection_color_hovered, self.selection_color_alpha_hovered);
     let selection_color_focused = 
-        Color::rgba_ipg_color_to_iced(self.selection_rgba_focused, &self.selection_color_focused, self.selection_color_focused_alpha);
+        Color::rgba_ipg_color_to_iced(self.selection_rgba_focused, &self.selection_color_focused, self.selection_color_alpha_focused);
     let selection_color_disabled = 
-        Color::rgba_ipg_color_to_iced(self.selection_rgba_disabled, &self.selection_color_disabled, self.selection_color_disabled_alpha);
-
-    let custom_theme;
-    
-    let palette = if let Some(bkg) = background_color {
-        let dark_mode = palette::is_dark(bkg);
-        custom_theme = create_custom_theme(bkg, dark_mode);
-        custom_theme.extended_palette()
-    } else {
-        theme.extended_palette()
-    };
+        Color::rgba_ipg_color_to_iced(self.selection_rgba_disabled, &self.selection_color_disabled, self.selection_color_alpha_disabled);
 
     // border
     let br = if let Some(br) = self.border_radius {
@@ -293,124 +337,270 @@ impl TextInputStyle {
         bw
     } else { 1.0 };
 
-    let bc_active = if let Some(bc) = border_color_active {
-        bc
-    } else { palette.background.strong.color };
+    let palette = theme.palette();
+    
+    // One can use the theme text color but the background and primary 
+    // are needed together to produce the correct colors
+    let txt_color = if let Some(c) = text_color {
+        c
+    } else { theme.palette().background.base.text};
 
-    let bc_hovered = if let Some(bc) = border_color_hovered {
-        bc
-    } else { palette.background.base.text };
+    let background_opt = if let Some(bkg) = background_color {
+        Some(Background::new(bkg, txt_color))
+    } else { None };
 
-    let bc_focused = if let Some(bc) = border_color_focused {
-        bc
-    } else { palette.primary.strong.color };
+    let pm_swatch_opt = if let Some(c) = primary_color {
+        Some(palette::Swatch::derive(c, txt_color))
+    } else { None };
 
-    let bc_disabled = if let Some(bc) = border_color_disabled {
-        bc
-    } else { palette.background.strong.color };
+    let sec_swatch_opt = if let Some(c) = secondary_color {
+        Some(palette::Swatch::derive(c, txt_color))
+    } else { None };
+
+    let new_theme = background_opt.is_some() && pm_swatch_opt.is_some() && sec_swatch_opt.is_some();
+
+    let bkg_base_color = if new_theme {
+        background_opt.unwrap().base.color
+    } else { palette.background.base.color };
+
+    // border color
+    let (bc_active, bc_hovered, bc_focused, bc_disabled) = if new_theme {
+        let background = background_opt.unwrap();
+        let primary = pm_swatch_opt.unwrap();
+
+        (background.strong.color, background.base.text,
+        primary.strong.color, background.base.text)
+
+    } else {
+        (
+            if let Some(bc) = border_color_active {
+                bc
+            } else { palette.background.strong.color },
+            
+            if let Some(bc) = border_color_hovered {
+                bc
+            } else if let Some(bc) = border_color_active {
+                bc
+            } else { palette.background.base.text },
+            
+            if let Some(bc) = border_color_focused {
+                bc
+            } else if let Some(bc) = border_color_active {
+                bc
+            } else {
+                palette.primary.strong.color 
+            },
+            
+            if let Some(c) = border_color_disabled {
+                c
+            } else if let Some(bc) = border_color_active {
+                bc
+            } else {
+                palette.background.strong.color
+            }
+        )
+    };
+    
+    // icon
+    let (ic_active, ic_hovered, ic_focused, ic_disabled) = if new_theme {
+        let background = background_opt.unwrap();
+
+        (background.weak.text, background.weak.text,
+        background.weak.text, background.weak.text)
+
+    } else {
+        (
+            if let Some(c) = icon_color_active {
+                c
+            } else { palette.background.weak.text },
+            
+            if let Some(c) = icon_color_hovered {
+                c
+            } else if let Some(c) = icon_color_active {
+                c
+            } else { palette.background.weak.text },
+            
+            if let Some(c) = icon_color_focused {
+                c
+            } else if let Some(c) = icon_color_active {
+                c
+            } else {
+                palette.background.weak.text 
+            },
+            
+            if let Some(c) = icon_color_disabled {
+                c
+            } else if let Some(c) = icon_color_active {
+                c
+            } else {
+                palette.background.weak.text
+            }
+        )
+    };
 
     // placeholder
-    let pc_active = if let Some(pc) = placeholder_color_active {
-        pc
-    } else { palette.secondary.base.color };
+    let (ph_active, ph_hovered, ph_focused, ph_disabled) = if new_theme {
+        let background = background_opt.unwrap();
+        let secondary = sec_swatch_opt.unwrap();
 
-    let pc_hovered = if let Some(pc) = placeholder_color_hovered {
-        pc
-    } else { palette.secondary.base.color };
+        (secondary.base.color, secondary.base.color,
+        secondary.base.color, background.strongest.color)
 
-    let pc_focused = if let Some(pc) = placeholder_color_focused {
-        pc
-    } else { palette.secondary.base.color };
-
-     let pc_disabled = if let Some(pc) = placeholder_color_disabled {
-        pc
-    } else { palette.background.strongest.color };
+    } else {
+        (
+            if let Some(c) = placeholder_color_active {
+                c
+            } else { palette.secondary.base.color },
+            
+            if let Some(c) = placeholder_color_hovered {
+                c
+            } else if let Some(c) = placeholder_color_active {
+                c
+            } else { palette.secondary.base.color },
+            
+            if let Some(c) = placeholder_color_focused {
+                c
+            } else if let Some(c) = placeholder_color_active {
+                c
+            } else {
+                palette.secondary.base.color 
+            },
+            
+            if let Some(c) = placeholder_color_disabled {
+                c
+            } else if let Some(c) = placeholder_color_active {
+                c
+            } else {
+                palette.background.strongest.color
+            }
+        )
+    };
 
     // value
-    let vc_active = if let Some(vc) = value_color_active {
-        vc
-    } else { palette.background.base.text };
+    let (val_active, val_hovered, val_focused, val_disabled) = if new_theme {
+        let background = background_opt.unwrap();
 
-    let vc_hovered = if let Some(vc) = value_color_hovered {
-        vc
-    } else { palette.background.base.text };
+        (background.base.text, background.base.text,
+        background.base.text, background.base.text)
 
-    let vc_focused = if let Some(vc) = value_color_focused {
-        vc
-    } else { palette.background.base.text };
-
-    let vc_disabled = if let Some(vc) = value_color_disabled {
-        vc
-    } else { palette.secondary.base.color };
+    } else {
+        (
+            if let Some(c) = value_color_active {
+                c
+            } else { palette.background.base.text },
+            
+            if let Some(c) = value_color_hovered {
+                c
+            } else if let Some(c) = value_color_active {
+                c
+            } else { palette.background.base.text },
+            
+            if let Some(c) = value_color_focused {
+                c
+            } else if let Some(c) = value_color_active {
+                c
+            } else {
+                palette.background.base.text 
+            },
+            
+            if let Some(c) = value_color_disabled {
+                c
+            } else if let Some(c) = value_color_active {
+                c
+            } else {
+                palette.background.base.text
+            }
+        )
+    };
 
     // selection
-    let sc_active = if let Some(sc) = selection_color_active {
-        sc
-    } else { palette.primary.weak.color };
+    let (sel_active, sel_hovered, sel_focused, sel_disabled) = if new_theme {
+        let primary = pm_swatch_opt.unwrap();
 
-    let sc_hovered = if let Some(sc) = selection_color_hovered {
-        sc
-    } else { palette.primary.weak.color };
+        (primary.weak.color, primary.weak.color,
+        primary.weak.color, primary.weak.color)
 
-    let sc_focused = if let Some(sc) = selection_color_focused {
-        sc
-    } else { palette.primary.weak.color };
-
-    let sc_disabled = if let Some(sc) = selection_color_disabled {
-        sc
-    } else { palette.primary.weak.color };
+    } else {
+        (
+            if let Some(c) = selection_color_active {
+                c
+            } else { palette.primary.weak.color },
+            
+            if let Some(c) = selection_color_hovered {
+                c
+            } else if let Some(c) = selection_color_active {
+                c
+            } else { palette.primary.weak.color },
+            
+            if let Some(c) = selection_color_focused {
+                c
+            } else if let Some(c) = selection_color_active {
+                c
+            } else {
+                palette.primary.weak.color 
+            },
+            
+            if let Some(c) = selection_color_disabled {
+                c
+            } else if let Some(c) = selection_color_active {
+                c
+            } else {
+                palette.primary.weak.color
+            }
+        )
+    };
 
 
     let active = Style {
-        background: iced::Background::Color(palette.background.base.color),
-        border: iced::Border {
+        background: bkg_base_color.into(),
+        border: Border {
             radius: br.into(),
             width: bw,
             color: bc_active,
         },
-        icon: palette.background.weak.text,
-        placeholder: pc_active,
-        value: vc_active,
-        selection: sc_active,
+        icon: ic_active,
+        placeholder: ph_active,
+        value: val_active,
+        selection: sel_active,
     };
 
     let hovered = Style {
-        background: iced::Background::Color(palette.background.base.color),
-        border: iced::Border {
+        background: bkg_base_color.into(),
+        border: Border {
             radius: br.into(),
             width: bw,
             color: bc_hovered,
         },
-        icon: palette.background.weak.text,
-        placeholder: pc_hovered,
-        value: vc_hovered,
-        selection: sc_hovered,
+        icon: ic_hovered,
+        placeholder: ph_hovered,
+        value: val_hovered,
+        selection: sel_hovered,
     };
 
     let focused = Style {
-        background: iced::Background::Color(palette.background.base.color),
-        border: iced::Border {
+        background: bkg_base_color.into(),
+        border: Border {
             radius: br.into(),
             width: bw,
             color: bc_focused,
         },
-        icon: palette.background.weak.text,
-        placeholder: pc_focused,
-        value: vc_focused,
-        selection: sc_focused,
+        icon: ic_focused,
+        placeholder: ph_focused,
+        value: val_focused,
+        selection: sel_focused,
     };
 
     let disabled = Style {
-        background: iced::Background::Color(palette.background.base.color),
-        border: iced::Border {
+        background: bkg_base_color.into(),
+        border: Border {
             radius: br.into(),
             width: bw,
             color: bc_disabled,
         },
-        icon: palette.background.weak.text,
-        placeholder: pc_disabled,
-        value: vc_disabled,
-        selection: sc_disabled,
+        icon: ic_disabled,
+        placeholder: ph_disabled,
+        value: val_disabled,
+        selection: sel_disabled,
     };
 
     match status {
@@ -419,6 +609,7 @@ impl TextInputStyle {
         Status::Focused { .. } => focused,
         Status::Disabled => disabled,
     }
+
 }}
 
 
@@ -442,61 +633,101 @@ pub enum TextInputStyleParam {
     BackgroundColor,
     BackgroundColorAlpha,
     BackgroundRgba,
-    
+
+    TextColor,
+    TextColorAlpha,
+    TextRgba,
+
+    PrimaryColor,
+    PrimaryColorAlpha,
+    PrimaryRgba,
+
+    SecondaryColor,
+    SecondaryColorAlpha,
+    SecondaryRgba,
+
     BorderColorActive,
-    BorderColorActiveAlpha,
-    BorderColorDisabled,
-    BorderColorDisabledAlpha,
-    BorderColorFocused,
-    BorderColorFocusedAlpha,
-    BorderColorHovered,
-    BorderColorHoveredAlpha,
+    BorderColorAlphaActive,
     BorderRgbaActive,
-    BorderRgbaDisabled,
-    BorderRgbaFocused,
+
+    BorderColorHovered,
+    BorderColorAlphaHovered,
     BorderRgbaHovered,
-    
-    BorderRadius,
+
+    BorderColorFocused,
+    BorderColorAlphaFocused,
+    BorderRgbaFocused,
+
+    BorderColorDisabled,
+    BorderColorAlphaDisabled,
+    BorderRgbaDisabled,
+
     BorderWidth,
+    BorderRadius,
+
+    IconColorActive,
+    IconColorAlphaActive,
+    IconRgbaActive,
+
+    IconColorHovered,
+    IconColorAlphaHovered,
+    IconRgbaHovered,
+
+    IconColorFocused,
+    IconColorAlphaFocused,
+    IconRgbaFocused,
+
+    IconColorDisabled,
+    IconColorAlphaDisabled,
+    IconRgbaDisabled,
 
     PlaceholderColorActive,
-    PlaceholderColorActiveAlpha,
-    PlaceholderColorDisabled,
-    PlaceholderColorDisabledAlpha,
-    PlaceholderColorFocused,
-    PlaceholderColorFocusedAlpha,
-    PlaceholderColorHovered,
-    PlaceholderColorHoveredAlpha,
+    PlaceholderColorAlphaActive,
     PlaceholderRgbaActive,
-    PlaceholderRgbaDisabled,
-    PlaceholderRgbaFocused,
+
+    PlaceholderColorHovered,
+    PlaceholderColorAlphaHovered,
     PlaceholderRgbaHovered,
 
-    SelectionColorActive,
-    SelectionColorActiveAlpha,
-    SelectionColorDisabled,
-    SelectionColorDisabledAlpha,
-    SelectionColorFocused,
-    SelectionColorFocusedAlpha,
-    SelectionColorHovered,
-    SelectionColorHoveredAlpha,
-    SelectionRgbaActive,
-    SelectionRgbaDisabled,
-    SelectionRgbaFocused,
-    SelectionRgbaHovered,
+    PlaceholderColorFocused,
+    PlaceholderColorAlphaFocused,
+    PlaceholderRgbaFocused,
+
+    PlaceholderColorDisabled,
+    PlaceholderColorAlphaDisabled,
+    PlaceholderRgbaDisabled,
 
     ValueColorActive,
-    ValueColorActiveAlpha,
-    ValueColorDisabled,
-    ValueColorDisabledAlpha,
-    ValueColorFocused,
-    ValueColorFocusedAlpha,
-    ValueColorHovered,
-    ValueColorHoveredAlpha,
+    ValueColorAlphaActive,
     ValueRgbaActive,
-    ValueRgbaDisabled,
-    ValueRgbaFocused,
+
+    ValueColorHovered,
+    ValueColorAlphaHovered,
     ValueRgbaHovered,
+
+    ValueColorFocused,
+    ValueColorAlphaFocused,
+    ValueRgbaFocused,
+
+    ValueColorDisabled,
+    ValueColorAlphaDisabled,
+    ValueRgbaDisabled,
+
+    SelectionColorActive,
+    SelectionColorAlphaActive,
+    SelectionRgbaActive,
+
+    SelectionColorHovered,
+    SelectionColorAlphaHovered,
+    SelectionRgbaHovered,
+
+    SelectionColorFocused,
+    SelectionColorAlphaFocused,
+    SelectionRgbaFocused,
+
+    SelectionColorDisabled,
+    SelectionColorAlphaDisabled,
+    SelectionRgbaDisabled,
 }
 
 
@@ -530,61 +761,77 @@ impl WidgetParamUpdate for TextInputStyle {
             TextInputStyleParam::BackgroundColor => set_t_value(&mut self.background_color, value, "TextInputStyleParam::BackgroundColor"),
             TextInputStyleParam::BackgroundColorAlpha => set_t_value(&mut self.background_color_alpha, value, "TextInputStyleParam::BackgroundColorAlpha"),
             TextInputStyleParam::BackgroundRgba => set_t_value(&mut self.background_rgba, value, "TextInputStyleParam::BackgroundRgba"),
-            
+            TextInputStyleParam::TextColor => set_t_value(&mut self.text_color, value, "TextInputStyleParam::TextColor"),
+            TextInputStyleParam::TextColorAlpha => set_t_value(&mut self.text_color_alpha, value, "TextInputStyleParam::TextColorAlpha"),
+            TextInputStyleParam::TextRgba => set_t_value(&mut self.text_rgba, value, "TextInputStyleParam::TextRgba"),
+            TextInputStyleParam::PrimaryColor => set_t_value(&mut self.primary_color, value, "TextInputStyleParam::PrimaryColor"),
+            TextInputStyleParam::PrimaryColorAlpha => set_t_value(&mut self.primary_color_alpha, value, "TextInputStyleParam::PrimaryColorAlpha"),
+            TextInputStyleParam::PrimaryRgba => set_t_value(&mut self.primary_rgba, value, "TextInputStyleParam::PrimaryRgba"),
+            TextInputStyleParam::SecondaryColor => set_t_value(&mut self.secondary_color, value, "TextInputStyleParam::SecondaryColor"),
+            TextInputStyleParam::SecondaryColorAlpha => set_t_value(&mut self.secondary_color_alpha, value, "TextInputStyleParam::SecondaryColorAlpha"),
+            TextInputStyleParam::SecondaryRgba => set_t_value(&mut self.secondary_rgba, value, "TextInputStyleParam::SecondaryRgba"),
             TextInputStyleParam::BorderColorActive => set_t_value(&mut self.border_color_active, value, "TextInputStyleParam::BorderColorActive"),
-            TextInputStyleParam::BorderColorActiveAlpha => set_t_value(&mut self.border_color_active_alpha, value, "TextInputStyleParam::BorderColorActiveAlpha"),
-            TextInputStyleParam::BorderColorDisabled => set_t_value(&mut self.border_color_disabled, value, "TextInputStyleParam::BorderColorDisabled"),
-            TextInputStyleParam::BorderColorDisabledAlpha => set_t_value(&mut self.border_color_disabled_alpha, value, "TextInputStyleParam::BorderColorDisabledAlpha"),
-            TextInputStyleParam::BorderColorFocused => set_t_value(&mut self.border_color_focused, value, "TextInputStyleParam::BorderColorFocused"),
-            TextInputStyleParam::BorderColorFocusedAlpha => set_t_value(&mut self.border_color_focused_alpha, value, "TextInputStyleParam::BorderColorFocusedAlpha"),
-            TextInputStyleParam::BorderColorHovered => set_t_value(&mut self.border_color_hovered, value, "TextInputStyleParam::BorderColorHovered"),
-            TextInputStyleParam::BorderColorHoveredAlpha => set_t_value(&mut self.border_color_hovered_alpha, value, "TextInputStyleParam::BorderColorHoveredAlpha"),
+            TextInputStyleParam::BorderColorAlphaActive => set_t_value(&mut self.border_color_alpha_active, value, "TextInputStyleParam::BorderColorAlphaActive"),
             TextInputStyleParam::BorderRgbaActive => set_t_value(&mut self.border_rgba_active, value, "TextInputStyleParam::BorderRgbaActive"),
-            TextInputStyleParam::BorderRgbaDisabled => set_t_value(&mut self.border_rgba_disabled, value, "TextInputStyleParam::BorderRgbaDisabled"),
-            TextInputStyleParam::BorderRgbaFocused => set_t_value(&mut self.border_rgba_focused, value, "TextInputStyleParam::BorderRgbaFocused"),
+            TextInputStyleParam::BorderColorHovered => set_t_value(&mut self.border_color_hovered, value, "TextInputStyleParam::BorderColorHovered"),
+            TextInputStyleParam::BorderColorAlphaHovered => set_t_value(&mut self.border_color_alpha_hovered, value, "TextInputStyleParam::BorderColorAlphaHovered"),
             TextInputStyleParam::BorderRgbaHovered => set_t_value(&mut self.border_rgba_hovered, value, "TextInputStyleParam::BorderRgbaHovered"),
-
-            TextInputStyleParam::BorderRadius => set_t_value(&mut self.border_radius, value, "TextInputStyleParam::BorderRadius"),
+            TextInputStyleParam::BorderColorFocused => set_t_value(&mut self.border_color_focused, value, "TextInputStyleParam::BorderColorFocused"),
+            TextInputStyleParam::BorderColorAlphaFocused => set_t_value(&mut self.border_color_alpha_focused, value, "TextInputStyleParam::BorderColorAlphaFocused"),
+            TextInputStyleParam::BorderRgbaFocused => set_t_value(&mut self.border_rgba_focused, value, "TextInputStyleParam::BorderRgbaFocused"),
+            TextInputStyleParam::BorderColorDisabled => set_t_value(&mut self.border_color_disabled, value, "TextInputStyleParam::BorderColorDisabled"),
+            TextInputStyleParam::BorderColorAlphaDisabled => set_t_value(&mut self.border_color_alpha_disabled, value, "TextInputStyleParam::BorderColorAlphaDisabled"),
+            TextInputStyleParam::BorderRgbaDisabled => set_t_value(&mut self.border_rgba_disabled, value, "TextInputStyleParam::BorderRgbaDisabled"),
             TextInputStyleParam::BorderWidth => set_t_value(&mut self.border_width, value, "TextInputStyleParam::BorderWidth"),
-            
+            TextInputStyleParam::BorderRadius => set_t_value(&mut self.border_radius, value, "TextInputStyleParam::BorderRadius"),
+            TextInputStyleParam::IconColorActive => set_t_value(&mut self.icon_color_active, value, "TextInputStyleParam::IconColorActive"),
+            TextInputStyleParam::IconColorAlphaActive => set_t_value(&mut self.icon_color_alpha_active, value, "TextInputStyleParam::IconColorAlphaActive"),
+            TextInputStyleParam::IconRgbaActive => set_t_value(&mut self.icon_rgba_active, value, "TextInputStyleParam::IconRgbaActive"),
+            TextInputStyleParam::IconColorHovered => set_t_value(&mut self.icon_color_hovered, value, "TextInputStyleParam::IconColorHovered"),
+            TextInputStyleParam::IconColorAlphaHovered => set_t_value(&mut self.icon_color_alpha_hovered, value, "TextInputStyleParam::IconColorAlphaHovered"),
+            TextInputStyleParam::IconRgbaHovered => set_t_value(&mut self.icon_rgba_hovered, value, "TextInputStyleParam::IconRgbaHovered"),
+            TextInputStyleParam::IconColorFocused => set_t_value(&mut self.icon_color_focused, value, "TextInputStyleParam::IconColorFocused"),
+            TextInputStyleParam::IconColorAlphaFocused => set_t_value(&mut self.icon_color_alpha_focused, value, "TextInputStyleParam::IconColorAlphaFocused"),
+            TextInputStyleParam::IconRgbaFocused => set_t_value(&mut self.icon_rgba_focused, value, "TextInputStyleParam::IconRgbaFocused"),
+            TextInputStyleParam::IconColorDisabled => set_t_value(&mut self.icon_color_disabled, value, "TextInputStyleParam::IconColorDisabled"),
+            TextInputStyleParam::IconColorAlphaDisabled => set_t_value(&mut self.icon_color_alpha_disabled, value, "TextInputStyleParam::IconColorAlphaDisabled"),
+            TextInputStyleParam::IconRgbaDisabled => set_t_value(&mut self.icon_rgba_disabled, value, "TextInputStyleParam::IconRgbaDisabled"),
             TextInputStyleParam::PlaceholderColorActive => set_t_value(&mut self.placeholder_color_active, value, "TextInputStyleParam::PlaceholderColorActive"),
-            TextInputStyleParam::PlaceholderColorActiveAlpha => set_t_value(&mut self.placeholder_color_active_alpha, value, "TextInputStyleParam::PlaceholderColorActiveAlpha"),
-            TextInputStyleParam::PlaceholderColorDisabled => set_t_value(&mut self.placeholder_color_disabled, value, "TextInputStyleParam::PlaceholderColorDisabled"),
-            TextInputStyleParam::PlaceholderColorDisabledAlpha => set_t_value(&mut self.placeholder_color_disabled_alpha, value, "TextInputStyleParam::PlaceholderColorDisabledAlpha"),
-            TextInputStyleParam::PlaceholderColorFocused => set_t_value(&mut self.placeholder_color_focused, value, "TextInputStyleParam::PlaceholderColorFocused"),
-            TextInputStyleParam::PlaceholderColorFocusedAlpha => set_t_value(&mut self.placeholder_color_focused_alpha, value, "TextInputStyleParam::PlaceholderColorFocusedAlpha"),
-            TextInputStyleParam::PlaceholderColorHovered => set_t_value(&mut self.placeholder_color_hovered, value, "TextInputStyleParam::PlaceholderColorHovered"),
-            TextInputStyleParam::PlaceholderColorHoveredAlpha => set_t_value(&mut self.placeholder_color_hovered_alpha, value, "TextInputStyleParam::PlaceholderColorHoveredAlpha"),
+            TextInputStyleParam::PlaceholderColorAlphaActive => set_t_value(&mut self.placeholder_color_alpha_active, value, "TextInputStyleParam::PlaceholderColorAlphaActive"),
             TextInputStyleParam::PlaceholderRgbaActive => set_t_value(&mut self.placeholder_rgba_active, value, "TextInputStyleParam::PlaceholderRgbaActive"),
-            TextInputStyleParam::PlaceholderRgbaDisabled => set_t_value(&mut self.placeholder_rgba_disabled, value, "TextInputStyleParam::PlaceholderRgbaDisabled"),
-            TextInputStyleParam::PlaceholderRgbaFocused => set_t_value(&mut self.placeholder_rgba_focused, value, "TextInputStyleParam::PlaceholderRgbaFocused"),
+            TextInputStyleParam::PlaceholderColorHovered => set_t_value(&mut self.placeholder_color_hovered, value, "TextInputStyleParam::PlaceholderColorHovered"),
+            TextInputStyleParam::PlaceholderColorAlphaHovered => set_t_value(&mut self.placeholder_color_alpha_hovered, value, "TextInputStyleParam::PlaceholderColorAlphaHovered"),
             TextInputStyleParam::PlaceholderRgbaHovered => set_t_value(&mut self.placeholder_rgba_hovered, value, "TextInputStyleParam::PlaceholderRgbaHovered"),
-
-            TextInputStyleParam::SelectionColorActive => set_t_value(&mut self.selection_color_active, value, "TextInputStyleParam::SelectionColorActive"),
-            TextInputStyleParam::SelectionColorActiveAlpha => set_t_value(&mut self.selection_color_active_alpha, value, "TextInputStyleParam::SelectionColorActiveAlpha"),
-            TextInputStyleParam::SelectionRgbaActive => set_t_value(&mut self.selection_rgba_active, value, "TextInputStyleParam::SelectionRgbaActive"),
-            TextInputStyleParam::SelectionColorDisabled => set_t_value(&mut self.selection_color_disabled, value, "TextInputStyleParam::SelectionColorDisabled"),
-            TextInputStyleParam::SelectionColorDisabledAlpha => set_t_value(&mut self.selection_color_disabled_alpha, value, "TextInputStyleParam::SelectionColorDisabledAlpha"),
-            TextInputStyleParam::SelectionColorFocused => set_t_value(&mut self.selection_color_focused, value, "TextInputStyleParam::SelectionColorFocused"),
-            TextInputStyleParam::SelectionColorFocusedAlpha => set_t_value(&mut self.selection_color_focused_alpha, value, "TextInputStyleParam::SelectionColorFocusedAlpha"),
-            TextInputStyleParam::SelectionColorHovered => set_t_value(&mut self.selection_color_hovered, value, "TextInputStyleParam::SelectionColorHovered"),
-            TextInputStyleParam::SelectionColorHoveredAlpha => set_t_value(&mut self.selection_color_hovered_alpha, value, "TextInputStyleParam::SelectionColorHoveredAlpha"),
-            TextInputStyleParam::SelectionRgbaDisabled => set_t_value(&mut self.selection_rgba_disabled, value, "TextInputStyleParam::SelectionRgbaDisabled"),
-            TextInputStyleParam::SelectionRgbaFocused => set_t_value(&mut self.selection_rgba_focused, value, "TextInputStyleParam::SelectionRgbaFocused"),
-            TextInputStyleParam::SelectionRgbaHovered => set_t_value(&mut self.selection_rgba_hovered, value, "TextInputStyleParam::SelectionRgbaHovered"),
-
+            TextInputStyleParam::PlaceholderColorFocused => set_t_value(&mut self.placeholder_color_focused, value, "TextInputStyleParam::PlaceholderColorFocused"),
+            TextInputStyleParam::PlaceholderColorAlphaFocused => set_t_value(&mut self.placeholder_color_alpha_focused, value, "TextInputStyleParam::PlaceholderColorAlphaFocused"),
+            TextInputStyleParam::PlaceholderRgbaFocused => set_t_value(&mut self.placeholder_rgba_focused, value, "TextInputStyleParam::PlaceholderRgbaFocused"),
+            TextInputStyleParam::PlaceholderColorDisabled => set_t_value(&mut self.placeholder_color_disabled, value, "TextInputStyleParam::PlaceholderColorDisabled"),
+            TextInputStyleParam::PlaceholderColorAlphaDisabled => set_t_value(&mut self.placeholder_color_alpha_disabled, value, "TextInputStyleParam::PlaceholderColorAlphaDisabled"),
+            TextInputStyleParam::PlaceholderRgbaDisabled => set_t_value(&mut self.placeholder_rgba_disabled, value, "TextInputStyleParam::PlaceholderRgbaDisabled"),
             TextInputStyleParam::ValueColorActive => set_t_value(&mut self.value_color_active, value, "TextInputStyleParam::ValueColorActive"),
-            TextInputStyleParam::ValueColorActiveAlpha => set_t_value(&mut self.value_color_active_alpha, value, "TextInputStyleParam::ValueColorActiveAlpha"),
+            TextInputStyleParam::ValueColorAlphaActive => set_t_value(&mut self.value_color_alpha_active, value, "TextInputStyleParam::ValueColorAlphaActive"),
             TextInputStyleParam::ValueRgbaActive => set_t_value(&mut self.value_rgba_active, value, "TextInputStyleParam::ValueRgbaActive"),
-            TextInputStyleParam::ValueColorDisabled => set_t_value(&mut self.value_color_disabled, value, "TextInputStyleParam::ValueColorDisabled"),
-            TextInputStyleParam::ValueColorDisabledAlpha => set_t_value(&mut self.value_color_disabled_alpha, value, "TextInputStyleParam::ValueColorDisabledAlpha"),
-            TextInputStyleParam::ValueColorFocused => set_t_value(&mut self.value_color_focused, value, "TextInputStyleParam::ValueColorFocused"),
-            TextInputStyleParam::ValueColorFocusedAlpha => set_t_value(&mut self.value_color_focused_alpha, value, "TextInputStyleParam::ValueColorFocusedAlpha"),
             TextInputStyleParam::ValueColorHovered => set_t_value(&mut self.value_color_hovered, value, "TextInputStyleParam::ValueColorHovered"),
-            TextInputStyleParam::ValueColorHoveredAlpha => set_t_value(&mut self.value_color_hovered_alpha, value, "TextInputStyleParam::ValueColorHoveredAlpha"),
-            TextInputStyleParam::ValueRgbaDisabled => set_t_value(&mut self.value_rgba_disabled, value, "TextInputStyleParam::ValueRgbaDisabled"),
-            TextInputStyleParam::ValueRgbaFocused => set_t_value(&mut self.value_rgba_focused, value, "TextInputStyleParam::ValueRgbaFocused"),
+            TextInputStyleParam::ValueColorAlphaHovered => set_t_value(&mut self.value_color_alpha_hovered, value, "TextInputStyleParam::ValueColorAlphaHovered"),
             TextInputStyleParam::ValueRgbaHovered => set_t_value(&mut self.value_rgba_hovered, value, "TextInputStyleParam::ValueRgbaHovered"),
+            TextInputStyleParam::ValueColorFocused => set_t_value(&mut self.value_color_focused, value, "TextInputStyleParam::ValueColorFocused"),
+            TextInputStyleParam::ValueColorAlphaFocused => set_t_value(&mut self.value_color_alpha_focused, value, "TextInputStyleParam::ValueColorAlphaFocused"),
+            TextInputStyleParam::ValueRgbaFocused => set_t_value(&mut self.value_rgba_focused, value, "TextInputStyleParam::ValueRgbaFocused"),
+            TextInputStyleParam::ValueColorDisabled => set_t_value(&mut self.value_color_disabled, value, "TextInputStyleParam::ValueColorDisabled"),
+            TextInputStyleParam::ValueColorAlphaDisabled => set_t_value(&mut self.value_color_alpha_disabled, value, "TextInputStyleParam::ValueColorAlphaDisabled"),
+            TextInputStyleParam::ValueRgbaDisabled => set_t_value(&mut self.value_rgba_disabled, value, "TextInputStyleParam::ValueRgbaDisabled"),
+            TextInputStyleParam::SelectionColorActive => set_t_value(&mut self.selection_color_active, value, "TextInputStyleParam::SelectionColorActive"),
+            TextInputStyleParam::SelectionColorAlphaActive => set_t_value(&mut self.selection_color_alpha_active, value, "TextInputStyleParam::SelectionColorAlphaActive"),
+            TextInputStyleParam::SelectionRgbaActive => set_t_value(&mut self.selection_rgba_active, value, "TextInputStyleParam::SelectionRgbaActive"),
+            TextInputStyleParam::SelectionColorHovered => set_t_value(&mut self.selection_color_hovered, value, "TextInputStyleParam::SelectionColorHovered"),
+            TextInputStyleParam::SelectionColorAlphaHovered => set_t_value(&mut self.selection_color_alpha_hovered, value, "TextInputStyleParam::SelectionColorAlphaHovered"),
+            TextInputStyleParam::SelectionRgbaHovered => set_t_value(&mut self.selection_rgba_hovered, value, "TextInputStyleParam::SelectionRgbaHovered"),
+            TextInputStyleParam::SelectionColorFocused => set_t_value(&mut self.selection_color_focused, value, "TextInputStyleParam::SelectionColorFocused"),
+            TextInputStyleParam::SelectionColorAlphaFocused => set_t_value(&mut self.selection_color_alpha_focused, value, "TextInputStyleParam::SelectionColorAlphaFocused"),
+            TextInputStyleParam::SelectionRgbaFocused => set_t_value(&mut self.selection_rgba_focused, value, "TextInputStyleParam::SelectionRgbaFocused"),
+            TextInputStyleParam::SelectionColorDisabled => set_t_value(&mut self.selection_color_disabled, value, "TextInputStyleParam::SelectionColorDisabled"),
+            TextInputStyleParam::SelectionColorAlphaDisabled => set_t_value(&mut self.selection_color_alpha_disabled, value, "TextInputStyleParam::SelectionColorAlphaDisabled"),
+            TextInputStyleParam::SelectionRgbaDisabled => set_t_value(&mut self.selection_rgba_disabled, value, "TextInputStyleParam::SelectionRgbaDisabled"),
         }
     }
 }

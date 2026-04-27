@@ -72,7 +72,7 @@ impl Button {
         let txt = 
             if let Some(sa) = self.style_arrow.clone() {
                 let arrow = Arrow::to_string(&sa);
-                text(arrow).font(iced::Font::with_name("bootstrap-icons"))
+                text(arrow).font(iced::Font::new("bootstrap-icons"))
             } else {
                 let label = if let Some(lb) = &self.label {
                     lb.clone()

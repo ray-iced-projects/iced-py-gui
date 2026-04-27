@@ -367,186 +367,70 @@ impl TextInputStyle {
     let (bc_active, bc_hovered, bc_focused, bc_disabled) = if new_theme {
         let background = background_opt.unwrap();
         let primary = pm_swatch_opt.unwrap();
-
         (background.strong.color, background.base.text,
         primary.strong.color, background.base.text)
-
     } else {
         (
-            if let Some(bc) = border_color_active {
-                bc
-            } else { palette.background.strong.color },
-            
-            if let Some(bc) = border_color_hovered {
-                bc
-            } else if let Some(bc) = border_color_active {
-                bc
-            } else { palette.background.base.text },
-            
-            if let Some(bc) = border_color_focused {
-                bc
-            } else if let Some(bc) = border_color_active {
-                bc
-            } else {
-                palette.primary.strong.color 
-            },
-            
-            if let Some(c) = border_color_disabled {
-                c
-            } else if let Some(bc) = border_color_active {
-                bc
-            } else {
-                palette.background.strong.color
-            }
+            border_color_active.unwrap_or(palette.background.strong.color),
+            border_color_hovered.or(border_color_active).unwrap_or(palette.background.base.text),
+            border_color_focused.or(border_color_active).unwrap_or(palette.primary.strong.color),
+            border_color_disabled.or(border_color_active).unwrap_or(palette.background.strong.color),
         )
     };
     
     // icon
     let (ic_active, ic_hovered, ic_focused, ic_disabled) = if new_theme {
-        let background = background_opt.unwrap();
-
-        (background.weak.text, background.weak.text,
-        background.weak.text, background.weak.text)
-
+        let c = background_opt.unwrap().weak.text;
+        (c, c, c, c)
     } else {
+        let base = icon_color_active.unwrap_or(palette.background.weak.text);
         (
-            if let Some(c) = icon_color_active {
-                c
-            } else { palette.background.weak.text },
-            
-            if let Some(c) = icon_color_hovered {
-                c
-            } else if let Some(c) = icon_color_active {
-                c
-            } else { palette.background.weak.text },
-            
-            if let Some(c) = icon_color_focused {
-                c
-            } else if let Some(c) = icon_color_active {
-                c
-            } else {
-                palette.background.weak.text 
-            },
-            
-            if let Some(c) = icon_color_disabled {
-                c
-            } else if let Some(c) = icon_color_active {
-                c
-            } else {
-                palette.background.weak.text
-            }
+            base,
+            icon_color_hovered.unwrap_or(base),
+            icon_color_focused.unwrap_or(base),
+            icon_color_disabled.unwrap_or(base),
         )
     };
 
     // placeholder
     let (ph_active, ph_hovered, ph_focused, ph_disabled) = if new_theme {
-        let background = background_opt.unwrap();
-        let secondary = sec_swatch_opt.unwrap();
-
-        (secondary.base.color, secondary.base.color,
-        secondary.base.color, background.strongest.color)
-
+        let c = sec_swatch_opt.unwrap().base.color;
+        (c, c, c, background_opt.unwrap().strongest.color)
     } else {
+        let base = placeholder_color_active.unwrap_or(palette.secondary.base.color);
         (
-            if let Some(c) = placeholder_color_active {
-                c
-            } else { palette.secondary.base.color },
-            
-            if let Some(c) = placeholder_color_hovered {
-                c
-            } else if let Some(c) = placeholder_color_active {
-                c
-            } else { palette.secondary.base.color },
-            
-            if let Some(c) = placeholder_color_focused {
-                c
-            } else if let Some(c) = placeholder_color_active {
-                c
-            } else {
-                palette.secondary.base.color 
-            },
-            
-            if let Some(c) = placeholder_color_disabled {
-                c
-            } else if let Some(c) = placeholder_color_active {
-                c
-            } else {
-                palette.background.strongest.color
-            }
+            base,
+            placeholder_color_hovered.unwrap_or(base),
+            placeholder_color_focused.unwrap_or(base),
+            placeholder_color_disabled.or(placeholder_color_active).unwrap_or(palette.background.strongest.color),
         )
     };
 
     // value
     let (val_active, val_hovered, val_focused, val_disabled) = if new_theme {
-        let background = background_opt.unwrap();
-
-        (background.base.text, background.base.text,
-        background.base.text, background.base.text)
-
+        let c = background_opt.unwrap().base.text;
+        (c, c, c, c)
     } else {
+        let base = value_color_active.unwrap_or(palette.background.base.text);
         (
-            if let Some(c) = value_color_active {
-                c
-            } else { palette.background.base.text },
-            
-            if let Some(c) = value_color_hovered {
-                c
-            } else if let Some(c) = value_color_active {
-                c
-            } else { palette.background.base.text },
-            
-            if let Some(c) = value_color_focused {
-                c
-            } else if let Some(c) = value_color_active {
-                c
-            } else {
-                palette.background.base.text 
-            },
-            
-            if let Some(c) = value_color_disabled {
-                c
-            } else if let Some(c) = value_color_active {
-                c
-            } else {
-                palette.background.base.text
-            }
+            base,
+            value_color_hovered.unwrap_or(base),
+            value_color_focused.unwrap_or(base),
+            value_color_disabled.unwrap_or(base),
         )
     };
 
     // selection
     let (sel_active, sel_hovered, sel_focused, sel_disabled) = if new_theme {
-        let primary = pm_swatch_opt.unwrap();
-
-        (primary.weak.color, primary.weak.color,
-        primary.weak.color, primary.weak.color)
-
+        let c = pm_swatch_opt.unwrap().weak.color;
+        (c, c, c, c)
     } else {
+        let base = selection_color_active.unwrap_or(palette.primary.weak.color);
         (
-            if let Some(c) = selection_color_active {
-                c
-            } else { palette.primary.weak.color },
-            
-            if let Some(c) = selection_color_hovered {
-                c
-            } else if let Some(c) = selection_color_active {
-                c
-            } else { palette.primary.weak.color },
-            
-            if let Some(c) = selection_color_focused {
-                c
-            } else if let Some(c) = selection_color_active {
-                c
-            } else {
-                palette.primary.weak.color 
-            },
-            
-            if let Some(c) = selection_color_disabled {
-                c
-            } else if let Some(c) = selection_color_active {
-                c
-            } else {
-                palette.primary.weak.color
-            }
+            base,
+            selection_color_hovered.unwrap_or(base),
+            selection_color_focused.unwrap_or(base),
+            selection_color_disabled.unwrap_or(base),
         )
     };
 

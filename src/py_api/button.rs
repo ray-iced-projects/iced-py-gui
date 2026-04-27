@@ -192,6 +192,31 @@ pub fn add_button(
 ///"""
 ///Adds styling to a button
 ///
+/// The style are keyed to a background, text, primary, and secondary colors
+/// Each color generates a weak, strong, etc. type
+/// 
+/// if you want to produce your own colors from a new background,
+/// then you will need to define the new background, text, primary, 
+/// and secondary colors.  Based on these, the color types will be 
+/// generated for you based on the widget status.
+/// 
+/// You also have the ability to define all the colors individually or
+/// define an active color which replaces all the colors for that parameter.
+/// 
+/// Active: background: palette.background.weakest.color
+///         border: background.strong.color
+/// 
+/// pressed: same as Active except
+///          palette.background.strong.color
+/// 
+/// Hovered: same as Active except
+///          background: palette.background.weaker.color
+///          border: background.base.text
+/// 
+/// Disabled: same as primary except
+///           background: palette.background.weakest.color
+///                         with bkg_color_alpha = 0.5
+///           text: background.base.text with alpha=0.5
 ///Parameters
 ///----------
 ///background_color: Color, Optional
@@ -244,51 +269,121 @@ pub fn add_button(
 ///"""
 #[pyfunction]
 #[pyo3(signature = (
-        background_color=None,
-        background_color_alpha=None, 
-        background_rgba=None,
-        background_gradient_color_stop=None,
-        background_gradient_color_stop_alpha=None,
-        background_gradient_rgba_stop=None,
-        background_gradient_degrees=None,
-        background_gradient_radians=None,
-        border_color=None,
-        border_color_alpha=None,
-        border_rgba=None,
-        border_radius=None, 
-        border_width=1.0,
-        shadow_color=None,
-        shadow_color_alpha=None,
-        shadow_rgba=None,
-        shadow_offset_xy=None, 
-        shadow_blur_radius=None,
-        text_color=None,
-        text_color_alpha=None,
-        text_rgba=None,
+        background_color = None,
+        background_color_alpha = None,
+        background_rgba = None,
+
+        text_color = None,
+        text_color_alpha = None,
+        text_rgba = None,
+
+        text_color_active = None,
+        text_color_alpha_active = None,
+        text_rgba_active = None,
+
+        text_color_hovered = None,
+        text_color_alpha_hovered = None,
+        text_rgba_hovered = None,
+
+        text_color_pressed = None,
+        text_color_alpha_pressed = None,
+        text_rgba_pressed = None,
+
+        text_color_disabled = None,
+        text_color_alpha_disabled = None,
+        text_rgba_disabled = None,
+
+        background_gradient_color_stop = None,
+        background_gradient_color_stop_alpha = None,
+        background_gradient_rgba_stop = None,
+        background_gradient_degrees = None,
+        background_gradient_radians = None,
+
+        border_color_active = None,
+        border_color_alpha_active = None,
+        border_rgba_active = None,
+
+        border_color_hovered = None,
+        border_color_alpha_hovered = None,
+        border_rgba_hovered = None,
+
+        border_color_pressed = None,
+        border_color_alpha_pressed = None,
+        border_rgba_pressed = None,
+
+        border_color_disabled = None,
+        border_color_alpha_disabled = None,
+        border_rgba_disabled = None,
+
+        border_radius = None,
+        border_width = None,
+
+        shadow_color = None,
+        shadow_color_alpha = None,
+        shadow_rgba = None,
+        shadow_offset_xy = None,
+        shadow_blur_radius = None,
+
+        snap = None,
         gen_id=None
         ))]
 pub fn add_button_style(
     background_color: Option<Color>,
     background_color_alpha: Option<f32>,
     background_rgba: Option<[f32; 4]>,
+
+    text_color: Option<Color>,
+    text_color_alpha: Option<f32>,
+    text_rgba: Option<[f32; 4]>,
+
+    text_color_active: Option<Color>,
+    text_color_alpha_active: Option<f32>,
+    text_rgba_active: Option<[f32; 4]>,
+
+    text_color_hovered: Option<Color>,
+    text_color_alpha_hovered: Option<f32>,
+    text_rgba_hovered: Option<[f32; 4]>,
+
+    text_color_pressed: Option<Color>,
+    text_color_alpha_pressed: Option<f32>,
+    text_rgba_pressed: Option<[f32; 4]>,
+
+    text_color_disabled: Option<Color>,
+    text_color_alpha_disabled: Option<f32>,
+    text_rgba_disabled: Option<[f32; 4]>,
+
     background_gradient_color_stop: Option<Color>,
     background_gradient_color_stop_alpha: Option<f32>,
     background_gradient_rgba_stop: Option<[f32; 4]>,
     background_gradient_degrees: Option<f32>,
     background_gradient_radians: Option<f32>,
-    border_color: Option<Color>,
-    border_color_alpha: Option<f32>,
-    border_rgba: Option<[f32; 4]>,
+
+    border_color_active: Option<Color>,
+    border_color_alpha_active: Option<f32>,
+    border_rgba_active: Option<[f32; 4]>,
+
+    border_color_hovered: Option<Color>,
+    border_color_alpha_hovered: Option<f32>,
+    border_rgba_hovered: Option<[f32; 4]>,
+
+    border_color_pressed: Option<Color>,
+    border_color_alpha_pressed: Option<f32>,
+    border_rgba_pressed: Option<[f32; 4]>,
+
+    border_color_disabled: Option<Color>,
+    border_color_alpha_disabled: Option<f32>,
+    border_rgba_disabled: Option<[f32; 4]>,
+
     border_radius: Option<Vec<f32>>,
     border_width: Option<f32>,
+
     shadow_color: Option<Color>,
     shadow_color_alpha: Option<f32>,
     shadow_rgba: Option<[f32; 4]>,
     shadow_offset_xy: Option<[f32; 2]>,
     shadow_blur_radius: Option<f32>,
-    text_color: Option<Color>,
-    text_color_alpha: Option<f32>,
-    text_rgba: Option<[f32; 4]>,
+
+    snap: Option<bool>,
     gen_id: Option<usize>,
     ) -> PyResult<usize>
 {
@@ -300,26 +395,61 @@ pub fn add_button_style(
         ButtonStyle {
             id,
             background_color,
-            background_color_alpha, 
+            background_color_alpha,
             background_rgba,
+
+            text_color,
+            text_color_alpha,
+            text_rgba,
+
+            text_color_active,
+            text_color_alpha_active,
+            text_rgba_active,
+
+            text_color_hovered,
+            text_color_alpha_hovered,
+            text_rgba_hovered,
+
+            text_color_pressed,
+            text_color_alpha_pressed,
+            text_rgba_pressed,
+
+            text_color_disabled,
+            text_color_alpha_disabled,
+            text_rgba_disabled,
+
             background_gradient_color_stop,
             background_gradient_color_stop_alpha,
             background_gradient_rgba_stop,
             background_gradient_degrees,
             background_gradient_radians,
-            border_color,
-            border_color_alpha,
-            border_rgba,
-            border_radius, 
+
+            border_color_active,
+            border_color_alpha_active,
+            border_rgba_active,
+
+            border_color_hovered,
+            border_color_alpha_hovered,
+            border_rgba_hovered,
+
+            border_color_pressed,
+            border_color_alpha_pressed,
+            border_rgba_pressed,
+
+            border_color_disabled,
+            border_color_alpha_disabled,
+            border_rgba_disabled,
+
+            border_radius,
             border_width,
+
             shadow_color,
             shadow_color_alpha,
             shadow_rgba,
-            shadow_offset_xy, 
+            shadow_offset_xy,
             shadow_blur_radius,
-            text_color,
-            text_color_alpha,
-            text_rgba,
+
+            snap,
         }));
 
     drop(state);

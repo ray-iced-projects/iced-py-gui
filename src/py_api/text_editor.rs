@@ -1,11 +1,14 @@
 //! TextEditor module - provides add_text_editor pyfunction
 
 use pyo3::prelude::*;
-use pyo3::pyfunction;
+use pyo3::{pyfunction, PyResult, Py, PyAny};
+type PyObject = Py<PyAny>;
+
 
 use crate::access_state;
+use crate::graphics::colors::Color;
 use crate::state::{Widgets, get_id, set_state_of_widget};
-use crate::widgets::ipg_text_editor::TextEditor;
+use crate::widgets::ipg_text_editor::{EditorStyle, TextEditor};
 use crate::widgets::ipg_text_editor::TxtEdStatus;
 
 
@@ -82,5 +85,83 @@ pub fn add_text_editor(
         );
     drop(state);
 
+    Ok(id)
+}
+
+
+/// The [`Background`] of the text input.
+/// The [`Border`] of the text input.
+/// The [`Color`] of the placeholder of the text input.
+/// The [`Color`] of the value of the text input.
+/// The [`Color`] of the selection of the text input.
+#[pyfunction]
+#[pyo3(signature = (
+    background_color = None,
+    background_color_alpha = None,
+    background_rgba = None,
+    border_color = None,
+    border_color_alpha = None,
+    border_rgba = None,
+    border_radius = None,
+    border_width = None,
+    placeholder_color = None,
+    placeholder_color_alpha = None,
+    placeholder_rgba = None,
+    value_color = None,
+    value_color_alpha = None,
+    value_rgba = None,
+    selection_color = None,
+    selection_color_alpha = None,
+    selection_rgba = None,
+    gen_id = None,
+))]
+fn add_editor_style(
+    background_color: Option<Color>,
+    background_color_alpha: Option<f32>,
+    background_rgba: Option<[f32; 4]>,
+    border_color: Option<Color>,
+    border_color_alpha: Option<f32>,
+    border_rgba: Option<[f32; 4]>,
+    border_radius: Option<Vec<f32>>,
+    border_width: Option<f32>,
+    placeholder_color: Option<Color>,
+    placeholder_color_alpha: Option<f32>,
+    placeholder_rgba: Option<[f32; 4]>,
+    value_color: Option<Color>,
+    value_color_alpha: Option<f32>,
+    value_rgba: Option<[f32; 4]>,
+    selection_color: Option<Color>,
+    selection_color_alpha: Option<f32>,
+    selection_rgba: Option<[f32; 4]>,
+    gen_id: Option<usize>,
+) -> PyResult<usize> 
+{
+    let id = get_id(gen_id);
+
+    let mut state = access_state();
+
+    state.widgets.insert(id, Widgets::EditorStyle(
+        EditorStyle {
+            id,
+            background_color,
+            background_color_alpha, 
+            background_rgba,
+            border_color,
+            border_color_alpha,
+            border_rgba,
+            border_radius, 
+            border_width,
+            placeholder_color,
+            placeholder_color_alpha,
+            placeholder_rgba,
+            value_color,
+            value_color_alpha,
+            value_rgba,
+            selection_color,
+            selection_color_alpha,
+            selection_rgba,
+        }));
+
+    drop(state);
     Ok(id)
 }

@@ -2,18 +2,23 @@
 
 use std::collections::HashMap;
 
+use iced::Background;
+use iced::Border;
 use iced::Length;
 use iced::Padding;
+use iced::Theme;
 use iced::highlighter;
 use iced::widget;
 
 use iced::Element;
 use iced::widget::text::Wrapping;
+use iced::widget::text_editor;
 use pyo3::{pyclass, Py, PyAny};
 type PyObject = Py<PyAny>;
 
 use crate::IpgState;
 use crate::app::Message;
+use crate::graphics::colors::Color;
 use crate::py_api::helpers::get_len;
 use crate::py_api::helpers::get_padding;
 use crate::state::Widgets;
@@ -135,8 +140,6 @@ pub enum TxtEdMessage {
     // FileSaved(Result<PathBuf, Error>),
 }
 
-
-
 pub fn text_ed_callback(id: usize, message: TxtEdMessage, state: &mut IpgState) {
     match message {
         TxtEdMessage::ActionPerformed(action) => {
@@ -148,6 +151,178 @@ pub fn text_ed_callback(id: usize, message: TxtEdMessage, state: &mut IpgState) 
         },
         TxtEdMessage::ThemeSelected(_theme) => todo!(),
         TxtEdMessage::WordWrapToggled(_) => todo!(),
+    }
+}
+
+
+#[derive(Debug, Clone, Default)]
+pub struct EditorStyle {
+    pub id: usize,
+    pub background_color: Option<Color>,
+    pub background_color_alpha: Option<f32>,
+    pub background_rgba: Option<[f32; 4]>,
+    pub background_color_hovered: Option<Color>,
+    pub background_color_alpha_hovered: Option<f32>,
+    pub background_rgba_hovered: Option<[f32; 4]>,
+    pub background_color_focused: Option<Color>,
+    pub background_color_alpha_focused: Option<f32>,
+    pub background_rgba_focused: Option<[f32; 4]>,
+    pub background_color_disabled: Option<Color>,
+    pub background_color_alpha_disabled: Option<f32>,
+    pub background_rgba_disabled: Option<[f32; 4]>,
+    pub border_color: Option<Color>,
+    pub border_color_alpha: Option<f32>,
+    pub border_rgba: Option<[f32; 4]>,
+    pub border_color_hovered: Option<Color>,
+    pub border_color_alpha_hovered: Option<f32>,
+    pub border_rgba_hovered: Option<[f32; 4]>,
+    pub border_color_focused: Option<Color>,
+    pub border_color_alpha_focused: Option<f32>,
+    pub border_rgba_focused: Option<[f32; 4]>,
+    pub border_color_disabled: Option<Color>,
+    pub border_color_alpha_disabled: Option<f32>,
+    pub border_rgba_disabled: Option<[f32; 4]>,
+    pub border_radius: Option<Vec<f32>>,
+    pub border_width: Option<f32>,
+    pub placeholder_color: Option<Color>,
+    pub placeholder_color_alpha: Option<f32>,
+    pub placeholder_rgba: Option<[f32; 4]>,
+    pub value_color: Option<Color>,
+    pub value_color_alpha: Option<f32>,
+    pub value_rgba: Option<[f32; 4]>,
+    pub selection_color: Option<Color>,
+    pub selection_color_alpha: Option<f32>,
+    pub selection_rgba: Option<[f32; 4]>,
+}
+
+impl EditorStyle {
+    /// Apply user-defined style overrides to an existing iced button::Style
+    pub fn to_iced(
+        &self, 
+        theme: &Theme, 
+        status: text_editor::Status,
+        ) -> text_editor::Style{
+
+        // convert the colors
+        let bkg_color_active = 
+            Color::rgba_ipg_color_to_iced(self.background_rgba, &self.background_color, self.background_color_alpha);
+        let bkg_color_hovered = 
+            Color::rgba_ipg_color_to_iced(self.background_rgba_hovered, &self.background_color_hovered, self.background_color_alpha_hovered);
+        let bkg_color_focused = 
+            Color::rgba_ipg_color_to_iced(self.background_rgba_focused, &self.background_color_focused, self.background_color_alpha_focused);
+        let bkg_color_disabled = 
+            Color::rgba_ipg_color_to_iced(self.background_rgba_disabled, &self.background_color_disabled, self.background_color_alpha_disabled);
+
+        let bdr_color = 
+            Color::rgba_ipg_color_to_iced(self.border_rgba, &self.border_color, self.border_color_alpha);
+        let bdr_color_hovered = 
+            Color::rgba_ipg_color_to_iced(self.border_rgba_hovered, &self.border_color_hovered, self.border_color_alpha_focused);
+        let bdr_color_focused = 
+            Color::rgba_ipg_color_to_iced(self.border_rgba_focused, &self.border_color_focused, self.border_color_alpha_focused);
+        let ph_color =
+            Color::rgba_ipg_color_to_iced(self.placeholder_rgba, &self.placeholder_color, self.placeholder_color_alpha);
+        let val_color = 
+            Color::rgba_ipg_color_to_iced(self.value_rgba, &self.value_color, self.value_color_alpha);
+        let sel_color = 
+            Color::rgba_ipg_color_to_iced(self.selection_rgba, &self.selection_color, self.selection_color_alpha);
+
+        let palette = theme.extended_palette();
+
+        let bkg_a = if let Some(bkg) = bkg_color_active {
+            bkg
+        } else {
+            palette.background.base.color
+        };
+
+        let bkg_h = if let Some(bkg) = bkg_color_hovered {
+            bkg
+        } else {
+            palette.background.base.color
+        };
+
+        let bkg_f = if let Some(bkg) = bkg_color_focused {
+            bkg
+        } else {
+            palette.background.base.color
+        };
+
+        let bkg_d = if let Some(bkg) = bkg_color_disabled {
+            bkg
+        } else {
+            palette.background.weak.color
+        };
+        
+        
+        match status {
+            text_editor::Status::Active => 
+                text_editor::Style {
+                    background: Background::Color(bkg_a),
+                    border: Border {
+                        radius: 2.0.into(),
+                        width: 1.0,
+                        color: palette.background.strong.color,
+                    },
+                    placeholder: palette.secondary.base.color,
+                    value: palette.background.base.text,
+                    selection: palette.primary.weak.color,
+                },
+                text_editor::Status::Hovered => text_editor::Style {
+                    background: Background::Color(bkg_h),
+                    border: Border {
+                        radius: 2.0.into(),
+                        width: 1.0,
+                        color: palette.background.base.text,,
+                    },
+                    placeholder: palette.secondary.base.color,
+                    value: palette.background.base.text,
+                    selection: palette.primary.weak.color,
+                },
+            text_editor::Status::Focused { .. } => text_editor::Style {
+                background: Background::Color(bkg_f),
+                border: Border {
+                    radius: 2.0.into(),
+                    width: 1.0,
+                    color: palette.primary.strong.color,
+                },
+                placeholder: palette.secondary.base.color,
+                value: palette.background.base.text,
+                selection: palette.primary.weak.color,
+            },
+            text_editor::Status::Disabled => text_editor::Style {
+                background: Background::Color(bkg_d),
+                border: Border {
+                    radius: 2.0.into(),
+                    width: 1.0,
+                    color: palette.background.strong.color,
+                },
+                placeholder: palette.background.strongest.color,
+                value: palette.background.base.text,
+                selection: palette.primary.weak.color,
+            },
+        }
+
+
+    }
+
+}
+
+
+fn styled(pair: palette::Pair) -> button::Style {
+    button::Style {
+        background: Some(iced::Background::Color(pair.color)),
+        text_color: pair.text,
+        border: border::rounded(2),
+        ..button::Style::default()
+    }
+}
+
+fn disabled(style: button::Style) -> button::Style {
+    button::Style {
+        background: style
+            .background
+            .map(|background| background.scale_alpha(0.5)),
+        text_color: style.text_color.scale_alpha(0.5),
+        ..style
     }
 }
 

@@ -41,7 +41,7 @@ use crate::widgets::ipg_stack::Stack;
 use crate::widgets::ipg_svg::Svg;
 use crate::widgets::ipg_table::Table;
 use crate::widgets::ipg_text::Text;
-use crate::widgets::ipg_text_editor::TextEditor;
+use crate::widgets::ipg_text_editor::{EditorStyle, TextEditor};
 use crate::widgets::ipg_text_rich::{RichText, Span};
 use crate::widgets::ipg_text_input::{TextInput, TextInputStyle};
 use crate::widgets::ipg_timer::TimerState;
@@ -93,6 +93,7 @@ pub enum Widgets {
     Divider(Divider),
     DividerStyle(DividerStyle),
     DatePicker(DatePicker),
+    EditorStyle(EditorStyle),
     Font(Font),
     Image(Image),
     MenuStyle(MenuStyle),

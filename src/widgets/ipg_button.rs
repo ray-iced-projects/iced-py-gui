@@ -11,7 +11,8 @@ use crate::widgets::widget_param_update::{
     WidgetParamUpdate, set_t_value
 };
 
-use iced::{Border, Shadow, Vector, alignment};
+use iced::gradient::Linear;
+use iced::{Border, Gradient, Shadow, Vector, alignment};
 use iced::border::{self, Radius};
 use iced::widget::{button, text};
 use iced::{Element, Theme};
@@ -218,9 +219,10 @@ pub struct ButtonStyle {
     pub text_color_alpha_disabled: Option<f32>,
     pub text_rgba_disabled: Option<[f32; 4]>,
     
-    pub background_gradient_color_stop: Option<Color>,
-    pub background_gradient_color_stop_alpha: Option<f32>,
-    pub background_gradient_rgba_stop: Option<[f32; 4]>,
+    pub gradient_color_stops: Option<[Option<Color>; 8]>,
+    pub gradient_color_stops_alpha: Option<[Option<f32>; 8]>,
+    pub gradient_rgba_stops: Option<[Option<[f32; 4]>; 8]>,
+    pub gradients_stops_offsets: Option<[Option<f32>; 8]>,
     pub background_gradient_degrees: Option<f32>,
     pub background_gradient_radians: Option<f32>,
 
@@ -277,8 +279,9 @@ impl ButtonStyle {
         let text_color_disabled = 
             Color::rgba_ipg_color_to_iced(self.text_rgba_disabled, &self.text_color_disabled, self.text_color_alpha_disabled);
 
-        let bkg_grad_color_stop = 
-            Color::rgba_ipg_color_to_iced(self.background_gradient_rgba_stop, &self.background_gradient_color_stop, self.background_gradient_color_stop_alpha);
+        let bkg_grad_color_stops = 
+            
+            Color::rgba_ipg_color_to_iced(self.gradient_rgba_stop, &self.gradient_color_stops, self.gradient_color_stops_alpha);
         
         let border_color_active = 
             Color::rgba_ipg_color_to_iced(self.border_rgba_active, &self.border_color_active, self.border_color_alpha_active);
@@ -313,6 +316,18 @@ impl ButtonStyle {
             bkg.weaker.color,
             bkg.base.color.scale_alpha(0.5),
         );
+
+        let (grad_active, grad_pressed, grad_hovered, grad_disabled) = 
+            if let Some(c) = bkg_grad_color_stop {
+                let stop = Background::new(c, txt_color);
+                (Gradient::Linear(Linear::new(angle)), 
+
+                )
+                (stop.base.color,
+                stop.strong.color,
+                stop.weaker.color,
+                stop.base.color.scale_alpha(0.5))
+            } {(Gradient::default(), Gradient::default(), Gradient::default(), Gradient::default() )};
 
         // if no backgound or text_color defined, then check to see if individual colors are defined.
         let (txt_active, txt_pressed, txt_hovered, txt_disabled) = 
@@ -662,9 +677,9 @@ impl WidgetParamUpdate for ButtonStyle {
             ButtonStyleParam::TextColorDisabled => set_t_value(&mut self.text_color_disabled, value, "ButtonStyleParam::TextColorDisabled"),
             ButtonStyleParam::TextColorAlphaDisabled => set_t_value(&mut self.text_color_alpha_disabled, value, "ButtonStyleParam::TextColorAlphaDisabled"),
             ButtonStyleParam::TextRgbaDisabled => set_t_value(&mut self.text_rgba_disabled, value, "ButtonStyleParam::TextRgbaDisabled"),
-            ButtonStyleParam::BackgroundGradientColorStop => set_t_value(&mut self.background_gradient_color_stop, value, "ButtonStyleParam::BackgroundGradientColorStop"),
-            ButtonStyleParam::BackgroundGradientColorStopAlpha => set_t_value(&mut self.background_gradient_color_stop_alpha, value, "ButtonStyleParam::BackgroundGradientColorStopAlpha"),
-            ButtonStyleParam::BackgroundGradientRgbaStop => set_t_value(&mut self.background_gradient_rgba_stop, value, "ButtonStyleParam::BackgroundGradientRgbaStop"),
+            ButtonStyleParam::BackgroundGradientColorStop => set_t_value(&mut self.gradient_color_stops, value, "ButtonStyleParam::BackgroundGradientColorStop"),
+            ButtonStyleParam::BackgroundGradientColorStopAlpha => set_t_value(&mut self.gradient_color_stops_alpha, value, "ButtonStyleParam::BackgroundGradientColorStopAlpha"),
+            ButtonStyleParam::BackgroundGradientRgbaStop => set_t_value(&mut self.gradient_rgba_stop, value, "ButtonStyleParam::BackgroundGradientRgbaStop"),
             ButtonStyleParam::BackgroundGradientDegrees => set_t_value(&mut self.background_gradient_degrees, value, "ButtonStyleParam::BackgroundGradientDegrees"),
             ButtonStyleParam::BackgroundGradientRadians => set_t_value(&mut self.background_gradient_radians, value, "ButtonStyleParam::BackgroundGradientRadians"),
             ButtonStyleParam::BorderColorActive => set_t_value(&mut self.border_color_active, value, "ButtonStyleParam::BorderColorActive"),

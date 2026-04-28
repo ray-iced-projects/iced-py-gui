@@ -6,6 +6,7 @@
 
 #![allow(non_camel_case_types)]
 #![allow(clippy::upper_case_acronyms)]
+use iced::gradient::ColorStop;
 use pyo3::{Py, PyAny, Python, pyclass};
 type PyObject = Py<PyAny>;
 
@@ -184,6 +185,26 @@ impl Color {
         } else {
             None
         }
+    }
+
+    pub fn gradient_stops_to_iced(rgba: Option<Vec<Option<[f32; 4]>>>, color: &Option<Vec<Option<Color>>>, alpha: Option<Vec<Option<f32>>>, offsets: Option<Vec<f32>>) -> Option<Vec<ColorStop>> {
+        let offsets = offsets?;
+
+        let stops: Vec<ColorStop> = offsets
+            .iter()
+            .take(8)
+            .enumerate()
+            .filter_map(|(i, &off)| {
+                let rgba_i = rgba.as_ref().and_then(|v| v.get(i).copied().flatten());
+                let color_i = color.as_ref().and_then(|v| v.get(i).and_then(|c| c.clone()));
+                let alpha_i = alpha.as_ref().and_then(|v| v.get(i).copied().flatten());
+
+                Color::rgba_ipg_color_to_iced(rgba_i, &color_i, alpha_i)
+                    .map(|c| ColorStop { offset: off, color: c })
+            })
+            .collect();
+
+        if stops.is_empty() { None } else { Some(stops) }
     }
 
     pub fn extract_rgba(value: &PyObject, name: &str) -> [f32; 4] {

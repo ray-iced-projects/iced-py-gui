@@ -293,9 +293,10 @@ pub fn add_button(
         text_color_alpha_disabled = None,
         text_rgba_disabled = None,
 
-        background_gradient_color_stop = None,
-        background_gradient_color_stop_alpha = None,
-        background_gradient_rgba_stop = None,
+        gradient_color_stops = None,
+        gradient_color_stops_alpha = None,
+        gradient_rgba_stops = None,
+        gradients_stops_offsets = None,
         background_gradient_degrees = None,
         background_gradient_radians = None,
 
@@ -352,9 +353,9 @@ pub fn add_button_style(
     text_color_alpha_disabled: Option<f32>,
     text_rgba_disabled: Option<[f32; 4]>,
 
-    background_gradient_color_stop: Option<Color>,
-    background_gradient_color_stop_alpha: Option<f32>,
-    background_gradient_rgba_stop: Option<[f32; 4]>,
+    gradient_color_stops: Option<[Option<Color>; 8]>,
+    gradient_color_stops_alpha: Option<[Option<f32>; 8]>,
+    gradient_rgba_stops: Option<[Option<[f32; 4]>; 8]>,gradients_stops_offsets: Option<[Option<f32>; 8]>,
     background_gradient_degrees: Option<f32>,
     background_gradient_radians: Option<f32>,
 
@@ -418,9 +419,10 @@ pub fn add_button_style(
             text_color_alpha_disabled,
             text_rgba_disabled,
 
-            background_gradient_color_stop,
-            background_gradient_color_stop_alpha,
-            background_gradient_rgba_stop,
+            gradient_color_stops,
+            gradient_color_stops_alpha,
+            gradient_rgba_stops,
+            gradients_stops_offsets,
             background_gradient_degrees,
             background_gradient_radians,
 

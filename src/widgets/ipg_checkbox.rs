@@ -14,7 +14,7 @@ use crate::state::Widgets;
 use crate::graphics::BOOTSTRAP_FONT;
 use crate::graphics::bootstrap_icon::{Icon, icon_to_char};
 
-use crate::widgets::styling::{apply_border_overrides, create_custom_theme};
+use crate::widgets::styling::apply_border_overrides;
 
 use iced::advanced::text;
 use iced::{Background, Element, Theme};
@@ -214,7 +214,7 @@ impl CheckboxStyle {
             style.icon_color = ic;
         }
 
-        style.text_color = Color::rgba_ipg_color_to_iced(self.text_rgba, &self.text_color, self.text_color_alpha);
+        let text_color = Color::rgba_ipg_color_to_iced(self.text_rgba, &self.text_color, self.text_color_alpha);
     
         // custom style only depends on bkg and border color
         if background_color.is_none() && border_color.is_none() {
@@ -225,39 +225,41 @@ impl CheckboxStyle {
         // if given a bkg_color then use bkg_color as is
         // the accent will be paired regardless
 
-        let custom_theme;
-        let text_color;
+        let palette = theme.palette();
 
-        let palette = if let Some(bkg) = background_color {
-            let dark_mode = palette::is_dark(bkg);
-            custom_theme = create_custom_theme(bkg, dark_mode);
-            text_color = custom_theme.palette().text;
-            custom_theme.palette()
-        } else {
-            text_color = theme.palette().text;
-            theme.palette()
-        };
+        // One can use the theme text color but the background and primary 
+        // are needed together to produce the correct colors
+        let txt_color = if let Some(c) = text_color {
+            c
+        } else { theme.palette().background.base.text};
+
+        let background_opt = if let Some(bkg) = background_color {
+            Some(palette::Background::new(bkg, txt_color))
+        } else { None };
+
+
+        let bkg = background_opt.unwrap_or(palette.background);
 
         let mut style = match status {
             checkbox::Status::Active { is_checked } => styled(
-                palette.background.strong.color,
-                palette.background.base,
+                bkg.strong.color,
+                bkg.base,
                 palette.primary.base.text,
                 palette.primary.base,
                 is_checked,
             ),
             checkbox::Status::Hovered { is_checked } => styled(
-                palette.background.strong.color,
-                palette.background.weak,
+                bkg.strong.color,
+                bkg.weak,
                 palette.primary.base.text,
                 palette.primary.strong,
                 is_checked,
             ),
             checkbox::Status::Disabled { is_checked } => styled(
-                palette.background.weak.color,
-                palette.background.weaker,
+                bkg.weak.color,
+                bkg.weaker,
                 palette.primary.base.text,
-                palette.background.strong,
+                bkg.strong,
                 is_checked,
             ),
         };
@@ -266,12 +268,9 @@ impl CheckboxStyle {
             &mut style.border, border_color,
             &self.border_radius, self.border_width, "Checkbox",
         );
-
-        if is_label && background_color.is_some() {
-            let color = palette::readable(background_color.unwrap(), text_color);
-            style.text_color = Some(color);
-        }
-
+            
+        style.text_color = if is_label { Some(txt_color) } else { None };
+        
         style
         
     }

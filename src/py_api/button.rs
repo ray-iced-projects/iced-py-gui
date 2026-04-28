@@ -225,18 +225,20 @@ pub fn add_button(
 ///    Sets the alpha of the Color.
 ///background_rgba: list[float, 4], Optional
 ///    Sets the Color of the background in rgba format.
-///background_gradient_color_stop: Color, Optional
+///gradient_color_stops: list[Color, 8], Optional
 ///    Sets the stop Color of the background gradient.
-///background_gradient_color_stop_alpha: float, Optional
+///    A total of 8 stops allowed counting the rgba also.
+///gradient_color_alpha_stops: list[float], Optional
 ///    Sets the alpha of the Color.
-///background_gradient_rgba_stop: list[float, 4], Optional
-///    Sets the stop rgba color of the background gradient.
-/// background_gradient_degrees: float, Optional,
+///gradient_rgba_stops: list[list[float, 4], 8], Optional
+///    Sets the stops rgba color of the background gradient.
+///    A total of 8 stops allowed counting the colors also.
+///gradient_offset_stops: list[float], Optional
+///    The offsets for the gradient stops.
+///gradient_degrees: float, Optional,
 ///    Sets the gradient degrees
-///background_gradient_radians: float, Optional,
+///gradient_radians: float, Optional,
 ///    Sets the gradient radians
-///background_gradient_alpha: float, Optional,
-///    Sets the alpha color parameter.
 ///border_color: Color, Optional
 ///    Sets the Color used for the border.
 ///border_color_alpha: float, Optional
@@ -259,7 +261,7 @@ pub fn add_button(
 ///shadow_blur_radius: float, Optional
 ///    Sets the blur radius of the shadow.
 ///text_color: Color, Optional
-///    Sets the text color, if not defined, will be a Black or White variation based on the background.
+///    Sets the text color.
 ///text_color_alpha: float, Optional
 ///    Sets the alpha of the Color.
 ///text_rgba: list[float], Optional
@@ -294,11 +296,11 @@ pub fn add_button(
         text_rgba_disabled = None,
 
         gradient_color_stops = None,
-        gradient_color_stops_alpha = None,
+        gradient_color_alpha_stops = None,
         gradient_rgba_stops = None,
-        gradients_stops_offsets = None,
-        background_gradient_degrees = None,
-        background_gradient_radians = None,
+        gradient_offset_stops = None,
+        gradient_degrees = None,
+        gradient_radians = None,
 
         border_color_active = None,
         border_color_alpha_active = None,
@@ -353,11 +355,12 @@ pub fn add_button_style(
     text_color_alpha_disabled: Option<f32>,
     text_rgba_disabled: Option<[f32; 4]>,
 
-    gradient_color_stops: Option<[Option<Color>; 8]>,
-    gradient_color_stops_alpha: Option<[Option<f32>; 8]>,
-    gradient_rgba_stops: Option<[Option<[f32; 4]>; 8]>,gradients_stops_offsets: Option<[Option<f32>; 8]>,
-    background_gradient_degrees: Option<f32>,
-    background_gradient_radians: Option<f32>,
+    gradient_color_stops: Option<Vec<Option<Color>>>,
+    gradient_color_alpha_stops: Option<Vec<Option<f32>>>,
+    gradient_rgba_stops: Option<Vec<Option<[f32; 4]>>>,
+    gradient_offset_stops: Option<Vec<Option<f32>>>,
+    gradient_degrees: Option<f32>,
+    gradient_radians: Option<f32>,
 
     border_color_active: Option<Color>,
     border_color_alpha_active: Option<f32>,
@@ -420,11 +423,11 @@ pub fn add_button_style(
             text_rgba_disabled,
 
             gradient_color_stops,
-            gradient_color_stops_alpha,
+            gradient_color_alpha_stops,
             gradient_rgba_stops,
-            gradients_stops_offsets,
-            background_gradient_degrees,
-            background_gradient_radians,
+            gradient_offset_stops,
+            gradient_degrees,
+            gradient_radians,
 
             border_color_active,
             border_color_alpha_active,

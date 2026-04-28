@@ -187,14 +187,15 @@ impl Color {
         }
     }
 
-    pub fn gradient_stops_to_iced(rgba: Option<Vec<Option<[f32; 4]>>>, color: &Option<Vec<Option<Color>>>, alpha: Option<Vec<Option<f32>>>, offsets: Option<Vec<f32>>) -> Option<Vec<ColorStop>> {
+    pub fn gradient_stops_to_iced(rgba: &Option<Vec<Option<[f32; 4]>>>, color: &Option<Vec<Option<Color>>>, alpha: &Option<Vec<Option<f32>>>, offsets: Option<Vec<Option<f32>>>) -> Option<Vec<ColorStop>> {
         let offsets = offsets?;
 
         let stops: Vec<ColorStop> = offsets
             .iter()
             .take(8)
             .enumerate()
-            .filter_map(|(i, &off)| {
+            .filter_map(|(i, off_opt)| {
+                let off = (*off_opt)?;
                 let rgba_i = rgba.as_ref().and_then(|v| v.get(i).copied().flatten());
                 let color_i = color.as_ref().and_then(|v| v.get(i).and_then(|c| c.clone()));
                 let alpha_i = alpha.as_ref().and_then(|v| v.get(i).copied().flatten());

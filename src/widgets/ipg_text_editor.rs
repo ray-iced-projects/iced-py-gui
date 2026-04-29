@@ -222,14 +222,14 @@ impl TextEditorStyle {
         let bdr_color_disabled = 
             Color::rgba_ipg_color_to_iced(self.border_rgba_disabled, &self.border_color_disabled, self.border_color_alpha_disabled);
         
-        let ph_color =
+        let _ph_color =
             Color::rgba_ipg_color_to_iced(self.placeholder_rgba, &self.placeholder_color, self.placeholder_color_alpha);
-        let val_color = 
+        let _val_color = 
             Color::rgba_ipg_color_to_iced(self.value_rgba, &self.value_color, self.value_color_alpha);
-        let sel_color = 
+        let _sel_color = 
             Color::rgba_ipg_color_to_iced(self.selection_rgba, &self.selection_color, self.selection_color_alpha);
 
-        let mut palette = theme.extended_palette();
+        let palette = theme.palette();
 
         let bkg_a = if let Some(bkg) = bkg_color_active {
             bkg
@@ -273,7 +273,7 @@ impl TextEditorStyle {
             palette.primary.strong.color
         };
 
-        let bdr_d = if let Some(color) = bdr_color_disabled {
+        let _bdr_d = if let Some(color) = bdr_color_disabled {
             color
         } else {
             palette.background.strong.color
@@ -424,7 +424,7 @@ impl WidgetParamUpdate for TextEditor {
 impl WidgetParamUpdate for TextEditorStyle {
     type Param = TextEditorStyleParam;
 
-    fn param_update(&mut self, param: Self::Param, value: &PyObject) {
+    fn param_update(&mut self, param: Self::Param, _value: &PyObject) {
         match param {
             TextEditorStyleParam::BackgroundColor => todo!(),
             TextEditorStyleParam::BackgroundColorAlpha => todo!(),

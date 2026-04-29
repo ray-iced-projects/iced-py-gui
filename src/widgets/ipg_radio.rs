@@ -37,10 +37,10 @@ pub struct Radio {
     pub fill: Option<bool>,
     pub size: Option<f32>,
     pub text_size: Option<f32>,
-    pub text_line_height: Option<f32>,
-    pub text_wrapping_none: Option<bool>,
-    pub text_wrapping_glyph: Option<bool>,
-    pub text_wrapping_word_glyph: Option<bool>,
+    pub line_height: Option<f32>,
+    pub wrapping_none: Option<bool>,
+    pub wrapping_glyph: Option<bool>,
+    pub wrapping_word_glyph: Option<bool>,
     pub font_id: Option<usize>,
     pub style_id: Option<usize>,
     pub show: bool,
@@ -104,8 +104,8 @@ impl Radio {
                 rd = rd.text_size(ts);
             }
 
-            if let Some(lh) = self.text_line_height {
-                rd = rd.text_line_height(lh);
+            if let Some(lh) = self.line_height {
+                rd = rd.line_height(lh);
             }
 
             let rd = if let Some(font) = &font_opt {
@@ -114,12 +114,12 @@ impl Radio {
 
             // default is word so not checked
             let rd = 
-                if self.text_wrapping_none.is_some() {
-                    rd.text_wrapping(Wrapping::None)
-                } else if self.text_wrapping_glyph.is_some() {
-                    rd.text_wrapping(Wrapping::Glyph)
-                } else if self.text_wrapping_word_glyph.is_some() {
-                    rd.text_wrapping(Wrapping::WordOrGlyph)
+                if self.wrapping_none.is_some() {
+                    rd.wrapping(Wrapping::None)
+                } else if self.wrapping_glyph.is_some() {
+                    rd.wrapping(Wrapping::Glyph)
+                } else if self.wrapping_word_glyph.is_some() {
+                    rd.wrapping(Wrapping::WordOrGlyph)
                 } else { rd };
 
             radio_elements.push(rd);
@@ -320,11 +320,11 @@ impl WidgetParamUpdate for Radio {
             RadioParam::Spacing => set_t_value(&mut self.spacing, value, "RadioParam::Spacing"),
             RadioParam::RadioSpacing => set_t_value(&mut self.radio_spacing, value, "RadioParam::RadioSpacing"),
             RadioParam::StyleId => set_t_value(&mut self.style_id, value, "RadioParam::StyleId"),
-            RadioParam::TextLineHeight => set_t_value(&mut self.text_line_height, value, "RadioParam::TextLineHeight"),
+            RadioParam::TextLineHeight => set_t_value(&mut self.line_height, value, "RadioParam::TextLineHeight"),
             RadioParam::TextSize => set_t_value(&mut self.text_size, value, "RadioParam::TextSize"),
-            RadioParam::TextWrappingNone => set_t_value(&mut self.text_wrapping_none, value, "RadioParam::TextWrappingNone"),
-            RadioParam::TextWrappingGlyph => set_t_value(&mut self.text_wrapping_glyph, value, "RadioParam::TextWrappingGlyph"),
-            RadioParam::TextWrappingWordGlyph => set_t_value(&mut self.text_wrapping_word_glyph, value, "RadioParam::TextWrappingWordGlyph"),
+            RadioParam::TextWrappingNone => set_t_value(&mut self.wrapping_none, value, "RadioParam::TextWrappingNone"),
+            RadioParam::TextWrappingGlyph => set_t_value(&mut self.wrapping_glyph, value, "RadioParam::TextWrappingGlyph"),
+            RadioParam::TextWrappingWordGlyph => set_t_value(&mut self.wrapping_word_glyph, value, "RadioParam::TextWrappingWordGlyph"),
             RadioParam::Width => set_t_value(&mut self.width, value, "RadioParam::Width"),
             RadioParam::WidthFill => set_t_value(&mut self.width_fill, value, "RadioParam::WidthFill"),
         }

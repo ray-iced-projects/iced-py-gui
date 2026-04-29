@@ -17,15 +17,15 @@ use crate::py_api::helpers::find_key_for_value;
 use crate::state::{Containers, WidgetNode, IpgState, Widgets, access_clipboard_actions, access_state, access_update_widgets, access_window_actions, clone_state_to_runtime, set_state_of_widget_running_state};
 use crate::widgets::callbacks::invoke_callback_with_args;
 use crate::widgets::ipg_button::{BtnMessage, button_callback};
-use crate::widgets::ipg_card::{CardMessage, card_callback};
+
 use crate::widgets::ipg_checkbox::{ChkMessage, checkbox_callback};
-use crate::widgets::ipg_color_picker::{ColPikMessage, color_picker_callback};
-use crate::widgets::ipg_date_picker::{DPMessage, date_picker_update};
+
+
 use crate::widgets::ipg_divider::{DivMessage, divider_callback};
 use crate::widgets::ipg_events::{process_keyboard_events, process_mouse_events, process_touch_events, process_window_event};
 use crate::widgets::ipg_mouse_area::{MaMessage, mousearea_callback};
 use crate::widgets::ipg_opaque;
-use crate::widgets::ipg_pick_list::{PLMessage, pick_list_callback};
+
 use crate::widgets::ipg_radio::{RDMessage, radio_callback};
 use crate::widgets::ipg_scrollable::scrollable_callback;
 use crate::widgets::ipg_slider::{SldMessage, slider_callback};
@@ -43,10 +43,10 @@ use crate::widgets::widget_param_update::{param_update, container_param_update};
 pub enum Message {
     Button(usize, BtnMessage),
 //     Canvas(CanvasMessage),
-    Card(usize, CardMessage),
+    // Card(usize, CardMessage),
     CheckBox(usize, ChkMessage),
-    ColorPicker(usize, ColPikMessage),
-    DatePicker(usize, DPMessage),
+    // ColorPicker(usize, ColPikMessage),
+    // DatePicker(usize, DPMessage),
     Divider(usize, DivMessage),
     EventKeyboard(Event),
     EventMouse(Event),
@@ -54,7 +54,7 @@ pub enum Message {
     EventTouch(Event),
 //     // Modal(usize, ModalMessage),
     MouseArea(usize, MaMessage),
-    PickList(usize, PLMessage),
+    // PickList(usize, PLMessage),
     Radio(usize, RDMessage),
     RichTextLinkClicked(usize, usize),
     Scrolled(scrollable::Viewport, usize),
@@ -154,29 +154,29 @@ impl App {
             //     process_updates(&mut self.state, &mut self.canvas_state);
             //     get_tasks(&mut self.state)
             // },
-            Message::Card(id, message) => {
-                card_callback(id, message);
-                process_widget_updates(&mut self.state); //, &mut self.canvas_state);
-                Task::none()
-            },
+            // Message::Card(id, message) => {
+            //     card_callback(id, message);
+            //     process_widget_updates(&mut self.state); //, &mut self.canvas_state);
+            //     Task::none()
+            // },
             Message::CheckBox(id, message) => {
                 checkbox_callback(&mut self.state, id, message);
                 // process_updates(&mut self.state, &mut self.canvas_state);
                 process_widget_updates(&mut self.state);
                 get_tasks(&mut self.state)
             },
-            Message::ColorPicker(id, message ) => {
-                color_picker_callback(&mut self.state, id, message);
-                // process_updates(&mut self.state, &mut self.canvas_state);
-                process_widget_updates(&mut self.state);
-                Task::none()
-            },
-            Message::DatePicker(id, message) => {
-                date_picker_update(&mut self.state, id, message);
-                // process_updates(&mut self.state, &mut self.canvas_state);
-                process_widget_updates(&mut self.state);
-                Task::none()
-            },
+            // Message::ColorPicker(id, message ) => {
+            //     color_picker_callback(&mut self.state, id, message);
+            //     // process_updates(&mut self.state, &mut self.canvas_state);
+            //     process_widget_updates(&mut self.state);
+            //     Task::none()
+            // },
+            // Message::DatePicker(id, message) => {
+            //     date_picker_update(&mut self.state, id, message);
+            //     // process_updates(&mut self.state, &mut self.canvas_state);
+            //     process_widget_updates(&mut self.state);
+            //     Task::none()
+            // },
             Message::Divider(id, message) => {
                 divider_callback(&mut self.state, id, message);
                 // process_updates(&mut self.state, &mut self.canvas_state);
@@ -218,12 +218,12 @@ impl App {
                 process_widget_updates(&mut self.state);
                 Task::none()
             },
-            Message::PickList(id, message) => {
-                pick_list_callback(&mut self.state, id, message);
-                // process_updates(&mut self.state, &mut self.canvas_state);
-                process_widget_updates(&mut self.state);
-                Task::none()
-            },
+            // Message::PickList(id, message) => {
+            //     pick_list_callback(&mut self.state, id, message);
+            //     // process_updates(&mut self.state, &mut self.canvas_state);
+            //     process_widget_updates(&mut self.state);
+            //     Task::none()
+            // },
             Message::Radio(id, message) => {
                 radio_callback(&mut self.state, id, message);
                 // process_updates(&mut self.state, &mut self.canvas_state);
@@ -485,14 +485,16 @@ fn get_tasks(ipg_state: &mut IpgState) -> Task<Message> {
     let mut clipboard_actions = access_clipboard_actions();
 
     for text in clipboard_actions.writes.iter() {
-        actions.push(clipboard::write::<Message>(text.clone()).discard());
+        actions.push(clipboard::write(text.clone()).discard());
     }
     clipboard_actions.writes = vec![];
 
     for req_id in clipboard_actions.reads.iter() {
         let rid = *req_id;
         actions.push(
-            clipboard::read().map(move |text| Message::ClipboardReadResult(rid, text)),
+            clipboard::read_text().map(move |result| {
+                Message::ClipboardReadResult(rid, result.ok().map(|arc| (*arc).clone()))
+            }),
         );
     }
     clipboard_actions.reads = vec![];
@@ -597,10 +599,10 @@ fn get_children<'a>(parents: &Vec<ParentChildIds>,
 
     // Special handling for Menu: build grouped content from MenuBarItem children
     if id != &0 {
-        if let Some(Containers::Menu(menu)) = state.containers.get(id) {
-            let grouped = get_menu_children(parents, index, parent_ids, state);
-            return menu.construct(grouped, &state.widgets, &state.containers);
-        }
+        // if let Some(Containers::Menu(menu)) = state.containers.get(id) {
+        //     let grouped = get_menu_children(parents, index, parent_ids, state);
+        //     return menu.construct(grouped, &state.widgets, &state.containers);
+        // }
 
         if let Some(Containers::RichText(rt)) = state.containers.get(id) {
             return rt.construct(&parents[*index].child_ids, &state.widgets);
@@ -678,9 +680,9 @@ fn get_container<'a>(state: &'a IpgState,
                 // Containers::Canvas(canvas) => {
                 //     construct_canvas(canvas_state)
                 // },
-                Containers::Card(crd) => {
-                    crd.construct(content, &state.widgets)
-                },
+                // Containers::Card(crd) => {
+                //     crd.construct(content, &state.widgets)
+                // },
                 Containers::Column(col) => {
                     col.construct(content) 
                 },
@@ -699,16 +701,16 @@ fn get_container<'a>(state: &'a IpgState,
                 Containers::Grid(grid) => {
                     grid.construct(content)
                 },
-                Containers::Menu(_) => {
-                    // Menu is handled specially in get_children via get_menu_children;
-                    // it should never reach get_container.
-                    panic!("Menu should not reach get_container directly")
-                },
-                Containers::MenuBarItem(_) => {
-                    // MenuBarItem children are consumed by get_menu_children;
-                    // it should never reach get_container.
-                    panic!("MenuBarItem should not reach get_container directly")
-                },
+                // Containers::Menu(_) => {
+                //     // Menu is handled specially in get_children via get_menu_children;
+                //     // it should never reach get_container.
+                //     panic!("Menu should not reach get_container directly")
+                // },
+                // Containers::MenuBarItem(_) => {
+                //     // MenuBarItem children are consumed by get_menu_children;
+                //     // it should never reach get_container.
+                //     panic!("MenuBarItem should not reach get_container directly")
+                // },
                 // Containers::Modal(modal) => {
                 //     construct_modal(modal, content)
                 // },
@@ -763,21 +765,21 @@ fn get_widget<'a>(state: &'a IpgState, id: &usize) -> Option<Element<'a, Message
                 Widgets::CheckBox(chk) => {
                     chk.construct(&state.widgets)
                 },
-                Widgets::ColorPicker(cp) => {
-                    cp.construct(&state.widgets)
-                },
+                // Widgets::ColorPicker(cp) => {
+                //     cp.construct(&state.widgets)
+                // },
                 Widgets::Divider(div) => {
                     div.construct(&state.widgets)
                 },
                 Widgets::Image(image) => {
                     image.construct()
                 },
-                Widgets::DatePicker(dp) => {
-                    dp.construct(&state.widgets)
-                },
-                Widgets::PickList(pick) => {
-                    pick.construct(&state.widgets)
-                },
+                // Widgets::DatePicker(dp) => {
+                //     dp.construct(&state.widgets)
+                // },
+                // Widgets::PickList(pick) => {
+                //     pick.construct(&state.widgets)
+                // },
                 Widgets::ProgressBar(bar) => {
                     bar.construct(&state.widgets)
                 },
@@ -1052,11 +1054,11 @@ fn process_shows(
         match widget {
             Widgets::Button(bt) => bt.show= *val,
             Widgets::CheckBox(cb) => cb.show= *val,
-            Widgets::ColorPicker(cp) => cp.show= *val,
-            Widgets::DatePicker(dp) => dp.show= *val,
+            // Widgets::ColorPicker(cp) => cp.show= *val,
+            // Widgets::DatePicker(dp) => dp.show= *val,
             Widgets::Divider(d) => d.show = *val,
             Widgets::Image(im) => im.show= *val,
-            Widgets::PickList(pl) => pl.show= *val,
+            // Widgets::PickList(pl) => pl.show= *val,
             Widgets::ProgressBar(pb) => pb.show= *val,
             Widgets::Radio(rd) => rd.show= *val,
             Widgets::Rule(ru) => ru.show  = *val,

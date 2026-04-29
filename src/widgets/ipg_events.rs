@@ -5,7 +5,7 @@
 use std::collections::HashMap;
 
 use iced::event;
-use iced::keyboard::Event::{KeyPressed, KeyReleased, ModifiersChanged};
+use iced::keyboard::Event::{KeyPressed, KeyReleased};
 use iced::keyboard::{Key, Location, Modifiers};
 use iced::mouse::Event::{ButtonPressed, ButtonReleased, CursorEntered, 
                         CursorLeft, CursorMoved, WheelScrolled};
@@ -141,11 +141,18 @@ pub fn process_keyboard_events(event: event::Event, event_id: usize)
                                         );
     
         },
-        event::Event::Keyboard(ModifiersChanged(_)) => (),
-        event::Event::Mouse(_) => (),
-        event::Event::Window(_) => (),
-        event::Event::Touch(_) => (),
-        event::Event::InputMethod(_) => (),
+        _ => ()
+        // event::Event::Keyboard(ModifiersChanged(_)) => (),
+        // event::Event::Mouse(_) => (),
+        // event::Event::Window(_) => (),
+        // event::Event::Touch(_) => (),
+        // event::Event::InputMethod(_) => (),
+        // iced::Event::Keyboard(event) => todo!(),
+        // iced::Event::Mouse(event) => todo!(),
+        // iced::Event::Window(event) => todo!(),
+        // iced::Event::Touch(event) => todo!(),
+        // iced::Event::InputMethod(event) => todo!(),
+        // iced::Event::Clipboard(event) => todo!(),
     }
 }
 
@@ -235,10 +242,17 @@ pub fn process_mouse_events(event: event::Event, event_id: usize)
                                     hmap_s_f,
                                     )
         },
-        event::Event::Keyboard(_) => (),
-        event::Event::Window(_) => (),
-        event::Event::Touch(_) => (),
-        event::Event::InputMethod(_) => (),
+        _ => ()
+        // event::Event::Keyboard(_) => (),
+        // event::Event::Window(_) => (),
+        // event::Event::Touch(_) => (),
+        // event::Event::InputMethod(_) => (),
+        // iced::Event::Keyboard(event) => todo!(),
+        // iced::Event::Mouse(event) => todo!(),
+        // iced::Event::Window(event) => todo!(),
+        // iced::Event::Touch(event) => todo!(),
+        // iced::Event::InputMethod(event) => todo!(),
+        // iced::Event::Clipboard(event) => todo!(),
     }
         
 }
@@ -280,10 +294,17 @@ pub fn process_touch_events(event: event::Event, event_id: usize) {
                                 )
     
         },
-        event::Event::Window(_) => (),
-        event::Event::Keyboard(_) => (),
-        event::Event::Mouse(_) => (),
-        event::Event::InputMethod(_) => (),
+        _ => ()
+        // event::Event::Window(_) => (),
+        // event::Event::Keyboard(_) => (),
+        // event::Event::Mouse(_) => (),
+        // event::Event::InputMethod(_) => (),
+        // iced::Event::Keyboard(event) => todo!(),
+        // iced::Event::Mouse(event) => todo!(),
+        // iced::Event::Window(event) => todo!(),
+        // iced::Event::Touch(event) => todo!(),
+        // iced::Event::InputMethod(event) => todo!(),
+        // iced::Event::Clipboard(event) => todo!(),
     }
 }
 
@@ -304,7 +325,7 @@ pub fn process_window_event(state: &mut IpgState,
     };
 
     let event_name: Option<String> = match event {
-        event::Event::Window(window::Event::Opened { position: _, size: _ } )=> {
+        event::Event::Window(window::Event::Opened { position: _, size: _, scale_factor: _ } )=> {
             Some("opened".to_string())
         },
         event::Event::Window(window::Event::Closed) => {
@@ -367,11 +388,18 @@ pub fn process_window_event(state: &mut IpgState,
         event::Event::Window(window::Event::FilesHoveredLeft) => {
             Some("files hovered left".to_string())
         },
-        event::Event::Window(window::Event::Rescaled(_))=> None,
-        event::Event::Keyboard(_) => None,
-        event::Event::Mouse(_) => None,
-        event::Event::Touch(_) => None,
-        event::Event::InputMethod(_) => None,
+        _ => None
+        // event::Event::Window(window::Event::Rescaled(_))=> None,
+        // event::Event::Keyboard(_) => None,
+        // event::Event::Mouse(_) => None,
+        // event::Event::Touch(_) => None,
+        // event::Event::InputMethod(_) => None,
+        // iced::Event::Keyboard(event) => todo!(),
+        // iced::Event::Mouse(event) => todo!(),
+        // iced::Event::Window(event) => todo!(),
+        // iced::Event::Touch(event) => todo!(),
+        // iced::Event::InputMethod(event) => todo!(),
+        // iced::Event::Clipboard(event) => todo!(),
     };
 
     if event_name.is_some() {

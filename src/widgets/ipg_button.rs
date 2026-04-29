@@ -11,8 +11,9 @@ use crate::widgets::widget_param_update::{
     WidgetParamUpdate, set_t_value
 };
 
+use iced::widget::text::Wrapping;
 use iced::{Border, Shadow, Vector, alignment, gradient};
-use iced::border::{self, Radius};
+use iced::border::Radius;
 use iced::widget::{button, text};
 use iced::{Element, Theme};
 use iced::theme::palette;
@@ -24,7 +25,6 @@ type PyObject = Py<PyAny>;
 #[derive(Debug, Clone)]
 pub struct Button {
     pub id: usize,
-    pub show: bool,
     pub label: Option<String>,
     pub width: Option<f32>,
     pub width_fill: Option<bool>,
@@ -32,21 +32,16 @@ pub struct Button {
     pub height_fill: Option<bool>,
     pub fill: Option<bool>,
     pub padding: Option<Vec<f32>>,
-    pub text_top_left: Option<bool>,
-    pub text_top_center: Option<bool>,
-    pub text_top_right: Option<bool>,
-    pub text_center_left: Option<bool>,
-    pub text_center: Option<bool>,
-    pub text_center_right: Option<bool>,
-    pub text_bottom_left: Option<bool>,
-    pub text_bottom_center: Option<bool>,
-    pub text_bottom_right: Option<bool>,
-    pub text_size: Option<f32>,
-    pub if_menu_btn: Option<bool>,
     pub clip: Option<bool>,
+    pub status_active: Option<bool>,
+    pub status_hovered: Option<bool>,
+    pub status_pressed: Option<bool>,
+    pub status_disabled: Option<bool>,
+    pub font_id: Option<usize>,
     pub style_id: Option<usize>,
     pub style_std: Option<ButtonStyleStd>,
     pub style_arrow: Option<Arrow>,
+    pub show: bool,
 }
 
 impl Button {
@@ -66,112 +61,129 @@ impl Button {
             self.lookup(widgets, self.style_id)
                 .and_then(Widgets::as_button_style).cloned();
 
-        let txt = 
-            if let Some(sa) = self.style_arrow.clone() {
-                let arrow = Arrow::to_string(&sa);
-                text(arrow).font(iced::Font::new("bootstrap-icons"))
-            } else {
-                let label = if let Some(lb) = &self.label {
-                    lb.clone()
-                } else {
-                    String::new()
-                };
-                text(label.clone())
-            };
+        let font_opt = 
+        self.lookup(widgets, self.font_id)
+            .and_then(Widgets::as_font).cloned();
 
-        // Center is the default but is overridden by any other alignment
-        // so center needs to be set first
-        let txt = 
-            txt.align_x(alignment::Horizontal::Center)
+        
+
+        let txt = if let Some(sa) = &self.style_arrow {
+            let ar = Arrow::to_string(sa);
+            text(ar).font(iced::Font::new("bootstrap-icons"))
+        } else {
+            if let Some(lbl) = &self.label {
+                text(lbl)
+            } else {
+                text("")
+            }
+        };
+
+        let txt = if let Some(style) = &style_opt {
+            // Center is the default but is overridden by any other alignment
+            // so center needs to be set first
+            let txt = txt.align_x(alignment::Horizontal::Center)
                 .align_y(alignment::Vertical::Center);
 
-        let txt = if self.if_menu_btn == Some(true) {
-            txt.align_x(alignment::Horizontal::Left)
-                .align_y(alignment::Vertical::Center)
+            let txt = 
+                if style.text_top_left == Some(true) {
+                    txt.align_x(alignment::Horizontal::Left)
+                        .align_y(alignment::Vertical::Top)
+                } else { txt };
+
+            let txt = 
+                if style.text_top_center == Some(true) {
+                    txt.align_x(alignment::Horizontal::Center)
+                        .align_y(alignment::Vertical::Top)
+                } else { txt };
+
+            let txt = 
+                if style.text_top_right == Some(true) {
+                    txt.align_x(alignment::Horizontal::Right)
+                        .align_y(alignment::Vertical::Top)
+                } else { txt };
+            
+            let txt = 
+                if style.text_center_left == Some(true) {
+                    txt.align_x(alignment::Horizontal::Left)
+                        .align_y(alignment::Vertical::Center)
+                } else { txt };
+
+            let txt = 
+                if style.text_center_right == Some(true) {
+                    txt.align_x(alignment::Horizontal::Right)
+                        .align_y(alignment::Vertical::Center)
+                } else { txt };
+
+            let txt = 
+                if style.text_bottom_left == Some(true) {
+                    txt.align_x(alignment::Horizontal::Left)
+                        .align_y(alignment::Vertical::Bottom)
+                } else { txt };
+
+            let txt = 
+                if style.text_bottom_center == Some(true) {
+                    txt.align_x(alignment::Horizontal::Center)
+                        .align_y(alignment::Vertical::Bottom)
+                } else { txt };
+
+            let txt = 
+                if style.text_bottom_right == Some(true) {
+                    txt.align_x(alignment::Horizontal::Right)
+                        .align_y(alignment::Vertical::Bottom)
+                } else { txt };
+            
+            let txt = 
+                if let Some(size) = style.text_size {
+                    txt.size(size)
+                } else {txt};
+
+            let text_color = Color::rgba_ipg_color_to_iced(style.text_rgba, &style.text_color, style.text_color_alpha);
+
+            let txt = if let Some(tc) = text_color {
+                txt.color(tc)
+            } else { txt };
+
+            // default is word so not checked
+            let txt = 
+                if style.wrapping_none == Some(true) {
+                    txt.wrapping(Wrapping::None)
+                } else if style.wrapping_glyph == Some(true) {
+                    txt.wrapping(Wrapping::Glyph)
+                } else if style.wrapping_word_glyph == Some(true) {
+                    txt.wrapping(Wrapping::WordOrGlyph)
+                } else { txt };
+            txt
+
         } else { txt };
 
         let txt = 
-            if self.text_top_left == Some(true) {
-                txt.align_x(alignment::Horizontal::Left)
-                    .align_y(alignment::Vertical::Top)
+            if let Some(f) = font_opt {
+                txt.font(f.to_iced())
             } else { txt };
 
         let txt = 
-            if self.text_top_center == Some(true) {
-                txt.align_x(alignment::Horizontal::Center)
-                    .align_y(alignment::Vertical::Top)
+            if self.clip == Some(true) {
+                txt.wrapping(Wrapping::None)
             } else { txt };
 
-        let txt = 
-            if self.text_top_right == Some(true) {
-                txt.align_x(alignment::Horizontal::Right)
-                    .align_y(alignment::Vertical::Top)
-            } else { txt };
-        
-        let txt = 
-            if self.text_center_left == Some(true) {
-                txt.align_x(alignment::Horizontal::Left)
-                    .align_y(alignment::Vertical::Center)
-            } else { txt };
-
-        let txt = 
-            if self.text_center_right == Some(true) {
-                txt.align_x(alignment::Horizontal::Right)
-                    .align_y(alignment::Vertical::Center)
-            } else { txt };
-
-        let txt = 
-            if self.text_bottom_left == Some(true) {
-                txt.align_x(alignment::Horizontal::Left)
-                    .align_y(alignment::Vertical::Bottom)
-            } else { txt };
-
-        let txt = 
-            if self.text_bottom_center == Some(true) {
-                txt.align_x(alignment::Horizontal::Center)
-                    .align_y(alignment::Vertical::Bottom)
-            } else { txt };
-
-        let txt = 
-            if self.text_bottom_right == Some(true) {
-                txt.align_x(alignment::Horizontal::Right)
-                    .align_y(alignment::Vertical::Bottom)
-            } else { txt };
-        
-        let txt = 
-            if let Some(size) = self.text_size {
-                txt.size(size)
-            } else {txt};
-
-        let txt = if self.clip == Some(true) {
-            txt.wrapping(text::Wrapping::None)
-        } else { txt };
-
-        let btn =
+        let btn = 
             button(txt)
                 .padding(get_padding(&self.padding))
                 .on_press(Message::Button(self.id, BtnMessage::OnPress))
                 .width(get_len(self.fill, self.width_fill, self.width))
                 .height(get_len(self.fill, self.height_fill, self.height))
-                .clip(self.clip.unwrap_or(false))
                 .style(move |theme: &Theme, status| {
                     if let Some(st) = &style_opt {
                         st.to_iced(theme, status)
                     } else {
-                       match &self.style_std {
+                        match &self.style_std {
                             Some(std) => std.to_iced(theme, status),
                             None => {
-                                if self.if_menu_btn == Some(true) {
-                                    button::text(theme, status)
-                                } else {
-                                    button::primary(theme, status)
-                                }
+                                button::primary(theme, status)
                             },
                         }
                     }
-                }
-            )
-            .into();
+                }).into();
 
         Some(btn)
 
@@ -201,6 +213,21 @@ pub struct ButtonStyle {
     pub text_color: Option<Color>,
     pub text_color_alpha: Option<f32>,
     pub text_rgba: Option<[f32; 4]>,
+
+    pub text_top_left: Option<bool>,
+    pub text_top_center: Option<bool>,
+    pub text_top_right: Option<bool>,
+    pub text_center_left: Option<bool>,
+    pub text_center: Option<bool>,
+    pub text_center_right: Option<bool>,
+    pub text_bottom_left: Option<bool>,
+    pub text_bottom_center: Option<bool>,
+    pub text_bottom_right: Option<bool>,
+    pub text_size: Option<f32>,
+
+    pub wrapping_none: Option<bool>,
+    pub wrapping_glyph: Option<bool>,
+    pub wrapping_word_glyph: Option<bool>,
 
     pub text_color_active: Option<Color>,
     pub text_color_alpha_active: Option<f32>,
@@ -298,21 +325,18 @@ impl ButtonStyle {
         let shd_color =
             Color::rgba_ipg_color_to_iced(self.shadow_rgba, &self.shadow_color, self.shadow_color_alpha);
         
-        
-        let palette = theme.palette();
-
-        // One can use the theme text color but the background and primary 
-        // are needed together to produce the correct colors
+        // One can use the theme text color but the background 
+        // is needed together to produce the correct colors
         let txt_color = if let Some(c) = text_color {
             c
         } else { theme.palette().background.base.text};
 
-        let background_opt = if let Some(bkg) = background_color {
-            Some(palette::Background::new(bkg, txt_color))
-        } else { None };
+        let bkg = if let Some(bkg) = background_color {
+            palette::Background::new(bkg, txt_color)
+        } else { palette::Background::new(theme.palette().background.base.color, txt_color) };
 
 
-        let bkg = background_opt.unwrap_or(palette.background);
+        
         let bkg_color = 
             match status {
                 button::Status::Active => bkg.base.color,
@@ -323,22 +347,22 @@ impl ButtonStyle {
 
         let linear = 
             if let Some(stops) = bkg_grad_color_stops {
-                let linear = gradient::Linear::new(grad_radians);
+                let mut linear = gradient::Linear::new(grad_radians);
                 for stop in stops.iter() {
                     let bkg = palette::Background::new(stop.color, txt_color);
-                    match status {
+                    linear = match status {
                         button::Status::Active =>  linear.add_stop(stop.offset, bkg.base.color),
                         button::Status::Hovered => linear.add_stop(stop.offset, bkg.weak.color),
                         button::Status::Pressed => linear.add_stop(stop.offset, bkg.strong.color),
                         button::Status::Disabled => linear.add_stop(stop.offset, bkg.base.color.scale_alpha(0.5)),
                     };
                 }
-                 Some(linear)
+                Some(linear)
             } else { None };
 
         // Check to see if individual colors are defined.
         let text_color = 
-            if background_opt.is_none() && text_color.is_none() {
+            if text_color.is_none() {
                 match status {
                     button::Status::Active => text_color_active.unwrap_or(txt_color),
                     button::Status::Hovered => text_color_hovered.unwrap_or(txt_color),
@@ -356,22 +380,27 @@ impl ButtonStyle {
 
         // border color
         let bc_color = 
-            if let Some(bkg) = background_opt {
-                match status {
-                    button::Status::Active => bkg.base.color,
-                    button::Status::Hovered => bkg.weaker.color,
-                    button::Status::Pressed => bkg.strong.color,
-                    button::Status::Disabled => bkg.base.color.scale_alpha(0.5)
-                }
-            } else {
-                match status {
-                    button::Status::Active => border_color_active.unwrap_or(palette.background.base.color),
-                    button::Status::Hovered => border_color_hovered.or(border_color_active).unwrap_or(palette.background.weaker.color),
-                    button::Status::Pressed => border_color_pressed.or(border_color_active).unwrap_or(palette.background.strong.color),
-                    button::Status::Disabled => border_color_disabled
-                        .or(border_color_active.map(|c| c.scale_alpha(0.5)))
-                        .unwrap_or(palette.background.base.color.scale_alpha(0.5)),
-                }
+            match status {
+                button::Status::Active => {
+                    if let Some(bc) = border_color_active {
+                        bc
+                    } else { bkg.base.color }
+                },
+                button::Status::Hovered => {
+                    if let Some(bc) = border_color_hovered {
+                        bc
+                    } else { bkg.weaker.color }
+                },
+                button::Status::Pressed => {
+                    if let Some(bc) = border_color_pressed {
+                        bc
+                    } else { bkg.strong.color }
+                },
+                button::Status::Disabled => {
+                    if let Some(bc) = border_color_disabled {
+                        bc
+                    } else { bkg.base.color.scale_alpha(0.5) }
+                },
             };
 
         let shadow = 
@@ -467,25 +496,6 @@ impl ButtonStyle {
 }
 
 
-fn styled(pair: palette::Pair) -> button::Style {
-    button::Style {
-        background: Some(iced::Background::Color(pair.color)),
-        text_color: pair.text,
-        border: border::rounded(2),
-        ..button::Style::default()
-    }
-}
-
-fn disabled(style: button::Style) -> button::Style {
-    button::Style {
-        background: style
-            .background
-            .map(|background| background.scale_alpha(0.5)),
-        text_color: style.text_color.scale_alpha(0.5),
-        ..style
-    }
-}
-
 #[derive(Debug, Clone, PartialEq, Hash)]
 #[pyclass(eq, eq_int, hash, frozen)]
 pub enum ButtonStyleStd {
@@ -540,25 +550,19 @@ impl ButtonStyleStd {
 pub enum ButtonParam {
     Clip,
     Fill,
+    FontId,
     Height,
     HeightFill,
-    IfMenuBtn,
     Label,
     Padding,
     Show,
+    StatusActive,
+    StatusDisabled,
+    StatusHovered,
+    StatusPressed,
     StyleArrow,
     StyleId,
     StyleStd,
-    TextAlignBottomCenter,
-    TextAlignBottomLeft,
-    TextAlignBottomRight,
-    TextAlignCenter,
-    TextAlignCenterLeft,
-    TextAlignCenterRight,
-    TextAlignTopCenter,
-    TextAlignTopLeft,
-    TextAlignTopRight,
-    TextSize,
     Width,
     WidthFill,
 }
@@ -573,6 +577,21 @@ pub enum ButtonStyleParam {
     TextColor,
     TextColorAlpha,
     TextRgba,
+
+    TextAlignBottomCenter,
+    TextAlignBottomLeft,
+    TextAlignBottomRight,
+    TextAlignCenter,
+    TextAlignCenterLeft,
+    TextAlignCenterRight,
+    TextAlignTopCenter,
+    TextAlignTopLeft,
+    TextAlignTopRight,
+    TextSize,
+
+    WrappingNone,
+    WrappingGlyph,
+    WrappingWordGlyph,
 
     TextColorActive,
     TextColorAlphaActive,
@@ -635,26 +654,20 @@ impl WidgetParamUpdate for Button {
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
             ButtonParam::Clip => set_t_value(&mut self.clip, value, "ButtonParam::Clip"),
+            ButtonParam::Fill => set_t_value(&mut self.fill, value, "ButtonParam::Fill"),
+            ButtonParam::FontId => set_t_value(&mut self.font_id, value, "ButtonParam::FontId"),
             ButtonParam::Height => set_t_value(&mut self.height, value, "ButtonParam::Height"),
             ButtonParam::HeightFill => set_t_value(&mut self.height, value, "ButtonParam::HeightFill"),
-            ButtonParam::IfMenuBtn => set_t_value(&mut self.if_menu_btn, value, "ButtonParam::IfMenuBtn"),
-            ButtonParam::Fill => set_t_value(&mut self.fill, value, "ButtonParam::Fill"),
             ButtonParam::Label => set_t_value(&mut self.label, value, "ButtonParam::Label"),
             ButtonParam::Padding => set_t_value(&mut self.padding, value, "ButtonParam::Padding"),
             ButtonParam::Show => set_t_value(&mut self.show, value, "Show"),
+            ButtonParam::StatusActive => set_t_value(&mut self.status_active, value, "ButtonParam::StatusActive"),
+            ButtonParam::StatusDisabled => set_t_value(&mut self.status_disabled, value, "ButtonParam::StatusDisabled"),
+            ButtonParam::StatusHovered => set_t_value(&mut self.status_hovered, value, "uttonParam::StatusHovered"),
+            ButtonParam::StatusPressed => set_t_value(&mut self.status_pressed, value, "ButtonParam::StatusPressed"),
             ButtonParam::StyleArrow => set_t_value(&mut self.style_arrow, value, "ButtonParam::StyleArrow"),
             ButtonParam::StyleId => set_t_value(&mut self.style_id, value, "ButtonParam::StyleId"),
             ButtonParam::StyleStd => set_t_value(&mut self.style_std, value, "ButtonParam::StyleStd"),
-            ButtonParam::TextAlignBottomCenter => set_t_value(&mut self.text_bottom_center, value, "ButtonParam::TextAlignBottomCenter"),
-            ButtonParam::TextAlignBottomLeft => set_t_value(&mut self.text_bottom_left, value, "ButtonParam::TextAlignBottomLeft"),
-            ButtonParam::TextAlignBottomRight => set_t_value(&mut self.text_bottom_right, value, "ButtonParam::TextAlignBottomRight"),
-            ButtonParam::TextAlignCenter => set_t_value(&mut self.text_center, value, "ButtonParam::TextAlignCenter"),
-            ButtonParam::TextAlignCenterLeft => set_t_value(&mut self.text_center_left, value, "ButtonParam::TextAlignCenterLeft"),
-            ButtonParam::TextAlignCenterRight => set_t_value(&mut self.text_center_right, value, "ButtonParam::TextAlignCenterRight"),
-            ButtonParam::TextAlignTopCenter => set_t_value(&mut self.text_top_center, value, "ButtonParam::TextAlignTopCenter"),
-            ButtonParam::TextAlignTopLeft => set_t_value(&mut self.text_top_left, value, "ButtonParam::TextAlignTopLeft"),
-            ButtonParam::TextAlignTopRight => set_t_value(&mut self.text_top_right, value, "ButtonParam::TextAlignTopRight"),
-            ButtonParam::TextSize => set_t_value(&mut self.text_size, value, "ButtonParam::TextSize"),
             ButtonParam::Width => set_t_value(&mut self.width, value, "ButtonParam::Width"),
             ButtonParam::WidthFill => set_t_value(&mut self.width, value, "ButtonParam::WidthFill"),
         }
@@ -672,6 +685,16 @@ impl WidgetParamUpdate for ButtonStyle {
             ButtonStyleParam::TextColor => set_t_value(&mut self.text_color, value, "ButtonStyleParam::TextColor"),
             ButtonStyleParam::TextColorAlpha => set_t_value(&mut self.text_color_alpha, value, "ButtonStyleParam::TextColorAlpha"),
             ButtonStyleParam::TextRgba => set_t_value(&mut self.text_rgba, value, "ButtonStyleParam::TextRgba"),
+            ButtonStyleParam::TextAlignBottomCenter => set_t_value(&mut self.text_bottom_center, value, "ButtonStyleParam::TextAlignBottomCenter"),
+            ButtonStyleParam::TextAlignBottomLeft => set_t_value(&mut self.text_bottom_left, value, "ButtonStyleParam::TextAlignBottomLeft"),
+            ButtonStyleParam::TextAlignBottomRight => set_t_value(&mut self.text_bottom_right, value, "ButtonStyleParam::TextAlignBottomRight"),
+            ButtonStyleParam::TextAlignCenter => set_t_value(&mut self.text_center, value, "ButtonStyleParam::TextAlignCenter"),
+            ButtonStyleParam::TextAlignCenterLeft => set_t_value(&mut self.text_center_left, value, "ButtonStyleParam::TextAlignCenterLeft"),
+            ButtonStyleParam::TextAlignCenterRight => set_t_value(&mut self.text_center_right, value, "ButtonStyleParam::TextAlignCenterRight"),
+            ButtonStyleParam::TextAlignTopCenter => set_t_value(&mut self.text_top_center, value, "ButtonStyleParam::TextAlignTopCenter"),
+            ButtonStyleParam::TextAlignTopLeft => set_t_value(&mut self.text_top_left, value, "ButtonStyleParam::TextAlignTopLeft"),
+            ButtonStyleParam::TextAlignTopRight => set_t_value(&mut self.text_top_right, value, "ButtonStyleParam::TextAlignTopRight"),
+            ButtonStyleParam::TextSize => set_t_value(&mut self.text_size, value, "ButtonStyleParam::TextSize"),
             ButtonStyleParam::TextColorActive => set_t_value(&mut self.text_color_active, value, "ButtonStyleParam::TextColorActive"),
             ButtonStyleParam::TextColorAlphaActive => set_t_value(&mut self.text_color_alpha_active, value, "ButtonStyleParam::TextColorAlphaActive"),
             ButtonStyleParam::TextRgbaActive => set_t_value(&mut self.text_rgba_active, value, "ButtonStyleParam::TextRgbaActive"),
@@ -709,6 +732,9 @@ impl WidgetParamUpdate for ButtonStyle {
             ButtonStyleParam::ShadowOffsetXy => set_t_value(&mut self.shadow_offset_xy, value, "ButtonStyleParam::ShadowOffsetXy"),
             ButtonStyleParam::ShadowBlurRadius => set_t_value(&mut self.shadow_blur_radius, value, "ButtonStyleParam::ShadowBlurRadius"),
             ButtonStyleParam::Snap => set_t_value(&mut self.snap, value, "ButtonStyleParam::Snap"),
+            ButtonStyleParam::WrappingNone => set_t_value(&mut self.wrapping_none, value, "ButtonStyleParam::WrappingNone"),
+            ButtonStyleParam::WrappingGlyph => set_t_value(&mut self.wrapping_glyph, value, "ButtonStyleParam::WrappingGlyph"),
+            ButtonStyleParam::WrappingWordGlyph => set_t_value(&mut self.wrapping_word_glyph, value, "ButtonStyleParam::WrappingWordGlyph"),
         }
     }
 }

@@ -80,11 +80,13 @@ impl PickList {
         } else { Handle::None };
 
         let pl = 
-            widget::PickList::new(self.options.clone(), 
-                self.selected.clone(), 
-                PLMessage::OnSelect,
+            widget::PickList::new(
+                self.selected.clone(),
+                self.options.clone(), 
+                ,
             )
-            .placeholder(self.placeholder.clone().unwrap_or("".to_string()))
+            .on_select(PLMessage::OnSelect)
+            .placeholder(self.placeholder.clone().unwrap_or_default())
             .width(get_len(None, self.width_fill, self.width))
             .menu_height(get_len(None, self.menu_height_fill, self.menu_height))
             .padding(get_padding(&self.padding))

@@ -13,27 +13,27 @@ from .icedpygui import (
     clipboard_read,
     clipboard_write,
     add_button as _add_button,
-    add_card_style,
-    add_card as _add_card,
+    # add_card_style,
+    # add_card as _add_card,
     add_checkbox_style,
     add_checkbox as _add_checkbox,
-    add_color_picker as _add_color_picker,
+    # add_color_picker as _add_color_picker,
     add_column as _add_column,
     add_container as _add_container,
     add_container_style,
-    add_date_picker as _add_date_picker,
+    # add_date_picker as _add_date_picker,
     add_divider as _add_divider,
     add_divider_style,
     add_float as _add_float,
     add_grid as _add_grid,
     add_image as _add_image,
     add_mouse_area as _add_mouse_area,
-    add_menu as _add_menu,
-    add_menu_bar_item as _add_menu_bar_item,
-    add_menu_style,
+    # add_menu as _add_menu,
+    # add_menu_bar_item as _add_menu_bar_item,
+    # add_menu_style,
     add_opaque as _add_opaque,
-    add_pick_list as _add_pick_list,
-    add_pick_list_style,
+    # add_pick_list as _add_pick_list,
+    # add_pick_list_style,
     add_progress_bar as _add_progress_bar,
     add_progress_bar_style,
     add_radio as _add_radio,
@@ -85,9 +85,9 @@ from .icedpygui import (
     ButtonParam,
     ButtonStyleParam,
     ButtonStyleStd,
-    CardParam,
-    CardStyleParam,
-    CardStyleStd,
+    # CardParam,
+    # CardStyleParam,
+    # CardStyleStd,
     ContainerStyleStd,
     CheckboxParam,
     CheckboxStyleStd,
@@ -97,7 +97,7 @@ from .icedpygui import (
     ContainerParam,
     ContainerStyleParam,
     ContentFit,
-    DatePickerParam,
+    # DatePickerParam,
     DividerDirection,
     DividerParam,
     DividerStyleParam,
@@ -109,11 +109,11 @@ from .icedpygui import (
     GridParam,
     Icon,
     ImageParam,
-    MenuBarItemParam,
-    MenuParam,
-    MenuStyleParam,
+    # MenuBarItemParam,
+    # MenuParam,
+    # MenuStyleParam,
     MousePointer,
-    PickListHandle,
+    # PickListHandle,
     ProgressBarParam,
     ProgressBarStyleParam,
     ProgressBarStyleStd,
@@ -231,20 +231,20 @@ def _wrap_widget(rust_fn, name):
 
 add_button = _wrap_widget(_add_button, "add_button")
 add_button.__doc__ = _add_button.__doc__
-add_card = _wrap_widget(_add_card, "add_card")
-add_card.__doc__ = _add_card.__doc__
+# add_card = _wrap_widget(_add_card, "add_card")
+# add_card.__doc__ = _add_card.__doc__
 add_checkbox = _wrap_widget(_add_checkbox, "add_checkbox")
 add_checkbox.__doc__ = _add_checkbox.__doc__
-add_color_picker = _wrap_widget(_add_color_picker, "add_color_picker")
-add_color_picker.__doc__ = _add_color_picker.__doc__
-add_date_picker = _wrap_widget(_add_date_picker, "add_date_picker")
-add_date_picker.__doc__ = _add_date_picker.__doc__
+# add_color_picker = _wrap_widget(_add_color_picker, "add_color_picker")
+# add_color_picker.__doc__ = _add_color_picker.__doc__
+# add_date_picker = _wrap_widget(_add_date_picker, "add_date_picker")
+# add_date_picker.__doc__ = _add_date_picker.__doc__
 add_divider = _wrap_widget(_add_divider, "add_divider")
 add_divider.__doc__ = _add_divider.__doc__
 add_image = _wrap_widget(_add_image, "add_image")
 add_image.__doc__ = _add_image.__doc__
-add_pick_list = _wrap_widget(_add_pick_list, "add_pick_list")
-add_pick_list.__doc__ = _add_pick_list.__doc__
+# add_pick_list = _wrap_widget(_add_pick_list, "add_pick_list")
+# add_pick_list.__doc__ = _add_pick_list.__doc__
 add_progress_bar = _wrap_widget(_add_progress_bar, "add_progress_bar")
 add_progress_bar.__doc__ = _add_progress_bar.__doc__
 add_radio = _wrap_widget(_add_radio, "add_radio")
@@ -303,10 +303,10 @@ add_float = _wrap_container(_add_float, "add_float")
 add_float.__doc__ = _add_float.__doc__
 add_grid = _wrap_container(_add_grid, "add_grid")
 add_grid.__doc__ = _add_grid.__doc__
-add_menu = _wrap_container(_add_menu, "add_menu")
-add_menu.__doc__ = _add_menu.__doc__
-add_menu_bar_item = _wrap_container(_add_menu_bar_item, "add_menu_bar_item")
-add_menu_bar_item.__doc__ = _add_menu_bar_item.__doc__
+# add_menu = _wrap_container(_add_menu, "add_menu")
+# add_menu.__doc__ = _add_menu.__doc__
+# add_menu_bar_item = _wrap_container(_add_menu_bar_item, "add_menu_bar_item")
+# add_menu_bar_item.__doc__ = _add_menu_bar_item.__doc__
 add_mouse_area = _wrap_container(_add_mouse_area, "add_mouse_area")
 add_mouse_area.__doc__ = _add_mouse_area.__doc__
 add_opaque = _wrap_container(_add_opaque, "add_opaque")
@@ -361,43 +361,43 @@ class Window:
         _window_stack.pop()
         return False
 
-class Card:
-    """Wrapper for add_card"""
-    def __init__(self, *, container_id=None, window_id=None, parent_id=None, **kwargs):
-        self.window_id = (
-            _resolve_window_id(window_id)
-            if window_id is not None
-            else _current_window_or_parent(parent_id)
-        )
-        if self.window_id is None:
-            raise ValueError("Container: window_id is required (either pass it\
-                or use a Window context manager)")
-        self.container_id = (
-            container_id
-            if container_id is not None
-            else str(generate_id())
-        )
-        self.parent_id = parent_id
-        self.kwargs = kwargs
-        self.numeric_id = 0
+# class Card:
+#     """Wrapper for add_card"""
+#     def __init__(self, *, container_id=None, window_id=None, parent_id=None, **kwargs):
+#         self.window_id = (
+#             _resolve_window_id(window_id)
+#             if window_id is not None
+#             else _current_window_or_parent(parent_id)
+#         )
+#         if self.window_id is None:
+#             raise ValueError("Container: window_id is required (either pass it\
+#                 or use a Window context manager)")
+#         self.container_id = (
+#             container_id
+#             if container_id is not None
+#             else str(generate_id())
+#         )
+#         self.parent_id = parent_id
+#         self.kwargs = kwargs
+#         self.numeric_id = 0
 
-    def __enter__(self):
-        pid = self.parent_id or _current_parent()
-        if pid is not None:
-            pid = _resolve_parent_id(pid)
-        self.numeric_id = _add_card(
-            window_id=self.window_id,
-            container_id=self.container_id,
-            parent_id=pid,
-            **self.kwargs,
-        )
-        _register_container(self.numeric_id, self.container_id, self.window_id)
-        _parent_stack.append(self.container_id)
-        return self.numeric_id
+#     def __enter__(self):
+#         pid = self.parent_id or _current_parent()
+#         if pid is not None:
+#             pid = _resolve_parent_id(pid)
+#         self.numeric_id = _add_card(
+#             window_id=self.window_id,
+#             container_id=self.container_id,
+#             parent_id=pid,
+#             **self.kwargs,
+#         )
+#         _register_container(self.numeric_id, self.container_id, self.window_id)
+#         _parent_stack.append(self.container_id)
+#         return self.numeric_id
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        _parent_stack.pop()
-        return False
+#     def __exit__(self, exc_type, exc_val, exc_tb):
+#         _parent_stack.pop()
+#         return False
 
 class Container:
     """Wrapper for add_container"""
@@ -552,81 +552,81 @@ class Grid:
         _parent_stack.pop()
         return False
 
-class Menu:
-    """Wrapper for add_menu"""
-    def __init__(self, *, container_id=None, window_id=None, parent_id=None, **kwargs):
-        self.window_id = (
-            _resolve_window_id(window_id)
-            if window_id is not None
-            else _current_window_or_parent(parent_id)
-        )
-        if self.window_id is None:
-            raise ValueError("Menu: window_id is required (either pass it\
-                or use a Window context manager)")
-        self.container_id = (
-            container_id
-            if container_id is not None
-            else str(generate_id())
-        )
-        self.parent_id = parent_id
-        self.kwargs = kwargs
-        self.numeric_id = 0
+# class Menu:
+#     """Wrapper for add_menu"""
+#     def __init__(self, *, container_id=None, window_id=None, parent_id=None, **kwargs):
+#         self.window_id = (
+#             _resolve_window_id(window_id)
+#             if window_id is not None
+#             else _current_window_or_parent(parent_id)
+#         )
+#         if self.window_id is None:
+#             raise ValueError("Menu: window_id is required (either pass it\
+#                 or use a Window context manager)")
+#         self.container_id = (
+#             container_id
+#             if container_id is not None
+#             else str(generate_id())
+#         )
+#         self.parent_id = parent_id
+#         self.kwargs = kwargs
+#         self.numeric_id = 0
 
-    def __enter__(self):
-        pid = self.parent_id or _current_parent()
-        if pid is not None:
-            pid = _resolve_parent_id(pid)
-        self.numeric_id = _add_menu(
-            window_id=self.window_id,
-            container_id=self.container_id,
-            parent_id=pid,
-            **self.kwargs,
-        )
-        _register_container(self.numeric_id, self.container_id, self.window_id)
-        _parent_stack.append(self.container_id)
-        return self.numeric_id
+#     def __enter__(self):
+#         pid = self.parent_id or _current_parent()
+#         if pid is not None:
+#             pid = _resolve_parent_id(pid)
+#         self.numeric_id = _add_menu(
+#             window_id=self.window_id,
+#             container_id=self.container_id,
+#             parent_id=pid,
+#             **self.kwargs,
+#         )
+#         _register_container(self.numeric_id, self.container_id, self.window_id)
+#         _parent_stack.append(self.container_id)
+#         return self.numeric_id
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        _parent_stack.pop()
-        return False
+#     def __exit__(self, exc_type, exc_val, exc_tb):
+#         _parent_stack.pop()
+#         return False
 
-class MenuBarItem:
-    """Wrapper for add_menu_bar_item"""
-    def __init__(self, *, container_id=None, window_id=None, parent_id=None, **kwargs):
-        self.window_id = (
-            _resolve_window_id(window_id)
-            if window_id is not None
-            else _current_window_or_parent(parent_id)
-        )
-        if self.window_id is None:
-            raise ValueError("MenuBarItem: window_id is required (either pass it\
-                or use a Window context manager)")
-        self.container_id = (
-            container_id
-            if container_id is not None
-            else str(generate_id())
-        )
-        self.parent_id = parent_id
-        self.kwargs = kwargs
-        self.numeric_id = 0
+# class MenuBarItem:
+#     """Wrapper for add_menu_bar_item"""
+#     def __init__(self, *, container_id=None, window_id=None, parent_id=None, **kwargs):
+#         self.window_id = (
+#             _resolve_window_id(window_id)
+#             if window_id is not None
+#             else _current_window_or_parent(parent_id)
+#         )
+#         if self.window_id is None:
+#             raise ValueError("MenuBarItem: window_id is required (either pass it\
+#                 or use a Window context manager)")
+#         self.container_id = (
+#             container_id
+#             if container_id is not None
+#             else str(generate_id())
+#         )
+#         self.parent_id = parent_id
+#         self.kwargs = kwargs
+#         self.numeric_id = 0
 
-    def __enter__(self):
-        pid = self.parent_id or _current_parent()
-        if pid is not None:
-            pid = _resolve_parent_id(pid)
-        self.numeric_id = _add_menu_bar_item(
-            window_id=self.window_id,
-            container_id=self.container_id,
-            parent_id=pid,
-            **self.kwargs,
-        )
-        _register_container(self.numeric_id, self.container_id, self.window_id)
-        _parent_stack.append(self.container_id)
-        return self.numeric_id
+#     def __enter__(self):
+#         pid = self.parent_id or _current_parent()
+#         if pid is not None:
+#             pid = _resolve_parent_id(pid)
+#         self.numeric_id = _add_menu_bar_item(
+#             window_id=self.window_id,
+#             container_id=self.container_id,
+#             parent_id=pid,
+#             **self.kwargs,
+#         )
+#         _register_container(self.numeric_id, self.container_id, self.window_id)
+#         _parent_stack.append(self.container_id)
+#         return self.numeric_id
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        _parent_stack.pop()
-        return False
+#     def __exit__(self, exc_type, exc_val, exc_tb):
+#         _parent_stack.pop()
+#         return False
 
 class MouseArea:
     """Wrapper for add_mouse_area"""

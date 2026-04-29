@@ -21,6 +21,8 @@ use crate::widgets::ipg_button::{Button,
 ///     Sets the parent container ID that this button belongs to.
 /// label : str,  Optional
 ///     Sets the Text label displayed on the button.
+/// label_style_id: int, Optional
+///     Makes the label a text object that can be styled
 /// on_press : callable,  Optional
 ///     Sets the Callback method to invoke when the button is pressed.
 /// width : float,  Optional
@@ -36,28 +38,6 @@ use crate::widgets::ipg_button::{Button,
 /// padding : list of float,  Optional
 ///     Sets the Padding as [all], [vertical, horizontal], or
 ///     [top, right, bottom, left].
-/// text_top_left : bool,  Optional
-///     Whether to Align the label to the top-left.
-/// text_top_center : bool,  Optional
-///     Whether to Align the label to the top-centre.
-/// text_top_right : bool,  Optional
-///     Whether to Align the label to the top-right.
-/// text_center_left : bool,  Optional
-///     Whether to Align the label to the centre-left.
-/// text_center : bool,  Optional
-///     Whether to Align the label to the centre (default True).
-/// text_center_right : bool,  Optional
-///     Whether to Align the label to the centre-right.
-/// text_bottom_left : bool,  Optional
-///     Whether to Align the label to the bottom-left.
-/// text_bottom_center : bool,  Optional
-///     Whether to Align the label to the bottom-centre.
-/// text_bottom_right : bool,  Optional
-///     Whether to Align the label to the bottom-right.
-/// text_size : float,  Optional
-///     Sets the Font size for the label text.
-///  if_menu_btn: bool, Optional
-///      Whether the button is used in the menu widget, effects the alignment.
 /// clip : bool,  Optional
 ///     Whether to clip content that overflows the button.
 /// style_id : int,  Optional
@@ -87,18 +67,12 @@ use crate::widgets::ipg_button::{Button,
     height_fill=None,
     fill=None,
     padding=None,
-    text_top_left=None,
-    text_top_center=None,
-    text_top_right=None,
-    text_center_left=None,
-    text_center=true,
-    text_center_right=None,
-    text_bottom_left=None,
-    text_bottom_center=None,
-    text_bottom_right=None,
-    text_size=None,
-    if_menu_btn=None,
     clip=None,
+    status_active=None,
+    status_hovered=None,
+    status_pressed=None,
+    status_disabled=None,
+    font_id=None,
     style_id=None,
     style_std=None,
     style_arrow=None,
@@ -116,18 +90,12 @@ pub fn add_button(
     height_fill: Option<bool>,
     fill: Option<bool>,
     padding: Option<Vec<f32>>,
-    text_top_left: Option<bool>,
-    text_top_center: Option<bool>,
-    text_top_right: Option<bool>,
-    text_center_left: Option<bool>,
-    text_center: Option<bool>,
-    text_center_right: Option<bool>,
-    text_bottom_left: Option<bool>,
-    text_bottom_center: Option<bool>,
-    text_bottom_right: Option<bool>,
-    text_size: Option<f32>,
-    if_menu_btn: Option<bool>,
     clip: Option<bool>,
+    status_active: Option<bool>,
+    status_hovered: Option<bool>,
+    status_pressed: Option<bool>,
+    status_disabled: Option<bool>,
+    font_id: Option<usize>,
     style_id: Option<usize>,
     style_std: Option<ButtonStyleStd>,
     style_arrow: Option<Arrow>,
@@ -158,7 +126,6 @@ pub fn add_button(
         Widgets::Button(
             Button {
                 id,
-                show,
                 label,
                 width,
                 width_fill,
@@ -166,21 +133,16 @@ pub fn add_button(
                 height_fill,
                 fill,
                 padding,
-                text_top_left,
-                text_top_center,
-                text_top_right,
-                text_center_left,
-                text_center,
-                text_center_right,
-                text_bottom_left,
-                text_bottom_center,
-                text_bottom_right,
-                text_size,
-                if_menu_btn,
                 clip,
+                status_active,
+                status_hovered,
+                status_pressed,
+                status_disabled,
+                font_id,
                 style_id,
                 style_std,
                 style_arrow,
+                show,
             }),
         );
     drop(state);
@@ -189,16 +151,16 @@ pub fn add_button(
 }
 
 
-///"""
-///Adds styling to a button
+/// """
+/// Adds styling to a button
 ///
 /// The style are keyed to a background, text, primary, and secondary colors
 /// Each color generates a weak, strong, etc. type
 /// 
 /// if you want to produce your own colors from a new background,
-/// then you will need to define the new background, text, primary, 
-/// and secondary colors.  Based on these, the color types will be 
-/// generated for you based on the widget status.
+/// then you will need to define the new background and text colors.
+/// Based on these, the color types will be generated for you 
+/// based on the widget status.
 /// 
 /// You also have the ability to define all the colors individually or
 /// define an active color which replaces all the colors for that parameter.
@@ -217,58 +179,78 @@ pub fn add_button(
 ///           background: palette.background.weakest.color
 ///                         with bkg_color_alpha = 0.5
 ///           text: background.base.text with alpha=0.5
-///Parameters
-///----------
-///background_color: Color, Optional
-///    Sets the Color of the background.
-///background_color_alpha: float, Optional
-///    Sets the alpha of the Color.
-///background_rgba: list[float, 4], Optional
-///    Sets the Color of the background in rgba format.
-///gradient_color_stops: list[Color, 8], Optional
-///    Sets the stop Color of the background gradient.
-///    A total of 8 stops allowed counting the rgba also.
-///gradient_color_alpha_stops: list[float], Optional
-///    Sets the alpha of the Color.
-///gradient_rgba_stops: list[list[float, 4], 8], Optional
-///    Sets the stops rgba color of the background gradient.
-///    A total of 8 stops allowed counting the colors also.
-///gradient_offset_stops: list[float], Optional
-///    The offsets for the gradient stops.
-///gradient_degrees: float, Optional,
-///    Sets the gradient degrees
-///gradient_radians: float, Optional,
-///    Sets the gradient radians
-///border_color: Color, Optional
-///    Sets the Color used for the border.
-///border_color_alpha: float, Optional
-///    Sets the alpha of the Color.
-///border_rgba: list[float, 4], Optional
-///    Sets the Color of the border in rgba format.
-///border_radius: list[float | float, 4], Optional
-///    Sets the radius of the border, [float]=all corners, 
-///    [float]=[top-left, top-right, bottom-right, bottom-left].
-///border_width: float, Optional
-///    Sets the border width.
-///shadow_color: Color, Optional
-///    Sets the color of the shadow.
-///shadow_color_alpha: float, Optional
-///    Sets the alpha of the Color.
-///shadow_rgba: list[float, 4], Optional
-///    Sets the color in rgba format.
-///shadow_offset_xy: list[float, 2], Optional
-///    Sets the Shadow offset in the horizontal direction [x, y].
-///shadow_blur_radius: float, Optional
-///    Sets the blur radius of the shadow.
-///text_color: Color, Optional
-///    Sets the text color.
-///text_color_alpha: float, Optional
-///    Sets the alpha of the Color.
-///text_rgba: list[float], Optional
-///    Sets the color in rgba used as state above, 4 values.
-///gen_id : int,  Optional
+/// Parameters
+/// ----------
+/// background_color: Color, Optional
+///     Sets the Color of the background.
+/// background_color_alpha: float, Optional
+///     Sets the alpha of the Color.
+/// background_rgba: list[float, 4], Optional
+///     Sets the Color of the background in rgba format.
+/// text_color: Color, Optional
+///     Sets the text color.
+/// text_color_alpha: float, Optional
+///     Sets the alpha of the Color.
+/// text_rgba: list[float], Optional
+///     Sets the color in rgba used as state above, 4 values.
+/// text_top_left : bool,  Optional
+///     Whether to Align the label to the top-left.
+/// text_top_center : bool,  Optional
+///     Whether to Align the label to the top-centre.
+/// text_top_right : bool,  Optional
+///     Whether to Align the label to the top-right.
+/// text_center_left : bool,  Optional
+///     Whether to Align the label to the centre-left.
+/// text_center : bool,  Optional
+///     Whether to Align the label to the centre (default True).
+/// text_center_right : bool,  Optional
+///     Whether to Align the label to the centre-right.
+/// text_bottom_left : bool,  Optional
+///     Whether to Align the label to the bottom-left.
+/// text_bottom_center : bool,  Optional
+///     Whether to Align the label to the bottom-centre.
+/// text_bottom_right : bool,  Optional
+///     Whether to Align the label to the bottom-right.
+/// text_size : float,  Optional
+///     Sets the Font size for the label text.
+/// gradient_color_stops: list[Color, 8], Optional
+///     Sets the stop Color of the background gradient.
+///     A total of 8 stops allowed counting the rgba also.
+/// gradient_color_alpha_stops: list[float], Optional
+///     Sets the alpha of the Color.
+/// gradient_rgba_stops: list[list[float, 4], 8], Optional
+///     Sets the stops rgba color of the background gradient.
+///     A total of 8 stops allowed counting the colors also.
+/// gradient_offset_stops: list[float], Optional
+///     The offsets for the gradient stops.
+/// gradient_degrees: float, Optional,
+///     Sets the gradient degrees
+/// gradient_radians: float, Optional,
+///     Sets the gradient radians
+/// border_color: Color, Optional
+///     Sets the Color used for the border.
+/// border_color_alpha: float, Optional
+///     Sets the alpha of the Color.
+/// border_rgba: list[float, 4], Optional
+///     Sets the Color of the border in rgba format.
+/// border_radius: list[float | float, 4], Optional
+///     Sets the radius of the border, [float]=all corners, 
+///     [float]=[top-left, top-right, bottom-right, bottom-left].
+/// border_width: float, Optional
+///     Sets the border width.
+/// shadow_color: Color, Optional
+///     Sets the color of the shadow.
+/// shadow_color_alpha: float, Optional
+///     Sets the alpha of the Color.
+/// shadow_rgba: list[float, 4], Optional
+///     Sets the color in rgba format.
+/// shadow_offset_xy: list[float, 2], Optional
+///     Sets the Shadow offset in the horizontal direction [x, y].
+/// shadow_blur_radius: float, Optional
+///     Sets the blur radius of the shadow.
+/// gen_id : int,  Optional
 ///     Obtains an ID of a widget that have not been created, used for the gen_id parameter.
-///"""
+/// """
 #[pyfunction]
 #[pyo3(signature = (
         background_color = None,
@@ -278,6 +260,21 @@ pub fn add_button(
         text_color = None,
         text_color_alpha = None,
         text_rgba = None,
+
+        text_top_left = None,
+        text_top_center = None,
+        text_top_right = None,
+        text_center_left = None,
+        text_center = None,
+        text_center_right = None,
+        text_bottom_left = None,
+        text_bottom_center = None,
+        text_bottom_right = None,
+        text_size = None,
+
+        wrapping_none = None,
+        wrapping_glyph = None,
+        wrapping_word_glyph = None,
 
         text_color_active = None,
         text_color_alpha_active = None,
@@ -338,6 +335,21 @@ pub fn add_button_style(
     text_color: Option<Color>,
     text_color_alpha: Option<f32>,
     text_rgba: Option<[f32; 4]>,
+
+    text_top_left: Option<bool>,
+    text_top_center: Option<bool>,
+    text_top_right: Option<bool>,
+    text_center_left: Option<bool>,
+    text_center: Option<bool>,
+    text_center_right: Option<bool>,
+    text_bottom_left: Option<bool>,
+    text_bottom_center: Option<bool>,
+    text_bottom_right: Option<bool>,
+    text_size: Option<f32>,
+
+    wrapping_none: Option<bool>,
+    wrapping_glyph: Option<bool>,
+    wrapping_word_glyph: Option<bool>,
 
     text_color_active: Option<Color>,
     text_color_alpha_active: Option<f32>,
@@ -405,6 +417,21 @@ pub fn add_button_style(
             text_color,
             text_color_alpha,
             text_rgba,
+
+            text_top_left,
+            text_top_center,
+            text_top_right,
+            text_center_left,
+            text_center,
+            text_center_right,
+            text_bottom_left,
+            text_bottom_center,
+            text_bottom_right,
+            text_size,
+
+            wrapping_none,
+            wrapping_glyph,
+            wrapping_word_glyph,
 
             text_color_active,
             text_color_alpha_active,

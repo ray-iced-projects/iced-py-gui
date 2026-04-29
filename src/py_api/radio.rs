@@ -50,11 +50,9 @@ use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex,
 ///     Sets the spacing between the radio circle and text.
 /// text_size : float, Optional
 ///     Sets the Font size for the label text.
-/// text_line_height : float, Optional
+/// line_height : float, Optional
 ///     Sets the Line height for the label text.
-/// text_shaping : TextShaping, Optional
-///     Sets the Text shaping strategy for the labels.
-/// text_wrapping : TextWrapping, Optional
+/// wrapping : TextWrapping, Optional
 ///     Sets the Text wrapping strategy for the labels.
 /// user_data : Any, Optional
 ///     Sets the Arbitrary data forwarded to callbacks.
@@ -85,10 +83,10 @@ use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex,
     style_id=None,
     font_id=None,
     text_size=None,
-    text_line_height=None, 
-    text_wrapping_none=None,
-    text_wrapping_glyph=None,
-    text_wrapping_word_glyph=None,
+    line_height=None, 
+    wrapping_none=None,
+    wrapping_glyph=None,
+    wrapping_word_glyph=None,
     user_data=None, 
     show=true, 
     gen_id=None,
@@ -111,10 +109,10 @@ pub fn add_radio(
     style_id: Option<usize>,
     font_id: Option<usize>,
     text_size: Option<f32>,
-    text_line_height: Option<f32>,
-    text_wrapping_none: Option<bool>,
-    text_wrapping_glyph: Option<bool>,
-    text_wrapping_word_glyph: Option<bool>,
+    line_height: Option<f32>,
+    wrapping_none: Option<bool>,
+    wrapping_glyph: Option<bool>,
+    wrapping_word_glyph: Option<bool>,
     user_data: Option<PyObject>,
     show: bool,
     gen_id: Option<usize>,
@@ -156,10 +154,10 @@ pub fn add_radio(
             fill,
             size,
             text_size,
-            text_line_height,
-            text_wrapping_none,
-            text_wrapping_glyph,
-            text_wrapping_word_glyph,
+            line_height,
+            wrapping_none,
+            wrapping_glyph,
+            wrapping_word_glyph,
             font_id,
             style_id,
             show,

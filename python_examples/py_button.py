@@ -84,9 +84,7 @@ state = {"txt_id": 0}
 # see how the alpha was used below, the bkg color needed to be added back in.
 bkg_color = add_button_style(background_color=Color.RED)
 
-bkg_color_alpha = add_button_style(background_color=Color.LIGHT_BLUE, background_color_alpha=0.5)
-
-bkg_rgba = add_button_style(background_color_alpha=0.5)
+bkg_color_alpha = add_button_style(background_color=Color.RED, background_color_alpha=0.5)
 
 bkg_gradient = add_button_style(
     gradient_color_stops=[Color.BLUE, Color.RED],
@@ -146,10 +144,14 @@ with Window(title="Button Parameters",
                 add_button(label="Padding=[10]", padding=[10])
                 add_button(label="Padding=[top=10, right=15,\nbottom=0, left=5]", padding=[10, 15, 0, 5])
                 add_button(label="This should be clipped", width=140, clip=True)
+                add_button(label="status=Disabled", status_disabled=True)
 
             with Column(spacing=20):
                 add_text(content="Some Styling", width=400, align_center=True)
-                add_button(label="Bkg Color", width=100, height=50,
-                           style_std=ButtonStyleStd.Subtle)
+                with Row(spacing=10):
+                    add_button(label="Bkg Color std=Subtle", width=100, height=50,
+                                style_std=ButtonStyleStd.Subtle)
+                    add_button(label="Color.RED, status=active", status_active=True, style_id=bkg_color)
+                    # add_button(label="with color alpha=0.5", style_id=bkg_color_alpha)
 
 start_session()

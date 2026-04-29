@@ -165,7 +165,17 @@ impl Button {
             if self.clip == Some(true) {
                 txt.wrapping(Wrapping::None)
             } else { txt };
+            
+        let btn_statuses = 
+            BtnStatus {
+                active: self.status_active,
+                hovered: self.status_hovered,
+                pressed: self.status_pressed,
+                disabled: self.status_disabled,
+            };
 
+        let override_st = btn_statuses.to_iced();
+        
         let btn = 
             button(txt)
                 .padding(get_padding(&self.padding))
@@ -174,6 +184,8 @@ impl Button {
                 .height(get_len(self.fill, self.height_fill, self.height))
                 .style(move |theme: &Theme, status| {
                     if let Some(st) = &style_opt {
+                        let status = if let Some(st) = override_st {
+                            st } else { status };
                         st.to_iced(theme, status)
                     } else {
                         match &self.style_std {
@@ -280,6 +292,29 @@ pub struct ButtonStyle {
     pub snap: Option<bool>,
 }
 
+#[derive(Debug, Default)]
+struct BtnStatus {
+    active: Option<bool>,
+    hovered: Option<bool>,
+    pressed: Option<bool>,
+    disabled: Option<bool>,
+}
+
+impl BtnStatus {
+    fn to_iced(&self) -> Option<button::Status> {
+         // override the real status with user-specified one
+        if self.disabled == Some(true) {
+            Some(button::Status::Disabled)
+        } else if self.pressed == Some(true) {
+            Some(button::Status::Pressed)
+        } else if self.hovered == Some(true) {
+            Some(button::Status::Hovered)
+        } else if self.active == Some(true) {
+            Some(button::Status::Active)
+        } else { None }
+    }
+}
+
 impl ButtonStyle {
     /// Apply user-defined style overrides to an existing iced button::Style
     pub fn to_iced(
@@ -336,7 +371,6 @@ impl ButtonStyle {
         } else { palette::Background::new(theme.palette().background.base.color, txt_color) };
 
 
-        
         let bkg_color = 
             match status {
                 button::Status::Active => bkg.base.color,

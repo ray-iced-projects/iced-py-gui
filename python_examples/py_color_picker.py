@@ -58,11 +58,11 @@ int
 """
 
 from icedpygui import Window, Column, Container,\
-    add_button_style, add_color_picker, add_text, \
+    add_color_picker, add_text, \
     start_session, update_widget, TextParam
 
 
-def color_selected(_cp_id: int, color: list, _user_data: any):
+def color_selected(_cp_id: int, color: list):
     """
     Color selected callback
     Need to change the list color to a str type
@@ -78,19 +78,14 @@ def color_selected(_cp_id: int, color: list, _user_data: any):
     update_widget(text_id, TextParam.ColorRgba, color)
 
 
-def cp_opened(_cp_id: int, _user_data: any):
+def cp_opened(_cp_id: int):
     """Color Picker Callback"""
     print("color picker opened")
 
 
-def cp_canceled(_cp_id: int, _user_data: any):
+def cp_canceled(_cp_id: int):
     """Color Picker Callback"""
     print("color picker canceled")
-
-# Since the color_picker is using a button
-# to open the selection widget, then
-# to style the button you use the button styling
-cp_style = add_button_style(border_radius=[5.0])
 
 
 # Add a window first
@@ -110,12 +105,8 @@ with Window(
             add_color_picker(
                 on_press=cp_opened, # Button to open color picker
                 on_select=color_selected, # the color selection selected
-                on_cancel=cp_canceled, # the color selection cancel
-                padding=[5.0],
-                style_id=cp_style, # some styling for the button
-                user_data="Something") #user data not used but supplied for testing
-                # If you use user_data, all callback will require the user_data parameter
-                # or whatever name you want for it.
+                on_cancel=cp_canceled) # the color selection cancel
+
 
             text_id = add_text(content="Color value here")
 

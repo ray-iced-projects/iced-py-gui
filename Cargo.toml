@@ -41,3 +41,12 @@ strip = true
 lto = "fat"
 codegen-units = 1
 opt-level = 3
+
+[patch.crates-io]
+iced          = { path = "../iced_4255f61_04_25_2026" }
+iced_core     = { path = "../iced_4255f61_04_25_2026/core" }
+iced_widget   = { path = "../iced_4255f61_04_25_2026/widget" }
+iced_graphics = { path = "../iced_4255f61_04_25_2026/graphics" }
+iced_renderer = { path = "../iced_4255f61_04_25_2026/renderer" }
+iced_runtime  = { path = "../iced_4255f61_04_25_2026/runtime" }
+iced_futures  = { path = "../iced_4255f61_04_25_2026/futures" }

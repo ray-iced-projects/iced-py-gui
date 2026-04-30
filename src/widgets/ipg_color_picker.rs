@@ -4,7 +4,7 @@ use std::collections::HashMap;
 use crate::graphics::bootstrap_arrow::Arrow;
 use crate::graphics::colors::Color;
 use crate::state::Widgets;
-use crate::widgets::ipg_button::ButtonStyleStd;
+use crate::widgets::ipg_button::{BtnStatus, ButtonStyleStd};
 use crate::widgets::widget_param_update::{WidgetParamUpdate, set_t_value};
 use crate::IpgState;
 use crate::app::Message;
@@ -13,7 +13,6 @@ use super::callbacks::{invoke_callback, invoke_callback_with_args};
 
 use iced::widget::{Button, button, text};
 use iced::{Element, Theme};
-use iced_aw;
 
 use pyo3::{Py, PyAny, pyclass};
 type PyObject = Py<PyAny>;
@@ -58,43 +57,38 @@ impl ColorPicker {
             };
         
 
-        let style_opt = 
+        let _style_opt = 
             self.lookup(widgets, self.style_id)
                 .and_then(Widgets::as_button_style).cloned();
-
 
         let btn: Element<ColPikMessage> = 
             Button::new(label)
                 .width(get_len(self.fill, self.width_fill, self.width))
                 .height(get_len(self.fill, self.height_fill, self.height))
                 .padding(get_padding(&self.padding))
-                .on_press(ColPikMessage::OnPress)
-                .style(move|theme: &Theme, status| {   
-                    if let Some(st) = &style_opt {
-                            st.to_iced(theme, status, &self.style_std)
-                        } else {
-                        match &self.style_std {
-                                Some(std) => std.to_iced(theme, status),
-                                None => button::primary(theme, status),
-                            }
-                        }
+                .on_press(ColPikMessage::OnPress)  
+                .style(move |theme: &Theme, status| {
+                    match &self.style_std {
+                        Some(std) => std.to_iced(theme, status),
+                        None => button::primary(theme, status),
                     }
-                )
+                    
+                })
                 .into();
+        
+        // if !self.show {
+        //     return Some(btn.map(move |message| Message::ColorPicker(self.id, message)));
+        // }
 
-        if !self.show {
-            return Some(btn.map(move |message| Message::ColorPicker(self.id, message)));
-        }
-
-        let color = if let Some(c) = 
+        let color: iced::Color = if let Some(c) = 
             Color::rgba_ipg_color_to_iced(self.color_rgba, &self.color, self.color_alpha) {
                 c
             } else {
                 [0.5, 0.2, 0.7, 1.0].into()
             };
 
-        let color_picker: Element<ColPikMessage> = iced_aw::ColorPicker::new(
-                                        self.show,
+        let color_picker: Element<ColPikMessage> = crate::iced_aw_widgets::color_picker::ColorPicker::new(
+                                        true,
                                         color,
                                         btn,
                                         ColPikMessage::OnCancel,

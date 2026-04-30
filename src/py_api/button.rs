@@ -154,102 +154,116 @@ pub fn add_button(
 /// """
 /// Adds styling to a button
 ///
-/// The style are keyed to a background, text, primary, and secondary colors
-/// Each color generates a weak, strong, etc. type
+/// The standard styles for the button are defined below which gives
+/// you the approach to developing your own styles, if wanted.
 /// 
-/// if you want to produce your own colors from a new background,
-/// then you will need to define the new background and text colors.
-/// Based on these, the color types will be generated for you 
-/// based on the widget status.
+/// if you want to produce your own styles from a new background,
+/// then you will need to define the new background and optionally 
+/// a text color.  The text color can be auto generated or defined.
 /// 
 /// You also have the ability to define all the colors individually or
 /// define an active color which replaces all the colors for that parameter.
 /// 
-/// Active: background: palette.background.weakest.color
-///         border: background.strong.color
+/// Below are the settings for the current styles.
 /// 
-/// pressed: same as Active except
-///          palette.background.strong.color
+/// Standard styles are:
+/// Background,
+/// Danger,
+/// Primary,
+/// Secondary,
+/// Subtle (unique settings),
+/// Success,
+/// Warning,
+/// Text,
+///
+/// Status    |  Standard Styles
+/// Active    |  base
+/// Hovered   |  strong
+/// Pressed   |  base
+/// Disabled  |  base => background scale_alpha(0.5)
+///
+/// Status    |  Text button
+/// Active    |  base
+/// Hovered   |  base text scale alpha(0.8)
+/// Pressed   |  base
+/// Disabled  |  base => background scale_alpha(0.5)
+///
+/// Status    |  Background Custom Colors
+/// Active    |  base
+/// Hovered   |  weak
+/// Pressed   |  strong
+/// Disabled  |  base => background scale_alpha(0.5)
+///
+/// Status    |  Standard Style Subtle (unique)
+/// Active    |  base
+/// Hovered   |  strong
+/// Pressed   |  base
+/// Disabled  |  base => background scale_alpha(0.5)
 /// 
-/// Hovered: same as Active except
-///          background: palette.background.weaker.color
-///          border: background.base.text
-/// 
-/// Disabled: same as primary except
-///           background: palette.background.weakest.color
-///                         with bkg_color_alpha = 0.5
-///           text: background.base.text with alpha=0.5
 /// Parameters
 /// ----------
-/// bkg_color: Color, Optional
-///     Sets the Color of the background.
-/// bkg_color: float, Optional
-///     Sets the alpha of the Color.
-/// bkg_color: list[float, 4], Optional
-///     Sets the Color of the background in rgba format.
-/// text_color: Color, Optional
-///     Sets the text color.
-/// text_color_alpha: float, Optional
-///     Sets the alpha of the Color.
-/// text_rgba: list[float], Optional
-///     Sets the color in rgba used as state above, 4 values.
-/// text_top_left : bool,  Optional
-///     Whether to Align the label to the top-left.
-/// text_top_center : bool,  Optional
-///     Whether to Align the label to the top-centre.
-/// text_top_right : bool,  Optional
-///     Whether to Align the label to the top-right.
-/// text_center_left : bool,  Optional
-///     Whether to Align the label to the centre-left.
-/// text_center : bool,  Optional
-///     Whether to Align the label to the centre (default True).
-/// text_center_right : bool,  Optional
-///     Whether to Align the label to the centre-right.
-/// text_bottom_left : bool,  Optional
-///     Whether to Align the label to the bottom-left.
-/// text_bottom_center : bool,  Optional
-///     Whether to Align the label to the bottom-centre.
-/// text_bottom_right : bool,  Optional
-///     Whether to Align the label to the bottom-right.
-/// text_size : float,  Optional
-///     Sets the Font size for the label text.
-/// gradient_color_stops: list[Color, 8], Optional
-///     Sets the stop Color of the background gradient.
-///     A total of 8 stops allowed counting the rgba also.
-/// gradient_color_alpha_stops: list[float], Optional
-///     Sets the alpha of the Color.
-/// gradient_rgba_stops: list[list[float, 4], 8], Optional
-///     Sets the stops rgba color of the background gradient.
-///     A total of 8 stops allowed counting the colors also.
-/// gradient_offset_stops: list[float], Optional
-///     The offsets for the gradient stops.
-/// gradient_degrees: float, Optional,
-///     Sets the gradient degrees
-/// gradient_radians: float, Optional,
-///     Sets the gradient radians
-/// border_color: Color, Optional
-///     Sets the Color used for the border.
-/// border_color_alpha: float, Optional
-///     Sets the alpha of the Color.
-/// border_rgba: list[float, 4], Optional
-///     Sets the Color of the border in rgba format.
-/// border_radius: list[float | float, 4], Optional
-///     Sets the radius of the border, [float]=all corners, 
-///     [float]=[top-left, top-right, bottom-right, bottom-left].
-/// border_width: float, Optional
-///     Sets the border width.
-/// shadow_color: Color, Optional
-///     Sets the color of the shadow.
-/// shadow_color_alpha: float, Optional
-///     Sets the alpha of the Color.
-/// shadow_rgba: list[float, 4], Optional
-///     Sets the color in rgba format.
-/// shadow_offset_xy: list[float, 2], Optional
-///     Sets the Shadow offset in the horizontal direction [x, y].
-/// shadow_blur_radius: float, Optional
-///     Sets the blur radius of the shadow.
-/// gen_id : int,  Optional
-///     Obtains an ID of a widget that have not been created, used for the gen_id parameter.
+/// **Color triplet** — Each color group accepts one of three formats:
+///   <name>_color: Color         — named Color enum value
+///   <name>_alpha: float         — alpha multiplier applied to _color (0.0–1.0)
+///   <name>_rgba: list[float, 4] — raw [r, g, b, a] (takes priority over color + alpha)
+///
+/// bkg (background):
+///   bkg_color, bkg_color_alpha, bkg_rgba
+///     Background color. Defaults to the primary theme color.
+///
+/// text (global — all statuses inherit from this unless per-status override is set):
+///   text_color, text_color_alpha, text_rgba
+///     Overall text color. Defaults to the text color paired with the background.
+///
+/// text per-status (overrides the global text color for that status only):
+///   active:   text_color_active,   text_color_alpha_active,   text_rgba_active
+///   hovered:  text_color_hovered,  text_color_alpha_hovered,  text_rgba_hovered
+///   pressed:  text_color_pressed,  text_color_alpha_pressed,  text_rgba_pressed
+///   disabled: text_color_disabled, text_color_alpha_disabled, text_rgba_disabled
+///
+/// border per-status (defaults to the background color for that status):
+///   active:   border_color_active,   border_color_alpha_active,   border_rgba_active
+///   hovered:  border_color_hovered,  border_color_alpha_hovered,  border_rgba_hovered
+///   pressed:  border_color_pressed,  border_color_alpha_pressed,  border_rgba_pressed
+///   disabled: border_color_disabled, border_color_alpha_disabled, border_rgba_disabled
+///
+/// gradient — applied to the background instead of a solid color:
+///   gradient_color_stops: list[Color, ≤8]
+///   gradient_color_alpha_stops: list[float]
+///   gradient_rgba_stops: list[list[float, 4], ≤8]
+///     Up to 8 stops total (color + rgba combined).
+///   gradient_offset_stops: list[float]
+///     Offset positions for each stop (0.0–1.0).
+///   gradient_degrees: float   — angle in degrees
+///   gradient_radians: float   — angle in radians (takes priority over degrees)
+///
+/// shadow:
+///   shadow_color, shadow_color_alpha, shadow_rgba
+///     Shadow color.
+///   shadow_offset_xy: list[float, 2]
+///     Shadow offset [x, y].
+///   shadow_blur_radius: float
+///     Shadow blur radius.
+///
+/// text alignment (default: center):
+///   text_top_left, text_top_center, text_top_right: bool
+///   text_center_left, text_center, text_center_right: bool
+///   text_bottom_left, text_bottom_center, text_bottom_right: bool
+///
+/// text_size: float — font size for the label
+///
+/// text wrapping (default: Word):
+///   wrapping_none: bool — no wrapping
+///   wrapping_glyph: bool — wrap at glyph boundary
+///   wrapping_word_glyph: bool — wrap at word, fall back to glyph
+///
+/// border_radius: list[float] — [all] or [top-left, top-right, bottom-right, bottom-left]
+/// border_width: float — border line width
+///
+/// snap: bool — snap rendering to pixel grid
+///
+/// gen_id: int, Optional
+///     Obtain an ID for a widget not yet created; use for the gen_id parameter.
 /// """
 #[pyfunction]
 #[pyo3(signature = (

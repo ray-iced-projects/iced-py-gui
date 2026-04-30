@@ -17,6 +17,7 @@ use crate::py_api::helpers::find_key_for_value;
 use crate::state::{Containers, WidgetNode, IpgState, Widgets, access_clipboard_actions, access_state, access_update_widgets, access_window_actions, clone_state_to_runtime, set_state_of_widget_running_state};
 use crate::widgets::callbacks::invoke_callback_with_args;
 use crate::widgets::ipg_button::{BtnMessage, button_callback};
+use crate::widgets::ipg_color_picker::{ColPikMessage, color_picker_callback};
 
 use crate::widgets::ipg_checkbox::{ChkMessage, checkbox_callback};
 
@@ -45,7 +46,7 @@ pub enum Message {
 //     Canvas(CanvasMessage),
     // Card(usize, CardMessage),
     CheckBox(usize, ChkMessage),
-    // ColorPicker(usize, ColPikMessage),
+    ColorPicker(usize, ColPikMessage),
     // DatePicker(usize, DPMessage),
     Divider(usize, DivMessage),
     EventKeyboard(Event),
@@ -165,12 +166,11 @@ impl App {
                 process_widget_updates(&mut self.state);
                 get_tasks(&mut self.state)
             },
-            // Message::ColorPicker(id, message ) => {
-            //     color_picker_callback(&mut self.state, id, message);
-            //     // process_updates(&mut self.state, &mut self.canvas_state);
-            //     process_widget_updates(&mut self.state);
-            //     Task::none()
-            // },
+            Message::ColorPicker(id, message) => {
+                color_picker_callback(&mut self.state, id, message);
+                process_widget_updates(&mut self.state);
+                Task::none()
+            },
             // Message::DatePicker(id, message) => {
             //     date_picker_update(&mut self.state, id, message);
             //     // process_updates(&mut self.state, &mut self.canvas_state);

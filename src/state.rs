@@ -14,6 +14,7 @@ use pyo3::{Py, PyAny};
 
 // use crate::widgets::ipg_card::{Card, CardStyle};
 use crate::widgets::ipg_checkbox::{CheckBox, CheckboxStyle};
+use crate::widgets::ipg_color_picker::ColorPicker;
 // use crate::widgets::ipg_color_picker::ColorPicker;
 use crate::widgets::ipg_column::Column;
 use crate::widgets::ipg_container::{Container, ContainerStyle};
@@ -88,7 +89,7 @@ pub enum Widgets {
     // CardStyle(CardStyle),
     CheckBox(CheckBox),
     CheckboxStyle(CheckboxStyle),
-    // ColorPicker(ColorPicker),
+    ColorPicker(ColorPicker),
     ContainerStyle(ContainerStyle),
     Divider(Divider),
     DividerStyle(DividerStyle),

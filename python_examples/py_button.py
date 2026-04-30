@@ -2,75 +2,12 @@
 """
 Button use demo
 
-By repeatedly pressing the button, the parameters and styles are cycled through
-
 Adds a button widget.
 A clickable button used for some gui action.
 
-Parameters
-----------
-parent_id : str, Optional
-    Sets the parent container ID that this button belongs to.
-label : str,  Optional
-    Sets the Text label displayed on the button.
-on_press : callable,  Optional
-    Sets the Callback method to invoke when the button is pressed.
-width : float,  Optional
-    Sets the Fixed Width in logical pixels.
-width_fill : bool, default False
-    Whether the button fills available width.
-height : float,  Optional
-    Sets the Fixed Height in logical pixels.
-height_fill : bool, default False
-    Whether the button fills available height.
-fill : bool, Optional
-    Whether the button fills available width and height.
-padding : list of float,  Optional
-    Sets the Padding as [all], [vertical, horizontal], or
-    [top, right, bottom, left].
-text_top_left : bool,  Optional
-    Whether to Align the label to the top-left.
-text_top_center : bool,  Optional
-    Whether to Align the label to the top-centre.
-text_top_right : bool,  Optional
-    Whether to Align the label to the top-right.
-text_center_left : bool,  Optional
-    Whether to Align the label to the centre-left.
-text_center : bool,  Optional
-    Whether to Align the label to the centre (default True).
-text_center_right : bool,  Optional
-    Whether to Align the label to the centre-right.
-text_bottom_left : bool,  Optional
-    Whether to Align the label to the bottom-left.
-text_bottom_center : bool,  Optional
-    Whether to Align the label to the bottom-centre.
-text_bottom_right : bool,  Optional
-    Whether to Align the label to the bottom-right.
-text_size : float,  Optional
-    Sets the Font size for the label text.
- if_menu_btn: bool, Optional
-     Whether the button is used in the menu widget, effects the alignment.
-clip : bool,  Optional
-    Whether to clip content that overflows the button.
-style_id : int,  Optional
-    Stes the ID of a custom style created with ``add_button_style``.
-style_std : ButtonStyleStd,  Optional
-    Sets the a predefined standard style variant.
-style_arrow : Arrow,  Optional
-    Sets an arrow icon style for the button.
-user_data : Any,  Optional
-    Sets an arbitrary data forwarded to callbacks.
-show : bool, default True
-    Whether the button is visible.
-gen_id : int,  Optional
-    Obtains an ID of a widget that have not been created, used for the gen_id parameter.
-Returns
--------
-int
-   The numeric widget ID of the newly created button.
 """
 
-from icedpygui import Window, Column, Container, Row, \
+from icedpygui import Window, Column, Container, Row, Scrollable,\
     add_button, add_button_style, add_text, add_space, \
     ButtonStyleStd, Color, start_session
 
@@ -81,6 +18,42 @@ state = {"txt_id": 0}
 # Note, unlike the parameter updating, the style resets all of the style parameters
 # back to there default values, so they are not additive like the params.
 # see how the alpha was used below, the bkg color needed to be added back in.
+
+# Standard styles are:
+# Background,
+# Danger,
+# Primary,
+# Secondary,
+# Subtle (unique settings),
+# Success,
+# Warning,
+# Text,
+
+# Status    |  Standard Styles
+# Active    |  base
+# Hovered   |  strong
+# Pressed   |  base
+# Disabled  |  base => background scale_alpha(0.5)
+
+# Status    |  Text button
+# Active    |  base
+# Hovered   |  base text scale alpha(0.8)
+# Pressed   |  base
+# Disabled  |  base => background scale_alpha(0.5)
+
+# Status    |  Background Custom Colors
+# Active    |  base
+# Hovered   |  weak
+# Pressed   |  strong
+# Disabled  |  base => background scale_alpha(0.5)
+
+# Status    |  Standard Style Subtle (unique)
+# Active    |  base
+# Hovered   |  strong
+# Pressed   |  base
+# Disabled  |  base => background scale_alpha(0.5)
+
+
 bkg_color = add_button_style(bkg_color=Color.RED)
 
 bkg_color_alpha = add_button_style(bkg_color=Color.RED, bkg_color_alpha=0.5)
@@ -119,7 +92,33 @@ text_color_style = add_button_style(bkg_color=Color.RED)
 text_color_alpha = add_button_style(text_color=Color.RED, text_color_alpha=0.5)
 text_rgba_style = add_button_style(text_rgba=[0.0, 0.6, 0.0, 1.0])
 
-CONTENT_STATUS="You can lock your button into a status,\n\
+# Scenario 1: global text_color only — all statuses should show BLUE text
+style_global_text = add_button_style(bkg_color=Color.RED, text_color=Color.BLUE)
+
+# Scenario 2: text_color_active only — active, hovered, pressed, disabled all fall back to GREEN
+style_active_base = add_button_style(bkg_color=Color.RED, text_color_active=Color.GREEN)
+
+# Scenario 3: text_color_active (YELLOW) + selective overrides: hovered=BLUE, disabled=DARK_GRAY
+style_partial = add_button_style(
+    bkg_color=Color.RED,
+    text_color_active=Color.YELLOW,
+    text_color_hovered=Color.BLUE,
+    text_color_disabled=Color.DARK_GRAY,
+)
+
+# Scenario 4: global text_color (WHITE) + text_color_active (BLUE) overrides all statuses
+style_global_and_active = add_button_style(
+    bkg_color=Color.RED,
+    text_color=Color.WHITE,
+    text_color_active=Color.BLUE,
+)
+
+# Scenario 5: only text_color_pressed=YELLOW set —
+# pressed should be YELLOW, others use theme default
+style_pressed_only = add_button_style(bkg_color=Color.RED, text_color_pressed=Color.YELLOW)
+
+
+CONTENT_STATUS="You can lock your button into a status state,\n\
 if you want custom colors, then use the statuses to see the differences.\n\
 See the color_custom for more details."
 
@@ -148,25 +147,87 @@ with Window(title="Button Parameters",
                 add_text(content="Some Styling", width=400, align_center=True)
                 with Row(spacing=10):
                     with Column(spacing=10):
+                        add_text(content="Some Standard styling")
                         add_button(label="Bkg Color std=Subtle", width=200,
                                     style_std=ButtonStyleStd.Subtle)
                         add_button(label="Bkg Color std=Danger", width=200,
                                     style_std=ButtonStyleStd.Danger)
                         add_button(label="Bkg Color std=Text", width=200,
                                     style_std=ButtonStyleStd.Text)
-                    with Column(spacing=10):
-                        add_text(content=CONTENT_STATUS)
-                        add_button(label="status=Active", status_active=True,
-                                   style_id=bkg_color)
-                        add_button(label="status=Hovered", status_hovered=True,
-                                   style_id=bkg_color)
-                        add_button(label="status=Pressed", status_pressed=True,
-                                   style_id=bkg_color)
-                        add_button(label="status=Disabled", status_disabled=True,
-                                   style_id=bkg_color)
-
-                        add_space(height=30)
-
+                        add_text(content="Border styling")
                         add_button(label="Some Border Styling", padding=[5], style_id=border)
+
+                    with Scrollable():
+                        with Column(spacing=10):
+                            add_text(content=CONTENT_STATUS)
+                            add_button(label="status=Active", status_active=True,
+                                    style_id=bkg_color)
+                            add_button(label="status=Hovered", status_hovered=True,
+                                    style_id=bkg_color)
+                            add_button(label="status=Pressed", status_pressed=True,
+                                    style_id=bkg_color)
+                            add_button(label="status=Disabled", status_disabled=True,
+                                    style_id=bkg_color)
+
+                            add_space(height=30)
+
+                            # Scenario 1: global text_color=BLUE — all four statuses should show blue text
+                            add_text(content="Scenario 1: global text_color=BLUE (all statuses)")
+                            add_button(label="Active — expect BLUE text",
+                                    status_active=True, style_id=style_global_text)
+                            add_button(label="Hovered — expect BLUE text",
+                                    status_hovered=True, style_id=style_global_text)
+                            add_button(label="Pressed — expect BLUE text",
+                                    status_pressed=True, style_id=style_global_text)
+                            add_button(label="Disabled — expect BLUE text",
+                                    status_disabled=True, style_id=style_global_text)
+
+                            # Scenario 2: text_color_active=GREEN only — all statuses fall back to GREEN
+                            add_text(content="Scenario 2: text_color_active=GREEN (all statuses fall back)")
+                            add_button(label="Active — expect GREEN text",
+                                    status_active=True, style_id=style_active_base)
+                            add_button(label="Hovered — expect GREEN text",
+                                    status_hovered=True, style_id=style_active_base)
+                            add_button(label="Pressed — expect GREEN text",
+                                    status_pressed=True, style_id=style_active_base)
+                            add_button(label="Disabled — expect GREEN text",
+                                    status_disabled=True, style_id=style_active_base)
+
+                            # Scenario 3: active=YELLOW, hovered=BLUE, disabled=DARK_GRAY,
+                            # pressed falls back to YELLOW
+                            add_text(content="Scenario 3: active=YELLOW, hovered=BLUE, disabled=DARK_GRAY")
+                            add_button(label="Active — expect YELLOW text",
+                                    status_active=True, style_id=style_partial)
+                            add_button(label="Hovered — expect BLUE text",
+                                    status_hovered=True, style_id=style_partial)
+                            add_button(label="Pressed — expect YELLOW text",
+                                    status_pressed=True, style_id=style_partial)
+                            add_button(label="Disabled — expect DARK_GRAY text",
+                                    status_disabled=True, style_id=style_partial)
+
+                            # Scenario 4: global text_color=WHITE,
+                            # text_color_active=BLUE — active overrides global
+                            add_text(content="Scenario 4: global=WHITE but \
+text_color_active=BLUE overrides")
+                            add_button(label="Active — expect BLUE text",
+                                    status_active=True, style_id=style_global_and_active)
+                            add_button(label="Hovered — expect BLUE text",
+                                    status_hovered=True, style_id=style_global_and_active)
+                            add_button(label="Pressed — expect BLUE text",
+                                    status_pressed=True, style_id=style_global_and_active)
+                            add_button(label="Disabled — expect BLUE text",
+                                    status_disabled=True, style_id=style_global_and_active)
+
+                            # Scenario 5: only pressed=YELLOW — active/hovered/disabled use theme default
+                            add_text(content="Scenario 5: only text_color_pressed=YELLOW")
+                            add_button(label="Active — expect theme default text",
+                                    status_active=True, style_id=style_pressed_only)
+                            add_button(label="Hovered — expect theme default text",
+                                    status_hovered=True, style_id=style_pressed_only)
+                            add_button(label="Pressed — expect YELLOW text",
+                                    status_pressed=True, style_id=style_pressed_only)
+                            add_button(label="Disabled — expect theme default text",
+                                    status_disabled=True, style_id=style_pressed_only)
+
 
 start_session()

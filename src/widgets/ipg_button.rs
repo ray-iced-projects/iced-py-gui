@@ -299,7 +299,7 @@ pub struct ButtonStyle {
 }
 
 #[derive(Debug, Default)]
-struct BtnStatus {
+pub struct BtnStatus {
     active: Option<bool>,
     hovered: Option<bool>,
     pressed: Option<bool>,
@@ -320,6 +320,40 @@ impl BtnStatus {
         } else { None }
     }
 }
+
+// Standard styles are:
+// Background,
+// Danger,
+// Primary,
+// Secondary,
+// Subtle (unique settings),
+// Success,
+// Warning,
+// Text,
+//
+// Status    |  Standard Styles
+// Active    |  base
+// Hovered   |  strong
+// Pressed   |  base
+// Disabled  |  base => background scale_alpha(0.5)
+//
+// Status    |  Text button
+// Active    |  base
+// Hovered   |  base text scale alpha(0.8)
+// Pressed   |  base
+// Disabled  |  base => background scale_alpha(0.5)
+//
+// Status    |  Background Custom Colors
+// Active    |  base
+// Hovered   |  weak
+// Pressed   |  strong
+// Disabled  |  base => background scale_alpha(0.5)
+//
+// Status    |  Standard Style Subtle (unique)
+// Active    |  base
+// Hovered   |  strong
+// Pressed   |  base
+// Disabled  |  base => background scale_alpha(0.5)
 
 impl ButtonStyle {
     /// Apply user-defined style overrides to an existing iced button::Style

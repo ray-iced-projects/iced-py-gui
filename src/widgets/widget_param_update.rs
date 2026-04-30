@@ -56,7 +56,7 @@ pub fn param_update(
         // Widgets::CardStyle(w) => apply_update(w, item, value),
         Widgets::CheckBox(w) => apply_update(w, item, value),
         Widgets::CheckboxStyle(w) => apply_update(w, item, value),
-        // Widgets::ColorPicker(w) => apply_update(w, item, value),
+        Widgets::ColorPicker(w) => apply_update(w, item, value),
         Widgets::ContainerStyle(w) => apply_update(w, item, value),
         // Widgets::DatePicker(w) => apply_update(w, item, value),
         Widgets::Divider(w) => apply_update(w, item, value),

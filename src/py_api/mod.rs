@@ -10,7 +10,7 @@ pub mod checkbox;
 pub mod colors;
 pub mod column;
 pub mod container;
-// pub mod color_picker;
+pub mod color_picker;
 // pub mod date_picker;
 pub mod divider;
 pub mod events;

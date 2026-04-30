@@ -17,7 +17,7 @@ from .icedpygui import (
     # add_card as _add_card,
     add_checkbox_style,
     add_checkbox as _add_checkbox,
-    # add_color_picker as _add_color_picker,
+    add_color_picker as _add_color_picker,
     add_column as _add_column,
     add_container as _add_container,
     add_container_style,
@@ -235,8 +235,8 @@ add_button.__doc__ = _add_button.__doc__
 # add_card.__doc__ = _add_card.__doc__
 add_checkbox = _wrap_widget(_add_checkbox, "add_checkbox")
 add_checkbox.__doc__ = _add_checkbox.__doc__
-# add_color_picker = _wrap_widget(_add_color_picker, "add_color_picker")
-# add_color_picker.__doc__ = _add_color_picker.__doc__
+add_color_picker = _wrap_widget(_add_color_picker, "add_color_picker")
+add_color_picker.__doc__ = _add_color_picker.__doc__
 # add_date_picker = _wrap_widget(_add_date_picker, "add_date_picker")
 # add_date_picker.__doc__ = _add_date_picker.__doc__
 add_divider = _wrap_widget(_add_divider, "add_divider")

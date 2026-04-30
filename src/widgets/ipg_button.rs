@@ -371,19 +371,13 @@ impl ButtonStyle {
                 Some(linear)
             } else { None };
 
-        // Check to see if individual colors are defined.
-        let text_default = if idx == 3 { txt_color.scale_alpha(0.5) } else { txt_color };
-        let text_color =
-            if text_color.is_none() {
-                ColorStatus {
-                    active:   Color::rgba_ipg_color_to_iced(self.text_rgba_active,   &self.text_color_active,   self.text_color_alpha_active),
-                    hovered:  Color::rgba_ipg_color_to_iced(self.text_rgba_hovered,  &self.text_color_hovered,  self.text_color_alpha_hovered),
-                    pressed:  Color::rgba_ipg_color_to_iced(self.text_rgba_pressed,  &self.text_color_pressed,  self.text_color_alpha_pressed),
-                    disabled: Color::rgba_ipg_color_to_iced(self.text_rgba_disabled, &self.text_color_disabled, self.text_color_alpha_disabled),
-                }.pick(idx, text_default)
-            } else {
-                text_default
-            };
+        // Use per-status color if set, otherwise fall back to txt_color unchanged.
+        let text_color = ColorStatus {
+            active:   Color::rgba_ipg_color_to_iced(self.text_rgba_active,   &self.text_color_active,   self.text_color_alpha_active),
+            hovered:  Color::rgba_ipg_color_to_iced(self.text_rgba_hovered,  &self.text_color_hovered,  self.text_color_alpha_hovered),
+            pressed:  Color::rgba_ipg_color_to_iced(self.text_rgba_pressed,  &self.text_color_pressed,  self.text_color_alpha_pressed),
+            disabled: Color::rgba_ipg_color_to_iced(self.text_rgba_disabled, &self.text_color_disabled, self.text_color_alpha_disabled),
+        }.pick(idx, txt_color);
 
         // Border color: use per-status override, fall back to matching palette color
         let bc_color = ColorStatus {

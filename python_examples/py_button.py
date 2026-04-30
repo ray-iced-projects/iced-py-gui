@@ -92,7 +92,7 @@ bkg_gradient = add_button_style(
 
 
 border = add_button_style(
-            border_color=Color.BLUE,
+            border_color_active=Color.BLUE,
             border_radius=[20.0],
             border_width=2.0)
 

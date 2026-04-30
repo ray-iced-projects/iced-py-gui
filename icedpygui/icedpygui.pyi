@@ -41,27 +41,79 @@ class ButtonStyleStd:
 
 
 def add_button_style(
-        background_color: Color | None = None,
-        background_color_alpha: float | None = None,
-        background_rgba: list[float, 4] | None = None,
-        background_gradient_color_stop: Color | None = None,
-        background_gradient_color_stop_alpha: float | None = None,
-        background_gradient_rgba_stop: float | None = None,
-        background_gradient_degrees: float | None = None,
-        background_gradient_radians: float | None = None,
-        border_color: Color | None = None,
-        border_color_alpha: float | None = None,
-        border_rgba: list[float, 4] | None = None,
-        border_radius: list[float | float, 4] | None = None,
-        border_width: float | None = None,
-        shadow_color: Color | None = None,
-        shadow_color_alpha: float | None = None,
-        shadow_rgba: list | None = None,
-        shadow_offset_xy: list[float, 2] | None = None,
-        shadow_blur_radius: float | None = None,
+        bkg_color: Color | None = None,
+        bkg_color_alpha: float | None = None,
+        bkg_rgba: list[float, 4] | None = None,
+
         text_color: Color | None = None,
         text_color_alpha: float | None = None,
-        text_rgba: list[float, 4] | None = None
+        text_rgba: list[float, 4] | None = None,
+
+        text_top_left: bool | None = None,
+        text_top_center: bool | None = None,
+        text_top_right: bool | None = None,
+        text_center_left: bool | None = None,
+        text_center: bool | None = None,
+        text_center_right: bool | None = None,
+        text_bottom_left: bool | None = None,
+        text_bottom_center: bool | None = None,
+        text_bottom_right: bool | None = None,
+        text_size: float | None = None,
+
+        wrapping_none: bool | None = None,
+        wrapping_glyph: bool | None = None,
+        wrapping_word_glyph: bool | None = None,
+
+        text_color_active: Color | None = None,
+        text_color_alpha_active: float | None = None,
+        text_rgba_active: list[float, 4] | None = None,
+
+        text_color_hovered: Color | None = None,
+        text_color_alpha_hovered: float | None = None,
+        text_rgba_hovered: list[float, 4] | None = None,
+
+        text_color_pressed: Color | None = None,
+        text_color_alpha_pressed: float | None = None,
+        text_rgba_pressed: list[float, 4] | None = None,
+
+        text_color_disabled: Color | None = None,
+        text_color_alpha_disabled: float | None = None,
+        text_rgba_disabled: list[float, 4] | None = None,
+
+        gradient_color_stops: list[Color] | None = None,
+        gradient_color_alpha_stops: list[float] | None = None,
+        gradient_rgba_stops: list[float, 4] | None = None,
+        gradient_offset_stops: list[float] | None = None,
+        gradient_degrees: float | None = None,
+        gradient_radians: float | None = None,
+
+        border_color_active: Color | None = None,
+        border_color_alpha_active: float | None = None,
+        border_rgba_active: list[float, 4] | None = None,
+
+        border_color_hovered: Color | None = None,
+        border_color_alpha_hovered: float | None = None,
+        border_rgba_hovered: list[float, 4] | None = None,
+
+        border_color_pressed: Color | None = None,
+        border_color_alpha_pressed: float | None = None,
+        border_rgba_pressed: list[float, 4] | None = None,
+
+        border_color_disabled: Color | None = None,
+        border_color_alpha_disabled: float | None = None,
+        border_rgba_disabled: list[float, 4] | None = None,
+
+        border_radius: list[float] | list[float, 4] | None = None,
+        border_width: float | None = None,
+
+        shadow_color: Color | None = None,
+        shadow_color_alpha: float | None = None,
+        shadow_rgba: list[float, 4] | None = None,
+        shadow_offset_xy: list[float, 2] | None = None,
+        shadow_blur_radius: float | None = None,
+
+        snap: bool | None = None,
+        gen_id: int | None = None,
     ) -> int:
     """Adds styling to a button
 
@@ -83,13 +135,13 @@ def add_button_style(
     >>>       add_button, add_button_style, Color, start_session
     >>>
     >>> style = add_button_style(
-    >>>             background_color=Color.LIGHT_BLUE,
+    >>>             bkg_color=Color.LIGHT_BLUE,
     >>>             border_color=Color.ALICE_BLUE,
     >>>             border_width=2.0,
     >>>             border_radius=[5.0])
     >>>
     >>> with Window(title="Button Styling", center=True):
-    >>>     with Container(align_center=True, width_fill=True, height_fill=True):
+    >>>     with Container(align_center=True, fill=True):
     >>>         with Column(spacing=20.0):
     >>>             add_button(
     >>>                 label="Border Color and Width",

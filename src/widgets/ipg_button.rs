@@ -7,13 +7,13 @@ use crate::graphics::colors::Color;
 use crate::state::Widgets;
 use crate::widgets::callbacks::invoke_callback;
 use crate::py_api::helpers::{get_len, get_padding, get_radius};
+use crate::style::styling::{ColorStatus, palette_pick};
 use crate::widgets::widget_param_update::{
     WidgetParamUpdate, set_t_value
 };
 
 use iced::widget::text::Wrapping;
 use iced::{Border, Shadow, Vector, alignment, gradient};
-use iced::border::Radius;
 use iced::widget::{button, text};
 use iced::{Element, Theme};
 use iced::theme::palette;
@@ -175,7 +175,7 @@ impl Button {
             };
 
         let override_st = btn_statuses.to_iced();
-        
+
         let btn = 
             button(txt)
                 .padding(get_padding(&self.padding))
@@ -183,16 +183,13 @@ impl Button {
                 .width(get_len(self.fill, self.width_fill, self.width))
                 .height(get_len(self.fill, self.height_fill, self.height))
                 .style(move |theme: &Theme, status| {
+                    let status = override_st.unwrap_or(status);
                     if let Some(st) = &style_opt {
-                        let status = if let Some(st) = override_st {
-                            st } else { status };
                         st.to_iced(theme, status)
                     } else {
                         match &self.style_std {
                             Some(std) => std.to_iced(theme, status),
-                            None => {
-                                button::primary(theme, status)
-                            },
+                            None => button::primary(theme, status),
                         }
                     }
                 }).into();
@@ -218,10 +215,10 @@ pub fn button_callback(id: usize, message: BtnMessage) {
 #[derive(Debug, Clone, Default)]
 pub struct ButtonStyle {
     pub id: usize,
-    pub background_color: Option<Color>,
-    pub background_color_alpha: Option<f32>,
-    pub background_rgba: Option<[f32; 4]>,
-
+    pub bkg_color: Option<Color>,
+    pub bkg_color_alpha: Option<f32>,
+    pub bkg_rgba: Option<[f32; 4]>,
+    // When text color used, all status calculated
     pub text_color: Option<Color>,
     pub text_color_alpha: Option<f32>,
     pub text_rgba: Option<[f32; 4]>,
@@ -241,6 +238,7 @@ pub struct ButtonStyle {
     pub wrapping_glyph: Option<bool>,
     pub wrapping_word_glyph: Option<bool>,
 
+    // When a status is used, these override text_color
     pub text_color_active: Option<Color>,
     pub text_color_alpha_active: Option<f32>,
     pub text_rgba_active: Option<[f32; 4]>,
@@ -318,213 +316,116 @@ impl BtnStatus {
 impl ButtonStyle {
     /// Apply user-defined style overrides to an existing iced button::Style
     pub fn to_iced(
-        &self, 
-        theme: &Theme, 
+        &self,
+        theme: &Theme,
         status: button::Status,
-        ) -> button::Style {
+    ) -> button::Style {
 
-        // custom style requires bkg_color, text_color, and primary_color
-        let background_color = 
-            Color::rgba_ipg_color_to_iced(self.background_rgba, &self.background_color, self.background_color_alpha);
-        
-        let text_color = 
+        // Convert status to index once: 0=Active, 1=Hovered, 2=Pressed, 3=Disabled
+        let idx = match status {
+            button::Status::Active   => 0,
+            button::Status::Hovered  => 1,
+            button::Status::Pressed  => 2,
+            button::Status::Disabled => 3,
+        };
+
+        let background_color =
+            Color::rgba_ipg_color_to_iced(self.bkg_rgba, &self.bkg_color, self.bkg_color_alpha);
+
+        let text_color =
             Color::rgba_ipg_color_to_iced(self.text_rgba, &self.text_color, self.text_color_alpha);
-        
-        let text_color_active = 
-            Color::rgba_ipg_color_to_iced(self.text_rgba_active, &self.text_color_active, self.text_color_alpha_active);
-        let text_color_hovered = 
-            Color::rgba_ipg_color_to_iced(self.text_rgba_hovered, &self.text_color_hovered, self.text_color_alpha_hovered);
-        let text_color_pressed = 
-            Color::rgba_ipg_color_to_iced(self.text_rgba_pressed, &self.text_color_pressed, self.text_color_alpha_pressed);
-        let text_color_disabled = 
-            Color::rgba_ipg_color_to_iced(self.text_rgba_disabled, &self.text_color_disabled, self.text_color_alpha_disabled);
 
-        let bkg_grad_color_stops = 
+        let bkg_grad_color_stops =
             Color::gradient_stops_to_iced(&self.gradient_rgba_stops, &self.gradient_color_stops, &self.gradient_color_alpha_stops, self.gradient_offset_stops.clone());
 
-        let grad_radians = if let Some(rad) = self.gradient_radians {
-                rad
-            } else if let Some(deg) = self.gradient_degrees {
-                deg.to_radians()
-            } else { 0.0 };
-        
-        let border_color_active = 
-            Color::rgba_ipg_color_to_iced(self.border_rgba_active, &self.border_color_active, self.border_color_alpha_active);
-        let border_color_hovered = 
-            Color::rgba_ipg_color_to_iced(self.border_rgba_hovered, &self.border_color_hovered, self.border_color_alpha_hovered);
-        let border_color_pressed = 
-            Color::rgba_ipg_color_to_iced(self.border_rgba_pressed, &self.border_color_pressed, self.border_color_alpha_pressed);
-        let border_color_disabled = 
-            Color::rgba_ipg_color_to_iced(self.border_rgba_disabled, &self.border_color_disabled, self.border_color_alpha_disabled);
-    
+        let grad_radians = self.gradient_radians
+            .or_else(|| self.gradient_degrees.map(f32::to_radians))
+            .unwrap_or(0.0);
+
         let shd_color =
             Color::rgba_ipg_color_to_iced(self.shadow_rgba, &self.shadow_color, self.shadow_color_alpha);
-        
-        // One can use the theme text color but the background 
-        // is needed together to produce the correct colors
-        let txt_color = if let Some(c) = text_color {
-            c
-        } else { theme.palette().background.base.text};
 
-        let bkg = if let Some(bkg) = background_color {
-            palette::Background::new(bkg, txt_color)
-        } else { palette::Background::new(theme.palette().background.base.color, txt_color) };
+        // One can use the theme text color but the background
+        // is needed together to produce the correct colors.
+        // When no background is supplied we default to primary, so pair
+        // txt_color with the primary palette text rather than window background text.
+        let primary_text = theme.palette().primary.base.text;
+        let txt_color = text_color.unwrap_or(
+            if background_color.is_none() { primary_text }
+            else { theme.palette().background.base.text }
+        );
 
+        let bkg = background_color
+            .map(|c| palette::Background::new(c, txt_color))
+            .unwrap_or_else(|| palette::Background::new(theme.seed().primary, txt_color));
 
-        let bkg_color = 
-            match status {
-                button::Status::Active => bkg.base.color,
-                button::Status::Hovered => bkg.weaker.color,
-                button::Status::Pressed => bkg.strong.color,
-                button::Status::Disabled => bkg.base.color.scale_alpha(0.5),
-            };
+        let bkg_color = palette_pick(&bkg, idx);
 
-        let linear = 
+        let linear =
             if let Some(stops) = bkg_grad_color_stops {
                 let mut linear = gradient::Linear::new(grad_radians);
                 for stop in stops.iter() {
-                    let bkg = palette::Background::new(stop.color, txt_color);
-                    linear = match status {
-                        button::Status::Active =>  linear.add_stop(stop.offset, bkg.base.color),
-                        button::Status::Hovered => linear.add_stop(stop.offset, bkg.weak.color),
-                        button::Status::Pressed => linear.add_stop(stop.offset, bkg.strong.color),
-                        button::Status::Disabled => linear.add_stop(stop.offset, bkg.base.color.scale_alpha(0.5)),
-                    };
+                    let sg = palette::Background::new(stop.color, txt_color);
+                    linear = linear.add_stop(stop.offset, palette_pick(&sg, idx));
                 }
                 Some(linear)
             } else { None };
 
         // Check to see if individual colors are defined.
-        let text_color = 
+        let text_default = if idx == 3 { txt_color.scale_alpha(0.5) } else { txt_color };
+        let text_color =
             if text_color.is_none() {
-                match status {
-                    button::Status::Active => text_color_active.unwrap_or(txt_color),
-                    button::Status::Hovered => text_color_hovered.unwrap_or(txt_color),
-                    button::Status::Pressed => text_color_pressed.unwrap_or(txt_color),
-                    button::Status::Disabled => text_color_disabled.unwrap_or(txt_color.scale_alpha(0.5)),
-                }
+                ColorStatus {
+                    active:   Color::rgba_ipg_color_to_iced(self.text_rgba_active,   &self.text_color_active,   self.text_color_alpha_active),
+                    hovered:  Color::rgba_ipg_color_to_iced(self.text_rgba_hovered,  &self.text_color_hovered,  self.text_color_alpha_hovered),
+                    pressed:  Color::rgba_ipg_color_to_iced(self.text_rgba_pressed,  &self.text_color_pressed,  self.text_color_alpha_pressed),
+                    disabled: Color::rgba_ipg_color_to_iced(self.text_rgba_disabled, &self.text_color_disabled, self.text_color_alpha_disabled),
+                }.pick(idx, text_default)
             } else {
-                if status == button::Status::Disabled {
-                    txt_color.scale_alpha(0.5)
-                } else {
-                    txt_color
-                }
+                text_default
             };
 
+        // Border color: use per-status override, fall back to matching palette color
+        let bc_color = ColorStatus {
+            active:   Color::rgba_ipg_color_to_iced(self.border_rgba_active,   &self.border_color_active,   self.border_color_alpha_active),
+            hovered:  Color::rgba_ipg_color_to_iced(self.border_rgba_hovered,  &self.border_color_hovered,  self.border_color_alpha_hovered),
+            pressed:  Color::rgba_ipg_color_to_iced(self.border_rgba_pressed,  &self.border_color_pressed,  self.border_color_alpha_pressed),
+            disabled: Color::rgba_ipg_color_to_iced(self.border_rgba_disabled, &self.border_color_disabled, self.border_color_alpha_disabled),
+        }.pick(idx, bkg_color);
 
-        // border color
-        let bc_color = 
-            match status {
-                button::Status::Active => {
-                    if let Some(bc) = border_color_active {
-                        bc
-                    } else { bkg.base.color }
-                },
-                button::Status::Hovered => {
-                    if let Some(bc) = border_color_hovered {
-                        bc
-                    } else { bkg.weaker.color }
-                },
-                button::Status::Pressed => {
-                    if let Some(bc) = border_color_pressed {
-                        bc
-                    } else { bkg.strong.color }
-                },
-                button::Status::Disabled => {
-                    if let Some(bc) = border_color_disabled {
-                        bc
-                    } else { bkg.base.color.scale_alpha(0.5) }
-                },
-            };
-
-        let shadow = 
+        let shadow =
             if shd_color.is_some() && self.shadow_blur_radius.is_some() {
-                let c = palette::Background::new(shd_color.unwrap(), txt_color);
-                
-                let offset = if let Some(of) = self.shadow_offset_xy {
-                    Vector{ x: of[0], y: of[1] }
-                } else {Vector::default()};
-
-                let blur_radius = if let Some(br) = self.shadow_blur_radius {
-                    br
-                } else { 0.0 };
-                let color = match status {
-                    button::Status::Active => c.base.color,
-                    button::Status::Hovered => c.weaker.color,
-                    button::Status::Pressed => c.strong.color,
-                    button::Status::Disabled => c.base.color.scale_alpha(0.5),
-                };
-
+                let sg = palette::Background::new(shd_color.unwrap(), txt_color);
+                let offset = self.shadow_offset_xy
+                    .map(|of| Vector { x: of[0], y: of[1] })
+                    .unwrap_or_default();
                 Shadow {
-                    color,
+                    color: palette_pick(&sg, idx),
                     offset,
-                    blur_radius,
+                    blur_radius: self.shadow_blur_radius.unwrap_or(0.0),
                 }
-                    
             } else { Shadow::default() };
 
-        let radius = if let Some(rd) = &self.border_radius{
-            get_radius(&rd, "button".to_string())
-        } else { Radius::default() };
+        let radius = self.border_radius.as_ref()
+            .map(|rd| get_radius(rd, "button".to_string()))
+            .unwrap_or_default();
 
-        let width = if let Some(w) = self.border_width {
-            w
-        } else { 0.0 };
+        let width = self.border_width.unwrap_or(0.0);
+        let snap  = self.snap.unwrap_or(false);
 
-        let snap = if let Some(sn) = self.snap {
-            sn
-        } else { false };
-
-        
         let background = if let Some(lin) = linear {
             Some(iced::Background::Gradient(lin.into()))
         } else {
             Some(bkg_color.into())
         };
 
-        match status {
-            button::Status::Active => button::Style { 
-                background, 
-                text_color, 
-                border: Border {
-                    color: bc_color,
-                    width,
-                    radius,
-                }, 
-                shadow, 
-                snap },
-            button::Status::Hovered => button::Style { 
-                background, 
-                text_color, 
-                border: Border {
-                    color: bc_color,
-                    width,
-                    radius,
-                }, 
-                shadow,
-                snap },
-            button::Status::Pressed => button::Style { 
-                background, 
-                text_color,
-                border: Border {
-                    color: bc_color,
-                    width,
-                    radius,
-                }, 
-                shadow,  
-                snap },
-            button::Status::Disabled => button::Style { 
-                background, 
-                text_color, 
-                border: Border {
-                    color: bc_color,
-                    width,
-                    radius,
-                }, 
-                shadow, 
-                snap },
+        button::Style {
+            background,
+            text_color,
+            border: Border { color: bc_color, width, radius },
+            shadow,
+            snap,
         }
-
     }
 
 }
@@ -713,9 +614,9 @@ impl WidgetParamUpdate for ButtonStyle {
     
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
-            ButtonStyleParam::BackgroundColor => set_t_value(&mut self.background_color, value, "ButtonStyleParam::BackgroundColor"),
-            ButtonStyleParam::BackgroundColorAlpha => set_t_value(&mut self.background_color_alpha, value, "ButtonStyleParam::BackgroundColorAlpha"),
-            ButtonStyleParam::BackgroundRgba => set_t_value(&mut self.background_rgba, value, "ButtonStyleParam::BackgroundRgba"),
+            ButtonStyleParam::BackgroundColor => set_t_value(&mut self.bkg_color, value, "ButtonStyleParam::BackgroundColor"),
+            ButtonStyleParam::BackgroundColorAlpha => set_t_value(&mut self.bkg_color_alpha, value, "ButtonStyleParam::BackgroundColorAlpha"),
+            ButtonStyleParam::BackgroundRgba => set_t_value(&mut self.bkg_rgba, value, "ButtonStyleParam::BackgroundRgba"),
             ButtonStyleParam::TextColor => set_t_value(&mut self.text_color, value, "ButtonStyleParam::TextColor"),
             ButtonStyleParam::TextColorAlpha => set_t_value(&mut self.text_color_alpha, value, "ButtonStyleParam::TextColorAlpha"),
             ButtonStyleParam::TextRgba => set_t_value(&mut self.text_rgba, value, "ButtonStyleParam::TextRgba"),

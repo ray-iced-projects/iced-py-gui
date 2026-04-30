@@ -181,11 +181,11 @@ pub fn add_button(
 ///           text: background.base.text with alpha=0.5
 /// Parameters
 /// ----------
-/// background_color: Color, Optional
+/// bkg_color: Color, Optional
 ///     Sets the Color of the background.
-/// background_color_alpha: float, Optional
+/// bkg_color: float, Optional
 ///     Sets the alpha of the Color.
-/// background_rgba: list[float, 4], Optional
+/// bkg_color: list[float, 4], Optional
 ///     Sets the Color of the background in rgba format.
 /// text_color: Color, Optional
 ///     Sets the text color.
@@ -253,9 +253,9 @@ pub fn add_button(
 /// """
 #[pyfunction]
 #[pyo3(signature = (
-        background_color = None,
-        background_color_alpha = None,
-        background_rgba = None,
+        bkg_color = None,
+        bkg_color_alpha = None,
+        bkg_rgba = None,
 
         text_color = None,
         text_color_alpha = None,
@@ -328,9 +328,9 @@ pub fn add_button(
         gen_id=None
         ))]
 pub fn add_button_style(
-    background_color: Option<Color>,
-    background_color_alpha: Option<f32>,
-    background_rgba: Option<[f32; 4]>,
+    bkg_color: Option<Color>,
+    bkg_color_alpha: Option<f32>,
+    bkg_rgba: Option<[f32; 4]>,
 
     text_color: Option<Color>,
     text_color_alpha: Option<f32>,
@@ -410,9 +410,9 @@ pub fn add_button_style(
     state.widgets.insert(id, Widgets::ButtonStyle(
         ButtonStyle {
             id,
-            background_color,
-            background_color_alpha,
-            background_rgba,
+            bkg_color,
+            bkg_color_alpha,
+            bkg_rgba,
 
             text_color,
             text_color_alpha,

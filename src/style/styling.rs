@@ -1,8 +1,5 @@
 //! styling
-use iced::Color;
-// use palette::{FromColor, Hsl};
-use palette::rgb::Rgb;
-use palette::color_difference::Wcag21RelativeContrast;
+#![allow(dead_code)]
 use pyo3::pyclass;
 
 
@@ -57,31 +54,38 @@ pub enum IpgStyleStandard {
 //     Rgb::from_color(hsl).into()
 // }
 
-pub fn readable(background: Color, text: Color) -> Color {
-    if is_readable(background, text) {
-        text
-    } else {
-        let white_contrast = relative_contrast(background, Color::WHITE);
-        let black_contrast = relative_contrast(background, Color::BLACK);
+// pub fn readable(background: Color, text: Color) -> Color { ... }
+// pub fn is_readable(...) — commented out: palette::Rgb::from(iced::Color) not available
+// pub fn relative_contrast(...) — see above
 
-        if white_contrast >= black_contrast {
-            Color::WHITE
-        } else {
-            Color::BLACK
+/// Per-status optional color overrides.
+/// idx: 0 = Active, 1 = Hovered, 2 = Pressed/Focused, 3 = Disabled
+pub struct ColorStatus {
+    pub active: Option<iced::Color>,
+    pub hovered: Option<iced::Color>,
+    pub pressed: Option<iced::Color>,
+    pub disabled: Option<iced::Color>,
+}
+
+impl ColorStatus {
+    /// Return the override for `idx`, or `default` if none is set.
+    pub fn pick(&self, idx: usize, default: iced::Color) -> iced::Color {
+        match idx {
+            0 => self.active.unwrap_or(default),
+            1 => self.hovered.unwrap_or(default),
+            2 => self.pressed.unwrap_or(default),
+            _ => self.disabled.unwrap_or(default),
         }
     }
 }
 
-fn is_readable(a: Color, b: Color) -> bool {
-    let a_srgb = Rgb::from(a);
-    let b_srgb = Rgb::from(b);
-
-    a_srgb.has_enhanced_contrast_text(b_srgb)
-}
-
-fn relative_contrast(a: Color, b: Color) -> f32 {
-    let a_srgb = Rgb::from(a);
-    let b_srgb = Rgb::from(b);
-
-    a_srgb.relative_contrast(b_srgb)
+/// Pick the appropriate palette color for a given status index.
+/// 0=Active → base, 1=Hovered → weaker, 2=Pressed → strong, 3=Disabled → base×0.5α
+pub fn palette_pick(bkg: &iced::theme::palette::Background, idx: usize) -> iced::Color {
+    match idx {
+        0 => bkg.base.color,
+        1 => bkg.weaker.color,
+        2 => bkg.strong.color,
+        _ => bkg.base.color.scale_alpha(0.5),
+    }
 }

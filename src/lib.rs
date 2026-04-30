@@ -10,6 +10,7 @@ mod state;
 mod app;
 mod py_api;
 mod graphics;
+mod style;
 
 // Minimal widget definitions (self-contained)
 mod widgets;

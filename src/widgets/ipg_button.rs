@@ -139,8 +139,16 @@ impl Button {
 
             let text_color = Color::rgba_ipg_color_to_iced(style.text_rgba, &style.text_color, style.text_color_alpha);
 
+            // Only bake the global text_color into the widget directly when no per-status
+            // colors are set. If status colors are present, to_iced() handles coloring via
+            // button::Style.text_color, and an explicit .color() here would override it.
+            let has_status_text = style.text_color_active.is_some()   || style.text_rgba_active.is_some()
+                || style.text_color_hovered.is_some()  || style.text_rgba_hovered.is_some()
+                || style.text_color_pressed.is_some()  || style.text_rgba_pressed.is_some()
+                || style.text_color_disabled.is_some() || style.text_rgba_disabled.is_some();
+
             let txt = if let Some(tc) = text_color {
-                txt.color(tc)
+                if !has_status_text { txt.color(tc) } else { txt }
             } else { txt };
 
             // default is word so not checked
@@ -371,13 +379,19 @@ impl ButtonStyle {
                 Some(linear)
             } else { None };
 
-        // Use per-status color if set, otherwise fall back to txt_color unchanged.
+        // Per-status text color logic:
+        // - txt_color is the ultimate fallback (from global text_color or theme default).
+        // - If text_color_active is set, it acts as the base for all unset statuses.
+        // - Any individual status color overrides its own slot.
+        let status_base = Color::rgba_ipg_color_to_iced(
+            self.text_rgba_active, &self.text_color_active, self.text_color_alpha_active,
+        ).unwrap_or(txt_color);
         let text_color = ColorStatus {
-            active:   Color::rgba_ipg_color_to_iced(self.text_rgba_active,   &self.text_color_active,   self.text_color_alpha_active),
+            active:   None,  // always resolves to status_base via pick fallback
             hovered:  Color::rgba_ipg_color_to_iced(self.text_rgba_hovered,  &self.text_color_hovered,  self.text_color_alpha_hovered),
             pressed:  Color::rgba_ipg_color_to_iced(self.text_rgba_pressed,  &self.text_color_pressed,  self.text_color_alpha_pressed),
             disabled: Color::rgba_ipg_color_to_iced(self.text_rgba_disabled, &self.text_color_disabled, self.text_color_alpha_disabled),
-        }.pick(idx, txt_color);
+        }.pick(idx, status_base);
 
         // Border color: use per-status override, fall back to matching palette color
         let bc_color = ColorStatus {

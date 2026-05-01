@@ -1,0 +1,8 @@
+[package]
+name = "testing_iced_float"
+version = "0.1.0"
+edition = "2024"
+
+
+[dependencies]
+iced = { path = "../iced_4255f61_04_25_2026", features = ["advanced", "debug"] }

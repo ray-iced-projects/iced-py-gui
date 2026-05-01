@@ -39,6 +39,7 @@ use crate::state::{Containers, access_state,
     scale_clamped = None,
     clamped_padding = None,
     translate = None,
+    show = true,
     ))]
 pub fn add_float(
     window_id: String,
@@ -48,6 +49,7 @@ pub fn add_float(
     scale_clamped: Option<f32>,
     clamped_padding: Option<Vec<f32>>,
     translate: Option<[f32; 2]>,
+    show: bool,
     ) -> PyResult<usize> 
 {
     let id = get_id(None);
@@ -68,7 +70,8 @@ pub fn add_float(
             scale,
             scale_clamped,
             clamped_padding,
-            translate,  
+            translate,
+            show,
         }));
 
     drop(state);         

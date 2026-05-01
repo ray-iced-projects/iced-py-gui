@@ -1,7 +1,7 @@
 //! ipg_row
 
 use iced::{Alignment, Element};
-use iced::widget;
+use iced::widget::{self, Space, container};
 
 use pyo3::{pyclass, Py, PyAny};
 type PyObject = Py<PyAny>;
@@ -16,7 +16,6 @@ use crate::widgets::widget_param_update::{
 #[derive(Debug, Clone)]
 pub struct Row {
     pub id: usize,
-    pub show: bool,
     pub spacing: Option<f32>,
     pub padding: Option<Vec<f32>>,
     pub width: Option<f32>,
@@ -28,6 +27,7 @@ pub struct Row {
     pub align_center: Option<bool>,
     pub align_top: Option<bool>,
     pub clip: Option<bool>,
+    pub show: bool,
 }
 
 impl Row {
@@ -35,6 +35,8 @@ impl Row {
         &self, 
         content: Vec<Element<'a, Message>>,
         ) -> Element<'a, Message> {
+
+        if !self.show { return Space::new().into() }
 
         let row = 
             widget::Row::with_children(content)
@@ -88,6 +90,7 @@ pub enum RowParam {
     Spacing,
     Width,
     WidthFill,
+    Show,
 }
 
 
@@ -111,6 +114,7 @@ impl WidgetParamUpdate for Row {
             RowParam::Height => set_t_value(&mut self.height, value, "RowParam::AlignBottomHeight"),
             RowParam::HeightFill => set_t_value(&mut self.height_fill, value, "RowParam::AlignBottomHeightFill"),
             RowParam::Spacing => set_t_value(&mut self.spacing, value, "RowParam::AlignBottomSpacing"),
+            RowParam::Show => set_t_value(&mut self.show, value, "RowParam::Show"),
         }
     }
 }

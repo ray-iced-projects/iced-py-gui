@@ -104,7 +104,6 @@ pub fn add_row(
         insert(id, Containers::Row(
             Row {
             id,  
-            show, 
             spacing, 
             padding, 
             width,
@@ -116,6 +115,7 @@ pub fn add_row(
             align_center,
             align_top,
             clip,
+            show,
         }));
 
     drop(state);         

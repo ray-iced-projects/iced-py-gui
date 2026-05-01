@@ -1,7 +1,7 @@
 //! ipg_float
 
 use iced::{Element, Vector};
-use iced::widget::float;
+use iced::widget::{Space, container, float};
 
 use pyo3::{pyclass, Py, PyAny};
 type PyObject = Py<PyAny>;
@@ -19,6 +19,7 @@ pub struct Float {
     pub scale_clamped: Option<f32>,
     pub clamped_padding: Option<Vec<f32>>,
     pub translate: Option<[f32; 2]>,
+    pub show: bool,
 }
 
 impl Float {
@@ -26,6 +27,8 @@ impl Float {
         &'a self,
         mut content: Vec<Element<'a, Message>>,
         ) -> Element<'a, Message> {
+
+        if !self.show { return Space::new().into() }
 
         let scale = if let Some(clamp) = self.scale_clamped {
             clamp
@@ -55,6 +58,7 @@ pub enum FloatParam {
     ScaleClamped,
     ClampedPadding,
     Translate,
+    Show,
 }
 
 
@@ -71,6 +75,7 @@ impl WidgetParamUpdate for Float{
             FloatParam::Translate => set_t_value(&mut self.translate, value, "FloatParam::Translate"),
             FloatParam::ScaleClamped => set_t_value(&mut self.scale_clamped, value, "FloatParam::ScaleClamped"),
             FloatParam::ClampedPadding => set_t_value(&mut self.clamped_padding, value, "FloatParam::ClampedPadding"),
+            FloatParam::Show => set_t_value(&mut self.show, value, "FloatParam::Show"),
         }
     }
 }

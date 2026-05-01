@@ -2,7 +2,6 @@
 use std::collections::HashMap;
 
 use crate::graphics::bootstrap_arrow::Arrow;
-use crate::graphics::colors::Color;
 use crate::state::Widgets;
 use crate::widgets::ipg_button::ButtonStyleStd;
 use crate::widgets::widget_param_update::{WidgetParamUpdate, set_t_value};
@@ -11,8 +10,11 @@ use crate::app::Message;
 use crate::py_api::helpers::{get_len, get_padding};
 use super::callbacks::{invoke_callback, invoke_callback_with_args};
 
+use crate::ipg_widgets::ipg_color_picker::color_picker::{Position, Tooltip};
+
 use iced::widget::{Button, button, text};
 use iced::{Element, Theme};
+use iced::time::seconds;
 
 use pyo3::{Py, PyAny, pyclass};
 type PyObject = Py<PyAny>;
@@ -20,10 +22,16 @@ type PyObject = Py<PyAny>;
 #[derive(Debug, Clone)]
 pub struct ColorPicker {
     pub id: usize,
+    pub position_follow_cursor: Option<bool>,
+    pub position_bottom: Option<bool>,
+    pub position_left: Option<bool>,
+    pub position_top: Option<bool>,
+    pub position_right: Option<bool>,
+    pub text: Option<String>,
+    pub gap: Option<u32>,
+    pub snap_within_viewport: Option<bool>,
+    pub delay_sec: Option<u64>,
     pub show: bool,
-    pub color: Option<Color>,
-    pub color_alpha: Option<f32>,
-    pub color_rgba: Option<[f32; 4]>,
     //button related
     pub label: Option<String>,
     pub width: Option<f32>,
@@ -46,6 +54,7 @@ impl ColorPicker {
 
     pub fn construct<'a>(
         &'a self,
+        mut content: Vec<Element<'a, Message>>,
         widgets: &HashMap<usize, Widgets>,
         ) -> Option<Element<'a, Message>> {
         
@@ -76,26 +85,55 @@ impl ColorPicker {
                 })
                 .into();
         
-        // if !self.show {
-        //     return Some(btn.map(move |message| Message::ColorPicker(self.id, message)));
-        // }
+        if !self.show {
+            return Some(btn.map(move |message| Message::ColorPicker(self.id, message)));
+        }
 
-        let color: iced::Color = if let Some(c) = 
-            Color::rgba_ipg_color_to_iced(self.color_rgba, &self.color, self.color_alpha) {
-                c
-            } else {
-                [0.5, 0.2, 0.7, 1.0].into()
-            };
+        let position: Position = 
+        if self.position_follow_cursor == Some(true) {
+            Position::FollowCursor
+        } else if self.position_bottom == Some(true) {
+            Position::Bottom
+        } else if self.position_left == Some(true) {
+            Position::Left
+        } else if self.position_right == Some(true) {
+            Position::Right
+        } else {
+            Position::Top
+        };
 
-        let color_picker: Element<ColPikMessage> = crate::iced_aw_widgets::color_picker::ColorPicker::new(
-                                        true,
-                                        color,
-                                        btn,
-                                        ColPikMessage::OnCancel,
-                                        ColPikMessage::OnSubmit,
-                                    ).into();
+        let tooltip: Element<'a, Message> = 
+            if let Some(txt) = &self.text {
+                    text(txt).into()
+                } else {
+                    if content.len() < 2 {
+                        text("If you are not using the text parameter,
+                            \nyou must use two widgets/containers").into()
+                    } else {
+                        content.remove(0)
+                    }
+                };
 
-        Some(color_picker.map(move |message| Message::ColorPicker(self.id, message)))
+        // let color: iced::Color = if let Some(c) = 
+        //     Color::rgba_ipg_color_to_iced(self.color_rgba, &self.color, self.color_alpha) {
+        //         c
+        //     } else {
+        //         [0.5, 0.2, 0.7, 1.0].into()
+        //     };
+
+        let color_picker: Element<'a, Message> = Tooltip::new(
+                content.remove(0),
+                tooltip,
+                position,
+                )
+                .gap(self.gap.unwrap_or(0))
+                .snap_within_viewport(self.snap_within_viewport.unwrap_or(false))
+                .delay(seconds(self.delay_sec.unwrap_or(0)))
+                .into();
+
+        // Some(color_picker.map(move |message| Message::ColorPicker(self.id, message)))
+        Some(color_picker)
+        
 
     }
 }
@@ -106,38 +144,6 @@ pub enum ColPikMessage {
     OnPress,
     OnCancel,
     OnSubmit(iced::Color),
-}
-
-pub fn color_picker_callback(state: &mut IpgState, id: usize, message: ColPikMessage) {
-    // Update widget state directly
-    if let Some(Widgets::ColorPicker(cp)) = state.widgets.get_mut(&id) {
-        match &message {
-            ColPikMessage::OnCancel => {
-                cp.show = false;
-            },
-            ColPikMessage::OnSubmit(color) => {
-                cp.show = false;
-                cp.color_rgba = Some([color.r, color.g, color.b, color.a]);
-            },
-            ColPikMessage::OnPress => {
-                cp.show = true;
-            },
-        }
-    }
-
-    // Invoke Python callback
-    match message {
-        ColPikMessage::OnCancel => {
-            invoke_callback(id, "on_cancel", "ColorPicker");
-        },
-        ColPikMessage::OnSubmit(color) => {
-            invoke_callback_with_args(id, "on_select", "ColorPicker", convert_color_to_list(color),
-                "def cb(wid: int, color: list[float])");
-        },
-        ColPikMessage::OnPress => {
-            invoke_callback(id, "on_press", "ColorPicker");
-        },
-    }
 }
 
 
@@ -208,9 +214,6 @@ impl WidgetParamUpdate for ColorPicker {
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
             ColorPickerParam::Clip => set_t_value(&mut self.clip, value, "ColorPickerParam::Clip"),
-            ColorPickerParam::Color => set_t_value(&mut self.color, value, "ColorPickerParam::Color"),
-            ColorPickerParam::ColorAlpha => set_t_value(&mut self.color_alpha, value, "ColorPickerParam::ColorAlpha"),
-            ColorPickerParam::ColorRgba => set_t_value(&mut self.color_rgba, value, "ColorPickerParam::ColorRgba"),
             ColorPickerParam::Fill => set_t_value(&mut self.fill, value, "ColorPickerParam::Fill"),
             ColorPickerParam::Height => set_t_value(&mut self.height, value, "ColorPickerParam::Height"),
             ColorPickerParam::HeightFill => set_t_value(&mut self.height, value, "ColorPickerParam::HeightFill"),
@@ -222,6 +225,9 @@ impl WidgetParamUpdate for ColorPicker {
             ColorPickerParam::StyleStd => set_t_value(&mut self.style_std, value, "ColorPickerParam::StyleStd"),
             ColorPickerParam::Width => set_t_value(&mut self.width, value, "ColorPickerParam::Width"),
             ColorPickerParam::WidthFill => set_t_value(&mut self.width, value, "ColorPickerParam::WidthFill"),
+            ColorPickerParam::ColorAlpha => todo!(),
+            ColorPickerParam::ColorRgba => todo!(),
+            ColorPickerParam::Color => todo!(),
         }
     }
 }

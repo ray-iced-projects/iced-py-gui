@@ -3,7 +3,6 @@ use pyo3::prelude::*;
 use pyo3::{Py, PyAny, pyfunction};
 type PyObject = Py<PyAny>;
 
-use crate::graphics::colors::Color;
 use crate::{add_callback_to_mutex, add_user_data_to_mutex};
 use crate::state::{Widgets, access_state, get_id, set_state_of_widget};
 use crate::widgets::ipg_button::{ButtonStyleStd};
@@ -72,9 +71,15 @@ use crate::graphics::bootstrap_arrow::Arrow;
     on_press=None, 
     on_select=None, 
     on_cancel=None,
-    color=None,
-    color_alpha=None,
-    color_rgba=None, 
+    position_follow_cursor=None,
+    position_bottom=None,
+    position_left=None,
+    position_top=None,
+    position_right=None,
+    text=None,
+    gap=None,
+    snap_within_viewport=None,
+    delay_sec=None,
     width=None,
     width_fill=None,  
     height=None, 
@@ -95,9 +100,15 @@ pub fn add_color_picker(
     on_press: Option<PyObject>,
     on_select: Option<PyObject>,
     on_cancel: Option<PyObject>,
-    color: Option<Color>,
-    color_alpha: Option<f32>,
-    color_rgba: Option<[f32; 4]>,
+    position_follow_cursor: Option<bool>,
+    position_bottom: Option<bool>,
+    position_left: Option<bool>,
+    position_top: Option<bool>,
+    position_right: Option<bool>,
+    text: Option<String>,
+    gap: Option<u32>,
+    snap_within_viewport: Option<bool>,
+    delay_sec: Option<u64>,
     width: Option<f32>,
     width_fill: Option<bool>,
     height: Option<f32>,
@@ -138,9 +149,15 @@ pub fn add_color_picker(
         ColorPicker {
             id,
             show,
-            color,
-            color_alpha,
-            color_rgba,
+            position_follow_cursor,
+            position_bottom,
+            position_left,
+            position_top,
+            position_right,
+            text,
+            gap,
+            snap_within_viewport,
+            delay_sec,
             // button related
             label,
             width,

@@ -65,7 +65,7 @@ with Window(title="Float Example", center=True):
 
             open_id = add_button(label="Select Color", on_press=open_cp)
 
-            with Float(scale=0.0, show=True) as flt_id:
+            with Float(scale=0.0, show=False) as flt_id:
                 with Row(spacing=10):
                     with Column(spacing=10):
                         cont_id = add_container(width=200, height=100,

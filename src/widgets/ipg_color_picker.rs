@@ -4,7 +4,7 @@ use std::collections::HashMap;
 use crate::graphics::bootstrap_arrow::Arrow;
 use crate::graphics::colors::Color;
 use crate::state::Widgets;
-use crate::widgets::ipg_button::{BtnStatus, ButtonStyleStd};
+use crate::widgets::ipg_button::ButtonStyleStd;
 use crate::widgets::widget_param_update::{WidgetParamUpdate, set_t_value};
 use crate::IpgState;
 use crate::app::Message;

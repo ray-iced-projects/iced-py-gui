@@ -7,4 +7,4 @@ pub(crate) mod overlay;
 mod color_picker;
 
 pub use color_picker::ColorPicker;
-pub use color_picker::State;
+// pub use color_picker::State;

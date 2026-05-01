@@ -1,7 +1,7 @@
 //! ipg_float
 
 use iced::{Element, Vector};
-use iced::widget::{Space, container, float};
+use iced::widget::{Space, float};
 
 use pyo3::{pyclass, Py, PyAny};
 type PyObject = Py<PyAny>;

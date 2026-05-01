@@ -1,7 +1,7 @@
 //! ipg_row
 
 use iced::{Alignment, Element};
-use iced::widget::{self, Space, container};
+use iced::widget::{self, Space};
 
 use pyo3::{pyclass, Py, PyAny};
 type PyObject = Py<PyAny>;

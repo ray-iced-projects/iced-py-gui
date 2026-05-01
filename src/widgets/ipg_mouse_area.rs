@@ -18,13 +18,16 @@ pub struct MouseArea {
         pub id: usize,
         pub mouse_pointer: Option<MousePointer>,
         pub enabled: Option<bool>,
+        pub show: bool,
 }
 
 impl MouseArea {
     pub fn construct<'a>(
         &'a self, 
         content: Vec<Element<'a, Message>>,
-    ) -> Element<'a, Message> {
+    ) -> Option<Element<'a, Message>> {
+
+        if !self.show { return None }
 
         let pt = if let Some(pt) = &self.mouse_pointer{
             pt
@@ -34,7 +37,7 @@ impl MouseArea {
 
         let content: Element<Message> = Column::with_children(content).into();
 
-        widget::MouseArea::new(content)
+        Some(widget::MouseArea::new(content)
             .on_press(Message::MouseArea(self.id, MaMessage::OnPress))
             .on_release(Message::MouseArea(self.id, MaMessage::OnRelease))
             .on_right_press(Message::MouseArea(self.id, MaMessage::OnRightPress))
@@ -45,7 +48,7 @@ impl MouseArea {
             .on_move(move|p| Message::MouseArea(self.id, MaMessage::OnMove(p)))
             .on_exit(Message::MouseArea(self.id, MaMessage::OnExit))
             .interaction(pointer)
-            .into()
+            .into())
     
     
     }
@@ -156,6 +159,7 @@ impl MousePointer {
 pub enum MouseAreaParam {
     Enabled,
     MousePointer,
+    Show,
 }
 
 // ---------------------------------------------------------------------------
@@ -169,6 +173,7 @@ impl WidgetParamUpdate for MouseArea {
         match param {
             MouseAreaParam::Enabled => set_t_value(&mut self.enabled, value, "MouseAreaParam::Enalbled"),
             MouseAreaParam::MousePointer => set_t_value(&mut self.mouse_pointer, value, "MouseAreaParam::MousePointer"),
+            MouseAreaParam::Show => set_t_value(&mut self.show, value, "MouseAreaParam::Show"),
         }
     }
 }

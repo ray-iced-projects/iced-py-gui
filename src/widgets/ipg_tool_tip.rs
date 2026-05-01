@@ -29,6 +29,7 @@ pub struct ToolTip {
     pub delay_sec: Option<u64>,
     pub style_id: Option<usize>,
     pub style_std: Option<ContainerStyleStd>,
+    pub show: bool,
 }
 
 impl ToolTip {
@@ -41,8 +42,9 @@ impl ToolTip {
         &'a self, 
         mut content: Vec<Element<'a, Message>>,
         widgets: &HashMap<usize, Widgets>,
-        ) -> Element<'a, Message>
+        ) -> Option<Element<'a, Message>>
     {
+        if !self.show { return None }
         
         let style_opt = 
             self.lookup(widgets, self.style_id)
@@ -93,7 +95,7 @@ impl ToolTip {
                     }
                 )
                 .into();
-        tt
+        Some(tt)
     }
 }
 
@@ -112,6 +114,7 @@ pub enum ToolTipParam {
     PositionLeft,
     PositionTop,
     PositionRight,
+    Show,
     SnapWithinViewport,
     Text,
 }
@@ -135,8 +138,10 @@ impl WidgetParamUpdate for ToolTip {
             ToolTipParam::PositionLeft => set_t_value(&mut self.position_left, value, "ToolTipParam::PositionBottom"),
             ToolTipParam::PositionRight => set_t_value(&mut self.position_right, value, "ToolTipParam::PositionRight"),
             ToolTipParam::PositionTop => set_t_value(&mut self.position_top, value, "ToolTipParam::PositionLeft"),
+            ToolTipParam::Show => set_t_value(&mut self.show, value, "ToolTipParam::Show"),
             ToolTipParam::SnapWithinViewport => set_t_value(&mut self.snap_within_viewport, value, "ToolTipParam::SnapWithinViewport"),
             ToolTipParam::Text => set_t_value(&mut self.text, value, "ToolTipParamText"),
+            
         }
     }
 }

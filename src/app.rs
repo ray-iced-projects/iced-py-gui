@@ -535,7 +535,7 @@ fn create_content<'a>(
                                                                 state,
                                                                 // canvas_state
                                                             );
-    content
+    content.expect("Root container should always produce an element")
 }
 
 fn get_unique_parents(ids: Option<&Vec<usize>>) -> Vec<usize> {
@@ -590,7 +590,7 @@ fn get_children<'a>(parents: &Vec<ParentChildIds>,
                 parent_ids: &Vec<usize>, 
                 state: &'a IpgState,
                 // canvas_state: &'a CanvasState,
-                ) -> Element<'a, Message> 
+                ) -> Option<Element<'a, Message>> 
 {
 
     let mut content= vec![];
@@ -612,8 +612,10 @@ fn get_children<'a>(parents: &Vec<ParentChildIds>,
     for child in parents[*index].child_ids.iter() {
         if parent_ids.contains(child) {
             let index = parents.iter().position(|r| &r.parent_id == child).unwrap();
-            // content.push(get_children(parents, &index, parent_ids, state, canvas_state));
-            content.push(get_children(parents, &index, parent_ids, state));
+            // if let Some(el) = get_children(parents, &index, parent_ids, state, canvas_state) {
+            if let Some(el) = get_children(parents, &index, parent_ids, state) {
+                content.push(el);
+            }
         } else if get_widget(state, child).is_some() {
                 content.push(get_widget(state, child).unwrap());
         }
@@ -623,7 +625,7 @@ fn get_children<'a>(parents: &Vec<ParentChildIds>,
         // get_container(state, id, content, canvas_state)
         get_container(state, id, content)
     } else {
-        Column::with_children(content).into()  // the final container
+        Some(Column::with_children(content).into())  // the final container
     }
 }
 
@@ -651,7 +653,9 @@ fn get_menu_children<'a>(
             for grandchild in parents[bar_item_index].child_ids.iter() {
                 if parent_ids.contains(grandchild) {
                     let idx = parents.iter().position(|r| &r.parent_id == grandchild).unwrap();
-                    group.push(get_children(parents, &idx, parent_ids, state));
+                    if let Some(el) = get_children(parents, &idx, parent_ids, state) {
+                        group.push(el);
+                    }
                 } else if let Some(widget_el) = get_widget(state, grandchild) {
                     group.push(widget_el);
                 }
@@ -669,7 +673,7 @@ fn get_container<'a>(state: &'a IpgState,
                     id: &usize, 
                     content: Vec<Element<'a, Message>>,
                     // canvas_state: &'a CanvasState,
-                    ) -> Element<'a, Message> {
+                    ) -> Option<Element<'a, Message>> {
 
     let container_opt: Option<&Containers> = state.containers.get(id);
 
@@ -684,7 +688,7 @@ fn get_container<'a>(state: &'a IpgState,
                 //     crd.construct(content, &state.widgets)
                 // },
                 Containers::Column(col) => {
-                    col.construct(content) 
+                    col.construct(content)
                 },
                 Containers::Container(cont) => {
                     if content.len() > 1 {
@@ -742,7 +746,7 @@ fn get_container<'a>(state: &'a IpgState,
                     tool.construct(content, &state.widgets)
                 },
                 Containers::Window(_wnd) => {
-                    construct_window(content)
+                    Some(construct_window(content))
                 },
             },
         

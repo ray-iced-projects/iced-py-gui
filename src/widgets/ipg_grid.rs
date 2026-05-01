@@ -22,13 +22,16 @@ pub struct Grid {
     pub height_aspect_ratio: Option<f32>,
     pub height_evenly_distribute: Option<f32>,
     pub height_evenly_distribute_fill: Option<bool>,
+    pub show: bool,
 }
 
 impl Grid{
     pub fn construct<'a>(
         &'a self,
         content: Vec<Element<'a, Message>>,
-        ) -> Element<'a, Message> {
+        ) -> Option<Element<'a, Message>> {
+
+        if !self.show { return None }
 
         let grd = 
             grid(content)
@@ -46,7 +49,7 @@ impl Grid{
                 grd.fluid(max)
             } else { grd };
 
-        grd.into()
+        Some(grd.into())
     }
 }
 
@@ -59,6 +62,7 @@ pub enum GridParam {
     HeightAspectRatio,
     HeightEvenlyDistribute,
     HeightEvenlyDistributeFill,
+    Show,
     Spacing,
     Width,
 }
@@ -77,6 +81,7 @@ impl WidgetParamUpdate for Grid{
             GridParam::HeightAspectRatio => set_t_value(&mut self.height_aspect_ratio, value, "GridParam::HeightAspectRatio"),
             GridParam::HeightEvenlyDistribute => set_t_value(&mut self.height_evenly_distribute, value, "GridParam::HeightEvenlyDistribute"),
             GridParam::HeightEvenlyDistributeFill => set_t_value(&mut self.height_evenly_distribute, value, "GridParam::HeightEvenlyDistributeFill"),
+            GridParam::Show => set_t_value(&mut self.show, value, "GridParam::Show"),
             GridParam::Spacing => set_t_value(&mut self.spacing, value, "GridParam::Spacing"),
             GridParam::Width => set_t_value(&mut self.width, value, "GridParam::Width"),
         }

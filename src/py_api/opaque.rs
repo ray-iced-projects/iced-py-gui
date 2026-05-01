@@ -20,7 +20,8 @@ use crate::state::{Containers, access_state,
 ///     Sets the Unique string identifier for the opaque container.
 /// parent_id : str, Optional
 ///     Sets the parent container ID.  Defaults to the window itself.
-///
+/// show: bool
+///     Whether to show the container or not.
 /// Returns
 /// -------
 /// int
@@ -30,11 +31,13 @@ use crate::state::{Containers, access_state,
     window_id, 
     container_id, 
     parent_id=None,
+    show=true,
     ))]
 pub fn add_opaque(
     window_id: String,
     container_id: String,
     parent_id: Option<String>,
+    show: bool,
     ) -> PyResult<usize> 
 {
     let id = get_id(None);
@@ -51,7 +54,8 @@ pub fn add_opaque(
 
     state.containers.insert(id, Containers::Opaque(
         Opaque {
-            id,  
+            id,
+            show,
         }));
 
     drop(state);         

@@ -2,7 +2,7 @@
 
 use std::collections::HashMap;
 
-use iced::widget::{self, span, text, Space};
+use iced::widget::{self, span, text};
 use iced::{Border, Element};
 
 use crate::app::Message;
@@ -51,10 +51,9 @@ impl RichText {
         &'a self,
         child_ids: &[usize],
         widgets: &HashMap<usize, Widgets>,
-    ) -> Element<'a, Message> {
-        if !self.show {
-            return Space::new().into();
-        }
+    ) -> Option<Element<'a, Message>> {
+        
+        if !self.show { return None }
 
         let spans: Vec<text::Span<'static, usize, iced::Font>> = child_ids
             .iter()
@@ -146,7 +145,7 @@ impl RichText {
 
         rt = rt.on_link_click(move |link| Message::RichTextLinkClicked(self.id, link));
 
-        rt.into()
+        Some(rt.into())
     }
 }
 

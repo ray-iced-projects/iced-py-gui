@@ -62,11 +62,11 @@ pub struct Table {
         pub resize_columns_enabled: bool,
         pub min_column_width: Option<f32>,
         pub text_size: Option<f32>,
-        pub show: bool,
         pub table_width_fixed: bool,
         pub style_id: Option<usize>,
         pub scrollable_style_id: Option<usize>,
-        pub released: bool, 
+        pub released: bool,
+        pub show: bool,
 }
 
 impl Table {
@@ -79,7 +79,9 @@ impl Table {
         &'a self,
         mut content: Vec<Element<'a, Message, Theme, Renderer>>,
         widgets: &'a HashMap<usize, Widgets>,
-    ) -> Element<'a, Message, Theme, Renderer> {
+    ) -> Option<Element<'a, Message, Theme, Renderer>> {
+
+        if !self.show { return None }
         
         let ipg_scroll_style_header  = self.lookup(widgets, self.style_id)
             .and_then(Widgets::as_scrollable_style).cloned();
@@ -356,7 +358,7 @@ impl Table {
                 main_col.push(footer.unwrap());
             }
 
-            column(main_col).into()
+            Some(column(main_col).into())
 
     }
 }

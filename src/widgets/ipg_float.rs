@@ -1,7 +1,7 @@
 //! ipg_float
 
 use iced::{Element, Vector};
-use iced::widget::{Space, float};
+use iced::widget::float;
 
 use pyo3::{pyclass, Py, PyAny};
 type PyObject = Py<PyAny>;
@@ -26,9 +26,9 @@ impl Float {
     pub fn construct<'a>(
         &'a self,
         mut content: Vec<Element<'a, Message>>,
-        ) -> Element<'a, Message> {
+        ) -> Option<Element<'a, Message>> {
 
-        if !self.show { return Space::new().into() }
+        if !self.show { return None }
 
         let scale = if let Some(clamp) = self.scale_clamped {
             clamp
@@ -36,7 +36,7 @@ impl Float {
             self.scale.unwrap_or(1.0)
         };
 
-        float(content.remove(0))
+        Some(float(content.remove(0))
         .scale(scale)
         .translate(move |bounds, viewport| {
             if let Some(clamp) = self.scale_clamped { 
@@ -46,7 +46,7 @@ impl Float {
             } else {
                 Vector::ZERO
             }
-        }).into()
+        }).into())
     }
 }
 

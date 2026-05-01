@@ -26,6 +26,7 @@ use crate::{access_state, state::{Containers, get_id,
     style_id=None,
     style_std=None,
     gen_id=None,
+    show=true,
     ))]
 pub fn add_tool_tip(
     window_id: String,
@@ -44,6 +45,7 @@ pub fn add_tool_tip(
     style_id: Option<usize>,
     style_std: Option<ContainerStyleStd>,
     gen_id: Option<usize>,
+    show: bool,
     ) -> PyResult<usize>
 {
 
@@ -75,6 +77,7 @@ pub fn add_tool_tip(
             delay_sec,
             style_id,
             style_std,
+            show,
         }));
 
     drop(state);

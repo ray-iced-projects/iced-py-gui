@@ -56,9 +56,9 @@ impl Container {
         &'a self,
         mut content: Vec<Element<'a, Message>>,
         widgets: &HashMap<usize, Widgets>,
-        ) -> Element<'a, Message> {
+        ) -> Option<Element<'a, Message>> {
         
-        if !self.show {return Space::new().into()}
+        if !self.show {return None}
 
         let style_opt = 
             self.lookup(widgets, self.style_id)
@@ -158,7 +158,7 @@ impl Container {
                 cont.clip(true)
             } else { cont };
 
-        cont.into()            
+        Some(cont.into())            
         
     }
 }

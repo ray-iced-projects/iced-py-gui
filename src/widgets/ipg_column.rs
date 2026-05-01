@@ -14,7 +14,6 @@ type PyObject = Py<PyAny>;
 #[derive(Debug, Clone)]
 pub struct Column {
     pub id: usize,
-    pub show: bool,
     pub spacing: Option<f32>,
     pub padding: Option<Vec<f32>>,
     pub width: Option<f32>,
@@ -27,13 +26,16 @@ pub struct Column {
     pub align_center: Option<bool>,
     pub align_right: Option<bool>,
     pub clip: Option<bool>,
+    pub show: bool,
 }
 
 impl Column {
     pub fn construct<'a>(
         &self,
         content: Vec<Element<'a, Message>> 
-        ) -> Element<'a, Message> {
+        ) -> Option<Element<'a, Message>> {
+
+        if !self.show { return None }
 
         let col = 
             widget::Column::with_children(content)
@@ -73,7 +75,7 @@ impl Column {
                 col.max_width(mw)
             } else { col };
 
-        col.into()
+        Some(col.into())
 
     }
 }
@@ -90,6 +92,7 @@ pub enum ColumnParam {
     HeightFill,
     MaxWidth,
     Padding,
+    Show,
     Spacing,
     Width,
     WidthFill,
@@ -113,6 +116,7 @@ impl WidgetParamUpdate for Column {
             ColumnParam::HeightFill => set_t_value(&mut self.height_fill, value, "ColumnParam::HeightFill"),
             ColumnParam::MaxWidth => set_t_value(&mut self.max_width, value, "ColumnParam::MaxWidth"),
             ColumnParam::Padding => set_t_value(&mut self.padding, value, "ColumnParam::Padding"),
+            ColumnParam::Show => set_t_value(&mut self.show, value, "ColumnParam::Show"),
             ColumnParam::Spacing => set_t_value(&mut self.spacing, value, "ColumnParam::Spacing"),
             ColumnParam::Width  => set_t_value(&mut self.width, value, "ColumnParam::Width"),
             ColumnParam::WidthFill => set_t_value(&mut self.width_fill, value, "ColumnParam::WidthFill"),

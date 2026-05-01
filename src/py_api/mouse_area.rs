@@ -49,6 +49,8 @@ use crate::widgets::ipg_mouse_area::{MouseArea, MousePointer};
 ///     Sets the Callback method to invoke when the mouse exits the area.
 /// user_data : Any, Optional
 ///     Sets the Arbitrary data forwarded to callbacks.
+/// show: bool
+///     Whether to show the container or not
 ///
 /// Returns
 /// -------
@@ -71,6 +73,7 @@ use crate::widgets::ipg_mouse_area::{MouseArea, MousePointer};
     on_move=None, 
     on_exit=None,
     user_data=None,
+    show=true,
     ))]
 pub fn add_mouse_area(
     window_id: String,
@@ -88,6 +91,7 @@ pub fn add_mouse_area(
     on_move: Option<PyObject>,
     on_exit: Option<PyObject>,
     user_data: Option<PyObject>,
+    show: bool,
     ) -> PyResult<usize>
 {
     let id = get_id(None);
@@ -147,7 +151,8 @@ pub fn add_mouse_area(
         MouseArea {
             id,
             mouse_pointer,  
-            enabled, 
+            enabled,
+            show,
         }));
 
     drop(state);

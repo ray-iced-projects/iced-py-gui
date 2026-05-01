@@ -1,7 +1,7 @@
 //! ipg_row
 
 use iced::{Alignment, Element};
-use iced::widget::{self, Space};
+use iced::widget;
 
 use pyo3::{pyclass, Py, PyAny};
 type PyObject = Py<PyAny>;
@@ -34,9 +34,9 @@ impl Row {
     pub fn construct<'a>(
         &self, 
         content: Vec<Element<'a, Message>>,
-        ) -> Element<'a, Message> {
+        ) -> Option<Element<'a, Message>> {
 
-        if !self.show { return Space::new().into() }
+        if !self.show { return None }
 
         let row = 
             widget::Row::with_children(content)
@@ -71,7 +71,7 @@ impl Row {
                 row.clip(cp)
             } else { row };
 
-        row.into()
+        Some(row.into())
     }
 }
 

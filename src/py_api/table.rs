@@ -159,10 +159,10 @@ use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex,
     gen_id=None,
     style_id=None,
     scrollable_style_id=None,  
-    show=true,
     on_column_resize=None,
     on_column_resize_release=None,
     user_data=None,
+    show=true,
     ))]
 pub fn add_table(
         window_id: String,
@@ -208,10 +208,10 @@ pub fn add_table(
         gen_id: Option<usize>,
         style_id: Option<usize>,
         scrollable_style_id: Option<usize>,
-        show: bool,
         on_column_resize: Option<PyObject>,
         on_column_resize_release: Option<PyObject>,
         user_data: Option<PyObject>,
+        show: bool,
     ) -> PyResult<usize> 
 {
 
@@ -282,11 +282,11 @@ pub fn add_table(
             resize_columns_enabled,
             min_column_width,
             text_size,
-            show,
             table_width_fixed,
             style_id,
             scrollable_style_id,
             released,
+            show,
             ..Default::default()
         }));
 

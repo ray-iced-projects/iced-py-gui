@@ -28,7 +28,9 @@ impl <'a> Stack {
     pub fn construct(
         &self,
         mut content: Vec<Element<'a, Message>> 
-    ) -> Element<'a, Message> {
+    ) -> Option<Element<'a, Message>> {
+
+        if !self.show { return None }
         
         content = if self.hide_index.is_some() {
             let index = self.hide_index.unwrap();
@@ -44,10 +46,10 @@ impl <'a> Stack {
             content
         };
         
-        widget::Stack::with_children(content)
+        Some(widget::Stack::with_children(content)
                     .width(get_len(self.fill, self.width_fill, self.width))
                     .height(get_len(self.fill, self.height_fill, self.height))
-                    .into()
+                    .into())
 
     }
 }

@@ -109,7 +109,6 @@ pub fn add_column(
         .insert(id, Containers::Column(
             Column {
                 id,  
-                show, 
                 spacing, 
                 padding, 
                 width, 
@@ -122,6 +121,7 @@ pub fn add_column(
                 align_center,
                 align_right,
                 clip,
+                show,
             }));
 
 drop(state);

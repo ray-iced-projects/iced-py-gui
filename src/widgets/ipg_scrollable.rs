@@ -33,6 +33,7 @@ pub struct Scrollable {
     pub scroller_x_id: Option<usize>,
     pub scroller_y_id: Option<usize>,
     pub style_id: Option<usize>,
+    pub show: bool,
 }
 
 impl Scrollable {
@@ -45,7 +46,9 @@ impl Scrollable {
         &'a self,
         content: Vec<Element<'a, Message>>,
         widgets: &'a HashMap<usize, Widgets>,
-        ) -> Element<'a, Message> {
+        ) -> Option<Element<'a, Message>> {
+
+        if !self.show { return None }
 
         let ipg_scroll_style  = self.lookup(widgets, self.style_id)
             .and_then(Widgets::as_scrollable_style).cloned();
@@ -86,7 +89,7 @@ impl Scrollable {
                 },
             };
 
-        scrollable::Scrollable::with_direction(content, direction)
+        Some(scrollable::Scrollable::with_direction(content, direction)
             .width(get_len(self.fill, self.width_fill, self.width))
             .height(get_len(self.fill, self.height_fill, self.height))
             .auto_scroll(self.auto_scroll.unwrap_or(false))
@@ -100,7 +103,7 @@ impl Scrollable {
                 }
                 
             })
-            .into()
+            .into())
         
     }
 }
@@ -253,6 +256,7 @@ pub enum ScrollableParam {
     HeightFill,
     ScrollerXId,
     ScrollerYId,
+    Show,
     StyleId,
     Width,
     WidthFill,
@@ -452,6 +456,7 @@ impl WidgetParamUpdate for Scrollable {
             ScrollableParam::HeightFill => set_t_value(&mut self.height_fill, value, "ScrollableParam::HeightFill"),
             ScrollableParam::ScrollerXId => set_t_value(&mut self.scroller_x_id, value, "ScrollableParam::ScrollerXId"),
             ScrollableParam::ScrollerYId => set_t_value(&mut self.scroller_y_id, value, "ScrollableParam::ScrollerYId"),
+            ScrollableParam::Show => set_t_value(&mut self.show, value, "ScrollableParam::show"),
             ScrollableParam::StyleId => set_t_value(&mut self.style_id, value, "ScrollableParam::StyleId"),
             ScrollableParam::Width => set_t_value(&mut self.width, value, "ScrollableParam::Width"),
             ScrollableParam::WidthFill => set_t_value(&mut self.width_fill, value, "ScrollableParam::WidthFill"),

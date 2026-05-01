@@ -46,7 +46,8 @@ type PyObject = Py<PyAny>;
 ///     Sets the Arbitrary data forwarded to callbacks.
 /// style_id : int, Optional
 ///     Sets the ID of a custom style created with ``add_scrollable_style``.
-///
+/// show: bool
+///     Whether to show the container or not.
 /// Returns
 /// -------
 /// int
@@ -67,6 +68,7 @@ type PyObject = Py<PyAny>;
     on_scroll=None,
     user_data=None,
     style_id=None,
+    show=true,
     ))]
 pub fn add_scrollable(
     window_id: String,
@@ -83,6 +85,7 @@ pub fn add_scrollable(
     on_scroll: Option<PyObject>,
     user_data: Option<PyObject>,
     style_id: Option<usize>,
+    show: bool,
     ) -> PyResult<usize>
 {
     let id = get_id(None);
@@ -118,6 +121,7 @@ pub fn add_scrollable(
             scroller_x_id,
             scroller_y_id,
             style_id,
+            show,
         }));
 
     drop(state);
@@ -159,7 +163,7 @@ pub fn add_scrollable(
     gap_color=None,
     gap_color_alpha=None,
     gap_rgba=None,
-    gen_id=None
+    gen_id=None,
     ))]
 pub fn add_scrollable_style(
     vertical_rail_style_id: Option<usize>,

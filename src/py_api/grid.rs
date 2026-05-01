@@ -51,6 +51,7 @@ use crate::state::{Containers, access_state,
     height_aspect_ratio = None,
     height_evenly_distribute = None,
     height_evenly_distribute_fill = None,
+    show = true,
     ))]
 pub fn add_grid(
     window_id: String,
@@ -63,6 +64,7 @@ pub fn add_grid(
     height_aspect_ratio: Option<f32>,
     height_evenly_distribute: Option<f32>,
     height_evenly_distribute_fill: Option<bool>,
+    show: bool,
     ) -> PyResult<usize> 
 {
     let id = get_id(None);
@@ -87,6 +89,7 @@ pub fn add_grid(
             height_aspect_ratio,
             height_evenly_distribute,
             height_evenly_distribute_fill,
+            show,
         }));
 
     drop(state);         

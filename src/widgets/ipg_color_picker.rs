@@ -5,14 +5,13 @@ use crate::graphics::bootstrap_arrow::Arrow;
 use crate::state::Widgets;
 use crate::widgets::ipg_button::ButtonStyleStd;
 use crate::widgets::widget_param_update::{WidgetParamUpdate, set_t_value};
-use crate::IpgState;
 use crate::app::Message;
 use crate::py_api::helpers::{get_len, get_padding};
 use super::callbacks::{invoke_callback, invoke_callback_with_args};
 
 use crate::ipg_widgets::ipg_color_picker::color_picker::{Position, Tooltip};
 
-use iced::widget::{Button, button, text};
+use iced::widget::{Button, button, center, container, text};
 use iced::{Element, Theme};
 use iced::time::seconds;
 
@@ -70,70 +69,76 @@ impl ColorPicker {
             self.lookup(widgets, self.style_id)
                 .and_then(Widgets::as_button_style).cloned();
 
-        let btn: Element<ColPikMessage> = 
-            Button::new(label)
-                .width(get_len(self.fill, self.width_fill, self.width))
-                .height(get_len(self.fill, self.height_fill, self.height))
-                .padding(get_padding(&self.padding))
-                .on_press(ColPikMessage::OnPress)  
-                .style(move |theme: &Theme, status| {
-                    match &self.style_std {
-                        Some(std) => std.to_iced(theme, status),
-                        None => button::primary(theme, status),
-                    }
-                    
-                })
-                .into();
+        let submit_row = submit_row().into();
+
+        let r_sld_row = 
+            rgba_slider("r", self.r_value, RGBA::R, ColPikMessage::RSldOnChange).into();
+        let g_sld_row = 
+            rgba_slider("g", self.g_value, RGBA::G, ColPikMessage::GSldOnChange).into();
+        let b_sld_row = 
+            rgba_slider("b", self.b_value, RGBA::B, ColPikMessage::BSldOnChange).into();
+        let a_sld_row = 
+            rgba_slider("a", self.a_value, RGBA::A, ColPikMessage::ASldOnChange).into();
+
+        let rgba_col = 
+            column(vec![r_sld_row, g_sld_row, b_sld_row, a_sld_row])
+            .spacing(5.0)
+            .into();
+
+        let grad_cont: Element<Message> = Canvas::new(HsvSquare {
+                hue: self.hue_value,
+                r: self.r_value,
+                g: self.g_value,
+                b: self.b_value,
+            })
+            .width(Length::Fixed(100.0))
+            .height(Length::Fixed(100.0))
+            .into();
         
-        if !self.show {
-            return Some(btn.map(move |message| Message::ColorPicker(self.id, message)));
-        }
+        // Top row with gradient window and rgba sliders
+        let grad_rgba_row = 
+            row(vec![grad_cont, rgba_col])
+            .width(Length::Fill)
+            .spacing(5.0)
+            .into();
 
-        let position: Position = 
-        if self.position_follow_cursor == Some(true) {
-            Position::FollowCursor
-        } else if self.position_bottom == Some(true) {
-            Position::Bottom
-        } else if self.position_left == Some(true) {
-            Position::Left
-        } else if self.position_right == Some(true) {
-            Position::Right
-        } else {
-            Position::Top
-        };
+        // contains a col of hue slider and radios
+        // in a row with the selcted color container
+        let hue_row = 
+            hue_slider_row(
+                self.hue_value, 
+                self.color_format_selected,
+                self.current_color()
+            ).into();
 
-        let tooltip: Element<'a, Message> = 
-            if let Some(txt) = &self.text {
-                    text(txt).into()
-                } else {
-                    if content.len() < 2 {
-                        text("If you are not using the text parameter,
-                            \nyou must use two widgets/containers").into()
-                    } else {
-                        content.remove(0)
-                    }
-                };
+        let col: Element<Message> =
+            column(vec![grad_rgba_row, hue_row, submit_row])
+            .spacing(10.0)
+            .into();
 
-        // let color: iced::Color = if let Some(c) = 
-        //     Color::rgba_ipg_color_to_iced(self.color_rgba, &self.color, self.color_alpha) {
-        //         c
-        //     } else {
-        //         [0.5, 0.2, 0.7, 1.0].into()
-        //     };
+        let content = 
+            container(col)
+                .width(370.0)
+                .height(190.0)
+                .padding(5.0);
 
-        let color_picker: Element<'a, Message> = Tooltip::new(
-                content.remove(0),
-                tooltip,
-                position,
-                )
-                .gap(self.gap.unwrap_or(0))
-                .snap_within_viewport(self.snap_within_viewport.unwrap_or(false))
-                .delay(seconds(self.delay_sec.unwrap_or(0)))
-                .into();
+        let cp = 
+            ColorPicker::new(
+                button("Color Picker").on_press(ColPikMessage::Noop),
+                content,
+                self.current_color(),
+                Position::Top,
+            )
+            .opened(self.opened)
+            .on_open(ColPikMessage::SetOpened)
+            .gap(10)
+            .style(container::rounded_box);
+
+        
+        Some(center(cp).into())
 
         // Some(color_picker.map(move |message| Message::ColorPicker(self.id, message)))
-        Some(color_picker)
-        
+
 
     }
 }
@@ -141,9 +146,102 @@ impl ColorPicker {
 #[allow(clippy::enum_variant_names)]
 #[derive(Debug, Clone)]
 pub enum ColPikMessage {
-    OnPress,
-    OnCancel,
-    OnSubmit(iced::Color),
+    Noop,
+    Submit,
+    Cancel,
+    CopyClipBoard,
+    SetOpened(bool),
+    RSldOnChange(u8),
+    GSldOnChange(u8),
+    BSldOnChange(u8),
+    ASldOnChange(u8),
+    OnHueChange(u8),
+    RgbaOnInput(RGBA, String),
+    CanvasColorPicked(u8, u8, u8),
+    ColorFormatSelected(ColorOutFormat)
+}
+
+pub fn color_picker_callback(id: usize, message: ColPikMessage) {
+        match message {
+            ColPikMessage::Submit => {
+                self.opened = false;
+                let val = 
+                    vec![self.r_value, self.g_value, self.b_value, self.a_value];
+                println!("Submitted {:?}", val)
+            }
+            ColPikMessage::Cancel => {
+                self.opened = false;
+                println!("Canceled")
+            },
+            ColPikMessage::CopyClipBoard => {
+                let text = selected_color_format_to_text(
+                    self.color_format_selected,
+                    self.current_color(),
+                );
+                return iced::clipboard::write(text).discard();
+            },
+            ColPikMessage::SetOpened(opened) => {
+                self.opened = opened;
+            },
+            ColPikMessage::RSldOnChange(value) => {
+                self.r_value = value;
+                self.hue_value = rgb_to_hue(self.r_value, self.g_value, self.b_value);
+            },
+            ColPikMessage::GSldOnChange(value) => {
+                self.g_value = value;
+                self.hue_value = rgb_to_hue(self.r_value, self.g_value, self.b_value);
+            },
+            ColPikMessage::BSldOnChange(value) => {
+                self.b_value = value;
+                self.hue_value = rgb_to_hue(self.r_value, self.g_value, self.b_value);
+            },
+            ColPikMessage::ASldOnChange(value) => {
+                self.a_value = value;
+            },
+            ColPikMessage::OnHueChange(value) => {
+                self.hue_value = value;
+                let rgb = hue_to_rgb(value);
+                self.r_value = (rgb.r * 255.0).round() as u8;
+                self.g_value = (rgb.g * 255.0).round() as u8;
+                self.b_value = (rgb.b * 255.0).round() as u8;
+            },
+            ColPikMessage::Noop => (),
+            ColPikMessage::CanvasColorPicked(r, g, b) => {
+                self.r_value = r;
+                self.g_value = g;
+                self.b_value = b;
+                self.hue_value = rgb_to_hue(r, g, b);
+            },
+            ColPikMessage::RgbaOnInput(rgba, input) => {
+                if let Ok(v) = input.parse::<u8>() {
+                    match rgba {
+                        RGBA::R => { self.r_value = v; self.hue_value = rgb_to_hue(self.r_value, self.g_value, self.b_value); }
+                        RGBA::G => { self.g_value = v; self.hue_value = rgb_to_hue(self.r_value, self.g_value, self.b_value); }
+                        RGBA::B => { self.b_value = v; self.hue_value = rgb_to_hue(self.r_value, self.g_value, self.b_value); }
+                        RGBA::A => { self.a_value = v; }
+                        RGBA::H => {
+                            self.hue_value = v;
+                            let rgb = hue_to_rgb(v);
+                            self.r_value = (rgb.r * 255.0).round() as u8;
+                            self.g_value = (rgb.g * 255.0).round() as u8;
+                            self.b_value = (rgb.b * 255.0).round() as u8;
+                        }
+                    }
+                }
+            },
+            ColPikMessage::ColorFormatSelected(format) => {
+                self.color_format_selected = Some(format);
+            }
+        }
+
+    }
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum ColorOutFormat {
+    Float,
+    Hex,
+    Integer,
+    Percent,
 }
 
 

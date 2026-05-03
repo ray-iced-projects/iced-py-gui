@@ -1,12 +1,14 @@
 //! ColorPicker module - provides add_button pyfunction
-use pyo3::prelude::*;
-use pyo3::{Py, PyAny, pyfunction};
+
+use pyo3::{Py, PyAny, pyfunction, PyResult};
 type PyObject = Py<PyAny>;
 
+use crate::ipg_widgets::ipg_color_picker::color_picker::ColorValue;
 use crate::{add_callback_to_mutex, add_user_data_to_mutex};
 use crate::state::{Widgets, access_state, get_id, set_state_of_widget};
 use crate::widgets::ipg_button::{ButtonStyleStd};
-use crate::widgets::ipg_color_picker::{ColorPicker};
+use crate::widgets::ipg_color_picker::{ColorOutFormat, ColorPicker};
+use crate::widgets::ipg_color_picker::rgb_to_hue;
 use crate::graphics::bootstrap_arrow::Arrow;
 
 
@@ -25,8 +27,8 @@ use crate::graphics::bootstrap_arrow::Arrow;
 ///     Obtains an ID of a widget that have not been created, used for the gen_id parameter.
 /// on_press : callable,  Optional
 ///     Sets the Callback method to invoke when the button is pressed.
-/// on_select : callable,  Optional
-///     Sets the Callback method to invoke when a color is selected.
+/// on_submit : callable,  Optional
+///     Sets the Callback method to invoke when a color is submitted.
 /// on_cancel : callable,  Optional
 ///     Sets the Callback method to invoke when the color selection is cancelled.
 /// color : Color,  Optional
@@ -69,7 +71,7 @@ use crate::graphics::bootstrap_arrow::Arrow;
     label=None, 
     gen_id=None, 
     on_press=None, 
-    on_select=None, 
+    on_submit=None, 
     on_cancel=None,
     position_follow_cursor=None,
     position_bottom=None,
@@ -91,14 +93,18 @@ use crate::graphics::bootstrap_arrow::Arrow;
     style_std=None, 
     style_arrow=None,
     user_data=None,
-    show=false, 
+    show=false,
+
+    opened=false,
+    initial_color=None,
+    color_output_format=None,
     ))]
 pub fn add_color_picker(
     parent_id: String,
     label: Option<String>,
     gen_id: Option<usize>,
     on_press: Option<PyObject>,
-    on_select: Option<PyObject>,
+    on_submit: Option<PyObject>,
     on_cancel: Option<PyObject>,
     position_follow_cursor: Option<bool>,
     position_bottom: Option<bool>,
@@ -121,16 +127,42 @@ pub fn add_color_picker(
     style_arrow: Option<Arrow>,
     user_data: Option<PyObject>,
     show: bool,
+
+    opened: bool,
+    initial_color: Option<PyObject>,
+    color_output_format: Option<ColorOutFormat>,
     ) -> PyResult<usize> 
 {
     let id = get_id(gen_id);
+
+
+    let initial_color: Option<ColorValue> = match initial_color {
+        Some(ic) => pyo3::Python::attach(|py| ic.extract::<ColorValue>(py).ok()),
+        None => None,
+    }.or(Some(ColorValue::Integer([0, 0, 0, 255])));
+
+    let [r_init, g_init, b_init, a_init] = initial_color
+        .as_ref()
+        .map(|ic| ic.to_normalized())
+        .unwrap_or([0.0, 0.0, 0.0, 1.0]);
+    let r_value = (r_init * 255.0).round() as u8;
+    let g_value = (g_init * 255.0).round() as u8;
+    let b_value = (b_init * 255.0).round() as u8;
+    let a_value = (a_init * 255.0).round() as u8;
+    let hue_value = rgb_to_hue(r_value, g_value, b_value);
+
+    let color_output_format = if let Some(cfs) = color_output_format {
+        Some(cfs)
+    } else {
+        Some(ColorOutFormat::Integer)
+    };
 
     if let Some(py) = on_press {
         add_callback_to_mutex(id, "on_press".to_string(), py);
     }
 
-    if let Some(py) = on_select {
-        add_callback_to_mutex(id, "on_select".to_string(), py);
+    if let Some(py) = on_submit {
+        add_callback_to_mutex(id, "on_submit".to_string(), py);
     }
 
     if let Some(py) = on_cancel {
@@ -169,7 +201,16 @@ pub fn add_color_picker(
             clip,
             style_id,
             style_std,
-            style_arrow,                             
+            style_arrow,
+
+            r_value, 
+            g_value, 
+            b_value, 
+            a_value, 
+            hue_value,
+            opened,
+            initial_color,
+            color_output_format,                             
             }));
 
     drop(state);

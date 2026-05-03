@@ -167,9 +167,13 @@ impl App {
                 get_tasks(&mut self.state)
             },
             Message::ColorPicker(id, message) => {
-                color_picker_callback(id, message);
+                let task = 
+                    color_picker_callback(&mut self.state, id, message);
                 process_widget_updates(&mut self.state);
-                Task::none()
+                match task {
+                    Some(t) => t,
+                    None => Task::none()
+                }
             },
             // Message::DatePicker(id, message) => {
             //     date_picker_update(&mut self.state, id, message);
@@ -769,9 +773,9 @@ fn get_widget<'a>(state: &'a IpgState, id: &usize) -> Option<Element<'a, Message
                 Widgets::CheckBox(chk) => {
                     chk.construct(&state.widgets)
                 },
-                // Widgets::ColorPicker(cp) => {
-                //     cp.construct(&state.widgets)
-                // },
+                Widgets::ColorPicker(cp) => {
+                    cp.construct(&state.widgets)
+                },
                 Widgets::Divider(div) => {
                     div.construct(&state.widgets)
                 },

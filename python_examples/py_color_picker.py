@@ -58,11 +58,11 @@ int
 """
 
 from icedpygui import Window, Column, Container,\
-    add_color_picker, add_text, \
-    start_session, update_widget, TextParam
+    add_color_picker, add_text, TextParam, \
+    update_widget, start_session
 
 
-def color_selected(_cp_id: int, color: list):
+def color_selected(_cp_id: int, color: any):
     """
     Color selected callback
     Need to change the list color to a str type
@@ -74,8 +74,8 @@ def color_selected(_cp_id: int, color: list):
     # update the text
     update_widget(text_id, TextParam.Content, string)
 
-    # update the text rgba color
-    update_widget(text_id, TextParam.ColorRgba, color)
+    # # update the text rgba color
+    # update_widget(text_id, TextParam.ColorRgba, color)
 
 
 def cp_opened(_cp_id: int):
@@ -104,7 +104,7 @@ with Window(
 
             add_color_picker(
                 on_press=cp_opened, # Button to open color picker
-                on_select=color_selected, # the color selection selected
+                on_submit=color_selected, # the color selection selected
                 on_cancel=cp_canceled) # the color selection cancel
 
 

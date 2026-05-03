@@ -57,6 +57,7 @@ use crate::widgets::ipg_color_picker::rgb_to_hue;
     position_left=None,
     position_top=None,
     position_right=None,
+    position_center=None,
     btn_label=None,
     btn_style_id=None,
     btn_style_std=None,
@@ -78,6 +79,7 @@ pub fn add_color_picker(
     position_left: Option<bool>,
     position_top: Option<bool>,
     position_right: Option<bool>,
+    position_center: Option<bool>,
     btn_label: Option<String>,
     btn_style_id: Option<usize>,
     btn_style_std: Option<ButtonStyleStd>,
@@ -109,6 +111,14 @@ pub fn add_color_picker(
         Some(ColorOutFormat::Integer)
     };
 
+    let positions = [
+        position_follow_cursor,
+        position_bottom,
+        position_left,
+        position_top,
+        position_right,
+        position_center,];
+
     if let Some(py) = on_press {
         add_callback_to_mutex(id, "on_open".to_string(), py);
     }
@@ -137,11 +147,7 @@ pub fn add_color_picker(
             color_output_format, 
             gap,
             snap_within_viewport,
-            position_follow_cursor,
-            position_bottom,
-            position_left,
-            position_top,
-            position_right,
+            positions,
             btn_label,
             btn_style_id,
             btn_style_std,

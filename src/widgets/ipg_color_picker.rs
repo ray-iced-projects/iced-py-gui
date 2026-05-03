@@ -28,12 +28,8 @@ pub struct ColorPicker {
     pub color_output_format: Option<ColorOutFormat>,
     pub gap: Option<u32>,
     pub snap_within_viewport: Option<bool>,
-    pub position_follow_cursor: Option<bool>,
-    pub position_bottom: Option<bool>,
-    pub position_left: Option<bool>,
-    pub position_top: Option<bool>,
-    pub position_right: Option<bool>,
-
+    pub positions: [Option<bool>; 6],
+    
     pub btn_label: Option<String>,
     pub btn_style_id: Option<usize>,
     pub btn_style_std: Option<ButtonStyleStd>,
@@ -134,16 +130,19 @@ impl ColorPicker {
                 .height(190.0)
                 .padding(5.0).into();
 
+        let position = get_open_position(self.positions);
+
         let cp: Element<'_, ColPikMessage> = 
             CP::new(
                 btn,
                 content,
                 self.current_color(),
-                Position::Top,
+                position,
             )
             .opened(self.opened)
             .on_open(ColPikMessage::SetOpened)
             .gap(10)
+            
             .style(container::rounded_box)
             .into();
         
@@ -161,6 +160,22 @@ impl ColorPicker {
         ]
     }
 
+}
+
+
+fn get_open_position(positions: [Option<bool>; 6]) -> Position {
+
+    let index = positions.iter()
+        .position(|p| *p == Some(true)).unwrap_or(5);
+
+    match index {
+        0 => Position::FollowCursor,
+        1 => Position::Bottom,
+        2 => Position::Left,
+        3 => Position::Right,
+        4 => Position::Top,
+        5 | _ => Position::Center,
+    }
 }
 
 struct HsvSquare {

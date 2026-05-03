@@ -381,6 +381,8 @@ pub enum Position {
     Right,
     /// The content will follow the cursor.
     FollowCursor,
+    /// The content will be centered over the button.
+    Center,
 }
 
 
@@ -454,6 +456,7 @@ where
                         self.cursor_position.y - text_bounds.height,
                     ) + translation
                 }
+                Position::Center => Vector::new(x_center, y_center),
             };
 
             Rectangle {

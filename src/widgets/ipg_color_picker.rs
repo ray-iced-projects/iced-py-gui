@@ -495,29 +495,6 @@ pub enum ColorPickerParam {
     SnapWithinViewport,
 }
 
-#[derive(Debug, Clone, PartialEq, Hash)]
-#[pyclass(eq, eq_int, hash, frozen)]
-pub enum ColorPickerStyleParam {
-    BackgroundColor,
-    BackgroundColorAlpha,
-    BackgroundRbga,
-    BorderColor,
-    BorderColorAlpha,
-    BorderRgba,
-    BorderRadius,
-    BorderWidth,
-    ShadowColor,
-    ShadowColorAlpha,
-    ShadowRgba,
-    ShadowOffsetX,
-    ShadowOffsetY,
-    ShadowBlurRadius,
-    TextColor,
-    TextColorAlpha,
-    TextRgba
-}
-
-
 // ---------------------------------------------------------------------------
 // WidgetParamUpdate implementations
 // ---------------------------------------------------------------------------

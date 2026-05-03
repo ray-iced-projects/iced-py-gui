@@ -14,28 +14,56 @@ use crate::widgets::ipg_color_picker::rgb_to_hue;
 /// Add a color_picker widget.
 ///
 /// A color picker that opens from a button, allowing the user
-/// to select a color interactively.
+/// to select a color interactively using HSV canvas, RGBA sliders,
+/// a hue slider, and an optional palette panel showing tint/shade
+/// variants of the selected color.
 ///
 /// Parameters
 /// ----------
 /// parent_id : str
 ///     Sets the parent container ID that this color picker belongs to.
-/// gen_id : int,  Optional
-///     Obtains an ID of a widget that have not been created, used for the gen_id parameter.
-/// on_press : callable,  Optional
-///     Sets the Callback method to invoke when the button is pressed.
-/// on_submit : callable,  Optional
-///     Sets the Callback method to invoke when a color is submitted.
-/// on_cancel : callable,  Optional
-///     Sets the Callback method to invoke when the color selection is cancelled.
-/// btn_label : str,  Optional
-///     Sets the Text label displayed on the button.
-/// btn_style_id : int,  Optional
-///     Sets the ID of a custom style created with ``add_button_style``.
-/// style_std : ButtonStyleStd,  Optional
-///     Sets the predefined standard style variant.
-/// user_data : Any,  Optional
-///     Sets the Arbitrary data forwarded to callbacks.
+/// on_press : callable, optional
+///     Callback invoked when the trigger button is pressed (picker opens/closes).
+/// on_submit : callable, optional
+///     Callback invoked when the user clicks Submit. Receives the selected
+///     color formatted according to ``color_output_format``.
+/// on_cancel : callable, optional
+///     Callback invoked when the user clicks Cancel.
+/// opened : bool, optional
+///     Initial open/closed state of the picker. Default ``False``.
+/// initial_color : ColorValue, optional
+///     Starting color. Accepts ``ColorValue.Float``, ``ColorValue.Integer``,
+///     ``ColorValue.Hex``, or ``ColorValue.Percent``. Defaults to a purple.
+/// color_output_format : ColorOutFormat, optional
+///     Format used when returning the color via ``on_submit`` and the
+///     clipboard button. One of ``Integer`` (default), ``Float``, ``Hex``,
+///     or ``Percent``.
+/// gap : int, optional
+///     Gap in pixels between the trigger button and the picker panel.
+/// snap_within_viewport : bool, optional
+///     When ``True``, clamps the picker panel inside the window bounds.
+/// position_follow_cursor : bool, optional
+///     Opens the picker at the cursor position.
+/// position_bottom : bool, optional
+///     Opens the picker below the trigger button.
+/// position_left : bool, optional
+///     Opens the picker to the left of the trigger button.
+/// position_top : bool, optional
+///     Opens the picker above the trigger button. This is the default.
+/// position_right : bool, optional
+///     Opens the picker to the right of the trigger button.
+/// position_center : bool, optional
+///     Centers the picker over the trigger button.
+/// btn_label : str, optional
+///     Text label displayed on the trigger button. Defaults to "Color Picker".
+/// btn_style_id : int, optional
+///     ID of a custom button style created with ``add_button_style``.
+/// btn_style_std : ButtonStyleStd, optional
+///     Predefined standard button style variant.
+/// user_data : Any, optional
+///     Arbitrary data forwarded unchanged to all callbacks.
+/// gen_id : int, optional
+///     Pre-reserved widget ID (from ``generate_id``).
 ///
 /// Returns
 /// -------

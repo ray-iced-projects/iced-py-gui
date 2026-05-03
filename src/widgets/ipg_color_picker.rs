@@ -13,7 +13,7 @@ use super::callbacks::{invoke_callback_with_args};
 use crate::ipg_widgets::ipg_color_picker::color_picker::{Position, ColorPicker as CP, ColorValue};
 
 use iced::Length::Fill;
-use iced::widget::{Canvas, TextInput, button, canvas, center, column, container, radio, row, slider, text};
+use iced::widget::{Canvas, Checkbox, TextInput, button, canvas, center, column, container, radio, row, slider, text};
 use iced::{Element, Length, Padding, Pixels, Point, Rectangle, Size, Task, Theme};
 
 
@@ -39,6 +39,7 @@ pub struct ColorPicker {
     pub b_value: u8,
     pub a_value: u8,
     pub hue_value: u8,
+    pub show_palette: bool,
 }
 
 impl ColorPicker {
@@ -77,7 +78,7 @@ impl ColorPicker {
                     }
                 });
         
-        let submit_row = submit_row().into();
+        let submit_row = submit_row(self.show_palette).into();
 
         let r_sld_row = 
             rgba_slider("r", self.r_value, RGBA::R, ColPikMessage::RSldOnChange).into();
@@ -119,14 +120,25 @@ impl ColorPicker {
                 self.current_color()
             ).into();
 
-        let col: Element<ColPikMessage> =
-            column(vec![grad_rgba_row, hue_row, submit_row])
-            .spacing(10.0)
-            .into();
+        let col: Element<ColPikMessage> = {
+            let sliders_col: Element<ColPikMessage> =
+                column(vec![grad_rgba_row, hue_row])
+                    .spacing(10.0)
+                    .into();
+
+            if self.show_palette {
+                let pal = palette_panel(self.current_color());
+                row(vec![pal, sliders_col])
+                    .spacing(8.0)
+                    .into()
+            } else {
+                sliders_col
+            }
+        };
 
         let content: Element<'_, ColPikMessage> = 
-            container(col)
-                .width(370.0)
+            container(column(vec![col, submit_row]).spacing(10.0))
+                .width(if self.show_palette { 460.0 } else { 370.0 })
                 .height(190.0)
                 .padding(5.0).into();
 
@@ -305,6 +317,7 @@ pub enum ColPikMessage {
     Cancel,
     CopyClipBoard,
     SetOpened(bool),
+    ShowPalette(bool),
     RSldOnChange(u8),
     GSldOnChange(u8),
     BSldOnChange(u8),
@@ -427,6 +440,12 @@ pub fn color_picker_callback(
             ColPikMessage::ColorFormatSelected(format) => {
                 if let Some(Widgets::ColorPicker(cp)) = state.widgets.get_mut(&id) {
                     cp.color_output_format = Some(format);
+                }
+                None
+            }
+            ColPikMessage::ShowPalette(checked) => {
+                if let Some(Widgets::ColorPicker(cp)) = state.widgets.get_mut(&id) {
+                    cp.show_palette = checked;
                 }
                 None
             }
@@ -606,7 +625,7 @@ fn selected_color_format_to_text(
     }
 }
 
-fn submit_row() -> iced::widget::Row<'static, ColPikMessage> {
+fn submit_row(show_palette: bool) -> iced::widget::Row<'static, ColPikMessage> {
     let size = Pixels(12.0);
     let txt: Element<ColPikMessage> = text("Submit").size(size).into();
     
@@ -624,23 +643,72 @@ fn submit_row() -> iced::widget::Row<'static, ColPikMessage> {
             .into();
 
     let txt: Element<ColPikMessage> = text("ClipBoard").size(size).into();
-    let clipbrd_btn = 
+    let clipbrd_btn: Element<ColPikMessage> = 
         button(txt)
             .on_press(ColPikMessage::CopyClipBoard)
             .padding(5.0)
             .into();
 
-    row([submit_btn, cancel_btn, clipbrd_btn])
-        .spacing(20.0)
+    let palette_chk: Element<ColPikMessage> =
+        Checkbox::new(show_palette)
+            .label("Show Palette")
+            .on_toggle(ColPikMessage::ShowPalette)
+            .size(12.0)
+            .text_size(12.0)
+            .into();
+
+    row([submit_btn, cancel_btn, clipbrd_btn, palette_chk])
+        .spacing(15.0)
+        .align_y(iced::Alignment::Center)
 }
 
-// fn submit_row_style(
-//     theme: &Theme, 
-//     status: button::Status
-// ) -> (button::Style, text::Style) {
-//     let btn_style = button::primary(theme, status);
-//     let txt_style = text::Style()
-// }
+
+fn palette_swatch(label: &'static str, color: iced::Color) -> Element<'static, ColPikMessage> {
+    let [r, g, b, _] = [color.r, color.g, color.b, color.a];
+    let luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+    let fg = if luminance > 0.45 { iced::Color::BLACK } else { iced::Color::WHITE };
+    container(
+        text(label).size(10.0)
+    )
+    .style(move |_theme: &Theme| container::Style {
+        background: Some(iced::Background::Color(color)),
+        text_color: Some(fg),
+        border: iced::Border { radius: 4.0.into(), ..Default::default() },
+        ..Default::default()
+    })
+    .padding(Padding::new(3.0))
+    .center_x(Length::Fill)
+    .height(18.0)
+    .into()
+}
+
+/// Mix `color` with white (t=0) or black (t=1) by factor `amount`.
+fn mix(color: [f32; 3], mix_color: [f32; 3], amount: f32) -> iced::Color {
+    iced::Color::from_rgb(
+        color[0] + (mix_color[0] - color[0]) * amount,
+        color[1] + (mix_color[1] - color[1]) * amount,
+        color[2] + (mix_color[2] - color[2]) * amount,
+    )
+}
+
+fn palette_panel(selected: [f32; 4]) -> Element<'static, ColPikMessage> {
+    let c = [selected[0], selected[1], selected[2]];
+    let white = [1.0f32; 3];
+    let black = [0.0f32; 3];
+
+    column(vec![
+        palette_swatch("weakest", mix(c, white, 0.80)),
+        palette_swatch("weaker",  mix(c, white, 0.55)),
+        palette_swatch("weak",    mix(c, white, 0.30)),
+        palette_swatch("base",    iced::Color::from_rgb(c[0], c[1], c[2])),
+        palette_swatch("strong",  mix(c, black, 0.25)),
+        palette_swatch("stronger",mix(c, black, 0.50)),
+        palette_swatch("strongest",mix(c, black, 0.70)),
+    ])
+    .spacing(3.0)
+    .width(80.0)
+    .into()
+}
 
 #[derive(Debug, Clone, Copy)]
 pub enum RGBA { R, G, B, A, H}

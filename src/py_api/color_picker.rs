@@ -156,7 +156,8 @@ pub fn add_color_picker(
             g_value, 
             b_value, 
             a_value, 
-            hue_value,                    
+            hue_value,
+            show_palette: false,
             }));
 
     drop(state);

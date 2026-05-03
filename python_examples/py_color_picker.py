@@ -93,7 +93,7 @@ def cp_canceled(_cp_id: int):
 # Add a window first
 with Window(
     title="ColorPicker",
-    size=(600.0, 500.0),
+    size=(600.0, 600.0),
     center=True):
 
     # Add the container.

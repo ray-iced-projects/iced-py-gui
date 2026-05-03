@@ -111,14 +111,6 @@ pub fn add_color_picker(
         Some(ColorOutFormat::Integer)
     };
 
-    let positions = [
-        position_follow_cursor,
-        position_bottom,
-        position_left,
-        position_top,
-        position_right,
-        position_center,];
-
     if let Some(py) = on_press {
         add_callback_to_mutex(id, "on_open".to_string(), py);
     }
@@ -147,7 +139,12 @@ pub fn add_color_picker(
             color_output_format, 
             gap,
             snap_within_viewport,
-            positions,
+            position_follow_cursor,
+            position_bottom,
+            position_left,
+            position_top,
+            position_right,
+            position_center,
             btn_label,
             btn_style_id,
             btn_style_std,

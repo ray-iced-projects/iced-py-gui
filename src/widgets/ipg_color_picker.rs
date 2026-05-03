@@ -14,7 +14,7 @@ use crate::ipg_widgets::ipg_color_picker::color_picker::{Position, ColorPicker a
 
 use iced::Length::Fill;
 use iced::widget::{Canvas, Checkbox, TextInput, button, canvas, center, column, container, radio, row, slider, text};
-use iced::{Element, Length, Padding, Pixels, Point, Rectangle, Size, Task, Theme};
+use iced::{Border, Element, Length, Padding, Pixels, Point, Rectangle, Size, Task, Theme};
 
 
 use pyo3::{Py, PyAny, pyclass};
@@ -28,7 +28,12 @@ pub struct ColorPicker {
     pub color_output_format: Option<ColorOutFormat>,
     pub gap: Option<u32>,
     pub snap_within_viewport: Option<bool>,
-    pub positions: [Option<bool>; 6],
+    pub position_follow_cursor: Option<bool>,
+    pub position_bottom: Option<bool>,
+    pub position_left: Option<bool>,
+    pub position_top: Option<bool>,
+    pub position_right: Option<bool>,
+    pub position_center: Option<bool>,
     
     pub btn_label: Option<String>,
     pub btn_style_id: Option<usize>,
@@ -142,7 +147,15 @@ impl ColorPicker {
                 .height(190.0)
                 .padding(5.0).into();
 
-        let position = get_open_position(self.positions);
+        let positions = [
+            self.position_follow_cursor,
+            self.position_bottom,
+            self.position_left,
+            self.position_top,
+            self.position_right,
+            self.position_center,];
+        
+        let position = get_open_position(positions);
 
         let cp: Element<'_, ColPikMessage> = 
             CP::new(
@@ -153,8 +166,8 @@ impl ColorPicker {
             )
             .opened(self.opened)
             .on_open(ColPikMessage::SetOpened)
-            .gap(10)
-            
+            .gap(self.gap.unwrap_or(10))
+            .snap_within_viewport(self.snap_within_viewport.unwrap_or(true))
             .style(container::rounded_box)
             .into();
         
@@ -184,8 +197,8 @@ fn get_open_position(positions: [Option<bool>; 6]) -> Position {
         0 => Position::FollowCursor,
         1 => Position::Bottom,
         2 => Position::Left,
-        3 => Position::Right,
-        4 => Position::Top,
+        3 => Position::Top,
+        4 => Position::Right,
         5 | _ => Position::Center,
     }
 }
@@ -466,9 +479,20 @@ pub enum ColorOutFormat {
 #[derive(Debug, Clone, PartialEq, Hash)]
 #[pyclass(eq, eq_int, hash, frozen)]
 pub enum ColorPickerParam {
-    ColorAlpha,
-    ColorRgba,
-    Color,
+    BtnLabel,
+    BtnStyleId,
+    BtnStyleStd,
+    ColorOutputFormat,
+    Gap,
+    Opened,
+    PositionBottom,
+    PositionCenter,
+    PositionFollowCursor,
+    PositionLeft,
+    PositionRight,
+    PositionTop,
+    ShowPalette,
+    SnapWithinViewport,
 }
 
 #[derive(Debug, Clone, PartialEq, Hash)]
@@ -503,9 +527,20 @@ impl WidgetParamUpdate for ColorPicker {
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
-            ColorPickerParam::ColorAlpha => set_t_value(&mut self.initial_color, value, "ColorPickerParam::ColorAlpha"),
-            ColorPickerParam::ColorRgba => set_t_value(&mut self.initial_color, value, "ColorPickerParam::ColorRgba"),
-            ColorPickerParam::Color => set_t_value(&mut self.initial_color, value, "ColorPickerParam::Color"),
+            ColorPickerParam::BtnLabel => set_t_value(&mut self.btn_label, value, "ColorPickerParam::BtnLabel"),
+            ColorPickerParam::BtnStyleId => set_t_value(&mut self.btn_style_id, value, "ColorPickerParam::BtnStyleId"),
+            ColorPickerParam::BtnStyleStd => set_t_value(&mut self.btn_style_std, value, "ColorPickerParam::BtnStyleStd"),
+            ColorPickerParam::ColorOutputFormat => set_t_value(&mut self.color_output_format, value, "ColorPickerParam::ColorOutputFormat"),
+            ColorPickerParam::Gap => set_t_value(&mut self.gap, value, "ColorPickerParam::Gap"),
+            ColorPickerParam::Opened => set_t_value(&mut self.opened, value, "ColorPickerParam::Opened"),
+            ColorPickerParam::PositionBottom => set_t_value(&mut self.position_bottom, value, "ColorPickerParam::PositionBottom"),
+            ColorPickerParam::PositionCenter => set_t_value(&mut self.position_center, value, "ColorPickerParam::PositionCenter"),
+            ColorPickerParam::PositionFollowCursor => set_t_value(&mut self.position_follow_cursor, value, "ColorPickerParam::PositionFollowCursor"),
+            ColorPickerParam::PositionLeft => set_t_value(&mut self.position_left, value, "ColorPickerParam::PositionLeft"),
+            ColorPickerParam::PositionRight => set_t_value(&mut self.position_right, value, "ColorPickerParam::PositionRight"),
+            ColorPickerParam::PositionTop => set_t_value(&mut self.position_top, value, "ColorPickerParam::PositionTop"),
+            ColorPickerParam::ShowPalette => set_t_value(&mut self.show_palette, value, "ColorPickerParam::ShowPalette"),
+            ColorPickerParam::SnapWithinViewport => set_t_value(&mut self.snap_within_viewport, value, "ColorPickerParam::SnapWithinViewport"),
         }
     }
 }
@@ -633,6 +668,9 @@ fn submit_row(show_palette: bool) -> iced::widget::Row<'static, ColPikMessage> {
         button(txt)
             .on_press(ColPikMessage::Submit)
             .padding(5.0)
+            .style(move|theme, status| {
+                submit_btn_style(theme, status)
+            })
             .into();
 
     let txt: Element<ColPikMessage> = text("Cancel").size(size).into();
@@ -640,6 +678,9 @@ fn submit_row(show_palette: bool) -> iced::widget::Row<'static, ColPikMessage> {
         button(txt)
             .on_press(ColPikMessage::Cancel)
             .padding(5.0)
+            .style(move|theme, status| {
+                submit_btn_style(theme, status)
+            })
             .into();
 
     let txt: Element<ColPikMessage> = text("ClipBoard").size(size).into();
@@ -647,14 +688,17 @@ fn submit_row(show_palette: bool) -> iced::widget::Row<'static, ColPikMessage> {
         button(txt)
             .on_press(ColPikMessage::CopyClipBoard)
             .padding(5.0)
+            .style(move|theme, status| {
+                submit_btn_style(theme, status)
+            })
             .into();
 
     let palette_chk: Element<ColPikMessage> =
         Checkbox::new(show_palette)
             .label("Show Palette")
             .on_toggle(ColPikMessage::ShowPalette)
-            .size(12.0)
-            .text_size(12.0)
+            .size(14.0)
+            .text_size(14.0)
             .into();
 
     row([submit_btn, cancel_btn, clipbrd_btn, palette_chk])
@@ -708,6 +752,16 @@ fn palette_panel(selected: [f32; 4]) -> Element<'static, ColPikMessage> {
     .spacing(3.0)
     .width(80.0)
     .into()
+}
+
+fn submit_btn_style(theme: &Theme, status: button::Status) -> button::Style {
+    let mut style = button::primary(theme, status);
+    style.border = 
+        Border {
+            radius: 5.0.into(),
+            ..Default::default()
+        };
+    style
 }
 
 #[derive(Debug, Clone, Copy)]

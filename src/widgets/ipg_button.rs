@@ -65,8 +65,6 @@ impl Button {
         self.lookup(widgets, self.font_id)
             .and_then(Widgets::as_font).cloned();
 
-        
-
         let txt = if let Some(sa) = &self.style_arrow {
             let ar = Arrow::to_string(sa);
             text(ar).font(iced::Font::new("bootstrap-icons"))

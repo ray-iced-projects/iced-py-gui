@@ -2,8 +2,8 @@
 use std::collections::HashMap;
 
 use crate::IpgState;
-use crate::graphics::bootstrap_arrow::Arrow;
 use crate::state::Widgets;
+use crate::widgets::callbacks::invoke_callback;
 use crate::widgets::ipg_button::ButtonStyleStd;
 use crate::widgets::widget_param_update::{WidgetParamUpdate, set_t_value};
 use crate::app::Message;
@@ -23,49 +23,63 @@ type PyObject = Py<PyAny>;
 #[derive(Debug, Clone)]
 pub struct ColorPicker {
     pub id: usize,
+    pub opened: bool,
+    pub initial_color: Option<ColorValue>,
+    pub color_output_format: Option<ColorOutFormat>,
+    pub gap: Option<u32>,
+    pub snap_within_viewport: Option<bool>,
     pub position_follow_cursor: Option<bool>,
     pub position_bottom: Option<bool>,
     pub position_left: Option<bool>,
     pub position_top: Option<bool>,
     pub position_right: Option<bool>,
-    pub text: Option<String>,
-    pub gap: Option<u32>,
-    pub snap_within_viewport: Option<bool>,
-    pub delay_sec: Option<u64>,
-    pub show: bool,
-    //button related
-    pub label: Option<String>,
-    pub width: Option<f32>,
-    pub width_fill: Option<bool>,
-    pub height: Option<f32>,
-    pub height_fill: Option<bool>,
-    pub fill: Option<bool>,
-    pub padding: Option<Vec<f32>>,
-    pub clip: Option<bool>,
-    pub style_id: Option<usize>,
-    pub style_std: Option<ButtonStyleStd>,
-    pub style_arrow: Option<Arrow>,
+
+    pub btn_label: Option<String>,
+    pub btn_style_id: Option<usize>,
+    pub btn_style_std: Option<ButtonStyleStd>,
 
     pub r_value: u8,
     pub g_value: u8,
     pub b_value: u8,
     pub a_value: u8,
     pub hue_value: u8,
-    pub opened: bool,
-    pub initial_color: Option<ColorValue>,
-    pub color_output_format: Option<ColorOutFormat>,
 }
 
 impl ColorPicker {
 
-    // fn lookup<'a>(&self, widgets: &'a HashMap<usize, Widgets>, id: Option<usize>) -> Option<&'a Widgets> {
-    //     id.and_then(|id| widgets.get(&id))
-    // }
+    fn lookup<'a>(&self, widgets: &'a HashMap<usize, Widgets>, id: Option<usize>) -> Option<&'a Widgets> {
+        id.and_then(|id| widgets.get(&id))
+    }
 
     pub fn construct<'a>(
         &'a self,
-        _widgets: &HashMap<usize, Widgets>,
+        widgets: &HashMap<usize, Widgets>,
         ) -> Option<Element<'a, Message>> {
+
+        //  For the btn styling
+        let style_opt = 
+            self.lookup(widgets, self.btn_style_id)
+                .and_then(Widgets::as_button_style).cloned();
+
+        let label = if let Some(lbl) = &self.btn_label {
+            lbl
+        } else {
+            "Color Picker"
+        };
+
+        let btn = 
+            button(label)
+                .on_press(ColPikMessage::Noop)
+                .style(move |theme: &Theme, status| {
+                    if let Some(st) = &style_opt {
+                        st.to_iced(theme, status)
+                    } else {
+                        match &self.btn_style_std {
+                            Some(std) => std.to_iced(theme, status),
+                            None => button::primary(theme, status),
+                        }
+                    }
+                });
         
         let submit_row = submit_row().into();
 
@@ -122,7 +136,7 @@ impl ColorPicker {
 
         let cp: Element<'_, ColPikMessage> = 
             CP::new(
-                button("Color Picker").on_press(ColPikMessage::Noop),
+                btn,
                 content,
                 self.current_color(),
                 Position::Top,
@@ -307,6 +321,7 @@ pub fn color_picker_callback(
             ColPikMessage::Cancel => {
                 if let Some(Widgets::ColorPicker(cp)) = state.widgets.get_mut(&id) {
                     cp.opened = false;
+                    invoke_callback(id, "on_cancel", "ColorPicker");
                 }
                 None
             },
@@ -323,6 +338,7 @@ pub fn color_picker_callback(
             ColPikMessage::SetOpened(opened) => {
                 if let Some(Widgets::ColorPicker(cp)) = state.widgets.get_mut(&id) {
                     cp.opened = opened;
+                    invoke_callback(id, "on_open", "ColorPicker");
                 }
                 None
             },
@@ -416,21 +432,9 @@ pub enum ColorOutFormat {
 #[derive(Debug, Clone, PartialEq, Hash)]
 #[pyclass(eq, eq_int, hash, frozen)]
 pub enum ColorPickerParam {
-    Clip,
     ColorAlpha,
     ColorRgba,
     Color,
-    Fill, 
-    HeightFill,
-    Height, 
-    Label,
-    Padding,
-    Show,
-    StyleArrow,  
-    StyleId,
-    StyleStd,
-    WidthFill,  
-    Width,
 }
 
 #[derive(Debug, Clone, PartialEq, Hash)]
@@ -455,20 +459,6 @@ pub enum ColorPickerStyleParam {
     TextRgba
 }
 
-// fn convert_color_to_list(color: iced::Color) -> Vec<f64> {
-
-//     vec![
-//         rnd_2(color.r),
-//         rnd_2(color.g),
-//         rnd_2(color.b),
-//         rnd_2(color.a),
-//     ]
-// }
-
-// fn rnd_2(rgba: f32) -> f64 {
-//     let num = rgba as f64 * 100.0;
-//     num.round()/100.0
-// }
 
 // ---------------------------------------------------------------------------
 // WidgetParamUpdate implementations
@@ -479,18 +469,6 @@ impl WidgetParamUpdate for ColorPicker {
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
-            ColorPickerParam::Clip => set_t_value(&mut self.clip, value, "ColorPickerParam::Clip"),
-            ColorPickerParam::Fill => set_t_value(&mut self.fill, value, "ColorPickerParam::Fill"),
-            ColorPickerParam::Height => set_t_value(&mut self.height, value, "ColorPickerParam::Height"),
-            ColorPickerParam::HeightFill => set_t_value(&mut self.height, value, "ColorPickerParam::HeightFill"),
-            ColorPickerParam::Label => set_t_value(&mut self.label, value, "ColorPickerParam::Label"),
-            ColorPickerParam::Padding => set_t_value(&mut self.padding, value, "ColorPickerParam::Padding"),
-            ColorPickerParam::Show => set_t_value(&mut self.show, value, "ColorPickerParam::Show"),
-            ColorPickerParam::StyleArrow => set_t_value(&mut self.style_arrow, value, "ColorPickerParam::StyleArrow"),
-            ColorPickerParam::StyleId => set_t_value(&mut self.style_id, value, "ColorPickerParam::StyleId"),
-            ColorPickerParam::StyleStd => set_t_value(&mut self.style_std, value, "ColorPickerParam::StyleStd"),
-            ColorPickerParam::Width => set_t_value(&mut self.width, value, "ColorPickerParam::Width"),
-            ColorPickerParam::WidthFill => set_t_value(&mut self.width, value, "ColorPickerParam::WidthFill"),
             ColorPickerParam::ColorAlpha => set_t_value(&mut self.initial_color, value, "ColorPickerParam::ColorAlpha"),
             ColorPickerParam::ColorRgba => set_t_value(&mut self.initial_color, value, "ColorPickerParam::ColorRgba"),
             ColorPickerParam::Color => set_t_value(&mut self.initial_color, value, "ColorPickerParam::Color"),

@@ -59,8 +59,10 @@ int
 
 from icedpygui import Window, Column, Container,\
     add_color_picker, add_text, TextParam, \
-    update_widget, start_session
+    update_widget, add_button_style, start_session
 
+
+style_id = add_button_style(border_radius=[10.0])
 
 def color_selected(_cp_id: int, color: any):
     """
@@ -105,8 +107,8 @@ with Window(
             add_color_picker(
                 on_press=cp_opened, # Button to open color picker
                 on_submit=color_selected, # the color selection selected
-                on_cancel=cp_canceled) # the color selection cancel
-
+                on_cancel=cp_canceled, # the color selection cancel
+                btn_style_id=style_id)
 
             text_id = add_text(content="Color value here")
 

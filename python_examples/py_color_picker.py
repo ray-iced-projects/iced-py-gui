@@ -102,7 +102,7 @@ with Window(
         align_center=True):
 
         # Add a column to hold multiple widgets
-        with Column(spacing=20.0):
+        with Column(spacing=20.0, width=200):
 
             add_color_picker(
                 on_press=cp_opened, # Button to open color picker

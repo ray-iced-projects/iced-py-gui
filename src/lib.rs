@@ -39,7 +39,7 @@ use crate::py_api::divider::{add_divider, add_divider_style};
 use crate::py_api::events::{add_event_keyboard, add_event_mouse};
 use crate::py_api::float::add_float;
 use crate::py_api::grid::add_grid;
-use crate::py_api::font::{add_font_style, load_font};
+use crate::py_api::font::{add_font_style, add_icon, load_font};
 use crate::py_api::image::add_image;
 // use crate::py_api::menu::{add_menu, add_menu_bar_item, add_menu_style};
 use crate::py_api::mouse_area::add_mouse_area;
@@ -48,7 +48,7 @@ use crate::py_api::progress_bar::{add_progress_bar, add_progress_bar_style};
 use crate::py_api::radio::{add_radio, add_radio_style};
 use crate::py_api::row::add_row;
 use crate::py_api::rule::{add_rule, add_rule_style};
-// use crate::py_api::picklist::{add_pick_list, add_pick_list_style};
+use crate::py_api::picklist::{add_pick_list, add_pick_list_style};
 use crate::py_api::scrollable::{add_scrollable, add_scrollable_style, 
     add_scroller, add_autoscroll_style, add_rail_style};
 use crate::py_api::separator::{add_separator, add_separator_style};
@@ -86,7 +86,6 @@ use crate::widgets::ipg_divider::{DividerDirection, DividerParam, DividerStylePa
 use crate::widgets::ipg_float::FloatParam;
 use crate::widgets::ipg_grid::GridParam;
 // use crate::widgets::ipg_menu::{MenuBarItemParam, MenuParam, MenuStyleParam};
-// use crate::widgets::ipg_pick_list::PickListHandle;
 use crate::widgets::ipg_radio::{RadioParam, RadioStyleParam};
 use crate::widgets::ipg_row::RowParam;
 use crate::widgets::ipg_rule::{RuleParam, RuleStyleParam};
@@ -141,7 +140,7 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(add_divider, m)?)?;
     m.add_function(wrap_pyfunction!(add_float, m)?)?;
     m.add_function(wrap_pyfunction!(add_font_style, m)?)?;
-    m.add_function(wrap_pyfunction!(add_font_style, m)?)?;
+    m.add_function(wrap_pyfunction!(add_icon, m)?)?;
     m.add_function(wrap_pyfunction!(add_grid, m)?)?;
     m.add_function(wrap_pyfunction!(add_image, m)?)?;
     // m.add_function(wrap_pyfunction!(add_menu_bar_item, m)?)?;
@@ -149,8 +148,8 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     // m.add_function(wrap_pyfunction!(add_menu, m)?)?;
     m.add_function(wrap_pyfunction!(add_mouse_area, m)?)?;
     m.add_function(wrap_pyfunction!(add_opaque, m)?)?;
-    // m.add_function(wrap_pyfunction!(add_pick_list_style, m)?)?;
-    // m.add_function(wrap_pyfunction!(add_pick_list, m)?)?;
+    m.add_function(wrap_pyfunction!(add_pick_list_style, m)?)?;
+    m.add_function(wrap_pyfunction!(add_pick_list, m)?)?;
     m.add_function(wrap_pyfunction!(add_progress_bar_style, m)?)?;
     m.add_function(wrap_pyfunction!(add_progress_bar, m)?)?;
     m.add_function(wrap_pyfunction!(add_radio_style, m)?)?;
@@ -272,6 +271,5 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<FontStretch>()?;
     m.add_class::<FontStyle>()?;
     m.add_class::<MousePointer>()?;
-    // m.add_class::<PickListHandle>()?;
     Ok(())
 }

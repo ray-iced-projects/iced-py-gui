@@ -425,6 +425,26 @@ def add_float(
         int: widget id
     """
     ...
+def add_icon(
+    *,
+    arrow: Arrow | None = None,
+    icon: Icon | None = None,
+    code_point: int | None = None,
+    font_id: int | None = None,
+    parent_id: str | None = None,
+    size: float | None = None,
+    line_height: float | None = None,
+    gen_id: int | None = None,
+    ) -> int:
+    """_summary_
+
+    Args:
+        parent_id (str | None, optional): _description_. Defaults to None.
+
+    Returns:
+        int: widget id
+    """
+    ...
 def add_image(
     path: str,
     *,

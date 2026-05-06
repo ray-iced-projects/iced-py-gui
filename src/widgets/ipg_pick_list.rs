@@ -3,7 +3,6 @@ use std::collections::HashMap;
 
 use crate::app;
 use crate::IpgState;
-use crate::graphics::bootstrap_arrow::Arrow;
 use crate::graphics::colors::Color;
 use crate::py_api::helpers::get_len;
 use crate::py_api::helpers::{get_padding, get_radius};
@@ -12,10 +11,11 @@ use crate::widgets::widget_param_update::{WidgetParamUpdate, set_t_value};
 use super::callbacks::invoke_callback_with_args;
 
 use iced::widget::pick_list::{self, Status};
+use iced::widget::text::Ellipsis;
 use iced::{Font, Pixels, Theme};
 use iced::{Element};
 use iced::widget;
-use iced::widget::pick_list::{Handle, Icon};
+use iced::widget::pick_list::Handle;
 use iced::overlay::menu;
 
 use pyo3::pyclass;
@@ -36,15 +36,19 @@ pub struct PickList {
     pub padding: Option<Vec<f32>>,
     pub text_size: Option<f32>,
     pub text_line_height: Option<f32>,
-    pub handle: Option<PickListHandle>,
-    pub arrow_size: Option<f32>,
-    pub dynamic_close: Option<Arrow>,
-    pub dynamic_open: Option<Arrow>,
-    pub custom_static: Option<Arrow>,
+    pub text_ellipsis: Ellipsis,
+    pub handle: HandleParams,
     pub style_id: Option<usize>,
     pub show: bool,
 }
 
+#[derive(Debug, Clone)]
+pub struct HandleParams {
+    pub handle_size: Option<f32>,
+    pub handle_static_icon_id: Option<usize>,
+    pub handle_dynamic_closed_icon_id: Option<usize>,
+    pub handle_dynamic_open_icon_id: Option<usize>,
+}
 
 #[derive(Debug, Clone)]
 pub enum PLMessage {
@@ -70,20 +74,17 @@ impl PickList {
             self.lookup(widgets, self.style_id)
                 .and_then(Widgets::as_pick_list_style).cloned();
 
-        let handle = if let Some(hd) = &self.handle {
+        let handle = 
             get_handle(
-                &hd, 
-                self.arrow_size, 
-                &self.dynamic_close,
-                &self.dynamic_open,
-                &self.custom_static)
-        } else { Handle::None };
-
+                widgets,
+                &self.handle,
+            );
+        
         let pl = 
             widget::PickList::new(
                 self.selected.clone(),
                 self.options.clone(), 
-                ,
+                |s: &String| s.clone(),
             )
             .on_select(PLMessage::OnSelect)
             .placeholder(self.placeholder.clone().unwrap_or_default())
@@ -91,6 +92,7 @@ impl PickList {
             .menu_height(get_len(None, self.menu_height_fill, self.menu_height))
             .padding(get_padding(&self.padding))
             .handle(handle)
+            .ellipsis(self.text_ellipsis)
             .style(move|theme: &Theme, status| {   
                 if let Some(st) = &style_opt {
                         st.to_iced(theme, status)
@@ -112,7 +114,7 @@ impl PickList {
         } else { pl };
 
         let pl = if let Some(lh) = self.text_line_height {
-            pl.text_line_height(lh)
+            pl.line_height(lh)
         } else { pl };
 
         let pl: Element<'_, PLMessage> = pl.into();
@@ -136,80 +138,40 @@ impl PickList {
  }
 
 
-#[derive(Debug, Clone, PartialEq, Hash)]
-#[pyclass(eq, eq_int, hash, frozen)]
-pub enum PickListHandle {
-    Default,
-    Arrow,
-    Dynamic,
-    None,
-    Static,
-}
-
-
-fn get_handle(ipg_handle: &PickListHandle, 
-                arrow_size: Option<f32>,
-                closed: &Option<Arrow>,
-                opened: &Option<Arrow>,
-                custom: &Option<Arrow>,
-            ) -> Handle<Font> 
+fn get_handle(
+    widgets: &HashMap<usize, Widgets>, 
+    hp: &HandleParams,
+) -> Handle<Font> 
 {
-    match ipg_handle {
-        PickListHandle::Default => Handle::default(),
-        PickListHandle::Arrow => {
-            match arrow_size {
-                Some(ars) => Handle::Arrow { size: Some(Pixels(ars)) },
-                None => Handle::Arrow { size: None },
-            }
-        },
-        PickListHandle::Dynamic => {
-            let arrow_closed = match closed {
-                Some(cls) => Arrow::to_char(cls),
-                None => Arrow::to_char(&Arrow::ArrowBarRight),
-            };
+    // Helper: resolve an IpgIcon by widget ID into an iced Icon<Font>
+    let resolve_icon = |icon_id: usize| -> Option<pick_list::Icon<Font>> {
+        let ipg_icon = widgets.get(&icon_id).and_then(Widgets::as_icon)?;
+        Some(ipg_icon.to_iced())
+    };
 
-            let arrow_opened = match opened {
-                Some(op) => Arrow::to_char(op),
-                None => Arrow::to_char(&Arrow::ArrowBarRight),
-            };
-
-            let size = arrow_size.map(Pixels);
-
-            Handle::Dynamic { 
-                closed: Icon { 
-                    code_point: arrow_closed, 
-                    font: iced::Font::with_name("bootstrap-icons"), 
-                    size, 
-                    line_height: Default::default(), 
-                    shaping: Default::default()
-                }, 
-                open: Icon {
-                    code_point: arrow_opened,
-                    font: iced::Font::with_name("bootstrap-icons"), 
-                    size, 
-                    line_height: Default::default(), 
-                    shaping: Default::default()} 
-                }
-        },
-        PickListHandle::None => Handle::None,
-        PickListHandle::Static => {
-                let custom_type = match custom {
-                    Some(cust) => Arrow::to_char(cust),
-                    None => Arrow::to_char(&Arrow::ArrowBarRight),
-                };
-
-                let size = arrow_size.map(Pixels);
-
-                Handle::Static(Icon { 
-                    code_point: custom_type, 
-                    font: iced::Font::with_name("bootstrap-icons"), 
-                    size, 
-                    line_height: Default::default(), 
-                    shaping: Default::default()
-                }
-            )
-        },
+    // Dynamic handle takes priority: both open and closed icons required
+    if let (Some(closed_id), Some(open_id)) = (
+        hp.handle_dynamic_closed_icon_id,
+        hp.handle_dynamic_open_icon_id,
+    ) {
+        if let (Some(closed), Some(open)) = (resolve_icon(closed_id), resolve_icon(open_id)) {
+            return Handle::Dynamic { closed, open };
+        }
     }
+
+    // Static handle: single icon
+    if let Some(static_id) = hp.handle_static_icon_id {
+        if let Some(icon) = resolve_icon(static_id) {
+            return Handle::Static(icon);
+        }
+    }
+
+    // Arrow handle with optional size
+    if let Some(sz) = hp.handle_size {
+        return Handle::Arrow { size: Some(Pixels(sz)) };
+    }
+
+    Handle::None
 }
 
 #[derive(Debug, Clone, Default)]
@@ -314,6 +276,7 @@ impl PickListStyle {
         match status {
             Status::Active => active_style,
             Status::Hovered | Status::Opened { .. } => hover_opened_style,
+            Status::Disabled => todo!(),
         }
 
     }
@@ -446,11 +409,6 @@ impl WidgetParamUpdate for PickList {
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
-            PickListParam::ArrowSize => set_t_value(&mut self.arrow_size, value, "PickListParam::ArrowSize"),
-            PickListParam::CustomStatic => set_t_value(&mut self.custom_static, value, "PickListParam::CustomStatic"),
-            PickListParam::DynamicClose => set_t_value(&mut self.dynamic_close, value, "PickListParam::DynamicClose"),
-            PickListParam::DynamicOpen => set_t_value(&mut self.dynamic_open, value, "PickListParam::DynamicOpen"),
-            PickListParam::Handle => set_t_value(&mut self.handle, value, "PickListParam::Handle"),
             PickListParam::MenuHeight => set_t_value(&mut self.menu_height, value, "PickListParam::MenuHeight"),
             PickListParam::Options => set_t_value(&mut self.options, value, "PickListParam::Options"),
             PickListParam::Padding => set_t_value(&mut self.padding, value, "PickListParam::Padding"),
@@ -461,6 +419,11 @@ impl WidgetParamUpdate for PickList {
             PickListParam::TextLineHeight => set_t_value(&mut self.text_line_height,value, "PickListParam::TextLineHeight"),
             PickListParam::TextSize => set_t_value(&mut self.text_size, value, "PickListParam::TextSize"),
             PickListParam::Width => set_t_value(&mut self.width, value, "PickListParam::Width"),
+            PickListParam::ArrowSize => todo!(),
+            PickListParam::CustomStatic => todo!(),
+            PickListParam::DynamicClose => todo!(),
+            PickListParam::DynamicOpen => todo!(),
+            PickListParam::Handle => todo!(),
         }
     }
 }

@@ -26,14 +26,15 @@ from .icedpygui import (
     add_divider_style,
     add_float as _add_float,
     add_grid as _add_grid,
+    add_icon,
     add_image as _add_image,
     add_mouse_area as _add_mouse_area,
     # add_menu as _add_menu,
     # add_menu_bar_item as _add_menu_bar_item,
     # add_menu_style,
     add_opaque as _add_opaque,
-    # add_pick_list as _add_pick_list,
-    # add_pick_list_style,
+    add_pick_list as _add_pick_list,
+    add_pick_list_style,
     add_progress_bar as _add_progress_bar,
     add_progress_bar_style,
     add_radio as _add_radio,
@@ -241,8 +242,8 @@ add_divider = _wrap_widget(_add_divider, "add_divider")
 add_divider.__doc__ = _add_divider.__doc__
 add_image = _wrap_widget(_add_image, "add_image")
 add_image.__doc__ = _add_image.__doc__
-# add_pick_list = _wrap_widget(_add_pick_list, "add_pick_list")
-# add_pick_list.__doc__ = _add_pick_list.__doc__
+add_pick_list = _wrap_widget(_add_pick_list, "add_pick_list")
+add_pick_list.__doc__ = _add_pick_list.__doc__
 add_progress_bar = _wrap_widget(_add_progress_bar, "add_progress_bar")
 add_progress_bar.__doc__ = _add_progress_bar.__doc__
 add_radio = _wrap_widget(_add_radio, "add_radio")

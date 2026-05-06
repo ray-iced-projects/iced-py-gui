@@ -1,6 +1,9 @@
 //! ipg_font
 
 use iced::font;
+use iced::{Pixels};
+use iced::advanced::text::LineHeight;
+use iced::widget::pick_list;
 use pyo3::{Py, PyAny, pyclass};
 type PyObject = Py<PyAny>;
 
@@ -181,6 +184,39 @@ impl WidgetParamUpdate for Font {
             FontParam::Weight => set_t_value(&mut self.weight, value, "FontParam::Weight"),
             FontParam::Stretch => set_t_value(&mut self.stretch, value, "FontParam::Stretch"),
             FontParam::Style => set_t_value(&mut self.style, value, "FontParam::Style"),
+        }
+    }
+}
+
+// ---------------------------------------------------------------------------
+// IpgIcon — a pick_list Icon that stores a resolved font directly
+// ---------------------------------------------------------------------------
+
+#[derive(Debug, Clone)]
+pub struct IpgIcon {
+    pub id: usize,
+    /// The resolved iced Font used to render the glyph.
+    pub font: iced::Font,
+    /// The Unicode code point of the glyph to render.
+    pub code_point: char,
+    /// Optional glyph size in pixels.
+    pub size: Option<f32>,
+    /// Optional line height multiplier (relative). Defaults to 1.0.
+    pub line_height: Option<f32>,
+}
+
+impl IpgIcon {
+    /// Convert to an iced `pick_list::Icon`.
+    pub fn to_iced(&self) -> pick_list::Icon<iced::Font> {
+        
+        pick_list::Icon {
+            font: self.font,
+            code_point: self.code_point,
+            size: self.size.map(Pixels),
+            line_height: self.line_height
+                .map(LineHeight::Relative)
+                .unwrap_or(LineHeight::Relative(1.0)),
+            shaping: iced::advanced::text::Shaping::default(),
         }
     }
 }

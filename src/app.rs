@@ -27,6 +27,7 @@ use crate::widgets::ipg_events::{process_keyboard_events, process_mouse_events, 
 use crate::widgets::ipg_mouse_area::{MaMessage, mousearea_callback};
 use crate::widgets::ipg_opaque;
 
+use crate::widgets::ipg_pick_list::{PLMessage, pick_list_callback};
 use crate::widgets::ipg_radio::{RDMessage, radio_callback};
 use crate::widgets::ipg_scrollable::scrollable_callback;
 use crate::widgets::ipg_slider::{SldMessage, slider_callback};
@@ -55,7 +56,7 @@ pub enum Message {
     EventTouch(Event),
 //     // Modal(usize, ModalMessage),
     MouseArea(usize, MaMessage),
-    // PickList(usize, PLMessage),
+    PickList(usize, PLMessage),
     Radio(usize, RDMessage),
     RichTextLinkClicked(usize, usize),
     Scrolled(scrollable::Viewport, usize),
@@ -222,12 +223,12 @@ impl App {
                 process_widget_updates(&mut self.state);
                 Task::none()
             },
-            // Message::PickList(id, message) => {
-            //     pick_list_callback(&mut self.state, id, message);
-            //     // process_updates(&mut self.state, &mut self.canvas_state);
-            //     process_widget_updates(&mut self.state);
-            //     Task::none()
-            // },
+            Message::PickList(id, message) => {
+                pick_list_callback(&mut self.state, id, message);
+                // process_updates(&mut self.state, &mut self.canvas_state);
+                process_widget_updates(&mut self.state);
+                Task::none()
+            },
             Message::Radio(id, message) => {
                 radio_callback(&mut self.state, id, message);
                 // process_updates(&mut self.state, &mut self.canvas_state);
@@ -788,9 +789,9 @@ fn get_widget<'a>(state: &'a IpgState, id: &usize) -> Option<Element<'a, Message
                 // Widgets::DatePicker(dp) => {
                 //     dp.construct(&state.widgets)
                 // },
-                // Widgets::PickList(pick) => {
-                //     pick.construct(&state.widgets)
-                // },
+                Widgets::PickList(pick) => {
+                    pick.construct(&state.widgets)
+                },
                 Widgets::ProgressBar(bar) => {
                     bar.construct(&state.widgets)
                 },

@@ -4,15 +4,14 @@ use pyo3::{Py, PyAny, PyResult, Python, pyfunction};
 use pyo3::types::{PyAnyMethods, PyListMethods};
 type PyObject = Py<PyAny>;
 
+use crate::widgets::ipg_pick_list::HandleParams;
 use crate::{access_state, add_callback_to_mutex, 
     add_user_data_to_mutex};
-use crate::graphics::{colors::Color, 
-        bootstrap_arrow::Arrow}; 
+use crate::graphics::colors::Color; 
 
 use crate::state::{Widgets, get_id, set_state_of_widget}; 
 use crate::widgets::{
-        ipg_pick_list::{PickList, PickListHandle, 
-        PickListStyle}};
+        ipg_pick_list::{PickList, PickListStyle}};
 
 
 
@@ -50,16 +49,14 @@ use crate::widgets::{
 ///     Sets the Font size for the text.
 /// text_line_height : float, Optional
 ///     Sets the Line height for the text.
-/// handle : PickListHandle, Optional
-///     Sets the handle type for the pick list.
-/// arrow_size : float, Optional
-///     Sets the size of the arrow icon.
-/// dynamic_closed : Arrow, Optional
-///     Sets the arrow icon when the pick list is closed.
-/// dynamic_open : Arrow, Optional
-///     Sets the arrow icon when the pick list is open.
-/// custom_static : Arrow, Optional
-///     Sets the static custom arrow icon.
+/// handle_size : float, Optional
+///     Sets the size of the icon.
+/// handle_static_icon_id : int, Optional
+///     Sets the id using the add_icon id.
+/// handle_dynamic_closed_icon_id : int, Optional
+///     Sets the id using the add_icon id.
+/// handle_dynamic_open_icon_id : int, Optional
+///     Sets the id using the add_icon id.
 /// style_id : int, Optional
 ///     Sets the ID of a custom style created with ``add_pick_list_style``.
 /// user_data : Any, Optional
@@ -75,7 +72,9 @@ use crate::widgets::{
 #[pyo3(signature = (
     parent_id, 
     options, 
-    on_select=None, 
+    on_select=None,
+    on_open=None,
+    on_close=None, 
     width=None, 
     width_fill=None,
     menu_height=None,
@@ -84,12 +83,14 @@ use crate::widgets::{
     placeholder=None, 
     selected=None, 
     text_size=None, 
-    text_line_height=None, 
-    handle=None, 
-    arrow_size=None, 
-    dynamic_close=None, 
-    dynamic_open=None, 
-    custom_static=None,
+    text_line_height=None,
+    text_ellipsis_start=None,
+    text_ellipsis_middle=None,
+    text_ellipsis_end=true,
+    handle_size=None,
+    handle_static_icon_id=None,
+    handle_dynamic_closed_icon_id=None,
+    handle_dynamic_open_icon_id=None, 
     style_id=None, 
     user_data=None, 
     show=true,
@@ -99,6 +100,8 @@ pub fn add_pick_list(
     parent_id: String,
     options: PyObject,
     on_select: Option<PyObject>,
+    on_open: Option<PyObject>,
+    on_close: Option<PyObject>,
     width: Option<f32>,
     width_fill: Option<bool>,
     menu_height: Option<f32>,
@@ -108,11 +111,13 @@ pub fn add_pick_list(
     selected: Option<String>,
     text_size: Option<f32>,
     text_line_height: Option<f32>,
-    handle: Option<PickListHandle>,
-    arrow_size: Option<f32>,
-    dynamic_close: Option<Arrow>,
-    dynamic_open: Option<Arrow>,
-    custom_static: Option<Arrow>,
+    text_ellipsis_start: Option<bool>,
+    text_ellipsis_middle: Option<bool>,
+    text_ellipsis_end: bool,
+    handle_size: Option<f32>,
+    handle_static_icon_id: Option<usize>,
+    handle_dynamic_closed_icon_id: Option<usize>,
+    handle_dynamic_open_icon_id: Option<usize>,
     style_id: Option<usize>,
     user_data: Option<PyObject>,
     show: bool,
@@ -121,8 +126,32 @@ pub fn add_pick_list(
 {
     let id = get_id(gen_id);
 
+    let text_ellipsis = if text_ellipsis_start == Some(true) {
+        iced::widget::text::Ellipsis::Start
+    } else if text_ellipsis_middle == Some(true) {
+        iced::widget::text::Ellipsis::Middle
+    } else if text_ellipsis_end {
+        iced::widget::text::Ellipsis::End
+    } else {
+        iced::widget::text::Ellipsis::None
+    };
+
+    let handle = HandleParams { 
+        handle_size, 
+        handle_static_icon_id, 
+        handle_dynamic_closed_icon_id, 
+        handle_dynamic_open_icon_id };
+
     if let Some(py) = on_select {
         add_callback_to_mutex(id, "on_select".to_string(), py);
+    }
+
+    if let Some(py) = on_open {
+        add_callback_to_mutex(id, "on_open".to_string(), py);
+    }
+
+    if let Some(py) = on_close{
+        add_callback_to_mutex(id, "on_close".to_string(), py);
     }
 
     if let Some(py) = user_data {
@@ -157,11 +186,8 @@ pub fn add_pick_list(
             padding,
             text_size,
             text_line_height,
+            text_ellipsis,
             handle,
-            arrow_size,
-            dynamic_close,
-            dynamic_open,
-            custom_static,
             style_id,
             show,
         }));

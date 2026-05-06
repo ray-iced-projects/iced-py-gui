@@ -4,7 +4,12 @@ use pyo3::prelude::*;
 use pyo3::pyfunction;
 
 use crate::state::{Widgets, access_state, get_id};
-use crate::widgets::ipg_font::{Font, FontStretch, FontStyle, FontFamily, FontWeight};
+use crate::widgets::ipg_font::{Font, FontStretch, FontStyle, FontFamily, FontWeight, IpgIcon};
+use crate::graphics::bootstrap_arrow::Arrow;
+use crate::graphics::bootstrap_icon::Icon;
+use crate::graphics::BOOTSTRAP_FONT;
+use crate::graphics::bootstrap_icon::icon_to_char;
+use crate::graphics::bootstrap_arrow;
 
 
 /// Load a font from a .ttf or .otf file path.
@@ -83,6 +88,97 @@ pub fn add_font_style(
             weight,
             stretch,
             style,
+        }));
+
+    drop(state);
+    Ok(id)
+}
+
+
+/// Add an icon descriptor for use as a pick_list handle icon.
+///
+/// Supply **one** of the icon source options:
+///
+/// * ``arrow`` — a bootstrap ``Arrow`` enum variant (e.g. ``Arrow.ArrowDown``)
+/// * ``icon``  — a bootstrap ``Icon`` enum variant (e.g. ``Icon.Folder``)
+/// * ``font_id`` + ``code_point`` — a custom font registered with
+///   ``add_font_style``, with the glyph's Unicode code point as an integer
+///   (e.g. ``0xe040``).
+///
+/// Parameters
+/// ----------
+/// arrow : Arrow, optional
+///     A bootstrap arrow glyph.
+/// icon : Icon, optional
+///     A bootstrap icon glyph.
+/// font_id : int, optional
+///     ID of a font style (``add_font_style``) for a custom icon font.
+/// code_point : int, optional
+///     Unicode code point when using a custom ``font_id``.
+/// size : float, optional
+///     Glyph size in pixels.
+/// line_height : float, optional
+///     Relative line height multiplier. Defaults to 1.0.
+/// gen_id : int, optional
+///     Pre-reserved widget ID (from ``generate_id``).
+///
+/// Returns
+/// -------
+/// int
+///     The numeric widget ID of the newly created icon descriptor.
+#[pyfunction]
+#[pyo3(signature = (
+    arrow=None,
+    icon=None,
+    code_point=None,
+    font_id=None,
+    size=None,
+    line_height=None,
+    gen_id=None,
+    ))]
+pub fn add_icon(
+    arrow: Option<Arrow>,
+    icon: Option<Icon>,
+    code_point: Option<u32>,
+    font_id: Option<usize>,
+    size: Option<f32>,
+    line_height: Option<f32>,
+    gen_id: Option<usize>,
+    ) -> PyResult<usize>
+{
+    let id = get_id(gen_id);
+
+    let (resolved_font, resolved_char) = if let Some(arr) = arrow {
+        (BOOTSTRAP_FONT, bootstrap_arrow::Arrow::to_char(&arr))
+    } else if let Some(ic) = icon {
+        (BOOTSTRAP_FONT, icon_to_char(ic))
+    } else if let (Some(fid), Some(cp)) = (font_id, code_point) {
+        let state = access_state();
+        let font = state.widgets.get(&fid)
+            .and_then(Widgets::as_font)
+            .map(|f| f.to_iced())
+            .unwrap_or_default();
+        drop(state);
+        let ch = char::from_u32(cp)
+            .ok_or_else(|| pyo3::exceptions::PyValueError::new_err(
+                format!("Invalid Unicode code point: 0x{:x}", cp)
+            ))?;
+        (font, ch)
+    } else {
+        return Err(pyo3::exceptions::PyValueError::new_err(
+            "add_icon: supply arrow=, icon=, or both font_id= and code_point="
+        ));
+    };
+
+    let mut state = access_state();
+
+    state.widgets.insert(id, Widgets::Icon(
+        IpgIcon {
+            id,
+            font: resolved_font,
+            code_point: resolved_char,
+            size,
+            line_height,
         }));
 
     drop(state);

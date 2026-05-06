@@ -21,7 +21,7 @@ pub mod image;
 // pub mod menu;
 pub mod mouse_area;
 pub mod opaque;
-// pub mod picklist;
+pub mod picklist;
 pub mod progress_bar;
 pub mod radio;
 pub mod row;

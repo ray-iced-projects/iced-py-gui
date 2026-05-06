@@ -23,11 +23,13 @@ use crate::widgets::ipg_divider::{Divider, DividerStyle};
 use crate::widgets::ipg_events::Events;
 use crate::widgets::ipg_float::Float;
 use crate::widgets::ipg_font::Font;
+use crate::widgets::ipg_font::IpgIcon;
 use crate::widgets::ipg_grid::Grid;
 use crate::widgets::ipg_image::Image;
 // use crate::widgets::ipg_menu::{Menu, MenuBarItem, MenuStyle};
 use crate::widgets::ipg_mouse_area::MouseArea;
 use crate::widgets::ipg_opaque::Opaque;
+use crate::widgets::ipg_pick_list::{PickList, PickListStyle};
 // use crate::widgets::ipg_pick_list::{PickList, PickListStyle};
 use crate::widgets::ipg_progress_bar::{ProgressBar, ProgressBarStyle};
 use crate::widgets::ipg_radio::{Radio, RadioStyle};
@@ -95,10 +97,11 @@ pub enum Widgets {
     DividerStyle(DividerStyle),
     // DatePicker(DatePicker),
     Font(Font),
+    Icon(IpgIcon),
     Image(Image),
     // MenuStyle(MenuStyle),
-    // PickList(PickList),
-    // PickListStyle(PickListStyle),
+    PickList(PickList),
+    PickListStyle(PickListStyle),
     ProgressBar(ProgressBar),
     ProgressBarStyle(ProgressBarStyle),
     Radio(Radio),
@@ -167,10 +170,11 @@ ipg_widget_accessors! {
     Divider          => Divider,           as_divider,             as_divider_mut;
     DividerStyle     => DividerStyle,      as_divider_style,       as_divider_style_mut;
     Font             => Font,              as_font,                as_font_mut;
+    Icon             => IpgIcon,           as_icon,                as_icon_mut;
     Image            => Image,             as_image,               as_image_mut;
     // MenuStyle        => MenuStyle,         as_menu_style,          as_menu_style_mut;
-    // PickList         => PickList,          as_pick_list,           as_pick_list_mut;
-    // PickListStyle    => PickListStyle,     as_pick_list_style,     as_pick_list_style_mut;
+    PickList         => PickList,          as_pick_list,           as_pick_list_mut;
+    PickListStyle    => PickListStyle,     as_pick_list_style,     as_pick_list_style_mut;
     ProgressBar      => ProgressBar,       as_progress_bar,        as_progress_bar_mut;
     ProgressBarStyle => ProgressBarStyle,  as_progress_bar_style,  as_progress_bar_style_mut;
     Radio            => Radio,             as_radio,               as_radio_mut;

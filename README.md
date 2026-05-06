@@ -327,8 +327,6 @@ The examples are found in a separate repository as indicated above and here
 
 ## Issues / Questions / Feedback / Contributing
 
-Feedback/Discussions/Questions are welcomed! You can come ask in the [Discord server](https://discord.com/channels/1233081452447666270/1233085181448032458).
-
 If you have errors not cleared up in questions, click on the issues tab and create a new one.  Follow the template.
 
 Code contributions are welcomed.  See [guidelines](https://github.com/icedpygui/IcedPyGui/blob/main/CONTRIBUTING.md)

@@ -1,4 +1,4 @@
-
+//! Color Picker
 use iced::widget::container;
 use iced::advanced::text;
 use iced::advanced::layout::{self, Layout};
@@ -10,12 +10,8 @@ use iced::advanced::renderer;
 use iced::advanced::{Shell, Widget};
 use iced::{Element, Event, Length, Padding, Pixels, Point, Rectangle, Size, Vector};
 
-use pyo3::pyclass;
-
-
-/// Represents a color in one of the supported output formats.
-#[derive(Debug, Clone, PartialEq)]
-#[pyclass(eq, hash, frozen)]
+/// Colors types for the supported output formats.
+#[derive(Debug, Clone)]
 pub enum ColorValue {
     /// Normalized float components [r, g, b, a] in 0.0..=1.0
     Float([f32; 4]),
@@ -25,23 +21,6 @@ pub enum ColorValue {
     Hex(String),
     /// Percentage components [r, g, b, a] in 0.0..=100.0
     Percent([f32; 4]),
-}
-
-impl std::hash::Hash for ColorValue {
-    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
-        match self {
-            ColorValue::Float(c) => {
-                0u8.hash(state);
-                for f in c { f.to_bits().hash(state); }
-            }
-            ColorValue::Integer(c) => { 1u8.hash(state); c.hash(state); }
-            ColorValue::Hex(s)     => { 2u8.hash(state); s.hash(state); }
-            ColorValue::Percent(c) => {
-                3u8.hash(state);
-                for f in c { f.to_bits().hash(state); }
-            }
-        }
-    }
 }
 
 impl ColorValue {
@@ -455,7 +434,7 @@ where
                         self.cursor_position.x,
                         self.cursor_position.y - text_bounds.height,
                     ) + translation
-                }
+                },
                 Position::Center => Vector::new(x_center, y_center),
             };
 

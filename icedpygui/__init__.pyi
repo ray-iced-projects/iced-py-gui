@@ -235,56 +235,7 @@ def add_checkbox(
         start_session()
     """
     ...
-def add_color_picker(
-    *,
-    parent_id: str | None = None,
-    label: str | None = None,
-    on_press: Any | None = None,
-    on_select: Any | None = None,
-    on_cancel: Any | None = None,
-    color: Color | None = None,
-    color_alpha: float | None = None,
-    color_rgba: list[float, 4] | None = None,
-    width: float | None = None,
-    width_fill: bool | None = None,
-    height: float | None = None,
-    height_fill: bool | None = None,
-    fill: bool | None = None,
-    padding: list[float] | None = None,
-    clip: bool | None = None,
-    style_id: int | None = None,
-    style_std: ButtonStyleStd | None = None,
-    style_arrow: Arrow | None = None,
-    user_data: Any | None = None,
-    show: bool = True,
-    gen_id: int | None = None,
-    ) -> int:
-    """Adds a Color Picker widget.
 
-    Usage::
-
-        def color_selected(cp_id: int, color: list):
-            print(cp_id, color)
-
-        def cp_opened(_cp_id: int, _user_data: any):
-            print("color picker opened")
-
-        def cp_canceled(_cp_id: int, _user_data: any):
-            print("color picker canceled")
-
-        with Window(title="My App", pos_centered=True) as wnd_id: (if needed)
-            with Container(align_center=True):
-                add_color_picker(
-                    on_press=cp_opened, # Button to open color picker
-                    on_select=color_selected, # the color selection selected
-                    on_cancel=cp_canceled,  # color selection was canceled)
-
-        start_session()
-
-    Returns:
-        int: widget id
-    """
-    ...
 def add_date_picker(
     *,
     parent_id: str | None = None,

@@ -17,7 +17,7 @@ use crate::py_api::helpers::find_key_for_value;
 use crate::state::{Containers, WidgetNode, IpgState, Widgets, access_clipboard_actions, access_state, access_update_widgets, access_window_actions, clone_state_to_runtime, set_state_of_widget_running_state};
 use crate::widgets::callbacks::invoke_callback_with_args;
 use crate::widgets::ipg_button::{BtnMessage, button_callback};
-use crate::widgets::ipg_color_picker::{ColPikMessage, color_picker_callback};
+use crate::widgets::ipg_color_picker::{ColorPikMessage, color_picker_callback};
 
 use crate::widgets::ipg_checkbox::{ChkMessage, checkbox_callback};
 
@@ -46,7 +46,7 @@ pub enum Message {
 //     Canvas(CanvasMessage),
     // Card(usize, CardMessage),
     CheckBox(usize, ChkMessage),
-    ColorPicker(usize, ColPikMessage),
+    ColorPicker(usize, ColorPikMessage),
     // DatePicker(usize, DPMessage),
     Divider(usize, DivMessage),
     EventKeyboard(Event),
@@ -691,6 +691,12 @@ fn get_container<'a>(state: &'a IpgState,
                 // Containers::Card(crd) => {
                 //     crd.construct(content, &state.widgets)
                 // },
+                Containers::ColorPicker(cp) => {
+                    if content.len() > 1 {
+                        eprintln!("[WARNING] A color picker can have only 1 trigger widget")
+                    }
+                    cp.construct(content)
+                },
                 Containers::Column(col) => {
                     col.construct(content)
                 },
@@ -772,9 +778,6 @@ fn get_widget<'a>(state: &'a IpgState, id: &usize) -> Option<Element<'a, Message
                 },
                 Widgets::CheckBox(chk) => {
                     chk.construct(&state.widgets)
-                },
-                Widgets::ColorPicker(cp) => {
-                    cp.construct(&state.widgets)
                 },
                 Widgets::Divider(div) => {
                     div.construct(&state.widgets)

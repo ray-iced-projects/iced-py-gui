@@ -62,6 +62,7 @@ type PyObject = Py<PyAny>;
 pub enum Containers {
     // Canvas(Canvas),
     // Card(Card),
+    ColorPicker(ColorPicker),
     Column(Column),
     Container(Container),
     Float(Float),
@@ -89,7 +90,6 @@ pub enum Widgets {
     // CardStyle(CardStyle),
     CheckBox(CheckBox),
     CheckboxStyle(CheckboxStyle),
-    ColorPicker(ColorPicker),
     ContainerStyle(ContainerStyle),
     Divider(Divider),
     DividerStyle(DividerStyle),

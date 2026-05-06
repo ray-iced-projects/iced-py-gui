@@ -58,32 +58,26 @@ int
 """
 
 from icedpygui import Window, Column, Container,\
-    add_color_picker, add_text, TextParam, \
-    update_widget, add_button_style, start_session
+    ColorPicker, add_text, TextParam, \
+    update_widget, add_button, add_button_style, start_session
 
 
-style_id = add_button_style(border_radius=[10.0])
+btn_style = add_button_style(border_radius=[8.0])
 
-def color_selected(_cp_id: int, color: any):
+def color_selected(_cp_id: int, color: str):
     """
     Color selected callback
-    Need to change the list color to a str type
-    Since the color is being displayed as text
-    otherwise use as is or convert to what is needed
     """
-    string = f"{color}"
-
     # update the text
-    update_widget(text_id, TextParam.Content, string)
+    update_widget(text_id, TextParam.Content, color)
 
     # # update the text rgba color
     # update_widget(text_id, TextParam.ColorRgba, color)
 
 
-def cp_opened(_cp_id: int):
+def cp_opened(_cp_id: int, opened: bool):
     """Color Picker Callback"""
-    print("color picker opened")
-
+    print(f"color picker opened {opened}")
 
 def cp_canceled(_cp_id: int):
     """Color Picker Callback"""
@@ -104,11 +98,16 @@ with Window(
         # Add a column to hold multiple widgets
         with Column(spacing=20.0, width=200):
 
-            add_color_picker(
-                on_press=cp_opened, # Button to open color picker
+            with ColorPicker(
+                on_open=cp_opened, # Button to open color picker
                 on_submit=color_selected, # the color selection selected
                 on_cancel=cp_canceled, # the color selection cancel
-                btn_style_id=style_id)
+                ):
+                # Important: a button needs to be added to open the color picker
+                # This allows one to style the button as one wishes.
+                add_button(label="Color Picker",
+                           padding=[3.0],
+                           style_id=btn_style)
 
             text_id = add_text(content="Color value here")
 

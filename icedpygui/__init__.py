@@ -21,7 +21,7 @@ from .icedpygui import (
     add_column as _add_column,
     add_container as _add_container,
     add_container_style,
-    # add_date_picker as _add_date_picker,
+    add_date_picker as _add_date_picker,
     add_divider as _add_divider,
     add_divider_style,
     add_float as _add_float,
@@ -98,7 +98,7 @@ from .icedpygui import (
     ContainerParam,
     ContainerStyleParam,
     ContentFit,
-    # DatePickerParam,
+    DatePickerParam,
     DividerDirection,
     DividerParam,
     DividerStyleParam,
@@ -236,8 +236,8 @@ add_button.__doc__ = _add_button.__doc__
 # add_card.__doc__ = _add_card.__doc__
 add_checkbox = _wrap_widget(_add_checkbox, "add_checkbox")
 add_checkbox.__doc__ = _add_checkbox.__doc__
-# add_date_picker = _wrap_widget(_add_date_picker, "add_date_picker")
-# add_date_picker.__doc__ = _add_date_picker.__doc__
+add_date_picker = _wrap_widget(_add_date_picker, "add_date_picker")
+add_date_picker.__doc__ = _add_date_picker.__doc__
 add_divider = _wrap_widget(_add_divider, "add_divider")
 add_divider.__doc__ = _add_divider.__doc__
 add_image = _wrap_widget(_add_image, "add_image")

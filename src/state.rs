@@ -15,10 +15,9 @@ use pyo3::{Py, PyAny};
 // use crate::widgets::ipg_card::{Card, CardStyle};
 use crate::widgets::ipg_checkbox::{CheckBox, CheckboxStyle};
 use crate::widgets::ipg_color_picker::ColorPicker;
-// use crate::widgets::ipg_color_picker::ColorPicker;
 use crate::widgets::ipg_column::Column;
 use crate::widgets::ipg_container::{Container, ContainerStyle};
-// use crate::widgets::ipg_date_picker::DatePicker;
+use crate::widgets::ipg_date_picker::DatePicker;
 use crate::widgets::ipg_divider::{Divider, DividerStyle};
 use crate::widgets::ipg_events::Events;
 use crate::widgets::ipg_float::Float;
@@ -95,7 +94,7 @@ pub enum Widgets {
     ContainerStyle(ContainerStyle),
     Divider(Divider),
     DividerStyle(DividerStyle),
-    // DatePicker(DatePicker),
+    DatePicker(DatePicker),
     Font(Font),
     Icon(IpgIcon),
     Image(Image),

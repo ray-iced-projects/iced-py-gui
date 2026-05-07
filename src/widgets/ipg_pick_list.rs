@@ -79,7 +79,7 @@ impl PickList {
                 widgets,
                 &self.handle,
             );
-        
+
         let pl = 
             widget::PickList::new(
                 self.selected.clone(),

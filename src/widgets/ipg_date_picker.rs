@@ -16,7 +16,7 @@ use iced::advanced::graphics::core::Element;
 use iced::widget::{button, text};
 use iced::{Length, Renderer, Theme};
 use iced::alignment::{self, Alignment};
-use iced::widget::{Button, Column, Container, PickList, 
+use iced::widget::{Button, Column, Container, container, PickList, 
     Row, Space, Text};
 
 use chrono::prelude::*;
@@ -193,7 +193,9 @@ impl DatePicker {
         Some(Container::new(col_content)
                 .width(width)
                 .height(height)
-            // .style(theme::Container::Box)
+                .style(|theme| {
+                    container::bordered_box(theme)
+                })
             .into())
 
     }
@@ -263,7 +265,7 @@ fn calendar_show_button<'a>(
             .width(Length::Shrink)
             .style(move|theme, status|
                 if let Some(st) = &btn_style {
-                        st.to_iced(theme, status, &dp.button_style_standard)
+                        st.to_iced(theme, status)
                     } else {
                        match &dp.button_style_standard {
                             Some(std) => std.to_iced(theme, status),
@@ -437,6 +439,7 @@ fn create_select_row(
     let cl_button: Element<DPMessage, Theme, Renderer> = 
         Button::new(close_text)
             .on_press(DPMessage::HideModal)
+            .padding(2.0)
             .style(move|theme, status| 
                 button::primary(theme, status)
             )
@@ -447,10 +450,11 @@ fn create_select_row(
 
     let picklist: Element<DPMessage, Theme, Renderer> = 
         PickList::new(
-            date_formats,
             Some(selected_format),
-            DPMessage::DatePickerFormat
+            date_formats,
+            |s: &String| s.clone(),
         )
+        .on_select(DPMessage::DatePickerFormat)
         .text_size(8.0*size_factor)
         .placeholder("Choose format...")
         .into();
@@ -476,6 +480,7 @@ fn create_submit_row(id: usize, size_factor: f32, selected_date: String) -> Elem
 
     let submit_btn: Element<DPMessage, Theme, Renderer> = 
         Button::new(submit_text)
+            .padding(3.0)
             .on_press(DPMessage::OnSubmit)
             .style(move|theme, status| button::primary(theme, status))
             .into();

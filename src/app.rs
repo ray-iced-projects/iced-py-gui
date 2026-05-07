@@ -22,6 +22,7 @@ use crate::widgets::ipg_color_picker::{ColorPikMessage, color_picker_callback};
 use crate::widgets::ipg_checkbox::{ChkMessage, checkbox_callback};
 
 
+use crate::widgets::ipg_date_picker::{DPMessage, date_picker_update};
 use crate::widgets::ipg_divider::{DivMessage, divider_callback};
 use crate::widgets::ipg_events::{process_keyboard_events, process_mouse_events, process_touch_events, process_window_event};
 use crate::widgets::ipg_mouse_area::{MaMessage, mousearea_callback};
@@ -48,7 +49,7 @@ pub enum Message {
     // Card(usize, CardMessage),
     CheckBox(usize, ChkMessage),
     ColorPicker(usize, ColorPikMessage),
-    // DatePicker(usize, DPMessage),
+    DatePicker(usize, DPMessage),
     Divider(usize, DivMessage),
     EventKeyboard(Event),
     EventMouse(Event),
@@ -176,12 +177,12 @@ impl App {
                     None => Task::none()
                 }
             },
-            // Message::DatePicker(id, message) => {
-            //     date_picker_update(&mut self.state, id, message);
-            //     // process_updates(&mut self.state, &mut self.canvas_state);
-            //     process_widget_updates(&mut self.state);
-            //     Task::none()
-            // },
+            Message::DatePicker(id, message) => {
+                date_picker_update(&mut self.state, id, message);
+                // process_updates(&mut self.state, &mut self.canvas_state);
+                process_widget_updates(&mut self.state);
+                Task::none()
+            },
             Message::Divider(id, message) => {
                 divider_callback(&mut self.state, id, message);
                 // process_updates(&mut self.state, &mut self.canvas_state);
@@ -786,9 +787,9 @@ fn get_widget<'a>(state: &'a IpgState, id: &usize) -> Option<Element<'a, Message
                 Widgets::Image(image) => {
                     image.construct()
                 },
-                // Widgets::DatePicker(dp) => {
-                //     dp.construct(&state.widgets)
-                // },
+                Widgets::DatePicker(dp) => {
+                    dp.construct(&state.widgets)
+                },
                 Widgets::PickList(pick) => {
                     pick.construct(&state.widgets)
                 },

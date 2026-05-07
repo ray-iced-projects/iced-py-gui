@@ -81,43 +81,43 @@ fn vec_to_array2_f32(arr: &[f32]) -> [f32; 2] {
 }
 
 
-// pub const MONTH_NAMES: [&str; 13] = ["", "January", "Feburary", "March", 
-//                                         "April", "May", "June", "July", 
-//                                         "August", "September", "October", 
-//                                         "November", "December"];
+pub const MONTH_NAMES: [&str; 13] = ["", "January", "Feburary", "March", 
+                                        "April", "May", "June", "July", 
+                                        "August", "September", "October", 
+                                        "November", "December"];
                                 
-// pub const DATE_FORMATS: [&str; 3] = ["mm-dd-YYYY", "YYYY-mm-dd", "mm-dd-YY"];
-// pub const WEEKDAYS: [&str; 7] = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-// pub const DAYS: [&str; 7] = ["S", "M", "T", "W", "T", "F", "S"];
+pub const DATE_FORMATS: [&str; 3] = ["mm-dd-YYYY", "YYYY-mm-dd", "mm-dd-YY"];
+pub const WEEKDAYS: [&str; 7] = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+pub const DAYS: [&str; 7] = ["S", "M", "T", "W", "T", "F", "S"];
 
-// pub fn format_date(format: String, year: i32, month: usize, day: usize) -> String {
+pub fn format_date(format: String, year: i32, month: usize, day: usize) -> String {
 
-//     match format.as_str() {
-//         "YYYY-mm-dd" => {
-//             let mon_str = convert_to_len_two(month);
-//             let day_str = convert_to_len_two(day);
-//             format!("{}-{}-{}", year, mon_str, day_str)
-//         },
-//         "mm-dd-YYYY" => {
-//             let mon_str = convert_to_len_two(month);
-//             let day_str = convert_to_len_two(day);
-//             format!("{}-{}-{}", mon_str, day_str, year)
-//         },
-//         "mm-dd-YY" => {
-//             let mon_str = convert_to_len_two(month);
-//             let day_str = convert_to_len_two(day);
-//             let s = year.to_string();
-//             format!("{}-{}-{}", mon_str, day_str, &s[2..4])
-//         },
-//         _ => panic!("Calendar Date format {} not found", format)
-//     }
-// }
+    match format.as_str() {
+        "YYYY-mm-dd" => {
+            let mon_str = convert_to_len_two(month);
+            let day_str = convert_to_len_two(day);
+            format!("{}-{}-{}", year, mon_str, day_str)
+        },
+        "mm-dd-YYYY" => {
+            let mon_str = convert_to_len_two(month);
+            let day_str = convert_to_len_two(day);
+            format!("{}-{}-{}", mon_str, day_str, year)
+        },
+        "mm-dd-YY" => {
+            let mon_str = convert_to_len_two(month);
+            let day_str = convert_to_len_two(day);
+            let s = year.to_string();
+            format!("{}-{}-{}", mon_str, day_str, &s[2..4])
+        },
+        _ => panic!("Calendar Date format {} not found", format)
+    }
+}
 
-// fn convert_to_len_two(value: usize) -> String {
+fn convert_to_len_two(value: usize) -> String {
 
-//     if value < 10 {
-//         "0".to_string() + &value.to_string() 
-//     } else {
-//         value.to_string()
-//     }
-// }
+    if value < 10 {
+        "0".to_string() + &value.to_string() 
+    } else {
+        value.to_string()
+    }
+}

@@ -13,6 +13,7 @@ use palette::chromatic_adaptation::AdaptInto;
 use pyo3::{Py, PyAny};
 type PyObject = Py<PyAny>;
 
+use crate::ipg_widgets::ipg_canvas_draw::canvas_draw::CanvasWidget;
 use crate::py_api::helpers::find_key_for_value;
 use crate::state::{Containers, WidgetNode, IpgState, Widgets, access_clipboard_actions, access_state, access_update_widgets, access_window_actions, clone_state_to_runtime, set_state_of_widget_running_state};
 use crate::widgets::callbacks::invoke_callback_with_args;
@@ -24,6 +25,7 @@ use crate::widgets::ipg_checkbox::{ChkMessage, checkbox_callback};
 
 use crate::widgets::ipg_date_picker::{DPMessage, date_picker_update};
 use crate::widgets::ipg_divider::{DivMessage, divider_callback};
+use crate::widgets::ipg_draw::draw_callback;
 use crate::widgets::ipg_events::{process_keyboard_events, process_mouse_events, process_touch_events, process_window_event};
 use crate::widgets::ipg_mouse_area::{MaMessage, mousearea_callback};
 use crate::widgets::ipg_opaque;
@@ -45,7 +47,7 @@ use crate::widgets::widget_param_update::{param_update, container_param_update};
 #[derive(Debug, Clone)]
 pub enum Message {
     Button(usize, BtnMessage),
-//     Canvas(CanvasMessage),
+    CanvasDraw(usize, CanvasWidget),
     // Card(usize, CardMessage),
     CheckBox(usize, ChkMessage),
     ColorPicker(usize, ColorPikMessage),
@@ -149,22 +151,20 @@ impl App {
             Message::Button(id, message) => {
                 button_callback(id, message);
                 process_widget_updates(&mut self.state);
-                // process_updates(&mut self.state, &mut self.canvas_state);
                 get_tasks(&mut self.state)
             },
-            // Message::Canvas(canvas_message) => {
-            //     canvas_callback(canvas_message, &mut self.state, &mut self.canvas_state);
-            //     process_updates(&mut self.state, &mut self.canvas_state);
-            //     get_tasks(&mut self.state)
-            // },
+            Message::CanvasDraw(id, message) => {
+                draw_callback(&mut self.state, id, message);
+                process_widget_updates(&mut self.state);
+                get_tasks(&mut self.state)
+            },
             // Message::Card(id, message) => {
             //     card_callback(id, message);
-            //     process_widget_updates(&mut self.state); //, &mut self.canvas_state);
+            //     process_widget_updates(&mut self.state);
             //     Task::none()
             // },
             Message::CheckBox(id, message) => {
                 checkbox_callback(&mut self.state, id, message);
-                // process_updates(&mut self.state, &mut self.canvas_state);
                 process_widget_updates(&mut self.state);
                 get_tasks(&mut self.state)
             },
@@ -179,29 +179,26 @@ impl App {
             },
             Message::DatePicker(id, message) => {
                 date_picker_update(&mut self.state, id, message);
-                // process_updates(&mut self.state, &mut self.canvas_state);
                 process_widget_updates(&mut self.state);
                 Task::none()
             },
             Message::Divider(id, message) => {
                 divider_callback(&mut self.state, id, message);
-                // process_updates(&mut self.state, &mut self.canvas_state);
                 process_widget_updates(&mut self.state);
                 Task::none()
             },
             Message::EventKeyboard(event) => {
                 process_keyboard_events(event, self.state.keyboard_event_id_enabled.0);
-                process_widget_updates(&mut self.state); //, &mut self.canvas_state);
+                process_widget_updates(&mut self.state);
                 Task::none()
             },
             Message::EventMouse(event) => {
                 process_mouse_events(event, self.state.mouse_event_id_enabled.0);
-                process_widget_updates(&mut self.state); //, &mut self.canvas_state);
+                process_widget_updates(&mut self.state);
                 Task::none()
             },
             Message::EventWindow((window_id, event)) => {
                 process_window_event(&mut self.state, event, window_id);
-                // process_updates(&mut self.state, &mut self.canvas_state);
                 process_widget_updates(&mut self.state);
                 if self.state.windows_opened.len() == self.state.windows_hidden.len() {
                     iced::exit()
@@ -215,24 +212,21 @@ impl App {
             },
             Message::EventTouch(event) => {
                 process_touch_events(event, self.state.touch_event_id_enabled.0);
-                process_widget_updates(&mut self.state); //, &mut self.canvas_state);
+                process_widget_updates(&mut self.state);
                 Task::none()
             },
             Message::MouseArea(id, message) => {
                 mousearea_callback(id, message);
-                // process_updates(&mut self.state, &mut self.canvas_state);
                 process_widget_updates(&mut self.state);
                 Task::none()
             },
             Message::PickList(id, message) => {
                 pick_list_callback(&mut self.state, id, message);
-                // process_updates(&mut self.state, &mut self.canvas_state);
                 process_widget_updates(&mut self.state);
                 Task::none()
             },
             Message::Radio(id, message) => {
                 radio_callback(&mut self.state, id, message);
-                // process_updates(&mut self.state, &mut self.canvas_state);
                 process_widget_updates(&mut self.state);
                 Task::none()
             },
@@ -243,40 +237,39 @@ impl App {
             },
             Message::Scrolled(vp, id) => {
                 scrollable_callback(id, vp);
-                process_widget_updates(&mut self.state); //, &mut self.canvas_state);
+                process_widget_updates(&mut self.state);
                 Task::none()
             },
             Message::Slider(id, message) => {
                 slider_callback(&mut self.state, id, message);
-                // process_updates(&mut self.state, &mut self.canvas_state);
                 process_widget_updates(&mut self.state);
                 Task::none()
             },
             Message::TableScrolled(vp, id) => {
                 scrollable_callback(id, vp);
-                process_widget_updates(&mut self.state); //, &mut self.canvas_state);
+                process_widget_updates(&mut self.state);
                 Task::none()
             },
             Message::TableDividerChanged((id, index, value)) => {
                 let message = TableMessage::DivDragging((index, value));
                 table_callback(&mut self.state, id, message);
-                process_widget_updates(&mut self.state); //, &mut self.canvas_state);
+                process_widget_updates(&mut self.state);
                 Task::none()
             },
             Message::TableDividerReleased(id) => {
                 let message = TableMessage::DivOnRelease;
                 table_callback(&mut self.state, id, message);
-                process_widget_updates(&mut self.state); //, &mut self.canvas_state);
+                process_widget_updates(&mut self.state);
                 Task::none()
             },
             Message::TextEditor(id, message) => {
                 text_ed_callback(id, message, &mut self.state);
-                process_widget_updates(&mut self.state); //, &mut self.canvas_state);
+                process_widget_updates(&mut self.state);
                 Task::none()
             },
             Message::TextInput(id, message) => {
                 text_input_callback(&mut self.state, id, message);
-                process_widget_updates(&mut self.state); //, &mut self.canvas_state);
+                process_widget_updates(&mut self.state);
                 Task::none()
             },
             Message::Tick(id, instant) => {
@@ -318,7 +311,6 @@ impl App {
             // },
             Message::Toggler(id, message) => {
                 toggle_callback(&mut self.state, id, message);
-                // process_updates(&mut self.state, &mut self.canvas_state);
                 process_widget_updates(&mut self.state);
                 get_tasks(&mut self.state)
             },
@@ -535,12 +527,13 @@ fn create_content<'a>(
     let all_parent_ids = get_combine_parents_and_children(
                             &unique_parent_ids, state.ids.get(ipg_window_id));
 
-    let content = get_children(&all_parent_ids,
-                                                                &0, 
-                                                                &unique_parent_ids,
-                                                                state,
-                                                                // canvas_state
-                                                            );
+    let content = 
+        get_children(
+            &all_parent_ids,
+            &0, 
+            &unique_parent_ids,
+            state,
+        );
     content.expect("Root container should always produce an element")
 }
 
@@ -595,7 +588,6 @@ fn get_children<'a>(parents: &Vec<ParentChildIds>,
                 index: &usize, 
                 parent_ids: &Vec<usize>, 
                 state: &'a IpgState,
-                // canvas_state: &'a CanvasState,
                 ) -> Option<Element<'a, Message>> 
 {
 
@@ -678,7 +670,6 @@ fn get_menu_children<'a>(
 fn get_container<'a>(state: &'a IpgState, 
                     id: &usize, 
                     content: Vec<Element<'a, Message>>,
-                    // canvas_state: &'a CanvasState,
                     ) -> Option<Element<'a, Message>> {
 
     let container_opt: Option<&Containers> = state.containers.get(id);
@@ -687,9 +678,14 @@ fn get_container<'a>(state: &'a IpgState,
     {
         Some(container) => 
             match container {
-                // Containers::Canvas(canvas) => {
-                //     construct_canvas(canvas_state)
-                // },
+                Containers::CanvasDraw(draw) => {
+                    let draw_id = draw.id;
+                    if let Some(cs) = state.canvas_states.get(&draw_id) {
+                        draw.construct(cs)
+                    } else {
+                        None
+                    }
+                },
                 // Containers::Card(crd) => {
                 //     crd.construct(content, &state.widgets)
                 // },
@@ -1114,6 +1110,31 @@ fn clone_state(state: &mut IpgState) {
     state.touch_event_id_enabled = mutex_state.touch_event_id_enabled.to_owned();
     state.timer_state = mutex_state.timer_state.to_owned();
     state.canvas_timer_duration = mutex_state.canvas_timer_duration.to_owned();
+
+    // Initialize CanvasState for each CanvasDraw container (runtime-only, not in mutex_state)
+    use crate::ipg_widgets::ipg_canvas_draw::canvas_draw::{
+        CanvasState, CanvasWidget, Circle, DrawMode, DrawStatus};
+    use iced::widget::Id;
+    use iced::Point;
+    for (id, container) in state.containers.iter() {
+        if matches!(container, Containers::CanvasDraw(_)) {
+            let mut cs = CanvasState::default();
+            // test: pre-populate a white circle so the canvas is visibly non-empty
+            let cid = Id::unique();
+            let circle = Circle {
+                id: cid.clone(),
+                center: Point::new(200.0, 200.0),
+                circle_point: Point::new(200.0, 170.0),
+                radius: 30.0,
+                color: iced::Color::WHITE,
+                width: 2.0,
+                draw_mode: DrawMode::DrawAll,
+                status: DrawStatus::Completed,
+            };
+            cs.curves.insert(cid, CanvasWidget::Circle(circle));
+            state.canvas_states.insert(*id, cs);
+        }
+    }
 
     // zeroing out any unneeded vecs and hashmaps
     mutex_state.widgets = Lazy::new(||HashMap::new());

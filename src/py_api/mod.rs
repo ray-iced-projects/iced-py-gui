@@ -13,6 +13,7 @@ pub mod container;
 pub mod color_picker;
 pub mod date_picker;
 pub mod divider;
+pub mod draw;
 pub mod events;
 pub mod float;
 pub mod font;

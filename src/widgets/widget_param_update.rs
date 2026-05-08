@@ -104,6 +104,7 @@ pub fn container_param_update(
 ) {
     match container {
         // Containers::Card(w) => apply_update(w, item, value),
+        Containers::CanvasDraw(w) => apply_update(w, item, value),
         Containers::ColorPicker(_) => panic!("ColorPicker does not support param_update"),
         Containers::Column(w) => apply_update(w, item, value),
         Containers::Container(w) => apply_update(w, item, value),

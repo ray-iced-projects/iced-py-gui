@@ -6,6 +6,8 @@ Runtime Python imports for Ptthon interpreter
 from typing import Any, Callable, List, Optional
 
 # pylint: disable=no-name-in-module
+# pylint: disable=too-many-lines
+
 
 # Ipg functions
 from .icedpygui import (
@@ -24,6 +26,7 @@ from .icedpygui import (
     add_date_picker as _add_date_picker,
     add_divider as _add_divider,
     add_divider_style,
+    add_draw as _add_draw,
     add_float as _add_float,
     add_grid as _add_grid,
     add_icon,
@@ -300,6 +303,8 @@ add_column = _wrap_container(_add_column, "add_column")
 add_column.__doc__ = _add_column.__doc__
 add_container = _wrap_container(_add_container, "add_container")
 add_container.__doc__ = _add_container.__doc__
+add_draw = _wrap_container(_add_draw, "add_draw")
+add_draw.__doc__ = _add_draw.__doc__
 add_float = _wrap_container(_add_float, "add_float")
 add_float.__doc__ = _add_float.__doc__
 add_grid = _wrap_container(_add_grid, "add_grid")
@@ -501,6 +506,44 @@ class Column:
         if pid is not None:
             pid = _resolve_parent_id(pid)
         self.numeric_id = _add_column(
+            window_id=self.window_id,
+            container_id=self.container_id,
+            parent_id=pid,
+            **self.kwargs,
+        )
+        _register_container(self.numeric_id, self.container_id, self.window_id)
+        _parent_stack.append(self.container_id)
+        return self.numeric_id
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        _parent_stack.pop()
+        return False
+
+class Draw:
+    """Wrapper for add_draw"""
+    def __init__(self, *, container_id=None, window_id=None, parent_id=None, **kwargs):
+        self.window_id = (
+            _resolve_window_id(window_id)
+            if window_id is not None
+            else _current_window_or_parent(parent_id)
+        )
+        if self.window_id is None:
+            raise ValueError("Draw: window_id is required (either pass it\
+                or use a Window context manager)")
+        self.container_id = (
+            container_id
+            if container_id is not None
+            else str(generate_id())
+        )
+        self.parent_id = parent_id
+        self.kwargs = kwargs
+        self.numeric_id = 0
+
+    def __enter__(self):
+        pid = self.parent_id or _current_parent()
+        if pid is not None:
+            pid = _resolve_parent_id(pid)
+        self.numeric_id = _add_draw(
             window_id=self.window_id,
             container_id=self.container_id,
             parent_id=pid,

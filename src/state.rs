@@ -19,6 +19,11 @@ use crate::widgets::ipg_column::Column;
 use crate::widgets::ipg_container::{Container, ContainerStyle};
 use crate::widgets::ipg_date_picker::DatePicker;
 use crate::widgets::ipg_divider::{Divider, DividerStyle};
+use crate::widgets::ipg_draw::Draw;
+use crate::ipg_widgets::ipg_canvas_draw::canvas_draw::{
+    CanvasState, CanvasWidget, Circle, DrawMode, DrawStatus};
+use iced::widget::Id;
+use iced::Point;
 use crate::widgets::ipg_events::Events;
 use crate::widgets::ipg_float::Float;
 use crate::widgets::ipg_font::Font;
@@ -61,7 +66,7 @@ type PyObject = Py<PyAny>;
 
 #[derive(Debug, Clone)]
 pub enum Containers {
-    // Canvas(Canvas),
+    CanvasDraw(Draw),
     // Card(Card),
     ColorPicker(ColorPicker),
     Column(Column),
@@ -494,7 +499,7 @@ impl State {
 // State - the runtime state that Iced uses (cloned from static State)
 // ============================================================================
 
-#[derive(Default, Debug, Clone)]
+#[derive(Default, Debug)]
 pub struct IpgState {
     //       usize = window_id
     pub ids: HashMap<usize, Vec<WidgetNode>>,
@@ -508,6 +513,8 @@ pub struct IpgState {
 
     pub widgets: HashMap<usize, Widgets>,
     pub widget_container_ids: HashMap<usize, String>,
+    /// Runtime-only: not cloned. Populated when draw containers are built.
+    pub canvas_states: HashMap<usize, CanvasState>,
 
     pub windows: Vec<Window>,
     pub windows_str_ids: HashMap<String, usize>,
@@ -535,6 +542,41 @@ impl IpgState {
     }
 }
 
+impl Clone for IpgState {
+    fn clone(&self) -> Self {
+        Self {
+            ids: self.ids.clone(),
+            last_id: self.last_id,
+            containers: self.containers.clone(),
+            container_ids: self.container_ids.clone(),
+            container_str_ids: self.container_str_ids.clone(),
+            container_wnd_str_ids: self.container_wnd_str_ids.clone(),
+            container_window_usize_ids: self.container_window_usize_ids.clone(),
+            widgets: self.widgets.clone(),
+            widget_container_ids: self.widget_container_ids.clone(),
+            // canvas_states is runtime-only; start empty on clone
+            canvas_states: HashMap::new(),
+            windows: self.windows.clone(),
+            windows_str_ids: self.windows_str_ids.clone(),
+            windows_iced_ipg_ids: self.windows_iced_ipg_ids.clone(),
+            windows_opened: self.windows_opened.clone(),
+            windows_hidden: self.windows_hidden.clone(),
+            window_debug: self.window_debug.clone(),
+            window_theme: self.window_theme.clone(),
+            window_mode: self.window_mode.clone(),
+            events: self.events.clone(),
+            keyboard_event_id_enabled: self.keyboard_event_id_enabled,
+            mouse_event_id_enabled: self.mouse_event_id_enabled,
+            canvas_timer_event_id_enabled: self.canvas_timer_event_id_enabled,
+            window_event_id_enabled: self.window_event_id_enabled,
+            touch_event_id_enabled: self.touch_event_id_enabled,
+            timer_state: self.timer_state.clone(),
+            canvas_timer_duration: self.canvas_timer_duration,
+            user_fonts: self.user_fonts.clone(),
+        }
+    }
+}
+
 /// Clone data from the static mutex state into IpgState for Iced runtime
 pub fn clone_state_to_runtime(runtime_state: &mut IpgState) {
     let mut state = access_state();
@@ -559,6 +601,27 @@ pub fn clone_state_to_runtime(runtime_state: &mut IpgState) {
     runtime_state.touch_event_id_enabled = state.touch_event_id_enabled;
     runtime_state.timer_state = state.timer_state.clone();
     runtime_state.canvas_timer_duration = state.canvas_timer_duration;
+
+    // Initialize CanvasState for each CanvasDraw container
+    for (id, container) in runtime_state.containers.iter() {
+        if matches!(container, Containers::CanvasDraw(_)) {
+            let mut cs = CanvasState::default();
+            // test: pre-populate a white circle so the canvas is visibly non-empty
+            let cid = Id::unique();
+            let circle = Circle {
+                id: cid.clone(),
+                center: Point::new(200.0, 200.0),
+                circle_point: Point::new(200.0, 170.0),
+                radius: 30.0,
+                color: iced::Color::WHITE,
+                width: 2.0,
+                draw_mode: DrawMode::DrawAll,
+                status: DrawStatus::Completed,
+            };
+            cs.curves.insert(cid, CanvasWidget::Circle(circle));
+            runtime_state.canvas_states.insert(*id, cs);
+        }
+    }
 
     // Zero out transferred data so process_updates won't re-process them
     state.widgets = Lazy::new(|| HashMap::new());

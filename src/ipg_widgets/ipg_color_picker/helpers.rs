@@ -360,7 +360,8 @@ where
     ])
     .spacing(5.0);
 
-    let col = column([hue_sld.into(), rad_row.into()])
+    let col = column(
+        [hue_sld.into(), rad_row.into()])
         .spacing(5.0)
         .into();
 
@@ -377,9 +378,9 @@ where
     let value_cont = container(color_label)
         .style(move |_| container::background(bkg))
         .center_x(150)
-        .center_y(Length::Fill)
+        .center_y(40.0)
         .width(150.0)
-        .height(Length::Fill)
+        .height(Length::Fixed(40.0))
         .into();
 
     row([col, value_cont]).spacing(10.0).into()
@@ -393,22 +394,23 @@ pub fn submit_row<M: Clone + 'static>(
     on_show_palette: impl Fn(bool) -> M + 'static,
 ) -> iced::widget::Row<'static, M> {
     let size = Pixels(12.0);
+    let padding = 3.0;
 
     let submit_btn: Element<M> = button(text("Submit").size(size))
         .on_press(on_submit)
-        .padding(5.0)
+        .padding(padding)
         .style(|theme, status| btn_style(theme, status))
         .into();
 
     let cancel_btn: Element<M> = button(text("Cancel").size(size))
         .on_press(on_cancel)
-        .padding(5.0)
+        .padding(padding)
         .style(|theme, status| btn_style(theme, status))
         .into();
 
     let clipbrd_btn: Element<M> = button(text("ClipBoard").size(size))
         .on_press(on_copy)
-        .padding(5.0)
+        .padding(padding)
         .style(|theme, status| btn_style(theme, status))
         .into();
 
@@ -416,10 +418,11 @@ pub fn submit_row<M: Clone + 'static>(
         .label("Show Palette")
         .on_toggle(on_show_palette)
         .size(14.0)
-        .text_size(14.0)
+        .text_size(size)
+        .spacing(2.0)
         .into();
 
     row([submit_btn, cancel_btn, clipbrd_btn, palette_chk])
-        .spacing(15.0)
+        .spacing(5.0)
         .align_y(iced::Alignment::Center)
 }

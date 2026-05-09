@@ -12,7 +12,7 @@ widgets = [
     "add_window",
     "add_card", "add_card_style",
     "add_container", "add_container_style",
-    "add_column", "add_float", "add_grid",
+    "add_column", "add_combobox", "add_float", "add_grid",
     "add_menu", "add_menu_bar_item", "add_menu_style",
     "add_mouse_area","add_row",
     "add_opaque", "add_stack", "add_table",

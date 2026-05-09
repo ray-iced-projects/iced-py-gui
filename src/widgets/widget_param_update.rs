@@ -56,6 +56,7 @@ pub fn param_update(
         // Widgets::CardStyle(w) => apply_update(w, item, value),
         Widgets::CheckBox(w) => apply_update(w, item, value),
         Widgets::CheckboxStyle(w) => apply_update(w, item, value),
+        Widgets::ComboBox(w) => apply_update(w, item, value),
         Widgets::ContainerStyle(w) => apply_update(w, item, value),
         Widgets::DatePicker(w) => apply_update(w, item, value),
         Widgets::Divider(w) => apply_update(w, item, value),
@@ -164,51 +165,3 @@ where
             .unwrap_or_else(|err| panic!("{name} extraction failed: {err}"))
     });
 }
-
-// pub fn set_bool(field: &mut bool, value: &PyObject, name: &str) {
-//     *field = try_extract_boolean(value, name);
-// }
-
-// pub fn set_opt_bool(field: &mut Option<bool>, value: &PyObject, name: &str) {
-//     *field = try_extract_opt_boolean(value, name);
-// }
-
-// pub fn set_f32(field: &mut f32, value: &PyObject, name: &str) {
-//     *field = try_extract_f32(value, name);
-// }
-
-// pub fn set_opt_f32(field: &mut Option<f32>, value: &PyObject, name: &str) {
-//     *field = try_extract_f32_opt(value, name);
-// }
-
-// pub fn set_vec_f32(field: &mut Vec<f32>, value: &PyObject, name: &str) {
-//     *field = try_extract_vec_f32(value, name);
-// }
-
-// pub fn set_vec_vec_f32(field: &mut Vec<Vec<f32>>, value: &PyObject, name: &str) {
-//     *field = try_extract_vec_vec_f32(value, name);
-// }
-
-// pub fn set_opt_vec_u8(field: &mut Option<Vec<u8>>, value: &PyObject, name: &str) {
-//     *field = try_extract_vec_u8_opt(value, name);
-// }
-
-// pub fn set_opt_usize(field: &mut Option<usize>, value: &PyObject, name: &str) {
-//     *field = try_extract_opt_usize(value, name);
-// }
-
-// pub fn set_opt_f32_array_2(field: &mut Option<[f32; 2]>, value: &PyObject, name: &str) {
-//     *field = Some(try_extract_f32_array_2(value, name));
-// }
-
-// pub fn set_opt_u32_array_2(field: &mut Option<[u32; 2]>, value: &PyObject, name: &str) {
-//     *field = try_extract_opt_u32_array_2(value, name);
-// }
-
-// pub fn set_opt_string(field: &mut Option<String>, value: &PyObject, name: &str) {
-//     *field = try_extract_opt_string(value, name);
-// }
-
-// pub fn set_vec_string(field: &mut Vec<String>, value: &PyObject, name: &str) {
-//     *field = try_extract_vec_str(value, name);
-// }

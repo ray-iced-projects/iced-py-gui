@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use std::time::Instant;
 
 use iced::time::milliseconds;
-use iced::widget::{Column, scrollable};
+use iced::widget::{Column, combo_box, scrollable};
 use iced::advanced::widget::operation::scrollable::scroll_to;
 use iced::window::{self, Position};
 use iced::clipboard;
@@ -23,6 +23,7 @@ use crate::widgets::ipg_color_picker::{ColorPikMessage, color_picker_callback};
 use crate::widgets::ipg_checkbox::{ChkMessage, checkbox_callback};
 
 
+use crate::widgets::ipg_combo_box::{CBMessage, ComboBox, combo_box_callback};
 use crate::widgets::ipg_date_picker::{DPMessage, date_picker_update};
 use crate::widgets::ipg_divider::{DivMessage, divider_callback};
 use crate::widgets::ipg_draw::draw_callback;
@@ -51,6 +52,7 @@ pub enum Message {
     // Card(usize, CardMessage),
     CheckBox(usize, ChkMessage),
     ColorPicker(usize, ColorPikMessage),
+    ComboBox(usize, CBMessage),
     DatePicker(usize, DPMessage),
     Divider(usize, DivMessage),
     EventKeyboard(Event),
@@ -177,6 +179,11 @@ impl App {
                     None => Task::none()
                 }
             },
+            Message::ComboBox(id, message) => {
+                combo_box_callback(&mut self.state, id, message);
+                process_widget_updates(&mut self.state);
+                Task::none()
+            }
             Message::DatePicker(id, message) => {
                 date_picker_update(&mut self.state, id, message);
                 process_widget_updates(&mut self.state);
@@ -776,6 +783,9 @@ fn get_widget<'a>(state: &'a IpgState, id: &usize) -> Option<Element<'a, Message
                 },
                 Widgets::CheckBox(chk) => {
                     chk.construct(&state.widgets)
+                },
+                Widgets::ComboBox(cb) => {
+                    cb.construct()
                 },
                 Widgets::Divider(div) => {
                     div.construct(&state.widgets)

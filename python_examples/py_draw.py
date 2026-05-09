@@ -106,6 +106,16 @@ with Window(title="Draw Demo", center=True):
                     on_select=set_mode
                 )
 
+                with ColorPicker(on_submit=set_draw_color):
+                    add_button(label="Set Draw Color",
+                            padding=[3.0],
+                            style_id=btn_style)
+
+                with ColorPicker(on_submit=set_canvas_color):
+                    add_button(label="Set Canvas Color",
+                            padding=[3.0],
+                            style_id=btn_style)
+
                 add_button(
                     label="Save Canvas",
                     on_press=save_canvas,
@@ -119,16 +129,6 @@ with Window(title="Draw Demo", center=True):
                     padding=[3.0],
                     style_id=btn_style,
                 )
-
-                with ColorPicker(on_submit=set_draw_color):
-                    add_button(label="Set Draw Color",
-                            padding=[3.0],
-                            style_id=btn_style)
-
-                with ColorPicker(on_submit=set_canvas_color):
-                    add_button(label="Set Canvas Color",
-                            padding=[3.0],
-                            style_id=btn_style)
 
         with Container(width_fill=True, height_fill=True):
             draw_id = add_draw()

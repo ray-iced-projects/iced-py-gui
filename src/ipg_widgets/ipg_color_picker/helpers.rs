@@ -2,7 +2,7 @@
 use super::color_math::{color_at, hue_to_rgb, mix, rgb_to_sv};
 use iced::{Border, Element, Length, Padding, Pixels, Point, Rectangle, Theme};
 use iced::theme::palette;
-use iced::widget::canvas;
+use iced::widget::{canvas, combo_box};
 use iced::widget::{button, container, column, radio, row, slider, text, Checkbox, TextInput};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -386,35 +386,46 @@ where
     row([col, value_cont]).spacing(10.0).into()
 }
 
-pub fn submit_row<M: Clone + 'static>(
+pub fn submit_row<'a, M: Clone + 'static>(
     show_palette: bool,
     on_submit: M,
     on_cancel: M,
     on_copy: M,
     on_show_palette: impl Fn(bool) -> M + 'static,
-) -> iced::widget::Row<'static, M> {
+    cb_state: &'a combo_box::State<String>,
+    selected_color_name: Option<&'a String>,
+    on_color_selected: impl Fn(String) -> M + 'static,
+) -> iced::widget::Row<'a, M> {
+    
     let size = Pixels(12.0);
     let padding = 3.0;
 
-    let submit_btn: Element<M> = button(text("Submit").size(size))
-        .on_press(on_submit)
-        .padding(padding)
-        .style(|theme, status| btn_style(theme, status))
-        .into();
+    let submit_btn: Element<M> = 
+        button(text("Submit").size(size))
+            .on_press(on_submit)
+            .padding(padding)
+            .style(|theme, status| 
+                btn_style(theme, status))
+            .into();
 
-    let cancel_btn: Element<M> = button(text("Cancel").size(size))
-        .on_press(on_cancel)
-        .padding(padding)
-        .style(|theme, status| btn_style(theme, status))
-        .into();
+    let cancel_btn: Element<M> = 
+        button(text("Cancel").size(size))
+            .on_press(on_cancel)
+            .padding(padding)
+            .style(|theme, status| 
+                btn_style(theme, status))
+            .into();
 
-    let clipbrd_btn: Element<M> = button(text("ClipBoard").size(size))
-        .on_press(on_copy)
-        .padding(padding)
-        .style(|theme, status| btn_style(theme, status))
-        .into();
+    let clipbrd_btn: Element<M> = 
+        button(text("ClipBoard").size(size))
+            .on_press(on_copy)
+            .padding(padding)
+            .style(|theme, status| 
+                btn_style(theme, status))
+            .into();
 
-    let palette_chk: Element<M> = Checkbox::new(show_palette)
+    let palette_chk: Element<M> = 
+        Checkbox::new(show_palette)
         .label("Show Palette")
         .on_toggle(on_show_palette)
         .size(14.0)
@@ -422,7 +433,23 @@ pub fn submit_row<M: Clone + 'static>(
         .spacing(2.0)
         .into();
 
-    row([submit_btn, cancel_btn, clipbrd_btn, palette_chk])
+    let colors: Element<M> =
+        combo_box(
+            cb_state,
+            "Select Color",
+            selected_color_name,
+            on_color_selected,
+        )
+        .width(160.0)
+        .into();
+
+    row([
+        submit_btn,
+        cancel_btn,
+        clipbrd_btn,
+        palette_chk,
+        colors,
+        ])
         .spacing(5.0)
         .align_y(iced::Alignment::Center)
 }

@@ -502,6 +502,11 @@ where
         renderer: &Renderer,
         shell: &mut Shell<'_, Message>,
     ) {
+        let is_mouse_press = matches!(
+            event,
+            Event::Mouse(mouse::Event::ButtonPressed(_))
+        );
+
         self.content.as_widget_mut().update(
             self.tree,
             event,
@@ -511,6 +516,10 @@ where
             shell,
             &Rectangle::with_size(Size::INFINITE),
         );
+
+        if is_mouse_press && cursor.is_over(layout.bounds()) {
+            shell.capture_event();
+        }
     }
 
     fn mouse_interaction(
@@ -525,6 +534,20 @@ where
             cursor,
             &Rectangle::with_size(Size::INFINITE),
             renderer,
+        )
+    }
+
+    fn overlay<'c>(
+        &'c mut self,
+        layout: Layout<'c>,
+        renderer: &Renderer,
+    ) -> Option<overlay::Element<'c, Message, Theme, Renderer>> {
+        self.content.as_widget_mut().overlay(
+            self.tree,
+            layout.children().next().unwrap(),
+            renderer,
+            &Rectangle::with_size(Size::INFINITE),
+            Vector::ZERO,
         )
     }
 }

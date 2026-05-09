@@ -4,8 +4,9 @@ use super::helpers::{
     hue_slider_row, palette_panel, rgba_slider, selected_color_format_to_text,
     submit_row, ColorOutFormat, HsvSquare, RGBA,
 };
-use iced::widget::{canvas::Canvas, container, column, row};
+use iced::widget::{canvas::Canvas, combo_box, container, column, row};
 use iced::{Element, Length};
+use crate::graphics::colors::Color as IpgColor;
 
 /// A message produced internally by [`ColorPickerState::view`].
 /// Wrap this in one variant of your own `Message` enum and pass it back
@@ -24,6 +25,7 @@ pub enum ContentMsg {
     Submit,
     Cancel,
     Copy,
+    ColorNameSelected(String),
 }
 
 /// Events produced by [`ColorPickerState::update`] that require
@@ -49,6 +51,8 @@ pub struct ColorPickerState {
     pub hue: u8,
     pub format: Option<ColorOutFormat>,
     pub show_palette: bool,
+    pub cb_state: combo_box::State<String>,
+    pub selected_color_name: Option<String>,
 }
 
 impl ColorPickerState {
@@ -61,6 +65,8 @@ impl ColorPickerState {
             hue: rgb_to_hue(r, g, b),
             format: Some(ColorOutFormat::Integer),
             show_palette: false,
+            cb_state: combo_box::State::new(IpgColor::color_names()),
+            selected_color_name: None,
         }
     }
 
@@ -152,6 +158,16 @@ impl ColorPickerState {
             ContentMsg::ShowPalette(b) => {
                 self.show_palette = b;
             }
+            ContentMsg::ColorNameSelected(name) => {
+                if let Some(ipg_color) = IpgColor::from_combo_str(&name) {
+                    let c = ipg_color.to_iced();
+                    self.r = (c.r * 255.0).round() as u8;
+                    self.g = (c.g * 255.0).round() as u8;
+                    self.b = (c.b * 255.0).round() as u8;
+                    self.hue = rgb_to_hue(self.r, self.g, self.b);
+                }
+                self.selected_color_name = Some(name);
+            }
         }
         None
     }
@@ -161,7 +177,7 @@ impl ColorPickerState {
     /// Pass the returned element directly as the `content` argument to
     /// [`ColorPicker::new`]. The `on_msg` closure maps internal [`ContentMsg`]
     /// values to your application's message type.
-    pub fn view<M>(&self, on_msg: impl Fn(ContentMsg) -> M + Clone + 'static) -> Element<'static, M>
+    pub fn view<M>(&self, on_msg: impl Fn(ContentMsg) -> M + Clone + 'static) -> Element<'_, M>
     where
         M: Clone + 'static,
     {
@@ -238,6 +254,9 @@ impl ColorPickerState {
             wrap(ContentMsg::Cancel),
             wrap(ContentMsg::Copy),
             {let f = on_msg.clone(); move |b| f(ContentMsg::ShowPalette(b))},
+            &self.cb_state,
+            self.selected_color_name.as_ref(),
+            {let f = on_msg.clone(); move |name| f(ContentMsg::ColorNameSelected(name))},
         )
         .into();
 

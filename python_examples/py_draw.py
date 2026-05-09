@@ -10,11 +10,13 @@ from icedpygui import (
     add_button,
     add_button_style,
     add_draw,
+    DrawParam,
     add_radio,
     add_pick_list,
     add_text_input,
     add_space,
     start_session,
+    update_widget,
 )
 
 cwd = os.getcwd()
@@ -44,12 +46,16 @@ def save_canvas(_btn_id: int):
     """Save Canvas"""
     print("saving canvas")
 
-def load_canvas(_btn_id: int):
+def load_canvas() -> list:
+    """Load Canvas"""
+    with open(FILE_PATH, 'r', encoding='utf-8') as file:
+        return json.load(file)
+
+def load_canvas_with_btn(_btn_id: int):
     """Load Canvas"""
     with open(FILE_PATH, 'r', encoding='utf-8') as file:
         data = json.load(file)
-    print("Loaded canvas")
-    print(data)
+        update_widget(draw_id, DrawParam.Curves, data)
 
 def set_draw_color(_cp_id: int, color: str):
     """Set Draw Color"""
@@ -109,7 +115,7 @@ with Window(title="Draw Demo", center=True):
 
                 add_button(
                     label="Load Canvas",
-                    on_press=load_canvas,
+                    on_press=load_canvas_with_btn,
                     padding=[3.0],
                     style_id=btn_style,
                 )
@@ -125,7 +131,7 @@ with Window(title="Draw Demo", center=True):
                             style_id=btn_style)
 
         with Container(width_fill=True, height_fill=True):
-            add_draw()
+            draw_id = add_draw()
 
 
 start_session()

@@ -1004,6 +1004,19 @@ fn process_updates(
                 },
                 None => panic!("Process_updates: No ids could be found to update with id {wid}.")
             }
+            // After updating a CanvasDraw container, sync the new curves into
+            // canvas_states and clear the cache so the canvas repaints.
+            if let Some(Containers::CanvasDraw(draw)) = state.containers.get(wid) {
+                let draw_id = draw.id;
+                let curves = draw.curves.clone();
+                let text_curves = draw.text_curves.clone();
+                if let Some(cs) = state.canvas_states.get_mut(&draw_id) {
+                    cs.curves = curves;
+                    cs.text_curves = text_curves;
+                    cs.request_redraw();
+                    cs.request_text_redraw();
+                }
+            }
         }  
     }
 }
@@ -1112,26 +1125,12 @@ fn clone_state(state: &mut IpgState) {
     state.canvas_timer_duration = mutex_state.canvas_timer_duration.to_owned();
 
     // Initialize CanvasState for each CanvasDraw container (runtime-only, not in mutex_state)
-    use crate::ipg_widgets::ipg_canvas_draw::canvas_draw::{
-        CanvasState, CanvasWidget, Circle, DrawMode, DrawStatus};
-    use iced::widget::Id;
-    use iced::Point;
+    use crate::ipg_widgets::ipg_canvas_draw::canvas_draw::CanvasState;
     for (id, container) in state.containers.iter() {
-        if matches!(container, Containers::CanvasDraw(_)) {
+        if let Containers::CanvasDraw(draw) = container {
             let mut cs = CanvasState::default();
-            // test: pre-populate a white circle so the canvas is visibly non-empty
-            let cid = Id::unique();
-            let circle = Circle {
-                id: cid.clone(),
-                center: Point::new(200.0, 200.0),
-                circle_point: Point::new(200.0, 170.0),
-                radius: 30.0,
-                color: iced::Color::WHITE,
-                width: 2.0,
-                draw_mode: DrawMode::DrawAll,
-                status: DrawStatus::Completed,
-            };
-            cs.curves.insert(cid, CanvasWidget::Circle(circle));
+            cs.curves = draw.curves.clone();
+            cs.text_curves = draw.text_curves.clone();
             state.canvas_states.insert(*id, cs);
         }
     }

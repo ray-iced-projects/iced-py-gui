@@ -1,7 +1,6 @@
 //! Checkbox module - provides add_checkbox pyfunction
 
-use pyo3::prelude::*;
-use pyo3::{Py, PyAny, pyfunction};
+use pyo3::{Py, PyAny, pyfunction, PyResult};
 type PyObject = Py<PyAny>;
 
 use crate::add_user_data_to_mutex;

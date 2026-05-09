@@ -69,6 +69,7 @@ use crate::py_api::update::{update_widget, update_widget_params, delete_widget, 
 
 // Import enums from widgets module
 use crate::widgets::enums::ContentFit;
+use crate::widgets::ipg_draw::DrawParam;
 use crate::widgets::ipg_font::{FontFamily, FontStretch, FontStyle, FontWeight};
 use crate::widgets::ipg_image::ImageParam;
 use crate::widgets::ipg_mouse_area::MousePointer;
@@ -218,6 +219,7 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<DividerParam>()?;
     m.add_class::<DividerParam>()?;
     m.add_class::<DividerStyleParam>()?;
+    m.add_class::<DrawParam>()?;
     m.add_class::<FloatParam>()?;
     m.add_class::<GridParam>()?;
     m.add_class::<ImageParam>()?;

@@ -27,6 +27,7 @@ from .icedpygui import (
     add_divider as _add_divider,
     add_divider_style,
     add_draw as _add_draw,
+    DrawParam,
     add_float as _add_float,
     add_grid as _add_grid,
     add_icon,

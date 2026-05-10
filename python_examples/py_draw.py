@@ -16,7 +16,7 @@ from icedpygui import (
     add_text_input,
     add_space,
     start_session,
-    update_widget,
+    update_draw_params,
 )
 
 cwd = os.getcwd()
@@ -25,6 +25,7 @@ FILE_PATH = f"{cwd}/python_examples/resources/canvas.json"
 def clear_canvas(_btn_id):
     """Clearing Canvas"""
     print("clear canvas")
+    update_draw_params(draw_id, {DrawParam.Clear: None})
 
 def widget_selected(_input_id, widget: int):
     """Widget selected"""
@@ -55,7 +56,7 @@ def load_canvas_with_btn(_btn_id: int):
     """Load Canvas"""
     with open(FILE_PATH, 'r', encoding='utf-8') as file:
         data = json.load(file)
-        update_widget(draw_id, DrawParam.Curves, data)
+        update_draw_params(draw_id, {DrawParam.Curves: data})
 
 def set_draw_color(_cp_id: int, color: str):
     """Set Draw Color"""

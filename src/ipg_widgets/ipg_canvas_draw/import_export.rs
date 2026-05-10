@@ -12,7 +12,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 use super::canvas_draw::{
-    Arc, Bezier, CanvasWidget, Circle, DrawMode, DrawStatus,
+    Arc, Bezier, DrawWidget, Circle, DrawMode, DrawStatus,
     Ellipse, FreeHand, Line, PolyLine, Polygon, RightTriangle, Text,
 };
 
@@ -189,15 +189,15 @@ pub enum ExportWidget {
 
 pub fn import_widgets(
     widgets: Vec<ExportWidget>,
-) -> (HashMap<Id, CanvasWidget>, HashMap<Id, CanvasWidget>) {
-    let mut curves: HashMap<Id, CanvasWidget> = HashMap::new();
-    let mut text_curves: HashMap<Id, CanvasWidget> = HashMap::new();
+) -> (HashMap<Id, DrawWidget>, HashMap<Id, DrawWidget>) {
+    let mut curves: HashMap<Id, DrawWidget> = HashMap::new();
+    let mut text_curves: HashMap<Id, DrawWidget> = HashMap::new();
 
     for widget in widgets {
         match widget {
             ExportWidget::Arc { mid_point, points, radius, start_angle, end_angle, color, width } => {
                 let id = Id::unique();
-                curves.insert(id.clone(), CanvasWidget::Arc(Arc {
+                curves.insert(id.clone(), DrawWidget::Arc(Arc {
                     id,
                     points:      points.iter().map(|p| p.to_point()).collect(),
                     mid_point:   mid_point.to_point(),
@@ -212,7 +212,7 @@ pub fn import_widgets(
             },
             ExportWidget::Bezier { points, mid_point, degrees, color, width } => {
                 let id = Id::unique();
-                curves.insert(id.clone(), CanvasWidget::Bezier(Bezier {
+                curves.insert(id.clone(), DrawWidget::Bezier(Bezier {
                     id,
                     points:    points.iter().map(|p| p.to_point()).collect(),
                     mid_point: mid_point.to_point(),
@@ -225,7 +225,7 @@ pub fn import_widgets(
             },
             ExportWidget::Circle { center, circle_point, radius, color, width } => {
                 let id = Id::unique();
-                curves.insert(id.clone(), CanvasWidget::Circle(Circle {
+                curves.insert(id.clone(), DrawWidget::Circle(Circle {
                     id,
                     center:       center.to_point(),
                     circle_point: circle_point.to_point(),
@@ -241,7 +241,7 @@ pub fn import_widgets(
                 let pts: Vec<Point> = points.iter().map(|p| p.to_point()).collect();
                 let vx = pts[1].distance(pts[0]);
                 let vy = pts[2].distance(pts[0]);
-                curves.insert(id.clone(), CanvasWidget::Ellipse(Ellipse {
+                curves.insert(id.clone(), DrawWidget::Ellipse(Ellipse {
                     id,
                     center:    center.to_point(),
                     radii:     Vector { x: vx, y: vy },
@@ -255,7 +255,7 @@ pub fn import_widgets(
             },
             ExportWidget::Line { points, mid_point, degrees, color, width } => {
                 let id = Id::unique();
-                curves.insert(id.clone(), CanvasWidget::Line(Line {
+                curves.insert(id.clone(), DrawWidget::Line(Line {
                     id,
                     points:    points.iter().map(|p| p.to_point()).collect(),
                     mid_point: mid_point.to_point(),
@@ -268,7 +268,7 @@ pub fn import_widgets(
             },
             ExportWidget::PolyLine { points, poly_points, mid_point, pl_point, degrees, color, width } => {
                 let id = Id::unique();
-                curves.insert(id.clone(), CanvasWidget::PolyLine(PolyLine {
+                curves.insert(id.clone(), DrawWidget::PolyLine(PolyLine {
                     id,
                     points:      points.iter().map(|p| p.to_point()).collect(),
                     poly_points,
@@ -283,7 +283,7 @@ pub fn import_widgets(
             },
             ExportWidget::Polygon { points, poly_points, mid_point, pg_point, degrees, color, width } => {
                 let id = Id::unique();
-                curves.insert(id.clone(), CanvasWidget::Polygon(Polygon {
+                curves.insert(id.clone(), DrawWidget::Polygon(Polygon {
                     id,
                     points:      points.iter().map(|p| p.to_point()).collect(),
                     poly_points,
@@ -298,7 +298,7 @@ pub fn import_widgets(
             },
             ExportWidget::RightTriangle { points, mid_point, tr_point, degrees, color, width } => {
                 let id = Id::unique();
-                curves.insert(id.clone(), CanvasWidget::RightTriangle(RightTriangle {
+                curves.insert(id.clone(), DrawWidget::RightTriangle(RightTriangle {
                     id,
                     points:    points.iter().map(|p| p.to_point()).collect(),
                     mid_point: mid_point.to_point(),
@@ -312,7 +312,7 @@ pub fn import_widgets(
             },
             ExportWidget::FreeHand { points, color, width } => {
                 let id = Id::unique();
-                curves.insert(id.clone(), CanvasWidget::FreeHand(FreeHand {
+                curves.insert(id.clone(), DrawWidget::FreeHand(FreeHand {
                     id,
                     points:    points.iter().map(|p| p.to_point()).collect(),
                     color:     arr_to_color(&color),
@@ -324,7 +324,7 @@ pub fn import_widgets(
             },
             ExportWidget::Text { content, position, degrees, size, color, align_x, align_y } => {
                 let id = Id::unique();
-                text_curves.insert(id.clone(), CanvasWidget::Text(Text {
+                text_curves.insert(id.clone(), DrawWidget::Text(Text {
                     id,
                     content,
                     position:    position.to_point(),
@@ -349,15 +349,15 @@ pub fn import_widgets(
 // ── Export ────────────────────────────────────────────────────────────────────
 
 pub fn convert_to_export(
-    curves: &HashMap<Id, CanvasWidget>,
-    text:   &HashMap<Id, CanvasWidget>,
+    curves: &HashMap<Id, DrawWidget>,
+    text:   &HashMap<Id, DrawWidget>,
 ) -> Vec<ExportWidget> {
     let mut export = vec![];
 
     for widget in curves.values().chain(text.values()) {
         let ew = match widget {
-            CanvasWidget::None => continue,
-            CanvasWidget::Arc(arc) => ExportWidget::Arc {
+            DrawWidget::None => continue,
+            DrawWidget::Arc(arc) => ExportWidget::Arc {
                 mid_point:   ExportPoint::from_point(&arc.mid_point),
                 points:      arc.points.iter().map(|p| ExportPoint::from_point(p)).collect(),
                 radius:      arc.radius,
@@ -366,35 +366,35 @@ pub fn convert_to_export(
                 color:       color_to_arr(arc.color),
                 width:       arc.width,
             },
-            CanvasWidget::Bezier(bz) => ExportWidget::Bezier {
+            DrawWidget::Bezier(bz) => ExportWidget::Bezier {
                 points:    bz.points.iter().map(|p| ExportPoint::from_point(p)).collect(),
                 mid_point: ExportPoint::from_point(&bz.mid_point),
                 degrees:   bz.degrees,
                 color:     color_to_arr(bz.color),
                 width:     bz.width,
             },
-            CanvasWidget::Circle(cir) => ExportWidget::Circle {
+            DrawWidget::Circle(cir) => ExportWidget::Circle {
                 center:       ExportPoint::from_point(&cir.center),
                 circle_point: ExportPoint::from_point(&cir.circle_point),
                 radius:       cir.radius,
                 color:        color_to_arr(cir.color),
                 width:        cir.width,
             },
-            CanvasWidget::Ellipse(ell) => ExportWidget::Ellipse {
+            DrawWidget::Ellipse(ell) => ExportWidget::Ellipse {
                 points:   ell.points.iter().map(|p| ExportPoint::from_point(p)).collect(),
                 center:   ExportPoint::from_point(&ell.center),
                 rotation: ell.rotation.0,
                 color:    color_to_arr(ell.color),
                 width:    ell.width,
             },
-            CanvasWidget::Line(ln) => ExportWidget::Line {
+            DrawWidget::Line(ln) => ExportWidget::Line {
                 points:    ln.points.iter().map(|p| ExportPoint::from_point(p)).collect(),
                 mid_point: ExportPoint::from_point(&ln.mid_point),
                 degrees:   ln.degrees,
                 color:     color_to_arr(ln.color),
                 width:     ln.width,
             },
-            CanvasWidget::PolyLine(pl) => ExportWidget::PolyLine {
+            DrawWidget::PolyLine(pl) => ExportWidget::PolyLine {
                 points:      pl.points.iter().map(|p| ExportPoint::from_point(p)).collect(),
                 poly_points: pl.poly_points,
                 mid_point:   ExportPoint::from_point(&pl.mid_point),
@@ -403,7 +403,7 @@ pub fn convert_to_export(
                 color:       color_to_arr(pl.color),
                 width:       pl.width,
             },
-            CanvasWidget::Polygon(pg) => ExportWidget::Polygon {
+            DrawWidget::Polygon(pg) => ExportWidget::Polygon {
                 points:      pg.points.iter().map(|p| ExportPoint::from_point(p)).collect(),
                 poly_points: pg.poly_points,
                 mid_point:   ExportPoint::from_point(&pg.mid_point),
@@ -412,7 +412,7 @@ pub fn convert_to_export(
                 color:       color_to_arr(pg.color),
                 width:       pg.width,
             },
-            CanvasWidget::RightTriangle(tr) => ExportWidget::RightTriangle {
+            DrawWidget::RightTriangle(tr) => ExportWidget::RightTriangle {
                 points:    tr.points.iter().map(|p| ExportPoint::from_point(p)).collect(),
                 mid_point: ExportPoint::from_point(&tr.mid_point),
                 tr_point:  ExportPoint::from_point(&tr.tr_point),
@@ -420,12 +420,12 @@ pub fn convert_to_export(
                 color:     color_to_arr(tr.color),
                 width:     tr.width,
             },
-            CanvasWidget::FreeHand(fh) => ExportWidget::FreeHand {
+            DrawWidget::FreeHand(fh) => ExportWidget::FreeHand {
                 points: fh.points.iter().map(|p| ExportPoint::from_point(p)).collect(),
                 color:  color_to_arr(fh.color),
                 width:  fh.width,
             },
-            CanvasWidget::Text(txt) => ExportWidget::Text {
+            DrawWidget::Text(txt) => ExportWidget::Text {
                 content:  txt.content.clone(),
                 position: ExportPoint::from_point(&txt.position),
                 degrees:  txt.degrees,

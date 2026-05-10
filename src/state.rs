@@ -22,7 +22,7 @@ use crate::widgets::ipg_date_picker::DatePicker;
 use crate::widgets::ipg_divider::{Divider, DividerStyle};
 use crate::widgets::ipg_draw::Draw;
 use crate::ipg_widgets::ipg_canvas_draw::canvas_draw::{
-    CanvasState, CanvasWidget, Circle, DrawMode, DrawStatus};
+    DrawState, DrawWidget, Circle, DrawMode, DrawStatus};
 use iced::widget::Id;
 use iced::Point;
 use crate::widgets::ipg_events::Events;
@@ -379,6 +379,24 @@ pub fn access_update_widgets() -> MutexGuard<'static, UpdateWidgets> {
 }
 
 #[derive(Debug)]
+pub struct UpdateCanvasDraw {
+    // (wid, item, value)
+    pub updates: Vec<(usize, PyObject, PyObject)>, 
+    pub deletes: Vec<usize>,
+    pub new: Lazy<HashMap<Id, DrawWidget>>,
+}
+
+pub static UPDATE_CANVAS_DRAW: Mutex<UpdateCanvasDraw> = Mutex::new(UpdateCanvasDraw {
+    updates: vec![],
+    deletes: vec![],
+    new: Lazy::new(||HashMap::new()),
+});
+
+pub fn access_update_canvas_draw() -> MutexGuard<'static, UpdateCanvasDraw> {
+    UPDATE_CANVAS_DRAW.lock().unwrap()
+}
+
+#[derive(Debug)]
 pub struct WindowActions {
     pub mode: Vec<(usize, window::Mode)>,
     pub decorations: Vec<usize>,
@@ -516,7 +534,7 @@ pub struct IpgState {
     pub widgets: HashMap<usize, Widgets>,
     pub widget_container_ids: HashMap<usize, String>,
     /// Runtime-only: not cloned. Populated when draw containers are built.
-    pub canvas_states: HashMap<usize, CanvasState>,
+    pub canvas_states: HashMap<usize, DrawState>,
 
     pub windows: Vec<Window>,
     pub windows_str_ids: HashMap<String, usize>,
@@ -607,7 +625,7 @@ pub fn clone_state_to_runtime(runtime_state: &mut IpgState) {
     // Initialize CanvasState for each CanvasDraw container
     for (id, container) in runtime_state.containers.iter() {
         if matches!(container, Containers::CanvasDraw(_)) {
-            let mut cs = CanvasState::default();
+            let mut cs = DrawState::default();
             // test: pre-populate a white circle so the canvas is visibly non-empty
             let cid = Id::unique();
             let circle = Circle {
@@ -620,7 +638,7 @@ pub fn clone_state_to_runtime(runtime_state: &mut IpgState) {
                 draw_mode: DrawMode::Display,
                 status: DrawStatus::Completed,
             };
-            cs.curves.insert(cid, CanvasWidget::Circle(circle));
+            cs.curves.insert(cid, DrawWidget::Circle(circle));
             runtime_state.canvas_states.insert(*id, cs);
         }
     }
@@ -632,6 +650,24 @@ pub fn clone_state_to_runtime(runtime_state: &mut IpgState) {
     
     drop(state);
 }
+
+// pub fn clone_draw_state(draw_state: &mut DrawState) {
+//     let mut mutex_cs = access_draw_state();
+//     draw_state.curves = mutex_cs.curves.to_owned();
+//     draw_state.text_curves = mutex_cs.text_curves.to_owned();
+//     draw_state.image_curves = mutex_cs.image_curves.to_owned();
+//     draw_state.width = mutex_cs.width;
+//     draw_state.height = mutex_cs.height;
+//     draw_state.border_width = mutex_cs.border_width;
+//     draw_state.border_color = mutex_cs.border_color;
+//     draw_state.selected_canvas_color = mutex_cs.background;
+
+//     // zeroing out any vecs and hashmaps
+//     mutex_cs.curves = Lazy::new(||HashMap::new());
+//     mutex_cs.text_curves = Lazy::new(||HashMap::new());
+//     mutex_cs.image_curves = Lazy::new(||HashMap::new());
+//     drop(mutex_cs);
+// }
 
 // ============================================================================
 // Helper functions for adding callbacks/user data

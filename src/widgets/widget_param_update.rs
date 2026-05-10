@@ -1,7 +1,7 @@
 //! Widget parameter update — trait-based dispatch with shared helpers.
 use pyo3::{Py, PyAny, Python};
 
-use crate::state::{Containers, Widgets};
+use crate::{IpgState, state::{Containers, Widgets}, widgets::ipg_draw::process_draw_updates};
 
 type PyObject = Py<PyAny>;
 
@@ -102,16 +102,17 @@ pub fn container_param_update(
     container: &mut Containers,
     item: &PyObject,
     value: &PyObject,
+    state: &mut IpgState,
 ) {
     match container {
         // Containers::Card(w) => apply_update(w, item, value),
-        Containers::CanvasDraw(w) => apply_update(w, item, value),
-        Containers::ColorPicker(_) => panic!("ColorPicker does not support param_update"),
         Containers::Column(w) => apply_update(w, item, value),
         Containers::Container(w) => apply_update(w, item, value),
+        Containers::CanvasDraw(draw) => process_draw_updates(state, draw, item, value),
         Containers::Float(w)=> apply_update(w, item, value),
         Containers::Grid(w)=> apply_update(w, item, value),
         // Containers::Menu(w) => apply_update(w, item, value),
+        // Containers::MenuBarItem(w) => apply_update(w, item, value),
         Containers::MouseArea(w) => apply_update(w, item, value),
         Containers::Opaque(_) => panic!("Opaque does not support param_update"),
         Containers::RichText(w) => apply_update(w, item, value),
@@ -121,7 +122,7 @@ pub fn container_param_update(
         Containers::Table(w) => apply_update(w, item, value),
         Containers::ToolTip(w) => apply_update(w, item, value),
         Containers::Window(w) => apply_update(w, item, value),
-        // Containers::MenuBarItem(w) => apply_update(w, item, value),
+        _ => panic!("{:?} does not support param_update", container)
     }
 }
 

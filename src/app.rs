@@ -1,21 +1,19 @@
-#![allow(unused)]
+
 use std::collections::HashMap;
 use std::time::Instant;
 
 use iced::time::milliseconds;
-use iced::widget::{Column, combo_box, scrollable};
-use iced::advanced::widget::operation::scrollable::scroll_to;
-use iced::window::{self, Position};
+use iced::widget::{Column, scrollable};
+use iced::window;
 use iced::clipboard;
-use iced::{Element, Event, Point, Size, Subscription, Task, Theme, font, message, time};
+use iced::{Element, Event, Point, Size, Subscription, Task, Theme, font, time};
 
-use palette::chromatic_adaptation::AdaptInto;
 use pyo3::{Py, PyAny};
 type PyObject = Py<PyAny>;
 
-use crate::ipg_widgets::ipg_canvas_draw::canvas_draw::CanvasWidget;
+use crate::ipg_widgets::ipg_canvas_draw::canvas_draw::{DrawState, DrawWidget};
 use crate::py_api::helpers::find_key_for_value;
-use crate::state::{Containers, WidgetNode, IpgState, Widgets, access_clipboard_actions, access_state, access_update_widgets, access_window_actions, clone_state_to_runtime, set_state_of_widget_running_state};
+use crate::state::{Containers, WidgetNode, IpgState, Widgets, access_clipboard_actions, access_state, access_update_widgets, access_window_actions, set_state_of_widget_running_state};
 use crate::widgets::callbacks::invoke_callback_with_args;
 use crate::widgets::ipg_button::{BtnMessage, button_callback};
 use crate::widgets::ipg_color_picker::{ColorPikMessage, color_picker_callback};
@@ -23,13 +21,12 @@ use crate::widgets::ipg_color_picker::{ColorPikMessage, color_picker_callback};
 use crate::widgets::ipg_checkbox::{ChkMessage, checkbox_callback};
 
 
-use crate::widgets::ipg_combo_box::{CBMessage, ComboBox, combo_box_callback};
+use crate::widgets::ipg_combo_box::{CBMessage, combo_box_callback};
 use crate::widgets::ipg_date_picker::{DPMessage, date_picker_update};
 use crate::widgets::ipg_divider::{DivMessage, divider_callback};
-use crate::widgets::ipg_draw::draw_callback;
+use crate::widgets::ipg_draw::{draw_callback, process_draw_updates};
 use crate::widgets::ipg_events::{process_keyboard_events, process_mouse_events, process_touch_events, process_window_event};
 use crate::widgets::ipg_mouse_area::{MaMessage, mousearea_callback};
-use crate::widgets::ipg_opaque;
 
 use crate::widgets::ipg_pick_list::{PLMessage, pick_list_callback};
 use crate::widgets::ipg_radio::{RDMessage, radio_callback};
@@ -39,16 +36,16 @@ use crate::widgets::ipg_table::{TableMessage, table_callback};
 use crate::widgets::ipg_text_rich::rich_text_callback;
 use crate::widgets::ipg_text_editor::{TxtEdMessage, text_ed_callback};
 use crate::widgets::ipg_text_input::{TIMessage, text_input_callback};
-use crate::widgets::ipg_timer::{TimerState, timer_callback};
+use crate::widgets::ipg_timer::timer_callback;
 use crate::widgets::ipg_toggle::{TOGMessage, toggle_callback};
-use crate::widgets::ipg_window::{Window, WindowLevel, WindowMode, add_windows, construct_window};
+use crate::widgets::ipg_window::{Window, add_windows, construct_window};
 use crate::widgets::widget_param_update::{param_update, container_param_update};
 
 
 #[derive(Debug, Clone)]
 pub enum Message {
     Button(usize, BtnMessage),
-    CanvasDraw(usize, CanvasWidget),
+    CanvasDraw(usize, DrawWidget),
     // Card(usize, CardMessage),
     CheckBox(usize, ChkMessage),
     ColorPicker(usize, ColorPikMessage),
@@ -87,7 +84,7 @@ pub enum Message {
 #[derive(Debug, Clone)]
 pub struct App {
     state: IpgState,
-    // canvas_state: CanvasState,
+    // draw_state: DrawState,
 }
 
 impl App {
@@ -96,8 +93,8 @@ impl App {
         let mut state = IpgState::new();
         clone_state(&mut state);
 
-        // let mut canvas_state = CanvasState::default();
-        // clone_canvas_state(&mut canvas_state);
+        // let mut draw_state = DrawState::default();
+        // clone_draw_state(&mut draw_state);
 
         let mut open = add_windows(&mut state);
         open.push(font::load(include_bytes!("./graphics/fonts/bootstrap-icons.ttf").as_slice()).map(Message::FontLoaded));
@@ -126,7 +123,7 @@ impl App {
         (
             Self {
                 state,
-                // canvas_state,
+                // draw_state,
             },
             
             Task::batch(open),
@@ -639,38 +636,38 @@ fn get_children<'a>(parents: &Vec<ParentChildIds>,
 /// the remaining children become dropdown menu items.
 /// Returns (MenuBarItem id, elements) tuples so construct() can
 /// look up per-item parameters.
-fn get_menu_children<'a>(
-    parents: &Vec<ParentChildIds>,
-    menu_index: &usize,
-    parent_ids: &Vec<usize>,
-    state: &'a IpgState,
-) -> Vec<(usize, Vec<Element<'a, Message>>)> {
-    let mut grouped: Vec<(usize, Vec<Element<'a, Message>>)> = vec![];
+// fn get_menu_children<'a>(
+//     parents: &Vec<ParentChildIds>,
+//     menu_index: &usize,
+//     parent_ids: &Vec<usize>,
+//     state: &'a IpgState,
+// ) -> Vec<(usize, Vec<Element<'a, Message>>)> {
+//     let mut grouped: Vec<(usize, Vec<Element<'a, Message>>)> = vec![];
 
-    for child_id in parents[*menu_index].child_ids.iter() {
-        // Each child should be an MenuBarItem container
-        if parent_ids.contains(child_id) {
-            let bar_item_index = parents.iter().position(|r| &r.parent_id == child_id).unwrap();
+//     for child_id in parents[*menu_index].child_ids.iter() {
+//         // Each child should be an MenuBarItem container
+//         if parent_ids.contains(child_id) {
+//             let bar_item_index = parents.iter().position(|r| &r.parent_id == child_id).unwrap();
 
-            let mut group: Vec<Element<'a, Message>> = vec![];
+//             let mut group: Vec<Element<'a, Message>> = vec![];
 
-            for grandchild in parents[bar_item_index].child_ids.iter() {
-                if parent_ids.contains(grandchild) {
-                    let idx = parents.iter().position(|r| &r.parent_id == grandchild).unwrap();
-                    if let Some(el) = get_children(parents, &idx, parent_ids, state) {
-                        group.push(el);
-                    }
-                } else if let Some(widget_el) = get_widget(state, grandchild) {
-                    group.push(widget_el);
-                }
-            }
+//             for grandchild in parents[bar_item_index].child_ids.iter() {
+//                 if parent_ids.contains(grandchild) {
+//                     let idx = parents.iter().position(|r| &r.parent_id == grandchild).unwrap();
+//                     if let Some(el) = get_children(parents, &idx, parent_ids, state) {
+//                         group.push(el);
+//                     }
+//                 } else if let Some(widget_el) = get_widget(state, grandchild) {
+//                     group.push(widget_el);
+//                 }
+//             }
 
-            grouped.push((*child_id, group));
-        }
-    }
+//             grouped.push((*child_id, group));
+//         }
+//     }
 
-    grouped
-}
+//     grouped
+// }
 
 
 fn get_container<'a>(state: &'a IpgState, 
@@ -993,38 +990,30 @@ fn process_updates(
     state: &mut IpgState,
     updates: &[(usize, PyObject, PyObject)],
 ) {
-    for ((wid, item, value)) in updates.iter() {
+    for (wid, item, value) in updates.iter() {
         let widget = state.widgets.get_mut(wid);
         if let Some(w) = widget {
             match_widget(w, item, value);
         } else {
             match state.containers.get_mut(wid) {
                 Some(cnt) => {
-                    let last_id = match_container(
-                                                cnt, 
-                                                item, 
-                                                value, 
-                                                // canvas_state, 
-                                                state.last_id);
-                    if last_id.is_some() {
-                        state.last_id = last_id.unwrap();
-                    }
+                    container_param_update(cnt, item, value, state);
                 },
                 None => panic!("Process_updates: No ids could be found to update with id {wid}.")
             }
             // After updating a CanvasDraw container, sync the new curves into
             // canvas_states and clear the cache so the canvas repaints.
-            if let Some(Containers::CanvasDraw(draw)) = state.containers.get(wid) {
-                let draw_id = draw.id;
-                let curves = draw.curves.clone();
-                let text_curves = draw.text_curves.clone();
-                if let Some(cs) = state.canvas_states.get_mut(&draw_id) {
-                    cs.curves = curves;
-                    cs.text_curves = text_curves;
-                    cs.request_redraw();
-                    cs.request_text_redraw();
-                }
-            }
+            // if let Some(Containers::CanvasDraw(draw)) = state.containers.get(wid) {
+            //     let draw_id = draw.id;
+            //     let curves = draw.curves.clone();
+            //     let text_curves = draw.text_curves.clone();
+            //     if let Some(cs) = state.canvas_states.get_mut(&draw_id) {
+            //         cs.curves = curves;
+            //         cs.text_curves = text_curves;
+            //         cs.request_redraw();
+            //         cs.request_text_redraw();
+            //     }
+            // }
         }  
     }
 }
@@ -1114,12 +1103,13 @@ fn clone_state(state: &mut IpgState) {
     state.canvas_timer_duration = mutex_state.canvas_timer_duration.to_owned();
 
     // Initialize CanvasState for each CanvasDraw container (runtime-only, not in mutex_state)
-    use crate::ipg_widgets::ipg_canvas_draw::canvas_draw::CanvasState;
+    use crate::ipg_widgets::ipg_canvas_draw::canvas_draw::DrawState;
     for (id, container) in state.containers.iter() {
         if let Containers::CanvasDraw(draw) = container {
-            let mut cs = CanvasState::default();
+            let mut cs = DrawState::default();
             cs.curves = draw.curves.clone();
             cs.text_curves = draw.text_curves.clone();
+            cs.init_text_caches();
             state.canvas_states.insert(*id, cs);
         }
     }
@@ -1142,16 +1132,4 @@ fn match_widget(
     value: &PyObject) 
 {
     param_update(widget, item, value);
-}
-
-fn match_container(
-    container: &mut Containers, 
-    item: &PyObject, 
-    value: &PyObject, 
-    // canvas_state: &mut CanvasState,
-    last_id: usize,
-    ) -> Option<usize>
-{
-    container_param_update(container, item, value);
-    None
 }

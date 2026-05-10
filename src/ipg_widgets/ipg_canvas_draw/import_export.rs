@@ -206,7 +206,7 @@ pub fn import_widgets(
                     width,
                     start_angle: Radians(start_angle),
                     end_angle:   Radians(end_angle),
-                    draw_mode:   DrawMode::DrawAll,
+                    draw_mode:   DrawMode::Display,
                     status:      DrawStatus::Completed,
                 }));
             },
@@ -219,7 +219,7 @@ pub fn import_widgets(
                     color:     arr_to_color(&color),
                     width,
                     degrees,
-                    draw_mode: DrawMode::DrawAll,
+                    draw_mode: DrawMode::Display,
                     status:    DrawStatus::Completed,
                 }));
             },
@@ -232,7 +232,7 @@ pub fn import_widgets(
                     radius,
                     color:        arr_to_color(&color),
                     width,
-                    draw_mode:    DrawMode::DrawAll,
+                    draw_mode:    DrawMode::Display,
                     status:       DrawStatus::Completed,
                 }));
             },
@@ -249,7 +249,7 @@ pub fn import_widgets(
                     color:     arr_to_color(&color),
                     width,
                     points:    pts,
-                    draw_mode: DrawMode::DrawAll,
+                    draw_mode: DrawMode::Display,
                     status:    DrawStatus::Completed,
                 }));
             },
@@ -262,7 +262,7 @@ pub fn import_widgets(
                     color:     arr_to_color(&color),
                     width,
                     degrees,
-                    draw_mode: DrawMode::DrawAll,
+                    draw_mode: DrawMode::Display,
                     status:    DrawStatus::Completed,
                 }));
             },
@@ -277,7 +277,7 @@ pub fn import_widgets(
                     color:       arr_to_color(&color),
                     width,
                     degrees,
-                    draw_mode:   DrawMode::DrawAll,
+                    draw_mode:   DrawMode::Display,
                     status:      DrawStatus::Completed,
                 }));
             },
@@ -292,7 +292,7 @@ pub fn import_widgets(
                     color:       arr_to_color(&color),
                     width,
                     degrees,
-                    draw_mode:   DrawMode::DrawAll,
+                    draw_mode:   DrawMode::Display,
                     status:      DrawStatus::Completed,
                 }));
             },
@@ -306,7 +306,7 @@ pub fn import_widgets(
                     color:     arr_to_color(&color),
                     width,
                     degrees,
-                    draw_mode: DrawMode::DrawAll,
+                    draw_mode: DrawMode::Display,
                     status:    DrawStatus::Completed,
                 }));
             },
@@ -317,7 +317,7 @@ pub fn import_widgets(
                     points:    points.iter().map(|p| p.to_point()).collect(),
                     color:     arr_to_color(&color),
                     width,
-                    draw_mode: DrawMode::DrawAll,
+                    draw_mode: DrawMode::Display,
                     status:    DrawStatus::Completed,
                     completed: true,
                 }));
@@ -336,7 +336,7 @@ pub fn import_widgets(
                     align_y:     align_y.to_iced(),
                     shaping:     Shaping::Basic,
                     degrees,
-                    draw_mode:   DrawMode::DrawAll,
+                    draw_mode:   DrawMode::Display,
                     status:      DrawStatus::Completed,
                 }));
             },

@@ -398,7 +398,7 @@ pub fn submit_row<'a, M: Clone + 'static>(
 ) -> iced::widget::Row<'a, M> {
     
     let size = Pixels(12.0);
-    let padding = 3.0;
+    let padding = 2.0;
 
     let submit_btn: Element<M> = 
         button(text("Submit").size(size))
@@ -436,11 +436,13 @@ pub fn submit_row<'a, M: Clone + 'static>(
     let colors: Element<M> =
         combo_box(
             cb_state,
-            "Select Color",
+            "Colors",
             selected_color_name,
             on_color_selected,
         )
-        .width(160.0)
+        .width(200.0)
+        .menu_height(200.0)
+        .size(10.0)
         .into();
 
     row([
@@ -450,6 +452,6 @@ pub fn submit_row<'a, M: Clone + 'static>(
         palette_chk,
         colors,
         ])
-        .spacing(5.0)
+        .spacing(3.0)
         .align_y(iced::Alignment::Center)
 }

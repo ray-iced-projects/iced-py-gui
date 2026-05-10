@@ -25,7 +25,7 @@ pub fn build_arc_path(arc: &Arc,
 
     let path = Path::new(|p| {
         match draw_mode {
-            DrawMode::DrawAll => {
+            DrawMode::Display => {
                 let new_arc = 
                     canvas::path::Arc{ 
                         center: arc.mid_point, 
@@ -187,7 +187,7 @@ pub fn build_bezier_path(bz: &Bezier,
 
     let path = Path::new(|p| {
         match draw_mode {
-            DrawMode::DrawAll => {
+            DrawMode::Display => {
                 p.move_to(bz.points[0]);
                 p.quadratic_curve_to(bz.points[2], bz.points[1]);
             },
@@ -264,7 +264,7 @@ pub fn build_circle_path(cir: &Circle,
                 ) -> Path {
     Path::new(|p| {
         match draw_mode {
-            DrawMode::DrawAll => {
+            DrawMode::Display => {
                 p.circle(cir.center, cir.radius);
             },
             DrawMode::Edit => {
@@ -312,7 +312,7 @@ pub fn build_ellipse_path(ell: &Ellipse,
                     ) -> Path {
     Path::new(|p| {
         match draw_mode {
-            DrawMode::DrawAll => {
+            DrawMode::Display => {
                 p.ellipse(Elliptical{ 
                     center: ell.center, 
                     radii: ell.radii, 
@@ -431,7 +431,7 @@ pub fn build_line_path(line: &Line,
 
     let path = Path::new(|p| {
         match draw_mode {
-            DrawMode::DrawAll => {
+            DrawMode::Display => {
                 p.move_to(line.points[0]);
                 p.line_to(line.points[1]);
             },
@@ -503,7 +503,7 @@ pub fn build_polygon_path(pg: &Polygon,
 
     let path = Path::new(|p| {
         match draw_mode {
-            DrawMode::DrawAll => {
+            DrawMode::Display => {
                 let points = &pg.points;
                 for (index, point) in points.iter().enumerate() {
                     if index == 0 {
@@ -608,7 +608,7 @@ pub fn build_polyline_path(pl: &PolyLine,
 
     let path = Path::new(|p| {
         match draw_mode {
-            DrawMode::DrawAll => {
+            DrawMode::Display => {
                 for (index, point) in pl.points.iter().enumerate() {
                     if index == 0 {
                         p.move_to(*point);
@@ -712,7 +712,7 @@ pub fn build_right_triangle_path(tr: &RightTriangle,
 
     let path = Path::new(|p| {
         match draw_mode {
-            DrawMode::DrawAll => {
+            DrawMode::Display => {
                 p.move_to(tr.points[0]);
                 p.line_to(tr.points[1]);
                 p.line_to(tr.points[2]);
@@ -819,7 +819,7 @@ pub fn build_free_hand_path(fh: &FreeHand,
 
     Path::new(|p| {
         match draw_mode {
-            DrawMode::DrawAll => {
+            DrawMode::Display => {
                 for (index, point) in fh.points.iter().enumerate() {
                     if index == 0 {
                         p.move_to(*point);
@@ -883,7 +883,7 @@ pub fn build_text_path (
             };
 
     match draw_mode {
-        DrawMode::DrawAll => { 
+        DrawMode::Display => { 
             (text, None)
         },
         DrawMode::Edit => {

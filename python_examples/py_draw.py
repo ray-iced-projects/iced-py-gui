@@ -101,9 +101,10 @@ with Window(title="Draw Demo", center=True):
                 )
 
                 add_pick_list(
-                    options=["Draw All", "Edit", "New", "Rotate"],
+                    options=["Display", "Edit", "New", "Rotate"],
                     placeholder="Select Draw Mode",
-                    on_select=set_mode
+                    on_select=set_mode,
+                    selected="None",
                 )
 
                 with ColorPicker(on_submit=set_draw_color):

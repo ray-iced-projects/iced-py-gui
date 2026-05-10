@@ -617,7 +617,7 @@ pub fn clone_state_to_runtime(runtime_state: &mut IpgState) {
                 radius: 30.0,
                 color: iced::Color::WHITE,
                 width: 2.0,
-                draw_mode: DrawMode::DrawAll,
+                draw_mode: DrawMode::Display,
                 status: DrawStatus::Completed,
             };
             cs.curves.insert(cid, CanvasWidget::Circle(circle));

@@ -170,6 +170,17 @@ impl App {
                 process_widget_updates(&mut self.state);
                 get_tasks(&mut self.state)
             },
+            Message::ClipboardReadResult(id, text) => {
+                invoke_callback_with_args(
+                    id,
+                    "on_read",
+                    "Clipboard",
+                    text,
+                    "def callback(req_id: int, text: str | None)",
+                );
+                process_widget_updates(&mut self.state);
+                get_tasks(&mut self.state)
+            },
             Message::ColorPicker(id, message) => {
                 let task = 
                     color_picker_callback(&mut self.state, id, message);
@@ -284,17 +295,6 @@ impl App {
                 process_widget_updates(&mut self.state);
                 Task::none()
             },
-            Message::ClipboardReadResult(id, text) => {
-                invoke_callback_with_args(
-                    id,
-                    "on_read",
-                    "Clipboard",
-                    text,
-                    "def callback(req_id: int, text: str | None)",
-                );
-                process_widget_updates(&mut self.state);
-                get_tasks(&mut self.state)
-            },
             // Message::CanvasTextBlink => {
             //     self.canvas_state.elapsed_time += self.canvas_state.timer_duration;
             //     self.canvas_state.blink = !self.canvas_state.blink;
@@ -331,7 +331,6 @@ impl App {
  
         let content = 
             create_content(window_id, &self.state);
-            // create_content(window_id, &self.state, &self.canvas_state);
         
         if debug {
             let color = match_theme_with_debug_color(theme);
@@ -894,7 +893,6 @@ fn get_window_container(container_opt: Option<&Containers>) -> &Window {
 
 fn process_widget_updates(
     state: &mut IpgState, 
-    // canvas_state: &mut CanvasState
 ) {
     
     let mut all_updates = access_update_widgets();
@@ -1052,25 +1050,6 @@ fn process_new_widgets(state: &mut IpgState) {
     }
 }
 
-// fn process_canvas_updates(cs: &mut CanvasState) {
-//     let mut canvas_items = access_canvas_update_items();
-
-//     for ((wid, item, value)) in canvas_items.updates.iter() {
-//         let mut canvas_widget = if cs.curves.get_mut(wid).is_some(){
-//             cs.curves.get_mut(wid).unwrap()
-//         } else if cs.image_curves.get_mut(wid).is_some() {
-//             cs.image_curves.get_mut(wid).unwrap()
-//         } else if cs.text_curves.get_mut(wid).is_some() {
-//             cs.text_curves.get_mut(wid).unwrap()
-//         } else {
-//            panic!("canvas_item_update: canvas item with id, {} not found", wid);
-//         };
-//         match_canvas_widget(canvas_widget, item, value);
-//     }
-//     canvas_items.updates = vec![];
-
-// }
-
 fn process_shows(
     state: &mut IpgState,
     shows: &[(usize, bool)],
@@ -1084,23 +1063,23 @@ fn process_shows(
             panic!("Process shows method- unable to find id {}", id)
         };
         match widget {
-            Widgets::Button(bt) => bt.show= *val,
-            Widgets::CheckBox(cb) => cb.show= *val,
-            // Widgets::ColorPicker(cp) => cp.show= *val,
-            // Widgets::DatePicker(dp) => dp.show= *val,
-            Widgets::Divider(d) => d.show = *val,
-            Widgets::Image(im) => im.show= *val,
-            // Widgets::PickList(pl) => pl.show= *val,
-            Widgets::ProgressBar(pb) => pb.show= *val,
-            Widgets::Radio(rd) => rd.show= *val,
-            Widgets::Rule(ru) => ru.show  = *val,
-            Widgets::Separator(sp) => sp.show= *val,
-            Widgets::Slider(sl) => sl.show= *val,
-            Widgets::Space(sp) => sp.show= *val,
-            Widgets::Svg(svg) => svg.show= *val,
-            Widgets::Text(text) => text.show= *val,
-            Widgets::TextInput(ti) => ti.show= *val,
-            Widgets::Toggler(tog) => tog.show= *val,
+            Widgets::Button(w) => w.show = *val,
+            Widgets::CheckBox(w) => w.show = *val,
+            Widgets::ComboBox(w) => w.show = *val,
+            Widgets::DatePicker(w) => w.show = *val,
+            Widgets::Divider(w) => w.show = *val,
+            Widgets::Image(w) => w.show = *val,
+            Widgets::PickList(w) => w.show = *val,
+            Widgets::ProgressBar(w) => w.show = *val,
+            Widgets::Radio(w) => w.show = *val,
+            Widgets::Rule(w) => w.show = *val,
+            Widgets::Separator(w) => w.show = *val,
+            Widgets::Slider(w) => w.show = *val,
+            Widgets::Space(w) => w.show = *val,
+            Widgets::Svg(w) => w.show = *val,
+            Widgets::Text(w) => w.show = *val,
+            Widgets::TextInput(w) => w.show = *val,
+            Widgets::Toggler(w) => w.show = *val,
             _ => eprintln!("The widget: {:?} does not have a show parameter", widget)
         }
     }

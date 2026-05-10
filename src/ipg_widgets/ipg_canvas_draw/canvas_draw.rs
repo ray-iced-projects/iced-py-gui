@@ -36,7 +36,7 @@ pub enum CanvasWidget {
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq,)]
 pub enum DrawMode {
     #[default]
-    DrawAll,
+    Display,
     Edit,
     New,
     Rotate,
@@ -53,7 +53,7 @@ pub enum DrawStatus {
 impl DrawMode {
     pub fn string(&self) -> Option<String> {
         match &self {
-            DrawMode::DrawAll => Some("DrawAll".to_string()),
+            DrawMode::Display => Some("DrawAll".to_string()),
             DrawMode::New => Some("New".to_string()),
             DrawMode::Edit => Some("Edit".to_string()),
             DrawMode::Rotate => Some("Rotate".to_string()),
@@ -62,11 +62,11 @@ impl DrawMode {
 
     pub fn to_enum(s: String) -> Self {
         match s.as_str() {
-            "DrawAll" => DrawMode::DrawAll,
+            "DrawAll" => DrawMode::Display,
             "Edit" => DrawMode::Edit,
             "New" => DrawMode::New,
             "Rotate" => DrawMode::Rotate,
-            _ => DrawMode::DrawAll,
+            _ => DrawMode::Display,
         }
     }
     pub fn options() -> Vec<String> {
@@ -170,7 +170,7 @@ impl Default for CanvasState {
             text_cache,
             curves: HashMap::new(),
             text_curves: HashMap::new(),
-            draw_mode: DrawMode::DrawAll,
+            draw_mode: DrawMode::Display,
             edit_widget_id: None,
             escape_pressed: false,
             selected_radio_widget: None,
@@ -244,7 +244,7 @@ impl<'a> canvas::Program<CanvasWidget> for DrawPending<'a> {
                 let message = match mouse_event {
                     mouse::Event::ButtonPressed(mouse::Button::Left) => {
                         match self.state.draw_mode {
-                            DrawMode::DrawAll => {
+                            DrawMode::Display => {
                                 None
                             },
                             DrawMode::New => {
@@ -814,9 +814,9 @@ impl DrawCurve {
                 CanvasWidget::Text(txt) => {
                     // During edit or rotate, pending draws the text,
                     // so skip drawing here.
-                    if txt.draw_mode == DrawMode::DrawAll || 
+                    if txt.draw_mode == DrawMode::Display || 
                         txt.draw_mode == DrawMode::New {
-                        if txt.draw_mode == DrawMode::DrawAll {
+                        if txt.draw_mode == DrawMode::Display {
                             blink = false;
                         }
                         frame.translate(Vector::new(txt.position.x, txt.position.y));
@@ -2261,7 +2261,7 @@ fn update_edited_widget(widget: CanvasWidget,
         CanvasWidget::Text(mut txt) => {
             txt.position = cursor;
             txt.status = status;
-            txt.draw_mode = DrawMode::DrawAll;
+            txt.draw_mode = DrawMode::Display;
             CanvasWidget::Text(txt)
         }
     }
@@ -2687,7 +2687,7 @@ fn set_widget_point(widget: &CanvasWidget, cursor: Point) -> (CanvasWidget, bool
                 false
             } else {
                 txt.status = DrawStatus::Completed;
-                txt.draw_mode = DrawMode::DrawAll;
+                txt.draw_mode = DrawMode::Display;
                 true
             };
 
@@ -2927,7 +2927,7 @@ fn get_widget_degrees(widget: &CanvasWidget) -> Option<f32> {
 
 pub fn get_draw_mode_and_status(widget: &CanvasWidget) -> (DrawMode, DrawStatus) {
     match widget {
-        CanvasWidget::None => (DrawMode::DrawAll, DrawStatus::Completed),
+        CanvasWidget::None => (DrawMode::Display, DrawStatus::Completed),
         CanvasWidget::Arc(arc) => (arc.draw_mode, arc.status),
         CanvasWidget::Bezier(bz) => (bz.draw_mode, bz.status),
         CanvasWidget::Circle(cir) => (cir.draw_mode, cir.status),

@@ -24,7 +24,7 @@ pub use state::{
     WidgetNode, IpgState
 };
 
-use crate::ipg_widgets::ipg_canvas_draw::canvas_draw::DrawWidget;
+use crate::ipg_widgets::ipg_canvas_draw::canvas_draw::{DrawMode, DrawWidget};
 // Import pyfunctions from py_api modules
 use crate::py_api::window::add_window;
 use crate::py_api::button::{add_button, add_button_style};
@@ -225,6 +225,7 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<DividerParam>()?;
     m.add_class::<DividerParam>()?;
     m.add_class::<DividerStyleParam>()?;
+    m.add_class::<DrawMode>()?;
     m.add_class::<DrawParam>()?;
     m.add_class::<DrawWidget>()?;
     m.add_class::<FloatParam>()?;

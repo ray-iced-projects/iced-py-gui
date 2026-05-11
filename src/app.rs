@@ -291,6 +291,7 @@ impl App {
             Message::TextInput(id, message) => {
                 text_input_callback(&mut self.state, id, message);
                 process_widget_updates(&mut self.state);
+                process_draw_updates(&mut self.state);
                 Task::none()
             },
             Message::Tick(id, instant) => {

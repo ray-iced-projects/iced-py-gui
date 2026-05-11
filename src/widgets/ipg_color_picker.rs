@@ -90,8 +90,8 @@ pub fn color_picker_callback(
                 match event {
                     Some(ColorPickerEvent::Submitted(_)) => {
                         cp.opened = false;
-                        invoke_callback_with_args(id, "on_submit", "ColorPicker", cp.cp.current_color_text(),
-                            "def cb(wid: int, color: str)");
+                        invoke_callback_with_args(id, "on_submit", "ColorPicker", cp.cp.current_color(),
+                            "def cb(wid: int, color: list)");
                     }
                     Some(ColorPickerEvent::Cancelled) => {
                         cp.opened = false;

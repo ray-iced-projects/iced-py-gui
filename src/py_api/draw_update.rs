@@ -1,11 +1,10 @@
 //! Draw Update modules - provides update_draw_params, delete_draw_widget, add_draw_widget,
 
-use pyo3::{Py, PyAny, pyfunction};
+use pyo3::pyfunction;
 use pyo3::types::PyDict;
 use pyo3::prelude::*;
 
 use crate::state::access_update_canvas_draw;
-type PyObject = Py<PyAny>;
 
 
 ///"""

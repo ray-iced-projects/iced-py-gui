@@ -10,14 +10,17 @@ from icedpygui import (
     add_button,
     add_button_style,
     add_draw,
+    DrawMode,
     DrawParam,
     DrawWidget,
     add_radio,
     add_pick_list,
     add_text_input,
+    TextInputParam,
     add_space,
     start_session,
     update_draw_params,
+    update_widget,
 )
 
 cwd = os.getcwd()
@@ -28,76 +31,103 @@ state = {"id": 0}
 def clear_canvas(_btn_id):
     """Clearing Canvas"""
     print("clear canvas")
-    update_draw_params(state["id"], {DrawParam.Clear: None})
+    update_draw_params(state["id"], { DrawParam.Clear: None })
 
-def widget_selected(_input_id, index: int):
+
+def widget_selected(_radio_id, index: int):
     """Widget selected"""
     match index:
         case 0:
             update_draw_params(state["id"], {
-                DrawParam.SelectedWidget, DrawWidget.Arc})
+                DrawParam.SelectedWidget: DrawWidget.Arc})
         case 1:
             update_draw_params(state["id"], {
-                DrawParam.SelectedWidget, DrawWidget.Bezier})
+                DrawParam.SelectedWidget: DrawWidget.Bezier})
         case 2:
             update_draw_params(state["id"], {
-                DrawParam.SelectedWidget, DrawWidget.Circle})
+                DrawParam.SelectedWidget: DrawWidget.Circle})
         case 3:
             update_draw_params(state["id"], {
-                DrawParam.SelectedWidget, DrawWidget.Ellipse})
+                DrawParam.SelectedWidget: DrawWidget.Ellipse})
         case 4:
             update_draw_params(state["id"], {
-                DrawParam.SelectedWidget, DrawWidget.Line})
+                DrawParam.SelectedWidget: DrawWidget.Line})
         case 5:
             update_draw_params(state["id"], {
-                DrawParam.SelectedWidget, DrawWidget.Polygon})
+                DrawParam.SelectedWidget: DrawWidget.Polygon})
         case 6:
             update_draw_params(state["id"], {
-                DrawParam.SelectedWidget, DrawWidget.PolyLine})
+                DrawParam.SelectedWidget: DrawWidget.PolyLine})
         case 7:
             update_draw_params(state["id"], {
-                DrawParam.SelectedWidget, DrawWidget.RightTrianglev})
+                DrawParam.SelectedWidget: DrawWidget.RightTriangle})
         case 8:
             update_draw_params(state["id"], {
-                DrawParam.SelectedWidget, DrawWidget.FreeHand})
+                DrawParam.SelectedWidget: DrawWidget.FreeHand})
         case 9:
             update_draw_params(state["id"], {
-                DrawParam.SelectedWidget, DrawWidget.Text})
+                DrawParam.SelectedWidget: DrawWidget.Text})
 
-def set_line_width(_input_id: int, value: str):
-    """Set Line Width"""
-    print(f"line_width value {value}")
 
-def set_poly_points(_input_id: int, value: str):
+def set_draw_width(input_id: int, value: str):
+    """Set Draw Width"""
+    update_draw_params(state["id"], {
+                DrawParam.DrawWidth: float(value)})
+    update_widget(input_id, TextInputParam.Placeholder, f"Draw Width={value}")
+
+
+def set_poly_points(input_id: int, value: str):
     """Set Poly Points"""
-    print(f"poly points value {value}")
+    print(value)
+    update_draw_params(state["id"], {
+                DrawParam.PolyPoints: int(value)})
+    update_widget(input_id, TextInputParam.Placeholder, f"Polygon Points={value}")
 
-def set_mode(_pl_id: int, mode: int):
+
+def set_mode(_pl_id: int, mode: str):
     "Set the Draw Mode"
-    print(f"Draw mode = {mode}")
+    match mode:
+        case "Display":
+            update_draw_params(state["id"], {
+                DrawParam.DrawMode: DrawMode.Display})
+        case "Edit":
+            update_draw_params(state["id"], {
+                DrawParam.DrawMode: DrawMode.Edit})
+        case "New":
+            update_draw_params(state["id"], {
+                DrawParam.DrawMode: DrawMode.New})
+        case"Rotate":
+            update_draw_params(state["id"], {
+                DrawParam.DrawMode: DrawMode.Rotate})
+
 
 def save_canvas(_btn_id: int):
     """Save Canvas"""
-    print("saving canvas")
+    update_draw_params(state["id"], {DrawParam.Save: FILE_PATH})
+
 
 def load_canvas() -> list:
     """Load Canvas"""
     with open(FILE_PATH, 'r', encoding='utf-8') as file:
         return json.load(file)
 
+
 def load_canvas_with_btn(_btn_id: int):
     """Load Canvas"""
     with open(FILE_PATH, 'r', encoding='utf-8') as file:
         data = json.load(file)
-        update_draw_params(state["id"], {DrawParam.Curves: data})
+        update_draw_params(state["id"], {DrawParam.Load: data})
 
-def set_draw_color(_cp_id: int, color: str):
+
+def set_draw_color(_cp_id: int, color: list[float, 4]):
     """Set Draw Color"""
-    print(f"Setting draw color = {color}")
+    update_draw_params(state["id"], {DrawParam.DrawColor: color})
 
-def set_canvas_color(_cp_id: int, color: str):
+
+def set_canvas_color(_cp_id: int, color: list[float, 4]):
     """Set Canvas Color"""
-    print(f"Setting canvas color = {color}")
+    update_draw_params(state["id"], {DrawParam.CanvasColor: color})
+
 
 btn_style = add_button_style(border_radius=[5.0])
 
@@ -118,17 +148,17 @@ with Window(title="Draw Demo", center=True):
                     on_selected=widget_selected
                 )
 
-                # line width
+                # draw width
                 add_text_input(
-                    placeholder="Line width=2.0",
-                    on_submit=set_line_width,
+                    placeholder="Draw width=2.0",
+                    on_submit=set_draw_width,
                     width_fill=True,
                     padding=[3],
                 )
 
                 # set points for polygon
                 add_text_input(
-                    placeholder="Polygon Points = 3",
+                    placeholder="Polygon Points=3",
                     on_submit=set_poly_points,
                     width_fill=True,
                     padding=[3]

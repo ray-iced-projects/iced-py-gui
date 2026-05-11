@@ -1,8 +1,9 @@
 use std::collections::HashMap;
+use std::io::Write;
 
 use iced::{Element, widget::{container, Id}};
 
-use crate::{IpgState, app::Message, ipg_widgets::ipg_canvas_draw::{canvas_draw::{CanvasWidget, DrawMode, DrawState, DrawStatus, DrawWidget, get_draw_mode_and_status, get_widget_id, set_widget_mode_or_status}, import_export::import_widgets}, state::{Containers, access_update_canvas_draw}, widgets::widget_param_update::extract_param};
+use crate::{IpgState, app::Message, ipg_widgets::ipg_canvas_draw::{canvas_draw::{CanvasWidget, DrawMode, DrawState, DrawStatus,  get_draw_mode_and_status, get_widget_id, set_widget_mode_or_status}, import_export::{import_widgets, convert_to_export}}, state::{Containers, access_update_canvas_draw}, widgets::widget_param_update::extract_param};
 
 use pyo3::{PyResult, Python, types::PyAnyMethods, pyclass, Py, PyAny};
 type PyObject = Py<PyAny>;
@@ -106,9 +107,15 @@ pub fn draw_callback(state: &mut IpgState, id: usize, mut widget: CanvasWidget) 
 #[pyclass(eq, eq_int, hash, frozen)]
 pub enum DrawParam {
     None,
+    CanvasColor,
+    DrawColor,
     Clear,
-    Curves,
+    DrawMode,
+    DrawWidth,
+    PolyPoints,
     SelectedWidget,
+    Load,
+    Save,
 }
 
 
@@ -137,45 +144,91 @@ pub fn process_draw_updates(
 ) {
     let updates = access_update_canvas_draw();
     for (wid, item, value) in updates.updates.iter() {
-        let container = state.containers.get_mut(wid).unwrap();
-        
-        match container {
-            Containers::CanvasDraw(_draw) => {
-                let param: DrawParam = extract_param(item);
-                match param {
-                    DrawParam::None => (),
-                    DrawParam::Clear => {
-                        if let Some(ds) = state.canvas_states.get_mut(&wid) {
-                            ds.curves.clear();
-                            ds.text_curves.clear();
-                            ds.request_redraw();
-                        }
-                    },
-                    DrawParam::Curves => {
-                        let results = extract_curves(value);
-                        match results {
-                            Ok(curves) => {
-                                if let Some(ds) = state.canvas_states.get_mut(&wid) {
-                                    ds.curves = curves.0;
-                                    ds.text_curves = curves.1;
-                                    ds.request_redraw();
-                                    ds.request_text_redraw();
+        if let Some(ds) = state.canvas_states.get_mut(&wid) {
+            if let Some(cont) = state.containers.get_mut(wid) {
+            
+                match cont {
+                    Containers::CanvasDraw(_draw) => {
+                        let param: DrawParam = extract_param(item);
+                        match param {
+                            DrawParam::None => (),
+                            DrawParam::Clear => {
+                                ds.curves.clear();
+                                ds.text_curves.clear();
+                                ds.request_redraw();
+                            },
+                            DrawParam::CanvasColor => {
+                                let color: [f32; 4] = extract_param(value);
+                                ds.canvas_color = iced::Color::from_rgba(color[0], color[1], color[2], color[3] as f32);
+                                ds.request_redraw();
+                                ds.request_text_redraw();
+                            },
+                            DrawParam::DrawColor => {
+                                let color: [f32; 4] = extract_param(value);
+                                ds.draw_color = iced::Color::from_rgba(color[0], color[1], color[2], color[3] as f32);
+                            }
+                            DrawParam::Load => {
+                                let results = extract_curves(value);
+                                match results {
+                                    Ok((curves, texts)) => {
+                                        ds.curves = curves;
+                                        ds.text_curves = texts;
+                                        ds.request_redraw();
+                                        ds.request_text_redraw();
+                                    },
+                                    Err(err) => panic!("Unable to extract Draw curves {}", err),
                                 }
                             },
-                            Err(err) => panic!("Unable to extract Draw curves {}", err),
-                        }
+                            DrawParam::DrawMode => {
+                                let mode = extract_param(value);
+                                ds.draw_mode = mode;
+                            },
+                            DrawParam::DrawWidth => {
+                                ds.draw_width = extract_param(value);
+                            },
+                            DrawParam::PolyPoints => {
+                                ds.poly_points = extract_param(value);
+                            },
+                            DrawParam::Save => {
+                                let file_path: String = extract_param(value);
+                                let export = convert_to_export(&ds.curves, &ds.text_curves);
+                                // Rotate up to 3 backup files before writing:
+                                //   file.json.bak3 <- file.json.bak2 <- file.json.bak1 <- file.json
+                                for n in (1u8..=3).rev() {
+                                    let src = if n == 1 {
+                                        file_path.clone()
+                                    } else {
+                                        format!("{}.bak{}", file_path, n - 1)
+                                    };
+                                    let dst = format!("{}.bak{}", file_path, n);
+                                    if std::path::Path::new(&src).exists() {
+                                        if let Err(e) = std::fs::rename(&src, &dst) {
+                                            eprintln!("canvas save: could not rotate backup '{}' -> '{}': {}", src, dst, e);
+                                        }
+                                    }
+                                }
+                                match std::fs::File::create(&file_path) {
+                                    Ok(mut file) => {
+                                        let json = serde_json::to_string_pretty(&export)
+                                            .expect("canvas save: serialization failed");
+                                        writeln!(file, "{}", json)
+                                            .expect("canvas save: write failed");
+                                    },
+                                    Err(e) => eprintln!("canvas save: could not create '{}': {}", file_path, e),
+                                }
+                            },
+                            DrawParam::SelectedWidget => {
+                                ds.radio_widget = Some(extract_param(value));
+                            },
                         
-                    },
-                    DrawParam::SelectedWidget => {
-                        let w: DrawWidget = extract_param(value);
-                        if let Some(ds) = state.canvas_states.get_mut(&wid) {
-                            ds.selected_radio_widget = Some(w);
                         }
                     },
-                
+                    _ => panic!( "ipg_draw: In process_updates, the wrong container is found {:?}", cont )
                 }
-            },
-            _ => ()
-        }
+            
+            } else { panic!( "ipg_draw: process_updates, the draw container is found with id: {}", wid )}
+        
+        } else { panic!("ipg_draw: process_updates: The canvas state could not be found using the id: {}", wid) }
+    
     }
 }

@@ -10,8 +10,8 @@ use iced::widget::canvas::{self, Canvas, Frame, Geometry, Path, Stroke};
 use iced::{Element, Fill, Point, Renderer, Theme};
 use serde::{Deserialize, Serialize};
 
-use pyo3::{pyclass, Py, PyAny};
-type PyObject = Py<PyAny>;
+use pyo3::pyclass;
+
 
 use super::helpers::{build_polygon, get_angle_of_vectors, get_horizontal_angle_of_vector, get_line_from_slope_intercept, get_linear_regression, get_mid_point, iced_h_text_alignment, iced_v_text_alignment, rotate_geometry, to_degrees, to_radians, translate_geometry};
 use super::path_builds::{build_arc_path, build_bezier_path, build_circle_path, 
@@ -36,7 +36,24 @@ pub enum CanvasWidget {
     FreeHand(FreeHand),
 }
 
-#[derive(Clone, Copy, Debug, Default, PartialEq, Eq,)]
+#[derive(Clone, Copy, Debug, Hash, Serialize, Deserialize, PartialEq, Eq,)]
+#[pyclass(eq, eq_int, hash, frozen)]
+pub enum DrawWidget {
+    None,
+    Arc,
+    Bezier,
+    Circle,
+    Ellipse,
+    Line,
+    PolyLine,
+    Polygon,
+    RightTriangle,
+    Text,
+    FreeHand,
+}
+
+#[derive(Clone, Copy, Debug, Default, Hash, PartialEq, Eq,)]
+#[pyclass(eq, eq_int, hash, frozen)]
 pub enum DrawMode {
     #[default]
     Display,
@@ -45,7 +62,8 @@ pub enum DrawMode {
     Rotate,
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq,)]
+#[derive(Clone, Copy, Debug, Hash, PartialEq, Eq,)]
+#[pyclass(eq, eq_int, hash, frozen)]
 pub enum DrawStatus {
     Inprogress,
     Completed,
@@ -142,19 +160,19 @@ pub struct DrawState {
     text_cache: HashMap<Id, canvas::Cache>,
     pub curves: HashMap<Id, CanvasWidget>,
     pub text_curves: HashMap<Id, CanvasWidget>,
-    pub draw_mode: DrawMode,
     pub edit_widget_id: Option<Id>,
     pub escape_pressed: bool,
-    pub selected_radio_widget: Option<DrawWidget>,
-    pub selected_draw_color: Color,
-    pub selected_canvas_color: Color,
-    pub selected_poly_points: usize,
-    pub selected_poly_points_str: String,
-    pub selected_step_degrees: f32,
-    pub selected_width: f32,
-    pub selected_width_str: String,
-    pub selected_h_text_alignment: HTextAlignment,
-    pub selected_v_text_alignment: VTextAlignment,
+    // user inputs
+    pub radio_widget: Option<DrawWidget>,
+    pub draw_mode: DrawMode,
+    pub draw_color: Color,
+    pub canvas_color: Color,
+    pub poly_points: usize,
+    pub step_degrees: f32,
+    pub draw_width: f32,
+    pub h_text_alignment: HTextAlignment,
+    pub v_text_alignment: VTextAlignment,
+
     pub timer_event_enabled: bool,
     pub timer_duration: u64,
     pub elapsed_time: u64,
@@ -168,19 +186,19 @@ impl Default for DrawState {
             text_cache: HashMap::new(),
             curves: HashMap::new(),
             text_curves: HashMap::new(),
-            draw_mode: DrawMode::Display,
             edit_widget_id: None,
             escape_pressed: false,
-            selected_radio_widget: None,
-            selected_draw_color: Color::from_rgb(0.961, 0.871, 0.702),
-            selected_canvas_color: Color::from_rgb(0.0, 0.502, 0.502),
-            selected_poly_points: 3,
-            selected_poly_points_str: String::new(),
-            selected_step_degrees: 6.0,
-            selected_width: 2.0,
-            selected_width_str: String::new(),
-            selected_h_text_alignment: HTextAlignment::Center,
-            selected_v_text_alignment: VTextAlignment::Center,
+            // user inputs
+            draw_mode: DrawMode::Display,
+            radio_widget: None,
+            draw_color: Color::from_rgb(0.961, 0.871, 0.702),
+            canvas_color: Color::from_rgb(0.0, 0.502, 0.502),
+            poly_points: 3,
+            step_degrees: 6.0,
+            draw_width: 2.0,
+            h_text_alignment: HTextAlignment::Center,
+            v_text_alignment: VTextAlignment::Center,
+
             timer_event_enabled: false,
             timer_duration: 750,
             elapsed_time: 0,
@@ -274,18 +292,18 @@ impl<'a> canvas::Program<CanvasWidget> for DrawPending<'a> {
                                     None => {
                                         // in case the poly points, color, and width have changed since 
                                         // the widget selected
-                                        if self.state.selected_radio_widget.is_none() {
+                                        if self.state.radio_widget.is_none() {
                                             return None
                                         }
                                         let selected_widget = 
                                             add_new_widget(
-                                                self.state.selected_radio_widget.unwrap(), 
-                                                self.state.selected_poly_points,
-                                                self.state.selected_draw_color,
-                                                self.state.selected_width,
+                                                self.state.radio_widget.unwrap(), 
+                                                self.state.poly_points,
+                                                self.state.draw_color,
+                                                self.state.draw_width,
                                                 self.state.draw_mode,
-                                                self.state.selected_h_text_alignment,
-                                                self.state.selected_v_text_alignment,
+                                                self.state.h_text_alignment,
+                                                self.state.v_text_alignment,
                                             );
 
                                         let (widget, _) = 
@@ -432,7 +450,7 @@ impl<'a> canvas::Program<CanvasWidget> for DrawPending<'a> {
                                         // renders it until rotation is finished.
                                         *program_state = Some(Pending::Rotate {
                                             widget: widget.clone(),
-                                            step_degrees: self.state.selected_step_degrees,
+                                            step_degrees: self.state.step_degrees,
                                             degrees: get_widget_degrees(&widget),
                                         });
 
@@ -493,7 +511,7 @@ impl<'a> canvas::Program<CanvasWidget> for DrawPending<'a> {
                                             step_degrees: *step_degrees,
                                             degrees: Some(degrees),
                                         });
-                                        None
+                                        Some(canvas::Action::request_redraw())
                                     },
                                     _ => None,
                                 }
@@ -591,7 +609,7 @@ impl<'a> canvas::Program<CanvasWidget> for DrawPending<'a> {
                             |frame| {
 
                 let background = Path::rectangle(Point::ORIGIN, frame.size());
-                frame.fill(&background, self.state.selected_canvas_color);
+                frame.fill(&background, self.state.canvas_color);
 
                 DrawCurve::draw_all(self.curves, frame, theme);
 
@@ -1712,21 +1730,6 @@ pub struct FreeHand {
     pub completed: bool,
 }
 
-#[derive(Clone, Copy, Debug, Hash, Serialize, Deserialize, PartialEq, Eq,)]
-#[pyclass(eq, eq_int, hash, frozen)]
-pub enum DrawWidget {
-    None,
-    Arc,
-    Bezier,
-    Circle,
-    Ellipse,
-    Line,
-    PolyLine,
-    Polygon,
-    RightTriangle,
-    Text,
-    FreeHand,
-}
 
 fn add_new_widget(widget: DrawWidget, 
                     poly_points: usize, 

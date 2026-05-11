@@ -865,11 +865,11 @@ pub fn build_free_hand_path(fh: &FreeHand,
 pub fn build_text_path (
     txt: &Text, 
     draw_mode: DrawMode, 
-    blink: bool,
+    _blink: bool,
     _renderer: &Renderer,
     ) -> (canvas::Text, Option<Path>) {
 
-    let mut text = canvas::Text {
+    let text = canvas::Text {
                 content: txt.content.clone(),
                 position: Point::ORIGIN,
                 color: txt.color,
@@ -893,25 +893,7 @@ pub fn build_text_path (
             (text, path)
         },
         DrawMode::New => {
-            text.content = txt.content.clone();
-            
-            // Draw cursor as a separate line instead of text character
-            let path = if blink {
-                // Approximate text width (works well for most proportional fonts)
-                // Average character width is ~0.6 * font_size for most fonts
-                let avg_char_width = text.size.0 * 0.6;
-                let text_width = text.content.len() as f32 * avg_char_width;
-                let cursor_height = text.size.0;
-                
-                Some(Path::new(|p| {
-                    p.move_to(Point::new(text_width, -cursor_height * 0.6));
-                    p.line_to(Point::new(text_width, cursor_height * 0.2));
-                }))
-            } else {
-                None
-            };
-            
-            (text, path)
+            (text, None)
         },
         DrawMode::Rotate => {
             let path = Some(Path::new(|p| {

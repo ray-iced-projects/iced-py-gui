@@ -129,6 +129,13 @@ def set_canvas_color(_cp_id: int, color: list[float, 4]):
     update_draw_params(state["id"], {DrawParam.CanvasColor: color})
 
 
+def set_text_content(input_id: int, value: str):
+    """Submit text for placement on the canvas."""
+    if value.strip():
+        update_draw_params(state["id"], {DrawParam.TextContent: value})
+    update_widget(input_id, TextInputParam.Value, "")
+
+
 btn_style = add_button_style(border_radius=[5.0])
 
 with Window(title="Draw Demo", center=True):
@@ -162,6 +169,14 @@ with Window(title="Draw Demo", center=True):
                     on_submit=set_poly_points,
                     width_fill=True,
                     padding=[3]
+                )
+
+                # text content for Text widget placement
+                add_text_input(
+                    placeholder="Text content (Enter to submit)",
+                    on_submit=set_text_content,
+                    width_fill=True,
+                    padding=[3],
                 )
 
                 add_pick_list(

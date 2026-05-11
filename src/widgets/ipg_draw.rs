@@ -3,7 +3,7 @@ use std::io::Write;
 
 use iced::{Element, widget::{container, Id}};
 
-use crate::{IpgState, app::Message, ipg_widgets::ipg_canvas_draw::{canvas_draw::{CanvasWidget, DrawMode, DrawState, DrawStatus,  get_draw_mode_and_status, get_widget_id, set_widget_mode_or_status}, import_export::{import_widgets, convert_to_export}}, state::{Containers, access_update_canvas_draw}, widgets::widget_param_update::extract_param};
+use crate::{IpgState, app::Message, ipg_widgets::ipg_canvas_draw::{canvas_draw::{CanvasWidget, DrawMode, DrawState, DrawStatus, build_placed_text_widget, get_draw_mode_and_status, get_widget_id, set_widget_mode_or_status}, import_export::{import_widgets, convert_to_export}}, state::{Containers, access_update_canvas_draw}, widgets::widget_param_update::extract_param};
 
 use pyo3::{PyResult, Python, types::PyAnyMethods, pyclass, Py, PyAny};
 type PyObject = Py<PyAny>;
@@ -44,13 +44,14 @@ pub fn draw_callback(state: &mut IpgState, id: usize, mut widget: CanvasWidget) 
         // ---- Text path ----
         match draw_status {
             DrawStatus::Completed => {
-                // Insert or update — the entry may not exist yet if keypresses
-                // were kept in Pending without publishing.
                 widget = set_widget_mode_or_status(widget, Some(DrawMode::Display), None);
                 cs.text_curves.insert(widget_id.clone(), widget.clone());
                 cs.request_text_redraw_for(&widget_id);
                 cs.timer_event_enabled = false;
                 cs.draw_mode = DrawMode::Display;
+                // Clear pending state now that placement is done.
+                cs.pending_text = None;
+                cs.pending_anchor = None;
             },
             DrawStatus::Delete => {
                 cs.text_curves.remove(&widget_id);
@@ -60,11 +61,18 @@ pub fn draw_callback(state: &mut IpgState, id: usize, mut widget: CanvasWidget) 
                 return;
             },
             DrawStatus::Inprogress => {
+                // This is a canvas-click anchor stored while waiting for text.
+                // Don't insert into text_curves — just record the anchor.
+                if draw_mode == DrawMode::New {
+                    if let CanvasWidget::Text(ref txt) = widget {
+                        cs.pending_anchor = Some(txt.position);
+                    }
+                    return;
+                }
                 if cs.text_curves.contains_key(&widget_id) {
                     cs.text_curves.entry(widget_id.clone()).and_modify(|k| *k = widget.clone());
                 } else {
                     cs.text_curves.insert(widget_id.clone(), widget.clone());
-                    // Seed a cache entry for this new text widget.
                     cs.request_text_redraw_for(&widget_id);
                 }
             },
@@ -114,6 +122,7 @@ pub enum DrawParam {
     DrawWidth,
     PolyPoints,
     SelectedWidget,
+    TextContent,
     Load,
     Save,
 }
@@ -142,8 +151,12 @@ pub fn extract_curves(curves: &PyObject) -> PyResult<(HashMap<Id, CanvasWidget>,
 pub fn process_draw_updates(
     state: &mut IpgState,
 ) {
-    let updates = access_update_canvas_draw();
-    for (wid, item, value) in updates.updates.iter() {
+    // Drain updates so each entry is processed exactly once.
+    let updates: Vec<_> = {
+        let mut guard = access_update_canvas_draw();
+        std::mem::take(&mut guard.updates)
+    };
+    for (wid, item, value) in updates.iter() {
         if let Some(ds) = state.canvas_states.get_mut(&wid) {
             if let Some(cont) = state.containers.get_mut(wid) {
             
@@ -219,6 +232,29 @@ pub fn process_draw_updates(
                             },
                             DrawParam::SelectedWidget => {
                                 ds.radio_widget = Some(extract_param(value));
+                            },
+                            DrawParam::TextContent => {
+                                let content: String = extract_param(value);
+                                match ds.pending_anchor.take() {
+                                    Some(position) => {
+                                        // Anchor already set — place text immediately.
+                                        let widget = build_placed_text_widget(
+                                            content,
+                                            position,
+                                            ds.draw_color,
+                                            ds.h_text_alignment,
+                                            ds.v_text_alignment,
+                                        );
+                                        let id = crate::ipg_widgets::ipg_canvas_draw::canvas_draw::get_widget_id(&widget);
+                                        ds.text_curves.insert(id.clone(), widget);
+                                        ds.request_text_redraw_for(&id);
+                                        ds.draw_mode = DrawMode::Display;
+                                    },
+                                    None => {
+                                        // No anchor yet — store text and wait for a canvas click.
+                                        ds.pending_text = Some(content);
+                                    }
+                                }
                             },
                         
                         }

@@ -22,7 +22,7 @@ use crate::widgets::ipg_date_picker::DatePicker;
 use crate::widgets::ipg_divider::{Divider, DividerStyle};
 use crate::widgets::ipg_draw::Draw;
 use crate::ipg_widgets::ipg_canvas_draw::canvas_draw::{
-    DrawState, DrawWidget, Circle, DrawMode, DrawStatus};
+    DrawState, CanvasWidget, Circle, DrawMode, DrawStatus};
 use iced::widget::Id;
 use iced::Point;
 use crate::widgets::ipg_events::Events;
@@ -383,7 +383,7 @@ pub struct UpdateCanvasDraw {
     // (wid, item, value)
     pub updates: Vec<(usize, PyObject, PyObject)>, 
     pub deletes: Vec<usize>,
-    pub new: Lazy<HashMap<Id, DrawWidget>>,
+    pub new: Lazy<HashMap<Id, CanvasWidget>>,
 }
 
 pub static UPDATE_CANVAS_DRAW: Mutex<UpdateCanvasDraw> = Mutex::new(UpdateCanvasDraw {
@@ -638,7 +638,7 @@ pub fn clone_state_to_runtime(runtime_state: &mut IpgState) {
                 draw_mode: DrawMode::Display,
                 status: DrawStatus::Completed,
             };
-            cs.curves.insert(cid, DrawWidget::Circle(circle));
+            cs.curves.insert(cid, CanvasWidget::Circle(circle));
             runtime_state.canvas_states.insert(*id, cs);
         }
     }

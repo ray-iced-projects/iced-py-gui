@@ -127,7 +127,7 @@ def rd1_selected(_rd_int: int, index: int):
 
 def rd2_selected(_rd_int: int, index: int):
     """Radio callback"""
-    print(index)
+    print(index, rd2_labels[index])
 
 
 style_id = add_radio_style(border_color=Color.YELLOW, dot_color=Color.YELLOW_GREEN)
@@ -149,6 +149,7 @@ with Window(
         with Column(spacing=10.0):
 
             rd1_labels = ["one", "two", "three", "four"]
+            rd2_labels = ["six", "seven", "eight", "nine"]
 
             add_text(content=CONTENT_1)
 
@@ -164,14 +165,14 @@ with Window(
 
             add_text(content="The spacing=20 between the button and the text")
             add_radio(
-                labels=["one", "two", "three", "four"],
+                labels=rd2_labels,
                 spacing=20,
                 on_selected=rd2_selected)
 
             add_text(content=CONTENT_2)
 
             add_radio(
-                labels=["one", "two", "three", "four"],
+                labels=rd2_labels,
                 selected_index=1,
                 horizontal=True,
                 radio_spacing=8,

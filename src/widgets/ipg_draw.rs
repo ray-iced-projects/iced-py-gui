@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use iced::{Element, widget::{container, Id}};
 
-use crate::{IpgState, app::Message, ipg_widgets::ipg_canvas_draw::{canvas_draw::{DrawWidget, DrawMode, DrawState, DrawStatus, get_draw_mode_and_status, get_widget_id, set_widget_mode_or_status}, import_export::import_widgets}, state::{Containers, access_update_canvas_draw}, widgets::widget_param_update::extract_param};
+use crate::{IpgState, app::Message, ipg_widgets::ipg_canvas_draw::{canvas_draw::{CanvasWidget, DrawMode, DrawState, DrawStatus, DrawWidget, get_draw_mode_and_status, get_widget_id, set_widget_mode_or_status}, import_export::import_widgets}, state::{Containers, access_update_canvas_draw}, widgets::widget_param_update::extract_param};
 
 use pyo3::{PyResult, Python, types::PyAnyMethods, pyclass, Py, PyAny};
 type PyObject = Py<PyAny>;
@@ -12,8 +12,8 @@ use crate::ipg_widgets::ipg_canvas_draw::import_export::ExportWidget;
 #[derive(Debug, Clone)]
 pub struct Draw {
     pub id: usize,
-    pub curves: HashMap<Id, DrawWidget>,
-    pub text_curves: HashMap<Id, DrawWidget>,
+    pub curves: HashMap<Id, CanvasWidget>,
+    pub text_curves: HashMap<Id, CanvasWidget>,
 }
 
 impl Draw {
@@ -32,14 +32,14 @@ impl Draw {
 }
 
 
-pub fn draw_callback(state: &mut IpgState, id: usize, mut widget: DrawWidget) {
+pub fn draw_callback(state: &mut IpgState, id: usize, mut widget: CanvasWidget) {
     // Get info from the widget before any moves.
     let (draw_mode, draw_status) = get_draw_mode_and_status(&widget);
     let widget_id = get_widget_id(&widget);
 
     let Some(cs) = state.canvas_states.get_mut(&id) else { return };
 
-    if matches!(widget, DrawWidget::Text(_)) {
+    if matches!(widget, CanvasWidget::Text(_)) {
         // ---- Text path ----
         match draw_status {
             DrawStatus::Completed => {
@@ -112,7 +112,7 @@ pub enum DrawParam {
 }
 
 
-pub fn extract_curves(curves: &PyObject) -> PyResult<(HashMap<Id, DrawWidget>, HashMap<Id, DrawWidget>)> {
+pub fn extract_curves(curves: &PyObject) -> PyResult<(HashMap<Id, CanvasWidget>, HashMap<Id, CanvasWidget>)> {
     Python::attach(|py| -> PyResult<_> {
         let obj = curves.bind(py);
         // Accept either a callable (returns a list) or a list directly.
@@ -134,32 +134,48 @@ pub fn extract_curves(curves: &PyObject) -> PyResult<(HashMap<Id, DrawWidget>, H
 
 pub fn process_draw_updates(
     state: &mut IpgState,
-    draw: &mut Draw,
-    item: &PyObject,
-    value: &PyObject,
 ) {
-    dbg!("process_draw_updates");
     let updates = access_update_canvas_draw();
-    
-        let param: DrawParam = extract_param(item);
-        match param {
-            DrawParam::None => (),
-            DrawParam::Clear => state.canvas_states.clear(),
-            DrawParam::Curves => {
-                dbg!("curves");
-                if let Some(Containers::CanvasDraw(draw)) = state.containers.get(&draw_id) {
-                    let curves = extract_curves(value);
-                    dbg!(&curves);
-                    // if let Some(cs) = state.canvas_states.get_mut(&draw_id) {
-                    //     cs.curves = curves;
-                    //     cs.text_curves = text_curves;
-                    //     cs.request_redraw();
-                    //     cs.request_text_redraw();
-                    // }
+    for (wid, item, value) in updates.updates.iter() {
+        let container = state.containers.get_mut(wid).unwrap();
+        
+        match container {
+            Containers::CanvasDraw(_draw) => {
+                let param: DrawParam = extract_param(item);
+                match param {
+                    DrawParam::None => (),
+                    DrawParam::Clear => {
+                        if let Some(ds) = state.canvas_states.get_mut(&wid) {
+                            ds.curves.clear();
+                            ds.text_curves.clear();
+                            ds.request_redraw();
+                        }
+                    },
+                    DrawParam::Curves => {
+                        let results = extract_curves(value);
+                        match results {
+                            Ok(curves) => {
+                                if let Some(ds) = state.canvas_states.get_mut(&wid) {
+                                    ds.curves = curves.0;
+                                    ds.text_curves = curves.1;
+                                    ds.request_redraw();
+                                    ds.request_text_redraw();
+                                }
+                            },
+                            Err(err) => panic!("Unable to extract Draw curves {}", err),
+                        }
+                        
+                    },
+                    DrawParam::SelectedWidget => {
+                        let w: DrawWidget = extract_param(value);
+                        if let Some(ds) = state.canvas_states.get_mut(&wid) {
+                            ds.selected_radio_widget = Some(w);
+                        }
+                    },
                 
                 }
             },
-            DrawParam::SelectedWidget => todo!(),
+            _ => ()
         }
-        
+    }
 }

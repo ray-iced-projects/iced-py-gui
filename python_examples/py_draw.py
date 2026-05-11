@@ -11,6 +11,7 @@ from icedpygui import (
     add_button_style,
     add_draw,
     DrawParam,
+    DrawWidget,
     add_radio,
     add_pick_list,
     add_text_input,
@@ -22,14 +23,46 @@ from icedpygui import (
 cwd = os.getcwd()
 FILE_PATH = f"{cwd}/python_examples/resources/canvas.json"
 
+state = {"id": 0}
+
 def clear_canvas(_btn_id):
     """Clearing Canvas"""
     print("clear canvas")
-    update_draw_params(draw_id, {DrawParam.Clear: None})
+    update_draw_params(state["id"], {DrawParam.Clear: None})
 
-def widget_selected(_input_id, widget: int):
+def widget_selected(_input_id, index: int):
     """Widget selected"""
-    print(f"widget selected {widget}")
+    match index:
+        case 0:
+            update_draw_params(state["id"], {
+                DrawParam.SelectedWidget, DrawWidget.Arc})
+        case 1:
+            update_draw_params(state["id"], {
+                DrawParam.SelectedWidget, DrawWidget.Bezier})
+        case 2:
+            update_draw_params(state["id"], {
+                DrawParam.SelectedWidget, DrawWidget.Circle})
+        case 3:
+            update_draw_params(state["id"], {
+                DrawParam.SelectedWidget, DrawWidget.Ellipse})
+        case 4:
+            update_draw_params(state["id"], {
+                DrawParam.SelectedWidget, DrawWidget.Line})
+        case 5:
+            update_draw_params(state["id"], {
+                DrawParam.SelectedWidget, DrawWidget.Polygon})
+        case 6:
+            update_draw_params(state["id"], {
+                DrawParam.SelectedWidget, DrawWidget.PolyLine})
+        case 7:
+            update_draw_params(state["id"], {
+                DrawParam.SelectedWidget, DrawWidget.RightTrianglev})
+        case 8:
+            update_draw_params(state["id"], {
+                DrawParam.SelectedWidget, DrawWidget.FreeHand})
+        case 9:
+            update_draw_params(state["id"], {
+                DrawParam.SelectedWidget, DrawWidget.Text})
 
 def set_line_width(_input_id: int, value: str):
     """Set Line Width"""
@@ -56,7 +89,7 @@ def load_canvas_with_btn(_btn_id: int):
     """Load Canvas"""
     with open(FILE_PATH, 'r', encoding='utf-8') as file:
         data = json.load(file)
-        update_draw_params(draw_id, {DrawParam.Curves: data})
+        update_draw_params(state["id"], {DrawParam.Curves: data})
 
 def set_draw_color(_cp_id: int, color: str):
     """Set Draw Color"""
@@ -133,7 +166,7 @@ with Window(title="Draw Demo", center=True):
                 )
 
         with Container(width_fill=True, height_fill=True):
-            draw_id = add_draw()
+            state["id"] = add_draw()
 
 
 start_session()

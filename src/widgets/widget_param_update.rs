@@ -1,7 +1,7 @@
 //! Widget parameter update — trait-based dispatch with shared helpers.
 use pyo3::{Py, PyAny, Python};
 
-use crate::{IpgState, state::{Containers, Widgets}, widgets::ipg_draw::process_draw_updates};
+use crate::state::{Containers, Widgets};
 
 type PyObject = Py<PyAny>;
 
@@ -102,13 +102,11 @@ pub fn container_param_update(
     container: &mut Containers,
     item: &PyObject,
     value: &PyObject,
-    state: &mut IpgState,
 ) {
     match container {
         // Containers::Card(w) => apply_update(w, item, value),
         Containers::Column(w) => apply_update(w, item, value),
         Containers::Container(w) => apply_update(w, item, value),
-        Containers::CanvasDraw(draw) => process_draw_updates(state, draw, item, value),
         Containers::Float(w)=> apply_update(w, item, value),
         Containers::Grid(w)=> apply_update(w, item, value),
         // Containers::Menu(w) => apply_update(w, item, value),

@@ -35,7 +35,6 @@ pub fn update_draw_params(
     wid: usize,
     updates: &Bound<'_, PyDict>,
 ) {
-    dbg!("update_draw_params");
     let mut draw_updates = access_update_canvas_draw();
     for (param, value) in updates.iter() {
         draw_updates.updates.push((wid, param.unbind(), value.unbind()));

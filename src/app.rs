@@ -11,7 +11,7 @@ use iced::{Element, Event, Point, Size, Subscription, Task, Theme, font, time};
 use pyo3::{Py, PyAny};
 type PyObject = Py<PyAny>;
 
-use crate::ipg_widgets::ipg_canvas_draw::canvas_draw::{DrawState, DrawWidget};
+use crate::ipg_widgets::ipg_canvas_draw::canvas_draw::CanvasWidget;
 use crate::py_api::helpers::find_key_for_value;
 use crate::state::{Containers, WidgetNode, IpgState, Widgets, access_clipboard_actions, access_state, access_update_widgets, access_window_actions, set_state_of_widget_running_state};
 use crate::widgets::callbacks::invoke_callback_with_args;
@@ -45,7 +45,7 @@ use crate::widgets::widget_param_update::{param_update, container_param_update};
 #[derive(Debug, Clone)]
 pub enum Message {
     Button(usize, BtnMessage),
-    CanvasDraw(usize, DrawWidget),
+    CanvasDraw(usize, CanvasWidget),
     // Card(usize, CardMessage),
     CheckBox(usize, ChkMessage),
     ColorPicker(usize, ColorPikMessage),
@@ -150,11 +150,12 @@ impl App {
             Message::Button(id, message) => {
                 button_callback(id, message);
                 process_widget_updates(&mut self.state);
+                process_draw_updates(&mut self.state);
                 get_tasks(&mut self.state)
             },
             Message::CanvasDraw(id, message) => {
                 draw_callback(&mut self.state, id, message);
-                process_widget_updates(&mut self.state);
+                process_draw_updates(&mut self.state);
                 get_tasks(&mut self.state)
             },
             // Message::Card(id, message) => {
@@ -165,6 +166,7 @@ impl App {
             Message::CheckBox(id, message) => {
                 checkbox_callback(&mut self.state, id, message);
                 process_widget_updates(&mut self.state);
+                process_draw_updates(&mut self.state);
                 get_tasks(&mut self.state)
             },
             Message::ClipboardReadResult(id, text) => {
@@ -182,6 +184,7 @@ impl App {
                 let task = 
                     color_picker_callback(&mut self.state, id, message);
                 process_widget_updates(&mut self.state);
+                process_draw_updates(&mut self.state);
                 match task {
                     Some(t) => t,
                     None => Task::none()
@@ -190,6 +193,7 @@ impl App {
             Message::ComboBox(id, message) => {
                 combo_box_callback(&mut self.state, id, message);
                 process_widget_updates(&mut self.state);
+                process_draw_updates(&mut self.state);
                 Task::none()
             }
             Message::DatePicker(id, message) => {
@@ -238,11 +242,13 @@ impl App {
             Message::PickList(id, message) => {
                 pick_list_callback(&mut self.state, id, message);
                 process_widget_updates(&mut self.state);
+                process_draw_updates(&mut self.state);
                 Task::none()
             },
             Message::Radio(id, message) => {
                 radio_callback(&mut self.state, id, message);
                 process_widget_updates(&mut self.state);
+                process_draw_updates(&mut self.state);
                 Task::none()
             },
             Message::RichTextLinkClicked(id, link_id) => {
@@ -316,6 +322,7 @@ impl App {
             Message::Toggler(id, message) => {
                 toggle_callback(&mut self.state, id, message);
                 process_widget_updates(&mut self.state);
+                process_draw_updates(&mut self.state);
                 get_tasks(&mut self.state)
             },
         }
@@ -997,7 +1004,7 @@ fn process_updates(
         } else {
             match state.containers.get_mut(wid) {
                 Some(cnt) => {
-                    container_param_update(cnt, item, value, state);
+                    container_param_update(cnt, item, value);
                 },
                 None => panic!("Process_updates: No ids could be found to update with id {wid}.")
             }

@@ -4,7 +4,7 @@ use std::f32::consts::PI;
 
 use iced::{widget::canvas::{self, path::arc::Elliptical, Path}, Point, Radians, Renderer, Vector};
 use super::{canvas_draw::{get_mid_geometry, Arc, Bezier, Circle, DrawMode, Ellipse, FreeHand, 
-    Line, PolyLine, Polygon, RightTriangle, Text, Widget}, helpers::{build_polygon, 
+    Line, PolyLine, Polygon, RightTriangle, Text, DrawWidget}, helpers::{build_polygon, 
     get_angle_of_vectors, get_horizontal_angle_of_vector, get_mid_point, rotate_geometry, 
     to_degrees, to_radians, translate_geometry}};
 
@@ -630,7 +630,7 @@ pub fn build_polyline_path(pl: &PolyLine,
                 } 
                 if edit_point_index.is_some() {
                     pts[edit_point_index.unwrap()] = pending_cursor.unwrap();
-                    mid_point = get_mid_geometry(&pts, Widget::PolyLine);
+                    mid_point = get_mid_geometry(&pts, DrawWidget::PolyLine);
                     pl_point = translate_geometry(
                                     &[pl_point], 
                                     mid_point, 
@@ -640,7 +640,7 @@ pub fn build_polyline_path(pl: &PolyLine,
                 if edit_other_point {
                     degrees = get_horizontal_angle_of_vector(pl.mid_point, pending_cursor.unwrap());
                     let step_degrees = degrees-pl.degrees;
-                    pts = rotate_geometry(&pts, &mid_point, &step_degrees, Widget::PolyLine);
+                    pts = rotate_geometry(&pts, &mid_point, &step_degrees, DrawWidget::PolyLine);
                     pl_point = pending_cursor.unwrap();
 
                 }
@@ -759,7 +759,7 @@ pub fn build_right_triangle_path(tr: &RightTriangle,
                             &pts, 
                             &mid_point, 
                             &step_degrees, 
-                            Widget::RightTriangle
+                            DrawWidget::RightTriangle
                         );
                     tr_point = pending_cursor.unwrap();
                 }

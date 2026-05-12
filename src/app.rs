@@ -15,20 +15,18 @@ use crate::ipg_widgets::ipg_canvas_draw::canvas_draw::CanvasWidget;
 use crate::py_api::helpers::find_key_for_value;
 use crate::state::{Containers, WidgetNode, IpgState, Widgets, access_clipboard_actions, access_state, access_update_widgets, access_window_actions, set_state_of_widget_running_state};
 use crate::widgets::callbacks::invoke_callback_with_args;
+
 use crate::widgets::ipg_button::{BtnMessage, button_callback};
 use crate::widgets::ipg_card::{CardMessage, card_callback};
 use crate::widgets::ipg_color_picker::{ColorPikMessage, color_picker_callback};
-
 use crate::widgets::ipg_checkbox::{ChkMessage, checkbox_callback};
-
-
 use crate::widgets::ipg_combo_box::{CBMessage, combo_box_callback};
 use crate::widgets::ipg_date_picker::{DPMessage, date_picker_update};
 use crate::widgets::ipg_divider::{DivMessage, divider_callback};
 use crate::widgets::ipg_draw::{draw_callback, process_draw_updates};
 use crate::widgets::ipg_events::{process_keyboard_events, process_mouse_events, process_touch_events, process_window_event};
+use crate::widgets::ipg_menu::{MenuMessage, menu_callback};
 use crate::widgets::ipg_mouse_area::{MaMessage, mousearea_callback};
-
 use crate::widgets::ipg_pick_list::{PLMessage, pick_list_callback};
 use crate::widgets::ipg_radio::{RDMessage, radio_callback};
 use crate::widgets::ipg_scrollable::scrollable_callback;
@@ -57,7 +55,7 @@ pub enum Message {
     EventMouse(Event),
     EventWindow((window::Id, Event)),
     EventTouch(Event),
-//     // Modal(usize, ModalMessage),
+    MenuMessage(usize, MenuMessage),
     MouseArea(usize, MaMessage),
     PickList(usize, PLMessage),
     Radio(usize, RDMessage),
@@ -225,6 +223,10 @@ impl App {
             Message::EventTouch(event) => {
                 process_touch_events(event, self.state.touch_event_id_enabled.0);
                 process_widget_updates(&mut self.state);
+                Task::none()
+            },
+            Message::MenuMessage(id, message) => {
+                menu_callback(&mut self.state, id, message);
                 Task::none()
             },
             Message::MouseArea(id, message) => {
@@ -581,7 +583,6 @@ fn get_children<'a>(parents: &Vec<ParentChildIds>,
     for child in parents[*index].child_ids.iter() {
         if parent_ids.contains(child) {
             let index = parents.iter().position(|r| &r.parent_id == child).unwrap();
-            // if let Some(el) = get_children(parents, &index, parent_ids, state, canvas_state) {
             if let Some(el) = get_children(parents, &index, parent_ids, state) {
                 content.push(el);
             }
@@ -591,7 +592,6 @@ fn get_children<'a>(parents: &Vec<ParentChildIds>,
     }
 
     if id != &0 {
-        // get_container(state, id, content, canvas_state)
         get_container(state, id, content)
     } else {
         Some(Column::with_children(content).into())  // the final container
@@ -684,19 +684,12 @@ fn get_container<'a>(state: &'a IpgState,
                 Containers::Grid(grid) => {
                     grid.construct(content)
                 },
-                // Containers::Menu(_) => {
-                //     // Menu is handled specially in get_children via get_menu_children;
-                //     // it should never reach get_container.
-                //     panic!("Menu should not reach get_container directly")
-                // },
-                // Containers::MenuBarItem(_) => {
-                //     // MenuBarItem children are consumed by get_menu_children;
-                //     // it should never reach get_container.
-                //     panic!("MenuBarItem should not reach get_container directly")
-                // },
-                // Containers::Modal(modal) => {
-                //     construct_modal(modal, content)
-                // },
+                Containers::MenuItem(mb) => {
+                    mb.construct(content, &state.widgets)
+                    // MenuBarItem children are consumed by get_menu_children;
+                    // it should never reach get_container.
+                    // panic!("MenuBarItem should not reach get_container directly")
+                },
                 Containers::MouseArea(m_area) => {
                     m_area.construct(content)
                 },

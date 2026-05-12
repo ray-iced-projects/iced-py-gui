@@ -21,7 +21,7 @@ pub mod float;
 pub mod font;
 pub mod grid;
 pub mod image;
-// pub mod menu;
+pub mod menu;
 pub mod mouse_area;
 pub mod opaque;
 pub mod picklist;

@@ -31,11 +31,10 @@ use crate::widgets::ipg_font::Font;
 use crate::widgets::ipg_font::IpgIcon;
 use crate::widgets::ipg_grid::Grid;
 use crate::widgets::ipg_image::Image;
-// use crate::widgets::ipg_menu::{Menu, MenuBarItem, MenuStyle};
+use crate::widgets::ipg_menu::MenuItem;
 use crate::widgets::ipg_mouse_area::MouseArea;
 use crate::widgets::ipg_opaque::Opaque;
 use crate::widgets::ipg_pick_list::{PickList, PickListStyle};
-// use crate::widgets::ipg_pick_list::{PickList, PickListStyle};
 use crate::widgets::ipg_progress_bar::{ProgressBar, ProgressBarStyle};
 use crate::widgets::ipg_radio::{Radio, RadioStyle};
 use crate::widgets::ipg_row::Row;
@@ -74,9 +73,7 @@ pub enum Containers {
     Container(Container),
     Float(Float),
     Grid(Grid),
-    // Menu(Menu),
-    // MenuBarItem(MenuBarItem),
-    // Modal(Modal),
+    MenuItem(MenuItem),
     MouseArea(MouseArea),
     Opaque(Opaque),
     RichText(RichText),
@@ -130,8 +127,6 @@ pub enum Widgets {
     TextEditorStyle(TextEditorStyle),
     TextInput(TextInput),
     TextInputStyle(TextInputStyle),
-    // CanvasTimer(CanvasTimer),
-    // CanvasTimerStyle(CanvasTimerStyle),
     Toggler(Toggler),
     TogglerStyle(TogglerStyle),
 }
@@ -234,8 +229,7 @@ ipg_container_accessors! {
     Container    => Container,    as_container,       as_container_mut;
     Float        => Float,        as_float,           as_float_mut;
     Grid         => Grid,         as_grid,            as_grid_mut;
-    // Menu         => Menu,         as_menu,            as_menu_mut;
-    // MenuBarItem  => MenuBarItem,  as_menu_bar_item,   as_menu_bar_item_mut;
+    MenuItem  => MenuItem,  as_menu_bar_item,   as_menu_bar_item_mut;
     MouseArea    => MouseArea,    as_mouse_area,      as_mouse_area_mut;
     Opaque       => Opaque,       as_opaque,          as_opaque_mut;
     RichText     => RichText,     as_rich_text,       as_rich_text_mut;

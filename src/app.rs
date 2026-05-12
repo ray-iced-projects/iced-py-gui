@@ -71,10 +71,7 @@ pub enum Message {
     TextEditor(usize, TxtEdMessage),
     TextInput(usize, TIMessage),
     Toggler(usize, TOGMessage),
-//     CanvasTextBlink,
     Tick(usize, Instant),
-//     CanvasTick,
-//     CanvasTimer(usize, CanvasTimerMessage),
     ClipboardReadResult(usize, Option<String>),
     FontLoaded(Result<(), font::Error>),
     WindowOpened(window::Id, Option<Point>, Size),
@@ -84,7 +81,6 @@ pub enum Message {
 #[derive(Debug, Clone)]
 pub struct App {
     state: IpgState,
-    // draw_state: DrawState,
 }
 
 impl App {
@@ -93,12 +89,8 @@ impl App {
         let mut state = IpgState::new();
         clone_state(&mut state);
 
-        // let mut draw_state = DrawState::default();
-        // clone_draw_state(&mut draw_state);
-
         let mut open = add_windows(&mut state);
         open.push(font::load(include_bytes!("./graphics/fonts/bootstrap-icons.ttf").as_slice()).map(Message::FontLoaded));
-        open.push(font::load(iced_aw::ICED_AW_FONT_BYTES).map(Message::FontLoaded));
         open.push(font::load(include_bytes!("./graphics/fonts/Roboto/static/Roboto-Black.ttf").as_slice()).map(Message::FontLoaded));
         open.push(font::load(include_bytes!("./graphics/fonts/Roboto/static/Roboto-Bold.ttf").as_slice()).map(Message::FontLoaded));
         open.push(font::load(include_bytes!("./graphics/fonts/Roboto/static/Roboto-ExtraBold.ttf").as_slice()).map(Message::FontLoaded));
@@ -299,27 +291,6 @@ impl App {
                 process_widget_updates(&mut self.state);
                 Task::none()
             },
-            // Message::CanvasTextBlink => {
-            //     self.canvas_state.elapsed_time += self.canvas_state.timer_duration;
-            //     self.canvas_state.blink = !self.canvas_state.blink;
-            //     self.canvas_state.request_text_redraw();
-            //     Task::none()
-            // },
-            // Message::CanvasTick => {
-            //     canvas_tick_callback(&mut self.state);
-            //     process_canvas_updates(&mut self.canvas_state);
-            //     process_updates(&mut self.state, &mut self.canvas_state); 
-            //     self.canvas_state.request_image_redraw();
-            //     Task::none()
-            // },
-            // Message::CanvasTimer(id, message) => {
-            //     self.state.canvas_timer_event_id_enabled.1 = !self.state.canvas_timer_event_id_enabled.1;
-            //     self.state.canvas_timer_event_id_enabled.0 = id;
-            //     let started = self.state.canvas_timer_event_id_enabled.1;
-            //     self.state.canvas_timer_duration = canvas_timer_callback(&mut self.state, id, started);
-            //     process_updates(&mut self.state, &mut self.canvas_state);    
-            //     Task::none()
-            // },
             Message::Toggler(id, message) => {
                 toggle_callback(&mut self.state, id, message);
                 process_widget_updates(&mut self.state);
@@ -358,13 +329,7 @@ impl App {
                     .map(|(id, last_tick)| Message::Tick(id, last_tick)));
                 }
         }
-        
-        // if self.state.canvas_timer_event_id_enabled.1 {
-        //     subscriptions
-        //     .push(time::every(iced::time::Duration::from_millis(
-        //         self.state.canvas_timer_duration)).map(|_| Message::CanvasTick));
-        // }
-        
+
         if self.state.keyboard_event_id_enabled.1 {
             subscriptions.push(iced::event::listen().map(Message::EventKeyboard));
         }
@@ -372,12 +337,6 @@ impl App {
         if self.state.mouse_event_id_enabled.1 {
             subscriptions.push(iced::event::listen().map(Message::EventMouse));
         }
-        // if self.canvas_state.timer_event_enabled {
-        //     subscriptions.push(time::every(
-        //         iced::time::Duration::from_millis(
-        //             self.canvas_state.timer_duration))
-        //             .map(|_| Message::CanvasTextBlink));
-        // }
 
         // window event is always enabled, since we are using iced::daemon, the windows
         // closing need to be followed and iced exited when the last window is closed.
@@ -833,15 +792,6 @@ fn get_widget<'a>(state: &'a IpgState, id: &usize) -> Option<Element<'a, Message
                 Widgets::TextInput(input) => {
                     input.construct(&state.widgets)       
                 },
-                // Widgets::CanvasTimer(ctimer) => {
-                //     let style_opt = match ctimer.style_id {
-                //         Some(id) => {
-                //             state.widgets.get(&id)
-                //         },
-                //         None => None,
-                //     };
-                //     construct_canvas_timer(ctimer, style_opt)
-                // },
                 Widgets::Toggler(tog) => {
                     tog.construct(&state.widgets)   
                 },
@@ -1009,19 +959,6 @@ fn process_updates(
                 },
                 None => panic!("Process_updates: No ids could be found to update with id {wid}.")
             }
-            // After updating a CanvasDraw container, sync the new curves into
-            // canvas_states and clear the cache so the canvas repaints.
-            // if let Some(Containers::CanvasDraw(draw)) = state.containers.get(wid) {
-            //     let draw_id = draw.id;
-            //     let curves = draw.curves.clone();
-            //     let text_curves = draw.text_curves.clone();
-            //     if let Some(cs) = state.canvas_states.get_mut(&draw_id) {
-            //         cs.curves = curves;
-            //         cs.text_curves = text_curves;
-            //         cs.request_redraw();
-            //         cs.request_text_redraw();
-            //     }
-            // }
         }  
     }
 }

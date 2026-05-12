@@ -170,9 +170,7 @@ ipg_widget_accessors! {
     // CardStyle        => CardStyle,         as_card_style,          as_card_style_mut;
     CheckBox         => CheckBox,          as_checkbox,            as_checkbox_mut;
     CheckboxStyle    => CheckboxStyle,     as_checkbox_style,      as_checkbox_style_mut;
-    // ColorPicker      => ColorPicker,       as_color_picker,        as_color_picker_mut;
     ContainerStyle   => ContainerStyle,    as_container_style,     as_container_style_mut;
-    // DatePicker       => DatePicker,        as_date_picker,         as_date_picker_mut;
     Divider          => Divider,           as_divider,             as_divider_mut;
     DividerStyle     => DividerStyle,      as_divider_style,       as_divider_style_mut;
     Font             => Font,              as_font,                as_font_mut;
@@ -650,24 +648,6 @@ pub fn clone_state_to_runtime(runtime_state: &mut IpgState) {
     
     drop(state);
 }
-
-// pub fn clone_draw_state(draw_state: &mut DrawState) {
-//     let mut mutex_cs = access_draw_state();
-//     draw_state.curves = mutex_cs.curves.to_owned();
-//     draw_state.text_curves = mutex_cs.text_curves.to_owned();
-//     draw_state.image_curves = mutex_cs.image_curves.to_owned();
-//     draw_state.width = mutex_cs.width;
-//     draw_state.height = mutex_cs.height;
-//     draw_state.border_width = mutex_cs.border_width;
-//     draw_state.border_color = mutex_cs.border_color;
-//     draw_state.selected_canvas_color = mutex_cs.background;
-
-//     // zeroing out any vecs and hashmaps
-//     mutex_cs.curves = Lazy::new(||HashMap::new());
-//     mutex_cs.text_curves = Lazy::new(||HashMap::new());
-//     mutex_cs.image_curves = Lazy::new(||HashMap::new());
-//     drop(mutex_cs);
-// }
 
 // ============================================================================
 // Helper functions for adding callbacks/user data

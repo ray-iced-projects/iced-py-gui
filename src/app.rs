@@ -16,6 +16,7 @@ use crate::py_api::helpers::find_key_for_value;
 use crate::state::{Containers, WidgetNode, IpgState, Widgets, access_clipboard_actions, access_state, access_update_widgets, access_window_actions, set_state_of_widget_running_state};
 use crate::widgets::callbacks::invoke_callback_with_args;
 use crate::widgets::ipg_button::{BtnMessage, button_callback};
+use crate::widgets::ipg_card::{CardMessage, card_callback};
 use crate::widgets::ipg_color_picker::{ColorPikMessage, color_picker_callback};
 
 use crate::widgets::ipg_checkbox::{ChkMessage, checkbox_callback};
@@ -46,7 +47,7 @@ use crate::widgets::widget_param_update::{param_update, container_param_update};
 pub enum Message {
     Button(usize, BtnMessage),
     CanvasDraw(usize, CanvasWidget),
-    // Card(usize, CardMessage),
+    Card(usize, CardMessage),
     CheckBox(usize, ChkMessage),
     ColorPicker(usize, ColorPikMessage),
     ComboBox(usize, CBMessage),
@@ -150,11 +151,11 @@ impl App {
                 process_draw_updates(&mut self.state);
                 get_tasks(&mut self.state)
             },
-            // Message::Card(id, message) => {
-            //     card_callback(id, message);
-            //     process_widget_updates(&mut self.state);
-            //     Task::none()
-            // },
+            Message::Card(id, message) => {
+                card_callback(id, message);
+                process_widget_updates(&mut self.state);
+                Task::none()
+            },
             Message::CheckBox(id, message) => {
                 checkbox_callback(&mut self.state, id, message);
                 process_widget_updates(&mut self.state);
@@ -656,9 +657,9 @@ fn get_container<'a>(state: &'a IpgState,
                         None
                     }
                 },
-                // Containers::Card(crd) => {
-                //     crd.construct(content, &state.widgets)
-                // },
+                Containers::Card(crd) => {
+                    crd.construct(content, &state.widgets)
+                },
                 Containers::ColorPicker(cp) => {
                     if content.len() > 1 {
                         eprintln!("[WARNING] A color picker can have only 1 trigger widget")

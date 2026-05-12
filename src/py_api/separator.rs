@@ -148,9 +148,9 @@ pub fn add_separator(
 ///
 /// Parameters
 /// ----------
-/// ipg_color : Color, Optional
+/// color : Color, Optional
 ///     Sets the separator color using a predefined color variant.
-/// ipg_color_alpha : float, Optional
+/// color_alpha : float, Optional
 ///     Sets the alpha of the Color.
 /// rgba_color : list of float, Optional
 ///     Sets the separator color in rgba format as [r, g, b, a].

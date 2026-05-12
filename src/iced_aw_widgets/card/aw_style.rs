@@ -5,7 +5,7 @@
 
 use iced::{Background, Theme};
 
-use crate::iced_aw_widgets::card::status::{Status, StyleFn};
+use crate::iced_aw_widgets::card::aw_status::{Status, StyleFn};
 
 use crate::graphics::colors;
 

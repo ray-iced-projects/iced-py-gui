@@ -3,19 +3,19 @@
 //! *This API requires the following crate features to be activated: card*
 
 // use crate::iced_aw_font::advanced_text::cancel;
-pub use super::style::{Catalog, Style};
-pub use super::status::{Status, StyleFn};
+pub use super::aw_style::{Catalog, Style};
+pub use super::aw_status::{Status, StyleFn};
 
 use iced::advanced::widget::Operation;
 use iced::{
     Alignment, Border, Color, Element, Event, Length, Padding, Point, Rectangle,
     Shadow, Size, Vector,
     mouse::{self, Cursor},
-    overlay,
 };
 use iced::advanced::{layout::{Limits, Node}, Layout, Shell, Widget, renderer};
 use iced::widget::{button};
 use iced::advanced::widget::tree::Tree;
+
 
 /// The default padding of a [`Card`].
 const DEFAULT_PADDING: Padding = Padding::new(10.0);
@@ -180,13 +180,12 @@ where
         <Theme as iced::widget::button::Catalog>::Class<'a>:
             From<iced::widget::button::StyleFn<'a, Theme>>,
     {
-        let (content, font, shaping) = cancel();
+
         let size = self.close_size.unwrap_or(DEFAULT_CLOSE_SIZE);
 
-        let text_widget = iced::widget::text(content)
-            .font(font)
-            .size(size)
-            .shaping(shaping);
+        let text_widget = 
+            iced::widget::text("x")
+                .size(size);
 
         button(text_widget)
             .padding(0)
@@ -194,7 +193,7 @@ where
                 let card_style = <Theme as Catalog>::style(
                     theme,
                     &<Theme as Catalog>::default(),
-                    super::status::Status::Active,
+                    super::aw_status::Status::Active,
                 );
                 iced::widget::button::Style {
                     background: None,
@@ -709,7 +708,7 @@ where
         if children.is_empty() {
             None
         } else {
-            Some(overlay::Group::with_children(children).overlay())
+            Some(iced::advanced::overlay::Group::with_children(children).overlay())
         }
     }
 }

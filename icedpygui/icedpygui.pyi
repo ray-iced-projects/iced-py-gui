@@ -644,15 +644,39 @@ def add_scrollable_style(
     """
 
 def add_separator_style(
-        ipg_color: Color | None = None,
-        rgba_color: list[float] | None = None,
-        border_ipg_color: Color | None = None,
+        color: Color | None = None,
+        color_alpha: float | None = None,
+        rgba: list[float] | None = None,
+        border_color: Color | None = None,
+        border_color_alpha: float | None = None,
         border_rgba: list[float] | None = None,
         gen_id: int | None = None,
     ) -> int:
 
     """
     The styling of the separators.
+
+    Parameters
+    ----------
+    color : Color, Optional
+        Sets the separator color using a predefined color variant.
+    color_alpha : float, Optional
+        Sets the alpha of the Color.
+    rgba_color : list of float, Optional
+        Sets the separator color in rgba format as [r, g, b, a].
+    border_ipg_color : Color, Optional
+        Sets the border color using a predefined color variant.
+    border_ipg_color_alpha : float, Optional
+        Sets the alpha of the Color.
+    border_rgba_color : list of float, Optional
+        Sets the border color in rgba format as [r, g, b, a].
+    gen_id : int, Optional
+        Obtains an ID of a widget that have not been created, used for the gen_id parameter.
+
+    Returns
+    -------
+    int
+        The numeric style ID to pass to a separator's ``style_id``.
 
     """
 def add_scroller(

@@ -13,8 +13,8 @@ use crate::widgets::widget_param_update::{
 use iced::widget::Space;
 use iced::{Element, Theme};
 
-use iced_aw::widgets::card;
-use iced_aw::style;
+use crate::iced_aw_widgets::card::{aw_card, aw_status};
+use crate::iced_aw_widgets::card::aw_style;
 
 use pyo3::{pyclass, Py, PyAny};
 type PyObject = Py<PyAny>;
@@ -52,9 +52,9 @@ impl Card {
         &'a self,
         mut content: Vec<Element<'a, Message>>,
         widgets: &HashMap<usize, Widgets>, 
-    )-> Element<'a, Message> {
+    )-> Option<Element<'a, Message>> {
 
-        if !self.show || !self.is_open {return Space::new().into()}
+        if !self.show || !self.is_open {return None}
 
         let style_opt = 
             self.lookup(widgets, self.style_id)
@@ -70,7 +70,7 @@ impl Card {
                 (Element::from(Space::new()), content.remove(0), None)
             } else {
                 eprint!("[WARNING] Expected the Card to hold a least one widget or less then 3, therefore not constructed");
-                return Space::new().into()
+                return None
             };
         
         // header padding has a bug for now.
@@ -86,7 +86,7 @@ impl Card {
         }
 
         let card  = 
-            card::Card::new(head, body)
+            aw_card::Card::new(head, body)
                 .foot(foot)
                 .width(get_len(self.fill, self.width_fill, self.width))
                 .height(get_len(self.fill, self.height_fill, self.height))
@@ -101,7 +101,7 @@ impl Card {
                     } else {
                        match &self.style_std {
                             Some(std) => std.to_iced(theme, status),
-                            None => style::card::primary(theme, status),
+                            None => aw_style::primary(theme, status),
                         }
                     }
                 }
@@ -119,7 +119,7 @@ impl Card {
             card
         };
 
-        card.into()
+        Some(card.into())
         
     }
 }
@@ -164,9 +164,9 @@ impl CardStyle {
     pub fn to_iced(
         &self, 
         theme: &Theme, 
-        status: iced_aw::card::Status,
+        status: aw_status::Status,
         std_style_opt: &Option<CardStyleStd>,
-        ) -> style::card::Style {
+        ) -> aw_style::Style {
 
             // convert colors
             let background = 
@@ -183,7 +183,7 @@ impl CardStyle {
             let mut style = if let Some(std) = std_style_opt {
                 std.to_iced(theme, status)
             } else {
-                style::card::Style::default()
+                aw_style::Style::default()
             };
             
             if let Some(bkg) = background {
@@ -236,19 +236,19 @@ impl CardStyleStd {
     pub fn to_iced(
         &self,
         theme: &Theme, 
-        status: iced_aw::card::Status,
-        ) -> style::card::Style {
+        status: aw_status::Status,
+        ) -> aw_style::Style {
         
         match self {
-            CardStyleStd::Danger => style::card::danger(theme, status),
-            CardStyleStd::Dark => style::card::dark(theme, status),
-            CardStyleStd::Info => style::card::info(theme, status),
-            CardStyleStd::Light => style::card::light(theme, status),
-            CardStyleStd::Primary => style::card::primary(theme, status),
-            CardStyleStd::Secondary => style::card::secondary(theme, status),
-            CardStyleStd::Success => style::card::success(theme, status),
-            CardStyleStd::Warning => style::card::warning(theme, status),
-            CardStyleStd::White => style::card::white(theme, status),
+            CardStyleStd::Danger => aw_style::danger(theme, status),
+            CardStyleStd::Dark => aw_style::dark(theme, status),
+            CardStyleStd::Info => aw_style::info(theme, status),
+            CardStyleStd::Light => aw_style::light(theme, status),
+            CardStyleStd::Primary => aw_style::primary(theme, status),
+            CardStyleStd::Secondary => aw_style::secondary(theme, status),
+            CardStyleStd::Success => aw_style::success(theme, status),
+            CardStyleStd::Warning => aw_style::warning(theme, status),
+            CardStyleStd::White => aw_style::white(theme, status),
         }
     }
 }

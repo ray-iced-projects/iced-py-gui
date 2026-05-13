@@ -1,6 +1,6 @@
 //! Change the appearance of menu bars and their menus.
-use super::style_status::{Status, StyleFn};
-use iced::{border::Radius, Background, Border, Color, Padding, Shadow, Theme, Vector};
+use crate::iced_aw_widgets::menu::style::status::{Status, StyleFn};
+use iced::{Background, Border, Color, Shadow, Theme, Vector};
 
 /// The appearance of a menu bar and its menus.
 #[derive(Debug, Clone, Copy)]
@@ -11,8 +11,6 @@ pub struct Style {
     pub bar_border: Border,
     /// The shadow of the menu bar.
     pub bar_shadow: Shadow,
-    /// Expand the menu bar background
-    pub bar_background_expand: Padding,
 
     /// The background of the menus.
     pub menu_background: Background,
@@ -20,8 +18,6 @@ pub struct Style {
     pub menu_border: Border,
     /// The shadow of the menus
     pub menu_shadow: Shadow,
-    /// Expand the menu background
-    pub menu_background_expand: Padding,
 
     /// The backgraound of the path
     pub path: Background,
@@ -34,15 +30,14 @@ impl std::default::Default for Style {
         Self {
             bar_background: Color::from([0.85; 3]).into(),
             bar_border: Border {
-                radius: Radius::new(8.0),
+                radius: 8.0.into(),
                 ..Default::default()
             },
             bar_shadow: Shadow::default(),
-            bar_background_expand: Padding::new(5.0),
 
             menu_background: Color::from([0.85; 3]).into(),
             menu_border: Border {
-                radius: Radius::new(8.0),
+                radius: 8.0.into(),
                 ..Default::default()
             },
             menu_shadow: Shadow {
@@ -50,17 +45,16 @@ impl std::default::Default for Style {
                 offset: Vector::ZERO,
                 blur_radius: 10.0,
             },
-            menu_background_expand: Padding::new(5.0),
             path: Color::from([0.3; 3]).into(),
             path_border: Border {
-                radius: Radius::new(6.0),
+                radius: 6.0.into(),
                 ..Default::default()
             },
         }
     }
 }
 
-/// The Catalog of a [`Menu`](crate::widgets::menu::Menu).
+/// The Catalog of a [`Menu`](crate::widget::menu::Menu).
 pub trait Catalog {
     ///Style for the trait to use.
     type Class<'a>;
@@ -84,10 +78,10 @@ impl Catalog for Theme {
     }
 }
 
-/// The primary theme of a [`Menu`](crate::widgets::menu::Menu).
+/// The primary theme of a [`Menu`](crate::widget::menu::Menu).
 #[must_use]
 pub fn primary(theme: &Theme, _status: Status) -> Style {
-    let palette = theme.extended_palette();
+    let palette = theme.palette();
 
     Style {
         bar_background: palette.background.base.color.into(),

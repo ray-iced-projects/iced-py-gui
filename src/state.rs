@@ -23,6 +23,7 @@ use crate::widgets::ipg_divider::{Divider, DividerStyle};
 use crate::widgets::ipg_draw::Draw;
 use crate::ipg_widgets::ipg_canvas_draw::canvas_draw::{
     DrawState, CanvasWidget, Circle, DrawMode, DrawStatus};
+use crate::widgets::ipg_menu::{Menu, MenuBarItem, MenuStyle};
 use iced::widget::Id;
 use iced::Point;
 use crate::widgets::ipg_events::Events;
@@ -31,7 +32,6 @@ use crate::widgets::ipg_font::Font;
 use crate::widgets::ipg_font::IpgIcon;
 use crate::widgets::ipg_grid::Grid;
 use crate::widgets::ipg_image::Image;
-use crate::widgets::ipg_menu::MenuItem;
 use crate::widgets::ipg_mouse_area::MouseArea;
 use crate::widgets::ipg_opaque::Opaque;
 use crate::widgets::ipg_pick_list::{PickList, PickListStyle};
@@ -73,7 +73,8 @@ pub enum Containers {
     Container(Container),
     Float(Float),
     Grid(Grid),
-    MenuItem(MenuItem),
+    Menu(Menu),
+    MenuBarItem(MenuBarItem),
     MouseArea(MouseArea),
     Opaque(Opaque),
     RichText(RichText),
@@ -102,7 +103,7 @@ pub enum Widgets {
     Font(Font),
     Icon(IpgIcon),
     Image(Image),
-    // MenuStyle(MenuStyle),
+    MenuStyle(MenuStyle),
     PickList(PickList),
     PickListStyle(PickListStyle),
     ProgressBar(ProgressBar),
@@ -171,7 +172,7 @@ ipg_widget_accessors! {
     Font             => Font,              as_font,                as_font_mut;
     Icon             => IpgIcon,           as_icon,                as_icon_mut;
     Image            => Image,             as_image,               as_image_mut;
-    // MenuStyle        => MenuStyle,         as_menu_style,          as_menu_style_mut;
+    MenuStyle        => MenuStyle,         as_menu_style,          as_menu_style_mut;
     PickList         => PickList,          as_pick_list,           as_pick_list_mut;
     PickListStyle    => PickListStyle,     as_pick_list_style,     as_pick_list_style_mut;
     ProgressBar      => ProgressBar,       as_progress_bar,        as_progress_bar_mut;
@@ -229,7 +230,8 @@ ipg_container_accessors! {
     Container    => Container,    as_container,       as_container_mut;
     Float        => Float,        as_float,           as_float_mut;
     Grid         => Grid,         as_grid,            as_grid_mut;
-    MenuItem  => MenuItem,  as_menu_bar_item,   as_menu_bar_item_mut;
+    Menu         => Menu,         as_menu,            as_menu_mut;
+    MenuBarItem  => MenuBarItem,  as_menu_bar_item,   as_menu_bar_item_mut;
     MouseArea    => MouseArea,    as_mouse_area,      as_mouse_area_mut;
     Opaque       => Opaque,       as_opaque,          as_opaque_mut;
     RichText     => RichText,     as_rich_text,       as_rich_text_mut;

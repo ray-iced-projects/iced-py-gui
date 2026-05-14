@@ -23,6 +23,7 @@ use crate::widgets::ipg_checkbox::{ChkMessage, checkbox_callback};
 use crate::widgets::ipg_combo_box::{CBMessage, combo_box_callback};
 use crate::widgets::ipg_date_picker::{DPMessage, date_picker_update};
 use crate::widgets::ipg_divider::{DivMessage, divider_callback};
+use crate::widgets::ipg_splitter::{splitter_callback, splitter_release_callback};
 use crate::widgets::ipg_draw::{draw_callback, process_draw_updates};
 use crate::widgets::ipg_events::{process_keyboard_events, process_mouse_events, process_touch_events, process_window_event};
 use crate::widgets::ipg_mouse_area::{MaMessage, mousearea_callback};
@@ -66,6 +67,8 @@ pub enum Message {
     TableDividerChanged((usize, usize, f32)),
     TableDividerReleased(usize),
 
+    SplitterChanged(usize, usize, f32),
+    SplitterReleased(usize),
     TextEditor(usize, TxtEdMessage),
     TextInput(usize, TIMessage),
     Toggler(usize, TOGMessage),
@@ -270,6 +273,16 @@ impl App {
             Message::TableDividerReleased(id) => {
                 let message = TableMessage::DivOnRelease;
                 table_callback(&mut self.state, id, message);
+                process_widget_updates(&mut self.state);
+                Task::none()
+            },
+            Message::SplitterChanged(id, index, value) => {
+                splitter_callback(&mut self.state, id, index, value);
+                process_widget_updates(&mut self.state);
+                Task::none()
+            },
+            Message::SplitterReleased(id) => {
+                splitter_release_callback(&mut self.state, id);
                 process_widget_updates(&mut self.state);
                 Task::none()
             },
@@ -780,6 +793,12 @@ fn get_container<'a>(state: &'a IpgState,
                 Containers::Stack(stk) => {
                     stk.construct(content)
                 }
+                Containers::SplitterH(sph) => {
+                    sph.construct(content, &state.widgets)
+                },
+                Containers::SplitterV(spv) => {
+                    spv.construct(content, &state.widgets)
+                },
                 Containers::ToolTip(tool) => {
                     if content.len() > 2 {
                         eprintln!("[WARNING] A tooltip can have only 2 containers/widgets, place your multiple widgets into a column or row")

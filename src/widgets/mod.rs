@@ -1,7 +1,6 @@
 //! Widget definitions
 
 pub mod callbacks;
-mod divider;
 pub mod enums;
 pub mod quad;
 pub mod widget_param_update;
@@ -14,6 +13,7 @@ pub mod ipg_combo_box;
 pub mod ipg_container;
 pub mod ipg_date_picker;
 pub mod ipg_divider;
+pub mod ipg_splitter;
 pub mod ipg_draw;
 pub mod ipg_events;
 pub mod ipg_float;

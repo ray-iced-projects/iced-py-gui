@@ -6,10 +6,10 @@ use std::collections::HashMap;
 use crate::app::Message;
 use crate::state::{Containers, Widgets};
 use crate::widgets::callbacks::invoke_callback_with_args;
-use crate::widgets::divider::{self, divider_horizontal};
 use crate::widgets::widget_param_update::{
     WidgetParamUpdate, set_t_value
 };
+use crate::ipg_widgets::ipg_divider::divider::{self, divider_horizontal};
 use crate::IpgState;
 
 use iced::border::Radius;

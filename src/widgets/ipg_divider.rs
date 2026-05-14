@@ -6,7 +6,7 @@ use crate::{IpgState, app};
 use crate::py_api::helpers::get_radius;
 use crate::state::Widgets;
 use crate::widgets::callbacks::invoke_callback_with_args;
-use crate::widgets::divider::{self, Direction, Status, Style, 
+use crate::ipg_widgets::ipg_divider::divider::{self, Direction, Status, Style, 
     divider_horizontal, divider_vertical};
 use crate::widgets::widget_param_update::{
     WidgetParamUpdate, set_t_value};
@@ -79,7 +79,7 @@ impl Divider {
                 }
             }
         };
-
+        
         let div: Element<DivMessage, Theme> = if is_horizontal {
             divider_horizontal(
                 self.id,

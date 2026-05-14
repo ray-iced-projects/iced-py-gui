@@ -35,6 +35,7 @@ pub mod session;
 pub mod slider;
 pub mod space;
 pub mod stack;
+pub mod splitter;
 pub mod svg;
 pub mod table;
 pub mod text;

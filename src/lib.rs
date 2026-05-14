@@ -60,6 +60,7 @@ use crate::py_api::session::{start_session, generate_id};
 use crate::py_api::slider::{add_slider, add_slider_style};
 use crate::py_api::space::add_space;
 use crate::py_api::stack::add_stack;
+use crate::py_api::splitter::{add_splitter_h, add_splitter_v, add_splitter_style};
 use crate::py_api::svg::add_svg;
 use crate::py_api::table::add_table;
 use crate::py_api::text_input::{add_text_input, add_text_input_style};
@@ -98,6 +99,7 @@ use crate::widgets::ipg_scrollable::{AutoScrollStyleParam, RailStyleParam, Scrol
 use crate::widgets::ipg_separator::{SeparatorParam, SeparatorStyleParam};
 use crate::widgets::ipg_slider::{SliderParam, SliderStyleParam};
 use crate::widgets::ipg_stack::StackParam;
+use crate::widgets::ipg_splitter::{SplitterHParam, SplitterVParam, SplitterStyleParam};
 use crate::widgets::ipg_svg::SvgParam;
 use crate::widgets::ipg_table::TableParam;
 use crate::widgets::ipg_text_input::{TextInputParam, TextInputStyleParam};
@@ -177,6 +179,9 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(add_space, m)?)?;
     m.add_function(wrap_pyfunction!(add_span, m)?)?;
     m.add_function(wrap_pyfunction!(add_stack, m)?)?;
+    m.add_function(wrap_pyfunction!(add_splitter_h, m)?)?;
+    m.add_function(wrap_pyfunction!(add_splitter_v, m)?)?;
+    m.add_function(wrap_pyfunction!(add_splitter_style, m)?)?;
     m.add_function(wrap_pyfunction!(add_svg, m)?)?;
     m.add_function(wrap_pyfunction!(add_svg, m)?)?;
     m.add_function(wrap_pyfunction!(add_table, m)?)?;
@@ -255,6 +260,9 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<SliderStyleParam>()?;
     m.add_class::<SpanParam>()?;
     m.add_class::<StackParam>()?;
+    m.add_class::<SplitterHParam>()?;
+    m.add_class::<SplitterVParam>()?;
+    m.add_class::<SplitterStyleParam>()?;
     m.add_class::<StyleStandard>()?;
     m.add_class::<SvgParam>()?;
     m.add_class::<TableParam>()?;

@@ -20,6 +20,7 @@ use crate::widgets::ipg_combo_box::ComboBox;
 use crate::widgets::ipg_container::{Container, ContainerStyle};
 use crate::widgets::ipg_date_picker::DatePicker;
 use crate::widgets::ipg_divider::{Divider, DividerStyle};
+use crate::widgets::ipg_splitter::{SplitterH, SplitterV, SplitterStyle};
 use crate::widgets::ipg_draw::Draw;
 use crate::ipg_widgets::ipg_canvas_draw::canvas_draw::{
     DrawState, CanvasWidget, Circle, DrawMode, DrawStatus};
@@ -84,6 +85,8 @@ pub enum Containers {
     // PaneGrid(PaneGrid),
     // Pane(Pane),
     Row(Row),
+    SplitterH(SplitterH),
+    SplitterV(SplitterV),
     Scrollable(Scrollable),
     ToolTip(ToolTip),
     Window(Window),
@@ -100,6 +103,7 @@ pub enum Widgets {
     ContainerStyle(ContainerStyle),
     Divider(Divider),
     DividerStyle(DividerStyle),
+    SplitterStyle(SplitterStyle),
     DatePicker(DatePicker),
     Font(Font),
     Icon(IpgIcon),
@@ -198,6 +202,7 @@ ipg_widget_accessors! {
     TextInputStyle   => TextInputStyle,    as_text_input_style,    as_text_input_style_mut;
     Toggler          => Toggler,           as_toggler,             as_toggler_mut;
     TogglerStyle     => TogglerStyle,      as_toggler_style,       as_toggler_style_mut;
+    SplitterStyle    => SplitterStyle,     as_splitter_style,      as_splitter_style_mut;
 }
 
 // ---------------------------------------------------------------------------
@@ -239,6 +244,8 @@ ipg_container_accessors! {
     RichText     => RichText,     as_rich_text,       as_rich_text_mut;
     Row          => Row,          as_row,             as_row_mut;
     Scrollable   => Scrollable,   as_scrollable,      as_scrollable_mut;
+    SplitterH    => SplitterH,    as_splitter_h,      as_splitter_h_mut;
+    SplitterV    => SplitterV,    as_splitter_v,      as_splitter_v_mut;
     Window       => Window,       as_window,          as_window_mut;
 }
 

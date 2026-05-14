@@ -11,6 +11,7 @@ from icedpygui import (
     MenuSubItem,
     add_button,
     add_button_style,
+    add_separator,
     add_text,
     ButtonStyleStd)
 
@@ -29,7 +30,7 @@ with Window(title="Menu", center=True, size=[600, 600]):
             with Menu(spacing=20.0):
 
                 # First item of the MenuBarItem is the bar item followed by the dropdown items
-                with MenuBarItem(width=115, spacing=5.0, offset=3.0):
+                with MenuBarItem(width=125, spacing=5.0, offset=3.0):
 
                     add_text(content="File") # bar item
                     # dropdown items
@@ -39,7 +40,13 @@ with Window(title="Menu", center=True, size=[600, 600]):
                         style_std=ButtonStyleStd.Text,
                         on_press=on_press,
                         user_data="New")
+                    add_separator(
+                        dot=True,
+                        dot_radius=3.0,
+                        dot_count=8,
+                        spacing=10.0,)
 
+                    #  Submenu
                     with MenuSubItem(width=130, spacing=5.0, offset=2.0):
 
                         add_text(content="Open Recent >", width_fill=True,)  # trigger (shown in dropdown)
@@ -51,6 +58,12 @@ with Window(title="Menu", center=True, size=[600, 600]):
                             label="project2.py",
                             width_fill=True,
                             style_std=ButtonStyleStd.Text)
+
+                    add_separator(
+                        dot=True,
+                        dot_radius=3.0,
+                        dot_count=8,
+                        spacing=10.0,)
 
                     add_button(
                         label="Open",

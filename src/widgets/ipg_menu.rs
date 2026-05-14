@@ -76,7 +76,6 @@ impl Menu {
                 .collect();
 
             let mut menu = aw_menu::menu_tree::Menu::new(items)
-                .spacing(bar_item_data.spacing.unwrap_or(0.0))
                 .width({
                         if let Some(width) = bar_item_data.width {
                             iced::Length::Fixed(width)
@@ -85,7 +84,8 @@ impl Menu {
                         }
                     })
                 .offset(bar_item_data.offset.unwrap_or(0.0))
-                .padding(get_padding(&bar_item_data.padding));
+                .padding(get_padding(&bar_item_data.padding))
+                .spacing(bar_item_data.spacing.unwrap_or_default());
 
             if let Some(v) = bar_item_data.close_on_item_click {
                 menu = menu.close_on_item_click(v);
@@ -108,7 +108,7 @@ impl Menu {
                 .close_on_item_click_global(self.items_close_on_click_global.unwrap_or_default())
                 .close_on_background_click_global(self.items_close_on_background_click_global.unwrap_or_default())
                 .draw_path(aw_menu::common::DrawPath::FakeHovering)
-                .spacing(self.spacing.unwrap_or(0.0))
+                .spacing(self.spacing.unwrap_or_default())
                 .padding(get_padding(&self.padding))
                 .width(get_len(None, self.width_fill, self.width))
                 .height(get_len(None, None, self.height))

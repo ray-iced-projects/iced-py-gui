@@ -4,6 +4,7 @@
 use std::collections::HashMap;
 
 use crate::app::Message;
+use crate::graphics::colors::Color;
 use crate::state::{Containers, Widgets};
 use crate::widgets::callbacks::invoke_callback_with_args;
 use crate::widgets::widget_param_update::{
@@ -14,7 +15,7 @@ use crate::IpgState;
 
 use iced::border::Radius;
 use iced::widget::{scrollable::Scrollbar};
-use iced::{Color, Length, alignment, widget};
+use iced::{Length, alignment, widget};
 use iced::Length::Fill;
 use iced::{Element, Renderer, Theme};
 use iced::widget::{Space, column, container, row, scrollable, stack, text};
@@ -83,12 +84,14 @@ impl Table {
 
         if !self.show { return None }
         
-        let ipg_scroll_style_header  = self.lookup(widgets, self.style_id)
+        let scroll_style_header_opt  = self.lookup(widgets, self.style_id)
             .and_then(Widgets::as_scrollable_style).cloned();
-         let ipg_scroll_style_body  = self.lookup(widgets, self.style_id)
+         let scroll_style_body_opt  = self.lookup(widgets, self.style_id)
             .and_then(Widgets::as_scrollable_style).cloned();
-         let ipg_scroll_style_footer  = self.lookup(widgets, self.style_id)
+         let scroll_style_footer_opt  = self.lookup(widgets, self.style_id)
             .and_then(Widgets::as_scrollable_style).cloned();
+        let table_style_opt = self.lookup(widgets, self.style_id)
+            .and_then(Widgets::as_table_style).cloned();
 
         let mut body_rows = vec![];
             for idx in 0..self.body.len() {
@@ -148,8 +151,8 @@ impl Table {
                         }
                     })
                     .style(move|theme, status| {
-                        if let Some(ipg_style) = &ipg_scroll_style_body {
-                            ipg_style.set_style(theme, status, widgets)
+                        if let Some(style) = &scroll_style_body_opt {
+                            style.set_style(theme, status, widgets)
                         } else {
                             scrollable::default(theme, status)
                         }
@@ -230,8 +233,8 @@ impl Table {
                             .on_scroll(move|vp| Message::TableScrolled(
                                                 vp, self.id))
                             .style(move|theme, status| {
-                                if let Some(ipg_style) = &ipg_scroll_style_header{
-                                    ipg_style.set_style(theme, status, widgets)
+                                if let Some(style) = &scroll_style_header_opt{
+                                    style.set_style(theme, status, widgets)
                                 } else {
                                     scrollable::default(theme, status)
                                 }
@@ -276,8 +279,8 @@ impl Table {
                             .on_scroll(move|vp| Message::TableScrolled(
                                                 vp, self.id))
                             .style(move|theme, status| {
-                                if let Some(ipg_style) = &ipg_scroll_style_footer {
-                                    ipg_style.set_style(theme, status, widgets)
+                                if let Some(style) = &scroll_style_footer_opt {
+                                    style.set_style(theme, status, widgets)
                                 } else {
                                     scrollable::default(theme, status)
                                 }
@@ -313,8 +316,16 @@ impl Table {
                 )
                 .include_last_handle(!self.resize_columns_enabled)
                 .on_release(Message::TableDividerReleased(self.id))
-                .style(move|theme, status| default_divider_style(theme, status));
+                .style(move|theme, status| {
+                    if let Some(st) = &table_style_opt {
+                        st.new(theme, status)
+                    } else {
+                        divider::primary(theme, status)
+                    }
+                });
 
+            let table_style_opt = self.lookup(widgets, self.style_id)
+                .and_then(Widgets::as_table_style).cloned();
             let handle_height = self.custom_footer_rows.unwrap_or_default() as f32 * self.footer_height.unwrap_or(20.0);
             let div_footer = 
                 divider_horizontal(
@@ -326,7 +337,13 @@ impl Table {
                 )
                 .include_last_handle(!self.resize_columns_enabled)
                 .on_release(Message::TableDividerReleased(self.id))
-                .style(move|theme, status| default_divider_style(theme, status));
+                .style(move|theme, status| {
+                    if let Some(st) = &table_style_opt {
+                        st.new(theme, status)
+                    } else {
+                        divider::primary(theme, status)
+                    }
+                });
 
             let mut main_col = vec![];
 
@@ -377,7 +394,7 @@ pub fn table_callback(
 
     match message {
         TableMessage::DivDragging((index, value)) => {
-            dbg!(&index, &value);
+
             if let Some(Containers::Table(tbl)) = state.containers.get_mut(&id) {
 
                 let value = if value < tbl.min_column_width.unwrap_or_default() {
@@ -428,174 +445,53 @@ pub fn table_callback(
     }
 }
 
-// // Table Divider dragging
-// pub fn process_callback1(
-//         id: usize, 
-//         event_name: String, 
-//         index: usize, 
-//         value: Vec<f32>) 
-// {
-//     let ud1 = access_user_data1();
-//     let app_cbs = access_callbacks();
 
-//     // Retrieve the callback
-//     let callback = match app_cbs.callbacks.get(&(id, event_name)) {
-//         Some(cb) => Python::attach(|py| cb.clone_ref(py)),
-//         None => return,
-//     };
+const ROW_COLOR: iced::Color = iced::Color::from_rgba(0.04, 0.35, 0.35, 0.2);
+const ROW_CONTRAST_COLOR: iced::Color = iced::Color::from_rgba(0.25, 0.63, 0.67, 1.0);
 
-//     drop(app_cbs);
-
-//     // Check user data from ud1
-//     if let Some(user_data) = ud1.user_data.get(&id) {
-//         Python::attach(|py| {
-//             if let Err(err) = callback.call1(py, (id, index, value, user_data)) {
-//                 panic!("Table callback error: {err}");
-//             }
-//         });
-//         drop(ud1); // Drop ud1 before processing ud2
-//         return;
-//     }
-//     drop(ud1); // Drop ud1 if no user data is found
-
-//     // Check user data from ud2
-//     let ud2 = access_user_data2();
-//     if let Some(user_data) = ud2.user_data.get(&id) {
-//         Python::attach(|py| {
-//             if let Err(err) = callback.call1(py, (id, index, value, user_data)) {
-//                 panic!("Table callback error: {err}");
-//             }
-//         });
-//         drop(ud2); // Drop ud2 after processing
-//         return;
-//     }
-//     drop(ud2); // Drop ud2 if no user data is found
-
-//     // If no user data is found in both ud1 and ud2, call the callback with only the id, index, and value
-//     Python::attach(|py| {
-//         if let Err(err) = callback.call1(py, (id, index, value)) {
-//             panic!("Table callback error: {err}");
-//         }
-//     });
-
-// }
-
-// // Table Divider released
-// pub fn process_callback2(
-//         id: usize, 
-//         event_name: String) 
-// {
-//      let ud1 = access_user_data1();
-//     let app_cbs = access_callbacks();
-
-//     // Retrieve the callback
-//     let callback = match app_cbs.callbacks.get(&(id, event_name)) {
-//         Some(cb) => Python::attach(|py| cb.clone_ref(py)),
-//         None => return,
-//     };
-
-//     drop(app_cbs);
-
-//     // Check user data from ud1
-//     if let Some(user_data) = ud1.user_data.get(&id) {
-//         Python::attach(|py| {
-//             if let Err(err) = callback.call1(py, (id, user_data)) {
-//                 panic!("Table Divider release callback error: {err}");
-//             }
-//         });
-//         drop(ud1); // Drop ud1 before processing ud2
-//         return;
-//     }
-//     drop(ud1); // Drop ud1 if no user data is found
-
-//     // Check user data from ud2
-//     let ud2 = access_user_data2();
-//     if let Some(user_data) = ud2.user_data.get(&id) {
-//         Python::attach(|py| {
-//             if let Err(err) = callback.call1(py, (id, user_data)) {
-//                 panic!("Table Divider release callback error: {err}");
-//             }
-//         });
-//         drop(ud2); // Drop ud2 after processing
-//         return;
-//     }
-//     drop(ud2); // Drop ud2 if no user data is found
-
-//     // If no user data is found in both ud1 and ud2, call the callback with only the id
-//     Python::attach(|py| {
-//         if let Err(err) = callback.call1(py, (id,)) {
-//             panic!("Table Divider release callback error: {err}");
-//         }
-//     });
-
-// }
-
-
-#[derive(Debug, Clone, PartialEq)]
-struct DividerStyle {
-    background: Option<Color>,
-    hover: Option<Color>,
+#[derive(Debug, Clone)]
+pub struct TableStyle {
+    pub id: usize,
+    pub background_color: Option<Color>,
+    pub background_color_alpha: Option<f32>,
+    pub background_rgba: Option<[f32; 4]>,
+    pub border_color: Option<Color>,
+    pub border_color_alpha: Option<f32>,
+    pub border_rgba: Option<[f32; 4]>,
+    pub border_radius: Option<Vec<f32>>,
+    pub border_width: Option<f32>,
+    pub text_color: Option<Color>,
+    pub text_color_alpha: Option<f32>,
+    pub text_rgba: Option<[f32; 4]>,
 }
 
-const ROW_COLOR: Color = Color::from_rgba(0.04, 0.35, 0.35, 0.2);
-const ROW_CONTRAST_COLOR: Color = Color::from_rgba(0.25, 0.63, 0.67, 1.0);
+impl TableStyle {
+    fn new(&self,
+        theme: &Theme,
+        status: divider::Status) -> divider::Style
+    {
+        let style = divider::primary(theme, status);
 
 
-pub fn default_divider_style(_theme: &Theme, status: divider::Status) -> divider::Style {
-    let background = match status {
-        divider::Status::Active => ROW_COLOR.into(),
-       _ => ROW_CONTRAST_COLOR.into(),
-    };
-    divider::Style {
-        background,
-        border_width: 0.0,
-        border_color: Color::TRANSPARENT,
-        border_radius: Radius::from(0.0),
+        style
     }
 }
 
-fn get_divider_style(
-        style_opt: &Option<DividerStyle>, 
-        theme: &Theme, 
-        status: divider::Status) 
-        -> divider::Style {
-    
-    let mut style = default_divider_style(theme, status);
-
-    if style_opt.is_none() {
-        return style
-    }
-    
-    let style_opt = style_opt.clone().unwrap();
-
-    style.background = 
-    match (style_opt.background.is_some(),  
-            style_opt.hover.is_some()) {
-        (true, true) => {
-            match status {
-                divider::Status::Active => style_opt.background.unwrap().into(),
-                _ => style_opt.hover.unwrap().into(),
-            }
-        },
-        (true, false) => {
-            match status {
-                divider::Status::Active => style_opt.background.unwrap().into(),
-                _ => style.background,
-            }
-        },
-        (false, true,) => {
-            match status {
-                divider::Status::Active => style.background,
-                _ => style_opt.hover.unwrap().into(),
-            }
-        },
-        _ => style.background,
-    };
-
-    
-    style
+#[derive(Debug, Clone, PartialEq, Hash)]
+#[pyclass(eq, eq_int, hash, frozen)]
+pub enum TableStyleParam {
+    BackgroundColor,
+    BackgroundColorAlpha,
+    BackgroundRgba,
+    BorderColor,
+    BorderColorAlpha,
+    BorderRgba,
+    BorderRadius,
+    BorderWidth,
+    TextColor,
+    TextColorAlpha,
+    TextRgba,
 }
-
 
 #[derive(Debug, Clone, PartialEq, Hash)]
 #[pyclass(eq, eq_int, hash, frozen)]
@@ -666,6 +562,27 @@ impl WidgetParamUpdate for Table {
             TableParam::TableWidthFixed => set_t_value(&mut self.table_width_fixed, value, "TableParam::TableWidthFixed"),
             TableParam::StyleId => set_t_value(&mut self.style_id, value, "TableParam::StyleId"),
             TableParam::ScrollableStyleId => set_t_value(&mut self.scrollable_style_id, value, "TableParam::ScrollableStyleId"),
+        }
+    }
+}
+
+
+impl WidgetParamUpdate for TableStyle {
+    type Param = TableStyleParam;
+
+    fn param_update(&mut self, param: Self::Param, value: &PyObject) {
+        match param {
+            TableStyleParam::BackgroundColor => todo!(),
+            TableStyleParam::BackgroundColorAlpha => todo!(),
+            TableStyleParam::BackgroundRgba => todo!(),
+            TableStyleParam::BorderColor => todo!(),
+            TableStyleParam::BorderColorAlpha => todo!(),
+            TableStyleParam::BorderRgba => todo!(),
+            TableStyleParam::BorderRadius => todo!(),
+            TableStyleParam::BorderWidth => todo!(),
+            TableStyleParam::TextColor => todo!(),
+            TableStyleParam::TextColorAlpha => todo!(),
+            TableStyleParam::TextRgba => todo!(),
         }
     }
 }

@@ -4,9 +4,7 @@
 use pyo3::{Py, PyAny, PyResult, pyfunction};
 type PyObject = Py<PyAny>;
 
-use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex, 
-    state::{Containers, get_id, set_state_cont_wnd_ids, set_state_of_container}, 
-        widgets::ipg_table::{Table}};
+use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex, graphics::colors::Color, state::{Containers, Widgets, get_id, set_state_cont_wnd_ids, set_state_of_container}, widgets::ipg_table::{Table, TableStyle}};
 
 
 /// Add a table widget.
@@ -295,3 +293,57 @@ pub fn add_table(
 
 }
 
+
+#[pyfunction]
+#[pyo3(signature = (
+    background_color=None,
+    background_color_alpha=None, 
+    background_rgba=None,
+    border_color=None,
+    border_color_alpha=None, 
+    border_rgba=None,
+    border_radius=None, 
+    border_width=None,
+    text_color=None,
+    text_color_alpha=None, 
+    text_rgba=None,
+    gen_id=None
+    ))]
+pub fn add_table_style(
+    background_color: Option<Color>,
+    background_color_alpha: Option<f32>,
+    background_rgba: Option<[f32; 4]>,
+    border_color: Option<Color>,
+    border_color_alpha: Option<f32>,
+    border_rgba: Option<[f32; 4]>,
+    border_radius: Option<Vec<f32>>,
+    border_width: Option<f32>,
+    text_color: Option<Color>,
+    text_color_alpha: Option<f32>,
+    text_rgba: Option<[f32; 4]>,
+    gen_id: Option<usize>,
+    ) -> PyResult<usize>
+{
+    let id = get_id(gen_id);
+
+    let mut state = access_state();
+
+    state.widgets.insert(id, Widgets::TableStyle(
+        TableStyle {
+            id,
+            background_color,
+            background_color_alpha, 
+            background_rgba,
+            border_color,
+            border_color_alpha, 
+            border_rgba,
+            border_radius, 
+            border_width,
+            text_color,
+            text_color_alpha, 
+            text_rgba,
+        }));
+
+    drop(state);
+    Ok(id)
+}

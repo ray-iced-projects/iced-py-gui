@@ -47,7 +47,7 @@ use crate::widgets::ipg_slider::{Slider, SliderStyle};
 use crate::widgets::ipg_space::Space;
 use crate::widgets::ipg_stack::Stack;
 use crate::widgets::ipg_svg::Svg;
-use crate::widgets::ipg_table::Table;
+use crate::widgets::ipg_table::{Table, TableStyle};
 use crate::widgets::ipg_text::Text;
 use crate::widgets::ipg_text_editor::{TextEditor, TextEditorStyle};
 use crate::widgets::ipg_text_rich::{RichText, Span};
@@ -119,6 +119,7 @@ pub enum Widgets {
     RuleStyle(RuleStyle),
     ScrollableStyle(ScrollableStyle),
     Scroller(Scroller),
+    TableStyle(TableStyle),
     RailStyle(RailStyle),
     AutoScrollStyle(AutoScrollStyle),
     Separator(Separator),
@@ -197,6 +198,7 @@ ipg_widget_accessors! {
     Space            => Space,             as_space,               as_space_mut;
     Span             => Span,              as_span,                as_span_mut;
     Svg              => Svg,               as_svg,                 as_svg_mut;
+    TableStyle       => TableStyle,        as_table_style,         as_table_style_mut;
     Text             => Text,              as_text,                as_text_mut;
     TextEditor       => TextEditor,        as_text_editor,         as_text_editor_mut;
     TextInputStyle   => TextInputStyle,    as_text_input_style,    as_text_input_style_mut;

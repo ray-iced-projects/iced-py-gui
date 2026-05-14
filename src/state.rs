@@ -23,7 +23,7 @@ use crate::widgets::ipg_divider::{Divider, DividerStyle};
 use crate::widgets::ipg_draw::Draw;
 use crate::ipg_widgets::ipg_canvas_draw::canvas_draw::{
     DrawState, CanvasWidget, Circle, DrawMode, DrawStatus};
-use crate::widgets::ipg_menu::{Menu, MenuBarItem, MenuStyle};
+use crate::widgets::ipg_menu::{Menu, MenuBarItem, MenuSubItem, MenuStyle};
 use iced::widget::Id;
 use iced::Point;
 use crate::widgets::ipg_events::Events;
@@ -75,6 +75,7 @@ pub enum Containers {
     Grid(Grid),
     Menu(Menu),
     MenuBarItem(MenuBarItem),
+    MenuSubItem(MenuSubItem),
     MouseArea(MouseArea),
     Opaque(Opaque),
     RichText(RichText),
@@ -232,6 +233,7 @@ ipg_container_accessors! {
     Grid         => Grid,         as_grid,            as_grid_mut;
     Menu         => Menu,         as_menu,            as_menu_mut;
     MenuBarItem  => MenuBarItem,  as_menu_bar_item,   as_menu_bar_item_mut;
+    MenuSubItem  => MenuSubItem,  as_menu_sub_item,   as_menu_sub_item_mut;
     MouseArea    => MouseArea,    as_mouse_area,      as_mouse_area_mut;
     Opaque       => Opaque,       as_opaque,          as_opaque_mut;
     RichText     => RichText,     as_rich_text,       as_rich_text_mut;

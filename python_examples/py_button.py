@@ -148,11 +148,11 @@ with Window(title="Button Parameters",
                 with Row(spacing=10):
                     with Column(spacing=10):
                         add_text(content="Some Standard styling")
-                        add_button(label="Bkg Color std=Subtle", width=200,
+                        add_button(label="ButtonStyleStd.Subtle", width=200,
                                     style_std=ButtonStyleStd.Subtle)
-                        add_button(label="Bkg Color std=Danger", width=200,
+                        add_button(label="ButtonStyleStd.Danger", width=200,
                                     style_std=ButtonStyleStd.Danger)
-                        add_button(label="Bkg Color std=Text", width=200,
+                        add_button(label="ButtonStyleStd.Text", width=200,
                                     style_std=ButtonStyleStd.Text)
                         add_text(content="Border styling")
                         add_button(label="Some Border Styling", padding=[5], style_id=border)

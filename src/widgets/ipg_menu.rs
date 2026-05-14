@@ -17,6 +17,18 @@ use pyo3::{pyclass, Py, PyAny};
 // Type alias to replace deprecated PyObject
 type PyObject = Py<PyAny>;
 
+/// A dropdown item that is either a plain widget or a sub-menu.
+/// This is produced by `get_menu_children` in `app.rs` and consumed
+/// by `Menu::construct`.
+pub enum GroupedItem<'a> {
+    Plain(Element<'a, app::Message>),
+    Sub {
+        trigger: Element<'a, app::Message>,
+        children: Vec<GroupedItem<'a>>,
+        sub_item_id: usize,
+    },
+}
+
 #[derive(Debug, Clone)]
 pub struct Menu {
     pub id: usize,
@@ -45,7 +57,7 @@ impl Menu {
 
     pub fn construct<'a>(
         &'a self, 
-        grouped_content: Vec<(usize, Vec<Element<'a, app::Message>>)>,
+        grouped_content: Vec<(usize, Vec<GroupedItem<'a>>)>,
         widgets: &HashMap<usize, Widgets>,
         containers: &HashMap<usize, Containers>,
         )-> Option<Element<'a, app::Message, Theme, Renderer>> 
@@ -67,13 +79,13 @@ impl Menu {
                 .and_then(Containers::as_menu_bar_item)
                 .expect("MenuBarItem not found in containers");
 
-            // First element is the bar widget, rest are dropdown items
-            let menu_bar = group.remove(0);
+            // First element is the bar widget (always Plain), rest are dropdown items
+            let menu_bar = match group.remove(0) {
+                GroupedItem::Plain(el) => el,
+                GroupedItem::Sub { trigger, .. } => trigger,
+            };
 
-            let items: Vec<Item<app::Message, Theme, Renderer>> = group
-                .into_iter()
-                .map(|el| Item::new(el))
-                .collect();
+            let items = build_items(group, containers);
 
             let mut menu = aw_menu::menu_tree::Menu::new(items)
                 .width({
@@ -151,6 +163,56 @@ pub struct MenuBarItem {
     pub show: bool,
 }
 
+/// A sub-menu item inside a dropdown.  The first child added to a
+/// `MenuSubItem` context-manager is the trigger widget (shown in the
+/// dropdown list); the remaining children become the items of the
+/// child menu that opens on hover.
+#[derive(Debug, Clone)]
+pub struct MenuSubItem {
+    pub id: usize,
+    pub width: Option<f32>,
+    pub spacing: Option<f32>,
+    pub offset: Option<f32>,
+    pub padding: Option<Vec<f32>>,
+    pub close_on_item_click: Option<bool>,
+    pub close_on_background_click: Option<bool>,
+    pub show: bool,
+}
+
+/// Recursively convert a `Vec<GroupedItem>` into aw_menu `Item`s,
+/// using `Item::with_menu` for any `GroupedItem::Sub`.
+fn build_items<'a>(
+    group: Vec<GroupedItem<'a>>,
+    containers: &HashMap<usize, Containers>,
+) -> Vec<Item<'a, app::Message, Theme, Renderer>> {
+    group.into_iter().map(|gi| match gi {
+        GroupedItem::Plain(el) => Item::new(el),
+        GroupedItem::Sub { trigger, children, sub_item_id } => {
+            let sub_data = containers.get(&sub_item_id)
+                .and_then(Containers::as_menu_sub_item);
+
+            let sub_items = build_items(children, containers);
+
+            let mut sub_menu = aw_menu::menu_tree::Menu::new(sub_items)
+                .width(match sub_data.and_then(|d| d.width) {
+                    Some(w) => iced::Length::Fixed(w),
+                    None    => Length::Shrink,
+                })
+                .offset(sub_data.and_then(|d| d.offset).unwrap_or(0.0))
+                .padding(get_padding(&sub_data.and_then(|d| d.padding.clone())))
+                .spacing(sub_data.and_then(|d| d.spacing).unwrap_or_default());
+
+            if let Some(v) = sub_data.and_then(|d| d.close_on_item_click) {
+                sub_menu = sub_menu.close_on_item_click(v);
+            }
+            if let Some(v) = sub_data.and_then(|d| d.close_on_background_click) {
+                sub_menu = sub_menu.close_on_background_click(v);
+            }
+
+            Item::with_menu(trigger, sub_menu)
+        }
+    }).collect()
+}
 
 
 #[derive(Debug, Clone)]
@@ -353,6 +415,18 @@ pub enum MenuBarItemParam {
     Width,
 }
 
+#[derive(Debug, Clone, PartialEq, Hash)]
+#[pyclass(eq, eq_int, hash, frozen)]
+pub enum MenuSubItemParam {
+    CloseOnBackgroundClick,
+    CloseOnItemClick,
+    Offset,
+    Padding,
+    Show,
+    Spacing,
+    Width,
+}
+
 
 #[derive(Debug, Clone, PartialEq, Hash)]
 #[pyclass(eq, eq_int, hash, frozen)]
@@ -436,6 +510,22 @@ impl WidgetParamUpdate for MenuBarItem {
             MenuBarItemParam::Show => set_t_value(&mut self.show, value, "MenuBarItemParam::Show"),
             MenuBarItemParam::Spacing => set_t_value(&mut self.spacing, value, "MenuBarItemParam::Spacing"),
             MenuBarItemParam::Width => set_t_value(&mut self.width, value, "MenuBarItemParam::Width"),
+        }
+    }
+}
+
+impl WidgetParamUpdate for MenuSubItem {
+    type Param = MenuSubItemParam;
+
+    fn param_update(&mut self, param: Self::Param, value: &PyObject) {
+        match param {
+            MenuSubItemParam::CloseOnBackgroundClick => set_t_value(&mut self.close_on_background_click, value, "MenuSubItemParam::CloseOnBackgroundClick"),
+            MenuSubItemParam::CloseOnItemClick => set_t_value(&mut self.close_on_item_click, value, "MenuSubItemParam::CloseOnItemClick"),
+            MenuSubItemParam::Offset => set_t_value(&mut self.offset, value, "MenuSubItemParam::Offset"),
+            MenuSubItemParam::Padding => set_t_value(&mut self.padding, value, "MenuSubItemParam::Padding"),
+            MenuSubItemParam::Show => set_t_value(&mut self.show, value, "MenuSubItemParam::Show"),
+            MenuSubItemParam::Spacing => set_t_value(&mut self.spacing, value, "MenuSubItemParam::Spacing"),
+            MenuSubItemParam::Width => set_t_value(&mut self.width, value, "MenuSubItemParam::Width"),
         }
     }
 }

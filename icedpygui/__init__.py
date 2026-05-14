@@ -39,6 +39,7 @@ from .icedpygui import (
     add_image as _add_image,
     add_menu as _add_menu,
     add_menu_bar_item as _add_menu_bar_item,
+    add_menu_sub_item as _add_menu_sub_item,
     add_mouse_area as _add_mouse_area,
     add_opaque as _add_opaque,
     add_pick_list as _add_pick_list,
@@ -121,6 +122,7 @@ from .icedpygui import (
     MenuBarItemParam,
     MenuParam,
     MenuStyleParam,
+    MenuSubItemParam,
     MousePointer,
     # PickListHandle,
     ProgressBarParam,
@@ -321,6 +323,8 @@ add_menu = _wrap_container(_add_menu, "add_menu")
 add_menu.__doc__ = _add_menu.__doc__
 add_menu_bar_item = _wrap_container(_add_menu_bar_item, "add_menu_bar_item")
 add_menu_bar_item.__doc__ = _add_menu_bar_item.__doc__
+add_menu_sub_item = _wrap_container(_add_menu_sub_item, "add_menu_sub_item")
+add_menu_sub_item.__doc__ = _add_menu_sub_item.__doc__
 add_mouse_area = _wrap_container(_add_mouse_area, "add_mouse_area")
 add_mouse_area.__doc__ = _add_mouse_area.__doc__
 add_opaque = _wrap_container(_add_opaque, "add_opaque")
@@ -704,6 +708,50 @@ class MenuBarItem:
         if pid is not None:
             pid = _resolve_parent_id(pid)
         self.numeric_id = _add_menu_bar_item(
+            window_id=self.window_id,
+            container_id=self.container_id,
+            parent_id=pid,
+            **self.kwargs,
+        )
+        _register_container(self.numeric_id, self.container_id, self.window_id)
+        _parent_stack.append(self.container_id)
+        return self.numeric_id
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        _parent_stack.pop()
+        return False
+
+class MenuSubItem:
+    """Wrapper for add_menu_sub_item.
+
+    Use inside a ``MenuBarItem`` (or another ``MenuSubItem``) to create a
+    nested sub-menu.  The first child added inside this context manager is
+    the trigger widget shown in the parent dropdown; all subsequent children
+    become the items of the child menu that opens on hover.
+    """
+    def __init__(self, *, container_id=None, window_id=None, parent_id=None, **kwargs):
+        self.window_id = (
+            _resolve_window_id(window_id)
+            if window_id is not None
+            else _current_window_or_parent(parent_id)
+        )
+        if self.window_id is None:
+            raise ValueError("MenuSubItem: window_id is required (either pass it\
+                or use a Window context manager)")
+        self.container_id = (
+            container_id
+            if container_id is not None
+            else str(generate_id())
+        )
+        self.parent_id = parent_id
+        self.kwargs = kwargs
+        self.numeric_id = 0
+
+    def __enter__(self):
+        pid = self.parent_id or _current_parent()
+        if pid is not None:
+            pid = _resolve_parent_id(pid)
+        self.numeric_id = _add_menu_sub_item(
             window_id=self.window_id,
             container_id=self.container_id,
             parent_id=pid,

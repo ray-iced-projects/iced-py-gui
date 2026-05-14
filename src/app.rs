@@ -37,6 +37,7 @@ use crate::widgets::ipg_text_input::{TIMessage, text_input_callback};
 use crate::widgets::ipg_timer::timer_callback;
 use crate::widgets::ipg_toggle::{TOGMessage, toggle_callback};
 use crate::widgets::ipg_window::{Window, add_windows, construct_window};
+use crate::widgets::ipg_menu::GroupedItem;
 use crate::widgets::widget_param_update::{param_update, container_param_update};
 
 
@@ -603,24 +604,37 @@ fn get_menu_children<'a>(
     menu_index: &usize,
     parent_ids: &Vec<usize>,
     state: &'a IpgState,
-) -> Vec<(usize, Vec<Element<'a, Message>>)> {
-    let mut grouped: Vec<(usize, Vec<Element<'a, Message>>)> = vec![];
+) -> Vec<(usize, Vec<GroupedItem<'a>>)> {
+    let mut grouped: Vec<(usize, Vec<GroupedItem<'a>>)> = vec![];
 
     for child_id in parents[*menu_index].child_ids.iter() {
-        // Each child should be an MenuBarItem container
+        // Each child should be a MenuBarItem container
         if parent_ids.contains(child_id) {
             let bar_item_index = parents.iter().position(|r| &r.parent_id == child_id).unwrap();
 
-            let mut group: Vec<Element<'a, Message>> = vec![];
+            let mut group: Vec<GroupedItem<'a>> = vec![];
 
             for grandchild in parents[bar_item_index].child_ids.iter() {
                 if parent_ids.contains(grandchild) {
-                    let idx = parents.iter().position(|r| &r.parent_id == grandchild).unwrap();
-                    if let Some(el) = get_children(parents, &idx, parent_ids, state) {
-                        group.push(el);
+                    // Check if this child container is a MenuSubItem
+                    if matches!(state.containers.get(grandchild), Some(Containers::MenuSubItem(_))) {
+                        let sub_index = parents.iter().position(|r| &r.parent_id == grandchild).unwrap();
+                        let sub_items = collect_sub_items(parents, &sub_index, parent_ids, state);
+                        if let Some((trigger, children)) = sub_items {
+                            group.push(GroupedItem::Sub {
+                                trigger,
+                                children,
+                                sub_item_id: *grandchild,
+                            });
+                        }
+                    } else {
+                        let idx = parents.iter().position(|r| &r.parent_id == grandchild).unwrap();
+                        if let Some(el) = get_children(parents, &idx, parent_ids, state) {
+                            group.push(GroupedItem::Plain(el));
+                        }
                     }
                 } else if let Some(widget_el) = get_widget(state, grandchild) {
-                    group.push(widget_el);
+                    group.push(GroupedItem::Plain(widget_el));
                 }
             }
 
@@ -629,6 +643,58 @@ fn get_menu_children<'a>(
     }
 
     grouped
+}
+
+/// Collect the trigger element and child GroupedItems for a MenuSubItem container.
+/// Returns `Some((trigger, children))` where `trigger` is the first child and
+/// `children` are the remaining items (which may themselves be further MenuSubItems).
+fn collect_sub_items<'a>(
+    parents: &Vec<ParentChildIds>,
+    sub_index: &usize,
+    parent_ids: &Vec<usize>,
+    state: &'a IpgState,
+) -> Option<(Element<'a, Message>, Vec<GroupedItem<'a>>)> {
+    let child_ids = &parents[*sub_index].child_ids;
+    if child_ids.is_empty() {
+        return None;
+    }
+
+    let mut iter = child_ids.iter();
+
+    // First child is always the trigger element
+    let first_id = iter.next().unwrap();
+    let trigger = if parent_ids.contains(first_id) {
+        let idx = parents.iter().position(|r| &r.parent_id == first_id).unwrap();
+        get_children(parents, &idx, parent_ids, state)?
+    } else {
+        get_widget(state, first_id)?
+    };
+
+    // Remaining children become the sub-menu items (recursively)
+    let mut children: Vec<GroupedItem<'a>> = vec![];
+    for child_id in iter {
+        if parent_ids.contains(child_id) {
+            if matches!(state.containers.get(child_id), Some(Containers::MenuSubItem(_))) {
+                let sub_idx = parents.iter().position(|r| &r.parent_id == child_id).unwrap();
+                if let Some((trigger, sub_children)) = collect_sub_items(parents, &sub_idx, parent_ids, state) {
+                    children.push(GroupedItem::Sub {
+                        trigger,
+                        children: sub_children,
+                        sub_item_id: *child_id,
+                    });
+                }
+            } else {
+                let idx = parents.iter().position(|r| &r.parent_id == child_id).unwrap();
+                if let Some(el) = get_children(parents, &idx, parent_ids, state) {
+                    children.push(GroupedItem::Plain(el));
+                }
+            }
+        } else if let Some(widget_el) = get_widget(state, child_id) {
+            children.push(GroupedItem::Plain(widget_el));
+        }
+    }
+
+    Some((trigger, children))
 }
 
 
@@ -687,6 +753,11 @@ fn get_container<'a>(state: &'a IpgState,
                     // MenuBarItem children are consumed by get_menu_children;
                     // it should never reach get_container.
                     panic!("MenuBarItem should not reach get_container directly")
+                },
+                Containers::MenuSubItem(_) => {
+                    // MenuSubItem children are consumed by collect_sub_items;
+                    // it should never reach get_container.
+                    panic!("MenuSubItem should not reach get_container directly")
                 },
                 Containers::MouseArea(m_area) => {
                     m_area.construct(content)

@@ -8,7 +8,9 @@ from icedpygui import (
     start_session,
     Menu,
     MenuBarItem,
+    MenuSubItem,
     add_button,
+    add_button_style,
     add_text,
     ButtonStyleStd)
 
@@ -17,7 +19,7 @@ def on_press(_id, name: str):
     """Button callback"""
     print(f"selected: {name}")
 
-
+btn_style = add_button_style(text_center_left=True)
 
 # Add a window
 with Window(title="Menu", center=True, size=[600, 600]):
@@ -27,33 +29,46 @@ with Window(title="Menu", center=True, size=[600, 600]):
             with Menu(spacing=20.0):
 
                 # First item of the MenuBarItem is the bar item followed by the dropdown items
-                with MenuBarItem(width=75, spacing=5.0, offset=3.0):
+                with MenuBarItem(width=115, spacing=5.0, offset=3.0):
 
                     add_text(content="File") # bar item
-
                     # dropdown items
                     add_button(
                         label="New",
+                        width_fill=True,
                         style_std=ButtonStyleStd.Text,
                         on_press=on_press,
                         user_data="New")
 
+                    with MenuSubItem(width=130, spacing=5.0, offset=2.0):
+
+                        add_text(content="Open Recent >", width_fill=True,)  # trigger (shown in dropdown)
+                        add_button(
+                            label="project1.py",
+                            width_fill=True,
+                            style_std=ButtonStyleStd.Text)
+                        add_button(
+                            label="project2.py",
+                            width_fill=True,
+                            style_std=ButtonStyleStd.Text)
+
                     add_button(
                         label="Open",
+                        width_fill=True,
                         style_std=ButtonStyleStd.Text,
                         on_press=on_press,
                         user_data="Open")
 
                     add_button(
                         label="Save",
+                        width_fill=True,
                         style_std=ButtonStyleStd.Text,
                         on_press=on_press,
                         user_data="Save")
 
-                with MenuBarItem(width=75.0, spacing=5.0, offset=3.0):
+                with MenuBarItem(width=50.0, spacing=5.0, offset=3.0):
 
                     add_text(content="Edit") # bar item
-
                     # dropdown items
                     add_button(
                         label="Cut",

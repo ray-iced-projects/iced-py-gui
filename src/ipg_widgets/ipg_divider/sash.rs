@@ -74,6 +74,7 @@ where
     handle_height: f32,
     on_change: Box<dyn Fn((usize, usize, f32)) -> Message + 'a>,
     on_release: Option<Message>,
+    on_release_fn: Option<Box<dyn Fn((usize, usize)) -> Message + 'a>>,
     width: Length,
     height: Length,
     handle_offsets: Vec<f32>,
@@ -89,6 +90,13 @@ where
     /// Sets the release message of the [`Sash`].
     pub fn on_release(mut self, on_release: Message) -> Self {
         self.on_release = Some(on_release);
+        self
+    }
+
+    /// Sets a release callback of the [`Sash`] that receives `(id, handle_index)`.
+    /// Use this instead of [`on_release`] when you need to know which handle was released.
+    pub fn on_release_fn(mut self, f: impl Fn((usize, usize)) -> Message + 'a) -> Self {
+        self.on_release_fn = Some(Box::new(f));
         self
     }
     /// Sets the width of the [`Sash`] which usually spans the entire width of the items.
@@ -175,6 +183,7 @@ where
             handle_height,
             on_change: Box::new(on_change),
             on_release: None,
+            on_release_fn: None,
             width: Length::Fill,
             height: Length::Fill,
             handle_offsets,
@@ -384,7 +393,9 @@ where
         | Event::Touch(touch::Event::FingerLifted { .. })
         | Event::Touch(touch::Event::FingerLost { .. }) => {
             if is_dragging {
-                if let Some(on_release) = widget.on_release.clone() {
+                if let Some(f) = &widget.on_release_fn {
+                    shell.publish(f((widget.id, state.index)));
+                } else if let Some(on_release) = widget.on_release.clone() {
                     shell.publish(on_release);
                 }
                 state.is_dragging = false;
@@ -426,7 +437,8 @@ where
                                     (position.x > state.handle_bounds[state.index+1].x) {
 
                                     state.handle_bounds[state.index].x = state.handle_bounds[state.index+1].x;
-                                    (state.index, 0.0)
+                                    let new_value = (state.handle_bounds[state.index+1].x - w_h_bounds.x).round();
+                                    (state.index, new_value)
                                 } else 
                                 // Moving right: last index and no divider at end
                                 if (handle_count < w_h_count) && 
@@ -467,7 +479,8 @@ where
                                     (position.y > state.handle_bounds[state.index+1].y) {
 
                                     state.handle_bounds[state.index].y = state.handle_bounds[state.index+1].y;
-                                    (state.index, 0.0)
+                                    let new_value = (state.handle_bounds[state.index+1].y - w_h_bounds.y).round();
+                                    (state.index, new_value)
                                 } else 
                                 // Moving right: last index and no divider at end
                                 if (handle_count < w_h_count) && 

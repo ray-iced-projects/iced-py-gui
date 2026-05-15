@@ -81,10 +81,9 @@ with Window(
 
     # Add a container to center the widgets in the middle
     with Container(fill=True, align_center=True):
-
         # add a column to hold the text and the stack
-        with Column():
-            add_text(content="Place the cursor over the highlighted divider and drag")
+        with Column(spacing=10.0):
+            add_text(content="Place the cursor over the \nhighlighted divider and drag")
 
             # make the stack to lay the dividers over the containers
             with Stack():
@@ -104,12 +103,14 @@ with Window(
                             ):
 
                             with Column(
-                                    width=HANDLE_WIDTH,
-                                    height=height) as col_id:
+                                spacing=10,
+                                width=HANDLE_WIDTH,
+                                padding=[10],
+                                height=height) as col_id:
 
                                 column_ids.append(col_id)
 
-                                text_ids.append(add_text(content=f"Width={height}"))
+                                text_ids.append(add_text(content=f"Height={height}"))
 
                                 add_button(label="Some Button")
 
@@ -125,10 +126,8 @@ with Window(
                     sizes=heights,
                     handle_width=HANDLE_WIDTH,
                     handle_height=HANDLE_HEIGHT,
-                    include_last_handle=True,
                     style_id=div_style,
                     on_change=divider_change)
-
 
 # Required to be the last widget sent to Iced,  If you start the program
 # and nothing happens, it might mean you forgot to add this command.

@@ -25,7 +25,7 @@ height (SplitterH) / width (SplitterV) : float
     Fixed cross-axis dimension of the splitter in logical pixels.
 min_size : float, default 20.0
     Minimum size any panel can be dragged to.
-sash_width (SplitterH) / sash_height (SplitterV) : float, default 8.0
+sash_size : float, default 8.0
     Hit-target thickness of each drag handle in logical pixels.
 on_resize : callable, Optional
     Called while dragging.  Signature: cb(widget_id, (index, value, sizes))
@@ -60,15 +60,21 @@ from icedpygui import (
 )
 
 # --- shared labels updated from callbacks ------------------------------------
-h_label_id = None
+h_label_id_0 = None
+h_label_id_1 = None
 v_label_id = None
 
 
 def on_h_resize(_wid, data):
     """Called while dragging a SplitterH handle."""
     index, value, sizes = data
-    update_widget(h_label_id, TextParam.Content,
-        f"SplitterH: handle {index}  pos={value:.1f}  sizes={[f'{s:.0f}' for s in sizes]}")
+    match index:
+        case 0:
+            update_widget(h_label_id_0, TextParam.Content,
+                f"SplitterH: handle {index}  pos={value:.1f}  sizes={[f'{s:.0f}' for s in sizes]}")
+        case 1:
+            update_widget(h_label_id_1, TextParam.Content,
+                f"SplitterH: handle {index}  pos={value:.1f}  sizes={[f'{s:.0f}' for s in sizes]}")
 
 
 def on_v_resize(_wid, data):
@@ -95,7 +101,7 @@ with Window(title="Splitter Demo", size=(900, 650), center=True):
         # --- SplitterH: three side-by-side panels ----------------------------
         add_text(content="SplitterH — three side-by-side panels (drag the handles)")
 
-        with SplitterH(sizes=[220.0, 220.0, 220.0], height=200.0,
+        with SplitterH(sizes=[220.0, 220.0, 220.0], height=200.0, max_size=660.0,
                        on_resize=on_h_resize, on_release=on_release):
 
             # Panel 0
@@ -119,7 +125,8 @@ with Window(title="Splitter Demo", size=(900, 650), center=True):
                     add_text(content="Panel 2")
                     add_button(label="Button C")
 
-        h_label_id = add_text(content="SplitterH: drag a handle to see sizes")
+        h_label_id_0 = add_text(content="SplitterH: drag a handle to see sizes")
+        h_label_id_1 = add_text(content="SplitterH: drag a handle to see sizes")
 
         add_space(height=20)
 

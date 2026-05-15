@@ -32,7 +32,10 @@ type PyObject = Py<PyAny>;
 ///     Parent container. Defaults to the window.
 /// min_size : float, default 20.0
 ///     Minimum pixel width of any panel.
-/// sash_width : float, default 8.0
+/// max_size : float, Optional
+///     Maximum total pixel width of all panels combined.  If the sum of
+///     ``sizes`` exceeds this value the panels are scaled proportionally.
+/// sash_size : float, default 8.0
 ///     Visual thickness of each drag handle in pixels.
 /// on_resize : callable, Optional
 ///     Called on every drag tick with ``(wid, (panel_index, new_size, all_sizes))``.
@@ -59,7 +62,8 @@ type PyObject = Py<PyAny>;
     height,
     parent_id=None,
     min_size=20.0,
-    sash_width=8.0,
+    max_size=None,
+    sash_size=8.0,
     on_resize=None,
     on_release=None,
     style_id=None,
@@ -74,7 +78,8 @@ pub fn add_splitter_h(
     height: f32,
     parent_id: Option<String>,
     min_size: f32,
-    sash_width: f32,
+    max_size: Option<f32>,
+    sash_size: f32,
     on_resize: Option<PyObject>,
     on_release: Option<PyObject>,
     style_id: Option<usize>,
@@ -109,7 +114,8 @@ pub fn add_splitter_h(
             sizes,
             height,
             min_size,
-            sash_width,
+            max_size,
+            sash_size,
             on_resize_trigger: SplitterResizeTrigger::OnDrag,
             style_id,
             show,
@@ -142,7 +148,10 @@ pub fn add_splitter_h(
 ///     Parent container. Defaults to the window.
 /// min_size : float, default 20.0
 ///     Minimum pixel height of any panel.
-/// sash_height : float, default 8.0
+/// max_size : float, Optional
+///     Maximum total pixel height of all panels combined.  If the sum of
+///     ``sizes`` exceeds this value the panels are scaled proportionally.
+/// sash_size : float, default 8.0
 ///     Visual thickness of each drag handle in pixels.
 /// on_resize : callable, Optional
 ///     Called on every drag tick with ``(wid, (panel_index, new_size, all_sizes))``.
@@ -169,7 +178,8 @@ pub fn add_splitter_h(
     width,
     parent_id=None,
     min_size=20.0,
-    sash_height=8.0,
+    max_size=None,
+    sash_size=8.0,
     on_resize=None,
     on_release=None,
     style_id=None,
@@ -184,7 +194,8 @@ pub fn add_splitter_v(
     width: f32,
     parent_id: Option<String>,
     min_size: f32,
-    sash_height: f32,
+    max_size: Option<f32>,
+    sash_size: f32,
     on_resize: Option<PyObject>,
     on_release: Option<PyObject>,
     style_id: Option<usize>,
@@ -219,7 +230,8 @@ pub fn add_splitter_v(
             sizes,
             width,
             min_size,
-            sash_height,
+            max_size,
+            sash_size,
             on_resize_trigger: SplitterResizeTrigger::OnDrag,
             style_id,
             show,

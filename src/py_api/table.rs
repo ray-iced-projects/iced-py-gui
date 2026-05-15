@@ -296,9 +296,9 @@ pub fn add_table(
 
 #[pyfunction]
 #[pyo3(signature = (
-    background_color=None,
-    background_color_alpha=None, 
-    background_rgba=None,
+    bkg_color=None,
+    bkg_color_alpha=None, 
+    bkg_rgba=None,
     border_color=None,
     border_color_alpha=None, 
     border_rgba=None,
@@ -310,9 +310,9 @@ pub fn add_table(
     gen_id=None
     ))]
 pub fn add_table_style(
-    background_color: Option<Color>,
-    background_color_alpha: Option<f32>,
-    background_rgba: Option<[f32; 4]>,
+    bkg_color: Option<Color>,
+    bkg_color_alpha: Option<f32>,
+    bkg_rgba: Option<[f32; 4]>,
     border_color: Option<Color>,
     border_color_alpha: Option<f32>,
     border_rgba: Option<[f32; 4]>,
@@ -331,9 +331,9 @@ pub fn add_table_style(
     state.widgets.insert(id, Widgets::TableStyle(
         TableStyle {
             id,
-            background_color,
-            background_color_alpha, 
-            background_rgba,
+            bkg_color,
+            bkg_color_alpha, 
+            bkg_rgba,
             border_color,
             border_color_alpha, 
             border_rgba,

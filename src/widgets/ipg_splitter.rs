@@ -90,8 +90,10 @@ pub struct SplitterH {
     pub height: f32,
     /// Minimum width any panel can be resized to.
     pub min_size: f32,
-    /// Width of the sash drag-handle in logical pixels.
-    pub sash_width: f32,
+    /// Size (thickness) of the sash drag-handle in logical pixels.
+    pub sash_size: f32,
+    /// Optional cap on the total width of all panels combined.
+    pub max_size: Option<f32>,
     /// Whether to call `on_resize` on every drag tick or only on release.
     pub on_resize_trigger: SplitterResizeTrigger,
     pub style_id: Option<usize>,
@@ -118,10 +120,22 @@ impl SplitterH {
             .and_then(Widgets::as_splitter_style)
             .cloned();
 
+        // Scale sizes proportionally if they exceed max_size
+        let total: f32 = self.sizes.iter().sum();
+        let sizes: Vec<f32> = if let Some(max) = self.max_size {
+            if total > max && total > 0.0 {
+                self.sizes.iter().map(|s| s * max / total).collect()
+            } else {
+                self.sizes.clone()
+            }
+        } else {
+            self.sizes.clone()
+        };
+
         // Build the panel row
         let mut panels = vec![];
         for (i, child) in content.into_iter().enumerate() {
-            let w = self.sizes.get(i).copied().unwrap_or(100.0);
+            let w = sizes.get(i).copied().unwrap_or(100.0);
             panels.push(
                 container(child)
                     .width(w)
@@ -134,13 +148,13 @@ impl SplitterH {
         // Build the sash overlay (vertical bars between horizontal panels)
         let sash: Element<'a, Message, Theme> = sash_horizontal(
             self.id,
-            self.sizes.clone(),
-            self.sash_width,
+            sizes,
+            self.sash_size,
             self.height,
             move |(id, index, value)| Message::SplitterChanged(id, index, value),
         )
         .include_last_handle(false)
-        .on_release(Message::SplitterReleased(self.id))
+        .on_release_fn(move |(id, index)| Message::SplitterReleased(id, index))
         .style(move |theme: &Theme, status| {
             if let Some(st) = &style_opt {
                 st.to_iced(theme, status)
@@ -150,7 +164,12 @@ impl SplitterH {
         })
         .into();
 
-        Some(stack([panel_row, sash]).into())
+        let inner = stack([panel_row, sash]);
+        if let Some(max) = self.max_size {
+            Some(container(inner).max_width(max).into())
+        } else {
+            Some(inner.into())
+        }
     }
 }
 
@@ -167,8 +186,10 @@ pub struct SplitterV {
     pub width: f32,
     /// Minimum height any panel can be resized to.
     pub min_size: f32,
-    /// Height of the sash drag-handle in logical pixels.
-    pub sash_height: f32,
+    /// Size (thickness) of the sash drag-handle in logical pixels.
+    pub sash_size: f32,
+    /// Optional cap on the total height of all panels combined.
+    pub max_size: Option<f32>,
     /// Whether to call `on_resize` on every drag tick or only on release.
     pub on_resize_trigger: SplitterResizeTrigger,
     pub style_id: Option<usize>,
@@ -195,10 +216,22 @@ impl SplitterV {
             .and_then(Widgets::as_splitter_style)
             .cloned();
 
+        // Scale sizes proportionally if they exceed max_size
+        let total: f32 = self.sizes.iter().sum();
+        let sizes: Vec<f32> = if let Some(max) = self.max_size {
+            if total > max && total > 0.0 {
+                self.sizes.iter().map(|s| s * max / total).collect()
+            } else {
+                self.sizes.clone()
+            }
+        } else {
+            self.sizes.clone()
+        };
+
         // Build the panel column
         let mut panels = vec![];
         for (i, child) in content.into_iter().enumerate() {
-            let h = self.sizes.get(i).copied().unwrap_or(100.0);
+            let h = sizes.get(i).copied().unwrap_or(100.0);
             panels.push(
                 container(child)
                     .width(self.width)
@@ -211,13 +244,13 @@ impl SplitterV {
         // Build the sash overlay (horizontal bars between vertical panels)
         let sash: Element<'a, Message, Theme> = sash_vertical(
             self.id,
-            self.sizes.clone(),
+            sizes,
             self.width,
-            self.sash_height,
+            self.sash_size,
             move |(id, index, value)| Message::SplitterChanged(id, index, value),
         )
         .include_last_handle(false)
-        .on_release(Message::SplitterReleased(self.id))
+        .on_release_fn(move |(id, index)| Message::SplitterReleased(id, index))
         .style(move |theme: &Theme, status| {
             if let Some(st) = &style_opt {
                 st.to_iced(theme, status)
@@ -227,7 +260,12 @@ impl SplitterV {
         })
         .into();
 
-        Some(stack([panel_col, sash]).into())
+        let inner = stack([panel_col, sash]);
+        if let Some(max) = self.max_size {
+            Some(container(inner).max_height(max).into())
+        } else {
+            Some(inner.into())
+        }
     }
 }
 
@@ -258,25 +296,34 @@ pub fn splitter_callback(state: &mut IpgState, id: usize, index: usize, value: f
 
     let value = value.max(min_size);
 
-    // Apply diff to adjacent panel (same logic as table column resizer).
+    // Apply diff to adjacent panel with total-size conservation.
     if let Some(Containers::SplitterH(sp)) = state.containers.get_mut(&id) {
         let diff = sp.sizes[index] - value;
-        sp.sizes[index] = value;
-        sp.index_in_use = index;
-        sp.value_in_use = value;
         if index + 1 < panel_count {
-            let next = (sp.sizes[index + 1] + diff).max(min_size);
-            sp.sizes[index + 1] = next;
+            let next_ideal = sp.sizes[index + 1] + diff;
+            let next_actual = next_ideal.max(min_size);
+            // Pull panel[index] back if neighbor was clamped, so total is preserved.
+            let excess = (next_actual - next_ideal).max(0.0);
+            sp.sizes[index] = (value - excess).max(min_size);
+            sp.sizes[index + 1] = next_actual;
+        } else {
+            sp.sizes[index] = value;
         }
+        sp.index_in_use = index;
+        sp.value_in_use = sp.sizes[index];
     } else if let Some(Containers::SplitterV(sp)) = state.containers.get_mut(&id) {
         let diff = sp.sizes[index] - value;
-        sp.sizes[index] = value;
-        sp.index_in_use = index;
-        sp.value_in_use = value;
         if index + 1 < panel_count {
-            let next = (sp.sizes[index + 1] + diff).max(min_size);
-            sp.sizes[index + 1] = next;
+            let next_ideal = sp.sizes[index + 1] + diff;
+            let next_actual = next_ideal.max(min_size);
+            let excess = (next_actual - next_ideal).max(0.0);
+            sp.sizes[index] = (value - excess).max(min_size);
+            sp.sizes[index + 1] = next_actual;
+        } else {
+            sp.sizes[index] = value;
         }
+        sp.index_in_use = index;
+        sp.value_in_use = sp.sizes[index];
     }
 
     if trigger == SplitterResizeTrigger::OnDrag {
@@ -292,13 +339,13 @@ pub fn splitter_callback(state: &mut IpgState, id: usize, index: usize, value: f
     }
 }
 
-pub fn splitter_release_callback(state: &mut IpgState, id: usize) {
+pub fn splitter_release_callback(state: &mut IpgState, id: usize, index: usize) {
     // If trigger is OnRelease, fire now.
-    let (trigger, index, value, sizes) =
+    let (trigger, value, sizes) =
         if let Some(Containers::SplitterH(sp)) = state.containers.get(&id) {
-            (sp.on_resize_trigger.clone(), sp.index_in_use, sp.value_in_use, sp.sizes.clone())
+            (sp.on_resize_trigger.clone(), sp.sizes.get(index).copied().unwrap_or(0.0), sp.sizes.clone())
         } else if let Some(Containers::SplitterV(sp)) = state.containers.get(&id) {
-            (sp.on_resize_trigger.clone(), sp.index_in_use, sp.value_in_use, sp.sizes.clone())
+            (sp.on_resize_trigger.clone(), sp.sizes.get(index).copied().unwrap_or(0.0), sp.sizes.clone())
         } else {
             return;
         };
@@ -320,9 +367,10 @@ pub fn splitter_release_callback(state: &mut IpgState, id: usize) {
 #[pyclass(eq, eq_int, hash, frozen)]
 pub enum SplitterHParam {
     Height,
+    MaxSize,
     MinSize,
     OnResizeTrigger,
-    SashWidth,
+    SashSize,
     Show,
     Sizes,
     StyleId,
@@ -331,13 +379,14 @@ pub enum SplitterHParam {
 #[derive(Debug, Clone, PartialEq, Hash)]
 #[pyclass(eq, eq_int, hash, frozen)]
 pub enum SplitterVParam {
-    Width,
+    MaxSize,
     MinSize,
     OnResizeTrigger,
-    SashHeight,
+    SashSize,
     Show,
     Sizes,
     StyleId,
+    Width,
 }
 
 #[derive(Debug, Clone, PartialEq, Hash)]
@@ -362,8 +411,9 @@ impl WidgetParamUpdate for SplitterH {
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
             SplitterHParam::Height    => set_t_value(&mut self.height, value, "SplitterHParam::Height"),
+            SplitterHParam::MaxSize   => set_t_value(&mut self.max_size, value, "SplitterHParam::MaxSize"),
             SplitterHParam::MinSize   => set_t_value(&mut self.min_size, value, "SplitterHParam::MinSize"),
-            SplitterHParam::SashWidth => set_t_value(&mut self.sash_width, value, "SplitterHParam::SashWidth"),
+            SplitterHParam::SashSize => set_t_value(&mut self.sash_size, value, "SplitterHParam::SashSize"),
             SplitterHParam::Show      => set_t_value(&mut self.show, value, "SplitterHParam::Show"),
             SplitterHParam::Sizes     => set_t_value(&mut self.sizes, value, "SplitterHParam::Sizes"),
             SplitterHParam::StyleId   => set_t_value(&mut self.style_id, value, "SplitterHParam::StyleId"),
@@ -376,12 +426,13 @@ impl WidgetParamUpdate for SplitterV {
     type Param = SplitterVParam;
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
-            SplitterVParam::Width      => set_t_value(&mut self.width, value, "SplitterVParam::Width"),
+            SplitterVParam::MaxSize   => set_t_value(&mut self.max_size, value, "SplitterVParam::MaxSize"),
             SplitterVParam::MinSize    => set_t_value(&mut self.min_size, value, "SplitterVParam::MinSize"),
-            SplitterVParam::SashHeight => set_t_value(&mut self.sash_height, value, "SplitterVParam::SashHeight"),
+            SplitterVParam::SashSize => set_t_value(&mut self.sash_size, value, "SplitterVParam::SashSize"),
             SplitterVParam::Show       => set_t_value(&mut self.show, value, "SplitterVParam::Show"),
             SplitterVParam::Sizes      => set_t_value(&mut self.sizes, value, "SplitterVParam::Sizes"),
             SplitterVParam::StyleId    => set_t_value(&mut self.style_id, value, "SplitterVParam::StyleId"),
+            SplitterVParam::Width      => set_t_value(&mut self.width, value, "SplitterVParam::Width"),
             SplitterVParam::OnResizeTrigger => (),
         }
     }

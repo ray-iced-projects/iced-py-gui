@@ -68,7 +68,7 @@ pub enum Message {
     TableDividerReleased(usize),
 
     SplitterChanged(usize, usize, f32),
-    SplitterReleased(usize),
+    SplitterReleased(usize, usize),
     TextEditor(usize, TxtEdMessage),
     TextInput(usize, TIMessage),
     Toggler(usize, TOGMessage),
@@ -281,8 +281,8 @@ impl App {
                 process_widget_updates(&mut self.state);
                 Task::none()
             },
-            Message::SplitterReleased(id) => {
-                splitter_release_callback(&mut self.state, id);
+            Message::SplitterReleased(id, index) => {
+                splitter_release_callback(&mut self.state, id, index);
                 process_widget_updates(&mut self.state);
                 Task::none()
             },

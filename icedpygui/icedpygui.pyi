@@ -722,6 +722,56 @@ def add_slider_style(
 
     """
 
+def add_splitter_style(
+        background_color: Color | None = None,
+        background_color_alpha: float | None = None,
+        background_rgba: list[float, 4] | None = None,
+        background_color_hovered: Color | None = None,
+        background_color_hovered_alpha: float | None = None,
+        background_rgba_hovered: list[float, 4] | None = None,
+        background_transparent: bool | None = None,
+        border_color: Color | None = None,
+        border_color_alpha: float | None = None,
+        border_rgba: list[float, 4] | None = None,
+        border_radius: list[float] | None = None,
+        border_width: float | None = None,
+        gen_id: int | None = None,
+    ) -> int:
+
+    """
+    Add styling for a SplitterH or SplitterV drag handle.
+
+    Parameters
+    ----------
+    background_color : Color, Optional
+        Handle background color.
+    background_color_alpha : float, Optional
+        Alpha of the background color.
+    background_rgba : list of float, Optional
+        Background color in [r, g, b, a] format (0.0–1.0 each).
+    background_color_hovered : Color, Optional
+        Handle color when the cursor hovers over it.
+    background_color_hovered_alpha : float, Optional
+        Alpha of the hovered color.
+    background_rgba_hovered : list of float, Optional
+        Hovered color in rgba format.
+    background_transparent : bool, Optional
+        Render handle as fully transparent.
+    border_color : Color, Optional
+    border_color_alpha : float, Optional
+    border_rgba : list of float, Optional
+    border_radius : list of float, Optional
+        Corner radii as [all] or [tl, tr, br, bl].
+    border_width : float, Optional
+    gen_id : int, Optional
+        Pre-reserved style ID.
+
+    Returns
+    -------
+    int
+        The numeric style ID to pass to a splitter's ``style_id``.
+    """
+
 def add_text_input_style(
         style_id: str,
         background_color: Color | None = None,
@@ -3223,6 +3273,113 @@ class SliderStyleParam:
     HandleCircleRadius:float
     HandleRectangleWidth:int
     HandleRectangleBorderRadius:list[float]
+
+
+class SplitterHParam:
+    """
+    SplitterH update parameters
+
+    Parameters
+    ----------
+    Height: float
+        Fixed pixel height shared by all panels.
+    MaxSize: float
+        Maximum total pixel width of all panels combined.
+    MinSize: float
+        Minimum pixel width of any panel.
+    OnResizeTrigger: (reserved)
+        Reserved for future use.
+    SashSize: float
+        Visual thickness of each drag handle in pixels.
+    Show: bool
+        Whether to show or hide the widget.
+    Sizes: list[float]
+        Pixel width of each panel.
+    StyleId: int
+        The id of the add_splitter_style() function.
+    """
+    Height: float
+    MaxSize: float
+    MinSize: float
+    OnResizeTrigger: ...
+    SashSize: float
+    Show: bool
+    Sizes: list[float]
+    StyleId: int
+
+
+class SplitterVParam:
+    """
+    SplitterV update parameters
+
+    Parameters
+    ----------
+    MaxSize: float
+        Maximum total pixel height of all panels combined.
+    MinSize: float
+        Minimum pixel height of any panel.
+    OnResizeTrigger: (reserved)
+        Reserved for future use.
+    SashSize: float
+        Visual thickness of each drag handle in pixels.
+    Show: bool
+        Whether to show or hide the widget.
+    Sizes: list[float]
+        Pixel height of each panel.
+    StyleId: int
+        The id of the add_splitter_style() function.
+    Width: float
+        Fixed pixel width shared by all panels.
+    """
+    MaxSize: float
+    MinSize: float
+    OnResizeTrigger: ...
+    SashSize: float
+    Show: bool
+    Sizes: list[float]
+    StyleId: int
+    Width: float
+
+
+class SplitterStyleParam:
+    """
+    SplitterStyle update parameters
+
+    Parameters
+    ----------
+    BackgroundColor: Color
+        Handle background color.
+    BackgroundColorAlpha: float
+        Alpha of the background color.
+    BackgroundRgba: list[float, 4]
+        Background color in rgba format.
+    BackgroundColorHovered: Color
+        Handle color when the cursor hovers over it.
+    BackgroundColorHoveredAlpha: float
+        Alpha of the hovered color.
+    BackgroundRgbaHovered: list[float, 4]
+        Hovered color in rgba format.
+    BackgroundTransparent: bool
+        Render handle as fully transparent.
+    BorderColor: Color
+    BorderColorAlpha: float
+    BorderRgba: list[float, 4]
+    BorderRadius: list[float]
+        Corner radii as [all] or [tl, tr, br, bl].
+    BorderWidth: float
+    """
+    BackgroundColor: Color
+    BackgroundColorAlpha: float
+    BackgroundRgba: list[float, 4]
+    BackgroundColorHovered: Color
+    BackgroundColorHoveredAlpha: float
+    BackgroundRgbaHovered: list[float, 4]
+    BackgroundTransparent: bool
+    BorderColor: Color
+    BorderColorAlpha: float
+    BorderRgba: list[float, 4]
+    BorderRadius: list[float]
+    BorderWidth: float
 
 
 class StackParam:

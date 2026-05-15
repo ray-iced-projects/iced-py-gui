@@ -5,8 +5,10 @@ use std::collections::HashMap;
 
 use crate::app::Message;
 use crate::graphics::colors::Color;
+use crate::py_api::helpers::get_radius;
 use crate::state::{Containers, Widgets};
 use crate::widgets::callbacks::invoke_callback_with_args;
+use crate::widgets::styling::apply_background_color_overrides;
 use crate::widgets::widget_param_update::{
     WidgetParamUpdate, set_t_value
 };
@@ -297,8 +299,8 @@ impl Table {
                 divider_horizontal(
                     self.id,
                     self.column_widths.clone(),
-                    self.resizer_width.unwrap_or(4.0),
                     self.height,
+                    self.resizer_width.unwrap_or(4.0),
                     Message::TableDividerChanged,
                 )
                 .include_last_handle(!self.resize_columns_enabled)
@@ -310,8 +312,8 @@ impl Table {
                 divider_horizontal(
                     self.id,
                     self.column_widths.clone(),
-                    self.resizer_width.unwrap_or(4.0),
                     handle_height,
+                    self.resizer_width.unwrap_or(4.0),
                     Message::TableDividerChanged,
                 )
                 .include_last_handle(!self.resize_columns_enabled)
@@ -331,8 +333,8 @@ impl Table {
                 divider_horizontal(
                     self.id,
                     self.column_widths.clone(),
-                    self.resizer_width.unwrap_or(4.0),
                     handle_height,
+                    self.resizer_width.unwrap_or(4.0),
                     Message::TableDividerChanged,
                 )
                 .include_last_handle(!self.resize_columns_enabled)
@@ -452,9 +454,9 @@ const ROW_CONTRAST_COLOR: iced::Color = iced::Color::from_rgba(0.25, 0.63, 0.67,
 #[derive(Debug, Clone)]
 pub struct TableStyle {
     pub id: usize,
-    pub background_color: Option<Color>,
-    pub background_color_alpha: Option<f32>,
-    pub background_rgba: Option<[f32; 4]>,
+    pub bkg_color: Option<Color>,
+    pub bkg_color_alpha: Option<f32>,
+    pub bkg_rgba: Option<[f32; 4]>,
     pub border_color: Option<Color>,
     pub border_color_alpha: Option<f32>,
     pub border_rgba: Option<[f32; 4]>,
@@ -470,10 +472,35 @@ impl TableStyle {
         theme: &Theme,
         status: divider::Status) -> divider::Style
     {
-        let style = divider::primary(theme, status);
+        let mut dv_style = divider::primary(theme, status);
+        
+        let bkg_color =
+            Color::rgba_ipg_color_to_iced(self.bkg_rgba, &self.bkg_color, self.bkg_color_alpha);
 
+        let border_color =
+            Color::rgba_ipg_color_to_iced(self.border_rgba, &self.border_color, self.border_color_alpha);
 
-        style
+        let text_color =
+            Color::rgba_ipg_color_to_iced(self.text_rgba, &self.text_color, self.text_color_alpha);
+        
+        dv_style.background = if let Some(color) = bkg_color {
+            color.into()
+        } else { dv_style.background };
+
+        dv_style.border_color = if let Some(color) = border_color {
+            color
+        } else { dv_style.border_color };
+        
+        dv_style.border_radius = if let Some(rad) = &self.border_radius {
+            let rd = get_radius(rad, "table style".to_string());
+            rd
+        } else { dv_style.border_radius };
+
+        dv_style.border_width = if let Some(wd) = self.border_width {
+            wd
+        } else { dv_style.border_width };
+        
+        dv_style
     }
 }
 

@@ -12,7 +12,7 @@ use crate::widgets::styling::apply_background_color_overrides;
 use crate::widgets::widget_param_update::{
     WidgetParamUpdate, set_t_value
 };
-use crate::ipg_widgets::ipg_divider::divider::{self, divider_horizontal};
+use crate::ipg_widgets::ipg_divider::divider::{self, divider_horizontal, divider_vertical};
 use crate::IpgState;
 
 use iced::border::Radius;
@@ -299,8 +299,8 @@ impl Table {
                 divider_horizontal(
                     self.id,
                     self.column_widths.clone(),
-                    self.height,
                     self.resizer_width.unwrap_or(4.0),
+                    self.height,
                     Message::TableDividerChanged,
                 )
                 .include_last_handle(!self.resize_columns_enabled)
@@ -312,8 +312,8 @@ impl Table {
                 divider_horizontal(
                     self.id,
                     self.column_widths.clone(),
-                    handle_height,
                     self.resizer_width.unwrap_or(4.0),
+                    handle_height,
                     Message::TableDividerChanged,
                 )
                 .include_last_handle(!self.resize_columns_enabled)
@@ -333,8 +333,8 @@ impl Table {
                 divider_horizontal(
                     self.id,
                     self.column_widths.clone(),
-                    handle_height,
                     self.resizer_width.unwrap_or(4.0),
+                    handle_height,
                     Message::TableDividerChanged,
                 )
                 .include_last_handle(!self.resize_columns_enabled)

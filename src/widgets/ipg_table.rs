@@ -93,6 +93,13 @@ impl Table {
         let table_style_opt = self.lookup(widgets, self.style_id)
             .and_then(Widgets::as_table_style).cloned();
 
+        let tbl_style = if let Some(tbl) = &table_style_opt {
+            tbl.clone()
+        } else { TableStyle::default() };
+
+        let text_color = 
+            Color::rgba_ipg_color_to_iced(tbl_style.text_rgba, &tbl_style.text_color, tbl_style.text_color_alpha);
+
         let mut body_rows = vec![];
             for idx in 0..self.body.len() {
                     let mut rw = vec![];
@@ -114,6 +121,7 @@ impl Table {
                         rw.push(Element::from(container(cell)
                                 .width(self.column_widths[i])
                                 .center_x(self.column_widths[i])
+                                .clip(true)
                             ));
                     }
                 
@@ -193,6 +201,7 @@ impl Table {
                         container(txt)
                             .width(self.column_widths[i])
                             .height(header_height)
+                            .clip(true)
                         ));
                 }
                 header_column.push(Element::from(row(rw)));
@@ -311,11 +320,13 @@ impl Table {
                     .include_last_handle(false)
                     .on_release_fn(|(id, _)| Message::TableDividerReleased(id))
                     .style(move |theme, status| {
-                        if let Some(st) = &table_style_opt {
-                            st.style(theme, status)
-                        } else {
-                            sash::primary(theme, status)
+                        let mut style = sash::primary(theme, status);
+                        if let Some(tbl) = &table_style_opt {
+                            if let Some(c) = Color::rgba_ipg_color_to_iced(tbl.sash_rgba, &tbl.sash_color, tbl.sash_color_alpha) {
+                                style.background = c.into();
+                            }
                         }
+                        style
                     });
                     main_col.push(stack([hdr, sash_el.into()]).into());
                 } else {
@@ -393,7 +404,7 @@ pub fn table_callback(
 const ROW_COLOR: iced::Color = iced::Color::from_rgba(0.04, 0.35, 0.35, 0.2);
 const ROW_CONTRAST_COLOR: iced::Color = iced::Color::from_rgba(0.25, 0.63, 0.67, 1.0);
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct TableStyle {
     pub id: usize,
     pub bkg_color: Option<Color>,
@@ -404,6 +415,9 @@ pub struct TableStyle {
     pub border_rgba: Option<[f32; 4]>,
     pub border_radius: Option<Vec<f32>>,
     pub border_width: Option<f32>,
+    pub sash_color: Option<Color>,
+    pub sash_color_alpha: Option<f32>,
+    pub sash_rgba: Option<[f32; 4]>,
     pub text_color: Option<Color>,
     pub text_color_alpha: Option<f32>,
     pub text_rgba: Option<[f32; 4]>,
@@ -414,44 +428,44 @@ impl TableStyle {
         theme: &Theme,
         status: sash::Status) -> sash::Style
     {
-        let mut dv_style = sash::primary(theme, status);
+        let mut sh_style = sash::primary(theme, status);
         
         let bkg_color =
             Color::rgba_ipg_color_to_iced(self.bkg_rgba, &self.bkg_color, self.bkg_color_alpha);
-
+        dbg!(&bkg_color);
         let border_color =
             Color::rgba_ipg_color_to_iced(self.border_rgba, &self.border_color, self.border_color_alpha);
 
         let text_color =
             Color::rgba_ipg_color_to_iced(self.text_rgba, &self.text_color, self.text_color_alpha);
         
-        dv_style.background = if let Some(color) = bkg_color {
+        sh_style.background = if let Some(color) = bkg_color {
             color.into()
-        } else { dv_style.background };
+        } else { sh_style.background };
 
-        dv_style.border_color = if let Some(color) = border_color {
+        sh_style.border_color = if let Some(color) = border_color {
             color
-        } else { dv_style.border_color };
+        } else { sh_style.border_color };
         
-        dv_style.border_radius = if let Some(rad) = &self.border_radius {
+        sh_style.border_radius = if let Some(rad) = &self.border_radius {
             let rd = get_radius(rad, "table style".to_string());
             rd
-        } else { dv_style.border_radius };
+        } else { sh_style.border_radius };
 
-        dv_style.border_width = if let Some(wd) = self.border_width {
+        sh_style.border_width = if let Some(wd) = self.border_width {
             wd
-        } else { dv_style.border_width };
+        } else { sh_style.border_width };
         
-        dv_style
+        sh_style
     }
 }
 
 #[derive(Debug, Clone, PartialEq, Hash)]
 #[pyclass(eq, eq_int, hash, frozen)]
 pub enum TableStyleParam {
-    BackgroundColor,
-    BackgroundColorAlpha,
-    BackgroundRgba,
+    BkgColor,
+    BkgColorAlpha,
+    BkgRgba,
     BorderColor,
     BorderColorAlpha,
     BorderRgba,
@@ -537,17 +551,17 @@ impl WidgetParamUpdate for TableStyle {
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
-            TableStyleParam::BackgroundColor => todo!(),
-            TableStyleParam::BackgroundColorAlpha => todo!(),
-            TableStyleParam::BackgroundRgba => todo!(),
-            TableStyleParam::BorderColor => todo!(),
-            TableStyleParam::BorderColorAlpha => todo!(),
-            TableStyleParam::BorderRgba => todo!(),
-            TableStyleParam::BorderRadius => todo!(),
-            TableStyleParam::BorderWidth => todo!(),
-            TableStyleParam::TextColor => todo!(),
-            TableStyleParam::TextColorAlpha => todo!(),
-            TableStyleParam::TextRgba => todo!(),
+            TableStyleParam::BkgColor => set_t_value(&mut self.bkg_color, value, "name"),
+            TableStyleParam::BkgColorAlpha => set_t_value(&mut self.bkg_color_alpha, value, "name"),
+            TableStyleParam::BkgRgba => set_t_value(&mut self.bkg_rgba, value, "name"),
+            TableStyleParam::BorderColor => set_t_value(&mut self.border_color, value, "name"),
+            TableStyleParam::BorderColorAlpha => set_t_value(&mut self.border_color_alpha, value, "name"),
+            TableStyleParam::BorderRgba => set_t_value(&mut self.border_rgba, value, "name"),
+            TableStyleParam::BorderRadius => set_t_value(&mut self.border_radius, value, "name"),
+            TableStyleParam::BorderWidth => set_t_value(&mut self.border_width, value, "name"),
+            TableStyleParam::TextColor => set_t_value(&mut self.text_color, value, "name"),
+            TableStyleParam::TextColorAlpha => set_t_value(&mut self.text_color_alpha, value, "name"),
+            TableStyleParam::TextRgba => set_t_value(&mut self.text_rgba, value, "name"),
         }
     }
 }

@@ -67,7 +67,7 @@ from .icedpygui import (
     add_splitter_style,
     add_svg as _add_svg,
     add_table as _add_table,
-    add_table_style as _add_table_style,
+    add_table_style,
     add_text_input as _add_text_input,
     add_text_input_style,
     add_text as _add_text,

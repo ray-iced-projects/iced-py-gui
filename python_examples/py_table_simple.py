@@ -3,8 +3,11 @@
 Table demo
 """
 
-from icedpygui import Window, Container, start_session, \
-    add_table
+from icedpygui import (
+    Window,
+    Container,
+    start_session,
+    add_table)
 
 column_widths = [100.0] * 4
 width = sum(column_widths)

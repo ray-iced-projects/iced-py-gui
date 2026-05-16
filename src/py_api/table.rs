@@ -31,8 +31,8 @@ use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex, graphic
 ///     Sets the parent container ID.  Defaults to the window itself.
 /// width : float, Optional
 ///     Sets the Fixed width in logical pixels.
-/// resizer_width : float, Optional
-///     Sets the width of the column resizer handle.
+/// sash_size : float, default 4.0
+///     Sets the width of the column sash (drag handle).
 /// header_enabled : bool, default True
 ///     Whether the header row is displayed.
 /// header_row_height : float, Optional
@@ -75,24 +75,8 @@ use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex, graphic
 ///     Sets the number of custom footer rows.
 /// control_columns : list of int, default []
 ///     Sets the indices of columns that contain control widgets.
-/// column_proportional_resize : bool, default True
-///     Whether columns resize proportionally.
-/// row_spacing : float, Optional
-///     Sets the spacing between body rows.
-/// row_height : float, Optional
-///     Sets the height of each body row.
-/// header_body_spacing : float, Optional
-///     Sets the spacing between the header and body.
-/// body_footer_spacing : float, Optional
-///     Sets the spacing between the body and footer.
-/// resize_columns_enabled : bool, default True
-///     Whether the user can resize columns.
-/// min_column_width : float, Optional
+/// min_size : float, default 0.0
 ///     Sets the minimum column width in logical pixels.
-/// text_size : float, Optional
-///     Sets the font size for table text.
-/// table_width_fixed : bool, default True
-///     Whether the table has a fixed width.
 /// gen_id : int, Optional
 ///     Obtains an ID of a widget that have not been created, used for the gen_id parameter.
 /// style_id : int, Optional
@@ -123,7 +107,7 @@ use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex, graphic
     height,
     parent_id=None,
     width=None,
-    resizer_width=None,
+    sash_size=4.0,
     header_enabled=true,
     header_row_height=None,
     header_scrollbar_height=None,
@@ -145,15 +129,13 @@ use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex, graphic
     custom_header_rows=None,
     custom_footer_rows=None,
     control_columns=vec![],
-    column_proportional_resize=true,
     row_spacing=None,
     row_height=None,
     header_body_spacing=None,
     body_footer_spacing=None,
     resize_columns_enabled=true,
-    min_column_width=None,
+    min_size=0.0,
     text_size=None,
-    table_width_fixed=true,
     gen_id=None,
     style_id=None,
     scrollable_style_id=None,  
@@ -172,7 +154,7 @@ pub fn add_table(
         height: f32,
         parent_id: Option<String>,
         width: Option<f32>,
-        resizer_width: Option<f32>,
+        sash_size: f32,
         header_enabled: bool,
         header_row_height: Option<f32>,
         header_scrollbar_height: Option<f32>,
@@ -194,15 +176,13 @@ pub fn add_table(
         custom_header_rows: Option<usize>,
         custom_footer_rows: Option<usize>,
         control_columns: Vec<usize>,
-        column_proportional_resize: bool,
         row_spacing: Option<f32>,
         row_height: Option<f32>,
         header_body_spacing: Option<f32>,
         body_footer_spacing: Option<f32>,
         resize_columns_enabled: bool,
-        min_column_width: Option<f32>,
+        min_size: f32,
         text_size: Option<f32>,
-        table_width_fixed: bool,
         gen_id: Option<usize>,
         style_id: Option<usize>,
         scrollable_style_id: Option<usize>,
@@ -250,7 +230,7 @@ pub fn add_table(
             column_widths,
             height,
             width,
-            resizer_width,
+            sash_size,
             header_enabled,
             header_row_height,
             header_scrollbar_height,
@@ -272,15 +252,13 @@ pub fn add_table(
             custom_header_rows,
             custom_footer_rows,
             control_columns,
-            column_proportional_resize,
             row_spacing,
             row_height,
             header_body_spacing,
             body_footer_spacing,
             resize_columns_enabled,
-            min_column_width,
+            min_size,
             text_size,
-            table_width_fixed,
             style_id,
             scrollable_style_id,
             released,

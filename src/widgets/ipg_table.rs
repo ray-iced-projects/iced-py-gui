@@ -12,7 +12,7 @@ use crate::widgets::styling::apply_background_color_overrides;
 use crate::widgets::widget_param_update::{
     WidgetParamUpdate, set_t_value
 };
-use crate::ipg_widgets::ipg_divider::divider::{self, divider_horizontal, divider_vertical};
+use crate::ipg_widgets::ipg_divider::sash::{self, sash_horizontal};
 use crate::IpgState;
 
 use iced::border::Radius;
@@ -35,7 +35,7 @@ pub struct Table {
         pub column_widths: Vec<f32>,
         pub height: f32,
         pub width: Option<f32>,
-        pub resizer_width: Option<f32>,
+        pub sash_size: f32,
         pub header_enabled: bool,
         pub header_row_height: Option<f32>,
         pub header_scrollbar_height: Option<f32>,
@@ -57,15 +57,13 @@ pub struct Table {
         pub custom_header_rows: Option<usize>,
         pub custom_footer_rows: Option<usize>,
         pub control_columns: Vec<usize>,
-        pub column_proportional_resize: bool,
         pub row_spacing: Option<f32>,
         pub row_height: Option<f32>,
         pub header_body_spacing: Option<f32>,
         pub body_footer_spacing: Option<f32>,
         pub resize_columns_enabled: bool,
-        pub min_column_width: Option<f32>,
+        pub min_size: f32,
         pub text_size: Option<f32>,
-        pub table_width_fixed: bool,
         pub style_id: Option<usize>,
         pub scrollable_style_id: Option<usize>,
         pub released: bool,
@@ -295,86 +293,56 @@ impl Table {
                 None
             };
 
-            let div_body = 
-                divider_horizontal(
-                    self.id,
-                    self.column_widths.clone(),
-                    self.resizer_width.unwrap_or(4.0),
-                    self.height,
-                    Message::TableDividerChanged,
-                )
-                .include_last_handle(!self.resize_columns_enabled)
-                .on_release(Message::TableDividerReleased(self.id));
-            
-            let handle_height = header_height + self.custom_header_rows.unwrap_or_default() as f32 * 
-                self.header_row_height.unwrap_or(20.0);
-            let div_header = 
-                divider_horizontal(
-                    self.id,
-                    self.column_widths.clone(),
-                    self.resizer_width.unwrap_or(4.0),
-                    handle_height,
-                    Message::TableDividerChanged,
-                )
-                .include_last_handle(!self.resize_columns_enabled)
-                .on_release(Message::TableDividerReleased(self.id))
-                .style(move|theme, status| {
-                    if let Some(st) = &table_style_opt {
-                        st.new(theme, status)
-                    } else {
-                        divider::primary(theme, status)
-                    }
-                });
-
-            let table_style_opt = self.lookup(widgets, self.style_id)
-                .and_then(Widgets::as_table_style).cloned();
-            let handle_height = self.custom_footer_rows.unwrap_or_default() as f32 * self.footer_height.unwrap_or(20.0);
-            let div_footer = 
-                divider_horizontal(
-                    self.id,
-                    self.column_widths.clone(),
-                    self.resizer_width.unwrap_or(4.0),
-                    handle_height,
-                    Message::TableDividerChanged,
-                )
-                .include_last_handle(!self.resize_columns_enabled)
-                .on_release(Message::TableDividerReleased(self.id))
-                .style(move|theme, status| {
-                    if let Some(st) = &table_style_opt {
-                        st.new(theme, status)
-                    } else {
-                        divider::primary(theme, status)
-                    }
-                });
-
+            let has_header = header.is_some();
             let mut main_col = vec![];
 
-            if header.is_some() && self.resize_columns_enabled {
-                let header_stk = 
-                    stack([header.unwrap(), div_header.into()]).into();
-                main_col.push(header_stk);
-                main_col.push(Space::new().width(5.0).height(self.header_body_spacing.unwrap_or(5.0)).into());
-
-            } else if header.is_some() && !self.resize_columns_enabled {
-                main_col.push(header.unwrap());
+            if let Some(hdr) = header {
+                if self.resize_columns_enabled {
+                    let sash_height = header_height
+                        + self.custom_header_rows.unwrap_or_default() as f32
+                            * self.header_row_height.unwrap_or(20.0);
+                    let sash_el = sash_horizontal(
+                        self.id,
+                        self.column_widths.clone(),
+                        self.sash_size,
+                        sash_height,
+                        |(id, index, value)| Message::TableDividerChanged((id, index, value)),
+                    )
+                    .include_last_handle(false)
+                    .on_release_fn(|(id, _)| Message::TableDividerReleased(id))
+                    .style(move |theme, status| {
+                        if let Some(st) = &table_style_opt {
+                            st.style(theme, status)
+                        } else {
+                            sash::primary(theme, status)
+                        }
+                    });
+                    main_col.push(stack([hdr, sash_el.into()]).into());
+                } else {
+                    main_col.push(hdr);
+                }
                 main_col.push(Space::new().width(5.0).height(self.header_body_spacing.unwrap_or(5.0)).into());
             }
-            
-            if self.resize_columns_enabled {
-                main_col.push(stack([body.into(), div_body.into()]).into())
+
+            // When there is no header and resize is enabled, fall back to sash on the body
+            if !has_header && self.resize_columns_enabled {
+                let sash_el = sash_horizontal(
+                    self.id,
+                    self.column_widths.clone(),
+                    self.sash_size,
+                    self.height,
+                    |(id, index, value)| Message::TableDividerChanged((id, index, value)),
+                )
+                .include_last_handle(false)
+                .on_release_fn(|(id, _)| Message::TableDividerReleased(id));
+                main_col.push(stack([body.into(), sash_el.into()]).into());
             } else {
                 main_col.push(body.into());
             }
 
-            if footer.is_some() {
+            if let Some(ft) = footer {
                 main_col.push(Space::new().width(5.0).height(self.body_footer_spacing.unwrap_or(5.0)).into());
-            }
-
-            if footer.is_some() && self.resize_columns_enabled {
-                let stk = stack([footer.unwrap().into(), div_footer.into()]).into();
-                main_col.push(stk);
-            } else if footer.is_some() && !self.resize_columns_enabled {
-                main_col.push(footer.unwrap());
+                main_col.push(ft);
             }
 
             Some(column(main_col).into())
@@ -398,45 +366,19 @@ pub fn table_callback(
         TableMessage::DivDragging((index, value)) => {
 
             if let Some(Containers::Table(tbl)) = state.containers.get_mut(&id) {
-
-                let value = if value < tbl.min_column_width.unwrap_or_default() {
-                    tbl.min_column_width.unwrap_or_default()
-                } else {
-                    value
-                };
-
-                if tbl.table_width_fixed && index == tbl.column_widths.len()-1 {
-                    // don't change width
-                } else {
-
-                    // get diff
+                let min = tbl.min_size;
+                let len = tbl.column_widths.len();
+                if index + 1 < len {
                     let diff = tbl.column_widths[index] - value;
-
-                    // change the widths porportionally if enabled
-                    if !tbl.table_width_fixed && index == tbl.column_widths.len()-1 {
-                        if tbl.column_proportional_resize {
-                            let table_width: f32 = tbl.column_widths.iter().sum();
-                            let percent = 1.0 - diff/table_width;
-                            
-                            let mut new_widths = vec![];
-                            for width in tbl.column_widths.iter() {
-                                new_widths.push(width * percent)
-                            }
-                            
-                            tbl.column_widths = new_widths.clone();
-                        }
-                    }
-                    
-                    // # Adjust the left side
-                    tbl.column_widths[index] = value;
-                    
-                    // # Adjust the right side unless at end
-                    if index < tbl.column_widths.len()-1 {
-                            tbl.column_widths[index+1] += diff
-                    }
+                    let next_ideal = tbl.column_widths[index + 1] + diff;
+                    let next_actual = next_ideal.max(min);
+                    let excess = (next_actual - next_ideal).max(0.0);
+                    tbl.column_widths[index] = (value - excess).max(min);
+                    tbl.column_widths[index + 1] = next_actual;
+                } else {
+                    tbl.column_widths[index] = value.max(min);
                 }
-                    
-                invoke_callback_with_args(id, "dragging", "Table", (index, value),
+                invoke_callback_with_args(id, "dragging", "Table", (index, tbl.column_widths[index]),
                     "def cb(wid: int, data: tuple[int, float])");
             }
         },
@@ -468,11 +410,11 @@ pub struct TableStyle {
 }
 
 impl TableStyle {
-    fn new(&self,
+    fn style(&self,
         theme: &Theme,
-        status: divider::Status) -> divider::Style
+        status: sash::Status) -> sash::Style
     {
-        let mut dv_style = divider::primary(theme, status);
+        let mut dv_style = sash::primary(theme, status);
         
         let bkg_color =
             Color::rgba_ipg_color_to_iced(self.bkg_rgba, &self.bkg_color, self.bkg_color_alpha);
@@ -529,7 +471,7 @@ pub enum TableParam {
     ColumnWidths,
     Height,
     Width,
-    ResizerWidth,
+    SashSize,
     HeaderEnabled,
     HeaderHeight,
     HeaderRowSpacing,
@@ -538,16 +480,14 @@ pub enum TableParam {
     CustomHeaderRows,
     CustomFooterRows,
     ControlColumns,
-    ColumnProportionalResize,
     RowSpacing,
     RowHeight,
     HeaderBodySpacing,
     BodyFooterSpacing,
     ResizeColumnsEnabled,
-    MinColumnWidth,
+    MinSize,
     TextSize,
     Show,
-    TableWidthFixed,
     StyleId,
     ScrollableStyleId,
 }
@@ -568,7 +508,7 @@ impl WidgetParamUpdate for Table {
             TableParam::ColumnWidths => set_t_value(&mut self.column_widths, value, "TableParam::ColumnWidths"),
             TableParam::Height => set_t_value(&mut self.height, value, "TableParam::Height"),
             TableParam::Width => set_t_value(&mut self.width, value, "TableParam::Width"),
-            TableParam::ResizerWidth => set_t_value(&mut self.resizer_width, value, "TableParam::ResizerWidth"),
+            TableParam::SashSize => set_t_value(&mut self.sash_size, value, "TableParam::SashSize"),
             TableParam::HeaderEnabled => set_t_value(&mut self.header_enabled, value, "TableParam::HeaderEnabled"),
             TableParam::HeaderHeight => set_t_value(&mut self.header_row_height, value, "TableParam::HeaderHeight"),
             TableParam::HeaderRowSpacing => set_t_value(&mut self.header_row_spacing, value, "TableParam::HeaderRowSpacing"),
@@ -577,16 +517,14 @@ impl WidgetParamUpdate for Table {
             TableParam::CustomHeaderRows => set_t_value(&mut self.custom_header_rows, value, "TableParam::CustomHeaderRows"),
             TableParam::CustomFooterRows => set_t_value(&mut self.custom_footer_rows, value, "TableParam::CustomFooterRows"),
             TableParam::ControlColumns => set_t_value(&mut self.control_columns, value, "TableParam::ControlColumns"),
-            TableParam::ColumnProportionalResize => set_t_value(&mut self.column_proportional_resize, value, "TableParam::ColumnProportionalResize"),
             TableParam::RowSpacing => set_t_value(&mut self.row_spacing, value, "TableParam::RowSpacing"),
             TableParam::RowHeight => set_t_value(&mut self.row_height, value, "TableParam::RowHeight"),
             TableParam::HeaderBodySpacing => set_t_value(&mut self.header_body_spacing, value, "TableParam::HeaderBodySpacing"),
             TableParam::BodyFooterSpacing => set_t_value(&mut self.body_footer_spacing, value, "TableParam::BodyFooterSpacing"),
             TableParam::ResizeColumnsEnabled => set_t_value(&mut self.resize_columns_enabled, value, "TableParam::ResizeColumnsEnabled"),
-            TableParam::MinColumnWidth => set_t_value(&mut self.min_column_width, value, "TableParam::MinColumnWidth"),
+            TableParam::MinSize => set_t_value(&mut self.min_size, value, "TableParam::MinSize"),
             TableParam::TextSize => set_t_value(&mut self.text_size, value, "TableParam::TextSize"),
             TableParam::Show => set_t_value(&mut self.show, value, "TableParam::Show"),
-            TableParam::TableWidthFixed => set_t_value(&mut self.table_width_fixed, value, "TableParam::TableWidthFixed"),
             TableParam::StyleId => set_t_value(&mut self.style_id, value, "TableParam::StyleId"),
             TableParam::ScrollableStyleId => set_t_value(&mut self.scrollable_style_id, value, "TableParam::ScrollableStyleId"),
         }
@@ -628,7 +566,7 @@ mod tests {
             column_widths: vec![100.0, 100.0],
             height: 200.0,
             width: None,
-            resizer_width: None,
+            sash_size: 4.0,
             header_enabled: true,
             header_row_height: None,
             header_scrollbar_height: None,
@@ -650,16 +588,14 @@ mod tests {
             custom_header_rows: None,
             custom_footer_rows: None,
             control_columns: vec![],
-            column_proportional_resize: false,
             row_spacing: None,
             row_height: None,
             header_body_spacing: None,
             body_footer_spacing: None,
             resize_columns_enabled: false,
-            min_column_width: None,
+            min_size: 0.0,
             text_size: None,
             show: true,
-            table_width_fixed: false,
             style_id: None,
             scrollable_style_id: None,
             released: false,
@@ -721,10 +657,10 @@ mod tests {
     }
 
     #[test]
-    fn test_resizer_width() {
+    fn test_sash_size() {
         let mut t = make_table();
-        t.param_update(TableParam::ResizerWidth, &py_obj(5.0f32));
-        assert_eq!(t.resizer_width, Some(5.0));
+        t.param_update(TableParam::SashSize, &py_obj(6.0f32));
+        assert_eq!(t.sash_size, 6.0);
     }
 
     #[test]
@@ -779,13 +715,6 @@ mod tests {
     }
 
     #[test]
-    fn test_column_proportional_resize() {
-        let mut t = make_table();
-        t.param_update(TableParam::ColumnProportionalResize, &py_obj(true));
-        assert!(t.column_proportional_resize);
-    }
-
-    #[test]
     fn test_row_spacing() {
         let mut t = make_table();
         t.param_update(TableParam::RowSpacing, &py_obj(3.0f32));
@@ -821,10 +750,10 @@ mod tests {
     }
 
     #[test]
-    fn test_min_column_width() {
+    fn test_min_size() {
         let mut t = make_table();
-        t.param_update(TableParam::MinColumnWidth, &py_obj(50.0f32));
-        assert_eq!(t.min_column_width, Some(50.0));
+        t.param_update(TableParam::MinSize, &py_obj(50.0f32));
+        assert_eq!(t.min_size, 50.0);
     }
 
     #[test]
@@ -839,13 +768,6 @@ mod tests {
         let mut t = make_table();
         t.param_update(TableParam::Show, &py_obj(false));
         assert!(!t.show);
-    }
-
-    #[test]
-    fn test_table_width_fixed() {
-        let mut t = make_table();
-        t.param_update(TableParam::TableWidthFixed, &py_obj(true));
-        assert!(t.table_width_fixed);
     }
 
     #[test]

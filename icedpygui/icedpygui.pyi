@@ -3520,46 +3520,20 @@ class TableParam:
 
 class TableStyleParam:
     """Table style parameters"""
-    HeaderBackgroundColor:Color
-    HeaderBackgroundRgbaColor:list[float, 4]
-    HeaderBorderColor:Color
-    HeaderBorderRgbaColor:list[float, 4]
-    HeaderBorderRadius:float
-    HeaderBorderWidth:float
-    HeaderTextColor:Color
-    HeaderTextRgbaColor:list[float, 4]
-
-    BodyBackgroundColor:Color
-    BodyBackgroundRgbaColor:list[float, 4]
-    BodyBorderColor:Color
-    BodyBorderRgbaColor:list[float, 4]
-    BodyBorderRadius:float
-    BodyBorderWidth:float
-    BodyTextColor:Color
-    BodyTextRgbaColor:list[float, 4]
-    BodyRowHighlighColor:Color
-    BodyRowHighlightRgba:list[float, 4]
-
-    FooterBackgroundColor:Color
-    FooterBackgroundRgbaColor:list[float, 4]
-    FooterBorderColor:Color
-    FooterBorderRgbaColor:list[float, 4]
-    FooterBorderRadius:float
-    FooterBorderWidth:float
-    FooterTextColor:Color
-    FooterTextRgbaColor:list[float, 4]
-
-    DividerBackgroundColor:Color
-    DividerBackgroundRgbaColor:list[float, 4]
-    DividerHoverColor:Color
-    DividerHoverRgbaColor:list[float, 4]
-
-    ScrollerBackgroundColor:Color
-    ScrollerBackgroundRgbaColor:list[float, 4]
-    ScrollerHoverColor:Color
-    ScrollerHoverRgbaColor:list[float, 4]
-    ScrollerRailColor:Color
-    ScrollerRailRgbaColor:list[float, 4]
+    BkgColor: Color
+    BkgColorAlpha: float
+    BkgRgba: list[float, 4]
+    BorderColor: Color
+    BorderColorAlpha: float
+    BorderRgba: list[float, 4]
+    BorderRadius: float
+    BorderWidth: float
+    TextColor: Color
+    TextRgbaColor: list[float, 4]
+    SashBackgroundColor: Color
+    SashBackgroundRgbaColor: list[float, 4]
+    SashHoverColor: Color
+    SashHoverRgbaColor: list[float, 4]
 
 
 class TextInputParam:

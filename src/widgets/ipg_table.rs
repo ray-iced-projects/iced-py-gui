@@ -17,7 +17,7 @@ use crate::IpgState;
 
 use iced::border::Radius;
 use iced::widget::{scrollable::Scrollbar};
-use iced::{Length, alignment, widget};
+use iced::{Border, Length, alignment, widget};
 use iced::Length::Fill;
 use iced::{Element, Renderer, Theme};
 use iced::widget::{Space, column, container, row, scrollable, stack, text};
@@ -65,6 +65,7 @@ pub struct Table {
         pub min_size: f32,
         pub text_size: Option<f32>,
         pub style_id: Option<usize>,
+        pub sash_style_id: Option<usize>,
         pub scrollable_style_id: Option<usize>,
         pub released: bool,
         pub show: bool,
@@ -86,16 +87,25 @@ impl Table {
         
         let scroll_style_header_opt  = self.lookup(widgets, self.style_id)
             .and_then(Widgets::as_scrollable_style).cloned();
-         let scroll_style_body_opt  = self.lookup(widgets, self.style_id)
+
+        let scroll_style_body_opt  = self.lookup(widgets, self.style_id)
             .and_then(Widgets::as_scrollable_style).cloned();
-         let scroll_style_footer_opt  = self.lookup(widgets, self.style_id)
+
+        let scroll_style_footer_opt  = self.lookup(widgets, self.style_id)
             .and_then(Widgets::as_scrollable_style).cloned();
+         
         let table_style_opt = self.lookup(widgets, self.style_id)
             .and_then(Widgets::as_table_style).cloned();
 
         let tbl_style = if let Some(tbl) = &table_style_opt {
             tbl.clone()
         } else { TableStyle::default() };
+
+        let bkg_color = 
+            Color::rgba_ipg_color_to_iced(tbl_style.bkg_rgba, &tbl_style.bkg_color, tbl_style.bkg_color_alpha);
+        
+        let brd_color = 
+            Color::rgba_ipg_color_to_iced(tbl_style.border_rgba, &tbl_style.border_color, tbl_style.border_color_alpha);
 
         let text_color = 
             Color::rgba_ipg_color_to_iced(tbl_style.text_rgba, &tbl_style.text_color, tbl_style.text_color_alpha);
@@ -124,7 +134,7 @@ impl Table {
                                 .clip(true)
                             ));
                     }
-                
+            
                 body_rows.push(row(rw).into());
             }
 
@@ -319,15 +329,8 @@ impl Table {
                     )
                     .include_last_handle(false)
                     .on_release_fn(|(id, _)| Message::TableDividerReleased(id))
-                    .style(move |theme, status| {
-                        let mut style = sash::primary(theme, status);
-                        if let Some(tbl) = &table_style_opt {
-                            if let Some(c) = Color::rgba_ipg_color_to_iced(tbl.sash_rgba, &tbl.sash_color, tbl.sash_color_alpha) {
-                                style.background = c.into();
-                            }
-                        }
-                        style
-                    });
+                    
+                    ;
                     main_col.push(stack([hdr, sash_el.into()]).into());
                 } else {
                     main_col.push(hdr);
@@ -415,49 +418,9 @@ pub struct TableStyle {
     pub border_rgba: Option<[f32; 4]>,
     pub border_radius: Option<Vec<f32>>,
     pub border_width: Option<f32>,
-    pub sash_color: Option<Color>,
-    pub sash_color_alpha: Option<f32>,
-    pub sash_rgba: Option<[f32; 4]>,
     pub text_color: Option<Color>,
     pub text_color_alpha: Option<f32>,
     pub text_rgba: Option<[f32; 4]>,
-}
-
-impl TableStyle {
-    fn style(&self,
-        theme: &Theme,
-        status: sash::Status) -> sash::Style
-    {
-        let mut sh_style = sash::primary(theme, status);
-        
-        let bkg_color =
-            Color::rgba_ipg_color_to_iced(self.bkg_rgba, &self.bkg_color, self.bkg_color_alpha);
-        dbg!(&bkg_color);
-        let border_color =
-            Color::rgba_ipg_color_to_iced(self.border_rgba, &self.border_color, self.border_color_alpha);
-
-        let text_color =
-            Color::rgba_ipg_color_to_iced(self.text_rgba, &self.text_color, self.text_color_alpha);
-        
-        sh_style.background = if let Some(color) = bkg_color {
-            color.into()
-        } else { sh_style.background };
-
-        sh_style.border_color = if let Some(color) = border_color {
-            color
-        } else { sh_style.border_color };
-        
-        sh_style.border_radius = if let Some(rad) = &self.border_radius {
-            let rd = get_radius(rad, "table style".to_string());
-            rd
-        } else { sh_style.border_radius };
-
-        sh_style.border_width = if let Some(wd) = self.border_width {
-            wd
-        } else { sh_style.border_width };
-        
-        sh_style
-    }
 }
 
 #[derive(Debug, Clone, PartialEq, Hash)]
@@ -611,6 +574,7 @@ mod tests {
             text_size: None,
             show: true,
             style_id: None,
+            sash_style_id: None,
             scrollable_style_id: None,
             released: false,
         }

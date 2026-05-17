@@ -24,6 +24,26 @@ pub enum Color {
     LIGHT,
     DARK,
     BACKGROUND_THEME,
+    CATPPUCCIN_FRAPPE,
+    CATPPUCCIN_LATTE,
+    CATPPUCCIN_MACCHIATO,
+    CATPPUCCIN_MOCHA,
+    DRACULA,
+    FERRA,
+    GRUVBOX_DARK,
+    GRUVBOX_LIGHT,
+    KANAGAWA_DRAGON,
+    KANAGAWA_LOTUS,
+    KANAGAWA_WAVE,
+    MOONFLY,
+    NIGHTFLY,
+    NORD,
+    OXOCARBON,
+    SOLARIZED_DARK,
+    SOLARIZED_LIGHT,
+    TOKYO_NIGHT,
+    TOKYO_NIGHT_LIGHT,
+    TOKYO_NIGHT_STORM,
     ALICE_BLUE,
     ANTIQUE_WHITE,
     AQUA,
@@ -269,6 +289,26 @@ impl Color {
             Color::LIGHT => LIGHT,
             Color::DARK => DARK,
             Color::BACKGROUND_THEME => BACKGROUND_THEME,
+            Color::CATPPUCCIN_FRAPPE => CATPPUCCIN_FRAPPE,
+            Color::CATPPUCCIN_LATTE => CATPPUCCIN_LATTE,
+            Color::CATPPUCCIN_MACCHIATO => CATPPUCCIN_MACCHIATO,
+            Color::CATPPUCCIN_MOCHA => CATPPUCCIN_MOCHA,
+            Color::DRACULA => DRACULA,
+            Color::FERRA => FERRA,
+            Color::GRUVBOX_DARK => GRUVBOX_DARK,
+            Color::GRUVBOX_LIGHT => GRUVBOX_LIGHT,
+            Color::KANAGAWA_DRAGON => KANAGAWA_DRAGON,
+            Color::KANAGAWA_LOTUS => KANAGAWA_LOTUS,
+            Color::KANAGAWA_WAVE => KANAGAWA_WAVE,
+            Color::MOONFLY => MOONFLY,
+            Color::NIGHTFLY => NIGHTFLY,
+            Color::NORD => NORD,
+            Color::OXOCARBON => OXOCARBON,
+            Color::SOLARIZED_DARK => SOLARIZED_DARK,
+            Color::SOLARIZED_LIGHT => SOLARIZED_LIGHT,
+            Color::TOKYO_NIGHT => TOKYO_NIGHT,
+            Color::TOKYO_NIGHT_LIGHT => TOKYO_NIGHT_LIGHT,
+            Color::TOKYO_NIGHT_STORM => TOKYO_NIGHT_STORM,
             Color::ALICE_BLUE => ALICE_BLUE,
             Color::ANTIQUE_WHITE => ANTIQUE_WHITE,
             Color::AQUA => AQUA,
@@ -425,7 +465,14 @@ impl Color {
     pub fn color_names() -> Vec<String> {
         vec![
             "Primary", "Secondary", "Success", "Danger", "Warning",
-            "Info", "Light", "Dark", "Bkg_theme", "Alice_blue",
+            "Info", "Light", "Dark", "Bkg_theme",
+            "Catppuccin_frappe", "Catppuccin_latte", "Catppuccin_macchiato", "Catppuccin_mocha",
+            "Dracula", "Ferra", "Gruvbox_dark", "Gruvbox_light",
+            "Kanagawa_dragon", "Kanagawa_lotus", "Kanagawa_wave",
+            "Moonfly", "Nightfly", "Nord", "Oxocarbon",
+            "Solarized_dark", "Solarized_light",
+            "Tokyo_night", "Tokyo_night_light", "Tokyo_night_storm",
+            "Alice_blue",
             "Antique_white", "Aqua", "Aquamarine", "Azure", "Beige",
             "Bisque", "Black", "Blanched_almond", "Blue", "Blue_violet",
             "Brown", "Burly_wood", "Cadet_blue", "Chartreuse", "Chocolate",
@@ -474,6 +521,26 @@ impl Color {
             "Light" => Some(Color::LIGHT),
             "Dark" => Some(Color::DARK),
             "Bkg_theme" => Some(Color::BACKGROUND_THEME),
+            "Catppuccin_frappe" => Some(Color::CATPPUCCIN_FRAPPE),
+            "Catppuccin_latte" => Some(Color::CATPPUCCIN_LATTE),
+            "Catppuccin_macchiato" => Some(Color::CATPPUCCIN_MACCHIATO),
+            "Catppuccin_mocha" => Some(Color::CATPPUCCIN_MOCHA),
+            "Dracula" => Some(Color::DRACULA),
+            "Ferra" => Some(Color::FERRA),
+            "Gruvbox_dark" => Some(Color::GRUVBOX_DARK),
+            "Gruvbox_light" => Some(Color::GRUVBOX_LIGHT),
+            "Kanagawa_dragon" => Some(Color::KANAGAWA_DRAGON),
+            "Kanagawa_lotus" => Some(Color::KANAGAWA_LOTUS),
+            "Kanagawa_wave" => Some(Color::KANAGAWA_WAVE),
+            "Moonfly" => Some(Color::MOONFLY),
+            "Nightfly" => Some(Color::NIGHTFLY),
+            "Nord" => Some(Color::NORD),
+            "Oxocarbon" => Some(Color::OXOCARBON),
+            "Solarized_dark" => Some(Color::SOLARIZED_DARK),
+            "Solarized_light" => Some(Color::SOLARIZED_LIGHT),
+            "Tokyo_night" => Some(Color::TOKYO_NIGHT),
+            "Tokyo_night_light" => Some(Color::TOKYO_NIGHT_LIGHT),
+            "Tokyo_night_storm" => Some(Color::TOKYO_NIGHT_STORM),
             "Alice_blue" => Some(Color::ALICE_BLUE),
             "Antique_white" => Some(Color::ANTIQUE_WHITE),
             "Aqua" => Some(Color::AQUA),
@@ -1099,3 +1166,63 @@ pub const YELLOW: iced::Color = iced::Color::from_rgb(1.0, 1.0, 0.0);
 
 /// Yellow Green <span style="color:yellowGreen">iced::Color</span>.
 pub const YELLOW_GREEN: iced::Color = iced::Color::from_rgb(0.604, 0.804, 0.196);
+
+/// Catppuccin Frappé background color (0x303446).
+pub const CATPPUCCIN_FRAPPE: iced::Color = iced::Color::from_rgb(0.188, 0.204, 0.275);
+
+/// Catppuccin Latte background color (0xeff1f5).
+pub const CATPPUCCIN_LATTE: iced::Color = iced::Color::from_rgb(0.937, 0.945, 0.961);
+
+/// Catppuccin Macchiato background color (0x24273a).
+pub const CATPPUCCIN_MACCHIATO: iced::Color = iced::Color::from_rgb(0.141, 0.153, 0.227);
+
+/// Catppuccin Mocha background color (0x1e1e2e).
+pub const CATPPUCCIN_MOCHA: iced::Color = iced::Color::from_rgb(0.118, 0.118, 0.180);
+
+/// Dracula background color (0x282A36).
+pub const DRACULA: iced::Color = iced::Color::from_rgb(0.157, 0.165, 0.212);
+
+/// Ferra background color (0x2b292d).
+pub const FERRA: iced::Color = iced::Color::from_rgb(0.169, 0.161, 0.176);
+
+/// Gruvbox Dark background color (0x282828).
+pub const GRUVBOX_DARK: iced::Color = iced::Color::from_rgb(0.157, 0.157, 0.157);
+
+/// Gruvbox Light background color (0xfbf1c7).
+pub const GRUVBOX_LIGHT: iced::Color = iced::Color::from_rgb(0.984, 0.945, 0.780);
+
+/// Kanagawa Dragon background color (0x181616).
+pub const KANAGAWA_DRAGON: iced::Color = iced::Color::from_rgb(0.094, 0.086, 0.086);
+
+/// Kanagawa Lotus background color (0xf2ecbc).
+pub const KANAGAWA_LOTUS: iced::Color = iced::Color::from_rgb(0.949, 0.925, 0.737);
+
+/// Kanagawa Wave background color (0x1f1f28).
+pub const KANAGAWA_WAVE: iced::Color = iced::Color::from_rgb(0.122, 0.122, 0.157);
+
+/// Moonfly background color (0x080808).
+pub const MOONFLY: iced::Color = iced::Color::from_rgb(0.031, 0.031, 0.031);
+
+/// Nightfly background color (0x011627).
+pub const NIGHTFLY: iced::Color = iced::Color::from_rgb(0.004, 0.086, 0.153);
+
+/// Nord background color (0x2e3440).
+pub const NORD: iced::Color = iced::Color::from_rgb(0.180, 0.204, 0.251);
+
+/// Oxocarbon background color (0x232323).
+pub const OXOCARBON: iced::Color = iced::Color::from_rgb(0.137, 0.137, 0.137);
+
+/// Solarized Dark background color (0x002b36).
+pub const SOLARIZED_DARK: iced::Color = iced::Color::from_rgb(0.0, 0.169, 0.212);
+
+/// Solarized Light background color (0xfdf6e3).
+pub const SOLARIZED_LIGHT: iced::Color = iced::Color::from_rgb(0.992, 0.965, 0.890);
+
+/// Tokyo Night background color (0x1a1b26).
+pub const TOKYO_NIGHT: iced::Color = iced::Color::from_rgb(0.102, 0.106, 0.149);
+
+/// Tokyo Night Light background color (0xd5d6db).
+pub const TOKYO_NIGHT_LIGHT: iced::Color = iced::Color::from_rgb(0.835, 0.839, 0.859);
+
+/// Tokyo Night Storm background color (0x24283b).
+pub const TOKYO_NIGHT_STORM: iced::Color = iced::Color::from_rgb(0.141, 0.157, 0.231);

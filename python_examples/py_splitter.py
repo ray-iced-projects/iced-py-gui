@@ -1,47 +1,6 @@
 #!/usr/bin/env python3
 """
 Splitter demo
-
-Demonstrates SplitterH (horizontal split — side-by-side panels separated by
-vertical drag handles) and SplitterV (vertical split — stacked panels separated
-by horizontal drag handles).
-
-Both splitters manage their own internal sizes and call optional Python callbacks
-when the user drags or releases a sash handle.
-
-Parameters common to SplitterH and SplitterV
----------------------------------------------
-window_id : str
-    Window this splitter belongs to.
-container_id : str
-    Unique string identifier for the splitter.
-parent_id : str, Optional
-    Parent container ID.  Defaults to the window.
-sizes : list[float]
-    Initial size (width for SplitterH, height for SplitterV) of each panel.
-    The number of panels equals len(sizes); the number of sash handles is
-    len(sizes) - 1.
-height (SplitterH) / width (SplitterV) : float
-    Fixed cross-axis dimension of the splitter in logical pixels.
-min_size : float, default 20.0
-    Minimum size any panel can be dragged to.
-sash_size : float, default 8.0
-    Hit-target thickness of each drag handle in logical pixels.
-on_resize : callable, Optional
-    Called while dragging.  Signature: cb(widget_id, (index, value, sizes))
-    where index is the moved handle, value is the new boundary position, and
-    sizes is the updated sizes list.
-on_release : callable, Optional
-    Called when the mouse is released after a drag.  Same signature.
-style_id : int, Optional
-    ID returned by add_splitter_style().
-show : bool, default True
-    Whether the splitter is visible.
-
-Returns
--------
-int
-    The numeric widget ID of the newly created splitter.
 """
 from icedpygui import (
     Window,
@@ -102,7 +61,7 @@ with Window(title="Splitter Demo", size=(900, 650), center=True):
         add_text(content="SplitterH — three side-by-side panels (drag the handles)")
 
         with SplitterH(sizes=[220.0, 220.0, 220.0], height=200.0, max_size=660.0,
-                       on_resize=on_h_resize, on_release=on_release):
+                       on_resize=on_h_resize, ):#on_release=on_release):
 
             # Panel 0
             with Container(fill=True, padding=[8],
@@ -134,7 +93,7 @@ with Window(title="Splitter Demo", size=(900, 650), center=True):
         add_text(content="SplitterV — two stacked panels (drag the handle)")
 
         with SplitterV(sizes=[150.0, 150.0], width=660.0,
-                       on_resize=on_v_resize, on_release=on_release):
+                       on_resize=on_v_resize, ):#on_release=on_release):
 
             # Top panel
             with Container(fill=True, padding=[8],

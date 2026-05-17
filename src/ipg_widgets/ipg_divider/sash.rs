@@ -279,9 +279,14 @@ where
                 cursor,);
         
         for i in 0..self.widths.len() {
-            let style = if Some(i) == is_mouse_over {
+            let style = if state.is_dragging && i == state.index {
+                dbg!("dragging");
+                theme.style(&self.class, Status::Dragged)
+            } else if Some(i) == is_mouse_over {
+                dbg!("Hovered");
                 theme.style(&self.class, Status::Hovered)
             } else {
+                dbg!("Active");
                 theme.style(&self.class, Status::Active)
             };
             
@@ -639,6 +644,8 @@ pub enum Status {
     Hovered,
     /// The [`Sash`] is being dragged.
     Dragged,
+    /// The [`Sash`] is disabled.
+    Disabled,
 }
 
 /// The appearance of a Sash.
@@ -673,7 +680,7 @@ impl Catalog for Theme {
     type Class<'a> = StyleFn<'a, Self>;
 
     fn default<'a>() -> Self::Class<'a> {
-        Box::new(primary)
+        Box::new(subtle)
     }
 
     fn style(&self, class: &Self::Class<'_>, status: Status) -> Style {
@@ -689,6 +696,7 @@ pub fn primary(theme: &Theme, status: Status) -> Style {
         Status::Active => palette.primary.strong.color,
         Status::Hovered => palette.primary.base.color,
         Status::Dragged => palette.primary.strong.color,
+        Status::Disabled => palette.primary.weak.color,
     };
 
     Style {
@@ -704,8 +712,9 @@ pub fn transparent(theme: &Theme, status: Status) -> Style {
 
     let color = match status {
         Status::Active => Color::TRANSPARENT,
-        Status::Hovered => palette.primary.base.color,
-        Status::Dragged => palette.primary.strong.color,
+        Status::Hovered => palette.background.weak.color,
+        Status::Dragged => palette.background.base.color,
+        Status::Disabled => palette.background.weakest.color,
     };
 
     Style {
@@ -715,6 +724,26 @@ pub fn transparent(theme: &Theme, status: Status) -> Style {
         border_radius: 0.0.into()
     }
 }
+
+pub fn subtle(theme: &Theme, status: Status) -> Style {
+    let palette = theme.palette();
+
+    let color = match status {
+        Status::Active => palette.background.weak.color,
+        Status::Hovered => palette.background.base.color,
+        Status::Dragged => palette.background.strong.color,
+        Status::Disabled => palette.background.weakest.color,
+    };
+
+    Style {
+        background: color.into(),
+        border_color: Color::TRANSPARENT,
+        border_width: 0.0,
+        border_radius: 0.0.into()
+    }
+}
+
+
 
 
 #[test]

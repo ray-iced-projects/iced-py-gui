@@ -3,6 +3,7 @@
 use iced::border::{Border, Radius};
 use iced::event::Event;
 use iced::advanced::layout;
+use iced::window;
 use iced::{Background, Element};
 use iced::advanced::renderer;
 use iced::touch;
@@ -81,6 +82,8 @@ where
     include_last_handle: bool,
     direction: Direction,
     class: Theme::Class<'a>,
+    /// Per-handle statuses, updated on RedrawRequested.
+    statuses: Vec<Status>,
 }
 
 impl<'a, Message, Theme> Sash<'a, Message, Theme>
@@ -190,6 +193,7 @@ where
             include_last_handle: true,
             direction,
             class: Theme::default(),
+            statuses: vec![],
         }
     }
 }
@@ -269,26 +273,14 @@ where
         theme: &Theme,
         _renderer_style: &renderer::Style,
         _layout: Layout<'_>,
-        cursor: mouse::Cursor,
+        _cursor: mouse::Cursor,
         _viewport: &Rectangle,
     ) {
         let state = tree.state.downcast_ref::<State>();
-        let is_mouse_over = 
-            find_mouse_over_handle_bounds(
-                &state.handle_bounds,
-                cursor,);
         
         for i in 0..self.widths.len() {
-            let style = if state.is_dragging && i == state.index {
-                dbg!("dragging");
-                theme.style(&self.class, Status::Dragged)
-            } else if Some(i) == is_mouse_over {
-                dbg!("Hovered");
-                theme.style(&self.class, Status::Hovered)
-            } else {
-                dbg!("Active");
-                theme.style(&self.class, Status::Active)
-            };
+            let status = self.statuses.get(i).copied().unwrap_or(Status::Active);
+            let style = theme.style(&self.class, status);
             
             renderer.fill_quad(
                 renderer::Quad {
@@ -404,10 +396,9 @@ where
                     shell.publish(on_release);
                 }
                 state.is_dragging = false;
-                state.handle_bounds = vec![];
-                state.width_height_bounds = vec![];
                 state.index = 0;
 
+                shell.request_redraw();
                 shell.capture_event();
             }
         }
@@ -510,6 +501,27 @@ where
             }
         },
         _ => {}
+    }
+
+    // Status tracking — mirrors iced's Button/Scrollable pattern.
+    // Compute the current per-handle status from live state + cursor.
+    let is_mouse_over = find_mouse_over_handle_bounds(&state.handle_bounds, cursor);
+    let current_statuses: Vec<Status> = (0..widget.widths.len())
+        .map(|i| {
+            if state.is_dragging && i == state.index {
+                Status::Dragged
+            } else if Some(i) == is_mouse_over {
+                Status::Hovered
+            } else {
+                Status::Active
+            }
+        })
+        .collect();
+
+    if let Event::Window(window::Event::RedrawRequested(_)) = event {
+        widget.statuses = current_statuses;
+    } else if widget.statuses != current_statuses {
+        shell.request_redraw();
     }
 }
 

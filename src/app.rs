@@ -22,7 +22,6 @@ use crate::widgets::ipg_color_picker::{ColorPikMessage, color_picker_callback};
 use crate::widgets::ipg_checkbox::{ChkMessage, checkbox_callback};
 use crate::widgets::ipg_combo_box::{CBMessage, combo_box_callback};
 use crate::widgets::ipg_date_picker::{DPMessage, date_picker_update};
-use crate::widgets::ipg_divider::{DivMessage, divider_callback};
 use crate::widgets::ipg_splitter::{splitter_callback, splitter_release_callback};
 use crate::widgets::ipg_draw::{draw_callback, process_draw_updates};
 use crate::widgets::ipg_events::{process_keyboard_events, process_mouse_events, process_touch_events, process_window_event};
@@ -51,7 +50,6 @@ pub enum Message {
     ColorPicker(usize, ColorPikMessage),
     ComboBox(usize, CBMessage),
     DatePicker(usize, DPMessage),
-    Divider(usize, DivMessage),
     EventKeyboard(Event),
     EventMouse(Event),
     EventWindow((window::Id, Event)),
@@ -191,11 +189,6 @@ impl App {
             }
             Message::DatePicker(id, message) => {
                 date_picker_update(&mut self.state, id, message);
-                process_widget_updates(&mut self.state);
-                Task::none()
-            },
-            Message::Divider(id, message) => {
-                divider_callback(&mut self.state, id, message);
                 process_widget_updates(&mut self.state);
                 Task::none()
             },
@@ -832,9 +825,6 @@ fn get_widget<'a>(state: &'a IpgState, id: &usize) -> Option<Element<'a, Message
                 Widgets::ComboBox(cb) => {
                     cb.construct()
                 },
-                Widgets::Divider(div) => {
-                    div.construct(&state.widgets)
-                },
                 Widgets::Image(image) => {
                     image.construct()
                 },
@@ -1083,7 +1073,6 @@ fn process_shows(
             Widgets::CheckBox(w) => w.show = *val,
             Widgets::ComboBox(w) => w.show = *val,
             Widgets::DatePicker(w) => w.show = *val,
-            Widgets::Divider(w) => w.show = *val,
             Widgets::Image(w) => w.show = *val,
             Widgets::PickList(w) => w.show = *val,
             Widgets::ProgressBar(w) => w.show = *val,

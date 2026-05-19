@@ -4,6 +4,7 @@ use super::helpers::{
     hue_slider_row, palette_panel, rgba_slider, selected_color_format_to_text,
     submit_row, ColorOutFormat, HsvSquare, RGBA,
 };
+use iced::widget::opaque;
 use iced::widget::{canvas::Canvas, combo_box, container, column, row};
 use iced::{Element, Length};
 use crate::graphics::colors::Color as IpgColor;
@@ -260,18 +261,18 @@ impl ColorPickerState {
         )
         .into();
 
+        let cp_col = column(vec![grad_hue_col, srow]).spacing(3.0);
         let final_col: Element<M> = if show_palette {
             let pal = palette_panel(color);
-            let rw = row(vec![pal, grad_hue_col]).spacing(8.0).into();
-            column(vec![rw, srow]).spacing(3.0).into()
+            row(vec![pal, cp_col.into()]).spacing(5.0).into()
         } else {
-            column(vec![grad_hue_col, srow]).spacing(3.0).into()
+            cp_col.into()
         };
 
-        container(final_col)
+        opaque(container(final_col)
             .width(if show_palette { 460.0 } else { 370.0 })
             .height(190.0)
-            .padding(5.0)
+            .padding(5.0))
             .into()
     }
 }

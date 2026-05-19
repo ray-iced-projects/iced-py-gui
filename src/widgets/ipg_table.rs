@@ -12,7 +12,7 @@ use crate::widgets::styling::apply_background_color_overrides;
 use crate::widgets::widget_param_update::{
     WidgetParamUpdate, set_t_value
 };
-use crate::ipg_widgets::ipg_divider::sash::{self, sash_horizontal};
+use crate::ipg_widgets::ipg_sash::sash::{self, sash_horizontal};
 use crate::IpgState;
 
 use iced::border::Radius;

@@ -1,5 +1,5 @@
 //!Helpers
-use super::color_math::{color_at, hue_to_rgb, mix, rgb_to_sv};
+use super::color_math::{color_at, hue_to_rgb, rgb_to_sv};
 use iced::{Border, Element, Length, Padding, Pixels, Point, Rectangle, Theme};
 use iced::theme::palette;
 use iced::widget::{canvas, combo_box};
@@ -123,37 +123,38 @@ pub fn slider_style(
 
 pub fn palette_swatch<M: 'static>(
     label: &'static str,
-    color: iced::Color,
+    pair: palette::Pair,
 ) -> Element<'static, M> {
-    let [r, g, b, _] = [color.r, color.g, color.b, color.a];
-    let luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b;
-    let fg = if luminance > 0.45 { iced::Color::BLACK } else { iced::Color::WHITE };
+    let bg = pair.color;
+    let fg = pair.text;
+
     container(text(label).size(10.0))
         .style(move |_theme: &Theme| container::Style {
-            background: Some(iced::Background::Color(color)),
+            background: Some(iced::Background::Color(bg)),
             text_color: Some(fg),
             border: iced::Border { radius: 4.0.into(), ..Default::default() },
             ..Default::default()
         })
         .padding(Padding::new(3.0))
         .center_x(Length::Fill)
-        .height(18.0)
+        .height(20.0)
         .into()
 }
 
 pub fn palette_panel<M: 'static>(selected: [f32; 4]) -> Element<'static, M> {
-    let c = [selected[0], selected[1], selected[2]];
-    let white = [1.0f32; 3];
-    let black = [0.0f32; 3];
+    let base = iced::Color::from_rgb(selected[0], selected[1], selected[2]);
+    let text_seed = if palette::is_dark(base) { iced::Color::WHITE } else { iced::Color::BLACK };
+    let bg = palette::Background::new(base, text_seed);
 
     column(vec![
-        palette_swatch("weakest",  mix(c, white, 0.80)),
-        palette_swatch("weaker",   mix(c, white, 0.55)),
-        palette_swatch("weak",     mix(c, white, 0.30)),
-        palette_swatch("base",     iced::Color::from_rgb(c[0], c[1], c[2])),
-        palette_swatch("strong",   mix(c, black, 0.25)),
-        palette_swatch("stronger", mix(c, black, 0.50)),
-        palette_swatch("strongest",mix(c, black, 0.70)),
+        palette_swatch("weakest",  bg.weakest),
+        palette_swatch("weaker",   bg.weaker),
+        palette_swatch("weak",     bg.weak),
+        palette_swatch("neutral",  bg.neutral),
+        palette_swatch("base",     bg.base),
+        palette_swatch("strong",   bg.strong),
+        palette_swatch("stronger", bg.stronger),
+        palette_swatch("strongest",bg.strongest),
     ])
     .spacing(3.0)
     .width(80.0)

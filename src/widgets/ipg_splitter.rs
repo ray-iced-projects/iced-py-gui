@@ -9,7 +9,7 @@ use std::collections::HashMap;
 
 use crate::app::Message;
 use crate::graphics::colors::Color;
-use crate::ipg_widgets::ipg_divider::sash::{self, sash_horizontal, sash_vertical, Status, Style};
+use crate::ipg_widgets::ipg_sash::sash::{self, sash_horizontal, sash_vertical, Status, Style};
 use crate::py_api::helpers::get_radius;
 use crate::state::{Containers, Widgets};
 use crate::widgets::callbacks::invoke_callback_with_args;

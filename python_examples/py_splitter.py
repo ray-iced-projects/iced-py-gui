@@ -18,7 +18,7 @@ from icedpygui import (
     SplitterV,
 )
 
-# --- shared labels updated from callbacks ------------------------------------
+# shared labels updated from callbacks
 h_label_id_0 = None
 h_label_id_1 = None
 v_label_id = None
@@ -50,18 +50,16 @@ def on_release(wid, data):
           f"sizes={[f'{s:.0f}' for s in sizes]}")
 
 
-# =============================================================================
-# Window
-# =============================================================================
+# add the window
 with Window(title="Splitter Demo", size=(900, 650), center=True):
 
     with Column(padding=[20], spacing=16):
 
-        # --- SplitterH: three side-by-side panels ----------------------------
+        # SplitterH: three side-by-side panels
         add_text(content="SplitterH — three side-by-side panels (drag the handles)")
 
         with SplitterH(sizes=[220.0, 220.0, 220.0], height=200.0, max_size=660.0,
-                       on_resize=on_h_resize, ):#on_release=on_release):
+                       on_resize=on_h_resize, on_release=on_release):
 
             # Panel 0
             with Container(fill=True, padding=[8],
@@ -89,11 +87,11 @@ with Window(title="Splitter Demo", size=(900, 650), center=True):
 
         add_space(height=20)
 
-        # --- SplitterV: two stacked panels -----------------------------------
+        # SplitterV: two stacked panels
         add_text(content="SplitterV — two stacked panels (drag the handle)")
 
         with SplitterV(sizes=[150.0, 150.0], width=660.0,
-                       on_resize=on_v_resize, ):#on_release=on_release):
+                       on_resize=on_v_resize, on_release=on_release):
 
             # Top panel
             with Container(fill=True, padding=[8],

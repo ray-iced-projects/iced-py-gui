@@ -76,12 +76,3 @@ pub fn color_at(pos: Point, size: Size, hue: u8) -> (u8, u8, u8) {
         (c.b * 255.0).round() as u8,
     )
 }
-
-/// Mix two colors by factor `amount` (0.0 = first color, 1.0 = second color).
-pub fn mix(color: [f32; 3], mix_color: [f32; 3], amount: f32) -> Color {
-    Color::from_rgb(
-        color[0] + (mix_color[0] - color[0]) * amount,
-        color[1] + (mix_color[1] - color[1]) * amount,
-        color[2] + (mix_color[2] - color[2]) * amount,
-    )
-}

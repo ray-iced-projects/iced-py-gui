@@ -12,7 +12,6 @@ pub mod ipg_column;
 pub mod ipg_combo_box;
 pub mod ipg_container;
 pub mod ipg_date_picker;
-pub mod ipg_divider;
 pub mod ipg_splitter;
 pub mod ipg_draw;
 pub mod ipg_events;

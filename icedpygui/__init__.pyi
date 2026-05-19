@@ -18,11 +18,9 @@ from .icedpygui import (
     # add_card_style as add_card_style,
     add_checkbox_style as add_checkbox_style,
     add_container_style as add_container_style,
-    add_divider_style as add_divider_style,
     add_font_style as add_font_style,
     # add_menu_style as add_menu_style,
     add_opaque_style as add_opaque_style,
-    # add_pick_list_style as add_pick_list_style,
     add_progress_bar_style as add_progress_bar_style,
     add_radio_style as add_radio_style,
     add_scrollable_style as add_scrollable_style,
@@ -239,18 +237,6 @@ def add_checkbox(
 def add_date_picker(
     *,
     parent_id: str | None = None,
-    **kwargs: Any) -> int:
-    """_summary_
-
-    Args:
-        parent_id (str | None, optional): _description_. Defaults to None.
-
-    Returns:
-        int: widget id
-    """
-    ...
-def add_divider(
-    *, parent_id: str | None = None,
     **kwargs: Any) -> int:
     """_summary_
 

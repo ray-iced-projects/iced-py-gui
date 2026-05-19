@@ -19,7 +19,6 @@ use crate::widgets::ipg_column::Column;
 use crate::widgets::ipg_combo_box::ComboBox;
 use crate::widgets::ipg_container::{Container, ContainerStyle};
 use crate::widgets::ipg_date_picker::DatePicker;
-use crate::widgets::ipg_divider::{Divider, DividerStyle};
 use crate::widgets::ipg_splitter::{SplitterH, SplitterV, SplitterStyle};
 use crate::widgets::ipg_draw::Draw;
 use crate::ipg_widgets::ipg_canvas_draw::canvas_draw::{
@@ -101,8 +100,6 @@ pub enum Widgets {
     CheckboxStyle(CheckboxStyle),
     ComboBox(ComboBox),
     ContainerStyle(ContainerStyle),
-    Divider(Divider),
-    DividerStyle(DividerStyle),
     SplitterStyle(SplitterStyle),
     DatePicker(DatePicker),
     Font(Font),
@@ -173,8 +170,6 @@ ipg_widget_accessors! {
     CheckBox         => CheckBox,          as_checkbox,            as_checkbox_mut;
     CheckboxStyle    => CheckboxStyle,     as_checkbox_style,      as_checkbox_style_mut;
     ContainerStyle   => ContainerStyle,    as_container_style,     as_container_style_mut;
-    Divider          => Divider,           as_divider,             as_divider_mut;
-    DividerStyle     => DividerStyle,      as_divider_style,       as_divider_style_mut;
     Font             => Font,              as_font,                as_font_mut;
     Icon             => IpgIcon,           as_icon,                as_icon_mut;
     Image            => Image,             as_image,               as_image_mut;

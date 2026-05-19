@@ -137,8 +137,7 @@ impl Button {
 
             let text_color = Color::rgba_ipg_color_to_iced(style.text_rgba, &style.text_color, style.text_color_alpha);
 
-            // Only bake the global text_color into the widget directly when no per-status
-            // colors are set. If status colors are present, to_iced() handles coloring via
+            // If status colors are present, to_iced() handles coloring via
             // button::Style.text_color, and an explicit .color() here would override it.
             let has_status_text = style.text_color_active.is_some()   || style.text_rgba_active.is_some()
                 || style.text_color_hovered.is_some()  || style.text_rgba_hovered.is_some()

@@ -1,8 +1,9 @@
-//! A divider for resizing containers.
+//! A sash for resizing containers.
 
 use iced::border::{Border, Radius};
 use iced::event::Event;
 use iced::advanced::layout;
+use iced::window;
 use iced::{Background, Element};
 use iced::advanced::renderer;
 use iced::touch;
@@ -14,13 +15,13 @@ use iced::{
 use iced::advanced::{mouse, Layout, Shell, Widget};
 
 
-pub fn divider_horizontal<'a, Message, Theme>(
+pub fn sash_horizontal<'a, Message, Theme>(
     id: usize,
     widths: Vec<f32>,
     handle_width: f32,
     handle_height: f32,
     on_change: impl Fn((usize, usize, f32)) -> Message + 'a,
-) -> Divider<'a, Message, Theme>
+) -> Sash<'a, Message, Theme>
 where
     Message: Clone,
     Theme: Catalog + 'a,
@@ -28,7 +29,7 @@ where
     let mut handle_offsets = vec![-handle_width/2.0; widths.len()-1];
         handle_offsets.extend([-handle_width]);
     
-    Divider::new(
+    Sash::new(
         id,
         widths, 
         handle_width, 
@@ -38,13 +39,13 @@ where
         on_change)
 }
 
-pub fn divider_vertical<'a, Message, Theme>(
+pub fn sash_vertical<'a, Message, Theme>(
     id: usize,
     heights: Vec<f32>,
     handle_width: f32,
     handle_height: f32,
     on_change: impl Fn((usize, usize, f32)) -> Message + 'a,
-) -> Divider<'a, Message, Theme>
+) -> Sash<'a, Message, Theme>
 where
     Message: Clone,
     Theme: Catalog + 'a,
@@ -54,7 +55,7 @@ where
         // last offset pulled in to keep in bounds
         handle_offsets.extend([-handle_height]);
         
-    Divider::new(
+    Sash::new(
         id,
         widths, 
         handle_width, 
@@ -64,7 +65,7 @@ where
         on_change)
 }
 
-pub struct Divider<'a, Message, Theme = iced::Theme>
+pub struct Sash<'a, Message, Theme = iced::Theme>
 where
     Theme: Catalog,
 {
@@ -74,55 +75,65 @@ where
     handle_height: f32,
     on_change: Box<dyn Fn((usize, usize, f32)) -> Message + 'a>,
     on_release: Option<Message>,
+    on_release_fn: Option<Box<dyn Fn((usize, usize)) -> Message + 'a>>,
     width: Length,
     height: Length,
     handle_offsets: Vec<f32>,
     include_last_handle: bool,
     direction: Direction,
     class: Theme::Class<'a>,
+    /// Per-handle statuses, updated on RedrawRequested.
+    statuses: Vec<Status>,
 }
 
-impl<'a, Message, Theme> Divider<'a, Message, Theme>
+impl<'a, Message, Theme> Sash<'a, Message, Theme>
 where
     Theme: Catalog,
 {
-    /// Sets the release message of the [`Divider`].
+    /// Sets the release message of the [`Sash`].
     pub fn on_release(mut self, on_release: Message) -> Self {
         self.on_release = Some(on_release);
         self
     }
-    /// Sets the width of the [`Divider`] which usually spans the entire width of the items.
+
+    /// Sets a release callback of the [`Sash`] that receives `(id, handle_index)`.
+    /// Use this instead of [`on_release`] when you need to know which handle was released.
+    pub fn on_release_fn(mut self, f: impl Fn((usize, usize)) -> Message + 'a) -> Self {
+        self.on_release_fn = Some(Box::new(f));
+        self
+    }
+    /// Sets the width of the [`Sash`] which usually spans the entire width of the items.
     pub fn width(mut self, width: impl Into<Length>) -> Self {
         self.width = width.into();
         self
     }
 
-    /// Sets the height of the [`Divider`].
+    /// Sets the height of the [`Sash`].
     pub fn height(mut self, height: impl Into<Length>) -> Self {
         self.height = height.into();
         self
     }
 
-    /// Sets the handle offsets for alignment of the [`Divider`].
+    /// Sets the handle offsets for alignment of the [`Sash`].
     pub fn handle_offsets(mut self, handle_offsets: Vec<f32>) -> Self {
         self.handle_offsets = handle_offsets;
         self
     }
 
-    /// Sets the include_last_handle of the [`Divider`].
+    /// Sets the include_last_handle of the [`Sash`].
     /// If not included, the total width or height will not change
     pub fn include_last_handle(mut self, include: bool) -> Self {
         self.include_last_handle = include;
         self
     }
 
-    /// Sets the direction of the [`Divided`].
+    /// Sets the direction of the [`Sash`].
     pub fn direction(mut self, direction: Direction) -> Self {
         self.direction = direction;
         self
     }
 
-    /// Sets the style of the [`Divider`].
+    /// Sets the style of the [`Sash`].
     #[must_use]
     pub fn style(mut self, style: impl Fn(&Theme, Status) -> Style + 'a) -> Self
     where
@@ -132,7 +143,7 @@ where
         self
     }
 
-    /// Sets the style class of the [`Divider`].
+    /// Sets the style class of the [`Sash`].
     #[must_use]
     pub fn class(mut self, class: impl Into<Theme::Class<'a>>) -> Self {
         self.class = class.into();
@@ -148,14 +159,14 @@ struct State {
     width_height_bounds: Vec<Rectangle>,
 }
 
-impl<'a, Message, Theme> Divider<'a, Message, Theme>
+impl<'a, Message, Theme> Sash<'a, Message, Theme>
 where
     Theme: Catalog,
 {
-    /// The default height of a [`Divider`].
+    /// The default height of a [`Sash`].
     pub const DEFAULT_HEIGHT: f32 = 21.0;
 
-    /// Creates a new [`Divider`].
+    /// Creates a new [`Sash`].
     pub fn new<F>(
         id: usize,
         widths: Vec<f32>,
@@ -168,25 +179,27 @@ where
     where
         F: 'a + Fn((usize, usize, f32)) -> Message,
     {
-        Divider {
+        Sash {
             id,
             widths,
             handle_width,
             handle_height,
             on_change: Box::new(on_change),
             on_release: None,
+            on_release_fn: None,
             width: Length::Fill,
             height: Length::Fill,
             handle_offsets,
             include_last_handle: true,
             direction,
             class: Theme::default(),
+            statuses: vec![],
         }
     }
 }
 
 impl<Message, Theme, Renderer> Widget<Message, Theme, Renderer>
-    for Divider<'_, Message, Theme>
+    for Sash<'_, Message, Theme>
 where
     Theme: Catalog,
     Renderer: renderer::Renderer,
@@ -260,21 +273,14 @@ where
         theme: &Theme,
         _renderer_style: &renderer::Style,
         _layout: Layout<'_>,
-        cursor: mouse::Cursor,
+        _cursor: mouse::Cursor,
         _viewport: &Rectangle,
     ) {
         let state = tree.state.downcast_ref::<State>();
-        let is_mouse_over = 
-            find_mouse_over_handle_bounds(
-                &state.handle_bounds,
-                cursor,);
         
         for i in 0..self.widths.len() {
-            let style = if Some(i) == is_mouse_over {
-                theme.style(&self.class, Status::Hovered)
-            } else {
-                theme.style(&self.class, Status::Active)
-            };
+            let status = self.statuses.get(i).copied().unwrap_or(Status::Active);
+            let style = theme.style(&self.class, status);
             
             renderer.fill_quad(
                 renderer::Quad {
@@ -304,7 +310,7 @@ where
 
 }
 
-impl<'a, Message, Theme, Renderer> From<Divider<'a, Message, Theme>>
+impl<'a, Message, Theme, Renderer> From<Sash<'a, Message, Theme>>
     for Element<'a, Message, Theme, Renderer>
 where
     Message: Clone + 'a,
@@ -312,16 +318,16 @@ where
     Renderer: iced::advanced::Renderer + 'a,
 {
     fn from(
-        divider: Divider<'a, Message, Theme>,
+        sash: Sash<'a, Message, Theme>,
     ) -> Element<'a, Message, Theme, Renderer> {
-        Element::new(divider)
+        Element::new(sash)
     }
 }
 
-/// Processes the given [`Event`] and updates the [`State`] of an [`Divider`]
+/// Processes the given [`Event`] and updates the [`State`] of an [`Sash`]
 /// accordingly.
 fn update<Message: Clone, Theme, Renderer>(
-    widget: &mut Divider<'_, Message, Theme>,
+    widget: &mut Sash<'_, Message, Theme>,
     tree: &mut Tree,
     event: &Event,
     layout: Layout<'_>,
@@ -384,14 +390,15 @@ where
         | Event::Touch(touch::Event::FingerLifted { .. })
         | Event::Touch(touch::Event::FingerLost { .. }) => {
             if is_dragging {
-                if let Some(on_release) = widget.on_release.clone() {
+                if let Some(f) = &widget.on_release_fn {
+                    shell.publish(f((widget.id, state.index)));
+                } else if let Some(on_release) = widget.on_release.clone() {
                     shell.publish(on_release);
                 }
                 state.is_dragging = false;
-                state.handle_bounds = vec![];
-                state.width_height_bounds = vec![];
                 state.index = 0;
 
+                shell.request_redraw();
                 shell.capture_event();
             }
         }
@@ -415,20 +422,21 @@ where
                                     state.handle_bounds[state.index].x = w_h_bounds.x;
                                     (state.index, 0.0)
                                 } else 
-                                // Moving left stopping at next divider
+                                // Moving left stopping at next sash
                                 if state.index > 0 && position.x < state.handle_bounds[state.index-1].x {
 
                                     state.handle_bounds[state.index].x = state.handle_bounds[state.index-1].x;
                                     (state.index, 0.0)
                                 } else
-                                // Moving right: stop at next divider
+                                // Moving right: stop at next sash
                                 if  state.index < handle_count-1 && (state.index < handle_count) && 
                                     (position.x > state.handle_bounds[state.index+1].x) {
 
                                     state.handle_bounds[state.index].x = state.handle_bounds[state.index+1].x;
-                                    (state.index, 0.0)
+                                    let new_value = (state.handle_bounds[state.index+1].x - w_h_bounds.x).round();
+                                    (state.index, new_value)
                                 } else 
-                                // Moving right: last index and no divider at end
+                                // Moving right: last index and no sash at end
                                 if (handle_count < w_h_count) && 
                                     (position.x > end_x-handle_bounds.width/2.0) {
 
@@ -456,20 +464,21 @@ where
                                     state.handle_bounds[state.index].y = w_h_bounds.y;
                                     (state.index, 0.0)
                                 } else 
-                                // Moving left stopping at next divider
+                                // Moving left stopping at next sash
                                 if state.index > 0 && position.y < state.handle_bounds[state.index-1].y {
 
                                     state.handle_bounds[state.index].y = state.handle_bounds[state.index-1].y;
                                     (state.index, 0.0)
                                 } else
-                                // Moving right: stop at next divider
+                                // Moving right: stop at next sash
                                 if  state.index < handle_count-1 && (state.index < handle_count) && 
                                     (position.y > state.handle_bounds[state.index+1].y) {
 
                                     state.handle_bounds[state.index].y = state.handle_bounds[state.index+1].y;
-                                    (state.index, 0.0)
+                                    let new_value = (state.handle_bounds[state.index+1].y - w_h_bounds.y).round();
+                                    (state.index, new_value)
                                 } else 
-                                // Moving right: last index and no divider at end
+                                // Moving right: last index and no sash at end
                                 if (handle_count < w_h_count) && 
                                     (position.y > end_y-handle_bounds.height/2.0) {
                                         
@@ -492,6 +501,27 @@ where
             }
         },
         _ => {}
+    }
+
+    // Status tracking — mirrors iced's Button/Scrollable pattern.
+    // Compute the current per-handle status from live state + cursor.
+    let is_mouse_over = find_mouse_over_handle_bounds(&state.handle_bounds, cursor);
+    let current_statuses: Vec<Status> = (0..widget.widths.len())
+        .map(|i| {
+            if state.is_dragging && i == state.index {
+                Status::Dragged
+            } else if Some(i) == is_mouse_over {
+                Status::Hovered
+            } else {
+                Status::Active
+            }
+        })
+        .collect();
+
+    if let Event::Window(window::Event::RedrawRequested(_)) = event {
+        widget.statuses = current_statuses;
+    } else if widget.statuses != current_statuses {
+        shell.request_redraw();
     }
 }
 
@@ -607,7 +637,7 @@ fn find_mouse_over_handle_bounds(
         None
 }
 
-/// The direction of [`Divider`].
+/// The direction of [`Sash`].
 #[derive(Debug, Clone, Copy, PartialEq, Default)]
 pub enum Direction {
     /// Horizontal resizing
@@ -617,18 +647,20 @@ pub enum Direction {
     Vertical,
 }
 
-/// The possible status of a [`Divider`].
+/// The possible status of a [`Sash`].
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Status {
-    /// The [`Divider`] can be interacted with.
+    /// The [`Sash`] can be interacted with.
     Active,
-    /// The [`Divider`] is being hovered.
+    /// The [`Sash`] is being hovered.
     Hovered,
-    /// The [`Divider`] is being dragged.
+    /// The [`Sash`] is being dragged.
     Dragged,
+    /// The [`Sash`] is disabled.
+    Disabled,
 }
 
-/// The appearance of a Divider.
+/// The appearance of a Sash.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Style {
     /// The [`Background`] of the handle.
@@ -641,7 +673,7 @@ pub struct Style {
     pub border_radius: Radius,
 }
 
-/// The theme catalog of a [`Divider`].
+/// The theme catalog of a [`Sash`].
 pub trait Catalog: Sized {
     /// The item class of the [`Catalog`].
     type Class<'a>;
@@ -653,14 +685,14 @@ pub trait Catalog: Sized {
     fn style(&self, class: &Self::Class<'_>, status: Status) -> Style;
 }
 
-/// A styling function for a [`Divider`].
+/// A styling function for a [`Sash`].
 pub type StyleFn<'a, Theme> = Box<dyn Fn(&Theme, Status) -> Style + 'a>;
 
 impl Catalog for Theme {
     type Class<'a> = StyleFn<'a, Self>;
 
     fn default<'a>() -> Self::Class<'a> {
-        Box::new(primary)
+        Box::new(subtle)
     }
 
     fn style(&self, class: &Self::Class<'_>, status: Status) -> Style {
@@ -668,7 +700,7 @@ impl Catalog for Theme {
     }
 }
 
-/// The default style of a [`Divider`].
+/// The default style of a [`Sash`].
 pub fn primary(theme: &Theme, status: Status) -> Style {
     let palette = theme.palette();
 
@@ -676,6 +708,7 @@ pub fn primary(theme: &Theme, status: Status) -> Style {
         Status::Active => palette.primary.strong.color,
         Status::Hovered => palette.primary.base.color,
         Status::Dragged => palette.primary.strong.color,
+        Status::Disabled => palette.primary.weak.color,
     };
 
     Style {
@@ -691,8 +724,9 @@ pub fn transparent(theme: &Theme, status: Status) -> Style {
 
     let color = match status {
         Status::Active => Color::TRANSPARENT,
-        Status::Hovered => palette.primary.base.color,
-        Status::Dragged => palette.primary.strong.color,
+        Status::Hovered => palette.background.weak.color,
+        Status::Dragged => palette.background.weakest.color,
+        Status::Disabled => palette.background.base.color,
     };
 
     Style {
@@ -703,135 +737,21 @@ pub fn transparent(theme: &Theme, status: Status) -> Style {
     }
 }
 
+pub fn subtle(theme: &Theme, status: Status) -> Style {
+    let palette = theme.palette();
 
-#[test]
-fn test_get_handle_bounds() {
-    let widths_heights = vec![100.0, 100.0, 100.0, 100.0];
-    let hz_bounds = Rectangle { x: 50.0, 
-                                        y: 50.0, 
-                                        width: 462.0, 
-                                        height: 21.0 };
-    let hz_handle_width = 4.0;
-    let hz_handle_height = 21.0;
-    let mut hz_handle_offsets = vec![-hz_handle_height/2.0; widths_heights.len()-1];
-        hz_handle_offsets.extend([-hz_handle_height]);
-    let hz_include_last_handle =true; 
-    let hz_direction = Direction::Horizontal;
+    let color = match status {
+        Status::Active => palette.background.weak.color,
+        Status::Hovered => palette.background.weaker.color,
+        Status::Dragged => palette.background.weakest.color,
+        Status::Disabled => palette.background.base.color,
+    };
 
-    let vt_bounds = Rectangle { x: 50.0, 
-                                        y: 50.0, 
-                                        width: 100.0, 
-                                        height: 462.0 };
-    let vt_handle_width = 100.0;
-    let vt_handle_height = 4.0;
-    let mut vt_handle_offsets = vec![-vt_handle_height/2.0; widths_heights.len()-1];
-        vt_handle_offsets.extend([-vt_handle_height]);
-    let vt_include_last_handle =true;
-    let vt_direction = Direction::Vertical;
-
-    let hz_bounds = 
-        get_handle_bounds(
-            hz_bounds, 
-            &widths_heights, 
-            hz_handle_width, 
-            hz_handle_height,
-            &hz_handle_offsets,
-            hz_include_last_handle, 
-            hz_direction);
-
-    let vt_bounds = 
-        get_handle_bounds(
-            vt_bounds, 
-            &widths_heights, 
-            vt_handle_width, 
-            vt_handle_height,
-            &vt_handle_offsets,
-            vt_include_last_handle, 
-            vt_direction);
-
-    let hz_results = vec![
-        Rectangle { x: 139.5, y: 50.0, width: 4.0, height: 21.0 },
-        Rectangle { x: 239.5, y: 50.0, width: 4.0, height: 21.0 },
-        Rectangle { x: 339.5, y: 50.0, width: 4.0, height: 21.0 },
-        Rectangle { x: 429.0, y: 50.0, width: 4.0, height: 21.0 }];
-
-    let vt_results = vec![
-        Rectangle { x: 50.0, y: 148.0, width: 100.0, height: 4.0 },
-        Rectangle { x: 50.0, y: 248.0, width: 100.0, height: 4.0 },
-        Rectangle { x: 50.0, y: 348.0, width: 100.0, height: 4.0 },
-        Rectangle { x: 50.0, y: 446.0, width: 100.0, height: 4.0 }];
-        
-    assert_eq!(hz_results, hz_bounds);
-    assert_eq!(vt_results, vt_bounds);
-
+    Style {
+        background: color.into(),
+        border_color: Color::TRANSPARENT,
+        border_width: 0.0,
+        border_radius: 0.0.into()
+    }
 }
 
-#[test]
-fn test_find_mouse_over_handle_bounds() {
-    let handle_bounds = vec![
-        Rectangle {x: 150.0,y: 50.0,width: 4.0,height: 21.0 },
-        Rectangle { x: 254.0, y: 50.0, width: 4.0, height: 21.0 },
-        Rectangle { x: 358.0, y: 50.0, width: 4.0, height: 21.0 },
-        Rectangle { x: 462.0, y: 50.0, width: 4.0, height: 21.0 }];
-
-    let pass_cursor = mouse::Cursor::Available(iced::Point { x: 360.0, y: 55.0 });
-
-    assert_eq!(find_mouse_over_handle_bounds(&handle_bounds, pass_cursor), Some(2));
-
-    let fail_cursor = mouse::Cursor::Available(iced::Point { x: 360.0, y: 75.0 });
-
-     assert_eq!(find_mouse_over_handle_bounds(&handle_bounds, fail_cursor), None);
-
-}
-
-#[test] 
-fn test_get_width_height_bounds() {
-    let widths_heights = vec![100.0, 100.0, 100.0, 100.0];
-    let hz_bounds = Rectangle { x: 50.0, 
-                                        y: 50.0, 
-                                        width: 416.0, 
-                                        height: 21.0 };
-    let hz_handle_width = 4.0;
-    let hz_handle_height = 21.0;
-    let hz_direction = Direction::Horizontal;
-
-    let vt_bounds = Rectangle { x: 50.0, 
-                                        y: 50.0, 
-                                        width: 100.0, 
-                                        height: 416.0 };
-    let vt_handle_width = 100.0;
-    let vt_handle_height = 4.0;
-    let vt_direction = Direction::Vertical;
-
-    let hz_bounds = 
-        get_width_height_bounds(
-            hz_bounds, 
-            &widths_heights, 
-            hz_handle_width, 
-            hz_handle_height, 
-            hz_direction);
-
-    let vt_bounds = 
-        get_width_height_bounds(
-            vt_bounds, 
-            &widths_heights, 
-            vt_handle_width, 
-            vt_handle_height, 
-            vt_direction);
-    
-    let hz_results = vec![
-        Rectangle { x: 50.0, y: 50.0, width: 100.0, height: 21.0 },
-        Rectangle { x: 150.0, y: 50.0, width: 100.0, height: 21.0 },
-        Rectangle { x: 250.0, y: 50.0, width: 100.0, height: 21.0 },
-        Rectangle { x: 350.0, y: 50.0, width: 100.0, height: 21.0 }];
-
-    let vt_results = vec![
-        Rectangle { x: 50.0, y: 50.0, width: 100.0, height: 100.0 },
-        Rectangle { x: 50.0, y: 150.0, width: 100.0, height: 100.0 },
-        Rectangle { x: 50.0, y: 250.0, width: 100.0, height: 100.0 },
-        Rectangle { x: 50.0, y: 350.0, width: 100.0, height: 100.0 }];
-
-    assert_eq!(hz_results, hz_bounds);
-    assert_eq!(vt_results, vt_bounds);
-
-}

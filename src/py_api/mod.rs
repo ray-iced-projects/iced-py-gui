@@ -13,7 +13,6 @@ pub mod combo_box;
 pub mod container;
 pub mod color_picker;
 pub mod date_picker;
-pub mod divider;
 pub mod draw;
 pub mod draw_update;
 pub mod events;

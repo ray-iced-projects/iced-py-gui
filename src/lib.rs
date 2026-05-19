@@ -37,7 +37,6 @@ use crate::py_api::column::add_column;
 use crate::py_api::combo_box::add_combobox;
 use crate::py_api::container::{add_container, add_container_style};
 use crate::py_api::date_picker::add_date_picker;
-use crate::py_api::divider::{add_divider, add_divider_style};
 use crate::py_api::draw::add_draw;
 use crate::py_api::draw_update::{update_draw_params, delete_draw_widget};
 use crate::py_api::events::{add_event_keyboard, add_event_mouse};
@@ -88,7 +87,6 @@ use crate::widgets::ipg_checkbox::{CheckboxParam, CheckboxStyleParam, CheckboxSt
 use crate::widgets::ipg_column::ColumnParam;
 use crate::widgets::ipg_container::{ContainerParam, ContainerStyleParam, ContainerStyleStd};
 use crate::widgets::ipg_date_picker::DatePickerParam;
-use crate::widgets::ipg_divider::{DividerDirection, DividerParam, DividerStyleParam};
 use crate::widgets::ipg_float::FloatParam;
 use crate::widgets::ipg_grid::GridParam;
 use crate::widgets::ipg_menu::{MenuBarItemParam, MenuParam, MenuStyleParam, MenuSubItemParam};
@@ -144,8 +142,6 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(add_container_style, m)?)?;
     m.add_function(wrap_pyfunction!(add_container, m)?)?;
     m.add_function(wrap_pyfunction!(add_date_picker, m)?)?;
-    m.add_function(wrap_pyfunction!(add_divider_style, m)?)?;
-    m.add_function(wrap_pyfunction!(add_divider, m)?)?;
     m.add_function(wrap_pyfunction!(add_draw, m)?)?;
     m.add_function(wrap_pyfunction!(add_float, m)?)?;
     m.add_function(wrap_pyfunction!(add_font_style, m)?)?;
@@ -228,10 +224,6 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<ContainerStyleParam>()?;
     m.add_class::<ContainerStyleStd>()?;
     m.add_class::<DatePickerParam>()?;
-    m.add_class::<DividerDirection>()?;
-    m.add_class::<DividerParam>()?;
-    m.add_class::<DividerParam>()?;
-    m.add_class::<DividerStyleParam>()?;
     m.add_class::<DrawMode>()?;
     m.add_class::<DrawParam>()?;
     m.add_class::<DrawWidget>()?;

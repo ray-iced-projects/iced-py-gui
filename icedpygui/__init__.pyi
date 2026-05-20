@@ -72,6 +72,7 @@ from .icedpygui import (
     RadioStyleParam as RadioStyleParam,
     Rotation,
     RowParam as RowParam,
+    SashParam as SashParam,
     ScrollableParam as ScrollableParam,
     ScrollableStyleParam as ScrollableStyleParam,
     ScrollerParam as ScrollerParam,
@@ -1538,6 +1539,70 @@ class Row:
         spacing: float | None = None,
         clip: bool | None = None,
         show: bool = True,
+    ) -> None: ...
+    def __enter__(self) -> int: ...
+    def __exit__(self, exc_type: type[BaseException] | None, \
+        exc_val: BaseException | None,\
+            exc_tb: TracebackType | None) -> bool: ...
+
+class Sash:
+    """Context manager wrapper around add_sash.
+
+    Add a sash (resizable panels) container.
+
+    A sash divides its children into resizable panels separated by draggable
+    handle bars. By default it is horizontal (panels arranged left-to-right).
+    Set ``vertical_direction=True`` to arrange panels top-to-bottom instead.
+
+    Usage::
+
+        with Window(title="Demo"):
+            with Sash(
+                initial_sizes=sizes,
+                size=200.0,
+                sash_size=4.0,
+                outer_handle_size=4.0,
+                on_resize=on_resize_sash_h,
+                on_resize_outer=on_resize_outer) as sash_id:
+
+                state["sash_ids"].append(sash_id)
+
+                # Add containers to the Sash
+                with Container(fill=True, align_center=True, style_id=left_style):
+                    add_text(content="Left")
+
+                with Container(fill=True, align_center=True, style_id=middle_style):
+                    add_text(content="Center")
+
+                with Container(fill=True, align_center=True, style_id=right_style):
+                    add_text(content="Right")
+
+        start_session()
+    """
+    def __init__(
+        self,
+        initial_sizes: list[float],
+        size: float,
+        sash_size: float,
+        *,
+        window_id: str | None = None,
+        container_id: str | None = None,
+        parent_id: str | None = None,
+        sync_sashes: bool | None = None,
+        sync_cross_sashes: bool | None = None,
+        outer_handle_size: float | None = None,
+        resize_mode_last_only: bool | None = None,
+        resize_mode_uniform: bool | None = None,
+        resize_mode_proportional: bool | None = None,
+        on_resize: Callable | None = None,
+        on_resize_outer: Callable | None = None,
+        on_release: Callable | None = None,
+        vertical_direction: bool | None = None,
+        min_size: float | None = None,
+        max_size: float | None = None,
+        style_id: int | None = None,
+        user_data: any | None = None,
+        show: bool | None = True,
     ) -> None: ...
     def __enter__(self) -> int: ...
     def __exit__(self, exc_type: type[BaseException] | None, \

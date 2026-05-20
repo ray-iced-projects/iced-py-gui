@@ -3,8 +3,15 @@
 Button use demo
 """
 
-from icedpygui import Window, Container, Column, Scrollable, start_session, \
-    add_button, add_text, add_button_style, Color
+from icedpygui import (
+    Window,
+    Container,
+    Column,
+    Scrollable,
+    start_session,
+    add_button,
+    add_button_style,
+    Color)
 
 
 
@@ -52,6 +59,6 @@ with Window(title="Button Parameters",
                 add_button(label="status=Pressed", status_pressed=True, style_id=bkg_color)
                 add_button(label="status=Disabled", status_disabled=True, style_id=bkg_color)
 
-                
+
 
 start_session()

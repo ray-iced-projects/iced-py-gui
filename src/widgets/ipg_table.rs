@@ -12,7 +12,7 @@ use crate::widgets::styling::apply_background_color_overrides;
 use crate::widgets::widget_param_update::{
     WidgetParamUpdate, set_t_value
 };
-use crate::ipg_widgets::ipg_sash::sash::{self, sash_horizontal};
+
 use crate::IpgState;
 
 use iced::border::Radius;
@@ -315,44 +315,44 @@ impl Table {
             let has_header = header.is_some();
             let mut main_col = vec![];
 
-            if let Some(hdr) = header {
-                if self.resize_columns_enabled {
-                    let sash_height = header_height
-                        + self.custom_header_rows.unwrap_or_default() as f32
-                            * self.header_row_height.unwrap_or(20.0);
-                    let sash_el = sash_horizontal(
-                        self.id,
-                        self.column_widths.clone(),
-                        self.sash_size,
-                        sash_height,
-                        |(id, index, value)| Message::TableDividerChanged((id, index, value)),
-                    )
-                    .include_last_handle(false)
-                    .on_release_fn(|(id, _)| Message::TableDividerReleased(id))
+            // if let Some(hdr) = header {
+            //     if self.resize_columns_enabled {
+            //         let sash_height = header_height
+            //             + self.custom_header_rows.unwrap_or_default() as f32
+            //                 * self.header_row_height.unwrap_or(20.0);
+            //         let sash_el = sash_horizontal(
+            //             self.id,
+            //             self.column_widths.clone(),
+            //             self.sash_size,
+            //             sash_height,
+            //             |(id, index, value)| Message::TableDividerChanged((id, index, value)),
+            //         )
+            //         .include_last_handle(false)
+            //         .on_release_fn(|(id, _)| Message::TableDividerReleased(id))
                     
-                    ;
-                    main_col.push(stack([hdr, sash_el.into()]).into());
-                } else {
-                    main_col.push(hdr);
-                }
-                main_col.push(Space::new().width(5.0).height(self.header_body_spacing.unwrap_or(5.0)).into());
-            }
+            //         ;
+            //         main_col.push(stack([hdr, sash_el.into()]).into());
+            //     } else {
+            //         main_col.push(hdr);
+            //     }
+            //     main_col.push(Space::new().width(5.0).height(self.header_body_spacing.unwrap_or(5.0)).into());
+            // }
 
             // When there is no header and resize is enabled, fall back to sash on the body
-            if !has_header && self.resize_columns_enabled {
-                let sash_el = sash_horizontal(
-                    self.id,
-                    self.column_widths.clone(),
-                    self.sash_size,
-                    self.height,
-                    |(id, index, value)| Message::TableDividerChanged((id, index, value)),
-                )
-                .include_last_handle(false)
-                .on_release_fn(|(id, _)| Message::TableDividerReleased(id));
-                main_col.push(stack([body.into(), sash_el.into()]).into());
-            } else {
-                main_col.push(body.into());
-            }
+            // if !has_header && self.resize_columns_enabled {
+            //     let sash_el = sash_horizontal(
+            //         self.id,
+            //         self.column_widths.clone(),
+            //         self.sash_size,
+            //         self.height,
+            //         |(id, index, value)| Message::TableDividerChanged((id, index, value)),
+            //     )
+            //     .include_last_handle(false)
+            //     .on_release_fn(|(id, _)| Message::TableDividerReleased(id));
+            //     main_col.push(stack([body.into(), sash_el.into()]).into());
+            // } else {
+            //     main_col.push(body.into());
+            // }
 
             if let Some(ft) = footer {
                 main_col.push(Space::new().width(5.0).height(self.body_footer_spacing.unwrap_or(5.0)).into());

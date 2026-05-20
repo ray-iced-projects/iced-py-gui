@@ -52,6 +52,7 @@ use crate::py_api::radio::{add_radio, add_radio_style};
 use crate::py_api::row::add_row;
 use crate::py_api::rule::{add_rule, add_rule_style};
 use crate::py_api::picklist::{add_pick_list, add_pick_list_style};
+use crate::py_api::sash::add_sash;
 use crate::py_api::scrollable::{add_scrollable, add_scrollable_style, 
     add_scroller, add_autoscroll_style, add_rail_style};
 use crate::py_api::separator::{add_separator, add_separator_style};
@@ -59,7 +60,6 @@ use crate::py_api::session::{start_session, generate_id};
 use crate::py_api::slider::{add_slider, add_slider_style};
 use crate::py_api::space::add_space;
 use crate::py_api::stack::add_stack;
-use crate::py_api::splitter::{add_splitter_h, add_splitter_v, add_splitter_style};
 use crate::py_api::svg::add_svg;
 use crate::py_api::table::{add_table, add_table_style};
 use crate::py_api::text_input::{add_text_input, add_text_input_style};
@@ -77,6 +77,7 @@ use crate::widgets::ipg_font::{FontFamily, FontStretch, FontStyle, FontWeight};
 use crate::widgets::ipg_image::ImageParam;
 use crate::widgets::ipg_mouse_area::MousePointer;
 use crate::widgets::ipg_progress_bar::{ProgressBarParam, ProgressBarStyleParam, ProgressBarStyleStd};
+use crate::widgets::ipg_sash::SashParam;
 use crate::widgets::styling::StyleStandard;
 use crate::graphics::{bootstrap_icon::Icon, bootstrap_arrow::Arrow};
 use crate::graphics::colors::Color;
@@ -97,7 +98,6 @@ use crate::widgets::ipg_scrollable::{AutoScrollStyleParam, RailStyleParam, Scrol
 use crate::widgets::ipg_separator::{SeparatorParam, SeparatorStyleParam};
 use crate::widgets::ipg_slider::{SliderParam, SliderStyleParam};
 use crate::widgets::ipg_stack::StackParam;
-use crate::widgets::ipg_splitter::{SplitterHParam, SplitterVParam, SplitterStyleParam};
 use crate::widgets::ipg_svg::SvgParam;
 use crate::widgets::ipg_table::{TableParam, TableStyleParam};
 use crate::widgets::ipg_text_input::{TextInputParam, TextInputStyleParam};
@@ -165,6 +165,7 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(add_row, m)?)?;
     m.add_function(wrap_pyfunction!(add_rule_style, m)?)?;
     m.add_function(wrap_pyfunction!(add_rule, m)?)?;
+    m.add_function(wrap_pyfunction!(add_sash, m)?)?;
     m.add_function(wrap_pyfunction!(add_scrollable_style, m)?)?;
     m.add_function(wrap_pyfunction!(add_scrollable, m)?)?;
     m.add_function(wrap_pyfunction!(add_scroller, m)?)?;
@@ -175,9 +176,6 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(add_space, m)?)?;
     m.add_function(wrap_pyfunction!(add_span, m)?)?;
     m.add_function(wrap_pyfunction!(add_stack, m)?)?;
-    m.add_function(wrap_pyfunction!(add_splitter_h, m)?)?;
-    m.add_function(wrap_pyfunction!(add_splitter_v, m)?)?;
-    m.add_function(wrap_pyfunction!(add_splitter_style, m)?)?;
     m.add_function(wrap_pyfunction!(add_svg, m)?)?;
     m.add_function(wrap_pyfunction!(add_svg, m)?)?;
     m.add_function(wrap_pyfunction!(add_table, m)?)?;
@@ -244,6 +242,7 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<RowParam>()?;
     m.add_class::<RuleParam>()?;
     m.add_class::<RuleStyleParam>()?;
+    m.add_class::<SashParam>()?;
     m.add_class::<ScrollableParam>()?;
     m.add_class::<ScrollableStyleParam>()?;
     m.add_class::<ScrollerParam>()?;
@@ -253,9 +252,6 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<SliderStyleParam>()?;
     m.add_class::<SpanParam>()?;
     m.add_class::<StackParam>()?;
-    m.add_class::<SplitterHParam>()?;
-    m.add_class::<SplitterVParam>()?;
-    m.add_class::<SplitterStyleParam>()?;
     m.add_class::<StyleStandard>()?;
     m.add_class::<SvgParam>()?;
     m.add_class::<TableParam>()?;

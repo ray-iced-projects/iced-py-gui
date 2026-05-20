@@ -90,7 +90,6 @@ pub fn param_update(
         Widgets::TextInputStyle(w) => apply_update(w, item, value),
         Widgets::Toggler(w) => apply_update(w, item, value),
         Widgets::TogglerStyle(w) => apply_update(w, item, value),
-        Widgets::SplitterStyle(w) => apply_update(w, item, value),
     }
 }
 
@@ -115,11 +114,10 @@ pub fn container_param_update(
         Containers::Opaque(_) => panic!("Opaque does not support param_update"),
         Containers::RichText(w) => apply_update(w, item, value),
         Containers::Row(w) => apply_update(w, item, value),
+        Containers::Sash(w) => apply_update(w, item, value),
         Containers::Scrollable(w) => apply_update(w, item, value),
         Containers::Stack(w) => apply_update(w, item, value),
         Containers::Table(w) => apply_update(w, item, value),
-        Containers::SplitterH(w) => apply_update(w, item, value),
-        Containers::SplitterV(w) => apply_update(w, item, value),
         Containers::ToolTip(w) => apply_update(w, item, value),
         Containers::Window(w) => apply_update(w, item, value),
         _ => panic!("{:?} does not support param_update", container)

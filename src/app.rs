@@ -22,7 +22,7 @@ use crate::widgets::ipg_color_picker::{ColorPikMessage, color_picker_callback};
 use crate::widgets::ipg_checkbox::{ChkMessage, checkbox_callback};
 use crate::widgets::ipg_combo_box::{CBMessage, combo_box_callback};
 use crate::widgets::ipg_date_picker::{DPMessage, date_picker_update};
-use crate::widgets::ipg_splitter::{splitter_callback, splitter_release_callback};
+use crate::widgets::ipg_sash::{sash_callback, SashMessage};
 use crate::widgets::ipg_draw::{draw_callback, process_draw_updates};
 use crate::widgets::ipg_events::{process_keyboard_events, process_mouse_events, process_touch_events, process_window_event};
 use crate::widgets::ipg_mouse_area::{MaMessage, mousearea_callback};
@@ -58,15 +58,12 @@ pub enum Message {
     PickList(usize, PLMessage),
     Radio(usize, RDMessage),
     RichTextLinkClicked(usize, usize),
+    Sash(usize, SashMessage),
     Scrolled(scrollable::Viewport, usize),
     Slider(usize, SldMessage),
-
     TableScrolled(scrollable::Viewport, usize),
     TableDividerChanged((usize, usize, f32)),
     TableDividerReleased(usize),
-
-    SplitterChanged(usize, usize, f32),
-    SplitterReleased(usize, usize),
     TextEditor(usize, TxtEdMessage),
     TextInput(usize, TIMessage),
     Toggler(usize, TOGMessage),
@@ -242,6 +239,10 @@ impl App {
                 process_widget_updates(&mut self.state);
                 Task::none()
             },
+            Message::Sash(widget_id, message) => {
+                sash_callback(&mut self.state, widget_id, message);
+                Task::none()
+            },
             Message::Scrolled(vp, id) => {
                 scrollable_callback(id, vp);
                 process_widget_updates(&mut self.state);
@@ -266,16 +267,6 @@ impl App {
             Message::TableDividerReleased(id) => {
                 let message = TableMessage::DivOnRelease;
                 table_callback(&mut self.state, id, message);
-                process_widget_updates(&mut self.state);
-                Task::none()
-            },
-            Message::SplitterChanged(id, index, value) => {
-                splitter_callback(&mut self.state, id, index, value);
-                process_widget_updates(&mut self.state);
-                Task::none()
-            },
-            Message::SplitterReleased(id, index) => {
-                splitter_release_callback(&mut self.state, id, index);
                 process_widget_updates(&mut self.state);
                 Task::none()
             },
@@ -771,8 +762,8 @@ fn get_container<'a>(state: &'a IpgState,
                 Containers::Opaque(op) => {
                     op.construct(content)
                 },
-                Containers::Table(table) => {
-                    table.construct(content, &state.widgets)
+                Containers::Sash(sh) => {
+                    sh.construct(content)
                 },
                 Containers::RichText(rt) => {
                     rt.construct(&[], &state.widgets)
@@ -786,11 +777,8 @@ fn get_container<'a>(state: &'a IpgState,
                 Containers::Stack(stk) => {
                     stk.construct(content)
                 }
-                Containers::SplitterH(sph) => {
-                    sph.construct(content, &state.widgets)
-                },
-                Containers::SplitterV(spv) => {
-                    spv.construct(content, &state.widgets)
+                Containers::Table(table) => {
+                    table.construct(content, &state.widgets)
                 },
                 Containers::ToolTip(tool) => {
                     if content.len() > 2 {

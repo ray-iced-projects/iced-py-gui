@@ -49,6 +49,7 @@ from .icedpygui import (
     add_row as _add_row,
     add_rule as _add_rule,
     add_rule_style,
+    add_sash as _add_sash,
     add_scrollable as _add_scrollable,
     add_scrollable_style,
     add_scroller,
@@ -60,9 +61,6 @@ from .icedpygui import (
     add_slider_style,
     add_space as _add_space,
     add_stack as _add_stack,
-    add_splitter_h as _add_splitter_h,
-    add_splitter_v as _add_splitter_v,
-    add_splitter_style,
     add_svg as _add_svg,
     add_table as _add_table,
     add_table_style,
@@ -132,6 +130,7 @@ from .icedpygui import (
     RowParam,
     RuleParam,
     RuleStyleParam,
+    SashParam,
     ScrollableParam,
     ScrollableStyleParam,
     ScrollerParam,
@@ -140,9 +139,6 @@ from .icedpygui import (
     SliderParam,
     SliderStyleParam,
     StackParam,
-    SplitterHParam,
-    SplitterVParam,
-    SplitterStyleParam,
     StyleStandard,
     SvgParam,
     TableParam,
@@ -334,14 +330,12 @@ add_rich_text = _wrap_container(_add_rich_text, "add_rich_text")
 add_rich_text.__doc__ = _add_rich_text.__doc__
 add_row = _wrap_container(_add_row, "add_row")
 add_row.__doc__ = _add_row.__doc__
+add_sash = _wrap_container(_add_sash, "add_sash")
+add_sash.__doc__ = _add_sash.__doc__
 add_scrollable = _wrap_container(_add_scrollable, "add_scrollable")
 add_scrollable.__doc__ = _add_scrollable.__doc__
 add_stack = _wrap_container(_add_stack, "add_stack")
 add_stack.__doc__ = _add_stack.__doc__
-add_splitter_h = _wrap_container(_add_splitter_h, "add_splitter_h")
-add_splitter_h.__doc__ = _add_splitter_h.__doc__
-add_splitter_v = _wrap_container(_add_splitter_v, "add_splitter_v")
-add_splitter_v.__doc__ = _add_splitter_v.__doc__
 add_table = _wrap_container(_add_table, "add_table")
 add_table.__doc__ = _add_table.__doc__
 add_tool_tip = _wrap_container(_add_tool_tip, "_add_tool_tip")
@@ -923,6 +917,46 @@ class Row:
         _parent_stack.pop()
         return False
 
+
+class Sash:
+    """Wrapper for add_sash"""
+    def __init__(self, *, container_id=None, window_id=None, parent_id=None, **kwargs):
+        self.window_id = (
+            _resolve_window_id(window_id)
+            if window_id is not None
+            else _current_window_or_parent(parent_id)
+        )
+        if self.window_id is None:
+            raise ValueError("Sash: window_id is required (either pass it\
+                or use a Window context manager)")
+        self.container_id = (
+            container_id
+            if container_id is not None
+            else str(generate_id())
+        )
+        self.parent_id = parent_id
+        self.kwargs = kwargs
+        self.numeric_id = 0
+
+    def __enter__(self):
+        pid = self.parent_id or _current_parent()
+        if pid is not None:
+            pid = _resolve_parent_id(pid)
+        self.numeric_id = _add_sash(
+            window_id=self.window_id,
+            container_id=self.container_id,
+            parent_id=pid,
+            **self.kwargs,
+        )
+        _register_container(self.numeric_id, self.container_id, self.window_id)
+        _parent_stack.append(self.container_id)
+        return self.numeric_id
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        _parent_stack.pop()
+        return False
+
+
 class Stack:
     """Wrapper for add_stack"""
     def __init__(self, *, container_id=None, window_id=None, parent_id=None, **kwargs):
@@ -1065,86 +1099,6 @@ class ToolTip:
         self.numeric_id = _add_tool_tip(
             window_id=self.window_id,
             container_id=self.container_id,
-            parent_id=pid,
-            **self.kwargs,
-        )
-        _register_container(self.numeric_id, self.container_id, self.window_id)
-        _parent_stack.append(self.container_id)
-        return self.numeric_id
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        _parent_stack.pop()
-        return False
-
-
-class SplitterH:
-    """Context manager for add_splitter_h — side-by-side resizable panels."""
-    def __init__(self, *, sizes, height, container_id=None, window_id=None,
-                 parent_id=None, **kwargs):
-        self.window_id = (
-            _resolve_window_id(window_id)
-            if window_id is not None
-            else _current_window_or_parent(parent_id)
-        )
-        if self.window_id is None:
-            raise ValueError("SplitterH: window_id is required (either pass it "
-                             "or use a Window context manager)")
-        self.container_id = container_id if container_id is not None else str(generate_id())
-        self.sizes = sizes
-        self.height = height
-        self.parent_id = parent_id
-        self.kwargs = kwargs
-        self.numeric_id = 0
-
-    def __enter__(self):
-        pid = self.parent_id or _current_parent()
-        if pid is not None:
-            pid = _resolve_parent_id(pid)
-        self.numeric_id = _add_splitter_h(
-            window_id=self.window_id,
-            container_id=self.container_id,
-            sizes=self.sizes,
-            height=self.height,
-            parent_id=pid,
-            **self.kwargs,
-        )
-        _register_container(self.numeric_id, self.container_id, self.window_id)
-        _parent_stack.append(self.container_id)
-        return self.numeric_id
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        _parent_stack.pop()
-        return False
-
-
-class SplitterV:
-    """Context manager for add_splitter_v — stacked resizable panels."""
-    def __init__(self, *, sizes, width, container_id=None, window_id=None,
-                 parent_id=None, **kwargs):
-        self.window_id = (
-            _resolve_window_id(window_id)
-            if window_id is not None
-            else _current_window_or_parent(parent_id)
-        )
-        if self.window_id is None:
-            raise ValueError("SplitterV: window_id is required (either pass it "
-                             "or use a Window context manager)")
-        self.container_id = container_id if container_id is not None else str(generate_id())
-        self.sizes = sizes
-        self.width = width
-        self.parent_id = parent_id
-        self.kwargs = kwargs
-        self.numeric_id = 0
-
-    def __enter__(self):
-        pid = self.parent_id or _current_parent()
-        if pid is not None:
-            pid = _resolve_parent_id(pid)
-        self.numeric_id = _add_splitter_v(
-            window_id=self.window_id,
-            container_id=self.container_id,
-            sizes=self.sizes,
-            width=self.width,
             parent_id=pid,
             **self.kwargs,
         )

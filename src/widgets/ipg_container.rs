@@ -166,15 +166,15 @@ impl Container {
 #[derive(Debug, Clone, PartialEq)]
 pub struct ContainerStyle {
     pub id: usize,
-    pub background_color: Option<Color>,
-    pub background_color_alpha: Option<f32>,
-    pub background_rgba: Option<[f32; 4]>,
-    pub background_gradient_color_stop: Option<Color>,
-    pub background_gradient_color_stop_alpha: Option<f32>,
-    pub background_gradient_rgba_stop: Option<[f32; 4]>,
-    pub background_gradient_degrees: Option<f32>,
-    pub background_gradient_radians: Option<f32>,
-    pub background_gradient_alpha: Option<f32>,
+    pub bkg_color: Option<Color>,
+    pub bkg_color_alpha: Option<f32>,
+    pub bkg_rgba: Option<[f32; 4]>,
+    pub bkg_gradient_color_stop: Option<Color>,
+    pub bkg_gradient_color_stop_alpha: Option<f32>,
+    pub bkg_gradient_rgba_stop: Option<[f32; 4]>,
+    pub bkg_gradient_degrees: Option<f32>,
+    pub bkg_gradient_radians: Option<f32>,
+    pub bkg_gradient_alpha: Option<f32>,
     pub border_color: Option<Color>,
     pub border_color_alpha: Option<f32>,
     pub border_rgba: Option<[f32; 4]>,
@@ -203,10 +203,10 @@ impl ContainerStyle {
                 st.to_iced(theme)
             } else { widget::container::transparent(theme) };
 
-        let background_color = 
-            Color::rgba_ipg_color_to_iced(self.background_rgba, &self.background_color, self.background_color_alpha);
-        let background_gradient_color_stop = 
-            Color::rgba_ipg_color_to_iced(self.background_gradient_rgba_stop, &self.background_gradient_color_stop, self.background_gradient_alpha);
+        let bkg_color = 
+            Color::rgba_ipg_color_to_iced(self.bkg_rgba, &self.bkg_color, self.bkg_color_alpha);
+        let bkg_gradient_color_stop = 
+            Color::rgba_ipg_color_to_iced(self.bkg_gradient_rgba_stop, &self.bkg_gradient_color_stop, self.bkg_gradient_alpha);
         let border_color = 
             Color::rgba_ipg_color_to_iced(self.border_rgba, &self.border_color, self.border_color_alpha);
         let shadow_color = 
@@ -216,10 +216,10 @@ impl ContainerStyle {
 
         // Apply remaining optional overrides
         apply_background_color_overrides(
-            &mut style.background, background_color,
-            background_gradient_color_stop,
-            self.background_gradient_degrees,
-            self.background_gradient_radians,
+            &mut style.background, bkg_color,
+            bkg_gradient_color_stop,
+            self.bkg_gradient_degrees,
+            self.bkg_gradient_radians,
         );
 
         apply_border_overrides(
@@ -324,14 +324,14 @@ pub enum ContainerParam {
 #[derive(Debug, Clone, PartialEq, Hash)]
 #[pyclass(eq, eq_int, hash, frozen)]
 pub enum ContainerStyleParam {
-    BackgroundColor, 
-    BackgroundRgba,
-    BackgroundColorAlpha,
-    BackgroundGradientColorStop,
-    BackgroundGradientRgbaStop,
-    BackgroundGradientDegrees,
-    BackgroundGradientRadians,
-    BackgroundGradientAlpha,
+    BkgColor, 
+    BkgRgba,
+    BkgColorAlpha,
+    BkgGradientColorStop,
+    BkgGradientRgbaStop,
+    BkgGradientDegrees,
+    BkgGradientRadians,
+    BkgGradientAlpha,
     BorderColor, 
     BorderRgba,
     BorderColorAlpha,
@@ -387,14 +387,14 @@ impl WidgetParamUpdate for ContainerStyle {
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
-            ContainerStyleParam::BackgroundColor  => set_t_value(&mut self.background_color, value, "ContainerStyleParam::BackgroundColor"),
-            ContainerStyleParam::BackgroundColorAlpha => set_t_value(&mut self.background_color_alpha, value, "ContainerStyleParam::BackgroundColorAlpha"),
-            ContainerStyleParam::BackgroundGradientAlpha => set_t_value(&mut self.background_gradient_alpha, value, "ContainerStyleParam::BackgroundGradientAlpha"),
-            ContainerStyleParam::BackgroundGradientColorStop => set_t_value(&mut self.background_gradient_color_stop, value, "ContainerStyleParam::BackgroundGradientColorStop"),
-            ContainerStyleParam::BackgroundGradientDegrees => set_t_value(&mut self.background_gradient_degrees, value, "ContainerStyleParam::BackgroundGradientDegrees"),
-            ContainerStyleParam::BackgroundGradientRadians => set_t_value(&mut self.background_gradient_radians, value, "ContainerStyleParam::BackgroundGradientRadians"),
-            ContainerStyleParam::BackgroundGradientRgbaStop => set_t_value(&mut self.background_gradient_rgba_stop, value, "ContainerStyleParam::BackgroundGradientRgbaStop"),
-            ContainerStyleParam::BackgroundRgba => set_t_value(&mut self.background_rgba, value, "ContainerStyleParam::BackgroundRgba"),
+            ContainerStyleParam::BkgColor  => set_t_value(&mut self.bkg_color, value, "ContainerStyleParam::BkgColor"),
+            ContainerStyleParam::BkgColorAlpha => set_t_value(&mut self.bkg_color_alpha, value, "ContainerStyleParam::BkgColorAlpha"),
+            ContainerStyleParam::BkgGradientAlpha => set_t_value(&mut self.bkg_gradient_alpha, value, "ContainerStyleParam::BkgGradientAlpha"),
+            ContainerStyleParam::BkgGradientColorStop => set_t_value(&mut self.bkg_gradient_color_stop, value, "ContainerStyleParam::BkgGradientColorStop"),
+            ContainerStyleParam::BkgGradientDegrees => set_t_value(&mut self.bkg_gradient_degrees, value, "ContainerStyleParam::BkgGradientDegrees"),
+            ContainerStyleParam::BkgGradientRadians => set_t_value(&mut self.bkg_gradient_radians, value, "ContainerStyleParam::BkgGradientRadians"),
+            ContainerStyleParam::BkgGradientRgbaStop => set_t_value(&mut self.bkg_gradient_rgba_stop, value, "ContainerStyleParam::BkgGradientRgbaStop"),
+            ContainerStyleParam::BkgRgba => set_t_value(&mut self.bkg_rgba, value, "ContainerStyleParam::BkgRgba"),
             ContainerStyleParam::BorderColor => set_t_value(&mut self.border_color, value, "ContainerStyleParam::BorderColor"),
             ContainerStyleParam::BorderColorAlpha => set_t_value(&mut self.border_color_alpha, value, "ContainerStyleParam::BorderColorAlpha"),
             ContainerStyleParam::BorderRadius => set_t_value(&mut self.border_radius, value, "ContainerStyleParam::BorderRadius"),

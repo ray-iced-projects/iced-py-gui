@@ -84,6 +84,7 @@ type PyObject = Py<PyAny>;
     sync_cross_sashes=None,
     parent_id=None,
     outer_handle_size=None,
+    cross_handle_size=None,
     resize_mode_last_only=None,
     resize_mode_uniform=None,
     resize_mode_proportional=None,
@@ -107,6 +108,7 @@ pub fn add_sash(
     sync_cross_sashes: Option<bool>,
     parent_id: Option<String>,
     outer_handle_size: Option<f32>,
+    cross_handle_size: Option<f32>,
     resize_mode_last_only: Option<bool>,
     resize_mode_uniform: Option<bool>,
     resize_mode_proportional: Option<bool>,
@@ -162,6 +164,7 @@ pub fn add_sash(
             sync_sashes,
             sync_cross_sashes,
             outer_handle_size,
+            cross_handle_size,
             resize_mode_last: resize_mode_last_only,
             resize_mode_uniform,
             resize_mode_proportional,
@@ -170,6 +173,7 @@ pub fn add_sash(
             max_size,
             style_id,
             show,
+            resize_mode: iced_sash::OuterResizeMode::LastOnly,
         }));
 
     drop(state);

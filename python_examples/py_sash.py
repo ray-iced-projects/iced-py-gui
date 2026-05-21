@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+    #!/usr/bin/env python3
 """
 Sash use demo
 """
@@ -33,11 +33,12 @@ state = {"is_checked": False,
          }
 
 
-def on_checked(chk_id: int, checked: bool):
+def sync_resize_h(chk_id: int, checked: bool):
     """Set the checkbox"""
     update_widget(chk_id, CheckboxParam.IsChecked, checked)
     state["is_checked"] = checked
-
+    for s_id in state["sash_ids"]:
+        update_widget(s_id, SashParam.SyncSashes, checked)
 
 def on_resize_sash_h(sh_id: int, data: tuple[int, float]):
     """Resizing Horizontal Sash"""
@@ -61,11 +62,11 @@ def on_radio_selected(_rd_id: int, index: int):
 
 
 #  First add a window
-with Window(title="Button Parameters", center=True):
+with Window(title="Sash Demo", center=True):
     with Row(spacing=20.0):
         with Column(spacing=20.0):
             add_text(content="Use the mouse to drag the sashes left or right")
-            with Column(spacing=20.0):
+            with Column(spacing=20.0, width=750):
                 for i in range(2):
                     with Sash(
                         initial_sizes=sizes,
@@ -89,7 +90,11 @@ with Window(title="Button Parameters", center=True):
 
             # Add some controls
             with Column(spacing=20.0):
-                add_checkbox(label="Sync SashesH", is_checked=False, on_toggle=on_checked)
+                add_checkbox(
+                    label="Sync SashesH",
+                    is_checked=False,
+                    on_toggle=sync_resize_h)
+
                 add_radio(
                     labels=["Last Only", "Uniform", "Proportional"],
                     on_selected=on_radio_selected)

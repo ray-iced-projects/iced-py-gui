@@ -18,12 +18,16 @@ from icedpygui import (
     add_container_style,
     update_widget,)
 
+cont_styles = []
+cont_styles.append(add_container_style(bkg_rgba=[0.25, 0.35, 0.55, 1.0]))
+cont_styles.append(add_container_style(bkg_rgba=[0.30, 0.50, 0.35, 1.0]))
+cont_styles.append(add_container_style(bkg_rgba=[0.55, 0.35, 0.25, 1.0]))
 
-left_style = add_container_style(bkg_rgba=[0.25, 0.35, 0.55, 1.0])
-middle_style = add_container_style(bkg_rgba=[0.30, 0.50, 0.35, 1.0])
-right_style = add_container_style(bkg_rgba=[0.55, 0.35, 0.25, 1.0])
+h_contents = ["Left", "Center", "Right"]
+v_contents = ["Top", "Center", "Bottom"]
 
-sizes = [200.0, 300.0, 200.0]
+h_sizes = [150.0, 200.0, 150.0]
+v_sizes = [100.0, 200.0, 100.0]
 
 state = {"is_checked": False,
          "sync_sashes": False,
@@ -71,67 +75,71 @@ def on_radio_selected(_rd_id: int, index: int):
 
 
 #  First add a window
-with Window(title="Sash Demo", center=True):
+with Window(title="Sash Demo", center=True, size=(900, 600)):
     with Row(spacing=20.0, fill=True):
         with Column(spacing=20.0, height_fill=True):
-            add_text(content="Use the mouse to drag the sashes left or right")
-            with Column(spacing=20.0, width=750, height=500):
+            add_text(content="Use the mouse to drag the sashes left or right\n"
+                     + "drag the cross sashes using bottom sashes")
+            with Column(spacing=20.0, width=650, height=350):
                 for i in range(2):
                     with Sash(
-                        initial_sizes=sizes,
-                        size=200.0,
+                        initial_sizes=h_sizes,
+                        size=150.0,
                         sash_size=4.0,
-                        cross_handle_size=5.0, # once set, enables cross sizing
+                        # once set, enables cross sizing
+                        cross_handle_size=5.0,
                         outer_handle_size=4.0,
-                        # for the sashes, no callbacks are needed unless dynamic setting are wanted
+                        # for the sashes, no callbacks are needed
+                        # unless dynamic setting are wanted
                         on_resize=on_resize_sash_h,
                         on_resize_outer=on_resize_outer) as sash_id:
 
                         state["sash_ids"].append(sash_id)
 
-                        # Add containers to the Sash
-                        with Container(fill=True, align_center=True, style_id=left_style):
-                            add_text(content="Left")
+                        for i in range(3):
+                            # Add containers to the Sash
+                            with Container(
+                                fill=True,
+                                align_center=True,
+                                style_id=cont_styles[i]):
 
-                        with Container(fill=True, align_center=True, style_id=middle_style):
-                            add_text(content="Center")
+                                add_text(content=h_contents[i])
 
-                        with Container(fill=True, align_center=True, style_id=right_style):
-                            add_text(content="Right")
+            with Row(spacing=20):
+                # Add some controls
+                with Column(spacing=10.0, padding=[10]):
+                    add_checkbox(
+                        label="Sync SashesH",
+                        is_checked=False,
+                        on_toggle=sync_resize_h)
 
-            # Add some controls
-            with Column(spacing=20.0):
-                add_checkbox(
-                    label="Sync SashesH",
-                    is_checked=False,
-                    on_toggle=sync_resize_h)
+                    add_checkbox(
+                        label="Sync Cross SashH",
+                        is_checked=False,
+                        on_toggle=sync_resize_cross_h)
 
-                add_checkbox(
-                    label="Sync Cross SashH",
-                    is_checked=False,
-                    on_toggle=sync_resize_cross_h)
+                with Column(spacing=10.0, padding=[10]):
+                    add_text(content="Outer Sash (right side) drag parameters")
 
-                add_radio(
-                    labels=["Last Only", "Uniform", "Proportional"],
-                    on_selected=on_radio_selected)
+                    add_radio(
+                        labels=["Last Only (default)", "Uniform", "Proportional"],
+                        on_selected=on_radio_selected)
 
         with Column(spacing=20.0, height_fill=True):
             add_text(content="Use the mouse to drag the sashes up or down")
             with Sash(
-                initial_sizes=sizes,
+                initial_sizes=v_sizes,
                 size=200.0,
                 sash_size=4.0,
                 vertical_direction=True):
 
-                # Add containers to the Sash
-                with Container(fill=True, align_center=True, style_id=left_style):
-                    add_text(content="Top")
+                for i in range(3):
+                    # Add containers to the Sash
+                    with Container(
+                        fill=True,
+                        align_center=True,
+                        style_id=cont_styles[i]):
 
-                with Container(fill=True, align_center=True, style_id=middle_style):
-                    add_text(content="Center")
-
-                with Container(fill=True, align_center=True, style_id=right_style):
-                    add_text(content="Bottom")
-
+                        add_text(content=v_contents[i])
 
 start_session()

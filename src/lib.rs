@@ -72,28 +72,29 @@ use crate::py_api::update::{update_widget, update_widget_params, delete_widget, 
 
 // Import enums from widgets module
 use crate::widgets::enums::ContentFit;
-use crate::widgets::ipg_draw::DrawParam;
-use crate::widgets::ipg_font::{FontFamily, FontStretch, FontStyle, FontWeight};
-use crate::widgets::ipg_image::ImageParam;
-use crate::widgets::ipg_mouse_area::MousePointer;
-use crate::widgets::ipg_progress_bar::{ProgressBarParam, ProgressBarStyleParam, ProgressBarStyleStd};
-use crate::widgets::ipg_sash::SashParam;
-use crate::widgets::styling::StyleStandard;
+
+
+
 use crate::graphics::{bootstrap_icon::Icon, bootstrap_arrow::Arrow};
 use crate::graphics::colors::Color;
-
 use crate::widgets::ipg_button::{ButtonParam, ButtonStyleParam, ButtonStyleStd};
 use crate::widgets::ipg_card::{CardParam, CardStyleParam, CardStyleStd};
 use crate::widgets::ipg_checkbox::{CheckboxParam, CheckboxStyleParam, CheckboxStyleStd};
 use crate::widgets::ipg_column::ColumnParam;
 use crate::widgets::ipg_container::{ContainerParam, ContainerStyleParam, ContainerStyleStd};
 use crate::widgets::ipg_date_picker::DatePickerParam;
+use crate::widgets::ipg_draw::DrawParam;
 use crate::widgets::ipg_float::FloatParam;
+use crate::widgets::ipg_font::{FontFamily, FontStretch, FontStyle, FontWeight};
 use crate::widgets::ipg_grid::GridParam;
+use crate::widgets::ipg_image::ImageParam;
 use crate::widgets::ipg_menu::{MenuBarItemParam, MenuParam, MenuStyleParam, MenuSubItemParam};
+use crate::widgets::ipg_mouse_area::MousePointer;
+use crate::widgets::ipg_progress_bar::{ProgressBarParam, ProgressBarStyleParam, ProgressBarStyleStd};
 use crate::widgets::ipg_radio::{RadioParam, RadioStyleParam};
 use crate::widgets::ipg_row::RowParam;
 use crate::widgets::ipg_rule::{RuleParam, RuleStyleParam};
+use crate::widgets::ipg_sash::{SashParam, SashStyleParam, SashStyleStd};
 use crate::widgets::ipg_scrollable::{AutoScrollStyleParam, RailStyleParam, ScrollableParam, ScrollableStyleParam, ScrollerParam};
 use crate::widgets::ipg_separator::{SeparatorParam, SeparatorStyleParam};
 use crate::widgets::ipg_slider::{SliderParam, SliderStyleParam};
@@ -107,7 +108,7 @@ use crate::widgets::ipg_timer::{TimerParam, update_timer};
 use crate::widgets::ipg_toggle::{TogglerParam, TogglerStyleParam};
 use crate::widgets::ipg_tool_tip::ToolTipParam;
 use crate::widgets::ipg_window::{WindowLevel, WindowMode, WindowTheme, WindowParam};
-
+use crate::widgets::styling::StyleStandard;
 // events
 use crate::py_api::events::add_event_window;
 use crate::py_api::timer::add_event_timer;
@@ -244,6 +245,8 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<RuleParam>()?;
     m.add_class::<RuleStyleParam>()?;
     m.add_class::<SashParam>()?;
+    m.add_class::<SashStyleParam>()?;
+    m.add_class::<SashStyleStd>()?;
     m.add_class::<ScrollableParam>()?;
     m.add_class::<ScrollableStyleParam>()?;
     m.add_class::<ScrollerParam>()?;

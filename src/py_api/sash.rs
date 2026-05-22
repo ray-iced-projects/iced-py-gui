@@ -72,6 +72,9 @@ type PyObject = Py<PyAny>;
 ///     Sets the maximum pixel size of the sash in the cross-axis direction.
 /// style_id : int, Optional
 ///     Sets the ID of a custom style created with ``add_sash_style``.
+/// style_std : int, Optional
+///     Sets a standard style,
+///     Subtle(default), Primary, or Transparent.
 /// user_data : Any, Optional
 ///     Sets arbitrary data forwarded as a third argument to all callbacks.
 /// show : bool, default True

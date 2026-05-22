@@ -1668,13 +1668,25 @@ class Sash:
                 state["sash_ids"].append(sash_id)
 
                 # Add containers to the Sash
-                with Container(fill=True, align_center=True, style_id=left_style):
+                with Container(
+                    fill=True,
+                    align_center=True,
+                    style_id=left_style):
+
                     add_text(content="Left")
 
-                with Container(fill=True, align_center=True, style_id=middle_style):
+                with Container(
+                    fill=True,
+                    align_center=True,
+                    style_id=middle_style):
+
                     add_text(content="Center")
 
-                with Container(fill=True, align_center=True, style_id=right_style):
+                with Container(
+                    fill=True,
+                    align_center=True,
+                    style_id=right_style):
+
                     add_text(content="Right")
 
         start_session()

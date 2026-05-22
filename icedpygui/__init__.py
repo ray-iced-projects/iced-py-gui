@@ -133,6 +133,7 @@ from .icedpygui import (
     RuleStyleParam,
     SashParam,
     SashStyleParam,
+    SashStyleStd,
     ScrollableParam,
     ScrollableStyleParam,
     ScrollerParam,

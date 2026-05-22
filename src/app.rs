@@ -763,7 +763,7 @@ fn get_container<'a>(state: &'a IpgState,
                     op.construct(content)
                 },
                 Containers::Sash(sh) => {
-                    sh.construct(content)
+                    sh.construct(content, &state.widgets)
                 },
                 Containers::RichText(rt) => {
                     rt.construct(&[], &state.widgets)

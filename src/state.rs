@@ -38,7 +38,7 @@ use crate::widgets::ipg_progress_bar::{ProgressBar, ProgressBarStyle};
 use crate::widgets::ipg_radio::{Radio, RadioStyle};
 use crate::widgets::ipg_row::Row;
 use crate::widgets::ipg_rule::{Rule, RuleStyle};
-use crate::widgets::ipg_sash::Sash;
+use crate::widgets::ipg_sash::{Sash, SashStyle};
 use crate::widgets::ipg_scrollable::{AutoScrollStyle, RailStyle, 
     Scrollable, ScrollableStyle, Scroller};
 use crate::widgets::ipg_separator::{Separator, SeparatorStyle};
@@ -112,6 +112,7 @@ pub enum Widgets {
     RadioStyle(RadioStyle),
     Rule(Rule),
     RuleStyle(RuleStyle),
+    SashStyle(SashStyle),
     ScrollableStyle(ScrollableStyle),
     Scroller(Scroller),
     TableStyle(TableStyle),
@@ -180,6 +181,7 @@ ipg_widget_accessors! {
     RadioStyle       => RadioStyle,        as_radio_style,         as_radio_style_mut;
     Rule             => Rule,              as_rule,                as_rule_mut;
     RuleStyle        => RuleStyle,         as_rule_style,          as_rule_style_mut;
+    SashStyle        => SashStyle,         as_sash_style,          as_sash_style_mut;
     Scroller         => Scroller,          as_scroller,            as_scroller_mut;
     ScrollableStyle  => ScrollableStyle,   as_scrollable_style,    as_scrollable_style_mut;
     RailStyle        => RailStyle,         as_rail_style,          as_rail_style_mut;

@@ -40,6 +40,15 @@ def sync_resize_h(chk_id: int, checked: bool):
     for s_id in state["sash_ids"]:
         update_widget(s_id, SashParam.SyncSashes, checked)
 
+
+def sync_resize_cross_h(chk_id: int, checked: bool):
+    """Sets the Resize Cross Hash"""
+    update_widget(chk_id, CheckboxParam.IsChecked, checked)
+    state["is_checked"] = checked
+    for s_id in state["sash_ids"]:
+        update_widget(s_id, SashParam.SyncCrossSashes, checked)
+
+
 def on_resize_sash_h(sh_id: int, data: tuple[int, float]):
     """Resizing Horizontal Sash"""
     print(sh_id, data)
@@ -63,16 +72,18 @@ def on_radio_selected(_rd_id: int, index: int):
 
 #  First add a window
 with Window(title="Sash Demo", center=True):
-    with Row(spacing=20.0):
-        with Column(spacing=20.0):
+    with Row(spacing=20.0, fill=True):
+        with Column(spacing=20.0, height_fill=True):
             add_text(content="Use the mouse to drag the sashes left or right")
-            with Column(spacing=20.0, width=750):
+            with Column(spacing=20.0, width=750, height=500):
                 for i in range(2):
                     with Sash(
                         initial_sizes=sizes,
                         size=200.0,
                         sash_size=4.0,
+                        cross_handle_size=5.0, # once set, enables cross sizing
                         outer_handle_size=4.0,
+                        # for the sashes, no callbacks are needed unless dynamic setting are wanted
                         on_resize=on_resize_sash_h,
                         on_resize_outer=on_resize_outer) as sash_id:
 
@@ -94,6 +105,11 @@ with Window(title="Sash Demo", center=True):
                     label="Sync SashesH",
                     is_checked=False,
                     on_toggle=sync_resize_h)
+
+                add_checkbox(
+                    label="Sync Cross SashH",
+                    is_checked=False,
+                    on_toggle=sync_resize_cross_h)
 
                 add_radio(
                     labels=["Last Only", "Uniform", "Proportional"],

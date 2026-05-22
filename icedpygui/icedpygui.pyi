@@ -629,6 +629,143 @@ def add_rule_style(
 
     """
 
+def add_sash_style(
+
+    ) -> int:
+    """
+    Add styling to a sash handle bar.
+
+    Creates a custom style that can be applied to a sash via its ``style_id``
+    parameter. The style controls the appearance of the draggable handle bars.
+
+    Usage::
+
+    style_id = add_sash_style(bkg_color=Color.BLUE)
+
+    then:
+        with Sash(style_id=style_id):
+        ...
+
+    Parameters
+    ----------
+    bkg_color : Color, Optional
+        Sets the handle background color using a predefined color variant.
+    bkg_color_alpha : float, Optional
+        Sets the alpha transparency for the background color.
+    bkg_rgba : list of float, Optional
+        Sets the handle background color in rgba format as [r, g, b, a].
+    border_color : Color, Optional
+        Sets the border color using a predefined color variant.
+    border_color_alpha : float, Optional
+        Sets the alpha transparency for the border color.
+    border_rgba : list of float, Optional
+        Sets the border color in rgba format as [r, g, b, a].
+    border_width : float, Optional
+        Sets the border width in logical pixels.
+    border_radius : float, Optional
+        Sets the corner radius of the handle bar in logical pixels.
+    gen_id : int, Optional
+        Supplies a pre-generated ID instead of allocating a new one.
+
+    Returns
+    -------
+    int
+        The numeric style ID to pass to a sash's ``style_id`` parameter.
+    """
+class SashParam:
+    """
+    Sash Parameters: Resizable panels container.
+
+    Parameters
+    ----------
+    InitalSizes: list[float]
+        Sets the inital sizes of the Sash
+    MaxSize: float
+        Sets the maximum size.
+    MinSize: float
+        Sets the minimum size.
+    OuterHandleSize: float
+        Sets the Outer Handle size.
+    ResizeModeLastOnly: bool
+        Whether to only resize the last container
+    ResizeModeProportional: bool
+        Whether to size all the containers porportionally.
+    ResizeModeUniform: bool
+        Whether to size all the containers uniformily.
+    SashSize: float
+        Sets the sash sizes
+    Show: bool
+        Whether to show the Sash
+    StyleId: int
+        Sets the style id of the Sash
+    SyncSashes: bool
+        Whether to sync the Sashes Horizontally
+    SyncCrossSashes: bool
+        Whether to sync the Sashes Cross wize
+    VerticalDirection: bool
+        Whether the Sash is vertical
+
+    Examples
+    --------
+    >>> update_item(wid=0, param=SashParam.MinSize, 20.0)
+    >>> update_item(wid=0, param=SashParam.ResizeModeProportional, True)
+    """
+    InitialSizes: list[float]
+    MaxSize: float
+    MinSize: float
+    OuterHandleSize: float
+    ResizeModeLastOnly: bool
+    ResizeModeProportional: bool
+    ResizeModeUniform: bool
+    SashSize: float
+    Show: bool
+    StyleId: int
+    SyncSashes: bool
+    SyncCrossSashes: bool
+    VerticalDirection: bool
+
+class SashStyleParam:
+    """
+    Add styling to a sash handle bar.
+
+    Creates a custom style that can be applied to a sash via its ``style_id``
+    parameter. The style controls the appearance of the draggable handle bars.
+
+    Parameters
+    ----------
+    bkg_color : Color
+        Sets the handle background color using a predefined color variant.
+    bkg_color_alpha : float
+        Sets the alpha transparency for the background color.
+    bkg_rgba : list of float
+        Sets the handle background color in rgba format as [r, g, b, a].
+    border_color : Color
+        Sets the border color using a predefined color variant.
+    border_color_alpha : float
+        Sets the alpha transparency for the border color.
+    border_rgba : list of float
+        Sets the border color in rgba format as [r, g, b, a].
+    border_width : float
+        Sets the border width in logical pixels.
+    border_radius : float
+        Sets the corner radius of the handle bar in logical pixels.
+    gen_id : int
+        Supplies a pre-generated ID instead of allocating a new one.
+
+    Examples
+    --------
+    >>> update_item(wid=0, param=SashStyleParam.Color, Color.BLUE)
+    >>> update_item(wid=0, param=SashStyleParam.BorderRadius, 5.0)
+    """
+    BkgColor: Color
+    BkgColor_alpha: float
+    Bkg_rgba: list[float, 4]
+    BorderColor: Color
+    BorderColor_alpha: float
+    BorderRgba: list[float, 4]
+    BorderWidth: float
+    BorderRadius: float
+
 def add_scrollable_style(
         vertical_rail_style_id: int | None = None,
         horizontal_rail_style_id: int | None = None,
@@ -3029,60 +3166,6 @@ class RuleStyleParam:
     FillModePercent: float
     FillModePadded: int
     FillModeAsymmetricPadding: list[int]
-
-
-class SashParam:
-    """
-    Sash Parameters: Resizable panels container.
-
-    Parameters
-    ----------
-    InitalSizes: list[float]
-        Sets the inital sizes of the Sash
-    MaxSize: float
-        Sets the maximum size.
-    MinSize: float
-        Sets the minimum size.
-    OuterHandleSize: float
-        Sets the Outer Handle size.
-    ResizeModeLastOnly: bool
-        Whether to only resize the last container
-    ResizeModeProportional: bool
-        Whether to size all the containers porportionally.
-    ResizeModeUniform: bool
-        Whether to size all the containers uniformily.
-    SashSize: float
-        Sets the sash sizes
-    Show: bool
-        Whether to show the Sash
-    StyleId: int
-        Sets the style id of the Sash
-    SyncSashes: bool
-        Whether to sync the Sashes Horizontally
-    SyncCrossSashes: bool
-        Whether to sync the Sashes Cross wize
-    VerticalDirection: bool
-        Whether the Sash is vertical
-
-    Examples
-    --------
-    >>> update_item(wid=0, param=Sash.MinSize, 20.0)
-    >>> update_item(wid=0, param=Sash.ResizeModeProportional, True)
-    """
-    InitialSizes: list[float]
-    MaxSize: float
-    MinSize: float
-    OuterHandleSize: float
-    ResizeModeLastOnly: bool
-    ResizeModeProportional: bool
-    ResizeModeUniform: bool
-    SashSize: float
-    Show: bool
-    StyleId: int
-    SyncSashes: bool
-    SyncCrossSashes: bool
-    VerticalDirection: bool
-
 
 class ScrollableDirection:
     """

@@ -6,9 +6,15 @@
 
 #![allow(non_camel_case_types)]
 #![allow(clippy::upper_case_acronyms)]
-use iced::gradient::ColorStop;
+use iced::{gradient::ColorStop, theme::palette};
 use pyo3::{Py, PyAny, Python, pyclass};
 type PyObject = Py<PyAny>;
+
+
+pub fn background(color: iced::Color) -> iced::theme::palette::Background {
+    let text_seed = if palette::is_dark(color) { iced::Color::WHITE } else { iced::Color::BLACK };
+    palette::Background::new(color, text_seed)
+}
 
 
 #[derive(Debug, Clone, Default, PartialEq, Hash)]

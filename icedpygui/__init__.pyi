@@ -23,6 +23,7 @@ from .icedpygui import (
     add_opaque_style as add_opaque_style,
     add_progress_bar_style as add_progress_bar_style,
     add_radio_style as add_radio_style,
+    add_sash_style as add_sash_style,
     add_scrollable_style as add_scrollable_style,
     add_scroller as add_scroller,
     add_autoscroll_style as add_autoscroll_style,
@@ -909,7 +910,106 @@ def add_mouse_area(
         int: container id
     """
     ...
+def add_sash(
+    *,
+    window_id: str | None = None,
+    container_id: str | None = None,
+    initial_sizes: list[float],
+    size: float,
+    sash_size: float,
+    sync_sashes: bool | None = None,
+    sync_cross_sashes: bool | None = None,
+    parent_id: str | None = None,
+    outer_handle_size: float | None = None,
+    cross_handle_size: float | None = None,
+    resize_mode_last_only: bool | None = None,
+    resize_mode_uniform: bool | None = None,
+    resize_mode_proportional: bool | None = None,
+    on_resize: Callable | None = None,
+    on_resize_outer: Callable | None = None,
+    on_release: Callable | None = None,
+    vertical_direction: bool | None = None,
+    min_size: float | None = None,
+    max_size: float | None = None,
+    min_cross_size: float | None = None,
+    max_cross_size: float | None = None,
+    style_id: int | None = None,
+    user_data: Any | None = None,
+    show: bool = True,
+) -> int:
+    """
+    Add a sash (resizable panels) container.
 
+    A sash divides its children into resizable panels separated by draggable
+    handle bars. By default it is horizontal (panels arranged left-to-right).
+    Set ``vertical_direction=True`` to arrange panels top-to-bottom instead.
+
+    Parameters
+    ----------
+    window_id : str
+        Sets the window ID that this sash belongs to.
+    container_id : str
+        Sets the parent container ID that this sash belongs to.
+    initial_sizes : list of float
+        Sets the starting pixel size of each panel in the main axis direction.
+        One entry per child widget. The total should equal ``size``.
+    size : float
+        Sets the total pixel size of the sash in the main axis direction.
+    sash_size : float
+        Sets the width of each draggable handle bar in logical pixels.
+    sync_sashes : bool, Optional
+        When True, this sash joins the global sync group. All sashes with
+        ``sync_sashes=True`` share their panel sizes — resizing one updates
+        all others. Useful for syncing a header sash with a body sash.
+    sync_cross_sashes : bool, Optional
+        When True, syncs sashes that run perpendicular to the main axis.
+    parent_id : str, Optional
+        Sets an explicit parent container ID, overriding ``window_id``.
+    outer_handle_size : float, Optional
+        Sets the pixel size of the outer (edge) handle bars.
+    cross_handle_size : float, Optional
+        Sets the pixel size of the cross-axis handle bar. Setting this enables
+        cross-axis resizing (dragging the sash taller or shorter).
+    resize_mode_last_only : bool, Optional
+        When True, only the last panel absorbs resize overflow.
+    resize_mode_uniform : bool, Optional
+        When True, all panels resize by equal amounts.
+    resize_mode_proportional : bool, Optional
+        When True, panels resize proportionally to their current sizes.
+    on_resize : callable, Optional
+        Callback invoked while a handle is being dragged.
+        Signature: ``def cb(wid: int, data: tuple[int, float])`` where
+        ``data`` is ``(panel_index, new_size)``.
+    on_resize_outer : callable, Optional
+        Callback invoked when an outer handle is dragged.
+        Signature: ``def cb(wid: int, size: float)``.
+    on_release : callable, Optional
+        Callback invoked when the mouse button is released after a drag.
+        Signature: ``def cb(wid: int)``.
+    vertical_direction : bool, Optional
+        When True, panels are stacked top-to-bottom (vertical sash).
+        Default is False (horizontal sash, panels left-to-right).
+    min_size : float, Optional
+        Sets the minimum pixel size any panel may be resized to.
+    max_size : float, Optional
+        Sets the maximum total pixel size of the sash.
+    min_cross_size : float, Optional
+        Sets the minimum pixel size of the sash in the cross-axis direction.
+    max_cross_size : float, Optional
+        Sets the maximum pixel size of the sash in the cross-axis direction.
+    style_id : int, Optional
+        Sets the ID of a custom style created with ``add_sash_style``.
+    user_data : Any, Optional
+        Sets arbitrary data forwarded as a third argument to all callbacks.
+    show : bool, default True
+        Whether the sash is visible.
+
+    Returns
+    -------
+    int
+        The numeric container ID of the newly created sash.
+    """
+    ...
 def add_row(
     *,
     container_id: str | None = None,

@@ -1,10 +1,14 @@
-use iced::Element;
+use std::collections::HashMap;
 
-use iced_sash::{Id, OuterResizeMode, SashH, SashV};
+use iced::{Element, Theme};
+
+use iced_sash::{Id, OuterResizeMode, SashH, SashV, Status, Style};
 pub use iced_sash::resize as sash_resize;
 
 use crate::app::Message;
-use crate::state::{Containers, IpgState};
+use crate::graphics::colors::{self, Color};
+use crate::py_api::helpers::get_radius;
+use crate::state::{Containers, IpgState, Widgets};
 use crate::widgets::callbacks::invoke_callback_with_args;
 use crate::widgets::widget_param_update::{WidgetParamUpdate, set_t_value};
 
@@ -29,65 +33,76 @@ pub struct Sash {
     pub vertical_direction: Option<bool>,
     pub min_size: Option<f32>,
     pub max_size: Option<f32>,
+    pub min_cross_size: Option<f32>,
+    pub max_cross_size: Option<f32>,
     pub style_id: Option<usize>,
+    pub style_std: Option<SashStyleStd>,
     pub show: bool,
     pub resize_mode: OuterResizeMode,
 }
 
 impl Sash {
+
+    fn lookup<'a>(&self, widgets: &'a HashMap<usize, Widgets>, id: Option<usize>) -> Option<&'a Widgets> {
+        id.and_then(|id| widgets.get(&id))
+    }
+
     pub fn construct<'a>(
         &self,
-        content: Vec<Element<'a, Message>> 
+        content: Vec<Element<'a, Message>>, 
+        widgets: &HashMap<usize, Widgets>,
     ) -> Option<Element<'a, Message>> {
 
         if !self.show { return None }
 
+        let style_opt = 
+            self.lookup(widgets, self.style_id)
+                .and_then(Widgets::as_sash_style).cloned();
+
         let widget_id = self.id;
 
         let sh = if self.vertical_direction == Some(true) {
-            let sh = SashV::new(
-                    content,
-                    self.initial_sizes.clone(),
-                    self.size,
-                    self.sash_size,
-                )
-                .on_resize(move |id, index, size| Message::Sash(widget_id, SashMessage::ResizedH(id, index, size)));
-
-            let sh = if self.sync_sashes == Some(true) {
-                sh.sync_sashes(self.current_sizes.clone())
-            } else { sh };
-            sh
+            SashV::new(content, self.initial_sizes.clone(), self.size, self.sash_size)
         } else {
-            let sh = SashH::new(
-                    content,
-                    self.initial_sizes.clone(),
-                    self.size,
-                    self.sash_size,
-                )
-                .on_resize(move |id, index, size| Message::Sash(widget_id, SashMessage::ResizedH(id, index, size)))
-                .on_outer_resize(move |id, size| Message::Sash(widget_id, SashMessage::ResizedOuter(id, size)));
+            SashH::new(content, self.initial_sizes.clone(), self.size, self.sash_size)
+        }
+        .on_resize(move |id, index, size| Message::Sash(widget_id, SashMessage::ResizedH(id, index, size)))
+        .on_release(move |id, index| Message::Sash(widget_id, SashMessage::Released(id, index)))
+        .on_outer_resize(move |id, size| Message::Sash(widget_id, SashMessage::ResizedOuter(id, size)))
+        .on_cross_resize(move |id, size| Message::Sash(widget_id, SashMessage::ResizedCrossH(id, size)))
+        .max_size_maybe(self.max_size)
+        .max_cross_size_maybe(self.max_cross_size);
 
-            let sh = if self.sync_sashes == Some(true) {
-                sh.sync_sashes(self.current_sizes.clone())
-            } else { sh };
+        let sh = if self.sync_sashes == Some(true) {
+            sh.sync_sashes(self.current_sizes.clone())
+        } else { sh };
 
-            let sh = if let Some(sz) = self.outer_handle_size {
-                sh.outer_handle(sz)
-            } else { sh };
+        let sh = if self.sync_cross_sashes == Some(true) {
+            sh.sync_cross_sashes(self.size)
+        } else { sh };
 
-            // default so set first
-            let sh = sh.outer_resize_mode(iced_sash::OuterResizeMode::LastOnly);
+        let sh = if let Some(sz) = self.outer_handle_size {
+            sh.outer_handle(sz)
+        } else { sh };
 
-            let sh = if self.resize_mode_proportional == Some(true) {
-                sh.outer_resize_mode(iced_sash::OuterResizeMode::Proportional)
-            } else { sh };
+        let sh = if let Some(sz) = self.cross_handle_size {
+            sh.cross_handle(sz)
+        } else { sh };
 
-            let sh = if self.resize_mode_uniform == Some(true) {
-                sh.outer_resize_mode(iced_sash::OuterResizeMode::Uniform)
-            } else { sh };
+        let sh = if let Some(min) = self.min_size {
+            sh.min_size(min)
+        } else { sh };
 
-            sh
-        };
+        let sh = if let Some(min) = self.min_cross_size {
+            sh.min_cross_size(min)
+        } else { sh };
+
+        let sh = sh.outer_resize_mode(self.resize_mode);
+
+        let sh = if let Some(st) = style_opt {
+            sh.style(move|theme, status| {   
+                    st.to_iced(theme, status)})
+        } else { sh };
 
         Some(sh.into())
     }
@@ -99,6 +114,7 @@ pub enum SashMessage {
     ResizedH(Id, usize, f32),
     ResizedV(Id, usize, f32),
     ResizedOuter(Id, f32),
+    ResizedCrossH(Id, f32),
     Released(Id, usize),
 }
 
@@ -111,7 +127,7 @@ pub fn sash_callback(state: &mut IpgState, widget_id: usize, message: SashMessag
                     Some(Containers::Sash(s)) => s,
                     _ => return,
                 };
-                let min = sash.min_size.unwrap_or(50.0);
+                let min = sash.min_size.unwrap_or(0.0);
                 sash_resize(&mut sash.current_sizes, index, size, min);
                 (sash.sync_sashes == Some(true), sash.current_sizes.clone())
             };
@@ -167,11 +183,98 @@ pub fn sash_callback(state: &mut IpgState, widget_id: usize, message: SashMessag
             invoke_callback_with_args(widget_id, "on_resize_outer", "Sash", new_total,
                 "def cb(wid: int, size: float)");
         }
-        SashMessage::Released(_id, _index) => todo!(),
-        
-        }
+        SashMessage::Released(_id, index) => {
+            invoke_callback_with_args(widget_id, "on_release", "Sash", index,
+                "def cb(wid: int, index: int)");
+        },
+        SashMessage::ResizedCrossH(_id, size) => {
+            // Update the resized sash's current_sizes
+            let (sync_cross_enabled, updated_size) = {
+                let sash = match state.containers.get_mut(&widget_id) {
+                    Some(Containers::Sash(s)) => s,
+                    _ => return,
+                };
+                sash.size = size;
+                (sash.sync_cross_sashes == Some(true), sash.size)
+            };
+
+            // Propagate to all other sashes in the sync group
+            if sync_cross_enabled {
+                for (id, container) in state.containers.iter_mut() {
+                    if *id == widget_id { continue; }
+                    if let Containers::Sash(s) = container {
+                        if s.sync_cross_sashes == Some(true) {
+                            s.size = updated_size;
+                        }
+                    }
+                }
+            }
+        },
+    }
     
 }
+
+
+#[derive(Debug, Clone, PartialEq, Hash)]
+#[pyclass(eq, eq_int, hash, frozen)]
+pub enum SashStyleStd {
+    Primary,
+    Subtle,
+    Transparent,
+}
+
+#[derive(Debug, Clone)]
+pub struct SashStyle {
+    pub id: usize,
+    pub bkg_color: Option<Color>,
+    pub bkg_color_alpha: Option<f32>,
+    pub bkg_rgba: Option<[f32; 4]>,
+    pub border_color: Option<Color>,
+    pub border_color_alpha: Option<f32>,
+    pub border_rgba: Option<[f32; 4]>,
+    pub border_width: Option<f32>,
+    pub border_radius: Option<f32>,
+}
+
+impl SashStyle {
+    fn to_iced(
+        &self,
+        theme: &Theme,
+        status: Status,
+    ) -> Style {
+
+        let mut style = iced_sash::subtle(theme, status);
+
+        let bkg_color = Color::rgba_ipg_color_to_iced(self.bkg_rgba, &self.bkg_color, self.bkg_color_alpha);
+        let bc_color = Color::rgba_ipg_color_to_iced(self.border_rgba, &self.border_color, self.border_color_alpha);
+
+        if let Some(c) = bkg_color {
+            let bkg = colors::background(c);
+            style.background = match status {
+                Status::Active => bkg.base.color.into(),
+                Status::Hovered => bkg.weak.color.into(),
+                Status::Dragged => bkg.strong.color.into(),
+                Status::Disabled => bkg.weak.color.into(),
+            };
+        }
+
+        if let Some(bc) = bc_color {
+            style.border_color = bc;
+        }
+
+        if let Some(bw) = self.border_width {
+            style.border_width = bw;
+        }
+
+        if let Some(br) = self.border_radius {
+            style.border_radius = get_radius(&vec![br], "Sash".to_string())
+        }
+
+        style
+
+    }
+}
+
 
 
 #[derive(Debug, Clone, PartialEq, Hash)]
@@ -195,7 +298,14 @@ pub enum SashParam {
 #[derive(Debug, Clone, PartialEq, Hash)]
 #[pyclass(eq, eq_int, hash, frozen)]
 pub enum SashStyleParam {
-    None
+    BkgColor,
+    BkgColorAlpha,
+    BkgRgba,
+    BorderColor,
+    BorderColorAlpha,
+    BorderRgba,
+    BorderWidth,
+    BorderRadius,
 }
 
 
@@ -234,11 +344,19 @@ impl WidgetParamUpdate for Sash {
     }
 }
 
-// impl WidgetParamUpdate for SashStyle {
-//     type Param = SashStyleParam;
+impl WidgetParamUpdate for SashStyle {
+    type Param = SashStyleParam;
 
-//     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
-//         match param {
-//         }
-//     }
-// }
+    fn param_update(&mut self, param: Self::Param, value: &PyObject) {
+        match param {
+            SashStyleParam::BkgColor => set_t_value(&mut self.bkg_color, value, "name"),
+            SashStyleParam::BkgColorAlpha => set_t_value(&mut self.bkg_color_alpha, value, "name"),
+            SashStyleParam::BkgRgba => set_t_value(&mut self.bkg_rgba, value, "name"),
+            SashStyleParam::BorderColor => set_t_value(&mut self.border_color, value, "name"),
+            SashStyleParam::BorderColorAlpha => set_t_value(&mut self.border_color_alpha, value, "name"),
+            SashStyleParam::BorderRgba => set_t_value(&mut self.border_rgba, value, "name"),
+            SashStyleParam::BorderWidth => set_t_value(&mut self.border_width, value, "name"),
+            SashStyleParam::BorderRadius => set_t_value(&mut self.border_radius, value, "name"),
+        }
+    }
+}

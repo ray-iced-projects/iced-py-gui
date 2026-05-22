@@ -71,6 +71,7 @@ pub fn param_update(
         Widgets::RadioStyle(w) => apply_update(w, item, value),
         Widgets::Rule(w) => apply_update(w, item, value),
         Widgets::RuleStyle(w) => apply_update(w, item, value),
+        Widgets::SashStyle(w) => apply_update(w, item, value),
         Widgets::Separator(w) => apply_update(w, item, value),
         Widgets::SeparatorStyle(w) => apply_update(w, item, value),
         Widgets::Space(w) => apply_update(w, item, value),

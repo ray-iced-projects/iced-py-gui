@@ -3,9 +3,10 @@
 use pyo3::prelude::*;
 use pyo3::{Py, PyAny, pyfunction};
 
+use crate::graphics::colors::Color;
 use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex};
-use crate::state::{Containers, get_id, set_state_cont_wnd_ids, set_state_of_container};
-use crate::widgets::ipg_sash::Sash;
+use crate::state::{Containers, Widgets, get_id, set_state_cont_wnd_ids, set_state_of_container};
+use crate::widgets::ipg_sash::{Sash, SashStyle, SashStyleStd};
 type PyObject = Py<PyAny>;
 
 
@@ -39,6 +40,9 @@ type PyObject = Py<PyAny>;
 ///     Sets an explicit parent container ID, overriding ``window_id``.
 /// outer_handle_size : float, Optional
 ///     Sets the pixel size of the outer (edge) handle bars.
+/// cross_handle_size : float, Optional
+///     Sets the pixel size of the cross-axis handle bar. Setting this enables
+///     cross-axis resizing (dragging the sash taller or shorter).
 /// resize_mode_last_only : bool, Optional
 ///     When True, only the last panel absorbs resize overflow.
 /// resize_mode_uniform : bool, Optional
@@ -51,7 +55,7 @@ type PyObject = Py<PyAny>;
 ///     ``data`` is ``(panel_index, new_size)``.
 /// on_resize_outer : callable, Optional
 ///     Callback invoked when an outer handle is dragged.
-///     Signature: ``def cb(wid: int, data: tuple[int, float])``.
+///     Signature: ``def cb(wid: int, size: float)``.
 /// on_release : callable, Optional
 ///     Callback invoked when the mouse button is released after a drag.
 ///     Signature: ``def cb(wid: int)``.
@@ -62,6 +66,10 @@ type PyObject = Py<PyAny>;
 ///     Sets the minimum pixel size any panel may be resized to.
 /// max_size : float, Optional
 ///     Sets the maximum total pixel size of the sash.
+/// min_cross_size : float, Optional
+///     Sets the minimum pixel size of the sash in the cross-axis direction.
+/// max_cross_size : float, Optional
+///     Sets the maximum pixel size of the sash in the cross-axis direction.
 /// style_id : int, Optional
 ///     Sets the ID of a custom style created with ``add_sash_style``.
 /// user_data : Any, Optional
@@ -94,7 +102,10 @@ type PyObject = Py<PyAny>;
     vertical_direction=None,
     min_size=None,
     max_size=None,
+    min_cross_size=None,
+    max_cross_size=None,
     style_id=None,
+    style_std=None,
     user_data=None,
     show=true,
 ))]
@@ -118,7 +129,10 @@ pub fn add_sash(
     vertical_direction: Option<bool>,
     min_size: Option<f32>,
     max_size: Option<f32>,
+    min_cross_size: Option<f32>,
+    max_cross_size: Option<f32>,
     style_id: Option<usize>,
+    style_std: Option<SashStyleStd>,
     user_data: Option<PyObject>,
     show: bool,
 ) -> PyResult<usize> {
@@ -171,11 +185,90 @@ pub fn add_sash(
             vertical_direction,
             min_size,
             max_size,
+            min_cross_size,
+            max_cross_size,
             style_id,
+            style_std,
             show,
             resize_mode: iced_sash::OuterResizeMode::LastOnly,
         }));
 
     drop(state);
+    Ok(id)
+}
+
+
+/// Add styling to a sash handle bar.
+///
+/// Creates a custom style that can be applied to a sash via its ``style_id``
+/// parameter. The style controls the appearance of the draggable handle bars.
+///
+/// Parameters
+/// ----------
+/// bkg_color : Color, Optional
+///     Sets the handle background color using a predefined color variant.
+/// bkg_color_alpha : float, Optional
+///     Sets the alpha transparency for the background color.
+/// bkg_rgba : list of float, Optional
+///     Sets the handle background color in rgba format as [r, g, b, a].
+/// border_color : Color, Optional
+///     Sets the border color using a predefined color variant.
+/// border_color_alpha : float, Optional
+///     Sets the alpha transparency for the border color.
+/// border_rgba : list of float, Optional
+///     Sets the border color in rgba format as [r, g, b, a].
+/// border_width : float, Optional
+///     Sets the border width in logical pixels.
+/// border_radius : float, Optional
+///     Sets the corner radius of the handle bar in logical pixels.
+/// gen_id : int, Optional
+///     Supplies a pre-generated ID instead of allocating a new one.
+///
+/// Returns
+/// -------
+/// int
+///     The numeric style ID to pass to a sash's ``style_id`` parameter.
+#[pyfunction]
+#[pyo3(signature = (
+    bkg_color=None,
+    bkg_color_alpha=None,
+    bkg_rgba=None,
+    border_color=None,
+    border_color_alpha=None,
+    border_rgba=None,
+    border_width=None,
+    border_radius=None,
+    gen_id=None,
+))]
+pub fn add_sash_style(
+    bkg_color: Option<Color>,
+    bkg_color_alpha: Option<f32>,
+    bkg_rgba: Option<[f32; 4]>,
+    border_color: Option<Color>,
+    border_color_alpha: Option<f32>,
+    border_rgba: Option<[f32; 4]>,
+    border_width: Option<f32>,
+    border_radius: Option<f32>,
+    gen_id: Option<usize>,
+) -> PyResult<usize> {
+    let id = get_id(gen_id);
+
+    let mut state = access_state();
+
+    state.widgets.insert(id, Widgets::SashStyle(
+        SashStyle {
+            id,
+            bkg_color,
+            bkg_color_alpha,
+            bkg_rgba,
+            border_color,
+            border_color_alpha,
+            border_rgba,
+            border_width,
+            border_radius,
+        }));
+
+    drop(state);
+
     Ok(id)
 }

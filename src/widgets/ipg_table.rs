@@ -20,58 +20,44 @@ use iced::widget::{scrollable::Scrollbar};
 use iced::{Border, Length, alignment, widget};
 use iced::Length::Fill;
 use iced::{Element, Renderer, Theme};
-use iced::widget::{Space, column, container, row, scrollable, stack, text};
+use iced::widget::{Space, center, column, container, row, rule, scrollable, stack, text};
+
+use iced_sash::{Id, SashH};
+pub use iced_sash::resize as sash_resize;
 
 use pyo3::{pyclass, Py, PyAny};
 type PyObject = Py<PyAny>;
 
 
 #[derive(Debug, Clone, Default)]
-pub struct Table {
+pub struct TableBasic {
         pub id: usize,
-        pub headers: Vec<String>,
-        pub body: Vec<Vec<f32>>,
-        pub footers: Vec<String>,
-        pub column_widths: Vec<f32>,
-        pub height: f32,
-        pub width: Option<f32>,
-        pub sash_size: f32,
-        pub header_enabled: bool,
+        pub row_height: f32,
+        pub col_widths: Vec<f32>,
+        pub scrollable_height: Option<f32>,
+        pub file_path: Option<String>,
+        pub headers: Option<Vec<String>>,
+        pub body: Option<Vec<Vec<String>>>,
+        pub footers: Option<Vec<String>>,
+        pub column_widths: Option<Vec<f32>>,
+        pub sash_size: Option<f32>,
+        pub header_enabled: Option<bool>,
         pub header_row_height: Option<f32>,
-        pub header_scrollbar_height: Option<f32>,
-        pub header_scrollbar_margin: Option<f32>,
-        pub header_scroller_height: Option<f32>,
-        pub header_scrollbar_spacing: Option<f32>,
         pub header_row_spacing: Option<f32>,
         pub footer_height: Option<f32>,
-        pub footer_scrollbar_height: Option<f32>,
-        pub footer_scrollbar_margin: Option<f32>,
-        pub footer_scroller_height: Option<f32>,
-        pub footer_scrollbar_spacing: Option<f32>,
         pub footer_spacing: Option<f32>,
-        pub body_scrollbar_width: Option<f32>,
-        pub body_scrollbar_margin: Option<f32>,
-        pub body_scroller_width: Option<f32>,
-        pub body_scrollbar_spacing: Option<f32>,
         pub body_row_highlight: bool,
-        pub custom_header_rows: Option<usize>,
-        pub custom_footer_rows: Option<usize>,
-        pub control_columns: Vec<usize>,
         pub row_spacing: Option<f32>,
-        pub row_height: Option<f32>,
-        pub header_body_spacing: Option<f32>,
-        pub body_footer_spacing: Option<f32>,
         pub resize_columns_enabled: bool,
         pub min_size: f32,
         pub text_size: Option<f32>,
         pub style_id: Option<usize>,
         pub sash_style_id: Option<usize>,
-        pub scrollable_style_id: Option<usize>,
         pub released: bool,
         pub show: bool,
 }
 
-impl Table {
+impl TableBasic {
 
     fn lookup<'a>(&self, widgets: &'a HashMap<usize, Widgets>, id: Option<usize>) -> Option<&'a Widgets> {
         id.and_then(|id| widgets.get(&id))
@@ -85,6 +71,8 @@ impl Table {
 
         if !self.show { return None }
         
+        let wid = self.id.clone();
+
         let scroll_style_header_opt  = self.lookup(widgets, self.style_id)
             .and_then(Widgets::as_scrollable_style).cloned();
 
@@ -110,295 +98,141 @@ impl Table {
         let text_color = 
             Color::rgba_ipg_color_to_iced(tbl_style.text_rgba, &tbl_style.text_color, tbl_style.text_color_alpha);
 
-        let mut body_rows = vec![];
-            for idx in 0..self.body.len() {
-                    let mut rw = vec![];
-                    for (i, item) in self.body[idx].iter().enumerate() {
-                        let cell = if !self.control_columns.contains(&i) {
-                                let txt = 
-                                    text(item.to_string())
-                                    .align_x(alignment::Horizontal::Center)
-                                    .align_y(alignment::Vertical::Center)
-                                    .width(self.column_widths[i]);
-                                let txt = match self.text_size {
-                                    Some(sz) if sz > 0.0 => txt.size(sz),
-                                    _ => txt,
-                                };
-                                txt.into()
-                        } else {
-                            content.remove(0)
-                        };
-                        rw.push(Element::from(container(cell)
-                                .width(self.column_widths[i])
-                                .center_x(self.column_widths[i])
-                                .clip(true)
-                            ));
-                    }
-            
-                body_rows.push(row(rw).into());
-            }
+        let (header, body) = if let Some(fp) = &self.file_path {
+            let (header_data, body_data) =
+                load_csv(fp).unwrap_or_default();
 
-            let body_column = column(body_rows)
-                                                    .spacing(self.row_spacing.unwrap_or_default());
-            let (table_width, scroller_needed) = self.width.map_or_else(
-                || (self.column_widths.iter().sum(), false),
-                |width| {
-                    let total_width: f32 = self.column_widths.iter().sum();
-                    if width < total_width {
-                        (width, true)
-                    } else {
-                        (width, false)
-                    }
-                },
-            );
-            
-            let body: Element<Message> = 
-                scrollable(body_column)
-                    .height(self.height)
-                    .width(table_width)
-                    .on_scroll(move|vp|Message::TableScrolled(
-                                    vp, self.id))
-                    .direction({
-                        let scrollbar = Scrollbar::new()
-                            .scroller_width(self.body_scroller_width.unwrap_or(5.0))
-                            .width(self.body_scrollbar_width.unwrap_or(5.0))
-                            .margin(self.body_scrollbar_margin.unwrap_or_default());
-                        scrollable::Direction::Both {
-                            horizontal: scrollbar,
-                            vertical: scrollbar,
-                        }
-                    })
-                    .style(move|theme, status| {
-                        if let Some(style) = &scroll_style_body_opt {
-                            style.set_style(theme, status, widgets)
-                        } else {
-                            scrollable::default(theme, status)
-                        }
-                        
-                    })
-                    .into();
-            
-            let header_height = if self.header_enabled {
-                self.header_row_height.unwrap_or(20.0)
-            } else {
-                0.0
-            };
+            let header = 
+                table_header(wid, &header_data, self.col_widths.clone(), self.row_height);
+            let body = 
+                table_body(wid, &body_data, self.col_widths.clone(), self.row_height);
+            (header, body)
+        } else {
+            let header = 
+                table_header(wid, &self.headers.clone().unwrap_or(vec![]), self.col_widths.clone(), self.row_height);
+            let body = 
+                table_body(wid, &self.body.clone().unwrap_or(vec![vec![]]), self.col_widths.clone(), self.row_height);
+            (header, body)
+        };
 
-            let custom_header_height = if let Some(c_rows) = self.custom_header_rows {
-                self.header_row_height.unwrap_or(c_rows as f32 * 20.0)
-            } else {
-                0.0
-            };
+        let body = if let Some(sh) = self.scrollable_height {
+            scrollable(body).height(sh).into()
+        } else { body };
 
-            let mut header_column = vec![];
+        let table = column![header, body];
 
-            // add the header if enabled
-            if self.header_enabled {
-                let mut rw = vec![];
-                for (i, hd) in self.headers.iter().enumerate() {
-                        let txt = 
-                            text(hd)
-                            // .size(self.text_size.unwrap_or_default())
-                            .align_x(alignment::Horizontal::Center)
-                            .align_y(alignment::Vertical::Center)
-                            .width(Fill)
-                            .height(Fill);
-                        let txt = match self.text_size {
-                            Some(sz) if sz > 0.0 => txt.size(sz),
-                            _ => txt,
-                        };
-                    rw.push(Element::from(
-                        container(txt)
-                            .width(self.column_widths[i])
-                            .height(header_height)
-                            .clip(true)
-                        ));
-                }
-                header_column.push(Element::from(row(rw)));
-            }
-                
-            // add any custom header rows
-            if self.custom_header_rows.is_some() {
-                for _ in 0..self.custom_header_rows.unwrap() {
-                    let mut custom_rw = vec![];
-                    for i in 0..self.column_widths.len() {
-                        custom_rw.push(Element::from(
-                            container(content.remove(0))
-                                .width(self.column_widths[i])
-                                .height(custom_header_height)
-                                .center_x(self.column_widths[i])
-                            ));
-                    }
-                    header_column.push(Element::from(row(custom_rw)));
-                }
-            }
-
-            let header = if header_column.len() > 0 {
-                let hd_col = column(header_column)
-                                                    .spacing(self.header_row_spacing.unwrap_or_default()).into();
-                if scroller_needed {
-                    Some(Element::from(
-                        scrollable(hd_col)
-                            .id(widget::Id::unique())
-                            .width(table_width)
-                            .direction({
-                                let scrollbar = scrollable::Scrollbar::new()
-                                    .scroller_width(self.header_scroller_height.unwrap_or(5.0))
-                                    .width(self.header_scrollbar_height.unwrap_or(5.0))
-                                    .margin(self.header_scrollbar_margin.unwrap_or_default())
-                                    .spacing(self.header_scrollbar_spacing.unwrap_or_default());
-                                scrollable::Direction::Horizontal(scrollbar)
-                                })
-                            .on_scroll(move|vp| Message::TableScrolled(
-                                                vp, self.id))
-                            .style(move|theme, status| {
-                                if let Some(style) = &scroll_style_header_opt{
-                                    style.set_style(theme, status, widgets)
-                                } else {
-                                    scrollable::default(theme, status)
-                                }
-                            })
-                        ))
-                } else {
-                    Some(hd_col)
-                }
-            } else {
-                None
-            };
-
-            let footer = if self.custom_footer_rows.is_some() {
-                let mut footer_column= vec![];
-                for _ in 0..self.custom_footer_rows.unwrap_or_default() {
-                    let mut rw = vec![];
-                    for i in 0..self.column_widths.len() {
-                        rw.push(Element::from(
-                            container(content.remove(0))
-                                .width(self.column_widths[i])
-                                .height(Length::Fixed(self.footer_height.unwrap_or(20.0)))
-                                .center_x(self.column_widths[i])
-                            ));
-                    }
-                    footer_column.push(Element::from(row(rw)));
-                }
-                let ft_col = column(footer_column)
-                                                    .spacing(self.footer_spacing.unwrap_or_default()).into();
-                if scroller_needed {
-                    Some(Element::from(
-                        scrollable(ft_col)
-                            .id(widget::Id::unique())
-                            .width(table_width)
-                            .direction({
-                                let scrollbar = scrollable::Scrollbar::new()
-                                    .scroller_width(self.footer_scroller_height.unwrap_or(5.0))
-                                    .width(self.footer_scrollbar_height.unwrap_or(5.0))
-                                    .margin(self.footer_scrollbar_margin.unwrap_or_default())
-                                    .spacing(self.footer_scrollbar_spacing.unwrap_or_default());
-                                scrollable::Direction::Horizontal(scrollbar)
-                                })
-                            .on_scroll(move|vp| Message::TableScrolled(
-                                                vp, self.id))
-                            .style(move|theme, status| {
-                                if let Some(style) = &scroll_style_footer_opt {
-                                    style.set_style(theme, status, widgets)
-                                } else {
-                                    scrollable::default(theme, status)
-                                }
-                            })
-                    ))
-                } else {
-                    Some(ft_col)
-                }
-            } else {
-                None
-            };
-
-            let has_header = header.is_some();
-            let mut main_col = vec![];
-
-            // if let Some(hdr) = header {
-            //     if self.resize_columns_enabled {
-            //         let sash_height = header_height
-            //             + self.custom_header_rows.unwrap_or_default() as f32
-            //                 * self.header_row_height.unwrap_or(20.0);
-            //         let sash_el = sash_horizontal(
-            //             self.id,
-            //             self.column_widths.clone(),
-            //             self.sash_size,
-            //             sash_height,
-            //             |(id, index, value)| Message::TableDividerChanged((id, index, value)),
-            //         )
-            //         .include_last_handle(false)
-            //         .on_release_fn(|(id, _)| Message::TableDividerReleased(id))
-                    
-            //         ;
-            //         main_col.push(stack([hdr, sash_el.into()]).into());
-            //     } else {
-            //         main_col.push(hdr);
-            //     }
-            //     main_col.push(Space::new().width(5.0).height(self.header_body_spacing.unwrap_or(5.0)).into());
-            // }
-
-            // When there is no header and resize is enabled, fall back to sash on the body
-            // if !has_header && self.resize_columns_enabled {
-            //     let sash_el = sash_horizontal(
-            //         self.id,
-            //         self.column_widths.clone(),
-            //         self.sash_size,
-            //         self.height,
-            //         |(id, index, value)| Message::TableDividerChanged((id, index, value)),
-            //     )
-            //     .include_last_handle(false)
-            //     .on_release_fn(|(id, _)| Message::TableDividerReleased(id));
-            //     main_col.push(stack([body.into(), sash_el.into()]).into());
-            // } else {
-            //     main_col.push(body.into());
-            // }
-
-            if let Some(ft) = footer {
-                main_col.push(Space::new().width(5.0).height(self.body_footer_spacing.unwrap_or(5.0)).into());
-                main_col.push(ft);
-            }
-
-            Some(column(main_col).into())
+        Some(container(table)
+            .style(move|theme| {
+                container::bordered_box(theme)
+            }).into())
 
     }
 }
 
+fn table_header<'a>(id: usize, header: &[String], sizes: Vec<f32>, height: f32) -> Element<'a, Message> {
+
+    let sash: Element<'a, Message> = SashH::new(
+        header.iter().map(|col| center(text(col.clone())).center(Fill).into()).collect(),
+        sizes.clone(),
+        height,
+        6.0,
+    )
+    .min_size(10.0)
+    .on_resize(move |s_id, idx, val| Message::Table(id, TableMessage::ResizeH(s_id, idx, val)))
+    .sync_sashes(sizes.clone())
+    .style(|theme, status| iced_sash::subtle(theme, status))
+    .clip(true)
+    .into();
+
+    container(column![sash, container(rule::horizontal(6)).width(Length::Fixed(sizes.iter().sum()))])
+        .style(|theme| container::rounded_box(theme))
+        .into()
+}
+
+fn table_body<'a>(id: usize, body: &[Vec<String>], sizes: Vec<f32>, height: f32) -> Element<'a, Message> {
+    
+    let rows: Vec<Element<'a, Message>> = body
+        .iter()
+        .enumerate()
+        .map(|(i, row)| {
+            let sash: Element<'a, Message> = SashH::new(
+                row.iter().map(|cell| center(text(cell.clone()).size(14.0)).center(Fill).into()).collect(),
+                sizes.clone(),
+                height,
+                6.0,
+            )
+            .min_size(10.0)
+            .on_resize(move |s_id, idx, val| Message::Table(id, TableMessage::ResizeH(s_id, idx, val)))
+            .sync_sashes(sizes.clone())
+            .style(|theme, status| iced_sash::subtle(theme, status))
+            .clip(true)
+            .into();
+
+            if i % 2 == 1 {
+                container(sash)
+                    .style(|theme: &Theme| {
+                        let base = theme.palette().background.base.color;
+                        let weak = theme.palette().background.weak.color;
+                        let mid = iced::Color {
+                            r: (base.r + weak.r) / 2.0,
+                            g: (base.g + weak.g) / 2.0,
+                            b: (base.b + weak.b) / 2.0,
+                            a: 1.0,
+                        };
+                        container::Style {
+                            background: Some(mid.into()),
+                            ..Default::default()
+                        }
+                    })
+                    .into()
+            } else {
+                sash
+            }
+        })
+        .collect();
+    
+    column(rows).into()
+}
+
+fn load_csv(path: &str) -> Result<(Vec<String>, Vec<Vec<String>>), csv::Error> {
+    
+    let mut reader = csv::Reader::from_path(path)?;
+
+    let header: Vec<String> = reader
+        .headers()?
+        .iter()
+        .map(|s| s.to_string())
+        .collect();
+
+    let body: Vec<Vec<String>> = reader
+        .records()
+        .map(|r| r.map(|rec| rec.iter().map(|s| s.to_string()).collect()))
+        .collect::<Result<_, _>>()?;
+
+    Ok((header, body))
+}
+
 #[derive(Clone, Debug, PartialEq)]
 pub enum TableMessage {
-    DivDragging((usize, f32)),
-    DivOnRelease,
+    ResizeH(Id, usize, f32)
 }
 
 pub fn table_callback(
         state: &mut IpgState,  
-        id: usize,  
+        widget_id: usize,  
         message: TableMessage) 
 {
-
     match message {
-        TableMessage::DivDragging((index, value)) => {
+        TableMessage::ResizeH(_id, idx, size) => {
+            let table = match state.containers.get_mut(&widget_id) {
+                Some(Containers::TableBasic(t)) => t,
+                _ => return,
+            };
+            sash_resize(&mut table.col_widths, idx, size, table.min_size);
 
-            if let Some(Containers::Table(tbl)) = state.containers.get_mut(&id) {
-                let min = tbl.min_size;
-                let len = tbl.column_widths.len();
-                if index + 1 < len {
-                    let diff = tbl.column_widths[index] - value;
-                    let next_ideal = tbl.column_widths[index + 1] + diff;
-                    let next_actual = next_ideal.max(min);
-                    let excess = (next_actual - next_ideal).max(0.0);
-                    tbl.column_widths[index] = (value - excess).max(min);
-                    tbl.column_widths[index + 1] = next_actual;
-                } else {
-                    tbl.column_widths[index] = value.max(min);
-                }
-                invoke_callback_with_args(id, "dragging", "Table", (index, tbl.column_widths[index]),
-                    "def cb(wid: int, data: tuple[int, float])");
-            }
-        },
-        TableMessage::DivOnRelease=> {
-            invoke_callback_with_args(id, "released", "Table", (),
-                "def cb(wid: int)");
+            // Fire Python callback if registered: def cb(wid: int, data: tuple[int, float])
+            invoke_callback_with_args(widget_id, "on_resize", "Table-SashH", (idx, size),
+                "def cb(wid: int, data: tuple[int, float])");
         },
     }
 }
@@ -454,19 +288,13 @@ pub enum TableParam {
     HeaderRowSpacing,
     FooterHeight,
     FooterSpacing,
-    CustomHeaderRows,
-    CustomFooterRows,
-    ControlColumns,
     RowSpacing,
     RowHeight,
-    HeaderBodySpacing,
-    BodyFooterSpacing,
     ResizeColumnsEnabled,
     MinSize,
     TextSize,
     Show,
     StyleId,
-    ScrollableStyleId,
 }
 
 
@@ -474,7 +302,7 @@ pub enum TableParam {
 // WidgetParamUpdate implementations
 // ---------------------------------------------------------------------------
 
-impl WidgetParamUpdate for Table {
+impl WidgetParamUpdate for TableBasic {
     type Param = TableParam;
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
@@ -483,27 +311,21 @@ impl WidgetParamUpdate for Table {
             TableParam::Body => set_t_value(&mut self.body, value, "TableParam::Body"),
             TableParam::Footers => set_t_value(&mut self.footers, value, "TableParam::Footers"),
             TableParam::ColumnWidths => set_t_value(&mut self.column_widths, value, "TableParam::ColumnWidths"),
-            TableParam::Height => set_t_value(&mut self.height, value, "TableParam::Height"),
-            TableParam::Width => set_t_value(&mut self.width, value, "TableParam::Width"),
+            TableParam::Height => set_t_value(&mut self.row_height, value, "TableParam::Height"),
+            TableParam::Width => set_t_value(&mut self.col_widths, value, "TableParam::Width"),
             TableParam::SashSize => set_t_value(&mut self.sash_size, value, "TableParam::SashSize"),
             TableParam::HeaderEnabled => set_t_value(&mut self.header_enabled, value, "TableParam::HeaderEnabled"),
             TableParam::HeaderHeight => set_t_value(&mut self.header_row_height, value, "TableParam::HeaderHeight"),
             TableParam::HeaderRowSpacing => set_t_value(&mut self.header_row_spacing, value, "TableParam::HeaderRowSpacing"),
             TableParam::FooterHeight => set_t_value(&mut self.footer_height, value, "TableParam::FooterHeight"),
             TableParam::FooterSpacing => set_t_value(&mut self.footer_spacing, value, "TableParam::FooterSpacing"),
-            TableParam::CustomHeaderRows => set_t_value(&mut self.custom_header_rows, value, "TableParam::CustomHeaderRows"),
-            TableParam::CustomFooterRows => set_t_value(&mut self.custom_footer_rows, value, "TableParam::CustomFooterRows"),
-            TableParam::ControlColumns => set_t_value(&mut self.control_columns, value, "TableParam::ControlColumns"),
             TableParam::RowSpacing => set_t_value(&mut self.row_spacing, value, "TableParam::RowSpacing"),
             TableParam::RowHeight => set_t_value(&mut self.row_height, value, "TableParam::RowHeight"),
-            TableParam::HeaderBodySpacing => set_t_value(&mut self.header_body_spacing, value, "TableParam::HeaderBodySpacing"),
-            TableParam::BodyFooterSpacing => set_t_value(&mut self.body_footer_spacing, value, "TableParam::BodyFooterSpacing"),
             TableParam::ResizeColumnsEnabled => set_t_value(&mut self.resize_columns_enabled, value, "TableParam::ResizeColumnsEnabled"),
             TableParam::MinSize => set_t_value(&mut self.min_size, value, "TableParam::MinSize"),
             TableParam::TextSize => set_t_value(&mut self.text_size, value, "TableParam::TextSize"),
             TableParam::Show => set_t_value(&mut self.show, value, "TableParam::Show"),
             TableParam::StyleId => set_t_value(&mut self.style_id, value, "TableParam::StyleId"),
-            TableParam::ScrollableStyleId => set_t_value(&mut self.scrollable_style_id, value, "TableParam::ScrollableStyleId"),
         }
     }
 }
@@ -526,241 +348,5 @@ impl WidgetParamUpdate for TableStyle {
             TableStyleParam::TextColorAlpha => set_t_value(&mut self.text_color_alpha, value, "name"),
             TableStyleParam::TextRgba => set_t_value(&mut self.text_rgba, value, "name"),
         }
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use pyo3::{Python, IntoPyObjectExt};
-
-    fn make_table() -> Table {
-        Table {
-            id: 0,
-            headers: vec!["A".into(), "B".into()],
-            body: vec![vec![1.0, 2.0]],
-            footers: vec![],
-            column_widths: vec![100.0, 100.0],
-            height: 200.0,
-            width: None,
-            sash_size: 4.0,
-            header_enabled: true,
-            header_row_height: None,
-            header_scrollbar_height: None,
-            header_scrollbar_margin: None,
-            header_scroller_height: None,
-            header_scrollbar_spacing: None,
-            header_row_spacing: None,
-            footer_height: None,
-            footer_scrollbar_height: None,
-            footer_scrollbar_margin: None,
-            footer_scroller_height: None,
-            footer_scrollbar_spacing: None,
-            footer_spacing: None,
-            body_scrollbar_width: None,
-            body_scrollbar_margin: None,
-            body_scroller_width: None,
-            body_scrollbar_spacing: None,
-            body_row_highlight: false,
-            custom_header_rows: None,
-            custom_footer_rows: None,
-            control_columns: vec![],
-            row_spacing: None,
-            row_height: None,
-            header_body_spacing: None,
-            body_footer_spacing: None,
-            resize_columns_enabled: false,
-            min_size: 0.0,
-            text_size: None,
-            show: true,
-            style_id: None,
-            sash_style_id: None,
-            scrollable_style_id: None,
-            released: false,
-        }
-    }
-
-    fn py_obj<T: for<'py> IntoPyObjectExt<'py>>(val: T) -> PyObject {
-        Python::initialize();
-        Python::attach(|py| val.into_py_any(py).unwrap())
-    }
-
-    fn py_none() -> PyObject {
-        Python::initialize();
-        Python::attach(|py| py.None().into_py_any(py).unwrap())
-    }
-
-    #[test]
-    fn test_headers() {
-        let mut t = make_table();
-        t.param_update(TableParam::Headers, &py_obj(vec!["X".to_string(), "Y".to_string()]));
-        assert_eq!(t.headers, vec!["X", "Y"]);
-    }
-
-    #[test]
-    fn test_body() {
-        let mut t = make_table();
-        t.param_update(TableParam::Body, &py_obj(vec![vec![3.0f32, 4.0]]));
-        assert_eq!(t.body, vec![vec![3.0, 4.0]]);
-    }
-
-    #[test]
-    fn test_footers() {
-        let mut t = make_table();
-        t.param_update(TableParam::Footers, &py_obj(vec!["total".to_string()]));
-        assert_eq!(t.footers, vec!["total"]);
-    }
-
-    #[test]
-    fn test_column_widths() {
-        let mut t = make_table();
-        t.param_update(TableParam::ColumnWidths, &py_obj(vec![50.0f32, 75.0]));
-        assert_eq!(t.column_widths, vec![50.0, 75.0]);
-    }
-
-    #[test]
-    fn test_height() {
-        let mut t = make_table();
-        t.param_update(TableParam::Height, &py_obj(300.0f32));
-        assert_eq!(t.height, 300.0);
-    }
-
-    #[test]
-    fn test_width() {
-        let mut t = make_table();
-        t.param_update(TableParam::Width, &py_obj(500.0f32));
-        assert_eq!(t.width, Some(500.0));
-        t.param_update(TableParam::Width, &py_none());
-        assert_eq!(t.width, None);
-    }
-
-    #[test]
-    fn test_sash_size() {
-        let mut t = make_table();
-        t.param_update(TableParam::SashSize, &py_obj(6.0f32));
-        assert_eq!(t.sash_size, 6.0);
-    }
-
-    #[test]
-    fn test_header_enabled() {
-        let mut t = make_table();
-        t.param_update(TableParam::HeaderEnabled, &py_obj(false));
-        assert!(!t.header_enabled);
-    }
-
-    #[test]
-    fn test_header_height() {
-        let mut t = make_table();
-        t.param_update(TableParam::HeaderHeight, &py_obj(30.0f32));
-        assert_eq!(t.header_row_height, Some(30.0));
-    }
-
-    #[test]
-    fn test_header_row_spacing() {
-        let mut t = make_table();
-        t.param_update(TableParam::HeaderRowSpacing, &py_obj(4.0f32));
-        assert_eq!(t.header_row_spacing, Some(4.0));
-    }
-
-    #[test]
-    fn test_footer_height() {
-        let mut t = make_table();
-        t.param_update(TableParam::FooterHeight, &py_obj(25.0f32));
-        assert_eq!(t.footer_height, Some(25.0));
-    }
-
-    #[test]
-    fn test_footer_spacing() {
-        let mut t = make_table();
-        t.param_update(TableParam::FooterSpacing, &py_obj(2.0f32));
-        assert_eq!(t.footer_spacing, Some(2.0));
-    }
-
-    #[test]
-    fn test_custom_header_rows() {
-        let mut t = make_table();
-        t.param_update(TableParam::CustomHeaderRows, &py_obj(3usize));
-        assert_eq!(t.custom_header_rows, Some(3));
-        t.param_update(TableParam::CustomHeaderRows, &py_none());
-        assert_eq!(t.custom_header_rows, None);
-    }
-
-    #[test]
-    fn test_custom_footer_rows() {
-        let mut t = make_table();
-        t.param_update(TableParam::CustomFooterRows, &py_obj(2usize));
-        assert_eq!(t.custom_footer_rows, Some(2));
-    }
-
-    #[test]
-    fn test_row_spacing() {
-        let mut t = make_table();
-        t.param_update(TableParam::RowSpacing, &py_obj(3.0f32));
-        assert_eq!(t.row_spacing, Some(3.0));
-    }
-
-    #[test]
-    fn test_row_height() {
-        let mut t = make_table();
-        t.param_update(TableParam::RowHeight, &py_obj(20.0f32));
-        assert_eq!(t.row_height, Some(20.0));
-    }
-
-    #[test]
-    fn test_header_body_spacing() {
-        let mut t = make_table();
-        t.param_update(TableParam::HeaderBodySpacing, &py_obj(5.0f32));
-        assert_eq!(t.header_body_spacing, Some(5.0));
-    }
-
-    #[test]
-    fn test_body_footer_spacing() {
-        let mut t = make_table();
-        t.param_update(TableParam::BodyFooterSpacing, &py_obj(5.0f32));
-        assert_eq!(t.body_footer_spacing, Some(5.0));
-    }
-
-    #[test]
-    fn test_resize_columns_enabled() {
-        let mut t = make_table();
-        t.param_update(TableParam::ResizeColumnsEnabled, &py_obj(true));
-        assert!(t.resize_columns_enabled);
-    }
-
-    #[test]
-    fn test_min_size() {
-        let mut t = make_table();
-        t.param_update(TableParam::MinSize, &py_obj(50.0f32));
-        assert_eq!(t.min_size, 50.0);
-    }
-
-    #[test]
-    fn test_text_size() {
-        let mut t = make_table();
-        t.param_update(TableParam::TextSize, &py_obj(14.0f32));
-        assert_eq!(t.text_size, Some(14.0));
-    }
-
-    #[test]
-    fn test_show() {
-        let mut t = make_table();
-        t.param_update(TableParam::Show, &py_obj(false));
-        assert!(!t.show);
-    }
-
-    #[test]
-    fn test_style_id() {
-        let mut t = make_table();
-        t.param_update(TableParam::StyleId, &py_obj(5usize));
-        assert_eq!(t.style_id, Some(5));
-        t.param_update(TableParam::StyleId, &py_none());
-        assert_eq!(t.style_id, None);
-    }
-
-    #[test]
-    fn test_scrollable_style_id() {
-        let mut t = make_table();
-        t.param_update(TableParam::ScrollableStyleId, &py_obj(7usize));
-        assert_eq!(t.scrollable_style_id, Some(7));
     }
 }

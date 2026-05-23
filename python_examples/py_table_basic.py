@@ -7,7 +7,7 @@ from icedpygui import (
     Window,
     Container,
     start_session,
-    add_table)
+    add_table_basic)
 
 column_widths = [100.0] * 4
 width = sum(column_widths)
@@ -29,6 +29,11 @@ body = [
 footers = ["f", "f", "f", "f"]
 
 
+def to_str(data: list[list[float]]) -> list[list[str]]:
+    """Convert float data to str"""
+    return [[str(cell) for cell in row] for row in data]
+
+
 # Add the window
 with Window(
         title="Table Demo",
@@ -36,15 +41,15 @@ with Window(
         center=True):
 
     # Add the container for centering the table
-    with Container(fill=True, align_center=True, ):
+    with Container(fill=True, align_center=True):
 
         # The table is added.
-        table_id = add_table(
-                headers=headers,
-                body=body,
-                footers=footers,
-                column_widths=column_widths,
-                height=150.0)
+        add_table_basic(
+            headers=headers,
+            body=to_str(body),
+            footers=footers,
+            col_widths=column_widths,
+            row_height=30.0)
 
 
 # Required to be the last widget sent to Iced,  If you start the program

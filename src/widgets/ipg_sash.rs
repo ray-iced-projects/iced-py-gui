@@ -35,6 +35,7 @@ pub struct Sash {
     pub max_size: Option<f32>,
     pub min_cross_size: Option<f32>,
     pub max_cross_size: Option<f32>,
+    pub clip: Option<bool>,
     pub style_id: Option<usize>,
     pub style_std: Option<SashStyleStd>,
     pub show: bool,
@@ -95,6 +96,10 @@ impl Sash {
 
         let sh = if let Some(min) = self.min_cross_size {
             sh.min_cross_size(min)
+        } else { sh };
+
+        let sh = if self.clip == Some(true) {
+            sh.clip(true)
         } else { sh };
 
         let sh = sh.outer_resize_mode(self.resize_mode);
@@ -280,6 +285,7 @@ impl SashStyle {
 #[derive(Debug, Clone, PartialEq, Hash)]
 #[pyclass(eq, eq_int, hash, frozen)]
 pub enum SashParam {
+    Clip,
     InitialSizes,
     MaxSize,
     MinSize,
@@ -318,6 +324,7 @@ impl WidgetParamUpdate for Sash {
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
+            SashParam::Clip => set_t_value(&mut self.clip, value, "SashParam::Clip"),
             SashParam::InitialSizes => set_t_value(&mut self.initial_sizes, value, "SashParam::InitialSizes"),
             SashParam::MaxSize => set_t_value(&mut self.max_size, value, "SashParam::MaxSize"),
             SashParam::MinSize => set_t_value(&mut self.min_size, value, "SashParam::MinSize"),

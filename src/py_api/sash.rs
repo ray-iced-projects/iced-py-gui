@@ -70,6 +70,8 @@ type PyObject = Py<PyAny>;
 ///     Sets the minimum pixel size of the sash in the cross-axis direction.
 /// max_cross_size : float, Optional
 ///     Sets the maximum pixel size of the sash in the cross-axis direction.
+/// clip : bool, Optional
+///     Sets whether to clip the content when resized samller than content.
 /// style_id : int, Optional
 ///     Sets the ID of a custom style created with ``add_sash_style``.
 /// style_std : int, Optional
@@ -107,6 +109,7 @@ type PyObject = Py<PyAny>;
     max_size=None,
     min_cross_size=None,
     max_cross_size=None,
+    clip=None,
     style_id=None,
     style_std=None,
     user_data=None,
@@ -134,6 +137,7 @@ pub fn add_sash(
     max_size: Option<f32>,
     min_cross_size: Option<f32>,
     max_cross_size: Option<f32>,
+    clip: Option<bool>,
     style_id: Option<usize>,
     style_std: Option<SashStyleStd>,
     user_data: Option<PyObject>,
@@ -192,6 +196,7 @@ pub fn add_sash(
             max_cross_size,
             style_id,
             style_std,
+            clip,
             show,
             resize_mode: iced_sash::OuterResizeMode::LastOnly,
         }));

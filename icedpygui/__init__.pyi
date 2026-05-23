@@ -933,6 +933,7 @@ def add_sash(
     max_size: float | None = None,
     min_cross_size: float | None = None,
     max_cross_size: float | None = None,
+    clip: bool | None = None,
     style_id: int | None = None,
     user_data: Any | None = None,
     show: bool = True,
@@ -997,6 +998,8 @@ def add_sash(
         Sets the minimum pixel size of the sash in the cross-axis direction.
     max_cross_size : float, Optional
         Sets the maximum pixel size of the sash in the cross-axis direction.
+    clip : bool, Optional
+        Sets whether to clip the content when resized samller than content.
     style_id : int, Optional
         Sets the ID of a custom style created with ``add_sash_style``.
     user_data : Any, Optional

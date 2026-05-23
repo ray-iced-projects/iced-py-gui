@@ -118,7 +118,7 @@ pub fn container_param_update(
         Containers::Sash(w) => apply_update(w, item, value),
         Containers::Scrollable(w) => apply_update(w, item, value),
         Containers::Stack(w) => apply_update(w, item, value),
-        Containers::Table(w) => apply_update(w, item, value),
+        Containers::TableBasic(w) => apply_update(w, item, value),
         Containers::ToolTip(w) => apply_update(w, item, value),
         Containers::Window(w) => apply_update(w, item, value),
         _ => panic!("{:?} does not support param_update", container)

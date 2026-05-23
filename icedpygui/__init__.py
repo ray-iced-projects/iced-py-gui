@@ -63,7 +63,7 @@ from .icedpygui import (
     add_space as _add_space,
     add_stack as _add_stack,
     add_svg as _add_svg,
-    add_table as _add_table,
+    add_table_basic as _add_table_basic,
     add_table_style,
     add_text_input as _add_text_input,
     add_text_input_style,
@@ -339,8 +339,8 @@ add_scrollable = _wrap_container(_add_scrollable, "add_scrollable")
 add_scrollable.__doc__ = _add_scrollable.__doc__
 add_stack = _wrap_container(_add_stack, "add_stack")
 add_stack.__doc__ = _add_stack.__doc__
-add_table = _wrap_container(_add_table, "add_table")
-add_table.__doc__ = _add_table.__doc__
+add_table_basic = _wrap_container(_add_table_basic, "add_table_basic")
+add_table_basic.__doc__ = _add_table_basic.__doc__
 add_tool_tip = _wrap_container(_add_tool_tip, "_add_tool_tip")
 add_tool_tip.__doc__ = _add_tool_tip.__doc__
 
@@ -1037,7 +1037,7 @@ class Scrollable:
         _parent_stack.pop()
         return False
 
-class Table:
+class TableBasic:
     """Wrapper for add_table"""
     def __init__(self, *, container_id=None, window_id=None, parent_id=None, **kwargs):
         self.window_id = (
@@ -1046,7 +1046,7 @@ class Table:
             else _current_window_or_parent(parent_id)
         )
         if self.window_id is None:
-            raise ValueError("Table: window_id is required (either pass it\
+            raise ValueError("TableBasic: window_id is required (either pass it\
                 or use a Window context manager)")
         self.container_id = (
             container_id
@@ -1061,7 +1061,7 @@ class Table:
         pid = self.parent_id or _current_parent()
         if pid is not None:
             pid = _resolve_parent_id(pid)
-        self.numeric_id = _add_table(
+        self.numeric_id = _add_table_basic(
             window_id=self.window_id,
             container_id=self.container_id,
             parent_id=pid,

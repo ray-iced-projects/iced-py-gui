@@ -61,9 +61,7 @@ pub enum Message {
     Sash(usize, SashMessage),
     Scrolled(scrollable::Viewport, usize),
     Slider(usize, SldMessage),
-    TableScrolled(scrollable::Viewport, usize),
-    TableDividerChanged((usize, usize, f32)),
-    TableDividerReleased(usize),
+    Table(usize, TableMessage),
     TextEditor(usize, TxtEdMessage),
     TextInput(usize, TIMessage),
     Toggler(usize, TOGMessage),
@@ -253,19 +251,7 @@ impl App {
                 process_widget_updates(&mut self.state);
                 Task::none()
             },
-            Message::TableScrolled(vp, id) => {
-                scrollable_callback(id, vp);
-                process_widget_updates(&mut self.state);
-                Task::none()
-            },
-            Message::TableDividerChanged((id, index, value)) => {
-                let message = TableMessage::DivDragging((index, value));
-                table_callback(&mut self.state, id, message);
-                process_widget_updates(&mut self.state);
-                Task::none()
-            },
-            Message::TableDividerReleased(id) => {
-                let message = TableMessage::DivOnRelease;
+            Message::Table(id, message) => {
                 table_callback(&mut self.state, id, message);
                 process_widget_updates(&mut self.state);
                 Task::none()
@@ -777,7 +763,7 @@ fn get_container<'a>(state: &'a IpgState,
                 Containers::Stack(stk) => {
                     stk.construct(content)
                 }
-                Containers::Table(table) => {
+                Containers::TableBasic(table) => {
                     table.construct(content, &state.widgets)
                 },
                 Containers::ToolTip(tool) => {

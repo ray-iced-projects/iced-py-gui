@@ -766,18 +766,18 @@ fn get_container<'a>(state: &'a IpgState,
                 Containers::TableBasic(tbl_basic) => {
                     tbl_basic.construct(content, &state.widgets)
                 },
-                Containers::Table(table) => {
-                    table.construct(content, &state.widgets)
-                },
-                Containers::TableHeader(header) => {
-                    header.construct(content, &state.widgets)
-                },
-                Containers::TableBody(body)) => {
-                    body.construct(content, &state.widgets)
-                },
-                Containers::TableFooter(foot)) => {
-                    foot.construct(content, &state.widgets)
-                },
+                // Containers::Table(table) => {
+                //     table.construct(content, &state.widgets)
+                // },
+                // Containers::TableHeader(header) => {
+                //     header.construct(content, &state.widgets)
+                // },
+                // Containers::TableBody(body) => {
+                //     body.construct(content, &state.widgets)
+                // },
+                // Containers::TableFooter(foot) => {
+                //     foot.construct(content, &state.widgets)
+                // },
                 Containers::ToolTip(tool) => {
                     if content.len() > 2 {
                         eprintln!("[WARNING] A tooltip can have only 2 containers/widgets, place your multiple widgets into a column or row")

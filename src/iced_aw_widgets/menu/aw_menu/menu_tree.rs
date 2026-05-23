@@ -490,7 +490,7 @@ where
                     };
 
                     let mut temp_messages = vec![];
-                    let mut temp_shell = Shell::new(&mut temp_messages);
+                    let mut temp_shell = shell.local(&mut temp_messages);
 
                     let redraw_event =
                         Event::Window(window::Event::RedrawRequested(Instant::now()));

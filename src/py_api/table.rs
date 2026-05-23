@@ -229,7 +229,7 @@ pub fn add_table_basic(
     on_column_resize=None,
     on_column_resize_release=None,
     user_data=None,
-    show=True,
+    show=true,
     ))]
 pub fn add_table(
         window_id: String,
@@ -245,7 +245,7 @@ pub fn add_table(
     ) -> PyResult<usize> 
 {
 
-    let id = get_id(gen_id);
+    let id = get_id(None);
 
     let prt_id = match parent_id {
         Some(id) => id,
@@ -260,7 +260,7 @@ pub fn add_table(
         add_callback_to_mutex(id, "on_resize".to_string(), py);
     }
 
-    let released = if let Some(py) = on_column_resize_release {
+    let _released = if let Some(py) = on_column_resize_release {
         add_callback_to_mutex(id, "released".to_string(), py);
         true
     } else {

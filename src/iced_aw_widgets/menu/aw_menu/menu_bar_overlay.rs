@@ -352,7 +352,7 @@ where
             RecEvent::Event => {
                 let redraw_event = Event::Window(window::Event::RedrawRequested(Instant::now()));
                 let mut fake_messages = vec![];
-                let mut fake_shell = Shell::new(&mut fake_messages);
+                let mut fake_shell = shell.local(&mut fake_messages);
 
                 let Self {
                     menu_bar,

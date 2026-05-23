@@ -100,7 +100,7 @@ use crate::widgets::ipg_separator::{SeparatorParam, SeparatorStyleParam};
 use crate::widgets::ipg_slider::{SliderParam, SliderStyleParam};
 use crate::widgets::ipg_stack::StackParam;
 use crate::widgets::ipg_svg::SvgParam;
-use crate::widgets::ipg_table::{TableParam, TableStyleParam};
+use crate::widgets::ipg_table::{TableBasicParam, TableStyleParam};
 use crate::widgets::ipg_text_input::{TextInputParam, TextInputStyleParam};
 use crate::widgets::ipg_text_rich::{RichTextParam, SpanParam};
 use crate::widgets::ipg_text::{TextColorStd, TextParam};
@@ -258,7 +258,7 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<StackParam>()?;
     m.add_class::<StyleStandard>()?;
     m.add_class::<SvgParam>()?;
-    m.add_class::<TableParam>()?;
+    m.add_class::<TableBasicParam>()?;
     m.add_class::<TableStyleParam>()?;
     m.add_class::<TextColorStd>()?;
     m.add_class::<TextInputParam>()?;

@@ -1088,7 +1088,7 @@ def add_stack(
     """
     ...
 
-def add_table(
+def add_table_basic(
     *,
     window_id: str,
     container_id: str,

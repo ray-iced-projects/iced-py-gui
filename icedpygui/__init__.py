@@ -1038,7 +1038,7 @@ class Scrollable:
         return False
 
 class TableBasic:
-    """Wrapper for add_table"""
+    """Wrapper for add_table_basic"""
     def __init__(self, *, container_id=None, window_id=None, parent_id=None, **kwargs):
         self.window_id = (
             _resolve_window_id(window_id)

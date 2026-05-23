@@ -30,7 +30,7 @@ use crate::widgets::ipg_pick_list::{PLMessage, pick_list_callback};
 use crate::widgets::ipg_radio::{RDMessage, radio_callback};
 use crate::widgets::ipg_scrollable::scrollable_callback;
 use crate::widgets::ipg_slider::{SldMessage, slider_callback};
-use crate::widgets::ipg_table::{TableMessage, table_callback};
+use crate::widgets::ipg_table::{TableBasicMessage, table_callback};
 use crate::widgets::ipg_text_rich::rich_text_callback;
 use crate::widgets::ipg_text_editor::{TxtEdMessage, text_ed_callback};
 use crate::widgets::ipg_text_input::{TIMessage, text_input_callback};
@@ -61,7 +61,7 @@ pub enum Message {
     Sash(usize, SashMessage),
     Scrolled(scrollable::Viewport, usize),
     Slider(usize, SldMessage),
-    Table(usize, TableMessage),
+    Table(usize, TableBasicMessage),
     TextEditor(usize, TxtEdMessage),
     TextInput(usize, TIMessage),
     Toggler(usize, TOGMessage),
@@ -763,8 +763,20 @@ fn get_container<'a>(state: &'a IpgState,
                 Containers::Stack(stk) => {
                     stk.construct(content)
                 }
-                Containers::TableBasic(table) => {
+                Containers::TableBasic(tbl_basic) => {
+                    tbl_basic.construct(content, &state.widgets)
+                },
+                Containers::Table(table) => {
                     table.construct(content, &state.widgets)
+                },
+                Containers::TableHeader(header) => {
+                    header.construct(content, &state.widgets)
+                },
+                Containers::TableBody(body)) => {
+                    body.construct(content, &state.widgets)
+                },
+                Containers::TableFooter(foot)) => {
+                    foot.construct(content, &state.widgets)
                 },
                 Containers::ToolTip(tool) => {
                     if content.len() > 2 {

@@ -7,9 +7,9 @@ type PyObject = Py<PyAny>;
 use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex, graphics::colors::Color, state::{Containers, Widgets, get_id, set_state_cont_wnd_ids, set_state_of_container}, widgets::ipg_table::{TableBasic, TableStyle}};
 
 
-/// Add a table widget.
+/// Add a table basic widget.
 ///
-/// A table with headers, body rows, footers, and resizable columns.
+/// A basic table with headers, body rows, footers, and resizable columns.
 ///
 /// Parameters
 /// ----------
@@ -216,6 +216,80 @@ pub fn add_table_basic(
     Ok(id)
 
 }
+
+
+#[pyfunction]
+#[pyo3(signature = (
+    window_id,
+    container_id,
+    parent_id=None,
+    file_path=None,
+    style_id=None,
+    sash_style_id=None,
+    on_column_resize=None,
+    on_column_resize_release=None,
+    user_data=None,
+    show=True,
+    ))]
+pub fn add_table(
+        window_id: String,
+        container_id: String,
+        parent_id: Option<String>,
+        file_path: Option<String>,
+        style_id: Option<usize>,
+        sash_style_id: Option<usize>,
+        on_column_resize: Option<PyObject>,
+        on_column_resize_release: Option<PyObject>,
+        user_data: Option<PyObject>,
+        show: bool,
+    ) -> PyResult<usize> 
+{
+
+    let id = get_id(gen_id);
+
+    let prt_id = match parent_id {
+        Some(id) => id,
+        None => window_id.clone(),
+    };
+
+    if let Some(py) = user_data {
+        add_user_data_to_mutex(id, py);
+    }
+
+    if let Some(py) = on_column_resize {
+        add_callback_to_mutex(id, "on_resize".to_string(), py);
+    }
+
+    let released = if let Some(py) = on_column_resize_release {
+        add_callback_to_mutex(id, "released".to_string(), py);
+        true
+    } else {
+        false
+    };
+
+    set_state_of_container(id, window_id.clone(), Some(container_id.clone()), prt_id);
+
+    let mut state = access_state();
+
+    set_state_cont_wnd_ids(&mut state, &window_id, container_id, id, "add_table".to_string());
+
+    state.containers.insert(id, Containers::TableBasic(
+        TableBasic {
+            id,
+            file_path,
+            style_id,
+            sash_style_id,
+            show,
+            ..Default::default()
+        }));
+
+    drop(state);
+    Ok(id)
+
+}
+
+
+
 
 
 #[pyfunction]

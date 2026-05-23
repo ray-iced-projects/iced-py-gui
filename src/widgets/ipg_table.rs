@@ -138,7 +138,7 @@ fn table_header<'a>(id: usize, header: &[String], sizes: Vec<f32>, height: f32) 
         6.0,
     )
     .min_size(10.0)
-    .on_resize(move |s_id, idx, val| Message::Table(id, TableMessage::ResizeH(s_id, idx, val)))
+    .on_resize(move |s_id, idx, val| Message::Table(id, TableBasicMessage::ResizeH(s_id, idx, val)))
     .sync_sashes(sizes.clone())
     .style(|theme, status| iced_sash::subtle(theme, status))
     .clip(true)
@@ -162,7 +162,7 @@ fn table_body<'a>(id: usize, body: &[Vec<String>], sizes: Vec<f32>, height: f32)
                 6.0,
             )
             .min_size(10.0)
-            .on_resize(move |s_id, idx, val| Message::Table(id, TableMessage::ResizeH(s_id, idx, val)))
+            .on_resize(move |s_id, idx, val| Message::Table(id, TableBasicMessage::ResizeH(s_id, idx, val)))
             .sync_sashes(sizes.clone())
             .style(|theme, status| iced_sash::subtle(theme, status))
             .clip(true)
@@ -212,18 +212,38 @@ fn load_csv(path: &str) -> Result<(Vec<String>, Vec<Vec<String>>), csv::Error> {
     Ok((header, body))
 }
 
+pub struct Table {
+    file_path: Option<String>,
+    style_id: Option<usize>,
+    sash_style_id: Option<usize>,
+    show: bool,
+}
+
+pub struct TableHeader {
+
+}
+
+pub struct TableBody {
+
+}
+
+pub struct TableFooter {
+    
+}
+
+
 #[derive(Clone, Debug, PartialEq)]
-pub enum TableMessage {
+pub enum TableBasicMessage {
     ResizeH(Id, usize, f32)
 }
 
 pub fn table_callback(
         state: &mut IpgState,  
         widget_id: usize,  
-        message: TableMessage) 
+        message: TableBasicMessage) 
 {
     match message {
-        TableMessage::ResizeH(_id, idx, size) => {
+        TableBasicMessage::ResizeH(_id, idx, size) => {
             let table = match state.containers.get_mut(&widget_id) {
                 Some(Containers::TableBasic(t)) => t,
                 _ => return,
@@ -275,7 +295,7 @@ pub enum TableStyleParam {
 
 #[derive(Debug, Clone, PartialEq, Hash)]
 #[pyclass(eq, eq_int, hash, frozen)]
-pub enum TableParam {
+pub enum TableBasicParam {
     Headers,
     Body,
     Footers,
@@ -303,29 +323,29 @@ pub enum TableParam {
 // ---------------------------------------------------------------------------
 
 impl WidgetParamUpdate for TableBasic {
-    type Param = TableParam;
+    type Param = TableBasicParam;
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
-            TableParam::Headers => set_t_value(&mut self.headers, value, "TableParam::Headers"),
-            TableParam::Body => set_t_value(&mut self.body, value, "TableParam::Body"),
-            TableParam::Footers => set_t_value(&mut self.footers, value, "TableParam::Footers"),
-            TableParam::ColumnWidths => set_t_value(&mut self.column_widths, value, "TableParam::ColumnWidths"),
-            TableParam::Height => set_t_value(&mut self.row_height, value, "TableParam::Height"),
-            TableParam::Width => set_t_value(&mut self.col_widths, value, "TableParam::Width"),
-            TableParam::SashSize => set_t_value(&mut self.sash_size, value, "TableParam::SashSize"),
-            TableParam::HeaderEnabled => set_t_value(&mut self.header_enabled, value, "TableParam::HeaderEnabled"),
-            TableParam::HeaderHeight => set_t_value(&mut self.header_row_height, value, "TableParam::HeaderHeight"),
-            TableParam::HeaderRowSpacing => set_t_value(&mut self.header_row_spacing, value, "TableParam::HeaderRowSpacing"),
-            TableParam::FooterHeight => set_t_value(&mut self.footer_height, value, "TableParam::FooterHeight"),
-            TableParam::FooterSpacing => set_t_value(&mut self.footer_spacing, value, "TableParam::FooterSpacing"),
-            TableParam::RowSpacing => set_t_value(&mut self.row_spacing, value, "TableParam::RowSpacing"),
-            TableParam::RowHeight => set_t_value(&mut self.row_height, value, "TableParam::RowHeight"),
-            TableParam::ResizeColumnsEnabled => set_t_value(&mut self.resize_columns_enabled, value, "TableParam::ResizeColumnsEnabled"),
-            TableParam::MinSize => set_t_value(&mut self.min_size, value, "TableParam::MinSize"),
-            TableParam::TextSize => set_t_value(&mut self.text_size, value, "TableParam::TextSize"),
-            TableParam::Show => set_t_value(&mut self.show, value, "TableParam::Show"),
-            TableParam::StyleId => set_t_value(&mut self.style_id, value, "TableParam::StyleId"),
+            TableBasicParam::Headers => set_t_value(&mut self.headers, value, "TableParam::Headers"),
+            TableBasicParam::Body => set_t_value(&mut self.body, value, "TableParam::Body"),
+            TableBasicParam::Footers => set_t_value(&mut self.footers, value, "TableParam::Footers"),
+            TableBasicParam::ColumnWidths => set_t_value(&mut self.column_widths, value, "TableParam::ColumnWidths"),
+            TableBasicParam::Height => set_t_value(&mut self.row_height, value, "TableParam::Height"),
+            TableBasicParam::Width => set_t_value(&mut self.col_widths, value, "TableParam::Width"),
+            TableBasicParam::SashSize => set_t_value(&mut self.sash_size, value, "TableParam::SashSize"),
+            TableBasicParam::HeaderEnabled => set_t_value(&mut self.header_enabled, value, "TableParam::HeaderEnabled"),
+            TableBasicParam::HeaderHeight => set_t_value(&mut self.header_row_height, value, "TableParam::HeaderHeight"),
+            TableBasicParam::HeaderRowSpacing => set_t_value(&mut self.header_row_spacing, value, "TableParam::HeaderRowSpacing"),
+            TableBasicParam::FooterHeight => set_t_value(&mut self.footer_height, value, "TableParam::FooterHeight"),
+            TableBasicParam::FooterSpacing => set_t_value(&mut self.footer_spacing, value, "TableParam::FooterSpacing"),
+            TableBasicParam::RowSpacing => set_t_value(&mut self.row_spacing, value, "TableParam::RowSpacing"),
+            TableBasicParam::RowHeight => set_t_value(&mut self.row_height, value, "TableParam::RowHeight"),
+            TableBasicParam::ResizeColumnsEnabled => set_t_value(&mut self.resize_columns_enabled, value, "TableParam::ResizeColumnsEnabled"),
+            TableBasicParam::MinSize => set_t_value(&mut self.min_size, value, "TableParam::MinSize"),
+            TableBasicParam::TextSize => set_t_value(&mut self.text_size, value, "TableParam::TextSize"),
+            TableBasicParam::Show => set_t_value(&mut self.show, value, "TableParam::Show"),
+            TableBasicParam::StyleId => set_t_value(&mut self.style_id, value, "TableParam::StyleId"),
         }
     }
 }

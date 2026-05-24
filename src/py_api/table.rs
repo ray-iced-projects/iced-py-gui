@@ -4,7 +4,7 @@
 use pyo3::{Py, PyAny, PyResult, pyfunction};
 type PyObject = Py<PyAny>;
 
-use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex, graphics::colors::Color, state::{Containers, Widgets, get_id, set_state_cont_wnd_ids, set_state_of_container}, widgets::ipg_table::{TableBasic, TableStyle}};
+use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex, graphics::colors::Color, state::{Containers, Widgets, get_id, set_state_cont_wnd_ids, set_state_of_container}, widgets::ipg_table::{Table, TableBasic, TableBody, TableFooter, TableHeader, TableStyle}};
 
 
 /// Add a table basic widget.
@@ -222,7 +222,11 @@ pub fn add_table_basic(
 #[pyo3(signature = (
     window_id,
     container_id,
+    row_height,
+    col_widths,
     parent_id=None,
+    sash_size=4.0,
+    min_size=10.0,
     file_path=None,
     style_id=None,
     sash_style_id=None,
@@ -234,7 +238,11 @@ pub fn add_table_basic(
 pub fn add_table(
         window_id: String,
         container_id: String,
+        row_height: f32,
+        col_widths: Vec<f32>,
         parent_id: Option<String>,
+        sash_size: f32,
+        min_size: f32,
         file_path: Option<String>,
         style_id: Option<usize>,
         sash_style_id: Option<usize>,
@@ -273,9 +281,13 @@ pub fn add_table(
 
     set_state_cont_wnd_ids(&mut state, &window_id, container_id, id, "add_table".to_string());
 
-    state.containers.insert(id, Containers::TableBasic(
-        TableBasic {
+    state.containers.insert(id, Containers::Table(
+        Table {
             id,
+            col_widths,
+            row_height,
+            sash_size,
+            min_size,
             file_path,
             style_id,
             sash_style_id,
@@ -288,7 +300,206 @@ pub fn add_table(
 
 }
 
+#[pyfunction]
+#[pyo3(signature = (
+    window_id,
+    container_id,
+    parent_id=None,
+    style_id=None,
+    sash_style_id=None,
+    on_column_resize=None,
+    on_column_resize_release=None,
+    user_data=None,
+    show=true,
+    ))]
+pub fn add_table_header(
+        window_id: String,
+        container_id: String,
+        parent_id: Option<String>,
+        style_id: Option<usize>,
+        sash_style_id: Option<usize>,
+        on_column_resize: Option<PyObject>,
+        on_column_resize_release: Option<PyObject>,
+        user_data: Option<PyObject>,
+        show: bool,
+    ) -> PyResult<usize> 
+{
 
+    let id = get_id(None);
+
+    let prt_id = match parent_id {
+        Some(id) => id,
+        None => window_id.clone(),
+    };
+
+    if let Some(py) = user_data {
+        add_user_data_to_mutex(id, py);
+    }
+
+    if let Some(py) = on_column_resize {
+        add_callback_to_mutex(id, "on_resize".to_string(), py);
+    }
+
+    let _released = if let Some(py) = on_column_resize_release {
+        add_callback_to_mutex(id, "released".to_string(), py);
+        true
+    } else {
+        false
+    };
+
+    set_state_of_container(id, window_id.clone(), Some(container_id.clone()), prt_id);
+
+    let mut state = access_state();
+
+    set_state_cont_wnd_ids(&mut state, &window_id, container_id, id, "add_table".to_string());
+
+    state.containers.insert(id, Containers::TableHeader(
+        TableHeader{
+            id,
+            style_id,
+            sash_style_id,
+            show,
+            ..Default::default()
+        }));
+
+    drop(state);
+    Ok(id)
+
+}
+
+#[pyfunction]
+#[pyo3(signature = (
+    window_id,
+    container_id,
+    parent_id=None,
+    style_id=None,
+    sash_style_id=None,
+    on_column_resize=None,
+    on_column_resize_release=None,
+    user_data=None,
+    show=true,
+    ))]
+pub fn add_table_body(
+        window_id: String,
+        container_id: String,
+        parent_id: Option<String>,
+        style_id: Option<usize>,
+        sash_style_id: Option<usize>,
+        on_column_resize: Option<PyObject>,
+        on_column_resize_release: Option<PyObject>,
+        user_data: Option<PyObject>,
+        show: bool,
+    ) -> PyResult<usize> 
+{
+
+    let id = get_id(None);
+
+    let prt_id = match parent_id {
+        Some(id) => id,
+        None => window_id.clone(),
+    };
+
+    if let Some(py) = user_data {
+        add_user_data_to_mutex(id, py);
+    }
+
+    if let Some(py) = on_column_resize {
+        add_callback_to_mutex(id, "on_resize".to_string(), py);
+    }
+
+    let _released = if let Some(py) = on_column_resize_release {
+        add_callback_to_mutex(id, "released".to_string(), py);
+        true
+    } else {
+        false
+    };
+
+    set_state_of_container(id, window_id.clone(), Some(container_id.clone()), prt_id);
+
+    let mut state = access_state();
+
+    set_state_cont_wnd_ids(&mut state, &window_id, container_id, id, "add_table".to_string());
+
+    state.containers.insert(id, Containers::TableBody(
+        TableBody {
+            id,
+            style_id,
+            sash_style_id,
+            show,
+            ..Default::default()
+        }));
+
+    drop(state);
+    Ok(id)
+
+}
+
+#[pyfunction]
+#[pyo3(signature = (
+    window_id,
+    container_id,
+    parent_id=None,
+    style_id=None,
+    sash_style_id=None,
+    on_column_resize=None,
+    on_column_resize_release=None,
+    user_data=None,
+    show=true,
+    ))]
+pub fn add_table_footer(
+        window_id: String,
+        container_id: String,
+        parent_id: Option<String>,
+        style_id: Option<usize>,
+        sash_style_id: Option<usize>,
+        on_column_resize: Option<PyObject>,
+        on_column_resize_release: Option<PyObject>,
+        user_data: Option<PyObject>,
+        show: bool,
+    ) -> PyResult<usize> 
+{
+
+    let id = get_id(None);
+
+    let prt_id = match parent_id {
+        Some(id) => id,
+        None => window_id.clone(),
+    };
+
+    if let Some(py) = user_data {
+        add_user_data_to_mutex(id, py);
+    }
+
+    if let Some(py) = on_column_resize {
+        add_callback_to_mutex(id, "on_resize".to_string(), py);
+    }
+
+    let _released = if let Some(py) = on_column_resize_release {
+        add_callback_to_mutex(id, "released".to_string(), py);
+        true
+    } else {
+        false
+    };
+
+    set_state_of_container(id, window_id.clone(), Some(container_id.clone()), prt_id);
+
+    let mut state = access_state();
+
+    set_state_cont_wnd_ids(&mut state, &window_id, container_id, id, "add_table".to_string());
+
+    state.containers.insert(id, Containers::TableFooter(
+        TableFooter {
+            id,
+            style_id,
+            sash_style_id,
+            show,
+            ..Default::default()
+        }));
+
+    drop(state);
+    Ok(id)
+
+}
 
 
 

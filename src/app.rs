@@ -30,7 +30,7 @@ use crate::widgets::ipg_pick_list::{PLMessage, pick_list_callback};
 use crate::widgets::ipg_radio::{RDMessage, radio_callback};
 use crate::widgets::ipg_scrollable::scrollable_callback;
 use crate::widgets::ipg_slider::{SldMessage, slider_callback};
-use crate::widgets::ipg_table::{TableBasicMessage, table_callback};
+use crate::widgets::ipg_table::{TableBasicMessage, TableSections, table_callback};
 use crate::widgets::ipg_text_rich::rich_text_callback;
 use crate::widgets::ipg_text_editor::{TxtEdMessage, text_ed_callback};
 use crate::widgets::ipg_text_input::{TIMessage, text_input_callback};
@@ -556,6 +556,11 @@ fn get_children<'a>(parents: &Vec<ParentChildIds>,
         if let Some(Containers::RichText(rt)) = state.containers.get(id) {
             return rt.construct(&parents[*index].child_ids, &state.widgets);
         }
+
+        if let Some(Containers::Table(table)) = state.containers.get(id) {
+            let sections = get_table_sections(parents, index, parent_ids, state);
+            return table.construct(sections, &state.widgets);
+        }
     }
 
     for child in parents[*index].child_ids.iter() {
@@ -680,6 +685,46 @@ fn collect_sub_items<'a>(
     Some((trigger, children))
 }
 
+/// Build the three sections (header, body, footer) for a Table container.
+/// Each direct child of Table should be a TableHeader, TableBody, or TableFooter.
+/// The widgets nested inside each section are collected into the matching vec.
+fn get_table_sections<'a>(
+    parents: &Vec<ParentChildIds>,
+    table_index: &usize,
+    parent_ids: &Vec<usize>,
+    state: &'a IpgState,
+) -> TableSections<'a> {
+    let mut header = vec![];
+    let mut body   = vec![];
+    let mut footer = vec![];
+
+    for child_id in parents[*table_index].child_ids.iter() {
+        if !parent_ids.contains(child_id) {
+            continue; // widgets directly in Table are ignored — use a section
+        }
+        let section_index = parents.iter().position(|r| &r.parent_id == child_id).unwrap();
+        let target = match state.containers.get(child_id) {
+            Some(Containers::TableHeader(_)) => &mut header,
+            Some(Containers::TableBody(_))   => &mut body,
+            Some(Containers::TableFooter(_)) => &mut footer,
+            _ => continue,
+        };
+
+        for gc in parents[section_index].child_ids.iter() {
+            if parent_ids.contains(gc) {
+                let idx = parents.iter().position(|r| &r.parent_id == gc).unwrap();
+                if let Some(el) = get_children(parents, &idx, parent_ids, state) {
+                    target.push(el);
+                }
+            } else if let Some(el) = get_widget(state, gc) {
+                target.push(el);
+            }
+        }
+    }
+
+    TableSections { header, body, footer }
+}
+
 
 fn get_container<'a>(state: &'a IpgState, 
                     id: &usize, 
@@ -766,18 +811,26 @@ fn get_container<'a>(state: &'a IpgState,
                 Containers::TableBasic(tbl_basic) => {
                     tbl_basic.construct(content, &state.widgets)
                 },
-                // Containers::Table(table) => {
-                //     table.construct(content, &state.widgets)
-                // },
-                // Containers::TableHeader(header) => {
-                //     header.construct(content, &state.widgets)
-                // },
-                // Containers::TableBody(body) => {
-                //     body.construct(content, &state.widgets)
-                // },
-                // Containers::TableFooter(foot) => {
-                //     foot.construct(content, &state.widgets)
-                // },
+                Containers::Table(_) => {
+                    // Table children are consumed by get_table_sections;
+                    // it should never reach get_container.
+                    panic!("Table should not reach get_container directly")
+                },
+                Containers::TableHeader(_) => {
+                    // TableHeader is consumed by get_table_sections;
+                    // it should never reach get_container.
+                    panic!("TableHeader should not reach get_container directly")
+                },
+                Containers::TableBody(_) => {
+                    // TableBody is consumed by get_table_sections;
+                    // it should never reach get_container.
+                    panic!("TableBody should not reach get_container directly")
+                },
+                Containers::TableFooter(_) => {
+                    // TableFooter is consumed by get_table_sections;
+                    // it should never reach get_container.
+                    panic!("TableFooter should not reach get_container directly")
+                },
                 Containers::ToolTip(tool) => {
                     if content.len() > 2 {
                         eprintln!("[WARNING] A tooltip can have only 2 containers/widgets, place your multiple widgets into a column or row")

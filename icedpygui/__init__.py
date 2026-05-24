@@ -65,6 +65,10 @@ from .icedpygui import (
     add_svg as _add_svg,
     add_table_basic as _add_table_basic,
     add_table_style,
+    add_table as _add_table,
+    add_table_header as _add_table_header,
+    add_table_body as _add_table_body,
+    add_table_footer as _add_table_footer,
     add_text_input as _add_text_input,
     add_text_input_style,
     add_text as _add_text,
@@ -144,7 +148,7 @@ from .icedpygui import (
     StackParam,
     StyleStandard,
     SvgParam,
-    TableParam,
+    TableBasicParam,
     TableStyleParam,
     TextInputParam,
     TextParam,
@@ -341,6 +345,14 @@ add_stack = _wrap_container(_add_stack, "add_stack")
 add_stack.__doc__ = _add_stack.__doc__
 add_table_basic = _wrap_container(_add_table_basic, "add_table_basic")
 add_table_basic.__doc__ = _add_table_basic.__doc__
+add_table = _wrap_container(_add_table, "add_table")
+add_table.__doc__ = _add_table.__doc__
+add_table_header = _wrap_container(_add_table_header, "_add_table_header")
+add_table_header.__doc__ = _add_table_header.__doc__
+add_table_body = _wrap_container(_add_table_body, "_add_table_body")
+add_table_body.__doc__ = _add_table_body.__doc__
+add_table_footer = _wrap_container(_add_table_footer, "_add_table_footer")
+add_table_footer.__doc__ = _add_table_footer.__doc__
 add_tool_tip = _wrap_container(_add_tool_tip, "_add_tool_tip")
 add_tool_tip.__doc__ = _add_tool_tip.__doc__
 
@@ -1062,6 +1074,158 @@ class TableBasic:
         if pid is not None:
             pid = _resolve_parent_id(pid)
         self.numeric_id = _add_table_basic(
+            window_id=self.window_id,
+            container_id=self.container_id,
+            parent_id=pid,
+            **self.kwargs,
+        )
+        _register_container(self.numeric_id, self.container_id, self.window_id)
+        _parent_stack.append(self.container_id)
+        return self.numeric_id
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        _parent_stack.pop()
+        return False
+
+class Table:
+    """Wrapper for add_table"""
+    def __init__(self, *, container_id=None, window_id=None, parent_id=None, **kwargs):
+        self.window_id = (
+            _resolve_window_id(window_id)
+            if window_id is not None
+            else _current_window_or_parent(parent_id)
+        )
+        if self.window_id is None:
+            raise ValueError("Table: window_id is required (either pass it\
+                or use a Window context manager)")
+        self.container_id = (
+            container_id
+            if container_id is not None
+            else str(generate_id())
+        )
+        self.parent_id = parent_id
+        self.kwargs = kwargs
+        self.numeric_id = 0
+
+    def __enter__(self):
+        pid = self.parent_id or _current_parent()
+        if pid is not None:
+            pid = _resolve_parent_id(pid)
+        self.numeric_id = _add_table(
+            window_id=self.window_id,
+            container_id=self.container_id,
+            parent_id=pid,
+            **self.kwargs,
+        )
+        _register_container(self.numeric_id, self.container_id, self.window_id)
+        _parent_stack.append(self.container_id)
+        return self.numeric_id
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        _parent_stack.pop()
+        return False
+
+class TableHeader:
+    """Wrapper for add_table_header"""
+    def __init__(self, *, container_id=None, window_id=None, parent_id=None, **kwargs):
+        self.window_id = (
+            _resolve_window_id(window_id)
+            if window_id is not None
+            else _current_window_or_parent(parent_id)
+        )
+        if self.window_id is None:
+            raise ValueError("TableHeader: window_id is required (either pass it\
+                or use a Window context manager)")
+        self.container_id = (
+            container_id
+            if container_id is not None
+            else str(generate_id())
+        )
+        self.parent_id = parent_id
+        self.kwargs = kwargs
+        self.numeric_id = 0
+
+    def __enter__(self):
+        pid = self.parent_id or _current_parent()
+        if pid is not None:
+            pid = _resolve_parent_id(pid)
+        self.numeric_id = _add_table_header(
+            window_id=self.window_id,
+            container_id=self.container_id,
+            parent_id=pid,
+            **self.kwargs,
+        )
+        _register_container(self.numeric_id, self.container_id, self.window_id)
+        _parent_stack.append(self.container_id)
+        return self.numeric_id
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        _parent_stack.pop()
+        return False
+
+class TableBody:
+    """Wrapper for add_table_body"""
+    def __init__(self, *, container_id=None, window_id=None, parent_id=None, **kwargs):
+        self.window_id = (
+            _resolve_window_id(window_id)
+            if window_id is not None
+            else _current_window_or_parent(parent_id)
+        )
+        if self.window_id is None:
+            raise ValueError("TableBody: window_id is required (either pass it\
+                or use a Window context manager)")
+        self.container_id = (
+            container_id
+            if container_id is not None
+            else str(generate_id())
+        )
+        self.parent_id = parent_id
+        self.kwargs = kwargs
+        self.numeric_id = 0
+
+    def __enter__(self):
+        pid = self.parent_id or _current_parent()
+        if pid is not None:
+            pid = _resolve_parent_id(pid)
+        self.numeric_id = _add_table_body(
+            window_id=self.window_id,
+            container_id=self.container_id,
+            parent_id=pid,
+            **self.kwargs,
+        )
+        _register_container(self.numeric_id, self.container_id, self.window_id)
+        _parent_stack.append(self.container_id)
+        return self.numeric_id
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        _parent_stack.pop()
+        return False
+
+class TableFooter:
+    """Wrapper for add_table_footer"""
+    def __init__(self, *, container_id=None, window_id=None, parent_id=None, **kwargs):
+        self.window_id = (
+            _resolve_window_id(window_id)
+            if window_id is not None
+            else _current_window_or_parent(parent_id)
+        )
+        if self.window_id is None:
+            raise ValueError("TableFooter: window_id is required (either pass it\
+                or use a Window context manager)")
+        self.container_id = (
+            container_id
+            if container_id is not None
+            else str(generate_id())
+        )
+        self.parent_id = parent_id
+        self.kwargs = kwargs
+        self.numeric_id = 0
+
+    def __enter__(self):
+        pid = self.parent_id or _current_parent()
+        if pid is not None:
+            pid = _resolve_parent_id(pid)
+        self.numeric_id = _add_table_footer(
             window_id=self.window_id,
             container_id=self.container_id,
             parent_id=pid,

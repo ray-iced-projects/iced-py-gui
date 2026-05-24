@@ -46,7 +46,7 @@ use crate::widgets::ipg_slider::{Slider, SliderStyle};
 use crate::widgets::ipg_space::Space;
 use crate::widgets::ipg_stack::Stack;
 use crate::widgets::ipg_svg::Svg;
-use crate::widgets::ipg_table::{TableBasic, TableStyle};
+use crate::widgets::ipg_table::{Table, TableBasic, TableBody, TableFooter, TableHeader, TableStyle};
 use crate::widgets::ipg_text::Text;
 use crate::widgets::ipg_text_editor::{TextEditor, TextEditorStyle};
 use crate::widgets::ipg_text_rich::{RichText, Span};
@@ -82,6 +82,10 @@ pub enum Containers {
     Sash(Sash),
     Stack(Stack),
     TableBasic(TableBasic),
+    Table(Table),
+    TableHeader(TableHeader),
+    TableBody(TableBody),
+    TableFooter(TableFooter),
     // PaneGrid(PaneGrid),
     // Pane(Pane),
     Row(Row),

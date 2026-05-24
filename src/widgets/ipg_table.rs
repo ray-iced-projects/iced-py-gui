@@ -2,6 +2,7 @@
 #![allow(clippy::unit_arg)]
 #![allow(unused)]
 use std::collections::HashMap;
+use std::num::NonZeroU16;
 
 use crate::app::Message;
 use crate::graphics::colors::Color;
@@ -129,6 +130,7 @@ impl TableBasic {
     }
 }
 
+
 fn table_header<'a>(id: usize, header: &[String], sizes: Vec<f32>, height: f32) -> Element<'a, Message> {
 
     let sash: Element<'a, Message> = SashH::new(
@@ -144,7 +146,9 @@ fn table_header<'a>(id: usize, header: &[String], sizes: Vec<f32>, height: f32) 
     .clip(true)
     .into();
 
-    container(column![sash, container(rule::horizontal(6)).width(Length::Fixed(sizes.iter().sum()))])
+    let rl = container(rule::horizontal(6.0)).width(Length::Fixed(sizes.iter().sum()));
+    
+    container(column![sash, rl])
         .style(|theme| container::rounded_box(theme))
         .into()
 }
@@ -212,23 +216,248 @@ fn load_csv(path: &str) -> Result<(Vec<String>, Vec<Vec<String>>), csv::Error> {
     Ok((header, body))
 }
 
+/// The three sections of content passed to `Table::construct`.
+pub struct TableSections<'a> {
+    pub header: Vec<Element<'a, Message, Theme, Renderer>>,
+    pub body:   Vec<Element<'a, Message, Theme, Renderer>>,
+    pub footer: Vec<Element<'a, Message, Theme, Renderer>>,
+}
+
+#[derive(Debug, Clone, Default)]
 pub struct Table {
-    file_path: Option<String>,
-    style_id: Option<usize>,
-    sash_style_id: Option<usize>,
-    show: bool,
+    pub id: usize,
+    pub col_widths: Vec<f32>,
+    pub row_height: f32,
+    pub sash_size: f32,
+    pub min_size: f32,
+    pub file_path: Option<String>,
+    pub style_id: Option<usize>,
+    pub sash_style_id: Option<usize>,
+    pub show: bool,
 }
 
+impl Table {
+    fn lookup<'a>(&self, widgets: &'a HashMap<usize, Widgets>, id: Option<usize>) -> Option<&'a Widgets> {
+        id.and_then(|id| widgets.get(&id))
+    }
+
+    pub fn construct<'a>(
+        &'a self,
+        sections: TableSections<'a>,
+        widgets: &'a HashMap<usize, Widgets>,
+    ) -> Option<Element<'a, Message, Theme, Renderer>> {
+
+        if !self.show { return None }
+
+        let id = self.id;
+        let sizes = self.col_widths.clone();
+        let height = self.row_height;
+        let sash_size = self.sash_size;
+        let min_size = self.min_size;
+
+        let mut parts: Vec<Element<'a, Message, Theme, Renderer>> = vec![];
+
+        if !sections.header.is_empty() {
+            parts.push(adv_header(id, sections.header, sizes.clone(), height, sash_size, min_size));
+        }
+        parts.push(container(rule::horizontal(6.0))
+                    .width(Length::Fixed(sizes.iter().sum()
+                    )).into());
+
+        if !sections.body.is_empty() {
+            parts.push(adv_body(id, sections.body, sizes.clone(), height, sash_size, min_size));
+        }
+        if !sections.footer.is_empty() {
+            parts.push(adv_footer(id, sections.footer, sizes.clone(), height, sash_size, min_size));
+        }
+
+        Some(container(column(parts))
+            .style(|theme| container::rounded_box(theme))
+            .into())
+    }
+
+}
+
+/// Renders the header: cells are chunked by col count, each chunk becomes a SashH row.
+/// Adding 2×n_cols cells gives two header rows, etc.
+fn adv_header<'a>(
+    id: usize,
+    content: Vec<Element<'a, Message, Theme, Renderer>>,
+    sizes: Vec<f32>,
+    height: f32,
+    sash_size: f32,
+    min_size: f32,
+) -> Element<'a, Message, Theme, Renderer> {
+    let total_width: f32 = sizes.iter().sum();
+    let n_cols = sizes.len().max(1);
+    let mut iter = content.into_iter();
+    let mut header_rows: Vec<Element<'a, Message, Theme, Renderer>> = vec![];
+    loop {
+        let cells: Vec<Element<'a, Message, Theme, Renderer>> = iter.by_ref().take(n_cols).collect();
+        if cells.is_empty() { break; }
+        let sash: Element<'a, Message, Theme, Renderer> = SashH::new(cells, sizes.clone(), height, sash_size)
+            .min_size(min_size)
+            .on_resize(move |s_id, idx, val| Message::Table(id, TableBasicMessage::ResizeH(s_id, idx, val)))
+            .sync_sashes(sizes.clone())
+            .style(|theme, status| iced_sash::subtle(theme, status))
+            .clip(true)
+            .into();
+        header_rows.push(sash);
+    }
+    header_rows.push(container(rule::horizontal(1)).width(Length::Fixed(total_width)).into());
+    container(column(header_rows))
+    .style(|theme| container::rounded_box(theme))
+    .into()
+}
+
+/// Renders the body: flat cells chunked by col count, each chunk becomes a SashH row.
+/// The Python side must add cells flat (no Row wrapper) inside TableBody.
+fn adv_body<'a>(
+    id: usize,
+    content: Vec<Element<'a, Message, Theme, Renderer>>,
+    sizes: Vec<f32>,
+    height: f32,
+    sash_size: f32,
+    min_size: f32,
+) -> Element<'a, Message, Theme, Renderer> {
+    let n_cols = sizes.len().max(1);
+    let mut iter = content.into_iter();
+    let mut rows: Vec<Element<'a, Message, Theme, Renderer>> = vec![];
+    let mut row_idx = 0usize;
+    loop {
+        let cells: Vec<Element<'a, Message, Theme, Renderer>> = iter.by_ref().take(n_cols).collect();
+        if cells.is_empty() { break; }
+        let sash: Element<'a, Message, Theme, Renderer> = SashH::new(cells, sizes.clone(), height, sash_size)
+            .min_size(min_size)
+            .on_resize(move |s_id, idx, val| Message::Table(id, TableBasicMessage::ResizeH(s_id, idx, val)))
+            .sync_sashes(sizes.clone())
+            .style(|theme, status| iced_sash::subtle(theme, status))
+            .clip(true)
+            .into();
+        if row_idx % 2 == 1 {
+            rows.push(container(sash)
+                .style(|theme: &Theme| {
+                    let base = theme.palette().background.base.color;
+                    let weak = theme.palette().background.weak.color;
+                    let mid = iced::Color {
+                        r: (base.r + weak.r) / 2.0,
+                        g: (base.g + weak.g) / 2.0,
+                        b: (base.b + weak.b) / 2.0,
+                        a: 1.0,
+                    };
+                    container::Style { background: Some(mid.into()), ..Default::default() }
+                })
+                .into());
+        } else {
+            rows.push(sash);
+        }
+        row_idx += 1;
+    }
+    scrollable(column(rows)).into()
+}
+
+/// Renders the footer as a single SashH row with a dividing rule above.
+fn adv_footer<'a>(
+    id: usize,
+    content: Vec<Element<'a, Message, Theme, Renderer>>,
+    sizes: Vec<f32>,
+    height: f32,
+    sash_size: f32,
+    min_size: f32,
+) -> Element<'a, Message, Theme, Renderer> {
+    let total_width: f32 = sizes.iter().sum();
+    let sash: Element<'a, Message, Theme, Renderer> = SashH::new(content, sizes.clone(), height, sash_size)
+        .min_size(min_size)
+        .on_resize(move |s_id, idx, val| Message::Table(id, TableBasicMessage::ResizeH(s_id, idx, val)))
+        .sync_sashes(sizes)
+        .style(|theme, status| iced_sash::subtle(theme, status))
+        .clip(true)
+        .into();
+    container(column![
+        container(rule::horizontal(1)).width(Length::Fixed(total_width)),
+        sash,
+    ])
+    .style(|theme| container::rounded_box(theme))
+    .into()
+}
+
+#[derive(Debug, Clone, Default)]
 pub struct TableHeader {
+    pub id: usize,
+    pub style_id: Option<usize>,
+    pub sash_style_id: Option<usize>,
+    pub show: bool,
+}
+
+
+impl TableHeader {
+    fn lookup<'a>(&self, widgets: &'a HashMap<usize, Widgets>, id: Option<usize>) -> Option<&'a Widgets> {
+        id.and_then(|id| widgets.get(&id))
+    }
+
+    pub fn construct<'a>(
+        &'a self,
+        mut content: Vec<Element<'a, Message, Theme, Renderer>>,
+        widgets: &'a HashMap<usize, Widgets>,
+    ) -> Option<Element<'a, Message, Theme, Renderer>> {
+
+
+
+        None
+    }
 
 }
 
+#[derive(Debug, Clone, Default)]
 pub struct TableBody {
+    pub id: usize,
+    pub style_id: Option<usize>,
+    pub sash_style_id: Option<usize>,
+    pub show: bool,
+}
+
+impl TableBody {
+    fn lookup<'a>(&self, widgets: &'a HashMap<usize, Widgets>, id: Option<usize>) -> Option<&'a Widgets> {
+        id.and_then(|id| widgets.get(&id))
+    }
+
+    pub fn construct<'a>(
+        &'a self,
+        mut content: Vec<Element<'a, Message, Theme, Renderer>>,
+        widgets: &'a HashMap<usize, Widgets>,
+    ) -> Option<Element<'a, Message, Theme, Renderer>> {
+
+
+
+        None
+    }
 
 }
 
+#[derive(Debug, Clone, Default)]
 pub struct TableFooter {
-    
+    pub id: usize,
+    pub style_id: Option<usize>,
+    pub sash_style_id: Option<usize>,
+    pub show: bool,
+}
+
+impl TableFooter {
+    fn lookup<'a>(&self, widgets: &'a HashMap<usize, Widgets>, id: Option<usize>) -> Option<&'a Widgets> {
+        id.and_then(|id| widgets.get(&id))
+    }
+
+    pub fn construct<'a>(
+        &'a self,
+        mut content: Vec<Element<'a, Message, Theme, Renderer>>,
+        widgets: &'a HashMap<usize, Widgets>,
+    ) -> Option<Element<'a, Message, Theme, Renderer>> {
+
+
+
+        None
+    }
+
 }
 
 
@@ -244,11 +473,18 @@ pub fn table_callback(
 {
     match message {
         TableBasicMessage::ResizeH(_id, idx, size) => {
-            let table = match state.containers.get_mut(&widget_id) {
+            if let Some(Containers::TableBasic(t)) = state.containers.get_mut(&widget_id) {
+                sash_resize(&mut t.col_widths, idx, size, t.min_size);
+            } else if let Some(Containers::Table(t)) = state.containers.get_mut(&widget_id) {
+                sash_resize(&mut t.col_widths, idx, size, t.min_size);
+                return;
+            } else {
+                return;
+            }
+            let table = match state.containers.get(&widget_id) {
                 Some(Containers::TableBasic(t)) => t,
                 _ => return,
             };
-            sash_resize(&mut table.col_widths, idx, size, table.min_size);
 
             // Fire Python callback if registered: def cb(wid: int, data: tuple[int, float])
             invoke_callback_with_args(widget_id, "on_resize", "Table-SashH", (idx, size),

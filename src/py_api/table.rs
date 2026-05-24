@@ -372,6 +372,7 @@ pub fn add_table_header(
     window_id,
     container_id,
     parent_id=None,
+    row_height=None,
     style_id=None,
     sash_style_id=None,
     on_column_resize=None,
@@ -383,6 +384,7 @@ pub fn add_table_body(
         window_id: String,
         container_id: String,
         parent_id: Option<String>,
+        row_height: Option<f32>,
         style_id: Option<usize>,
         sash_style_id: Option<usize>,
         on_column_resize: Option<PyObject>,
@@ -423,6 +425,7 @@ pub fn add_table_body(
     state.containers.insert(id, Containers::TableBody(
         TableBody {
             id,
+            row_height,
             style_id,
             sash_style_id,
             show,

@@ -411,6 +411,7 @@ impl TableHeader {
 #[derive(Debug, Clone, Default)]
 pub struct TableBody {
     pub id: usize,
+    pub row_height: Option<f32>,
     pub style_id: Option<usize>,
     pub sash_style_id: Option<usize>,
     pub show: bool,

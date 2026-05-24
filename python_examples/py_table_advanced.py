@@ -3,7 +3,8 @@
 Table demo
 """
 
-import random
+import csv
+import os
 
 from icedpygui import (
     Window,
@@ -13,24 +14,31 @@ from icedpygui import (
     TableHeader,
     TableBody,
     TableFooter,
-    add_button,
-    add_button_style,
+    add_pick_list,
     add_text)
 
-column_widths = [100.0] * 4
+
+cwd = os.getcwd()
+FILE_PATH = f"{cwd}/python_examples/resources/table_data/best-selling-books.csv"
+
+header = []
+book_lines = []
+
+with open(FILE_PATH, 'r', encoding='utf-8', newline='') as file:
+    reader = csv.reader(file)
+    header.extend(next(reader))
+    for row in reader:
+        book_lines.append(row)
+
+
+column_widths = [200.0] * len(header)
 width = sum(column_widths)
 
-headers = ["one", "two", "three", "four"]
-body = [[random.randint(0, 100) for _ in range(4)] for _ in range(11)]
 footers = ["footer", "footer", "footer", "footer"]
 
-btn_style = add_button_style(text_center=True, border_radius=[5])
+pick_list_options = ["Sort Ascending", "Sort Descending"]
 
-def to_str(data: list[list[float]]) -> list[list[str]]:
-    """Convert float data to str"""
-    return [[str(cell) for cell in row] for row in data]
-
-def sort_column(_btn_id: int, idx: int):
+def sort_books(_pick_id: int, idx: int):
     """Sort a column"""
     print(idx)
 
@@ -38,7 +46,7 @@ def sort_column(_btn_id: int, idx: int):
 # Add the window
 with Window(
         title="Table Demo",
-        size=(700, 600),
+        size=(1000, 600),
         center=True):
 
     # Add the container for centering the table
@@ -51,27 +59,25 @@ with Window(
             sash_size=6,):
 
             with TableHeader():
-                for h1 in headers:
-                    add_text(content=h1, align_center=True, width_fill=True)
+                for h1 in header:
+                    add_text(content=h1, align_center=True, fill=True)
 
             with TableHeader():
-                for index in range(len(headers)):
-                    # container used for alignment
-                        add_button(
-                            label="Sort",
-                            padding=[5],
-                            width=column_widths[index]-6,
-                            on_press=sort_column,
-                            user_data=index,
-                            style_id=btn_style)
+                for index in range(len(header)):
+                    add_pick_list(
+                        options=pick_list_options,
+                        placeholder="Sort",
+                        on_select=sort_books,
+                        user_data=index)
 
             with TableBody():
-                for row in to_str(body):
+                for row in book_lines:
                     for cell in row:
-                        add_text(content=cell, align_center=True, width_fill=True)
+                        add_text(content=cell, align_center=True, fill=True, size=12)
+
             with TableFooter():
                 for f in footers:
-                    add_text(content=f, align_center=True, width_fill=True)
+                    add_text(content=f, align_center=True, fill=True, size=12)
 
 
 # Required to be the last widget sent to Iced,  If you start the program

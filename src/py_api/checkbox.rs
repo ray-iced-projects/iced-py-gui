@@ -4,7 +4,7 @@ use pyo3::{Py, PyAny, pyfunction, PyResult};
 type PyObject = Py<PyAny>;
 
 use crate::add_user_data_to_mutex;
-use crate::graphics::bootstrap_icon::Icon;
+use crate::graphics::bootstrap::bootstrap_icon::Icon;
 use crate::graphics::colors::Color;
 use crate::state::{Widgets, access_state, 
     add_callback_to_mutex, get_id, set_state_of_widget};

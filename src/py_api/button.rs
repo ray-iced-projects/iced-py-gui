@@ -5,7 +5,7 @@ use pyo3::{Py, PyAny, pyfunction};
 type PyObject = Py<PyAny>;
 
 use crate::add_user_data_to_mutex;
-use crate::graphics::{colors::Color, bootstrap_arrow::Arrow};
+use crate::graphics::{colors::Color, bootstrap::bootstrap_arrow::Arrow};
 use crate::state::{Widgets, access_state, add_callback_to_mutex, 
     get_id, set_state_of_widget};
 use crate::widgets::ipg_button::{Button,  

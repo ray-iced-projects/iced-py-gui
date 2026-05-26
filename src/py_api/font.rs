@@ -5,11 +5,11 @@ use pyo3::pyfunction;
 
 use crate::state::{Widgets, access_state, get_id};
 use crate::widgets::ipg_font::{Font, FontStretch, FontStyle, FontFamily, FontWeight, IpgIcon};
-use crate::graphics::bootstrap_arrow::Arrow;
-use crate::graphics::bootstrap_icon::Icon;
+use crate::graphics::bootstrap::bootstrap_arrow::Arrow;
+use crate::graphics::bootstrap::bootstrap_icon::Icon;
 use crate::graphics::BOOTSTRAP_FONT;
-use crate::graphics::bootstrap_icon::icon_to_char;
-use crate::graphics::bootstrap_arrow;
+use crate::graphics::bootstrap::bootstrap_icon::icon_to_char;
+use crate::graphics::bootstrap::bootstrap_arrow;
 
 
 /// Load a font from a .ttf or .otf file path.

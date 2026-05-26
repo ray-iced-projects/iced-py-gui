@@ -75,7 +75,7 @@ use crate::py_api::update::{update_widget, update_widget_params, delete_widget, 
 use crate::widgets::enums::ContentFit;
 
 
-use crate::graphics::{bootstrap_icon::Icon, bootstrap_arrow::Arrow};
+use crate::graphics::bootstrap::{bootstrap_icon::Icon, bootstrap_arrow::Arrow};
 use crate::graphics::colors::Color;
 use crate::widgets::ipg_button::{ButtonParam, ButtonStyleParam, ButtonStyleStd};
 use crate::widgets::ipg_card::{CardParam, CardStyleParam, CardStyleStd};

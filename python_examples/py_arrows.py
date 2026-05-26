@@ -46,13 +46,13 @@ with Window(
 
     # Add the container for centering the table
     with Container(fill=True, align_center=True):
-        with Scrollable(width=400):
-            with Column():
+        with Scrollable(width=700):
+            with Column(fill=True):
                 for arrow in arrow_variants():
                     glyph = arrow_to_str(arrow)
                     with Row(spacing=20):
                         add_text(content=str(arrow))
-                        add_text(content=glyph, font_id=bootstrap_font)
+                        add_text(content=glyph, font_id=bootstrap_font, size=20)
                         # icon = add_icon(arrow=arrow, font_id=bootstrap_font)
                         # add_pick_list(
                         #     options=["1", "2", "3"],

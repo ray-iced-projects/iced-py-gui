@@ -2,7 +2,7 @@
 use std::collections::HashMap;
 
 use crate::app::Message;
-use crate::graphics::bootstrap_arrow::Arrow;
+use crate::graphics::bootstrap::bootstrap_arrow::Arrow;
 use crate::graphics::colors::Color;
 use crate::state::Widgets;
 use crate::widgets::callbacks::invoke_callback;

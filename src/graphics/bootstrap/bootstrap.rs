@@ -1,13 +1,16 @@
-//! This file was automatically generated
-//! by [Mamba Bronze](https://github.com/Redhawk18/mamba-bronze)
+//! Bootstrap
+
 #![allow(clippy::doc_markdown, clippy::enum_variant_names, dead_code)]
-use super::BOOTSTRAP_FONT;
+
+
 use std::{
     fmt::{Display, Formatter, Result},
     string::String,
 };
 
 use iced::widget::{text, Text};
+
+use crate::graphics::BOOTSTRAP_FONT;
 
 /// Holds all glyphs of the Bootstrap font
 #[derive(Debug, Clone, Copy)]

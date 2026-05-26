@@ -3,8 +3,9 @@
 use pyo3::{pyclass, Py, PyAny};
 type PyObject = Py<PyAny>;
 
-use crate::graphics::bootstrap::{self, icon_to_char, icon_to_string};
+use crate::graphics::bootstrap::bootstrap;
 
+use super::bootstrap::{icon_to_string, icon_to_char};
 
 
 #[derive(Debug, Clone, PartialEq, Hash)]

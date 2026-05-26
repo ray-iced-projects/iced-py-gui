@@ -12,7 +12,7 @@ use crate::widgets::callbacks::invoke_callback_with_args;
 use crate::state::Widgets;
 
 use crate::graphics::BOOTSTRAP_FONT;
-use crate::graphics::bootstrap_icon::{Icon, icon_to_char};
+use crate::graphics::bootstrap::bootstrap_icon::{Icon, icon_to_char};
 
 use crate::widgets::styling::apply_border_overrides;
 

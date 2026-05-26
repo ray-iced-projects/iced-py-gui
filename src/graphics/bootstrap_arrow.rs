@@ -10,76 +10,76 @@ use crate::graphics::bootstrap::{self, icon_to_char, icon_to_string};
 #[derive(Debug, Clone, PartialEq, Hash)]
 #[pyclass(eq, eq_int, hash, frozen)]
 pub enum Arrow {
-    ArrowBarLeft,
-    ArrowBarRight,
-    ArrowBarUp,
-    ArrowClockwise,
-    ArrowCounterclockwise,
-    ArrowDown,
-    ArrowDownCircle,
-    ArrowDownCircleFill,
-    ArrowDownLeft,
-    ArrowDownLeftCircle,
-    ArrowDownLeftCircleFill,
-    ArrowDownLeftSquare,
-    ArrowDownLeftSquareFill,
-    ArrowDownRight,
-    ArrowDownRightCircle,
-    ArrowDownRightCircleFill,
-    ArrowDownRightSquare,
-    ArrowDownRightSquareFill,
-    ArrowDownShort,
-    ArrowDownSquare,
-    ArrowDownSquareFill,
-    ArrowDownUp,
-    ArrowLeft,
-    ArrowLeftCircle,
-    ArrowLeftCircleFill,
-    ArrowLeftRight,
-    ArrowLeftShort,
-    ArrowLeftSquare,
-    ArrowLeftSquareFill,
-    ArrowNinezerodegDown,
-    ArrowNinezerodegLeft,
-    ArrowNinezerodegRight,
-    ArrowNinezerodegUp,
-    ArrowRepeat,
-    ArrowReturnLeft,
-    ArrowReturnRight,
-    ArrowRight,
-    ArrowRightCircle,
-    ArrowRightCircleFill,
-    ArrowRightShort,
-    ArrowRightSquare,
-    ArrowRightSquareFill,
-    ArrowThroughHeart,
-    ArrowThroughHeartFill,
-    ArrowUp,
-    ArrowUpCircle,
-    ArrowUpCircleFill,
-    ArrowUpLeft,
-    ArrowUpLeftCircle,
-    ArrowUpLeftCircleFill,
-    ArrowUpLeftSquare,
-    ArrowUpLeftSquareFill,
-    ArrowUpRight,
-    ArrowUpRightCircle,
-    ArrowUpRightCircleFill,
-    ArrowUpRightSquare,
-    ArrowUpRightSquareFill,
-    ArrowUpShort,
-    ArrowUpSquare,
-    ArrowUpSquareFill,
-    Arrows,
-    ArrowsAngleContract,
-    ArrowsAngleExpand,
-    ArrowsCollapse,
-    ArrowsCollapseVertical,
-    ArrowsExpand,
-    ArrowsExpandVertical,
-    ArrowsFullscreen,
-    ArrowsMove,
-    ArrowsVertical,
+    ArrowBarLeft,             // ←|
+    ArrowBarRight,            // |→
+    ArrowBarUp,               // ↑—
+    ArrowClockwise,           // ↻
+    ArrowCounterclockwise,    // ↺
+    ArrowDown,                // ↓
+    ArrowDownCircle,          // ○↓ can't see
+    ArrowDownCircleFill,      // ●↓
+    ArrowDownLeft,            // ↙
+    ArrowDownLeftCircle,      // ○↙
+    ArrowDownLeftCircleFill,  // ●↙
+    ArrowDownLeftSquare,      // □↙
+    ArrowDownLeftSquareFill,  // ■↙
+    ArrowDownRight,           // ↘
+    ArrowDownRightCircle,     // ○↘
+    ArrowDownRightCircleFill, // ●↘
+    ArrowDownRightSquare,     // □↘
+    ArrowDownRightSquareFill, // ■↘
+    ArrowDownShort,           // ↓ (short)
+    ArrowDownSquare,          // □↓
+    ArrowDownSquareFill,      // ■↓
+    ArrowDownUp,              // ↕
+    ArrowLeft,                // ←
+    ArrowLeftCircle,          // ○←
+    ArrowLeftCircleFill,      // ●←
+    ArrowLeftRight,           // ↔
+    ArrowLeftShort,           // ← (short)
+    ArrowLeftSquare,          // □←
+    ArrowLeftSquareFill,      // ■←
+    ArrowNinezerodegDown,     // ↱↓  90° turn → down
+    ArrowNinezerodegLeft,     // ↓↰  90° turn → left
+    ArrowNinezerodegRight,    // ↑↱  90° turn → right
+    ArrowNinezerodegUp,       // ↲↑  90° turn → up
+    ArrowRepeat,              // ↺↻  repeat
+    ArrowReturnLeft,          // ↵←  return left
+    ArrowReturnRight,         // ↵→  return right
+    ArrowRight,               // →
+    ArrowRightCircle,         // ○→
+    ArrowRightCircleFill,     // ●→
+    ArrowRightShort,          // → (short)
+    ArrowRightSquare,         // □→
+    ArrowRightSquareFill,     // ■→
+    ArrowThroughHeart,        // →♡
+    ArrowThroughHeartFill,    // →♥
+    ArrowUp,                  // ↑
+    ArrowUpCircle,            // ○↑
+    ArrowUpCircleFill,        // ●↑
+    ArrowUpLeft,              // ↖
+    ArrowUpLeftCircle,        // ○↖
+    ArrowUpLeftCircleFill,    // ●↖
+    ArrowUpLeftSquare,        // □↖
+    ArrowUpLeftSquareFill,    // ■↖
+    ArrowUpRight,             // ↗
+    ArrowUpRightCircle,       // ○↗
+    ArrowUpRightCircleFill,   // ●↗
+    ArrowUpRightSquare,       // □↗
+    ArrowUpRightSquareFill,   // ■↗
+    ArrowUpShort,             // ↑ (short)
+    ArrowUpSquare,            // □↑
+    ArrowUpSquareFill,        // ■↑
+    Arrows,                   // ⇄  bidirectional
+    ArrowsAngleContract,      // ↘↗  angle contract
+    ArrowsAngleExpand,        // ↖↙  angle expand
+    ArrowsCollapse,           // →←  collapse horizontal
+    ArrowsCollapseVertical,   // ↓↑  collapse vertical
+    ArrowsExpand,             // ←→  expand horizontal
+    ArrowsExpandVertical,     // ↑↓  expand vertical
+    ArrowsFullscreen,         // ↖↗↙↘  fullscreen
+    ArrowsMove,               // ✥   move (all directions)
+    ArrowsVertical,           // ↕   vertical
 }
 
 impl Arrow {

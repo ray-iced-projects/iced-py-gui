@@ -14,8 +14,11 @@ from icedpygui import (
     TableHeader,
     TableBody,
     TableFooter,
+    add_icon,
     add_pick_list,
-    add_text)
+    add_space,
+    add_text,
+    Arrow)
 
 
 cwd = os.getcwd()
@@ -38,9 +41,23 @@ footers = ["footer", "footer", "footer", "footer"]
 
 pick_list_options = ["Sort Ascending", "Sort Descending"]
 
-def sort_books(_pick_id: int, idx: int):
+genres = ["None", "Biography", "Children's Lit", "Christian Lit", "Dark Comedy",
+"Detective", "Dystopian", "Erotica", "Fantasy", "Fiction",
+"Historical Fiction", "History", "Horror", "Mystery/Crime",
+"Romance", "Science Fiction", "Science", "Self-Help", "Social Science",
+"Thriller/Suspense", "Travel", "True Crime", "Young Adult"]
+
+icon_open = add_icon(arrow=Arrow.ArrowBarLeft)
+icon_closed = add_icon(arrow=Arrow.ArrowLeft)
+
+def sort_books(_pick_id: int, data: str):
     """Sort a column"""
-    print(idx)
+    print(data)
+
+
+def filter_genre(_pick_id: int, genre: str):
+    """Filter by Genre"""
+    print(genre)
 
 
 # Add the window
@@ -60,15 +77,26 @@ with Window(
 
             with TableHeader():
                 for h1 in header:
-                    add_text(content=h1, align_center=True, fill=True)
+                    add_text(content=h1, align_center=True, fill=True, size=14)
 
-            with TableHeader():
                 for index in range(len(header)):
                     add_pick_list(
                         options=pick_list_options,
                         placeholder="Sort",
-                        on_select=sort_books,
-                        user_data=index)
+                        handle_dynamic_closed_icon_id=icon_closed,
+                        handle_dynamic_open_icon_id=icon_open,
+                        on_select=sort_books)
+
+            with TableHeader():
+                for index in range(len(header)):
+                    if index == len(header)-1:
+                        add_pick_list(
+                            options=genres,
+                            placeholder="Filter",
+                            on_select=filter_genre)
+                    else:
+                        add_space(width=0)
+
 
             with TableBody():
                 for row in book_lines:

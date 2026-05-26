@@ -33,6 +33,7 @@ from .icedpygui import (
     add_text_input_style as add_text_input_style,
     add_toggler_style as add_toggler_style,
     Arrow as Arrow,
+    arrow_variants as arrow_variants,
     ButtonParam as ButtonParam,
     ButtonStyleParam as ButtonStyleParam,
     ButtonStyleStd as ButtonStyleStd,

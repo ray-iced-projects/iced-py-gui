@@ -184,3 +184,100 @@ pub fn add_icon(
     drop(state);
     Ok(id)
 }
+
+
+#[pyfunction]
+#[pyo3(signature = (
+    arrow,
+    ))]
+pub fn arrow_to_str(
+    arrow: Arrow,
+    ) -> PyResult<String>
+{
+    let ar = bootstrap_arrow::Arrow::to_string(&arrow);
+    Ok(ar)
+}
+
+/// Return a list of every Arrow enum variant.
+///
+/// Useful for iterating over all available bootstrap arrow icons.
+///
+/// Returns
+/// -------
+/// list[Arrow]
+///     All Arrow variants in declaration order.
+#[pyfunction]
+pub fn arrow_variants() -> Vec<Arrow> {
+    vec![
+        Arrow::ArrowBarLeft,
+        Arrow::ArrowBarRight,
+        Arrow::ArrowBarUp,
+        Arrow::ArrowClockwise,
+        Arrow::ArrowCounterclockwise,
+        Arrow::ArrowDown,
+        Arrow::ArrowDownCircle,
+        Arrow::ArrowDownCircleFill,
+        Arrow::ArrowDownLeft,
+        Arrow::ArrowDownLeftCircle,
+        Arrow::ArrowDownLeftCircleFill,
+        Arrow::ArrowDownLeftSquare,
+        Arrow::ArrowDownLeftSquareFill,
+        Arrow::ArrowDownRight,
+        Arrow::ArrowDownRightCircle,
+        Arrow::ArrowDownRightCircleFill,
+        Arrow::ArrowDownRightSquare,
+        Arrow::ArrowDownRightSquareFill,
+        Arrow::ArrowDownShort,
+        Arrow::ArrowDownSquare,
+        Arrow::ArrowDownSquareFill,
+        Arrow::ArrowDownUp,
+        Arrow::ArrowLeft,
+        Arrow::ArrowLeftCircle,
+        Arrow::ArrowLeftCircleFill,
+        Arrow::ArrowLeftRight,
+        Arrow::ArrowLeftShort,
+        Arrow::ArrowLeftSquare,
+        Arrow::ArrowLeftSquareFill,
+        Arrow::ArrowNinezerodegDown,
+        Arrow::ArrowNinezerodegLeft,
+        Arrow::ArrowNinezerodegRight,
+        Arrow::ArrowNinezerodegUp,
+        Arrow::ArrowRepeat,
+        Arrow::ArrowReturnLeft,
+        Arrow::ArrowReturnRight,
+        Arrow::ArrowRight,
+        Arrow::ArrowRightCircle,
+        Arrow::ArrowRightCircleFill,
+        Arrow::ArrowRightShort,
+        Arrow::ArrowRightSquare,
+        Arrow::ArrowRightSquareFill,
+        Arrow::ArrowThroughHeart,
+        Arrow::ArrowThroughHeartFill,
+        Arrow::ArrowUp,
+        Arrow::ArrowUpCircle,
+        Arrow::ArrowUpCircleFill,
+        Arrow::ArrowUpLeft,
+        Arrow::ArrowUpLeftCircle,
+        Arrow::ArrowUpLeftCircleFill,
+        Arrow::ArrowUpLeftSquare,
+        Arrow::ArrowUpLeftSquareFill,
+        Arrow::ArrowUpRight,
+        Arrow::ArrowUpRightCircle,
+        Arrow::ArrowUpRightCircleFill,
+        Arrow::ArrowUpRightSquare,
+        Arrow::ArrowUpRightSquareFill,
+        Arrow::ArrowUpShort,
+        Arrow::ArrowUpSquare,
+        Arrow::ArrowUpSquareFill,
+        Arrow::Arrows,
+        Arrow::ArrowsAngleContract,
+        Arrow::ArrowsAngleExpand,
+        Arrow::ArrowsCollapse,
+        Arrow::ArrowsCollapseVertical,
+        Arrow::ArrowsExpand,
+        Arrow::ArrowsExpandVertical,
+        Arrow::ArrowsFullscreen,
+        Arrow::ArrowsMove,
+        Arrow::ArrowsVertical,
+    ]
+}

@@ -11,10 +11,10 @@ from typing import Any, Callable, List, Optional
 
 # Ipg functions
 from .icedpygui import (
-    add_button_style,
     clipboard_read,
     clipboard_write,
     add_button as _add_button,
+    add_button_style,
     add_card_style,
     add_card as _add_card,
     add_checkbox_style,
@@ -97,6 +97,8 @@ from .icedpygui import (
     get_rgba_color,
     get_color_palette,
     Arrow,
+    arrow_to_str,
+    arrow_variants,
     ButtonParam,
     ButtonStyleParam,
     ButtonStyleStd,

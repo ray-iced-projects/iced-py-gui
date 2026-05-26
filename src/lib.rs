@@ -42,7 +42,7 @@ use crate::py_api::draw_update::{update_draw_params, delete_draw_widget};
 use crate::py_api::events::{add_event_keyboard, add_event_mouse};
 use crate::py_api::float::add_float;
 use crate::py_api::grid::add_grid;
-use crate::py_api::font::{add_font_style, add_icon, load_font};
+use crate::py_api::font::{add_font_style, add_icon, load_font, arrow_to_str, arrow_variants};
 use crate::py_api::image::add_image;
 use crate::py_api::menu::{add_menu, add_menu_bar_item, add_menu_sub_item, add_menu_style};
 use crate::py_api::mouse_area::add_mouse_area;
@@ -200,7 +200,6 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(delete_widget, m)?)?;
     m.add_function(wrap_pyfunction!(hide_widget, m)?)?;
     m.add_function(wrap_pyfunction!(load_font, m)?)?;
-    m.add_function(wrap_pyfunction!(load_font, m)?)?;
     m.add_function(wrap_pyfunction!(move_widget, m)?)?;
     m.add_function(wrap_pyfunction!(show_widget, m)?)?;
     m.add_function(wrap_pyfunction!(update_timer, m)?)?;
@@ -291,5 +290,10 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<FontStretch>()?;
     m.add_class::<FontStyle>()?;
     m.add_class::<MousePointer>()?;
+
+    // misc functions
+    m.add_function(wrap_pyfunction!(arrow_to_str, m)?)?;
+    m.add_function(wrap_pyfunction!(arrow_variants, m)?)?;
+
     Ok(())
 }

@@ -113,7 +113,7 @@ with Window(title="Pick List Demo", center=True):
                 add_pick_list(
                         options=options_mixed,
                         handle_size=25.0,
-                        placeholder="Choose a Any...",
+                        placeholder="Choose Any...",
                         style_id=colors,
                         on_select=picked_item_with_user_data,
                         user_data="Some data")

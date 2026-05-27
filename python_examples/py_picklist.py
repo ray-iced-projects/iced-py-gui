@@ -31,8 +31,8 @@ colors = add_pick_list_style(
                 text_color=Color.BLACK, # The selected item color
                 border_width=1.0,)
 
-icon_open = add_icon(arrow=Arrow.ArrowDown)
-icon_closed = add_icon(arrow=Arrow.ArrowLeft)
+icon_open = add_icon(arrow=Arrow.CaretDownFill)
+icon_closed = add_icon(arrow=Arrow.CaretLeftFill)
 icon_static_folder = add_icon(icon=Icon.Folder)
 icon_static_arrow = add_icon(arrow=Arrow.ArrowClockwise)
 

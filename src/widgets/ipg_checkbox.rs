@@ -12,7 +12,7 @@ use crate::widgets::callbacks::invoke_callback_with_args;
 use crate::state::Widgets;
 
 use crate::graphics::BOOTSTRAP_FONT;
-use crate::graphics::bootstrap::bootstrap_icon::{Icon, icon_to_char};
+use crate::graphics::bootstrap::bootstrap_icon::Icon;
 
 use crate::widgets::styling::apply_border_overrides;
 
@@ -70,9 +70,9 @@ impl CheckBox {
         // Icon related
         let code_point = 
             if let Some(ic) = self.icon {
-                icon_to_char(ic)
+                ic.to_char()
             } else {
-                icon_to_char(Icon::Check)
+                Icon::Check.to_char()
             };
 
         let size = 

@@ -1,238 +1,276 @@
 //! Arrow
+use strum::EnumIter;
 
 use pyo3::{pyclass, Py, PyAny};
 type PyObject = Py<PyAny>;
 
-use crate::graphics::bootstrap::bootstrap;
-
-use super::bootstrap::{icon_to_string, icon_to_char};
-
 
 #[derive(Debug, Clone, PartialEq, Hash)]
+#[derive(EnumIter)]
 #[pyclass(eq, eq_int, hash, frozen)]
 pub enum Arrow {
-    ArrowBarLeft,             // ←|
-    ArrowBarRight,            // |→
-    ArrowBarUp,               // ↑—
-    ArrowClockwise,           // ↻
-    ArrowCounterclockwise,    // ↺
-    ArrowDown,                // ↓
-    ArrowDownCircle,          // ○↓ can't see
-    ArrowDownCircleFill,      // ●↓
-    ArrowDownLeft,            // ↙
-    ArrowDownLeftCircle,      // ○↙
-    ArrowDownLeftCircleFill,  // ●↙
-    ArrowDownLeftSquare,      // □↙
-    ArrowDownLeftSquareFill,  // ■↙
-    ArrowDownRight,           // ↘
-    ArrowDownRightCircle,     // ○↘
-    ArrowDownRightCircleFill, // ●↘
-    ArrowDownRightSquare,     // □↘
-    ArrowDownRightSquareFill, // ■↘
-    ArrowDownShort,           // ↓ (short)
-    ArrowDownSquare,          // □↓
-    ArrowDownSquareFill,      // ■↓
-    ArrowDownUp,              // ↕
-    ArrowLeft,                // ←
-    ArrowLeftCircle,          // ○←
-    ArrowLeftCircleFill,      // ●←
-    ArrowLeftRight,           // ↔
-    ArrowLeftShort,           // ← (short)
-    ArrowLeftSquare,          // □←
-    ArrowLeftSquareFill,      // ■←
-    ArrowNinezerodegDown,     // ↱↓  90° turn → down
-    ArrowNinezerodegLeft,     // ↓↰  90° turn → left
-    ArrowNinezerodegRight,    // ↑↱  90° turn → right
-    ArrowNinezerodegUp,       // ↲↑  90° turn → up
-    ArrowRepeat,              // ↺↻  repeat
-    ArrowReturnLeft,          // ↵←  return left
-    ArrowReturnRight,         // ↵→  return right
-    ArrowRight,               // →
-    ArrowRightCircle,         // ○→
-    ArrowRightCircleFill,     // ●→
-    ArrowRightShort,          // → (short)
-    ArrowRightSquare,         // □→
-    ArrowRightSquareFill,     // ■→
-    ArrowThroughHeart,        // →♡
-    ArrowThroughHeartFill,    // →♥
-    ArrowUp,                  // ↑
-    ArrowUpCircle,            // ○↑
-    ArrowUpCircleFill,        // ●↑
-    ArrowUpLeft,              // ↖
-    ArrowUpLeftCircle,        // ○↖
-    ArrowUpLeftCircleFill,    // ●↖
-    ArrowUpLeftSquare,        // □↖
-    ArrowUpLeftSquareFill,    // ■↖
-    ArrowUpRight,             // ↗
-    ArrowUpRightCircle,       // ○↗
-    ArrowUpRightCircleFill,   // ●↗
-    ArrowUpRightSquare,       // □↗
-    ArrowUpRightSquareFill,   // ■↗
-    ArrowUpShort,             // ↑ (short)
-    ArrowUpSquare,            // □↑
-    ArrowUpSquareFill,        // ■↑
-    Arrows,                   // ⇄  bidirectional
-    ArrowsAngleContract,      // ↘↗  angle contract
-    ArrowsAngleExpand,        // ↖↙  angle expand
-    ArrowsCollapse,           // →←  collapse horizontal
-    ArrowsCollapseVertical,   // ↓↑  collapse vertical
-    ArrowsExpand,             // ←→  expand horizontal
-    ArrowsExpandVertical,     // ↑↓  expand vertical
-    ArrowsFullscreen,         // ↖↗↙↘  fullscreen
-    ArrowsMove,               // ✥   move (all directions)
-    ArrowsVertical,           // ↕   vertical
+    CaretDown,
+    CaretDownFill,
+    CaretDownSquare,
+    CaretDownSquareFill,
+    CaretLeft,
+    CaretLeftFill,
+    CaretLeftSquare,
+    CaretLeftSquareFill,
+    CaretRight,
+    CaretRightFill,
+    CaretRightSquare,
+    CaretRightSquareFill,
+    CaretUp,
+    CaretUpFill,
+    CaretUpSquare,
+    CaretUpSquareFill,
+    Arrow90degDown,
+    Arrow90degLeft,
+    Arrow90degRight,
+    Arrow90degUp,
+    ArrowBarDown,
+    ArrowBarLeft,
+    ArrowBarRight,
+    ArrowBarUp,
+    ArrowClockwise,
+    ArrowCounterclockwise,
+    ArrowDown,
+    ArrowDownCircle,
+    ArrowDownCircleFill,
+    ArrowDownLeft,
+    ArrowDownLeftCircle,
+    ArrowDownLeftCircleFill,
+    ArrowDownLeftSquare,
+    ArrowDownLeftSquareFill,
+    ArrowDownRight,
+    ArrowDownRightCircle,
+    ArrowDownRightCircleFill,
+    ArrowDownRightSquare,
+    ArrowDownRightSquareFill,
+    ArrowDownShort,
+    ArrowDownSquare,
+    ArrowDownSquareFill,
+    ArrowDownUp,
+    ArrowLeft,
+    ArrowLeftCircle,
+    ArrowLeftCircleFill,
+    ArrowLeftRight,
+    ArrowLeftShort,
+    ArrowLeftSquare,
+    ArrowLeftSquareFill,
+    ArrowRepeat,
+    ArrowReturnLeft,
+    ArrowReturnRight,
+    ArrowRight,
+    ArrowRightCircle,
+    ArrowRightCircleFill,
+    ArrowRightShort,
+    ArrowRightSquare,
+    ArrowRightSquareFill,
+    Arrows,
+    ArrowsAngleContract,
+    ArrowsAngleExpand,
+    ArrowsCollapse,
+    ArrowsCollapseVertical,
+    ArrowsExpand,
+    ArrowsExpandVertical,
+    ArrowsFullscreen,
+    ArrowsMove,
+    ArrowsVertical,
+    ArrowThroughHeart,
+    ArrowThroughHeartFill,
+    ArrowUp,
+    ArrowUpCircle,
+    ArrowUpCircleFill,
+    ArrowUpLeft,
+    ArrowUpLeftCircle,
+    ArrowUpLeftCircleFill,
+    ArrowUpLeftSquare,
+    ArrowUpLeftSquareFill,
+    ArrowUpRight,
+    ArrowUpRightCircle,
+    ArrowUpRightCircleFill,
+    ArrowUpRightSquare,
+    ArrowUpRightSquareFill,
+    ArrowUpShort,
+    ArrowUpSquare,
+    ArrowUpSquareFill,
+    BoxArrowDown,
+    BoxArrowDownLeft,
+    BoxArrowDownRight,
+    BoxArrowInDown,
+    BoxArrowInDownLeft,
+    BoxArrowInDownRight,
+    BoxArrowInLeft,
+    BoxArrowInRight,
+    BoxArrowInUp,
+    BoxArrowInUpLeft,
+    BoxArrowInUpRight,
+    BoxArrowLeft,
+    BoxArrowRight,
+    BoxArrowUp,
+    BoxArrowUpLeft,
+    BoxArrowUpRight,
+    CloudArrowDown,
+    CloudArrowDownFill,
+    CloudArrowUp,
+    CloudArrowUpFill,
+    EnvelopeArrowDown,
+    EnvelopeArrowDownFill,
+    EnvelopeArrowUp,
+    EnvelopeArrowUpFill,
+    FileArrowDown,
+    FileArrowDownFill,
+    FileArrowUp,
+    FileArrowUpFill,
+    FileEarmarkArrowDown,
+    FileEarmarkArrowDownFill,
+    FileEarmarkArrowUp,
+    FileEarmarkArrowUpFill,
+    GraphDownArrow,
+    GraphUpArrow,
+    HeartArrow,
+    JournalArrowDown,
+    JournalArrowUp,
+    SendArrowDown,
+    SendArrowDownFill,
+    SendArrowUp,
+    SendArrowUpFill,
 }
 
 impl Arrow {
-    pub fn to_string(arrow: &Arrow) -> String {
-        match arrow {
-            Arrow::ArrowBarLeft => icon_to_string(bootstrap::Bootstrap::ArrowBarLeft),
-            Arrow::ArrowBarRight => icon_to_string(bootstrap::Bootstrap::ArrowBarRight),
-            Arrow::ArrowBarUp => icon_to_string(bootstrap::Bootstrap::ArrowBarUp),
-            Arrow::ArrowClockwise => icon_to_string(bootstrap::Bootstrap::ArrowClockwise),
-            Arrow::ArrowCounterclockwise => icon_to_string(bootstrap::Bootstrap::ArrowCounterclockwise),
-            Arrow::ArrowDown => icon_to_string(bootstrap::Bootstrap::ArrowDown),
-            Arrow::ArrowDownCircle => icon_to_string(bootstrap::Bootstrap::ArrowDownCircle),
-            Arrow::ArrowDownCircleFill => icon_to_string(bootstrap::Bootstrap::ArrowDownCircleFill),
-            Arrow::ArrowDownLeft => icon_to_string(bootstrap::Bootstrap::ArrowDownLeft),
-            Arrow::ArrowDownLeftCircle => icon_to_string(bootstrap::Bootstrap::ArrowDownLeftCircle),
-            Arrow::ArrowDownLeftCircleFill => icon_to_string(bootstrap::Bootstrap::ArrowDownLeftCircleFill),
-            Arrow::ArrowDownLeftSquare => icon_to_string(bootstrap::Bootstrap::ArrowDownLeftSquare),
-            Arrow::ArrowDownLeftSquareFill => icon_to_string(bootstrap::Bootstrap::ArrowDownLeftSquareFill),
-            Arrow::ArrowDownRight => icon_to_string(bootstrap::Bootstrap::ArrowDownRight),
-            Arrow::ArrowDownRightCircle => icon_to_string(bootstrap::Bootstrap::ArrowDownRightCircle),
-            Arrow::ArrowDownRightCircleFill => icon_to_string(bootstrap::Bootstrap::ArrowDownRightCircleFill),
-            Arrow::ArrowDownRightSquare => icon_to_string(bootstrap::Bootstrap::ArrowDownRightSquare),
-            Arrow::ArrowDownRightSquareFill => icon_to_string(bootstrap::Bootstrap::ArrowDownRightSquareFill),
-            Arrow::ArrowDownShort => icon_to_string(bootstrap::Bootstrap::ArrowDownShort),
-            Arrow::ArrowDownSquare => icon_to_string(bootstrap::Bootstrap::ArrowDownSquare),
-            Arrow::ArrowDownSquareFill => icon_to_string(bootstrap::Bootstrap::ArrowDownSquareFill),
-            Arrow::ArrowDownUp => icon_to_string(bootstrap::Bootstrap::ArrowDownUp),
-            Arrow::ArrowLeft => icon_to_string(bootstrap::Bootstrap::ArrowLeft),
-            Arrow::ArrowLeftCircle => icon_to_string(bootstrap::Bootstrap::ArrowLeftCircle),
-            Arrow::ArrowLeftCircleFill => icon_to_string(bootstrap::Bootstrap::ArrowLeftCircleFill),
-            Arrow::ArrowLeftRight => icon_to_string(bootstrap::Bootstrap::ArrowLeftRight),
-            Arrow::ArrowLeftShort => icon_to_string(bootstrap::Bootstrap::ArrowLeftShort),
-            Arrow::ArrowLeftSquare => icon_to_string(bootstrap::Bootstrap::ArrowLeftSquare),
-            Arrow::ArrowLeftSquareFill => icon_to_string(bootstrap::Bootstrap::ArrowLeftSquareFill),
-            Arrow::ArrowNinezerodegDown => icon_to_string(bootstrap::Bootstrap::ArrowNinezerodegDown),
-            Arrow::ArrowNinezerodegLeft => icon_to_string(bootstrap::Bootstrap::ArrowNinezerodegLeft),
-            Arrow::ArrowNinezerodegRight => icon_to_string(bootstrap::Bootstrap::ArrowNinezerodegRight),
-            Arrow::ArrowNinezerodegUp => icon_to_string(bootstrap::Bootstrap::ArrowNinezerodegUp),
-            Arrow::ArrowRepeat => icon_to_string(bootstrap::Bootstrap::ArrowRepeat),
-            Arrow::ArrowReturnLeft => icon_to_string(bootstrap::Bootstrap::ArrowReturnLeft),
-            Arrow::ArrowReturnRight => icon_to_string(bootstrap::Bootstrap::ArrowReturnRight),
-            Arrow::ArrowRight => icon_to_string(bootstrap::Bootstrap::ArrowRight),
-            Arrow::ArrowRightCircle => icon_to_string(bootstrap::Bootstrap::ArrowRightCircle),
-            Arrow::ArrowRightCircleFill => icon_to_string(bootstrap::Bootstrap::ArrowRightCircleFill),
-            Arrow::ArrowRightShort => icon_to_string(bootstrap::Bootstrap::ArrowRightShort),
-            Arrow::ArrowRightSquare => icon_to_string(bootstrap::Bootstrap::ArrowRightSquare),
-            Arrow::ArrowRightSquareFill => icon_to_string(bootstrap::Bootstrap::ArrowRightSquareFill),
-            Arrow::ArrowThroughHeart => icon_to_string(bootstrap::Bootstrap::ArrowThroughHeart),
-            Arrow::ArrowThroughHeartFill => icon_to_string(bootstrap::Bootstrap::ArrowThroughHeartFill),
-            Arrow::ArrowUp => icon_to_string(bootstrap::Bootstrap::ArrowUp),
-            Arrow::ArrowUpCircle => icon_to_string(bootstrap::Bootstrap::ArrowUpCircle),
-            Arrow::ArrowUpCircleFill => icon_to_string(bootstrap::Bootstrap::ArrowUpCircleFill),
-            Arrow::ArrowUpLeft => icon_to_string(bootstrap::Bootstrap::ArrowUpLeft),
-            Arrow::ArrowUpLeftCircle => icon_to_string(bootstrap::Bootstrap::ArrowUpLeftCircle),
-            Arrow::ArrowUpLeftCircleFill => icon_to_string(bootstrap::Bootstrap::ArrowUpLeftCircleFill),
-            Arrow::ArrowUpLeftSquare => icon_to_string(bootstrap::Bootstrap::ArrowUpLeftSquare),
-            Arrow::ArrowUpLeftSquareFill => icon_to_string(bootstrap::Bootstrap::ArrowUpLeftSquareFill),
-            Arrow::ArrowUpRight => icon_to_string(bootstrap::Bootstrap::ArrowUpRight),
-            Arrow::ArrowUpRightCircle => icon_to_string(bootstrap::Bootstrap::ArrowUpRightCircle),
-            Arrow::ArrowUpRightCircleFill => icon_to_string(bootstrap::Bootstrap::ArrowUpRightCircleFill),
-            Arrow::ArrowUpRightSquare => icon_to_string(bootstrap::Bootstrap::ArrowUpRightSquare),
-            Arrow::ArrowUpRightSquareFill => icon_to_string(bootstrap::Bootstrap::ArrowUpRightSquareFill),
-            Arrow::ArrowUpShort => icon_to_string(bootstrap::Bootstrap::ArrowUpShort),
-            Arrow::ArrowUpSquare => icon_to_string(bootstrap::Bootstrap::ArrowUpSquare),
-            Arrow::ArrowUpSquareFill => icon_to_string(bootstrap::Bootstrap::ArrowUpSquareFill),
-            Arrow::Arrows => icon_to_string(bootstrap::Bootstrap::Arrows),
-            Arrow::ArrowsAngleContract => icon_to_string(bootstrap::Bootstrap::ArrowsAngleContract),
-            Arrow::ArrowsAngleExpand => icon_to_string(bootstrap::Bootstrap::ArrowsAngleExpand),
-            Arrow::ArrowsCollapse => icon_to_string(bootstrap::Bootstrap::ArrowsCollapse),
-            Arrow::ArrowsCollapseVertical => icon_to_string(bootstrap::Bootstrap::ArrowsCollapseVertical),
-            Arrow::ArrowsExpand => icon_to_string(bootstrap::Bootstrap::ArrowsExpand),
-            Arrow::ArrowsExpandVertical => icon_to_string(bootstrap::Bootstrap::ArrowsExpandVertical),
-            Arrow::ArrowsFullscreen => icon_to_string(bootstrap::Bootstrap::ArrowsFullscreen),
-            Arrow::ArrowsMove => icon_to_string(bootstrap::Bootstrap::ArrowsMove),
-            Arrow::ArrowsVertical => icon_to_string(bootstrap::Bootstrap::ArrowsVertical),
+    pub fn to_char(&self) -> char {
+        match self {
+            Arrow::Arrow90degDown => char::from_u32(61710).unwrap(),
+            Arrow::Arrow90degLeft => char::from_u32(61711).unwrap(),
+            Arrow::Arrow90degRight => char::from_u32(61712).unwrap(),
+            Arrow::Arrow90degUp => char::from_u32(61713).unwrap(),
+            Arrow::ArrowBarDown => char::from_u32(61714).unwrap(),
+            Arrow::ArrowBarLeft => char::from_u32(61715).unwrap(),
+            Arrow::ArrowBarRight => char::from_u32(61716).unwrap(),
+            Arrow::ArrowBarUp => char::from_u32(61717).unwrap(),
+            Arrow::ArrowClockwise => char::from_u32(61718).unwrap(),
+            Arrow::ArrowCounterclockwise => char::from_u32(61719).unwrap(),
+            Arrow::ArrowDown => char::from_u32(61736).unwrap(),
+            Arrow::ArrowDownCircle => char::from_u32(61721).unwrap(),
+            Arrow::ArrowDownCircleFill => char::from_u32(61720).unwrap(),
+            Arrow::ArrowDownLeft => char::from_u32(61726).unwrap(),
+            Arrow::ArrowDownLeftCircle => char::from_u32(61723).unwrap(),
+            Arrow::ArrowDownLeftCircleFill => char::from_u32(61722).unwrap(),
+            Arrow::ArrowDownLeftSquare => char::from_u32(61725).unwrap(),
+            Arrow::ArrowDownLeftSquareFill => char::from_u32(61724).unwrap(),
+            Arrow::ArrowDownRight => char::from_u32(61731).unwrap(),
+            Arrow::ArrowDownRightCircle => char::from_u32(61728).unwrap(),
+            Arrow::ArrowDownRightCircleFill => char::from_u32(61727).unwrap(),
+            Arrow::ArrowDownRightSquare => char::from_u32(61730).unwrap(),
+            Arrow::ArrowDownRightSquareFill => char::from_u32(61729).unwrap(),
+            Arrow::ArrowDownShort => char::from_u32(61732).unwrap(),
+            Arrow::ArrowDownSquare => char::from_u32(61734).unwrap(),
+            Arrow::ArrowDownSquareFill => char::from_u32(61733).unwrap(),
+            Arrow::ArrowDownUp => char::from_u32(61735).unwrap(),
+            Arrow::ArrowLeft => char::from_u32(61743).unwrap(),
+            Arrow::ArrowLeftCircle => char::from_u32(61738).unwrap(),
+            Arrow::ArrowLeftCircleFill => char::from_u32(61737).unwrap(),
+            Arrow::ArrowLeftRight => char::from_u32(61739).unwrap(),
+            Arrow::ArrowLeftShort => char::from_u32(61740).unwrap(),
+            Arrow::ArrowLeftSquare => char::from_u32(61742).unwrap(),
+            Arrow::ArrowLeftSquareFill => char::from_u32(61741).unwrap(),
+            Arrow::ArrowRepeat => char::from_u32(61744).unwrap(),
+            Arrow::ArrowReturnLeft => char::from_u32(61745).unwrap(),
+            Arrow::ArrowReturnRight => char::from_u32(61746).unwrap(),
+            Arrow::ArrowRight => char::from_u32(61752).unwrap(),
+            Arrow::ArrowRightCircle => char::from_u32(61748).unwrap(),
+            Arrow::ArrowRightCircleFill => char::from_u32(61747).unwrap(),
+            Arrow::ArrowRightShort => char::from_u32(61749).unwrap(),
+            Arrow::ArrowRightSquare => char::from_u32(61751).unwrap(),
+            Arrow::ArrowRightSquareFill => char::from_u32(61750).unwrap(),
+            Arrow::Arrows => char::from_u32(63138).unwrap(),
+            Arrow::ArrowsAngleContract => char::from_u32(61769).unwrap(),
+            Arrow::ArrowsAngleExpand => char::from_u32(61770).unwrap(),
+            Arrow::ArrowsCollapse => char::from_u32(61771).unwrap(),
+            Arrow::ArrowsCollapseVertical => char::from_u32(63120).unwrap(),
+            Arrow::ArrowsExpand => char::from_u32(61772).unwrap(),
+            Arrow::ArrowsExpandVertical => char::from_u32(63125).unwrap(),
+            Arrow::ArrowsFullscreen => char::from_u32(61773).unwrap(),
+            Arrow::ArrowsMove => char::from_u32(61774).unwrap(),
+            Arrow::ArrowsVertical => char::from_u32(63128).unwrap(),
+            Arrow::ArrowThroughHeart => char::from_u32(63233).unwrap(),
+            Arrow::ArrowThroughHeartFill => char::from_u32(63232).unwrap(),
+            Arrow::ArrowUp => char::from_u32(61768).unwrap(),
+            Arrow::ArrowUpCircle => char::from_u32(61754).unwrap(),
+            Arrow::ArrowUpCircleFill => char::from_u32(61753).unwrap(),
+            Arrow::ArrowUpLeft => char::from_u32(61759).unwrap(),
+            Arrow::ArrowUpLeftCircle => char::from_u32(61756).unwrap(),
+            Arrow::ArrowUpLeftCircleFill => char::from_u32(61755).unwrap(),
+            Arrow::ArrowUpLeftSquare => char::from_u32(61758).unwrap(),
+            Arrow::ArrowUpLeftSquareFill => char::from_u32(61757).unwrap(),
+            Arrow::ArrowUpRight => char::from_u32(61764).unwrap(),
+            Arrow::ArrowUpRightCircle => char::from_u32(61761).unwrap(),
+            Arrow::ArrowUpRightCircleFill => char::from_u32(61760).unwrap(),
+            Arrow::ArrowUpRightSquare => char::from_u32(61763).unwrap(),
+            Arrow::ArrowUpRightSquareFill => char::from_u32(61762).unwrap(),
+            Arrow::ArrowUpShort => char::from_u32(61765).unwrap(),
+            Arrow::ArrowUpSquare => char::from_u32(61767).unwrap(),
+            Arrow::ArrowUpSquareFill => char::from_u32(61766).unwrap(),
+            Arrow::BoxArrowDown => char::from_u32(61881).unwrap(),
+            Arrow::BoxArrowDownLeft => char::from_u32(61879).unwrap(),
+            Arrow::BoxArrowDownRight => char::from_u32(61880).unwrap(),
+            Arrow::BoxArrowInDown => char::from_u32(61884).unwrap(),
+            Arrow::BoxArrowInDownLeft => char::from_u32(61882).unwrap(),
+            Arrow::BoxArrowInDownRight => char::from_u32(61883).unwrap(),
+            Arrow::BoxArrowInLeft => char::from_u32(61885).unwrap(),
+            Arrow::BoxArrowInRight => char::from_u32(61886).unwrap(),
+            Arrow::BoxArrowInUp => char::from_u32(61889).unwrap(),
+            Arrow::BoxArrowInUpLeft => char::from_u32(61887).unwrap(),
+            Arrow::BoxArrowInUpRight => char::from_u32(61888).unwrap(),
+            Arrow::BoxArrowLeft => char::from_u32(61890).unwrap(),
+            Arrow::BoxArrowRight => char::from_u32(61891).unwrap(),
+            Arrow::BoxArrowUp => char::from_u32(61894).unwrap(),
+            Arrow::BoxArrowUpLeft => char::from_u32(61892).unwrap(),
+            Arrow::BoxArrowUpRight => char::from_u32(61893).unwrap(),
+            Arrow::CloudArrowDown => char::from_u32(62101).unwrap(),
+            Arrow::CloudArrowDownFill => char::from_u32(62100).unwrap(),
+            Arrow::CloudArrowUp => char::from_u32(62103).unwrap(),
+            Arrow::CloudArrowUpFill => char::from_u32(62102).unwrap(),
+            Arrow::EnvelopeArrowDown => char::from_u32(63416).unwrap(),
+            Arrow::EnvelopeArrowDownFill => char::from_u32(63411).unwrap(),
+            Arrow::EnvelopeArrowUp => char::from_u32(63422).unwrap(),
+            Arrow::EnvelopeArrowUpFill => char::from_u32(63417).unwrap(),
+            Arrow::FileArrowDown => char::from_u32(62278).unwrap(),
+            Arrow::FileArrowDownFill => char::from_u32(62277).unwrap(),
+            Arrow::FileArrowUp => char::from_u32(62280).unwrap(),
+            Arrow::FileArrowUpFill => char::from_u32(62279).unwrap(),
+            Arrow::FileEarmarkArrowDown => char::from_u32(62294).unwrap(),
+            Arrow::FileEarmarkArrowDownFill => char::from_u32(62293).unwrap(),
+            Arrow::FileEarmarkArrowUp => char::from_u32(62296).unwrap(),
+            Arrow::FileEarmarkArrowUpFill => char::from_u32(62295).unwrap(),
+            Arrow::GraphDownArrow => char::from_u32(63090).unwrap(),
+            Arrow::GraphUpArrow => char::from_u32(63091).unwrap(),
+            Arrow::HeartArrow => char::from_u32(63341).unwrap(),
+            Arrow::JournalArrowDown => char::from_u32(62522).unwrap(),
+            Arrow::JournalArrowUp => char::from_u32(62523).unwrap(),
+            Arrow::SendArrowDown => char::from_u32(63697).unwrap(),
+            Arrow::SendArrowDownFill => char::from_u32(63696).unwrap(),
+            Arrow::SendArrowUp => char::from_u32(63699).unwrap(),
+            Arrow::SendArrowUpFill => char::from_u32(63698).unwrap(),
+            Arrow::CaretDown => char::from_u32(61996).unwrap(),
+            Arrow::CaretDownFill => char::from_u32(61993).unwrap(),
+            Arrow::CaretDownSquare => char::from_u32(61995).unwrap(),
+            Arrow::CaretDownSquareFill => char::from_u32(61994).unwrap(),
+            Arrow::CaretLeft => char::from_u32(62000).unwrap(),
+            Arrow::CaretLeftFill => char::from_u32(61997).unwrap(),
+            Arrow::CaretLeftSquare => char::from_u32(61999).unwrap(),
+            Arrow::CaretLeftSquareFill => char::from_u32(61998).unwrap(),
+            Arrow::CaretRight => char::from_u32(62004).unwrap(),
+            Arrow::CaretRightFill => char::from_u32(62001).unwrap(),
+            Arrow::CaretRightSquare => char::from_u32(62003).unwrap(),
+            Arrow::CaretRightSquareFill => char::from_u32(62002).unwrap(),
+            Arrow::CaretUp => char::from_u32(62008).unwrap(),
+            Arrow::CaretUpFill => char::from_u32(62005).unwrap(),
+            Arrow::CaretUpSquare => char::from_u32(62007).unwrap(),
+            Arrow::CaretUpSquareFill => char::from_u32(62006).unwrap(),
         }
     }
+}   
 
-
-    pub fn to_char(arrow: &Arrow) -> char {
-        match arrow {
-            Arrow::ArrowBarLeft => icon_to_char(bootstrap::Bootstrap::ArrowBarLeft),
-            Arrow::ArrowBarRight => icon_to_char(bootstrap::Bootstrap::ArrowBarRight),
-            Arrow::ArrowBarUp => icon_to_char(bootstrap::Bootstrap::ArrowBarUp),
-            Arrow::ArrowClockwise => icon_to_char(bootstrap::Bootstrap::ArrowClockwise),
-            Arrow::ArrowCounterclockwise => icon_to_char(bootstrap::Bootstrap::ArrowCounterclockwise),
-            Arrow::ArrowDown => icon_to_char(bootstrap::Bootstrap::ArrowDown),
-            Arrow::ArrowDownCircle => icon_to_char(bootstrap::Bootstrap::ArrowDownCircle),
-            Arrow::ArrowDownCircleFill => icon_to_char(bootstrap::Bootstrap::ArrowDownCircleFill),
-            Arrow::ArrowDownLeft => icon_to_char(bootstrap::Bootstrap::ArrowDownLeft),
-            Arrow::ArrowDownLeftCircle => icon_to_char(bootstrap::Bootstrap::ArrowDownLeftCircle),
-            Arrow::ArrowDownLeftCircleFill => icon_to_char(bootstrap::Bootstrap::ArrowDownLeftCircleFill),
-            Arrow::ArrowDownLeftSquare => icon_to_char(bootstrap::Bootstrap::ArrowDownLeftSquare),
-            Arrow::ArrowDownLeftSquareFill => icon_to_char(bootstrap::Bootstrap::ArrowDownLeftSquareFill),
-            Arrow::ArrowDownRight => icon_to_char(bootstrap::Bootstrap::ArrowDownRight),
-            Arrow::ArrowDownRightCircle => icon_to_char(bootstrap::Bootstrap::ArrowDownRightCircle),
-            Arrow::ArrowDownRightCircleFill => icon_to_char(bootstrap::Bootstrap::ArrowDownRightCircleFill),
-            Arrow::ArrowDownRightSquare => icon_to_char(bootstrap::Bootstrap::ArrowDownRightSquare),
-            Arrow::ArrowDownRightSquareFill => icon_to_char(bootstrap::Bootstrap::ArrowDownRightSquareFill),
-            Arrow::ArrowDownShort => icon_to_char(bootstrap::Bootstrap::ArrowDownShort),
-            Arrow::ArrowDownSquare => icon_to_char(bootstrap::Bootstrap::ArrowDownSquare),
-            Arrow::ArrowDownSquareFill => icon_to_char(bootstrap::Bootstrap::ArrowDownSquareFill),
-            Arrow::ArrowDownUp => icon_to_char(bootstrap::Bootstrap::ArrowDownUp),
-            Arrow::ArrowLeft => icon_to_char(bootstrap::Bootstrap::ArrowLeft),
-            Arrow::ArrowLeftCircle => icon_to_char(bootstrap::Bootstrap::ArrowLeftCircle),
-            Arrow::ArrowLeftCircleFill => icon_to_char(bootstrap::Bootstrap::ArrowLeftCircleFill),
-            Arrow::ArrowLeftRight => icon_to_char(bootstrap::Bootstrap::ArrowLeftRight),
-            Arrow::ArrowLeftShort => icon_to_char(bootstrap::Bootstrap::ArrowLeftShort),
-            Arrow::ArrowLeftSquare => icon_to_char(bootstrap::Bootstrap::ArrowLeftSquare),
-            Arrow::ArrowLeftSquareFill => icon_to_char(bootstrap::Bootstrap::ArrowLeftSquareFill),
-            Arrow::ArrowNinezerodegDown => icon_to_char(bootstrap::Bootstrap::ArrowNinezerodegDown),
-            Arrow::ArrowNinezerodegLeft => icon_to_char(bootstrap::Bootstrap::ArrowNinezerodegLeft),
-            Arrow::ArrowNinezerodegRight => icon_to_char(bootstrap::Bootstrap::ArrowNinezerodegRight),
-            Arrow::ArrowNinezerodegUp => icon_to_char(bootstrap::Bootstrap::ArrowNinezerodegUp),
-            Arrow::ArrowRepeat => icon_to_char(bootstrap::Bootstrap::ArrowRepeat),
-            Arrow::ArrowReturnLeft => icon_to_char(bootstrap::Bootstrap::ArrowReturnLeft),
-            Arrow::ArrowReturnRight => icon_to_char(bootstrap::Bootstrap::ArrowReturnRight),
-            Arrow::ArrowRight => icon_to_char(bootstrap::Bootstrap::ArrowRight),
-            Arrow::ArrowRightCircle => icon_to_char(bootstrap::Bootstrap::ArrowRightCircle),
-            Arrow::ArrowRightCircleFill => icon_to_char(bootstrap::Bootstrap::ArrowRightCircleFill),
-            Arrow::ArrowRightShort => icon_to_char(bootstrap::Bootstrap::ArrowRightShort),
-            Arrow::ArrowRightSquare => icon_to_char(bootstrap::Bootstrap::ArrowRightSquare),
-            Arrow::ArrowRightSquareFill => icon_to_char(bootstrap::Bootstrap::ArrowRightSquareFill),
-            Arrow::ArrowThroughHeart => icon_to_char(bootstrap::Bootstrap::ArrowThroughHeart),
-            Arrow::ArrowThroughHeartFill => icon_to_char(bootstrap::Bootstrap::ArrowThroughHeartFill),
-            Arrow::ArrowUp => icon_to_char(bootstrap::Bootstrap::ArrowUp),
-            Arrow::ArrowUpCircle => icon_to_char(bootstrap::Bootstrap::ArrowUpCircle),
-            Arrow::ArrowUpCircleFill => icon_to_char(bootstrap::Bootstrap::ArrowUpCircleFill),
-            Arrow::ArrowUpLeft => icon_to_char(bootstrap::Bootstrap::ArrowUpLeft),
-            Arrow::ArrowUpLeftCircle => icon_to_char(bootstrap::Bootstrap::ArrowUpLeftCircle),
-            Arrow::ArrowUpLeftCircleFill => icon_to_char(bootstrap::Bootstrap::ArrowUpLeftCircleFill),
-            Arrow::ArrowUpLeftSquare => icon_to_char(bootstrap::Bootstrap::ArrowUpLeftSquare),
-            Arrow::ArrowUpLeftSquareFill => icon_to_char(bootstrap::Bootstrap::ArrowUpLeftSquareFill),
-            Arrow::ArrowUpRight => icon_to_char(bootstrap::Bootstrap::ArrowUpRight),
-            Arrow::ArrowUpRightCircle => icon_to_char(bootstrap::Bootstrap::ArrowUpRightCircle),
-            Arrow::ArrowUpRightCircleFill => icon_to_char(bootstrap::Bootstrap::ArrowUpRightCircleFill),
-            Arrow::ArrowUpRightSquare => icon_to_char(bootstrap::Bootstrap::ArrowUpRightSquare),
-            Arrow::ArrowUpRightSquareFill => icon_to_char(bootstrap::Bootstrap::ArrowUpRightSquareFill),
-            Arrow::ArrowUpShort => icon_to_char(bootstrap::Bootstrap::ArrowUpShort),
-            Arrow::ArrowUpSquare => icon_to_char(bootstrap::Bootstrap::ArrowUpSquare),
-            Arrow::ArrowUpSquareFill => icon_to_char(bootstrap::Bootstrap::ArrowUpSquareFill),
-            Arrow::Arrows => icon_to_char(bootstrap::Bootstrap::Arrows),
-            Arrow::ArrowsAngleContract => icon_to_char(bootstrap::Bootstrap::ArrowsAngleContract),
-            Arrow::ArrowsAngleExpand => icon_to_char(bootstrap::Bootstrap::ArrowsAngleExpand),
-            Arrow::ArrowsCollapse => icon_to_char(bootstrap::Bootstrap::ArrowsCollapse),
-            Arrow::ArrowsCollapseVertical => icon_to_char(bootstrap::Bootstrap::ArrowsCollapseVertical),
-            Arrow::ArrowsExpand => icon_to_char(bootstrap::Bootstrap::ArrowsExpand),
-            Arrow::ArrowsExpandVertical => icon_to_char(bootstrap::Bootstrap::ArrowsExpandVertical),
-            Arrow::ArrowsFullscreen => icon_to_char(bootstrap::Bootstrap::ArrowsFullscreen),
-            Arrow::ArrowsMove => icon_to_char(bootstrap::Bootstrap::ArrowsMove),
-            Arrow::ArrowsVertical => icon_to_char(bootstrap::Bootstrap::ArrowsVertical),
-        }
-    }
-
-}

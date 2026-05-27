@@ -8,8 +8,8 @@ use crate::widgets::ipg_font::{Font, FontStretch, FontStyle, FontFamily, FontWei
 use crate::graphics::bootstrap::bootstrap_arrow::Arrow;
 use crate::graphics::bootstrap::bootstrap_icon::Icon;
 use crate::graphics::BOOTSTRAP_FONT;
-use crate::graphics::bootstrap::bootstrap_icon::icon_to_char;
 use crate::graphics::bootstrap::bootstrap_arrow;
+use strum::IntoEnumIterator;
 
 
 /// Load a font from a .ttf or .otf file path.
@@ -151,7 +151,7 @@ pub fn add_icon(
     let (resolved_font, resolved_char) = if let Some(arr) = arrow {
         (BOOTSTRAP_FONT, bootstrap_arrow::Arrow::to_char(&arr))
     } else if let Some(ic) = icon {
-        (BOOTSTRAP_FONT, icon_to_char(ic))
+        (BOOTSTRAP_FONT, ic.to_char())
     } else if let (Some(fid), Some(cp)) = (font_id, code_point) {
         let state = access_state();
         let font = state.widgets.get(&fid)
@@ -194,9 +194,10 @@ pub fn arrow_to_str(
     arrow: Arrow,
     ) -> PyResult<String>
 {
-    let ar = bootstrap_arrow::Arrow::to_string(&arrow);
+    let ar = arrow.to_char().to_string();
     Ok(ar)
 }
+
 
 /// Return a list of every Arrow enum variant.
 ///
@@ -208,76 +209,5 @@ pub fn arrow_to_str(
 ///     All Arrow variants in declaration order.
 #[pyfunction]
 pub fn arrow_variants() -> Vec<Arrow> {
-    vec![
-        Arrow::ArrowBarLeft,
-        Arrow::ArrowBarRight,
-        Arrow::ArrowBarUp,
-        Arrow::ArrowClockwise,
-        Arrow::ArrowCounterclockwise,
-        Arrow::ArrowDown,
-        Arrow::ArrowDownCircle,
-        Arrow::ArrowDownCircleFill,
-        Arrow::ArrowDownLeft,
-        Arrow::ArrowDownLeftCircle,
-        Arrow::ArrowDownLeftCircleFill,
-        Arrow::ArrowDownLeftSquare,
-        Arrow::ArrowDownLeftSquareFill,
-        Arrow::ArrowDownRight,
-        Arrow::ArrowDownRightCircle,
-        Arrow::ArrowDownRightCircleFill,
-        Arrow::ArrowDownRightSquare,
-        Arrow::ArrowDownRightSquareFill,
-        Arrow::ArrowDownShort,
-        Arrow::ArrowDownSquare,
-        Arrow::ArrowDownSquareFill,
-        Arrow::ArrowDownUp,
-        Arrow::ArrowLeft,
-        Arrow::ArrowLeftCircle,
-        Arrow::ArrowLeftCircleFill,
-        Arrow::ArrowLeftRight,
-        Arrow::ArrowLeftShort,
-        Arrow::ArrowLeftSquare,
-        Arrow::ArrowLeftSquareFill,
-        Arrow::ArrowNinezerodegDown,
-        Arrow::ArrowNinezerodegLeft,
-        Arrow::ArrowNinezerodegRight,
-        Arrow::ArrowNinezerodegUp,
-        Arrow::ArrowRepeat,
-        Arrow::ArrowReturnLeft,
-        Arrow::ArrowReturnRight,
-        Arrow::ArrowRight,
-        Arrow::ArrowRightCircle,
-        Arrow::ArrowRightCircleFill,
-        Arrow::ArrowRightShort,
-        Arrow::ArrowRightSquare,
-        Arrow::ArrowRightSquareFill,
-        Arrow::ArrowThroughHeart,
-        Arrow::ArrowThroughHeartFill,
-        Arrow::ArrowUp,
-        Arrow::ArrowUpCircle,
-        Arrow::ArrowUpCircleFill,
-        Arrow::ArrowUpLeft,
-        Arrow::ArrowUpLeftCircle,
-        Arrow::ArrowUpLeftCircleFill,
-        Arrow::ArrowUpLeftSquare,
-        Arrow::ArrowUpLeftSquareFill,
-        Arrow::ArrowUpRight,
-        Arrow::ArrowUpRightCircle,
-        Arrow::ArrowUpRightCircleFill,
-        Arrow::ArrowUpRightSquare,
-        Arrow::ArrowUpRightSquareFill,
-        Arrow::ArrowUpShort,
-        Arrow::ArrowUpSquare,
-        Arrow::ArrowUpSquareFill,
-        Arrow::Arrows,
-        Arrow::ArrowsAngleContract,
-        Arrow::ArrowsAngleExpand,
-        Arrow::ArrowsCollapse,
-        Arrow::ArrowsCollapseVertical,
-        Arrow::ArrowsExpand,
-        Arrow::ArrowsExpandVertical,
-        Arrow::ArrowsFullscreen,
-        Arrow::ArrowsMove,
-        Arrow::ArrowsVertical,
-    ]
+    Arrow::iter().collect()
 }

@@ -21,4 +21,4 @@ __pycache__/
 *.so
 *.pyd
 .icedpygui.cpython
-.icedpygui/__pycache__/__init__.cpython-312.pyc
+.icedpygui/__pycache__/

@@ -66,7 +66,7 @@ impl Button {
             .and_then(Widgets::as_font).cloned();
 
         let txt = if let Some(sa) = &self.style_arrow {
-            let ar = Arrow::to_string(sa);
+            let ar = sa.to_char().to_string();
             text(ar).font(iced::Font::new("bootstrap-icons"))
         } else {
             if let Some(lbl) = &self.label {

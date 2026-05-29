@@ -44,6 +44,17 @@ use crate::widgets::ipg_row::Row;
 ///     Sets the Horizontal spacing between children in logical pixels.
 /// clip : bool, optional
 ///     Whether to clip content that overflows the row.
+/// wrap : bool, optional
+///     When True, children that overflow the row's width wrap onto the next line.
+///     Replaces the normal horizontal layout with a wrapping layout.
+/// wrap_vertical_spacing : float, optional
+///     Vertical spacing between wrapped lines in logical pixels.  Only used when ``wrap=True``.
+/// wrap_align_left : bool, optional
+///     Align children to the left within each wrapped line.  Only used when ``wrap=True``.
+/// wrap_align_center : bool, optional
+///     Align children to the horizontal centre within each wrapped line.  Only used when ``wrap=True``.
+/// wrap_align_right : bool, optional
+///     Align children to the right within each wrapped line.  Only used when ``wrap=True``.
 /// show : bool, default True
 ///     Whether the row is visible.
 ///
@@ -67,6 +78,11 @@ use crate::widgets::ipg_row::Row;
         padding=None, 
         spacing=None, 
         clip=None,
+        wrap=None,
+        wrap_vertical_spacing=None,
+        wrap_align_left=None,
+        wrap_align_center=None,
+        wrap_align_right=None,
         show=true,
         ))]
 pub fn add_row(
@@ -84,6 +100,11 @@ pub fn add_row(
     padding: Option<Vec<f32>>,
     spacing: Option<f32>,
     clip: Option<bool>,
+    wrap: Option<bool>,
+    wrap_vertical_spacing: Option<f32>,
+    wrap_align_left: Option<bool>,
+    wrap_align_center: Option<bool>,
+    wrap_align_right: Option<bool>,
     show: bool,
     ) -> PyResult<usize> 
 {
@@ -115,6 +136,11 @@ pub fn add_row(
             align_center,
             align_top,
             clip,
+            wrap,
+            wrap_vertical_spacing,
+            wrap_align_left,
+            wrap_align_center,
+            wrap_align_right,
             show,
         }));
 

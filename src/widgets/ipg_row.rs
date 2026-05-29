@@ -1,6 +1,6 @@
 //! ipg_row
 
-use iced::{Alignment, Element};
+use iced::{Alignment, Element, alignment};
 use iced::widget;
 
 use pyo3::{pyclass, Py, PyAny};
@@ -27,6 +27,11 @@ pub struct Row {
     pub align_center: Option<bool>,
     pub align_top: Option<bool>,
     pub clip: Option<bool>,
+    pub wrap: Option<bool>,
+    pub wrap_vertical_spacing: Option<f32>,
+    pub wrap_align_left: Option<bool>,
+    pub wrap_align_center: Option<bool>,
+    pub wrap_align_right: Option<bool>,
     pub show: bool,
 }
 
@@ -71,7 +76,31 @@ impl Row {
                 row.clip(cp)
             } else { row };
 
-        Some(row.into())
+        let wrap = if self.wrap.is_none() {
+            return Some(row.into())
+        } else {
+            row.wrap()
+        };
+
+        let wrap = 
+            if let Some(sp) = self.wrap_vertical_spacing {
+                wrap.vertical_spacing(sp)
+            } else { wrap };
+
+        let align = 
+            match (self.wrap_align_center, self.wrap_align_left, self.wrap_align_right) {
+                (Some(true), Some(false), Some(false)) => Some(alignment::Horizontal::Center),
+                (Some(false), Some(true), Some(false)) => Some(alignment::Horizontal::Left),
+                (Some(false), Some(false), Some(true)) => Some(alignment::Horizontal::Right),
+                _ => None
+            };
+            
+        let wrap = 
+            if let Some(align) = align {
+                wrap.align_x(align)
+            } else { wrap };
+
+        Some(wrap.into())
     }
 }
 

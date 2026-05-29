@@ -53,7 +53,7 @@ from .icedpygui import (
     DividerDirection as DividerDirection,
     DividerParam as DividerParam,
     DividerStyleParam as DividerStyleParam,
-    FilterMethod,
+    FilterMethod as FilterMethod,
     FloatParam as FloatParam,
     FontFamily as FontFamily,
     FontWeight as FontWeight,
@@ -72,7 +72,7 @@ from .icedpygui import (
     ProgressBarStyleStd as ProgressBarStyleStd,
     RadioParam as RadioParam,
     RadioStyleParam as RadioStyleParam,
-    Rotation,
+    Rotation as Rotation,
     RowParam as RowParam,
     SashParam as SashParam,
     ScrollableParam as ScrollableParam,
@@ -97,6 +97,7 @@ from .icedpygui import (
     WindowMode as WindowMode,
     WindowParam as WindowParam,
     WindowTheme as WindowTheme,
+    window_theme_variants as window_theme_variants,
     start_session as start_session,
     delete_widget as delete_widget,
     hide_widget as hide_widget,
@@ -107,8 +108,8 @@ from .icedpygui import (
     update_widget_params as update_widget_params,
     load_font as load_font,
     generate_id as generate_id,
-    get_rgba_color,
-    get_color_palette,
+    get_rgba_color as get_rgba_color,
+    get_color_palette as get_color_palette,
 )
 
 

@@ -37,7 +37,7 @@ with Window(title="Colors", size=(600, 600), center=True):
                 variants = [(k[:-6], v, sorted_palette[k[:-6] + "_text"])
                             for k, v in sorted_palette.items() if k.endswith("_color")]
                 for (name, color_rgba, text_rgba) in variants:
-                    bkg = add_container_style(background_rgba=color_rgba)
+                    bkg = add_container_style(bkg_rgba=color_rgba)
                     with Container(width=200, height=50, align_center=True, style_id=bkg):
                         add_text(content=name, color_rgba=text_rgba)
 

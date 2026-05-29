@@ -4,7 +4,7 @@ use crate::py_api::helpers::{get_len, get_padding};
 use crate::widgets::widget_param_update::{
     WidgetParamUpdate, set_t_value};
 
-use iced::{Alignment, Element};
+use iced::{Alignment, Element, alignment};
 use iced::widget;
 
 use pyo3::{pyclass, Py, PyAny};
@@ -26,6 +26,11 @@ pub struct Column {
     pub align_center: Option<bool>,
     pub align_right: Option<bool>,
     pub clip: Option<bool>,
+    pub wrap: Option<bool>,
+    pub wrap_horizontal_spacing: Option<f32>,
+    pub wrap_align_top: Option<bool>,
+    pub wrap_align_center: Option<bool>,
+    pub wrap_align_bottom: Option<bool>,
     pub show: bool,
 }
 
@@ -75,7 +80,31 @@ impl Column {
                 col.max_width(mw)
             } else { col };
 
-        Some(col.into())
+        let wrap = if self.wrap.is_none() {
+            return Some(col.into())
+        } else {
+            col.wrap()
+        };
+
+        let wrap = 
+            if let Some(sp) = self.wrap_horizontal_spacing {
+                wrap.horizontal_spacing(sp)
+            } else { wrap };
+
+        let align = 
+            match (self.wrap_align_center, self.wrap_align_top, self.wrap_align_bottom) {
+                (Some(true), Some(false), Some(false)) => Some(alignment::Vertical::Center),
+                (Some(false), Some(true), Some(false)) => Some(alignment::Vertical::Top),
+                (Some(false), Some(false), Some(true)) => Some(alignment::Vertical::Bottom),
+                _ => None
+            };
+            
+        let wrap = 
+            if let Some(align) = align {
+                wrap.align_y(align)
+            } else { wrap };
+
+        Some(wrap.into())
 
     }
 }

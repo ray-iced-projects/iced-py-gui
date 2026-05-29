@@ -3,6 +3,7 @@ use iced::widget::Column;
 use iced::window::settings::PlatformSpecific;
 use iced::window::{self, Level, Position, icon};
 use iced::{Element, Size, Task, Theme};
+use strum::EnumIter;
 use pyo3::{pyclass, Py, PyAny};
 type PyObject = Py<PyAny>;
 
@@ -275,7 +276,11 @@ impl WidgetParamUpdate for Window {
                     drop(state);
                 }
             },
-            WindowParam::Theme => set_t_value(&mut self.theme, value, "WindowParam::Theme"),
+            WindowParam::Theme => {
+                let mut str: String = String::new();
+                set_t_value(&mut str, value, "WindowParam::Theme");
+                self.theme = Some(string_to_theme(str));
+            },
             WindowParam::Title => set_t_value(&mut self.title, value, "WindowParam::Title"),
             WindowParam::Transparent => set_t_value(&mut self.transparent, value, "WindowParam::Transparent"),
         }
@@ -283,6 +288,7 @@ impl WidgetParamUpdate for Window {
 }
 
 #[derive(Debug, Clone, PartialEq, Hash)]
+#[derive(EnumIter)]
 #[pyclass(eq, eq_int, hash, frozen)]
 pub enum WindowTheme {
     Dark,
@@ -336,7 +342,40 @@ impl WindowTheme {
             WindowTheme::TokyoNightLight => Theme::TokyoNightLight,
         }
     }
+
 }
+
+fn string_to_theme(str_theme: String) -> WindowTheme {
+    match str_theme.as_str() {
+        "WindowTheme.Dark" => WindowTheme::Dark,
+        "WindowTheme.Light" => WindowTheme::Light,
+        "WindowTheme.CatppuccinLatte" => WindowTheme::CatppuccinLatte,
+        "WindowTheme.CatppuccinFrappe" => WindowTheme::CatppuccinFrappe,
+        "WindowTheme.CatppuccinMacchiato" => WindowTheme::CatppuccinMacchiato,
+        "WindowTheme.CatppuccinMocha" => WindowTheme::CatppuccinMocha,
+        "WindowTheme.Dracula" => WindowTheme::Dracula,
+        "WindowTheme.Ferra" => WindowTheme::Ferra,
+        "WindowTheme.GruvboxLight" => WindowTheme::GruvboxLight,
+        "WindowTheme.GruvboxDark" => WindowTheme::GruvboxDark,
+        "WindowTheme.KanagawaWave" => WindowTheme::KanagawaWave,
+        "WindowTheme.KanagawaDragon" => WindowTheme::KanagawaDragon,
+        "WindowTheme.KanagawaLotus" => WindowTheme::KanagawaLotus,
+        "WindowTheme.Moonfly" => WindowTheme::Moonfly,
+        "WindowTheme.Nightfly" => WindowTheme::Nightfly,
+        "WindowTheme.Nord" => WindowTheme::Nord,
+        "WindowTheme.Oxocarbon" => WindowTheme::Oxocarbon,
+        "WindowTheme.SolarizedLight" => WindowTheme::SolarizedLight,
+        "WindowTheme.SolarizedDark" => WindowTheme::SolarizedDark,
+        "WindowTheme.TokyoNight" => WindowTheme::TokyoNight,
+        "WindowTheme.TokyoNightStorm" => WindowTheme::TokyoNightStorm,
+        "WindowTheme.TokyoNightLight" => WindowTheme::TokyoNightLight,
+        _ => {
+            eprintln!("Window Theme: {} not found, return default", str_theme);
+            WindowTheme::TokyoNight
+        }
+    }
+}
+
 
 #[derive(Debug, Clone, PartialEq, Hash)]
 #[pyclass(eq, eq_int, hash, frozen)]

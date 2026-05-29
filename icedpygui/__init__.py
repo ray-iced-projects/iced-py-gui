@@ -164,6 +164,7 @@ from .icedpygui import (
     WindowLevel,
     WindowParam,
     WindowTheme,
+    window_theme_variants,
 )
 
 # ---------------------------------------------------------------------------

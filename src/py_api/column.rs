@@ -46,6 +46,17 @@ use crate::widgets::ipg_column::Column;
 ///     Whether to Align children to the right.
 /// clip : bool,  Optional
 ///     Whether to clip content that overflows the column.
+/// wrap : bool, optional
+///     When True, children that overflow the column's height wrap onto the next column.
+///     Replaces the normal vertical layout with a wrapping layout.
+/// wrap_horizontal_spacing : float, optional
+///     Horizontal spacing between wrapped columns in logical pixels.  Only used when ``wrap=True``.
+/// wrap_align_top : bool, optional
+///     Align children to the top within each wrapped column.  Only used when ``wrap=True``.
+/// wrap_align_center : bool, optional
+///     Align children to the vertical centre within each wrapped column.  Only used when ``wrap=True``.
+/// wrap_align_bottom : bool, optional
+///     Align children to the bottom within each wrapped column.  Only used when ``wrap=True``.
 /// show : bool, default True
 ///     Whether the column is visible.
 ///
@@ -69,7 +80,12 @@ use crate::widgets::ipg_column::Column;
         align_left=None,
         align_center=None,
         align_right=None, 
-        clip=None, 
+        clip=None,
+        wrap=None,
+        wrap_horizontal_spacing=None,
+        wrap_align_top=None,
+        wrap_align_center=None,
+        wrap_align_bottom=None,
         show=true,
         ))]
 pub fn add_column(
@@ -89,6 +105,11 @@ pub fn add_column(
     align_center: Option<bool>,
     align_right: Option<bool>,
     clip: Option<bool>,
+    wrap: Option<bool>,
+    wrap_horizontal_spacing: Option<f32>,
+    wrap_align_top: Option<bool>,
+    wrap_align_center: Option<bool>,
+    wrap_align_bottom: Option<bool>,
     show: bool,
     ) -> PyResult<usize> 
 {
@@ -121,6 +142,11 @@ pub fn add_column(
                 align_center,
                 align_right,
                 clip,
+                wrap,
+                wrap_horizontal_spacing,
+                wrap_align_top,
+                wrap_align_center,
+                wrap_align_bottom,
                 show,
             }));
 

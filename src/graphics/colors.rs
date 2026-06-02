@@ -16,17 +16,20 @@ pub fn background(color: iced::Color) -> iced::theme::palette::Background {
     palette::Background::new(color, text_seed)
 }
 
+#[derive(Debug, Clone, PartialEq, Hash)]
+#[pyclass(eq, eq_int, hash, frozen)]
+pub enum StdColorStyle {
+    Primary,
+    Seconfary,
+    Success,
+    Danger,
+    Warning,
+}
 
-#[derive(Debug, Clone, Default, PartialEq, Hash)]
+
+#[derive(Debug, Clone, PartialEq, Hash)]
 #[pyclass(eq, eq_int, hash, frozen)]
 pub enum Color {
-    #[default]
-    PRIMARY,
-    SECONDARY,
-    SUCCESS,
-    DANGER,
-    WARNING,
-    INFO,
     LIGHT,
     DARK,
     BACKGROUND_THEME,
@@ -286,12 +289,6 @@ impl Color {
 
     pub fn to_iced(&self) -> iced::Color {
         match self {
-            Color::PRIMARY => PRIMARY,
-            Color::SECONDARY => SECONDARY,
-            Color::SUCCESS => SUCCESS,
-            Color::DANGER => DANGER,
-            Color::WARNING => WARNING,
-            Color::INFO => INFO,
             Color::LIGHT => LIGHT,
             Color::DARK => DARK,
             Color::BACKGROUND_THEME => BACKGROUND_THEME,
@@ -518,35 +515,29 @@ impl Color {
     /// Converts a combo box selection string back into a `Color` variant.
     pub fn from_combo_str(s: &str) -> Option<Color> {
         match s {
-            "Primary" => Some(Color::PRIMARY),
-            "Secondary" => Some(Color::SECONDARY),
-            "Success" => Some(Color::SUCCESS),
-            "Danger" => Some(Color::DANGER),
-            "Warning" => Some(Color::WARNING),
-            "Info" => Some(Color::INFO),
             "Light" => Some(Color::LIGHT),
             "Dark" => Some(Color::DARK),
             "Bkg_theme" => Some(Color::BACKGROUND_THEME),
-            "Catppuccin_frappe" => Some(Color::CATPPUCCIN_FRAPPE),
-            "Catppuccin_latte" => Some(Color::CATPPUCCIN_LATTE),
-            "Catppuccin_macchiato" => Some(Color::CATPPUCCIN_MACCHIATO),
-            "Catppuccin_mocha" => Some(Color::CATPPUCCIN_MOCHA),
+            "CatppuccinFrappe" => Some(Color::CATPPUCCIN_FRAPPE),
+            "CatppuccinLatte" => Some(Color::CATPPUCCIN_LATTE),
+            "CatppuccinMacchiato" => Some(Color::CATPPUCCIN_MACCHIATO),
+            "CatppuccinMocha" => Some(Color::CATPPUCCIN_MOCHA),
             "Dracula" => Some(Color::DRACULA),
             "Ferra" => Some(Color::FERRA),
-            "Gruvbox_dark" => Some(Color::GRUVBOX_DARK),
-            "Gruvbox_light" => Some(Color::GRUVBOX_LIGHT),
-            "Kanagawa_dragon" => Some(Color::KANAGAWA_DRAGON),
-            "Kanagawa_lotus" => Some(Color::KANAGAWA_LOTUS),
-            "Kanagawa_wave" => Some(Color::KANAGAWA_WAVE),
+            "GruvboxDark" => Some(Color::GRUVBOX_DARK),
+            "GruvboxLight" => Some(Color::GRUVBOX_LIGHT),
+            "KanagawaDragon" => Some(Color::KANAGAWA_DRAGON),
+            "KanagawaLotus" => Some(Color::KANAGAWA_LOTUS),
+            "KanagawaWave" => Some(Color::KANAGAWA_WAVE),
             "Moonfly" => Some(Color::MOONFLY),
             "Nightfly" => Some(Color::NIGHTFLY),
             "Nord" => Some(Color::NORD),
             "Oxocarbon" => Some(Color::OXOCARBON),
-            "Solarized_dark" => Some(Color::SOLARIZED_DARK),
-            "Solarized_light" => Some(Color::SOLARIZED_LIGHT),
-            "Tokyo_night" => Some(Color::TOKYO_NIGHT),
-            "Tokyo_night_light" => Some(Color::TOKYO_NIGHT_LIGHT),
-            "Tokyo_night_storm" => Some(Color::TOKYO_NIGHT_STORM),
+            "SolarizedDark" => Some(Color::SOLARIZED_DARK),
+            "SolarizedLight" => Some(Color::SOLARIZED_LIGHT),
+            "TokyoNight" => Some(Color::TOKYO_NIGHT),
+            "TokyoNightLight" => Some(Color::TOKYO_NIGHT_LIGHT),
+            "TokyoNightStorm" => Some(Color::TOKYO_NIGHT_STORM),
             "Alice_blue" => Some(Color::ALICE_BLUE),
             "Antique_white" => Some(Color::ANTIQUE_WHITE),
             "Aqua" => Some(Color::AQUA),

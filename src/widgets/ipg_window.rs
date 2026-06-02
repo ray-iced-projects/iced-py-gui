@@ -3,7 +3,7 @@ use iced::widget::Column;
 use iced::window::settings::PlatformSpecific;
 use iced::window::{self, Level, Position, icon};
 use iced::{Element, Size, Task, Theme};
-use strum::EnumIter;
+
 use pyo3::{pyclass, Py, PyAny};
 type PyObject = Py<PyAny>;
 
@@ -279,7 +279,7 @@ impl WidgetParamUpdate for Window {
             WindowParam::Theme => {
                 let mut str: String = String::new();
                 set_t_value(&mut str, value, "WindowParam::Theme");
-                self.theme = Some(string_to_theme(str));
+                self.theme = name_to_window_theme(&str);
             },
             WindowParam::Title => set_t_value(&mut self.title, value, "WindowParam::Title"),
             WindowParam::Transparent => set_t_value(&mut self.transparent, value, "WindowParam::Transparent"),
@@ -288,13 +288,12 @@ impl WidgetParamUpdate for Window {
 }
 
 #[derive(Debug, Clone, PartialEq, Hash)]
-#[derive(EnumIter)]
 #[pyclass(eq, eq_int, hash, frozen)]
 pub enum WindowTheme {
     Dark,
     Light,
-    CatppuccinLatte,
     CatppuccinFrappe,
+    CatppuccinLatte,
     CatppuccinMacchiato,
     CatppuccinMocha,
     Dracula,
@@ -320,8 +319,8 @@ impl WindowTheme {
         match self {
             WindowTheme::Dark => Theme::Dark,
             WindowTheme::Light => Theme::Light,
-            WindowTheme::CatppuccinLatte => Theme::CatppuccinLatte,
             WindowTheme::CatppuccinFrappe => Theme::CatppuccinFrappe,
+            WindowTheme::CatppuccinLatte => Theme::CatppuccinLatte,
             WindowTheme::CatppuccinMacchiato => Theme::CatppuccinMacchiato,
             WindowTheme::CatppuccinMocha => Theme::CatppuccinMocha,
             WindowTheme::Dracula => Theme::Dracula,
@@ -345,37 +344,49 @@ impl WindowTheme {
 
 }
 
-fn string_to_theme(str_theme: String) -> WindowTheme {
-    match str_theme.as_str() {
-        "WindowTheme.Dark" => WindowTheme::Dark,
-        "WindowTheme.Light" => WindowTheme::Light,
-        "WindowTheme.CatppuccinLatte" => WindowTheme::CatppuccinLatte,
-        "WindowTheme.CatppuccinFrappe" => WindowTheme::CatppuccinFrappe,
-        "WindowTheme.CatppuccinMacchiato" => WindowTheme::CatppuccinMacchiato,
-        "WindowTheme.CatppuccinMocha" => WindowTheme::CatppuccinMocha,
-        "WindowTheme.Dracula" => WindowTheme::Dracula,
-        "WindowTheme.Ferra" => WindowTheme::Ferra,
-        "WindowTheme.GruvboxLight" => WindowTheme::GruvboxLight,
-        "WindowTheme.GruvboxDark" => WindowTheme::GruvboxDark,
-        "WindowTheme.KanagawaWave" => WindowTheme::KanagawaWave,
-        "WindowTheme.KanagawaDragon" => WindowTheme::KanagawaDragon,
-        "WindowTheme.KanagawaLotus" => WindowTheme::KanagawaLotus,
-        "WindowTheme.Moonfly" => WindowTheme::Moonfly,
-        "WindowTheme.Nightfly" => WindowTheme::Nightfly,
-        "WindowTheme.Nord" => WindowTheme::Nord,
-        "WindowTheme.Oxocarbon" => WindowTheme::Oxocarbon,
-        "WindowTheme.SolarizedLight" => WindowTheme::SolarizedLight,
-        "WindowTheme.SolarizedDark" => WindowTheme::SolarizedDark,
-        "WindowTheme.TokyoNight" => WindowTheme::TokyoNight,
-        "WindowTheme.TokyoNightStorm" => WindowTheme::TokyoNightStorm,
-        "WindowTheme.TokyoNightLight" => WindowTheme::TokyoNightLight,
-        _ => {
-            eprintln!("Window Theme: {} not found, return default", str_theme);
-            WindowTheme::TokyoNight
-        }
-    }
+/// Returns all color variant names as strings for use as combo box options.
+pub fn theme_names() -> Vec<String> {
+    vec![
+        "Dark", "Light",
+        "CatppuccinFrappe", "CatppuccinLatte", "CatppuccinMacchiato", "CatppuccinMocha",
+        "Dracula", "Ferra", "GruvboxDark", "GruvboxLight",
+        "KanagawaDragon", "KanagawaLotus", "KanagawaWave",
+        "Moonfly", "Nightfly", "Nord", "Oxocarbon",
+        "SolarizedDark", "SolarizedLight",
+        "TokyoNight", "TokyoNightLight", "TokyoNightStorm",
+    ]
+    .into_iter()
+    .map(String::from)
+    .collect()
 }
 
+pub fn name_to_window_theme(s: &str) -> Option<WindowTheme> {
+    match s {
+        "Dark" => Some(WindowTheme::Dark),
+        "Light" => Some(WindowTheme::Light),
+        "CatppuccinFrappe" => Some(WindowTheme::CatppuccinFrappe),
+        "CatppuccinLatte" => Some(WindowTheme::CatppuccinLatte),
+        "CatppuccinMacchiato" => Some(WindowTheme::CatppuccinMacchiato),
+        "CatppuccinMocha" => Some(WindowTheme::CatppuccinMocha),
+        "Dracula" => Some(WindowTheme::Dracula),
+        "Ferra" => Some(WindowTheme::Ferra),
+        "GruvboxLight" => Some(WindowTheme::GruvboxLight),
+        "GruvboxDark" => Some(WindowTheme::GruvboxDark),
+        "KanagawaWave" => Some(WindowTheme::KanagawaWave),
+        "KanagawaDragon" => Some(WindowTheme::KanagawaDragon),
+        "KanagawaLotus" => Some(WindowTheme::KanagawaLotus),
+        "Moonfly" => Some(WindowTheme::Moonfly),
+        "Nightfly" => Some(WindowTheme::Nightfly),
+        "Nord" => Some(WindowTheme::Nord),
+        "Oxocarbon" => Some(WindowTheme::Oxocarbon),
+        "SolarizedLight" => Some(WindowTheme::SolarizedLight),
+        "SolarizedDark" => Some(WindowTheme::SolarizedDark),
+        "TokyoNight" => Some(WindowTheme::TokyoNight),
+        "TokyoNightStorm" => Some(WindowTheme::TokyoNightStorm),
+        "TokyoNightLight" => Some(WindowTheme::TokyoNightLight),
+        _ => None,
+    }
+}
 
 #[derive(Debug, Clone, PartialEq, Hash)]
 #[pyclass(eq, eq_int, hash, frozen)]

@@ -223,7 +223,6 @@ impl CardStyle {
 pub enum CardStyleStd {
     Danger,
     Dark,
-    Info,
     Light,
     Primary,
     Secondary,
@@ -242,7 +241,6 @@ impl CardStyleStd {
         match self {
             CardStyleStd::Danger => aw_style::danger(theme, status),
             CardStyleStd::Dark => aw_style::dark(theme, status),
-            CardStyleStd::Info => aw_style::info(theme, status),
             CardStyleStd::Light => aw_style::light(theme, status),
             CardStyleStd::Primary => aw_style::primary(theme, status),
             CardStyleStd::Secondary => aw_style::secondary(theme, status),

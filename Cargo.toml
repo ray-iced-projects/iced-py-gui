@@ -12,7 +12,7 @@ name = "icedpygui"
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-pyo3 = { version = "0.26" }
+pyo3 = { version = "0.26", features = ["indexmap"] }
 pyo3-stub-gen = "0.19.0"
 iced = { git = "https://github.com/iced-rs/iced", branch = "master", features = ["advanced", "canvas", "debug", "highlighter", "image", "lazy", "smol", "svg", "tokio"] }
 tokio = { version = "1.0", features = ["fs"]}

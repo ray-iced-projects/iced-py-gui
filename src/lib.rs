@@ -26,12 +26,12 @@ pub use state::{
 
 use crate::ipg_widgets::ipg_canvas_draw::canvas_draw::{DrawMode, DrawWidget};
 // Import pyfunctions from py_api modules
-use crate::py_api::window::{add_window, window_theme_variants};
+use crate::py_api::window::{add_window, window_theme_names};
 use crate::py_api::button::{add_button, add_button_style};
 use crate::py_api::clipboard::{clipboard_read, clipboard_write};
 use crate::py_api::card::{add_card, add_card_style};
 use crate::py_api::checkbox::{add_checkbox, add_checkbox_style};
-use crate::py_api::colors::{get_color_palette, get_rgba_color};
+use crate::py_api::colors::{get_color_palette, get_rgba_color, get_styling_palette};
 use crate::py_api::color_picker::{add_color_picker};
 use crate::py_api::column::add_column;
 use crate::py_api::combo_box::add_combobox;
@@ -76,7 +76,7 @@ use crate::widgets::enums::ContentFit;
 
 
 use crate::graphics::bootstrap::{bootstrap_icon::Icon, bootstrap_arrow::Arrow};
-use crate::graphics::colors::Color;
+use crate::graphics::colors::{Color, StdColorStyle};
 use crate::widgets::ipg_button::{ButtonParam, ButtonStyleParam, ButtonStyleStd};
 use crate::widgets::ipg_card::{CardParam, CardStyleParam, CardStyleStd};
 use crate::widgets::ipg_checkbox::{CheckboxParam, CheckboxStyleParam, CheckboxStyleStd};
@@ -279,6 +279,7 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     //Color functions
     m.add_function(wrap_pyfunction!(get_rgba_color, m)?)?;
     m.add_function(wrap_pyfunction!(get_color_palette, m)?)?;
+    m.add_function(wrap_pyfunction!(get_styling_palette, m)?)?;
     
     // Enums
     m.add_class::<Arrow>()?;
@@ -290,10 +291,11 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<FontStretch>()?;
     m.add_class::<FontStyle>()?;
     m.add_class::<MousePointer>()?;
+    m.add_class::<StdColorStyle>()?;
 
     // misc functions
     m.add_function(wrap_pyfunction!(arrow_to_str, m)?)?;
     m.add_function(wrap_pyfunction!(arrow_variants, m)?)?;
-    m.add_function(wrap_pyfunction!(window_theme_variants, m)?)?;
+    m.add_function(wrap_pyfunction!(window_theme_names, m)?)?;
     Ok(())
 }

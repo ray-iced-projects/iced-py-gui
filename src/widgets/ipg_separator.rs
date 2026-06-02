@@ -66,15 +66,15 @@ impl Separator {
             if let Some(st) = style_opt {
                 let sc = match Color::rgba_ipg_color_to_iced(st.rgba, &st.color, st.color_alpha){
                     Some(c) => c,
-                    None => Color::PRIMARY.to_iced(),
+                    None => Color::LIGHT_BLUE.to_iced(),
                 };
                 let bc = match Color::rgba_ipg_color_to_iced(st.border_rgba, &st.border_color, st.border_color_alpha) {
                     Some(c) => c,
-                    None => Color::PRIMARY.to_iced(),
+                    None => Color::LIGHT_BLUE.to_iced(),
                 };
                 (sc, bc)
             } else {
-                (Color::PRIMARY.to_iced(), Color::PRIMARY.to_iced())
+                (Color::LIGHT_BLUE.to_iced(), Color::LIGHT_BLUE.to_iced())
             };
         
         // returns a separator with some styling

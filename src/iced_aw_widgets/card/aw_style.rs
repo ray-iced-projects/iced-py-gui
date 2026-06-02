@@ -91,37 +91,36 @@ impl Catalog for Theme {
 /// The primary theme of a [`Card`](crate::widget::card::Card).
 #[must_use]
 pub fn primary(theme: &Theme, _status: Status) -> Style {
-    backing_with_text(theme, colors::Color::PRIMARY.to_iced(), iced::Color::WHITE)
+    let palette = theme.palette();
+    backing_with_text(theme, palette.primary.base.color, palette.primary.base.text)
 }
 
 /// The secondary theme of a [`Card`](crate::widget::card::Card).
 #[must_use]
 pub fn secondary(theme: &Theme, _status: Status) -> Style {
-    backing_with_text(theme, colors::Color::SECONDARY.to_iced(), iced::Color::WHITE)
+    let palette = theme.palette();
+    backing_with_text(theme, palette.secondary.base.color, palette.secondary.base.text)
 }
 
 /// The success theme of a [`Card`](crate::widget::card::Card).
 #[must_use]
 pub fn success(theme: &Theme, _status: Status) -> Style {
-    backing_with_text(theme, colors::Color::SUCCESS.to_iced(), iced::Color::WHITE)
+    let palette = theme.palette();
+    backing_with_text(theme, palette.success.base.color, palette.success.base.text)
 }
 
 /// The danger theme of a [`Card`](crate::widget::card::Card).
 #[must_use]
 pub fn danger(theme: &Theme, _status: Status) -> Style {
-    backing_with_text(theme, colors::Color::DANGER.to_iced(), iced::Color::WHITE)
+    let palette = theme.palette();
+    backing_with_text(theme, palette.danger.base.color, palette.danger.base.text)
 }
 
 /// The warning theme of a [`Card`](crate::widget::card::Card).
 #[must_use]
 pub fn warning(theme: &Theme, _status: Status) -> Style {
-    backing_only(theme, colors::Color::WARNING.to_iced())
-}
-
-/// The info theme of a [`Card`](crate::widget::card::Card).
-#[must_use]
-pub fn info(theme: &Theme, _status: Status) -> Style {
-    backing_only(theme, colors::Color::INFO.to_iced())
+    let palette = theme.palette();
+    backing_with_text(theme, palette.warning.base.color, palette.warning.base.text)
 }
 
 /// The light theme of a [`Card`](crate::widget::card::Card).

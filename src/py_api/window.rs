@@ -1,10 +1,9 @@
 //! Window module - provides add_window pyfunction
 use pyo3::{Py, PyAny, PyResult, pyfunction};
-use strum::IntoEnumIterator;
 use crate::state::{access_state, add_callback_to_mutex, 
     add_user_data_to_mutex, WidgetNode, Containers};
 use crate::widgets::ipg_window::{
-    Window, WindowLevel, WindowTheme,
+    Window, WindowLevel, WindowTheme, theme_names,
 };
 
 type PyObject = Py<PyAny>;
@@ -217,15 +216,14 @@ pub fn add_window(
     Ok(id)
 }
 
-// Return a list of every Window Theme enum variant.
+// Return a list of every Window Theme enum as a string.
 ///
 /// Useful for iterating over all available Themes.
 ///
 /// Returns
 /// -------
-/// list[WindowTheme]
-
+/// list[str]
 #[pyfunction]
-pub fn window_theme_variants() -> Vec<WindowTheme> {
-    WindowTheme::iter().collect()
+pub fn window_theme_names() -> Vec<String> {
+    theme_names()
 }

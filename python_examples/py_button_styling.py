@@ -15,6 +15,8 @@ from icedpygui import (
     Row,
     start_session,
     add_button,
+    ButtonParam,
+    ButtonStyleStd,
     add_pick_list,
     add_radio,
     add_text,
@@ -22,16 +24,23 @@ from icedpygui import (
     update_widget,
     update_widget_params,
     get_color_palette,
+    get_styling_palette,
+    get_rgba_color,
     Color,
-    window_theme_variants,
+    StdColorStyle,
+    window_theme_names,
+    WindowTheme,
 )
 
-def on_theme_select(_pl_id: int, theme: str):
+def on_press(_btn_id: int):
+    """Button test"""
+    print()
+
+
+def on_theme_select(_pl_id: int, theme_name: str):
     """Select a Theme by PickList"""
-    update_widget(wnd_id, WindowParam.Theme, theme)
-    (_t, c) = theme.split(".")
-    c = c.upper()
-    state["current_theme_color"] = Color.c
+    update_widget(wnd_id, WindowParam.Theme, theme_name)
+    state["current_theme_color"] = get_rgba_color(name=theme_name)
 
 
 def color_selected(_cp_id: int, color: list[float]):
@@ -46,9 +55,27 @@ def style_type_selected(_rd_id: int, index: int):
 def std_colors_selected(_rd_id: int, index: int):
     """Swap container styles when a standard colour radio button is selected."""
     color_name = std_colors[index]
-    for name, (style_id, text_rgba) in all_styles[color_name].items():
+    for name, (style_id, text_rgba, label) in all_styles[color_name].items():
         update_widget_params(cont_ids[name], {ContainerParam.StyleId: style_id})
-        update_widget_params(text_ids[name], {TextParam.ColorRgba: list(text_rgba)})
+        update_widget_params(text_ids[name], {
+            TextParam.ColorRgba: list(text_rgba),
+            TextParam.Content: label,
+        })
+    match std_colors[index]:
+        case "Primary":
+            style_std = ButtonStyleStd.Primary
+        case "Secondary":
+            style_std = ButtonStyleStd.Secondary
+        case "Success":
+            style_std = ButtonStyleStd.Success
+        case "Warning":
+            style_std = ButtonStyleStd.Warning
+        case "Danger":
+            style_std = ButtonStyleStd.Danger
+        case "Subtle":
+            style_std = ButtonStyleStd.Subtle
+
+    update_widget(color_btn_id, ButtonParam.StyleStd, style_std)
 
 
 def get_variants(color: Color) -> list[tuple]:
@@ -62,28 +89,30 @@ def get_variants(color: Color) -> list[tuple]:
     ]
 
 
-def get_label(name: str) -> str:
+def get_label(name: str, color_name: str = "") -> str:
     """Return the display text for a variant tile."""
+    if color_name == "Subtle":
+        match name:
+            case "base":
+                return "base\nActive"
+            case "strong":
+                return "strong\nPressed"
+            case "weaker":
+                return "weaker\nHovered"
+            case "base alpha":
+                return "base alpha 0.5\nDisabled"
+            case _:
+                return name
     match name:
         case "base":
             return "base\nActive/Pressed"
         case "strong":
             return "strong\nHovered"
+        case "base alpha":
+            return "base alpha 0.5\nDisabled"
         case _:
             return name
 
-
-def get_styling_label(name: str, style_type: str) -> str:
-    """retun labels for palettes for styling types"""
-    match (name, style_type):
-        case ("base", ""):
-            return "base\nActive"
-        case ("strong", ""):
-            return "strong\nPressed"
-        case ("weaker", ""):
-            return "weaker\nHovered"
-        case _:
-            return name
 
 # ---------------------------------------------------------------------------
 # Data
@@ -93,35 +122,17 @@ style_types = ["Background", "Subtle"]
 cont_ids = {}   # {variant_name: cont_id}
 text_ids = {}   # {variant_name: text_id}
 state = {"style_type": "",
-         "current_theme_color": Color.TOKYO_NIGHT}
+         "current_theme_color": WindowTheme.TokyoNight}
 
-# Pre-create all styles for every std color before start_session() so they
-# can be swapped at runtime via update_widget_params / ContainerParam.StyleId.
-all_styles = {}  # {color_name: {variant_name: (style_id, text_rgba)}}
-for _color_name in std_colors:
-    _color_enum = getattr(Color, _color_name.upper())
-    _per_color = {}
-    for (_vname, _color_rgba, _text_rgba) in get_variants(_color_enum):
-        _per_color[_vname] = (add_container_style(bkg_rgba=_color_rgba), _text_rgba)
-        if _vname == "base":
-            _alpha_rgba = list(_color_rgba)
-            _alpha_rgba[3] = 0.5
-            _alpha_text = list(_text_rgba)
-            _alpha_text[3] = 0.5
-            _per_color["base alpha"] = (add_container_style(bkg_rgba=_alpha_rgba), _alpha_text)
-    all_styles[_color_name] = _per_color
+# The bkg keys may be used for styling in some cases
+palette_bkg_keys = ("bkg_base", "bkg_weak", "bkg_weaker", "bkg_weakest", "bkg_neutral",
+                "bkg_strong", "bkg_stronger", "bkg_strongest")
 
-# Pre-create all styles for every style types before start_session() so they
-# can be swapped at runtime via update_widget_params / ContainerParam.StyleId.
-all_style_types = {}  # {style_type: {variant_name: (style_id, text_rgba)}}
-for _style_type in style_types:
-    _per_color = {}
-    for (_vname, _color_rgba, _text_rgba) in get_variants(state["current_theme_color"]):
-        _per_color[_vname] = (add_container_style(bkg_rgba=_color_rgba), _text_rgba)
+# The styling keys are used for styling the widget
+palette_styling_keys = ("base", "weak", "strong")
 
-    all_style_types[_style_type] = _per_color
-
-
+# This function get all of the styling and bkg keys for any widget
+palettes = get_styling_palette("TokyoNight", StdColorStyle.Primary)
 
 # ---------------------------------------------------------------------------
 # GUI — initial display uses PRIMARY
@@ -130,20 +141,32 @@ with Window(title="Button Styling", size=(800, 600), center=True) as wnd_id:
 
     with Column(spacing=20, padding=[20], wrap=True):
 
-        add_pick_list(options=window_theme_variants(),
+        add_pick_list(options=window_theme_names(), selected="TokyoNight",
                       placeholder="Select Theme", on_select=on_theme_select)
 
+        add_text(content="Button palettes used for the button statuses")
+
         with Row(spacing=20, wrap=True):
-            for _name, (_style_id, _text_rgba) in all_styles["Primary"].items():
-                _label = (
-                    "base alpha 0.5\nDisabled"
-                    if _name == "base alpha"
-                    else get_label(_name)
-                )
+            for key in ("base", "weak", "strong"):
+                label = get_label(key)
+                palette = palettes[key]
+                style_id = add_container_style(bkg_rgba=palette[0])
                 with Container(width=120, height=60,
-                                align_center=True, style_id=_style_id) as _cont_id:
-                    cont_ids[_name] = _cont_id
-                    text_ids[_name] = add_text(content=_label, color_rgba=_text_rgba, size=14)
+                                align_center=True, style_id=style_id) as _cont_id:
+                    cont_ids[key] = _cont_id
+                    text_ids[key] = add_text(content=label, color_rgba=palette[1], size=14)
+
+        add_text(content="Background palettes which may or may not be used for statuses")
+
+        with Row(spacing=20, wrap=True):
+            for key in palette_bkg_keys:
+                # the palette keys contain the bkg_color and the text_color
+                (bkg_color, text_color) = palettes[key]
+                style_id = add_container_style(bkg_rgba=bkg_color)
+                with Container(width=120, height=60,
+                                align_center=True, style_id=style_id) as _cont_id:
+                    cont_ids[key] = _cont_id
+                    text_ids[key] = add_text(content=key, color_rgba=text_color, size=14)
 
         add_radio(
             labels=std_colors,
@@ -153,25 +176,9 @@ with Window(title="Button Styling", size=(800, 600), center=True) as wnd_id:
             on_selected=std_colors_selected,
         )
 
-        with Row(spacing=20, wrap=True):
-            for _name, (_style_id, _text_rgba) in all_style_types["Background"].items():
-
-                with Container(width=120, height=60,
-                                align_center=True, style_id=_style_id) as _cont_id:
-                    cont_ids[_name] = _cont_id
-                    name = get_styling_label(_name, "")
-                    text_ids[_name] = add_text(content=name, color_rgba=_text_rgba, size=14)
-
-        add_radio(
-                labels=style_types,
-                selected_index=0,
-                horizontal=True,
-                radio_spacing=10,
-                on_selected=style_type_selected,
-            )
-
         with ColorPicker(on_submit=color_selected):
             # A button is required to open the color picker.
-            add_button(label="Color Picker", padding=[3.0])
-
+            color_btn_id = add_button(label="Color Picker", padding=[3.0],
+                                      style_std=ButtonStyleStd.Primary)
+        add_button(label="Test", on_press=on_press)
 start_session()

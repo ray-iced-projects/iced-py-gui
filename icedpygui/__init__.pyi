@@ -97,7 +97,7 @@ from .icedpygui import (
     WindowMode as WindowMode,
     WindowParam as WindowParam,
     WindowTheme as WindowTheme,
-    window_theme_variants as window_theme_variants,
+    window_theme_names as window_theme_names,
     start_session as start_session,
     delete_widget as delete_widget,
     hide_widget as hide_widget,
@@ -110,6 +110,8 @@ from .icedpygui import (
     generate_id as generate_id,
     get_rgba_color as get_rgba_color,
     get_color_palette as get_color_palette,
+    get_styling_palette as get_styling_palette,
+    StdColorStyle as StdColorStyle,
 )
 
 

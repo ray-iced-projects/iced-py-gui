@@ -96,6 +96,8 @@ from .icedpygui import (
     generate_id,
     get_rgba_color,
     get_color_palette,
+    get_styling_palette,
+    StdColorStyle,
     Arrow,
     arrow_to_str,
     arrow_variants,
@@ -164,7 +166,7 @@ from .icedpygui import (
     WindowLevel,
     WindowParam,
     WindowTheme,
-    window_theme_variants,
+    window_theme_names,
 )
 
 # ---------------------------------------------------------------------------

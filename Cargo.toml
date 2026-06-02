@@ -1,7 +1,7 @@
 [package]
 authors = ["Charles Ray <ray-iced-projects@gmail.com>"]
 name = "iced-py-gui"
-version = "0.4.0"
+version = "0.4.1"
 edition = "2021"
 license = "GNU"
 description = "Python wrapper for Rust Iced"

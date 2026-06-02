@@ -5,7 +5,7 @@ build-backend = "maturin"
 [project]
 name = "iced-py-gui"
 description = "Python wrapper for Rust Iced"
-version = "0.4.0"
+version = "0.4.1"
 authors = [
     {name = 'Charles Ray', email = 'ray-iced-projects@gmail.com'}
 ]

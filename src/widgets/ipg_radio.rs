@@ -14,7 +14,7 @@ use crate::state::Widgets;
 
 use iced::widget::radio::{self, Status};
 use iced::widget::text::Wrapping;
-use iced::{Element, Theme};
+use iced::{Element, Theme, alignment};
 use iced::widget::{self, Column, Row};
 
 use pyo3::{pyclass, Py, PyAny};
@@ -28,6 +28,11 @@ pub struct Radio {
     pub horizontal: Option<bool>,
     pub spacing: Option<f32>,
     pub radio_spacing: Option<f32>,
+    pub radio_wrap: Option<bool>,
+    pub radio_wrap_spacing: Option<f32>,
+    pub radio_wrap_align_start: Option<bool>,
+    pub radio_wrap_align_center: Option<bool>,
+    pub radio_wrap_align_end: Option<bool>,
     pub padding: Option<Vec<f32>>,
     pub selected_index: Option<usize>,
     pub width: Option<f32>,
@@ -38,9 +43,9 @@ pub struct Radio {
     pub size: Option<f32>,
     pub text_size: Option<f32>,
     pub line_height: Option<f32>,
-    pub wrapping_none: Option<bool>,
-    pub wrapping_glyph: Option<bool>,
-    pub wrapping_word_glyph: Option<bool>,
+    pub text_wrapping_none: Option<bool>,
+    pub text_wrapping_glyph: Option<bool>,
+    pub text_wrapping_word_glyph: Option<bool>,
     pub font_id: Option<usize>,
     pub style_id: Option<usize>,
     pub show: bool,
@@ -114,11 +119,11 @@ impl Radio {
 
             // default is word so not checked
             let rd = 
-                if self.wrapping_none.is_some() {
+                if self.text_wrapping_none.is_some() {
                     rd.wrapping(Wrapping::None)
-                } else if self.wrapping_glyph.is_some() {
+                } else if self.text_wrapping_glyph.is_some() {
                     rd.wrapping(Wrapping::Glyph)
-                } else if self.wrapping_word_glyph.is_some() {
+                } else if self.text_wrapping_word_glyph.is_some() {
                     rd.wrapping(Wrapping::WordOrGlyph)
                 } else { rd };
 
@@ -139,7 +144,31 @@ impl Radio {
                     if let Some(rd_sp) = self.radio_spacing {
                         rw = rw.spacing(rd_sp);
                     }
-                    rw.into()
+
+                    if self.radio_wrap.is_none() {
+                        rw.into()
+                    } else {
+                        let wrap = rw.wrap();
+                        let wrap = 
+                            if let Some(sp) = self.radio_wrap_spacing {
+                                wrap.vertical_spacing(sp)
+                            } else { wrap };
+
+                        let align = 
+                            match (self.radio_wrap_align_center, self.radio_wrap_align_start, self.radio_wrap_align_end) {
+                                (Some(true), Some(false), Some(false)) => Some(alignment::Horizontal::Center),
+                                (Some(false), Some(true), Some(false)) => Some(alignment::Horizontal::Left),
+                                (Some(false), Some(false), Some(true)) => Some(alignment::Horizontal::Right),
+                                _ => None
+                            };
+                            
+                        let wrap = 
+                            if let Some(align) = align {
+                                wrap.align_x(align)
+                            } else { wrap };
+
+                        wrap.into()
+                    }
                 } else {
                     let mut col: Column<'_, RDMessage> = 
                         Column::with_children(elements)
@@ -150,7 +179,31 @@ impl Radio {
                     if let Some(rd_sp) = self.radio_spacing {
                         col = col.spacing(rd_sp);
                     }                                    
-                    col.into()                                                               
+
+                    if self.radio_wrap.is_none() {
+                        col.into()
+                    } else {
+                        let wrap = col.wrap();
+                        let wrap = 
+                            if let Some(sp) = self.radio_wrap_spacing {
+                                wrap.horizontal_spacing(sp)
+                            } else { wrap };
+
+                        let align = 
+                            match (self.radio_wrap_align_center, self.radio_wrap_align_start, self.radio_wrap_align_end) {
+                                (Some(true), Some(false), Some(false)) => Some(alignment::Vertical::Center),
+                                (Some(false), Some(true), Some(false)) => Some(alignment::Vertical::Top),
+                                (Some(false), Some(false), Some(true)) => Some(alignment::Vertical::Bottom),
+                                _ => None
+                            };
+                            
+                        let wrap = 
+                            if let Some(align) = align {
+                                wrap.align_y(align)
+                            } else { wrap };
+
+                        wrap.into()
+                    }                                                               
                 };
 
         Some(rd.map(move |message| app::Message::Radio(self.id, message)))
@@ -322,9 +375,9 @@ impl WidgetParamUpdate for Radio {
             RadioParam::StyleId => set_t_value(&mut self.style_id, value, "RadioParam::StyleId"),
             RadioParam::TextLineHeight => set_t_value(&mut self.line_height, value, "RadioParam::TextLineHeight"),
             RadioParam::TextSize => set_t_value(&mut self.text_size, value, "RadioParam::TextSize"),
-            RadioParam::TextWrappingNone => set_t_value(&mut self.wrapping_none, value, "RadioParam::TextWrappingNone"),
-            RadioParam::TextWrappingGlyph => set_t_value(&mut self.wrapping_glyph, value, "RadioParam::TextWrappingGlyph"),
-            RadioParam::TextWrappingWordGlyph => set_t_value(&mut self.wrapping_word_glyph, value, "RadioParam::TextWrappingWordGlyph"),
+            RadioParam::TextWrappingNone => set_t_value(&mut self.text_wrapping_none, value, "RadioParam::TextWrappingNone"),
+            RadioParam::TextWrappingGlyph => set_t_value(&mut self.text_wrapping_glyph, value, "RadioParam::TextWrappingGlyph"),
+            RadioParam::TextWrappingWordGlyph => set_t_value(&mut self.text_wrapping_word_glyph, value, "RadioParam::TextWrappingWordGlyph"),
             RadioParam::Width => set_t_value(&mut self.width, value, "RadioParam::Width"),
             RadioParam::WidthFill => set_t_value(&mut self.width_fill, value, "RadioParam::WidthFill"),
         }

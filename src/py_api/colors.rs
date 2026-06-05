@@ -140,7 +140,7 @@ pub fn get_styling_palette(
             hm.insert("weak".to_string(), (to_arr(pal.primary.weak.color), to_arr(pal.primary.weak.text)));
             hm.insert("strong".to_string(), (to_arr(pal.primary.strong.color), to_arr(pal.primary.strong.text)));
         },
-        StdColorStyle::Seconfary => {
+        StdColorStyle::Secondary => {
             hm.insert("base".to_string(), (to_arr(pal.secondary.base.color), to_arr(pal.secondary.base.text)));
             hm.insert("weak".to_string(),  (to_arr(pal.secondary.weak.color), to_arr(pal.secondary.weak.text)));
             hm.insert("strong".to_string(),   (to_arr(pal.secondary.strong.color), to_arr(pal.secondary.strong.text)));

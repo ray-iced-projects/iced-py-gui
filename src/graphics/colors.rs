@@ -20,7 +20,7 @@ pub fn background(color: iced::Color) -> iced::theme::palette::Background {
 #[pyclass(eq, eq_int, hash, frozen)]
 pub enum StdColorStyle {
     Primary,
-    Seconfary,
+    Secondary,
     Success,
     Danger,
     Warning,

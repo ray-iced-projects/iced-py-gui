@@ -272,33 +272,19 @@ where
     Renderer: 'a + renderer::Renderer + iced::advanced::text::Renderer<Font = iced::Font>,
     Theme: Catalog,
 {
-    fn children(&self) -> Vec<Tree> {
-        let mut children = vec![Tree::new(&self.head), Tree::new(&self.body)];
-
-        if let Some(foot) = &self.foot {
-            children.push(Tree::new(foot));
-        }
-
-        if let Some(close_button) = &self.close_button {
-            children.push(Tree::new(close_button));
-        }
-
-        children
-    }
-
-    fn diff(&self, tree: &mut Tree) {
-        match (&self.foot, &self.close_button) {
+    fn diff(&mut self, tree: &mut Tree) {
+        match (&mut self.foot, &mut self.close_button) {
             (Some(foot), Some(close_button)) => {
-                tree.diff_children(&[&self.head, &self.body, foot, close_button]);
+                tree.diff_children(&mut [&mut self.head, &mut self.body, foot, close_button]);
             }
             (Some(foot), None) => {
-                tree.diff_children(&[&self.head, &self.body, foot]);
+                tree.diff_children(&mut [&mut self.head, &mut self.body, foot]);
             }
             (None, Some(close_button)) => {
-                tree.diff_children(&[&self.head, &self.body, close_button]);
+                tree.diff_children(&mut [&mut self.head, &mut self.body, close_button]);
             }
             (None, None) => {
-                tree.diff_children(&[&self.head, &self.body]);
+                tree.diff_children(&mut [&mut self.head, &mut self.body]);
             }
         }
     }

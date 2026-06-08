@@ -171,23 +171,12 @@ where
     Theme: container::Catalog,
     Renderer: text::Renderer,
 {
-    fn children(&self) -> Vec<widget::Tree> {
-        vec![
-            widget::Tree::new(&self.button),
-            widget::Tree::new(&self.content),
-        ]
-    }
-
-    fn diff(&self, tree: &mut widget::Tree) {
-        tree.diff_children(&[self.button.as_widget(), self.content.as_widget()]);
+    fn diff(&mut self, tree: &mut widget::Tree) {
+        tree.diff_children(&mut [&mut self.button, &mut self.content]);
     }
 
     fn size(&self) -> Size<Length> {
         self.button.as_widget().size()
-    }
-
-    fn size_hint(&self) -> Size<Length> {
-        self.button.as_widget().size_hint()
     }
 
     fn layout(

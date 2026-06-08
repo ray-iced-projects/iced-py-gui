@@ -156,17 +156,9 @@ where
         tree::State::new(State::new())
     }
 
-    fn children(&self) -> Vec<Tree> {
-        let overlay_tree = self
-            .overlay_instance
-            .as_ref()
-            .map_or_else(Tree::empty, Tree::new);
-        vec![Tree::new(&self.underlay), overlay_tree]
-    }
-
-    fn diff(&self, tree: &mut Tree) {
-        tree.children[0].diff(&self.underlay);
-        if let Some(overlay) = self.overlay_instance.as_ref() {
+    fn diff(&mut self, tree: &mut Tree) {
+        tree.children[0].diff(&mut self.underlay);
+        if let Some(overlay) = self.overlay_instance.as_mut() {
             tree.children[1].diff(overlay);
         }
     }
@@ -183,7 +175,7 @@ where
 
         if show {
             let content = self.overlay_instance.get_or_insert_with(&self.overlay);
-            state.children[1].diff(&*content);
+            state.children[1].diff(&mut *content);
 
             content
                 .as_widget_mut()
@@ -278,7 +270,7 @@ where
 
         let position = s.cursor_position;
         let content = self.overlay_instance.get_or_insert_with(&self.overlay);
-        tree.children[1].diff(&*content);
+        tree.children[1].diff(&mut *content);
         Some(
             ContextMenuOverlay::new(
                 position + translation,

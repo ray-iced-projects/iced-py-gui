@@ -25,10 +25,6 @@ from icedpygui import (
     window_theme_names,
 )
 
-def on_press(_btn_id: int):
-    """Button test"""
-
-
 
 def on_theme_select(_pl_id: int, theme_name: str):
     """Select a Theme by PickList"""
@@ -144,10 +140,17 @@ state = {"selected_style": "",
          "selected_theme": "TokyoNight",
          "palette": get_styling_palette("TokyoNight", StdColorStyle.Primary)}
 
-# The bkg keys are used for styling in some cases
-palette_bkg_keys = ("bkg_base", "bkg_weak", "bkg_weaker", "bkg_weakest", "bkg_neutral",
-                "bkg_strong", "bkg_stronger", "bkg_strongest", "bkg_weakest_alpha_0.5")
+# Button specific standard styling colors
+# These may be fairly common across widgets
+palette_labels = {
+    "base": "base\nActive/Pressed",
+    "weak": "weak",
+    "strong": "strong\nHovered",
+    "base_alpha_0.5": "base\nalpha_0.5\nDisabled"
+    }
 
+# Specific button standard styles
+# The keys are common across widhets, the labels will vary
 subtle_labels = {
     "bkg_base": "bkg_base",
     "bkg_weak": "bkg_weak",
@@ -169,15 +172,6 @@ bkg_labels = {
     "bkg_stronger": "bkg_stronger",
     "bkg_strongest": "bkg_strongest",
     "bkg_weakest_alpha_0.5": "bkg_weakest\nalpha_0.5\nDisabled"}
-
-# Button specific styling
-palette_labels = {
-    "base": "base\nActive/Pressed",
-    "weak": "weak",
-    "strong": "strong\nHovered",
-    "base_alpha_0.5": "base\nalpha_0.5\nDisabled"
-    }
-border_styling = (True, False, True, True)
 
 
 # ---------------------------------------------------------------------------
@@ -206,7 +200,8 @@ with Window(title="Button Styling", size=(700, 800), center=True) as wnd_id:
             on_selected=std_colors_selected,
         )
 
-        add_text(content="Button palettes used for the button statuses, border highlighted ones")
+        add_text(content="Button palette used for the button statuses, border highlighted ones\n" +
+                 "This palette is common across widgets")
 
         with Row(spacing=20, wrap=True):
             for (key, label) in palette_labels.items():
@@ -230,8 +225,9 @@ with Window(title="Button Styling", size=(700, 800), center=True) as wnd_id:
                     cont_ids[key] = _cont_id
                     text_ids[key] = add_text(content=label, color_rgba=text_rgba, size=14)
 
-        add_text(content="Background palettes which may or may not be used for statuses\n" +
-                 "They may be used for additional styling such as Subtle or Background, etc.")
+        add_text(content="Background palette may or may not be used for statuses\n" +
+                 "They may be used for additional styling such as Subtle or Background, etc.\n" +
+                 "This bkg palette is common to all widgets")
 
         rd_id_styles = add_radio(
             labels=std_styles,

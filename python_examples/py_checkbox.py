@@ -2,63 +2,7 @@
 """
 Checkbox use demo
 
-Add a checkbox widget.
-
 A checkbox with a text label that can be toggled on and off.
-
-Parameters
-----------
-parent_id : str
-    Sets the parent container ID that this checkbox belongs to.
-on_toggle : callable,  Optional
-    Sets the Callback method to invoke when the checkbox is toggled.
-is_checked : bool, default False
-    Whether the checkbox starts in the checked state.
-label : str,  Optional
-    Sets the Text label displayed next to the checkbox.
-width : float,  Optional
-    Sets the Fixed width in logical pixels.
-width_fill : bool, default False
-    Whether the checkbox fills available width.
-size : float,  Optional
-    Sets the size of the checkbox square in logical pixels.
-spacing : float,  Optional
-    Sets the Spacing between the checkbox square and the label.
-text_size : float,  Optional
-    Sets the Font size for the label text.
-text_line_height : float,  Optional
-    Sets the Line height for the label text.
-text_wrapping_none: Optional[bool]
-    Sets the wrapping mode of the label to no wrapping, default is on a word.
-text_wrapping_glyph: Optional[bool]
-    Sets the wrapping mode of the label to wrap on a glyph.
-text_wrapping_word_glyph: Optional[bool]
-    Sets the wrapping mode of the label to wrap on a glyph or glyph.
-text_font_id : int,  Optional
-    Sets the Font ID for the label text.
-icon_font_id : int,  Optional
-    Sets the Font ID for the checkbox icon.
-icon : Icon,  Optional
-    Sets the Icon displayed inside the checkbox when checked.
-icon_size : float,  Optional
-    Sets the Size of the checkbox icon.
-icon_line_height : float,  Optional
-    Sets the Line height of the checkbox icon.
-user_data : Any,  Optional
-    Sets the Arbitrary data forwarded to callbacks.
-show : bool, default True
-    Whether the checkbox is visible.
-style_id : int,  Optional
-    Sets the ID of a custom style created with ``add_checkbox_style``.
-style_std : CheckboxStyleStd,  Optional
-    Sets the predefined standard style variant.
-gen_id : int,  Optional
-    Obtains an ID of a widget that have not been created, used for the gen_id parameter.
-
-Returns
--------
-int
-    The numeric widget ID of the newly created checkbox.
 
 """
 
@@ -204,7 +148,7 @@ with Window(title="Checkbox Demo",
 
             # ***********************Checkbox icons***************************
 
-            add_text(content="Checkbox Icon Variations (check the boxes to see icons)")
+            add_text(content="Checkbox Icon Variations")
 
             with Row(spacing=20.0):
 

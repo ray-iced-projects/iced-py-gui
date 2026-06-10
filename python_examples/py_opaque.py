@@ -6,8 +6,8 @@ Opaque is used to block mouse interaction from
 going below overlapping widgets.
 """
 
-from icedpygui import Window, Container, start_session, \
-    Opaque, Stack, add_button, ContainerStyleStd
+from icedpygui import (Window, Container, start_session,
+    Opaque, Stack, add_button, ContainerStyleStd)
 
 def no_press(_btn_id: int):
     """Button callback"""

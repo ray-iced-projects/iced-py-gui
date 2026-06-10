@@ -3,8 +3,6 @@
 use std::collections::HashMap;
 
 use iced::Theme;
-use iced::theme::Palette;
-use iced::theme::palette;
 use iced::theme::palette::readable;
 use pyo3::prelude::*;
 use pyo3::pyfunction;
@@ -95,43 +93,24 @@ pub fn get_styling_palette(
     std_style_color: StdColorStyle,
 ) -> PyResult<HashMap<String, ([f64; 4], [f64; 4])>>
 {
-    let theme: Theme = name_to_window_theme(&theme_name)
-        .ok_or_else(|| pyo3::exceptions::PyValueError::new_err(
+    // Resolve built-in themes via WindowTheme enum; fall back to custom theme store.
+    let theme: Theme = if let Some(wt) = name_to_window_theme(&theme_name) {
+        wt.to_iced()
+    } else if let Some(ct) = crate::widgets::ipg_window::get_custom_theme(&theme_name) {
+        ct
+    } else {
+        return Err(pyo3::exceptions::PyValueError::new_err(
             format!("get_styling_palette: unknown theme '{theme_name}'")
-        ))?
-        .to_iced();
+        ));
+    };
 
     fn to_arr(c: iced::Color) -> [f64; 4] {
         let r = |v: f32| ((v as f64) * 100.0).round() / 100.0;
         [r(c.r), r(c.g), r(c.b), r(c.a)]
     }
-    let seed = match theme {
-        Theme::CatppuccinFrappe => palette::Seed::CATPPUCCIN_FRAPPE,
-        Theme::CatppuccinLatte => palette::Seed::CATPPUCCIN_LATTE,
-        Theme::CatppuccinMacchiato => palette::Seed::CATPPUCCIN_MACCHIATO,
-        Theme::CatppuccinMocha => palette::Seed::CATPPUCCIN_MOCHA,
-        Theme::Dark => palette::Seed::DARK,
-        Theme::Dracula => palette::Seed::DRACULA,
-        Theme::Ferra => palette::Seed::FERRA,
-        Theme::GruvboxDark => palette::Seed::GRUVBOX_DARK,
-        Theme::GruvboxLight => palette::Seed::GRUVBOX_LIGHT,
-        Theme::KanagawaDragon => palette::Seed::KANAGAWA_DRAGON,
-        Theme::KanagawaLotus => palette::Seed::KANAGAWA_LOTUS,
-        Theme::KanagawaWave => palette::Seed::KANAGAWA_WAVE,
-        Theme::Light => palette::Seed::LIGHT,
-        Theme::Moonfly => palette::Seed::MOONFLY,
-        Theme::Nightfly => palette::Seed::NIGHTFLY,
-        Theme::Nord => palette::Seed::NORD,
-        Theme::Oxocarbon => palette::Seed::OXOCARBON,
-        Theme::SolarizedDark => palette::Seed::SOLARIZED_DARK,
-        Theme::SolarizedLight => palette::Seed::SOLARIZED_LIGHT,
-        Theme::TokyoNight => palette::Seed::TOKYO_NIGHT,
-        Theme::TokyoNightLight => palette::Seed::TOKYO_NIGHT_LIGHT,
-        Theme::TokyoNightStorm => palette::Seed::TOKYO_NIGHT_STORM,
-        Theme::Custom(_custom) => todo!(),
-    };
-    
-    let pal = Palette::generate(seed);
+
+    // theme.palette() works for both built-in and Custom themes.
+    let pal = theme.palette();
 
     let mut hm = HashMap::new();
     match std_style_color {

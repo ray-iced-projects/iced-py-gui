@@ -2,39 +2,6 @@
 """
 Grid use demo
 
-Add an grid container widget.
-
-Allows a widget to foat over others
-
-Parameters
-----------
-window_id : str
-    Sets the window this grid container belongs to.
-container_id : str
-    Sets the Unique string identifier for the grid container.
-parent_id : str, Optional
-    Sets the parent container ID.  Defaults to the window itself.
-spacing: float, Optional
-    Sets the spacing between grid items
-columns_max_width float, Optional
-    Makes the amount of columns dynamic, never
-    exceeding the provided max_width
-columns_amount: int, Optional
-    Sets the number of columns in the grid
-width: float, Optional
-    Sets the width of the grid
-height_aspect_ratio: float, Optional
-    Sets the aspection ratio for a grid.
-height_evenly_distribute: float, Optional
-    Sets how the cels of the grid as distributed
-height_evenly_distribute_fill bool
-    Whether to distribute the cells based on size.
-
-Returns
--------
-int
-    The numeric widget ID of the newly created opaque container.
-
 ******************************************************************
 Just to make a demo more interesting, this grid demo is the
 Jeopardy game.
@@ -63,15 +30,12 @@ Probably not completely debugged but it seems to work well.
 Have fun!
 
 """
-import json
-import os
-import re
-import sys
+import sys, os, json, re
 from dataclasses import dataclass
-from icedpygui import Window, Container, Column, Row, Grid, start_session, \
-    add_button, add_space, add_text, add_text_input, \
-    add_event_timer, ContainerParam as cp, ContainerStyleStd as std, TimerParam, \
-    update_widget, update_timer, ButtonParam, TextParam
+from icedpygui import (Window, Container, Column, Row, Grid, start_session,
+    add_button, add_space, add_text, add_text_input,
+    add_event_timer, ContainerParam as cp, ContainerStyleStd as std, TimerParam,
+    update_widget, update_timer, ButtonParam, TextParam)
 
 
 with open(os.path.join(

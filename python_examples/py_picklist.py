@@ -3,9 +3,9 @@
 Picklist use demo
 """
 
-from icedpygui import Window, Column, Container, Row, start_session, \
-    add_space, add_pick_list, add_pick_list_style, add_text, \
-    Arrow, Color, add_icon, Icon
+from icedpygui import (Window, Column, Container, Row, start_session,
+    add_space, add_pick_list, add_pick_list_style, add_text,
+    Arrow, Color, add_icon, Icon)
 
 # The data returns the item selected and can be named anything.
 # The update items uses the text widget id and the "content" parameter

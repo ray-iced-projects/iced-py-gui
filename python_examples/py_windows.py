@@ -4,74 +4,26 @@ Window use demo
 
 Adds a window to the application.
 
-This must be called before adding any widgets.
-
-Parameters
-----------
-window_id : str
-    Sets the Unique string identifier for this window.
-title : str, Optional
-    Sets the Title displayed in the window title bar.
-size : tuple of (float, float), Optional
-    Sets the Initial window size as ``(width, height)`` in logical pixels.
-maximized : bool, Optional
-    Whether the window starts maximized.
-fullscreen : bool, Optional
-    Whether the window starts in fullscreen mode.
-hidden : bool, Optional
-    Whether the window is hidden on creation.
-center : bool, Optional
-    Whether to centre the window on screen at startup.
-position : tuple of (float, float), Optional
-    Sets the Initial window position as ``(x, y)`` in logical pixels.
-min_size : tuple of (float, float), Optional
-    Sets the Minimum window size as ``(width, height)``.
-max_size : tuple of (float, float), Optional
-    Sets the Maximum window size as ``(width, height)``.
-theme : WindowTheme, Optional
-    Sets the Colour theme for the window.
-resizable : bool, Optional
-    Whether the user can resize the window.
-minimizable : bool, Optional
-    Whether the user can minimise the window.
-closeable : bool, Optional
-    Whether the user can close the window.
-decorations : bool, Optional
-    Whether to show window decorations (title bar, borders).
-transparent : bool, Optional
-    Whether the window background is transparent.
-blur : bool, Optional
-    Whether to blur the window background.
-level : WindowLevel, Optional
-    Sets the Stacking level of the window (normal, always-on-top, etc.).
-icon_rgba : list of int, Optional
-    Sets the Raw RGBA bytes for the window icon.
-icon_width_height : list of [int, int], Optional
-    Sets the Dimensions ``[width, height]`` of the icon in *icon_rgba*.
-exit_on_close_request : bool, Optional
-    Whether the application exits when this window is closed.
-scale_factor : float, Optional
-    Sets the DPI scale factor override for this window.
-debug : bool, Optional
-    Whether to enable the debug overlay for this window.
-on_resize : callable, Optional
-    Sets the Callback method to invoke when the window is resized.
-user_data : Any, Optional
-    Sets the Arbitrary data forwarded to callbacks.
-gen_id : int, Optional
-    Obtains an ID of a widget that have not been created, used for the gen_id parameter.
-
-Returns
--------
-int
-    The numeric widget ID of the newly created window.
 """
 
-from icedpygui import Window, Column, Container, \
-    add_button, add_space, add_text, add_text_input,\
-    add_toggler, start_session, add_event_window,\
-    update_widget, generate_id, WindowParam, WindowLevel,\
-    TextParam, WindowTheme
+from icedpygui import (
+    Window,
+    Column,
+    Container,
+    add_button,
+    add_space,
+    add_text,
+    add_text_input,
+    add_toggler,
+    start_session,
+    add_event_window,
+    update_widget,
+    generate_id,
+    WindowParam,
+    WindowLevel,
+    TextParam,
+    WindowTheme)
+
 
 popup_id = generate_id()
 wnd2 = generate_id()

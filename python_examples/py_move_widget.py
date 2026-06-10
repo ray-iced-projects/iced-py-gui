@@ -2,8 +2,8 @@
 """
 Widget move use demo
 """
-from icedpygui import Window, Column, Row, start_session, \
-        add_button, add_text, add_space, move_widget
+from icedpygui import (Window, Column, Row, start_session,
+        add_button, add_text, add_space, move_widget)
 
 ids = []
 

@@ -7,9 +7,9 @@ A clickable button used for some gui action.
 
 """
 
-from icedpygui import Window, Column, Container, Row, Scrollable,\
-    add_button, add_button_style, add_text, add_space, \
-    ButtonStyleStd, Color, start_session
+from icedpygui import (Window, Column, Container, Row, Scrollable,
+    add_button, add_button_style, add_text, add_space,
+    ButtonStyleStd, Color, start_session)
 
 state = {"txt_id": 0}
 

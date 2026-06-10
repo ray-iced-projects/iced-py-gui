@@ -4,8 +4,8 @@ Button adding new button, dynamically
 Any widget can be added in this way.
 """
 
-from icedpygui import Window, Container, Column, start_session, \
-    add_button
+from icedpygui import (Window, Container, Column, start_session,
+    add_button)
 
 state = {"count": 0}
 

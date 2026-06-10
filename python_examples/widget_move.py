@@ -2,8 +2,8 @@
 """
 Widget move use demo
 """
-from icedpygui import Window, Column, Container, add_button, \
-    add_text, move_widget, start_session
+from icedpygui import (Window, Column, Container, add_button,
+    add_text, move_widget, start_session)
 
 
 def move_1_below_2(_id: int):

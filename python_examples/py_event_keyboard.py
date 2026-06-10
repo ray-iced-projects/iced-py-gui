@@ -3,9 +3,9 @@
 Leyboard Event use demo
 """
 
-from icedpygui import Window, Column, start_session, \
-    add_event_keyboard, TextParam, \
-    add_text, add_space, update_widget
+from icedpygui import (Window, Column, start_session,
+    add_event_keyboard, TextParam,
+    add_text, add_space, update_widget)
 
 # When ctrl, alt, logo(MAC), or shift are processed, they are keys.  Therefore modifier is "None".
 # When a key follows the command key, then modifier is the command key and key is the key.

@@ -1,54 +1,10 @@
 #!/usr/bin/env python3
 """
 Mouse Area use demo
-
-A mouse area wraps child widgets and provides callbacks
-for mouse actions.  The mouse area assumes the size of
-its children.
-
-Parameters
-----------
-window_id : str
-    Sets the window this mouse area belongs to.
-container_id : str
-    Sets the Unique string identifier for the mouse area.
-parent_id : str, Optional
-    Sets the parent container ID.  Defaults to the window itself.
-gen_id : int, Optional
-    Obtains an ID of a widget that have not been created, used for the gen_id parameter.
-show : bool, default True
-    Whether the mouse area is visible.
-mouse_pointer : MousePointer, Optional
-    Sets the mouse pointer style when hovering over the area.
-on_press : callable, Optional
-    Sets the Callback method to invoke when the left mouse button is pressed.
-on_release : callable, Optional
-    Sets the Callback method to invoke when the left mouse button is released.
-on_right_press : callable, Optional
-    Sets the Callback method to invoke when the right mouse button is pressed.
-on_right_release : callable, Optional
-    Sets the Callback method to invoke when the right mouse button is released.
-on_middle_press : callable, Optional
-    Sets the Callback method to invoke when the middle mouse button is pressed.
-on_middle_release : callable, Optional
-    Sets the Callback method to invoke when the middle mouse button is released.
-on_enter : callable, Optional
-    Sets the Callback method to invoke when the mouse enters the area.
-on_move : callable, Optional
-    Sets the Callback method to invoke when the mouse moves over the area.
-on_exit : callable, Optional
-    Sets the Callback method to invoke when the mouse exits the area.
-user_data : Any, Optional
-    Sets the Arbitrary data forwarded to callbacks.
-
-Returns
--------
-int
-    The numeric widget ID of the newly created mouse area.
 """
 
-from icedpygui import Window, Container, MouseArea,\
-    add_text, start_session
+from icedpygui import (Window, Container, MouseArea,
+    add_text, start_session)
 
 def on_press(wid, _user_data):
     """OnLeft press callback"""

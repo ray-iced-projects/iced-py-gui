@@ -71,7 +71,7 @@ impl TextEditor {
         let hgt = if self.fill.is_none() && 
                         self.height_fill.is_none() && 
                         self.height.is_none() {
-            Length::Fill
+            Length::Shrink
         } else {
             get_len(self.fill, self.height_fill, self.height)
         };

@@ -1,60 +1,15 @@
 #!/usr/bin/env python3
 """
 Column use demo
-
-Add a column widget.
-
-A column lays out its children vertically from top to bottom.
-
-Parameters
-----------
-window_id : str
-    Sets the window this column belongs to.
-container_id : str
-    Sets the Unique string identifier for the column.
-parent_id : str,  Optional
-    Sets the parent container ID.  Defaults to the window itself.
-width : float,  Optional
-    Sets the Fixed width in logical pixels.
-width_fill : bool, default False
-    Whether the column fills available width.
-height : float,  Optional
-    Sets the Fixed height in logical pixels.
-height_fill : bool, default False
-    Whether the column fills available height.
-fill : bool, Optional
-    Whether to fill both the available width and height
-max_width : float,  Optional
-    Sets the Maximum width in logical pixels.
-padding : list of float,  Optional
-    Sets the Padding as ``[all]``, ``[vertical, horizontal]``, or
-    ``[top, right, bottom, left]``.
-spacing : float,  Optional
-    Sets the Vertical spacing between children in logical pixels.
-align_left : bool,  Optional
-    Whether to Align children to the left.
-align_center : bool,  Optional
-    Whether to Align children to the horizontal centre.
-align_right : bool,  Optional
-    Whether to Align children to the right.
-clip : bool,  Optional
-    Whether to clip content that overflows the column.
-show : bool, default True
-    Whether the column is visible.
-
-Returns
--------
-int
-    The numeric widget ID of the newly created column.
 """
-from icedpygui import Window, Column, Container, Row, start_session, \
-    add_text, ContainerStyleStd
+from icedpygui import (Window, Column, Container, Row, start_session,
+    add_text, ContainerStyleStd)
 
 
 # Add the window
 with Window(
     title="Column",
-    size=(600, 600),
+    size=(600, 700),
     center=True) as wnd:
 
     # Need a column and row to hold the widgets
@@ -112,6 +67,13 @@ with Window(
                 with Column(width=175, height=100, align_right=True):
                     add_text(content="Right")
                     add_text(content="Right")
+
+        add_text(content="When wrap=True, the items in the column will wrap automatically\n" +
+                 "There are alignment and spacing parameters avaliable too")
+        with Column(width=175, wrap=True, wrap_horizontal_spacing=20):
+            for _ in range(10):
+                add_text(content="wrap=True")
+
 
 # last thing is to start the session
 start_session()

@@ -119,7 +119,7 @@ with Window(title="Sash Demo", center=True, size=(900, 600)):
                         on_toggle=sync_resize_cross_h)
 
                 with Column(spacing=10.0, padding=[10]):
-                    add_text(content="Outer Sash (right side) drag parameters")
+                    add_text(content="Outer Sash (right) drag parameters")
 
                     add_radio(
                         labels=["Last Only (default)", "Uniform", "Proportional"],

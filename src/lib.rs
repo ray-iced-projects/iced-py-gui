@@ -26,7 +26,7 @@ pub use state::{
 
 use crate::ipg_widgets::ipg_canvas_draw::canvas_draw::{DrawMode, DrawWidget};
 // Import pyfunctions from py_api modules
-use crate::py_api::window::{add_window, window_theme_names};
+use crate::py_api::window::{add_window, window_theme_names, create_custom_theme};
 use crate::py_api::button::{add_button, add_button_style};
 use crate::py_api::clipboard::{clipboard_read, clipboard_write};
 use crate::py_api::card::{add_card, add_card_style};
@@ -90,6 +90,7 @@ use crate::widgets::ipg_grid::GridParam;
 use crate::widgets::ipg_image::ImageParam;
 use crate::widgets::ipg_menu::{MenuBarItemParam, MenuParam, MenuStyleParam, MenuSubItemParam};
 use crate::widgets::ipg_mouse_area::MousePointer;
+use crate::widgets::ipg_pick_list::PickListParam;
 use crate::widgets::ipg_progress_bar::{ProgressBarParam, ProgressBarStyleParam, ProgressBarStyleStd};
 use crate::widgets::ipg_radio::{RadioParam, RadioStyleParam};
 use crate::widgets::ipg_row::RowParam;
@@ -237,6 +238,7 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<MenuParam>()?;
     m.add_class::<MenuStyleParam>()?;
     m.add_class::<MenuSubItemParam>()?;
+    m.add_class::<PickListParam>()?;
     m.add_class::<ProgressBarParam>()?;
     m.add_class::<ProgressBarStyleParam>()?;
     m.add_class::<ProgressBarStyleStd>()?;
@@ -297,5 +299,6 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(arrow_to_str, m)?)?;
     m.add_function(wrap_pyfunction!(arrow_variants, m)?)?;
     m.add_function(wrap_pyfunction!(window_theme_names, m)?)?;
+    m.add_function(wrap_pyfunction!(create_custom_theme, m)?)?;
     Ok(())
 }

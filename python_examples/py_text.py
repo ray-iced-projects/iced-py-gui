@@ -3,16 +3,41 @@
 Text use demo
 """
 
-from icedpygui import Window, Column, Container, Row, start_session, \
-    update_widget_params, TextParam, TextColorStd, Color, \
-    ContainerStyleStd, add_radio, add_text, update_widget, \
-    add_font_style, FontWeight, FontStyle, load_font
+from icedpygui import (Window, Column, Container, Row, start_session,
+    update_widget_params, TextParam, TextColorStd, Color,
+    ContainerStyleStd, add_radio, add_text, update_widget,
+    add_font_style, FontWeight, FontStyle, load_font)
 
 state = {"value": 0}
+align_labels = [
+    "AlignBottomLeft",
+    "AlignBottomCenter",
+    "AlignBottomRight",
+    "AlignCenterLeft",
+    "AlignCenter",
+    "AlignCenterRight",
+    "AlignTopLeft - default",
+    "AlignTopCenter",
+    "AlignTopRight"]
 
-def wrapping_selected(_radio_id: int, data: list[int, str]):
+wrap_labels = [
+    "Word — wrap at word boundaries; (default)",
+    "Glyph — wrap at any character",
+    "None - No wrapping",
+    "WordOrGlyph — try word then glyph"]
+
+std_colors = [
+    "None — default",
+    "Base",
+    "Danger",
+    "Primary",
+    "Secondary",
+    "Success",
+    "Warning"]
+
+def wrapping_selected(_radio_id: int, index: int):
     """When radio selected, the coresponding text has it's wrapping set"""
-    match data[0]:
+    match index:
         case 0: state["value"] = {
             update_widget_params(txt_id, {
                 # reset all for default word
@@ -40,9 +65,9 @@ def wrapping_selected(_radio_id: int, data: list[int, str]):
                 TextParam.WrappingWordGlyph: True})
 
 
-def set_widths(_radio_id: int, data: list[int, str]):
+def set_widths(_radio_id: int, data: int):
     """Callback sets the width of the text"""
-    match data[0]:
+    match data:
         case 0:  # shrink (default)
             update_widget_params(set_txt_id, {
                 # reset all for default
@@ -62,7 +87,7 @@ def set_widths(_radio_id: int, data: list[int, str]):
                 TextParam.Width: 150.0})
 
 
-def text_alignment(_radio_id: int, align_type: list[int, str]):
+def text_alignment(_radio_id: int, align_index: int):
     """Callback sets the alignment of the text"""
     # reset all values to false
     update_widget_params(align_txt_id, {
@@ -76,7 +101,8 @@ def text_alignment(_radio_id: int, align_type: list[int, str]):
         TextParam.AlignTopCenter: False,
         TextParam.AlignTopRight: False})
 
-    match align_type[1]:
+    align_type = align_labels[align_index]
+    match align_type:
         case "AlignBottomLeft":
             update_widget(align_txt_id, TextParam.AlignBottomLeft, True)
         case "AlignBottomCenter":
@@ -97,9 +123,9 @@ def text_alignment(_radio_id: int, align_type: list[int, str]):
             update_widget(align_txt_id, TextParam.AlignTopRight, True)
 
 
-def color_selected(_radio_id: int, color: list[int, str]):
+def color_selected(_radio_id: int, index: int):
     """Callback set the color of the text"""
-    match color[1]:
+    match std_colors[index]:
         case "None — default":
             update_widget(color_txt, TextParam.ColorStd, None)
         case "Base":
@@ -199,9 +225,9 @@ with Window(title="Text Demo", size=[1000, 850], center=True):
             with Column(fill=True, spacing=20.0):
                 add_text(content="Width types")
                 add_radio(labels=["shrink (default)",
-                                  "fill-for text same as shrink unless using aligh right", 
+                                  "fill-for text same as shrink unless using aligh right",
                                   "fixed=100.0"],
-                    on_select=set_widths,
+                    on_selected=set_widths,
                     radio_spacing=10.0,
                     selected_index=0)
 
@@ -209,17 +235,8 @@ with Window(title="Text Demo", size=[1000, 850], center=True):
                     set_txt_id = add_text(content="Select radio to set my width.", width_fill=True)
 
                 add_text(content="Alignment")
-                add_radio(labels=[
-                    "AlignBottomLeft",
-                    "AlignBottomCenter",
-                    "AlignBottomRight",
-                    "AlignCenterLeft", 
-                    "AlignCenter",
-                    "AlignCenterRight",
-                    "AlignTopLeft - default",
-                    "AlignTopCenter",
-                    "AlignTopRight"],
-                    on_select=text_alignment,
+                add_radio(labels=align_labels,
+                    on_selected=text_alignment,
                     radio_spacing=10.0,
                     selected_index=6)
 
@@ -235,12 +252,8 @@ with Window(title="Text Demo", size=[1000, 850], center=True):
         with Column(spacing=20.0, padding=[10.0], fill=True):
 
             add_text(content="Select wrapping type to show the effect")
-            add_radio(labels=[
-                    "Word — wrap at word boundaries; (default)",
-                    "Glyph — wrap at any character",
-                    "None - No wrapping",
-                    "WordOrGlyph — try word then glyph"],
-                    on_select=wrapping_selected,
+            add_radio(labels=wrap_labels,
+                    on_selected=wrapping_selected,
                     radio_spacing=10.0,
                     selected_index=0)
             # add container for the background and width sizing
@@ -253,15 +266,8 @@ with Window(title="Text Demo", size=[1000, 850], center=True):
 
             with Column(spacing=10.0, padding=[10.0], fill=True):
                 add_text(content="Select a standard color")
-                add_radio(labels=[
-                        "None — default",
-                        "Base",
-                        "Danger",
-                        "Primary",
-                        "Secondary",
-                        "Success",
-                        "Warning"],
-                        on_select=color_selected,
+                add_radio(labels=std_colors,
+                        on_selected=color_selected,
                         radio_spacing=10.0,
                         selected_index=0)
                 color_txt = add_text(content="This will change color when radio selected")

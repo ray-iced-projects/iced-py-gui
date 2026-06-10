@@ -3,9 +3,9 @@
 Timer use demo
 """
 
-from icedpygui import Window, Column, Container,\
-    add_event_timer, add_button, update_timer, add_text, start_session,\
-    TimerParam, TextParam, update_widget
+from icedpygui import (Window, Column, Container,
+    add_event_timer, add_button, update_timer, add_text, start_session,
+    TimerParam, TextParam, update_widget)
 
 
 def on_start(_timer_id: int, tick_count: int, elapsed_ms: int):

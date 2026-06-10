@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Checkbox palette demo — shows the colour palette for standard checkbox themes,
-with live radio-button switching between colour themes.
+Checkbox palette demo — shows the color palette for standard checkbox themes,
+with live radio-button switching between color themes.
 
 Palette key → checkbox status mapping (checkbox::primary):
   Swatch (changes with color selection):
@@ -50,7 +50,7 @@ def on_theme_select(_pl_id: int, theme_name: str):
 
 # pylint: disable=redefined-outer-name
 def std_colors_selected(_rd_id: int, index: int):
-    """Swap container styles when a standard colour radio button is selected."""
+    """Swap container styles when a standard color radio button is selected."""
     state["selected_style"] = std_colors[index]
     state["palette"] = get_styling_palette(state["selected_theme"], std_color_enums[index])
     apply_tiles(state["palette"], palette_tiles, cont_ids, text_ids, "bkg_stronger")
@@ -141,7 +141,7 @@ state = {"selected_style": "",
 # is_status=True adds a border indicating this palette slot drives a widget state.
 # ---------------------------------------------------------------------------
 
-# Standard colour swatch tiles (Primary / Secondary / Success / Danger).
+# Standard color swatch tiles (Primary / Secondary / Success / Danger).
 # checkbox::primary uses base (checked active) and strong (checked hovered).
 palette_tiles = [
     ("base",   1.0, "base\nChecked Active",      True),
@@ -190,7 +190,7 @@ with Window(title="Checkbox Palette", size=(700, 900), center=True) as wnd_id:
         add_pick_list(options=window_theme_names(), selected="TokyoNight",
                       placeholder="Select Theme", on_select=on_theme_select)
 
-        add_text(content="Select a standard colour to see the swatch palette it uses.\n"
+        add_text(content="Select a standard color to see the swatch palette it uses.\n"
                  "Checkbox has Primary, Secondary, Success and Danger (no Warning).\n"
                  "Border-highlighted tiles are the ones that drive a checkbox status.")
 
@@ -226,7 +226,7 @@ with Window(title="Checkbox Palette", size=(700, 900), center=True) as wnd_id:
             build_tiles(state["palette"], checkbox_state_tiles,
                         bkg_cont_ids, bkg_text_ids, "bkg_strongest")
 
-        add_text(content="Checkboxes using the standard colour styles:")
+        add_text(content="Checkboxes using the standard color styles:")
 
         with Row(spacing=10, wrap=True):
             for (label, style) in [

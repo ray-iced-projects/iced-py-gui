@@ -2,66 +2,10 @@
 """
 Image use demo with interactive cropping via MouseArea.
 
-The iced Image widget displays raster images (PNG, JPG, GIF, BMP, ICO,
+The Image widget displays raster images (PNG, JPG, GIF, BMP, ICO,
 TIFF, WebP, AVIF, PNM, DDS, TGA, EXR, Farbfeld, QOI) while preserving
 aspect ratio by default.
 
-
-add_image or Image parameters
-
-Parameters
-----------
-ImagePath: str
-    Sets the path to where the image is located.
-BorderRadius: list[float, 4] | list[float]
-    Sets the border radius of the image either all corner same
-    value [float] or independent [float,4].
-ContentFit: ContentFit
-    Set how the image contents fits see ContentFit class.
-CropHeight: float
-    Sets the height of the crop rectangle.
-CropWidth: float
-    Sets the crop width of the crop rectangle.
-CropX: float
-    Sets the origin x of the crop rectangle.
-CropY: float
-    Sets the origin y of the crop rectangle.
-Expand: float
-    Sets whether the image should try to fill as much space
-    available as possible while keeping aspect ratio and without
-    allocating extra space in any axis.
-FilterMethod: FilterMethod
-    Sets the filter method, see FilterMethod
-Fill: bool
-    Sets both width_fill and length_fill.
-Height: float
-    Sets the height of the widget.
-HeightFill: bool
-    Sets the height to fill the available space, overrides height.
-Opacity: float
-    Sets the opacity of the image.
-Padding: list[float]
-    Sets the padding around the image.
-RotationDegrees: float
-    Sets the roation of the image in degrees format.
-RotationRadians: float
-    Sets the rotate the image in radians.
-RotationMethod: Rotation
-    Set the roation method, see Rotation.
-Scale: float
-    Sets the scale factor of the Image.
-    The region of the Image drawn will be scaled from the center by the given scale factor.
-Show: bool
-    Whether to show or hide the image.
-Width: float
-    Sets the width of the image.
-WidthFill: bool
-    Whether to fill the width to the available container size.
-
-Returns
--------
-int
-    The numeric widget ID of the newly created image.
 
 Usage:
   1. Click "Crop Mode" to enter cropping mode.
@@ -130,7 +74,7 @@ state = {
 
 # ── overlay style ──────────────────────────────────────────────────────
 overlay_style = add_container_style(
-    background_rgba=[0.3, 0.5, 1.0, 0.2],
+    bkg_rgba=[0.3, 0.5, 1.0, 0.2],
     border_rgba=[0.3, 0.5, 1.0, 0.8],
     border_width=1.5,
 )
@@ -168,7 +112,7 @@ def on_crop_btn(btn_id: int):
     else:
         # Apply crop
         x, y, w, h = _crop_rect()
-        print(f"[DEBUG] Applying crop: x={x}, y={y}, w={w}, h={h}")
+        # print(f"[DEBUG] Applying crop: x={x}, y={y}, w={w}, h={h}")
         if w > 0 and h > 0:
             update_widget_params(state["img_id"], {
                 ImageParam.CropX: x,
@@ -181,6 +125,7 @@ def on_crop_btn(btn_id: int):
                           f"Cropped to x={x} y={y} w={w} h={h}")
         else:
             update_widget(state["img_id"], ImageParam.ContentFit, None)
+
         state["crop_mode"] = False
         state["dragging"] = False
         update_widget(btn_id, ButtonParam.Label, "Crop Mode")
@@ -257,7 +202,7 @@ def on_move(_ma_id: int, point: tuple[float, float]):
         })
 
 
-# ── UI ─────────────────────────────────────────────────────────────────
+# *** GUI *********************************************************
 with Window(title="Image Crop Demo", size=(600, 550), center=True):
 
     with Container(align_center=True, fill=True):
@@ -275,8 +220,8 @@ with Window(title="Image Crop Demo", size=(600, 550), center=True):
                     label="Undo Crop", on_press=on_undo_btn)
 
 
-            # A stck is used to stack all of the content on top of each other.
-            # If there was a case where you don't want to mouse interactions
+            # A stack is used to stack all of the content on top of each other.
+            # If there was a case where you don't want the mouse interactions
             # to bleed through to activate a lower widget, you would block
             # with a opaque widget during any mouse action.
             with Stack():
@@ -289,18 +234,18 @@ with Window(title="Image Crop Demo", size=(600, 550), center=True):
                                    style_std=ContainerStyleStd.BorderedBox):
                         # If you are not doing any image manipulations,
                         # you could add the IMG_W and IMG_H to add_image
-                        # anf the size will be adjusted accordingly.
-                        # In this case, we use FitContext parameter so
-                        # we used the Container as the size controller.
+                        # and the size will be adjusted accordingly.
+                        # In this case, FitContext is used so
+                        # the Container as the size controller.
                         state["img_id"] = add_image(path=ferris)
 
                 # the float holds the outline container and allows positioning
                 # see the float demo for more info
                 with Float(translate=[0.0, 0.0]) as flt_id:
                     state["float_id"] = flt_id
-                    # The containg styling allows one to see the mouse rectangle area
+                    # The container styling allows one to see the mouse rectangle area
                     with Container(width=0.0, height=0.0,
-                                   style_id=overlay_style, show=False) as ov_id:
+                                   style_id=overlay_style) as ov_id:
                         state["overlay_id"] = ov_id
                         add_text(content="")
 

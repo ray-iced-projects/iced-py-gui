@@ -3,7 +3,7 @@ use pyo3::{Py, PyAny, PyResult, pyfunction};
 use crate::state::{access_state, add_callback_to_mutex, 
     add_user_data_to_mutex, WidgetNode, Containers};
 use crate::widgets::ipg_window::{
-    Window, WindowLevel, WindowTheme, theme_names,
+    Window, WindowLevel, WindowTheme, theme_names, register_custom_theme,
 };
 
 type PyObject = Py<PyAny>;
@@ -84,6 +84,7 @@ type PyObject = Py<PyAny>;
     min_size=None,
     max_size=None,
     theme=None,
+    theme_name=None,
     resizable=None,
     minimizable=None,
     closeable=None,
@@ -112,6 +113,7 @@ pub fn add_window(
     min_size: Option<[f32; 2]>,
     max_size: Option<[f32; 2]>,
     theme: Option<WindowTheme>,
+    theme_name: Option<String>,
     resizable: Option<bool>,
     minimizable: Option<bool>,
     closeable: Option<bool>,
@@ -182,6 +184,7 @@ pub fn add_window(
         min_size,
         max_size,
         theme,
+        custom_theme_name: theme_name,
         resizable,
         minimizable,
         closeable,
@@ -226,4 +229,41 @@ pub fn add_window(
 #[pyfunction]
 pub fn window_theme_names() -> Vec<String> {
     theme_names()
+}
+
+/// Create and register a custom theme by name.
+///
+/// Once registered the name can be passed anywhere a built-in theme name
+/// is accepted: ``Window(theme="MyTheme")`` or
+/// ``update_widget(wnd_id, WindowParam.Theme, "MyTheme")``.
+///
+/// Parameters
+/// ----------
+/// name : str
+///     Unique name for the theme.  Must not collide with a built-in name.
+/// background : list[float]
+///     RGBA colour for the window/container background.
+/// text : list[float]
+///     RGBA default text colour.
+/// primary : list[float]
+///     RGBA primary accent colour (buttons, highlights, etc.).
+/// success : list[float]
+///     RGBA success / green-tone colour.
+/// warning : list[float]
+///     RGBA warning / yellow-tone colour.
+/// danger : list[float]
+///     RGBA danger / red-tone colour.
+#[pyfunction]
+#[pyo3(signature = (name, background, text, primary, success, warning, danger))]
+pub fn create_custom_theme(
+    name: String,
+    background: [f32; 4],
+    text:       [f32; 4],
+    primary:    [f32; 4],
+    success:    [f32; 4],
+    warning:    [f32; 4],
+    danger:     [f32; 4],
+) -> PyResult<()> {
+    register_custom_theme(name, background, text, primary, success, warning, danger);
+    Ok(())
 }

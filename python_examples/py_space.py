@@ -1,38 +1,10 @@
 #!/usr/bin/env python3
 """
 Space demo
-
-Add a space widget.
-
-An empty widget used to add blank space between other widgets.
-
-Parameters
-----------
-parent_id : str
-    Sets the parent container ID that this space belongs to.
-gen_id : int, Optional
-    Obtains an ID of a widget that have not been created, used for the gen_id parameter.
-width : float, Optional
-    Sets the Fixed width in logical pixels.
-width_fill : bool, Optional
-    Whether the space fills available width.
-height : float, Optional
-    Sets the Fixed height in logical pixels.
-height_fill : bool, Optional
-    Whether the space fills available height.
-fill : bool, Optional
-    Whether to fill both the width and height.
-show : bool, default True
-    Whether the space is visible.
-
-Returns
--------
-int
-    The numeric widget ID of the newly created space.
 """
 
-from icedpygui import Window, Column, start_session, \
-    add_space, add_text
+from icedpygui import (Window, Column, start_session,
+    add_space, add_text)
 
 # Add the window, debug is set to true to be able to see the space widget.
 with Window(

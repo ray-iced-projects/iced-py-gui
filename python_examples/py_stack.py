@@ -1,45 +1,11 @@
 #!/usr/bin/env python3
 """
 Stack demo
-
-Add a stack container widget.
-
-Stack allows one the stack widgets on top of each other
-If you are stacking and have issues with any mouse events being transferred
-to the widgets below them, then add an opaque layer to block.
-
-Parameters
-----------
-window_id : str
-    Sets the window this stack belongs to.
-container_id : str
-    Sets the Unique string identifier for the stack.
-parent_id : str, Optional
-    Sets the parent container ID.  Defaults to the window itself.
-width : float, Optional
-    Sets the Fixed width in logical pixels.
-height : float, Optional
-    Sets the Fixed height in logical pixels.
-width_fill : bool, default False
-    Whether the stack fills available width.
-height_fill : bool, default False
-    Whether the stack fills available height.
-fill : bool, Optional
-    Whether to fill both the available width and height.
-hide_index : int, Optional
-    Sets the index of the child to hide.
-show : bool, default True
-    Whether the stack is visible.
-
-Returns
--------
-int
-    The numeric widget ID of the newly created stack.
 """
 import os
-from icedpygui import Window, Column, Container, Stack, start_session, \
-    add_image, add_text, add_space, update_widget, TextParam, \
-    ContentFit, MouseArea, MousePointer
+from icedpygui import (Window, Column, Container, Stack, start_session,
+    add_image, add_text, add_space, update_widget, TextParam,
+    ContentFit, MouseArea, MousePointer)
 
 
 def card_selected(_card_id, name):

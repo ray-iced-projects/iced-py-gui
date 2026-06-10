@@ -1,8 +1,7 @@
-//! TextEditor module - provides add_text_editor pyfunction
+//! TextEditor module - provides add_text_editor pyfunction or TextEditor class
 
 use pyo3::{pyfunction, PyResult, Py, PyAny};
 type PyObject = Py<PyAny>;
-
 
 use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex};
 use crate::graphics::colors::Color;
@@ -11,10 +10,65 @@ use crate::widgets::ipg_text_editor::{TextEditorStyle, TextEditor};
 use crate::widgets::ipg_text_editor::TxtEdStatus;
 
 
+/// Add a text editor widget.
+///
+/// A multi-line text editing area that supports scrolling, placeholder text,
+/// and optional edit callbacks.
+///
+/// Parameters
+/// ----------
+/// parent_id : str
+///     Sets the parent container ID that this text editor belongs to.
+/// content : str, Optional
+///     Sets the initial text content displayed in the editor.
+/// place_holder : str, Optional
+///     Sets the placeholder text shown when the editor is empty.
+/// font_id : int, Optional
+///     Sets the Font ID for the editor text.
+/// text_size : float, Optional
+///     Sets the font size in logical pixels.
+/// line_height : float, Optional
+///     Sets the line height as a multiplier of the font size.
+/// width : float, Optional
+///     Sets a fixed width in logical pixels.
+/// width_fill : bool, Optional
+///     Whether the editor expands to fill the available width.
+/// height : float, Optional
+///     Sets a fixed height in logical pixels.
+/// height_fill : bool, Optional
+///     Whether the editor expands to fill the available height.
+/// fill : bool, Optional
+///     Whether the editor fills both width and height.
+/// min_height : float, Optional
+///     Sets the minimum height in logical pixels.
+/// max_height : float, Optional
+///     Sets the maximum height in logical pixels.
+/// padding : list of float, Optional
+///     Sets the padding as [all], [vertical, horizontal], or
+///     [top, right, bottom, left].
+/// wrapping_none : bool, Optional
+///     Disables text wrapping; text extends past the right edge.
+/// wrapping_glyph : bool, Optional
+///     Wraps at the glyph boundary (default).
+/// wrapping_word_glyph : bool, Optional
+///     Wraps at word boundaries, falling back to glyph boundaries.
+/// on_edit : callable, Optional
+///     Callback invoked on every edit action.
+///     Signature: ``def cb(wid: int, content: str)``
+/// user_data : Any, Optional
+///     Arbitrary data forwarded to callbacks.
+///
+/// Returns
+/// -------
+/// int
+///     The numeric widget ID of the newly created text editor.
+
+
 
 #[pyfunction]
 #[pyo3(signature = (
     parent_id,
+    content=None,
     place_holder=None, 
     font_id=None,
     text_size=None,
@@ -35,6 +89,7 @@ use crate::widgets::ipg_text_editor::TxtEdStatus;
 ))]
 pub fn add_text_editor(
     parent_id: String,
+    content: Option<String>,
     place_holder: Option<String>, 
     font_id: Option<usize>,
     text_size: Option<f32>,
@@ -65,6 +120,10 @@ pub fn add_text_editor(
     if let Some(py) = user_data {
         add_user_data_to_mutex(id, py);
     }
+
+    let content = if let Some(text) = content {
+        iced::widget::text_editor::Content::with_text(&text)
+    } else { iced::widget::text_editor::Content::new() };
     
     // Register widget with parent
     set_state_of_widget(id, parent_id.clone());
@@ -77,7 +136,7 @@ pub fn add_text_editor(
         Widgets::TextEditor(
             TextEditor { 
                 id, 
-                content: iced::widget::text_editor::Content::new(),
+                content,
                 place_holder, 
                 font_id, 
                 text_size, 
@@ -102,11 +161,99 @@ pub fn add_text_editor(
 }
 
 
-/// The [`Background`] of the text input.
-/// The [`Border`] of the text input.
-/// The [`Color`] of the placeholder of the text input.
-/// The [`Color`] of the value of the text input.
-/// The [`Color`] of the selection of the text input.
+
+/// Add styling to a text editor.
+///
+/// Creates a custom style that can be applied to a text editor
+/// via its ``style_id`` parameter.
+///
+/// Each colour parameter accepts three forms that are applied in priority order:
+/// an rgba list ``[r, g, b, a]``, a named ``Color`` enum value, or an
+/// ``_alpha`` modifier on the named colour.
+///
+/// Background and border colours can be set per-status (Active, Hovered,
+/// Focused, Disabled) using the ``_<status>`` suffix.  When only the
+/// base name is used it applies to all statuses.
+///
+/// Parameters
+/// ----------
+/// background_color : Color, Optional
+///     Sets the background colour for all statuses using a predefined Color variant.
+/// background_color_alpha : float, Optional
+///     Sets the alpha of ``background_color``.
+/// background_rgba : list of float, Optional
+///     Sets the background colour for all statuses as ``[r, g, b, a]``.
+/// background_color_hovered : Color, Optional
+///     Overrides the background colour in the Hovered status.
+/// background_color_alpha_hovered : float, Optional
+///     Sets the alpha of ``background_color_hovered``.
+/// background_rgba_hovered : list of float, Optional
+///     Overrides the background colour in the Hovered status as ``[r, g, b, a]``.
+/// background_color_focused : Color, Optional
+///     Overrides the background colour in the Focused status.
+/// background_color_alpha_focused : float, Optional
+///     Sets the alpha of ``background_color_focused``.
+/// background_rgba_focused : list of float, Optional
+///     Overrides the background colour in the Focused status as ``[r, g, b, a]``.
+/// background_color_disabled : Color, Optional
+///     Overrides the background colour in the Disabled status.
+/// background_color_alpha_disabled : float, Optional
+///     Sets the alpha of ``background_color_disabled``.
+/// background_rgba_disabled : list of float, Optional
+///     Overrides the background colour in the Disabled status as ``[r, g, b, a]``.
+/// border_color : Color, Optional
+///     Sets the border colour for all statuses using a predefined Color variant.
+/// border_color_alpha : float, Optional
+///     Sets the alpha of ``border_color``.
+/// border_rgba : list of float, Optional
+///     Sets the border colour for all statuses as ``[r, g, b, a]``.
+/// border_color_hovered : Color, Optional
+///     Overrides the border colour in the Hovered status.
+/// border_color_alpha_hovered : float, Optional
+///     Sets the alpha of ``border_color_hovered``.
+/// border_rgba_hovered : list of float, Optional
+///     Overrides the border colour in the Hovered status as ``[r, g, b, a]``.
+/// border_color_focused : Color, Optional
+///     Overrides the border colour in the Focused status.
+/// border_color_alpha_focused : float, Optional
+///     Sets the alpha of ``border_color_focused``.
+/// border_rgba_focused : list of float, Optional
+///     Overrides the border colour in the Focused status as ``[r, g, b, a]``.
+/// border_color_disabled : Color, Optional
+///     Overrides the border colour in the Disabled status.
+/// border_color_alpha_disabled : float, Optional
+///     Sets the alpha of ``border_color_disabled``.
+/// border_rgba_disabled : list of float, Optional
+///     Overrides the border colour in the Disabled status as ``[r, g, b, a]``.
+/// border_radius : list of float, Optional
+///     Sets the corner radii as [all], [top-left, top-right, bottom-right, bottom-left].
+/// border_width : float, Optional
+///     Sets the border width in logical pixels.
+/// placeholder_color : Color, Optional
+///     Sets the placeholder text colour using a predefined Color variant.
+/// placeholder_color_alpha : float, Optional
+///     Sets the alpha of ``placeholder_color``.
+/// placeholder_rgba : list of float, Optional
+///     Sets the placeholder text colour as ``[r, g, b, a]``.
+/// value_color : Color, Optional
+///     Sets the editor text (value) colour using a predefined Color variant.
+/// value_color_alpha : float, Optional
+///     Sets the alpha of ``value_color``.
+/// value_rgba : list of float, Optional
+///     Sets the editor text colour as ``[r, g, b, a]``.
+/// selection_color : Color, Optional
+///     Sets the text selection highlight colour using a predefined Color variant.
+/// selection_color_alpha : float, Optional
+///     Sets the alpha of ``selection_color``.
+/// selection_rgba : list of float, Optional
+///     Sets the text selection highlight colour as ``[r, g, b, a]``.
+/// gen_id : int, Optional
+///     Obtains an ID of a widget that has not been created, used for the gen_id parameter.
+///
+/// Returns
+/// -------
+/// int
+///     The numeric style ID to pass to a text editor's ``style_id``.
 #[pyfunction]
 #[pyo3(signature = (
     background_color = None,

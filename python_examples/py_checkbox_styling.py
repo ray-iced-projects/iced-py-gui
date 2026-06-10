@@ -4,9 +4,9 @@ Checkbox styling use demo
 
 """
 
-from icedpygui import Window, Column, Row, start_session, \
-    add_checkbox, add_checkbox_style, add_text, \
-    CheckboxStyleStd, Color
+from icedpygui import (Window, Column, Row, start_session,
+    add_checkbox, add_checkbox_style, add_text,
+    CheckboxStyleStd, Color)
 
 
 # Style IDs can be created anywhere before use

@@ -3,8 +3,8 @@
 Toggle use demo
 """
 
-from icedpygui import Window, Column, Container, Row, start_session, \
-        add_toggler, add_toggler_style, add_text, ContainerStyleStd, Color \
+from icedpygui import (Window, Column, Container, Row, start_session,
+        add_toggler, add_toggler_style, add_text, ContainerStyleStd, Color)
 
 
 # Callback from toggler
@@ -40,9 +40,9 @@ with Window(
                 with Column(spacing=10.0, padding=[10.0],
                             width_fill=True, height_fill=True):
                     # text alignment only works if width > length of text
-                    add_toggler(label="Text left (default)", width=200.0)
-                    add_toggler(label="Text center", width=200.0, text_center=True)
-                    add_toggler(label="Text right", width=200.0, text_right=True)
+                    add_toggler(label="Text align left (default)", width_fill=True)
+                    add_toggler(label="Text align center", width_fill=True, align_center=True)
+                    add_toggler(label="Text align right", width_fill=True, align_right=True)
 
             add_text(content="Toggler Size",
                     align_center_left=True)
@@ -105,9 +105,9 @@ with Window(
                     with Container(style_std=ContainerStyleStd.RoundedBox):
                         add_toggler(label="Text Line Height (default=0)")
                     with Container(style_std=ContainerStyleStd.RoundedBox):
-                        add_toggler(label="Text Line Height 5", text_line_height=5.0)
+                        add_toggler(label="Text Line Height 5", line_height=5.0)
                     with Container(style_std=ContainerStyleStd.RoundedBox):
-                        add_toggler(label="Text Line Height 2", text_line_height=2.0)
+                        add_toggler(label="Text Line Height 2", line_height=2.0)
 
             # add container for the background
             with Container(width_fill=True, height=70.0, padding=[20.0],

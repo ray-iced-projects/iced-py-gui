@@ -4,9 +4,9 @@ Text Input demo
 
 Text input allows one to input text then submit it to perform some action
 """
-from icedpygui import Window, Column, Row, start_session, \
-    add_text_input, add_text, TextParam, TextInputParam, update_widget, \
-    add_button, add_space, Color, add_text_input_style
+from icedpygui import (Window, Column, Row, start_session,
+    add_text_input, add_text, TextParam, TextInputParam, update_widget,
+    add_button, add_space, Color, add_text_input_style)
 
 
 state = {"secure": False}
@@ -122,7 +122,8 @@ with Window(title="Text Input Demo", center=True):
     with Column(
             align_center=True,
             fill=True,
-            spacing=10):
+            spacing=10,
+            padding=[50]):
 
         # Add some instructions
         add_text(content="It's best to see the effects by pressing")

@@ -4,9 +4,11 @@ Solor System using Canvas widgets demo
 
 """
 
-import os
-from icedpygui import Window, Column, Row, start_session, \
-        Color
+import os, math, random
+from icedpygui import (Window, Column, Row, start_session,
+        Color, update_widget, update_canvas_item, CanvasTimerParam,
+        CanvasGeometryParam, Canvas, add_canvas_timer, add_canvas_image,
+        add_circle, add_rectangle)
 
 
 def point_on_circle(center_x, center_y, radius, angle):
@@ -62,7 +64,7 @@ with Window(title="Canvas", size=(800.0, 800.0), centered=True):
         with Canvas(
             width=canvas_width,
             height=canvas_height,
-            background_ipg_color=Color.BLACK)
+            background_ipg_color=Color.BLACK):
 
             sun_id = add_canvas_image(
                      image_path=sun_path,

@@ -3,9 +3,9 @@
 Mouse Event use demo
 """
 
-from icedpygui import Window, Column, start_session, \
-    update_widget, TextParam, add_event_mouse, \
-        add_text, add_space
+from icedpygui import (Window, Column, start_session,
+    update_widget, TextParam, add_event_mouse,
+        add_text, add_space)
 
 # make a global var to hold some scroll data
 state = {"scroll_total_line_y": 0}

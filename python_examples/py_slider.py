@@ -1,14 +1,12 @@
 #!/usr/bin/env python3
 """
 Slider demo
-
-
 """
 
-from icedpygui import Window, Column, Row, start_session, \
-    add_slider, add_slider_style, SliderParam, add_text, TextParam, \
-    add_progress_bar, update_widget, ProgressBarParam, add_space, Color, \
-    add_button
+from icedpygui import (Window, Column, Row, start_session,
+    add_slider, add_slider_style, SliderParam, add_text, TextParam,
+    add_progress_bar, update_widget, ProgressBarParam, add_space, Color,
+    add_button)
 
 state = {"show":  True}
 

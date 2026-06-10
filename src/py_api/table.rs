@@ -1,5 +1,4 @@
-
-
+//! Table module - provides add_table pyfunction or Table class
 
 use pyo3::{Py, PyAny, PyResult, pyfunction};
 type PyObject = Py<PyAny>;

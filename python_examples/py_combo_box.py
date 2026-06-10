@@ -38,8 +38,8 @@ with Window(title="Pick List Demo", size=(400, 400), center=True):
             options = ["Hello", "World"]
 
             add_text(content="The ComboBox is good for long" +
-                     "list where you begin typing in and" +
-                     "the box will filter the selection")
+                     "lists when you begin typing, the " +
+                     "box will filter the selection")
 
             txt_id = add_text(content="Selected Word")
 

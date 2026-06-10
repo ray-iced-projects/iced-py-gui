@@ -2,8 +2,8 @@
 """
 Widget show demo
 """
-from icedpygui import Window, Column, Container, start_session, \
-    add_button, add_text, show_widget, hide_widget
+from icedpygui import (Window, Column, Container, start_session,
+    add_button, add_text, show_widget, hide_widget)
 
 
 def show(_id: int):

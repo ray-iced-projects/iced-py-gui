@@ -1,57 +1,10 @@
 #!/usr/bin/env python3
 """
 Svg demo
-
-Add an SVG widget.
-
-Displays a scalable vector graphic from a file path with
-optional mouse interaction.
-
-Parameters
-----------
-parent_id : str
-    Sets the parent container ID that this SVG belongs to.
-path : str
-    Sets the file path to the SVG image.
-width : float, Optional
-    Sets the Fixed width in logical pixels.
-width_fill : bool, default False
-    Whether the SVG fills available width.
-height : float, Optional
-    Sets the Fixed height in logical pixels.
-height_fill : bool, default False
-    Whether the SVG fills available height.
-color_filter : Color, Optional
-    Sets the color filter using a predefined color variant.
-color_filter_alpha : float, Optional
-    Sets the alpha of the Color.
-rgba_filter : list of float, Optional
-    Sets the color filter in rgba format as [r, g, b, a].
-content_fit : ContentFit, Optional
-    Sets the content fit strategy for the SVG.
-rotation_solid : Rotation, Optional
-    Sets the non-default rotation method to Solid for the SVG.
-    Floating (default): The element will float while rotating. The layout will be kept exactly as it was
-    before the rotation.
-    Solid: The element will be solid while rotating. The layout will be adjusted to fit
-    the rotated content.
-rotation_radians : float, Optional
-    Sets the rotation angle in radians.
-opacity : float, Optional
-    Sets the opacity of the SVG (0.0 to 1.0).
-show : bool, default True
-    Whether the SVG is visible.
-gen_id : int, Optional
-    Obtains an ID of a widget that have not been created, used for the gen_id parameter.
-
-Returns
--------
-int
-    The numeric widget ID of the newly created SVG.
 """
 import os
-from icedpygui import Window, Column, Container, start_session, \
-    add_svg, SvgParam, update_widget_params, add_button
+from icedpygui import (Window, Column, Container, start_session,
+    add_svg, SvgParam, update_widget_params, add_button)
 
 state = {
     "width": 400.0,

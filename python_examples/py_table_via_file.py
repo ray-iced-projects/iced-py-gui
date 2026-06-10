@@ -2,7 +2,8 @@
 """
 Table demo
 """
-import os
+import os, sys
+from pathlib import Path
 from icedpygui import (
     Window,
     Container,
@@ -11,14 +12,17 @@ from icedpygui import (
 
 column_widths = [100.0] * 7
 
-cwd = os.getcwd()
-FILE_PATH = f"{cwd}/python_examples/resources/google.csv"
-
-
-
 def to_str(data: list[list[float]]) -> list[list[str]]:
     """Convert float data to str"""
     return [[str(cell) for cell in row] for row in data]
+
+cwd = os.getcwd()
+FILE_PATH = f"{cwd}/python_examples/resources/table_data/google.csv"
+
+fp = Path(FILE_PATH)
+if not fp.exists():
+    print(f"File path does not eist {fp}")
+    sys.exit()
 
 
 # Add the window
@@ -29,7 +33,7 @@ with Window(
 
     # Add the container for centering the table
     with Container(fill=True, align_center=True):
-
+        # file_path needs a string so the check above using Path() is used.
         add_table_basic(
                 file_path=FILE_PATH,
                 col_widths=column_widths,

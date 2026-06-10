@@ -5,8 +5,8 @@ Rich text demo
 
 import webbrowser
 
-from icedpygui import Window, Container, start_session, \
-    RichText, add_span, Color
+from icedpygui import (Window, Container, start_session,
+    RichText, add_span, Color)
 
 
 OPEN_URL = 1

@@ -130,7 +130,7 @@ from .icedpygui import (
     MenuStyleParam,
     MenuSubItemParam,
     MousePointer,
-    # PickListHandle,
+    PickListParam,
     ProgressBarParam,
     ProgressBarStyleParam,
     ProgressBarStyleStd,
@@ -167,6 +167,7 @@ from .icedpygui import (
     WindowParam,
     WindowTheme,
     window_theme_names,
+    create_custom_theme,
 )
 
 # ---------------------------------------------------------------------------

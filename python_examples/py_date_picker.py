@@ -3,8 +3,8 @@
 Date Picker use demo
 """
 
-from icedpygui import Window, Column, Container, start_session, \
-    add_date_picker, update_widget, add_text, TextParam
+from icedpygui import (Window, Column, Container, start_session,
+    add_date_picker, update_widget, add_text, TextParam)
 
 # Callback for the date picker. The id is the date_picker id, so you have to get
 # the id of whatever widget you want to update using a class or, for small projects,

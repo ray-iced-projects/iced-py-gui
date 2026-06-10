@@ -348,6 +348,9 @@ impl App {
 
         if let Some(theme) = &ipg_window.theme {
             theme.to_iced()
+        } else if let Some(name) = &ipg_window.custom_theme_name {
+            crate::widgets::ipg_window::get_custom_theme(name)
+                .unwrap_or(Theme::TokyoNight)
         } else {
             Theme::TokyoNight
         }
@@ -384,6 +387,9 @@ fn get_window_values(iced_window_id: window::Id, state: &IpgState) -> (bool, The
     let debug = ipg_window.debug;
     let theme = if let Some(wt) = &ipg_window.theme {
         wt.to_iced()
+    } else if let Some(name) = &ipg_window.custom_theme_name {
+        crate::widgets::ipg_window::get_custom_theme(name)
+            .unwrap_or(Theme::TokyoNight)
     } else {
         Theme::TokyoNight
     };

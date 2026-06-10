@@ -1,0 +1,112 @@
+Understanding the Iced/IcedPyGui Theme System
+=====================================
+
+How Iced/IcedPyGui Themes Work
+--------------------
+Every Iced application has a Theme that controls the colors used by all
+widgets automatically.  The theme is not just a set of colors — it is a
+structured palette from which each widget derives its active, hovered,
+pressed, and disabled colors algorithmically.  This means you do not need
+to specify every state manually; you supply a small number of "seed" colors
+and Iced generates the rest.
+
+The theme palette has two distinct layers:
+
+  1. The Seed  — six base colors you define.
+  2. The Generated Palette  — dozens of derived shades computed from the seed.
+
+The Six Seed colors
+--------------------
+To create a custom theme you supply exactly these six RGBA colors:
+
+  background  The main window/container background colors.
+              Dark themes use a near-black value; light themes use near-white.
+
+  text        The default text colors drawn on top of the background.
+              Should have strong contrast against the background.
+
+  primary     The main accent color.  Used for buttons, focused inputs,
+              highlights, and other interactive elements.  This is the color
+              your application is most associated with visually.
+
+  success     A "positive" accent, typically a green tone.  Used for
+              success states, confirmations, and progress indicators.
+
+  warning     A "caution" accent, typically amber or yellow.  Used for
+              warnings and non-critical alerts.
+
+  danger      A "negative" accent, typically red or orange-red.  Used for
+              destructive actions, errors, and critical alerts.
+
+Note: "secondary" is derived automatically from the other seeds; you do not
+supply it directly.
+
+How the Generated Palette Is Structured
+----------------------------------------
+From each seed color Iced generates a "Swatch" (for primary, secondary,
+success, warning, danger) with three variants:
+
+  base    The seed color itself — used for the active/default state.
+  weak    A blend of the seed toward the background — used for hovered states.
+  strong  A slightly intensified version of the seed — used for pressed states.
+
+The background seed is expanded into a much richer "Background" palette with
+eight variants, named from weakest (closest to the seed) to strongest
+(furthest away):
+
+  bkg_base, bkg_weakest, bkg_weaker, bkg_weak,
+  bkg_neutral, bkg_strong, bkg_stronger, bkg_strongest
+
+These background shades are used for container surfaces, borders, separators,
+sidebar panels, and any widget that is not a primary interactive element.
+
+Practical Approach to Designing a Custom Theme
+-----------------------------------------------
+1. Pick your background color first.
+   Dark themes: start around [0.08..0.18, ...] in RGB (8–18% brightness).
+   Light themes: start around [0.92..0.98, ...].
+
+2. Choose a text color with strong contrast to the background.
+   For dark backgrounds use a light warm white, e.g. [0.90, 0.88, 0.82, 1.0].
+   For light backgrounds use a dark neutral, e.g. [0.10, 0.10, 0.12, 1.0].
+
+3. Set your primary accent to the color most representative of your
+   application.  It should stand out clearly from the background.
+
+4. Choose success, warning, and danger so they are visually distinct from
+   each other and from the primary.  A common approach:
+     - Keep all four accents in the same "temperature" family for harmony
+       (e.g. all warm: orange primary, amber warning, terracotta danger, olive
+       success) — or —
+     - Use complementary hues for maximum contrast (e.g. blue primary, green
+       success, yellow warning, red danger).
+
+5. Test the theme at runtime using get_styling_palette(theme_name, color)
+   to inspect the generated shades before building your full UI.  The color
+   tiles in this demo show exactly which palette keys map to which widget state.
+
+Calling create_custom_theme
+----------------------------
+All colors are passed as [R, G, B, A] lists with values in the range 0.0–1.0.
+One can use the color picker widget to get the rgba values and visually see the colors.
+The theme must be registered before start_session() is called and before any
+get_styling_palette() calls that reference it.
+
+Example:
+
+    create_custom_theme(
+        name       = "MyTheme",
+        background = [0.08, 0.08, 0.12, 1.0],
+        text       = [0.90, 0.90, 0.90, 1.0],
+        primary    = [0.40, 0.60, 1.00, 1.0],
+        success    = [0.30, 0.80, 0.40, 1.0],
+        warning    = [1.00, 0.70, 0.20, 1.0],
+        danger     = [0.90, 0.30, 0.30, 1.0],
+    )
+
+Once registered, the theme name can be used anywhere a built-in theme name
+is accepted:
+
+    Window(theme_name="MyTheme")
+    update_widget(wnd_id, WindowParam.Theme, "MyTheme")
+    get_styling_palette("MyTheme", StdColorStyle.Primary)

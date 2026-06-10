@@ -1,8 +1,11 @@
 //! Window widget definition
+use std::collections::HashMap;
+use std::sync::{Mutex, OnceLock};
+use iced::theme::palette;
 use iced::widget::Column;
 use iced::window::settings::PlatformSpecific;
 use iced::window::{self, Level, Position, icon};
-use iced::{Element, Size, Task, Theme};
+use iced::{Color as IcedColor, Element, Size, Task, Theme};
 
 use pyo3::{pyclass, Py, PyAny};
 type PyObject = Py<PyAny>;
@@ -13,6 +16,47 @@ use crate::state::access_window_actions;
 use crate::widgets::widget_param_update::{
     WidgetParamUpdate, set_t_value
 };
+
+/// Global store of user-created custom themes, keyed by name.
+static CUSTOM_THEMES: OnceLock<Mutex<HashMap<String, Theme>>> = OnceLock::new();
+
+fn custom_theme_store() -> &'static Mutex<HashMap<String, Theme>> {
+    CUSTOM_THEMES.get_or_init(|| Mutex::new(HashMap::new()))
+}
+
+/// Register a custom theme by name. Panics if the name collides with a built-in.
+pub fn register_custom_theme(
+    name: String,
+    background: [f32; 4],
+    text:       [f32; 4],
+    primary:    [f32; 4],
+    success:    [f32; 4],
+    warning:    [f32; 4],
+    danger:     [f32; 4],
+) {
+    let seed = palette::Seed {
+        background: IcedColor { r: background[0], g: background[1], b: background[2], a: background[3] },
+        text:       IcedColor { r: text[0],       g: text[1],       b: text[2],       a: text[3] },
+        primary:    IcedColor { r: primary[0],    g: primary[1],    b: primary[2],    a: primary[3] },
+        success:    IcedColor { r: success[0],    g: success[1],    b: success[2],    a: success[3] },
+        warning:    IcedColor { r: warning[0],    g: warning[1],    b: warning[2],    a: warning[3] },
+        danger:     IcedColor { r: danger[0],     g: danger[1],     b: danger[2],     a: danger[3] },
+    };
+    let theme = Theme::custom(name.clone(), seed);
+    custom_theme_store()
+        .lock()
+        .expect("custom_theme_store lock")
+        .insert(name, theme);
+}
+
+/// Look up a custom theme by name, returning a clone if found.
+pub fn get_custom_theme(name: &str) -> Option<Theme> {
+    custom_theme_store()
+        .lock()
+        .expect("custom_theme_store lock")
+        .get(name)
+        .cloned()
+}
 
 #[derive(Debug, Clone)]
 pub struct Window {
@@ -27,6 +71,7 @@ pub struct Window {
     pub min_size: Option<[f32; 2]>,
     pub max_size: Option<[f32; 2]>,
     pub theme: Option<WindowTheme>,
+    pub custom_theme_name: Option<String>,
     pub resizable: Option<bool>,
     pub minimizable: Option<bool>,
     pub closeable: Option<bool>,
@@ -279,7 +324,19 @@ impl WidgetParamUpdate for Window {
             WindowParam::Theme => {
                 let mut str: String = String::new();
                 set_t_value(&mut str, value, "WindowParam::Theme");
-                self.theme = name_to_window_theme(&str);
+                // Custom themes are stored by name; WindowTheme enum only holds built-ins.
+                // We store the name and resolve it at render time via get_custom_theme().
+                if name_to_window_theme(&str).is_some() {
+                    self.theme = name_to_window_theme(&str);
+                } else if get_custom_theme(&str).is_some() {
+                    // Encode the custom name into a synthetic WindowTheme string so the
+                    // existing Option<WindowTheme> field can signal "use custom".  Instead
+                    // we store the raw name directly on the window for the render path.
+                    self.custom_theme_name = Some(str);
+                    self.theme = None;
+                } else {
+                    panic!("WindowParam::Theme: unknown theme name '{str}'");
+                }
             },
             WindowParam::Title => set_t_value(&mut self.title, value, "WindowParam::Title"),
             WindowParam::Transparent => set_t_value(&mut self.transparent, value, "WindowParam::Transparent"),

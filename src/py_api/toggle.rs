@@ -33,12 +33,14 @@ use crate::{access_state, add_callback_to_mutex,
 ///     Sets the Font size for the label text.
 /// text_line_height : float, Optional
 ///     Sets the Line height for the label text.
-/// text_center : bool, Optional
+/// align_center : bool, Optional
 ///     Whether to Align the label to the centre.
-/// text_left : bool, Optional
+/// align_left : bool, Optional
 ///     Whether to Align the label to the left.
-/// text_right : bool, Optional
+/// align_right : bool, Optional
 ///     Whether to Align the label to the right.
+/// align_justified: bool, Optional
+///     Whether to justify the alignment
 /// spacing : float, Optional
 ///     Sets the Spacing between the toggler and the label.
 /// user_data : Any, Optional

@@ -3,13 +3,12 @@
 ToolTip use demo
 """
 
-from icedpygui import Window, Container, Column, ToolTip, \
-    add_container_style, add_text, add_checkbox, \
-    start_session,  ContainerStyleStd, Color
+from icedpygui import (Window, Container, Column, ToolTip,
+    add_container_style, add_text, add_checkbox,
+    start_session,  ContainerStyleStd, Color)
 
 
-
-cont_style = add_container_style(background_color=Color.AQUA)
+cont_style = add_container_style(bkg_color=Color.AQUA)
 
 
 # Add a window first

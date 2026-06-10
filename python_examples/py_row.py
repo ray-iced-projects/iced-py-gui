@@ -1,56 +1,15 @@
 #!/usr/bin/env python3
 """
 Row demo
-
-A row lays out its children horizontally from left to right.
-
-Parameters
-----------
-window_id : str
-    Sets the window this row belongs to.
-container_id : str
-    Sets the Unique string identifier for the row.
-parent_id : str, optional
-    Sets the parent container ID.  Defaults to the window itself.
-width : float, optional
-    Sets the Fixed width in logical pixels.
-width_fill : bool, Optional
-    Whether the row fills available width.
-height : float, optional
-    Sets the Fixed height in logical pixels.
-height_fill : bool, Optional
-    Whether the row fills available height.
-fill : bool, Optional
-    Whether to fill both the available width and height
-align_bottom : bool, optional
-    Whether to Align children to the bottom.
-align_center : bool, optional
-    Whether to Align children to the vertical centre.
-align_top : bool, optional
-    Whether to Align children to the top.
-padding : list of float, optional
-    Sets the Padding as ``[all]``, ``[vertical, horizontal]``, or
-    ``[top, right, bottom, left]``.
-spacing : float, optional
-    Sets the Horizontal spacing between children in logical pixels.
-clip : bool, optional
-    Whether to clip content that overflows the row.
-show : bool, default True
-    Whether the row is visible.
-
-Returns
--------
-int
-    The numeric widget ID of the newly created row.
 """
-from icedpygui import Window, Column, Container, Row, start_session, \
-    add_text, ContainerStyleStd
+from icedpygui import (Window, Column, Container, Row, start_session,
+    add_text, ContainerStyleStd)
 
 
 # Add the window
 with Window(
     title="Row Demo",
-    size=(600, 600),
+    size=(600, 650),
     center=True) as wnd:
 
     # Need a Column and row to hold the widgets
@@ -108,6 +67,15 @@ with Window(
                 with Row(width=175, height=100, spacing=10.0, align_bottom=True):
                     add_text(content="bottom")
                     add_text(content="bottom")
+
+        # wrapping demo
+        add_text(content="When wrap=True, the items in the row will wrap automatically\n" +
+                 "There are alignment and spacing parameters avaliable too")
+        with Row(height=50.0, spacing=20.0, wrap=True):
+            for _ in range(10):
+                with Container(style_std=ContainerStyleStd.BorderedBox):
+                    add_text(content="Wrap=True")
+
 
 # last thing is to start the session
 start_session()

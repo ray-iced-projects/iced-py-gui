@@ -164,10 +164,10 @@ questions, or suggestions.
 Have fun with IPG!!
 """
 
-from icedpygui import Window, Container, Column, Row, Table, start_session, \
-    add_button, add_checkbox, add_date_picker, add_progress_bar, add_slider, \
-    add_pick_list, add_radio, add_text, add_text_input, \
-    ButtonParam, ProgressBarParam, TextParam, update_widget
+from icedpygui import (Window, Container, Column, Row, Table, start_session,
+    add_button, add_checkbox, add_date_picker, add_progress_bar, add_slider,
+    add_pick_list, add_radio, add_text, add_text_input,
+    ButtonParam, ProgressBarParam, TextParam, update_widget)
 
 
 class Demo:

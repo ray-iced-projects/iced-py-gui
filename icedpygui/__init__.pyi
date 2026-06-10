@@ -66,7 +66,7 @@ from .icedpygui import (
     # MenuStyleParam as MenuStyleParam,
     MousePointer as MousePointer,
     OpaqueParam as OpaqueParam,
-    # PickListHandle as PickListHandle,
+    PickListParam as PickListParam,
     ProgressBarParam as ProgressBarParam,
     ProgressBarStyleParam as ProgressBarStyleParam,
     ProgressBarStyleStd as ProgressBarStyleStd,
@@ -98,6 +98,7 @@ from .icedpygui import (
     WindowParam as WindowParam,
     WindowTheme as WindowTheme,
     window_theme_names as window_theme_names,
+    create_custom_theme as create_custom_theme,
     start_session as start_session,
     delete_widget as delete_widget,
     hide_widget as hide_widget,
@@ -1409,6 +1410,11 @@ class Column:
         padding: list[float] | None = None,
         spacing: float | None = None,
         clip: bool | None = False,
+        wrap: bool | None = False,
+        wrap_horizontal_spacing: bool | None = False,
+        wrap_align_top: bool | None = False,
+        wrap_align_center: bool | None = False,
+        wrap_align_bottom: bool | None = False,
         show: bool = True,
     ) -> None: ...
     def __enter__(self) -> int: ...
@@ -1645,6 +1651,11 @@ class Row:
         padding: list | None = None,
         spacing: float | None = None,
         clip: bool | None = None,
+        wrap: bool | None = None,
+        wrap_vertical_spacing: bool | None = None,
+        wrap_align_left: bool | None = None,
+        wrap_align_center: bool | None = None,
+        wrap_align_right: bool | None = None,
         show: bool = True,
     ) -> None: ...
     def __enter__(self) -> int: ...

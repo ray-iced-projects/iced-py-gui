@@ -6,8 +6,8 @@ A checkbox with a text label that can be toggled on and off.
 
 """
 
-from icedpygui import Window, Column, Container, Row, Scrollable, start_session, \
-    add_checkbox, add_text, ContainerStyleStd, Icon
+from icedpygui import (Window, Column, Container, Row, Scrollable, start_session,
+    add_checkbox, add_text, ContainerStyleStd, Icon)
 
 
 # callback to simply print if checkbox is checked

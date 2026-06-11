@@ -3,6 +3,7 @@
 # pylint: disable=unused-argument
 # pylint: disable=unnecessary_ellipsis
 # pylint: disable=too-many-arguments
+# pylint: disable=useless-import-alias
 # pylint: disable=too-many-locals
 # pylint: disable=too-many-lines
 """
@@ -15,7 +16,7 @@ from types import TracebackType
 # Re-export everything that is directly imported (not wrapped)
 from .icedpygui import (
     add_button_style as add_button_style,
-    # add_card_style as add_card_style,
+    add_card_style as add_card_style,
     add_checkbox_style as add_checkbox_style,
     add_container_style as add_container_style,
     add_font_style as add_font_style,
@@ -49,7 +50,7 @@ from .icedpygui import (
     ContainerStyleParam as ContainerStyleParam,
     ContainerStyleStd as ContainerStyleStd,
     ContentFit as ContentFit,
-    # DatePickerParam as DatePickerParam,
+    DatePickerParam as DatePickerParam,
     DividerDirection as DividerDirection,
     DividerParam as DividerParam,
     DividerStyleParam as DividerStyleParam,
@@ -61,9 +62,6 @@ from .icedpygui import (
     FontStyle as FontStyle,
     GridParam as GridParam,
     Icon as Icon,
-    # MenuBarItemParam as MenuBarItemParam,
-    # MenuParam as MenuParam,
-    # MenuStyleParam as MenuStyleParam,
     MousePointer as MousePointer,
     OpaqueParam as OpaqueParam,
     PickListParam as PickListParam,

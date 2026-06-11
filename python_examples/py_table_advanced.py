@@ -2,8 +2,8 @@
 """
 Table demo
 """
-
-import os, csv
+import csv
+import os
 from icedpygui import (
     Window,
     Container,

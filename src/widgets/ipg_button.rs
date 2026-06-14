@@ -4,7 +4,7 @@ use std::collections::HashMap;
 use crate::app::Message;
 use crate::graphics::bootstrap::bootstrap_arrow::Arrow;
 use crate::graphics::colors::Color;
-use crate::py_api::colors::CustomPalette;
+use crate::py_api::colors::{CustomPalette, PaletteKey, WidgetStatus};
 use crate::state::Widgets;
 use crate::widgets::callbacks::invoke_callback;
 use crate::py_api::helpers::{get_len, get_padding, get_radius};
@@ -331,16 +331,21 @@ impl ButtonStyle {
         let shd_color =
             Color::rgba_ipg_color_to_iced(self.shadow_rgba, &self.shadow_color, self.shadow_color_alpha);
 
-            // One can use the theme text color but the background
-        // is needed together to produce the correct colors.
-        // When no background is supplied we default to primary, so pair
-        // txt_color with the primary palette text rather than window background text.
-
+        let statuses = 
+            if let Some(sts) = pal.statuses {
+                    sts
+                } else {
+                    vec![(WidgetStatus::Active, PaletteKey::BaseColor), (WidgetStatus::ButtonPressed, PaletteKey::BaseColor), 
+                    (WidgetStatus::Hovered,PaletteKey::StrongColor),
+                    (WidgetStatus::Disabled,PaletteKey::BaseAlpha)]
+                };
+        
         let pal = if let Some(pal) = palette {
             pal.background
         } else {
             theme.palette().background
         };
+
 
         // let txt_color = text_color.unwrap_or(
         //     if background_color.is_none() { primary_text }
@@ -390,16 +395,47 @@ impl ButtonStyle {
         //     Some(bkg_color.into())
         // };
 
-        let base = styled(pal.base, bd_width);
+        let mut style = button::Style::default();
+        for (status, key) in statuses.iter() {
 
-        match status {
-            button::Status::Active | button::Status::Pressed => base,
-            button::Status::Hovered => button::Style {
-                background: Some(iced::Background::Color(pal.strong.color)),
-                ..base
-            },
-            button::Status::Disabled => disabled(base),
+            style = match status {
+                WidgetStatus::Active => {
+                    
+                    button::Style {
+                        background: Some(iced::Background::Color(pair.color)),
+                        text_color: pair.text,
+                        border: iced::Border{radius: bd_width.into(), ..Default::default()},
+                        ..button::Style::default()
+                    }
+                },
+                WidgetStatus::Pressed => {
+                    button::Style {
+                        background: Some(iced::Background::Color(pair.color)),
+                        text_color: pair.text,
+                        border: iced::Border{radius: bd_width.into(), ..Default::default()},
+                        ..button::Style::default()
+                    }
+                },
+                WidgetStatus::Hovered => {
+                    button::Style {
+                        background: Some(iced::Background::Color(pal.strong.color)),
+                        text_color: pair.text,
+                        border: iced::Border{radius: bd_width.into(), ..Default::default()},
+                        ..button::Style::default()
+                    }
+                },
+                WidgetStatus::DisabledAlpha => {
+                    button::Style {
+                        background: Some(iced::Background::Color(pal.base.color.scale_alpha(0.5))),
+                        text_color: pair.text_color.scale_alpha(0.5),
+                        border: iced::Border{radius: bd_width.into(), ..Default::default()},
+                        ..button::Style::default()
+                    }
+                },
+            }
         }
+
+        style
     }
 
 }

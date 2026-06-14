@@ -11,7 +11,6 @@ use crate::access_state;
 use crate::graphics::colors::{Color, StdColorStyle};
 use crate::state::Widgets;
 use crate::state::get_id;
-use crate::widgets::ipg_button::ButtonStatus;
 use crate::widgets::ipg_window::name_to_window_theme;
 use crate::widgets::widget_param_update::WidgetParamUpdate;
 
@@ -170,8 +169,7 @@ pub fn custom_palette(
     color: Option<Color>,
     rgba: Option<[f32; 4]>,
     color_alpha: Option<f32>,
-    widget: Option<PaletteWidget>,
-    statuses: Option<HashMap<PaletteKey, WidgetStatus>>,
+    statuses: Option<Vec<(PaletteKey, WidgetStatus)>>,
     gen_id: Option<usize>,
 ) -> PyResult<usize>
 {
@@ -191,6 +189,7 @@ pub fn custom_palette(
         CustomPalette {
             id,
             background,
+            statuses,
         }));
 
     drop(state);
@@ -200,7 +199,8 @@ pub fn custom_palette(
 #[derive(Debug, Clone)]
 pub struct CustomPalette{
     pub id: usize,
-    pub background: iced::theme::palette::Background
+    pub background: iced::theme::palette::Background,
+    pub statuses: Option<Vec<(PaletteKey, WidgetStatus,)>>,
 }
 
 #[derive(Debug, Clone, PartialEq, Hash)]
@@ -214,6 +214,7 @@ pub enum CustomPaletteParam {
 pub enum PaletteKey {
     BaseColor,
     BaseText,
+    BaseAlpha,
     NeutralColor,
     NeutralText,
     StrongColor, 

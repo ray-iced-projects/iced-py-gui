@@ -4,6 +4,7 @@ Runtime Python imports for Ptthon interpreter
 """
 
 from typing import Any, Callable, List, Optional
+import copy as _copy
 
 # pylint: disable=no-name-in-module
 # pylint: disable=too-many-lines
@@ -14,7 +15,7 @@ from .icedpygui import (
     clipboard_read,
     clipboard_write,
     add_button as _add_button,
-    add_button_style,
+    add_button_style as _add_button_style,
     add_card_style,
     add_card as _add_card,
     add_checkbox_style,
@@ -97,6 +98,7 @@ from .icedpygui import (
     get_rgba_color,
     get_color_palette,
     get_styling_palette,
+    custom_palette,
     StdColorStyle,
     Arrow,
     arrow_to_str,
@@ -171,8 +173,260 @@ from .icedpygui import (
 )
 
 # ---------------------------------------------------------------------------
-# Context stacks — used by Window / Container context managers and
-# auto-injecting wrappers so that window_id and parent_id can be inferred.
+# ButtonStyle builder
+# ---------------------------------------------------------------------------
+class ButtonStyle:
+    """Fluent builder for button styling.
+
+    Each method sets one or more parameters and returns ``self`` so calls
+    can be chained.  Call ``.build()`` at the end to register the style
+    with Iced and receive a style ID.
+
+    **Color formats** — every color method accepts an ``[r, g, b, a]`` list
+    with values in 0.0–1.0.  Where a ``Color`` enum variant is preferred, pass
+    it via the matching ``_color`` keyword of ``add_button_style`` directly.
+
+    Example::
+
+        style_id = (ButtonStyle()
+            .bkg_color(Color.RED)
+            .border_width(2.0)
+            .border_rgba([1.0, 1.0, 1.0, 0.6])
+            .build())
+
+    """
+
+    def __init__(self):
+        self._kwargs = {}
+
+    # -----------------------------------------------------------------------
+    # Background Color
+    # -----------------------------------------------------------------------
+
+    def bkg_color(self, color: Color) -> "ButtonStyle":
+        """Set the background color via Color."""
+        self._kwargs["bkg_color"] = color
+        return self
+
+    def bkg_color_alpha(self, alpha: float) -> "ButtonStyle":
+        """Set the background color alpha."""
+        self._kwargs["bkg_color_alpha"] = alpha
+        return self
+
+    def bkg_rgba(self, color: Color) -> "ButtonStyle":
+        """Set the background color in rgba format [int, 4]."""
+        self._kwargs["bkg_rgba"] = color
+        return self
+
+    # -----------------------------------------------------------------------
+    # Text color — global (all statuses inherit unless per-status overrides)
+    # -----------------------------------------------------------------------
+
+    def text_color(self, color: Color) -> "ButtonStyle":
+        """Set the background color via Color."""
+        self._kwargs["text_color"] = color
+        return self
+
+    def text_color_alpha(self, alpha: float) -> "ButtonStyle":
+        """Set the background color alpha."""
+        self._kwargs["text_color_alpha"] = alpha
+        return self
+
+    def text_rgba(self, color: Color) -> "ButtonStyle":
+        """Set the background color in rgba format [int, 4]."""
+        self._kwargs["text_rgba"] = color
+        return self
+
+
+
+    # -----------------------------------------------------------------------
+    # Text alignment (default: center)
+    # -----------------------------------------------------------------------
+
+    def text_top_left(self) -> "ButtonStyle":
+        """Align label text to the top-left of the button."""
+        self._kwargs["text_top_left"] = True
+        return self
+
+    def text_top_center(self) -> "ButtonStyle":
+        """Align label text to the top-center of the button."""
+        self._kwargs["text_top_center"] = True
+        return self
+
+    def text_top_right(self) -> "ButtonStyle":
+        """Align label text to the top-right of the button."""
+        self._kwargs["text_top_right"] = True
+        return self
+
+    def text_center_left(self) -> "ButtonStyle":
+        """Align label text to the center-left of the button."""
+        self._kwargs["text_center_left"] = True
+        return self
+
+    def text_center(self) -> "ButtonStyle":
+        """Align label text to the center of the button (default)."""
+        self._kwargs["text_center"] = True
+        return self
+
+    def text_center_right(self) -> "ButtonStyle":
+        """Align label text to the center-right of the button."""
+        self._kwargs["text_center_right"] = True
+        return self
+
+    def text_bottom_left(self) -> "ButtonStyle":
+        """Align label text to the bottom-left of the button."""
+        self._kwargs["text_bottom_left"] = True
+        return self
+
+    def text_bottom_center(self) -> "ButtonStyle":
+        """Align label text to the bottom-center of the button."""
+        self._kwargs["text_bottom_center"] = True
+        return self
+
+    def text_bottom_right(self) -> "ButtonStyle":
+        """Align label text to the bottom-right of the button."""
+        self._kwargs["text_bottom_right"] = True
+        return self
+
+    def text_size(self, size: float) -> "ButtonStyle":
+        """Set the font size for the button label."""
+        self._kwargs["text_size"] = size
+        return self
+
+    # -----------------------------------------------------------------------
+    # Text wrapping (default: word wrapping)
+    # -----------------------------------------------------------------------
+
+    def wrapping_none(self) -> "ButtonStyle":
+        """Disable text wrapping; text extends past the button edge."""
+        self._kwargs["wrapping_none"] = True
+        return self
+
+    def wrapping_glyph(self) -> "ButtonStyle":
+        """Wrap label text at glyph boundaries."""
+        self._kwargs["wrapping_glyph"] = True
+        return self
+
+    def wrapping_word_glyph(self) -> "ButtonStyle":
+        """Wrap at word boundaries, falling back to glyph boundaries."""
+        self._kwargs["wrapping_word_glyph"] = True
+        return self
+
+    # -----------------------------------------------------------------------
+    # Border
+    # -----------------------------------------------------------------------
+
+    def border_width(self, width: float) -> "ButtonStyle":
+        """Set the border line width in logical pixels."""
+        self._kwargs["border_width"] = width
+        return self
+
+    def border_radius(self, radius: float | list) -> "ButtonStyle":
+        """Set the corner radius.
+
+        Pass a single float for uniform corners, or a list of up to 4 floats
+        for [top-left, top-right, bottom-right, bottom-left].
+        """
+        self._kwargs["border_radius"] = [radius] if isinstance(radius, (int, float)) else radius
+        return self
+
+    def border_color_active(self, rgba: list) -> "ButtonStyle":
+        """Set the border color for the Active status."""
+        self._kwargs["border_rgba_active"] = rgba
+        return self
+
+    def border_color_hovered(self, rgba: list) -> "ButtonStyle":
+        """Set the border color for the Hovered status."""
+        self._kwargs["border_rgba_hovered"] = rgba
+        return self
+
+    def border_color_pressed(self, rgba: list) -> "ButtonStyle":
+        """Set the border color for the Pressed status."""
+        self._kwargs["border_rgba_pressed"] = rgba
+        return self
+
+    def border_color_disabled(self, rgba: list) -> "ButtonStyle":
+        """Set the border color for the Disabled status."""
+        self._kwargs["border_rgba_disabled"] = rgba
+        return self
+
+    def border_color(self, rgba: list) -> "ButtonStyle":
+        """Set the same border color for all statuses."""
+        self._kwargs["border_rgba"] = rgba
+        return self
+
+    # -----------------------------------------------------------------------
+    # Gradient background (replaces solid background color)
+    # -----------------------------------------------------------------------
+
+    def gradient_rgba_stops(self, stops: list) -> "ButtonStyle":
+        """Set gradient color stops as a list of [r, g, b, a] lists (up to 8)."""
+        self._kwargs["gradient_rgba_stops"] = stops
+        return self
+
+    def gradient_offset_stops(self, offsets: list) -> "ButtonStyle":
+        """Set gradient stop offsets as a list of floats (0.0–1.0)."""
+        self._kwargs["gradient_offset_stops"] = offsets
+        return self
+
+    def gradient_degrees(self, degrees: float) -> "ButtonStyle":
+        """Set the gradient angle in degrees."""
+        self._kwargs["gradient_degrees"] = degrees
+        return self
+
+    def gradient_radians(self, radians: float) -> "ButtonStyle":
+        """Set the gradient angle in radians (takes priority over degrees)."""
+        self._kwargs["gradient_radians"] = radians
+        return self
+
+    # -----------------------------------------------------------------------
+    # Shadow
+    # -----------------------------------------------------------------------
+
+    def shadow(self, rgba: list, offset_xy: list, blur: float) -> "ButtonStyle":
+        """Set the drop shadow color, [x, y] offset, and blur radius."""
+        self._kwargs["shadow_rgba"] = rgba
+        self._kwargs["shadow_offset_xy"] = offset_xy
+        self._kwargs["shadow_blur_radius"] = blur
+        return self
+
+    def shadow_color(self, rgba: list) -> "ButtonStyle":
+        """Set the drop shadow color."""
+        self._kwargs["shadow_rgba"] = rgba
+        return self
+
+    def shadow_offset(self, offset_xy: list) -> "ButtonStyle":
+        """Set the drop shadow [x, y] offset in logical pixels."""
+        self._kwargs["shadow_offset_xy"] = offset_xy
+        return self
+
+    def shadow_blur(self, blur: float) -> "ButtonStyle":
+        """Set the drop shadow blur radius."""
+        self._kwargs["shadow_blur_radius"] = blur
+        return self
+
+    # -----------------------------------------------------------------------
+    # Misc
+    # -----------------------------------------------------------------------
+
+    def snap(self) -> "ButtonStyle":
+        """Snap rendering to the pixel grid for crisp edges."""
+        self._kwargs["snap"] = True
+        return self
+
+    # -----------------------------------------------------------------------
+    # Copy & build
+    # -----------------------------------------------------------------------
+
+    def copy(self) -> "ButtonStyle":
+        """Return an independent copy so the template stays unmodified."""
+        new = ButtonStyle()
+        new._kwargs = dict(self._kwargs)
+        return new
+
+    def build(self) -> int:
+        """Register the style with Iced and return its integer style ID."""
+        return _add_button_style(**self._kwargs)
 # ---------------------------------------------------------------------------
 _window_stack = []
 _parent_stack = []

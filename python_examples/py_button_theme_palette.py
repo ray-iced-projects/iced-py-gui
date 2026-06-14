@@ -183,7 +183,7 @@ with Window(title="Button Styling", size=(700, 800), center=True) as wnd_id:
                       placeholder="Select Theme", on_select=on_theme_select)
 
         add_text(content="The radio buttons allow you to pick a standard color (Primary, ...).\n" +
-            "These std_colors depend on the selected theme. Each theme has it's onw colors.\n" +
+            "These std_colors depend on the selected theme. Each theme has it's own colors.\n" +
             "if theme=GRUVBOX_LIGHT, primary=light blue, ...\n" +
             "if theme=GRUVBOX_DARK, primary=dark blue, ...\n" +
             "See the py_window_custom_theme.py for a full exlpanation.")

@@ -76,6 +76,7 @@ use crate::widgets::ipg_button::{Button,
     style_id=None,
     style_std=None,
     style_arrow=None,
+    palette_id=None,
     user_data=None,
     show=true,
     gen_id=None,
@@ -99,6 +100,7 @@ pub fn add_button(
     style_id: Option<usize>,
     style_std: Option<ButtonStyleStd>,
     style_arrow: Option<Arrow>,
+    palette_id: Option<usize>,
     user_data: Option<PyObject>,
     show: bool,
     gen_id: Option<usize>,
@@ -142,6 +144,7 @@ pub fn add_button(
                 style_id,
                 style_std,
                 style_arrow,
+                palette_id,
                 show,
             }),
         );
@@ -267,14 +270,6 @@ pub fn add_button(
 /// """
 #[pyfunction]
 #[pyo3(signature = (
-        bkg_color = None,
-        bkg_color_alpha = None,
-        bkg_rgba = None,
-
-        text_color = None,
-        text_color_alpha = None,
-        text_rgba = None,
-
         text_top_left = None,
         text_top_center = None,
         text_top_right = None,
@@ -290,44 +285,12 @@ pub fn add_button(
         wrapping_glyph = None,
         wrapping_word_glyph = None,
 
-        text_color_active = None,
-        text_color_alpha_active = None,
-        text_rgba_active = None,
-
-        text_color_hovered = None,
-        text_color_alpha_hovered = None,
-        text_rgba_hovered = None,
-
-        text_color_pressed = None,
-        text_color_alpha_pressed = None,
-        text_rgba_pressed = None,
-
-        text_color_disabled = None,
-        text_color_alpha_disabled = None,
-        text_rgba_disabled = None,
-
         gradient_color_stops = None,
         gradient_color_alpha_stops = None,
         gradient_rgba_stops = None,
         gradient_offset_stops = None,
         gradient_degrees = None,
         gradient_radians = None,
-
-        border_color_active = None,
-        border_color_alpha_active = None,
-        border_rgba_active = None,
-
-        border_color_hovered = None,
-        border_color_alpha_hovered = None,
-        border_rgba_hovered = None,
-
-        border_color_pressed = None,
-        border_color_alpha_pressed = None,
-        border_rgba_pressed = None,
-
-        border_color_disabled = None,
-        border_color_alpha_disabled = None,
-        border_rgba_disabled = None,
 
         border_radius = None,
         border_width = None,
@@ -342,14 +305,6 @@ pub fn add_button(
         gen_id=None
         ))]
 pub fn add_button_style(
-    bkg_color: Option<Color>,
-    bkg_color_alpha: Option<f32>,
-    bkg_rgba: Option<[f32; 4]>,
-
-    text_color: Option<Color>,
-    text_color_alpha: Option<f32>,
-    text_rgba: Option<[f32; 4]>,
-
     text_top_left: Option<bool>,
     text_top_center: Option<bool>,
     text_top_right: Option<bool>,
@@ -365,44 +320,12 @@ pub fn add_button_style(
     wrapping_glyph: Option<bool>,
     wrapping_word_glyph: Option<bool>,
 
-    text_color_active: Option<Color>,
-    text_color_alpha_active: Option<f32>,
-    text_rgba_active: Option<[f32; 4]>,
-
-    text_color_hovered: Option<Color>,
-    text_color_alpha_hovered: Option<f32>,
-    text_rgba_hovered: Option<[f32; 4]>,
-
-    text_color_pressed: Option<Color>,
-    text_color_alpha_pressed: Option<f32>,
-    text_rgba_pressed: Option<[f32; 4]>,
-
-    text_color_disabled: Option<Color>,
-    text_color_alpha_disabled: Option<f32>,
-    text_rgba_disabled: Option<[f32; 4]>,
-
     gradient_color_stops: Option<Vec<Option<Color>>>,
     gradient_color_alpha_stops: Option<Vec<Option<f32>>>,
     gradient_rgba_stops: Option<Vec<Option<[f32; 4]>>>,
     gradient_offset_stops: Option<Vec<Option<f32>>>,
     gradient_degrees: Option<f32>,
     gradient_radians: Option<f32>,
-
-    border_color_active: Option<Color>,
-    border_color_alpha_active: Option<f32>,
-    border_rgba_active: Option<[f32; 4]>,
-
-    border_color_hovered: Option<Color>,
-    border_color_alpha_hovered: Option<f32>,
-    border_rgba_hovered: Option<[f32; 4]>,
-
-    border_color_pressed: Option<Color>,
-    border_color_alpha_pressed: Option<f32>,
-    border_rgba_pressed: Option<[f32; 4]>,
-
-    border_color_disabled: Option<Color>,
-    border_color_alpha_disabled: Option<f32>,
-    border_rgba_disabled: Option<[f32; 4]>,
 
     border_radius: Option<Vec<f32>>,
     border_width: Option<f32>,
@@ -424,14 +347,6 @@ pub fn add_button_style(
     state.widgets.insert(id, Widgets::ButtonStyle(
         ButtonStyle {
             id,
-            bkg_color,
-            bkg_color_alpha,
-            bkg_rgba,
-
-            text_color,
-            text_color_alpha,
-            text_rgba,
-
             text_top_left,
             text_top_center,
             text_top_right,
@@ -447,44 +362,12 @@ pub fn add_button_style(
             wrapping_glyph,
             wrapping_word_glyph,
 
-            text_color_active,
-            text_color_alpha_active,
-            text_rgba_active,
-
-            text_color_hovered,
-            text_color_alpha_hovered,
-            text_rgba_hovered,
-
-            text_color_pressed,
-            text_color_alpha_pressed,
-            text_rgba_pressed,
-
-            text_color_disabled,
-            text_color_alpha_disabled,
-            text_rgba_disabled,
-
             gradient_color_stops,
             gradient_color_alpha_stops,
             gradient_rgba_stops,
             gradient_offset_stops,
             gradient_degrees,
             gradient_radians,
-
-            border_color_active,
-            border_color_alpha_active,
-            border_rgba_active,
-
-            border_color_hovered,
-            border_color_alpha_hovered,
-            border_rgba_hovered,
-
-            border_color_pressed,
-            border_color_alpha_pressed,
-            border_rgba_pressed,
-
-            border_color_disabled,
-            border_color_alpha_disabled,
-            border_rgba_disabled,
 
             border_radius,
             border_width,

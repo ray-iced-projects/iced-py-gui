@@ -7,8 +7,13 @@ use iced::theme::palette::readable;
 use pyo3::prelude::*;
 use pyo3::pyfunction;
 
+use crate::access_state;
 use crate::graphics::colors::{Color, StdColorStyle};
+use crate::state::Widgets;
+use crate::state::get_id;
+use crate::widgets::ipg_button::ButtonStatus;
 use crate::widgets::ipg_window::name_to_window_theme;
+use crate::widgets::widget_param_update::WidgetParamUpdate;
 
 
 #[pyfunction]
@@ -152,3 +157,132 @@ pub fn get_styling_palette(
     Ok(hm)
     
 }
+
+#[pyfunction]
+#[pyo3(signature = (
+    color=None, 
+    rgba=None,
+    color_alpha=None,
+    widget=None,
+    statuses=None,
+    gen_id=None))]
+pub fn custom_palette(
+    color: Option<Color>,
+    rgba: Option<[f32; 4]>,
+    color_alpha: Option<f32>,
+    widget: Option<PaletteWidget>,
+    statuses: Option<HashMap<PaletteKey, WidgetStatus>>,
+    gen_id: Option<usize>,
+) -> PyResult<usize>
+{
+    let base = Color::rgba_ipg_color_to_iced(rgba, &color, color_alpha)
+        .ok_or_else(|| pyo3::exceptions::PyValueError::new_err(
+            "get_color_palette: no color supplied — provide base_color or base_rgba"
+        ))?;
+
+    let text_color = readable(base, iced::Color::WHITE);
+    let background = iced::theme::palette::Background::new(base, text_color);
+  
+    let id = get_id(gen_id);
+
+    let mut state = access_state();
+
+    state.widgets.insert(id, Widgets::Palette(
+        CustomPalette {
+            id,
+            background,
+        }));
+
+    drop(state);
+    Ok(id)
+}
+
+#[derive(Debug, Clone)]
+pub struct CustomPalette{
+    pub id: usize,
+    pub background: iced::theme::palette::Background
+}
+
+#[derive(Debug, Clone, PartialEq, Hash)]
+#[pyclass(eq, eq_int, hash, frozen)]
+pub enum CustomPaletteParam {
+    Background,
+}
+
+#[derive(Debug, Clone, PartialEq, Hash)]
+#[pyclass(eq, eq_int, hash, frozen)]
+pub enum PaletteKey {
+    BaseColor,
+    BaseText,
+    NeutralColor,
+    NeutralText,
+    StrongColor, 
+    StrongText,
+    StrongerColor,
+    StrongerText,
+    StrongestColor,
+    StrongestText,
+    WeakColor,
+    WeakText,
+    WeakerColor,
+    WeakerText,
+    WeakestColor,
+    WeakestText,
+}
+
+#[derive(Debug, Clone, PartialEq, Hash)]
+#[pyclass(eq, eq_int, hash, frozen)]
+pub enum PaletteWidget {
+    Button,
+    Checkbox,
+    PickList,
+    Radio,
+    Sash,
+    Slider,
+    TextEditor,
+    TextInput,
+    Toggler,
+}
+
+#[derive(Debug, Clone, PartialEq, Hash)]
+#[pyclass(eq, eq_int, hash, frozen)]
+pub enum WidgetStatus {
+    Active,
+    Hovered,
+    Disabled,
+    ButtonPressed,
+    CheckBoxIsChecked,
+    PickListOpened,
+    SashDragged,
+    TextEditorFocused,
+    TextInputFocused,
+    TogglerIsToggled,
+}
+
+use pyo3::{Py, PyAny};
+type PyObject = Py<PyAny>;
+// / ---------------------------------------------------------------------------
+// WidgetParamUpdate implementations
+// ---------------------------------------------------------------------------
+
+impl WidgetParamUpdate for CustomPalette {
+    type Param = CustomPaletteParam;
+
+    fn param_update(&mut self, param: Self::Param, _value: &PyObject) {
+        match param {
+            CustomPaletteParam::Background => todo!(),
+        }
+    }
+}
+
+// Widget	    Statuses
+// Button	    Active, Hovered, Pressed, Disabled
+// Checkbox	    Active {is_checked}, Hovered {is_checked}, Disabled {is_checked}
+// PickList	    Active, Hovered, Opened {..}, Disabled
+// Radio	    Active {..}, Hovered {..}
+// Sash	        Active, Hovered, Dragged, Disabled
+// Scrollable	Passes the full scrollable::Status through — no explicit status match, applies to rails/scroller directly
+// Slider	    Active, Hovered, Dragged
+// TextEditor	Active, Hovered, Focused {..}, Disabled
+// TextInput	Active, Hovered, Focused {..}, Disabled
+// Toggler	    Active {is_toggled}, Hovered {is_toggled}, Disabled {is_toggled}

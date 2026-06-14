@@ -63,6 +63,7 @@ pub fn param_update(
         Widgets::Icon(_) => panic!("Icon does not support param_update"),
         Widgets::Image(w) => apply_update(w, item, value),
         Widgets::MenuStyle(w) => apply_update(w, item, value),
+        Widgets::Palette(w) => apply_update(w, item, value),
         Widgets::PickList(w) => apply_update(w, item, value),
         Widgets::PickListStyle(w) => apply_update(w, item, value),
         Widgets::ProgressBar(w) => apply_update(w, item, value),

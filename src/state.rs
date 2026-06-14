@@ -12,6 +12,7 @@ use iced::Theme;
 
 use pyo3::{Py, PyAny};
 
+use crate::py_api::colors::CustomPalette;
 use crate::widgets::ipg_card::{Card, CardStyle};
 use crate::widgets::ipg_checkbox::{CheckBox, CheckboxStyle};
 use crate::widgets::ipg_color_picker::ColorPicker;
@@ -108,6 +109,7 @@ pub enum Widgets {
     Icon(IpgIcon),
     Image(Image),
     MenuStyle(MenuStyle),
+    Palette(CustomPalette),
     PickList(PickList),
     PickListStyle(PickListStyle),
     ProgressBar(ProgressBar),
@@ -177,6 +179,7 @@ ipg_widget_accessors! {
     Icon             => IpgIcon,           as_icon,                as_icon_mut;
     Image            => Image,             as_image,               as_image_mut;
     MenuStyle        => MenuStyle,         as_menu_style,          as_menu_style_mut;
+    Palette          => CustomPalette,           as_palette,             as_palette_mut;
     PickList         => PickList,          as_pick_list,           as_pick_list_mut;
     PickListStyle    => PickListStyle,     as_pick_list_style,     as_pick_list_style_mut;
     ProgressBar      => ProgressBar,       as_progress_bar,        as_progress_bar_mut;
@@ -469,6 +472,7 @@ pub struct State {
     pub timer_state: Lazy<HashMap<usize, TimerState>>,
     pub canvas_timer_duration: u64,
     pub user_fonts: Vec<Vec<u8>>,
+    pub custom_palettes: Lazy<HashMap<usize, CustomPalette>>,
 }
 
 pub static STATE: Mutex<State> = Mutex::new(
@@ -502,6 +506,7 @@ pub static STATE: Mutex<State> = Mutex::new(
         timer_state: Lazy::new(||HashMap::new()),
         canvas_timer_duration: 0,
         user_fonts: vec![],
+        custom_palettes: Lazy::new(||HashMap::new()),
     }
 );
 
@@ -555,6 +560,7 @@ pub struct IpgState {
     pub timer_state: HashMap<usize, TimerState>,
     pub canvas_timer_duration: u64,
     pub user_fonts: Vec<Vec<u8>>,
+    pub custom_palettes: HashMap<usize, CustomPalette>,
 }
 
 impl IpgState {
@@ -594,6 +600,7 @@ impl Clone for IpgState {
             timer_state: self.timer_state.clone(),
             canvas_timer_duration: self.canvas_timer_duration,
             user_fonts: self.user_fonts.clone(),
+            custom_palettes: self.custom_palettes.clone(),
         }
     }
 }

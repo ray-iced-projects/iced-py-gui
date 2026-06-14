@@ -1344,6 +1344,29 @@ def get_color_palette(
         list of 3 lists of rgba colors (strong, weak, text)
     """
 
+def custom_palette(
+        color: Color | None = None,
+        color_alpha: int | None = None,
+        rgba: list[float, 4] | None = None,
+    ) -> int:
+
+    """
+    GCreates a new palette from a base color
+
+    Parameters:
+    -----------
+        color: Color | None,
+            The color with class Color
+        color_alpha: int | None
+            Changes the alpha of color.
+        rgba: list[float, 4] | None,
+            The color in rgba format
+
+    Returns:
+    -------
+        list of 3 lists of rgba colors (strong, weak, text)
+    """
+
 # **************all item ops***********
 def start_session(self) -> None:
     """
@@ -1505,6 +1528,7 @@ def move_widget(
     -------
     None
     """
+
 
 class Arrow:
     """

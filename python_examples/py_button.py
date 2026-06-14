@@ -8,7 +8,7 @@ A clickable button used for some gui action.
 """
 
 from icedpygui import (Window, Column, Container, Row, Scrollable,
-    add_button, add_button_style, add_text, add_space,
+    add_button, ButtonStyle, add_text, add_space,
     ButtonStyleStd, Color, start_session)
 
 state = {"txt_id": 0}
@@ -56,12 +56,18 @@ state = {"txt_id": 0}
 
 bkg_color = add_button_style(bkg_color=Color.RED)
 
-bkg_color_alpha = add_button_style(bkg_color=Color.RED, bkg_color_alpha=0.5)
+bkg_color_alpha = (
+    ButtonStyle()
+    .background(Color.RED)
+    .bkg_color_alpha(0.5)
+    )
 
-bkg_gradient = add_button_style(
-    gradient_color_stops=[Color.BLUE, Color.RED],
-    gradient_offset_stops=[0.0, 1.0],
-    gradient_degrees=45.0)
+bkg_gradient = (
+    ButtonStyle()
+    .gradient_color_stops([Color.BLUE, Color.RED])
+    .gradient_offset_stops([0.0, 1.0])
+    .gradient_degrees(45.0)
+    )
 
 
 border = add_button_style(

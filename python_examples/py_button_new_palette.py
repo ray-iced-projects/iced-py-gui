@@ -73,7 +73,8 @@ def label_for(_pal_key: PaletteKey, _widget_status: WidgetStatus) -> str:
     key_name = PALETTE_KEY_TO_STR[_pal_key]
     if key_name != PALETTE_KEY_TO_STR.get(_pal_key, key_name):
         key_name = str(_pal_key).rsplit('.', maxsplit=1)[-1]  # fallback
-    suffix = f"\n{str(_widget_status).rsplit('.', maxsplit=1)[-1]}" if _widget_status is not None else ""
+    suffix = f"\n{str(_widget_status).rsplit('.', maxsplit=1)[-1]}" \
+        if _widget_status is not None else ""
     return key_name + suffix
 
 
@@ -161,7 +162,7 @@ with Window(title="Button Styling", size=(700, 650), center=True) as wnd_id:
                 bkg_rgba, text_rgba = get_tile_colors(palette, pal_key, alpha)
                 style_id = (get_container_border_style(bkg_rgba, border_color)
                             if is_status else add_container_style(bkg_rgba=bkg_rgba))
-                
+
                 with Container(width=120, height=40, align_center=True, style_id=style_id):
                     add_text(content=label_for(pal_key, widget_status),
                              color_rgba=text_rgba, size=14)

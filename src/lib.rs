@@ -31,7 +31,7 @@ use crate::py_api::button::{add_button, add_button_style};
 use crate::py_api::clipboard::{clipboard_read, clipboard_write};
 use crate::py_api::card::{add_card, add_card_style};
 use crate::py_api::checkbox::{add_checkbox, add_checkbox_style};
-use crate::py_api::colors::{get_color_palette, get_rgba_color, get_styling_palette, custom_palette};
+use crate::py_api::colors::{PaletteKey, WidgetStatus, custom_palette, get_color_palette, get_rgba_color, get_styling_palette};
 use crate::py_api::color_picker::{add_color_picker};
 use crate::py_api::column::add_column;
 use crate::py_api::combo_box::add_combobox;
@@ -295,6 +295,8 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<FontStyle>()?;
     m.add_class::<MousePointer>()?;
     m.add_class::<StdColorStyle>()?;
+    m.add_class::<PaletteKey>()?;
+    m.add_class::<WidgetStatus>()?;
 
     // misc functions
     m.add_function(wrap_pyfunction!(arrow_to_str, m)?)?;

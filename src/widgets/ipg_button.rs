@@ -8,16 +8,15 @@ use crate::py_api::colors::{CustomPalette, PaletteKey, WidgetStatus};
 use crate::state::Widgets;
 use crate::widgets::callbacks::invoke_callback;
 use crate::py_api::helpers::{get_len, get_padding, get_radius};
-use crate::style::styling::{ColorStatus, palette_pick};
 use crate::widgets::widget_param_update::{
     WidgetParamUpdate, set_t_value
 };
 
 use iced::widget::text::Wrapping;
-use iced::{Border, Shadow, Vector, alignment, gradient};
+use iced::{Shadow, Vector, alignment, gradient};
 use iced::widget::{button, text};
 use iced::{Element, Theme};
-use iced::theme::palette;
+use iced::theme::palette::{Pair, readable};
 
 use pyo3::{Py, PyAny, pyclass};
 type PyObject = Py<PyAny>;
@@ -67,7 +66,7 @@ impl Button {
         self.lookup(widgets, self.font_id)
             .and_then(Widgets::as_font).cloned();
 
-        let pal_opt = 
+        let c_pal_opt = 
         self.lookup(widgets, self.palette_id)
             .and_then(Widgets::as_palette).cloned();
 
@@ -164,14 +163,6 @@ impl Button {
                 txt.wrapping(Wrapping::None)
             } else { txt };
             
-        let btn_statuses = 
-            BtnStatus {
-                active: self.status_active,
-                hovered: self.status_hovered,
-                pressed: self.status_pressed,
-                disabled: self.status_disabled,
-            };
-
         let btn = 
             button(txt)
                 .padding(get_padding(&self.padding))
@@ -179,10 +170,10 @@ impl Button {
                 .width(get_len(self.fill, self.width_fill, self.width))
                 .height(get_len(self.fill, self.height_fill, self.height))
                 .style(move |theme: &Theme, status| {
-                    if style_opt.is_some() || pal_opt.is_some() {
+                    if style_opt.is_some() || c_pal_opt.is_some() {
                         let btn_st = ButtonStyle::default();
                         let st = style_opt.as_ref().unwrap_or(&btn_st);
-                        st.to_iced(theme, status, &pal_opt)
+                        st.to_iced(theme, status, &c_pal_opt)
                     } else {
                         match &self.style_std {
                             Some(std) => std.to_iced(theme, status),
@@ -234,6 +225,8 @@ pub struct ButtonStyle {
     pub gradient_degrees: Option<f32>,
     pub gradient_radians: Option<f32>,
 
+    pub border_color: Option<Color>,
+    pub border_rgba: Option<[f32; 4]>,
     pub border_radius: Option<Vec<f32>>,
     pub border_width: Option<f32>,
     
@@ -255,70 +248,13 @@ pub enum ButtonStatus {
     Disabled,
 }
 
-#[derive(Debug, Default)]
-pub struct BtnStatus {
-    active: Option<bool>,
-    hovered: Option<bool>,
-    pressed: Option<bool>,
-    disabled: Option<bool>,
-}
-
-impl BtnStatus {
-    fn to_iced(&self) -> Option<button::Status> {
-         // override the real status with user-specified one
-        if self.disabled == Some(true) {
-            Some(button::Status::Disabled)
-        } else if self.pressed == Some(true) {
-            Some(button::Status::Pressed)
-        } else if self.hovered == Some(true) {
-            Some(button::Status::Hovered)
-        } else if self.active == Some(true) {
-            Some(button::Status::Active)
-        } else { None }
-    }
-}
-
-// Standard styles are:
-// Background,
-// Danger,
-// Primary,
-// Secondary,
-// Subtle (unique settings),
-// Success,
-// Warning,
-// Text,
-//
-// Status    |  Standard Styles
-// Active    |  base
-// Hovered   |  strong
-// Pressed   |  base
-// Disabled  |  base => background scale_alpha(0.5)
-//
-// Status    |  Text button
-// Active    |  base
-// Hovered   |  base text scale alpha(0.8)
-// Pressed   |  base
-// Disabled  |  base => background scale_alpha(0.5)
-//
-// Status    |  Background Custom Colors
-// Active    |  base
-// Hovered   |  weak
-// Pressed   |  strong
-// Disabled  |  base => background scale_alpha(0.5)
-//
-// Status    |  Standard Style Subtle (unique)
-// Active    |  base
-// Hovered   |  strong
-// Pressed   |  base
-// Disabled  |  base => background scale_alpha(0.5)
-
 impl ButtonStyle {
     /// Apply user-defined style overrides to an existing iced button::Style
     pub fn to_iced(
         &self,
         theme: &Theme,
         status: button::Status,
-        palette: &Option<CustomPalette>,
+        c_pal_opt: &Option<CustomPalette>,
     ) -> button::Style {
 
         let bkg_grad_color_stops =
@@ -328,136 +264,192 @@ impl ButtonStyle {
             .or_else(|| self.gradient_degrees.map(f32::to_radians))
             .unwrap_or(0.0);
 
+        let custom = if let Some(cp) = c_pal_opt {
+            cp
+        } else {
+            let palette = theme.palette();
+            let base = palette.primary.base.color;
+            let text_color = readable(base, iced::Color::WHITE);
+            let background = iced::theme::palette::Background::new(base, text_color);
+            &CustomPalette { 
+                id: 0, 
+                background, 
+                statuses: None, 
+                alpha: None,
+            }
+         };
+
         let shd_color =
             Color::rgba_ipg_color_to_iced(self.shadow_rgba, &self.shadow_color, self.shadow_color_alpha);
 
-        let statuses = 
-            if let Some(sts) = pal.statuses {
-                    sts
-                } else {
-                    vec![(WidgetStatus::Active, PaletteKey::BaseColor), (WidgetStatus::ButtonPressed, PaletteKey::BaseColor), 
-                    (WidgetStatus::Hovered,PaletteKey::StrongColor),
-                    (WidgetStatus::Disabled,PaletteKey::BaseAlpha)]
-                };
-        
-        let pal = if let Some(pal) = palette {
-            pal.background
-        } else {
-            theme.palette().background
+        let default_statuses: HashMap<PaletteKey, WidgetStatus> = [
+                    (PaletteKey::Base,      WidgetStatus::Active),
+                    (PaletteKey::Base,      WidgetStatus::Pressed),
+                    (PaletteKey::Strong,    WidgetStatus::Hovered),
+                    (PaletteKey::BaseAlpha, WidgetStatus::Disabled),
+                ].into_iter().collect();
+        let statuses = custom.statuses.as_ref().unwrap_or(&default_statuses);
+
+        // look up the PaletteKey for a given WidgetStatus
+        let key_for = |ws: WidgetStatus| -> PaletteKey {
+            statuses.iter()
+                .find_map(|(k, v)| if *v == ws { Some(k.clone()) } else { None })
+                .unwrap_or(PaletteKey::Base)
         };
-
-
-        // let txt_color = text_color.unwrap_or(
-        //     if background_color.is_none() { primary_text }
-        //     else { theme.palette().background.base.text }
-        // );
-
-        // let bkg = background_color
-        //     .map(|c| palette::Background::new(c, txt_color))
-        //     .unwrap_or_else(|| palette::Background::new(theme.seed().primary, txt_color));
-
-        // let bkg_color = palette_pick(&bkg, idx);
-
-        // let linear =
-        //     if let Some(stops) = bkg_grad_color_stops {
-        //         let mut linear = gradient::Linear::new(grad_radians);
-        //         for stop in stops.iter() {
-        //             let sg = palette::Background::new(stop.color, txt_color);
-        //             linear = linear.add_stop(stop.offset, palette_pick(&sg, idx));
-        //         }
-        //         Some(linear)
-        //     } else { None };
-
         
-        // let shadow =
-        //     if shd_color.is_some() && self.shadow_blur_radius.is_some() {
-        //         let sg = palette::Background::new(shd_color.unwrap(), txt_color);
-        //         let offset = self.shadow_offset_xy
-        //             .map(|of| Vector { x: of[0], y: of[1] })
-        //             .unwrap_or_default();
-        //         Shadow {
-        //             color: palette_pick(&sg, idx),
-        //             offset,
-        //             blur_radius: self.shadow_blur_radius.unwrap_or(0.0),
-        //         }
-        //     } else { Shadow::default() };
+        let shadow =
+            if shd_color.is_some() && self.shadow_blur_radius.is_some() {
+                let offset = self.shadow_offset_xy
+                    .map(|of| Vector { x: of[0], y: of[1] })
+                    .unwrap_or_default();
+                Shadow {
+                    color: shd_color.unwrap(),
+                    offset,
+                    blur_radius: self.shadow_blur_radius.unwrap(),
+                }
+            } else { Shadow::default() };
 
         let radius = self.border_radius.as_ref()
             .map(|rd| get_radius(rd, "button".to_string()))
-            .unwrap_or_default();
+            .unwrap_or(2.0.into());
 
-        let bd_width = self.border_width.unwrap_or(2.0);
         let snap  = self.snap.unwrap_or(false);
 
-        // let background = if let Some(lin) = linear {
-        //     Some(iced::Background::Gradient(lin.into()))
-        // } else {
-        //     Some(bkg_color.into())
-        // };
+        let alpha = custom.alpha.unwrap_or(1.0);
+        let bkg = custom.background;
 
-        let mut style = button::Style::default();
-        for (status, key) in statuses.iter() {
+        // Build gradient background once; used in every match arm when stops are supplied.
+        let gradient_background: Option<iced::Background> =
+            bkg_grad_color_stops.map(|stops| {
+                let mut linear = gradient::Linear::new(grad_radians);
+                for stop in stops {
+                    linear = linear.add_stop(stop.offset, stop.color);
+                }
+                iced::Background::Gradient(linear.into())
+            });
 
-            style = match status {
-                WidgetStatus::Active => {
-                    
-                    button::Style {
-                        background: Some(iced::Background::Color(pair.color)),
-                        text_color: pair.text,
-                        border: iced::Border{radius: bd_width.into(), ..Default::default()},
-                        ..button::Style::default()
-                    }
-                },
-                WidgetStatus::Pressed => {
-                    button::Style {
-                        background: Some(iced::Background::Color(pair.color)),
-                        text_color: pair.text,
-                        border: iced::Border{radius: bd_width.into(), ..Default::default()},
-                        ..button::Style::default()
-                    }
-                },
-                WidgetStatus::Hovered => {
-                    button::Style {
-                        background: Some(iced::Background::Color(pal.strong.color)),
-                        text_color: pair.text,
-                        border: iced::Border{radius: bd_width.into(), ..Default::default()},
-                        ..button::Style::default()
-                    }
-                },
-                WidgetStatus::DisabledAlpha => {
-                    button::Style {
-                        background: Some(iced::Background::Color(pal.base.color.scale_alpha(0.5))),
-                        text_color: pair.text_color.scale_alpha(0.5),
-                        border: iced::Border{radius: bd_width.into(), ..Default::default()},
-                        ..button::Style::default()
-                    }
-                },
-            }
+        match status {
+            button::Status::Active => {
+                let pair = get_pair(&key_for(WidgetStatus::Active), &bkg, alpha);
+                button::Style {
+                    background: gradient_background.clone()
+                        .or(Some(iced::Background::Color(pair.color))),
+                    text_color: pair.text,
+                    border: iced::Border{
+                        color: Color::rgba_ipg_color_to_iced(self.border_rgba, &self.border_color, Some(alpha)).unwrap_or(iced::Color::TRANSPARENT),
+                        width: self.border_width.unwrap_or_default(),
+                        radius,
+                    },
+                    shadow,
+                    snap,
+                }
+            },
+            button::Status::Pressed => {
+                let pair = get_pair(&key_for(WidgetStatus::Pressed), &bkg, alpha);
+                button::Style {
+                    background: gradient_background.clone()
+                        .or(Some(iced::Background::Color(pair.color))),
+                    text_color: pair.text,
+                    border: iced::Border{
+                        color: Color::rgba_ipg_color_to_iced(self.border_rgba, &self.border_color, Some(alpha)).unwrap_or(iced::Color::TRANSPARENT),
+                        width: self.border_width.unwrap_or_default(),
+                        radius,
+                    },
+                    shadow,
+                    snap,
+                }
+            },
+            button::Status::Hovered => {
+                let pair = get_pair(&key_for(WidgetStatus::Hovered), &bkg, alpha);
+                button::Style {
+                    background: gradient_background.clone()
+                        .or(Some(iced::Background::Color(pair.color))),
+                    text_color: pair.text,
+                    border: iced::Border{
+                        color: Color::rgba_ipg_color_to_iced(self.border_rgba, &self.border_color, Some(alpha)).unwrap_or(iced::Color::TRANSPARENT),
+                        width: self.border_width.unwrap_or_default(),
+                        radius,
+                    },
+                    shadow,
+                    snap,
+                }
+            },
+            button::Status::Disabled => {
+                let pair = get_pair(&key_for(WidgetStatus::Disabled), &bkg, alpha);
+                let background = gradient_background.clone()
+                    .map(|g| g.scale_alpha(alpha))
+                    .or(Some(iced::Background::Color(pair.color)));
+                button::Style {
+                    background,
+                    text_color: pair.text,
+                    border: iced::Border{
+                        color: Color::rgba_ipg_color_to_iced(self.border_rgba, &self.border_color, Some(alpha)).unwrap_or(iced::Color::TRANSPARENT),
+                        width: self.border_width.unwrap_or_default(),
+                        radius,
+                    },
+                    shadow,
+                    snap,
+                }
+            },
         }
-
-        style
+        
     }
 
 }
 
-fn styled(pair: palette::Pair, bd_width: f32) -> button::Style {
-    button::Style {
-        background: Some(iced::Background::Color(pair.color)),
-        text_color: pair.text,
-        border: iced::Border{radius: bd_width.into(), ..Default::default()},
-        ..button::Style::default()
+fn get_pair(key: &PaletteKey, bkg: &iced::theme::palette::Background, alpha: f32) -> Pair {
+    match key {
+        PaletteKey::Base => bkg.base,
+        PaletteKey::BaseAlpha => {
+            let color = bkg.base.color.scale_alpha(alpha);
+            let text = bkg.base.text.scale_alpha(alpha);
+            Pair { color, text }
+        },
+        PaletteKey::Neutral => bkg.neutral,
+        PaletteKey::NeutralAlpha => {
+            let color = bkg.neutral.color.scale_alpha(alpha);
+            let text = bkg.neutral.text.scale_alpha(alpha);
+            Pair { color, text }
+        },
+        PaletteKey::Strong => bkg.strong,
+        PaletteKey::StrongAlpha => {
+            let color = bkg.strong.color.scale_alpha(alpha);
+            let text = bkg.strong.text.scale_alpha(alpha);
+            Pair { color, text }
+        },
+        PaletteKey::Stronger => bkg.stronger,
+        PaletteKey::StrongerAlpha => {
+            let color = bkg.stronger.color.scale_alpha(alpha);
+            let text = bkg.stronger.text.scale_alpha(alpha);
+            Pair { color, text }
+        },
+        PaletteKey::Strongest => bkg.strongest,
+        PaletteKey::StrongestAlpha => {
+            let color = bkg.strongest.color.scale_alpha(alpha);
+            let text = bkg.strongest.text.scale_alpha(alpha);
+            Pair { color, text }
+        },
+        PaletteKey::Weak => bkg.weak,
+        PaletteKey::WeakAlpha => {
+            let color = bkg.weak.color.scale_alpha(alpha);
+            let text = bkg.weak.text.scale_alpha(alpha);
+            Pair { color, text }
+        },
+        PaletteKey::Weaker => bkg.weaker,
+        PaletteKey::WeakerAlpha => {
+            let color = bkg.weaker.color.scale_alpha(alpha);
+            let text = bkg.weaker.text.scale_alpha(alpha);
+            Pair { color, text }
+        },
+        PaletteKey::Weakest => bkg.weakest,
+        PaletteKey::WeakestAlpha => {
+            let color = bkg.weakest.color.scale_alpha(alpha);
+            let text = bkg.weakest.text.scale_alpha(alpha);
+            Pair { color, text }
+        },
     }
 }
 
-fn disabled(style:  button::Style) -> button::Style {
-     button::Style {
-        background: style
-            .background
-            .map(|background| background.scale_alpha(0.5)),
-        text_color: style.text_color.scale_alpha(0.5),
-        ..style
-    }
-}
 
 #[derive(Debug, Clone, PartialEq, Hash)]
 #[pyclass(eq, eq_int, hash, frozen)]

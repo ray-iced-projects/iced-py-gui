@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """
-Button styling demo — shows the colour palette for standard button themes,
-with live radio-button switching between colour themes.
+Button styling demo — shows the color palette for standard button themes.
 """
 
 from icedpygui import (
@@ -15,6 +14,8 @@ from icedpygui import (
     add_text,
     get_color_palette,
     custom_palette,
+    PaletteKey,
+    WidgetStatus,
 )
 
 
@@ -26,71 +27,147 @@ def get_container_border_style(_bkg_rgba: list, color_rgba: list) -> int:
             border_width=2.0)
 
 
-# Index into (bkg_rgba, text_rgba) palette tuples
-TEXT = 1
+# Maps PaletteKey enum → get_color_palette dict key prefix.
+# PaletteKey.BaseAlpha is a special case: uses "base" colours but halves alpha.
+PALETTE_KEY_TO_STR = {
+    PaletteKey.Base:      "base",
+    PaletteKey.Weak:      "weak",
+    PaletteKey.Weaker:    "weaker",
+    PaletteKey.Weakest:   "weakest",
+    PaletteKey.Neutral:   "neutral",
+    PaletteKey.Strong:    "strong",
+    PaletteKey.Stronger:  "stronger",
+    PaletteKey.Strongest: "strongest",
+    # Alpha variants use same base colour with scaled alpha
+    PaletteKey.BaseAlpha:     "base",
+    PaletteKey.WeakAlpha:     "weak",
+    PaletteKey.WeakerAlpha:   "weaker",
+    PaletteKey.WeakestAlpha:  "weakest",
+    PaletteKey.NeutralAlpha:  "neutral",
+    PaletteKey.StrongAlpha:   "strong",
+    PaletteKey.StrongerAlpha: "stronger",
+    PaletteKey.StrongestAlpha:"strongest",
+}
 
-def get_tile_colors(palette: dict, key: str, _alpha: float) -> tuple:
-    """Return copies of (bkg_rgba, text_rgba) with optional alpha scaling."""
-    if key == "base_disabled":
-        bkg = "base_color"
-        text = "base_text"
-    else:
-        bkg = key + "_color"
-        text = key + "_text"
+# Alpha variants — these keys get their alpha scaled by the tile's alpha value
+ALPHA_KEYS = {
+    PaletteKey.BaseAlpha, PaletteKey.WeakAlpha, PaletteKey.WeakerAlpha,
+    PaletteKey.WeakestAlpha, PaletteKey.NeutralAlpha, PaletteKey.StrongAlpha,
+    PaletteKey.StrongerAlpha, PaletteKey.StrongestAlpha,
+}
 
-    _bkg_rgba = palette[bkg]
-    _text_rgba = palette[text]
 
-    if alpha != 1.0:
-        _bkg_rgba[3] *= _alpha
+def get_tile_colors(_palette: dict, key: PaletteKey, _alpha: float) -> tuple:
+    """Return (bkg_rgba, text_rgba) for a PaletteKey with optional alpha scaling."""
+    prefix = PALETTE_KEY_TO_STR[key]
+    _bkg_rgba  = list(_palette[prefix + "_color"])
+    _text_rgba = list(_palette[prefix + "_text"])
+    if _alpha != 1.0 or key in ALPHA_KEYS:
+        _bkg_rgba[3]  *= _alpha
         _text_rgba[3] *= _alpha
     return _bkg_rgba, _text_rgba
 
 
-# ---------------------------------------------------------------------------
-# Create data
-# ---------------------------------------------------------------------------
+def label_for(_pal_key: PaletteKey, _widget_status: WidgetStatus) -> str:
+    """Build a tile label from its PaletteKey and optional WidgetStatus."""
+    key_name = PALETTE_KEY_TO_STR[_pal_key]
+    if key_name != PALETTE_KEY_TO_STR.get(_pal_key, key_name):
+        key_name = str(_pal_key).rsplit('.', maxsplit=1)[-1]  # fallback
+    suffix = f"\n{str(_widget_status).rsplit('.', maxsplit=1)[-1]}" if _widget_status is not None else ""
+    return key_name + suffix
 
-# Background palette tiles for Subtle style
-tiles = [
-    ("base",            1.0, "base\nActive/Pressed",        True),
-    ("base_disabled",    0.5, "base\nalpha_0.5\nDisabled",   True),
-    ("weak",            1.0, "weak",                        False),
-    ("weaker",          1.0, "weaker",                      False),
-    ("weakest",         1.0, "weakest",                     False),
-    ("neutral",         1.0, "neutral",                     False),
-    ("strong",          1.0, "strong\nHovered",             True),
-    ("stronger",        1.0, "stronger",                    False),
-    ("strongest",       1.0, "strongest",                   False),
+
+# ---------------------------------------------------------------------------
+# Standard statuses: default button palette mapping
+#   (PaletteKey, alpha, WidgetStatus or None, is_status)
+# ---------------------------------------------------------------------------
+std_tiles = [
+    (PaletteKey.Base,      1.0, WidgetStatus.Active,   True),
+    (PaletteKey.Base,      1.0, WidgetStatus.Pressed,  True),
+    (PaletteKey.Strong,    1.0, WidgetStatus.Hovered,  True),
+    (PaletteKey.BaseAlpha, 0.5, WidgetStatus.Disabled, True),
+    (PaletteKey.Weak,      1.0, None,                  False),
+    (PaletteKey.Weaker,    1.0, None,                  False),
+    (PaletteKey.Weakest,   1.0, None,                  False),
+    (PaletteKey.Neutral,   1.0, None,                  False),
+    (PaletteKey.Stronger,  1.0, None,                  False),
+    (PaletteKey.Strongest, 1.0, None,                  False),
+]
+
+# ---------------------------------------------------------------------------
+# Custom statuses: mirrors the `statuses` list passed to custom_palette()
+# ---------------------------------------------------------------------------
+custom_tiles = [
+    (PaletteKey.Weakest,  1.0, WidgetStatus.Active,   True),
+    (PaletteKey.Neutral,  1.0, WidgetStatus.Pressed,  True),
+    (PaletteKey.Strongest,1.0, WidgetStatus.Hovered,  True),
+    (PaletteKey.BaseAlpha,0.5, WidgetStatus.Disabled, True),
+    (PaletteKey.Base,     1.0, None,                  False),
+    (PaletteKey.Weak,     1.0, None,                  False),
+    (PaletteKey.Weaker,   1.0, None,                  False),
+    (PaletteKey.Strong,   1.0, None,                  False),
+    (PaletteKey.Stronger, 1.0, None,                  False),
 ]
 
 selected_color = [0.32, 0.2, 0.13, 1.0]
+# Just uses a new background color for the button, no status changes
 pal_id = custom_palette(rgba=selected_color)
 
-state = {"palette": get_color_palette(rgba=selected_color),
-         "tiles": tiles}
+# The statuses below are what's needed for the real Button
+# The ones above are similar but are used just for styling the
+# containers since they are really onlt background colors.
+statuses = [
+    (PaletteKey.Weakest,  WidgetStatus.Active),
+    (PaletteKey.Neutral,  WidgetStatus.Pressed),
+    (PaletteKey.Strongest,WidgetStatus.Hovered),
+    (PaletteKey.BaseAlpha,WidgetStatus.Disabled),
+]
+
+custom_pal_id = custom_palette(rgba=selected_color, statuses=statuses)
+
+palette = get_color_palette(rgba=selected_color)
+border_color = palette["strongest_color"]
 
 # ---------------------------------------------------------------------------
-# GUI — initial display uses PRIMARY palette with a TokyoNight background
+# GUI
 # ---------------------------------------------------------------------------
-with Window(title="Button Styling", size=(700, 800), center=True) as wnd_id:
+with Window(title="Button Styling", size=(700, 650), center=True) as wnd_id:
 
     with Column(spacing=20, padding=[20], wrap=True):
 
-        add_text(content="This is the default Button palette and statuses, border highlighted ones\n" +
-                 "You may change the status palette color by defining them, see further below")
+        add_text(content=(
+            "Standard palette statuses — border-highlighted tiles indicate a button state.\n"
+            "Default mapping: Base→Active/Pressed, Strong→Hovered, Base->aplha=0.5→Disabled"
+        ))
 
         with Row(spacing=20, wrap=True):
-            for i, (pal_key, alpha, label, is_status) in enumerate(state["tiles"]):
-                bkg_rgba, text_rgba = get_tile_colors(state["palette"], pal_key, alpha)
-                if is_status:
-                    style_id = get_container_border_style(bkg_rgba, state["palette"]["strongest_text"])
-                else:
-                    style_id = add_container_style(bkg_rgba=bkg_rgba)
-                with Container(width=120, height=60, align_center=True, style_id=style_id):
-                    add_text(content=label, color_rgba=text_rgba, size=14)
+            for (pal_key, alpha, widget_status, is_status) in std_tiles:
+                bkg_rgba, text_rgba = get_tile_colors(palette, pal_key, alpha)
+                style_id = (get_container_border_style(bkg_rgba, border_color)
+                            if is_status else add_container_style(bkg_rgba=bkg_rgba))
 
+                with Container(width=120, height=40, align_center=True, style_id=style_id):
+                    add_text(content=label_for(pal_key, widget_status),
+                             color_rgba=text_rgba, size=14)
 
-        add_button(label="Button with custom palette", padding=[20], palette_id=pal_id)
+        add_button(label="Button with standard palette", padding=[10], palette_id=pal_id)
+
+        add_text(content=(
+            "Custom palette statuses — the same as bove with statuses changed."
+        ))
+
+        with Row(spacing=20, wrap=True):
+            for (pal_key, alpha, widget_status, is_status) in custom_tiles:
+                bkg_rgba, text_rgba = get_tile_colors(palette, pal_key, alpha)
+                style_id = (get_container_border_style(bkg_rgba, border_color)
+                            if is_status else add_container_style(bkg_rgba=bkg_rgba))
+                
+                with Container(width=120, height=40, align_center=True, style_id=style_id):
+                    add_text(content=label_for(pal_key, widget_status),
+                             color_rgba=text_rgba, size=14)
+
+        with Row(spacing=20):
+            add_button(label="Button with custom statuses", padding=[10], palette_id=custom_pal_id)
+            add_button(label="Button default (no palette)", padding=[10])
 
 start_session()

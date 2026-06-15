@@ -41,14 +41,6 @@ class ButtonStyleStd:
 
 
 def add_button_style(
-        bkg_color: Color | None = None,
-        bkg_color_alpha: float | None = None,
-        bkg_rgba: list[float, 4] | None = None,
-
-        text_color: Color | None = None,
-        text_color_alpha: float | None = None,
-        text_rgba: list[float, 4] | None = None,
-
         text_top_left: bool | None = None,
         text_top_center: bool | None = None,
         text_top_right: bool | None = None,
@@ -64,22 +56,6 @@ def add_button_style(
         wrapping_glyph: bool | None = None,
         wrapping_word_glyph: bool | None = None,
 
-        text_color_active: Color | None = None,
-        text_color_alpha_active: float | None = None,
-        text_rgba_active: list[float, 4] | None = None,
-
-        text_color_hovered: Color | None = None,
-        text_color_alpha_hovered: float | None = None,
-        text_rgba_hovered: list[float, 4] | None = None,
-
-        text_color_pressed: Color | None = None,
-        text_color_alpha_pressed: float | None = None,
-        text_rgba_pressed: list[float, 4] | None = None,
-
-        text_color_disabled: Color | None = None,
-        text_color_alpha_disabled: float | None = None,
-        text_rgba_disabled: list[float, 4] | None = None,
-
         gradient_color_stops: list[Color] | None = None,
         gradient_color_alpha_stops: list[float] | None = None,
         gradient_rgba_stops: list[float, 4] | None = None,
@@ -87,22 +63,13 @@ def add_button_style(
         gradient_degrees: float | None = None,
         gradient_radians: float | None = None,
 
-        border_color_active: Color | None = None,
-        border_color_alpha_active: float | None = None,
+        border_color: Color | None = None,
+        border_color_alpha: float | None = None,
         border_rgba_active: list[float, 4] | None = None,
 
         border_color_hovered: Color | None = None,
         border_color_alpha_hovered: float | None = None,
         border_rgba_hovered: list[float, 4] | None = None,
-
-        border_color_pressed: Color | None = None,
-        border_color_alpha_pressed: float | None = None,
-        border_rgba_pressed: list[float, 4] | None = None,
-
-        border_color_disabled: Color | None = None,
-        border_color_alpha_disabled: float | None = None,
-        border_rgba_disabled: list[float, 4] | None = None,
-
         border_radius: list[float] | list[float, 4] | None = None,
         border_width: float | None = None,
 
@@ -121,11 +88,9 @@ def add_button_style(
 
     Notes
     --------
-    Two styles can be defined:
-    custom - defined by using an add_style method
-    First, define the style, this can be placed anywhere as long as the
-    add_button can access the style value, type int.
-    Then, add your button(s) as usual and use the style_id=your_style parameter.
+    Styles can be defined in 3 ways:
+    custom - Only defines using the class parameters (limited for colors)
+    palette - define a new palette, see example (range of colors and statuses)
     standard - using the style_std parameter and the ButtonStyleStd class
     Just use the style_std=ButtonStyleStd.Primary parameter in the add_button method.
 
@@ -135,7 +100,6 @@ def add_button_style(
     >>>       add_button, add_button_style, Color, start_session
     >>>
     >>> style = add_button_style(
-    >>>             bkg_color=Color.LIGHT_BLUE,
     >>>             border_color=Color.ALICE_BLUE,
     >>>             border_width=2.0,
     >>>             border_radius=[5.0])
@@ -145,18 +109,18 @@ def add_button_style(
     >>>         with Column(spacing=20.0):
     >>>             add_button(
     >>>                 label="Border Color and Width",
-    >>>                     padding=[5.0],
-    >>>                     style_id=style)
+    >>>                 padding=[5.0],
+    >>>                 style_id=style)
     >>>
     >>>             add_button(
     >>>                 label="Style Standard-Danger",
-    >>>                     padding=[5.0],
-    >>>                     style_std=ButtonStyleStd.Danger)
+    >>>                 padding=[5.0],
+    >>>                 style_std=ButtonStyleStd.Danger)
     >>>
     >>>             add_button(
     >>>                 label="Style Standard-Text",
-    >>>                     padding=[5.0],
-    >>>                     style_std=ButtonStyleStd.Text)
+    >>>                 padding=[5.0],
+    >>>                 style_std=ButtonStyleStd.Text)
     >>>
     >>> start_session()
     >>>
@@ -1348,6 +1312,8 @@ def custom_palette(
         color: Color | None = None,
         color_alpha: int | None = None,
         rgba: list[float, 4] | None = None,
+        statuses: list[tuple[PaletteKey, WidgetStatus]] | None = None,
+        palette_alpha: float | None = None,
     ) -> int:
 
     """
@@ -1361,11 +1327,71 @@ def custom_palette(
             Changes the alpha of color.
         rgba: list[float, 4] | None,
             The color in rgba format
-
+        statuses: list[(PaletteKey, WidgetStatus)] | None,
+            Assignment pair for the palette and status
+        palette_alpha: float | None,
+            Usually used for the Disable status, defaults to 0.5
     Returns:
     -------
-        list of 3 lists of rgba colors (strong, weak, text)
+        int
     """
+
+class PaletteKey:
+    """
+    Keys for the Palette types.
+
+    The alpha versions indicate a reduced color using the palette_alpha value.
+
+    Usually used for the WidgetStatus.Disabled.
+    """
+    Base = ...
+    BaseAlpha = ...
+    Neutral = ...
+    NeutralAlpha = ...
+    Strong = ...
+    StrongAlpha = ...
+    Stronger = ...
+    StrongerAlpha = ...
+    Strongest = ...
+    StrongestAlpha = ...
+    Weak = ...
+    WeakAlpha = ...
+    Weaker = ...
+    WeakerAlpha = ...
+    Weakest = ...
+    WeakestAlpha = ...
+
+class WidgetStatus:
+    """
+    The widget statuses for all of the widgets.
+
+    If used, make sure that they are valid for the widget being used.
+
+    All widgets have the Active, Hovered, and Disabled.
+
+    Button adds Pressed.
+
+    Checkbox adds IsChecked.
+
+    PickList adds Opened.
+
+    Sash adds Dragged.
+
+    TextEditor adds Focused.
+
+    TextInput adds Focused.
+
+    Toggle add IsToggled.
+    """
+    Active = ...
+    Disabled = ...
+    Dragged = ...
+    Focused = ...
+    Hovered = ...
+    IsChecked = ...
+    IsToggled = ...
+    Opened = ...
+    Pressed = ...
 
 # **************all item ops***********
 def start_session(self) -> None:

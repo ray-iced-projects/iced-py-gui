@@ -162,14 +162,15 @@ pub fn get_styling_palette(
     color=None, 
     rgba=None,
     color_alpha=None,
-    widget=None,
     statuses=None,
+    palette_alpha=None,
     gen_id=None))]
 pub fn custom_palette(
     color: Option<Color>,
     rgba: Option<[f32; 4]>,
     color_alpha: Option<f32>,
     statuses: Option<Vec<(PaletteKey, WidgetStatus)>>,
+    palette_alpha: Option<f32>,
     gen_id: Option<usize>,
 ) -> PyResult<usize>
 {
@@ -189,7 +190,8 @@ pub fn custom_palette(
         CustomPalette {
             id,
             background,
-            statuses,
+            statuses: statuses.map(|v| v.into_iter().collect()),
+            alpha: palette_alpha,
         }));
 
     drop(state);
@@ -200,7 +202,8 @@ pub fn custom_palette(
 pub struct CustomPalette{
     pub id: usize,
     pub background: iced::theme::palette::Background,
-    pub statuses: Option<Vec<(PaletteKey, WidgetStatus,)>>,
+    pub statuses: Option<HashMap<PaletteKey, WidgetStatus>>,
+    pub alpha: Option<f32>,
 }
 
 #[derive(Debug, Clone, PartialEq, Hash)]
@@ -209,26 +212,25 @@ pub enum CustomPaletteParam {
     Background,
 }
 
-#[derive(Debug, Clone, PartialEq, Hash)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 #[pyclass(eq, eq_int, hash, frozen)]
 pub enum PaletteKey {
-    BaseColor,
-    BaseText,
+    Base,
     BaseAlpha,
-    NeutralColor,
-    NeutralText,
-    StrongColor, 
-    StrongText,
-    StrongerColor,
-    StrongerText,
-    StrongestColor,
-    StrongestText,
-    WeakColor,
-    WeakText,
-    WeakerColor,
-    WeakerText,
-    WeakestColor,
-    WeakestText,
+    Neutral,
+    NeutralAlpha,
+    Strong,
+    StrongAlpha,
+    Stronger,
+    StrongerAlpha,
+    Strongest,
+    StrongestAlpha,
+    Weak,
+    WeakAlpha,
+    Weaker,
+    WeakerAlpha,
+    Weakest,
+    WeakestAlpha,
 }
 
 #[derive(Debug, Clone, PartialEq, Hash)]
@@ -249,15 +251,14 @@ pub enum PaletteWidget {
 #[pyclass(eq, eq_int, hash, frozen)]
 pub enum WidgetStatus {
     Active,
-    Hovered,
     Disabled,
-    ButtonPressed,
-    CheckBoxIsChecked,
-    PickListOpened,
-    SashDragged,
-    TextEditorFocused,
-    TextInputFocused,
-    TogglerIsToggled,
+    Dragged,
+    Focused,
+    Hovered,
+    IsChecked,
+    IsToggled,
+    Opened,
+    Pressed,
 }
 
 use pyo3::{Py, PyAny};

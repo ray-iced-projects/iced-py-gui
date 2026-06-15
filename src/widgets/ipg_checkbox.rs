@@ -3,6 +3,7 @@
 use std::collections::HashMap;
 
 use crate::graphics::colors::Color;
+use crate::py_api::colors::{CustomPalette, PaletteKey, WidgetStatus};
 use crate::py_api::helpers::get_len;
 use crate::state::IpgState;
 use crate::app::Message;
@@ -48,6 +49,7 @@ pub struct CheckBox {
     pub icon_line_height: Option<f32>,
     pub style_id: Option<usize>,
     pub style_std: Option<CheckboxStyleStd>,
+    pub palette_id: Option<usize>,
 }
 
 impl CheckBox {
@@ -66,6 +68,10 @@ impl CheckBox {
         let style_opt = 
             self.lookup(widgets, self.style_id)
                 .and_then(Widgets::as_checkbox_style).cloned();
+
+        let pal_opt =
+            self.lookup(widgets, self.palette_id)
+                .and_then(Widgets::as_palette).cloned();
 
         // Icon related
         let code_point = 
@@ -107,9 +113,11 @@ impl CheckBox {
                 .line_height(line_height)
                 .icon(icon)
                 .style(move|theme: &Theme, status| {   
-                    if let Some(st) = &style_opt {
-                        let is_label = if self.label.is_some() { true } else { false };
-                        st.to_iced(theme, status, &self.style_std, is_label)
+                    if style_opt.is_some() || pal_opt.is_some() {
+                        let chk_st = CheckboxStyle::default();
+                        let st = style_opt.as_ref().unwrap_or(&chk_st);
+                        let is_label = self.label.is_some();
+                        st.to_iced(theme, status, is_label, &pal_opt)
                     } else {
                        match &self.style_std {
                             Some(std) => std.to_iced(theme, status),
@@ -171,17 +179,12 @@ pub fn checkbox_callback(state: &mut IpgState, id: usize, message: ChkMessage) {
 #[derive(Debug, Clone, Default)]
 pub struct CheckboxStyle {
     pub id: usize,
-    pub background_color: Option<Color>,
-    pub background_color_alpha: Option<f32>,
-    pub background_rgba: Option<[f32; 4]>,
     pub border_color: Option<Color>,
     pub border_color_alpha: Option<f32>,
     pub border_rgba: Option<[f32; 4]>,
     pub border_radius: Option<Vec<f32>>,
     pub border_width: Option<f32>,
-    pub icon_color: Option<Color>,
-    pub icon_color_alpha: Option<f32>,
-    pub icon_rgba: Option<[f32; 4]>,
+    
     pub text_color: Option<Color>,
     pub text_color_alpha: Option<f32>,
     pub text_rgba: Option<[f32; 4]>,
@@ -192,89 +195,128 @@ impl CheckboxStyle {
          &self, 
         theme: &Theme, 
         status: checkbox::Status,
-        std_style_opt: &Option<CheckboxStyleStd>,
         is_label: bool,
+        c_pal_opt: &Option<CustomPalette>,
         ) -> checkbox::Style {
 
-        let mut style = if let Some(std) = 
-            std_style_opt {
-                std.to_iced(theme, status)
-            } else { checkbox::primary(theme, status) };
-        
-        let background_color = 
-            Color::rgba_ipg_color_to_iced(self.background_rgba, &self.background_color, self.background_color_alpha);
-
-        let border_color = 
+        let border_color_override = 
             Color::rgba_ipg_color_to_iced(self.border_rgba, &self.border_color, self.border_color_alpha);
 
-        let icon_color = 
-            Color::rgba_ipg_color_to_iced(self.icon_rgba, &self.icon_color, self.icon_color_alpha);
-        
-        if let Some(ic) = icon_color {
-            style.icon_color = ic;
-        }
+        let text_color_override =
+            Color::rgba_ipg_color_to_iced(self.text_rgba, &self.text_color, self.text_color_alpha);
 
-        let text_color = Color::rgba_ipg_color_to_iced(self.text_rgba, &self.text_color, self.text_color_alpha);
-    
-        // custom style only depends on bkg and border color
-        if background_color.is_none() && border_color.is_none() {
-            return style
-        }
+        // Build the background palette — either from CustomPalette or theme default.
+        let custom = if let Some(cp) = c_pal_opt {
+            cp.clone()
+        } else {
+            CustomPalette {
+                id: 0,
+                background: theme.palette().background,
+                statuses: None,
+                alpha: None,
+            }
+        };
 
-        // if given a border_color then use border_color as is
-        // if given a bkg_color then use bkg_color as is
-        // the accent will be paired regardless
+        let alpha = custom.alpha.unwrap_or(1.0);
+        let bkg = custom.background;
 
-        let palette = theme.palette();
+        // Default status → PaletteKey mappings for checkbox background slot.
+        // Active/Hovered use base/weak; Disabled uses weaker.
+        let default_statuses: HashMap<PaletteKey, WidgetStatus> = [
+            (PaletteKey::Base,      WidgetStatus::Active),
+            (PaletteKey::Weak,      WidgetStatus::Hovered),
+            (PaletteKey::Weaker,    WidgetStatus::Disabled),
+            (PaletteKey::BaseAlpha, WidgetStatus::IsChecked),
+        ].into_iter().collect();
+        let statuses = custom.statuses.as_ref().unwrap_or(&default_statuses);
 
-        // One can use the theme text color but the background and primary 
-        // are needed together to produce the correct colors
-        let txt_color = if let Some(c) = text_color {
-            c
-        } else { theme.palette().background.base.text};
+        let key_for = |ws: WidgetStatus| -> PaletteKey {
+            statuses.iter()
+                .find_map(|(k, v)| if *v == ws { Some(k.clone()) } else { None })
+                .unwrap_or(PaletteKey::Base)
+        };
 
-        let background_opt = if let Some(bkg) = background_color {
-            Some(palette::Background::new(bkg, txt_color))
-        } else { None };
+        let txt_color = text_color_override
+            .unwrap_or_else(|| bkg.base.text);
 
+        // Border colour: use override if supplied, else derive from palette.
+        let border = border_color_override.unwrap_or(bkg.strong.color);
 
-        let bkg = background_opt.unwrap_or(palette.background);
+        // Accent (checked fill) comes from the IsChecked palette key.
+        let accent_pair = get_bkg_pair(&key_for(WidgetStatus::IsChecked), &bkg, alpha);
+        // For checked+hovered, deviate the accent slightly (mirrors iced primary.base → primary.strong).
+        let accent_hovered = palette::Pair {
+            color: deviate_for_hover(accent_pair.color),
+            text: accent_pair.text,
+        };
 
         let mut style = match status {
-            checkbox::Status::Active { is_checked } => styled(
-                bkg.strong.color,
-                bkg.base,
-                palette.primary.base.text,
-                palette.primary.base,
-                is_checked,
-            ),
-            checkbox::Status::Hovered { is_checked } => styled(
-                bkg.strong.color,
-                bkg.weak,
-                palette.primary.base.text,
-                palette.primary.strong,
-                is_checked,
-            ),
-            checkbox::Status::Disabled { is_checked } => styled(
-                bkg.weak.color,
-                bkg.weaker,
-                palette.primary.base.text,
-                bkg.strong,
-                is_checked,
-            ),
+            checkbox::Status::Active { is_checked } => {
+                let base_pair = get_bkg_pair(&key_for(WidgetStatus::Active), &bkg, alpha);
+                styled(border, base_pair, accent_pair.text, accent_pair, is_checked)
+            },
+            checkbox::Status::Hovered { is_checked } => {
+                let base_pair = get_bkg_pair(&key_for(WidgetStatus::Hovered), &bkg, alpha);
+                styled(border, base_pair, accent_hovered.text, accent_hovered, is_checked)
+            },
+            checkbox::Status::Disabled { is_checked } => {
+                let base_pair = get_bkg_pair(&key_for(WidgetStatus::Disabled), &bkg, alpha);
+                let accent_disabled = get_bkg_pair(&key_for(WidgetStatus::IsChecked), &bkg, 0.5);
+                let border_disabled = get_bkg_pair(&key_for(WidgetStatus::Active), &bkg, alpha).color;
+                styled(border_disabled, base_pair, accent_pair.text, accent_disabled, is_checked)
+            },
         };
 
         apply_border_overrides(
-            &mut style.border, border_color,
+            &mut style.border, border_color_override,
             &self.border_radius, self.border_width, "Checkbox",
         );
-            
-        style.text_color = if is_label { Some(txt_color) } else { None };
-        
-        style
-        
-    }
 
+        style.text_color = if is_label { Some(txt_color) } else { None };
+
+        style
+    }
+}
+
+fn deviate_for_hover(color: iced::Color) -> iced::Color {
+    // Lighten dark colours, darken light colours by ~10% — mirrors iced's deviate(color, 0.1).
+    let amount = 0.1_f32;
+    if palette::is_dark(color) {
+        iced::Color {
+            r: color.r + (1.0 - color.r) * amount,
+            g: color.g + (1.0 - color.g) * amount,
+            b: color.b + (1.0 - color.b) * amount,
+            a: color.a,
+        }
+    } else {
+        iced::Color {
+            r: (color.r * (1.0 - amount)).max(0.0),
+            g: (color.g * (1.0 - amount)).max(0.0),
+            b: (color.b * (1.0 - amount)).max(0.0),
+            a: color.a,
+        }
+    }
+}
+
+fn get_bkg_pair(key: &PaletteKey, bkg: &iced::theme::palette::Background, alpha: f32) -> palette::Pair {
+    match key {
+        PaletteKey::Base      => bkg.base,
+        PaletteKey::BaseAlpha => palette::Pair { color: bkg.base.color.scale_alpha(alpha), text: bkg.base.text.scale_alpha(alpha) },
+        PaletteKey::Neutral   => bkg.neutral,
+        PaletteKey::NeutralAlpha => palette::Pair { color: bkg.neutral.color.scale_alpha(alpha), text: bkg.neutral.text.scale_alpha(alpha) },
+        PaletteKey::Strong    => bkg.strong,
+        PaletteKey::StrongAlpha => palette::Pair { color: bkg.strong.color.scale_alpha(alpha), text: bkg.strong.text.scale_alpha(alpha) },
+        PaletteKey::Stronger  => bkg.stronger,
+        PaletteKey::StrongerAlpha => palette::Pair { color: bkg.stronger.color.scale_alpha(alpha), text: bkg.stronger.text.scale_alpha(alpha) },
+        PaletteKey::Strongest => bkg.strongest,
+        PaletteKey::StrongestAlpha => palette::Pair { color: bkg.strongest.color.scale_alpha(alpha), text: bkg.strongest.text.scale_alpha(alpha) },
+        PaletteKey::Weak      => bkg.weak,
+        PaletteKey::WeakAlpha => palette::Pair { color: bkg.weak.color.scale_alpha(alpha), text: bkg.weak.text.scale_alpha(alpha) },
+        PaletteKey::Weaker    => bkg.weaker,
+        PaletteKey::WeakerAlpha => palette::Pair { color: bkg.weaker.color.scale_alpha(alpha), text: bkg.weaker.text.scale_alpha(alpha) },
+        PaletteKey::Weakest   => bkg.weakest,
+        PaletteKey::WeakestAlpha => palette::Pair { color: bkg.weakest.color.scale_alpha(alpha), text: bkg.weakest.text.scale_alpha(alpha) },
+    }
 }
 
 fn styled(
@@ -351,6 +393,7 @@ pub enum CheckboxParam {
     Spacing,
     StyleId,
     StyleStd,
+    PaletteId,
     TextFontId,
     TextLineHeight,
     TextSize,
@@ -363,17 +406,11 @@ pub enum CheckboxParam {
 #[derive(Debug, Clone, PartialEq, Hash)]
 #[pyclass(eq, eq_int, hash, frozen)]
 pub enum CheckboxStyleParam {
-    BackgroundColor,
-    BackgroundColorAlpha,
-    BackgroundRgba,
     BorderColor,
     BorderColorAlpha,
     BorderRgba,
     BorderRadius,
     BorderWidth,
-    IconColor,
-    IconColorAlpha,
-    IconRgba,
     TextColor,
     TextColorAlpha,
     TextRgba,
@@ -401,6 +438,7 @@ impl WidgetParamUpdate for CheckBox {
             CheckboxParam::Spacing => set_t_value(&mut self.spacing, value, "CheckboxParam::Spacing"),
             CheckboxParam::StyleId => set_t_value(&mut self.style_id, value, "CheckboxParam::StyleId"),
             CheckboxParam::StyleStd => set_t_value(&mut self.style_std, value, "CheckboxParam::StyleStd"),
+            CheckboxParam::PaletteId => set_t_value(&mut self.palette_id, value, "CheckboxParam::PaletteId"),
             CheckboxParam::TextFontId => set_t_value(&mut self.text_font_id, value, "CheckboxParam::TextFontId"),
             CheckboxParam::TextLineHeight => set_t_value(&mut self.line_height, value, "CheckboxParam::TextLineHeight"),
             CheckboxParam::TextSize => set_t_value(&mut self.text_size, value, "CheckboxParam::TextSize"),
@@ -417,17 +455,11 @@ impl WidgetParamUpdate for CheckboxStyle {
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
-            CheckboxStyleParam::BackgroundColor => set_t_value(&mut self.background_color, value, "CheckboxStyleParam::BackgroundColor"),
-            CheckboxStyleParam::BackgroundColorAlpha => set_t_value(&mut self.background_color_alpha, value, "CheckboxStyleParam::BackgroundColorAlpha"),
-            CheckboxStyleParam::BackgroundRgba => set_t_value(&mut self.background_rgba, value, "CheckboxStyleParam::BackgroundRgbaColor"),
             CheckboxStyleParam::BorderColor => set_t_value(&mut self.border_color, value, "CheckboxStyleParam::BorderColor"),
             CheckboxStyleParam::BorderColorAlpha => set_t_value(&mut self.border_color_alpha, value, "CheckboxStyleParam::BorderColorAlpha"),
             CheckboxStyleParam::BorderRadius => set_t_value(&mut self.border_radius, value, "CheckboxStyleParam::BorderRadius"),
             CheckboxStyleParam::BorderRgba => set_t_value(&mut self.border_rgba, value, "CheckboxStyleParam::BorderRgbaColor"),
             CheckboxStyleParam::BorderWidth => set_t_value(&mut self.border_width, value, "CheckboxStyleParam::BorderWidth"),
-            CheckboxStyleParam::IconColor => set_t_value(&mut self.icon_color, value, "CheckboxStyleParam::IconColor"),
-            CheckboxStyleParam::IconColorAlpha => set_t_value(&mut self.icon_color_alpha, value, "CheckboxStyleParam::IconColorAlpha"),
-            CheckboxStyleParam::IconRgba => set_t_value(&mut self.icon_rgba, value, "CheckboxStyleParam::IconRgbaColor"),
             CheckboxStyleParam::TextColor => set_t_value(&mut self.text_color, value, "CheckboxStyleParam::TextColor"),
             CheckboxStyleParam::TextColorAlpha => set_t_value(&mut self.text_color_alpha, value, "CheckboxStyleParam::TextColorAlpha"),
             CheckboxStyleParam::TextRgba => set_t_value(&mut self.text_rgba, value, "CheckboxStyleParam::TextRgbaColor"),

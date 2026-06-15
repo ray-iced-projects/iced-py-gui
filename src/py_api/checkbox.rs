@@ -93,6 +93,7 @@ use crate::widgets::ipg_checkbox::{CheckBox, CheckboxStyle, CheckboxStyleStd};
     show=true, 
     style_id=None, 
     style_std=None,
+    palette_id=None,
     gen_id=None, 
     ))] 
 pub fn add_checkbox(
@@ -118,6 +119,7 @@ pub fn add_checkbox(
     show: bool,
     style_id: Option<usize>,
     style_std: Option<CheckboxStyleStd>,
+    palette_id: Option<usize>,
     gen_id: Option<usize>,
     ) -> PyResult<usize> 
 {
@@ -157,6 +159,7 @@ pub fn add_checkbox(
             icon_line_height,
             style_id,
             style_std,
+            palette_id,
             }));
 
     drop(state);
@@ -170,12 +173,6 @@ pub fn add_checkbox(
 /// 
 /// Parameters
 /// ----------
-/// background_color: Color, Optional
-///     The background color of the box.
-/// background_color_alpha: float, Optional
-///     Sets the alpha of the Color.
-/// background_rgba: list, Optional,
-///     The background color of the box in rgba format.
 /// border_color: Color, Optional
 ///     The color for the border.
 /// border_color_alpha: float, Optional
@@ -187,14 +184,8 @@ pub fn add_checkbox(
 ///     [float] top-left, top-right, bottom-right, bottom-left.
 /// border_width: float
 ///     The border width.
-/// icon_color: Color, Optional
-///     The icon color.
-/// icon_color_alpha: float, Optional
-///     Sets the alpha of the Color.
-/// icon_rgba: list[float], Optional
-///     The icon color in rgba format.
 /// text_color: Color, Optional
-///     The text color, if not defined, will either be a Black or White variation based on theme background.
+///     The text color.
 /// text_color_alpha: float, Optional
 ///     Sets the alpha of the Color.
 /// text_rgba: list[float], Optional
@@ -203,34 +194,22 @@ pub fn add_checkbox(
 ///      Obtains an ID of a widget that have not been created, used for the gen_id parameter.
 #[pyfunction]
 #[pyo3(signature = ( 
-    background_color=None,
-    background_color_alpha=None,
-    background_rgba=None,
     border_color=None,
     border_color_alpha=None,
     border_rgba=None,
     border_radius=None, 
     border_width=None,
-    icon_color=None,
-    icon_color_alpha=None,
-    icon_rgba=None,
     text_color=None,
     text_color_alpha=None,
     text_rgba=None,
     gen_id=None
     ))]
 pub fn add_checkbox_style(
-    background_color: Option<Color>,
-    background_color_alpha: Option<f32>,
-    background_rgba: Option<[f32; 4]>,
     border_color: Option<Color>,
     border_color_alpha: Option<f32>,
     border_rgba: Option<[f32; 4]>,
     border_radius: Option<Vec<f32>>,
     border_width: Option<f32>,
-    icon_color: Option<Color>,
-    icon_color_alpha: Option<f32>,
-    icon_rgba: Option<[f32; 4]>,
     text_color: Option<Color>,
     text_color_alpha: Option<f32>,
     text_rgba: Option<[f32; 4]>,
@@ -244,17 +223,11 @@ pub fn add_checkbox_style(
     state.widgets.insert(id, Widgets::CheckboxStyle(
         CheckboxStyle {
             id,
-            background_color,
-            background_color_alpha,
-            background_rgba,
             border_color,
             border_color_alpha,
             border_rgba,
             border_radius, 
             border_width,
-            icon_color,
-            icon_color_alpha,
-            icon_rgba,
             text_color,
             text_color_alpha,
             text_rgba,

@@ -17,7 +17,7 @@ use crate::widgets::ipg_card::{Card, CardStyle};
 use crate::widgets::ipg_checkbox::{CheckBox, CheckboxStyle};
 use crate::widgets::ipg_color_picker::ColorPicker;
 use crate::widgets::ipg_column::Column;
-use crate::widgets::ipg_combo_box::ComboBox;
+use crate::widgets::ipg_combo_box::{ComboBox, ComboBoxStyle};
 use crate::widgets::ipg_container::{Container, ContainerStyle};
 use crate::widgets::ipg_date_picker::DatePicker;
 use crate::widgets::ipg_draw::Draw;
@@ -103,6 +103,7 @@ pub enum Widgets {
     CheckBox(CheckBox),
     CheckboxStyle(CheckboxStyle),
     ComboBox(ComboBox),
+    ComboBoxStyle(ComboBoxStyle),
     ContainerStyle(ContainerStyle),
     DatePicker(DatePicker),
     Font(Font),
@@ -174,12 +175,14 @@ ipg_widget_accessors! {
     CardStyle        => CardStyle,         as_card_style,          as_card_style_mut;
     CheckBox         => CheckBox,          as_checkbox,            as_checkbox_mut;
     CheckboxStyle    => CheckboxStyle,     as_checkbox_style,      as_checkbox_style_mut;
+    ComboBox         => ComboBox,          as_combobox,            as_combobox_mut;
+    ComboBoxStyle    => ComboBoxStyle,     as_combobox_style,      as_combobox_style_mut;
     ContainerStyle   => ContainerStyle,    as_container_style,     as_container_style_mut;
     Font             => Font,              as_font,                as_font_mut;
     Icon             => IpgIcon,           as_icon,                as_icon_mut;
     Image            => Image,             as_image,               as_image_mut;
     MenuStyle        => MenuStyle,         as_menu_style,          as_menu_style_mut;
-    Palette          => CustomPalette,           as_palette,             as_palette_mut;
+    Palette          => CustomPalette,     as_palette,             as_palette_mut;
     PickList         => PickList,          as_pick_list,           as_pick_list_mut;
     PickListStyle    => PickListStyle,     as_pick_list_style,     as_pick_list_style_mut;
     ProgressBar      => ProgressBar,       as_progress_bar,        as_progress_bar_mut;

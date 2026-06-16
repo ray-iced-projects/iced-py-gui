@@ -37,7 +37,7 @@ with Window(title="Pick List Demo", size=(400, 400), center=True):
             # A ComboBox requires that the options you want to select be in a list.
             options = ["Hello", "World"]
 
-            add_text(content="The ComboBox is good for long" +
+            add_text(content="The ComboBox is good for long " +
                      "lists when you begin typing, the " +
                      "box will filter the selection")
 

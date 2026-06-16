@@ -868,7 +868,7 @@ fn get_widget<'a>(state: &'a IpgState, id: &usize) -> Option<Element<'a, Message
                     chk.construct(&state.widgets)
                 },
                 Widgets::ComboBox(cb) => {
-                    cb.construct()
+                    cb.construct(&state.widgets)
                 },
                 Widgets::Image(image) => {
                     image.construct()

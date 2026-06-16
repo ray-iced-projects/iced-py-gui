@@ -15,12 +15,12 @@ from .icedpygui import (
     clipboard_read,
     clipboard_write,
     add_button as _add_button,
-    add_button_style as _add_button_style,
     add_card_style,
     add_card as _add_card,
     add_checkbox_style,
     add_checkbox as _add_checkbox,
     add_combobox as _add_combobox,
+    add_combobox_style,
     add_color_picker as _add_color_picker,
     add_column as _add_column,
     add_container as _add_container,
@@ -201,10 +201,6 @@ def _register_container(numeric_id, container_id, window_id):
 # ---------------------------------------------------------------------------
 # Thin wrappers that fall back to the context stacks
 # ---------------------------------------------------------------------------
-
-# add_button_style is also available as the low-level function for users who
-# prefer keyword-argument style over the ButtonStyle builder.
-add_button_style = _add_button_style
 
 def _resolve_parent_id(parent_id):
     """Convert parent_id to a string. If it's an int, look up the container string."""

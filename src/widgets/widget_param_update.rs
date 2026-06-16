@@ -57,6 +57,7 @@ pub fn param_update(
         Widgets::CheckBox(w) => apply_update(w, item, value),
         Widgets::CheckboxStyle(w) => apply_update(w, item, value),
         Widgets::ComboBox(w) => apply_update(w, item, value),
+        Widgets::ComboBoxStyle(w) => apply_update(w, item, value),
         Widgets::ContainerStyle(w) => apply_update(w, item, value),
         Widgets::DatePicker(w) => apply_update(w, item, value),
         Widgets::Font(w) => apply_update(w, item, value),

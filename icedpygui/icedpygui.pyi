@@ -277,6 +277,86 @@ def add_color_picker_style(
 
     """
 
+def add_combobox_style(
+        palette_base_color: Color | None = None,
+        palette_base_alpha: float | None = None,
+        palette_base_rgba: list[float, 4] | None = None,
+
+        selected_text_color: Color | None = None,
+        selected_text_alpha: float | None = None,
+        selected_text_rgba: list[float, 4] | None = None,
+
+        selected_bkg_color: Color | None = None,
+        selected_bkg_alpha: float | None = None,
+        selected_bkg_rgba: list[float, 4] | None = None,
+
+        border_radius: list[float] | None = None,
+        border_width: float | None = None,
+
+        shadow_color: Color | None = None,
+        shadow_color_alpha: float | None = None,
+        shadow_rgba: list[float, 4] | None = None,
+        shadow_offset_xy: list[float, 2] | None = None,
+        shadow_blur_radius: float | None = None,
+    ) -> int:
+    """
+    Add styling to a combobox dropdown menu.
+
+    Creates a custom style that can be applied to a combobox via its ``style_id``
+    parameter.  The style controls the appearance of the dropdown overlay —
+    the menu background, the highlighted selection row, the border, and the
+    optional drop shadow.
+
+    The menu background is derived from a palette generated from
+    ``palette_base`` (equivalent to the window background color).
+    When not supplied, the theme's own background palette is used.
+
+    Parameters
+    ----------
+    palette_base_color : Color, Optional
+        Seed color for the menu background palette, using a predefined Color variant.
+    palette_base_alpha : float, Optional
+        Sets the alpha of ``palette_base_color``.
+    palette_base_rgba : list of float, Optional
+        Seed color for the menu background palette as ``[r, g, b, a]``.
+        The ``weak`` shade of this palette becomes the menu background and the
+        ``strong`` shade becomes the border color.
+    selected_text_color : Color, Optional
+        Text color of the highlighted (selected) row, using a predefined Color variant.
+    selected_text_alpha : float, Optional
+        Sets the alpha of ``selected_text_color``.
+    selected_text_rgba : list of float, Optional
+        Text color of the highlighted row as ``[r, g, b, a]``.
+        Defaults to the theme primary strong text color.
+    selected_bkg_color : Color, Optional
+        Background color of the highlighted row, using a predefined Color variant.
+    selected_bkg_alpha : float, Optional
+        Sets the alpha of ``selected_bkg_color``.
+    selected_bkg_rgba : list of float, Optional
+        Background color of the highlighted row as ``[r, g, b, a]``.
+        Defaults to the theme primary strong color.
+    border_radius : list of float, Optional
+        Corner radii as ``[all]`` or ``[top-left, top-right, bottom-right, bottom-left]``.
+    border_width : float, Optional
+        Border line width in logical pixels.  Defaults to ``1.0``.
+    shadow_color : Color, Optional
+        Drop shadow color, using a predefined Color variant.
+    shadow_color_alpha : float, Optional
+        Sets the alpha of ``shadow_color``.
+    shadow_rgba : list of float, Optional
+        Drop shadow color as ``[r, g, b, a]``.
+    shadow_offset_xy : list of float, Optional
+        Drop shadow ``[x, y]`` offset in logical pixels.
+    shadow_blur_radius : float, Optional
+        Drop shadow blur radius.
+    gen_id : int, Optional
+        Obtains an ID of a widget that has not been created, used for the gen_id parameter.
+
+    Returns
+    -------
+    int: The numeric style ID to pass to a combobox's ``style_id``.
+    """
+
 class ContainerStyleStd:
     """Container standard styles"""
     BorderedBox=''

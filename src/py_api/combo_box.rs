@@ -5,7 +5,8 @@ use pyo3::types::{PyAnyMethods, PyListMethods};
 type PyObject = Py<PyAny>;
 
 use iced::widget::combo_box;
-use crate::widgets::ipg_combo_box::ComboBox;
+use crate::graphics::colors::Color;
+use crate::widgets::ipg_combo_box::{ComboBox, ComboBoxStyle};
 use crate::{access_state, add_callback_to_mutex, 
     add_user_data_to_mutex};
 
@@ -85,6 +86,8 @@ use crate::state::{Widgets, get_id, set_state_of_widget};
     text_ellipsis_start=None,
     text_ellipsis_middle=None,
     text_ellipsis_end=true,
+    font_id=None,
+    style_id=None,
     user_data=None, 
     show=true,
     gen_id=None, 
@@ -108,6 +111,8 @@ pub fn add_combobox(
     text_ellipsis_start: Option<bool>,
     text_ellipsis_middle: Option<bool>,
     text_ellipsis_end: bool,
+    font_id: Option<usize>,
+    style_id: Option<usize>,
     user_data: Option<PyObject>,
     show: bool,
     gen_id: Option<usize>,
@@ -174,9 +179,153 @@ pub fn add_combobox(
             text_size,
             text_line_height,
             text_ellipsis,
+            font_id,
+            style_id,
             show,
         }));
 
+
+    drop(state);
+    Ok(id)
+}
+
+
+
+/// Add styling to a combobox dropdown menu.
+///
+/// Creates a custom style that can be applied to a combobox via its ``style_id``
+/// parameter.  The style controls the appearance of the dropdown overlay —
+/// the menu background, the highlighted selection row, the border, and the
+/// optional drop shadow.
+///
+/// The menu background is derived from a palette generated from
+/// ``palette_base`` (equivalent to the window background color).
+/// When not supplied, the theme's own background palette is used.
+///
+/// Parameters
+/// ----------
+/// palette_base_color : Color, Optional
+///     Seed color for the menu background palette, using a predefined Color variant.
+/// palette_base_alpha : float, Optional
+///     Sets the alpha of ``palette_base_color``.
+/// palette_base_rgba : list of float, Optional
+///     Seed color for the menu background palette as ``[r, g, b, a]``.
+///     The ``weak`` shade of this palette becomes the menu background and the
+///     ``strong`` shade becomes the border color.
+/// selected_text_color : Color, Optional
+///     Text color of the highlighted (selected) row, using a predefined Color variant.
+/// selected_text_alpha : float, Optional
+///     Sets the alpha of ``selected_text_color``.
+/// selected_text_rgba : list of float, Optional
+///     Text color of the highlighted row as ``[r, g, b, a]``.
+///     Defaults to the theme primary strong text color.
+/// selected_bkg_color : Color, Optional
+///     Background color of the highlighted row, using a predefined Color variant.
+/// selected_bkg_alpha : float, Optional
+///     Sets the alpha of ``selected_bkg_color``.
+/// selected_bkg_rgba : list of float, Optional
+///     Background color of the highlighted row as ``[r, g, b, a]``.
+///     Defaults to the theme primary strong color.
+/// border_radius : list of float, Optional
+///     Corner radii as ``[all]`` or ``[top-left, top-right, bottom-right, bottom-left]``.
+/// border_width : float, Optional
+///     Border line width in logical pixels.  Defaults to ``1.0``.
+/// shadow_color : Color, Optional
+///     Drop shadow color, using a predefined Color variant.
+/// shadow_color_alpha : float, Optional
+///     Sets the alpha of ``shadow_color``.
+/// shadow_rgba : list of float, Optional
+///     Drop shadow color as ``[r, g, b, a]``.
+/// shadow_offset_xy : list of float, Optional
+///     Drop shadow ``[x, y]`` offset in logical pixels.
+/// shadow_blur_radius : float, Optional
+///     Drop shadow blur radius.
+/// gen_id : int, Optional
+///     Obtains an ID of a widget that has not been created, used for the gen_id parameter.
+///
+/// Returns
+/// -------
+/// int
+///     The numeric style ID to pass to a combobox's ``style_id``.
+#[pyfunction]
+#[pyo3(signature = (
+        palette_base_color = None,
+        palette_base_alpha = None,
+        palette_base_rgba = None,
+
+        selected_text_color = None,
+        selected_text_alpha = None,
+        selected_text_rgba = None,
+
+        selected_bkg_color = None,
+        selected_bkg_alpha = None,
+        selected_bkg_rgba = None,
+        
+        border_radius = None,
+        border_width = None,
+
+        shadow_color = None,
+        shadow_color_alpha = None,
+        shadow_rgba = None,
+        shadow_offset_xy = None,
+        shadow_blur_radius = None,
+
+        gen_id=None
+        ))]
+pub fn add_combobox_style(
+    palette_base_color: Option<Color>,
+    palette_base_alpha: Option<f32>,
+    palette_base_rgba: Option<[f32; 4]>,
+
+    selected_text_color: Option<Color>,
+    selected_text_alpha: Option<f32>,
+    selected_text_rgba: Option<[f32; 4]>,
+
+    selected_bkg_color: Option<Color>,
+    selected_bkg_alpha: Option<f32>,
+    selected_bkg_rgba: Option<[f32; 4]>,
+    
+    border_radius: Option<Vec<f32>>,
+    border_width: Option<f32>,
+
+    shadow_color: Option<Color>,
+    shadow_color_alpha: Option<f32>,
+    shadow_rgba: Option<[f32; 4]>,
+    shadow_offset_xy: Option<[f32; 2]>,
+    shadow_blur_radius: Option<f32>,
+
+    gen_id: Option<usize>,
+    ) -> PyResult<usize>
+{
+    let id = get_id(gen_id);
+
+    let mut state = access_state();
+
+    state.widgets.insert(id, Widgets::ComboBoxStyle(
+        ComboBoxStyle {
+            id,
+            
+            palette_base_color,
+            palette_base_alpha,
+            palette_base_rgba,
+
+            selected_text_color,
+            selected_text_alpha,
+            selected_text_rgba,
+
+            selected_bkg_color,
+            selected_bkg_alpha,
+            selected_bkg_rgba,
+            
+            border_radius,
+            border_width,
+
+            shadow_color,
+            shadow_color_alpha,
+            shadow_rgba,
+            shadow_offset_xy,
+            shadow_blur_radius,
+        }));
 
     drop(state);
     Ok(id)

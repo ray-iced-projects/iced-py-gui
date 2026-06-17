@@ -17,7 +17,7 @@ use crate::widgets::ipg_card::{Card, CardStyle};
 use crate::widgets::ipg_checkbox::{CheckBox, CheckboxStyle};
 use crate::widgets::ipg_color_picker::ColorPicker;
 use crate::widgets::ipg_column::Column;
-use crate::widgets::ipg_combo_box::{ComboBox, ComboBoxStyle};
+use crate::widgets::ipg_combo_box::{ComboBox, ComboBoxMenuStyle, ComboBoxInputStyle};
 use crate::widgets::ipg_container::{Container, ContainerStyle};
 use crate::widgets::ipg_date_picker::DatePicker;
 use crate::widgets::ipg_draw::Draw;
@@ -103,7 +103,8 @@ pub enum Widgets {
     CheckBox(CheckBox),
     CheckboxStyle(CheckboxStyle),
     ComboBox(ComboBox),
-    ComboBoxStyle(ComboBoxStyle),
+    ComboBoxInputStyle(ComboBoxInputStyle),
+    ComboBoxMenuStyle(ComboBoxMenuStyle),
     ContainerStyle(ContainerStyle),
     DatePicker(DatePicker),
     Font(Font),
@@ -170,45 +171,46 @@ macro_rules! ipg_widget_accessors {
 }
 
 ipg_widget_accessors! {
-    Button           => Button,            as_button,              as_button_mut;
-    ButtonStyle      => ButtonStyle,       as_button_style,        as_button_style_mut;
-    CardStyle        => CardStyle,         as_card_style,          as_card_style_mut;
-    CheckBox         => CheckBox,          as_checkbox,            as_checkbox_mut;
-    CheckboxStyle    => CheckboxStyle,     as_checkbox_style,      as_checkbox_style_mut;
-    ComboBox         => ComboBox,          as_combobox,            as_combobox_mut;
-    ComboBoxStyle    => ComboBoxStyle,     as_combobox_style,      as_combobox_style_mut;
-    ContainerStyle   => ContainerStyle,    as_container_style,     as_container_style_mut;
-    Font             => Font,              as_font,                as_font_mut;
-    Icon             => IpgIcon,           as_icon,                as_icon_mut;
-    Image            => Image,             as_image,               as_image_mut;
-    MenuStyle        => MenuStyle,         as_menu_style,          as_menu_style_mut;
-    Palette          => CustomPalette,     as_palette,             as_palette_mut;
-    PickList         => PickList,          as_pick_list,           as_pick_list_mut;
-    PickListStyle    => PickListStyle,     as_pick_list_style,     as_pick_list_style_mut;
-    ProgressBar      => ProgressBar,       as_progress_bar,        as_progress_bar_mut;
-    ProgressBarStyle => ProgressBarStyle,  as_progress_bar_style,  as_progress_bar_style_mut;
-    Radio            => Radio,             as_radio,               as_radio_mut;
-    RadioStyle       => RadioStyle,        as_radio_style,         as_radio_style_mut;
-    Rule             => Rule,              as_rule,                as_rule_mut;
-    RuleStyle        => RuleStyle,         as_rule_style,          as_rule_style_mut;
-    SashStyle        => SashStyle,         as_sash_style,          as_sash_style_mut;
-    Scroller         => Scroller,          as_scroller,            as_scroller_mut;
-    ScrollableStyle  => ScrollableStyle,   as_scrollable_style,    as_scrollable_style_mut;
-    RailStyle        => RailStyle,         as_rail_style,          as_rail_style_mut;
-    AutoScrollStyle  => AutoScrollStyle,   as_auto_scroll_style,   as_auto_scroll_style_mut;
-    Separator        => Separator,         as_separator,           as_separator_mut;
-    SeparatorStyle   => SeparatorStyle,    as_separator_style,     as_separator_style_mut;
-    Slider           => Slider,            as_slider,              as_slider_mut;
-    SliderStyle      => SliderStyle,       as_slider_style,        as_slider_style_mut;
-    Space            => Space,             as_space,               as_space_mut;
-    Span             => Span,              as_span,                as_span_mut;
-    Svg              => Svg,               as_svg,                 as_svg_mut;
-    TableStyle       => TableStyle,        as_table_style,         as_table_style_mut;
-    Text             => Text,              as_text,                as_text_mut;
-    TextEditor       => TextEditor,        as_text_editor,         as_text_editor_mut;
-    TextInputStyle   => TextInputStyle,    as_text_input_style,    as_text_input_style_mut;
-    Toggler          => Toggler,           as_toggler,             as_toggler_mut;
-    TogglerStyle     => TogglerStyle,      as_toggler_style,       as_toggler_style_mut;
+    Button             => Button,              as_button,                as_button_mut;
+    ButtonStyle        => ButtonStyle,         as_button_style,          as_button_style_mut;
+    CardStyle          => CardStyle,           as_card_style,            as_card_style_mut;
+    CheckBox           => CheckBox,            as_checkbox,              as_checkbox_mut;
+    CheckboxStyle      => CheckboxStyle,       as_checkbox_style,        as_checkbox_style_mut;
+    ComboBox           => ComboBox,            as_combobox,              as_combobox_mut;
+    ComboBoxInputStyle => ComboBoxInputStyle,  as_combobox_input_style,  as_combobox_input_style_mut;
+    ComboBoxMenuStyle  => ComboBoxMenuStyle,   as_combobox_menu_style,   as_combobox_menu_style_mut;
+    ContainerStyle     => ContainerStyle,      as_container_style,       as_container_style_mut;
+    Font               => Font,                as_font,                  as_font_mut;
+    Icon               => IpgIcon,             as_icon,                  as_icon_mut;
+    Image              => Image,               as_image,                 as_image_mut;
+    MenuStyle          => MenuStyle,           as_menu_style,            as_menu_style_mut;
+    Palette            => CustomPalette,       as_palette,               as_palette_mut;
+    PickList           => PickList,            as_pick_list,             as_pick_list_mut;
+    PickListStyle      => PickListStyle,       as_pick_list_style,       as_pick_list_style_mut;
+    ProgressBar        => ProgressBar,         as_progress_bar,          as_progress_bar_mut;
+    ProgressBarStyle   => ProgressBarStyle,    as_progress_bar_style,    as_progress_bar_style_mut;
+    Radio              => Radio,               as_radio,                 as_radio_mut;
+    RadioStyle         => RadioStyle,          as_radio_style,           as_radio_style_mut;
+    Rule               => Rule,                as_rule,                  as_rule_mut;
+    RuleStyle          => RuleStyle,           as_rule_style,            as_rule_style_mut;
+    SashStyle          => SashStyle,           as_sash_style,            as_sash_style_mut;
+    Scroller           => Scroller,            as_scroller,              as_scroller_mut;
+    ScrollableStyle    => ScrollableStyle,     as_scrollable_style,      as_scrollable_style_mut;
+    RailStyle          => RailStyle,           as_rail_style,            as_rail_style_mut;
+    AutoScrollStyle    => AutoScrollStyle,     as_auto_scroll_style,     as_auto_scroll_style_mut;
+    Separator          => Separator,           as_separator,             as_separator_mut;
+    SeparatorStyle     => SeparatorStyle,      as_separator_style,       as_separator_style_mut;
+    Slider             => Slider,              as_slider,                as_slider_mut;
+    SliderStyle        => SliderStyle,         as_slider_style,          as_slider_style_mut;
+    Space              => Space,               as_space,                 as_space_mut;
+    Span               => Span,                as_span,                  as_span_mut;
+    Svg                => Svg,                 as_svg,                   as_svg_mut;
+    TableStyle         => TableStyle,          as_table_style,           as_table_style_mut;
+    Text               => Text,                as_text,                  as_text_mut;
+    TextEditor         => TextEditor,          as_text_editor,           as_text_editor_mut;
+    TextInputStyle     => TextInputStyle,      as_text_input_style,      as_text_input_style_mut;
+    Toggler            => Toggler,             as_toggler,               as_toggler_mut;
+    TogglerStyle       => TogglerStyle,        as_toggler_style,         as_toggler_style_mut;
 }
 
 // ---------------------------------------------------------------------------

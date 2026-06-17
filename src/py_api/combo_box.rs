@@ -6,7 +6,7 @@ type PyObject = Py<PyAny>;
 
 use iced::widget::combo_box;
 use crate::graphics::colors::Color;
-use crate::widgets::ipg_combo_box::{ComboBox, ComboBoxStyle};
+use crate::widgets::ipg_combo_box::{ComboBox, ComboBoxInputStyle, ComboBoxMenuStyle};
 use crate::{access_state, add_callback_to_mutex, 
     add_user_data_to_mutex};
 
@@ -87,7 +87,8 @@ use crate::state::{Widgets, get_id, set_state_of_widget};
     text_ellipsis_middle=None,
     text_ellipsis_end=true,
     font_id=None,
-    style_id=None,
+    input_style_id=None,
+    menu_style_id=None,
     user_data=None, 
     show=true,
     gen_id=None, 
@@ -112,7 +113,8 @@ pub fn add_combobox(
     text_ellipsis_middle: Option<bool>,
     text_ellipsis_end: bool,
     font_id: Option<usize>,
-    style_id: Option<usize>,
+    input_style_id: Option<usize>,
+    menu_style_id: Option<usize>,
     user_data: Option<PyObject>,
     show: bool,
     gen_id: Option<usize>,
@@ -180,7 +182,8 @@ pub fn add_combobox(
             text_line_height,
             text_ellipsis,
             font_id,
-            style_id,
+            input_style_id,
+            menu_style_id,
             show,
         }));
 
@@ -249,30 +252,30 @@ pub fn add_combobox(
 ///     The numeric style ID to pass to a combobox's ``style_id``.
 #[pyfunction]
 #[pyo3(signature = (
-        palette_base_color = None,
-        palette_base_alpha = None,
-        palette_base_rgba = None,
+    palette_base_color = None,
+    palette_base_alpha = None,
+    palette_base_rgba = None,
 
-        selected_text_color = None,
-        selected_text_alpha = None,
-        selected_text_rgba = None,
+    selected_text_color = None,
+    selected_text_alpha = None,
+    selected_text_rgba = None,
 
-        selected_bkg_color = None,
-        selected_bkg_alpha = None,
-        selected_bkg_rgba = None,
-        
-        border_radius = None,
-        border_width = None,
+    selected_bkg_color = None,
+    selected_bkg_alpha = None,
+    selected_bkg_rgba = None,
+    
+    border_radius = None,
+    border_width = None,
 
-        shadow_color = None,
-        shadow_color_alpha = None,
-        shadow_rgba = None,
-        shadow_offset_xy = None,
-        shadow_blur_radius = None,
+    shadow_color = None,
+    shadow_color_alpha = None,
+    shadow_rgba = None,
+    shadow_offset_xy = None,
+    shadow_blur_radius = None,
 
-        gen_id=None
-        ))]
-pub fn add_combobox_style(
+    gen_id=None
+    ))]
+pub fn add_combobox_menu_style(
     palette_base_color: Option<Color>,
     palette_base_alpha: Option<f32>,
     palette_base_rgba: Option<[f32; 4]>,
@@ -301,8 +304,8 @@ pub fn add_combobox_style(
 
     let mut state = access_state();
 
-    state.widgets.insert(id, Widgets::ComboBoxStyle(
-        ComboBoxStyle {
+    state.widgets.insert(id, Widgets::ComboBoxMenuStyle(
+        ComboBoxMenuStyle {
             id,
             
             palette_base_color,
@@ -325,6 +328,73 @@ pub fn add_combobox_style(
             shadow_rgba,
             shadow_offset_xy,
             shadow_blur_radius,
+        }));
+
+    drop(state);
+    Ok(id)
+}
+
+#[pyfunction]
+#[pyo3(signature = (
+    palette_base_color = None,
+    palette_base_alpha = None,
+    palette_base_rgba = None,
+
+    selected_text_color = None,
+    selected_text_alpha = None,
+    selected_text_rgba = None,
+    
+    border_color = None,
+    border_alpha = None,
+    border_rgba = None,
+
+    border_radius = None,
+    border_width = None,
+
+    gen_id=None
+    ))]
+pub fn add_combobox_input_style(
+    palette_base_color: Option<Color>,
+    palette_base_alpha: Option<f32>,
+    palette_base_rgba: Option<[f32; 4]>,
+
+    selected_text_color: Option<Color>,
+    selected_text_alpha: Option<f32>,
+    selected_text_rgba: Option<[f32; 4]>,
+
+    border_color: Option<Color>,
+    border_alpha: Option<f32>,
+    border_rgba: Option<[f32; 4]>,
+
+    border_radius: Option<Vec<f32>>,
+    border_width: Option<f32>,
+
+    gen_id: Option<usize>,
+    ) -> PyResult<usize>
+{
+    let id = get_id(gen_id);
+
+    let mut state = access_state();
+
+    state.widgets.insert(id, Widgets::ComboBoxInputStyle(
+        ComboBoxInputStyle {
+            id,
+            
+            palette_base_color,
+            palette_base_alpha,
+            palette_base_rgba,
+
+            selected_text_color,
+            selected_text_alpha,
+            selected_text_rgba,
+
+            border_color,
+            border_alpha,
+            border_rgba,
+
+            border_radius,
+            border_width,
+
         }));
 
     drop(state);

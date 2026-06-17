@@ -20,7 +20,7 @@ from .icedpygui import (
     add_checkbox_style,
     add_checkbox as _add_checkbox,
     add_combobox as _add_combobox,
-    add_combobox_style,
+    add_combobox_menu_style,
     add_color_picker as _add_color_picker,
     add_column as _add_column,
     add_container as _add_container,

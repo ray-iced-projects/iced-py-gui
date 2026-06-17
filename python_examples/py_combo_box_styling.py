@@ -10,7 +10,7 @@ from icedpygui import (
     Container,
     start_session,
     add_combobox,
-    add_combobox_style,
+    add_combobox_menu_style,
     add_text)
 
 # The data returns the item selected and can be named anything.
@@ -26,10 +26,10 @@ def picked_item_with_user_data(cb_id: int, data: str, user_data: any):
     print(f"pl_id = {cb_id} data = {data}, user_data = {user_data}")
 
 
-palette_style_id = add_combobox_style(palette_base_color=Color.DARK_GREEN)
-selected_style_id = add_combobox_style(selected_bkg_color=Color.LIGHT_YELLOW,
+palette_style_id = add_combobox_menu_style(palette_base_color=Color.DARK_GREEN)
+selected_style_id = add_combobox_menu_style(selected_bkg_color=Color.LIGHT_YELLOW,
                                        selected_text_color=Color.LIGHT_GREEN)
-shadow_style_id = add_combobox_style(shadow_color=Color.ALICE_BLUE,
+shadow_style_id = add_combobox_menu_style(shadow_color=Color.ALICE_BLUE,
                                      shadow_blur_radius=5.0,
                                      shadow_offset_xy=[10, 10])
 
@@ -66,7 +66,7 @@ with Window(title="Pick List Demo", size=(500, 600), center=True):
                 placeholder="Choose a Word...",
                 on_select=picked_item,
                 width=150,
-                style_id=palette_style_id,
+                menu_style_id=palette_style_id,
                 )
 
             add_text(content="Selected item styling")
@@ -75,16 +75,16 @@ with Window(title="Pick List Demo", size=(500, 600), center=True):
                 placeholder="Choose a Word...",
                 on_select=picked_item,
                 width=150,
-                style_id=selected_style_id,
+                menu_style_id=selected_style_id,
                 )
 
-            add_text(content="Shadowm styling")
+            add_text(content="Shadow styling")
             add_combobox(
                 options=options,
                 placeholder="Choose a Word...",
                 on_select=picked_item,
                 width=150,
-                style_id=shadow_style_id,
+                menu_style_id=shadow_style_id,
                 )
 
 

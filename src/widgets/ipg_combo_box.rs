@@ -21,6 +21,7 @@ use iced::widget::text::Ellipsis;
 use iced::Element;
 use iced::widget;
 
+use iced::widget::text_input;
 use pyo3::pyclass;
 use pyo3::{Py, PyAny};
 type PyObject = Py<PyAny>;
@@ -41,7 +42,8 @@ pub struct ComboBox {
     pub text_line_height: Option<f32>,
     pub text_ellipsis: Ellipsis,
     pub font_id: Option<usize>,
-    pub style_id: Option<usize>,
+    pub menu_style_id: Option<usize>,
+    pub input_style_id: Option<usize>,
     pub show: bool,
 }
 
@@ -73,8 +75,8 @@ impl ComboBox {
                 .and_then(Widgets::as_font).cloned();
 
         let style_opt = 
-            self.lookup(widgets, self.style_id)
-            .and_then(Widgets::as_combobox_style).cloned();
+            self.lookup(widgets, self.menu_style_id)
+            .and_then(Widgets::as_combobox_menu_style).cloned();
 
         let placeholder = self.placeholder.as_deref().unwrap_or_default();
 
@@ -143,7 +145,7 @@ impl ComboBox {
  }
 
 #[derive(Debug, Clone)]
- pub struct ComboBoxStyle {
+ pub struct ComboBoxMenuStyle {
     pub id: usize,
 
     pub palette_base_color: Option<Color>,
@@ -168,7 +170,7 @@ impl ComboBox {
     pub shadow_blur_radius: Option<f32>,
 }
 
-impl ComboBoxStyle {
+impl ComboBoxMenuStyle {
     pub fn to_iced(
         &self,
         theme: &iced::Theme,
@@ -237,7 +239,106 @@ impl ComboBoxStyle {
             
 }
 
+#[derive(Debug, Clone)]
+pub struct ComboBoxInputStyle {
+    pub id: usize,
 
+    pub palette_base_color: Option<Color>,
+    pub palette_base_alpha: Option<f32>,
+    pub palette_base_rgba: Option<[f32; 4]>,
+
+    pub selected_text_color: Option<Color>,
+    pub selected_text_alpha: Option<f32>,
+    pub selected_text_rgba: Option<[f32; 4]>,
+
+    pub border_color: Option<Color>,
+    pub border_alpha: Option<f32>,
+    pub border_rgba: Option<[f32; 4]>,
+
+    pub border_radius: Option<Vec<f32>>,
+    pub border_width: Option<f32>,
+}
+
+impl ComboBoxInputStyle {
+    pub fn to_iced(
+        &self,
+        theme: &iced::Theme,
+        status: text_input::Status,
+    ) -> text_input::Style {
+
+        let radius = self.border_radius.as_ref()
+            .map(|rd| get_radius(rd, "combo_box".to_string()))
+            .unwrap_or(2.0.into());
+
+        let border_width = if let Some(w) = self.border_width {
+            w
+        } else { 1.0 };
+
+        let palette = theme.palette();
+
+        let palette_base_opt = 
+            Color::rgba_ipg_color_to_iced(self.palette_base_rgba, &self.palette_base_color, self.palette_base_alpha);
+        
+        let bkg = if let Some(color) = palette_base_opt {
+            background(color)
+        } else { palette.background };
+        
+        let selected_txt_color_opt = 
+            Color::rgba_ipg_color_to_iced(self.selected_text_rgba, &self.selected_text_color, self.selected_text_alpha);
+
+        let selected_text_color = if let Some(t_color) = selected_txt_color_opt {
+            t_color
+        } else { palette.primary.weak.color };
+
+        let border_color = 
+            Color::rgba_ipg_color_to_iced(self.border_rgba, &self.border_color, self.border_alpha);
+
+        let border = if let Some(bc) = border_color {
+            bc
+        } else { palette.primary.strong.color };
+
+        let active = text_input::Style {
+            background: iced::Background::Color(bkg.base.color),
+            border: Border {
+                radius,
+                width: border_width,
+                color: bkg.strong.color,
+            },
+            icon: bkg.weak.text,
+            placeholder: bkg.weak.text,
+            value: bkg.base.text,
+            selection: selected_text_color,
+        };
+
+        let style = match status {
+            text_input::Status::Active => active,
+            text_input::Status::Hovered => text_input::Style {
+                border: Border {
+                    color: bkg.base.text,
+                    ..active.border
+                },
+                ..active
+            },
+            text_input::Status::Focused { .. } => text_input::Style {
+                border: Border {
+                    color: border,
+                    ..active.border
+                },
+                ..active
+            },
+            text_input::Status::Disabled => text_input::Style {
+                background: iced::Background::Color(bkg.weak.color),
+                value: active.placeholder,
+                placeholder: bkg.strongest.color,
+                ..active
+            },
+        };
+
+        style
+
+    }
+
+}
 
 #[derive(Debug, Clone, PartialEq, Hash)]
 #[pyclass(eq, eq_int, hash, frozen)]
@@ -257,7 +358,7 @@ pub enum ComboBoxParam {
 
 #[derive(Debug, Clone, PartialEq, Hash)]
 #[pyclass(eq, eq_int, hash, frozen)]
-pub enum ComboBoxStyleParam {
+pub enum ComboBoxMenuStyleParam {
     PaletteBaseColor,
     PaletteBaseAlpha,
     PaletteBaseRgba,
@@ -280,6 +381,14 @@ pub enum ComboBoxStyleParam {
     ShadowBlurRadius,
 }
 
+#[derive(Debug, Clone, PartialEq, Hash)]
+#[pyclass(eq, eq_int, hash, frozen)]
+pub enum ComboBoxInputStyleParam {
+    PaletteBaseColor,
+    PaletteBaseAlpha,
+    PaletteBaseRgba,
+}
+
 // ---------------------------------------------------------------------------
 // WidgetParamUpdate implementations
 // ---------------------------------------------------------------------------
@@ -299,7 +408,7 @@ impl WidgetParamUpdate for ComboBox {
             ComboBoxParam::Placeholder => set_t_value(&mut self.placeholder, value, "ComboBoxParam::Placeholder"),
             ComboBoxParam::Selected => set_t_value(&mut self.selected, value, "ComboBoxParam::Selected"),
             ComboBoxParam::Show => set_t_value(&mut self.show, value, "ComboBoxParam::Show"),
-            ComboBoxParam::StyleId => set_t_value(&mut self.style_id, value, "ComboBoxParam::StyleId"),
+            ComboBoxParam::StyleId => set_t_value(&mut self.menu_style_id, value, "ComboBoxParam::StyleId"),
             ComboBoxParam::TextLineHeight => set_t_value(&mut self.text_line_height,value, "ComboBoxParam::TextLineHeight"),
             ComboBoxParam::TextSize => set_t_value(&mut self.text_size, value, "ComboBoxParam::TextSize"),
             ComboBoxParam::Width => set_t_value(&mut self.width, value, "ComboBoxParam::Width"),
@@ -308,27 +417,39 @@ impl WidgetParamUpdate for ComboBox {
 }
 
 
-impl WidgetParamUpdate for ComboBoxStyle {
-    type Param = ComboBoxStyleParam;
+impl WidgetParamUpdate for ComboBoxMenuStyle {
+    type Param = ComboBoxMenuStyleParam;
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
-            ComboBoxStyleParam::PaletteBaseColor => set_t_value(&mut self.palette_base_color, value, "ComboBoxStyleParam::PaletteBaseColor"),
-            ComboBoxStyleParam::PaletteBaseAlpha => set_t_value(&mut self.palette_base_alpha, value, "ComboBoxStyleParam::PaletteBaseAlpha"),
-            ComboBoxStyleParam::PaletteBaseRgba => set_t_value(&mut self.palette_base_rgba, value, "ComboBoxStyleParam::PaletteBaseRgba"),
-            ComboBoxStyleParam::SelectedTextColor => set_t_value(&mut self.selected_text_color, value, "ComboBoxStyleParam::SelectedTextColor"),
-            ComboBoxStyleParam::SelectedTextAlpha => set_t_value(&mut self.selected_text_alpha, value, "ComboBoxStyleParam::SelectedTextAlpha"),
-            ComboBoxStyleParam::SelectedTextRgba => set_t_value(&mut self.selected_text_rgba, value, "ComboBoxStyleParam::SelectedTextRgba"),
-            ComboBoxStyleParam::SelectedBkgColor => set_t_value(&mut self.selected_bkg_color, value, "ComboBoxStyleParam::SelectedBkgColor"),
-            ComboBoxStyleParam::SelectedBkgAlpha => set_t_value(&mut self.selected_bkg_alpha, value, "ComboBoxStyleParam::SelectedBkgAlpha"),
-            ComboBoxStyleParam::SelectedBkgRgba => set_t_value(&mut self.selected_bkg_rgba, value, "ComboBoxStyleParam::SelectedBkgRgba"),
-            ComboBoxStyleParam::BorderRadius => set_t_value(&mut self.border_radius, value, "ComboBoxStyleParam::BorderRadius"),
-            ComboBoxStyleParam::BorderWidth => set_t_value(&mut self.border_width, value, "ComboBoxStyleParam::BorderWidth"),
-            ComboBoxStyleParam::ShadowColor => set_t_value(&mut self.shadow_color, value, "ComboBoxStyleParam::ShadowColor"),
-            ComboBoxStyleParam::ShadowColorAlpha => set_t_value(&mut self.shadow_color_alpha, value, "ComboBoxStyleParam::ShadowColorAlpha"),
-            ComboBoxStyleParam::ShadowRgba => set_t_value(&mut self.shadow_rgba, value, "ComboBoxStyleParam::ShadowRgba"),
-            ComboBoxStyleParam::ShadowOffsetXY => set_t_value(&mut self.shadow_offset_xy, value, "ComboBoxStyleParam::ShadowOffsetXY"),
-            ComboBoxStyleParam::ShadowBlurRadius => set_t_value(&mut self.shadow_blur_radius, value, "ComboBoxStyleParam::ShadowBlurRadius"),
+            ComboBoxMenuStyleParam::PaletteBaseColor => set_t_value(&mut self.palette_base_color, value, "ComboBoxStyleParam::PaletteBaseColor"),
+            ComboBoxMenuStyleParam::PaletteBaseAlpha => set_t_value(&mut self.palette_base_alpha, value, "ComboBoxStyleParam::PaletteBaseAlpha"),
+            ComboBoxMenuStyleParam::PaletteBaseRgba => set_t_value(&mut self.palette_base_rgba, value, "ComboBoxStyleParam::PaletteBaseRgba"),
+            ComboBoxMenuStyleParam::SelectedTextColor => set_t_value(&mut self.selected_text_color, value, "ComboBoxStyleParam::SelectedTextColor"),
+            ComboBoxMenuStyleParam::SelectedTextAlpha => set_t_value(&mut self.selected_text_alpha, value, "ComboBoxStyleParam::SelectedTextAlpha"),
+            ComboBoxMenuStyleParam::SelectedTextRgba => set_t_value(&mut self.selected_text_rgba, value, "ComboBoxStyleParam::SelectedTextRgba"),
+            ComboBoxMenuStyleParam::SelectedBkgColor => set_t_value(&mut self.selected_bkg_color, value, "ComboBoxStyleParam::SelectedBkgColor"),
+            ComboBoxMenuStyleParam::SelectedBkgAlpha => set_t_value(&mut self.selected_bkg_alpha, value, "ComboBoxStyleParam::SelectedBkgAlpha"),
+            ComboBoxMenuStyleParam::SelectedBkgRgba => set_t_value(&mut self.selected_bkg_rgba, value, "ComboBoxStyleParam::SelectedBkgRgba"),
+            ComboBoxMenuStyleParam::BorderRadius => set_t_value(&mut self.border_radius, value, "ComboBoxStyleParam::BorderRadius"),
+            ComboBoxMenuStyleParam::BorderWidth => set_t_value(&mut self.border_width, value, "ComboBoxStyleParam::BorderWidth"),
+            ComboBoxMenuStyleParam::ShadowColor => set_t_value(&mut self.shadow_color, value, "ComboBoxStyleParam::ShadowColor"),
+            ComboBoxMenuStyleParam::ShadowColorAlpha => set_t_value(&mut self.shadow_color_alpha, value, "ComboBoxStyleParam::ShadowColorAlpha"),
+            ComboBoxMenuStyleParam::ShadowRgba => set_t_value(&mut self.shadow_rgba, value, "ComboBoxStyleParam::ShadowRgba"),
+            ComboBoxMenuStyleParam::ShadowOffsetXY => set_t_value(&mut self.shadow_offset_xy, value, "ComboBoxStyleParam::ShadowOffsetXY"),
+            ComboBoxMenuStyleParam::ShadowBlurRadius => set_t_value(&mut self.shadow_blur_radius, value, "ComboBoxStyleParam::ShadowBlurRadius"),
+        }
+    }
+}
+
+impl WidgetParamUpdate for ComboBoxInputStyle {
+    type Param = ComboBoxInputStyleParam;
+
+    fn param_update(&mut self, param: Self::Param, _value: &PyObject) {
+        match param {
+            ComboBoxInputStyleParam::PaletteBaseColor => todo!(),
+            ComboBoxInputStyleParam::PaletteBaseAlpha => todo!(),
+            ComboBoxInputStyleParam::PaletteBaseRgba => todo!(),
         }
     }
 }

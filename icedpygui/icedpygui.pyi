@@ -277,7 +277,7 @@ def add_color_picker_style(
 
     """
 
-def add_combobox_style(
+def add_combobox_menu_style(
         palette_base_color: Color | None = None,
         palette_base_alpha: float | None = None,
         palette_base_rgba: list[float, 4] | None = None,
@@ -300,9 +300,9 @@ def add_combobox_style(
         shadow_blur_radius: float | None = None,
     ) -> int:
     """
-    Add styling to a combobox dropdown menu.
+    Add styling to the combobox dropdown menu.
 
-    Creates a custom style that can be applied to a combobox via its ``style_id``
+    Creates a custom style that can be applied to a combobox via its ``menu_style_id``
     parameter.  The style controls the appearance of the dropdown overlay —
     the menu background, the highlighted selection row, the border, and the
     optional drop shadow.

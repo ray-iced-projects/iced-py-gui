@@ -138,7 +138,7 @@ with Window(title="Button Styling", size=(700, 650), center=True) as wnd_id:
 
         add_text(content=(
             "Standard palette statuses — border-highlighted tiles indicate a button state.\n"
-            "Default mapping: Base→Active/Pressed, Strong→Hovered, Base->aplha=0.5→Disabled"
+            "The button only changes it's background for each status."
         ))
 
         with Row(spacing=20, wrap=True):
@@ -169,6 +169,6 @@ with Window(title="Button Styling", size=(700, 650), center=True) as wnd_id:
 
         with Row(spacing=20):
             add_button(label="Button with custom statuses", padding=[10], palette_id=custom_pal_id)
-            add_button(label="Button default (no palette)", padding=[10])
+            add_button(label="Button default (no palette mods)", padding=[10])
 
 start_session()

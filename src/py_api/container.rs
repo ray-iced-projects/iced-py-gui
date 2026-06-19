@@ -95,7 +95,8 @@ use crate::widgets::ipg_container::{Container,
     padding=None,
     show=true, 
     style_id=None,
-    style_std=None, 
+    style_std=None,
+    gen_id=None, 
     ))]
 pub fn add_container(
     window_id: String,
@@ -122,9 +123,10 @@ pub fn add_container(
     show: bool,
     style_id: Option<usize>,
     style_std: Option<ContainerStyleStd>,
+    gen_id: Option<usize>,
     ) -> PyResult<usize>
 {
-    let id = get_id(None);
+    let id = get_id(gen_id);
     
     let prt_id = match parent_id {
         Some(id) => id,

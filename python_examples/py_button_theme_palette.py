@@ -13,6 +13,8 @@ from icedpygui import (
     ContainerParam,
     Row,
     start_session,
+    add_button,
+    ButtonStyleStd,
     add_pick_list,
     add_radio,
     RadioParam,
@@ -175,7 +177,7 @@ std_style_tiles = [subtle_tiles, bkg_tiles]
 # ---------------------------------------------------------------------------
 # GUI — initial display uses PRIMARY palette with a TokyoNight background
 # ---------------------------------------------------------------------------
-with Window(title="Button Styling", size=(700, 800), center=True) as wnd_id:
+with Window(title="Button Styling", size=(800, 850), center=True) as wnd_id:
 
     with Column(spacing=20, padding=[20], wrap=True):
 
@@ -186,7 +188,7 @@ with Window(title="Button Styling", size=(700, 800), center=True) as wnd_id:
             "These std_colors depend on the selected theme. Each theme has it's own colors.\n" +
             "if theme=GRUVBOX_LIGHT, primary=light blue, ...\n" +
             "if theme=GRUVBOX_DARK, primary=dark blue, ...\n" +
-            "See the py_window_custom_theme.py for a full exlpanation.")
+            "See the py_window_custom_theme.py  and py_button_new_palette.py for more info.")
 
         rd_id_colors = add_radio(
             labels=std_colors,
@@ -218,5 +220,17 @@ with Window(title="Button Styling", size=(700, 800), center=True) as wnd_id:
 
         with Row(spacing=20, wrap=True):
             build_tiles(state["palette"], subtle_tiles, bkg_cont_ids, bkg_text_ids, "bkg_strongest")
+
+        add_text(content="Buttons with Standard Styles")
+        with Row(spacing=10, wrap=True):
+            add_button(label="Primary Button", padding=[10])
+            add_button(label="Secondary Button", padding=[10], style_std=ButtonStyleStd.Secondary)
+            add_button(label="Success Button", padding=[10], style_std=ButtonStyleStd.Success)
+            add_button(label="Warning Button", padding=[10], style_std=ButtonStyleStd.Warning)
+            add_button(label="Danger Button", padding=[10], style_std=ButtonStyleStd.Danger)
+            add_button(label="Background Button", padding=[10], style_std=ButtonStyleStd.Background)
+            add_button(label="Subtle Button", padding=[10], style_std=ButtonStyleStd.Subtle)
+            add_button(label="Text Button", padding=[10], style_std=ButtonStyleStd.Text)
+
 
 start_session()

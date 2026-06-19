@@ -19,6 +19,7 @@ from .icedpygui import (
     add_button_style as add_button_style,
     add_card_style as add_card_style,
     add_checkbox_style as add_checkbox_style,
+    add_combobox_input_style as add_combobox_input_style,
     add_combobox_menu_style as add_combobox_menu_style,
     add_container_style as add_container_style,
     add_font_style as add_font_style,

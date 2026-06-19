@@ -495,14 +495,20 @@ fn create_content<'a>(
 }
 
 fn get_unique_parents(ids: Option<&Vec<usize>>) -> Vec<usize> {
-    // The unique ids are the ids sorted and duplicates removed
-    let mut unique_ids: Vec<usize> = match ids {
-        Some(ids) => ids.to_vec(),
+    // Preserve creation order; sorting by numeric id breaks layout when
+    // widgets are created with a pre-reserved gen_id that is lower than
+    // later auto-generated container ids.
+    let ids = match ids {
+        Some(ids) => ids,
         None => panic!("Container ids in unique_container_ids not found")
-    }; 
+    };
 
-    unique_ids.sort();
-    unique_ids.dedup();
+    let mut unique_ids: Vec<usize> = vec![];
+    for id in ids {
+        if !unique_ids.contains(id) {
+            unique_ids.push(*id);
+        }
+    }
 
     unique_ids
 }

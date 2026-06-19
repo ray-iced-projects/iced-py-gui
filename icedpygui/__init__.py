@@ -15,11 +15,13 @@ from .icedpygui import (
     clipboard_read,
     clipboard_write,
     add_button as _add_button,
+    add_button_style,
     add_card_style,
     add_card as _add_card,
     add_checkbox_style,
     add_checkbox as _add_checkbox,
     add_combobox as _add_combobox,
+    add_combobox_input_style,
     add_combobox_menu_style,
     add_color_picker as _add_color_picker,
     add_column as _add_column,
@@ -239,6 +241,16 @@ def _current_window_or_parent(parent_id=None):
     return _container_to_window_str.get(parent_id)
 
 
+def _default_container_id(container_id, kwargs):
+    """Choose a container_id that stays aligned with an explicit gen_id."""
+    if container_id is not None:
+        return container_id
+    gen_id = kwargs.get("gen_id")
+    if gen_id is not None:
+        return str(gen_id)
+    return str(generate_id())
+
+
 def _wrap_widget(rust_fn, name):
     """Create a thin wrapper that injects parent_id from the context stack."""
     def wrapper(*, parent_id=None, **kwargs):
@@ -305,8 +317,7 @@ def _wrap_container(rust_fn, name):
             raise ValueError(f"{name}: window_id is required (either pass it\
                 or use a Window context manager)")
         window_id = _resolve_window_id(window_id)
-        if container_id is None:
-            container_id = str(generate_id())
+        container_id = _default_container_id(container_id, kwargs)
         numeric_id = rust_fn(window_id=window_id, container_id=container_id,
                              parent_id=parent_id, **kwargs)
         _register_container(numeric_id, container_id, window_id)
@@ -449,11 +460,7 @@ class Container:
         if self.window_id is None:
             raise ValueError("Container: window_id is required (either pass it\
                 or use a Window context manager)")
-        self.container_id = (
-            container_id
-            if container_id is not None
-            else str(generate_id())
-        )
+        self.container_id = _default_container_id(container_id, kwargs)
         self.parent_id = parent_id
         self.kwargs = kwargs
         self.numeric_id = 0

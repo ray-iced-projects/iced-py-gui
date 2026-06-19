@@ -41,6 +41,7 @@ pub struct ComboBox {
     pub text_size: Option<f32>,
     pub text_line_height: Option<f32>,
     pub text_ellipsis: Ellipsis,
+    pub disabled: Option<bool>,
     pub font_id: Option<usize>,
     pub menu_style_id: Option<usize>,
     pub input_style_id: Option<usize>,
@@ -74,7 +75,11 @@ impl ComboBox {
             self.lookup(widgets, self.font_id)
                 .and_then(Widgets::as_font).cloned();
 
-        let style_opt = 
+        let input_style_opt = 
+            self.lookup(widgets, self.input_style_id)
+            .and_then(Widgets::as_combobox_input_style).cloned();
+
+        let menu_style_opt = 
             self.lookup(widgets, self.menu_style_id)
             .and_then(Widgets::as_combobox_menu_style).cloned();
 
@@ -94,8 +99,16 @@ impl ComboBox {
             .ellipsis(self.text_ellipsis)
             .on_open(CBMessage::OnOpen)
             .on_close(CBMessage::OnClose)
+            .input_style(move |theme, status| {
+                let status = if self.disabled == Some(true) {
+                    text_input::Status::Disabled
+                } else { status };
+                if let Some(st) = &input_style_opt {
+                    st.to_iced(theme, status)
+                } else { text_input::default(theme, status) }
+            })
             .menu_style(move |theme| {
-                if let Some(st) = &style_opt {
+                if let Some(st) = &menu_style_opt {
                     st.to_iced(theme)
                 } else { menu::default(theme) }
             });

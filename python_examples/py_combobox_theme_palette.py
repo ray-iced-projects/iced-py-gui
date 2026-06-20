@@ -80,11 +80,11 @@ def make_tiles(tiles: list[(str, str, str, int, int)]):
 # ---------------------------------------------------------------------------
 
 state = {"selected_style": "",
-         "selected_theme": "TokyoNight",
+         "selected_theme": "Light",
          "wnd_id": 0,
-         "bkg":  get_styling_palette("TokyoNight", StdColorStyle.Primary),
-         "primary": get_styling_palette("TokyoNight", StdColorStyle.Primary),
-         "secondary": get_styling_palette("TokyoNight", StdColorStyle.Secondary),
+         "bkg":  get_styling_palette("Light", StdColorStyle.Primary),
+         "primary": get_styling_palette("Light", StdColorStyle.Primary),
+         "secondary": get_styling_palette("Light", StdColorStyle.Secondary),
          }
 
 # Index into (bkg_rgba, text_rgba) palette tuples
@@ -110,9 +110,9 @@ input_focused= [
 ]
 
 input_disabled= [
-    ("bkg",         "Background",   "bkg_weak",     COLOR,  generate_id() ),
-    ("secondary",   "Value",        "base",         COLOR,  generate_id() ),
-    ("bkg",         "Placeholder",  "bkg_strongest",COLOR,  generate_id() ),
+    ("bkg",         "Background",   "bkg_weak",      COLOR,  generate_id() ),
+    ("secondary",   "Value",        "base",          COLOR,  generate_id() ),
+    ("bkg",         "Placeholder",  "bkg_strongest", COLOR,  generate_id() ),
 ]
 
 menu_tiles = [
@@ -182,79 +182,90 @@ font_id = add_font_style(family_name="Roboto", weight=FontWeight.Bold)
 with Window(title="ComboBox Theme Palette Styles",
             size=(1100, 850), center=True, theme=WindowTheme.Light) as wnd_id:
     state["wnd_id"] = wnd_id
-    with Column(spacing=20, padding=[20], height=850):
+    with Column(spacing=10, padding=[20], width_fill=True, height=850):
+        add_text(content="Select a Theme to see the differences in the styling.")
         add_pick_list(options=window_theme_names(), selected="Light",
                     placeholder="Select Theme", on_select=on_theme_select)
         with Scrollable(height=825):
-            add_text(content=(
-                "The ComboBox only uses the Background, Primary, and Secondary"
-                "Palette Colors for styling.\n"
-                "Each theme has it's own Primary, Secondary,... colors.\n"
-                "if theme=GRUVBOX_LIGHT, primary=light blue, ...\n"
-                "if theme=GRUVBOX_DARK, primary=dark blue, ...\n"
-                "See the py_window_custom_theme.py and other widget palette examples."))
+            with Column(spacing=10, width_fill=True):
+                add_text(content=(
+                    "The ComboBox uses the Background, Primary, and Secondary "
+                    "schemes for styling.\n"
+                    "Theses color schemes have a base, strong, and weak palettes."
+                    "Each palette has two colors,\nColor and a contrasting Text color.\n"
+                    "The text above the containers will indicate the color.\n"
+                    "Each theme has it's own Primary, Secondary,... colors.\n"
+                    "if theme=GRUVBOX_LIGHT, primary=light blue, ...\n"
+                    "if theme=GRUVBOX_DARK, primary=dark blue, ...\n"
+                    "See the py_window_custom_theme.py and other widget palette examples."))
 
-            add_text(content=("The ComboBox statuses: Active, Hovered, Focused, Disabled\n"
-                            "The ComboBox has two style types, input and dropdown menu.\n"
-                            "The input covers all styling except any dropdown items and such."))
+                add_text(content=(
+                    "The ComboBox statuses: Active, Hovered, Focused(dropdown active), Disabled\n"
+                    "The ComboBox has two style types, input and dropdown menu.\n"
+                    "The input covers all styling except any dropdown items and such.\n"
+                    "The menu style does not have any statuses"))
 
-            add_text(content=("Each palette has two colors, Color and a contrasting Text color.\n"
-                            "The text above the containers will indicate whether the container color "
-                            "is a Color or Text color.\n"
-                            "The combo box also uses a Primary and Secondary color scheme."))
-
-            add_text(content="ComboBoxes for seeing the actual styling")
-            with Row(spacing=10):
-                menu_style_id = add_combobox_menu_style(border_width=3)
-                input_style_id = add_combobox_input_style(border_width=3)
-                with Row(spacing=20):
-                    add_combobox(options=combo_list, placeholder="Default Styling...",
-                        on_select=selected_item, width=150, menu_style_id=menu_style_id,
-                        input_style_id=input_style_id)
-                    add_combobox(options=combo_list, placeholder="Disabled Styling...",
-                        width=150, menu_style_id=menu_style_id, disabled=True,
-                        input_style_id=input_style_id)
+                add_text(content="ComboBoxes for seeing the actual styling")
+                with Row(spacing=10):
+                    menu_style_id = add_combobox_menu_style(border_width=3)
+                    input_style_id = add_combobox_input_style(border_width=3)
+                    with Row(spacing=20):
+                        add_combobox(options=combo_list, placeholder="Default Styling...",
+                            on_select=selected_item, width=150, menu_style_id=menu_style_id,
+                            input_style_id=input_style_id)
+                        add_combobox(options=combo_list, placeholder="Disabled Styling...",
+                            width=150, menu_style_id=menu_style_id, disabled=True,
+                            input_style_id=input_style_id)
 
 
-            with Column(spacing=20, width_fill=True, height_fill=True):
-                add_text(content="******Input Styling******")
+                with Column(spacing=20, width_fill=True, height_fill=True):
+                    add_text(content="******Input Styling******")
 
-                with Column(spacing=5, width_fill=True):
-                    add_text(content="Status: Active", size=20, font_id=font_id)
-                    make_tiles(input_active)
+                    with Column(spacing=5, width_fill=True):
+                        add_text(content="Status: Active",
+                                 size=20, font_id=font_id)
+                        make_tiles(input_active)
 
-                with Row(spacing=20, width_fill=True):
-                    with Column(spacing=5):
-                        add_text(content="Status: Hovered", size=20, font_id=font_id)
-                        make_tiles(input_hovered)
+                    with Row(spacing=20, width_fill=True):
+                        with Column(spacing=5):
+                            add_text(content="Status: Hovered",
+                                     size=20, font_id=font_id)
+                            make_tiles(input_hovered)
 
-                    with Column(spacing=5):
-                        add_text(content="Status: Focused", size=20, font_id=font_id)
-                        make_tiles(input_focused)
+                        with Column(spacing=5):
+                            add_text(content="Status: Focused",
+                                     size=20, font_id=font_id)
+                            make_tiles(input_focused)
 
-                    with Column(spacing=5):
-                        add_text(content="Status: Disabled", size=20, font_id=font_id)
-                        make_tiles(input_disabled)
+                        with Column(spacing=5):
+                            add_text(content="Status: Disabled",
+                                     size=20, font_id=font_id)
+                            make_tiles(input_disabled)
 
-                with Column(spacing=5, width_fill=True):
-                    add_text(content="Menu Style - No Statuses", size=20, font_id=font_id)
-                    make_tiles(menu_tiles)
+                    with Column(spacing=5, width_fill=True):
+                        add_text(content="Menu Style - No Statuses",
+                                 size=20, font_id=font_id)
+                        make_tiles(menu_tiles)
 
-                with Column(spacing=5, width_fill=True):
-                    add_text(content="All Background Palette Colors", size=20, font_id=font_id)
-                    make_tiles(bkg_tiles)
+                    with Column(spacing=5, width_fill=True):
+                        add_text(content="All Background Palette Colors",
+                                 size=20, font_id=font_id)
+                        make_tiles(bkg_tiles)
 
-                with Column(spacing=5, width_fill=True):
-                    add_text(content="All Background Palette Text Colors", size=20, font_id=font_id)
-                    make_tiles(bkg_tiles_text)
+                    with Column(spacing=5, width_fill=True):
+                        add_text(content="All Background Palette Text Colors",
+                                 size=20, font_id=font_id)
+                        make_tiles(bkg_tiles_text)
 
-                with Column(spacing=5, width_fill=True):
-                    add_text(content="Primary Palette Text & Colors", size=20, font_id=font_id)
-                    make_tiles(primary_tiles)
+                    with Column(spacing=5, width_fill=True):
+                        add_text(content="Primary Palette Text & Colors",
+                                 size=20, font_id=font_id)
+                        make_tiles(primary_tiles)
 
-                with Column(spacing=5, width_fill=True):
-                    add_text(content="Secondary Palette Text & Colors", size=20, font_id=font_id)
-                    make_tiles(secondary_tiles)
-                    add_space(height=30)
+                    with Column(spacing=5, width_fill=True):
+                        add_text(content="Secondary Palette Text & Colors",
+                                 size=20, font_id=font_id)
+                        make_tiles(secondary_tiles)
+                        add_space(height=30)
 
 start_session()

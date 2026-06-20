@@ -33,10 +33,7 @@ pub struct Button {
     pub fill: Option<bool>,
     pub padding: Option<Vec<f32>>,
     pub clip: Option<bool>,
-    pub status_active: Option<bool>,
-    pub status_hovered: Option<bool>,
-    pub status_pressed: Option<bool>,
-    pub status_disabled: Option<bool>,
+    pub disabled: Option<bool>,
     pub font_id: Option<usize>,
     pub style_id: Option<usize>,
     pub style_std: Option<ButtonStyleStd>,
@@ -170,6 +167,9 @@ impl Button {
                 .width(get_len(self.fill, self.width_fill, self.width))
                 .height(get_len(self.fill, self.height_fill, self.height))
                 .style(move |theme: &Theme, status| {
+                    let status = if self.disabled == Some(true) {
+                        button::Status::Disabled
+                    } else { status };
                     if style_opt.is_some() || c_pal_opt.is_some() {
                         let btn_st = ButtonStyle::default();
                         let st = style_opt.as_ref().unwrap_or(&btn_st);
@@ -504,6 +504,7 @@ impl ButtonStyleStd {
 #[pyclass(eq, eq_int, hash, frozen)]
 pub enum ButtonParam {
     Clip,
+    Disabled,
     Fill,
     FontId,
     Height,
@@ -511,10 +512,6 @@ pub enum ButtonParam {
     Label,
     Padding,
     Show,
-    StatusActive,
-    StatusDisabled,
-    StatusHovered,
-    StatusPressed,
     StyleArrow,
     StyleId,
     StyleStd,
@@ -569,6 +566,7 @@ impl WidgetParamUpdate for Button {
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
             ButtonParam::Clip => set_t_value(&mut self.clip, value, "ButtonParam::Clip"),
+            ButtonParam::Disabled => set_t_value(&mut self.disabled, value, "ButtonParam::Disabled"),
             ButtonParam::Fill => set_t_value(&mut self.fill, value, "ButtonParam::Fill"),
             ButtonParam::FontId => set_t_value(&mut self.font_id, value, "ButtonParam::FontId"),
             ButtonParam::Height => set_t_value(&mut self.height, value, "ButtonParam::Height"),
@@ -576,10 +574,6 @@ impl WidgetParamUpdate for Button {
             ButtonParam::Label => set_t_value(&mut self.label, value, "ButtonParam::Label"),
             ButtonParam::Padding => set_t_value(&mut self.padding, value, "ButtonParam::Padding"),
             ButtonParam::Show => set_t_value(&mut self.show, value, "Show"),
-            ButtonParam::StatusActive => set_t_value(&mut self.status_active, value, "ButtonParam::StatusActive"),
-            ButtonParam::StatusDisabled => set_t_value(&mut self.status_disabled, value, "ButtonParam::StatusDisabled"),
-            ButtonParam::StatusHovered => set_t_value(&mut self.status_hovered, value, "uttonParam::StatusHovered"),
-            ButtonParam::StatusPressed => set_t_value(&mut self.status_pressed, value, "ButtonParam::StatusPressed"),
             ButtonParam::StyleArrow => set_t_value(&mut self.style_arrow, value, "ButtonParam::StyleArrow"),
             ButtonParam::StyleId => set_t_value(&mut self.style_id, value, "ButtonParam::StyleId"),
             ButtonParam::StyleStd => set_t_value(&mut self.style_std, value, "ButtonParam::StyleStd"),

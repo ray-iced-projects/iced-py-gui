@@ -13,6 +13,7 @@ use crate::state::Widgets;
 use crate::state::get_id;
 use crate::widgets::ipg_window::name_to_window_theme;
 use crate::widgets::widget_param_update::WidgetParamUpdate;
+use crate::ButtonStyleStd;
 
 
 #[pyfunction]
@@ -144,6 +145,86 @@ pub fn get_styling_palette(
             hm.insert("strong".to_string(),   (to_arr(pal.warning.strong.color), to_arr(pal.warning.strong.text)));
         },
     }
+    hm.insert("bkg_base".to_string(), (to_arr(pal.background.base.color), to_arr(pal.background.base.text)));
+    hm.insert("bkg_weak".to_string(), (to_arr(pal.background.weak.color), to_arr(pal.background.weak.text)));
+    hm.insert("bkg_weaker".to_string(), (to_arr(pal.background.weaker.color), to_arr(pal.background.weaker.text)));
+    hm.insert("bkg_weakest".to_string(), (to_arr(pal.background.weakest.color), to_arr(pal.background.weakest.text)));
+    hm.insert("bkg_neutral".to_string(), (to_arr(pal.background.neutral.color), to_arr(pal.background.neutral.text)));
+    hm.insert("bkg_strong".to_string(), (to_arr(pal.background.strong.color), to_arr(pal.background.strong.text)));
+    hm.insert("bkg_stronger".to_string(), (to_arr(pal.background.stronger.color), to_arr(pal.background.stronger.text)));
+    hm.insert("bkg_strongest".to_string(), (to_arr(pal.background.strongest.color), to_arr(pal.background.strongest.text)));
+    
+    Ok(hm)
+    
+}
+
+#[pyfunction]
+#[pyo3(signature = (theme_name, std_color))]
+pub fn get_button_palette(
+    theme_name: String,
+    std_color: ButtonStyleStd,
+) -> PyResult<HashMap<String, ([f64; 4], [f64; 4])>>
+{
+    // Resolve built-in themes via WindowTheme enum; fall back to custom theme store.
+    let theme: Theme = if let Some(wt) = name_to_window_theme(&theme_name) {
+        wt.to_iced()
+    } else if let Some(ct) = crate::widgets::ipg_window::get_custom_theme(&theme_name) {
+        ct
+    } else {
+        return Err(pyo3::exceptions::PyValueError::new_err(
+            format!("get_styling_palette: unknown theme '{theme_name}'")
+        ));
+    };
+
+    fn to_arr(c: iced::Color) -> [f64; 4] {
+        let r = |v: f32| ((v as f64) * 100.0).round() / 100.0;
+        [r(c.r), r(c.g), r(c.b), r(c.a)]
+    }
+
+    // theme.palette() works for both built-in and Custom themes.
+    let pal = theme.palette();
+
+    let mut hm = HashMap::new();
+    match std_color {
+        ButtonStyleStd::Primary => {
+            hm.insert("base".to_string(), (to_arr(pal.primary.base.color), to_arr(pal.primary.base.text)));
+            hm.insert("weak".to_string(), (to_arr(pal.primary.weak.color), to_arr(pal.primary.weak.text)));
+            hm.insert("strong".to_string(), (to_arr(pal.primary.strong.color), to_arr(pal.primary.strong.text)));
+        },
+        ButtonStyleStd::Secondary => {
+            hm.insert("base".to_string(), (to_arr(pal.secondary.base.color), to_arr(pal.secondary.base.text)));
+            hm.insert("weak".to_string(),  (to_arr(pal.secondary.weak.color), to_arr(pal.secondary.weak.text)));
+            hm.insert("strong".to_string(),   (to_arr(pal.secondary.strong.color), to_arr(pal.secondary.strong.text)));
+        },
+        ButtonStyleStd::Success => {
+            hm.insert("base".to_string(), (to_arr(pal.success.base.color), to_arr(pal.success.base.text)));
+            hm.insert("weak".to_string(),  (to_arr(pal.success.weak.color), to_arr(pal.success.weak.text)));
+            hm.insert("strong".to_string(),   (to_arr(pal.success.strong.color), to_arr(pal.success.strong.text)));
+        },
+        ButtonStyleStd::Danger => {
+            hm.insert("base".to_string(), (to_arr(pal.danger.base.color), to_arr(pal.danger.base.text)));
+            hm.insert("weak".to_string(),  (to_arr(pal.danger.weak.color), to_arr(pal.danger.weak.text)));
+            hm.insert("strong".to_string(),   (to_arr(pal.danger.strong.color), to_arr(pal.danger.strong.text)));
+        },
+        ButtonStyleStd::Warning => {
+            hm.insert("base".to_string(), (to_arr(pal.warning.base.color), to_arr(pal.warning.base.text)));
+            hm.insert("weak".to_string(),  (to_arr(pal.warning.weak.color), to_arr(pal.warning.weak.text)));
+            hm.insert("strong".to_string(),   (to_arr(pal.warning.strong.color), to_arr(pal.warning.strong.text)));
+        },
+        ButtonStyleStd::Background => {
+            hm.insert("base".to_string(), (to_arr(pal.background.base.color), to_arr(pal.background.base.text)));
+            hm.insert("weak".to_string(),  (to_arr(pal.background.weak.color), to_arr(pal.background.weak.text)));
+            hm.insert("strong".to_string(),   (to_arr(pal.background.strong.color), to_arr(pal.background.strong.text)));
+        },
+        ButtonStyleStd::Subtle => {
+            hm.insert("weaker".to_string(), (to_arr(pal.background.weaker.color), to_arr(pal.background.weaker.text)));
+            hm.insert("weakest".to_string(),  (to_arr(pal.background.weakest.color), to_arr(pal.background.weakest.text)));
+            hm.insert("strong".to_string(),   (to_arr(pal.background.strong.color), to_arr(pal.background.strong.text)));
+        },
+        ButtonStyleStd::Text => {
+            hm.insert("base".to_string(), (to_arr(pal.background.base.text), to_arr(pal.background.base.text.scale_alpha(0.8))));
+        },
+            }
     hm.insert("bkg_base".to_string(), (to_arr(pal.background.base.color), to_arr(pal.background.base.text)));
     hm.insert("bkg_weak".to_string(), (to_arr(pal.background.weak.color), to_arr(pal.background.weak.text)));
     hm.insert("bkg_weaker".to_string(), (to_arr(pal.background.weaker.color), to_arr(pal.background.weaker.text)));

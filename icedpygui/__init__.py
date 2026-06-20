@@ -100,6 +100,7 @@ from .icedpygui import (
     get_rgba_color,
     get_color_palette,
     get_styling_palette,
+    get_button_palette,
     custom_palette,
     PaletteKey,
     WidgetStatus,

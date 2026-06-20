@@ -116,7 +116,7 @@ pal_id = custom_palette(rgba=selected_color)
 
 # The statuses below are what's needed for the real Button
 # The ones above are similar but are used just for styling the
-# containers since they are really onlt background colors.
+# containers since they are really only background colors.
 statuses = [
     (PaletteKey.Weakest,  WidgetStatus.Active),
     (PaletteKey.Neutral,  WidgetStatus.Pressed),
@@ -134,7 +134,7 @@ border_color = palette["strongest_color"]
 # ---------------------------------------------------------------------------
 with Window(title="Button Styling", size=(700, 650), center=True) as wnd_id:
 
-    with Column(spacing=20, padding=[20], wrap=True):
+    with Column(spacing=10, padding=[20], wrap=True):
 
         add_text(content=(
             "Standard palette statuses — border-highlighted tiles indicate a button state.\n"
@@ -167,8 +167,13 @@ with Window(title="Button Styling", size=(700, 650), center=True) as wnd_id:
                     add_text(content=label_for(pal_key, widget_status),
                              color_rgba=text_rgba, size=14)
 
-        with Row(spacing=20):
+        with Row(spacing=10):
             add_button(label="Button with custom statuses", padding=[10], palette_id=custom_pal_id)
             add_button(label="Button default (no palette mods)", padding=[10])
+
+        with Row(spacing=10):
+            add_button(label="Button with disabled custom statuses",
+                       padding=[10], palette_id=custom_pal_id, disabled=True)
+            add_button(label="Button disabled (no palette mods)", padding=[10], disabled=True)
 
 start_session()

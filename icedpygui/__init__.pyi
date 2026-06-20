@@ -115,6 +115,7 @@ from .icedpygui import (
     get_rgba_color as get_rgba_color,
     get_color_palette as get_color_palette,
     get_styling_palette as get_styling_palette,
+    get_button_palette as get_button_palette,
     StdColorStyle as StdColorStyle,
     custom_palette as custom_palette,
     PaletteKey as PaletteKey,

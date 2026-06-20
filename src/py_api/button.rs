@@ -40,6 +40,8 @@ use crate::widgets::ipg_button::{Button,
 ///     [top, right, bottom, left].
 /// clip : bool,  Optional
 ///     Whether to clip content that overflows the button.
+/// diabled: bool, Optional
+///     Whether the button is disabled.
 /// style_id : int,  Optional
 ///     Stes the ID of a custom style created with ``add_button_style``.
 /// style_std : ButtonStyleStd,  Optional
@@ -68,10 +70,7 @@ use crate::widgets::ipg_button::{Button,
     fill=None,
     padding=None,
     clip=None,
-    status_active=None,
-    status_hovered=None,
-    status_pressed=None,
-    status_disabled=None,
+    disabled=None,
     font_id=None,
     style_id=None,
     style_std=None,
@@ -92,10 +91,7 @@ pub fn add_button(
     fill: Option<bool>,
     padding: Option<Vec<f32>>,
     clip: Option<bool>,
-    status_active: Option<bool>,
-    status_hovered: Option<bool>,
-    status_pressed: Option<bool>,
-    status_disabled: Option<bool>,
+    disabled: Option<bool>,
     font_id: Option<usize>,
     style_id: Option<usize>,
     style_std: Option<ButtonStyleStd>,
@@ -136,10 +132,7 @@ pub fn add_button(
                 fill,
                 padding,
                 clip,
-                status_active,
-                status_hovered,
-                status_pressed,
-                status_disabled,
+                disabled,
                 font_id,
                 style_id,
                 style_std,

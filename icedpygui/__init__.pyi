@@ -34,6 +34,7 @@ from .icedpygui import (
     add_rail_style as add_rail_style,
     add_separator_style as add_separator_style,
     add_slider_style as add_slider_style,
+    add_text_editor_style as add_text_editor_style,
     add_text_input_style as add_text_input_style,
     add_toggler_style as add_toggler_style,
     Arrow as Arrow,
@@ -120,6 +121,7 @@ from .icedpygui import (
     custom_palette as custom_palette,
     PaletteKey as PaletteKey,
     WidgetStatus as WidgetStatus,
+    StylePart as StylePart,
 )
 
 

@@ -208,6 +208,7 @@ ipg_widget_accessors! {
     TableStyle         => TableStyle,          as_table_style,           as_table_style_mut;
     Text               => Text,                as_text,                  as_text_mut;
     TextEditor         => TextEditor,          as_text_editor,           as_text_editor_mut;
+    TextEditorStyle    => TextEditorStyle,     as_text_editor_style,     as_text_editor_style_mut;
     TextInputStyle     => TextInputStyle,      as_text_input_style,      as_text_input_style_mut;
     Toggler            => Toggler,             as_toggler,               as_toggler_mut;
     TogglerStyle       => TogglerStyle,        as_toggler_style,         as_toggler_style_mut;

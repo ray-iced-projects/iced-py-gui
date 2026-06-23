@@ -4,7 +4,7 @@ use std::collections::HashMap;
 use crate::app::Message;
 use crate::graphics::bootstrap::bootstrap_arrow::Arrow;
 use crate::graphics::colors::Color;
-use crate::py_api::colors::{CustomPalette, PaletteKey, WidgetStatus};
+use crate::py_api::colors::{CustomPalette, PaletteKey, StylePart, WidgetStatus};
 use crate::state::Widgets;
 use crate::widgets::callbacks::invoke_callback;
 use crate::py_api::helpers::{get_len, get_padding, get_radius};
@@ -16,7 +16,6 @@ use iced::widget::text::Wrapping;
 use iced::{Shadow, Vector, alignment, gradient};
 use iced::widget::{button, text};
 use iced::{Element, Theme};
-use iced::theme::palette::{Pair, readable};
 
 use pyo3::{Py, PyAny, pyclass};
 type PyObject = Py<PyAny>;
@@ -264,39 +263,77 @@ impl ButtonStyle {
             .or_else(|| self.gradient_degrees.map(f32::to_radians))
             .unwrap_or(0.0);
 
-        let custom = if let Some(cp) = c_pal_opt {
+        let custom_pal = if let Some(cp) = c_pal_opt {
             cp
         } else {
             let palette = theme.palette();
-            let base = palette.primary.base.color;
-            let text_color = readable(base, iced::Color::WHITE);
-            let background = iced::theme::palette::Background::new(base, text_color);
+            let background = palette.background;
             &CustomPalette { 
                 id: 0, 
                 background, 
                 statuses: None, 
-                alpha: None,
             }
          };
 
-        let shd_color =
+        let mut default_statuses: HashMap<WidgetStatus, HashMap<StylePart, (PaletteKey, f32)>> = HashMap::new();
+        
+        let mut inner = HashMap::new();
+        inner.insert(StylePart::Background, (PaletteKey::Base,  1.0));
+        inner.insert(StylePart::Text, (PaletteKey::Base, 1.0));
+        inner.insert(StylePart::Border, (PaletteKey::Base, 1.0));
+        default_statuses.insert(WidgetStatus::Active, inner);
+                                                    
+        let mut inner = HashMap::new();
+        inner.insert(StylePart::Background, (PaletteKey::Base,  1.0));
+        inner.insert(StylePart::Text, (PaletteKey::Base, 1.0));
+        inner.insert(StylePart::Border, (PaletteKey::Base, 1.0));
+        default_statuses.insert(WidgetStatus::Pressed, inner);
+                
+        let mut inner = HashMap::new();
+        inner.insert(StylePart::Background, (PaletteKey::Strong,  1.0));
+        inner.insert(StylePart::Text, (PaletteKey::Strong, 1.0));
+        inner.insert(StylePart::Border, (PaletteKey::Strong, 1.0));
+        default_statuses.insert(WidgetStatus::Hovered, inner);
+         
+        let mut inner = HashMap::new();
+        inner.insert(StylePart::Background, (PaletteKey::Base,  0.5));
+        inner.insert(StylePart::Text, (PaletteKey::Base, 0.8));
+        inner.insert(StylePart::Background, (PaletteKey::Base,  0.5));
+        inner.insert(StylePart::Border, (PaletteKey::Strong, 0.5));
+        default_statuses.insert(WidgetStatus::Disabled, inner);
+        
+        let statuses = if let Some(status) = custom_pal.statuses.as_ref() {
+            let mut merged: HashMap<WidgetStatus, HashMap<StylePart, (PaletteKey, f32)>> = status
+                .iter()
+                .map(|(widget_status, parts)| {
+                    let part_map: HashMap<StylePart, (PaletteKey, f32)> = parts
+                        .iter()
+                        .map(|(style_part, palette_key, alpha)| {
+                            (style_part.clone(), (palette_key.clone(), *alpha))
+                        })
+                        .collect();
+                    (widget_status.clone(), part_map)
+                })
+                .collect();
+
+            for (default_widget_status, default_parts) in &default_statuses {
+                let merged_parts = merged
+                    .entry(default_widget_status.clone())
+                    .or_insert_with(|| default_parts.clone());
+
+                for (default_style_part, default_pair) in default_parts {
+                    merged_parts
+                        .entry(default_style_part.clone())
+                        .or_insert_with(|| default_pair.clone());
+                }
+            }
+
+            merged
+        } else { default_statuses };
+
+         let shd_color =
             Color::rgba_ipg_color_to_iced(self.shadow_rgba, &self.shadow_color, self.shadow_color_alpha);
 
-        let default_statuses: HashMap<PaletteKey, WidgetStatus> = [
-                    (PaletteKey::Base,      WidgetStatus::Active),
-                    (PaletteKey::Base,      WidgetStatus::Pressed),
-                    (PaletteKey::Strong,    WidgetStatus::Hovered),
-                    (PaletteKey::BaseAlpha, WidgetStatus::Disabled),
-                ].into_iter().collect();
-        let statuses = custom.statuses.as_ref().unwrap_or(&default_statuses);
-
-        // look up the PaletteKey for a given WidgetStatus
-        let key_for = |ws: WidgetStatus| -> PaletteKey {
-            statuses.iter()
-                .find_map(|(k, v)| if *v == ws { Some(k.clone()) } else { None })
-                .unwrap_or(PaletteKey::Base)
-        };
-        
         let shadow =
             if shd_color.is_some() && self.shadow_blur_radius.is_some() {
                 let offset = self.shadow_offset_xy
@@ -315,8 +352,7 @@ impl ButtonStyle {
 
         let snap  = self.snap.unwrap_or(false);
 
-        let alpha = custom.alpha.unwrap_or(1.0);
-        let bkg = custom.background;
+        let bkg = custom_pal.background;
 
         // Build gradient background once; used in every match arm when stops are supplied.
         let gradient_background: Option<iced::Background> =
@@ -330,13 +366,19 @@ impl ButtonStyle {
 
         match status {
             button::Status::Active => {
-                let pair = get_pair(&key_for(WidgetStatus::Active), &bkg, alpha);
+                let active = statuses.get(&WidgetStatus::Active).unwrap();
+                let (bkg_key, alpha) = active.get(&StylePart::Background).unwrap();
+                let (text_key, text_alpha) = active.get(&StylePart::Text).unwrap();
+                let (bd_key, bd_alpha) = active.get(&StylePart::Border).unwrap();
+                let bkg_color = bkg_key.color_key_to_color(&bkg).scale_alpha(*alpha);
+                let text_color = text_key.bkg_text_key_to_color(&bkg).scale_alpha(*text_alpha);
+                let b_color = bd_key.color_key_to_color(&bkg).scale_alpha(*bd_alpha);
                 button::Style {
                     background: gradient_background.clone()
-                        .or(Some(iced::Background::Color(pair.color))),
-                    text_color: pair.text,
+                        .or(Some(iced::Background::Color(bkg_color))),
+                    text_color,
                     border: iced::Border{
-                        color: Color::rgba_ipg_color_to_iced(self.border_rgba, &self.border_color, Some(alpha)).unwrap_or(iced::Color::TRANSPARENT),
+                        color: b_color,
                         width: self.border_width.unwrap_or_default(),
                         radius,
                     },
@@ -345,13 +387,19 @@ impl ButtonStyle {
                 }
             },
             button::Status::Pressed => {
-                let pair = get_pair(&key_for(WidgetStatus::Pressed), &bkg, alpha);
+                let active = statuses.get(&WidgetStatus::Pressed).unwrap();
+                let (bkg_key, alpha) = active.get(&StylePart::Background).unwrap();
+                let (text_key, text_alpha) = active.get(&StylePart::Text).unwrap();
+                let (bd_key, bd_alpha) = active.get(&StylePart::Border).unwrap();
+                let bkg_color = bkg_key.color_key_to_color(&bkg).scale_alpha(*alpha);
+                let text_color = text_key.bkg_text_key_to_color(&bkg).scale_alpha(*text_alpha);
+                let b_color = bd_key.color_key_to_color(&bkg).scale_alpha(*bd_alpha);
                 button::Style {
                     background: gradient_background.clone()
-                        .or(Some(iced::Background::Color(pair.color))),
-                    text_color: pair.text,
+                        .or(Some(iced::Background::Color(bkg_color))),
+                    text_color,
                     border: iced::Border{
-                        color: Color::rgba_ipg_color_to_iced(self.border_rgba, &self.border_color, Some(alpha)).unwrap_or(iced::Color::TRANSPARENT),
+                        color: b_color,
                         width: self.border_width.unwrap_or_default(),
                         radius,
                     },
@@ -360,13 +408,19 @@ impl ButtonStyle {
                 }
             },
             button::Status::Hovered => {
-                let pair = get_pair(&key_for(WidgetStatus::Hovered), &bkg, alpha);
+                let active = statuses.get(&WidgetStatus::Hovered).unwrap();
+                let (bkg_key, alpha) = active.get(&StylePart::Background).unwrap();
+                let (text_key, text_alpha) = active.get(&StylePart::Text).unwrap();
+                let (bd_key, bd_alpha) = active.get(&StylePart::Border).unwrap();
+                let bkg_color = bkg_key.color_key_to_color(&bkg).scale_alpha(*alpha);
+                let text_color = text_key.bkg_text_key_to_color(&bkg).scale_alpha(*text_alpha);
+                let b_color = bd_key.color_key_to_color(&bkg).scale_alpha(*bd_alpha);
                 button::Style {
                     background: gradient_background.clone()
-                        .or(Some(iced::Background::Color(pair.color))),
-                    text_color: pair.text,
+                        .or(Some(iced::Background::Color(bkg_color))),
+                    text_color,
                     border: iced::Border{
-                        color: Color::rgba_ipg_color_to_iced(self.border_rgba, &self.border_color, Some(alpha)).unwrap_or(iced::Color::TRANSPARENT),
+                        color: b_color,
                         width: self.border_width.unwrap_or_default(),
                         radius,
                     },
@@ -375,15 +429,21 @@ impl ButtonStyle {
                 }
             },
             button::Status::Disabled => {
-                let pair = get_pair(&key_for(WidgetStatus::Disabled), &bkg, alpha);
+                let active = statuses.get(&WidgetStatus::Disabled).unwrap();
+                let (bkg_key, alpha) = active.get(&StylePart::Background).unwrap();
+                let (text_key, text_alpha) = active.get(&StylePart::Text).unwrap();
+                let (bd_key, bd_alpha) = active.get(&StylePart::Border).unwrap();
+                let bkg_color = bkg_key.color_key_to_color(&bkg).scale_alpha(*alpha);
+                let text_color = text_key.bkg_text_key_to_color(&bkg).scale_alpha(*text_alpha);
+                let b_color = bd_key.color_key_to_color(&bkg).scale_alpha(*bd_alpha);
                 let background = gradient_background.clone()
-                    .map(|g| g.scale_alpha(alpha))
-                    .or(Some(iced::Background::Color(pair.color)));
+                    .map(|g| g.scale_alpha(*alpha))
+                    .or(Some(iced::Background::Color(bkg_color)));
                 button::Style {
                     background,
-                    text_color: pair.text,
+                    text_color,
                     border: iced::Border{
-                        color: Color::rgba_ipg_color_to_iced(self.border_rgba, &self.border_color, Some(alpha)).unwrap_or(iced::Color::TRANSPARENT),
+                        color: b_color,
                         width: self.border_width.unwrap_or_default(),
                         radius,
                     },
@@ -392,63 +452,63 @@ impl ButtonStyle {
                 }
             },
         }
-        
+        // button::primary(theme, status)
     }
 
 }
 
-fn get_pair(key: &PaletteKey, bkg: &iced::theme::palette::Background, alpha: f32) -> Pair {
-    match key {
-        PaletteKey::Base => bkg.base,
-        PaletteKey::BaseAlpha => {
-            let color = bkg.base.color.scale_alpha(alpha);
-            let text = bkg.base.text.scale_alpha(alpha);
-            Pair { color, text }
-        },
-        PaletteKey::Neutral => bkg.neutral,
-        PaletteKey::NeutralAlpha => {
-            let color = bkg.neutral.color.scale_alpha(alpha);
-            let text = bkg.neutral.text.scale_alpha(alpha);
-            Pair { color, text }
-        },
-        PaletteKey::Strong => bkg.strong,
-        PaletteKey::StrongAlpha => {
-            let color = bkg.strong.color.scale_alpha(alpha);
-            let text = bkg.strong.text.scale_alpha(alpha);
-            Pair { color, text }
-        },
-        PaletteKey::Stronger => bkg.stronger,
-        PaletteKey::StrongerAlpha => {
-            let color = bkg.stronger.color.scale_alpha(alpha);
-            let text = bkg.stronger.text.scale_alpha(alpha);
-            Pair { color, text }
-        },
-        PaletteKey::Strongest => bkg.strongest,
-        PaletteKey::StrongestAlpha => {
-            let color = bkg.strongest.color.scale_alpha(alpha);
-            let text = bkg.strongest.text.scale_alpha(alpha);
-            Pair { color, text }
-        },
-        PaletteKey::Weak => bkg.weak,
-        PaletteKey::WeakAlpha => {
-            let color = bkg.weak.color.scale_alpha(alpha);
-            let text = bkg.weak.text.scale_alpha(alpha);
-            Pair { color, text }
-        },
-        PaletteKey::Weaker => bkg.weaker,
-        PaletteKey::WeakerAlpha => {
-            let color = bkg.weaker.color.scale_alpha(alpha);
-            let text = bkg.weaker.text.scale_alpha(alpha);
-            Pair { color, text }
-        },
-        PaletteKey::Weakest => bkg.weakest,
-        PaletteKey::WeakestAlpha => {
-            let color = bkg.weakest.color.scale_alpha(alpha);
-            let text = bkg.weakest.text.scale_alpha(alpha);
-            Pair { color, text }
-        },
-    }
-}
+// fn get_pair(key: &PaletteKey, bkg: &iced::theme::palette::Background, alpha: f32) -> Pair {
+//     match key {
+//         PaletteKey::Base => bkg.base,
+//         PaletteKey::BaseAlpha => {
+//             let color = bkg.base.color.scale_alpha(alpha);
+//             let text = bkg.base.text.scale_alpha(alpha);
+//             Pair { color, text }
+//         },
+//         PaletteKey::Neutral => bkg.neutral,
+//         PaletteKey::NeutralAlpha => {
+//             let color = bkg.neutral.color.scale_alpha(alpha);
+//             let text = bkg.neutral.text.scale_alpha(alpha);
+//             Pair { color, text }
+//         },
+//         PaletteKey::Strong => bkg.strong,
+//         PaletteKey::StrongAlpha => {
+//             let color = bkg.strong.color.scale_alpha(alpha);
+//             let text = bkg.strong.text.scale_alpha(alpha);
+//             Pair { color, text }
+//         },
+//         PaletteKey::Stronger => bkg.stronger,
+//         PaletteKey::StrongerAlpha => {
+//             let color = bkg.stronger.color.scale_alpha(alpha);
+//             let text = bkg.stronger.text.scale_alpha(alpha);
+//             Pair { color, text }
+//         },
+//         PaletteKey::Strongest => bkg.strongest,
+//         PaletteKey::StrongestAlpha => {
+//             let color = bkg.strongest.color.scale_alpha(alpha);
+//             let text = bkg.strongest.text.scale_alpha(alpha);
+//             Pair { color, text }
+//         },
+//         PaletteKey::Weak => bkg.weak,
+//         PaletteKey::WeakAlpha => {
+//             let color = bkg.weak.color.scale_alpha(alpha);
+//             let text = bkg.weak.text.scale_alpha(alpha);
+//             Pair { color, text }
+//         },
+//         PaletteKey::Weaker => bkg.weaker,
+//         PaletteKey::WeakerAlpha => {
+//             let color = bkg.weaker.color.scale_alpha(alpha);
+//             let text = bkg.weaker.text.scale_alpha(alpha);
+//             Pair { color, text }
+//         },
+//         PaletteKey::Weakest => bkg.weakest,
+//         PaletteKey::WeakestAlpha => {
+//             let color = bkg.weakest.color.scale_alpha(alpha);
+//             let text = bkg.weakest.text.scale_alpha(alpha);
+//             Pair { color, text }
+//         },
+//     }
+// }
 
 
 #[derive(Debug, Clone, PartialEq, Hash)]

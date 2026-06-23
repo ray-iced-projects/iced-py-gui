@@ -1,0 +1,18 @@
+***Scroll to see all the text***
+The Button standard styles are Primary, Secondary, Success, Warning, Danger, Background, Subtle, and Text.
+
+The palettes are base, strong, weak for each standard style/color.
+
+Each palette has two colors, a Color and a contrasting Text color.
+The color can be used for any of the StylingParts such as Background, border, text, etc.  However, the Text color should be used for the Text part since it is a contrasting color that should be readable.
+
+By selecting the The color using the dropdown menu at the top, you will see that the colors changes for the buttons because each theme has a defined color set for the standard color styling.
+
+For example:
+if theme=GRUVBOX_LIGHT, primary=light blue, ...
+if theme=GRUVBOX_DARK, primary=dark blue, ...
+See the py_window_custom_theme.py and other widget palette examples.
+
+The Button statuses: Active (base), Hovered (strong), "Disabled(base alpha 0.5)
+These can be changed using a new palette and setting the statuses as you like.
+See py_button_new_palette.py for more info.

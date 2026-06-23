@@ -275,6 +275,7 @@ impl CheckboxStyle {
         style.text_color = if is_label { Some(txt_color) } else { None };
 
         style
+        
     }
 }
 
@@ -298,26 +299,26 @@ fn deviate_for_hover(color: iced::Color) -> iced::Color {
     }
 }
 
-fn get_bkg_pair(key: &PaletteKey, bkg: &iced::theme::palette::Background, alpha: f32) -> palette::Pair {
-    match key {
-        PaletteKey::Base      => bkg.base,
-        PaletteKey::BaseAlpha => palette::Pair { color: bkg.base.color.scale_alpha(alpha), text: bkg.base.text.scale_alpha(alpha) },
-        PaletteKey::Neutral   => bkg.neutral,
-        PaletteKey::NeutralAlpha => palette::Pair { color: bkg.neutral.color.scale_alpha(alpha), text: bkg.neutral.text.scale_alpha(alpha) },
-        PaletteKey::Strong    => bkg.strong,
-        PaletteKey::StrongAlpha => palette::Pair { color: bkg.strong.color.scale_alpha(alpha), text: bkg.strong.text.scale_alpha(alpha) },
-        PaletteKey::Stronger  => bkg.stronger,
-        PaletteKey::StrongerAlpha => palette::Pair { color: bkg.stronger.color.scale_alpha(alpha), text: bkg.stronger.text.scale_alpha(alpha) },
-        PaletteKey::Strongest => bkg.strongest,
-        PaletteKey::StrongestAlpha => palette::Pair { color: bkg.strongest.color.scale_alpha(alpha), text: bkg.strongest.text.scale_alpha(alpha) },
-        PaletteKey::Weak      => bkg.weak,
-        PaletteKey::WeakAlpha => palette::Pair { color: bkg.weak.color.scale_alpha(alpha), text: bkg.weak.text.scale_alpha(alpha) },
-        PaletteKey::Weaker    => bkg.weaker,
-        PaletteKey::WeakerAlpha => palette::Pair { color: bkg.weaker.color.scale_alpha(alpha), text: bkg.weaker.text.scale_alpha(alpha) },
-        PaletteKey::Weakest   => bkg.weakest,
-        PaletteKey::WeakestAlpha => palette::Pair { color: bkg.weakest.color.scale_alpha(alpha), text: bkg.weakest.text.scale_alpha(alpha) },
-    }
-}
+// fn get_bkg_pair(key: &PaletteKey, bkg: &iced::theme::palette::Background, alpha: f32) -> palette::Pair {
+//     match key {
+//         PaletteKey::Base      => bkg.base,
+//         PaletteKey::BaseAlpha => palette::Pair { color: bkg.base.color.scale_alpha(alpha), text: bkg.base.text.scale_alpha(alpha) },
+//         PaletteKey::Neutral   => bkg.neutral,
+//         PaletteKey::NeutralAlpha => palette::Pair { color: bkg.neutral.color.scale_alpha(alpha), text: bkg.neutral.text.scale_alpha(alpha) },
+//         PaletteKey::Strong    => bkg.strong,
+//         PaletteKey::StrongAlpha => palette::Pair { color: bkg.strong.color.scale_alpha(alpha), text: bkg.strong.text.scale_alpha(alpha) },
+//         PaletteKey::Stronger  => bkg.stronger,
+//         PaletteKey::StrongerAlpha => palette::Pair { color: bkg.stronger.color.scale_alpha(alpha), text: bkg.stronger.text.scale_alpha(alpha) },
+//         PaletteKey::Strongest => bkg.strongest,
+//         PaletteKey::StrongestAlpha => palette::Pair { color: bkg.strongest.color.scale_alpha(alpha), text: bkg.strongest.text.scale_alpha(alpha) },
+//         PaletteKey::Weak      => bkg.weak,
+//         PaletteKey::WeakAlpha => palette::Pair { color: bkg.weak.color.scale_alpha(alpha), text: bkg.weak.text.scale_alpha(alpha) },
+//         PaletteKey::Weaker    => bkg.weaker,
+//         PaletteKey::WeakerAlpha => palette::Pair { color: bkg.weaker.color.scale_alpha(alpha), text: bkg.weaker.text.scale_alpha(alpha) },
+//         PaletteKey::Weakest   => bkg.weakest,
+//         PaletteKey::WeakestAlpha => palette::Pair { color: bkg.weakest.color.scale_alpha(alpha), text: bkg.weakest.text.scale_alpha(alpha) },
+//     }
+// }
 
 fn styled(
     border_color: iced::Color,

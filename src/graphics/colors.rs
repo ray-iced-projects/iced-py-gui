@@ -467,8 +467,7 @@ impl Color {
     /// Returns all color variant names as strings for use as combo box options.
     pub fn color_names() -> Vec<String> {
         vec![
-            "Primary", "Secondary", "Success", "Danger", "Warning",
-            "Info", "Light", "Dark", "Bkg_theme",
+            "Light", "Dark", "Bkg_theme",
             "Catppuccin_frappe", "Catppuccin_latte", "Catppuccin_macchiato", "Catppuccin_mocha",
             "Dracula", "Ferra", "Gruvbox_dark", "Gruvbox_light",
             "Kanagawa_dragon", "Kanagawa_lotus", "Kanagawa_wave",
@@ -692,24 +691,6 @@ impl Color {
     }
 
 }
-
-/// Primary <span style="color:dodgerblue">iced::Color</span>.
-pub const PRIMARY: iced::Color = DODGER_BLUE;
-
-/// Secondary <span style="color:dimgray">iced::Color</span>.
-pub const SECONDARY: iced::Color = DIM_GRAY;
-
-/// Success <span style="color:limeGreen">iced::Color</span>.
-pub const SUCCESS: iced::Color = LIME_GREEN;
-
-/// Danger <span style="color:red">iced::Color</span>.
-pub const DANGER: iced::Color = RED;
-
-/// Warning <span style="color:gold">iced::Color</span>.
-pub const WARNING: iced::Color = GOLD;
-
-/// Info <span style="color:skyBlue">iced::Color</span>.
-pub const INFO: iced::Color = SKY_BLUE;
 
 /// Light <span style="color:ghostWhite">iced::Color</span>.
 pub const LIGHT: iced::Color = GHOST_WHITE;

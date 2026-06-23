@@ -42,40 +42,15 @@ pub fn get_color_palette(
     color: Option<Color>,
     rgba: Option<[f32; 4]>,
     color_alpha: Option<f32>,
-) -> PyResult<HashMap<String, [f64; 4]>>
+) -> PyResult<HashMap<PaletteKey, ([f64; 4], [f64; 4])>>
 {
     let base = Color::rgba_ipg_color_to_iced(rgba, &color, color_alpha)
         .ok_or_else(|| pyo3::exceptions::PyValueError::new_err(
             "get_color_palette: no color supplied — provide base_color or base_rgba"
         ))?;
 
-    let text_color = readable(base, iced::Color::WHITE);
-    let bkg = iced::theme::palette::Background::new(base, text_color);
-
-    fn to_arr(c: iced::Color) -> [f64; 4] {
-        let r = |v: f32| ((v as f64) * 100.0).round() / 100.0;
-        [r(c.r), r(c.g), r(c.b), r(c.a)]
-    }
-
-    let mut map = HashMap::new();
-    map.insert("base_color".into(),     to_arr(bkg.base.color));
-    map.insert("base_text".into(),      to_arr(bkg.base.text));
-    map.insert("weak_color".into(),     to_arr(bkg.weak.color));
-    map.insert("weak_text".into(),      to_arr(bkg.weak.text));
-    map.insert("weaker_color".into(),   to_arr(bkg.weaker.color));
-    map.insert("weaker_text".into(),    to_arr(bkg.weaker.text));
-    map.insert("weakest_color".into(),  to_arr(bkg.weakest.color));
-    map.insert("weakest_text".into(),   to_arr(bkg.weakest.text));
-    map.insert("neutral_color".into(),  to_arr(bkg.neutral.color));
-    map.insert("neutral_text".into(),   to_arr(bkg.neutral.text));
-    map.insert("strong_color".into(),   to_arr(bkg.strong.color));
-    map.insert("strong_text".into(),    to_arr(bkg.strong.text));
-    map.insert("stronger_color".into(), to_arr(bkg.stronger.color));
-    map.insert("stronger_text".into(),  to_arr(bkg.stronger.text));
-    map.insert("strongest_color".into(),to_arr(bkg.strongest.color));
-    map.insert("strongest_text".into(), to_arr(bkg.strongest.text));
-
-    Ok(map)
+    Ok(color_palette(base))
+    
 }
 
 /// Returns the palette used by the standard widget styles (button, container, etc.)
@@ -96,7 +71,7 @@ pub fn get_color_palette(
 pub fn get_styling_palette(
     theme_name: String,
     std_style_color: StdColorStyle,
-) -> PyResult<HashMap<String, ([f64; 4], [f64; 4])>>
+) -> PyResult<HashMap<PaletteKey, ([f64; 4], [f64; 4])>>
 {
     // Resolve built-in themes via WindowTheme enum; fall back to custom theme store.
     let theme: Theme = if let Some(wt) = name_to_window_theme(&theme_name) {
@@ -120,40 +95,36 @@ pub fn get_styling_palette(
     let mut hm = HashMap::new();
     match std_style_color {
         StdColorStyle::Primary => {
-            hm.insert("base".to_string(), (to_arr(pal.primary.base.color), to_arr(pal.primary.base.text)));
-            hm.insert("weak".to_string(), (to_arr(pal.primary.weak.color), to_arr(pal.primary.weak.text)));
-            hm.insert("strong".to_string(), (to_arr(pal.primary.strong.color), to_arr(pal.primary.strong.text)));
+            hm.insert(PaletteKey::Base, (to_arr(pal.primary.base.color), to_arr(pal.primary.base.text)));
+            hm.insert(PaletteKey::Weak, (to_arr(pal.primary.weak.color), to_arr(pal.primary.weak.text)));
+            hm.insert(PaletteKey::Strong, (to_arr(pal.primary.strong.color), to_arr(pal.primary.strong.text)));
         },
         StdColorStyle::Secondary => {
-            hm.insert("base".to_string(), (to_arr(pal.secondary.base.color), to_arr(pal.secondary.base.text)));
-            hm.insert("weak".to_string(),  (to_arr(pal.secondary.weak.color), to_arr(pal.secondary.weak.text)));
-            hm.insert("strong".to_string(),   (to_arr(pal.secondary.strong.color), to_arr(pal.secondary.strong.text)));
+            hm.insert(PaletteKey::Base, (to_arr(pal.secondary.base.color), to_arr(pal.secondary.base.text)));
+            hm.insert(PaletteKey::Weak,  (to_arr(pal.secondary.weak.color), to_arr(pal.secondary.weak.text)));
+            hm.insert(PaletteKey::Strong,   (to_arr(pal.secondary.strong.color), to_arr(pal.secondary.strong.text)));
         },
         StdColorStyle::Success => {
-            hm.insert("base".to_string(), (to_arr(pal.success.base.color), to_arr(pal.success.base.text)));
-            hm.insert("weak".to_string(),  (to_arr(pal.success.weak.color), to_arr(pal.success.weak.text)));
-            hm.insert("strong".to_string(),   (to_arr(pal.success.strong.color), to_arr(pal.success.strong.text)));
+            hm.insert(PaletteKey::Base, (to_arr(pal.success.base.color), to_arr(pal.success.base.text)));
+            hm.insert(PaletteKey::Weak,  (to_arr(pal.success.weak.color), to_arr(pal.success.weak.text)));
+            hm.insert(PaletteKey::Strong,   (to_arr(pal.success.strong.color), to_arr(pal.success.strong.text)));
         },
         StdColorStyle::Danger => {
-            hm.insert("base".to_string(), (to_arr(pal.danger.base.color), to_arr(pal.danger.base.text)));
-            hm.insert("weak".to_string(),  (to_arr(pal.danger.weak.color), to_arr(pal.danger.weak.text)));
-            hm.insert("strong".to_string(),   (to_arr(pal.danger.strong.color), to_arr(pal.danger.strong.text)));
+            hm.insert(PaletteKey::Base, (to_arr(pal.danger.base.color), to_arr(pal.danger.base.text)));
+            hm.insert(PaletteKey::Weak,  (to_arr(pal.danger.weak.color), to_arr(pal.danger.weak.text)));
+            hm.insert(PaletteKey::Strong,   (to_arr(pal.danger.strong.color), to_arr(pal.danger.strong.text)));
         },
         StdColorStyle::Warning => {
-            hm.insert("base".to_string(), (to_arr(pal.warning.base.color), to_arr(pal.warning.base.text)));
-            hm.insert("weak".to_string(),  (to_arr(pal.warning.weak.color), to_arr(pal.warning.weak.text)));
-            hm.insert("strong".to_string(),   (to_arr(pal.warning.strong.color), to_arr(pal.warning.strong.text)));
+            hm.insert(PaletteKey::Base, (to_arr(pal.warning.base.color), to_arr(pal.warning.base.text)));
+            hm.insert(PaletteKey::Weak,  (to_arr(pal.warning.weak.color), to_arr(pal.warning.weak.text)));
+            hm.insert(PaletteKey::Strong,   (to_arr(pal.warning.strong.color), to_arr(pal.warning.strong.text)));
         },
     }
-    hm.insert("bkg_base".to_string(), (to_arr(pal.background.base.color), to_arr(pal.background.base.text)));
-    hm.insert("bkg_weak".to_string(), (to_arr(pal.background.weak.color), to_arr(pal.background.weak.text)));
-    hm.insert("bkg_weaker".to_string(), (to_arr(pal.background.weaker.color), to_arr(pal.background.weaker.text)));
-    hm.insert("bkg_weakest".to_string(), (to_arr(pal.background.weakest.color), to_arr(pal.background.weakest.text)));
-    hm.insert("bkg_neutral".to_string(), (to_arr(pal.background.neutral.color), to_arr(pal.background.neutral.text)));
-    hm.insert("bkg_strong".to_string(), (to_arr(pal.background.strong.color), to_arr(pal.background.strong.text)));
-    hm.insert("bkg_stronger".to_string(), (to_arr(pal.background.stronger.color), to_arr(pal.background.stronger.text)));
-    hm.insert("bkg_strongest".to_string(), (to_arr(pal.background.strongest.color), to_arr(pal.background.strongest.text)));
+
+    let bkg_pal = color_palette(pal.background.base.color);
     
+    hm.extend(bkg_pal);
+
     Ok(hm)
     
 }
@@ -163,7 +134,7 @@ pub fn get_styling_palette(
 pub fn get_button_palette(
     theme_name: String,
     std_color: ButtonStyleStd,
-) -> PyResult<HashMap<String, ([f64; 4], [f64; 4])>>
+) -> PyResult<HashMap<PaletteKey, ([f64; 4], [f64; 4])>>
 {
     // Resolve built-in themes via WindowTheme enum; fall back to custom theme store.
     let theme: Theme = if let Some(wt) = name_to_window_theme(&theme_name) {
@@ -187,75 +158,90 @@ pub fn get_button_palette(
     let mut hm = HashMap::new();
     match std_color {
         ButtonStyleStd::Primary => {
-            hm.insert("base".to_string(), (to_arr(pal.primary.base.color), to_arr(pal.primary.base.text)));
-            hm.insert("weak".to_string(), (to_arr(pal.primary.weak.color), to_arr(pal.primary.weak.text)));
-            hm.insert("strong".to_string(), (to_arr(pal.primary.strong.color), to_arr(pal.primary.strong.text)));
+            hm.insert(PaletteKey::Base, (to_arr(pal.primary.base.color), to_arr(pal.primary.base.text)));
+            hm.insert(PaletteKey::Weak, (to_arr(pal.primary.weak.color), to_arr(pal.primary.weak.text)));
+            hm.insert(PaletteKey::Strong, (to_arr(pal.primary.strong.color), to_arr(pal.primary.strong.text)));
         },
         ButtonStyleStd::Secondary => {
-            hm.insert("base".to_string(), (to_arr(pal.secondary.base.color), to_arr(pal.secondary.base.text)));
-            hm.insert("weak".to_string(),  (to_arr(pal.secondary.weak.color), to_arr(pal.secondary.weak.text)));
-            hm.insert("strong".to_string(),   (to_arr(pal.secondary.strong.color), to_arr(pal.secondary.strong.text)));
+            hm.insert(PaletteKey::Base, (to_arr(pal.secondary.base.color), to_arr(pal.secondary.base.text)));
+            hm.insert(PaletteKey::Weak,  (to_arr(pal.secondary.weak.color), to_arr(pal.secondary.weak.text)));
+            hm.insert(PaletteKey::Strong,   (to_arr(pal.secondary.strong.color), to_arr(pal.secondary.strong.text)));
         },
         ButtonStyleStd::Success => {
-            hm.insert("base".to_string(), (to_arr(pal.success.base.color), to_arr(pal.success.base.text)));
-            hm.insert("weak".to_string(),  (to_arr(pal.success.weak.color), to_arr(pal.success.weak.text)));
-            hm.insert("strong".to_string(),   (to_arr(pal.success.strong.color), to_arr(pal.success.strong.text)));
+            hm.insert(PaletteKey::Base, (to_arr(pal.success.base.color), to_arr(pal.success.base.text)));
+            hm.insert(PaletteKey::Weak,  (to_arr(pal.success.weak.color), to_arr(pal.success.weak.text)));
+            hm.insert(PaletteKey::Strong,   (to_arr(pal.success.strong.color), to_arr(pal.success.strong.text)));
         },
         ButtonStyleStd::Danger => {
-            hm.insert("base".to_string(), (to_arr(pal.danger.base.color), to_arr(pal.danger.base.text)));
-            hm.insert("weak".to_string(),  (to_arr(pal.danger.weak.color), to_arr(pal.danger.weak.text)));
-            hm.insert("strong".to_string(),   (to_arr(pal.danger.strong.color), to_arr(pal.danger.strong.text)));
+            hm.insert(PaletteKey::Base, (to_arr(pal.danger.base.color), to_arr(pal.danger.base.text)));
+            hm.insert(PaletteKey::Weak,  (to_arr(pal.danger.weak.color), to_arr(pal.danger.weak.text)));
+            hm.insert(PaletteKey::Strong,   (to_arr(pal.danger.strong.color), to_arr(pal.danger.strong.text)));
         },
         ButtonStyleStd::Warning => {
-            hm.insert("base".to_string(), (to_arr(pal.warning.base.color), to_arr(pal.warning.base.text)));
-            hm.insert("weak".to_string(),  (to_arr(pal.warning.weak.color), to_arr(pal.warning.weak.text)));
-            hm.insert("strong".to_string(),   (to_arr(pal.warning.strong.color), to_arr(pal.warning.strong.text)));
+            hm.insert(PaletteKey::Base, (to_arr(pal.warning.base.color), to_arr(pal.warning.base.text)));
+            hm.insert(PaletteKey::Weak,  (to_arr(pal.warning.weak.color), to_arr(pal.warning.weak.text)));
+            hm.insert(PaletteKey::Strong,   (to_arr(pal.warning.strong.color), to_arr(pal.warning.strong.text)));
         },
         ButtonStyleStd::Background => {
-            hm.insert("base".to_string(), (to_arr(pal.background.base.color), to_arr(pal.background.base.text)));
-            hm.insert("weak".to_string(),  (to_arr(pal.background.weak.color), to_arr(pal.background.weak.text)));
-            hm.insert("strong".to_string(),   (to_arr(pal.background.strong.color), to_arr(pal.background.strong.text)));
+            hm.insert(PaletteKey::Base, (to_arr(pal.background.base.color), to_arr(pal.background.base.text)));
+            hm.insert(PaletteKey::Weak,  (to_arr(pal.background.weak.color), to_arr(pal.background.weak.text)));
+            hm.insert(PaletteKey::Strong,   (to_arr(pal.background.strong.color), to_arr(pal.background.strong.text)));
         },
         ButtonStyleStd::Subtle => {
-            hm.insert("weaker".to_string(), (to_arr(pal.background.weaker.color), to_arr(pal.background.weaker.text)));
-            hm.insert("weakest".to_string(),  (to_arr(pal.background.weakest.color), to_arr(pal.background.weakest.text)));
-            hm.insert("strong".to_string(),   (to_arr(pal.background.strong.color), to_arr(pal.background.strong.text)));
+            hm.insert(PaletteKey::Weaker, (to_arr(pal.background.weaker.color), to_arr(pal.background.weaker.text)));
+            hm.insert(PaletteKey::Weakest,  (to_arr(pal.background.weakest.color), to_arr(pal.background.weakest.text)));
+            hm.insert(PaletteKey::Strong,   (to_arr(pal.background.strong.color), to_arr(pal.background.strong.text)));
         },
         ButtonStyleStd::Text => {
-            hm.insert("base".to_string(), (to_arr(pal.background.base.text), to_arr(pal.background.base.text.scale_alpha(0.8))));
+            hm.insert(PaletteKey::Base, (to_arr(pal.background.base.text), to_arr(pal.background.base.text.scale_alpha(0.8))));
         },
             }
-    hm.insert("bkg_base".to_string(), (to_arr(pal.background.base.color), to_arr(pal.background.base.text)));
-    hm.insert("bkg_weak".to_string(), (to_arr(pal.background.weak.color), to_arr(pal.background.weak.text)));
-    hm.insert("bkg_weaker".to_string(), (to_arr(pal.background.weaker.color), to_arr(pal.background.weaker.text)));
-    hm.insert("bkg_weakest".to_string(), (to_arr(pal.background.weakest.color), to_arr(pal.background.weakest.text)));
-    hm.insert("bkg_neutral".to_string(), (to_arr(pal.background.neutral.color), to_arr(pal.background.neutral.text)));
-    hm.insert("bkg_strong".to_string(), (to_arr(pal.background.strong.color), to_arr(pal.background.strong.text)));
-    hm.insert("bkg_stronger".to_string(), (to_arr(pal.background.stronger.color), to_arr(pal.background.stronger.text)));
-    hm.insert("bkg_strongest".to_string(), (to_arr(pal.background.strongest.color), to_arr(pal.background.strongest.text)));
+    
+    // let bkg_pal = color_palette(pal.background.base.color);
+    
+    // hm.extend(bkg_pal);
     
     Ok(hm)
     
+}
+
+fn color_palette(base: iced::Color) -> HashMap<PaletteKey, ([f64; 4], [f64; 4])> {
+    let text_color = readable(base, iced::Color::WHITE);
+    let bkg = iced::theme::palette::Background::new(base, text_color);
+
+    fn to_arr(c: iced::Color) -> [f64; 4] {
+        let r = |v: f32| ((v as f64) * 100.0).round() / 100.0;
+        [r(c.r), r(c.g), r(c.b), r(c.a)]
+    }
+    
+    let mut map = HashMap::new();
+    
+    map.insert(PaletteKey::Base,     (to_arr(bkg.base.color), to_arr(bkg.base.text)));
+    map.insert(PaletteKey::Weak,     (to_arr(bkg.weak.color), to_arr(bkg.weak.text)));
+    map.insert(PaletteKey::Weaker,   (to_arr(bkg.weaker.color), to_arr(bkg.weaker.text)));
+    map.insert(PaletteKey::Weakest,  (to_arr(bkg.weakest.color), to_arr(bkg.weakest.text)));
+    map.insert(PaletteKey::Neutral,  (to_arr(bkg.neutral.color), to_arr(bkg.neutral.text)));
+    map.insert(PaletteKey::Strong,   (to_arr(bkg.strong.color), to_arr(bkg.strong.text)));
+    map.insert(PaletteKey::Stronger, (to_arr(bkg.stronger.color), to_arr(bkg.stronger.text)));
+    map.insert(PaletteKey::Strongest, (to_arr(bkg.strongest.color), to_arr(bkg.strongest.text)));
+    
+    map
 }
 
 #[pyfunction]
 #[pyo3(signature = (
     color=None, 
     rgba=None,
-    color_alpha=None,
     statuses=None,
-    palette_alpha=None,
     gen_id=None))]
 pub fn custom_palette(
     color: Option<Color>,
     rgba: Option<[f32; 4]>,
-    color_alpha: Option<f32>,
-    statuses: Option<Vec<(PaletteKey, WidgetStatus)>>,
-    palette_alpha: Option<f32>,
+    statuses: Option<Vec<(WidgetStatus, Vec<(StylePart, PaletteKey, f32)>)>>,
     gen_id: Option<usize>,
 ) -> PyResult<usize>
 {
-    let base = Color::rgba_ipg_color_to_iced(rgba, &color, color_alpha)
+    let base = Color::rgba_ipg_color_to_iced(rgba, &color, None)
         .ok_or_else(|| pyo3::exceptions::PyValueError::new_err(
             "get_color_palette: no color supplied — provide base_color or base_rgba"
         ))?;
@@ -272,7 +258,6 @@ pub fn custom_palette(
             id,
             background,
             statuses: statuses.map(|v| v.into_iter().collect()),
-            alpha: palette_alpha,
         }));
 
     drop(state);
@@ -283,8 +268,7 @@ pub fn custom_palette(
 pub struct CustomPalette{
     pub id: usize,
     pub background: iced::theme::palette::Background,
-    pub statuses: Option<HashMap<PaletteKey, WidgetStatus>>,
-    pub alpha: Option<f32>,
+    pub statuses: Option<HashMap<WidgetStatus, Vec<(StylePart, PaletteKey, f32)>>>,
 }
 
 #[derive(Debug, Clone, PartialEq, Hash)]
@@ -297,22 +281,43 @@ pub enum CustomPaletteParam {
 #[pyclass(eq, eq_int, hash, frozen)]
 pub enum PaletteKey {
     Base,
-    BaseAlpha,
     Neutral,
-    NeutralAlpha,
     Strong,
-    StrongAlpha,
     Stronger,
-    StrongerAlpha,
     Strongest,
-    StrongestAlpha,
     Weak,
-    WeakAlpha,
     Weaker,
-    WeakerAlpha,
     Weakest,
-    WeakestAlpha,
 }
+
+impl PaletteKey {
+    pub fn color_key_to_color(&self, bkg: &iced::theme::palette::Background) -> iced::Color {
+        match self {
+            PaletteKey::Base => bkg.base.color,
+            PaletteKey::Neutral => bkg.neutral.color,
+            PaletteKey::Strong => bkg.strong.color,
+            PaletteKey::Stronger => bkg.stronger.color,
+            PaletteKey::Strongest => bkg.strongest.color,
+            PaletteKey::Weak => bkg.weak.color,
+            PaletteKey::Weaker => bkg.weaker.color,
+            PaletteKey::Weakest => bkg.weakest.color,
+        }
+    }
+
+    pub fn bkg_text_key_to_color(&self, bkg: &iced::theme::palette::Background) -> iced::Color {
+        match self {
+            PaletteKey::Base => bkg.base.text,
+            PaletteKey::Neutral => bkg.neutral.text,
+            PaletteKey::Strong => bkg.strong.text,
+            PaletteKey::Stronger => bkg.stronger.text,
+            PaletteKey::Strongest => bkg.strongest.text,
+            PaletteKey::Weak => bkg.weak.text,
+            PaletteKey::Weaker => bkg.weaker.text,
+            PaletteKey::Weakest => bkg.weakest.text,
+        }
+    }
+}
+
 
 #[derive(Debug, Clone, PartialEq, Hash)]
 #[pyclass(eq, eq_int, hash, frozen)]
@@ -328,7 +333,15 @@ pub enum PaletteWidget {
     Toggler,
 }
 
-#[derive(Debug, Clone, PartialEq, Hash)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
+#[pyclass(eq, eq_int, hash, frozen)]
+pub enum StylePart {
+    Background,
+    Border,
+    Text,
+}
+
+#[derive(Debug, Clone, Eq, PartialEq, Hash)]
 #[pyclass(eq, eq_int, hash, frozen)]
 pub enum WidgetStatus {
     Active,

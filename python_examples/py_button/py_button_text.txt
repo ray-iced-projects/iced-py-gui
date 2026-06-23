@@ -1,0 +1,49 @@
+***Scroll to see all****
+When creating a palette for the button, you can only use Background, Text, and Border.  The other StyleParts belong
+to other widgets with overlap.  You don't need to use all 3 parts but it's advisable to use all statuses for each part.
+Border will only show when the border width > 0.
+
+To define a palette use the following steps. First create a new color and then obtain the custom palette.  The pal_id would be added to the button parameter palette_id.
+
+new_color = [0.32, 0.2, 0.13, 1.0]
+pal_id = custom_palette(rgba=new_color, statuses=pal) # pal defined below
+
+add_button(label="Button", palette_id=pal_id)
+
+Create the statuses using the format below (scroll to see).  This format is used for all widgets for the custom palette.  The entries will be different based on what statuses a widget will use, StylePart, and PaletteKey.
+
+The new palette does not change color values for each theme like the standard style colors do.  You will have to create a custom palette for each theme color by just using a new color for each theme.  This is essentially how the standard colors are done in Iced.  A set of colors are defined for each theme.  You could create a theme py file and easily define your new colors to for all of the themes.
+
+The PaletteKeys are Base, Neutral, Strong, Stronger, Strongest, Weak, Weaker, Weakest.  The ones used here follow the assignment as done for the button, but you could use different PaletteKeys if you want to.  The float value is the alpha value of the color which is used mostly for the disabled status but could be used for other styling too.
+
+The StyleParts for a button are just the 3 indicated below.  Other widgets will have similar ones.  When you see the StylePart hint list, it will contain all of the parts for all of the widgets.  Use the ones for your widget of interest only.
+
+Border will only show when the border width > 0, so use the btn_style_id = add_button_style(border_width=2), for example.
+
+***The statuses format***
+pal = [
+    (WidgetStatus.Active, (
+                            (StylePart.Background, PaletteKey.Base, 1.0),
+                            (StylePart.Text, PaletteKey.Base, 1.0),
+                            (StylePart.Border, PaletteKey.Stronger, 1.0),
+                            ),
+    ),
+    (WidgetStatus.Hovered, (
+                            (StylePart.Background, PaletteKey.Strong, 1.0),
+                            (StylePart.Text, PaletteKey.Strong, 1.0),
+                            (StylePart.Border, PaletteKey.Strongest, 1.0),
+                            ),
+    ),
+    (WidgetStatus.Pressed, (
+                            (StylePart.Background, PaletteKey.Base, 1.0),
+                            (StylePart.Text, PaletteKey.Base, 1.0),
+                            (StylePart.Border, PaletteKey.Stronger, 1.0),
+                            ),
+    ),
+    (WidgetStatus.Disabled, (
+                            (StylePart.Background, PaletteKey.Base, 0.5),
+                            (StylePart.Text, PaletteKey.Base, 0.8),
+                            (StylePart.Border, PaletteKey.Stronger, 0.5),
+                            ),
+    ),
+]

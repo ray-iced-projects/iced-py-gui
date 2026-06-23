@@ -85,6 +85,7 @@ use crate::widgets::ipg_text_editor::TxtEdStatus;
     wrapping_glyph=None,
     wrapping_word_glyph=None,
     on_edit = None,
+    style_id=None,
     user_data = None,
 ))]
 pub fn add_text_editor(
@@ -106,6 +107,7 @@ pub fn add_text_editor(
     wrapping_glyph: Option<bool>,
     wrapping_word_glyph: Option<bool>,
     on_edit: Option<PyObject>,
+    style_id: Option<usize>,
     user_data: Option<PyObject>,
 ) ->PyResult<usize> {
 
@@ -152,7 +154,8 @@ pub fn add_text_editor(
                 wrapping_none,
                 wrapping_glyph,
                 wrapping_word_glyph,
-                last_status: TxtEdStatus::Disabled
+                last_status: TxtEdStatus::Disabled,
+                style_id,
             }),
         );
     drop(state);
@@ -318,7 +321,7 @@ pub fn add_text_editor_style(
     border_color_disabled: Option<Color>,
     border_color_alpha_disabled: Option<f32>,
     border_rgba_disabled: Option<[f32; 4]>,
-    border_radius: Option<Vec<f32>>,
+    border_radius: Option<f32>,
     border_width: Option<f32>,
     placeholder_color: Option<Color>,
     placeholder_color_alpha: Option<f32>,

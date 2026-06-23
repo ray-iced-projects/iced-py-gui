@@ -45,6 +45,7 @@ pub struct TextEditor {
     pub wrapping_glyph: Option<bool>,
     pub wrapping_word_glyph: Option<bool>,
     pub last_status: TxtEdStatus,
+    pub style_id: Option<usize>,
 }
 
 impl TextEditor {
@@ -84,13 +85,24 @@ impl TextEditor {
             self.lookup(widgets, self.font_id)
                 .and_then(Widgets::as_font).cloned();
 
+        let style_opt = 
+            self.lookup(widgets, self.style_id)
+                .and_then(Widgets::as_text_editor_style).cloned();
+
         let te = widget::text_editor(&self.content)
                 .placeholder(ph)
                 .height(hgt)
                 .min_height(self.min_height.unwrap_or_default())
                 .max_height(self.max_height.unwrap_or(f32::INFINITY))
                 .on_action(TxtEdMessage::ActionPerformed)
-                .wrapping(wrapping);
+                .wrapping(wrapping)
+                .style(move|theme, status|{
+                    if let Some(st) = &style_opt {
+                        st.to_iced(theme, status)
+                    } else {
+                        text_editor::default(theme, status)
+                    }
+                });
 
         let te = if let Some(ft) = font_opt {
             te.font(ft.to_iced())
@@ -182,7 +194,7 @@ pub struct TextEditorStyle {
     pub border_color_disabled: Option<Color>,
     pub border_color_alpha_disabled: Option<f32>,
     pub border_rgba_disabled: Option<[f32; 4]>,
-    pub border_radius: Option<Vec<f32>>,
+    pub border_radius: Option<f32>,
     pub border_width: Option<f32>,
     pub placeholder_color: Option<Color>,
     pub placeholder_color_alpha: Option<f32>,
@@ -278,14 +290,22 @@ impl TextEditorStyle {
         } else {
             palette.background.strong.color
         };
+
+        let brd_width = if let Some(bw) = self.border_width {
+            bw
+        } else { 1.0 };
+
+        let bdr_radius = if let Some(br) = self.border_radius {
+            br.into()
+        } else { 2.0.into() };
         
         match status {
             text_editor::Status::Active => 
                 text_editor::Style {
                     background: Background::Color(bkg_a),
                     border: Border {
-                        radius: 2.0.into(),
-                        width: 1.0,
+                        radius: bdr_radius,
+                        width: brd_width,
                         color: bdr_a,
                     },
                     placeholder: palette.secondary.base.color,
@@ -295,8 +315,8 @@ impl TextEditorStyle {
                 text_editor::Status::Hovered => text_editor::Style {
                     background: Background::Color(bkg_h),
                     border: Border {
-                        radius: 2.0.into(),
-                        width: 1.0,
+                        radius: bdr_radius,
+                        width: brd_width,
                         color: bdr_h,
                     },
                     placeholder: palette.secondary.base.color,
@@ -306,8 +326,8 @@ impl TextEditorStyle {
             text_editor::Status::Focused { .. } => text_editor::Style {
                 background: Background::Color(bkg_f),
                 border: Border {
-                    radius: 2.0.into(),
-                    width: 1.0,
+                    radius: bdr_radius,
+                    width: brd_width,
                     color: bdr_f,
                 },
                 placeholder: palette.secondary.base.color,
@@ -317,8 +337,8 @@ impl TextEditorStyle {
             text_editor::Status::Disabled => text_editor::Style {
                 background: Background::Color(bkg_d),
                 border: Border {
-                    radius: 2.0.into(),
-                    width: 1.0,
+                    radius: bdr_radius,
+                    width: brd_width,
                     color: palette.background.strong.color,
                 },
                 placeholder: palette.background.strongest.color,

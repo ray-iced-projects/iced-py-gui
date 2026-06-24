@@ -218,29 +218,29 @@ impl CheckboxStyle {
         let mut default_statuses: HashMap<WidgetStatus, HashMap<StylePart, (PaletteKey, f32)>> = HashMap::new();
         
         let mut inner = HashMap::new();
-        inner.insert(StylePart::Border, (PaletteKey::Strong, 1.0));
-        inner.insert(StylePart::Base, (PaletteKey::Base,     1.0));
-        inner.insert(StylePart::Icon, (PaletteKey::Base,     1.0));
-        inner.insert(StylePart::Accent, (PaletteKey::Base,   1.0));
-        inner.insert(StylePart::Text, (PaletteKey::Base,     1.0));
+        inner.insert(StylePart::Border, (PaletteKey::Strong,   1.0));
+        inner.insert(StylePart::Background, (PaletteKey::Base, 1.0));
+        inner.insert(StylePart::Icon, (PaletteKey::Base,       1.0));
+        inner.insert(StylePart::Accent, (PaletteKey::Base,     1.0));
+        inner.insert(StylePart::Text, (PaletteKey::Base,       1.0));
         
         default_statuses.insert(WidgetStatus::Active, inner);
                                                     
         let mut inner = HashMap::new();
-        inner.insert(StylePart::Border, (PaletteKey::Strong, 1.0));
-        inner.insert(StylePart::Base, (PaletteKey::Weak,     1.0));
-        inner.insert(StylePart::Icon, (PaletteKey::Base,     1.0));
-        inner.insert(StylePart::Accent, (PaletteKey::Strong, 1.0));
-        inner.insert(StylePart::Text, (PaletteKey::Base,     1.0));
+        inner.insert(StylePart::Border, (PaletteKey::Strong,   1.0));
+        inner.insert(StylePart::Background, (PaletteKey::Weak, 1.0));
+        inner.insert(StylePart::Icon, (PaletteKey::Base,       1.0));
+        inner.insert(StylePart::Accent, (PaletteKey::Strong,   1.0));
+        inner.insert(StylePart::Text, (PaletteKey::Base,       1.0));
         
         default_statuses.insert(WidgetStatus::Hovered, inner);
          
         let mut inner = HashMap::new();
-        inner.insert(StylePart::Border, (PaletteKey::Weak,   1.0));
-        inner.insert(StylePart::Base, (PaletteKey::Weaker,   1.0));
-        inner.insert(StylePart::Icon, (PaletteKey::Base,     1.0));
-        inner.insert(StylePart::Accent, (PaletteKey::Strong, 1.0));
-        inner.insert(StylePart::Text, (PaletteKey::Base,     1.0));
+        inner.insert(StylePart::Border, (PaletteKey::Weak,       1.0));
+        inner.insert(StylePart::Background, (PaletteKey::Weaker, 1.0));
+        inner.insert(StylePart::Icon, (PaletteKey::Base,         1.0));
+        inner.insert(StylePart::Accent, (PaletteKey::Strong,     1.0));
+        inner.insert(StylePart::Text, (PaletteKey::Base,         1.0));
         
         default_statuses.insert(WidgetStatus::Disabled, inner);
         
@@ -274,12 +274,12 @@ impl CheckboxStyle {
         } else { default_statuses };
 
         let bkg = custom_pal.background;
-        
+
         match status {
             checkbox::Status::Active { is_checked } => {
                 let active = statuses.get(&WidgetStatus::Active).unwrap();
                 let (border_pal, bd_alpha) = active.get(&StylePart::Border).unwrap();
-                let (base_pal, base_alpha) = active.get(&StylePart::Base).unwrap();
+                let (base_pal, base_alpha) = active.get(&StylePart::Background).unwrap();
                 let (icon_pal, ic_alpha) = active.get(&StylePart::Icon).unwrap();
                 let (accent_pal, ac_alpha) = active.get(&StylePart::Accent).unwrap();
                 let border_color = border_pal.color_key_to_color(&bkg).scale_alpha(*bd_alpha);
@@ -294,7 +294,7 @@ impl CheckboxStyle {
             checkbox::Status::Hovered { is_checked } => {
                 let hovered = statuses.get(&WidgetStatus::Hovered).unwrap();
                 let (border_pal, bd_alpha) = hovered.get(&StylePart::Border).unwrap();
-                let (base_pal, base_alpha) = hovered.get(&StylePart::Base).unwrap();
+                let (base_pal, base_alpha) = hovered.get(&StylePart::Background).unwrap();
                 let (icon_pal, ic_alpha) = hovered.get(&StylePart::Icon).unwrap();
                 let (accent_pal, ac_alpha) = hovered.get(&StylePart::Accent).unwrap();
                 let border_color = border_pal.color_key_to_color(&bkg).scale_alpha(*bd_alpha);
@@ -308,7 +308,7 @@ impl CheckboxStyle {
             checkbox::Status::Disabled { is_checked } => {
                 let disabled = statuses.get(&WidgetStatus::Disabled).unwrap();
                 let (border_pal, bd_alpha) = disabled.get(&StylePart::Border).unwrap();
-                let (base_pal, base_alpha) = disabled.get(&StylePart::Base).unwrap();
+                let (base_pal, base_alpha) = disabled.get(&StylePart::Background).unwrap();
                 let (icon_pal, ic_alpha) = disabled.get(&StylePart::Icon).unwrap();
                 let (accent_pal, ac_alpha) = disabled.get(&StylePart::Accent).unwrap();
                 let border_color = border_pal.color_key_to_color(&bkg).scale_alpha(*bd_alpha);

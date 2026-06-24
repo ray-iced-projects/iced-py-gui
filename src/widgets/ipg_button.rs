@@ -364,15 +364,22 @@ impl ButtonStyle {
 
         let bkg = custom_pal.background;
 
+        let resolve_parts = |widget_status: WidgetStatus| {
+            let parts = statuses.get(&widget_status).unwrap();
+            let (bkg_key, alpha) = parts.get(&StylePart::Background).unwrap();
+            let (text_key, text_alpha) = parts.get(&StylePart::Text).unwrap();
+            let (bd_key, bd_alpha) = parts.get(&StylePart::Border).unwrap();
+
+            let background_color = bkg_key.color_key_to_color(&bkg).scale_alpha(*alpha);
+            let text_color = text_key.text_key_to_color(&bkg).scale_alpha(*text_alpha);
+            let border_color = bd_key.color_key_to_color(&bkg).scale_alpha(*bd_alpha);
+
+            (background_color, text_color, border_color, *alpha)
+        };
+
         match status {
             button::Status::Active => {
-                let active = statuses.get(&WidgetStatus::Active).unwrap();
-                let (bkg_key, alpha) = active.get(&StylePart::Background).unwrap();
-                let (text_key, text_alpha) = active.get(&StylePart::Text).unwrap();
-                let (bd_key, bd_alpha) = active.get(&StylePart::Border).unwrap();
-                let bkg_color = bkg_key.color_key_to_color(&bkg).scale_alpha(*alpha);
-                let text_color = text_key.text_key_to_color(&bkg).scale_alpha(*text_alpha);
-                let b_color = bd_key.color_key_to_color(&bkg).scale_alpha(*bd_alpha);
+                let (bkg_color, text_color, b_color, _) = resolve_parts(WidgetStatus::Active);
                 button::Style {
                     background: gradient_background.clone()
                         .or(Some(iced::Background::Color(bkg_color))),
@@ -387,13 +394,7 @@ impl ButtonStyle {
                 }
             },
             button::Status::Pressed => {
-                let pressed = statuses.get(&WidgetStatus::Pressed).unwrap();
-                let (bkg_key, alpha) = pressed.get(&StylePart::Background).unwrap();
-                let (text_key, text_alpha) = pressed.get(&StylePart::Text).unwrap();
-                let (bd_key, bd_alpha) = pressed.get(&StylePart::Border).unwrap();
-                let bkg_color = bkg_key.color_key_to_color(&bkg).scale_alpha(*alpha);
-                let text_color = text_key.text_key_to_color(&bkg).scale_alpha(*text_alpha);
-                let b_color = bd_key.color_key_to_color(&bkg).scale_alpha(*bd_alpha);
+                let (bkg_color, text_color, b_color, _) = resolve_parts(WidgetStatus::Pressed);
                 button::Style {
                     background: gradient_background.clone()
                         .or(Some(iced::Background::Color(bkg_color))),
@@ -408,13 +409,7 @@ impl ButtonStyle {
                 }
             },
             button::Status::Hovered => {
-                let hovered = statuses.get(&WidgetStatus::Hovered).unwrap();
-                let (bkg_key, alpha) = hovered.get(&StylePart::Background).unwrap();
-                let (text_key, text_alpha) = hovered.get(&StylePart::Text).unwrap();
-                let (bd_key, bd_alpha) = hovered.get(&StylePart::Border).unwrap();
-                let bkg_color = bkg_key.color_key_to_color(&bkg).scale_alpha(*alpha);
-                let text_color = text_key.text_key_to_color(&bkg).scale_alpha(*text_alpha);
-                let b_color = bd_key.color_key_to_color(&bkg).scale_alpha(*bd_alpha);
+                let (bkg_color, text_color, b_color, _) = resolve_parts(WidgetStatus::Hovered);
                 button::Style {
                     background: gradient_background.clone()
                         .or(Some(iced::Background::Color(bkg_color))),
@@ -429,15 +424,9 @@ impl ButtonStyle {
                 }
             },
             button::Status::Disabled => {
-                let disabled = statuses.get(&WidgetStatus::Disabled).unwrap();
-                let (bkg_key, alpha) = disabled.get(&StylePart::Background).unwrap();
-                let (text_key, text_alpha) = disabled.get(&StylePart::Text).unwrap();
-                let (bd_key, bd_alpha) = disabled.get(&StylePart::Border).unwrap();
-                let bkg_color = bkg_key.color_key_to_color(&bkg).scale_alpha(*alpha);
-                let text_color = text_key.text_key_to_color(&bkg).scale_alpha(*text_alpha);
-                let b_color = bd_key.color_key_to_color(&bkg).scale_alpha(*bd_alpha);
+                let (bkg_color, text_color, b_color, alpha) = resolve_parts(WidgetStatus::Disabled);
                 let background = gradient_background.clone()
-                    .map(|g| g.scale_alpha(*alpha))
+                    .map(|g| g.scale_alpha(alpha))
                     .or(Some(iced::Background::Color(bkg_color)));
                 button::Style {
                     background,

@@ -3,7 +3,7 @@
 use std::collections::HashMap;
 
 use crate::graphics::colors::Color;
-use crate::py_api::colors::{CustomPalette, PaletteKey, WidgetStatus};
+use crate::py_api::colors::{CustomPalette, PaletteKey, StylePart, WidgetStatus};
 use crate::py_api::helpers::get_len;
 use crate::state::IpgState;
 use crate::app::Message;
@@ -15,13 +15,11 @@ use crate::state::Widgets;
 use crate::graphics::BOOTSTRAP_FONT;
 use crate::graphics::bootstrap::bootstrap_icon::Icon;
 
-use crate::widgets::styling::apply_border_overrides;
-
 use iced::advanced::text;
 use iced::{Background, Element, Theme};
 use iced::widget::text::{LineHeight, Shaping, Wrapping};
 use iced::widget::{Checkbox, checkbox};
-use iced::theme::palette;
+use iced::theme::palette::{self, Pair};
 
 use pyo3::{pyclass, Py, PyAny};
 type PyObject = Py<PyAny>;
@@ -47,6 +45,7 @@ pub struct CheckBox {
     pub icon: Option<Icon>,
     pub icon_size: Option<f32>,
     pub icon_line_height: Option<f32>,
+    pub disabled: Option<bool>,
     pub style_id: Option<usize>,
     pub style_std: Option<CheckboxStyleStd>,
     pub palette_id: Option<usize>,
@@ -112,12 +111,19 @@ impl CheckBox {
                 .width(get_len(self.fill, None, self.width))
                 .line_height(line_height)
                 .icon(icon)
-                .style(move|theme: &Theme, status| {   
+                .style(move|theme: &Theme, status| {
+                    let status = if self.disabled == Some(true) {
+                        let is_checked = match status {
+                            checkbox::Status::Active { is_checked }
+                            | checkbox::Status::Hovered { is_checked }
+                            | checkbox::Status::Disabled { is_checked } => is_checked,
+};
+                        checkbox::Status::Disabled{is_checked}
+                    } else { status };
                     if style_opt.is_some() || pal_opt.is_some() {
                         let chk_st = CheckboxStyle::default();
                         let st = style_opt.as_ref().unwrap_or(&chk_st);
-                        let is_label = self.label.is_some();
-                        st.to_iced(theme, status, is_label, &pal_opt)
+                        st.to_iced(theme, status, &pal_opt)
                     } else {
                        match &self.style_std {
                             Some(std) => std.to_iced(theme, status),
@@ -179,9 +185,7 @@ pub fn checkbox_callback(state: &mut IpgState, id: usize, message: ChkMessage) {
 #[derive(Debug, Clone, Default)]
 pub struct CheckboxStyle {
     pub id: usize,
-    pub border_color: Option<Color>,
-    pub border_color_alpha: Option<f32>,
-    pub border_rgba: Option<[f32; 4]>,
+
     pub border_radius: Option<Vec<f32>>,
     pub border_width: Option<f32>,
     
@@ -195,130 +199,132 @@ impl CheckboxStyle {
          &self, 
         theme: &Theme, 
         status: checkbox::Status,
-        is_label: bool,
         c_pal_opt: &Option<CustomPalette>,
         ) -> checkbox::Style {
-
-        let border_color_override = 
-            Color::rgba_ipg_color_to_iced(self.border_rgba, &self.border_color, self.border_color_alpha);
-
-        let text_color_override =
-            Color::rgba_ipg_color_to_iced(self.text_rgba, &self.text_color, self.text_color_alpha);
-
+        
         // Build the background palette — either from CustomPalette or theme default.
-        let custom = if let Some(cp) = c_pal_opt {
-            cp.clone()
+        let custom_pal = if let Some(cp) = c_pal_opt {
+            cp
         } else {
-            CustomPalette {
-                id: 0,
-                background: theme.palette().background,
-                statuses: None,
-                alpha: None,
+            let palette = theme.palette();
+            let background = palette.background;
+            &CustomPalette { 
+                id: 0, 
+                background, 
+                statuses: None, 
             }
-        };
+         };
 
-        let alpha = custom.alpha.unwrap_or(1.0);
-        let bkg = custom.background;
+        let mut default_statuses: HashMap<WidgetStatus, HashMap<StylePart, (PaletteKey, f32)>> = HashMap::new();
+        
+        let mut inner = HashMap::new();
+        inner.insert(StylePart::Border, (PaletteKey::Strong, 1.0));
+        inner.insert(StylePart::Base, (PaletteKey::Base,     1.0));
+        inner.insert(StylePart::Icon, (PaletteKey::Base,     1.0));
+        inner.insert(StylePart::Accent, (PaletteKey::Base,   1.0));
+        inner.insert(StylePart::Text, (PaletteKey::Base,     1.0));
+        
+        default_statuses.insert(WidgetStatus::Active, inner);
+                                                    
+        let mut inner = HashMap::new();
+        inner.insert(StylePart::Border, (PaletteKey::Strong, 1.0));
+        inner.insert(StylePart::Base, (PaletteKey::Weak,     1.0));
+        inner.insert(StylePart::Icon, (PaletteKey::Base,     1.0));
+        inner.insert(StylePart::Accent, (PaletteKey::Strong, 1.0));
+        inner.insert(StylePart::Text, (PaletteKey::Base,     1.0));
+        
+        default_statuses.insert(WidgetStatus::Hovered, inner);
+         
+        let mut inner = HashMap::new();
+        inner.insert(StylePart::Border, (PaletteKey::Weak,   1.0));
+        inner.insert(StylePart::Base, (PaletteKey::Weaker,   1.0));
+        inner.insert(StylePart::Icon, (PaletteKey::Base,     1.0));
+        inner.insert(StylePart::Accent, (PaletteKey::Strong, 1.0));
+        inner.insert(StylePart::Text, (PaletteKey::Base,     1.0));
+        
+        default_statuses.insert(WidgetStatus::Disabled, inner);
+        
+        let statuses = if let Some(status) = custom_pal.statuses.as_ref() {
+            let mut merged: HashMap<WidgetStatus, HashMap<StylePart, (PaletteKey, f32)>> = status
+                .iter()
+                .map(|(widget_status, parts)| {
+                    let part_map: HashMap<StylePart, (PaletteKey, f32)> = parts
+                        .iter()
+                        .map(|(style_part, palette_key, alpha)| {
+                            (style_part.clone(), (palette_key.clone(), *alpha))
+                        })
+                        .collect();
+                    (widget_status.clone(), part_map)
+                })
+                .collect();
 
-        // Default status → PaletteKey mappings for checkbox background slot.
-        // Active/Hovered use base/weak; Disabled uses weaker.
-        let default_statuses: HashMap<PaletteKey, WidgetStatus> = [
-            (PaletteKey::Base,      WidgetStatus::Active),
-            (PaletteKey::Weak,      WidgetStatus::Hovered),
-            (PaletteKey::Weaker,    WidgetStatus::Disabled),
-            (PaletteKey::BaseAlpha, WidgetStatus::IsChecked),
-        ].into_iter().collect();
-        let statuses = custom.statuses.as_ref().unwrap_or(&default_statuses);
+            for (default_widget_status, default_parts) in &default_statuses {
+                let merged_parts = merged
+                    .entry(default_widget_status.clone())
+                    .or_insert_with(|| default_parts.clone());
 
-        let key_for = |ws: WidgetStatus| -> PaletteKey {
-            statuses.iter()
-                .find_map(|(k, v)| if *v == ws { Some(k.clone()) } else { None })
-                .unwrap_or(PaletteKey::Base)
-        };
+                for (default_style_part, default_pair) in default_parts {
+                    merged_parts
+                        .entry(default_style_part.clone())
+                        .or_insert_with(|| default_pair.clone());
+                }
+            }
 
-        let txt_color = text_color_override
-            .unwrap_or_else(|| bkg.base.text);
+            merged
+        } else { default_statuses };
 
-        // Border colour: use override if supplied, else derive from palette.
-        let border = border_color_override.unwrap_or(bkg.strong.color);
-
-        // Accent (checked fill) comes from the IsChecked palette key.
-        let accent_pair = get_bkg_pair(&key_for(WidgetStatus::IsChecked), &bkg, alpha);
-        // For checked+hovered, deviate the accent slightly (mirrors iced primary.base → primary.strong).
-        let accent_hovered = palette::Pair {
-            color: deviate_for_hover(accent_pair.color),
-            text: accent_pair.text,
-        };
-
-        let mut style = match status {
+        let bkg = custom_pal.background;
+        
+        match status {
             checkbox::Status::Active { is_checked } => {
-                let base_pair = get_bkg_pair(&key_for(WidgetStatus::Active), &bkg, alpha);
-                styled(border, base_pair, accent_pair.text, accent_pair, is_checked)
+                let active = statuses.get(&WidgetStatus::Active).unwrap();
+                let (border_pal, bd_alpha) = active.get(&StylePart::Border).unwrap();
+                let (base_pal, base_alpha) = active.get(&StylePart::Base).unwrap();
+                let (icon_pal, ic_alpha) = active.get(&StylePart::Icon).unwrap();
+                let (accent_pal, ac_alpha) = active.get(&StylePart::Accent).unwrap();
+                let border_color = border_pal.color_key_to_color(&bkg).scale_alpha(*bd_alpha);
+                let base_pair = Pair::new(base_pal.color_key_to_color(&bkg).scale_alpha(*base_alpha),
+                                    base_pal.text_key_to_color(&bkg).scale_alpha(*base_alpha));
+                let icon_color = icon_pal.text_key_to_color(&bkg).scale_alpha(*ic_alpha);
+                let accent_pair = Pair::new(accent_pal.color_key_to_color(&bkg).scale_alpha(*ac_alpha),
+                                    accent_pal.text_key_to_color(&bkg).scale_alpha(*ac_alpha));
+                styled(border_color, base_pair, icon_color, accent_pair, is_checked)
+
             },
             checkbox::Status::Hovered { is_checked } => {
-                let base_pair = get_bkg_pair(&key_for(WidgetStatus::Hovered), &bkg, alpha);
-                styled(border, base_pair, accent_hovered.text, accent_hovered, is_checked)
+                let hovered = statuses.get(&WidgetStatus::Hovered).unwrap();
+                let (border_pal, bd_alpha) = hovered.get(&StylePart::Border).unwrap();
+                let (base_pal, base_alpha) = hovered.get(&StylePart::Base).unwrap();
+                let (icon_pal, ic_alpha) = hovered.get(&StylePart::Icon).unwrap();
+                let (accent_pal, ac_alpha) = hovered.get(&StylePart::Accent).unwrap();
+                let border_color = border_pal.color_key_to_color(&bkg).scale_alpha(*bd_alpha);
+                let base_pair = Pair::new(base_pal.color_key_to_color(&bkg).scale_alpha(*base_alpha),
+                                    base_pal.text_key_to_color(&bkg).scale_alpha(*base_alpha));
+                let icon_color = icon_pal.text_key_to_color(&bkg).scale_alpha(*ic_alpha);
+                let accent_pair = Pair::new(accent_pal.color_key_to_color(&bkg).scale_alpha(*ac_alpha),
+                                    accent_pal.text_key_to_color(&bkg).scale_alpha(*ac_alpha));
+                styled(border_color, base_pair, icon_color, accent_pair, is_checked)
             },
             checkbox::Status::Disabled { is_checked } => {
-                let base_pair = get_bkg_pair(&key_for(WidgetStatus::Disabled), &bkg, alpha);
-                let accent_disabled = get_bkg_pair(&key_for(WidgetStatus::IsChecked), &bkg, 0.5);
-                let border_disabled = get_bkg_pair(&key_for(WidgetStatus::Active), &bkg, alpha).color;
-                styled(border_disabled, base_pair, accent_pair.text, accent_disabled, is_checked)
+                let disabled = statuses.get(&WidgetStatus::Disabled).unwrap();
+                let (border_pal, bd_alpha) = disabled.get(&StylePart::Border).unwrap();
+                let (base_pal, base_alpha) = disabled.get(&StylePart::Base).unwrap();
+                let (icon_pal, ic_alpha) = disabled.get(&StylePart::Icon).unwrap();
+                let (accent_pal, ac_alpha) = disabled.get(&StylePart::Accent).unwrap();
+                let border_color = border_pal.color_key_to_color(&bkg).scale_alpha(*bd_alpha);
+                let base_pair = Pair::new(base_pal.color_key_to_color(&bkg).scale_alpha(*base_alpha),
+                                    base_pal.text_key_to_color(&bkg).scale_alpha(*base_alpha));
+                let icon_color = icon_pal.text_key_to_color(&bkg).scale_alpha(*ic_alpha);
+                let accent_pair = Pair::new(accent_pal.color_key_to_color(&bkg).scale_alpha(*ac_alpha),
+                                    accent_pal.text_key_to_color(&bkg).scale_alpha(*ac_alpha));
+                styled(border_color, base_pair, icon_color, accent_pair, is_checked)
             },
-        };
+        }
 
-        apply_border_overrides(
-            &mut style.border, border_color_override,
-            &self.border_radius, self.border_width, "Checkbox",
-        );
-
-        style.text_color = if is_label { Some(txt_color) } else { None };
-
-        style
         
     }
 }
 
-fn deviate_for_hover(color: iced::Color) -> iced::Color {
-    // Lighten dark colours, darken light colours by ~10% — mirrors iced's deviate(color, 0.1).
-    let amount = 0.1_f32;
-    if palette::is_dark(color) {
-        iced::Color {
-            r: color.r + (1.0 - color.r) * amount,
-            g: color.g + (1.0 - color.g) * amount,
-            b: color.b + (1.0 - color.b) * amount,
-            a: color.a,
-        }
-    } else {
-        iced::Color {
-            r: (color.r * (1.0 - amount)).max(0.0),
-            g: (color.g * (1.0 - amount)).max(0.0),
-            b: (color.b * (1.0 - amount)).max(0.0),
-            a: color.a,
-        }
-    }
-}
-
-// fn get_bkg_pair(key: &PaletteKey, bkg: &iced::theme::palette::Background, alpha: f32) -> palette::Pair {
-//     match key {
-//         PaletteKey::Base      => bkg.base,
-//         PaletteKey::BaseAlpha => palette::Pair { color: bkg.base.color.scale_alpha(alpha), text: bkg.base.text.scale_alpha(alpha) },
-//         PaletteKey::Neutral   => bkg.neutral,
-//         PaletteKey::NeutralAlpha => palette::Pair { color: bkg.neutral.color.scale_alpha(alpha), text: bkg.neutral.text.scale_alpha(alpha) },
-//         PaletteKey::Strong    => bkg.strong,
-//         PaletteKey::StrongAlpha => palette::Pair { color: bkg.strong.color.scale_alpha(alpha), text: bkg.strong.text.scale_alpha(alpha) },
-//         PaletteKey::Stronger  => bkg.stronger,
-//         PaletteKey::StrongerAlpha => palette::Pair { color: bkg.stronger.color.scale_alpha(alpha), text: bkg.stronger.text.scale_alpha(alpha) },
-//         PaletteKey::Strongest => bkg.strongest,
-//         PaletteKey::StrongestAlpha => palette::Pair { color: bkg.strongest.color.scale_alpha(alpha), text: bkg.strongest.text.scale_alpha(alpha) },
-//         PaletteKey::Weak      => bkg.weak,
-//         PaletteKey::WeakAlpha => palette::Pair { color: bkg.weak.color.scale_alpha(alpha), text: bkg.weak.text.scale_alpha(alpha) },
-//         PaletteKey::Weaker    => bkg.weaker,
-//         PaletteKey::WeakerAlpha => palette::Pair { color: bkg.weaker.color.scale_alpha(alpha), text: bkg.weaker.text.scale_alpha(alpha) },
-//         PaletteKey::Weakest   => bkg.weakest,
-//         PaletteKey::WeakestAlpha => palette::Pair { color: bkg.weakest.color.scale_alpha(alpha), text: bkg.weakest.text.scale_alpha(alpha) },
-//     }
-// }
 
 fn styled(
     border_color: iced::Color,
@@ -407,9 +413,6 @@ pub enum CheckboxParam {
 #[derive(Debug, Clone, PartialEq, Hash)]
 #[pyclass(eq, eq_int, hash, frozen)]
 pub enum CheckboxStyleParam {
-    BorderColor,
-    BorderColorAlpha,
-    BorderRgba,
     BorderRadius,
     BorderWidth,
     TextColor,
@@ -456,10 +459,7 @@ impl WidgetParamUpdate for CheckboxStyle {
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
-            CheckboxStyleParam::BorderColor => set_t_value(&mut self.border_color, value, "CheckboxStyleParam::BorderColor"),
-            CheckboxStyleParam::BorderColorAlpha => set_t_value(&mut self.border_color_alpha, value, "CheckboxStyleParam::BorderColorAlpha"),
             CheckboxStyleParam::BorderRadius => set_t_value(&mut self.border_radius, value, "CheckboxStyleParam::BorderRadius"),
-            CheckboxStyleParam::BorderRgba => set_t_value(&mut self.border_rgba, value, "CheckboxStyleParam::BorderRgbaColor"),
             CheckboxStyleParam::BorderWidth => set_t_value(&mut self.border_width, value, "CheckboxStyleParam::BorderWidth"),
             CheckboxStyleParam::TextColor => set_t_value(&mut self.text_color, value, "CheckboxStyleParam::TextColor"),
             CheckboxStyleParam::TextColorAlpha => set_t_value(&mut self.text_color_alpha, value, "CheckboxStyleParam::TextColorAlpha"),

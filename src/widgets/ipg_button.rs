@@ -352,8 +352,6 @@ impl ButtonStyle {
 
         let snap  = self.snap.unwrap_or(false);
 
-        let bkg = custom_pal.background;
-
         // Build gradient background once; used in every match arm when stops are supplied.
         let gradient_background: Option<iced::Background> =
             bkg_grad_color_stops.map(|stops| {
@@ -364,6 +362,8 @@ impl ButtonStyle {
                 iced::Background::Gradient(linear.into())
             });
 
+        let bkg = custom_pal.background;
+
         match status {
             button::Status::Active => {
                 let active = statuses.get(&WidgetStatus::Active).unwrap();
@@ -371,7 +371,7 @@ impl ButtonStyle {
                 let (text_key, text_alpha) = active.get(&StylePart::Text).unwrap();
                 let (bd_key, bd_alpha) = active.get(&StylePart::Border).unwrap();
                 let bkg_color = bkg_key.color_key_to_color(&bkg).scale_alpha(*alpha);
-                let text_color = text_key.bkg_text_key_to_color(&bkg).scale_alpha(*text_alpha);
+                let text_color = text_key.text_key_to_color(&bkg).scale_alpha(*text_alpha);
                 let b_color = bd_key.color_key_to_color(&bkg).scale_alpha(*bd_alpha);
                 button::Style {
                     background: gradient_background.clone()
@@ -387,12 +387,12 @@ impl ButtonStyle {
                 }
             },
             button::Status::Pressed => {
-                let active = statuses.get(&WidgetStatus::Pressed).unwrap();
-                let (bkg_key, alpha) = active.get(&StylePart::Background).unwrap();
-                let (text_key, text_alpha) = active.get(&StylePart::Text).unwrap();
-                let (bd_key, bd_alpha) = active.get(&StylePart::Border).unwrap();
+                let pressed = statuses.get(&WidgetStatus::Pressed).unwrap();
+                let (bkg_key, alpha) = pressed.get(&StylePart::Background).unwrap();
+                let (text_key, text_alpha) = pressed.get(&StylePart::Text).unwrap();
+                let (bd_key, bd_alpha) = pressed.get(&StylePart::Border).unwrap();
                 let bkg_color = bkg_key.color_key_to_color(&bkg).scale_alpha(*alpha);
-                let text_color = text_key.bkg_text_key_to_color(&bkg).scale_alpha(*text_alpha);
+                let text_color = text_key.text_key_to_color(&bkg).scale_alpha(*text_alpha);
                 let b_color = bd_key.color_key_to_color(&bkg).scale_alpha(*bd_alpha);
                 button::Style {
                     background: gradient_background.clone()
@@ -408,12 +408,12 @@ impl ButtonStyle {
                 }
             },
             button::Status::Hovered => {
-                let active = statuses.get(&WidgetStatus::Hovered).unwrap();
-                let (bkg_key, alpha) = active.get(&StylePart::Background).unwrap();
-                let (text_key, text_alpha) = active.get(&StylePart::Text).unwrap();
-                let (bd_key, bd_alpha) = active.get(&StylePart::Border).unwrap();
+                let hovered = statuses.get(&WidgetStatus::Hovered).unwrap();
+                let (bkg_key, alpha) = hovered.get(&StylePart::Background).unwrap();
+                let (text_key, text_alpha) = hovered.get(&StylePart::Text).unwrap();
+                let (bd_key, bd_alpha) = hovered.get(&StylePart::Border).unwrap();
                 let bkg_color = bkg_key.color_key_to_color(&bkg).scale_alpha(*alpha);
-                let text_color = text_key.bkg_text_key_to_color(&bkg).scale_alpha(*text_alpha);
+                let text_color = text_key.text_key_to_color(&bkg).scale_alpha(*text_alpha);
                 let b_color = bd_key.color_key_to_color(&bkg).scale_alpha(*bd_alpha);
                 button::Style {
                     background: gradient_background.clone()
@@ -429,12 +429,12 @@ impl ButtonStyle {
                 }
             },
             button::Status::Disabled => {
-                let active = statuses.get(&WidgetStatus::Disabled).unwrap();
-                let (bkg_key, alpha) = active.get(&StylePart::Background).unwrap();
-                let (text_key, text_alpha) = active.get(&StylePart::Text).unwrap();
-                let (bd_key, bd_alpha) = active.get(&StylePart::Border).unwrap();
+                let disabled = statuses.get(&WidgetStatus::Disabled).unwrap();
+                let (bkg_key, alpha) = disabled.get(&StylePart::Background).unwrap();
+                let (text_key, text_alpha) = disabled.get(&StylePart::Text).unwrap();
+                let (bd_key, bd_alpha) = disabled.get(&StylePart::Border).unwrap();
                 let bkg_color = bkg_key.color_key_to_color(&bkg).scale_alpha(*alpha);
-                let text_color = text_key.bkg_text_key_to_color(&bkg).scale_alpha(*text_alpha);
+                let text_color = text_key.text_key_to_color(&bkg).scale_alpha(*text_alpha);
                 let b_color = bd_key.color_key_to_color(&bkg).scale_alpha(*bd_alpha);
                 let background = gradient_background.clone()
                     .map(|g| g.scale_alpha(*alpha))
@@ -452,63 +452,10 @@ impl ButtonStyle {
                 }
             },
         }
-        // button::primary(theme, status)
+
     }
 
 }
-
-// fn get_pair(key: &PaletteKey, bkg: &iced::theme::palette::Background, alpha: f32) -> Pair {
-//     match key {
-//         PaletteKey::Base => bkg.base,
-//         PaletteKey::BaseAlpha => {
-//             let color = bkg.base.color.scale_alpha(alpha);
-//             let text = bkg.base.text.scale_alpha(alpha);
-//             Pair { color, text }
-//         },
-//         PaletteKey::Neutral => bkg.neutral,
-//         PaletteKey::NeutralAlpha => {
-//             let color = bkg.neutral.color.scale_alpha(alpha);
-//             let text = bkg.neutral.text.scale_alpha(alpha);
-//             Pair { color, text }
-//         },
-//         PaletteKey::Strong => bkg.strong,
-//         PaletteKey::StrongAlpha => {
-//             let color = bkg.strong.color.scale_alpha(alpha);
-//             let text = bkg.strong.text.scale_alpha(alpha);
-//             Pair { color, text }
-//         },
-//         PaletteKey::Stronger => bkg.stronger,
-//         PaletteKey::StrongerAlpha => {
-//             let color = bkg.stronger.color.scale_alpha(alpha);
-//             let text = bkg.stronger.text.scale_alpha(alpha);
-//             Pair { color, text }
-//         },
-//         PaletteKey::Strongest => bkg.strongest,
-//         PaletteKey::StrongestAlpha => {
-//             let color = bkg.strongest.color.scale_alpha(alpha);
-//             let text = bkg.strongest.text.scale_alpha(alpha);
-//             Pair { color, text }
-//         },
-//         PaletteKey::Weak => bkg.weak,
-//         PaletteKey::WeakAlpha => {
-//             let color = bkg.weak.color.scale_alpha(alpha);
-//             let text = bkg.weak.text.scale_alpha(alpha);
-//             Pair { color, text }
-//         },
-//         PaletteKey::Weaker => bkg.weaker,
-//         PaletteKey::WeakerAlpha => {
-//             let color = bkg.weaker.color.scale_alpha(alpha);
-//             let text = bkg.weaker.text.scale_alpha(alpha);
-//             Pair { color, text }
-//         },
-//         PaletteKey::Weakest => bkg.weakest,
-//         PaletteKey::WeakestAlpha => {
-//             let color = bkg.weakest.color.scale_alpha(alpha);
-//             let text = bkg.weakest.text.scale_alpha(alpha);
-//             Pair { color, text }
-//         },
-//     }
-// }
 
 
 #[derive(Debug, Clone, PartialEq, Hash)]

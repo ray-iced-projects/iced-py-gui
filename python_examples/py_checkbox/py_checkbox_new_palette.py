@@ -20,8 +20,7 @@ from icedpygui import (
     Scrollable,
     Row,
     start_session,
-    add_button,
-    add_button_style,
+    add_checkbox,
     add_text,
     add_font_style,
     FontWeight,
@@ -38,7 +37,7 @@ from icedpygui import (
 def make_tiles(status: tuple[WidgetStatus, list[list[StylePart, PaletteKey, float]]],
                col_pal: dict):
     """Make the tiles"""
-    # (WidgetStatus.Active, (PaletteKey.Base, 1.0))
+    # (WidgetStatus, (StylePart, PaletteKey, alpha))
 
     for( part, pal_key, alpha) in status[1]:
         (rgba, text_rgba)= col_pal.get(pal_key)
@@ -47,8 +46,23 @@ def make_tiles(status: tuple[WidgetStatus, list[list[StylePart, PaletteKey, floa
         rgba[3] *= alpha
         text_rgba[3] *= alpha
         match part:
-            case StylePart.Background:
-                content = f"Background\n{c}"
+            case StylePart.Border:
+                content = f"Border\n{c}"
+                add_text(content=content, width=150)
+                style_id = add_container_style(bkg_rgba=rgba)
+                add_container(width=120, height=20, style_id=style_id)
+            case StylePart.Base:
+                content = f"Base\n{c}"
+                add_text(content=content, width=150)
+                style_id = add_container_style(bkg_rgba=rgba)
+                add_container(width=120, height=20, style_id=style_id)
+            case StylePart.Icon:
+                content = f"Icon\n{c}"
+                add_text(content=content, width=150)
+                style_id = add_container_style(bkg_rgba=rgba)
+                add_container(width=120, height=20, style_id=style_id)
+            case StylePart.Accent:
+                content = f"Accent\n{c}"
                 add_text(content=content, width=150)
                 style_id = add_container_style(bkg_rgba=rgba)
                 add_container(width=120, height=20, style_id=style_id)
@@ -56,49 +70,42 @@ def make_tiles(status: tuple[WidgetStatus, list[list[StylePart, PaletteKey, floa
                 add_text(content=t)
                 style_id = add_container_style(bkg_rgba=text_rgba)
                 add_container(width=120, height=20, style_id=style_id)
-            case StylePart.Border:
-                content = f"Border\n{c}"
-                add_text(content=content, width=150)
-                style_id = add_container_style(bkg_rgba=rgba)
-                add_container(width=120, height=20, style_id=style_id)
+
 
 # ---------------------------------------------------------------------------
 # Create all of the ids and additional needed items
 # ---------------------------------------------------------------------------
 
-# Index into (bkg_rgba, text_rgba) palette tuples
-TEXT = 1
-COLOR = 0
-
-# When creating a palette for the button, you can only use
-# Background, Text, and Border.  The other StyleParts belong
-# to other widgets with overlap.
-# You don't need to use all 3 parts but it's advisable to use
+# When creating a palette for the checkbox, you can only use
+# StyleParts listed below.  The other StyleParts seen in the hint
+# belong to other widgets with overlap.
+# You don't need to use all parts but it's advisable to use
 # all statuses for each part.
-# Border will ony show when the border width > 0
+# Border will ony show when the border width > 0 but it's default
+# for the Checkbox is 1.0, so generally no issue.
 pal = [
     (WidgetStatus.Active, (
-                            (StylePart.Background, PaletteKey.Base, 1.0),
-                            (StylePart.Text, PaletteKey.Base, 1.0),
-                            (StylePart.Border, PaletteKey.Stronger, 1.0),
+                            (StylePart.Border, PaletteKey.Strong, 1.0),
+                            (StylePart.Base,   PaletteKey.Base,   1.0),
+                            (StylePart.Icon,   PaletteKey.Base,   1.0),
+                            (StylePart.Accent, PaletteKey.Base,   1.0),
+                            (StylePart.Text,   PaletteKey.Base,   1.0),
                             ),
     ),
     (WidgetStatus.Hovered, (
-                            (StylePart.Background, PaletteKey.Strong, 1.0),
-                            (StylePart.Text, PaletteKey.Strong, 1.0),
-                            (StylePart.Border, PaletteKey.Strongest, 1.0),
-                            ),
-    ),
-    (WidgetStatus.Pressed, (
-                            (StylePart.Background, PaletteKey.Base, 1.0),
-                            (StylePart.Text, PaletteKey.Base, 1.0),
-                            (StylePart.Border, PaletteKey.Stronger, 1.0),
+                            (StylePart.Border, PaletteKey.Strong, 1.0),
+                            (StylePart.Base,   PaletteKey.Weak,   1.0),
+                            (StylePart.Icon,   PaletteKey.Base,   1.0),
+                            (StylePart.Accent, PaletteKey.Strong, 1.0),
+                            (StylePart.Text,   PaletteKey.Base,   1.0),
                             ),
     ),
     (WidgetStatus.Disabled, (
-                            (StylePart.Background, PaletteKey.Base, 0.5),
-                            (StylePart.Text, PaletteKey.Base, 0.5),
-                            (StylePart.Border, PaletteKey.Stronger, 0.5),
+                            (StylePart.Border, PaletteKey.Weak,   1.0),
+                            (StylePart.Base,   PaletteKey.Weaker, 1.0),
+                            (StylePart.Icon,   PaletteKey.Base,   1.0),
+                            (StylePart.Accent, PaletteKey.Strong, 1.0),
+                            (StylePart.Text,   PaletteKey.Base,   1.0),
                             ),
     ),
 ]
@@ -111,10 +118,10 @@ pal_id = custom_palette(rgba=new_color, statuses=pal)
 color_pal = get_color_palette(rgba=new_color)
 
 font_id = add_font_style(family_name="Roboto", weight=FontWeight.Bold)
-btn_style_id = add_button_style(border_width=3)
+
 
 cwd = os.getcwd()
-FILE_PATH = f"{cwd}/python_examples/py_button/py_button_text.txt"
+FILE_PATH = f"{cwd}/python_examples/py_checkbox/py_checkbox_text.txt"
 state = {"file": ""}
 
 try:
@@ -140,8 +147,7 @@ with Window(title="Button Custom Palette",
                 add_text(content=(
                     ""))
 
-                add_text(content=("The Button statuses: Active (base), Hovered (strong), "
-                                    "Disabled(base alpha 0.5)"))
+                add_text(content="The Checkbox statuses: Active, Hovered, and Disabled")
 
                 with Column(spacing=20, width_fill=True, height_fill=True):
                     add_text(content="******Custom Status Styling******")
@@ -158,23 +164,17 @@ with Window(title="Button Custom Palette",
                             make_tiles(pal[1], color_pal)
 
                         with Column(spacing=5):
-                            add_text(content="Status: Pressed",
+                            add_text(content="Status: Disabled",
                                         size=20, font_id=font_id)
                             make_tiles(pal[2], color_pal)
 
-                        with Column(spacing=5):
-                            add_text(content="Status: Disabled",
-                                        size=20, font_id=font_id)
-                            make_tiles(pal[3], color_pal)
-
                     with Row(spacing=20):
                         with Column(spacing=5):
-                            add_button(label="Custom Palette", padding=[10],
-                                    palette_id=pal_id, style_id=btn_style_id)
-                            add_button(label="Custom Palette Disabled", padding=[10],
+                            add_checkbox(label="Custom Palette", palette_id=pal_id)
+                            add_checkbox(label="Custom Palette Disabled",
                                         palette_id=pal_id, disabled=True)
                         with Column(spacing=5):
-                            add_button(label="Default Palette", padding=[10])
-                            add_button(label="Default Palette Disabled", padding=[10],
+                            add_checkbox(label="Default Palette")
+                            add_checkbox(label="Default Palette Disabled",
                                         disabled=True)
 start_session()

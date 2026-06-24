@@ -90,7 +90,8 @@ use crate::widgets::ipg_checkbox::{CheckBox, CheckboxStyle, CheckboxStyleStd};
     icon_size=None,
     icon_line_height=None,
     user_data=None, 
-    show=true, 
+    show=true,
+    disabled=None,
     style_id=None, 
     style_std=None,
     palette_id=None,
@@ -117,6 +118,7 @@ pub fn add_checkbox(
     icon_line_height: Option<f32>,
     user_data: Option<PyObject>,
     show: bool,
+    disabled: Option<bool>,
     style_id: Option<usize>,
     style_std: Option<CheckboxStyleStd>,
     palette_id: Option<usize>,
@@ -157,6 +159,7 @@ pub fn add_checkbox(
             icon,
             icon_size,
             icon_line_height,
+            disabled,
             style_id,
             style_std,
             palette_id,
@@ -173,12 +176,6 @@ pub fn add_checkbox(
 /// 
 /// Parameters
 /// ----------
-/// border_color: Color, Optional
-///     The color for the border.
-/// border_color_alpha: float, Optional
-///     Sets the alpha of the Color.
-/// border_rgba: list[float]
-///     The color of the border in rgba format used as state above.
 /// border_radius: list[float]
 ///     The radius of the 4 corners, [float]=all corners, 
 ///     [float] top-left, top-right, bottom-right, bottom-left.
@@ -194,9 +191,6 @@ pub fn add_checkbox(
 ///      Obtains an ID of a widget that have not been created, used for the gen_id parameter.
 #[pyfunction]
 #[pyo3(signature = ( 
-    border_color=None,
-    border_color_alpha=None,
-    border_rgba=None,
     border_radius=None, 
     border_width=None,
     text_color=None,
@@ -205,9 +199,6 @@ pub fn add_checkbox(
     gen_id=None
     ))]
 pub fn add_checkbox_style(
-    border_color: Option<Color>,
-    border_color_alpha: Option<f32>,
-    border_rgba: Option<[f32; 4]>,
     border_radius: Option<Vec<f32>>,
     border_width: Option<f32>,
     text_color: Option<Color>,
@@ -223,9 +214,6 @@ pub fn add_checkbox_style(
     state.widgets.insert(id, Widgets::CheckboxStyle(
         CheckboxStyle {
             id,
-            border_color,
-            border_color_alpha,
-            border_rgba,
             border_radius, 
             border_width,
             text_color,

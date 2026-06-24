@@ -304,7 +304,7 @@ impl PaletteKey {
         }
     }
 
-    pub fn bkg_text_key_to_color(&self, bkg: &iced::theme::palette::Background) -> iced::Color {
+    pub fn text_key_to_color(&self, bkg: &iced::theme::palette::Background) -> iced::Color {
         match self {
             PaletteKey::Base => bkg.base.text,
             PaletteKey::Neutral => bkg.neutral.text,
@@ -336,8 +336,11 @@ pub enum PaletteWidget {
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
 #[pyclass(eq, eq_int, hash, frozen)]
 pub enum StylePart {
+    Accent,
     Background,
+    Base,
     Border,
+    Icon,
     Text,
 }
 

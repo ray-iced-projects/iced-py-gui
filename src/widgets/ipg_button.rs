@@ -283,7 +283,7 @@ impl ButtonStyle {
         let snap  = self.snap.unwrap_or(false);
 
         // style_std overides all except for border, shadow, and snap
-        if style_std.is_some() | c_pal_opt.is_none() {
+        if style_std.is_some() || c_pal_opt.is_none() {
             let mut style =  if let Some(std) = style_std {
                 std.to_iced(theme, status)
             } else { button::primary(theme, status) };

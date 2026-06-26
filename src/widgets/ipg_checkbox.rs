@@ -10,7 +10,6 @@ use crate::app::Message;
 use crate::widgets::widget_param_update::{
     WidgetParamUpdate, set_t_value};
 use crate::widgets::callbacks::invoke_callback_with_args;
-use crate::widgets::styling::apply_border_overrides;
 use crate::state::Widgets;
 
 use crate::graphics::BOOTSTRAP_FONT;
@@ -123,7 +122,7 @@ impl CheckBox {
                     if style_opt.is_some() || pal_opt.is_some() {
                         let chk_st = CheckboxStyle::default();
                         let st = style_opt.as_ref().unwrap_or(&chk_st);
-                        st.to_iced(theme, status, &pal_opt)
+                        st.to_iced(theme, status, &pal_opt, &self.style_std)
                     } else {
                        match &self.style_std {
                             Some(std) => std.to_iced(theme, status),
@@ -186,7 +185,7 @@ pub fn checkbox_callback(state: &mut IpgState, id: usize, message: ChkMessage) {
 pub struct CheckboxStyle {
     pub id: usize,
 
-    pub border_radius: Option<Vec<f32>>,
+    pub border_radius: Option<f32>,
     pub border_width: Option<f32>,
     
     pub text_color: Option<Color>,
@@ -200,7 +199,19 @@ impl CheckboxStyle {
         theme: &Theme, 
         status: checkbox::Status,
         c_pal_opt: &Option<CustomPalette>,
+        style_std_opt: &Option<CheckboxStyleStd>,
         ) -> checkbox::Style {
+
+        // style_std overides all except for border, shadow, and snap
+        if style_std_opt.is_some() || c_pal_opt.is_none() {
+            let mut style =  if let Some(std) = style_std_opt {
+                std.to_iced(theme, status)
+            } else { checkbox::primary(theme, status) };
+            style.border.radius = self.border_radius.unwrap_or(2.0).into();
+            style.border.width = self.border_width.unwrap_or(1.0);
+            
+            return style
+        }
         
         // Build the background palette — either from CustomPalette or theme default.
         let custom_pal = if let Some(cp) = c_pal_opt {
@@ -353,19 +364,11 @@ impl CheckboxStyle {
         let text_color = Color::rgba_ipg_color_to_iced(self.text_rgba, &self.text_color, self.text_color_alpha)
             .unwrap_or(status_text_color);
 
-        let mut border = iced::Border {
-            radius: 2.0.into(),
-            width: 1.0,
+        let border = iced::Border {
+            radius: self.border_radius.unwrap_or(2.0).into(),
+            width: self.border_width.unwrap_or(1.0),
             color: border_color,
         };
-
-        apply_border_overrides(
-            &mut border,
-            None,
-            &self.border_radius,
-            self.border_width,
-            "Checkbox",
-        );
 
         checkbox::Style {
             background: Background::Color(background_color),

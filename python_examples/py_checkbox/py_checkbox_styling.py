@@ -47,24 +47,13 @@ with Window(title="Checkbox Styling",
 
         with Row(spacing=20.0):
 
-            border_color = add_checkbox_style(
-                border_color=Color.RED,
-                border_width=2.0)
-
             border_radius = add_checkbox_style(
-                border_color=Color.BLUE,
                 border_width=2.0,
-                border_radius=[8.0])
+                border_radius=8.0)
 
             border_thick = add_checkbox_style(
-                border_color=Color.DARK_GREEN,
                 border_width=4.0,
-                border_radius=[4.0])
-
-            add_checkbox(
-                label="Border Color + Width",
-                is_checked=True,
-                style_id=border_color)
+                border_radius=4.0)
 
             add_checkbox(
                 label="Border Radius",
@@ -83,19 +72,17 @@ with Window(title="Checkbox Styling",
         with Row(spacing=20.0):
 
             text_blue = add_checkbox_style(
-                text_color=Color.BLUE)
+                text_color=Color.LIGHT_BLUE)
 
             text_red = add_checkbox_style(
                 text_color=Color.RED)
 
             add_checkbox(
-                label="Blue Text",
-                is_checked=True,
+                label="Light Blue Text",
                 style_id=text_blue)
 
             add_checkbox(
                 label="Red Text",
-                is_checked=True,
                 style_id=text_red)
 
 start_session()

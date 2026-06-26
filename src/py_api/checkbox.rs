@@ -176,9 +176,8 @@ pub fn add_checkbox(
 /// 
 /// Parameters
 /// ----------
-/// border_radius: list[float]
-///     The radius of the 4 corners, [float]=all corners, 
-///     [float] top-left, top-right, bottom-right, bottom-left.
+/// border_radius: float
+///     The radius of the 4 corners.
 /// border_width: float
 ///     The border width.
 /// text_color: Color, Optional
@@ -199,7 +198,7 @@ pub fn add_checkbox(
     gen_id=None
     ))]
 pub fn add_checkbox_style(
-    border_radius: Option<Vec<f32>>,
+    border_radius: Option<f32>,
     border_width: Option<f32>,
     text_color: Option<Color>,
     text_color_alpha: Option<f32>,

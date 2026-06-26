@@ -67,39 +67,37 @@ def make_tiles(status: tuple[WidgetStatus, list[list[StylePart, PaletteKey, floa
 # ---------------------------------------------------------------------------
 
 # See exaplanation in the py_checkbox_text.txt or launch and read.
+# Note that the Icon is not used in the unchecked.
 pal = [
     ((WidgetStatus.Active, StateVariant.Unchecked), (
                             (StylePart.Border,      PaletteKey.ThemeStrong, 1.0), # Theme color
                             (StylePart.Background,  PaletteKey.ThemeBase,   1.0), # Theme color
-                            (StylePart.Icon,        PaletteKey.BaseText,    1.0), # custom color
                             (StylePart.Text,        PaletteKey.ThemeBaseText, 1.0), # Theme text
                             ),
     ),
     ((WidgetStatus.Hovered, StateVariant.Unchecked), (
                             (StylePart.Border,      PaletteKey.ThemeStrong, 1.0), # Theme color
                             (StylePart.Background,  PaletteKey.ThemeWeak,   1.0), # Theme color
-                            (StylePart.Icon,        PaletteKey.BaseText,    1.0), # custom color
                             (StylePart.Text,        PaletteKey.ThemeBaseText, 1.0), # Theme text
                             ),
     ),
     ((WidgetStatus.Disabled, StateVariant.Unchecked), (
                             (StylePart.Border,      PaletteKey.ThemeWeak,   1.0), # Theme color
                             (StylePart.Background,  PaletteKey.ThemeWeaker, 1.0), # Theme color
-                            (StylePart.Icon,        PaletteKey.BaseText,    0.3), # custom color
                             (StylePart.Text,        PaletteKey.ThemeBaseText, 1.0), # Theme text
                             ),
     ),
     ((WidgetStatus.Active, StateVariant.Checked), (
                             (StylePart.Border,      PaletteKey.Base,        1.0), # custom color
                             (StylePart.Background,  PaletteKey.Base,        1.0), # custom color
-                            (StylePart.Icon,        PaletteKey.BaseText,    1.0), # custom color
+                            (StylePart.Icon,        PaletteKey.BaseText,    0.8), # custom color
                             (StylePart.Text,        PaletteKey.ThemeBaseText, 1.0), # Theme text
                             ),
     ),
     ((WidgetStatus.Hovered, StateVariant.Checked), (
                             (StylePart.Border,      PaletteKey.Strong,      1.0), # custom color
                             (StylePart.Background,  PaletteKey.Strong,      1.0), # custom color
-                            (StylePart.Icon,        PaletteKey.BaseText,    1.0), # custom color
+                            (StylePart.Icon,        PaletteKey.BaseText,    0.8), # custom color
                             (StylePart.Text,        PaletteKey.ThemeBaseText, 1.0), # Theme text
                             ),
     ),

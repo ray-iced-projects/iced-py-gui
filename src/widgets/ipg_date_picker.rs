@@ -265,7 +265,7 @@ fn calendar_show_button<'a>(
             .width(Length::Shrink)
             .style(move|theme, status|
                 if let Some(st) = &btn_style {
-                        st.to_iced(theme, status, &None)
+                        st.to_iced(theme, status, &None, &None)
                     } else {
                        match &dp.button_style_standard {
                             Some(std) => std.to_iced(theme, status),

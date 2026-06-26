@@ -122,6 +122,7 @@ from .icedpygui import (
     PaletteKey as PaletteKey,
     WidgetStatus as WidgetStatus,
     StylePart as StylePart,
+    StateVariant as StateVariant,
 )
 
 

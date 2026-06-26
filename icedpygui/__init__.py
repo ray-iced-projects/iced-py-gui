@@ -106,6 +106,7 @@ from .icedpygui import (
     PaletteKey,
     WidgetStatus,
     StylePart,
+    StateVariant,
     StdColorStyle,
     Arrow,
     arrow_to_str,

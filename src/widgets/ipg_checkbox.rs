@@ -3,13 +3,14 @@
 use std::collections::HashMap;
 
 use crate::graphics::colors::Color;
-use crate::py_api::colors::{CustomPalette, PaletteKey, StylePart, WidgetStatus};
+use crate::py_api::colors::{CustomPalette, PaletteKey, StateVariant, StylePart, WidgetStatus};
 use crate::py_api::helpers::get_len;
 use crate::state::IpgState;
 use crate::app::Message;
 use crate::widgets::widget_param_update::{
     WidgetParamUpdate, set_t_value};
 use crate::widgets::callbacks::invoke_callback_with_args;
+use crate::widgets::styling::apply_border_overrides;
 use crate::state::Widgets;
 
 use crate::graphics::BOOTSTRAP_FONT;
@@ -19,7 +20,6 @@ use iced::advanced::text;
 use iced::{Background, Element, Theme};
 use iced::widget::text::{LineHeight, Shaping, Wrapping};
 use iced::widget::{Checkbox, checkbox};
-use iced::theme::palette::{self, Pair};
 
 use pyo3::{pyclass, Py, PyAny};
 type PyObject = Py<PyAny>;
@@ -207,147 +207,174 @@ impl CheckboxStyle {
             cp
         } else {
             let palette = theme.palette();
-            let background = palette.background;
             &CustomPalette { 
                 id: 0, 
-                background, 
+                palette: palette.background, 
                 statuses: None, 
             }
          };
 
-        let mut default_statuses: HashMap<WidgetStatus, HashMap<StylePart, (PaletteKey, f32)>> = HashMap::new();
+        let mut default_unchecked_statuses: HashMap<WidgetStatus, HashMap<StylePart, (PaletteKey, f32)>> = HashMap::new();
         
         let mut inner = HashMap::new();
-        inner.insert(StylePart::Border, (PaletteKey::Strong,   1.0));
-        inner.insert(StylePart::Background, (PaletteKey::Base, 1.0));
-        inner.insert(StylePart::Icon, (PaletteKey::Base,       1.0));
-        inner.insert(StylePart::Accent, (PaletteKey::Base,     1.0));
-        inner.insert(StylePart::Text, (PaletteKey::Base,       1.0));
-        
-        default_statuses.insert(WidgetStatus::Active, inner);
+        inner.insert(StylePart::Border, (PaletteKey::ThemeStrong,   1.0));
+        inner.insert(StylePart::Background, (PaletteKey::ThemeBase, 1.0));
+        inner.insert(StylePart::Icon, (PaletteKey::BaseText,       1.0));
+        inner.insert(StylePart::Text, (PaletteKey::ThemeBaseText,  1.0));
+        default_unchecked_statuses.insert(WidgetStatus::Active, inner);
                                                     
         let mut inner = HashMap::new();
-        inner.insert(StylePart::Border, (PaletteKey::Strong,   1.0));
-        inner.insert(StylePart::Background, (PaletteKey::Weak, 1.0));
-        inner.insert(StylePart::Icon, (PaletteKey::Base,       1.0));
-        inner.insert(StylePart::Accent, (PaletteKey::Strong,   1.0));
-        inner.insert(StylePart::Text, (PaletteKey::Base,       1.0));
+        inner.insert(StylePart::Border, (PaletteKey::ThemeStrong,   1.0));
+        inner.insert(StylePart::Background, (PaletteKey::ThemeWeak, 1.0));
+        inner.insert(StylePart::Icon, (PaletteKey::BaseText,       1.0));
+        inner.insert(StylePart::Text, (PaletteKey::ThemeBaseText,  1.0));
         
-        default_statuses.insert(WidgetStatus::Hovered, inner);
+        default_unchecked_statuses.insert(WidgetStatus::Hovered, inner);
          
         let mut inner = HashMap::new();
-        inner.insert(StylePart::Border, (PaletteKey::Weak,       1.0));
-        inner.insert(StylePart::Background, (PaletteKey::Weaker, 1.0));
-        inner.insert(StylePart::Icon, (PaletteKey::Base,         1.0));
-        inner.insert(StylePart::Accent, (PaletteKey::Strong,     1.0));
-        inner.insert(StylePart::Text, (PaletteKey::Base,         1.0));
+        inner.insert(StylePart::Border, (PaletteKey::ThemeWeak,       1.0));
+        inner.insert(StylePart::Background, (PaletteKey::ThemeWeaker, 1.0));
+        inner.insert(StylePart::Icon, (PaletteKey::BaseText,     1.0));
+        inner.insert(StylePart::Text, (PaletteKey::ThemeBaseText, 1.0));
         
-        default_statuses.insert(WidgetStatus::Disabled, inner);
+        default_unchecked_statuses.insert(WidgetStatus::Disabled, inner);
+
+        // Default checked overrides per interaction status.
+        let mut default_checked_overrides: HashMap<WidgetStatus, HashMap<StylePart, (PaletteKey, f32)>> = HashMap::new();
+
+        let mut inner = HashMap::new();
+        inner.insert(StylePart::Border, (PaletteKey::Base, 1.0));
+        inner.insert(StylePart::Background, (PaletteKey::Base, 1.0));
+        inner.insert(StylePart::Text, (PaletteKey::ThemeBaseText, 1.0));
+        default_checked_overrides.insert(WidgetStatus::Active, inner);
+
+        let mut inner = HashMap::new();
+        inner.insert(StylePart::Border, (PaletteKey::Strong, 1.0));
+        inner.insert(StylePart::Background, (PaletteKey::Strong, 1.0));
+        inner.insert(StylePart::Text, (PaletteKey::ThemeBaseText, 1.0));
+        default_checked_overrides.insert(WidgetStatus::Hovered, inner);
+
+        let mut inner = HashMap::new();
+        inner.insert(StylePart::Border, (PaletteKey::ThemeStrong, 1.0));
+        inner.insert(StylePart::Background, (PaletteKey::ThemeStrong, 1.0));
+        inner.insert(StylePart::Text, (PaletteKey::ThemeBaseText, 1.0));
+        default_checked_overrides.insert(WidgetStatus::Disabled, inner);
         
-        let statuses = if let Some(status) = custom_pal.statuses.as_ref() {
-            let mut merged: HashMap<WidgetStatus, HashMap<StylePart, (PaletteKey, f32)>> = status
-                .iter()
-                .map(|(widget_status, parts)| {
-                    let part_map: HashMap<StylePart, (PaletteKey, f32)> = parts
-                        .iter()
-                        .map(|(style_part, palette_key, alpha)| {
-                            (style_part.clone(), (palette_key.clone(), *alpha))
-                        })
-                        .collect();
-                    (widget_status.clone(), part_map)
-                })
-                .collect();
+        let cust_color = custom_pal.palette;
+        let theme_color = theme.palette().background;
 
-            for (default_widget_status, default_parts) in &default_statuses {
-                let merged_parts = merged
-                    .entry(default_widget_status.clone())
-                    .or_insert_with(|| default_parts.clone());
+        let custom_statuses: HashMap<(WidgetStatus, StateVariant), HashMap<StylePart, (PaletteKey, f32)>> =
+            if let Some(status) = custom_pal.statuses.as_ref() {
+                status
+                    .iter()
+                    .map(|((widget_status, variant), parts)| {
+                        let part_map: HashMap<StylePart, (PaletteKey, f32)> = parts
+                            .iter()
+                            .map(|(style_part, palette_key, alpha)| {
+                                (style_part.clone(), (palette_key.clone(), *alpha))
+                            })
+                            .collect();
+                        ((widget_status.clone(), *variant), part_map)
+                    })
+                    .collect()
+            } else {
+                HashMap::new()
+            };
 
-                for (default_style_part, default_pair) in default_parts {
-                    merged_parts
-                        .entry(default_style_part.clone())
-                        .or_insert_with(|| default_pair.clone());
+        let mut resolved_statuses: HashMap<(WidgetStatus, StateVariant), HashMap<StylePart, (PaletteKey, f32)>> = HashMap::new();
+
+        for ws in [WidgetStatus::Active, WidgetStatus::Hovered, WidgetStatus::Disabled] {
+            let mut unchecked_parts = default_unchecked_statuses.get(&ws).unwrap().clone();
+
+            if let Some(custom_unchecked) = custom_statuses.get(&(ws.clone(), StateVariant::Unchecked)) {
+                for (part, pair) in custom_unchecked {
+                    unchecked_parts.insert(part.clone(), pair.clone());
                 }
             }
 
-            merged
-        } else { default_statuses };
+            resolved_statuses.insert((ws.clone(), StateVariant::Unchecked), unchecked_parts.clone());
 
-        let bkg = custom_pal.background;
+            let mut checked_parts = unchecked_parts;
 
-        match status {
+            if let Some(per_status_checked) = default_checked_overrides.get(&ws) {
+                for (part, pair) in per_status_checked {
+                    checked_parts.insert(part.clone(), pair.clone());
+                }
+            }
+
+            // Backward compatibility: IsChecked acts as a checked override map.
+            if let Some(checked_override) = custom_statuses
+                .get(&(WidgetStatus::IsChecked, StateVariant::Checked))
+                .or_else(|| custom_statuses.get(&(WidgetStatus::IsChecked, StateVariant::Unchecked)))
+            {
+                for (part, pair) in checked_override {
+                    checked_parts.insert(part.clone(), pair.clone());
+                }
+            }
+
+            if let Some(custom_checked) = custom_statuses.get(&(ws.clone(), StateVariant::Checked)) {
+                for (part, pair) in custom_checked {
+                    checked_parts.insert(part.clone(), pair.clone());
+                }
+            }
+
+            resolved_statuses.insert((ws, StateVariant::Checked), checked_parts);
+        }
+
+        let (widget_status, variant) = match status {
             checkbox::Status::Active { is_checked } => {
-                let active = statuses.get(&WidgetStatus::Active).unwrap();
-                let (border_pal, bd_alpha) = active.get(&StylePart::Border).unwrap();
-                let (base_pal, base_alpha) = active.get(&StylePart::Background).unwrap();
-                let (icon_pal, ic_alpha) = active.get(&StylePart::Icon).unwrap();
-                let (accent_pal, ac_alpha) = active.get(&StylePart::Accent).unwrap();
-                let border_color = border_pal.color_key_to_color(&bkg).scale_alpha(*bd_alpha);
-                let base_pair = Pair::new(base_pal.color_key_to_color(&bkg).scale_alpha(*base_alpha),
-                                    base_pal.text_key_to_color(&bkg).scale_alpha(*base_alpha));
-                let icon_color = icon_pal.text_key_to_color(&bkg).scale_alpha(*ic_alpha);
-                let accent_pair = Pair::new(accent_pal.color_key_to_color(&bkg).scale_alpha(*ac_alpha),
-                                    accent_pal.text_key_to_color(&bkg).scale_alpha(*ac_alpha));
-                styled(border_color, base_pair, icon_color, accent_pair, is_checked)
-
+                (WidgetStatus::Active, if is_checked { StateVariant::Checked } else { StateVariant::Unchecked })
             },
             checkbox::Status::Hovered { is_checked } => {
-                let hovered = statuses.get(&WidgetStatus::Hovered).unwrap();
-                let (border_pal, bd_alpha) = hovered.get(&StylePart::Border).unwrap();
-                let (base_pal, base_alpha) = hovered.get(&StylePart::Background).unwrap();
-                let (icon_pal, ic_alpha) = hovered.get(&StylePart::Icon).unwrap();
-                let (accent_pal, ac_alpha) = hovered.get(&StylePart::Accent).unwrap();
-                let border_color = border_pal.color_key_to_color(&bkg).scale_alpha(*bd_alpha);
-                let base_pair = Pair::new(base_pal.color_key_to_color(&bkg).scale_alpha(*base_alpha),
-                                    base_pal.text_key_to_color(&bkg).scale_alpha(*base_alpha));
-                let icon_color = icon_pal.text_key_to_color(&bkg).scale_alpha(*ic_alpha);
-                let accent_pair = Pair::new(accent_pal.color_key_to_color(&bkg).scale_alpha(*ac_alpha),
-                                    accent_pal.text_key_to_color(&bkg).scale_alpha(*ac_alpha));
-                styled(border_color, base_pair, icon_color, accent_pair, is_checked)
+                (WidgetStatus::Hovered, if is_checked { StateVariant::Checked } else { StateVariant::Unchecked })
             },
             checkbox::Status::Disabled { is_checked } => {
-                let disabled = statuses.get(&WidgetStatus::Disabled).unwrap();
-                let (border_pal, bd_alpha) = disabled.get(&StylePart::Border).unwrap();
-                let (base_pal, base_alpha) = disabled.get(&StylePart::Background).unwrap();
-                let (icon_pal, ic_alpha) = disabled.get(&StylePart::Icon).unwrap();
-                let (accent_pal, ac_alpha) = disabled.get(&StylePart::Accent).unwrap();
-                let border_color = border_pal.color_key_to_color(&bkg).scale_alpha(*bd_alpha);
-                let base_pair = Pair::new(base_pal.color_key_to_color(&bkg).scale_alpha(*base_alpha),
-                                    base_pal.text_key_to_color(&bkg).scale_alpha(*base_alpha));
-                let icon_color = icon_pal.text_key_to_color(&bkg).scale_alpha(*ic_alpha);
-                let accent_pair = Pair::new(accent_pal.color_key_to_color(&bkg).scale_alpha(*ac_alpha),
-                                    accent_pal.text_key_to_color(&bkg).scale_alpha(*ac_alpha));
-                styled(border_color, base_pair, icon_color, accent_pair, is_checked)
+                (WidgetStatus::Disabled, if is_checked { StateVariant::Checked } else { StateVariant::Unchecked })
             },
+        };
+
+        let resolve_status_parts = |ws: WidgetStatus, sv: StateVariant| {
+            let parts = resolved_statuses.get(&(ws, sv)).unwrap();
+            let (border_pal, bd_alpha) = parts.get(&StylePart::Border).unwrap();
+            let (base_pal, base_alpha) = parts.get(&StylePart::Background).unwrap();
+            let (icon_pal, ic_alpha) = parts.get(&StylePart::Icon).unwrap();
+            let (text_pal, txt_alpha) = parts.get(&StylePart::Text).unwrap();
+
+            let border_color = border_pal.pal_key_to_color(&theme_color, &cust_color).scale_alpha(*bd_alpha);
+            let base_color = base_pal.pal_key_to_color(&theme_color, &cust_color).scale_alpha(*base_alpha);
+            let icon_color = icon_pal.pal_key_to_color(&theme_color, &cust_color).scale_alpha(*ic_alpha);
+            let status_text_color = text_pal.pal_key_to_color(&theme_color, &cust_color).scale_alpha(*txt_alpha);
+
+            (border_color, base_color, icon_color, status_text_color)
+        };
+
+        let (border_color, background_color, icon_color, status_text_color) = resolve_status_parts(widget_status, variant);
+
+        let text_color = Color::rgba_ipg_color_to_iced(self.text_rgba, &self.text_color, self.text_color_alpha)
+            .unwrap_or(status_text_color);
+
+        let mut border = iced::Border {
+            radius: 2.0.into(),
+            width: 1.0,
+            color: border_color,
+        };
+
+        apply_border_overrides(
+            &mut border,
+            None,
+            &self.border_radius,
+            self.border_width,
+            "Checkbox",
+        );
+
+        checkbox::Style {
+            background: Background::Color(background_color),
+            icon_color,
+            border,
+            text_color: Some(text_color),
         }
 
         
-    }
-}
-
-
-fn styled(
-    border_color: iced::Color,
-    base: palette::Pair,
-    icon_color: iced::Color,
-    accent: palette::Pair,
-    is_checked: bool,
-) -> checkbox::Style {
-    let (background, border) = if is_checked {
-        (accent, accent.color)
-    } else {
-        (base, border_color)
-    };
-
-    checkbox::Style {
-        background: Background::Color(background.color),
-        icon_color,
-        border: iced::Border {
-            radius: 2.0.into(),
-            width: 1.0,
-            color: border,
-        },
-        text_color: None,
     }
 }
 

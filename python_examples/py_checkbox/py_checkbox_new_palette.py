@@ -29,6 +29,7 @@ from icedpygui import (
     PaletteKey,
     WidgetStatus,
     StylePart,
+    StateVariant,
     add_text_editor,
     add_text_editor_style,
 )
@@ -40,19 +41,18 @@ def make_tiles(status: tuple[WidgetStatus, list[list[StylePart, PaletteKey, floa
     # (WidgetStatus, (StylePart, PaletteKey, alpha))
 
     for( part, pal_key, alpha) in status[1]:
-        (rgba, text_rgba)= col_pal.get(pal_key)
-        c = "Color" if alpha == 1.0 else f"Color Alpha {alpha}"
-        t = "Text" if alpha == 1.0 else f"Text Alpha {alpha}"
+        rgba= col_pal.get(pal_key)
         rgba[3] *= alpha
-        text_rgba[3] *= alpha
+
+        c = "Color" if alpha == 1.0 else f"Color Alpha {alpha}"
         match part:
             case StylePart.Border:
                 content = f"Border\n{c}"
                 add_text(content=content, width=150)
                 style_id = add_container_style(bkg_rgba=rgba)
                 add_container(width=120, height=20, style_id=style_id)
-            case StylePart.Base:
-                content = f"Base\n{c}"
+            case StylePart.Background:
+                content = f"Background\n{c}"
                 add_text(content=content, width=150)
                 style_id = add_container_style(bkg_rgba=rgba)
                 add_container(width=120, height=20, style_id=style_id)
@@ -61,61 +61,64 @@ def make_tiles(status: tuple[WidgetStatus, list[list[StylePart, PaletteKey, floa
                 add_text(content=content, width=150)
                 style_id = add_container_style(bkg_rgba=rgba)
                 add_container(width=120, height=20, style_id=style_id)
-            case StylePart.Accent:
-                content = f"Accent\n{c}"
-                add_text(content=content, width=150)
-                style_id = add_container_style(bkg_rgba=rgba)
-                add_container(width=120, height=20, style_id=style_id)
-            case StylePart.Text:
-                add_text(content=t)
-                style_id = add_container_style(bkg_rgba=text_rgba)
-                add_container(width=120, height=20, style_id=style_id)
-
 
 # ---------------------------------------------------------------------------
 # Create all of the ids and additional needed items
 # ---------------------------------------------------------------------------
 
-# When creating a palette for the checkbox, you can only use
-# StyleParts listed below.  The other StyleParts seen in the hint
-# belong to other widgets with overlap.
-# You don't need to use all parts but it's advisable to use
-# all statuses for each part.
-# Border will ony show when the border width > 0 but it's default
-# for the Checkbox is 1.0, so generally no issue.
+# See exaplanation in the py_checkbox_text.txt or launch and read.
 pal = [
-    (WidgetStatus.Active, (
-                            (StylePart.Border, PaletteKey.Strong, 1.0),
-                            (StylePart.Base,   PaletteKey.Base,   1.0),
-                            (StylePart.Icon,   PaletteKey.Base,   1.0),
-                            (StylePart.Accent, PaletteKey.Base,   1.0),
-                            (StylePart.Text,   PaletteKey.Base,   1.0),
+    ((WidgetStatus.Active, StateVariant.Unchecked), (
+                            (StylePart.Border,      PaletteKey.ThemeStrong, 1.0), # Theme color
+                            (StylePart.Background,  PaletteKey.ThemeBase,   1.0), # Theme color
+                            (StylePart.Icon,        PaletteKey.BaseText,    1.0), # custom color
+                            (StylePart.Text,        PaletteKey.ThemeBaseText, 1.0), # Theme text
                             ),
     ),
-    (WidgetStatus.Hovered, (
-                            (StylePart.Border, PaletteKey.Strong, 1.0),
-                            (StylePart.Base,   PaletteKey.Weak,   1.0),
-                            (StylePart.Icon,   PaletteKey.Base,   1.0),
-                            (StylePart.Accent, PaletteKey.Strong, 1.0),
-                            (StylePart.Text,   PaletteKey.Base,   1.0),
+    ((WidgetStatus.Hovered, StateVariant.Unchecked), (
+                            (StylePart.Border,      PaletteKey.ThemeStrong, 1.0), # Theme color
+                            (StylePart.Background,  PaletteKey.ThemeWeak,   1.0), # Theme color
+                            (StylePart.Icon,        PaletteKey.BaseText,    1.0), # custom color
+                            (StylePart.Text,        PaletteKey.ThemeBaseText, 1.0), # Theme text
                             ),
     ),
-    (WidgetStatus.Disabled, (
-                            (StylePart.Border, PaletteKey.Weak,   1.0),
-                            (StylePart.Base,   PaletteKey.Weaker, 1.0),
-                            (StylePart.Icon,   PaletteKey.Base,   1.0),
-                            (StylePart.Accent, PaletteKey.Strong, 1.0),
-                            (StylePart.Text,   PaletteKey.Base,   1.0),
+    ((WidgetStatus.Disabled, StateVariant.Unchecked), (
+                            (StylePart.Border,      PaletteKey.ThemeWeak,   1.0), # Theme color
+                            (StylePart.Background,  PaletteKey.ThemeWeaker, 1.0), # Theme color
+                            (StylePart.Icon,        PaletteKey.BaseText,    0.3), # custom color
+                            (StylePart.Text,        PaletteKey.ThemeBaseText, 1.0), # Theme text
+                            ),
+    ),
+    ((WidgetStatus.Active, StateVariant.Checked), (
+                            (StylePart.Border,      PaletteKey.Base,        1.0), # custom color
+                            (StylePart.Background,  PaletteKey.Base,        1.0), # custom color
+                            (StylePart.Icon,        PaletteKey.BaseText,    1.0), # custom color
+                            (StylePart.Text,        PaletteKey.ThemeBaseText, 1.0), # Theme text
+                            ),
+    ),
+    ((WidgetStatus.Hovered, StateVariant.Checked), (
+                            (StylePart.Border,      PaletteKey.Strong,      1.0), # custom color
+                            (StylePart.Background,  PaletteKey.Strong,      1.0), # custom color
+                            (StylePart.Icon,        PaletteKey.BaseText,    1.0), # custom color
+                            (StylePart.Text,        PaletteKey.ThemeBaseText, 1.0), # Theme text
+                            ),
+    ),
+    ((WidgetStatus.Disabled, StateVariant.Checked), (
+                            (StylePart.Border,      PaletteKey.ThemeStrong, 1.0), # Theme color
+                            (StylePart.Background,  PaletteKey.ThemeWeak,   1.0), # Theme color
+                            (StylePart.Icon,        PaletteKey.BaseText,    0.3), # custom color
+                            (StylePart.Text,        PaletteKey.ThemeBaseText, 1.0), # Theme text
                             ),
     ),
 ]
 
+# new_color = [0.1647, 0.7647, 0.8706, 1.0] # Primary for checking
 new_color = [0.32, 0.2, 0.13, 1.0]
 pal_id = custom_palette(rgba=new_color, statuses=pal)
 
 # This demo will need the colors for the containers, normally
 # only the above custom_palette() would be used.
-color_pal = get_color_palette(rgba=new_color)
+color_pal = get_color_palette(theme_name="TokyoNight", rgba=new_color)
 
 font_id = add_font_style(family_name="Roboto", weight=FontWeight.Bold)
 
@@ -153,20 +156,36 @@ with Window(title="Button Custom Palette",
                     add_text(content="******Custom Status Styling******")
 
                     with Row(spacing=20, width_fill=True):
-                        with Column(spacing=5):
-                            add_text(content="Status: Active",
-                                    size=20, font_id=font_id)
-                            make_tiles(pal[0], color_pal)
-
-                        with Column(spacing=5):
-                            add_text(content="Status: Hovered",
+                        with Row(spacing=5):
+                            with Column(spacing=5):
+                                add_text(content="Status: Active\n(Unchecked)",
                                         size=20, font_id=font_id)
-                            make_tiles(pal[1], color_pal)
-
-                        with Column(spacing=5):
-                            add_text(content="Status: Disabled",
+                                make_tiles(pal[0], color_pal)
+                            with Column(spacing=5):
+                                add_text(content="Status: Active\n(Checked)",
                                         size=20, font_id=font_id)
-                            make_tiles(pal[2], color_pal)
+                                make_tiles(pal[3], color_pal)
+
+                        with Row(spacing=5):
+                            with Column(spacing=5):
+                                add_text(content="Status: Hovered\nUnchecked",
+                                            size=20, font_id=font_id)
+                                make_tiles(pal[1], color_pal)
+                            with Column(spacing=5):
+                                add_text(content="Status: Hovered\nChecked",
+                                            size=20, font_id=font_id)
+                                make_tiles(pal[4], color_pal)
+
+                        with Row(spacing=5):
+                            with Column(spacing=5):
+                                add_text(content="Status: Disabled\nUnchecked",
+                                            size=20, font_id=font_id)
+                                make_tiles(pal[2], color_pal)
+
+                            with Column(spacing=5):
+                                add_text(content="Status: Disabled\nChecked",
+                                            size=20, font_id=font_id)
+                                make_tiles(pal[5], color_pal)
 
                     with Row(spacing=20):
                         with Column(spacing=5):

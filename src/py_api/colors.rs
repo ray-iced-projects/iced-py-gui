@@ -3,7 +3,7 @@
 use std::collections::HashMap;
 
 use iced::Theme;
-use iced::theme::palette::readable;
+use iced::theme::palette::{self, readable};
 use pyo3::prelude::*;
 use pyo3::pyfunction;
 
@@ -35,21 +35,34 @@ pub fn get_rgba_color(
 
 #[pyfunction]
 #[pyo3(signature = (
+    theme_name,
     color=None, 
     rgba=None,
     color_alpha=None))]
 pub fn get_color_palette(
+    theme_name: String,
     color: Option<Color>,
     rgba: Option<[f32; 4]>,
     color_alpha: Option<f32>,
-) -> PyResult<HashMap<PaletteKey, ([f64; 4], [f64; 4])>>
+) -> PyResult<HashMap<PaletteKey, [f64; 4]>>
 {
     let base = Color::rgba_ipg_color_to_iced(rgba, &color, color_alpha)
         .ok_or_else(|| pyo3::exceptions::PyValueError::new_err(
             "get_color_palette: no color supplied — provide base_color or base_rgba"
         ))?;
 
-    Ok(color_palette(base))
+    // Resolve built-in themes via WindowTheme enum; fall back to custom theme store.
+    let theme: Theme = if let Some(wt) = name_to_window_theme(&theme_name) {
+        wt.to_iced()
+    } else if let Some(ct) = crate::widgets::ipg_window::get_custom_theme(&theme_name) {
+        ct
+    } else {
+        return Err(pyo3::exceptions::PyValueError::new_err(
+            format!("get_styling_palette: unknown theme '{theme_name}'")
+        ));
+    };
+
+    Ok(color_palette(&theme, base))
     
 }
 
@@ -121,9 +134,9 @@ pub fn get_styling_palette(
         },
     }
 
-    let bkg_pal = color_palette(pal.background.base.color);
+    // let bkg_pal = color_palette(pal.background.base.color);
     
-    hm.extend(bkg_pal);
+    // hm.extend(bkg_pal);
 
     Ok(hm)
     
@@ -205,9 +218,10 @@ pub fn get_button_palette(
     
 }
 
-fn color_palette(base: iced::Color) -> HashMap<PaletteKey, ([f64; 4], [f64; 4])> {
+fn color_palette(theme: &iced::Theme, base: iced::Color) -> HashMap<PaletteKey, [f64; 4]> {
     let text_color = readable(base, iced::Color::WHITE);
-    let bkg = iced::theme::palette::Background::new(base, text_color);
+    let color_pal = iced::theme::palette::Background::new(base, text_color);
+    let color_theme = theme.palette().background;
 
     fn to_arr(c: iced::Color) -> [f64; 4] {
         let r = |v: f32| ((v as f64) * 100.0).round() / 100.0;
@@ -216,15 +230,41 @@ fn color_palette(base: iced::Color) -> HashMap<PaletteKey, ([f64; 4], [f64; 4])>
     
     let mut map = HashMap::new();
     
-    map.insert(PaletteKey::Base,     (to_arr(bkg.base.color), to_arr(bkg.base.text)));
-    map.insert(PaletteKey::Weak,     (to_arr(bkg.weak.color), to_arr(bkg.weak.text)));
-    map.insert(PaletteKey::Weaker,   (to_arr(bkg.weaker.color), to_arr(bkg.weaker.text)));
-    map.insert(PaletteKey::Weakest,  (to_arr(bkg.weakest.color), to_arr(bkg.weakest.text)));
-    map.insert(PaletteKey::Neutral,  (to_arr(bkg.neutral.color), to_arr(bkg.neutral.text)));
-    map.insert(PaletteKey::Strong,   (to_arr(bkg.strong.color), to_arr(bkg.strong.text)));
-    map.insert(PaletteKey::Stronger, (to_arr(bkg.stronger.color), to_arr(bkg.stronger.text)));
-    map.insert(PaletteKey::Strongest, (to_arr(bkg.strongest.color), to_arr(bkg.strongest.text)));
+    map.insert(PaletteKey::Base,     to_arr(color_pal.base.color));
+    map.insert(PaletteKey::BaseText, to_arr(color_pal.base.text));
+    map.insert(PaletteKey::Weak,     to_arr(color_pal.weak.color));
+    map.insert(PaletteKey::WeakText, to_arr(color_pal.weak.text));
+    map.insert(PaletteKey::Weaker,   to_arr(color_pal.weaker.color));
+    map.insert(PaletteKey::WeakerText, to_arr(color_pal.weaker.text));
+    map.insert(PaletteKey::Weakest,  to_arr(color_pal.weakest.color));
+    map.insert(PaletteKey::WeakestText, to_arr(color_pal.weakest.text));
+    map.insert(PaletteKey::Neutral,  to_arr(color_pal.neutral.color));
+    map.insert(PaletteKey::NeutralText,  to_arr(color_pal.neutral.text));
+    map.insert(PaletteKey::Strong,   to_arr(color_pal.strong.color));
+    map.insert(PaletteKey::StrongText, to_arr(color_pal.strong.text));
+    map.insert(PaletteKey::Stronger, to_arr(color_pal.stronger.color));
+    map.insert(PaletteKey::StrongerText, to_arr(color_pal.stronger.text));
+    map.insert(PaletteKey::Strongest, to_arr(color_pal.strongest.color));
+    map.insert(PaletteKey::StrongestText, to_arr(color_pal.strongest.text));
+
+    map.insert(PaletteKey::ThemeBase,     to_arr(color_theme.base.color));
+    map.insert(PaletteKey::ThemeBaseText, to_arr(color_theme.base.text));
+    map.insert(PaletteKey::ThemeWeak,     to_arr(color_theme.weak.color));
+    map.insert(PaletteKey::ThemeWeakText, to_arr(color_theme.weak.text));
+    map.insert(PaletteKey::ThemeWeaker,   to_arr(color_theme.weaker.color));
+    map.insert(PaletteKey::ThemeWeakerText, to_arr(color_theme.weaker.text));
+    map.insert(PaletteKey::ThemeWeakest,  to_arr(color_theme.weakest.color));
+    map.insert(PaletteKey::ThemeWeakestText, to_arr(color_theme.weakest.text));
+    map.insert(PaletteKey::ThemeNeutral,  to_arr(color_theme.neutral.color));
+    map.insert(PaletteKey::ThemeNeutralText,  to_arr(color_theme.neutral.text));
+    map.insert(PaletteKey::ThemeStrong,   to_arr(color_theme.strong.color));
+    map.insert(PaletteKey::ThemeStrongText, to_arr(color_theme.strong.text));
+    map.insert(PaletteKey::ThemeStronger, to_arr(color_theme.stronger.color));
+    map.insert(PaletteKey::ThemeStrongerText, to_arr(color_theme.stronger.text));
+    map.insert(PaletteKey::ThemeStrongest, to_arr(color_theme.strongest.color));
+    map.insert(PaletteKey::ThemeStrongestText, to_arr(color_theme.strongest.text));
     
+
     map
 }
 
@@ -237,7 +277,7 @@ fn color_palette(base: iced::Color) -> HashMap<PaletteKey, ([f64; 4], [f64; 4])>
 pub fn custom_palette(
     color: Option<Color>,
     rgba: Option<[f32; 4]>,
-    statuses: Option<Vec<(WidgetStatus, Vec<(StylePart, PaletteKey, f32)>)>>,
+    statuses: Option<Vec<((WidgetStatus, StateVariant), Vec<(StylePart, PaletteKey, f32)>)>>,
     gen_id: Option<usize>,
 ) -> PyResult<usize>
 {
@@ -245,9 +285,9 @@ pub fn custom_palette(
         .ok_or_else(|| pyo3::exceptions::PyValueError::new_err(
             "get_color_palette: no color supplied — provide base_color or base_rgba"
         ))?;
-
+        
     let text_color = readable(base, iced::Color::WHITE);
-    let background = iced::theme::palette::Background::new(base, text_color);
+    let palette = iced::theme::palette::Background::new(base, text_color);
   
     let id = get_id(gen_id);
 
@@ -256,7 +296,7 @@ pub fn custom_palette(
     state.widgets.insert(id, Widgets::Palette(
         CustomPalette {
             id,
-            background,
+            palette,
             statuses: statuses.map(|v| v.into_iter().collect()),
         }));
 
@@ -264,11 +304,19 @@ pub fn custom_palette(
     Ok(id)
 }
 
+#[derive(Debug, Clone, Copy, Eq, PartialEq, Hash)]
+#[pyclass(eq, eq_int, hash, frozen)]
+pub enum StateVariant {
+    NoVariant,
+    Checked,
+    Unchecked,
+}
+
 #[derive(Debug, Clone)]
 pub struct CustomPalette{
     pub id: usize,
-    pub background: iced::theme::palette::Background,
-    pub statuses: Option<HashMap<WidgetStatus, Vec<(StylePart, PaletteKey, f32)>>>,
+    pub palette: iced::theme::palette::Background,
+    pub statuses: Option<HashMap<(WidgetStatus, StateVariant), Vec<(StylePart, PaletteKey, f32)>>>,
 }
 
 #[derive(Debug, Clone, PartialEq, Hash)]
@@ -280,42 +328,82 @@ pub enum CustomPaletteParam {
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 #[pyclass(eq, eq_int, hash, frozen)]
 pub enum PaletteKey {
+    Transparent,
     Base,
+    BaseText,
     Neutral,
+    NeutralText,
     Strong,
+    StrongText,
     Stronger,
+    StrongerText,
     Strongest,
+    StrongestText,
     Weak,
+    WeakText,
     Weaker,
+    WeakerText,
     Weakest,
+    WeakestText,
+    ThemeBase,
+    ThemeBaseText,
+    ThemeNeutral,
+    ThemeNeutralText,
+    ThemeStrong,
+    ThemeStrongText,
+    ThemeStronger,
+    ThemeStrongerText,
+    ThemeStrongest,
+    ThemeStrongestText,
+    ThemeWeak,
+    ThemeWeakText,
+    ThemeWeaker,
+    ThemeWeakerText,
+    ThemeWeakest,
+    ThemeWeakestText,
 }
 
 impl PaletteKey {
-    pub fn color_key_to_color(&self, bkg: &iced::theme::palette::Background) -> iced::Color {
+    pub fn pal_key_to_color(&self, theme: &palette::Background, 
+                            color: &palette::Background) -> iced::Color {
         match self {
-            PaletteKey::Base => bkg.base.color,
-            PaletteKey::Neutral => bkg.neutral.color,
-            PaletteKey::Strong => bkg.strong.color,
-            PaletteKey::Stronger => bkg.stronger.color,
-            PaletteKey::Strongest => bkg.strongest.color,
-            PaletteKey::Weak => bkg.weak.color,
-            PaletteKey::Weaker => bkg.weaker.color,
-            PaletteKey::Weakest => bkg.weakest.color,
+            PaletteKey::Transparent => iced::Color::TRANSPARENT,
+            PaletteKey::Base => color.base.color,
+            PaletteKey::BaseText => color.base.text,
+            PaletteKey::Neutral => color.neutral.color,
+            PaletteKey::NeutralText => color.neutral.text,
+            PaletteKey::Strong => color.strong.color,
+            PaletteKey::StrongText => color.strong.text,
+            PaletteKey::Stronger => color.stronger.color,
+            PaletteKey::StrongerText => color.stronger.text,
+            PaletteKey::Strongest => color.strongest.color,
+            PaletteKey::StrongestText => color.strongest.text,
+            PaletteKey::Weak => color.weak.color,
+            PaletteKey::WeakText => color.weak.text,
+            PaletteKey::Weaker => color.weaker.color,
+            PaletteKey::WeakerText => color.weaker.text,
+            PaletteKey::Weakest => color.weakest.color,
+            PaletteKey::WeakestText => color.weakest.text,
+            
+            PaletteKey::ThemeBase => theme.base.color,
+            PaletteKey::ThemeBaseText => theme.base.text,
+            PaletteKey::ThemeNeutral => theme.neutral.color,
+            PaletteKey::ThemeNeutralText => theme.neutral.text,
+            PaletteKey::ThemeStrong => theme.strong.color,
+            PaletteKey::ThemeStrongText => theme.strong.text,
+            PaletteKey::ThemeStronger => theme.stronger.color,
+            PaletteKey::ThemeStrongerText => theme.stronger.text,
+            PaletteKey::ThemeStrongest => theme.strongest.color,
+            PaletteKey::ThemeStrongestText => theme.strongest.text,
+            PaletteKey::ThemeWeak => theme.weak.color,
+            PaletteKey::ThemeWeakText => theme.weak.text,
+            PaletteKey::ThemeWeaker => theme.weaker.color,
+            PaletteKey::ThemeWeakerText => theme.weaker.text,
+            PaletteKey::ThemeWeakest => theme.weakest.color,
+            PaletteKey::ThemeWeakestText => theme.weakest.text,
         }
     }
 
-    pub fn text_key_to_color(&self, bkg: &iced::theme::palette::Background) -> iced::Color {
-        match self {
-            PaletteKey::Base => bkg.base.text,
-            PaletteKey::Neutral => bkg.neutral.text,
-            PaletteKey::Strong => bkg.strong.text,
-            PaletteKey::Stronger => bkg.stronger.text,
-            PaletteKey::Strongest => bkg.strongest.text,
-            PaletteKey::Weak => bkg.weak.text,
-            PaletteKey::Weaker => bkg.weaker.text,
-            PaletteKey::Weakest => bkg.weakest.text,
-        }
-    }
 }
 
 
@@ -336,7 +424,6 @@ pub enum PaletteWidget {
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
 #[pyclass(eq, eq_int, hash, frozen)]
 pub enum StylePart {
-    Accent,
     Background,
     Base,
     Border,

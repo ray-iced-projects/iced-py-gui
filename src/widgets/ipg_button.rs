@@ -4,7 +4,7 @@ use std::collections::HashMap;
 use crate::app::Message;
 use crate::graphics::bootstrap::bootstrap_arrow::Arrow;
 use crate::graphics::colors::Color;
-use crate::py_api::colors::{CustomPalette, PaletteKey, StylePart, WidgetStatus};
+use crate::py_api::colors::{CustomPalette, PaletteKey, StateVariant, StylePart, WidgetStatus};
 use crate::state::Widgets;
 use crate::widgets::callbacks::invoke_callback;
 use crate::py_api::helpers::{get_len, get_padding, get_radius};
@@ -172,7 +172,7 @@ impl Button {
                     if style_opt.is_some() || c_pal_opt.is_some() {
                         let btn_st = ButtonStyle::default();
                         let st = style_opt.as_ref().unwrap_or(&btn_st);
-                        st.to_iced(theme, status, &c_pal_opt)
+                        st.to_iced(theme, status, &c_pal_opt, &self.style_std)
                     } else {
                         match &self.style_std {
                             Some(std) => std.to_iced(theme, status),
@@ -225,6 +225,7 @@ pub struct ButtonStyle {
     pub gradient_radians: Option<f32>,
 
     pub border_color: Option<Color>,
+    pub border_color_alpha: Option<f32>,
     pub border_rgba: Option<[f32; 4]>,
     pub border_radius: Option<Vec<f32>>,
     pub border_width: Option<f32>,
@@ -254,7 +255,50 @@ impl ButtonStyle {
         theme: &Theme,
         status: button::Status,
         c_pal_opt: &Option<CustomPalette>,
+        style_std: &Option<ButtonStyleStd>,
     ) -> button::Style {
+
+        let shd_color =
+            Color::rgba_ipg_color_to_iced(self.shadow_rgba, &self.shadow_color, self.shadow_color_alpha);
+
+        let bd_color =
+            Color::rgba_ipg_color_to_iced(self.border_rgba, &self.border_color, self.border_color_alpha);
+
+        let shadow =
+            if shd_color.is_some() && self.shadow_blur_radius.is_some() {
+                let offset = self.shadow_offset_xy
+                    .map(|of| Vector { x: of[0], y: of[1] })
+                    .unwrap_or_default();
+                Shadow {
+                    color: shd_color.unwrap(),
+                    offset,
+                    blur_radius: self.shadow_blur_radius.unwrap(),
+                }
+            } else { Shadow::default() };
+
+        let radius = self.border_radius.as_ref()
+            .map(|rd| get_radius(rd, "button".to_string()))
+            .unwrap_or(2.0.into());
+
+        let snap  = self.snap.unwrap_or(false);
+
+        // style_std overides all except for border, shadow, and snap
+        if style_std.is_some() | c_pal_opt.is_none() {
+            let mut style =  if let Some(std) = style_std {
+                std.to_iced(theme, status)
+            } else { button::primary(theme, status) };
+            
+            style.shadow = shadow;
+
+            let mut border = iced::Border::default();
+            border.color = bd_color.unwrap_or_default();
+            border.radius = radius;
+            border.width = self.border_width.unwrap_or_default();
+            style.border = border;
+            style.snap = self.snap.unwrap_or_default();
+
+            return style
+        }
 
         let bkg_grad_color_stops =
             Color::gradient_stops_to_iced(&self.gradient_rgba_stops, &self.gradient_color_stops, &self.gradient_color_alpha_stops, self.gradient_offset_stops.clone());
@@ -270,7 +314,7 @@ impl ButtonStyle {
             let background = palette.background;
             &CustomPalette { 
                 id: 0, 
-                background, 
+                palette: background, 
                 statuses: None, 
             }
          };
@@ -303,18 +347,23 @@ impl ButtonStyle {
         default_statuses.insert(WidgetStatus::Disabled, inner);
         
         let statuses = if let Some(status) = custom_pal.statuses.as_ref() {
-            let mut merged: HashMap<WidgetStatus, HashMap<StylePart, (PaletteKey, f32)>> = status
-                .iter()
-                .map(|(widget_status, parts)| {
-                    let part_map: HashMap<StylePart, (PaletteKey, f32)> = parts
-                        .iter()
-                        .map(|(style_part, palette_key, alpha)| {
-                            (style_part.clone(), (palette_key.clone(), *alpha))
-                        })
-                        .collect();
-                    (widget_status.clone(), part_map)
-                })
-                .collect();
+            let mut collapsed: HashMap<WidgetStatus, HashMap<StylePart, (PaletteKey, f32)>> = HashMap::new();
+
+            for ((widget_status, variant), parts) in status {
+                let part_map: HashMap<StylePart, (PaletteKey, f32)> = parts
+                    .iter()
+                    .map(|(style_part, palette_key, alpha)| {
+                        (style_part.clone(), (palette_key.clone(), *alpha))
+                    })
+                    .collect();
+
+                // Button has no variant dimension; prefer Unchecked if provided.
+                if *variant == StateVariant::Unchecked || !collapsed.contains_key(widget_status) {
+                    collapsed.insert(widget_status.clone(), part_map);
+                }
+            }
+
+            let mut merged = collapsed;
 
             for (default_widget_status, default_parts) in &default_statuses {
                 let merged_parts = merged
@@ -331,27 +380,6 @@ impl ButtonStyle {
             merged
         } else { default_statuses };
 
-         let shd_color =
-            Color::rgba_ipg_color_to_iced(self.shadow_rgba, &self.shadow_color, self.shadow_color_alpha);
-
-        let shadow =
-            if shd_color.is_some() && self.shadow_blur_radius.is_some() {
-                let offset = self.shadow_offset_xy
-                    .map(|of| Vector { x: of[0], y: of[1] })
-                    .unwrap_or_default();
-                Shadow {
-                    color: shd_color.unwrap(),
-                    offset,
-                    blur_radius: self.shadow_blur_radius.unwrap(),
-                }
-            } else { Shadow::default() };
-
-        let radius = self.border_radius.as_ref()
-            .map(|rd| get_radius(rd, "button".to_string()))
-            .unwrap_or(2.0.into());
-
-        let snap  = self.snap.unwrap_or(false);
-
         // Build gradient background once; used in every match arm when stops are supplied.
         let gradient_background: Option<iced::Background> =
             bkg_grad_color_stops.map(|stops| {
@@ -362,7 +390,8 @@ impl ButtonStyle {
                 iced::Background::Gradient(linear.into())
             });
 
-        let bkg = custom_pal.background;
+        let cust_color = custom_pal.palette;
+        let theme_color = theme.palette().background;
 
         let resolve_parts = |widget_status: WidgetStatus| {
             let parts = statuses.get(&widget_status).unwrap();
@@ -370,11 +399,17 @@ impl ButtonStyle {
             let (text_key, text_alpha) = parts.get(&StylePart::Text).unwrap();
             let (bd_key, bd_alpha) = parts.get(&StylePart::Border).unwrap();
 
-            let background_color = bkg_key.color_key_to_color(&bkg).scale_alpha(*alpha);
-            let text_color = text_key.text_key_to_color(&bkg).scale_alpha(*text_alpha);
-            let border_color = bd_key.color_key_to_color(&bkg).scale_alpha(*bd_alpha);
+            let background_color = bkg_key.pal_key_to_color(&theme_color, &cust_color).scale_alpha(*alpha);
+            let text_color = text_key.pal_key_to_color(&theme_color, &cust_color).scale_alpha(*text_alpha);
+            let border_color = bd_key.pal_key_to_color(&theme_color, &cust_color).scale_alpha(*bd_alpha);
 
-            (background_color, text_color, border_color, *alpha)
+            // The style border color overrides the palette border color
+            let bd_color = 
+                if let Some(bc) = bd_color {
+                    bc
+                } else { border_color };
+            
+            (background_color, text_color, bd_color, *alpha)
         };
 
         match status {

@@ -3,10 +3,7 @@ The Button standard styles are Primary, Secondary, Success, Warning, Danger, Bac
 
 The palettes are base, strong, weak for each standard style/color.
 
-Each palette has two colors, a Color and a contrasting Text color.
-The color can be used for any of the StylingParts such as Background, border, text, etc.  However, the Text color should be used for the Text part since it is a contrasting color that should be readable.
-
-By selecting the The color using the dropdown menu at the top, you will see that the colors changes for the buttons because each theme has a defined color set for the standard color styling.
+By selecting the the theme using the dropdown menu at the top, you will see that the colors changes for the buttons because each theme has a defined color set for the standard color styling.
 
 For example:
 if theme=GRUVBOX_LIGHT, primary=light blue, ...

@@ -66,7 +66,6 @@ with Window(title="Button Styling Parameters",
                             add_button(label="Some Border Styling", padding=[5], style_id=border)
                             add_button(label="Button with Shadow",
                                        padding=[5],
-                                       style_std=ButtonStyleStd.Primary,
                                        style_id=shadow_color_style
                                        )
 

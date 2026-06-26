@@ -1,49 +1,71 @@
 ***Scroll to see all****
-When creating a palette for the button, you can only use Background, Text, and Border.  The other StyleParts belong
-to other widgets with overlap.  You don't need to use all 3 parts but it's advisable to use all statuses for each part.
-Border will only show when the border width > 0.
+When creating a palette for the checkbox, you can only use the StyleParts, Background, Border, Icon and Text.  The other StyleParts belong
+to other widgets with overlap.  You don't need to use all 4 parts but it's advisable to use all statuses for each part.
+The Border will only show when the border width > 0.  In the checkbox case, the text color is handle by the add_checkbox_style. since it's not involved in color changes vs status changes.
 
-To define a palette use the following steps. First create a new color and then obtain the custom palette.  The pal_id would be added to the button parameter palette_id.
+To define a palette use the following steps. First create a new color and then obtain the custom_palette().  The pal_id would be added to the  parameter palette_id.
 
 new_color = [0.32, 0.2, 0.13, 1.0]
 pal_id = custom_palette(rgba=new_color, statuses=pal) # pal defined below
 
-add_button(label="Button", palette_id=pal_id)
+add_checkbox(label="Checkbox", palette_id=pal_id)
 
 Create the statuses using the format below (scroll to see).  This format is used for all widgets for the custom palette.  The entries will be different based on what statuses a widget will use, StylePart, and PaletteKey.
 
 The new palette does not change color values for each theme like the standard style colors do.  You will have to create a custom palette for each theme color by just using a new color for each theme.  This is essentially how the standard colors are done in Iced.  A set of colors are defined for each theme.  You could create a theme py file and easily define your new colors to for all of the themes.
 
-The PaletteKeys are Base, Neutral, Strong, Stronger, Strongest, Weak, Weaker, Weakest.  The ones used here follow the assignment as done for the button, but you could use different PaletteKeys if you want to.  The float value is the alpha value of the color which is used mostly for the disabled status but could be used for other styling too.
+The PaletteKeys are Base, Neutral, Strong, Stronger, Strongest, Weak, Weaker, Weakest, along with the Theme and Text versions.  The ones used here follow the assignment as done for the iced checkbox, but you could use different PaletteKeys if you want to.  The float value is the alpha value of the color which is used mostly for the disabled status but could be used for other styling too.
 
-The StyleParts for a button are just the 3 indicated below.  Other widgets will have similar ones.  When you see the StylePart hint list, it will contain all of the parts for all of the widgets.  Use the ones for your widget of interest only.
+For the PaletteKeys, the ones with the Text term are colors calulated to be contrasting to the background color.  If those don't match what you like, you can use a the alpha to blend it with the background or use any of the other colors. 
 
-Border will only show when the border width > 0, so use the btn_style_id = add_button_style(border_width=2), for example.
+The StyleParts for a checkbox are just the 4 indicated below.  Other widgets will have similar ones.  When you see the StylePart hint list, it will contain all of the parts for all of the widgets.  Use the ones for your widget of interest only.
+
+Border will only show when the border width > 0, but for the checkbox, the border defaults to 1.0.  The border in this case is defined as the small box where the check exists.  The Icon is the check mark are whatever you define otherwise.
+
+The label color can be changed by using the add_checbox_style() or as done with the format below, add it into to palettes statuses.  Adding to the statuses will allow you to change the color based on the status while the style version sets the color.  You can also set the color in the statuses method but since iced excludes it and allows it to be set independly, the this scenario followed.
 
 ***The statuses format***
 pal = [
-    (WidgetStatus.Active, (
-                            (StylePart.Background, PaletteKey.Base, 1.0),
-                            (StylePart.Text, PaletteKey.Base, 1.0),
-                            (StylePart.Border, PaletteKey.Stronger, 1.0),
+    ((WidgetStatus.Active, StateVariant.Unchecked), (
+                            (StylePart.Border,      PaletteKey.ThemeStrong, 1.0), # Theme color
+                            (StylePart.Background,  PaletteKey.ThemeBase,   1.0), # Theme color
+                            (StylePart.Icon,        PaletteKey.BaseText,    1.0), # custom color
+                            (StylePart.Text,        PaletteKey.ThemeBaseText, 1.0), # Theme text
                             ),
     ),
-    (WidgetStatus.Hovered, (
-                            (StylePart.Background, PaletteKey.Strong, 1.0),
-                            (StylePart.Text, PaletteKey.Strong, 1.0),
-                            (StylePart.Border, PaletteKey.Strongest, 1.0),
+    ((WidgetStatus.Hovered, StateVariant.Unchecked), (
+                            (StylePart.Border,      PaletteKey.ThemeStrong, 1.0), # Theme color
+                            (StylePart.Background,  PaletteKey.ThemeWeak,   1.0), # Theme color
+                            (StylePart.Icon,        PaletteKey.BaseText,    1.0), # custom color
+                            (StylePart.Text,        PaletteKey.ThemeBaseText, 1.0), # Theme text
                             ),
     ),
-    (WidgetStatus.Pressed, (
-                            (StylePart.Background, PaletteKey.Base, 1.0),
-                            (StylePart.Text, PaletteKey.Base, 1.0),
-                            (StylePart.Border, PaletteKey.Stronger, 1.0),
+    ((WidgetStatus.Disabled, StateVariant.Unchecked), (
+                            (StylePart.Border,      PaletteKey.ThemeWeak,   1.0), # Theme color
+                            (StylePart.Background,  PaletteKey.ThemeWeaker, 1.0), # Theme color
+                            (StylePart.Icon,        PaletteKey.BaseText,    1.0), # custom color
+                            (StylePart.Text,        PaletteKey.ThemeBaseText, 1.0), # Theme text
                             ),
     ),
-    (WidgetStatus.Disabled, (
-                            (StylePart.Background, PaletteKey.Base, 0.5),
-                            (StylePart.Text, PaletteKey.Base, 0.8),
-                            (StylePart.Border, PaletteKey.Stronger, 0.5),
+    ((WidgetStatus.Active, StateVariant.Checked), (
+                            (StylePart.Border,      PaletteKey.Base,        1.0), # custom color
+                            (StylePart.Background,  PaletteKey.Base,        1.0), # custom color
+                            (StylePart.Icon,        PaletteKey.BaseText,    1.0), # custom color
+                            (StylePart.Text,        PaletteKey.ThemeBaseText, 1.0), # Theme text
+                            ),
+    ),
+    ((WidgetStatus.Hovered, StateVariant.Checked), (
+                            (StylePart.Border,      PaletteKey.Strong,      1.0), # custom color
+                            (StylePart.Background,  PaletteKey.Strong,      1.0), # custom color
+                            (StylePart.Icon,        PaletteKey.BaseText,    1.0), # custom color
+                            (StylePart.Text,        PaletteKey.ThemeBaseText, 1.0), # Theme text
+                            ),
+    ),
+    ((WidgetStatus.Disabled, StateVariant.Checked), (
+                            (StylePart.Border,      PaletteKey.ThemeStrong, 1.0), # Theme color
+                            (StylePart.Background,  PaletteKey.ThemeWeak,   1.0), # Theme color
+                            (StylePart.Icon,        PaletteKey.BaseText,    1.0), # custom color
+                            (StylePart.Text,        PaletteKey.ThemeBaseText, 1.0), # Theme text
                             ),
     ),
 ]

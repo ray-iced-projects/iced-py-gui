@@ -286,6 +286,7 @@ pub fn add_button(
         gradient_radians = None,
 
         border_color = None,
+        border_color_alpha = None,
         border_rgba = None,
         border_radius = None,
         border_width = None,
@@ -323,6 +324,7 @@ pub fn add_button_style(
     gradient_radians: Option<f32>,
 
     border_color: Option<Color>,
+    border_color_alpha: Option<f32>,
     border_rgba: Option<[f32; 4]>,
     border_radius: Option<Vec<f32>>,
     border_width: Option<f32>,
@@ -367,6 +369,7 @@ pub fn add_button_style(
             gradient_radians,
 
             border_color,
+            border_color_alpha,
             border_rgba,
             border_radius,
             border_width,

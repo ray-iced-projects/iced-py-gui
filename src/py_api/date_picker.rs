@@ -2,11 +2,7 @@
 
 use pyo3::{Py, PyAny, pyfunction, PyResult};
 
-use crate::{access_state, add_callback_to_mutex, 
-    add_user_data_to_mutex, state::{Widgets, 
-        get_id, set_state_of_widget}, 
-        widgets::{ipg_button::ButtonStyleStd, 
-            ipg_date_picker::DatePicker}};
+use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex, ipg_widgets::ipg_date_picker::{Position}, state::{Containers, get_id, set_state_cont_wnd_ids, set_state_of_container}, widgets::{ipg_date_picker::DatePicker}};
 type PyObject = Py<PyAny>;
 
 
@@ -48,60 +44,101 @@ type PyObject = Py<PyAny>;
 ///     The numeric widget ID of the newly created date picker.
 #[pyfunction]
 #[pyo3(signature = (
-    parent_id, 
-    label=None,
-    gen_id=None,
-    size_factor=None, 
-    padding=None,
+    window_id,
+    container_id,
+    parent_id=None,
+    on_open=None, 
     on_submit=None, 
+    on_cancel=None,
+    opened=false,
+    // color_format_int=None,
+    // color_format_rgba=None,
+    // color_format_hex=None,
+    // color_format_percent=None,
+    gap=None,
+    snap_within_viewport=None,
+    position_bottom=None,
+    position_left=None,
+    position_top=None,
+    position_right=None,
+    selected_date=None,
     user_data=None,
-    show=true,
-    show_calendar=None, 
-    button_style_std=None,
-    button_style_id=None,
+    gen_id=None,
     ))]
 pub fn add_date_picker(
-    parent_id: String,
-    // ** above required
-    label: Option<String>,
-    gen_id: Option<usize>,
-    size_factor: Option<f32>,
-    padding: Option<Vec<f32>>,
+    window_id: String,
+    container_id: String,
+    parent_id: Option<String>,
+    on_open: Option<PyObject>,
     on_submit: Option<PyObject>,
+    on_cancel: Option<PyObject>,
+    opened: bool,
+    // color_format_int: Option<bool>,
+    // color_format_rgba: Option<bool>,
+    // color_format_hex: Option<bool>,
+    // color_format_percent: Option<bool>,
+    gap: Option<u32>,
+    snap_within_viewport: Option<bool>,
+    position_bottom: Option<bool>,
+    position_left: Option<bool>,
+    position_top: Option<bool>,
+    position_right: Option<bool>,
+    selected_date: Option<String>,
     user_data: Option<PyObject>,
-    show: bool,
-    show_calendar: Option<bool>,
-    button_style_std: Option<ButtonStyleStd>,
-    button_style_id: Option<usize>,
+    gen_id: Option<usize>,
     ) -> PyResult<usize> 
 {
     let id = get_id(gen_id);
 
+    let prt_id = match parent_id {
+        Some(id) => id,
+        None => window_id.clone(),
+    };
+
+    if let Some(py) = on_open {
+        add_callback_to_mutex(id, "on_open".to_string(), py);
+    }
+
     if let Some(py) = on_submit {
         add_callback_to_mutex(id, "on_submit".to_string(), py);
+    }
+
+    if let Some(py) = on_cancel {
+        add_callback_to_mutex(id, "on_cancel".to_string(), py);
     }
 
     if let Some(py) = user_data {
         add_user_data_to_mutex(id, py);
     }
 
-    set_state_of_widget(id, parent_id.clone());
+    set_state_of_container(id, window_id.clone(), Some(container_id.clone()), prt_id);
 
     let mut state = access_state();
 
-    state.widgets.insert(id, Widgets::DatePicker(
-        DatePicker::new (
+    set_state_cont_wnd_ids(&mut state, &window_id, container_id, id, "add_date_picker".to_string());
+
+    let position = if position_bottom == Some(true) {
+        Position::Bottom
+    } else if position_left == Some(true) {
+        Position::Left
+    } else if position_top == Some(true) {
+        Position::Top
+    } else if position_right == Some(true) {
+        Position::Right
+    } else { Position::Center };
+
+    state.containers.insert(id, Containers::DatePicker(
+        DatePicker {
             id,
-            label,
-            size_factor,
-            padding,
-            show,
-            show_calendar,
-            button_style_std,
-            button_style_id,
-        )));
+            opened,
+            gap,
+            position,
+            selected_date,
+            snap_within_viewport,
+        }));
 
     drop(state);
     Ok(id)
 
 }
+

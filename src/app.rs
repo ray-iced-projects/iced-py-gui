@@ -21,7 +21,7 @@ use crate::widgets::ipg_card::{CardMessage, card_callback};
 use crate::widgets::ipg_color_picker::{ColorPikMessage, color_picker_callback};
 use crate::widgets::ipg_checkbox::{ChkMessage, checkbox_callback};
 use crate::widgets::ipg_combo_box::{CBMessage, combo_box_callback};
-use crate::widgets::ipg_date_picker::{DPMessage, date_picker_update};
+use crate::widgets::ipg_date_picker::{DatePikMessage, date_picker_callback};
 use crate::widgets::ipg_sash::{sash_callback, SashMessage};
 use crate::widgets::ipg_draw::{draw_callback, process_draw_updates};
 use crate::widgets::ipg_events::{process_keyboard_events, process_mouse_events, process_touch_events, process_window_event};
@@ -49,7 +49,7 @@ pub enum Message {
     CheckBox(usize, ChkMessage),
     ColorPicker(usize, ColorPikMessage),
     ComboBox(usize, CBMessage),
-    DatePicker(usize, DPMessage),
+    DatePicker(usize, DatePikMessage),
     EventKeyboard(Event),
     EventMouse(Event),
     EventWindow((window::Id, Event)),
@@ -183,9 +183,14 @@ impl App {
                 Task::none()
             }
             Message::DatePicker(id, message) => {
-                date_picker_update(&mut self.state, id, message);
+                let task = 
+                    date_picker_callback(&mut self.state, id, message);
                 process_widget_updates(&mut self.state);
-                Task::none()
+                process_draw_updates(&mut self.state);
+                match task {
+                    Some(t) => t,
+                    None => Task::none()
+                }
             },
             Message::EventKeyboard(event) => {
                 process_keyboard_events(event, self.state.keyboard_event_id_enabled.0);
@@ -762,7 +767,7 @@ fn get_container<'a>(state: &'a IpgState,
                 },
                 Containers::ColorPicker(cp) => {
                     if content.len() > 1 {
-                        eprintln!("[WARNING] A color picker can have only 1 trigger widget")
+                        eprintln!("[WARNING] A color picker can have only 1 trigger widget, others are ignored")
                     }
                     cp.construct(content)
                 },
@@ -774,6 +779,12 @@ fn get_container<'a>(state: &'a IpgState,
                         panic!("A container can have only one widget, place your multiple widgets into a column or row")
                     }
                     cont.construct(content, &state.widgets)
+                },
+                Containers::DatePicker(dp) => {
+                    if content.len() > 1 {
+                        eprintln!("[WARNING] A date picker can have only 1 trigger widget, others ignored")
+                    }
+                    dp.construct(content)
                 },
                 Containers::Float(float) => {
                     if content.len() > 1 {
@@ -878,9 +889,6 @@ fn get_widget<'a>(state: &'a IpgState, id: &usize) -> Option<Element<'a, Message
                 },
                 Widgets::Image(image) => {
                     image.construct()
-                },
-                Widgets::DatePicker(dp) => {
-                    dp.construct(&state.widgets)
                 },
                 Widgets::PickList(pick) => {
                     pick.construct(&state.widgets)
@@ -1123,7 +1131,6 @@ fn process_shows(
             Widgets::Button(w) => w.show = *val,
             Widgets::CheckBox(w) => w.show = *val,
             Widgets::ComboBox(w) => w.show = *val,
-            Widgets::DatePicker(w) => w.show = *val,
             Widgets::Image(w) => w.show = *val,
             Widgets::PickList(w) => w.show = *val,
             Widgets::ProgressBar(w) => w.show = *val,

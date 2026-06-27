@@ -4,7 +4,7 @@ Date Picker use demo
 """
 
 from icedpygui import (Window, Column, Container, start_session,
-    add_date_picker, update_widget, add_text, TextParam)
+    DatePicker, add_button, update_widget, add_text, TextParam)
 
 # Callback for the date picker. The id is the date_picker id, so you have to get
 # the id of whatever widget you want to update using a class or, for small projects,
@@ -36,10 +36,8 @@ with Window(
 
             # The date picker size can be scaled from > 1.0. Anything less than 1 will
             # give an error and is not readable anyway.
-            add_date_picker(
-                size_factor=1.2,
-                on_submit=date_selected
-            )
+            with DatePicker(on_submit=date_selected):
+                add_button(label="Calendar")
 
             # Text widget id needed for callback.
             selected_date_id = add_text(content="No selection")

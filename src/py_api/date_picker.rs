@@ -1,8 +1,7 @@
 //! DatePicker module - provides add_date_picker pyfunction
 
 use pyo3::{Py, PyAny, pyfunction, PyResult};
-
-use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex, ipg_widgets::ipg_date_picker::{Position}, state::{Containers, get_id, set_state_cont_wnd_ids, set_state_of_container}, widgets::{ipg_date_picker::DatePicker}};
+use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex, ipg_widgets::ipg_date_picker::Position, state::{Containers, get_id, set_state_cont_wnd_ids, set_state_of_container}, widgets::ipg_date_picker::{DatePicker, DpContent}};
 type PyObject = Py<PyAny>;
 
 
@@ -51,17 +50,13 @@ type PyObject = Py<PyAny>;
     on_submit=None, 
     on_cancel=None,
     opened=false,
-    // color_format_int=None,
-    // color_format_rgba=None,
-    // color_format_hex=None,
-    // color_format_percent=None,
+    size_factor=None,
     gap=None,
     snap_within_viewport=None,
     position_bottom=None,
     position_left=None,
     position_top=None,
     position_right=None,
-    selected_date=None,
     user_data=None,
     gen_id=None,
     ))]
@@ -73,17 +68,13 @@ pub fn add_date_picker(
     on_submit: Option<PyObject>,
     on_cancel: Option<PyObject>,
     opened: bool,
-    // color_format_int: Option<bool>,
-    // color_format_rgba: Option<bool>,
-    // color_format_hex: Option<bool>,
-    // color_format_percent: Option<bool>,
+    size_factor: Option<f32>,
     gap: Option<u32>,
     snap_within_viewport: Option<bool>,
     position_bottom: Option<bool>,
     position_left: Option<bool>,
     position_top: Option<bool>,
     position_right: Option<bool>,
-    selected_date: Option<String>,
     user_data: Option<PyObject>,
     gen_id: Option<usize>,
     ) -> PyResult<usize> 
@@ -131,9 +122,10 @@ pub fn add_date_picker(
         DatePicker {
             id,
             opened,
+            size_factor,
             gap,
             position,
-            selected_date,
+            dp_content: DpContent::default(),
             snap_within_viewport,
         }));
 

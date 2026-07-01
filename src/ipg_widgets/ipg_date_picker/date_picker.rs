@@ -10,63 +10,7 @@ use iced::advanced::renderer;
 use iced::advanced::{Shell, Widget};
 use iced::{Element, Event, Length, Padding, Pixels, Point, Rectangle, Size, Vector};
 
-/// Colors types for the supported output formats.
-#[derive(Debug, Clone)]
-pub enum DateValue {
-    /// Normalized float components [r, g, b, a] in 0.0..=1.0
-    Float([f32; 4]),
-    /// 8-bit integer components [r, g, b, a] in 0..=255
-    Integer([u8; 4]),
-    /// Hex string e.g. "#RRGGBBAA"
-    Hex(String),
-    /// Percentage components [r, g, b, a] in 0.0..=100.0
-    Percent([f32; 4]),
-}
 
-impl DateValue {
-    /// Convert to normalized [r, g, b, a] (0.0..=1.0).
-    pub fn to_normalized(&self) -> [f32; 4] {
-        match self {
-            DateValue::Float(c) => *c,
-            DateValue::Integer([r, g, b, a]) => [
-                *r as f32 / 255.0,
-                *g as f32 / 255.0,
-                *b as f32 / 255.0,
-                *a as f32 / 255.0,
-            ],
-            DateValue::Hex(s) => parse_hex_color(s),
-            DateValue::Percent([r, g, b, a]) => {
-                [r / 100.0, g / 100.0, b / 100.0, a / 100.0]
-            }
-        }
-    }
-}
-
-fn parse_hex_color(s: &str) -> [f32; 4] {
-    let s = s.trim_start_matches('#');
-    let byte = |i: usize| u8::from_str_radix(&s[i..i + 2], 16).unwrap_or(0) as f32 / 255.0;
-    match s.len() {
-        6 => [byte(0), byte(2), byte(4), 1.0],
-        8 => [byte(0), byte(2), byte(4), byte(6)],
-        _ => [0.0, 0.0, 0.0, 1.0],
-    }
-}
-
-impl From<[f32; 4]> for DateValue {
-    fn from(c: [f32; 4]) -> Self { DateValue::Float(c) }
-}
-
-impl From<[u8; 4]> for DateValue {
-    fn from(c: [u8; 4]) -> Self { DateValue::Integer(c) }
-}
-
-impl From<String> for DateValue {
-    fn from(s: String) -> Self { DateValue::Hex(s) }
-}
-
-impl From<&str> for DateValue {
-    fn from(s: &str) -> Self { DateValue::Hex(s.to_owned()) }
-}
 
 pub struct DatePicker<'a, Message, Theme = iced::Theme, Renderer = iced::Renderer>
 where
@@ -75,7 +19,7 @@ where
 {
     pub button: Element<'a, Message, Theme, Renderer>,
     pub content: Element<'a, Message, Theme, Renderer>,
-    pub selected_date: Option<String>,
+    pub selected_date: String,
     pub position: Position,
     pub gap: f32,
     pub padding: f32,
@@ -99,7 +43,7 @@ where
     pub fn new(
         button: impl Into<Element<'a, Message, Theme, Renderer>>,
         content: impl Into<Element<'a, Message, Theme, Renderer>>,
-        selected_date: Option<String>,
+        selected_date: String,
         position: Position,
     ) -> Self {
         DatePicker {

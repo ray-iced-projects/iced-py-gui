@@ -36,7 +36,7 @@ with Window(
 
             # The date picker size can be scaled from > 1.0. Anything less than 1 will
             # give an error and is not readable anyway.
-            with DatePicker(on_submit=date_selected):
+            with DatePicker(size_factor=1.5, on_submit=date_selected):
                 add_button(label="Calendar")
 
             # Text widget id needed for callback.

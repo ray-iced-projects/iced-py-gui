@@ -230,8 +230,8 @@ pub fn add_button(
 ///     Up to 8 stops total (color + rgba combined).
 ///   gradient_offset_stops: list[float]
 ///     Offset positions for each stop (0.0–1.0).
-///   gradient_degrees: float   — angle in degrees
-///   gradient_radians: float   — angle in radians (takes priority over degrees)
+///   gradient_degrees: float — angle in degrees
+///   gradient_radians: float — angle in radians (takes priority over degrees)
 ///
 /// shadow:
 ///   shadow_color, shadow_color_alpha, shadow_rgba
@@ -263,42 +263,42 @@ pub fn add_button(
 /// """
 #[pyfunction]
 #[pyo3(signature = (
-        text_top_left = None,
-        text_top_center = None,
-        text_top_right = None,
-        text_center_left = None,
-        text_center = None,
-        text_center_right = None,
-        text_bottom_left = None,
-        text_bottom_center = None,
-        text_bottom_right = None,
-        text_size = None,
+    text_top_left = None,
+    text_top_center = None,
+    text_top_right = None,
+    text_center_left = None,
+    text_center = None,
+    text_center_right = None,
+    text_bottom_left = None,
+    text_bottom_center = None,
+    text_bottom_right = None,
+    text_size = None,
 
-        wrapping_none = None,
-        wrapping_glyph = None,
-        wrapping_word_glyph = None,
+    wrapping_none = None,
+    wrapping_glyph = None,
+    wrapping_word_glyph = None,
 
-        gradient_color_stops = None,
-        gradient_color_alpha_stops = None,
-        gradient_rgba_stops = None,
-        gradient_offset_stops = None,
-        gradient_degrees = None,
-        gradient_radians = None,
+    gradient_color_stops = None,
+    gradient_color_alpha_stops = None,
+    gradient_rgba_stops = None,
+    gradient_offset_stops = None,
+    gradient_degrees = None,
+    gradient_radians = None,
 
-        border_color = None,
-        border_color_alpha = None,
-        border_rgba = None,
-        border_radius = None,
-        border_width = None,
+    border_color = None,
+    border_color_alpha = None,
+    border_rgba = None,
+    border_radius = None,
+    border_width = None,
 
-        shadow_color = None,
-        shadow_color_alpha = None,
-        shadow_rgba = None,
-        shadow_offset_xy = None,
-        shadow_blur_radius = None,
+    shadow_color = None,
+    shadow_color_alpha = None,
+    shadow_rgba = None,
+    shadow_offset_xy = None,
+    shadow_blur_radius = None,
 
-        snap = None,
-        gen_id=None
+    snap = None,
+    gen_id=None
         ))]
 pub fn add_button_style(
     text_top_left: Option<bool>,

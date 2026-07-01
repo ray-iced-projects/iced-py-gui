@@ -1340,6 +1340,96 @@ class Window:
 #         exc_val: BaseException | None, \
 #             exc_tb: TracebackType | None) -> bool: ...
 
+class ColorPicker:
+    """Context manager wrapper around add_color_picker.
+
+    A container that adds a calendar and holds the button to activate it.
+
+    Usage::
+
+        with Window(title="Demo"):
+            with Container(fill=True, align_center=True)
+                with ColorPicker(
+                    on_open=cp_opened, # Callback when button pressed
+                    on_submit=color_selected, # Callback with the selected color
+                    on_cancel=cp_canceled, # Callback when canceled
+                    ):
+
+                    add_button(label="Color Picker")
+
+        start_session
+    """
+    def __init__(
+        self,
+        *,
+        container_id: str | None = None,
+        window_id: str | None = None,
+        parent_id: str | None = None,
+        on_open: bool | None = None,
+        on_submit: bool | None = None,
+        on_cancel: bool | None = None,
+        opened: bool = False,
+        color_format_int: bool | None = None,
+        color_format_rgba: bool | None = None,
+        color_format_hex: bool | None = None,
+        color_format_percent: bool | None = None,
+        gap: bool | None = None,
+        snap_within_viewport: bool | None = None,
+        position_bottom: bool | None = None,
+        position_left: bool | None = None,
+        position_top: bool | None = None,
+        position_right: bool | None = None,
+        user_data: bool | None = None,
+        gen_id: bool | None = None,
+    ) -> None: ...
+    def __enter__(self) -> int: ...
+    def __exit__(self, exc_type: type[BaseException] | None, \
+        exc_val: BaseException | None, \
+            exc_tb: TracebackType | None) -> bool: ...
+
+class Column:
+    """Context manager wrapper around add_column.
+
+    A container that distributes its contents vertically.
+
+    Usage::
+
+        with Window(title="Demo"):
+            with Container(fill=True, align_center=True)
+                with Column(spacing=10.0):
+                    add_text(content="hello")
+                    add_text(content="hello")
+        start_session
+    """
+    def __init__(
+        self,
+        *,
+        container_id: str | None = None,
+        window_id: str | None = None,
+        parent_id: str | None = None,
+        align_left: bool | None = None,
+        align_center: bool | None = None,
+        align_right: bool | None = None,
+        width: float | None = None,
+        width_fill: bool | None = False,
+        height: float | None = None,
+        height_fill: bool | None = False,
+        fill: bool | None = None,
+        max_width: float | None = ...,
+        padding: list[float] | None = None,
+        spacing: float | None = None,
+        clip: bool | None = False,
+        wrap: bool | None = False,
+        wrap_horizontal_spacing: bool | None = False,
+        wrap_align_top: bool | None = False,
+        wrap_align_center: bool | None = False,
+        wrap_align_bottom: bool | None = False,
+        show: bool = True,
+    ) -> None: ...
+    def __enter__(self) -> int: ...
+    def __exit__(self, exc_type: type[BaseException] | None, \
+        exc_val: BaseException | None, \
+            exc_tb: TracebackType | None) -> bool: ...
 class Container:
     """Context manager wrapper around add_container.
 
@@ -1387,50 +1477,6 @@ class Container:
         exc_val: BaseException | None, \
             exc_tb: TracebackType | None) -> bool: ...
 
-
-class Column:
-    """Context manager wrapper around add_column.
-
-    A container that distributes its contents vertically.
-
-    Usage::
-
-        with Window(title="Demo"):
-            with Container(fill=True, align_center=True)
-                with Column(spacing=10.0):
-                    add_text(content="hello")
-                    add_text(content="hello")
-        start_session
-    """
-    def __init__(
-        self,
-        *,
-        container_id: str | None = None,
-        window_id: str | None = None,
-        parent_id: str | None = None,
-        align_left: bool | None = None,
-        align_center: bool | None = None,
-        align_right: bool | None = None,
-        width: float | None = None,
-        width_fill: bool | None = False,
-        height: float | None = None,
-        height_fill: bool | None = False,
-        fill: bool | None = None,
-        max_width: float | None = ...,
-        padding: list[float] | None = None,
-        spacing: float | None = None,
-        clip: bool | None = False,
-        wrap: bool | None = False,
-        wrap_horizontal_spacing: bool | None = False,
-        wrap_align_top: bool | None = False,
-        wrap_align_center: bool | None = False,
-        wrap_align_bottom: bool | None = False,
-        show: bool = True,
-    ) -> None: ...
-    def __enter__(self) -> int: ...
-    def __exit__(self, exc_type: type[BaseException] | None, \
-        exc_val: BaseException | None, \
-            exc_tb: TracebackType | None) -> bool: ...
 
 class Menu:
     """Context manager wrapper around add_menu.

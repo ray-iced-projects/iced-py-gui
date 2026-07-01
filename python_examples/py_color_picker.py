@@ -52,9 +52,9 @@ with Window(
         with Column(spacing=20.0, width=200):
 
             with ColorPicker(
-                on_open=cp_opened, # Button to open color picker
-                on_submit=color_selected, # the color selection selected
-                on_cancel=cp_canceled, # the color selection cancel
+                on_open=cp_opened, # Callback when button pressed
+                on_submit=color_selected, # Callback with the selected color
+                on_cancel=cp_canceled, # Callback when canceled
                 ):
                 # Important: a button needs to be added to open the color picker
                 # This allows one to style the button as one wishes.

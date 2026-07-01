@@ -453,8 +453,8 @@ class Card:
         _parent_stack.pop()
         return False
 
-class Container:
-    """Wrapper for add_container"""
+class Column:
+    """Wrapper for add_column"""
     def __init__(self, *, container_id=None, window_id=None, parent_id=None, **kwargs):
         self.window_id = (
             _resolve_window_id(window_id)
@@ -462,9 +462,13 @@ class Container:
             else _current_window_or_parent(parent_id)
         )
         if self.window_id is None:
-            raise ValueError("Container: window_id is required (either pass it\
+            raise ValueError("Column: window_id is required (either pass it\
                 or use a Window context manager)")
-        self.container_id = _default_container_id(container_id, kwargs)
+        self.container_id = (
+            container_id
+            if container_id is not None
+            else str(generate_id())
+        )
         self.parent_id = parent_id
         self.kwargs = kwargs
         self.numeric_id = 0
@@ -473,7 +477,7 @@ class Container:
         pid = self.parent_id or _current_parent()
         if pid is not None:
             pid = _resolve_parent_id(pid)
-        self.numeric_id = _add_container(
+        self.numeric_id = _add_column(
             window_id=self.window_id,
             container_id=self.container_id,
             parent_id=pid,
@@ -486,6 +490,7 @@ class Container:
     def __exit__(self, exc_type, exc_val, exc_tb):
         _parent_stack.pop()
         return False
+
 
 class ColorPicker:
     """Wrapper for add_color_picker"""
@@ -525,6 +530,41 @@ class ColorPicker:
         _parent_stack.pop()
         return False
 
+class Container:
+    """Wrapper for add_container"""
+    def __init__(self, *, container_id=None, window_id=None, parent_id=None, **kwargs):
+        self.window_id = (
+            _resolve_window_id(window_id)
+            if window_id is not None
+            else _current_window_or_parent(parent_id)
+        )
+        if self.window_id is None:
+            raise ValueError("Container: window_id is required (either pass it\
+                or use a Window context manager)")
+        self.container_id = _default_container_id(container_id, kwargs)
+        self.parent_id = parent_id
+        self.kwargs = kwargs
+        self.numeric_id = 0
+
+    def __enter__(self):
+        pid = self.parent_id or _current_parent()
+        if pid is not None:
+            pid = _resolve_parent_id(pid)
+        self.numeric_id = _add_container(
+            window_id=self.window_id,
+            container_id=self.container_id,
+            parent_id=pid,
+            **self.kwargs,
+        )
+        _register_container(self.numeric_id, self.container_id, self.window_id)
+        _parent_stack.append(self.container_id)
+        return self.numeric_id
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        _parent_stack.pop()
+        return False
+
+
 class DatePicker:
     """Wrapper for add_date_picker"""
     def __init__(self, *, container_id=None, window_id=None, parent_id=None, **kwargs):
@@ -550,43 +590,6 @@ class DatePicker:
         if pid is not None:
             pid = _resolve_parent_id(pid)
         self.numeric_id = _add_date_picker(
-            window_id=self.window_id,
-            container_id=self.container_id,
-            parent_id=pid,
-            **self.kwargs,
-        )
-        _register_container(self.numeric_id, self.container_id, self.window_id)
-        _parent_stack.append(self.container_id)
-        return self.numeric_id
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        _parent_stack.pop()
-        return False
-class Column:
-    """Wrapper for add_column"""
-    def __init__(self, *, container_id=None, window_id=None, parent_id=None, **kwargs):
-        self.window_id = (
-            _resolve_window_id(window_id)
-            if window_id is not None
-            else _current_window_or_parent(parent_id)
-        )
-        if self.window_id is None:
-            raise ValueError("Column: window_id is required (either pass it\
-                or use a Window context manager)")
-        self.container_id = (
-            container_id
-            if container_id is not None
-            else str(generate_id())
-        )
-        self.parent_id = parent_id
-        self.kwargs = kwargs
-        self.numeric_id = 0
-
-    def __enter__(self):
-        pid = self.parent_id or _current_parent()
-        if pid is not None:
-            pid = _resolve_parent_id(pid)
-        self.numeric_id = _add_column(
             window_id=self.window_id,
             container_id=self.container_id,
             parent_id=pid,

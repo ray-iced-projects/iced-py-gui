@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Draw demo."""
-import os, json
+import os
+import json
 from icedpygui import (
     Window,
     ColorPicker,

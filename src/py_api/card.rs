@@ -6,9 +6,8 @@ type PyObject = Py<PyAny>;
 
 use crate::add_user_data_to_mutex;
 use crate::graphics::colors::Color;
-use crate::state::{Containers, Widgets, access_state, add_callback_to_mutex, get_id, set_state_cont_wnd_ids, set_state_of_container};
-use crate::widgets::ipg_card::{Card, CardStyle, CardStyleStd};
-
+use crate::state::{Containers, Widgets, access_state, add_callback_to_mutex, get_id, set_state_cont_wnd_ids, set_state_of_container, set_state_of_widget};
+use crate::widgets::ipg_card::{Card, CardClass, CardStyle, CardStyleStd};
 
 
 /// Add a card container.
@@ -93,7 +92,7 @@ use crate::widgets::ipg_card::{Card, CardStyle, CardStyleStd};
     user_data=None,
     gen_id=None,
     ))]
-pub fn add_card(
+pub fn add_card_class(
     window_id: String,
     container_id: String,
     parent_id: Option<String>, 
@@ -140,8 +139,8 @@ pub fn add_card(
 
     set_state_cont_wnd_ids(&mut state, &window_id, container_id, id, "add_container".to_string());
 
-    state.containers.insert(id, Containers::Card(
-        Card {
+    state.containers.insert(id, Containers::CardClass(
+        CardClass {
             id,
             is_open,
             width,
@@ -167,6 +166,167 @@ pub fn add_card(
 
 }
 
+
+/// Add a card container.
+///
+/// Card excepts the addition of 1 to 3 widgets, head, body, and optional foot.
+/// if only 1 widget is added, then it's assumed to be the body
+/// if 2 widgets are added, then they are head, body, respectively.
+/// if 3 widgets are added, then they are head, body, foot, respectively. 
+///
+/// Parameters
+/// ----------
+/// parent_id : str
+///     Sets the parent container ID that this card belongs to.
+/// header: str | Optional
+///     Sets the header text.
+/// body: str | Optional
+///     Sets the body text.
+/// footer: str | Optional
+///     Sets the footer text.
+/// is_open : bool, default True
+///     Whether the card is open (expanded).
+/// close_icon : bool, Optional
+///     Whether to have a close icon.
+/// close_icon_size : float, Optional
+///     Sets the Size of the close button in logical pixels.
+/// on_close : callable, Optional
+///     Sets the Callback method to invoke when the card is closed.
+/// width : float, Optional
+///     Sets the Fixed width in logical pixels.
+/// width_fill : bool, default False
+///     Whether the card fills available width.
+/// height : float, Optional
+///     Sets the Fixed height in logical pixels.
+/// height_fill : bool, default False
+///     Whether the card fills available height.
+/// max_width : float, Optional
+///     Sets the Maximum width in logical pixels.
+/// max_height : float, Optional
+///     Sets the Maximum height in logical pixels.
+/// padding : list of float, Optional
+///     Sets the Padding for all sections as [all], [vertical, horizontal], or
+///     [top, right, bottom, left].
+/// padding_head : list of float, Optional
+///     Sets the Padding for the header section.
+/// padding_body : list of float, Optional
+///     Sets the Padding for the body section.
+/// padding_foot : list of float, Optional
+///     Sets the Padding for the footer section.
+/// style_id : int, Optional
+///     Sets the ID of a custom style created with ``add_card_style``.
+/// style_std : CardStyleStd, Optional
+///     Sets a predefined standard style variant.
+/// style_button : int, Optional
+///     Sets the ID of a button style for the close button.
+/// show : bool, default True
+///     Whether the card is visible.
+/// user_data : Any, Optional
+///     Sets the Arbitrary data forwarded to callbacks.
+/// gen_id : int, Optional
+///     Obtains an ID of a widget that have not been created, used for the gen_id parameter.
+/// Returns
+/// -------
+/// int
+///     The numeric widget ID of the newly created card.
+#[pyfunction]
+#[pyo3(signature = (
+    parent_id,     
+    is_open=true,
+    header=None,
+    body=None,
+    footer=None,
+    close_icon=None,
+    close_icon_size=None,
+    on_close=None,
+    width=None, 
+    width_fill=None, 
+    height=None, 
+    height_fill=None,
+    fill=None,
+    max_width=None, 
+    max_height=None,
+    padding=None, 
+    // padding_head=None, 
+    padding_body=None, 
+    padding_foot=None,
+    style_id=None,
+    style_std=None,
+    show=true, 
+    user_data=None,
+    gen_id=None,
+    ))]
+pub fn add_card(
+    parent_id: String, 
+    is_open: bool,
+    header: Option<String>,
+    body: Option<String>,
+    footer: Option<String>,
+    close_icon: Option<bool>,
+    close_icon_size: Option<f32>,
+    on_close: Option<PyObject>,
+    width: Option<f32>,
+    width_fill: Option<bool>,
+    height: Option<f32>,
+    height_fill: Option<bool>,
+    fill: Option<bool>,
+    max_width: Option<f32>,
+    max_height: Option<f32>,
+    padding: Option<Vec<f32>>,
+    // padding_head: Option<Vec<f32>>,
+    padding_body: Option<Vec<f32>>,
+    padding_foot: Option<Vec<f32>>,
+    style_id: Option<usize>,
+    style_std: Option<CardStyleStd>,
+    show: bool,
+    user_data: Option<PyObject>, 
+    gen_id: Option<usize>,
+    ) -> PyResult<usize> 
+{
+    let id = get_id(gen_id);
+
+    if let Some(py) = on_close {
+        add_callback_to_mutex(id, "on_close".to_string(), py);
+    }
+
+    if let Some(py) = user_data {
+        add_user_data_to_mutex(id, py);
+    }
+
+    // Register widget with parent
+    set_state_of_widget(id, parent_id.clone());
+
+    let mut state = access_state();
+
+    state.widgets.insert(id, Widgets::Card(
+        Card {
+            id,
+            is_open,
+            header,
+            body,
+            footer,
+            width,
+            width_fill,
+            height,
+            height_fill,
+            fill,
+            max_width,
+            max_height,
+            padding,
+            // padding_head,
+            padding_body,
+            padding_foot,
+            close_icon,
+            close_icon_size,
+            style_id,
+            style_std,
+            show,
+        }));
+
+    drop(state);
+    Ok(id)
+
+}
 
 /// Add styling to a card.
 ///

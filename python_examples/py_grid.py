@@ -30,7 +30,10 @@ Probably not completely debugged but it seems to work well.
 Have fun!
 
 """
-import sys, os, json, re
+import sys
+import os
+import json
+import re
 from dataclasses import dataclass
 from icedpygui import (Window, Container, Column, Row, Grid, start_session,
     add_button, add_space, add_text, add_text_input,

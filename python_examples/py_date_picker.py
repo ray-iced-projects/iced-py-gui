@@ -4,7 +4,7 @@ Date Picker use demo
 """
 
 from icedpygui import (Window, Column, Container, start_session,
-    DatePicker, add_button, update_widget, add_text, TextParam)
+    DatePicker, add_button, add_toggler, update_widget, add_text, TextParam)
 
 
 def date_selected(_dp_id: int, date: str):
@@ -37,6 +37,10 @@ with Window(
 
             # Text widget id needed for callback.
             selected_date_id = add_text(content="No selection")
+
+            # The date picker can be opened with other widgets too.
+            with DatePicker(on_submit=date_selected):
+                add_toggler(label="Calendar")
 
 
 # Required to be the last widget sent to Iced. If you start the program

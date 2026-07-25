@@ -24,7 +24,8 @@ use crate::state::{Widgets, get_id, set_state_of_widget};
 /// ----------
 /// parent_id : str
 ///     Sets the parent container ID that this pick list belongs to.
-/// options : list of str
+///     Not used when parent is using with ...
+/// options : list of any
 ///     Sets the list of selectable options.
 /// gen_id : int, Optional
 ///     Obtains an ID of a widget that have not been created, 
@@ -57,6 +58,12 @@ use crate::state::{Widgets, get_id, set_state_of_widget};
 ///     Sets the Font size for the text.
 /// text_line_height : float, Optional
 ///     Sets the Line height for the text.
+/// text_ellipsis_start: bool, Optional
+///     Ellipsize the start of the last visual line in the text.
+/// text_ellipsis_middle: bool, Optional
+///     Ellipsize the middle of the last visual line in the text.
+/// text_ellipsis_end: bool, Optional
+///     Ellipsize the end of the last visual line in the text.
 /// user_data : Any, Optional
 ///     Sets the Arbitrary data forwarded to callbacks.
 /// show : bool, default True
@@ -85,7 +92,7 @@ use crate::state::{Widgets, get_id, set_state_of_widget};
     text_line_height=None,
     text_ellipsis_start=None,
     text_ellipsis_middle=None,
-    text_ellipsis_end=true,
+    text_ellipsis_end=None,
     disabled=None,
     font_id=None,
     input_style_id=None,
@@ -112,7 +119,7 @@ pub fn add_combobox(
     text_line_height: Option<f32>,
     text_ellipsis_start: Option<bool>,
     text_ellipsis_middle: Option<bool>,
-    text_ellipsis_end: bool,
+    text_ellipsis_end: Option<bool>,
     disabled: Option<bool>,
     font_id: Option<usize>,
     input_style_id: Option<usize>,
@@ -128,7 +135,7 @@ pub fn add_combobox(
         iced::widget::text::Ellipsis::Start
     } else if text_ellipsis_middle == Some(true) {
         iced::widget::text::Ellipsis::Middle
-    } else if text_ellipsis_end {
+    } else if text_ellipsis_end == Some(true) {
         iced::widget::text::Ellipsis::End
     } else {
         iced::widget::text::Ellipsis::None

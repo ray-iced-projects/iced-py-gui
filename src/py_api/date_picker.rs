@@ -1,12 +1,14 @@
 //! DatePicker module - provides add_date_picker pyfunction
 
 use pyo3::{Py, PyAny, pyfunction, PyResult};
-use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex, ipg_widgets::ipg_date_picker::Position, state::{Containers, get_id, set_state_cont_wnd_ids, set_state_of_container}, widgets::ipg_date_picker::{DatePicker, DpContent}};
+use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex, 
+    ipg_widgets::ipg_date_picker::Position, state::{Containers, get_id, 
+        set_state_cont_wnd_ids, set_state_of_container}, 
+        widgets::ipg_date_picker::{DatePicker, DpContent}};
 type PyObject = Py<PyAny>;
 
 
-
-/// Add a date picker widget.
+/// Add a date picker container widget.
 ///
 /// A date picker that opens a calendar from a button, allowing
 /// the user to select a date.

@@ -60,7 +60,7 @@ with Window(title="Pick List Demo", size=(500, 600), center=True):
                 width=150,
                 )
 
-            add_text(content="palette_styling")
+            add_text(content="Palette_styling")
             add_combobox(
                 options=options,
                 placeholder="Choose a Word...",

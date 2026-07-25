@@ -158,7 +158,7 @@ impl App {
             Message::ClipboardReadResult(id, text) => {
                 invoke_callback_with_args(
                     id,
-                    "on_read",
+                    "callback",
                     "Clipboard",
                     text,
                     "def callback(req_id: int, text: str | None)",
@@ -762,7 +762,7 @@ fn get_container<'a>(state: &'a IpgState,
                         None
                     }
                 },
-                Containers::Card(crd) => {
+                Containers::CardClass(crd) => {
                     crd.construct(content, &state.widgets)
                 },
                 Containers::ColorPicker(cp) => {
@@ -880,6 +880,9 @@ fn get_widget<'a>(state: &'a IpgState, id: &usize) -> Option<Element<'a, Message
             match widget {      
                 Widgets::Button(btn) => {
                     btn.construct(&state.widgets)
+                },
+                Widgets::Card(card) => {
+                    card.construct(&state.widgets)
                 },
                 Widgets::CheckBox(chk) => {
                     chk.construct(&state.widgets)

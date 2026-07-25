@@ -5,12 +5,13 @@ Card use demo
 from icedpygui import (
     Window, Container, Column, Color,
     Card, CardParam, CardStyleStd,
-    add_button, ButtonParam, ButtonStyleStd, TextParam,
-    add_separator, add_separator_style, add_text, update_widget, start_session)
+    add_button, add_card, ButtonParam, ButtonStyleStd, TextParam,
+    add_separator, add_separator_style, add_text, update_widget,
+    start_session)
 
 state = {"card_id": 0}
 
-# The callback will minimizes the first card, the button at the bottom left will maximize it.
+# The callback will minimizes the card.
 def minimize_card(card_id: int):
     """Card callback to minimize the card"""
     # Hide the card
@@ -29,7 +30,7 @@ def maximize_card(_btn_id: int):
     # Show the instructions
     update_widget(instr_id, TextParam.Show, True)
 
-sep_style = add_separator_style(color=Color.SUCCESS)
+sep_style = add_separator_style(color=Color.LIGHT_YELLOW)
 
 # window added first
 with Window(title="Card Demo", center=True):
@@ -39,7 +40,7 @@ with Window(title="Card Demo", center=True):
         # Even though only one widget shows, multiple widgets needed
         # a parent id, so column was used.
         with Column(spacing=10.0, padding=[10.0]):
-            instr_id = add_text(content="Press the 'x' to see the open button")
+            instr_id = add_text(content="Press the 'x' to close the card")
             # add the the card
             with Card(
                 width=300.0,
@@ -49,9 +50,15 @@ with Window(title="Card Demo", center=True):
                 on_close=minimize_card
                 ) as state["card_id"]:
 
+                # adds first widget to header
                 add_text(content="Card")
+                # adds second widget to body.  These can be more than 1 by using a Column
+                # so that there is only one top level widget
                 add_text(content="This is the body of the card.")
 
+                # adds the third widget to the footer.
+                # added a seperator to help show the bottom footer
+                # and then a text widget
                 with Column(width_fill=True, height=30):
                     add_separator(
                         line=True,
@@ -60,6 +67,12 @@ with Window(title="Card Demo", center=True):
                         style_id=sep_style)
 
                     add_text(content="Foot content")
+
+            # adds a simple card that you could hide and show with a buttton
+            # but the button callback will have to do the show and hide
+            add_card(header="Card Header", body="Card Body",
+                     footer="Card Footer",
+                     width=300.0, height=200.0)
 
             # add the button but make show=False
             # The button can go anyplace you like,

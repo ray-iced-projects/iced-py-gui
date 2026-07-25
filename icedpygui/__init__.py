@@ -12,12 +12,13 @@ import copy as _copy
 
 # Ipg functions
 from .icedpygui import (
-    clipboard_read,
     clipboard_write,
+    clipboard_callback,
     add_button as _add_button,
     add_button_style,
     add_card_style,
     add_card as _add_card,
+    add_card_class as _add_card_class,
     add_checkbox_style,
     add_checkbox as _add_checkbox,
     add_combobox as _add_combobox,
@@ -271,6 +272,8 @@ def _wrap_widget(rust_fn, name):
 
 add_button = _wrap_widget(_add_button, "add_button")
 add_button.__doc__ = _add_button.__doc__
+add_card = _wrap_widget(_add_card, "add_card")
+add_card.__doc__ = _add_card.__doc__
 add_checkbox = _wrap_widget(_add_checkbox, "add_checkbox")
 add_checkbox.__doc__ = _add_checkbox.__doc__
 add_combobox = _wrap_widget(_add_combobox, "add_combobox")
@@ -329,8 +332,8 @@ def _wrap_container(rust_fn, name):
     return wrapper
 
 
-add_card = _wrap_container(_add_card, "add_card")
-add_card.__doc__ = _add_card.__doc__
+add_card_class = _wrap_container(_add_card_class, "add_card_class")
+add_card_class.__doc__ = _add_card_class.__doc__
 add_color_picker = _wrap_container(_add_color_picker, "add_color_picker")
 add_color_picker.__doc__ = _add_color_picker.__doc__
 add_date_picker = _wrap_container(_add_date_picker, "add_date_picker")
@@ -439,7 +442,7 @@ class Card:
         pid = self.parent_id or _current_parent()
         if pid is not None:
             pid = _resolve_parent_id(pid)
-        self.numeric_id = _add_card(
+        self.numeric_id = _add_card_class(
             window_id=self.window_id,
             container_id=self.container_id,
             parent_id=pid,

@@ -21,10 +21,12 @@ use crate::state::{Containers, access_state,
 ///     Sets the parent container ID.  Defaults to the window itself.
 /// scale: float, Optional
 ///     Sets the scale factor for the contents
-/// translate List[float], Optional
-///     Sets for translation vector [x, y]
-/// scale_clamped: bool, Optional
+/// scale_clamped: float, Optional
 ///     Whether to clamp the scale to the content container
+/// clamped_padding: list[float, 1] | list[float, 4], Optional
+///     Whether to clamp the padding to the content container
+/// translate list[float, 2], Optional
+///     Sets for translation vector [x, y]
 /// 
 /// Returns
 /// -------

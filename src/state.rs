@@ -13,7 +13,7 @@ use iced::Theme;
 use pyo3::{Py, PyAny};
 
 use crate::py_api::colors::CustomPalette;
-use crate::widgets::ipg_card::{Card, CardStyle};
+use crate::widgets::ipg_card::{Card, CardClass, CardStyle};
 use crate::widgets::ipg_checkbox::{CheckBox, CheckboxStyle};
 use crate::widgets::ipg_color_picker::ColorPicker;
 use crate::widgets::ipg_column::Column;
@@ -68,7 +68,7 @@ type PyObject = Py<PyAny>;
 #[derive(Debug, Clone)]
 pub enum Containers {
     CanvasDraw(Draw),
-    Card(Card),
+    CardClass(CardClass),
     ColorPicker(ColorPicker),
     Column(Column),
     Container(Container),
@@ -100,6 +100,7 @@ pub enum Containers {
 pub enum Widgets {
     Button(Button),
     ButtonStyle(ButtonStyle),
+    Card(Card),
     CardStyle(CardStyle),
     CheckBox(CheckBox),
     CheckboxStyle(CheckboxStyle),
@@ -240,7 +241,7 @@ macro_rules! ipg_container_accessors {
 }
 
 ipg_container_accessors! {
-    // Card         => Card,         as_card,            as_card_mut;
+    CardClass    => CardClass,    as_card_class,      as_card_class_mut;
     Column       => Column,       as_column,          as_column_mut;
     Container    => Container,    as_container,       as_container_mut;
     Float        => Float,        as_float,           as_float_mut;

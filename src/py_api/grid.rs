@@ -19,6 +19,8 @@ use crate::state::{Containers, access_state,
 ///     Sets the Unique string identifier for the grid container.
 /// parent_id : str, Optional
 ///     Sets the parent container ID.  Defaults to the window itself.
+/// width: float
+///     Sets the width of the grid
 /// spacing: float, Optional
 ///     Sets the spacing between grid items
 /// columns_max_width float, Optional
@@ -26,8 +28,6 @@ use crate::state::{Containers, access_state,
 ///     exceeding the provided max_width
 /// columns_amount: int, Optional
 ///     Sets the number of columns in the grid
-/// width: float, Optional
-///     Sets the width of the grid
 /// height_aspect_ratio: float, Optional
 ///     Sets the aspection ratio for a grid.
 /// height_evenly_distribute: float, Optional

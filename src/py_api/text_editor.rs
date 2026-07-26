@@ -53,9 +53,9 @@ use crate::widgets::ipg_text_editor::TxtEdStatus;
 /// highlighter_token : str, Optional
 ///     File type or language token for syntax highlighting. Examples: "py",
 ///     "rs", "js", "json", "html", "txt" (default for plain text), etc.
-/// highlighter_theme : str, Optional
-///     Syntax highlighting theme. Options: "SolarizedDark" (default),
-///     "Base16Mocha", "Base16Ocean", "Base16Eighties", "InspiredGitHub".
+/// theme_base_16_mocha, theme_base_16_ocean, 
+/// theme_base_16_eighties,theme_inspired_github, : bool, Optional
+///     Syntax highlighting themes.
 /// on_edit : callable, Optional
 ///     Callback invoked on every edit action.
 ///     Signature: ``def cb(wid: int, content: str)``
@@ -87,10 +87,13 @@ use crate::widgets::ipg_text_editor::TxtEdStatus;
     wrapping_glyph=None,
     wrapping_word_glyph=None,
     highlighter_token=None,
-    highlighter_theme=None,
-    on_edit = None,
+    theme_base_16_mocha=None,
+    theme_base_16_ocean=None,
+    theme_base_16_eighties=None,
+    theme_inspired_github=None,
+    on_edit=None,
     style_id=None,
-    user_data = None,
+    user_data=None,
 ))]
 pub fn add_text_editor(
     parent_id: String,
@@ -109,7 +112,10 @@ pub fn add_text_editor(
     wrapping_glyph: Option<bool>,
     wrapping_word_glyph: Option<bool>,
     highlighter_token: Option<String>,
-    highlighter_theme: Option<String>,
+    theme_base_16_mocha: Option<bool>,
+    theme_base_16_ocean: Option<bool>,
+    theme_base_16_eighties: Option<bool>,
+    theme_inspired_github: Option<bool>,
     on_edit: Option<PyObject>,
     style_id: Option<usize>,
     user_data: Option<PyObject>,
@@ -158,7 +164,10 @@ pub fn add_text_editor(
                 wrapping_word_glyph,
                 last_status: TxtEdStatus::Disabled,
                 style_id,
-                highlighter_theme,
+                theme_base_16_mocha,
+                theme_base_16_ocean,
+                theme_base_16_eighties,
+                theme_inspired_github,
                 highlighter_token,
             }),
         );

@@ -44,7 +44,10 @@ pub struct TextEditor {
     pub wrapping_word_glyph: Option<bool>,
     pub last_status: TxtEdStatus,
     pub style_id: Option<usize>,
-    pub highlighter_theme: Option<String>,
+    pub theme_base_16_mocha: Option<bool>,
+    pub theme_base_16_ocean: Option<bool>,
+    pub theme_base_16_eighties: Option<bool>,
+    pub theme_inspired_github: Option<bool>,
     pub highlighter_token: Option<String>,
 }
 
@@ -88,17 +91,18 @@ impl TextEditor {
                 .and_then(Widgets::as_text_editor_style).cloned();
 
         // Parse highlighter theme, defaulting to SolarizedDark
-        let hl_theme = self.highlighter_theme.as_deref().and_then(|t| {
-            match t {
-                "SolarizedDark" => Some(highlighter::Theme::SolarizedDark),
-                "Base16Mocha" => Some(highlighter::Theme::Base16Mocha),
-                "Base16Ocean" => Some(highlighter::Theme::Base16Ocean),
-                "Base16Eighties" => Some(highlighter::Theme::Base16Eighties),
-                "InspiredGitHub" => Some(highlighter::Theme::InspiredGitHub),
-                _ => None,
-            }
-        }).unwrap_or(highlighter::Theme::SolarizedDark);
-
+        let hl_theme = match (
+            self.theme_base_16_mocha,
+            self.theme_base_16_ocean,
+            self.theme_base_16_eighties,
+            self.theme_inspired_github) {
+            (Some(_), _, _, _) => highlighter::Theme::Base16Mocha,
+            (_, Some(_), _, _) => highlighter::Theme::Base16Ocean,
+            (_, _, Some(_), _) => highlighter::Theme::Base16Eighties,
+            (_, _, _,Some(_)) => highlighter::Theme::InspiredGitHub,
+            _ => highlighter::Theme::SolarizedDark,
+            };
+        
         // Use provided token or default to "txt" for plain text
         let token = self.highlighter_token.as_deref().unwrap_or("txt");
 

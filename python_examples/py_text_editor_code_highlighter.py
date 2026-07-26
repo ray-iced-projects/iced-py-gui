@@ -1,9 +1,15 @@
 #!/usr/bin/env python3
 """
 Highlighter Theme Demo - shows Python syntax highlighting with different themes
+The highlighter themes when set tp True are:
+theme_solarized_dark (default, parameter not needed),
+theme_base_16_mocha,
+theme_base_16_ocean,
+theme_base_16_eighties,
+theme_inspired_github,
 """
 
-from icedpygui import Window, start_session, add_text_editor, add_column
+from icedpygui import Window, start_session, Container, add_text_editor
 
 # Sample Python code
 PYTHON = '''def fibonacci(n):
@@ -26,8 +32,8 @@ if __name__ == "__main__":
 '''
 
 # For documnetation purposes, the complete list of highlighter tokens are below
-# but not used.  You would have to have the proper content in the editor to see the
-# effects.  This text_editor is not a complete editing editor in python but by adding the
+# but only "py" is used.  You would have to have the proper content in the editor to see the
+# effects. This text_editor demo is not a complete code editor but by adding the
 # appropriate menu to load files copy and paste, etc. it could be made.
 TOKENS = [
     "actionscript", "ada", "apache", "applescript", "asciidoc", "asp", "asm",
@@ -68,37 +74,34 @@ def on_select(_wid: int, selected: str):
 
 with Window(title="Syntax Highlighter Themes", center=True):
 
-    # SolarizedDark theme (dark background)
-    col1 = add_column(fill=True)
-    add_text_editor(
-        parent_id=col1,
-        content=PYTHON,
-        height=200,
-        fill=True,
-        highlighter_theme="SolarizedDark",
-        highlighter_token="py"
-    )
+    # SolarizedDark theme (dark background) is the default
+    # so parameter not needed
+    with Container(fill=True):
+        add_text_editor(
+            content=PYTHON,
+            height=200,
+            fill=True,
+            highlighter_token="py"
+        )
 
     # Base16Mocha theme (dark background)
-    col2 = add_column(fill=True)
-    add_text_editor(
-        parent_id=col2,
-        content=PYTHON,
-        height=200,
-        fill=True,
-        highlighter_theme="Base16Mocha",
-        highlighter_token="py"
-    )
+    with Container(fill=True):
+        add_text_editor(
+            content=PYTHON,
+            height=200,
+            fill=True,
+            theme_base_16_mocha=True,
+            highlighter_token="py"
+        )
 
     # InspiredGitHub theme (light background)
-    col3 = add_column(fill=True)
-    add_text_editor(
-        parent_id=col3,
-        content=PYTHON,
-        height=200,
-        fill=True,
-        highlighter_theme="InspiredGitHub",
-        highlighter_token="py"
-    )
+    with Container(fill=True):
+        add_text_editor(
+            content=PYTHON,
+            height=200,
+            fill=True,
+            theme_inspired_github=True,
+            highlighter_token="py"
+        )
 
 start_session()

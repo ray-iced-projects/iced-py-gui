@@ -239,6 +239,17 @@ where
             .max_width(self.max_width)
             .max_width(self.compute_max_available_width(parent_bounds, viewport));
 
+        // Ensure all item trees have their widget children initialized before layout
+        for (item, item_tree) in self.items.iter_mut().zip(tree.children.iter_mut()) {
+            if item_tree.children.is_empty() {
+                *item_tree = item.tree();
+            }
+            // Call diff to initialize the widget tree's children
+            if let Some(widget_tree) = item_tree.children.get_mut(0) {
+                widget_tree.diff(&mut item.item);
+            }
+        }
+
         let items_node = flex::resolve(
             flex::Axis::Vertical,
             renderer,
@@ -864,10 +875,18 @@ where
                     m.diff(t1);
                 } else {
                     *tree = self.tree();
+                    // After creating new tree, ensure widget tree is initialized
+                    if let Some(t0) = tree.children.get_mut(0) {
+                        t0.diff(&mut self.item);
+                    }
                 }
             }
         } else {
             *tree = self.tree();
+            // After creating new tree, ensure widget tree is initialized
+            if let Some(t0) = tree.children.get_mut(0) {
+                t0.diff(&mut self.item);
+            }
         }
     }
 

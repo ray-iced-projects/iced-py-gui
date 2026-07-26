@@ -114,7 +114,7 @@ impl Menu {
             bar_items.push(bar_item);
             
         }
-        
+
         let mut mb: MenuBar<'a, app::Message, Theme, Renderer> = 
             MenuBar::new(bar_items)
                 .close_on_item_click_global(self.items_close_on_click_global.unwrap_or_default())
@@ -185,6 +185,7 @@ fn build_items<'a>(
     group: Vec<GroupedItem<'a>>,
     containers: &HashMap<usize, Containers>,
 ) -> Vec<Item<'a, app::Message, Theme, Renderer>> {
+    
     group.into_iter().map(|gi| match gi {
         GroupedItem::Plain(el) => Item::new(el),
         GroupedItem::Sub { trigger, children, sub_item_id } => {

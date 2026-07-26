@@ -48,8 +48,8 @@ with Window(title="Menu", center=True, size=[600, 600]):
 
                     #  Submenu
                     with MenuSubItem(width=130, spacing=5.0, offset=2.0):
-
-                        add_text(content="Open Recent >", width_fill=True,)  # trigger (shown in dropdown)
+                        # trigger (shown in dropdown)
+                        add_text(content="Open Recent >", width_fill=True,)
                         add_button(
                             label="project1.py",
                             width_fill=True,

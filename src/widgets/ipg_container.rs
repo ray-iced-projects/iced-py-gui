@@ -30,8 +30,6 @@ pub struct Container {
     pub height: Option<f32>,
     pub height_fill: Option<bool>,
     pub fill: Option<bool>,
-    pub max_width: Option<f32>,
-    pub max_height: Option<f32>,
     pub align_top_left: Option<bool>,
     pub align_top_center: Option<bool>,
     pub align_top_right: Option<bool>,
@@ -88,16 +86,6 @@ impl Container {
                         }
                     }
                 );
-
-        let cont = 
-            if let Some(mw) = self.max_width {
-                cont.max_width(mw)
-            } else { cont };
-
-        let cont = 
-            if let Some(mh) = self.max_height {
-                cont.max_width(mh)
-            } else { cont };
 
         let cont = 
             if self.align_top_left == Some(true) {
@@ -310,8 +298,6 @@ pub enum ContainerParam {
     Fill,
     Height,
     HeightFill,
-    MaxHeight,
-    MaxWidth,
     Padding,
     Width,
     WidthFill,
@@ -370,8 +356,6 @@ impl WidgetParamUpdate for Container {
             ContainerParam::Fill => set_t_value(&mut self.fill, value, "ContainerParam::Fill"),
             ContainerParam::Height => set_t_value(&mut self.height, value, "ContainerParam::Height"),
             ContainerParam::HeightFill => set_t_value(&mut self.height_fill, value, "ContainerParam::HeightFill"),
-            ContainerParam::MaxHeight => set_t_value(&mut self.max_height, value, "ContainerParam::MaxHeight"),
-            ContainerParam::MaxWidth => set_t_value(&mut self.max_width, value, "ContainerParam::MaxWidth"),
             ContainerParam::Padding => set_t_value(&mut self.padding, value, "ContainerParam::Padding"),
             ContainerParam::Width => set_t_value(&mut self.width, value, "ContainerParam::Width"),
             ContainerParam::WidthFill => set_t_value(&mut self.width_fill, value, "ContainerParam::WidthFill"),

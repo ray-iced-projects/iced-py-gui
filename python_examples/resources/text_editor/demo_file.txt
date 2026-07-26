@@ -1,0 +1,6 @@
+
+Rust is a systems programming language that combines low-level performance with high-level abstractions. It achieves memory safety without garbage collection through a unique ownership system and strict compile-time checks. This makes Rust ideal for building reliable, efficient software where manual memory management was previously required.
+
+The graphical user interface library Iced provides a cross-platform way to build interactive applications with a functional, declarative syntax. Inspired by languages like Elm, it emphasizes composability and immutability, making code easier to reason about and maintain. With support for various renderers and backends, Iced enables developers to create beautiful applications that run seamlessly on desktop and web platforms.
+
+Testing text editors effectively requires diverse content to validate features like text wrapping, line breaks, and cursor movement. This demo file serves as a starting point for verifying that text selection, editing operations, and navigation all work correctly. Consider adding your own examples, code snippets, or structured data to thoroughly exercise the editor's capabilities.

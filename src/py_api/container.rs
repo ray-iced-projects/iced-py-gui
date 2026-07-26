@@ -34,10 +34,6 @@ use crate::widgets::ipg_container::{Container,
 ///     Whether the container fills available height.
 /// clip : bool,  Optional
 ///     Whether to clip content that overflows the container.
-/// max_height : float,  Optional
-///     Sets the Maximum height in logical pixels.
-/// max_width : float,  Optional
-///     Sets the Maximum width in logical pixels.
 /// align_top_left : bool,  Optional
 ///     Whether to Align the child to the top-left corner.
 /// align_top_center : bool,  Optional
@@ -81,8 +77,6 @@ use crate::widgets::ipg_container::{Container,
     height_fill=None,
     fill=None,
     clip=None, 
-    max_height=None, 
-    max_width=None,
     align_top_left=None,
     align_top_center=None,
     align_top_right=None,
@@ -108,8 +102,6 @@ pub fn add_container(
     height_fill: Option<bool>,
     fill: Option<bool>,
     clip: Option<bool>,
-    max_height: Option<f32>,
-    max_width: Option<f32>,
     align_top_left: Option<bool>,
     align_top_center: Option<bool>,
     align_top_right: Option<bool>,
@@ -149,8 +141,6 @@ pub fn add_container(
             height, 
             height_fill,
             fill,
-            max_width,
-            max_height,
             align_top_left,
             align_top_center,
             align_top_right,

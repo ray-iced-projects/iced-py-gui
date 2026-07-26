@@ -8,7 +8,7 @@ from icedpygui import (Window, Container, start_session,
     add_text_editor)
 
 cwd = os.getcwd()
-FILE_PATH = f"{cwd}/python_examples/py_text_editor.py"
+FILE_PATH = f"{cwd}/python_examples/resources/text_editor/demo_file.txt"
 
 try:
     with open(FILE_PATH, "r", encoding='utf-8') as file:

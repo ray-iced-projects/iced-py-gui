@@ -281,8 +281,7 @@ where
                     height: limits.max().height,
                 },
             ),
-            Length::Shrink,
-            // self.width,
+            self.width,
             self.height,
             self.padding,
             self.spacing,
@@ -302,12 +301,16 @@ where
         let items_node_bounds = items_node.bounds();
 
         let resolved_width = match self.width {
-            Length::Fill | Length::FillPortion(_) => items_node_bounds
+            Length::Fill | Length::FillPortion(_) | Length::Fluid(_) => items_node_bounds
                 .width
                 .min(limits.max().width)
                 .max(limits.min().width),
             Length::Fixed(amount) => amount.min(limits.max().width).max(limits.min().width),
             Length::Shrink | Length::Fit => items_node_bounds.width,
+            Length::Bounded { .. } => items_node_bounds
+                .width
+                .min(limits.max().width)
+                .max(limits.min().width),
         };
 
         let lower_bound_rel = self.padding.left - bar_menu_state.scroll_offset;

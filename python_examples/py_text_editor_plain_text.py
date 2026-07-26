@@ -1,6 +1,15 @@
 #!/usr/bin/env python3
 """
 Text Editor demo
+
+This is just simplest example of the text_editor.
+The highlighter parameter for the editor is not used
+and therefore defaults to "txt", which is plain text.
+See the highligter method for more details.
+You could make this a complete text editor by adding a menu bar
+with the needed droipdown items that point to varous method
+such as loading/saving files, cut/paste, etc.
+Given time, a demo method may be made in the furture.
 """
 
 import os

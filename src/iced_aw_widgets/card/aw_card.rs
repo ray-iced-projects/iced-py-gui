@@ -56,10 +56,6 @@ where
     width: Length,
     /// The height of the [`Card`].
     height: Length,
-    /// The maximum width of the [`Card`].
-    max_width: f32,
-    /// The maximum height of the [`Card`].
-    max_height: f32,
     /// The padding of the head of the [`Card`].
     padding_head: Padding,
     /// The padding of the body of the [`Card`].
@@ -100,8 +96,6 @@ where
         Card {
             width: Length::Fill,
             height: Length::Shrink,
-            max_width: u32::MAX as f32,
-            max_height: u32::MAX as f32,
             padding_head: DEFAULT_PADDING,
             padding_body: DEFAULT_PADDING,
             padding_foot: DEFAULT_PADDING,
@@ -136,20 +130,6 @@ where
     #[must_use]
     pub fn height(mut self, height: impl Into<Length>) -> Self {
         self.height = height.into();
-        self
-    }
-
-    /// Sets the maximum height of the [`Card`].
-    #[must_use]
-    pub fn max_height(mut self, height: f32) -> Self {
-        self.max_height = height;
-        self
-    }
-
-    /// Sets the maximum width of the [`Card`].
-    #[must_use]
-    pub fn max_width(mut self, width: f32) -> Self {
-        self.max_width = width;
         self
     }
 
@@ -297,8 +277,6 @@ where
     }
 
     fn layout(&mut self, tree: &mut Tree, renderer: &Renderer, limits: &Limits) -> Node {
-        let limits = limits.max_width(self.max_width).max_height(self.max_height);
-
         let close_button_tree_index = 2 + usize::from(self.foot.is_some());
 
         let head_node = head_node(

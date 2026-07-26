@@ -38,14 +38,14 @@ pub struct TextEditor {
     pub height: Option<f32>,
     pub height_fill: Option<bool>,
     pub fill: Option<bool>,
-    pub min_height: Option<f32>,
-    pub max_height: Option<f32>,
     pub padding: Option<Vec<f32>>,
     pub wrapping_none: Option<bool>,
     pub wrapping_glyph: Option<bool>,
     pub wrapping_word_glyph: Option<bool>,
     pub last_status: TxtEdStatus,
     pub style_id: Option<usize>,
+    pub highlighter_theme: Option<String>,
+    pub highlighter_token: Option<String>,
 }
 
 impl TextEditor {
@@ -59,15 +59,13 @@ impl TextEditor {
         widgets: &HashMap<usize, Widgets>,
     ) -> Option<Element<'a, Message>> {
 
-        // default is word so not checked
-        let wrapping = 
-            if self.wrapping_none.is_some() {
-                Wrapping::None
-            } else if self.wrapping_glyph.is_some() {
-                Wrapping::Glyph
-            } else if self.wrapping_word_glyph.is_some() {
-                Wrapping::WordOrGlyph
-            } else { Wrapping::Word };
+        // default is word so not a parameter
+        let wrapping = match (self.wrapping_none, self.wrapping_glyph, self.wrapping_word_glyph) {
+            (Some(_), _, _) => Wrapping::None,
+            (_, Some(_), _) => Wrapping::Glyph,
+            (_, _, Some(_)) => Wrapping::WordOrGlyph,
+            _ => Wrapping::Word,
+        };
 
         let hgt = if self.fill.is_none() && 
                         self.height_fill.is_none() && 
@@ -89,13 +87,27 @@ impl TextEditor {
             self.lookup(widgets, self.style_id)
                 .and_then(Widgets::as_text_editor_style).cloned();
 
+        // Parse highlighter theme, defaulting to SolarizedDark
+        let hl_theme = self.highlighter_theme.as_deref().and_then(|t| {
+            match t {
+                "SolarizedDark" => Some(highlighter::Theme::SolarizedDark),
+                "Base16Mocha" => Some(highlighter::Theme::Base16Mocha),
+                "Base16Ocean" => Some(highlighter::Theme::Base16Ocean),
+                "Base16Eighties" => Some(highlighter::Theme::Base16Eighties),
+                "InspiredGitHub" => Some(highlighter::Theme::InspiredGitHub),
+                _ => None,
+            }
+        }).unwrap_or(highlighter::Theme::SolarizedDark);
+
+        // Use provided token or default to "txt" for plain text
+        let token = self.highlighter_token.as_deref().unwrap_or("txt");
+
         let te = widget::text_editor(&self.content)
                 .placeholder(ph)
                 .height(hgt)
-                .min_height(self.min_height.unwrap_or_default())
-                .max_height(self.max_height.unwrap_or(f32::INFINITY))
                 .on_action(TxtEdMessage::ActionPerformed)
                 .wrapping(wrapping)
+                .highlight(token, hl_theme)
                 .style(move|theme, status|{
                     if let Some(st) = &style_opt {
                         st.to_iced(theme, status)
@@ -361,8 +373,6 @@ pub enum TextEditorParam {
     Height,
     HeightFill,
     LineHeight,
-    MaxHeight,
-    MinHeight,
     Padding,
     PlaceHolder, 
     TextSize,
@@ -427,8 +437,6 @@ impl WidgetParamUpdate for TextEditor {
             TextEditorParam::Height => set_t_value(&mut self.height, value, "TextEditorParam::Height"),
             TextEditorParam::HeightFill => set_t_value(&mut self.height_fill, value, "TextEditorParam::HeightFill"),
             TextEditorParam::LineHeight => set_t_value(&mut self.line_height, value, "TextEditorParam::LineHeight"),
-            TextEditorParam::MaxHeight => set_t_value(&mut self.max_height, value, "TextEditorParam::MaxHeightname"),
-            TextEditorParam::MinHeight => set_t_value(&mut self.min_height, value, "TextEditorParam::MinHeight"),
             TextEditorParam::Padding => set_t_value(&mut self.padding, value, "TextEditorParam::Padding"),
             TextEditorParam::PlaceHolder => set_t_value(&mut self.place_holder, value, "TextEditorParam::PlaceHolder"),
             TextEditorParam::TextSize => set_t_value(&mut self.text_size, value, "TextEditorParam::TextSize"),

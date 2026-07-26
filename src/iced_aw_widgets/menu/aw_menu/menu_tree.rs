@@ -118,7 +118,6 @@ where
 {
     pub(super) items: Vec<Item<'a, Message, Theme, Renderer>>,
     pub(super) spacing: Pixels,
-    pub(super) max_width: f32,
     pub(super) width: Length,
     pub(super) height: Length,
     pub(super) axis: Axis,
@@ -137,7 +136,6 @@ where
         Self {
             items,
             spacing: Pixels::ZERO,
-            max_width: f32::INFINITY,
             width: Length::Fill,
             height: Length::Shrink,
             axis: Axis::Horizontal,
@@ -146,12 +144,6 @@ where
             close_on_item_click: None,
             close_on_background_click: None,
         }
-    }
-
-    /// Sets the maximum width of the [`Menu`].
-    pub fn max_width(mut self, max_width: f32) -> Self {
-        self.max_width = max_width;
-        self
     }
 
     /// Sets the width of the [`Menu`].
@@ -236,8 +228,7 @@ where
     ) -> (Node, (Direction, Direction)) {
 
         let limits = limits
-            .max_width(self.max_width)
-            .max_width(self.compute_max_available_width(parent_bounds, viewport));
+            .width(Length::Fixed(self.compute_max_available_width(parent_bounds, viewport)));
 
         // Ensure all item trees have their widget children initialized before layout
         for (item, item_tree) in self.items.iter_mut().zip(tree.children.iter_mut()) {

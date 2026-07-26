@@ -29,8 +29,6 @@ pub struct CardClass {
     pub height: Option<f32>,
     pub height_fill: Option<bool>,
     pub fill: Option<bool>,
-    pub max_width: Option<f32>,
-    pub max_height: Option<f32>,
     pub padding: Option<Vec<f32>>,
     // pub padding_head: Option<Vec<f32>>,
     pub padding_body: Option<Vec<f32>>,
@@ -107,18 +105,6 @@ impl CardClass {
                 }
             );
 
-        let card = if let Some(mw) = self.max_width {
-            card.max_width(mw)
-        } else {
-            card
-        };
-
-        let card = if let Some(mh) = self.max_height {
-            card.max_height(mh)
-        } else {
-            card
-        };
-
         Some(card.into())
         
     }
@@ -136,8 +122,6 @@ pub struct Card {
     pub height: Option<f32>,
     pub height_fill: Option<bool>,
     pub fill: Option<bool>,
-    pub max_width: Option<f32>,
-    pub max_height: Option<f32>,
     pub padding: Option<Vec<f32>>,
     // pub padding_head: Option<Vec<f32>>,
     pub padding_body: Option<Vec<f32>>,
@@ -214,18 +198,6 @@ impl Card {
         let card = if let Some(ft) = self.footer.clone() {
             card.foot(text(ft))
         } else { card };
-
-        let card = if let Some(mw) = self.max_width {
-            card.max_width(mw)
-        } else {
-            card
-        };
-
-        let card = if let Some(mh) = self.max_height {
-            card.max_height(mh)
-        } else {
-            card
-        };
 
         Some(card.into())
         
@@ -390,8 +362,6 @@ pub enum CardParam {
     Height,
     HeightFill,
     Fill,
-    MaxWidth,
-    MaxHeight,
     Padding,
     // PaddingHead,
     PaddingBody,
@@ -416,8 +386,6 @@ impl WidgetParamUpdate for CardClass {
             CardParam::Height => set_t_value(&mut self.height, value, "CardParam::Height"),
             CardParam::HeightFill => set_t_value(&mut self.height_fill, value, "CardParam::HeightFill"),
             CardParam::IsOpen => set_t_value(&mut self.is_open, value, "CardParam::IsOpen"),
-            CardParam::MaxHeight => set_t_value(&mut self.max_height, value, "CardParam::MaxHeight"),
-            CardParam::MaxWidth => set_t_value(&mut self.max_width, value, "CardParam::MaxWidth"),
             CardParam::Padding => set_t_value(&mut self.padding, value, "CardParam::Padding"),
             CardParam::PaddingBody => set_t_value(&mut self.padding_body, value, "CardParam::PaddingBody"),
             CardParam::PaddingFoot => set_t_value(&mut self.padding_foot, value, "CardParam::PaddingFoot"),
@@ -440,8 +408,6 @@ impl WidgetParamUpdate for Card {
             CardParam::Height => set_t_value(&mut self.height, value, "CardParam::Height"),
             CardParam::HeightFill => set_t_value(&mut self.height_fill, value, "CardParam::HeightFill"),
             CardParam::IsOpen => set_t_value(&mut self.is_open, value, "CardParam::IsOpen"),
-            CardParam::MaxHeight => set_t_value(&mut self.max_height, value, "CardParam::MaxHeight"),
-            CardParam::MaxWidth => set_t_value(&mut self.max_width, value, "CardParam::MaxWidth"),
             CardParam::Padding => set_t_value(&mut self.padding, value, "CardParam::Padding"),
             CardParam::PaddingBody => set_t_value(&mut self.padding_body, value, "CardParam::PaddingBody"),
             CardParam::PaddingFoot => set_t_value(&mut self.padding_foot, value, "CardParam::PaddingFoot"),

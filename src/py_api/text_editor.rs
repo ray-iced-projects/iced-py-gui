@@ -39,19 +39,23 @@ use crate::widgets::ipg_text_editor::TxtEdStatus;
 ///     Whether the editor expands to fill the available height.
 /// fill : bool, Optional
 ///     Whether the editor fills both width and height.
-/// min_height : float, Optional
-///     Sets the minimum height in logical pixels.
-/// max_height : float, Optional
-///     Sets the maximum height in logical pixels.
 /// padding : list of float, Optional
 ///     Sets the padding as [all], [vertical, horizontal], or
 ///     [top, right, bottom, left].
 /// wrapping_none : bool, Optional
 ///     Disables text wrapping; text extends past the right edge.
 /// wrapping_glyph : bool, Optional
-///     Wraps at the glyph boundary (default).
+///     Wraps at the glyph boundary.
+/// wrapping_word : bool, Optional
+///     Wraps at the word boundary (default).
 /// wrapping_word_glyph : bool, Optional
 ///     Wraps at word boundaries, falling back to glyph boundaries.
+/// highlighter_token : str, Optional
+///     File type or language token for syntax highlighting. Examples: "py",
+///     "rs", "js", "json", "html", "txt" (default for plain text), etc.
+/// highlighter_theme : str, Optional
+///     Syntax highlighting theme. Options: "SolarizedDark" (default),
+///     "Base16Mocha", "Base16Ocean", "Base16Eighties", "InspiredGitHub".
 /// on_edit : callable, Optional
 ///     Callback invoked on every edit action.
 ///     Signature: ``def cb(wid: int, content: str)``
@@ -78,12 +82,12 @@ use crate::widgets::ipg_text_editor::TxtEdStatus;
     height=None,
     height_fill=None,
     fill=None,
-    min_height=None,
-    max_height=None,
     padding=None,
     wrapping_none=None,
     wrapping_glyph=None,
     wrapping_word_glyph=None,
+    highlighter_token=None,
+    highlighter_theme=None,
     on_edit = None,
     style_id=None,
     user_data = None,
@@ -100,12 +104,12 @@ pub fn add_text_editor(
     height: Option<f32>,
     height_fill: Option<bool>,
     fill: Option<bool>,
-    min_height: Option<f32>,
-    max_height: Option<f32>,
     padding: Option<Vec<f32>>,
     wrapping_none: Option<bool>,
     wrapping_glyph: Option<bool>,
     wrapping_word_glyph: Option<bool>,
+    highlighter_token: Option<String>,
+    highlighter_theme: Option<String>,
     on_edit: Option<PyObject>,
     style_id: Option<usize>,
     user_data: Option<PyObject>,
@@ -148,14 +152,14 @@ pub fn add_text_editor(
                 height,
                 height_fill,
                 fill,
-                min_height, 
-                max_height, 
                 padding, 
                 wrapping_none,
                 wrapping_glyph,
                 wrapping_word_glyph,
                 last_status: TxtEdStatus::Disabled,
                 style_id,
+                highlighter_theme,
+                highlighter_token,
             }),
         );
     drop(state);

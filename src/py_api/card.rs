@@ -80,8 +80,6 @@ use crate::widgets::ipg_card::{Card, CardClass, CardStyle, CardStyleStd};
     height=None, 
     height_fill=None,
     fill=None,
-    max_width=None, 
-    max_height=None,
     padding=None, 
     // padding_head=None, 
     padding_body=None, 
@@ -105,8 +103,6 @@ pub fn add_card_class(
     height: Option<f32>,
     height_fill: Option<bool>,
     fill: Option<bool>,
-    max_width: Option<f32>,
-    max_height: Option<f32>,
     padding: Option<Vec<f32>>,
     // padding_head: Option<Vec<f32>>,
     padding_body: Option<Vec<f32>>,
@@ -148,8 +144,6 @@ pub fn add_card_class(
             height,
             height_fill,
             fill,
-            max_width,
-            max_height,
             padding,
             // padding_head,
             padding_body,
@@ -200,10 +194,6 @@ pub fn add_card_class(
 ///     Sets the Fixed height in logical pixels.
 /// height_fill : bool, default False
 ///     Whether the card fills available height.
-/// max_width : float, Optional
-///     Sets the Maximum width in logical pixels.
-/// max_height : float, Optional
-///     Sets the Maximum height in logical pixels.
 /// padding : list of float, Optional
 ///     Sets the Padding for all sections as [all], [vertical, horizontal], or
 ///     [top, right, bottom, left].
@@ -244,8 +234,6 @@ pub fn add_card_class(
     height=None, 
     height_fill=None,
     fill=None,
-    max_width=None, 
-    max_height=None,
     padding=None, 
     // padding_head=None, 
     padding_body=None, 
@@ -270,8 +258,6 @@ pub fn add_card(
     height: Option<f32>,
     height_fill: Option<bool>,
     fill: Option<bool>,
-    max_width: Option<f32>,
-    max_height: Option<f32>,
     padding: Option<Vec<f32>>,
     // padding_head: Option<Vec<f32>>,
     padding_body: Option<Vec<f32>>,
@@ -310,8 +296,6 @@ pub fn add_card(
             height,
             height_fill,
             fill,
-            max_width,
-            max_height,
             padding,
             // padding_head,
             padding_body,

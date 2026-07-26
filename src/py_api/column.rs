@@ -31,8 +31,6 @@ use crate::widgets::ipg_column::Column;
 ///     Whether the column fills available height.
 /// fill : bool, Optional
 ///     Whether to fill both the available width and height
-/// max_width : float,  Optional
-///     Sets the Maximum width in logical pixels.
 /// padding : list of float,  Optional
 ///     Sets the Padding as ``[all]``, ``[vertical, horizontal]``, or
 ///     ``[top, right, bottom, left]``.
@@ -74,7 +72,6 @@ use crate::widgets::ipg_column::Column;
         height=None, 
         height_fill=None,
         fill=None,
-        max_width=None,
         padding=None,
         spacing=None,
         align_left=None,
@@ -91,14 +88,12 @@ use crate::widgets::ipg_column::Column;
 pub fn add_column(
     window_id: String,
     container_id: String,
-    // **above required
     parent_id: Option<String>,
     width: Option<f32>,
     width_fill: Option<bool>,
     height: Option<f32>,
     height_fill: Option<bool>,
     fill: Option<bool>,
-    max_width: Option<f32>,
     padding: Option<Vec<f32>>,
     spacing: Option<f32>,
     align_left: Option<bool>,
@@ -137,7 +132,6 @@ pub fn add_column(
                 height, 
                 height_fill,
                 fill, 
-                max_width, 
                 align_left,
                 align_center,
                 align_right,

@@ -21,7 +21,6 @@ pub struct Column {
     pub height: Option<f32>,
     pub height_fill: Option<bool>,
     pub fill: Option<bool>,
-    pub max_width: Option<f32>,
     pub align_left: Option<bool>,
     pub align_center: Option<bool>,
     pub align_right: Option<bool>,
@@ -75,11 +74,6 @@ impl Column {
                 col.spacing(sp)
             } else { col };
 
-        let col =
-            if let Some(mw) = self.max_width {
-                col.max_width(mw)
-            } else { col };
-
         let wrap = if self.wrap.is_none() {
             return Some(col.into())
         } else {
@@ -119,7 +113,6 @@ pub enum ColumnParam {
     Fill,
     Height,
     HeightFill,
-    MaxWidth,
     Padding,
     Show,
     Spacing,
@@ -143,7 +136,6 @@ impl WidgetParamUpdate for Column {
             ColumnParam::Fill => set_t_value(&mut self.fill, value, "ColumnParam::Fill"),
             ColumnParam::Height => set_t_value(&mut self.height, value, "ColumnParam::Height"),
             ColumnParam::HeightFill => set_t_value(&mut self.height_fill, value, "ColumnParam::HeightFill"),
-            ColumnParam::MaxWidth => set_t_value(&mut self.max_width, value, "ColumnParam::MaxWidth"),
             ColumnParam::Padding => set_t_value(&mut self.padding, value, "ColumnParam::Padding"),
             ColumnParam::Show => set_t_value(&mut self.show, value, "ColumnParam::Show"),
             ColumnParam::Spacing => set_t_value(&mut self.spacing, value, "ColumnParam::Spacing"),

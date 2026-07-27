@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Highlighter Theme Demo - shows Python syntax highlighting with different themes
-The highlighter themes when set tp True are:
+The highlighter themes when set to True are:
 theme_solarized_dark (default, parameter not needed),
 theme_base_16_mocha,
 theme_base_16_ocean,

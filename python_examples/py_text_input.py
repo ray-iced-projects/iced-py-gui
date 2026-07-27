@@ -5,15 +5,16 @@ Text Input demo
 Text input allows one to input text then submit it to perform some action
 """
 from icedpygui import (Window, Column, Row, start_session,
-    add_text_input, add_text, TextParam, TextInputParam, update_widget,
-    add_button, add_space, Color, add_text_input_style)
+    add_text_input, add_text, TextParam, TextInputParam, update_widget, update_widget_params,
+    add_button, add_combobox, add_space, add_radio, Color, add_text_input_style, Icon)
 
 
 state = {"secure": False}
 
-# Currently, Ipg only has the text_input widget.
-# They could be used for anything, just convert them
-# to  a string for the list and convert back when selected.
+# Currently, Ipg only has the text_input widget,
+# not float or integer input.
+# However, the text_input could be used for anything, just convert the
+# input to a string for the list and convert back when selected.
 
 
 # Add the callback for the text_input, 2 parameters are
@@ -27,8 +28,8 @@ def on_input(_txt_input_id, data, _user_data: any):
     update_widget(text_on_input_id, TextParam.Content, value=data)
 
 
-# This only fires when you press enter to submit, it passes na value like
-# as does the on_input.
+# This only fires when you press enter to submit, it passes a value the
+# same as on_input() above.
 def on_submit(_txt_input_id, value: str, user_data: any):
     """Text input callback"""
     update_widget(text_on_submit_id, TextParam.Content, value=value)
@@ -36,7 +37,8 @@ def on_submit(_txt_input_id, value: str, user_data: any):
 
 
 # This fired when you paste something into the field
-# To submit it, press enter.
+# You could submit it, by pressing enter, and only use only on_submit
+# callback, if you want.
 def on_paste(_txt_input_id, data, _user_data: any):
     """Text input callback"""
     update_widget(text_on_paste_id, TextParam.Content, value=data)
@@ -95,8 +97,10 @@ def change_size(_btn_id):
     # Let's make sure a value is there
     update_widget(ti_id, TextInputParam.Value, "The Size Increased")
     # let's make it bigger to hold the text
-    update_widget(ti_id, TextInputParam.Width, 300.0)
-    update_widget(ti_id, TextInputParam.Size, 30.0)
+    update_widget_params(ti_id, {TextInputParam.Width: 300.0,
+                                      TextInputParam.Size: 30.0})
+    # update_widget(ti_id, TextInputParam.Width, 300.0)
+    # update_widget(ti_id, TextInputParam.Size, 30.0)
 
 
 # Change the line height
@@ -113,6 +117,48 @@ def change_line_height(_btn_id):
 def add_style(_btn_id):
     """Button callback"""
     update_widget(ti_id, TextInputParam.StyleId, ti_style)
+
+# adding some icons for the text_input widget
+ICONS = ["Airplane", "Amazon", "Backpack4Fill", "BalloonFill"]
+
+def icon_selected(_cb_id: int, icon: str):
+    """Comboxbox icon selection"""
+    icon_enum = getattr(Icon, icon, None)  # Returns None if not found
+    if icon_enum:
+        update_widget(ti_id, TextInputParam.Icon, icon_enum)
+
+def on_side_selected(_rd_id: int, index: int):
+    """Text Input Icon Side Set"""
+    if index == 0:
+        update_widget(ti_id, TextInputParam.IconLeftSide, True)
+    else:
+        # Since the default is right, then only need to define left side
+        update_widget(ti_id, TextInputParam.IconLeftSide, False)
+
+def icon_spacing(_ti_id: int, value: str):
+    """Changing the Spacing of the Icon"""
+    update_widget(ti_id, TextInputParam.IconSpacing, float(value))
+
+def change_icon_size(_ti_id: int, value: str):
+    """Changing the Icon size"""
+    if value == "":
+        update_widget(ti_id, TextInputParam.IconSize, None)
+    else:
+        update_widget(ti_id, TextInputParam.IconSize, float(value))
+
+
+# the add style functions can be place anywhere as long as they are before the start_session
+# This is exaggerated, color wise, but it shows you have full control over the styling of a widget.
+ti_style = add_text_input_style(
+                    background_color=Color.CADET_BLUE,
+                    border_color_active=Color.YELLOW,
+                    border_color_focused=Color.PALE_GOLDEN_ROD,
+                    border_color_hovered=Color.CHARTREUSE,
+                    border_width=5.0,
+                    border_radius=8.0,
+                    placeholder_color_active=Color.BLACK,
+                    value_color_active=Color.LIGHT_STEEL_BLUE,
+                    selection_color_active=Color.DARK_SLATE_GRAY)
 
 
 # add the window
@@ -141,13 +187,13 @@ with Window(title="Text Input Demo", center=True):
                     user_data="User data = Some user data")
 
         # Add the text widget to display the info
-        text_on_input_id = add_text(content="Text here will be added when typed")
+        text_on_input_id = add_text(content="Text here will be added as typed")
 
         text_on_submit_id = add_text(content="Text here will be added when submitted")
 
         text_on_paste_id = add_text(content="Text here will be added when pasted")
 
-        text_user_data_id = add_text(content="User data will e here when submitted")
+        text_user_data_id = add_text(content="User data will be here when submitted")
 
         # Add row for buttons
         with Row(spacing=10.0):
@@ -192,19 +238,27 @@ with Window(title="Text Input Demo", center=True):
                     label="Press Me to Add Some Styling",
                     on_press=add_style)
 
-# the add style functions can be place anywhere as long as they are before the start_session
-# This is exaggerated, color wise, but it shows you have full control over the styling of a widget.
-ti_style = add_text_input_style(
-                    background_color=Color.CADET_BLUE,
-                    border_color_active=Color.YELLOW,
-                    border_color_focused=Color.PALE_GOLDEN_ROD,
-                    border_color_hovered=Color.CHARTREUSE,
-                    border_width=5.0,
-                    border_radius=8.0,
-                    placeholder_color_active=Color.BLACK,
-                    value_color_active=Color.LIGHT_STEEL_BLUE,
-                    selection_color_active=Color.DARK_SLATE_GRAY)
-
+        with Column():
+            add_text(content="********************Adding an Icon******************************")
+            with Row(spacing=20, wrap=True):
+                add_combobox(options=ICONS,
+                             width=200,
+                             placeholder="Select an Icon",
+                             on_select=icon_selected)
+                add_radio(labels=["Left", "Right"], on_selected=on_side_selected)
+                with Column(spacing=10):
+                    add_text(content=("To better see the spacing, put the icon on the left"
+                                      " and change values.\nYou'll see the icon spacing between"
+                                      " the placeholder change."))
+                    add_text_input(placeholder="Input Spacing Value",
+                                   width=200,
+                                   on_submit=icon_spacing)
+                with Column(spacing=10):
+                    add_text(content=("if you submit nothing,"
+                                      " the size reverts back to the default size"))
+                    add_text_input(placeholder="Add size value for icon",
+                                width=200,
+                                on_submit=change_icon_size)
 
 # Required to be the last widget sent to Iced,  If you start the program
 # and nothing happens, it might mean you forgot to add this command.

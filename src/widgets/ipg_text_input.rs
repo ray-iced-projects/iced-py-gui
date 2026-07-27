@@ -13,6 +13,7 @@ use pyo3::pyclass;
 use pyo3::{Py, PyAny};
 
 use crate::app::Message;
+use crate::graphics::BOOTSTRAP_FONT;
 use crate::graphics::colors::Color;
 use crate::py_api::helpers::{get_len, get_padding};
 use crate::{IpgState};
@@ -20,6 +21,8 @@ use crate::state::Widgets;
 use crate::widgets::callbacks::invoke_callback_with_args;
 use crate::widgets::widget_param_update::{
     WidgetParamUpdate,  set_t_value};
+
+use crate::graphics::bootstrap::bootstrap_icon::Icon;
 
 // Type alias to replace deprecated PyObject
 type PyObject = Py<PyAny>;
@@ -40,7 +43,11 @@ pub struct TextInput {
     pub align_left: Option<bool>,
     pub align_center: Option<bool>,
     pub align_right: Option<bool>,
-    pub font_id: Option<usize>,
+    pub text_font_id: Option<usize>,
+    pub icon: Option<Icon>,
+    pub icon_size: Option<f32>,
+    pub icon_spacing: Option<f32>,
+    pub icon_left_side: Option<bool>,
     pub style_id: Option<usize>,
     pub show: bool,
 }
@@ -55,7 +62,7 @@ impl TextInput {
         &'a self,
         widgets: &HashMap<usize, Widgets>,
     ) -> Option<Element<'a, Message>> {
-       
+
         if !self.show {
             return None
         }
@@ -63,7 +70,6 @@ impl TextInput {
         let style_opt = 
             self.lookup(widgets, self.style_id)
                 .and_then(Widgets::as_text_input_style).cloned();
-
 
         let txt: widget::TextInput<'_, TIMessage> =  
             widget::TextInput::new(
@@ -102,6 +108,31 @@ impl TextInput {
 
         let txt = if self.align_right == Some(true) {
             txt.align_x(alignment::Horizontal::Right)
+        } else { txt };
+
+        // Icon related
+        let txt = if self.icon.is_some() {
+            let code_point = self.icon.unwrap().to_char();
+            let size = 
+                if let Some(sz) = self.icon_size {
+                    Some(iced::Pixels(sz))
+                } else { None };
+
+            let spacing = self.icon_spacing.unwrap_or_default();
+
+            let side = if self.icon_left_side == Some(true) {
+                text_input::Side::Left
+            } else {
+                text_input::Side::Right
+            };
+            
+            txt.icon(text_input::Icon {
+                font: BOOTSTRAP_FONT,
+                code_point,
+                size,
+                spacing,
+                side,
+            })
         } else { txt };
 
         let txt: Element<'_, TIMessage> = txt.into();
@@ -509,6 +540,10 @@ pub enum TextInputParam {
     Value,
     Width,
     WidthFill,
+    Icon,
+    IconSize,
+    IconSpacing,
+    IconLeftSide,
 }
 
 #[derive(Debug, Clone, PartialEq, Hash)]
@@ -633,6 +668,10 @@ impl WidgetParamUpdate for TextInput {
             TextInputParam::Value => set_t_value(&mut self.value, value, "TextInputParam::Value"),
             TextInputParam::Width => set_t_value(&mut self.width, value, "TextInputParam::Width"),
             TextInputParam::WidthFill => set_t_value(&mut self.width_fill, value, "TextInputParam::WidthFill"),
+            TextInputParam::Icon => set_t_value(&mut self.icon, value, "TextInputParam::Icon"),
+            TextInputParam::IconSize => set_t_value(&mut self.icon_size, value, "TextInputParam::IconSize"),
+            TextInputParam::IconSpacing => set_t_value(&mut self.icon_spacing, value, "TextInputParam::IconSpacing"),
+            TextInputParam::IconLeftSide => set_t_value(&mut self.icon_left_side, value, "TextInputParam::IconLeftSide"),
         }
     }
 }

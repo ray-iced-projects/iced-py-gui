@@ -3351,6 +3351,10 @@ class TextInputParam:
     Size:float
     LineHeight:float
     StyleId:int
+    Icon: Icon
+    IconSize: float
+    IconSpacing: float
+    IconLeftSide: bool
 
 
 class TextColorStd:

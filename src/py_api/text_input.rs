@@ -3,6 +3,7 @@ use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex,
     graphics::colors::Color, 
     state::{Widgets, get_id, set_state_of_widget}, 
     widgets::ipg_text_input::{TextInput, TextInputStyle}};
+use crate::graphics::bootstrap::bootstrap_icon::Icon;
 
 use pyo3::{Py, PyAny, pyfunction, PyResult};
 type PyObject = Py<PyAny>;
@@ -14,44 +15,52 @@ type PyObject = Py<PyAny>;
 ///
 /// Parameters
 /// ----------
-/// parent_id : str
+/// parent_id: str
 ///     Sets the parent container ID that this text input belongs to.
-/// placeholder : str
+/// placeholder: str
 ///     Sets the placeholder text shown when the input is empty.
-/// gen_id : int, Optional
+/// gen_id: int, Optional
 ///     Obtains an ID of a widget that have not been created, used for the gen_id parameter.
-/// on_input : callable, Optional
+/// on_input: callable, Optional
 ///     Sets the Callback method to invoke when the input text changes.
-/// on_submit : callable, Optional
+/// on_submit: callable, Optional
 ///     Sets the Callback method to invoke when the user presses enter.
-/// on_paste : callable, Optional
+/// on_paste: callable, Optional
 ///     Sets the Callback method to invoke when text is pasted.
-/// width : float, Optional
+/// width: float, Optional
 ///     Sets the Fixed width in logical pixels.
-/// width_fill : bool, default False
+/// width_fill: bool, default False
 ///     Whether the text input fills available width.
-/// padding : list of float, Optional
+/// padding: list of float, Optional
 ///     Sets the Padding as [all], [vertical, horizontal], or
 ///     [top, right, bottom, left].
-/// size : float, Optional
+/// size: float, Optional
 ///     Sets the font size for the input text.
-/// line_height : float, Optional
+/// line_height: float, Optional
 ///     Sets the line height for the input text.
-/// align_left : bool, Optional
+/// align_left: bool, Optional
 ///     Whether to set the horizontal alignment left (default).
-/// align_center : bool, Optional
+/// align_center: bool, Optional
 ///     Whether to set the horizontal alignment center.
-/// align_right : bool, Optional
+/// align_right: bool, Optional
 ///     Whether to set the horizontal alignment right.
-/// user_data : Any, Optional
+/// user_data: Any, Optional
 ///     Sets the Arbitrary data forwarded to callbacks.
-/// is_secure : bool, Optional
+/// is_secure: bool, Optional
 ///     Whether the input text is obscured (password mode).
-/// font_id : int, Optional
+/// text_font_id: int, Optional
 ///     Sets the Font ID for the input text.
-/// style_id : int, Optional
+/// icon: Icon,  Optional
+///     Sets the Icon displayed inside the text_input.
+/// icon_size: float, Optional
+///     Sets the Size of the icon.
+/// icon_spacing: float, Optional
+///     Sets the spacing of the icon from the text.
+/// icon_left_side: bool, Optional
+///     Whether to place the icon on the left side, right is default.
+/// style_id: int, Optional
 ///     Sets the ID of a custom style created with ``add_text_input_style``.
-/// show : bool, default True
+/// show: bool, default True
 ///     Whether the text input is visible.
 ///
 /// Returns
@@ -76,7 +85,11 @@ type PyObject = Py<PyAny>;
     align_right=None,
     user_data=None,
     is_secure=None,
-    font_id=None, 
+    text_font_id=None,
+    icon=None,
+    icon_size=None,
+    icon_spacing=None,
+    icon_left_side=None,
     style_id=None, 
     show=true,
     ))]
@@ -97,7 +110,11 @@ pub fn add_text_input(
         align_right: Option<bool>,
         user_data: Option<PyObject>,
         is_secure: Option<bool>,
-        font_id: Option<usize>,
+        text_font_id: Option<usize>,
+        icon: Option<Icon>,
+        icon_size: Option<f32>,
+        icon_spacing: Option<f32>,
+        icon_left_side: Option<bool>,
         style_id: Option<usize>,
         show: bool,
     ) -> PyResult<usize> 
@@ -139,7 +156,11 @@ pub fn add_text_input(
             align_left,
             align_center,
             align_right,
-            font_id,
+            text_font_id,
+            icon,
+            icon_size,
+            icon_spacing,
+            icon_left_side,
             style_id,
             show,
         }));

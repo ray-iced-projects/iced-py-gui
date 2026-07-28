@@ -13,6 +13,7 @@ use super::callbacks::invoke_callback_with_args;
 use crate::py_api::helpers::{get_len, get_padding};
 
 use iced::Border;
+use iced::Length;
 use iced::Shadow;
 use iced::Vector;
 use iced::overlay::menu;
@@ -92,8 +93,14 @@ impl ComboBox {
             CBMessage::OnSelect,
         );
 
+        let width_chk = get_len(None, self.width_fill, self.width);
+
+        let width = if width_chk == Length::Shrink {
+            Length::Fill
+        } else { width_chk };
+
         let cb = cb
-            .width(get_len(None, self.width_fill, self.width))
+            .width(width)
             .menu_height(get_len(None, self.menu_height_fill, self.menu_height))
             .padding(get_padding(&self.padding))
             .ellipsis(self.text_ellipsis)

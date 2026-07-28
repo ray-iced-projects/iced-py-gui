@@ -35,7 +35,7 @@ def on_clipboard(cb_id: int, txt: str):
 
 with Window(title="Clipboard Demo", center=True):
     with Container(width_fill=True, height_fill=True, align_center=True):
-        with Column(spacing=12.0, padding=[20.0], max_width=520.0):
+        with Column(spacing=12.0, padding=[20.0], width=520.0):
             add_text(content="Clipboard API Demo")
             add_space(height=6.0)
 

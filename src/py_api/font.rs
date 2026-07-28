@@ -95,9 +95,10 @@ pub fn add_font_style(
 }
 
 
-/// Add an icon descriptor for use as a pick_list handle icon.
-///
-/// Supply **one** of the icon source options:
+/// Add an icon to a widget that has that option.
+/// The arrow is just a subest of the bootstrap icons
+/// as a helper to shorten the large selection list.
+/// Supply only one of the icon source options:
 ///
 /// * ``arrow`` — a bootstrap ``Arrow`` enum variant (e.g. ``Arrow.ArrowDown``)
 /// * ``icon``  — a bootstrap ``Icon`` enum variant (e.g. ``Icon.Folder``)

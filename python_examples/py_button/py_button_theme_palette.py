@@ -38,7 +38,7 @@ state = {"wnd_id": 0}
 font_id = add_font_style(family_name="Roboto", weight=FontWeight.Bold)
 
 cwd = os.getcwd()
-FILE_PATH = f"{cwd}/python_examples/py_button/py_button_text2.txt"
+FILE_PATH = os.path.join(cwd, "python_examples", "py_button", "py_button_text2.txt")
 state = {"file": ""}
 
 try:

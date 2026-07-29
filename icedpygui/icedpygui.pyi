@@ -494,7 +494,6 @@ class FontStyle:
 
 class FontWeight:
     """Adds a font weighting
-
     """
     Black=''
     Bold=''

@@ -3,14 +3,15 @@ When creating a palette for the button, you can only use Background, Text, and B
 to other widgets with overlap.  You don't need to use all 3 parts but it's advisable to use all statuses for each part.
 Border will only show when the border width > 0.
 
-To define a palette use the following steps. First create a new color and then obtain the custom palette.  The pal_id would be added to the button parameter palette_id.  You can get a new_color value through the ColorPicker widget.
+To define a palette use the following steps. 
+1.  Create a new color ex. new_color = [0.32, 0.2, 0.13, 1.0]
+2.  Create the pallettes (defined further below)
+3.  Create a pallette id, i.e. pal_id = custom_palette(rgba=new_color, statuses=pal)
+4.  Add the palette id created to the button, i.e. add_button(label="Button", palette_id=pal_id)
 
-new_color = [0.32, 0.2, 0.13, 1.0]
-pal_id = custom_palette(rgba=new_color, statuses=pal) # pal defined below
+Note: You can get the new_color value by using ColorPicker widget.
 
-add_button(label="Button", palette_id=pal_id)
-
-Create the statuses using the format below (***scroll to see***).  This format is used for all widgets for the custom palette.  The entries will be different based on what statuses a widget will use, StylePart, and PaletteKey.
+Create the statuses using the format below (***scroll to see***).  This format is used for all widgets for the custom palette.  The entries will be different based on what statuses a widget will use, StylePart and PaletteKey.
 
 The new palette does not change color values for each theme like the standard style colors do.  You will have to create a custom palette for each theme color by just using a new color for each theme.  This is essentially how the standard colors are done in Iced.  A set of colors are defined for each theme.  You could create a theme py file and easily define your new colors to for all of the themes.
 

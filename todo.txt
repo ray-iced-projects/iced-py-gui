@@ -1,0 +1,36 @@
+
+
+[ ] FEATURE: Global Text Parameters (set_text_parameters)
+    - Use Mutex pattern like other widgets
+    - struct TextParameters { size: f32, font_id: Option<String>, ... }
+    - Read from Mutex when add_text() is called
+    - Handle override precedence (explicit params override global)
+    - Consider nested contexts and reset behavior
+    - Need to determine sensible defaults
+    - Note: Check Mutex at invocation time, not during earlier setup
+
+The core difference:
+
+Other widgets: Set once, static for the lifetime of the app
+Text parameters: Dynamic, changeable at any point during construction, and need to be read when add_text() is called
+Edge cases to consider:
+
+1. Override precedence - Explicit params should override globals:
+set_text_parameters(size=16)
+add_text("Uses 16")
+add_text("Override", size=20)  # Should use 20, not 16
+
+2. Nested contexts - What if parameters change mid-construction?
+set_text_parameters(size=16)
+add_text("Uses 16")
+set_text_parameters(size=12)
+add_text("Uses 12")
+
+3. Per-container defaults - Should different containers/windows have different defaults? Or global only?
+
+4. Reset behavior - After changing, should there be a way to revert to defaults?
+
+5. Initialization - What are the sensible defaults if set_text_parameters() is never called?
+
+Your approach of checking the Mutex at the moment add_text() is invoked (not earlier) is the right way—that way it always gets the current global state. You're right that this needs careful thinking, but it's definitely doable. The Mutex pattern should handle the thread-safety aspect cleanly.
+

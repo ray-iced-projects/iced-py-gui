@@ -27,8 +27,6 @@ from icedpygui import (
     add_text_editor_style,
 )
 
-
-
 def make_tiles(status: tuple[WidgetStatus, list[list[StylePart, PaletteKey, float]]],
                col_pal: dict):
     """Make the tiles"""
@@ -90,7 +88,7 @@ font_id = add_font_style(family_name="Roboto", weight=FontWeight.Bold)
 btn_style_id = add_button_style(border_width=3)
 
 cwd = os.getcwd()
-FILE_PATH = f"{cwd}/python_examples/py_button/py_button_text.txt"
+FILE_PATH = os.path.join(cwd, "python_examples", "py_button", "py_button_text.txt")
 state = {"file": ""}
 
 try:
@@ -100,7 +98,7 @@ except FileNotFoundError:
     print(f"*********The file does not exist using {FILE_PATH}.*******")
 
 # ---------------------------------------------------------------------------
-# GUI — Initial display with a TokyoNight background (Selected by PickList)
+# GUI — Initial display with a TokyoNight background
 # ---------------------------------------------------------------------------
 with Window(title="Button Custom Palette",
             size=(1100, 850), center=True, theme=WindowTheme.TokyoNight) as wnd_id:

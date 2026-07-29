@@ -122,7 +122,7 @@ font_id = add_font_style(family_name="Roboto", weight=FontWeight.Bold)
 
 
 cwd = os.getcwd()
-FILE_PATH = f"{cwd}/python_examples/py_checkbox/py_checkbox_text.txt"
+FILE_PATH = os.path.join(cwd, "python_examples", "py_checkbox", "py_checkbox_text.txt")
 state = {"file": ""}
 
 try:

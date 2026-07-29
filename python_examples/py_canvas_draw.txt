@@ -1,0 +1,328 @@
+import os
+import icedpygui as ipg
+from icedpygui import (
+    Window,
+    WindowTheme,
+    add_button_style,
+    add_container,
+    add_container_style,
+    Column,
+    Scrollable,
+    Row,
+    update_widget,
+    ButtonStyleParam,
+    Color,
+    IpgCanvasWidget,
+    IpgCanvasParam,
+    TextInputParam,
+    start_session,
+)
+
+
+cwd = os.getcwd()
+FILE_PATH = os.path.join(cwd, "python_examples", "resources", "canvas.json")
+
+
+def canvas_clear(_btn_id: int):
+    update_widget(
+            wid=canvas_id,
+            param=IpgCanvasParam.Clear,
+            value=True)
+
+
+# The radio buttons return a list where the int is the index and
+# the string is the label of the radio button.  You can use either
+# one for the match.
+def widget_select(radio_id: int, selected: list[int, str]):
+    widget = IpgCanvasWidget.Line
+    match selected[0]:
+        case 0:
+            widget = IpgCanvasWidget.Arc
+        case 1:
+            widget = IpgCanvasWidget.Bezier
+        case 2:
+            widget = IpgCanvasWidget.Circle
+        case 3:
+            widget = IpgCanvasWidget.Ellipse
+        case 4:
+            widget = IpgCanvasWidget.Line
+        case 5:
+            widget = IpgCanvasWidget.Polygon
+        case 6:
+            widget = IpgCanvasWidget.PolyLine
+        case 7:
+            widget = IpgCanvasWidget.RightTriangle
+        case 8:
+            widget = IpgCanvasWidget.FreeHand
+        case 9:
+            widget = IpgCanvasWidget.Text
+
+    update_widget(canvas_id, IpgCanvasParam.Widget, widget)
+
+
+# The IpgDrawModes are set and cannot be cahnged but you
+# could use any other names for the quoated strings.
+def mode_select(input_id: int, selected: str):
+    match selected:
+        case "Display":
+            mode = IpgDrawMode.Display
+        case "New":
+            mode = IpgDrawMode.New
+        case "Edit":
+            mode = IpgDrawMode.Edit
+        case "Rotate":
+            mode = IpgDrawMode.Rotate
+
+    update_widget(
+            wid=canvas_id,
+            param=IpgCanvasParam.Mode,
+            value=mode)
+
+
+def poly_points(input_id: int, number: int):
+    update_widget(
+            wid=canvas_id,
+            param=IpgCanvasParam.PolyPoints,
+            value=number)
+
+    update_widget(
+            wid=input_id,
+            param=TextInputParam.Value,
+            value=str(number))
+
+
+# by just pressing enter while in the input text for filename
+# will result in the filling in of the filename below.
+# One could also use a python input method to type in a new one.
+# Both the input widget and the canvas widget need to be updated.
+def set_file_path(input_id: int, name: str):
+    new_file_path = name
+    if name == "":
+        new_file_path = FILE_PATH
+    update_widget(
+            wid=canvas_id,
+            param=IpgCanvasParam.FilePath,
+            value=new_file_path)
+
+    update_widget(
+            wid=input_id,
+            param=TextInputParam.Value,
+            value=new_file_path)
+
+
+def load_file(_btn_id):
+    if new_file_path == "":
+        new_file_path = FILE_PATH
+        update_widget(
+                wid=canvas_id,
+                param=IpgCanvasParam.FilePath,
+                value=new_file_path)
+
+    update_widget(
+            wid=canvas_id,
+            param=IpgCanvasParam.Load,
+            value=None)
+
+
+def save_file(_btn_id: int):
+    update_widget(
+            wid=canvas_id,
+            param=IpgCanvasParam.Save,
+            value=None)
+
+
+# Since the color picker widget doesn't know the existence
+# of the canvas, the draw color will need to be updated.
+def submit_draw_color_picker(_cp_id: int, color: list):
+    update_widget(
+            wid=canvas_id,
+            param=IpgCanvasParam.DrawColor,
+            value=color)
+    # update the button to reflex the new color
+    # update the color picker button color
+    update_widget(
+        cp_id_draw_color,
+        ButtonStyleParam.BackgroundRbga,
+        color)
+
+
+def submit_fill_color_picker(_cp_id: int, color: list):
+    update_widget(
+            wid=canvas_id,
+            param=IpgCanvasParam.FillColor,
+            value=color)
+    # update the color picker button color
+    update_widget(
+        cp_id_fill_color,
+        ButtonStyleParam.BackgroundRbga,
+        color)
+
+
+def submit_canvas_color_picker(_cp_id: int, color: list):
+    # update the canvas color
+    update_widget(
+            wid=canvas_id,
+            param=IpgCanvasParam.CanvasColor,
+            value=color)
+    # update the color picker button color
+    update_widget(
+        cp_id_bkg_color,
+        ButtonStyleParam.BackgroundRbga,
+        color)
+
+
+def set_draw_width(_input_id: int, width: str):
+    width_float = float(width)
+    update_widget(
+            wid=canvas_id,
+            param=IpgCanvasParam.DrawWidth,
+            value=width_float)
+
+
+# The Alignmnet names are set but you could use anything
+# you want for the quoted names as long as the list matches too.
+def set_horizontal_text_alignment(_pick_id: int, selected: str):
+    match selected:
+        case "H_Left":
+            align = AlignX.Left
+        case "H_Center":
+            align = AlignX.Center
+        case "H_Right":
+            align = AlignX.Right
+
+    update_widget(
+            wid=canvas_id,
+            param=IpgCanvasParam.TextAlignment,
+            value=align)
+
+
+def set_vertical_text_alignment(_pick_id: int, selected: str):
+    match selected:
+        case "V_Top":
+            align = AlignY.Top
+        case "V_Center":
+            align = AlignY.Center
+        case "V_Bottom":
+            align = AlignY.Bottom
+
+    update_widget(
+            wid=canvas_id,
+            param=IpgCanvasParam.TextAlignment,
+            value=align)
+
+cp_id_bkg_color = add_button_style(background_color=Color.PRIMARY)
+cp_id_draw_color = add_button_style(background_color=Color.PRIMARY)
+cp_id_fill_color = add_button_style(background_color=Color.TRANSPARENT)
+
+with Window(
+    title="Canvas",
+    size=(1000.0, 800.0),
+    pos_centered=True):
+
+    with Row(
+        width_fill=True,
+        height_fill=True):
+
+        with Column(
+            window_id="main",
+            id="col",
+            width=200, height_fill=True,
+            padding=[10.0]):
+
+            canvas_id = ipg.add_canvas(
+                        window_id="main",
+                        canvas_id="canvas",
+                        width_fill=True,
+                        height_fill=True)
+
+            ipg.add_space(
+                    height=10.0)
+
+            ipg.add_button(
+                    label="Clear",
+                    on_press=canvas_clear)
+
+            widget_labels = ["Arc", "Bezier", "Circle", "Ellipse", "Line", "Polygon",
+                            "PolyLine", "RightTriangle", "FreeHand", "Text"]
+
+            ipg.add_radio(
+                    labels=widget_labels,
+                    on_select=widget_select)
+
+            mode_labels = ["Display", "New", "Edit", "Rotate"]
+
+            ipg.add_pick_list(
+                    options=mode_labels,
+                    placeholder="Select Mode",
+                    on_select=mode_select)
+
+            # By using the input and the submit, one can
+            # set the value without using the enter key.
+            # When the mouse is clicked outside the input
+            # the input text will be submitted.
+            # if you were having the called function needing
+            # only the whole value, then you would
+            # only use the submit callback function.
+            ipg.add_text_input(
+                    placeholder="File Name",
+                    width=150.0,
+                    on_input=set_file_path,
+                    on_submit=set_file_path)
+
+            ipg.add_row(
+                    id="file_row",
+                    window_id="main")
+
+            ipg.add_button(
+                    parent_id="file_row",
+                    label="Load",
+                    on_press=load_file)
+
+            ipg.add_button(
+                    parent_id="file_row",
+                    label="Save",
+                    on_press=save_file)
+
+            ipg.add_color_picker(
+                    label="Set Draw Color",
+                    on_submit=submit_draw_color_picker,
+                    style_id=cp_id_draw_color)
+
+            ipg.add_color_picker(
+                    label="Fill Color",
+                    on_submit=submit_fill_color_picker,
+                    style_id=cp_id_fill_color)
+
+            cp_canvas_color_id = ipg.add_color_picker(
+
+                                    label="Set Canvas Color",
+                                    style_id=cp_id_bkg_color,
+                                    on_submit=submit_canvas_color_picker)
+
+            ipg.add_text_input(
+                    placeholder="PolyPoints(3)",
+                    width=150.0,
+                    on_input=poly_points,
+                    on_submit=poly_points)
+
+            ipg.add_text_input(
+                    placeholder="Draw Width(2.0)",
+                    width=150.0,
+                    on_input=set_draw_width,
+                    on_submit=set_draw_width)
+
+            ipg.add_text(
+                    content="Text Alignment")
+
+            ipg.add_pick_list(
+                    options=["H_Left", "H_Center", "H_Right"],
+                    placeholder="H_Center",
+                    on_select=set_horizontal_text_alignment)
+
+            ipg.add_pick_list(
+                    options=["V_Top", "V_Center", "V_Bottom"],
+                    placeholder="V_Center",
+                    on_select=set_vertical_text_alignment)
+
+
+start_session()

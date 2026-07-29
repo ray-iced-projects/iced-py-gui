@@ -25,7 +25,7 @@ from icedpygui import (
 )
 
 cwd = os.getcwd()
-FILE_PATH = f"{cwd}/python_examples/resources/canvas.json"
+FILE_PATH = os.path.join(cwd, "python_examples", "resources", "canvas.json")
 
 state = {"id": 0}
 

@@ -4,12 +4,12 @@ to other widgets with overlap.  You don't need to use all 3 parts but it's advis
 Border will only show when the border width > 0.
 
 To define a palette use the following steps. 
-1.  Create a new color ex. new_color = [0.32, 0.2, 0.13, 1.0]
+1.  Create a new color list i.e. new_color = [0.32, 0.2, 0.13, 1.0]
 2.  Create the pallettes (defined further below)
 3.  Create a pallette id, i.e. pal_id = custom_palette(rgba=new_color, statuses=pal)
-4.  Add the palette id created to the button, i.e. add_button(label="Button", palette_id=pal_id)
+4.  Add the palette id created to the widget, i.e. add_button(label="Button", palette_id=pal_id)
 
-Note: You can get the new_color value by using ColorPicker widget.
+Note: You can get the new_color value by using the ColorPicker widget.
 
 Create the statuses using the format below (***scroll to see***).  This format is used for all widgets for the custom palette.  The entries will be different based on what statuses a widget will use, StylePart and PaletteKey.
 

@@ -116,6 +116,7 @@ pub fn container_param_update(
         Containers::MenuSubItem(w) => apply_update(w, item, value),
         Containers::MouseArea(w) => apply_update(w, item, value),
         Containers::Opaque(_) => panic!("Opaque does not support param_update"),
+        Containers::PopUp(w) => apply_update(w, item, value),
         Containers::RichText(w) => apply_update(w, item, value),
         Containers::Row(w) => apply_update(w, item, value),
         Containers::Sash(w) => apply_update(w, item, value),

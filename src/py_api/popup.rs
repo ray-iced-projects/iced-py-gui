@@ -1,18 +1,19 @@
 //! Column module - provides add_column pyfunction
-use pyo3::prelude::*;
-use pyo3::pyfunction;
+use pyo3::{Py, PyAny, pyfunction, PyResult};
+type PyObject = Py<PyAny>;
 
-use crate::access_state;
+use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex};
 use crate::state::{Containers, get_id, set_state_cont_wnd_ids, 
     set_state_of_container};
-    
+
 use crate::widgets::ipg_popup::PopUp;
 
 
 
-/// Add a column widget.
+/// Adds a popup widget.
 ///
-/// A column lays out its children vertically from top to bottom.
+/// A popup is a container which is shown by a callback from a widget
+/// or by setting the opened value to True by some other means.
 ///
 /// Parameters
 /// ----------
@@ -22,53 +23,39 @@ use crate::widgets::ipg_popup::PopUp;
 ///     Sets the Unique string identifier for the column.
 /// parent_id : str,  Optional
 ///     Sets the parent container ID.  Defaults to the window itself.
-/// width : float,  Optional
-///     Sets the Fixed width in logical pixels.
-/// width_fill : bool, default False
-///     Whether the column fills available width.
-/// height : float,  Optional
-///     Sets the Fixed height in logical pixels.
-/// height_fill : bool, default False
-///     Whether the column fills available height.
-/// fill : bool, Optional
-///     Whether to fill both the available width and height
+/// opened : bool, default False
+///     Whether the popup is visible.
+/// position_bottom, position_center(default), position_left, position_right: bool, Optional
+///     Sets the possition of the popup.
+/// gap : float, defalut 0.0
+/// Sets the gap between the widhet that opens the the popup or the origin of the hidden popup widget.
 /// padding : list of float,  Optional
 ///     Sets the Padding as ``[all]``, ``[vertical, horizontal]``, or
 ///     ``[top, right, bottom, left]``.
-/// spacing : float,  Optional
-///     Sets the Vertical spacing between children in logical pixels.
-/// align_left : bool,  Optional
-///     Whether to Align children to the left.
-/// align_center : bool,  Optional
-///     Whether to Align children to the horizontal centre.
-/// align_right : bool,  Optional
-///     Whether to Align children to the right.
-/// clip : bool,  Optional
-///     Whether to clip content that overflows the column.
-/// wrap : bool, optional
-///     When True, children that overflow the column's height wrap onto the next column.
-///     Replaces the normal vertical layout with a wrapping layout.
-/// wrap_horizontal_spacing : float, optional
-///     Horizontal spacing between wrapped columns in logical pixels.  Only used when ``wrap=True``.
-/// wrap_align_top : bool, optional
-///     Align children to the top within each wrapped column.  Only used when ``wrap=True``.
-/// wrap_align_center : bool, optional
-///     Align children to the vertical centre within each wrapped column.  Only used when ``wrap=True``.
-/// wrap_align_bottom : bool, optional
-///     Align children to the bottom within each wrapped column.  Only used when ``wrap=True``.
-/// show : bool, default True
-///     Whether the column is visible.
-///
+/// snap_within_viewport: bool, default True
+///     Whether to keep the popup within the widnow
+/// focus_trap: bool, Optional
+///     When `true`, Tab and Shift+Tab are captured while the popup is open,
+///     keeping keyboard focus within the popup content.
+/// on_open: callbale, Optional
+///     The callback function when the popup opens
+/// on_close: callable, Optional
+///     The callback function when the popup is closed
+/// on_click_outside: callbale, Optional
+///     The callback function for when the mouse clicks outside of the popup.
+/// user_data: 
+/// 
 /// Returns
 /// -------
 /// int
 ///     The numeric widget ID of the newly created column.
+/// 
 #[pyfunction]
 #[pyo3(signature = (
         window_id, 
         container_id, 
         parent_id=None,
-        opened=None,
+        opened=false,
         position_bottom=None,
         position_center=None,
         position_left=None,
@@ -78,12 +65,16 @@ use crate::widgets::ipg_popup::PopUp;
         padding=None,
         snap_within_viewport=None,
         focus_trap=None,
+        on_open=None,
+        on_close=None,
+        on_click_outside=None,
+        user_data=None,
         ))]
 pub fn add_popup(
     window_id: String,
     container_id: String,
     parent_id: Option<String>,
-    opened: Option<bool>,
+    opened: bool,
     position_bottom: Option<bool>,
     position_center: Option<bool>,
     position_left: Option<bool>,
@@ -93,9 +84,29 @@ pub fn add_popup(
     padding: Option<f32>,
     snap_within_viewport: Option<bool>,
     focus_trap: Option<bool>,
+    on_open: Option<PyObject>,
+    on_close: Option<PyObject>,
+    on_click_outside: Option<PyObject>,
+    user_data: Option<PyObject>,
     ) -> PyResult<usize> 
 {
     let id = get_id(None);
+
+    if let Some(py) = on_open {
+        add_callback_to_mutex(id, "on_open".to_string(), py);
+    }
+
+    if let Some(py) = on_close {
+        add_callback_to_mutex(id, "on_close".to_string(), py);
+    }
+
+    if let Some(py) = on_click_outside {
+        add_callback_to_mutex(id, "on_click_outside".to_string(), py);
+    }
+
+    if let Some(py) = user_data {
+        add_user_data_to_mutex(id, py);
+    }
     
     let prt_id = match parent_id {
         Some(id) => id,

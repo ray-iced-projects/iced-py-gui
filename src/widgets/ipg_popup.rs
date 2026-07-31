@@ -17,7 +17,7 @@ type PyObject = Py<PyAny>;
 #[derive(Debug, Clone)]
 pub struct PopUp {
     pub id: usize,
-    pub opened: Option<bool>,
+    pub opened: bool,
     pub position_bottom: Option<bool>,
     pub position_center: Option<bool>,
     pub position_left: Option<bool>,
@@ -39,9 +39,8 @@ impl PopUp {
         &'a self,
         content: Vec<Element<'a, Message>>
         ) -> Option<Element<'a, Message>> {
-        dbg!(&self.id, &self.opened, &content.len());
 
-        if content.len() == 1 && (self.opened == Some(false) || self.opened == None) { return None }
+        if content.len() == 1 && !self.opened { return None }
     
         let position = match (self.position_bottom, self.position_center, self.position_left,
                                         self.position_top, self.position_right) {
@@ -57,14 +56,12 @@ impl PopUp {
         
         let pu: Option<Element<'a, Message>> = 
             if let Some(first) = iter.next() {
-                dbg!("first");
                 if let Some(second) = iter.next() {
                     // Two or more elements: first is widget, rest are content
                     let mut remaining = vec![second];
                     remaining.extend(iter);
                     let popup_content: Element<'a, Message> = column(remaining).into();
-                    dbg!("second");
-                    Some(Popup::new(first, popup_content, false)
+                    Some(Popup::new(first, popup_content, self.opened)
                         .position(position)
                         .gap(self.gap.unwrap_or_default())
                         .padding(Pixels(self.padding.unwrap_or_default()))
@@ -74,9 +71,8 @@ impl PopUp {
                         .on_open(|| Message::PopUp(self.id, PopUpMessage::OnOpen))
                         .on_close(|| Message::PopUp(self.id, PopUpMessage::OnClose)).into())
                 } else {
-                    dbg!("Only one element");
                     // One element: use as popup content only
-                    Some(Popup::without_widget(first, self.opened.unwrap_or_default())
+                    Some(Popup::without_widget(first, self.opened)
                         .position(position)
                         .gap(self.gap.unwrap_or_default())
                         .padding(Pixels(self.padding.unwrap_or_default()))
@@ -89,7 +85,7 @@ impl PopUp {
             } else {
                 None
             };
-        dbg!("************************");
+
         pu
 
     }
@@ -145,7 +141,6 @@ impl WidgetParamUpdate for PopUp {
             PopUpParam::FocusTrap => set_t_value(&mut self.focus_trap, value, "PopUpParam::FocusTrap"),
             PopUpParam::Gap => set_t_value(&mut self.gap, value, "PopUpParam::Gap"),
             PopUpParam::Opened => {
-                dbg!(&value);
                 set_t_value(&mut self.opened, value, "PopUpParam::Opened")},
             PopUpParam::Padding => set_t_value(&mut self.padding, value, "PopUpParam::Padding"),
             PopUpParam::PositionBottom => set_t_value(&mut self.position_bottom, value, "PopUpParam::PositionBottom"),

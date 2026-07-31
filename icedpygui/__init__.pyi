@@ -1638,6 +1638,7 @@ class Column:
     def __exit__(self, exc_type: type[BaseException] | None, \
         exc_val: BaseException | None, \
             exc_tb: TracebackType | None) -> bool: ...
+
 class Container:
     """Context manager wrapper around add_container.
 
@@ -1928,6 +1929,50 @@ class Opaque:
     def __exit__(self, exc_type: type[BaseException] | None, \
         exc_val: BaseException | None,\
             exc_tb: TracebackType | None) -> bool: ...
+
+class PopUp:
+    """Context manager wrapper around add_container.
+
+    A container that opens when opened by a callback or
+    by setting the opened = True.
+
+    Usage::
+        def open_popup(_btn_id: int):
+            '''Called to open PopUp'''
+            update_widget(popup_id, PopUpParam.Opened, True)
+
+        with Window(title="Demo"):
+            with Container(align_center=True):
+                with PopUp() as popup_id:
+                    add_button(label="Press Me", on_press=open_popup)
+                    with Container(style_std=ContainerStyleStd.BorderedBox):
+                        add_text(content="I'm a PopUp Container")
+
+        start_session()
+    """
+    def __init__(
+        self,
+        *,
+        opened: bool = False,
+        position_bottom: bool | None = None,
+        position_center: bool | None = True,
+        position_left: bool | None = None,
+        position_top: bool | None = None,
+        position_right: bool | None = None,
+        gap: bool | None = 0.0,
+        padding: bool | None = None,
+        snap_within_viewport: bool | None = None,
+        focus_trap: bool | None = False,
+        on_open: Callable | None = None,
+        on_close: Callable | None = None,
+        on_click_outside: Callable | None = None,
+        user_data: Any | None = None,
+    ) -> None: ...
+    def __enter__(self) -> int: ...
+    def __exit__(self, exc_type: type[BaseException] | None, \
+        exc_val: BaseException | None, \
+            exc_tb: TracebackType | None) -> bool: ...
+
 
 class RichText:
     """Context manager wrapper around add_rich_text.

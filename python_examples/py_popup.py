@@ -22,6 +22,7 @@ from icedpygui import (
 
 def open_popup(_btn_id: int):
     """Open PopUp method"""
+    print(pop_id)
     update_widget(pop_id, PopUpParam.Opened, True)
 
 
@@ -41,6 +42,10 @@ with Window(
         with Column(spacing=20.0, width=200):
             with PopUp() as pop_id:
                 add_button(label="Press Me", on_press=open_popup)
+                with Container(style_std=ContainerStyleStd.BorderedBox):
+                    add_text(content="I'm a PopUp")
+
+            with PopUp(opened=True):
                 with Container(style_std=ContainerStyleStd.BorderedBox):
                     add_text(content="I'm a PopUp")
 

@@ -39,7 +39,7 @@ impl PopUp {
         &'a self,
         content: Vec<Element<'a, Message>>
         ) -> Option<Element<'a, Message>> {
-        dbg!(&self.opened, &content.len());
+        dbg!(&self.id, &self.opened, &content.len());
 
         if content.len() == 1 && (self.opened == Some(false) || self.opened == None) { return None }
     
@@ -89,7 +89,7 @@ impl PopUp {
             } else {
                 None
             };
-
+        dbg!("************************");
         pu
 
     }
@@ -144,7 +144,9 @@ impl WidgetParamUpdate for PopUp {
         match param {
             PopUpParam::FocusTrap => set_t_value(&mut self.focus_trap, value, "PopUpParam::FocusTrap"),
             PopUpParam::Gap => set_t_value(&mut self.gap, value, "PopUpParam::Gap"),
-            PopUpParam::Opened => set_t_value(&mut self.opened, value, "PopUpParam::Opened"),
+            PopUpParam::Opened => {
+                dbg!(&value);
+                set_t_value(&mut self.opened, value, "PopUpParam::Opened")},
             PopUpParam::Padding => set_t_value(&mut self.padding, value, "PopUpParam::Padding"),
             PopUpParam::PositionBottom => set_t_value(&mut self.position_bottom, value, "PopUpParam::PositionBottom"),
             PopUpParam::PositionCenter => set_t_value(&mut self.position_center, value, "PopUpParam::PositionCenter"),

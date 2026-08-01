@@ -46,7 +46,7 @@ def path_submit_check(_it_id: int, path: str):
         update_widget(path_text_id, TextParam.Content, f"Path not found: {check_path}")
 
 
-def define_color_via_ti(_ti_id: int, value: str):
+def define_color_via_ti(_ti_id: int, __value: str):
     """Color input in format [#, #, #, #]"""
 
 
@@ -69,13 +69,14 @@ with Window(title="Palette Creator", center=True):
 
             with Row(spacing=5):
                 add_text(content="Step 1: ")
-                add_text_input(placeholder="Enter the path to file",
-                               width=300,
-                               on_submit=path_submit_check)
-                with PopUp():
-                    with Container(style_std=ContainerStyleStd.BorderedBox):
-                        path_text_id = add_text(content="The path you enter is not found.")
-                with PopUp():
+                # add_text_input(placeholder="Enter the path to file",
+                #                width=300,
+                #                on_submit=path_submit_check)
+                # with PopUp():
+                #     with Container(style_std=ContainerStyleStd.BorderedBox):
+                #         path_text_id = add_text(content="The path you enter is not found.")
+                
+                with PopUp() as popup_scan_id:
                     with Container(style_std=ContainerStyleStd.BorderedBox):
                         with Column() as scan_path_col_id:
                             add_text(content="")

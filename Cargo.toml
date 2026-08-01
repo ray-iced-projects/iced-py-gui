@@ -30,6 +30,12 @@ default = ["pyo3/extension-module"]
 [build-dependencies]
 pyo3-build-config = { version = "0.26", features = ["resolve-config"] }
 
+[profile.dev]
+opt-level = 0
+debug = false
+lto = false
+codegen-units = 256
+
 [profile.release]
 strip = true
 lto = "fat"

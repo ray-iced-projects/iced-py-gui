@@ -3,16 +3,21 @@
 Method the create the palette for a widgets.
 """
 
+import os
 from icedpygui import (
     Window,
     ColorPicker,
     Column,
     Container,
+    ContainerStyleStd,
+    PopUp,
     Row,
     start_session,
     add_button,
     add_text,
+    TextParam,
     add_text_input,
+    update_widget,
     )
 
 
@@ -20,6 +25,26 @@ state = {
     "path": "",
     "color": [],
     }
+
+def path_submit_check(_it_id: int, path: str):
+    """Path Check - handles both relative and absolute paths"""
+    if not path:
+        update_widget(path_text_id, TextParam.Content, "Please enter a path.")
+        return
+
+    # Check if relative path and convert to absolute if needed
+    if os.path.isabs(path):
+        check_path = path
+    else:
+        # Convert relative path to absolute (relative to current working directory)
+        check_path = os.path.abspath(path)
+
+    if os.path.exists(check_path):
+        update_widget(path_text_id, TextParam.Content, f"Path is valid: {check_path}")
+        state["path"] = check_path
+    else:
+        update_widget(path_text_id, TextParam.Content, f"Path not found: {check_path}")
+
 
 def define_color_via_ti(_ti_id: int, value: str):
     """Color input in format [#, #, #, #]"""
@@ -44,7 +69,16 @@ with Window(title="Palette Creator", center=True):
 
             with Row(spacing=5):
                 add_text(content="Step 1: ")
-                add_text_input(placeholder="Enter the path to file", width=300)
+                add_text_input(placeholder="Enter the path to file",
+                               width=300,
+                               on_submit=path_submit_check)
+                with PopUp():
+                    with Container(style_std=ContainerStyleStd.BorderedBox):
+                        path_text_id = add_text(content="The path you enter is not found.")
+                with PopUp():
+                    with Container(style_std=ContainerStyleStd.BorderedBox):
+                        with Column() as scan_path_col_id:
+                            add_text(content="")
 
             with Row(spacing=5):
                 add_text(content="Step 2: Submit color using ColorPicker or input with TextInput ")

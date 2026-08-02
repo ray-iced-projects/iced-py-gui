@@ -217,8 +217,12 @@ impl App {
                 }
             },
             Message::FileSystemWindow(id, message) => {
-                fsw_callback(id, message);
-                Task::none()
+                let task = fsw_callback(&mut self.state, id, message);
+                process_widget_updates(&mut self.state);
+                match task {
+                    Some(t) => t,
+                    None => Task::none()
+                }
             },
             Message::WindowOpened(_, _, _) => {
                 Task::none()
@@ -800,12 +804,6 @@ fn get_container<'a>(state: &'a IpgState,
                     }
                     dp.construct(content)
                 },
-                Containers::FileSystemWindow(fsw) => {
-                    if content.len() > 1 {
-                        eprintln!("[WARNING] A FileSystemWindow can have only 1 trigger widget, others ignored")
-                    }
-                    fsw.construct()
-                }
                 Containers::Float(float) => {
                     if content.len() > 1 {
                         eprintln!("[WARNING] A float can have only one widget, place your multiple widgets into a column or row, others ignored")

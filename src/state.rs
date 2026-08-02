@@ -23,6 +23,7 @@ use crate::widgets::ipg_date_picker::DatePicker;
 use crate::widgets::ipg_draw::Draw;
 use crate::ipg_widgets::ipg_canvas_draw::canvas_draw::{
     DrawState, CanvasWidget, Circle, DrawMode, DrawStatus};
+use crate::widgets::ipg_file_system::FileSystemWindow;
 use crate::widgets::ipg_menu::{Menu, MenuBarItem, MenuSubItem, MenuStyle};
 use crate::widgets::ipg_popup::PopUp;
 use iced::widget::Id;
@@ -74,6 +75,7 @@ pub enum Containers {
     Column(Column),
     Container(Container),
     DatePicker(DatePicker),
+    FileSystemWindow(FileSystemWindow),
     Float(Float),
     Grid(Grid),
     Menu(Menu),
@@ -246,6 +248,7 @@ ipg_container_accessors! {
     CardClass    => CardClass,    as_card_class,      as_card_class_mut;
     Column       => Column,       as_column,          as_column_mut;
     Container    => Container,    as_container,       as_container_mut;
+    FileSystemWindow => FileSystemWindow, as_file_system_window, as_file_system_window_mut;
     Float        => Float,        as_float,           as_float_mut;
     Grid         => Grid,         as_grid,            as_grid_mut;
     Menu         => Menu,         as_menu,            as_menu_mut;

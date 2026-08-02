@@ -110,6 +110,7 @@ pub fn container_param_update(
         Containers::CardClass(w) => apply_update(w, item, value),
         Containers::Column(w) => apply_update(w, item, value),
         Containers::Container(w) => apply_update(w, item, value),
+        Containers::FileSystemWindow(w) => apply_update(w, item, value),
         Containers::Float(w)=> apply_update(w, item, value),
         Containers::Grid(w)=> apply_update(w, item, value),
         Containers::MenuBarItem(w) => apply_update(w, item, value),

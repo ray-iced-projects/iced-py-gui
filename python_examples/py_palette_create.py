@@ -61,7 +61,6 @@ def define_color_via_cp(_cp_id: int, color: list):
 
 def on_folder_click(_btn_id: int):
     """Placeholder for folder navigation"""
-    pass
 
 
 def on_file_click(_file_btn_id: int, file_path: str):
@@ -94,7 +93,7 @@ def build_tree_view():
         try:
             items = sorted(current_path.iterdir(), key=lambda x: (not x.is_dir(), x.name))
         except PermissionError:
-            lines.append(f"  ❌ Cannot access this directory\n")
+            lines.append("  ❌ Cannot access this directory\n")
             update_widget(path_text_id, TextParam.Content, "".join(lines))
             return
 

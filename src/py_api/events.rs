@@ -1,7 +1,7 @@
 //! Events module - provides add_event_window, add_event_keyboard, add_event_mouse pyfunction
 
-use pyo3::prelude::*;
-use pyo3::{pyfunction, Py, PyAny};
+
+use pyo3::{pyfunction, Py, PyAny, PyResult};
 type PyObject = Py<PyAny>;
 use crate::{access_state, add_user_data_to_mutex};
 use crate::state::{access_events, get_id};

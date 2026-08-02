@@ -22,6 +22,7 @@ use crate::widgets::ipg_color_picker::{ColorPikMessage, color_picker_callback};
 use crate::widgets::ipg_checkbox::{ChkMessage, checkbox_callback};
 use crate::widgets::ipg_combo_box::{CBMessage, combo_box_callback};
 use crate::widgets::ipg_date_picker::{DatePikMessage, date_picker_callback};
+use crate::widgets::ipg_file_system::{FileSystemMessage, fsw_callback};
 use crate::widgets::ipg_sash::{sash_callback, SashMessage};
 use crate::widgets::ipg_draw::{draw_callback, process_draw_updates};
 use crate::widgets::ipg_events::{process_keyboard_events, process_mouse_events, process_touch_events, process_window_event};
@@ -55,6 +56,7 @@ pub enum Message {
     EventMouse(Event),
     EventWindow((window::Id, Event)),
     EventTouch(Event),
+    FileSystemWindow(usize, FileSystemMessage),
     MouseArea(usize, MaMessage),
     PickList(usize, PLMessage),
     PopUp(usize, PopUpMessage),
@@ -213,6 +215,10 @@ impl App {
                     // check for any other window changes
                     get_tasks(&mut self.state)
                 }
+            },
+            Message::FileSystemWindow(id, message) => {
+                fsw_callback(id, message);
+                Task::none()
             },
             Message::WindowOpened(_, _, _) => {
                 Task::none()
@@ -784,7 +790,7 @@ fn get_container<'a>(state: &'a IpgState,
                 },
                 Containers::Container(cont) => {
                     if content.len() > 1 {
-                        panic!("A container can have only one widget, place your multiple widgets into a column or row")
+                        eprintln!("[WARNING] A container can have only one widget, place your multiple widgets into a column or row, others ignored")
                     }
                     cont.construct(content, &state.widgets)
                 },
@@ -794,9 +800,15 @@ fn get_container<'a>(state: &'a IpgState,
                     }
                     dp.construct(content)
                 },
+                Containers::FileSystemWindow(fsw) => {
+                    if content.len() > 1 {
+                        eprintln!("[WARNING] A FileSystemWindow can have only 1 trigger widget, others ignored")
+                    }
+                    fsw.construct()
+                }
                 Containers::Float(float) => {
                     if content.len() > 1 {
-                        panic!("A float can have only one widget, place your multiple widgets into a column or row")
+                        eprintln!("[WARNING] A float can have only one widget, place your multiple widgets into a column or row, others ignored")
                     }
                     float.construct(content)
                 },
@@ -826,7 +838,7 @@ fn get_container<'a>(state: &'a IpgState,
                 },
                 Containers::PopUp(pu) => {
                     if content.len() > 2 {
-                        panic!("A PopUp can have only 1 or 2 widgets, If 1 widget, the PopUp is hidden until shown by updating the Opened parameter to true, if 2 widgets, then the first one is a widget that allows a callback to update the PopUp like a Button, etc.  The second should be a Container containing all of the other widgets to be displayed.")
+                        eprintln!("[WARNING] A PopUp can have only 1 or 2 widgets, If 1 widget, the PopUp is hidden until shown by updating the Opened parameter to true, if 2 widgets, then the first one is a widget that allows a callback to update the PopUp like a Button, etc.  The second should be a Container containing all of the other widgets to be displayed. All other added widgets ignored.")
                     }
                     pu.construct(content)
                 },
@@ -870,7 +882,7 @@ fn get_container<'a>(state: &'a IpgState,
                 },
                 Containers::ToolTip(tool) => {
                     if content.len() > 2 {
-                        eprintln!("[WARNING] A tooltip can have only 2 containers/widgets, place your multiple widgets into a column or row")
+                        eprintln!("[WARNING] A tooltip can have only 2 containersor widgets, place your multiple widgets into a column or row, otehr are ignored.")
                     }
                     tool.construct(content, &state.widgets)
                 },

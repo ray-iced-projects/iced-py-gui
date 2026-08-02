@@ -2,11 +2,12 @@
 use pyo3::{Py, PyAny, pyfunction, PyResult};
 type PyObject = Py<PyAny>;
 
+use crate::widgets::ipg_file_system::FileSystemWindow;
 use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex};
 use crate::state::{Containers, get_id, set_state_cont_wnd_ids, 
     set_state_of_container};
 
-use crate::widgets::ipg_popup::PopUp;
+use crate::ipg_widgets::ipg_file_path;
 
 
 
@@ -56,34 +57,20 @@ use crate::widgets::ipg_popup::PopUp;
         container_id, 
         parent_id=None,
         opened=false,
-        position_bottom=None,
-        position_center=None,
-        position_left=None,
-        position_top=None,
-        position_right=None,
-        gap=None,
-        padding=None,
-        snap_within_viewport=None,
-        focus_trap=None,
+        select_file=None,
+        select_folder=None,
         on_open=None,
         on_close=None,
         on_click_outside=None,
         user_data=None,
         ))]
-pub fn add_popup(
+pub fn add_file_system_window(
     window_id: String,
     container_id: String,
     parent_id: Option<String>,
     opened: bool,
-    position_bottom: Option<bool>,
-    position_center: Option<bool>,
-    position_left: Option<bool>,
-    position_top: Option<bool>,
-    position_right: Option<bool>,
-    gap: Option<f32>,
-    padding: Option<f32>,
-    snap_within_viewport: Option<bool>,
-    focus_trap: Option<bool>,
+    select_file: Option<bool>,
+    select_folder: Option<bool>,
     on_open: Option<PyObject>,
     on_close: Option<PyObject>,
     on_click_outside: Option<PyObject>,
@@ -120,19 +107,12 @@ pub fn add_popup(
     set_state_cont_wnd_ids(&mut state, &window_id, container_id, id, "add_popup".to_string());
 
     state.containers
-        .insert(id, Containers::PopUp(
-            PopUp {
+        .insert(id, Containers::FileSystemWindow(
+            FileSystemWindow {
                 id,  
                 opened,
-                position_bottom,
-                position_center,
-                position_left,
-                position_top,
-                position_right,
-                gap,
-                padding,
-                snap_within_viewport,
-                focus_trap,
+                select_file,
+                select_folder,
             }));
 
 drop(state);

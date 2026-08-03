@@ -33,11 +33,50 @@ impl FileSystemDialog {
     pub fn construct<'a>(
         &'a self,
         ) -> Option<Element<'a, Message>> {
+        // Determine which operations are enabled based on flags
+        let can_select_file = self.select_file.unwrap_or(false);
+        let can_select_folder = self.select_folder.unwrap_or(false);
         
-            
-            
-            None
+        // Only show this widget if at least one operation is enabled
+        if !can_select_file && !can_select_folder {
+            return None;
         }
+        
+        // Return Some UI element (to be implemented with actual button/container)
+        // This placeholder will trigger OpenFile when the user interacts with it
+        Some(Element::from(iced::widget::text("File Dialog")))
+    }
+
+    /// Determines which type of dialog to open based on the current flag configuration
+    pub fn get_dialog_type(&self) -> Option<DialogType> {
+        let select_file = self.select_file.unwrap_or(false);
+        let select_folder = self.select_folder.unwrap_or(false);
+        let load_content = self.load_content.unwrap_or(false);
+        
+        // Both file and folder selected - invalid
+        if select_file && select_folder {
+            return None;
+        }
+        
+        // Neither selected - invalid
+        if !select_file && !select_folder {
+            return None;
+        }
+        
+        // File selected (content loading depends on load_content flag)
+        if select_file {
+            return Some(DialogType::File { load_content });
+        }
+        
+        // Folder selected
+        Some(DialogType::Folder)
+    }
+}
+
+#[derive(Debug, Clone, Copy)]
+pub enum DialogType {
+    File { load_content: bool },
+    Folder,
 }
 
 #[derive(Debug, Clone)]
@@ -65,20 +104,22 @@ pub fn fsw_callback(state: &mut IpgState, id: usize, message: FileSystemMessage)
             if let Some(Widgets::FileSystemWindow(fsw)) = state.widgets.get_mut(&id) {
                 fsw.is_loading = true;
                 
-                let select_file = fsw.select_file.unwrap_or(false);
-                let select_folder = fsw.select_folder.unwrap_or(false);
+                // Determine dialog type based on current flag configuration
+                let dialog_type = fsw.get_dialog_type();
                 
-                // Spawn the async file dialog task
+                // Spawn the async file dialog task based on dialog type
                 return Some(Task::perform(
                     async move {
                         let dialog = AsyncFileDialog::new();
                         
-                        if select_file && !select_folder {
-                            dialog.pick_file().await.map(|h| h.path().to_path_buf())
-                        } else if select_folder && !select_file {
-                            dialog.pick_folder().await.map(|h| h.path().to_path_buf())
-                        } else {
-                            None
+                        match dialog_type {
+                            Some(DialogType::File { load_content: _ }) => {
+                                dialog.pick_file().await.map(|h| h.path().to_path_buf())
+                            },
+                            Some(DialogType::Folder) => {
+                                dialog.pick_folder().await.map(|h| h.path().to_path_buf())
+                            },
+                            None => None,
                         }
                     },
                     move |path| Message::FileSystemWindow(id, FileSystemMessage::FileOpened(path)),
@@ -104,8 +145,11 @@ pub fn fsw_callback(state: &mut IpgState, id: usize, message: FileSystemMessage)
                         fsw.file_name = Some(file_name.to_string_lossy().to_string());
                     }
                     
-                    // Read file content if file was selected
-                    if fsw.select_file.unwrap_or(false) && path.is_file() {
+                    // Read file content if both select_file and load_content are true
+                    let select_file = fsw.select_file.unwrap_or(false);
+                    let load_content = fsw.load_content.unwrap_or(false);
+                    
+                    if select_file && load_content && path.is_file() {
                         match std::fs::read_to_string(&path) {
                             Ok(content) => {
                                 fsw.file_content = Some(content);
@@ -142,6 +186,7 @@ pub enum FileSystemWindowParams {
     Opened,
     SelectFile,
     SelectFolder,
+    LoadContent,
 }
 
 
@@ -157,6 +202,7 @@ impl WidgetParamUpdate for FileSystemDialog {
             FileSystemWindowParams::Opened => set_t_value(&mut self.opened, value, "FileSystemWindowParams::Opened"),
             FileSystemWindowParams::SelectFile => set_t_value(&mut self.select_file, value, "FileSystemWindowParams::SelectFile"),
             FileSystemWindowParams::SelectFolder => set_t_value(&mut self.select_folder, value, "FileSystemWindowParams::SelectFolder"),
+            FileSystemWindowParams::LoadContent => set_t_value(&mut self.load_content, value, "FileSystemWindowParams::LoadContent"),
         }
     }
 }

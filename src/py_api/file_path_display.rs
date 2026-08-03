@@ -37,7 +37,7 @@ use crate::state::{Widgets, get_id, set_state_of_widget};
         select_folder=None,
         load_content=None,
         ))]
-pub fn add_file_system_window(
+pub fn add_file_system_dialog(
     parent_id: String,
     opened: bool,
     select_file: Option<bool>,

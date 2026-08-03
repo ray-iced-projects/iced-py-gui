@@ -34,3 +34,68 @@ add_text("Uses 12")
 
 Your approach of checking the Mutex at the moment add_text() is invoked (not earlier) is the right way—that way it always gets the current global state. You're right that this needs careful thinking, but it's definitely doable. The Mutex pattern should handle the thread-safety aspect cleanly.
 
+
+
+FileDialog workflow
+
+## Your Flow (Steps 1-5)
+1. ✓ Python adds FileSystemDialog to program
+2. ✓ Button callback sets: `select_file=true`, `select_folder=false`, `load_content=true`, `opened=true`
+3. ❌ **construct() is called** → How does the dialog open?
+4. ✓ User interacts with file dialog
+5. ✓ Data returned via Python callback
+
+## The Core Problem with Step 3
+
+You've identified the real issue. Here's why:
+
+**construct()** in Iced:
+- Only returns `Option<Element>` or `None`
+- Is a pure function for building UI visualization
+- Cannot spawn Tasks directly
+- Cannot return/send Messages
+
+**Tasks** in Iced:
+- Must be returned from the `update()` handler
+- Require `Message` types to trigger them
+- Flow through the application's message dispatch system
+- Cannot be created from `construct()`
+
+**The Constraint**: construct() has no way to pass a Task to Iced's runtime.
+
+## Possible Approaches
+
+**A) Use `param_update()` → Message flow:**
+- When `opened=true` is set via param_update, store it
+- Detect the flag change somewhere in the message/callback system
+- fsw_callback creates a Message that spawns the Task
+- Problem: param_update() doesn't return a Task or Message
+
+**B) Use a separate trigger Message:**
+- Add `FileSystemMessage::RequestDialog` variant
+- Python code sends this explicitly after setting flags
+- fsw_callback handles it and returns the Task
+- Problem: Requires Python to make two operations (set flags, then trigger)
+
+**C) Hook into widget scanning in app.rs:**
+- Like `get_tasks()` scans for pending work
+- Add logic that detects `opened=true` + `is_loading=false` state
+- Auto-create and spawn the dialog task
+- Problem: Requires coupling in app.rs
+
+**D) Use construct() as the trigger point (hacky):**
+- Store previous `opened` state
+- construct() detects `opened` transition false→true
+- Use thread-local or static to queue a Message
+- Problem: Very hacky, construct() shouldn't have side effects
+
+## My Assessment
+
+The cleanest approach depends on answering:
+1. **Should opening the dialog be automatic when opened=true?** Or should Python explicitly trigger it with a separate message?
+2. **Can we modify param_update flow** to detect and queue a Message for flag changes?
+3. **Should we scan widget state in get_tasks()** like other widgets do?
+
+What's your preference? I think **Approach B (separate trigger Message)** is cleanest, or **Approach C (state scanning)** if you want it fully automatic.
+
+For **Step 5**: The `on_file_selected` callback invocation in fsw_callback looks correct already - Python will receive the tuple.

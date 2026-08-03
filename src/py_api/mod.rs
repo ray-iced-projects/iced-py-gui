@@ -16,7 +16,7 @@ pub mod date_picker;
 pub mod draw;
 pub mod draw_update;
 pub mod events;
-pub mod file_path_display;
+pub mod file_system_dialog;
 pub mod float;
 pub mod font;
 pub mod grid;

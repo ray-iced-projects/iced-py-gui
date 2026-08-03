@@ -61,7 +61,7 @@ pub fn param_update(
         Widgets::ComboBoxInputStyle(w) => apply_update(w, item, value),
         Widgets::ComboBoxMenuStyle(w) => apply_update(w, item, value),
         Widgets::ContainerStyle(w) => apply_update(w, item, value),
-        Widgets::FileSystemWindow(w) => apply_update(w, item, value),
+        Widgets::FileSystemDialog(w) => apply_update(w, item, value),
         Widgets::Font(w) => apply_update(w, item, value),
         Widgets::Icon(_) => panic!("Icon does not support param_update"),
         Widgets::Image(w) => apply_update(w, item, value),

@@ -7,11 +7,12 @@ use std::collections::HashMap;
 use std::sync::{Mutex, MutexGuard};
 use once_cell::sync::Lazy;
 
-use iced::window;
+use iced::{Task, message, window};
 use iced::Theme;
 
 use pyo3::{Py, PyAny};
 
+use crate::app::Message;
 use crate::py_api::colors::CustomPalette;
 use crate::widgets::ipg_card::{Card, CardClass, CardStyle};
 use crate::widgets::ipg_checkbox::{CheckBox, CheckboxStyle};
@@ -111,7 +112,7 @@ pub enum Widgets {
     ComboBoxInputStyle(ComboBoxInputStyle),
     ComboBoxMenuStyle(ComboBoxMenuStyle),
     ContainerStyle(ContainerStyle),
-    FileSystemWindow(FileSystemDialog),
+    FileSystemDialog(FileSystemDialog),
     Font(Font),
     Icon(IpgIcon),
     Image(Image),
@@ -185,7 +186,7 @@ ipg_widget_accessors! {
     ComboBoxInputStyle => ComboBoxInputStyle,  as_combobox_input_style,  as_combobox_input_style_mut;
     ComboBoxMenuStyle  => ComboBoxMenuStyle,   as_combobox_menu_style,   as_combobox_menu_style_mut;
     ContainerStyle     => ContainerStyle,      as_container_style,       as_container_style_mut;
-    FileSystemWindow   => FileSystemDialog,    as_file_system_window, as_file_system_window_mut;
+    FileSystemDialog   => FileSystemDialog,    as_file_system_window, as_file_system_window_mut;
     Font               => Font,                as_font,                  as_font_mut;
     Icon               => IpgIcon,             as_icon,                  as_icon_mut;
     Image              => Image,               as_image,                 as_image_mut;
@@ -447,6 +448,19 @@ pub static CLIPBOARD_ACTIONS: Mutex<ClipboardActions> = Mutex::new(ClipboardActi
 
 pub fn access_clipboard_actions() -> MutexGuard<'static, ClipboardActions> {
     CLIPBOARD_ACTIONS.lock().unwrap()
+}
+
+#[derive(Debug)]
+pub struct FileDialogActions {
+    pub tasks: Vec<Task<Message>>,
+}
+
+pub static FILE_DIALOG_ACTIONS: Mutex<FileDialogActions> = Mutex::new(FileDialogActions {
+    tasks: Vec::new()
+});
+
+pub fn access_file_dialog_actions() -> MutexGuard<'static, FileDialogActions> {
+    FILE_DIALOG_ACTIONS.lock().unwrap()
 }
 
 

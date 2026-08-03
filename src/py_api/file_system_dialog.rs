@@ -1,8 +1,9 @@
-//! PopUp module - provides add_popup pyfunction
-use pyo3::{pyfunction, PyResult};
+//! FileSystemDialog module - provides file system dialog window pyfunction
+use pyo3::{Py, PyAny, pyfunction, PyResult};
+type PyObject = Py<PyAny>;
 
 use crate::widgets::ipg_file_system::FileSystemDialog;
-use crate::access_state;
+use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex};
 use crate::state::{Widgets, get_id, set_state_of_widget};
 
 
@@ -36,6 +37,8 @@ use crate::state::{Widgets, get_id, set_state_of_widget};
         select_file=None,
         select_folder=None,
         load_content=None,
+        on_folder_selected=None,
+        user_data=None,
         ))]
 pub fn add_file_system_dialog(
     parent_id: String,
@@ -43,16 +46,28 @@ pub fn add_file_system_dialog(
     select_file: Option<bool>,
     select_folder: Option<bool>,
     load_content: Option<bool>,
+    on_folder_selected: Option<PyObject>,
+    user_data: Option<PyObject>,
     ) -> PyResult<usize> 
 {
     let id = get_id(None);
-    
+
     // Register widget with parent
     set_state_of_widget(id, parent_id.clone());
 
+    // Store callback if provided
+    if let Some(py) = on_folder_selected {
+        add_callback_to_mutex(id, "on_folder_selected".to_string(), py);
+    }
+
+    // Store user data if provided
+    if let Some(py) = user_data {
+        add_user_data_to_mutex(id, py);
+    }
+
     let mut state = access_state();
     
-    state.widgets.insert(id, Widgets::FileSystemWindow(
+    state.widgets.insert(id, Widgets::FileSystemDialog(
             FileSystemDialog {
                 id,  
                 opened,

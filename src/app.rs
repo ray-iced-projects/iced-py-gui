@@ -13,7 +13,7 @@ type PyObject = Py<PyAny>;
 
 use crate::ipg_widgets::ipg_canvas_draw::canvas_draw::CanvasWidget;
 use crate::py_api::helpers::find_key_for_value;
-use crate::state::{Containers, WidgetNode, IpgState, Widgets, access_clipboard_actions, access_state, access_update_widgets, access_window_actions, set_state_of_widget_running_state};
+use crate::state::{Containers, IpgState, WidgetNode, Widgets, access_clipboard_actions, access_file_dialog_actions, access_state, access_update_widgets, access_window_actions, set_state_of_widget_running_state};
 use crate::widgets::callbacks::invoke_callback_with_args;
 
 use crate::widgets::ipg_button::{BtnMessage, button_callback};
@@ -217,12 +217,9 @@ impl App {
                 }
             },
             Message::FileSystemWindow(id, message) => {
-                let task = fsw_callback(&mut self.state, id, message);
+                fsw_callback(&mut self.state, id, message);
                 process_widget_updates(&mut self.state);
-                match task {
-                    Some(t) => t,
-                    None => Task::none()
-                }
+                get_tasks(&mut self.state)
             },
             Message::WindowOpened(_, _, _) => {
                 Task::none()
@@ -515,6 +512,14 @@ fn get_tasks(ipg_state: &mut IpgState) -> Task<Message> {
     clipboard_actions.reads = vec![];
 
     drop(clipboard_actions);
+
+    let mut file_dialog = access_file_dialog_actions();
+
+    let tasks = std::mem::take(&mut file_dialog.tasks);
+
+    for task in tasks {
+        actions.push(task);
+    }
 
     if actions.is_empty() {
         actions.push(Task::none());
@@ -1022,6 +1027,9 @@ fn get_widget<'a>(state: &'a IpgState, id: &usize) -> Option<Element<'a, Message
                 Widgets::ComboBox(cb) => {
                     cb.construct(&state.widgets)
                 },
+                Widgets::FileSystemDialog(fsd) => {
+                    fsd.construct()
+                },
                 Widgets::Image(image) => {
                     image.construct()
                 },
@@ -1420,7 +1428,7 @@ fn process_shows(
             | Widgets::ComboBoxInputStyle(_)
             | Widgets::ComboBoxMenuStyle(_)
             | Widgets::ContainerStyle(_)
-            | Widgets::FileSystemWindow(_)
+            | Widgets::FileSystemDialog(_)
             | Widgets::Font(_)
             | Widgets::Icon(_)
             | Widgets::MenuStyle(_)

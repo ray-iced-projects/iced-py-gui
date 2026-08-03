@@ -35,6 +35,7 @@ from .icedpygui import (
     DrawWidget,
     update_draw_params,
     delete_draw_widget,
+    add_file_system_dialog as _add_file_system_dialog,
     add_float as _add_float,
     add_grid as _add_grid,
     add_icon,
@@ -129,6 +130,7 @@ from .icedpygui import (
     ContainerStyleParam,
     ContentFit,
     DatePickerParam,
+    FileSystemDialogParams,
     FloatParam,
     FontFamily,
     FontWeight,
@@ -280,6 +282,8 @@ add_checkbox = _wrap_widget(_add_checkbox, "add_checkbox")
 add_checkbox.__doc__ = _add_checkbox.__doc__
 add_combobox = _wrap_widget(_add_combobox, "add_combobox")
 add_combobox.__doc__ = _add_combobox.__doc__
+add_file_system_dialog = _wrap_widget(_add_file_system_dialog, "add_file_system_dialog")
+add_file_system_dialog.__doc__ = _add_file_system_dialog.__doc__
 add_image = _wrap_widget(_add_image, "add_image")
 add_image.__doc__ = _add_image.__doc__
 add_pick_list = _wrap_widget(_add_pick_list, "add_pick_list")

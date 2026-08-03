@@ -396,6 +396,23 @@ impl App {
 }
 
 
+/// Retrieves window-specific configuration values from the application state.
+///
+/// This function looks up a window's debug flag and theme based on its Iced window ID.
+/// It performs two-level ID mapping: Iced ID → IPG ID → Window container.
+///
+/// # Arguments
+/// * `iced_window_id` - The Iced framework window ID to look up
+/// * `state` - Reference to the application state containing window mappings
+///
+/// # Returns
+/// A tuple of `(debug_enabled, theme)` where:
+/// - `debug_enabled` - Whether debug mode is active for this window
+/// - `theme` - The Iced Theme for rendering (custom, standard, or default TokyoNight)
+///
+/// # Panics
+/// - If the Iced ID cannot be mapped to an IPG window ID
+/// - If the IPG window ID is not found in the containers
 fn get_window_values(iced_window_id: window::Id, state: &IpgState) -> (bool, Theme) {
 
     let ipg_window_id_opt = state.windows_iced_ipg_ids.get(&iced_window_id);
@@ -420,6 +437,26 @@ fn get_window_values(iced_window_id: window::Id, state: &IpgState) -> (bool, The
     (debug.unwrap_or(false), theme)
 }
 
+/// Processes pending window and clipboard actions and converts them into Iced tasks.
+///
+/// This function drains action queues from the shared window and clipboard state,
+/// converting each action into corresponding Iced task commands. It handles:
+/// - Window mode changes (fullscreen, windowed, etc.)
+/// - Decoration toggling (title bar, borders)
+/// - Window resizing and positioning
+/// - Window stacking level (always-on-top, etc.)
+/// - Clipboard read/write operations
+///
+/// # Arguments
+/// * `ipg_state` - Mutable reference to the application state (for ID mapping)
+///
+/// # Returns
+/// A batched `Task<Message>` containing all pending actions. Returns `Task::none()`
+/// wrapped in a batch if no actions are pending.
+///
+/// # Side Effects
+/// - Clears all action queues from window_actions and clipboard_actions mutexes
+/// - May trigger native window manager operations
 fn get_tasks(ipg_state: &mut IpgState) -> Task<Message> {
     
     let mut state = access_window_actions();
@@ -486,7 +523,27 @@ fn get_tasks(ipg_state: &mut IpgState) -> Task<Message> {
 }
 
 
-// Central method to get the structures stored in the mutex and then the children 
+/// Constructs the complete widget tree for a window from the application state.
+///
+/// This is the central rendering function that orchestrates the entire UI hierarchy:
+/// 1. Maps Iced window ID to IPG window ID
+/// 2. Retrieves unique parent container IDs for this window
+/// 3. Combines parent IDs with their child widget relationships
+/// 4. Recursively constructs the widget tree starting from the root
+///
+/// # Arguments
+/// * `iced_id` - The Iced window ID to render content for
+/// * `state` - Reference to the application state containing all widgets and containers
+///
+/// # Returns
+/// An `Element<Message>` representing the complete widget tree for the window.
+/// This element is ready for Iced's renderer.
+///
+/// # Panics
+/// - If the Iced ID cannot be found in the window ID mapping
+/// - If container IDs for the window are not found
+/// - If widget IDs for the window are not found
+/// - If no root container is returned from `get_children()`
 fn create_content<'a>(
     iced_id: window::Id, 
     state: &'a IpgState, 
@@ -517,6 +574,21 @@ fn create_content<'a>(
     content.expect("Root container should always produce an element")
 }
 
+/// Extracts unique parent container IDs while preserving creation order.
+///
+/// This function deduplicates container IDs from the input vector, maintaining
+/// the original creation order. Order preservation is critical because widgets
+/// created with pre-reserved IDs may have lower numeric IDs than later
+/// auto-generated container IDs, and sorting would break the layout hierarchy.
+///
+/// # Arguments
+/// * `ids` - Optional reference to a vector of container IDs (may contain duplicates)
+///
+/// # Returns
+/// A vector of unique container IDs in creation order.
+///
+/// # Panics
+/// - If `ids` is `None` (container IDs must be present for this window)
 fn get_unique_parents(ids: Option<&Vec<usize>>) -> Vec<usize> {
     // Preserve creation order; sorting by numeric id breaks layout when
     // widgets are created with a pre-reserved gen_id that is lower than
@@ -542,6 +614,21 @@ struct ParentChildIds {
     child_ids: Vec<usize>,
 }
 
+/// Combines parent container IDs with their child widget relationships.
+///
+/// Iterates through each parent container ID and collects all child widget IDs
+/// that are directly parented to it. Creates a flattened structure mapping
+/// each parent to its immediate children for use in hierarchical rendering.
+///
+/// # Arguments
+/// * `parent_ids` - Slice of unique parent container IDs
+/// * `ids_opt` - Optional reference to vector of WidgetNode entries (parent-child relationships)
+///
+/// # Returns
+/// Vector of `ParentChildIds` structs, one for each parent, containing its child IDs.
+///
+/// # Panics
+/// - If `ids_opt` is `None` (widget node mapping must exist)
 fn get_combine_parents_and_children(
     parent_ids: &Vec<usize>, 
     ids_opt: Option<&Vec<WidgetNode>>) 
@@ -570,6 +657,27 @@ fn get_combine_parents_and_children(
     parent_child_ids
 }
 
+/// Recursively constructs the widget tree for a container and its children.
+///
+/// This is the core recursive function for building the Iced element tree.
+/// It handles special cases for containers with custom construction logic
+/// (Menu, RichText, Table) and delegates to their `construct()` methods.
+/// For standard containers, it processes children recursively.
+///
+/// # Arguments
+/// * `parents` - Vector of parent-child ID mappings for this window
+/// * `index` - Current position in the parents vector (0 for root)
+/// * `parent_ids` - List of unique parent IDs for validation
+/// * `state` - Reference to the application state with all containers and widgets
+///
+/// # Returns
+/// `Some(Element)` with the constructed widget tree for this container,
+/// or `None` if the container ID is not found or construction fails.
+///
+/// # Special Handling
+/// - Menu containers: Builds grouped content from MenuBarItem children
+/// - RichText containers: Delegates to RichText's construct method
+/// - Table containers: Groups widgets into table sections before construction
 fn get_children<'a>(parents: &Vec<ParentChildIds>, 
                 index: &usize, 
                 parent_ids: &Vec<usize>, 
@@ -989,6 +1097,21 @@ fn match_theme_with_debug_color(theme: Theme) -> iced::Color {
     }
 }
 
+/// Extracts and validates a Window container from a generic Containers reference.
+///
+/// This is a type-safe helper that retrieves a Window from the Containers enum,
+/// panicking if the container is not found or is not a Window variant.
+/// Used internally to ensure type safety when accessing window-specific data.
+///
+/// # Arguments
+/// * `container_opt` - Optional reference to a Containers enum variant
+///
+/// # Returns
+/// A reference to the Window container.
+///
+/// # Panics
+/// - If `container_opt` is `None` (window container must exist)
+/// - If the container is not a `Containers::Window` variant
 fn get_window_container(container_opt: Option<&Containers>) -> &Window {
     
     let container = match container_opt {
@@ -1004,6 +1127,28 @@ fn get_window_container(container_opt: Option<&Containers>) -> &Window {
     }
 }
 
+
+/// Orchestrates the complete widget state synchronization cycle.
+///
+/// This is the main update dispatcher that batches all pending widget modifications
+/// in a single update pass. It processes updates in sequence: deletes → moves →
+/// updates → shows, then syncs new widgets and timer state from shared mutexes
+/// to the runtime state.
+///
+/// # Arguments
+/// * `state` - Mutable reference to the runtime application state
+///
+/// # Processing Order
+/// 1. Process widget deletions (remove from state)
+/// 2. Process widget moves (reparent and reorder)
+/// 3. Process parameter updates (change widget properties)
+/// 4. Process show/hide state changes
+/// 5. Inject newly created widgets into state
+/// 6. Synchronize timer state from shared state
+///
+/// # Side Effects
+/// - Modifies the widget state, container hierarchy, and timer state
+/// - Clears all update queues from shared mutexes
 fn process_widget_updates(
     state: &mut IpgState, 
 ) {
@@ -1032,6 +1177,15 @@ fn process_widget_updates(
     drop(mutex_state);
 }
 
+/// Removes deleted widgets from all state structures.
+///
+/// Iterates through each window's widget nodes and removes any widgets marked
+/// for deletion, then cleans up the widget from the global widgets map.
+/// This ensures both the hierarchy and widget storage stay synchronized.
+///
+/// # Arguments
+/// * `state` - Mutable reference to the runtime state
+/// * `deletes` - Slice of widget IDs to remove
 fn process_deletes(
     state: &mut IpgState,
     deletes: &[usize],
@@ -1047,6 +1201,23 @@ fn process_deletes(
     }
 }
 
+/// Reparents and reorders widgets within the widget hierarchy.
+///
+/// Moves a widget to a new parent container and/or position, supporting three
+/// position modes: after a sibling, before a sibling, or append to parent.
+/// Updates both parent references and the ordering in the nodes vector.
+///
+/// # Arguments
+/// * `state` - Mutable reference to the runtime state
+/// * `moves` - Slice of tuples: `(widget_id, move_after, move_before, target_parent_id)`
+///   - `move_after`: Optional sibling ID to insert after
+///   - `move_before`: Optional sibling ID to insert before
+///   - `target_parent_id`: Optional explicit parent ID (derived from sibling if not provided)
+///
+/// # Panics
+/// - If widget is not found in any window's nodes
+/// - If sibling references don't exist
+/// - If neither move position nor target parent is provided
 fn process_moves(
     state: &mut IpgState,
     moves: &[(usize, Option<usize>, Option<usize>, Option<usize>)],
@@ -1102,6 +1273,21 @@ fn process_moves(
     }  
 }
 
+/// Applies parameter value changes to widgets and containers.
+///
+/// Routes each update to either a widget's `match_widget()` or a container's
+/// `container_param_update()` based on whether the ID is found in widgets
+/// or containers. This dispatches property changes like text, color, size, etc.
+///
+/// # Arguments
+/// * `state` - Mutable reference to the runtime state
+/// * `updates` - Slice of tuples: `(id, param_name, new_value)`
+///   - `id` - Widget or container ID to update
+///   - `param_name` - Python object identifying the parameter (converted to Rust enum)
+///   - `new_value` - Python object with the new value
+///
+/// # Panics
+/// - If the ID is not found in either widgets or containers
 fn process_updates(
     state: &mut IpgState,
     updates: &[(usize, PyObject, PyObject)],
@@ -1121,6 +1307,41 @@ fn process_updates(
     }
 }
 
+/// Routes a parameter update to the appropriate widget parameter handler.
+///
+/// This is a thin wrapper that dispatches widget parameter updates to
+/// `param_update()`, which contains the match logic for converting Python
+/// parameter names and values into Rust widget property changes.
+///
+/// # Arguments
+/// * `widget` - Mutable reference to the widget to update
+/// * `item` - Python object representing the parameter name/identifier
+/// * `value` - Python object with the new parameter value
+///
+/// # Side Effects
+/// - Modifies the widget's properties based on the parameter update
+fn match_widget(
+    widget: &mut Widgets, 
+    item: &PyObject, 
+    value: &PyObject) 
+{
+    param_update(widget, item, value);
+}
+
+/// Syncs newly created widgets from shared state into the runtime state.
+///
+/// Drains the shared mutex's widget queue, associates each widget with its parent
+/// container via `set_state_of_widget_running_state()`, and inserts into the
+/// runtime widgets map. Also updates the last generated widget ID to prevent
+/// future ID collisions.
+///
+/// # Arguments
+/// * `state` - Mutable reference to the runtime state
+///
+/// # Side Effects
+/// - Clears the widgets queue from the shared mutex
+/// - Sets up parent-child relationships in the runtime state
+/// - Updates `state.last_id` for ID generation
 fn process_new_widgets(state: &mut IpgState) {
     let mut mutex_state = access_state();
     if !mutex_state.widgets.is_empty() {
@@ -1142,6 +1363,23 @@ fn process_new_widgets(state: &mut IpgState) {
     }
 }
 
+/// Updates the visibility state of widgets.
+///
+/// Processes a batch of widget show/hide operations by setting the `show`
+/// property on each widget. Only certain widgets support this property
+/// (Button, CheckBox, ComboBox, Image, PickList, etc.).
+///
+/// # Arguments
+/// * `state` - Mutable reference to the runtime state
+/// * `shows` - Slice of tuples: `(widget_id, visible)`
+///   - `widget_id` - ID of the widget to show/hide
+///   - `visible` - True to show, false to hide
+///
+/// # Panics
+/// - If a widget ID is not found in the widgets map
+///
+/// # Logging
+/// - Prints warning for widgets that don't support the show property
 fn process_shows(
     state: &mut IpgState,
     shows: &[(usize, bool)],
@@ -1154,8 +1392,11 @@ fn process_shows(
         } else {
             panic!("Process shows method- unable to find id {}", id)
         };
+        
         match widget {
+            // Widgets that support the show parameter
             Widgets::Button(w) => w.show = *val,
+            Widgets::Card(w) => w.show = *val,
             Widgets::CheckBox(w) => w.show = *val,
             Widgets::ComboBox(w) => w.show = *val,
             Widgets::Image(w) => w.show = *val,
@@ -1170,13 +1411,66 @@ fn process_shows(
             Widgets::Text(w) => w.show = *val,
             Widgets::TextInput(w) => w.show = *val,
             Widgets::Toggler(w) => w.show = *val,
-            _ => eprintln!("The widget: {:?} does not have a show parameter", widget)
+            
+            // Widgets that do NOT support show parameter
+              Widgets::AutoScrollStyle(_)
+            | Widgets::ButtonStyle(_)
+            | Widgets::CardStyle(_)
+            | Widgets::CheckboxStyle(_)
+            | Widgets::ComboBoxInputStyle(_)
+            | Widgets::ComboBoxMenuStyle(_)
+            | Widgets::ContainerStyle(_)
+            | Widgets::FileSystemWindow(_)
+            | Widgets::Font(_)
+            | Widgets::Icon(_)
+            | Widgets::MenuStyle(_)
+            | Widgets::Palette(_)
+            | Widgets::PickListStyle(_)
+            | Widgets::ProgressBarStyle(_)
+            | Widgets::RadioStyle(_)
+            | Widgets::RailStyle(_)
+            | Widgets::RuleStyle(_)
+            | Widgets::SashStyle(_)
+            | Widgets::ScrollableStyle(_)
+            | Widgets::Scroller(_)
+            | Widgets::SeparatorStyle(_)
+            | Widgets::SliderStyle(_)
+            | Widgets::Span(_)
+            | Widgets::TableStyle(_)
+            | Widgets::TextEditor(_)
+            | Widgets::TextEditorStyle(_)
+            | Widgets::TextInputStyle(_)
+            | Widgets::TogglerStyle(_) => {
+                eprintln!("Widget {:?} does not support the show parameter", widget)
+            }
+            
         }
     }
 }
 
 
 use once_cell::sync::Lazy;
+/// Synchronizes runtime state with data from the shared thread-safe state.
+///
+/// This is the primary state initialization function that copies all widget
+/// hierarchies, containers, window metadata, and event state from the shared
+/// mutex into the runtime state. Also initializes CanvasState for each
+/// CanvasDraw container and clears the shared state to prevent duplicate
+/// processing in subsequent updates.
+///
+/// # Arguments
+/// * `state` - Mutable reference to the runtime state to populate
+///
+/// # Processing
+/// 1. Copy all structural data (IDs, widgets, containers, windows)
+/// 2. Copy all configuration (debug flags, themes, modes)
+/// 3. Copy event state (keyboard, mouse, canvas, window, touch events)
+/// 4. Initialize DrawState for each CanvasDraw container
+/// 5. Clear the shared mutex state to reset for next update cycle
+///
+/// # Side Effects
+/// - Clears all data from the shared mutex state
+/// - Populates `state.canvas_states` with new DrawState instances
 fn clone_state(state: &mut IpgState) {
     let mut mutex_state = access_state();
     state.ids = mutex_state.ids.to_owned();
@@ -1227,10 +1521,4 @@ fn clone_state(state: &mut IpgState) {
     drop(mutex_state);
 }
 
-fn match_widget(
-    widget: &mut Widgets, 
-    item: &PyObject, 
-    value: &PyObject) 
-{
-    param_update(widget, item, value);
-}
+

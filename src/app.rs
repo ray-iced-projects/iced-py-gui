@@ -22,7 +22,7 @@ use crate::widgets::ipg_color_picker::{ColorPikMessage, color_picker_callback};
 use crate::widgets::ipg_checkbox::{ChkMessage, checkbox_callback};
 use crate::widgets::ipg_combo_box::{CBMessage, combo_box_callback};
 use crate::widgets::ipg_date_picker::{DatePikMessage, date_picker_callback};
-use crate::widgets::ipg_file_system::{FileSystemMessage, fsw_callback};
+use crate::widgets::ipg_file_system::{FileSystemMessage, fsd_callback};
 use crate::widgets::ipg_sash::{sash_callback, SashMessage};
 use crate::widgets::ipg_draw::{draw_callback, process_draw_updates};
 use crate::widgets::ipg_events::{process_keyboard_events, process_mouse_events, process_touch_events, process_window_event};
@@ -217,7 +217,7 @@ impl App {
                 }
             },
             Message::FileSystemWindow(id, message) => {
-                fsw_callback(&mut self.state, id, message);
+                fsd_callback(&mut self.state, id, message);
                 process_widget_updates(&mut self.state);
                 get_tasks(&mut self.state)
             },
@@ -917,6 +917,12 @@ fn get_container<'a>(state: &'a IpgState,
                     }
                     dp.construct(content)
                 },
+                Containers::FileSystemDialog(fsd) => {
+                    if content.len() > 1 {
+                        eprintln!("[WARNING] A FileSystemDialog can have only 1 widget, others ignored")
+                    }
+                    fsd.construct(content)
+                },
                 Containers::Float(float) => {
                     if content.len() > 1 {
                         eprintln!("[WARNING] A float can have only one widget, place your multiple widgets into a column or row, others ignored")
@@ -1026,9 +1032,6 @@ fn get_widget<'a>(state: &'a IpgState, id: &usize) -> Option<Element<'a, Message
                 },
                 Widgets::ComboBox(cb) => {
                     cb.construct(&state.widgets)
-                },
-                Widgets::FileSystemDialog(fsd) => {
-                    fsd.construct()
                 },
                 Widgets::Image(image) => {
                     image.construct()
@@ -1428,7 +1431,6 @@ fn process_shows(
             | Widgets::ComboBoxInputStyle(_)
             | Widgets::ComboBoxMenuStyle(_)
             | Widgets::ContainerStyle(_)
-            | Widgets::FileSystemDialog(_)
             | Widgets::Font(_)
             | Widgets::Icon(_)
             | Widgets::MenuStyle(_)

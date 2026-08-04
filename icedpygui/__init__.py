@@ -130,7 +130,7 @@ from .icedpygui import (
     ContainerStyleParam,
     ContentFit,
     DatePickerParam,
-    FileSystemDialogParams,
+    FileSystemDialogParam,
     FloatParam,
     FontFamily,
     FontWeight,
@@ -170,6 +170,7 @@ from .icedpygui import (
     TableBasicParam,
     TableStyleParam,
     TextInputParam,
+    TextEditorParam,
     TextParam,
     TextColorStd,
     RichTextParam,
@@ -282,8 +283,6 @@ add_checkbox = _wrap_widget(_add_checkbox, "add_checkbox")
 add_checkbox.__doc__ = _add_checkbox.__doc__
 add_combobox = _wrap_widget(_add_combobox, "add_combobox")
 add_combobox.__doc__ = _add_combobox.__doc__
-add_file_system_dialog = _wrap_widget(_add_file_system_dialog, "add_file_system_dialog")
-add_file_system_dialog.__doc__ = _add_file_system_dialog.__doc__
 add_image = _wrap_widget(_add_image, "add_image")
 add_image.__doc__ = _add_image.__doc__
 add_pick_list = _wrap_widget(_add_pick_list, "add_pick_list")
@@ -350,6 +349,8 @@ add_container = _wrap_container(_add_container, "add_container")
 add_container.__doc__ = _add_container.__doc__
 add_draw = _wrap_container(_add_draw, "add_draw")
 add_draw.__doc__ = _add_draw.__doc__
+add_file_system_dialog = _wrap_widget(_add_file_system_dialog, "add_file_system_dialog")
+add_file_system_dialog.__doc__ = _add_file_system_dialog.__doc__
 add_float = _wrap_container(_add_float, "add_float")
 add_float.__doc__ = _add_float.__doc__
 add_grid = _wrap_container(_add_grid, "add_grid")
@@ -639,6 +640,40 @@ class Draw:
         if pid is not None:
             pid = _resolve_parent_id(pid)
         self.numeric_id = _add_draw(
+            window_id=self.window_id,
+            container_id=self.container_id,
+            parent_id=pid,
+            **self.kwargs,
+        )
+        _register_container(self.numeric_id, self.container_id, self.window_id)
+        _parent_stack.append(self.container_id)
+        return self.numeric_id
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        _parent_stack.pop()
+        return False
+
+class FileSystemDialog:
+    """Wrapper for add_file_system_dialog"""
+    def __init__(self, *, container_id=None, window_id=None, parent_id=None, **kwargs):
+        self.window_id = (
+            _resolve_window_id(window_id)
+            if window_id is not None
+            else _current_window_or_parent(parent_id)
+        )
+        if self.window_id is None:
+            raise ValueError("FileSystemDialog: window_id is required (either pass it\
+                or use a Window context manager)")
+        self.container_id = _default_container_id(container_id, kwargs)
+        self.parent_id = parent_id
+        self.kwargs = kwargs
+        self.numeric_id = 0
+
+    def __enter__(self):
+        pid = self.parent_id or _current_parent()
+        if pid is not None:
+            pid = _resolve_parent_id(pid)
+        self.numeric_id = _add_file_system_dialog(
             window_id=self.window_id,
             container_id=self.container_id,
             parent_id=pid,

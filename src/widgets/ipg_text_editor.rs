@@ -22,6 +22,7 @@ use crate::graphics::colors::Color;
 use crate::py_api::helpers::get_len;
 use crate::py_api::helpers::get_padding;
 use crate::state::Widgets;
+use crate::widgets::widget_param_update::extract_param;
 use crate::widgets::widget_param_update::{WidgetParamUpdate, set_t_value};
 
 
@@ -29,7 +30,7 @@ use crate::widgets::widget_param_update::{WidgetParamUpdate, set_t_value};
 pub struct TextEditor {
     pub id: usize,
     pub content: widget::text_editor::Content,
-    pub place_holder: Option<String>, 
+    pub placeholder: Option<String>, 
     pub font_id: Option<usize>,
     pub text_size: Option<f32>,
     pub line_height: Option<f32>,
@@ -78,9 +79,9 @@ impl TextEditor {
             get_len(self.fill, self.height_fill, self.height)
         };
 
-        let ph = if let Some(ph) = &self.place_holder {
+        let ph = if let Some(ph) = &self.placeholder {
             ph
-        } else { "Type something here..." };
+        } else { "" };
 
         let font_opt = 
             self.lookup(widgets, self.font_id)
@@ -372,6 +373,7 @@ impl TextEditorStyle {
 #[derive(Debug, Clone, PartialEq, Hash)]
 #[pyclass(eq, eq_int, hash, frozen)]
 pub enum TextEditorParam {
+    Content,
     Fill,
     FontId,
     Height,
@@ -436,13 +438,17 @@ impl WidgetParamUpdate for TextEditor {
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
+            TextEditorParam::Content => {
+                let contents: String = extract_param(value);
+                self.content = text_editor::Content::with_text(&contents);
+            },
             TextEditorParam::Fill => set_t_value(&mut self.fill, value, "TextEditorParam::Fill"),
             TextEditorParam::FontId => set_t_value(&mut self.font_id, value, "TextEditorParam::FontId"),
             TextEditorParam::Height => set_t_value(&mut self.height, value, "TextEditorParam::Height"),
             TextEditorParam::HeightFill => set_t_value(&mut self.height_fill, value, "TextEditorParam::HeightFill"),
             TextEditorParam::LineHeight => set_t_value(&mut self.line_height, value, "TextEditorParam::LineHeight"),
             TextEditorParam::Padding => set_t_value(&mut self.padding, value, "TextEditorParam::Padding"),
-            TextEditorParam::PlaceHolder => set_t_value(&mut self.place_holder, value, "TextEditorParam::PlaceHolder"),
+            TextEditorParam::PlaceHolder => set_t_value(&mut self.placeholder, value, "TextEditorParam::PlaceHolder"),
             TextEditorParam::TextSize => set_t_value(&mut self.text_size, value, "TextEditorParam::TextSize"),
             TextEditorParam::Width => set_t_value(&mut self.width, value, "TextEditorParam::Width"),
             TextEditorParam::WidthFill => set_t_value(&mut self.width_fill, value, "TextEditorParam::WidthFill"),

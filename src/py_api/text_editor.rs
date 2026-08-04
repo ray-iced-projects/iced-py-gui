@@ -73,7 +73,7 @@ use crate::widgets::ipg_text_editor::TxtEdStatus;
 #[pyo3(signature = (
     parent_id,
     content=None,
-    place_holder=None, 
+    placeholder=None, 
     font_id=None,
     text_size=None,
     line_height=None,
@@ -98,7 +98,7 @@ use crate::widgets::ipg_text_editor::TxtEdStatus;
 pub fn add_text_editor(
     parent_id: String,
     content: Option<String>,
-    place_holder: Option<String>, 
+    placeholder: Option<String>, 
     font_id: Option<usize>,
     text_size: Option<f32>,
     line_height: Option<f32>,
@@ -149,7 +149,7 @@ pub fn add_text_editor(
             TextEditor { 
                 id, 
                 content,
-                place_holder, 
+                placeholder, 
                 font_id, 
                 text_size, 
                 line_height, 

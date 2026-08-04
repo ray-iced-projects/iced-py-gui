@@ -3,7 +3,7 @@ use pyo3::{Py, PyAny, pyfunction, PyResult};
 type PyObject = Py<PyAny>;
 
 use crate::widgets::ipg_file_system::FileSystemDialog;
-use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex};
+use crate::{access_state, add_callback_to_mutex};
 use crate::state::{Widgets, get_id, set_state_of_widget};
 
 
@@ -36,18 +36,18 @@ use crate::state::{Widgets, get_id, set_state_of_widget};
         opened=false,
         select_file=None,
         select_folder=None,
-        load_content=None,
+        load_file=None,
         on_folder_selected=None,
-        user_data=None,
+        on_file_selected=None,
         ))]
 pub fn add_file_system_dialog(
     parent_id: String,
     opened: bool,
     select_file: Option<bool>,
     select_folder: Option<bool>,
-    load_content: Option<bool>,
+    load_file: Option<bool>,
     on_folder_selected: Option<PyObject>,
-    user_data: Option<PyObject>,
+    on_file_selected: Option<PyObject>,
     ) -> PyResult<usize> 
 {
     let id = get_id(None);
@@ -60,9 +60,8 @@ pub fn add_file_system_dialog(
         add_callback_to_mutex(id, "on_folder_selected".to_string(), py);
     }
 
-    // Store user data if provided
-    if let Some(py) = user_data {
-        add_user_data_to_mutex(id, py);
+    if let Some(py) = on_file_selected {
+        add_callback_to_mutex(id, "on_file_selected".to_string(), py);
     }
 
     let mut state = access_state();
@@ -73,7 +72,7 @@ pub fn add_file_system_dialog(
                 opened,
                 select_file,
                 select_folder,
-                load_content,
+                load_file,
                 is_loading: false,
                 folder_name: None,
                 file_name: None,

@@ -1,14 +1,18 @@
 
+use std::io;
+use std::path::Path;
 use std::path::PathBuf;
+use std::sync::Arc;
 
 use iced::Element;
 use iced::Task;
+use iced::Window;
 use rfd::AsyncFileDialog;
 
 use crate::state::Widgets;
 use crate::state::access_file_dialog_actions;
 use crate::{IpgState, app::Message,
-    widgets::{callbacks::{invoke_callback, invoke_callback_with_args}, 
+    widgets::{callbacks::{invoke_callback_with_args}, 
     widget_param_update::{WidgetParamUpdate, set_t_value}}};
 
 use pyo3::{Py, PyAny, pyclass};
@@ -21,7 +25,7 @@ pub struct FileSystemDialog {
     pub opened: bool,
     pub select_file: Option<bool>,
     pub select_folder: Option<bool>,
-    pub load_content: Option<bool>,
+    pub load_file: Option<bool>,
     pub is_loading: bool,
     pub folder_name: Option<String>,
     pub file_name: Option<String>,
@@ -43,104 +47,41 @@ impl FileSystemDialog {
 
 #[derive(Debug, Clone)]
 pub enum FileSystemMessage {
-    OpenFile,
-    FileOpened(Option<PathBuf>),
-    OnClose,
-    OnOpen,
     FolderPicked(Option<PathBuf>),
+    FilePicked(Option<PathBuf>),
+    LoadFile(Option<PathBuf>),
 }
 
 
 pub fn fsw_callback(state: &mut IpgState, id: usize, message: FileSystemMessage) {
 
     match message {
-        FileSystemMessage::OnClose => {
-            invoke_callback(id, "on_close", "FileSystemWindow");
-        },
-        FileSystemMessage::OnOpen => {
-            invoke_callback(id, "on_open", "FileSystemWindow");
-        },
-        FileSystemMessage::OpenFile => {
-            // Mark as loading
-            if let Some(Widgets::FileSystemDialog(fsw)) = state.widgets.get_mut(&id) {
-                fsw.is_loading = true;
-                
-                // Determine dialog type based on current flag configuration
-                // let dialog_type = fsw.get_dialog_type();
-                
-                // Spawn the async file dialog task based on dialog type
-                // return Some(Task::perform(
-                //     async move {
-                //         let dialog = AsyncFileDialog::new();
-                        
-                //         match dialog_type {
-                //             Some(DialogType::File { load_content: _ }) => {
-                //                 dialog.pick_file().await.map(|h| h.path().to_path_buf())
-                //             },
-                //             Some(DialogType::Folder) => {
-                //                 dialog.pick_folder().await.map(|h| h.path().to_path_buf())
-                //             },
-                //             None => None,
-                //         }
-                //     },
-                //     move |path| Message::FileSystemWindow(id, FileSystemMessage::FileOpened(path)),
-                // ));
-            }
-        },
-        FileSystemMessage::FileOpened(path_opt) => {
+        FileSystemMessage::FilePicked(path_opt) => {
             if let Some(Widgets::FileSystemDialog(fsw)) = state.widgets.get_mut(&id) {
                 fsw.is_loading = false;
-                
-                // Process the selected path
+
                 if let Some(path) = path_opt {
-                    fsw.selected_path = Some(path.clone());
-                    
-                    // Extract folder name
-                    if let Some(parent) = path.parent() {
-                        fsw.folder_name = Some(parent.to_string_lossy().to_string());
-                    }
-                    
                     // Extract file name
-                    if let Some(file_name) = path.file_name() {
-                        fsw.file_name = Some(file_name.to_string_lossy().to_string());
-                    }
-                    
-                    // Read file content if both select_file and load_content are true
-                    let select_file = fsw.select_file.unwrap_or(false);
-                    let load_content = fsw.load_content.unwrap_or(false);
-                    
-                    if select_file && load_content && path.is_file() {
-                        match std::fs::read_to_string(&path) {
-                            Ok(content) => {
-                                fsw.file_content = Some(content);
-                            },
-                            Err(e) => {
-                                eprintln!("[ERROR] Failed to read file {:?}: {}", path, e);
-                            }
-                        }
-                    }
+                    fsw.file_name = Some(path.display().to_string());
                     
                     // Invoke callback with the selected data
-                    invoke_callback_with_args(
-                        id,
-                        "on_file_selected",
-                        "FileSystemWindow",
-                        (
-                            fsw.folder_name.clone(),
-                            fsw.file_name.clone(),
-                            fsw.file_content.clone(),
-                        ),
-                        "def on_file_selected(wid: int, data: tuple[str | None, str | None, str | None])",
-                    );
+                        invoke_callback_with_args(
+                            id,
+                            "on_file_selected",
+                            "FileSystemDialog",
+                            (
+                                fsw.file_name.clone(),
+                            ),
+                            "def on_file_selected(wid: int, file_name)",
+                        );
                 }
             }
         },
         FileSystemMessage::FolderPicked(path_opt) => {
             if let Some(Widgets::FileSystemDialog(fsw)) = state.widgets.get_mut(&id) {
-                fsw.is_loading = false;
 
                 if let Some(path) = path_opt {
-                    // Extract folder name
+                    // Extract folder path
                     fsw.folder_name = Some(path.display().to_string());
                     
                     // Invoke callback with the selected data
@@ -156,17 +97,83 @@ pub fn fsw_callback(state: &mut IpgState, id: usize, message: FileSystemMessage)
                 }
             }
         },
+        FileSystemMessage::LoadFile(path_opt) => {
+            
+
+            // Invoke callback with the selected data
+                // invoke_callback_with_args(
+                //     id,
+                //     "on_file_selected",
+                //     "FileSystemDialog",
+                //     (
+                //         fsw.file_name.clone(),
+                //         fsw.file_content.clone(),
+                //     ),
+                //     "def on_file_selected(wid: int, file_name)",
+                // );
+                
+        },
     }
+}
+
+#[derive(Debug, Clone)]
+pub enum Error {
+    DialogClosed,
+    IoError(io::ErrorKind),
+}
+
+fn open_file(
+    window: &dyn Window,
+) -> impl Future<Output = Result<(PathBuf, Arc<String>), Error>> + use<> {
+    let dialog = rfd::AsyncFileDialog::new()
+        .set_title("Open a text file...")
+        .set_parent(&window);
+
+    async move {
+        let picked_file = dialog.pick_file().await.ok_or(Error::DialogClosed)?;
+
+        load_file(picked_file).await
+    }
+}
+
+async fn load_file(path: impl Into<PathBuf>) -> Result<(PathBuf, Arc<String>), Error> {
+    let path = path.into();
+
+    let contents = tokio::fs::read_to_string(&path)
+        .await
+        .map(Arc::new)
+        .map_err(|error| Error::IoError(error.kind()))?;
+
+    Ok((path, contents))
+}
+
+async fn save_file(path: Option<PathBuf>, contents: String) -> Result<PathBuf, Error> {
+    let path = if let Some(path) = path {
+        path
+    } else {
+        rfd::AsyncFileDialog::new()
+            .save_file()
+            .await
+            .as_ref()
+            .map(rfd::FileHandle::path)
+            .map(Path::to_owned)
+            .ok_or(Error::DialogClosed)?
+    };
+
+    tokio::fs::write(&path, contents)
+        .await
+        .map_err(|error| Error::IoError(error.kind()))?;
+
+    Ok(path)
 }
 
 
 #[derive(Debug, Clone, PartialEq, Hash)]
 #[pyclass(eq, eq_int, hash, frozen)]
 pub enum FileSystemDialogParams {
-    Opened,
     SelectFile,
     SelectFolder,
-    LoadContent,
+    LoadFile,
 }
 
 
@@ -179,8 +186,24 @@ impl WidgetParamUpdate for FileSystemDialog {
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
-            FileSystemDialogParams::Opened => set_t_value(&mut self.opened, value, "FileSystemWindowParams::Opened"),
-            FileSystemDialogParams::SelectFile => set_t_value(&mut self.select_file, value, "FileSystemWindowParams::SelectFile"),
+            FileSystemDialogParams::SelectFile => {
+                set_t_value(&mut self.select_file, value, "FileSystemWindowParams::SelectFile");
+                let id = self.id;
+                if self.select_file == Some(true) {
+                    let task = Task::perform(
+                            async move {
+                                AsyncFileDialog::new()
+                                    .set_title("Select File")
+                                    .pick_file().await.map(|h| h.path().to_path_buf())
+                            },
+                            move |path| Message::FileSystemWindow(id, FileSystemMessage::FilePicked(path)),
+                        );
+
+                    let mut state = access_file_dialog_actions();
+                            state.tasks.push(task);
+                            drop(state);
+                }
+            },
             FileSystemDialogParams::SelectFolder => {
                 set_t_value(&mut self.select_folder, value, "FileSystemWindowParams::SelectFolder");
                 
@@ -188,8 +211,9 @@ impl WidgetParamUpdate for FileSystemDialog {
                     let id = self.id;
                     let task = Task::perform(
                             async move {
-                                let dialog = AsyncFileDialog::new();
-                                dialog.pick_folder().await.map(|h| h.path().to_path_buf())
+                                AsyncFileDialog::new()
+                                    .set_title("Select Folder")
+                                    .pick_folder().await.map(|h| h.path().to_path_buf())
                             },
                             move |path| Message::FileSystemWindow(id, FileSystemMessage::FolderPicked(path)),
                         );
@@ -199,7 +223,19 @@ impl WidgetParamUpdate for FileSystemDialog {
                             drop(state);
                 }
             },
-            FileSystemDialogParams::LoadContent => set_t_value(&mut self.load_content, value, "FileSystemWindowParams::LoadContent"),
+            FileSystemDialogParams::LoadFile => {
+                set_t_value(&mut self.load_file, value, "FileSystemWindowParams::LoadContent");
+                // let file = open_file(window)
+                // let task = Task::perform(
+                // load_file(concat!(env!("CARGO_MANIFEST_DIR"), "/src/main.rs",)),
+                // Message::FileOpened,
+                // );
+
+                // let mut state = access_file_dialog_actions();
+                //     state.tasks.push(task);
+                //     drop(state);
+                
+            }
         }
     }
 }

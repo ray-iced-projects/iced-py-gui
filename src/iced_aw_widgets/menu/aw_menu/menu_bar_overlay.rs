@@ -351,7 +351,7 @@ where
         match re {
             RecEvent::Event => {
                 let redraw_event = Event::Window(window::Event::RedrawRequested(Instant::now()));
-                let mut fake_messages = vec![];
+                let mut fake_messages = iced::advanced::shell::Bus::new();
                 let mut fake_shell = shell.local(&mut fake_messages);
 
                 let Self {

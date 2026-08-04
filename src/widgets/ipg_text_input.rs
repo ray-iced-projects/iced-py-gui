@@ -11,9 +11,9 @@ use iced::theme::palette::{self, Background};
 
 use pyo3::pyclass;
 use pyo3::{Py, PyAny};
+type PyObject = Py<PyAny>;
 
 use crate::app::Message;
-use crate::graphics::BOOTSTRAP_FONT;
 use crate::graphics::colors::Color;
 use crate::py_api::helpers::{get_len, get_padding};
 use crate::{IpgState};
@@ -21,12 +21,6 @@ use crate::state::Widgets;
 use crate::widgets::callbacks::invoke_callback_with_args;
 use crate::widgets::widget_param_update::{
     WidgetParamUpdate,  set_t_value};
-
-use crate::graphics::bootstrap::bootstrap_icon::Icon;
-
-// Type alias to replace deprecated PyObject
-type PyObject = Py<PyAny>;
-
 
 #[derive(Debug, Clone)]
 pub struct TextInput {
@@ -44,10 +38,6 @@ pub struct TextInput {
     pub align_center: Option<bool>,
     pub align_right: Option<bool>,
     pub text_font_id: Option<usize>,
-    pub icon: Option<Icon>,
-    pub icon_size: Option<f32>,
-    pub icon_spacing: Option<f32>,
-    pub icon_left_side: Option<bool>,
     pub style_id: Option<usize>,
     pub show: bool,
 }
@@ -108,31 +98,6 @@ impl TextInput {
 
         let txt = if self.align_right == Some(true) {
             txt.align_x(alignment::Horizontal::Right)
-        } else { txt };
-
-        // Icon related
-        let txt = if self.icon.is_some() {
-            let code_point = self.icon.unwrap().to_char();
-            let size = 
-                if let Some(sz) = self.icon_size {
-                    Some(iced::Pixels(sz))
-                } else { None };
-
-            let spacing = self.icon_spacing.unwrap_or_default();
-
-            let side = if self.icon_left_side == Some(true) {
-                text_input::Side::Left
-            } else {
-                text_input::Side::Right
-            };
-            
-            txt.icon(text_input::Icon {
-                font: BOOTSTRAP_FONT,
-                code_point,
-                size,
-                spacing,
-                side,
-            })
         } else { txt };
 
         let txt: Element<'_, TIMessage> = txt.into();
@@ -221,26 +186,6 @@ pub struct TextInputStyle {
     pub border_width: Option<f32>,
     pub border_radius: Option<f32>,
 
-    // overrides all other icon colors
-    // if not defined
-    pub icon_color_active: Option<Color>,
-    pub icon_color_alpha_active: Option<f32>,
-    pub icon_rgba_active: Option<[f32; 4]>,
-
-    pub icon_color_hovered: Option<Color>,
-    pub icon_color_alpha_hovered: Option<f32>,
-    pub icon_rgba_hovered: Option<[f32; 4]>,
-
-    pub icon_color_focused: Option<Color>,
-    pub icon_color_alpha_focused: Option<f32>,
-    pub icon_rgba_focused: Option<[f32; 4]>,
-
-    pub icon_color_disabled: Option<Color>,
-    pub icon_color_alpha_disabled: Option<f32>,
-    pub icon_rgba_disabled: Option<[f32; 4]>,
-
-    // overrides all other icon colors
-    // if not defined
     pub placeholder_color_active: Option<Color>,
     pub placeholder_color_alpha_active: Option<f32>,
     pub placeholder_rgba_active: Option<[f32; 4]>,
@@ -257,8 +202,6 @@ pub struct TextInputStyle {
     pub placeholder_color_alpha_disabled: Option<f32>,
     pub placeholder_rgba_disabled: Option<[f32; 4]>,
 
-    // overrides all other icon colors
-    // if not defined
     pub value_color_active: Option<Color>,
     pub value_color_alpha_active: Option<f32>,
     pub value_rgba_active: Option<[f32; 4]>,
@@ -275,8 +218,6 @@ pub struct TextInputStyle {
     pub value_color_alpha_disabled: Option<f32>,
     pub value_rgba_disabled: Option<[f32; 4]>,
 
-    // overrides all other icon colors
-    // if not defined
     pub selection_color_active: Option<Color>,
     pub selection_color_alpha_active: Option<f32>,
     pub selection_rgba_active: Option<[f32; 4]>,
@@ -313,15 +254,6 @@ impl TextInputStyle {
     let secondary_color = 
         Color::rgba_ipg_color_to_iced(self.secondary_rgba, &self.secondary_color, self.secondary_color_alpha);
     
-    let icon_color_active = 
-        Color::rgba_ipg_color_to_iced(self.icon_rgba_active, &self.icon_color_active, self.icon_color_alpha_active);
-    let icon_color_hovered = 
-        Color::rgba_ipg_color_to_iced(self.icon_rgba_hovered, &self.icon_color_hovered, self.icon_color_alpha_hovered);
-    let icon_color_focused = 
-        Color::rgba_ipg_color_to_iced(self.icon_rgba_focused, &self.icon_color_focused, self.icon_color_alpha_focused);
-    let icon_color_disabled = 
-        Color::rgba_ipg_color_to_iced(self.icon_rgba_disabled, &self.icon_color_disabled, self.icon_color_alpha_disabled);
-
     let border_color_active = 
         Color::rgba_ipg_color_to_iced(self.border_rgba_active, &self.border_color_active, self.border_color_alpha_active);
     let border_color_hovered = 
@@ -409,20 +341,6 @@ impl TextInputStyle {
         )
     };
     
-    // icon
-    let (ic_active, ic_hovered, ic_focused, ic_disabled) = if new_theme {
-        let c = background_opt.unwrap().weak.text;
-        (c, c, c, c)
-    } else {
-        let base = icon_color_active.unwrap_or(palette.background.weak.text);
-        (
-            base,
-            icon_color_hovered.unwrap_or(base),
-            icon_color_focused.unwrap_or(base),
-            icon_color_disabled.unwrap_or(base),
-        )
-    };
-
     // placeholder
     let (ph_active, ph_hovered, ph_focused, ph_disabled) = if new_theme {
         let c = sec_swatch_opt.unwrap().base.color;
@@ -473,7 +391,6 @@ impl TextInputStyle {
             width: bw,
             color: bc_active,
         },
-        icon: ic_active,
         placeholder: ph_active,
         value: val_active,
         selection: sel_active,
@@ -486,7 +403,6 @@ impl TextInputStyle {
             width: bw,
             color: bc_hovered,
         },
-        icon: ic_hovered,
         placeholder: ph_hovered,
         value: val_hovered,
         selection: sel_hovered,
@@ -499,7 +415,6 @@ impl TextInputStyle {
             width: bw,
             color: bc_focused,
         },
-        icon: ic_focused,
         placeholder: ph_focused,
         value: val_focused,
         selection: sel_focused,
@@ -512,7 +427,6 @@ impl TextInputStyle {
             width: bw,
             color: bc_disabled,
         },
-        icon: ic_disabled,
         placeholder: ph_disabled,
         value: val_disabled,
         selection: sel_disabled,
@@ -540,10 +454,6 @@ pub enum TextInputParam {
     Value,
     Width,
     WidthFill,
-    Icon,
-    IconSize,
-    IconSpacing,
-    IconLeftSide,
 }
 
 #[derive(Debug, Clone, PartialEq, Hash)]
@@ -583,22 +493,6 @@ pub enum TextInputStyleParam {
 
     BorderWidth,
     BorderRadius,
-
-    IconColorActive,
-    IconColorAlphaActive,
-    IconRgbaActive,
-
-    IconColorHovered,
-    IconColorAlphaHovered,
-    IconRgbaHovered,
-
-    IconColorFocused,
-    IconColorAlphaFocused,
-    IconRgbaFocused,
-
-    IconColorDisabled,
-    IconColorAlphaDisabled,
-    IconRgbaDisabled,
 
     PlaceholderColorActive,
     PlaceholderColorAlphaActive,
@@ -668,10 +562,6 @@ impl WidgetParamUpdate for TextInput {
             TextInputParam::Value => set_t_value(&mut self.value, value, "TextInputParam::Value"),
             TextInputParam::Width => set_t_value(&mut self.width, value, "TextInputParam::Width"),
             TextInputParam::WidthFill => set_t_value(&mut self.width_fill, value, "TextInputParam::WidthFill"),
-            TextInputParam::Icon => set_t_value(&mut self.icon, value, "TextInputParam::Icon"),
-            TextInputParam::IconSize => set_t_value(&mut self.icon_size, value, "TextInputParam::IconSize"),
-            TextInputParam::IconSpacing => set_t_value(&mut self.icon_spacing, value, "TextInputParam::IconSpacing"),
-            TextInputParam::IconLeftSide => set_t_value(&mut self.icon_left_side, value, "TextInputParam::IconLeftSide"),
         }
     }
 }
@@ -707,18 +597,6 @@ impl WidgetParamUpdate for TextInputStyle {
             TextInputStyleParam::BorderRgbaDisabled => set_t_value(&mut self.border_rgba_disabled, value, "TextInputStyleParam::BorderRgbaDisabled"),
             TextInputStyleParam::BorderWidth => set_t_value(&mut self.border_width, value, "TextInputStyleParam::BorderWidth"),
             TextInputStyleParam::BorderRadius => set_t_value(&mut self.border_radius, value, "TextInputStyleParam::BorderRadius"),
-            TextInputStyleParam::IconColorActive => set_t_value(&mut self.icon_color_active, value, "TextInputStyleParam::IconColorActive"),
-            TextInputStyleParam::IconColorAlphaActive => set_t_value(&mut self.icon_color_alpha_active, value, "TextInputStyleParam::IconColorAlphaActive"),
-            TextInputStyleParam::IconRgbaActive => set_t_value(&mut self.icon_rgba_active, value, "TextInputStyleParam::IconRgbaActive"),
-            TextInputStyleParam::IconColorHovered => set_t_value(&mut self.icon_color_hovered, value, "TextInputStyleParam::IconColorHovered"),
-            TextInputStyleParam::IconColorAlphaHovered => set_t_value(&mut self.icon_color_alpha_hovered, value, "TextInputStyleParam::IconColorAlphaHovered"),
-            TextInputStyleParam::IconRgbaHovered => set_t_value(&mut self.icon_rgba_hovered, value, "TextInputStyleParam::IconRgbaHovered"),
-            TextInputStyleParam::IconColorFocused => set_t_value(&mut self.icon_color_focused, value, "TextInputStyleParam::IconColorFocused"),
-            TextInputStyleParam::IconColorAlphaFocused => set_t_value(&mut self.icon_color_alpha_focused, value, "TextInputStyleParam::IconColorAlphaFocused"),
-            TextInputStyleParam::IconRgbaFocused => set_t_value(&mut self.icon_rgba_focused, value, "TextInputStyleParam::IconRgbaFocused"),
-            TextInputStyleParam::IconColorDisabled => set_t_value(&mut self.icon_color_disabled, value, "TextInputStyleParam::IconColorDisabled"),
-            TextInputStyleParam::IconColorAlphaDisabled => set_t_value(&mut self.icon_color_alpha_disabled, value, "TextInputStyleParam::IconColorAlphaDisabled"),
-            TextInputStyleParam::IconRgbaDisabled => set_t_value(&mut self.icon_rgba_disabled, value, "TextInputStyleParam::IconRgbaDisabled"),
             TextInputStyleParam::PlaceholderColorActive => set_t_value(&mut self.placeholder_color_active, value, "TextInputStyleParam::PlaceholderColorActive"),
             TextInputStyleParam::PlaceholderColorAlphaActive => set_t_value(&mut self.placeholder_color_alpha_active, value, "TextInputStyleParam::PlaceholderColorAlphaActive"),
             TextInputStyleParam::PlaceholderRgbaActive => set_t_value(&mut self.placeholder_rgba_active, value, "TextInputStyleParam::PlaceholderRgbaActive"),

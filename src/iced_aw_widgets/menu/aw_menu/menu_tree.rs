@@ -491,7 +491,7 @@ where
                         cursor
                     };
 
-                    let mut temp_messages = vec![];
+                    let mut temp_messages = iced::advanced::shell::Bus::new();
                     let mut temp_shell = shell.local(&mut temp_messages);
 
                     let redraw_event =

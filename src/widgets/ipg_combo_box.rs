@@ -324,7 +324,6 @@ impl ComboBoxInputStyle {
                 width: border_width,
                 color: bkg.strong.color,
             },
-            icon: bkg.weak.text,
             placeholder: bkg.weak.text,
             value: bkg.base.text,
             selection: selected_text_color,

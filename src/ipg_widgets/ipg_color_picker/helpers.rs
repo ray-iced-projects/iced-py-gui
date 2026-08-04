@@ -177,8 +177,8 @@ where
         .style(move |theme, status| slider_style(theme, status, rgba, value));
 
     let input_text = TextInput::new(
-            &"".to_string(),
-            &value.to_string(),
+            "".to_string(),
+            value.to_string(),
         )
         .on_input(move |s| on_input(rgba, s))
         .size(Pixels(12.0))

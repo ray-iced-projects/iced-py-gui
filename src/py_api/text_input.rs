@@ -3,7 +3,6 @@ use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex,
     graphics::colors::Color, 
     state::{Widgets, get_id, set_state_of_widget}, 
     widgets::ipg_text_input::{TextInput, TextInputStyle}};
-use crate::graphics::bootstrap::bootstrap_icon::Icon;
 
 use pyo3::{Py, PyAny, pyfunction, PyResult};
 type PyObject = Py<PyAny>;
@@ -50,14 +49,6 @@ type PyObject = Py<PyAny>;
 ///     Whether the input text is obscured (password mode).
 /// text_font_id: int, Optional
 ///     Sets the Font ID for the input text.
-/// icon: Icon,  Optional
-///     Sets the Icon displayed inside the text_input.
-/// icon_size: float, Optional
-///     Sets the Size of the icon.
-/// icon_spacing: float, Optional
-///     Sets the spacing of the icon from the text.
-/// icon_left_side: bool, Optional
-///     Whether to place the icon on the left side, right is default.
 /// style_id: int, Optional
 ///     Sets the ID of a custom style created with ``add_text_input_style``.
 /// show: bool, default True
@@ -86,10 +77,6 @@ type PyObject = Py<PyAny>;
     user_data=None,
     is_secure=None,
     text_font_id=None,
-    icon=None,
-    icon_size=None,
-    icon_spacing=None,
-    icon_left_side=None,
     style_id=None, 
     show=true,
     ))]
@@ -111,10 +98,6 @@ pub fn add_text_input(
         user_data: Option<PyObject>,
         is_secure: Option<bool>,
         text_font_id: Option<usize>,
-        icon: Option<Icon>,
-        icon_size: Option<f32>,
-        icon_spacing: Option<f32>,
-        icon_left_side: Option<bool>,
         style_id: Option<usize>,
         show: bool,
     ) -> PyResult<usize> 
@@ -157,10 +140,6 @@ pub fn add_text_input(
             align_center,
             align_right,
             text_font_id,
-            icon,
-            icon_size,
-            icon_spacing,
-            icon_left_side,
             style_id,
             show,
         }));
@@ -188,7 +167,6 @@ pub fn add_text_input(
 /// 
 /// Active: background: background.base.color
 ///         border: background.strong.color,
-///         icon: background.weak.text,
 ///         placeholder: secondary.base.color,
 ///         value: background.base.text,
 ///         selection: primary.weak.color,
@@ -234,13 +212,6 @@ pub fn add_text_input(
 ///     Sets the border width in logical pixels.
 /// border_radius : float, Optional
 ///     Sets the border radius in logical pixels.
-/// icon_color_<status> : Color, Optional
-///     Status: active, hovered, focused, disabled
-///     Sets the icon text color in <status> state using a predefined color variant.
-/// icon_color_<status>_alpha : float, Optional
-///     Sets the alpha of the Color.
-/// icon_rgba_<status> : list of float, Optional
-///     Sets the icon text color in <status> state in rgba format as [r, g, b, a].
 /// placeholder_color_<status> : Color, Optional
 ///     Status: active, hovered, focused, disabled
 ///     Sets the placeholder text color in <status> state using a predefined color variant.
@@ -306,26 +277,6 @@ pub fn add_text_input(
     border_width = None,
     border_radius = None,
 
-    // overrides all other icon colors
-    // if not defined
-    icon_color_active = None,
-    icon_color_alpha_active = None,
-    icon_rgba_active = None,
-
-    icon_color_hovered = None,
-    icon_color_alpha_hovered = None,
-    icon_rgba_hovered = None,
-
-    icon_color_focused = None,
-    icon_color_alpha_focused = None,
-    icon_rgba_focused = None,
-
-    icon_color_disabled = None,
-    icon_color_alpha_disabled = None,
-    icon_rgba_disabled = None,
-
-    // overrides all other icon colors
-    // if not defined
     placeholder_color_active = None,
     placeholder_color_alpha_active = None,
     placeholder_rgba_active = None,
@@ -342,8 +293,6 @@ pub fn add_text_input(
     placeholder_color_alpha_disabled = None,
     placeholder_rgba_disabled = None,
 
-    // overrides all other icon colors
-    // if not defined
     value_color_active = None,
     value_color_alpha_active = None,
     value_rgba_active = None,
@@ -360,8 +309,6 @@ pub fn add_text_input(
     value_color_alpha_disabled = None,
     value_rgba_disabled = None,
 
-    // overrides all other icon colors
-    // if not defined
     selection_color_active = None,
     selection_color_alpha_active = None,
     selection_rgba_active = None,
@@ -416,26 +363,6 @@ pub fn add_text_input_style(
         border_width: Option<f32>,
         border_radius: Option<f32>,
 
-        // overrides all other icon colors
-        // if not defined
-        icon_color_active: Option<Color>,
-        icon_color_alpha_active: Option<f32>,
-        icon_rgba_active: Option<[f32; 4]>,
-
-        icon_color_hovered: Option<Color>,
-        icon_color_alpha_hovered: Option<f32>,
-        icon_rgba_hovered: Option<[f32; 4]>,
-
-        icon_color_focused: Option<Color>,
-        icon_color_alpha_focused: Option<f32>,
-        icon_rgba_focused: Option<[f32; 4]>,
-
-        icon_color_disabled: Option<Color>,
-        icon_color_alpha_disabled: Option<f32>,
-        icon_rgba_disabled: Option<[f32; 4]>,
-
-        // overrides all other icon colors
-        // if not defined
         placeholder_color_active: Option<Color>,
         placeholder_color_alpha_active: Option<f32>,
         placeholder_rgba_active: Option<[f32; 4]>,
@@ -452,8 +379,6 @@ pub fn add_text_input_style(
         placeholder_color_alpha_disabled: Option<f32>,
         placeholder_rgba_disabled: Option<[f32; 4]>,
 
-        // overrides all other icon colors
-        // if not defined
         value_color_active: Option<Color>,
         value_color_alpha_active: Option<f32>,
         value_rgba_active: Option<[f32; 4]>,
@@ -470,8 +395,6 @@ pub fn add_text_input_style(
         value_color_alpha_disabled: Option<f32>,
         value_rgba_disabled: Option<[f32; 4]>,
 
-        // overrides all other icon colors
-        // if not defined
         selection_color_active: Option<Color>,
         selection_color_alpha_active: Option<f32>,
         selection_rgba_active: Option<[f32; 4]>,
@@ -532,22 +455,6 @@ pub fn add_text_input_style(
 
             border_width,
             border_radius,
-
-            icon_color_active,
-            icon_color_alpha_active,
-            icon_rgba_active,
-
-            icon_color_hovered,
-            icon_color_alpha_hovered,
-            icon_rgba_hovered,
-
-            icon_color_focused,
-            icon_color_alpha_focused,
-            icon_rgba_focused,
-
-            icon_color_disabled,
-            icon_color_alpha_disabled,
-            icon_rgba_disabled,
 
             placeholder_color_active,
             placeholder_color_alpha_active,

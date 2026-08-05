@@ -26,6 +26,7 @@ pub struct FileSystemDialog {
     pub select_folder: Option<bool>,
     pub load_file: Option<bool>,
     pub load_file_for_editor: Option<bool>,
+    pub save_file: Option<bool>,
     pub is_loading: bool,
     pub folder_path: Option<String>,
     pub file_path: Option<String>,
@@ -51,6 +52,8 @@ pub enum FileSystemMessage {
     FilePicked(Option<PathBuf>),
     LoadFile(Option<PathBuf>),
     FileLoaded(Option<String>, Option<String>),
+    SaveFile(Option<PathBuf>),
+    FileSaved(Option<PathBuf>),
 }
 
 
@@ -78,6 +81,7 @@ pub fn fsd_callback(state: &mut IpgState, id: usize, message: FileSystemMessage)
         },
         FileSystemMessage::FolderPicked(path_opt) => {
             if let Some(Containers::FileSystemDialog(fsd)) = state.containers.get_mut(&id) {
+                fsd.is_loading = false;
 
                 if let Some(path) = path_opt {
                     // Extract folder path
@@ -138,6 +142,56 @@ pub fn fsd_callback(state: &mut IpgState, id: usize, message: FileSystemMessage)
                     fsd.file_content.clone(),
                     "def on_file_loaded(wid: int, file_content: str | None)",
                 );
+            }
+        },
+        FileSystemMessage::SaveFile(path_opt) => {
+            if let Some(Containers::FileSystemDialog(fsd)) = state.containers.get_mut(&id) {
+                fsd.is_loading = true;
+            }
+            if let Some(path) = path_opt {
+                if let Some(Containers::FileSystemDialog(fsd)) = state.containers.get(&id) {
+                    if let Some(content) = fsd.file_content.clone() {
+                        let task = Task::perform(
+                            save_file(Some(path.clone()), content),
+                            move |result| {
+                                match result {
+                                    Ok(saved_path) => {
+                                        Message::FileSystemWindow(
+                                            id,
+                                            FileSystemMessage::FileSaved(Some(saved_path)),
+                                        )
+                                    },
+                                    Err(e) => {
+                                        eprintln!("[ERROR] Failed to save file: {:?}", e);
+                                        Message::FileSystemWindow(id, FileSystemMessage::FileSaved(None))
+                                    }
+                                }
+                            },
+                        );
+                        
+                        let mut file_dialog_actions = access_file_dialog_actions();
+                        file_dialog_actions.tasks.push(task);
+                        drop(file_dialog_actions);
+                    }
+                }
+            }
+        },
+        FileSystemMessage::FileSaved(path_opt) => {
+            if let Some(Containers::FileSystemDialog(fsd)) = state.containers.get_mut(&id) {
+                fsd.is_loading = false;
+                
+                if let Some(path) = path_opt {
+                    fsd.file_path = Some(path.display().to_string());
+                    
+                    // Invoke callback with the saved file path
+                    invoke_callback_with_args(
+                        id,
+                        "on_file_saved",
+                        "FileSystemDialog",
+                        fsd.file_path.clone(),
+                        "def on_file_saved(wid: int, file_path: str | None)",
+                    );
+                }
             }
         },
     }
@@ -201,6 +255,7 @@ pub enum FileSystemDialogParam {
     SelectFile,
     SelectFolder,
     SelectFileForLoad,
+    SaveFile,
 }
 
 
@@ -216,7 +271,8 @@ impl WidgetParamUpdate for FileSystemDialog {
             FileSystemDialogParam::SelectFile => {
                 set_t_value(&mut self.select_file, value, "FileSystemWindowParams::SelectFile");
                 let id = self.id;
-                if self.select_file == Some(true) {
+                if self.select_file == Some(true) && !self.is_loading {
+                    self.is_loading = true;
                     let task = Task::perform(
                             async move {
                                 AsyncFileDialog::new()
@@ -234,7 +290,8 @@ impl WidgetParamUpdate for FileSystemDialog {
             FileSystemDialogParam::SelectFolder => {
                 set_t_value(&mut self.select_folder, value, "FileSystemWindowParams::SelectFolder");
                 
-                if self.select_folder == Some(true) {
+                if self.select_folder == Some(true) && !self.is_loading {
+                    self.is_loading = true;
                     let id = self.id;
                     let task = Task::perform(
                             async move {
@@ -253,7 +310,8 @@ impl WidgetParamUpdate for FileSystemDialog {
             FileSystemDialogParam::SelectFileForLoad => {
                 set_t_value(&mut self.select_file, value, "FileSystemWindowParams::SelectFileForLoad");
                 let id = self.id;
-                if self.select_file == Some(true) {
+                if self.select_file == Some(true) && !self.is_loading {
+                    self.is_loading = true;
                     let task = Task::perform(
                             async move {
                                 AsyncFileDialog::new()
@@ -261,6 +319,25 @@ impl WidgetParamUpdate for FileSystemDialog {
                                     .pick_file().await.map(|h| h.path().to_path_buf())
                             },
                             move |path| Message::FileSystemWindow(id, FileSystemMessage::LoadFile(path)),
+                        );
+
+                    let mut state = access_file_dialog_actions();
+                            state.tasks.push(task);
+                            drop(state);
+                }
+            },
+            FileSystemDialogParam::SaveFile => {
+                set_t_value(&mut self.save_file, value, "FileSystemWindowParams::SaveFile");
+                let id = self.id;
+                if self.save_file == Some(true) && !self.is_loading {
+                    self.is_loading = true;
+                    let task = Task::perform(
+                            async move {
+                                AsyncFileDialog::new()
+                                    .set_title("Save File")
+                                    .save_file().await.map(|h| h.path().to_path_buf())
+                            },
+                            move |path| Message::FileSystemWindow(id, FileSystemMessage::SaveFile(path)),
                         );
 
                     let mut state = access_file_dialog_actions();

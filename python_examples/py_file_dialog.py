@@ -46,10 +46,14 @@ def load_file(_btn_id: int):
     update_widget(fsd_id, FileSystemDialogParam.SelectFileForLoad, True)
 
 
-def file_loaded(_fsd_id: int, content: tuple[str]):
+def file_loaded(_fsd_id: int, content: str):
     """File loaded"""
-    print(content)
     update_widget(editor_id, TextEditorParam.Content, content)
+
+
+def save_file(_btn_id: int):
+    """Save an Editor File"""
+    update_widget(fsd_id, FileSystemDialogParam.SaveFile, True)
 
 
 with Window(title="Float Example", center=True):
@@ -71,6 +75,7 @@ with Window(title="Float Example", center=True):
                     add_button(label="Open File Dialog for Folder", on_press=open_dialog_folder)
                     add_button(label="Open File Dialog For Filename", on_press=open_dialog_file)
                     add_button(label="Load file for text editor", on_press=load_file)
+                    add_button(label="Save Editor File", on_press=save_file)
 
             editor_id = add_text_editor(content=state["file_content"],
                                         placeholder="Select a file",

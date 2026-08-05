@@ -6,7 +6,6 @@ use std::sync::Arc;
 
 use iced::Element;
 use iced::Task;
-use iced::Window;
 use rfd::AsyncFileDialog;
 
 use crate::state::Containers;
@@ -197,38 +196,18 @@ pub fn fsd_callback(state: &mut IpgState, id: usize, message: FileSystemMessage)
     }
 }
 
-#[derive(Debug, Clone)]
-pub enum Error {
-    DialogClosed,
-    IoError(io::ErrorKind),
-}
 
-fn open_file(
-    window: &dyn Window,
-) -> impl Future<Output = Result<Arc<String>, Error>> + use<> {
-    let dialog = rfd::AsyncFileDialog::new()
-        .set_title("Open a text file...")
-        .set_parent(&window);
-
-    async move {
-        let picked_file = dialog.pick_file().await.ok_or(Error::DialogClosed)?;
-
-        load_file(picked_file).await
-    }
-}
-
-async fn load_file(path: impl Into<PathBuf>) -> Result<Arc<String>, Error> {
+async fn load_file(path: impl Into<PathBuf>) -> io::Result<Arc<String>> {
     let path = path.into();
 
     let contents = tokio::fs::read_to_string(&path)
         .await
-        .map(Arc::new)
-        .map_err(|error| Error::IoError(error.kind()))?;
+        .map(Arc::new)?;
 
     Ok(contents)
 }
 
-async fn save_file(path: Option<PathBuf>, contents: String) -> Result<PathBuf, Error> {
+async fn save_file(path: Option<PathBuf>, contents: String) -> io::Result<PathBuf> {
     let path = if let Some(path) = path {
         path
     } else {
@@ -238,12 +217,11 @@ async fn save_file(path: Option<PathBuf>, contents: String) -> Result<PathBuf, E
             .as_ref()
             .map(rfd::FileHandle::path)
             .map(Path::to_owned)
-            .ok_or(Error::DialogClosed)?
+            .ok_or_else(|| io::Error::new(io::ErrorKind::Other, "Dialog closed"))?
     };
 
     tokio::fs::write(&path, contents)
-        .await
-        .map_err(|error| Error::IoError(error.kind()))?;
+        .await?;
 
     Ok(path)
 }

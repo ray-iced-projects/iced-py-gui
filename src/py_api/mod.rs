@@ -10,6 +10,7 @@ pub mod checkbox;
 pub mod colors;
 pub mod column;
 pub mod combo_box;
+pub mod config;
 pub mod container;
 pub mod color_picker;
 pub mod date_picker;

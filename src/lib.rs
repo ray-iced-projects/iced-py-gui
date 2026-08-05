@@ -17,6 +17,9 @@ mod ipg_widgets;
 // Minimal widget definitions (self-contained)
 mod widgets;
 
+// Configuration management
+mod config_creator;
+
 // Re-export for internal use
 pub use state::{
     access_state, access_callbacks, access_user_data1,
@@ -29,6 +32,7 @@ use crate::ipg_widgets::ipg_canvas_draw::canvas_draw::{DrawMode, DrawWidget};
 use crate::py_api::window::{add_window, window_theme_names, create_custom_theme};
 use crate::py_api::button::{add_button, add_button_style};
 use crate::py_api::clipboard::{clipboard_write, clipboard_callback};
+use crate::py_api::config::{get_file_filters, reload_filters, get_config_path};
 use crate::py_api::card::{add_card_class, add_card, add_card_style};
 use crate::py_api::checkbox::{add_checkbox, add_checkbox_style};
 use crate::py_api::colors::{PaletteKey, StateVariant, StylePart, WidgetStatus, custom_palette, get_button_palette, get_color_palette, get_rgba_color, get_styling_palette};
@@ -140,6 +144,12 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(add_button, m)?)?;
     m.add_function(wrap_pyfunction!(clipboard_write, m)?)?;
     m.add_function(wrap_pyfunction!(clipboard_callback, m)?)?;
+    
+    // Configuration functions
+    m.add_function(wrap_pyfunction!(get_file_filters, m)?)?;
+    m.add_function(wrap_pyfunction!(reload_filters, m)?)?;
+    m.add_function(wrap_pyfunction!(get_config_path, m)?)?;
+    
     m.add_function(wrap_pyfunction!(add_card_style, m)?)?;
     m.add_function(wrap_pyfunction!(add_card_class, m)?)?;
     m.add_function(wrap_pyfunction!(add_card, m)?)?;

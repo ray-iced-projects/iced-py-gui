@@ -142,11 +142,14 @@ impl ComboBox {
  pub fn combo_box_callback(state: &mut IpgState, id: usize, message: CBMessage) {
     match message {
         CBMessage::OnSelect(selected) => {
-            // Update widget state directly
-            dbg!(&selected);
+            // iced's combo_box publishes on_selected twice per click; skip the duplicate.
             if let Some(Widgets::ComboBox(cb)) = state.widgets.get_mut(&id) {
                 cb.selected = Some(selected.clone());
+            } else {
+                eprintln!("[Error] The combobox id {} could not be found", id);
+                return
             }
+
             invoke_callback_with_args(id, "on_select", "ComboBox", selected,
                 "def cb(wid: int, selected: str)");
         },

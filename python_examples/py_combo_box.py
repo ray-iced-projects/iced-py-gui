@@ -90,7 +90,7 @@ with Window(title="Pick List Demo", size=(400, 500), center=True):
                 on_select=picked_item,
                 text_ellipsis_middle=True,
                 width=150)  # Narrow width to force truncation
-            
+
 
 # Required to be the last widget sent to Iced,  If you start the program
 # and nothing happens, it might mean you forgot to add this command.

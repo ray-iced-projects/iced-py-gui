@@ -1,0 +1,9 @@
+[package]
+name = "combo_box_repro"
+version = "0.1.0"
+edition = "2024"
+
+# Pinned to the exact iced commit that iced-py-gui uses so the repro
+# reflects the same combo_box source.
+[dependencies]
+iced = { git = "https://github.com/iced-rs/iced", rev = "4cad51ba61e3d76a7e696ad5923d675a20994e34" }

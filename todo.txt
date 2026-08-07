@@ -36,4 +36,5 @@ add_text("Uses 12")
 Your approach of checking the Mutex at the moment add_text() is invoked (not earlier) is the right way—that way it always gets the current global state. You're right that this needs careful thinking, but it's definitely doable. The Mutex pattern should handle the thread-safety aspect cleanly.
 
 
-
+Some features to later add_textSome features are mutually exclusive / competing. iced exposes three executor features — tokio, smol, and thread-pool — that all set executor::Default. Enabling all of them together doesn't make sense; you pick one (you're on tokio).
+You're not actually using all of them. Your current line omits plenty (qr_code, markdown, sysinfo, selector, sipper, webgl, time-travel, unconditional-rendering, etc.), and iced's default features (wgpu, tiny-skia, crisp, web-colors, thread-pool, linux-theme-detection, x11, wayland) are already on unless you set default-features = false.

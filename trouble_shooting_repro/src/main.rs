@@ -1,4 +1,3 @@
-
 use iced::widget::{self, center, column, combo_box, scrollable, space, text};
 use iced::{Center, Element, Fill};
 
@@ -14,6 +13,7 @@ struct Example {
     text_2: String,
     cb1_id: widget::Id,
     cb2_id: widget::Id,
+    selected_count: usize,
 }
 
 #[derive(Debug, Clone)]
@@ -33,12 +33,15 @@ impl Example {
             text_2: String::new(),
             cb1_id: widget::Id::unique(),
             cb2_id: widget::Id::unique(),
+            selected_count: 0,
         }
     }
 
     fn update(&mut self, message: Message) {
         match message {
             Message::Selected(id, language) => {
+                self.selected_count += 1;
+                println!("Selected #{} published: id={id:?} language={language}", self.selected_count);
                 if id == self.cb1_id {
                     self.selected_language_1 = Some(language);
                     self.text_1 = language.hello().to_string();
@@ -53,21 +56,19 @@ impl Example {
                 } else {
                     self.text_2 = language.hello().to_string();
                 }
-                
             }
             Message::Closed(id) => {
                 if id == self.cb1_id {
                     self.text_1 = self
-                    .selected_language_1
-                    .map(|language| language.hello().to_string())
-                    .unwrap_or_default();
+                        .selected_language_1
+                        .map(|language| language.hello().to_string())
+                        .unwrap_or_default();
                 } else {
                     self.text_2 = self
-                    .selected_language_1
-                    .map(|language| language.hello().to_string())
-                    .unwrap_or_default();
+                        .selected_language_1
+                        .map(|language| language.hello().to_string())
+                        .unwrap_or_default();
                 }
-                
             }
         }
     }

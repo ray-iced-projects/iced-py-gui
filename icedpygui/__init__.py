@@ -36,6 +36,7 @@ from .icedpygui import (
     update_draw_params,
     delete_draw_widget,
     add_file_system_dialog as _add_file_system_dialog,
+    get_dialog_filters,
     add_float as _add_float,
     add_grid as _add_grid,
     add_icon,

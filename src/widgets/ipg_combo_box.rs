@@ -143,6 +143,7 @@ impl ComboBox {
     match message {
         CBMessage::OnSelect(selected) => {
             // Update widget state directly
+            dbg!(&selected);
             if let Some(Widgets::ComboBox(cb)) = state.widgets.get_mut(&id) {
                 cb.selected = Some(selected.clone());
             }

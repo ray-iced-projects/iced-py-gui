@@ -44,7 +44,7 @@ use crate::py_api::date_picker::add_date_picker;
 use crate::py_api::draw::add_draw;
 use crate::py_api::draw_update::{update_draw_params, delete_draw_widget};
 use crate::py_api::events::{add_event_keyboard, add_event_mouse};
-use crate::py_api::file_system_dialog::add_file_system_dialog;
+use crate::py_api::file_system_dialog::{add_file_system_dialog, get_dialog_filters};
 use crate::py_api::float::add_float;
 use crate::py_api::grid::add_grid;
 use crate::py_api::font::{add_font_style, add_icon, load_font, arrow_to_str, arrow_variants};
@@ -165,6 +165,7 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(add_date_picker, m)?)?;
     m.add_function(wrap_pyfunction!(add_draw, m)?)?;
     m.add_function(wrap_pyfunction!(add_file_system_dialog, m)?)?;
+    m.add_function(wrap_pyfunction!(get_dialog_filters, m)?)?;
     m.add_function(wrap_pyfunction!(add_float, m)?)?;
     m.add_function(wrap_pyfunction!(add_font_style, m)?)?;
     m.add_function(wrap_pyfunction!(add_icon, m)?)?;

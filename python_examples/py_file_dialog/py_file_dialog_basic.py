@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-File System Dialog use demo
+File System Dialog Basic use demo
 """
 
 from icedpygui import (

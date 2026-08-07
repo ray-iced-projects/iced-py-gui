@@ -62,6 +62,7 @@ from .icedpygui import (
     DividerParam as DividerParam,
     DividerStyleParam as DividerStyleParam,
     FileSystemDialogParam as FileSystemDialogParam,
+    get_dialog_filters as get_dialog_filters,
     FilterMethod as FilterMethod,
     FloatParam as FloatParam,
     FontFamily as FontFamily,

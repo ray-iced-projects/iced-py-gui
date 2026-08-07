@@ -10,12 +10,14 @@ use rfd::AsyncFileDialog;
 
 use crate::state::Containers;
 use crate::state::access_file_dialog_actions;
+use crate::config_creator::load_file_filters;
 use crate::{IpgState, app::Message,
     widgets::{callbacks::{invoke_callback_with_args}, 
     widget_param_update::{WidgetParamUpdate, set_t_value}}};
 
 use pyo3::{Py, PyAny, pyclass};
 type PyObject = Py<PyAny>;
+
 
 
 #[derive(Debug, Clone)]
@@ -31,6 +33,18 @@ pub struct FileSystemDialog {
     pub file_path: Option<String>,
     pub file_content: Option<String>,
     pub selected_path: Option<PathBuf>,
+    pub default_filter: Option<String>,
+    pub initial_directory: Option<String>,
+    pub show_hidden_files: Option<bool>,
+    pub remember_last_directory: Option<bool>,
+    pub update_json_file: Option<bool>,
+}
+
+/// Settings needed for file dialog operations
+#[derive(Debug, Clone)]
+struct FileDialogSettings {
+    pub initial_directory: Option<String>,
+    pub filter_name: String,
 }
 
 impl FileSystemDialog {
@@ -41,6 +55,14 @@ impl FileSystemDialog {
         ) -> Option<Element<'a, Message>> {
         
         Some(content.remove(0))
+    }
+
+    /// Extract dialog settings that need to escape the method lifetime
+    fn extract_dialog_settings(&self) -> FileDialogSettings {
+        FileDialogSettings {
+            initial_directory: self.initial_directory.clone(),
+            filter_name: self.default_filter.clone().unwrap_or("All Files".to_string()),
+        }
     }
 }
 
@@ -55,6 +77,50 @@ pub enum FileSystemMessage {
     FileSaved(Option<PathBuf>),
 }
 
+
+/// Helper function to create a file dialog with configured filters and settings
+fn create_file_dialog(settings: &FileDialogSettings) -> AsyncFileDialog {
+    let mut dialog = AsyncFileDialog::new();
+    
+    // Set initial directory if provided
+    if let Some(ref init_dir) = settings.initial_directory {
+        dialog = dialog.set_directory(init_dir);
+    }
+    
+    // Load filters from configuration
+    if let Ok(filters) = load_file_filters() {
+        let mut found = false;
+        for (f_name, extensions) in filters {
+            if f_name == settings.filter_name {
+                // Parse extensions: split by ';', trim, and remove wildcards
+                let ext_list: Vec<String> = extensions
+                    .split(';')
+                    .map(|e| {
+                        e.trim()
+                            .trim_start_matches('*')
+                            .trim_start_matches('.')
+                            .to_string()
+                    })
+                    .filter(|e| !e.is_empty())
+                    .collect();
+
+                dialog = dialog.add_filter(f_name, &ext_list);
+                dialog = dialog.add_filter("All Files", &vec![""]);
+                found = true;
+                break;
+            }
+        }
+        if !found {
+            eprintln!("Filter could not be found, reverting to 'All Files'");
+            dialog = dialog.add_filter("All Files", &vec![""]);
+        }
+        
+    } else {
+        eprintln!("Unable to load file filters, check the config file is setup properly, reverting to 'All Files'");
+    }
+    
+    dialog
+}
 
 pub fn fsd_callback(state: &mut IpgState, id: usize, message: FileSystemMessage) {
 
@@ -234,6 +300,11 @@ pub enum FileSystemDialogParam {
     SelectFolder,
     SelectFileForLoad,
     SaveFile,
+    DefaultFilter,
+    InitialDirectory,
+    ShowHiddenFiles,
+    RememberLastDirectory,
+    UpdateJsonFile,
 }
 
 
@@ -251,18 +322,21 @@ impl WidgetParamUpdate for FileSystemDialog {
                 let id = self.id;
                 if self.select_file == Some(true) && !self.is_loading {
                     self.is_loading = true;
+                    
+                    let settings = self.extract_dialog_settings();
+                    
                     let task = Task::perform(
                             async move {
-                                AsyncFileDialog::new()
+                                create_file_dialog(&settings)
                                     .set_title("Select File")
                                     .pick_file().await.map(|h| h.path().to_path_buf())
                             },
                             move |path| Message::FileSystemWindow(id, FileSystemMessage::FilePicked(path)),
                         );
 
-                    let mut state = access_file_dialog_actions();
-                            state.tasks.push(task);
-                            drop(state);
+                        let mut state = access_file_dialog_actions();
+                        state.tasks.push(task);
+                        drop(state);
                 }
             },
             FileSystemDialogParam::SelectFolder => {
@@ -290,18 +364,21 @@ impl WidgetParamUpdate for FileSystemDialog {
                 let id = self.id;
                 if self.select_file == Some(true) && !self.is_loading {
                     self.is_loading = true;
+                    
+                    let settings = self.extract_dialog_settings();
+                    
                     let task = Task::perform(
                             async move {
-                                AsyncFileDialog::new()
+                                create_file_dialog(&settings)
                                     .set_title("Select File")
                                     .pick_file().await.map(|h| h.path().to_path_buf())
                             },
                             move |path| Message::FileSystemWindow(id, FileSystemMessage::LoadFile(path)),
                         );
 
-                    let mut state = access_file_dialog_actions();
-                            state.tasks.push(task);
-                            drop(state);
+                        let mut state = access_file_dialog_actions();
+                        state.tasks.push(task);
+                        drop(state);
                 }
             },
             FileSystemDialogParam::SaveFile => {
@@ -309,19 +386,37 @@ impl WidgetParamUpdate for FileSystemDialog {
                 let id = self.id;
                 if self.save_file == Some(true) && !self.is_loading {
                     self.is_loading = true;
+                    
+                    let settings = self.extract_dialog_settings();
+                    
                     let task = Task::perform(
                             async move {
-                                AsyncFileDialog::new()
+                                create_file_dialog(&settings)
                                     .set_title("Save File")
                                     .save_file().await.map(|h| h.path().to_path_buf())
                             },
                             move |path| Message::FileSystemWindow(id, FileSystemMessage::SaveFile(path)),
                         );
 
-                    let mut state = access_file_dialog_actions();
-                            state.tasks.push(task);
-                            drop(state);
+                        let mut state = access_file_dialog_actions();
+                        state.tasks.push(task);
+                        drop(state);
                 }
+            },
+            FileSystemDialogParam::DefaultFilter => {
+                set_t_value(&mut self.default_filter, value, "FileSystemWindowParams::DefaultFilterIndex");
+            },
+            FileSystemDialogParam::InitialDirectory => {
+                set_t_value(&mut self.initial_directory, value, "FileSystemWindowParams::InitialDirectory");
+            },
+            FileSystemDialogParam::ShowHiddenFiles => {
+                set_t_value(&mut self.show_hidden_files, value, "FileSystemWindowParams::ShowHiddenFiles");
+            },
+            FileSystemDialogParam::RememberLastDirectory => {
+                set_t_value(&mut self.remember_last_directory, value, "FileSystemWindowParams::RememberLastDirectory");
+            },
+            FileSystemDialogParam::UpdateJsonFile => {
+                set_t_value(&mut self.update_json_file, value, "FileSystemWindowParams::UpdateJsonFile");
             },
         }
     }

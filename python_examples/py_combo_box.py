@@ -17,7 +17,7 @@ from icedpygui import (
 # to update.  The value is what you want the content parameter to equal.
 def picked_item(cb_id: int, data: str):
     """ComboBox callback"""
-    print(f"cb_id = {cb_id} data = {data}")
+    print(f"from py: cb_id = {cb_id} data = {data}")
 
 
 def picked_item_with_user_data(cb_id: int, data: str, user_data: any):
@@ -90,6 +90,7 @@ with Window(title="Pick List Demo", size=(400, 500), center=True):
                 on_select=picked_item,
                 text_ellipsis_middle=True,
                 width=150)  # Narrow width to force truncation
+            
 
 # Required to be the last widget sent to Iced,  If you start the program
 # and nothing happens, it might mean you forgot to add this command.

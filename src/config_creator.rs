@@ -10,13 +10,35 @@ use std::sync::Mutex;
 /// File filter configuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct FileFilter {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub category: Option<String>,
     pub name: String,
     pub extensions: String,
+}
+
+/// Sort configuration
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SortConfig {
+    #[serde(default)]
+    pub sort_ascending: bool,
+    #[serde(default)]
+    pub sort_descending: bool,
+}
+
+impl Default for SortConfig {
+    fn default() -> Self {
+        SortConfig {
+            sort_ascending: true,
+            sort_descending: false,
+        }
+    }
 }
 
 /// Complete configuration structure
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct FileFiltersConfig {
+    #[serde(default)]
+    pub sort: SortConfig,
     pub filters: Vec<FileFilter>,
 }
 
@@ -25,17 +47,18 @@ static FILE_FILTERS_CACHE: Lazy<Mutex<Option<Vec<(String, String)>>>> = Lazy::ne
 
 /// Get the configuration directory path based on OS
 fn get_config_dir() -> PathBuf {
+    let name = "icedpygui";
     #[cfg(target_os = "windows")]
     {
         let appdata = std::env::var("APPDATA")
             .unwrap_or_else(|_| String::from("."));
-        PathBuf::from(appdata).join("ipg")
+        PathBuf::from(appdata).join(name)
     }
 
     #[cfg(target_os = "macos")]
     {
         let home = std::env::var("HOME").unwrap_or_else(|_| String::from("."));
-        PathBuf::from(home).join("Library/Application Support/ipg")
+        PathBuf::from(home).join(format!("Library/Application Support/{}", name))
     }
 
     #[cfg(target_os = "linux")]
@@ -44,15 +67,15 @@ fn get_config_dir() -> PathBuf {
         let xdg_config = std::env::var("XDG_CONFIG_HOME").ok();
         
         if let Some(xdg) = xdg_config {
-            PathBuf::from(xdg).join("ipg")
+            PathBuf::from(xdg).join(name)
         } else {
-            PathBuf::from(home).join(".config/ipg")
+            PathBuf::from(home).join(format!(".config/{}", name))
         }
     }
 
     #[cfg(not(any(target_os = "windows", target_os = "macos", target_os = "linux")))]
     {
-        PathBuf::from(".").join(".ipg")
+        PathBuf::from(".").join(format(".{}", name))
     }
 }
 
@@ -64,82 +87,125 @@ fn get_config_file_path() -> PathBuf {
 /// Default file filters
 fn default_filters() -> FileFiltersConfig {
     FileFiltersConfig {
+        sort: SortConfig {
+            sort_ascending: true,
+            sort_descending: false,
+        },
         filters: vec![
+            // Archive Formats
+            FileFilter {
+                category: Some("Archive".to_string()),
+                name: "Archive Files".to_string(),
+                extensions: "*.zip;*.rar;*.7z;*.tar;*.gz".to_string(),
+            },
+            // Audio Formats
+            FileFilter {
+                category: Some("Audio".to_string()),
+                name: "Audio Files".to_string(),
+                extensions: "*.mp3;*.wav;*.aac;*.flac;*.ogg".to_string(),
+            },
             // Document Formats
             FileFilter {
-                name: "Text Files".to_string(),
-                extensions: "*.txt".to_string(),
-            },
-            FileFilter {
+                category: Some("Documents".to_string()),
                 name: "PDF Files".to_string(),
                 extensions: "*.pdf".to_string(),
             },
             FileFilter {
+                category: Some("Documents".to_string()),
+                name: "Text Files".to_string(),
+                extensions: "*.txt".to_string(),
+            },
+            FileFilter {
+                category: Some("Documents".to_string()),
                 name: "Word Documents".to_string(),
                 extensions: "*.docx;*.doc".to_string(),
             },
-            // Programming
+            // Image Formats
             FileFilter {
-                name: "Python Files".to_string(),
-                extensions: "*.py".to_string(),
-            },
-            FileFilter {
-                name: "Rust Files".to_string(),
-                extensions: "*.rs".to_string(),
-            },
-            FileFilter {
-                name: "JavaScript Files".to_string(),
-                extensions: "*.js;*.jsx".to_string(),
-            },
-            FileFilter {
-                name: "TypeScript Files".to_string(),
-                extensions: "*.ts;*.tsx".to_string(),
-            },
-            FileFilter {
-                name: "JSON Files".to_string(),
-                extensions: "*.json".to_string(),
-            },
-            FileFilter {
-                name: "YAML Files".to_string(),
-                extensions: "*.yaml;*.yml".to_string(),
-            },
-            FileFilter {
-                name: "HTML Files".to_string(),
-                extensions: "*.html;*.htm".to_string(),
-            },
-            FileFilter {
-                name: "CSS Files".to_string(),
-                extensions: "*.css;*.scss;*.sass".to_string(),
-            },
-            // Images
-            FileFilter {
+                category: Some("Images".to_string()),
                 name: "Image Files".to_string(),
                 extensions: "*.png;*.jpg;*.jpeg;*.gif;*.bmp;*.svg;*.webp".to_string(),
             },
             FileFilter {
-                name: "PNG Images".to_string(),
-                extensions: "*.png".to_string(),
-            },
-            FileFilter {
+                category: Some("Images".to_string()),
                 name: "JPEG Images".to_string(),
                 extensions: "*.jpg;*.jpeg".to_string(),
             },
-            // Audio/Video
             FileFilter {
-                name: "Audio Files".to_string(),
-                extensions: "*.mp3;*.wav;*.aac;*.flac;*.ogg".to_string(),
+                category: Some("Images".to_string()),
+                name: "PNG Images".to_string(),
+                extensions: "*.png".to_string(),
+            },
+            // Programming Formats
+            FileFilter {
+                category: Some("Programming".to_string()),
+                name: "C++ Files".to_string(),
+                extensions: "*.cpp;*.cc;*.cxx;*.h;*.hpp".to_string(),
             },
             FileFilter {
+                category: Some("Programming".to_string()),
+                name: "C Files".to_string(),
+                extensions: "*.c;*.h".to_string(),
+            },
+            FileFilter {
+                category: Some("Programming".to_string()),
+                name: "CSS Files".to_string(),
+                extensions: "*.css;*.scss;*.sass;*.less".to_string(),
+            },
+            FileFilter {
+                category: Some("Programming".to_string()),
+                name: "HTML Files".to_string(),
+                extensions: "*.html;*.htm".to_string(),
+            },
+            FileFilter {
+                category: Some("Programming".to_string()),
+                name: "Java Files".to_string(),
+                extensions: "*.java".to_string(),
+            },
+            FileFilter {
+                category: Some("Programming".to_string()),
+                name: "JavaScript Files".to_string(),
+                extensions: "*.js;*.jsx".to_string(),
+            },
+            FileFilter {
+                category: Some("Programming".to_string()),
+                name: "JSON Files".to_string(),
+                extensions: "*.json".to_string(),
+            },
+            FileFilter {
+                category: Some("Programming".to_string()),
+                name: "Python Files".to_string(),
+                extensions: "*.py".to_string(),
+            },
+            FileFilter {
+                category: Some("Programming".to_string()),
+                name: "Rust Files".to_string(),
+                extensions: "*.rs".to_string(),
+            },
+            FileFilter {
+                category: Some("Programming".to_string()),
+                name: "TypeScript Files".to_string(),
+                extensions: "*.ts;*.tsx".to_string(),
+            },
+            FileFilter {
+                category: Some("Programming".to_string()),
+                name: "XML Files".to_string(),
+                extensions: "*.xml".to_string(),
+            },
+            FileFilter {
+                category: Some("Programming".to_string()),
+                name: "YAML Files".to_string(),
+                extensions: "*.yaml;*.yml".to_string(),
+            },
+            // Video Formats
+            FileFilter {
+                category: Some("Video".to_string()),
                 name: "Video Files".to_string(),
-                extensions: "*.mp4;*.avi;*.mkv;*.mov;*.flv".to_string(),
-            },
-            // Archives
-            FileFilter {
-                name: "Archive Files".to_string(),
-                extensions: "*.zip;*.rar;*.7z;*.tar;*.gz".to_string(),
+                extensions: "*.mp4;*.avi;*.mkv;*.mov;*.flv;*.wmv".to_string(),
             },
             // All Files
             FileFilter {
+                category: None,
                 name: "All Files".to_string(),
                 extensions: "*.*".to_string(),
             },
@@ -212,11 +278,20 @@ fn create_default_config(config: &FileFiltersConfig, path: &PathBuf) -> Result<(
 
 /// Convert internal format to tuple vector for Python
 fn convert_to_tuple_vec(config: &FileFiltersConfig) -> Vec<(String, String)> {
-    config
+    let mut filters: Vec<(String, String)> = config
         .filters
         .iter()
         .map(|f| (f.name.clone(), f.extensions.clone()))
-        .collect()
+        .collect();
+    
+    // Apply sorting based on configuration
+    if config.sort.sort_ascending {
+        filters.sort_by(|a, b| a.0.cmp(&b.0));
+    } else if config.sort.sort_descending {
+        filters.sort_by(|a, b| b.0.cmp(&a.0));
+    }
+    
+    filters
 }
 
 /// Cache filters in memory

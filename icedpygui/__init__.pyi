@@ -22,7 +22,6 @@ from .icedpygui import (
     add_combobox_input_style as add_combobox_input_style,
     add_combobox_menu_style as add_combobox_menu_style,
     add_container_style as add_container_style,
-    add_file_system_dialog as add_file_system_dialog,
     add_font_style as add_font_style,
     # add_menu_style as add_menu_style,
     add_opaque_style as add_opaque_style,
@@ -559,6 +558,41 @@ def add_event_window(
         The id of the event which can be used to modify the event through update_item.
     """
     ...
+
+def add_file_system_dialog(
+    select_file: bool | None = None,
+    select_folder: bool | None = None,
+    load_file: bool | None = None,
+    load_file_for_editor: bool | None = None,
+    save_file: bool | None = None,
+    filters: list[str] | None = None,
+    initial_directory: str | None = None,
+    show_hidden_files: bool | None = None,
+    remember_last_directory: bool | None = None,
+    update_json_file: bool | None = None,
+    on_folder_selected: Callable | None = None,
+    on_file_selected: Callable | None = None,
+    on_file_loaded: Callable | None = None,
+    ) -> int:
+    """
+    Adds a file system dialog window.
+
+    Create a file system dialog for selecting folders or files
+
+    Parameters
+    ----------
+    select_file : bool, Optional
+        Whether to select a file name
+    select_folder : bool, Optional
+        Whether to select a folder name
+    load_content : bool, Optional
+        Whether to load a file based on select_file
+
+    Returns
+    -------
+    int
+        The numeric widget ID of the newly created column.
+    """
 def add_float(
     window_id: str ,
     container_id: str,
@@ -696,7 +730,7 @@ def add_image(
     width: float | None = None,
     ) -> int:
     """
-        add_image parameters
+    add_image parameters
     Usage::
         with Window(title="My App", center=True):
             with Container(align_center=True):

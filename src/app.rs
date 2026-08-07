@@ -917,12 +917,6 @@ fn get_container<'a>(state: &'a IpgState,
                     }
                     dp.construct(content)
                 },
-                Containers::FileSystemDialog(fsd) => {
-                    if content.len() > 1 {
-                        eprintln!("[WARNING] A FileSystemDialog can have only 1 widget, others ignored")
-                    }
-                    fsd.construct(content)
-                },
                 Containers::Float(float) => {
                     if content.len() > 1 {
                         eprintln!("[WARNING] A float can have only one widget, place your multiple widgets into a column or row, others ignored")
@@ -1431,6 +1425,7 @@ fn process_shows(
             | Widgets::ComboBoxInputStyle(_)
             | Widgets::ComboBoxMenuStyle(_)
             | Widgets::ContainerStyle(_)
+            | Widgets::FileSystemDialog(_)
             | Widgets::Font(_)
             | Widgets::Icon(_)
             | Widgets::MenuStyle(_)

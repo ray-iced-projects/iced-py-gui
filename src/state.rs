@@ -76,7 +76,6 @@ pub enum Containers {
     Column(Column),
     Container(Container),
     DatePicker(DatePicker),
-    FileSystemDialog(FileSystemDialog),
     Float(Float),
     Grid(Grid),
     Menu(Menu),
@@ -113,6 +112,7 @@ pub enum Widgets {
     ComboBoxInputStyle(ComboBoxInputStyle),
     ComboBoxMenuStyle(ComboBoxMenuStyle),
     ContainerStyle(ContainerStyle),
+    FileSystemDialog(FileSystemDialog),
     Font(Font),
     Icon(IpgIcon),
     Image(Image),
@@ -249,7 +249,6 @@ ipg_container_accessors! {
     CardClass    => CardClass,    as_card_class,      as_card_class_mut;
     Column       => Column,       as_column,          as_column_mut;
     Container    => Container,    as_container,       as_container_mut;
-    FileSystemDialog   => FileSystemDialog,    as_file_system_window, as_file_system_window_mut;
     Float        => Float,        as_float,           as_float_mut;
     Grid         => Grid,         as_grid,            as_grid_mut;
     Menu         => Menu,         as_menu,            as_menu_mut;

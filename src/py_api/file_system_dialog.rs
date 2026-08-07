@@ -4,20 +4,16 @@ type PyObject = Py<PyAny>;
 
 use crate::widgets::ipg_file_system::FileSystemDialog;
 use crate::{access_state, add_callback_to_mutex};
-use crate::state::{Containers, get_id, set_state_cont_wnd_ids, set_state_of_container};
+use crate::state::{Widgets, get_id};
 
 
 
 /// Adds a file system dialog window.
 ///
-/// Open a file system dialog for selecting folders or files
+/// Create a file system dialog for selecting folders or files
 ///
 /// Parameters
 /// ----------
-/// parent_id : str,  Optional
-///     Sets the parent container ID.  Defaults to the window itself.
-/// opened : bool, default False
-///     Whether the dialog is visible.
 /// select_file : bool, Optional
 ///     Whether to select a file name
 /// select_folder : bool, Optional
@@ -32,9 +28,6 @@ use crate::state::{Containers, get_id, set_state_cont_wnd_ids, set_state_of_cont
 /// 
 #[pyfunction]
 #[pyo3(signature = (
-        window_id,
-        container_id,
-        parent_id,
         select_file=None,
         select_folder=None,
         load_file=None,
@@ -50,9 +43,6 @@ use crate::state::{Containers, get_id, set_state_cont_wnd_ids, set_state_of_cont
         on_file_loaded=None,
         ))]
 pub fn add_file_system_dialog(
-    window_id: String,
-    container_id: String,
-    parent_id: Option<String>,
     select_file: Option<bool>,
     select_folder: Option<bool>,
     load_file: Option<bool>,
@@ -69,11 +59,6 @@ pub fn add_file_system_dialog(
     ) -> PyResult<usize> 
 {
     let id = get_id(None);
-    
-    let prt_id = match parent_id {
-        Some(id) => id,
-        None => window_id.clone(),
-    };
 
     // Store callback if provided
     if let Some(py) = on_folder_selected {
@@ -88,13 +73,9 @@ pub fn add_file_system_dialog(
         add_callback_to_mutex(id, "on_file_loaded".to_string(), py);
     }
 
-    set_state_of_container(id, window_id.clone(), Some(container_id.clone()), prt_id);
-
     let mut state = access_state();
 
-    set_state_cont_wnd_ids(&mut state, &window_id, container_id, id, "add_file_system_dialog".to_string());
-
-    state.containers.insert(id, Containers::FileSystemDialog(
+    state.widgets.insert(id, Widgets::FileSystemDialog(
             FileSystemDialog {
                 id,
                 select_file,

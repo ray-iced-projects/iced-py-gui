@@ -7,11 +7,11 @@ from icedpygui import (
     Window,
     Column,
     Container,
-    FileSystemDialog,
     Row,
     start_session,
     add_button,
     add_combobox,
+    add_file_system_dialog,
     ComboBoxParam,
     add_text,
     TextParam,
@@ -69,19 +69,19 @@ def set_default_directory(_btn_id: int):
     the folder will be added to the FSD to set it"""
     state["set_default_folder"] = True
 
+fsd_id = add_file_system_dialog(on_folder_selected=folder_selected,
+                                  on_file_selected=file_selected)
+
 with Window(title="FileSystemDialog Example", center=True):
 
     with Container(width_fill=True, height_fill=True, align_center=True):
         with Column(spacing=20, padding=[20]):
-            add_text(content=(
-                ""))
-            with FileSystemDialog(on_folder_selected=folder_selected,
-                                  on_file_selected=file_selected) as fsd_id:
-                with Row(spacing=20):
-                    add_button(label="Open for file", on_press=open_dialog_file)
-                    add_button(label="Open for Folder", on_press=open_dialog_folder)
-                    add_button(label="Clear Filter List", on_press=clear_filter_list)
-                    add_button(label="Set default Directory", on_press=set_default_directory)
+
+            with Row(spacing=20):
+                add_button(label="Open for file", on_press=open_dialog_file)
+                add_button(label="Open for Folder", on_press=open_dialog_folder)
+                add_button(label="Clear Filter List", on_press=clear_filter_list)
+                add_button(label="Set default Directory", on_press=set_default_directory)
 
             cb_id = add_combobox(options=filters, placeholder="Add a Filter",
                          width=200, on_select=add_to_filter_list)

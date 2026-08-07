@@ -8,7 +8,7 @@ use iced::Element;
 use iced::Task;
 use rfd::AsyncFileDialog;
 
-use crate::state::Containers;
+use crate::state::Widgets;
 use crate::state::access_file_dialog_actions;
 use crate::config_creator::load_file_filters;
 use crate::{IpgState, app::Message,
@@ -127,7 +127,7 @@ pub fn fsd_callback(state: &mut IpgState, id: usize, message: FileSystemMessage)
 
     match message {
         FileSystemMessage::FilePicked(path_opt) => {
-            if let Some(Containers::FileSystemDialog(fsd)) = state.containers.get_mut(&id) {
+            if let Some(Widgets::FileSystemDialog(fsd)) = state.widgets.get_mut(&id) {
                 fsd.is_loading = false;
 
                 if let Some(path) = path_opt {
@@ -146,7 +146,7 @@ pub fn fsd_callback(state: &mut IpgState, id: usize, message: FileSystemMessage)
             }
         },
         FileSystemMessage::FolderPicked(path_opt) => {
-            if let Some(Containers::FileSystemDialog(fsd)) = state.containers.get_mut(&id) {
+            if let Some(Widgets::FileSystemDialog(fsd)) = state.widgets.get_mut(&id) {
                 fsd.is_loading = false;
 
                 if let Some(path) = path_opt {
@@ -165,7 +165,7 @@ pub fn fsd_callback(state: &mut IpgState, id: usize, message: FileSystemMessage)
             }
         },
         FileSystemMessage::LoadFile(path_opt) => {
-            if let Some(Containers::FileSystemDialog(fsd)) = state.containers.get_mut(&id) {
+            if let Some(Widgets::FileSystemDialog(fsd)) = state.widgets.get_mut(&id) {
                 fsd.is_loading = true;
             }
             if let Some(path) = path_opt {
@@ -195,7 +195,7 @@ pub fn fsd_callback(state: &mut IpgState, id: usize, message: FileSystemMessage)
             }
         },
         FileSystemMessage::FileLoaded(file_name, file_content) => {
-            if let Some(Containers::FileSystemDialog(fsd)) = state.containers.get_mut(&id) {
+            if let Some(Widgets::FileSystemDialog(fsd)) = state.widgets.get_mut(&id) {
                 fsd.file_path = file_name;
                 fsd.file_content = file_content;
                 fsd.is_loading = false;
@@ -211,11 +211,9 @@ pub fn fsd_callback(state: &mut IpgState, id: usize, message: FileSystemMessage)
             }
         },
         FileSystemMessage::SaveFile(path_opt) => {
-            if let Some(Containers::FileSystemDialog(fsd)) = state.containers.get_mut(&id) {
-                fsd.is_loading = true;
-            }
             if let Some(path) = path_opt {
-                if let Some(Containers::FileSystemDialog(fsd)) = state.containers.get(&id) {
+                if let Some(Widgets::FileSystemDialog(fsd)) = state.widgets.get_mut(&id) {
+                    fsd.is_loading = true;
                     if let Some(content) = fsd.file_content.clone() {
                         let task = Task::perform(
                             save_file(Some(path.clone()), content),
@@ -243,7 +241,7 @@ pub fn fsd_callback(state: &mut IpgState, id: usize, message: FileSystemMessage)
             }
         },
         FileSystemMessage::FileSaved(path_opt) => {
-            if let Some(Containers::FileSystemDialog(fsd)) = state.containers.get_mut(&id) {
+            if let Some(Widgets::FileSystemDialog(fsd)) = state.widgets.get_mut(&id) {
                 fsd.is_loading = false;
                 
                 if let Some(path) = path_opt {

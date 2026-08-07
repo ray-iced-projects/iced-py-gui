@@ -277,6 +277,20 @@ def add_color_picker_style(
 
     """
 
+class ComboBoxParam:
+    """ComboBox Parameters"""
+    FontId: int
+    MenuHeight: float
+    Options: list[str]
+    Padding: list[float, 1] | list[float, 4]
+    Placeholder: str
+    Selected: str
+    Show: bool
+    StyleId: int
+    TextLineHeight: float
+    TextSize: float
+    Width: float
+
 def add_combobox_menu_style(
         palette_base_color: Color | None = None,
         palette_base_alpha: float | None = None,
@@ -2365,10 +2379,16 @@ class DividerStyleParam:
 
 class FileSystemDialogParams:
     """FileSystemDialogParams"""
-    Opened: bool,
-    SelectFile: bool,
-    SelectFolder: bool,
-    LoadContent: bool,
+    SelectFile: bool
+    SelectFolder: bool
+    SelectFileForLoad: bool
+    SaveFile: bool
+    Filters: list[str]
+    InitialDirectory: bool
+    ShowHiddenFiles: bool
+    RememberLastDirectory: bool
+    UpdateJsonFile: bool
+
 
 class FloatParam:
     """Float parameters"""

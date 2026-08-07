@@ -130,6 +130,7 @@ from .icedpygui import (
     ContainerParam,
     ContainerStyleParam,
     ContentFit,
+    ComboBoxParam,
     DatePickerParam,
     FileSystemDialogParam,
     FloatParam,

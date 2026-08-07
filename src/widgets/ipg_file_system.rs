@@ -33,7 +33,7 @@ pub struct FileSystemDialog {
     pub file_path: Option<String>,
     pub file_content: Option<String>,
     pub selected_path: Option<PathBuf>,
-    pub default_filter: Option<String>,
+    pub filters: Vec<String>,
     pub initial_directory: Option<String>,
     pub show_hidden_files: Option<bool>,
     pub remember_last_directory: Option<bool>,
@@ -44,7 +44,7 @@ pub struct FileSystemDialog {
 #[derive(Debug, Clone)]
 struct FileDialogSettings {
     pub initial_directory: Option<String>,
-    pub filter_name: String,
+    pub filters: Vec<String>,
 }
 
 impl FileSystemDialog {
@@ -59,9 +59,15 @@ impl FileSystemDialog {
 
     /// Extract dialog settings that need to escape the method lifetime
     fn extract_dialog_settings(&self) -> FileDialogSettings {
+        let mut filters = self.filters.clone();
+        
+        if !filters.contains(&"All Files".to_string()) {
+            filters.push("All Files".to_string());
+        }
+        
         FileDialogSettings {
             initial_directory: self.initial_directory.clone(),
-            filter_name: self.default_filter.clone().unwrap_or("All Files".to_string()),
+            filters,
         }
     }
 }
@@ -88,10 +94,10 @@ fn create_file_dialog(settings: &FileDialogSettings) -> AsyncFileDialog {
     }
     
     // Load filters from configuration
-    if let Ok(filters) = load_file_filters() {
-        let mut found = false;
-        for (f_name, extensions) in filters {
-            if f_name == settings.filter_name {
+    if let Ok(default_filters) = load_file_filters() {
+        // Iterate through requested filters and search in default_filters
+        for requested_filter in &settings.filters {
+            if let Some((_, extensions)) = default_filters.iter().find(|(name, _)| name == requested_filter) {
                 // Parse extensions: split by ';', trim, and remove wildcards
                 let ext_list: Vec<String> = extensions
                     .split(';')
@@ -104,19 +110,14 @@ fn create_file_dialog(settings: &FileDialogSettings) -> AsyncFileDialog {
                     .filter(|e| !e.is_empty())
                     .collect();
 
-                dialog = dialog.add_filter(f_name, &ext_list);
-                dialog = dialog.add_filter("All Files", &vec![""]);
-                found = true;
-                break;
+                dialog = dialog.add_filter(requested_filter, &ext_list);
+            } else {
+                eprintln!("***[ERROR]*** Filter '{}' could not be found in config", requested_filter);
             }
-        }
-        if !found {
-            eprintln!("Filter could not be found, reverting to 'All Files'");
-            dialog = dialog.add_filter("All Files", &vec![""]);
         }
         
     } else {
-        eprintln!("Unable to load file filters, check the config file is setup properly, reverting to 'All Files'");
+        eprintln!("***[Error]*** Unable to load file filters, check the config file is setup properly");
     }
     
     dialog
@@ -300,7 +301,7 @@ pub enum FileSystemDialogParam {
     SelectFolder,
     SelectFileForLoad,
     SaveFile,
-    DefaultFilter,
+    Filters,
     InitialDirectory,
     ShowHiddenFiles,
     RememberLastDirectory,
@@ -319,6 +320,7 @@ impl WidgetParamUpdate for FileSystemDialog {
         match param {
             FileSystemDialogParam::SelectFile => {
                 set_t_value(&mut self.select_file, value, "FileSystemWindowParams::SelectFile");
+                self.select_folder = Some(false);
                 let id = self.id;
                 if self.select_file == Some(true) && !self.is_loading {
                     self.is_loading = true;
@@ -341,13 +343,16 @@ impl WidgetParamUpdate for FileSystemDialog {
             },
             FileSystemDialogParam::SelectFolder => {
                 set_t_value(&mut self.select_folder, value, "FileSystemWindowParams::SelectFolder");
-                
+                self.select_file = Some(false);
                 if self.select_folder == Some(true) && !self.is_loading {
                     self.is_loading = true;
                     let id = self.id;
+
+                    let settings = self.extract_dialog_settings();
+
                     let task = Task::perform(
                             async move {
-                                AsyncFileDialog::new()
+                                create_file_dialog(&settings)
                                     .set_title("Select Folder")
                                     .pick_folder().await.map(|h| h.path().to_path_buf())
                             },
@@ -403,8 +408,8 @@ impl WidgetParamUpdate for FileSystemDialog {
                         drop(state);
                 }
             },
-            FileSystemDialogParam::DefaultFilter => {
-                set_t_value(&mut self.default_filter, value, "FileSystemWindowParams::DefaultFilterIndex");
+            FileSystemDialogParam::Filters => {
+                set_t_value(&mut self.filters, value, "FileSystemWindowParams::Filters");
             },
             FileSystemDialogParam::InitialDirectory => {
                 set_t_value(&mut self.initial_directory, value, "FileSystemWindowParams::InitialDirectory");

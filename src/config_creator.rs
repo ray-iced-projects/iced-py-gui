@@ -216,11 +216,10 @@ fn default_filters() -> FileFiltersConfig {
 /// Load filters from disk or create default config
 pub fn load_file_filters() -> Result<Vec<(String, String)>, String> {
     // Check cache first
-    if let Ok(cache) = FILE_FILTERS_CACHE.lock() {
-        if let Some(filters) = cache.as_ref() {
+    if let Ok(cache) = FILE_FILTERS_CACHE.lock()
+        && let Some(filters) = cache.as_ref() {
             return Ok(filters.clone());
         }
-    }
 
     let config_path = get_config_file_path();
 
@@ -259,12 +258,11 @@ pub fn load_file_filters() -> Result<Vec<(String, String)>, String> {
 /// Create default config file if it doesn't exist
 fn create_default_config(config: &FileFiltersConfig, path: &PathBuf) -> Result<(), String> {
     // Create directory if it doesn't exist
-    if let Some(parent) = path.parent() {
-        if !parent.exists() {
+    if let Some(parent) = path.parent()
+        && !parent.exists() {
             fs::create_dir_all(parent)
                 .map_err(|e| format!("Failed to create config directory: {}", e))?;
         }
-    }
 
     // Write default config
     let json = serde_json::to_string_pretty(config)

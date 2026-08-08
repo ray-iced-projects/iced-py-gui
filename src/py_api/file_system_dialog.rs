@@ -29,7 +29,9 @@ use crate::state::{Widgets, get_id};
 #[pyfunction]
 #[pyo3(signature = (
         select_file=None,
+        select_files=None,
         select_folder=None,
+        select_folders=None,
         load_file=None,
         load_file_for_editor=None,
         save_file=None,
@@ -44,7 +46,9 @@ use crate::state::{Widgets, get_id};
         ))]
 pub fn add_file_system_dialog(
     select_file: Option<bool>,
+    select_files: Option<bool>,
     select_folder: Option<bool>,
+    select_folders: Option<bool>,
     load_file: Option<bool>,
     load_file_for_editor: Option<bool>,
     save_file: Option<bool>,
@@ -79,13 +83,16 @@ pub fn add_file_system_dialog(
             FileSystemDialog {
                 id,
                 select_file,
+                select_files,
                 select_folder,
+                select_folders,
                 load_file,
                 load_file_for_editor,
                 save_file,
                 is_loading: false,
                 folder_path: None,
                 file_path: None,
+                file_paths: None,
                 file_content: None,
                 selected_path: None,
                 filters,

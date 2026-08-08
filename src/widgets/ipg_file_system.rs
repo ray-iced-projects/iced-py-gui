@@ -4,7 +4,6 @@ use std::path::Path;
 use std::path::PathBuf;
 use std::sync::Arc;
 
-use iced::Element;
 use iced::Task;
 use rfd::AsyncFileDialog;
 
@@ -24,13 +23,16 @@ type PyObject = Py<PyAny>;
 pub struct FileSystemDialog {
     pub id: usize,
     pub select_file: Option<bool>,
+    pub select_files: Option<bool>,
     pub select_folder: Option<bool>,
+    pub select_folders: Option<bool>,
     pub load_file: Option<bool>,
     pub load_file_for_editor: Option<bool>,
     pub save_file: Option<bool>,
     pub is_loading: bool,
     pub folder_path: Option<String>,
     pub file_path: Option<String>,
+    pub file_paths: Option<Vec<String>>,
     pub file_content: Option<String>,
     pub selected_path: Option<PathBuf>,
     pub filters: Vec<String>,
@@ -40,34 +42,80 @@ pub struct FileSystemDialog {
     pub update_json_file: Option<bool>,
 }
 
-/// Settings needed for file dialog operations
+// Rules
+// Either pick_file(s) or pick_folder(s), setting both gives an error
+// .set_can_create_directories(bool) **mac os only** 
+// .set_file_name works only for pick_file and save_file
+// .set_format_label("File Type:") 
+//    macOS only — has no effect on Windows or Linux
+//    Use case: save_file() dialogs (not pick_file())
+//    When it appears: Only when you register two or more filters with add_filter()
+//    Default label: "Format:"
+// .set_parent()
+//    The dialog appears as a modal child of that parent window
+//    The dialog is owned by and dependent on the parent window
+//    Users typically can't interact with the parent window while the dialog is open
+//    The dialog may be positioned relative to or on top of the parent window
+// .set_show_hidden_files(true)
+//    Only works if feature[features] default = ["gtk3"] for linux only
+//    If not selected then defaults to user filesystem setting.
+//    Therefore needs to be set to no display hidden folder if needed.
+
+
 #[derive(Debug, Clone)]
 struct FileDialogSettings {
-    pub initial_directory: Option<String>,
-    pub filters: Vec<String>,
+    #[allow(dead_code)]
+    select_file: bool,
+    #[allow(dead_code)]
+    select_files: bool,
+    #[allow(dead_code)]
+    select_folder: bool,
+    #[allow(dead_code)]
+    select_folders: bool,
+    initial_directory: Option<String>,
+    filters: Vec<String>,
 }
 
 impl FileSystemDialog {
 
-    pub fn construct<'a>(
-        &'a self,
-        mut content: Vec<Element<'a, Message>>,
-        ) -> Option<Element<'a, Message>> {
-        
-        Some(content.remove(0))
-    }
-
-    /// Extract dialog settings that need to escape the method lifetime
+    /// Extract dialog settings
     fn extract_dialog_settings(&self) -> FileDialogSettings {
         let mut filters = self.filters.clone();
         
         if !filters.contains(&"All Files".to_string()) {
             filters.push("All Files".to_string());
         }
+
+        // Determine which dialog mode should be active
+        let active_count = [
+            self.select_file == Some(true),
+            self.select_files == Some(true),
+            self.select_folder == Some(true),
+            self.select_folders == Some(true),
+        ].iter().filter(|&&m| m).count();
+        
+        let (select_file, select_files, select_folder, select_folders) = if active_count > 1 {
+            eprintln!("***[WARNING]*** Multiple file(s) or Folder(s) are set. Only one can be true. Defaulting to: select_file = True.");
+            (true, false, false, false)
+        } else if active_count == 1 {
+            (
+                self.select_file == Some(true),
+                self.select_files == Some(true),
+                self.select_folder == Some(true),
+                self.select_folders == Some(true),
+            )
+        } else {
+            // No modes set, default to select_file
+            (true, false, false, false)
+        };
         
         FileDialogSettings {
             initial_directory: self.initial_directory.clone(),
             filters,
+            select_file,
+            select_files,
+            select_folder,
+            select_folders,
         }
     }
 }
@@ -77,6 +125,7 @@ impl FileSystemDialog {
 pub enum FileSystemMessage {
     FolderPicked(Option<PathBuf>),
     FilePicked(Option<PathBuf>),
+    FilesPicked(Option<Vec<PathBuf>>),
     LoadFile(Option<PathBuf>),
     FileLoaded(Option<String>, Option<String>),
     SaveFile(Option<PathBuf>),
@@ -84,14 +133,17 @@ pub enum FileSystemMessage {
 }
 
 
-/// Helper function to create a file dialog with configured filters and settings
+// Helper function to create a file dialog with configured filters and settings
 fn create_file_dialog(settings: &FileDialogSettings) -> AsyncFileDialog {
+    
     let mut dialog = AsyncFileDialog::new();
     
     // Set initial directory if provided
     if let Some(ref init_dir) = settings.initial_directory {
         dialog = dialog.set_directory(init_dir);
     }
+
+
     
     // Load filters from configuration
     if let Ok(default_filters) = load_file_filters() {
@@ -141,6 +193,25 @@ pub fn fsd_callback(state: &mut IpgState, id: usize, message: FileSystemMessage)
                             "FileSystemDialog",
                             fsd.file_path.clone(),
                             "def on_file_selected(wid: int, file_name)",
+                        );
+                }
+            }
+        },
+        FileSystemMessage::FilesPicked(path_opt) => {
+            if let Some(Widgets::FileSystemDialog(fsd)) = state.widgets.get_mut(&id) {
+                fsd.is_loading = false;
+
+                if let Some(paths) = path_opt {
+                    // Extract file names and convert to strings
+                    fsd.file_paths = Some(paths.iter().map(|p| p.display().to_string()).collect());
+                    
+                    // Invoke callback with the selected data
+                        invoke_callback_with_args(
+                            id,
+                            "on_file_selected",
+                            "FileSystemDialog",
+                            fsd.file_paths.clone(),
+                            "def on_file_selected(wid: int, [file_name])",
                         );
                 }
             }
@@ -296,6 +367,7 @@ async fn save_file(path: Option<PathBuf>, contents: String) -> io::Result<PathBu
 #[pyclass(eq, eq_int, hash, frozen)]
 pub enum FileSystemDialogParam {
     SelectFile,
+    SelectFiles,
     SelectFolder,
     SelectFileForLoad,
     SaveFile,
@@ -318,7 +390,6 @@ impl WidgetParamUpdate for FileSystemDialog {
         match param {
             FileSystemDialogParam::SelectFile => {
                 set_t_value(&mut self.select_file, value, "FileSystemWindowParams::SelectFile");
-                self.select_folder = Some(false);
                 let id = self.id;
                 if self.select_file == Some(true) && !self.is_loading {
                     self.is_loading = true;
@@ -332,6 +403,28 @@ impl WidgetParamUpdate for FileSystemDialog {
                                     .pick_file().await.map(|h| h.path().to_path_buf())
                             },
                             move |path| Message::FileSystemWindow(id, FileSystemMessage::FilePicked(path)),
+                        );
+
+                        let mut state = access_file_dialog_actions();
+                        state.tasks.push(task);
+                        drop(state);
+                }
+            },
+            FileSystemDialogParam::SelectFiles => {
+                set_t_value(&mut self.select_files, value, "FileSystemWindowParams::SelectFiles");
+                let id = self.id;
+                if self.select_files == Some(true) && !self.is_loading {
+                    self.is_loading = true;
+                    
+                    let settings = self.extract_dialog_settings();
+                    
+                    let task = Task::perform(
+                            async move {
+                                create_file_dialog(&settings)
+                                    .set_title("Select Files")
+                                    .pick_files().await.map(|handles| handles.iter().map(|h| h.path().to_path_buf()).collect())
+                            },
+                            move |paths| Message::FileSystemWindow(id, FileSystemMessage::FilesPicked(paths)),
                         );
 
                         let mut state = access_file_dialog_actions();

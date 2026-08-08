@@ -34,6 +34,9 @@ def open_dialog_file(_btn_id: int):
     """Open Dialog to select a folder"""
     update_widget(fsd_id, FileSystemDialogParam.SelectFile, True)
 
+def open_dialog_files(_btn_id: int):
+    """Select multiple files"""
+    update_widget(fsd_id, FileSystemDialogParam.SelectFiles, True)
 
 def folder_selected(_fsd_id: int, folder_path: str):
     """Folder selected"""
@@ -78,8 +81,10 @@ with Window(title="FileSystemDialog Example", center=True):
         with Column(spacing=20, padding=[20]):
 
             with Row(spacing=20):
-                add_button(label="Open for file", on_press=open_dialog_file)
-                add_button(label="Open for Folder", on_press=open_dialog_folder)
+                with Column(spacing=10):
+                    add_button(label="Open for a file", on_press=open_dialog_file)
+                    add_button(label="Open for files", on_press=open_dialog_files)
+                add_button(label="Open for a Folder", on_press=open_dialog_folder)
                 add_button(label="Clear Filter List", on_press=clear_filter_list)
                 add_button(label="Set default Directory", on_press=set_default_directory)
 

@@ -292,13 +292,9 @@ impl TextInputStyle {
         Color::rgba_ipg_color_to_iced(self.selection_rgba_disabled, &self.selection_color_disabled, self.selection_color_alpha_disabled);
 
     // border
-    let br = if let Some(br) = self.border_radius {
-        br
-    } else { 2.0 };
+    let br = self.border_radius.unwrap_or(2.0);
 
-    let bw = if let Some(bw) = self.border_width {
-        bw
-    } else { 1.0 };
+    let bw = self.border_width.unwrap_or(1.0);
 
     let palette = theme.palette();
     
@@ -308,19 +304,17 @@ impl TextInputStyle {
         c
     } else { theme.palette().background.base.text};
 
-    let background_opt = if let Some(bkg) = background_color {
-        Some(Background::new(bkg, txt_color))
-    } else { None };
+    let background_opt = 
+        background_color.map(|bkg| Background::new(bkg, txt_color));
 
-    let pm_swatch_opt = if let Some(c) = primary_color {
-        Some(palette::Swatch::derive(c, txt_color))
-    } else { None };
+    let pm_swatch_opt = 
+        primary_color.map(|c| palette::Swatch::derive(c, txt_color));
 
-    let sec_swatch_opt = if let Some(c) = secondary_color {
-        Some(palette::Swatch::derive(c, txt_color))
-    } else { None };
+    let sec_swatch_opt = 
+        secondary_color.map(|c| palette::Swatch::derive(c, txt_color));
 
-    let new_theme = background_opt.is_some() && pm_swatch_opt.is_some() && sec_swatch_opt.is_some();
+    let new_theme = 
+        background_opt.is_some() && pm_swatch_opt.is_some() && sec_swatch_opt.is_some();
 
     let bkg_base_color = if new_theme {
         background_opt.unwrap().base.color

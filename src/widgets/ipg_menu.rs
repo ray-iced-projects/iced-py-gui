@@ -132,8 +132,6 @@ impl Menu {
                 .style(move |theme: &Theme, status| {
                     if let Some(st) = &style_opt {
                         st.to_iced(theme, status, self.style_primary)
-                    } else if self.style_primary == Some(true) {
-                        primary(theme)
                     } else {
                         primary(theme)
                     }

@@ -402,11 +402,11 @@ pub fn process_window_event(state: &mut IpgState,
         // iced::Event::Clipboard(event) => todo!(),
     };
 
-    if event_name.is_some() {
+    if let Some(name) = event_name {
         process_window_callback(
             ipg_id,
             event_id,
-            event_name.unwrap(), 
+            name, 
             hmap_s_f,
             hmap_s_s,
         );

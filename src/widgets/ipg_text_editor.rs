@@ -308,9 +308,7 @@ impl TextEditorStyle {
             palette.background.strong.color
         };
 
-        let brd_width = if let Some(bw) = self.border_width {
-            bw
-        } else { 1.0 };
+        let brd_width = self.border_width.unwrap_or(1.0);
 
         let bdr_radius = if let Some(br) = self.border_radius {
             br.into()

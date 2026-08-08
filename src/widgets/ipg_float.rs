@@ -30,7 +30,7 @@ impl Float {
 
         if !self.show { return None }
 
-        if content.len() == 0 { return None }
+        if content.is_empty() { return None }
 
         let scale = if let Some(clamp) = self.scale_clamped {
             clamp

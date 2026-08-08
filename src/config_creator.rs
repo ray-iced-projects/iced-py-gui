@@ -7,6 +7,9 @@ use std::fs;
 use once_cell::sync::Lazy;
 use std::sync::Mutex;
 
+/// Type alias for file filters (name, extensions pairs)
+type FileFilters = Vec<(String, String)>;
+
 /// File filter configuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct FileFilter {
@@ -43,7 +46,7 @@ pub struct FileFiltersConfig {
 }
 
 /// Cached configuration
-static FILE_FILTERS_CACHE: Lazy<Mutex<Option<Vec<(String, String)>>>> = Lazy::new(|| Mutex::new(None));
+static FILE_FILTERS_CACHE: Lazy<Mutex<Option<FileFilters>>> = Lazy::new(|| Mutex::new(None));
 
 /// Get the configuration directory path based on OS
 fn get_config_dir() -> PathBuf {
@@ -214,7 +217,7 @@ fn default_filters() -> FileFiltersConfig {
 }
 
 /// Load filters from disk or create default config
-pub fn load_file_filters() -> Result<Vec<(String, String)>, String> {
+pub fn load_file_filters() -> Result<FileFilters, String> {
     // Check cache first
     if let Ok(cache) = FILE_FILTERS_CACHE.lock()
         && let Some(filters) = cache.as_ref() {
@@ -275,7 +278,7 @@ fn create_default_config(config: &FileFiltersConfig, path: &PathBuf) -> Result<(
 }
 
 /// Convert internal format to tuple vector for Python
-fn convert_to_tuple_vec(config: &FileFiltersConfig) -> Vec<(String, String)> {
+fn convert_to_tuple_vec(config: &FileFiltersConfig) -> FileFilters {
     let mut filters: Vec<(String, String)> = config
         .filters
         .iter()
@@ -293,14 +296,14 @@ fn convert_to_tuple_vec(config: &FileFiltersConfig) -> Vec<(String, String)> {
 }
 
 /// Cache filters in memory
-fn cache_filters(filters: &[(String, String)]) {
+fn cache_filters(filters: &FileFilters) {
     if let Ok(mut cache) = FILE_FILTERS_CACHE.lock() {
         *cache = Some(filters.to_vec());
     }
 }
 
 /// Reload configuration from disk (useful if user edited the file)
-pub fn reload_file_filters() -> Result<Vec<(String, String)>, String> {
+pub fn reload_file_filters() -> Result<FileFilters, String> {
     // Clear cache
     if let Ok(mut cache) = FILE_FILTERS_CACHE.lock() {
         *cache = None;

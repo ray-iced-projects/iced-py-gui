@@ -199,7 +199,7 @@ pub fn date_picker_callback(
         
 }
 
-fn insert_day(format: &String, day: usize, date: &String) -> String {
+fn insert_day(format: &String, day: usize, date: &str) -> String {
     let day_str = convert_to_len_two(day);
     match format.as_str() {
         // YYYY-mm-dd  →  replace chars 8..10
@@ -212,7 +212,7 @@ fn insert_day(format: &String, day: usize, date: &String) -> String {
     }
 }
 
-fn insert_month(format: &String, month: usize, date: &String) -> String {
+fn insert_month(format: &String, month: usize, date: &str) -> String {
     let month_str = convert_to_len_two(month);
     match format.as_str() {
         // YYYY-mm-dd  →  replace chars 5..7
@@ -225,7 +225,7 @@ fn insert_month(format: &String, month: usize, date: &String) -> String {
     }
 }
 
-fn insert_year(format: &String, date: &String, left: bool) -> String {
+fn insert_year(format: &String, date: &str, left: bool) -> String {
     let year: Vec<&str> = date.split("-").collect();
     let mut year_num = match year[0].parse::<i32>() {
         Ok(num) =>  num,

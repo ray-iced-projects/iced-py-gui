@@ -219,9 +219,7 @@ impl ComboBoxMenuStyle {
             .map(|rd| get_radius(rd, "combo_box".to_string()))
             .unwrap_or(0.0.into());
 
-        let border_width = if let Some(w) = self.border_width {
-            w
-        } else { 1.0 };
+        let border_width = self.border_width.unwrap_or(1.0);
 
         let palette = theme.palette();
 
@@ -294,9 +292,7 @@ impl ComboBoxInputStyle {
             .map(|rd| get_radius(rd, "combo_box".to_string()))
             .unwrap_or(2.0.into());
 
-        let border_width = if let Some(w) = self.border_width {
-            w
-        } else { 1.0 };
+        let border_width = self.border_width.unwrap_or(1.0);
 
         let palette = theme.palette();
 
@@ -333,7 +329,8 @@ impl ComboBoxInputStyle {
             selection: selected_text_color,
         };
 
-        let style = match status {
+        // returns style
+        match status {
             text_input::Status::Active => active,
             text_input::Status::Hovered => text_input::Style {
                 border: Border {
@@ -355,9 +352,7 @@ impl ComboBoxInputStyle {
                 placeholder: bkg.strongest.color,
                 ..active
             },
-        };
-
-        style
+        }
 
     }
 
@@ -407,9 +402,9 @@ pub enum ComboBoxMenuStyleParam {
 #[derive(Debug, Clone, PartialEq, Hash)]
 #[pyclass(eq, eq_int, hash, frozen)]
 pub enum ComboBoxInputStyleParam {
-    PaletteBaseColor,
-    PaletteBaseAlpha,
-    PaletteBaseRgba,
+    Color,
+    Alpha,
+    Rgba,
 }
 
 // ---------------------------------------------------------------------------
@@ -470,9 +465,9 @@ impl WidgetParamUpdate for ComboBoxInputStyle {
 
     fn param_update(&mut self, param: Self::Param, _value: &PyObject) {
         match param {
-            ComboBoxInputStyleParam::PaletteBaseColor => todo!(),
-            ComboBoxInputStyleParam::PaletteBaseAlpha => todo!(),
-            ComboBoxInputStyleParam::PaletteBaseRgba => todo!(),
+            ComboBoxInputStyleParam::Color => todo!(),
+            ComboBoxInputStyleParam::Alpha => todo!(),
+            ComboBoxInputStyleParam::Rgba => todo!(),
         }
     }
 }

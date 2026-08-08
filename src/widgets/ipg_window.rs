@@ -120,7 +120,7 @@ pub fn add_windows(state: &mut IpgState) -> Vec<Task<Message>> {
             Level::default()
         };
 
-        let position = if let Some(_) = state.windows[i].center {
+        let position = if state.windows[i].center.is_some() {
             Position::Centered
         } else {
             if let Some(pos) = state.windows[i].position {
@@ -183,10 +183,7 @@ pub fn add_windows(state: &mut IpgState) -> Vec<Task<Message>> {
         
         let id = state.windows[i].id;
 
-        let debug = 
-            if let Some(db) = state.windows[i].debug {
-                db
-            } else { false };
+        let debug = state.windows[i].debug.unwrap_or_default();
 
         let theme = if let Some(theme) = &state.windows[i].theme {
             theme.to_iced()

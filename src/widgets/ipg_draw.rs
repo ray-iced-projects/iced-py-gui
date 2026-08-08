@@ -157,7 +157,7 @@ pub fn process_draw_updates(
         std::mem::take(&mut guard.updates)
     };
     for (wid, item, value) in updates.iter() {
-        if let Some(ds) = state.canvas_states.get_mut(&wid) {
+        if let Some(ds) = state.canvas_states.get_mut(wid) {
             if let Some(cont) = state.containers.get_mut(wid) {
             
                 match cont {
@@ -172,13 +172,13 @@ pub fn process_draw_updates(
                             },
                             DrawParam::CanvasColor => {
                                 let color: [f32; 4] = extract_param(value);
-                                ds.canvas_color = iced::Color::from_rgba(color[0], color[1], color[2], color[3] as f32);
+                                ds.canvas_color = iced::Color::from_rgba(color[0], color[1], color[2], color[3]);
                                 ds.request_redraw();
                                 ds.request_text_redraw();
                             },
                             DrawParam::DrawColor => {
                                 let color: [f32; 4] = extract_param(value);
-                                ds.draw_color = iced::Color::from_rgba(color[0], color[1], color[2], color[3] as f32);
+                                ds.draw_color = iced::Color::from_rgba(color[0], color[1], color[2], color[3]);
                             }
                             DrawParam::Load => {
                                 let results = extract_curves(value);
@@ -214,11 +214,10 @@ pub fn process_draw_updates(
                                         format!("{}.bak{}", file_path, n - 1)
                                     };
                                     let dst = format!("{}.bak{}", file_path, n);
-                                    if std::path::Path::new(&src).exists() {
-                                        if let Err(e) = std::fs::rename(&src, &dst) {
-                                            eprintln!("canvas save: could not rotate backup '{}' -> '{}': {}", src, dst, e);
-                                        }
-                                    }
+                                    if std::path::Path::new(&src).exists()
+                                         && let Err(e) = std::fs::rename(&src, &dst) {
+                                             eprintln!("canvas save: could not rotate backup '{}' -> '{}': {}", src, dst, e);
+                                         }
                                 }
                                 match std::fs::File::create(&file_path) {
                                     Ok(mut file) => {

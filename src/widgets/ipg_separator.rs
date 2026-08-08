@@ -78,17 +78,15 @@ impl Separator {
             };
         
         // returns a separator with some styling
-        let separator = 
-                if self.dot == Some(true) {  
-                    Some(get_dot(self, sep_color, border_color))
-                } else if let Some(lbl) = &self.label {
-                    Some(get_label(self, lbl.clone(), sep_color))
-                } else if self.line == Some(true) {
-                    Some(get_line(self, sep_color))
-                } else { None };
-
-        separator
         
+        if self.dot == Some(true) {  
+            Some(get_dot(self, sep_color, border_color))
+        } else if let Some(lbl) = &self.label {
+            Some(get_label(self, lbl.clone(), sep_color))
+        } else if self.line == Some(true) {
+            Some(get_line(self, sep_color))
+        } else { None }
+
     }
 
 }
@@ -98,9 +96,7 @@ fn get_dot(sep: &Separator,
             bd_color: iced::Color) 
             -> Element<'_, app::Message>{
     
-    let dot_radius = if let Some(dr) = sep.dot_radius {
-        dr
-    } else { 1.0 };
+    let dot_radius = sep.dot_radius.unwrap_or(1.0);
 
     let width =  if let Some(rad) = sep.dot_radius {
         Length::Fixed(rad*2.0)
@@ -113,9 +109,7 @@ fn get_dot(sep: &Separator,
         10
     };
 
-    let border_width = if let Some(bw) = sep.dot_border_width {
-        bw
-    } else { 1.0 };
+    let border_width = sep.dot_border_width.unwrap_or(1.0);
 
     let height = get_len(sep.fill, sep.height_fill, sep.height);
 

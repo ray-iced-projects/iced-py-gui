@@ -32,12 +32,10 @@ impl <'a> Stack {
 
         if !self.show { return None }
         
-        content = if self.hide_index.is_some() {
-            let index = self.hide_index.unwrap();
+        content = if let Some(index) = self.hide_index {
             if index >= content.len() {
                 panic!("Stack: The hide_index exceeds the number of stack containers.");
             }
-
             for i in (0..index).rev() {
                 content.remove(i);
             }

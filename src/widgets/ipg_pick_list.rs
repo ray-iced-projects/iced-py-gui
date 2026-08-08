@@ -153,18 +153,18 @@ fn get_handle(
     if let (Some(closed_id), Some(open_id)) = (
         hp.handle_dynamic_closed_icon_id,
         hp.handle_dynamic_open_icon_id,
-    ) {
-        if let (Some(closed), Some(open)) = (resolve_icon(closed_id), resolve_icon(open_id)) {
-            return Handle::Dynamic { closed, open };
-        }
+    ) 
+        && let (Some(closed), Some(open)) = 
+            (resolve_icon(closed_id), resolve_icon(open_id))
+    {
+        return Handle::Dynamic { closed, open };
     }
 
     // Static handle: single icon
-    if let Some(static_id) = hp.handle_static_icon_id {
-        if let Some(icon) = resolve_icon(static_id) {
-            return Handle::Static(icon);
-        }
-    }
+    if let Some(static_id) = hp.handle_static_icon_id
+         && let Some(icon) = resolve_icon(static_id) {
+             return Handle::Static(icon);
+         }
 
     // Arrow handle with optional size
     if let Some(sz) = hp.handle_size {
@@ -256,7 +256,7 @@ impl PickListStyle {
 
         if let Some(br) = &self.border_radius {
         active_style.border.radius = 
-            get_radius(&br, "PickList".to_string());
+            get_radius(br, "PickList".to_string());
         }
 
         if let Some(bw) = self.border_width {

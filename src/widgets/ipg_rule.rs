@@ -42,9 +42,7 @@ impl Rule {
             self.lookup(widgets, self.style_id)
                 .and_then(Widgets::as_rule_style).cloned();
 
-        let thickness = if let Some(th) = self.thickness {
-            th
-        } else { 1 };
+        let thickness = self.thickness.unwrap_or(1);
 
         let rul = if self.is_vertical == Some(true) {
             rule::vertical(thickness)

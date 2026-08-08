@@ -141,11 +141,10 @@ pub fn sash_callback(state: &mut IpgState, widget_id: usize, message: SashMessag
             if sync_enabled {
                 for (id, container) in state.containers.iter_mut() {
                     if *id == widget_id { continue; }
-                    if let Containers::Sash(s) = container {
-                        if s.sync_sashes == Some(true) {
-                            s.current_sizes = updated_sizes.clone();
-                        }
-                    }
+                    if let Containers::Sash(s) = container
+                         && s.sync_sashes == Some(true) {
+                             s.current_sizes = updated_sizes.clone();
+                         }
                 }
             }
 
@@ -176,11 +175,10 @@ pub fn sash_callback(state: &mut IpgState, widget_id: usize, message: SashMessag
             if sync_enabled {
                 for (id, container) in state.containers.iter_mut() {
                     if *id == widget_id { continue; }
-                    if let Containers::Sash(s) = container {
-                        if s.sync_sashes == Some(true) {
-                            s.current_sizes = updated_sizes.clone();
-                        }
-                    }
+                    if let Containers::Sash(s) = container
+                         && s.sync_sashes == Some(true) {
+                             s.current_sizes = updated_sizes.clone();
+                         }
                 }
             }
 
@@ -206,12 +204,11 @@ pub fn sash_callback(state: &mut IpgState, widget_id: usize, message: SashMessag
             // Propagate to all other sashes in the sync group
             if sync_cross_enabled {
                 for (id, container) in state.containers.iter_mut() {
-                    if *id == widget_id { continue; }
-                    if let Containers::Sash(s) = container {
-                        if s.sync_cross_sashes == Some(true) {
+                    if *id == widget_id { continue }
+                    if let Containers::Sash(s) = container
+                        && s.sync_cross_sashes == Some(true) {
                             s.size = updated_size;
-                        }
-                    }
+                       }
                 }
             }
         },

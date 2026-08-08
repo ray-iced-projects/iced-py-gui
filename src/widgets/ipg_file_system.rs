@@ -282,33 +282,32 @@ pub fn fsd_callback(state: &mut IpgState, id: usize, message: FileSystemMessage)
             }
         },
         FileSystemMessage::SaveFile(path_opt) => {
-            if let Some(path) = path_opt {
-                if let Some(Widgets::FileSystemDialog(fsd)) = state.widgets.get_mut(&id) {
-                    fsd.is_loading = true;
-                    if let Some(content) = fsd.file_content.clone() {
-                        let task = Task::perform(
-                            save_file(Some(path.clone()), content),
-                            move |result| {
-                                match result {
-                                    Ok(saved_path) => {
-                                        Message::FileSystemWindow(
-                                            id,
-                                            FileSystemMessage::FileSaved(Some(saved_path)),
-                                        )
-                                    },
-                                    Err(e) => {
-                                        eprintln!("[ERROR] Failed to save file: {:?}", e);
-                                        Message::FileSystemWindow(id, FileSystemMessage::FileSaved(None))
-                                    }
-                                }
+            if let Some(path) = path_opt
+                && let Some(Widgets::FileSystemDialog(fsd)) = state.widgets.get_mut(&id)
+                && let Some(content) = fsd.file_content.clone()
+            {
+                fsd.is_loading = true;
+                let task = Task::perform(
+                    save_file(Some(path.clone()), content),
+                    move |result| {
+                        match result {
+                            Ok(saved_path) => {
+                                Message::FileSystemWindow(
+                                    id,
+                                    FileSystemMessage::FileSaved(Some(saved_path)),
+                                )
                             },
-                        );
-                        
-                        let mut file_dialog_actions = access_file_dialog_actions();
-                        file_dialog_actions.tasks.push(task);
-                        drop(file_dialog_actions);
-                    }
-                }
+                            Err(e) => {
+                                eprintln!("[ERROR] Failed to save file: {:?}", e);
+                                Message::FileSystemWindow(id, FileSystemMessage::FileSaved(None))
+                            }
+                        }
+                    },
+                );
+                
+                let mut file_dialog_actions = access_file_dialog_actions();
+                file_dialog_actions.tasks.push(task);
+                drop(file_dialog_actions);
             }
         },
         FileSystemMessage::FileSaved(path_opt) => {
@@ -353,7 +352,7 @@ async fn save_file(path: Option<PathBuf>, contents: String) -> io::Result<PathBu
             .as_ref()
             .map(rfd::FileHandle::path)
             .map(Path::to_owned)
-            .ok_or_else(|| io::Error::new(io::ErrorKind::Other, "Dialog closed"))?
+            .ok_or_else(|| io::Error::other("Dialog closed"))?
     };
 
     tokio::fs::write(&path, contents)

@@ -170,7 +170,7 @@ impl SliderStyle {
 
         if let Some(br) = &self.rail_border_radius {
             style.rail.border.radius = 
-                get_radius(&br, "Slider".to_string());
+                get_radius(br, "Slider".to_string());
         }
 
         if let Some(hcr) = self.handle_circle_radius {
@@ -181,7 +181,7 @@ impl SliderStyle {
             (Some(hrw), Some(br)) => {
                 style.handle.shape = HandleShape::Rectangle {
                     width: hrw,
-                    border_radius: get_radius(&br, "Slider".to_string()),
+                    border_radius: get_radius(br, "Slider".to_string()),
                 };
             }
             (Some(hrw), None) => {
@@ -198,7 +198,7 @@ impl SliderStyle {
                 };
                 style.handle.shape = HandleShape::Rectangle {
                     width: current_width,
-                    border_radius: get_radius(&br, "Slider".to_string()),
+                    border_radius: get_radius(br, "Slider".to_string()),
                 };
             }
             (None, None) => {}

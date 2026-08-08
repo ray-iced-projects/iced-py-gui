@@ -58,10 +58,7 @@ impl Scrollable {
         let sb_x_opt = self.lookup(widgets, self.scroller_x_id);
         let sb_y_opt = self.lookup(widgets, self.scroller_y_id);
         
-        let both_scrollers = 
-            if sb_x_opt.is_some() && sb_y_opt.is_some() {
-                true
-            } else { false };
+        let both_scrollers = sb_x_opt.is_some() && sb_y_opt.is_some();
 
         let direction = 
             match (sb_x_opt.is_some(), sb_y_opt.is_some()) {

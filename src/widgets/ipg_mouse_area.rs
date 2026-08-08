@@ -55,6 +55,7 @@ impl MouseArea {
 }
 
 #[derive(Debug, Clone)]
+#[allow(clippy::enum_variant_names)]
 pub enum MaMessage {
     OnPress,
     OnRelease,

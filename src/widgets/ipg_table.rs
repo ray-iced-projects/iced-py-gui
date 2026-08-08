@@ -72,7 +72,7 @@ impl TableBasic {
 
         if !self.show { return None }
         
-        let wid = self.id.clone();
+        let wid = self.id;
 
         let scroll_style_header_opt  = self.lookup(widgets, self.style_id)
             .and_then(Widgets::as_scrollable_style).cloned();
@@ -142,14 +142,14 @@ fn table_header<'a>(id: usize, header: &[String], sizes: Vec<f32>, height: f32) 
     .min_size(10.0)
     .on_resize(move |s_id, idx, val| Message::Table(id, TableBasicMessage::ResizeH(s_id, idx, val)))
     .sync_sashes(sizes.clone())
-    .style(|theme, status| iced_sash::subtle(theme, status))
+    .style(iced_sash::subtle)
     .clip(true)
     .into();
 
     let rl = container(rule::horizontal(6.0)).width(Length::Fixed(sizes.iter().sum()));
     
     container(column![sash, rl])
-        .style(|theme| container::rounded_box(theme))
+        .style(container::rounded_box)
         .into()
 }
 
@@ -168,7 +168,7 @@ fn table_body<'a>(id: usize, body: &[Vec<String>], sizes: Vec<f32>, height: f32)
             .min_size(10.0)
             .on_resize(move |s_id, idx, val| Message::Table(id, TableBasicMessage::ResizeH(s_id, idx, val)))
             .sync_sashes(sizes.clone())
-            .style(|theme, status| iced_sash::subtle(theme, status))
+            .style(iced_sash::subtle)
             .clip(true)
             .into();
 
@@ -272,7 +272,7 @@ impl Table {
         }
 
         Some(container(column(parts))
-            .style(|theme| container::rounded_box(theme))
+            .style(container::rounded_box)
             .into())
     }
 
@@ -299,14 +299,14 @@ fn adv_header<'a>(
             .min_size(min_size)
             .on_resize(move |s_id, idx, val| Message::Table(id, TableBasicMessage::ResizeH(s_id, idx, val)))
             .sync_sashes(sizes.clone())
-            .style(|theme, status| iced_sash::subtle(theme, status))
+            .style(iced_sash::subtle)
             .clip(true)
             .into();
         header_rows.push(sash);
     }
     header_rows.push(container(rule::horizontal(1)).width(Length::Fixed(total_width)).into());
     container(column(header_rows))
-    .style(|theme| container::rounded_box(theme))
+    .style(container::rounded_box)
     .into()
 }
 
@@ -331,7 +331,7 @@ fn adv_body<'a>(
             .min_size(min_size)
             .on_resize(move |s_id, idx, val| Message::Table(id, TableBasicMessage::ResizeH(s_id, idx, val)))
             .sync_sashes(sizes.clone())
-            .style(|theme, status| iced_sash::subtle(theme, status))
+            .style(iced_sash::subtle)
             .clip(true)
             .into();
         if row_idx % 2 == 1 {
@@ -370,14 +370,14 @@ fn adv_footer<'a>(
         .min_size(min_size)
         .on_resize(move |s_id, idx, val| Message::Table(id, TableBasicMessage::ResizeH(s_id, idx, val)))
         .sync_sashes(sizes)
-        .style(|theme, status| iced_sash::subtle(theme, status))
+        .style(iced_sash::subtle)
         .clip(true)
         .into();
     container(column![
         container(rule::horizontal(1)).width(Length::Fixed(total_width)),
         sash,
     ])
-    .style(|theme| container::rounded_box(theme))
+    .style(container::rounded_box)
     .into()
 }
 

@@ -81,8 +81,7 @@ impl Image {
         let img: widget::Image<image::Handle> = 
             widget::Image::<image::Handle>::new(self.path.clone())
                 .width(get_len(self.fill, self.width_fill, self.width))
-                .height(get_len(self.fill, self.height_fill, self.height))
-                .into();
+                .height(get_len(self.fill, self.height_fill, self.height));
 
         let img = if let (Some(w), Some(h)) = 
             (self.crop_width, self.crop_height) 

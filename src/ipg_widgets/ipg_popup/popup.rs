@@ -596,13 +596,11 @@ where
             &Rectangle::with_size(Size::INFINITE),
         );
 
-        if self.focus_trap {
-            if let Event::Keyboard(keyboard::Event::KeyPressed {
-                key: keyboard::Key::Named(key::Named::Tab),
-                ..
-            }) = event {
-                shell.capture_event();
-            }
+        if self.focus_trap && matches!(event, Event::Keyboard(keyboard::Event::KeyPressed {
+            key: keyboard::Key::Named(key::Named::Tab),
+            ..
+        })) {
+            shell.capture_event();
         }
     }
 

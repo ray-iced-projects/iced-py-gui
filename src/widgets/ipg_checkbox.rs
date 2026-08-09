@@ -79,10 +79,7 @@ impl CheckBox {
                 Icon::Check.to_char()
             };
 
-        let size = 
-            if let Some(sz) = self.icon_size {
-                Some(iced::Pixels(sz))
-            } else { None };
+        let size = self.icon_size.map(iced::Pixels);
 
         let line_height = 
             if let Some(lh) = self.icon_line_height {

@@ -38,7 +38,7 @@ impl ColorPicker {
         };
 
         let panel = 
-            self.cp.view(move |msg| ColorPikMessage::ColorPicker(msg));
+            self.cp.view(|msg| ColorPikMessage::ColorPicker(msg));
 
         let id = self.id;
 

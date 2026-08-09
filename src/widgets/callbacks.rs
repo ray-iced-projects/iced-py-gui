@@ -32,9 +32,9 @@ pub fn invoke_callback(id: usize, event_name: &str, widget_name: &str) {
         
         if let Err(err) = result {
             let hint = if has_user_data {
-                format!("def callback(wid: int, user_data)")
+                "def callback(wid: int, user_data)".to_string()
             } else {
-                format!("def callback(wid: int)")
+                "def callback(wid: int)".to_string()
             };
             panic!("{widget_name} '{event_name}' callback error: {err}\n  Expected signature: {hint}");
         }

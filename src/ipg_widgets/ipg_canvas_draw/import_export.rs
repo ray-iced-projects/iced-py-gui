@@ -359,7 +359,7 @@ pub fn convert_to_export(
             CanvasWidget::None => continue,
             CanvasWidget::Arc(arc) => ExportWidget::Arc {
                 mid_point:   ExportPoint::from_point(&arc.mid_point),
-                points:      arc.points.iter().map(|p| ExportPoint::from_point(p)).collect(),
+                points:      arc.points.iter().map(ExportPoint::from_point).collect(),
                 radius:      arc.radius,
                 start_angle: arc.start_angle.0,
                 end_angle:   arc.end_angle.0,
@@ -367,7 +367,7 @@ pub fn convert_to_export(
                 width:       arc.width,
             },
             CanvasWidget::Bezier(bz) => ExportWidget::Bezier {
-                points:    bz.points.iter().map(|p| ExportPoint::from_point(p)).collect(),
+                points:    bz.points.iter().map(ExportPoint::from_point).collect(),
                 mid_point: ExportPoint::from_point(&bz.mid_point),
                 degrees:   bz.degrees,
                 color:     color_to_arr(bz.color),
@@ -381,21 +381,21 @@ pub fn convert_to_export(
                 width:        cir.width,
             },
             CanvasWidget::Ellipse(ell) => ExportWidget::Ellipse {
-                points:   ell.points.iter().map(|p| ExportPoint::from_point(p)).collect(),
+                points:   ell.points.iter().map(ExportPoint::from_point).collect(),
                 center:   ExportPoint::from_point(&ell.center),
                 rotation: ell.rotation.0,
                 color:    color_to_arr(ell.color),
                 width:    ell.width,
             },
             CanvasWidget::Line(ln) => ExportWidget::Line {
-                points:    ln.points.iter().map(|p| ExportPoint::from_point(p)).collect(),
+                points:    ln.points.iter().map(ExportPoint::from_point).collect(),
                 mid_point: ExportPoint::from_point(&ln.mid_point),
                 degrees:   ln.degrees,
                 color:     color_to_arr(ln.color),
                 width:     ln.width,
             },
             CanvasWidget::PolyLine(pl) => ExportWidget::PolyLine {
-                points:      pl.points.iter().map(|p| ExportPoint::from_point(p)).collect(),
+                points:      pl.points.iter().map(ExportPoint::from_point).collect(),
                 poly_points: pl.poly_points,
                 mid_point:   ExportPoint::from_point(&pl.mid_point),
                 pl_point:    ExportPoint::from_point(&pl.pl_point),
@@ -404,7 +404,7 @@ pub fn convert_to_export(
                 width:       pl.width,
             },
             CanvasWidget::Polygon(pg) => ExportWidget::Polygon {
-                points:      pg.points.iter().map(|p| ExportPoint::from_point(p)).collect(),
+                points:      pg.points.iter().map(ExportPoint::from_point).collect(),
                 poly_points: pg.poly_points,
                 mid_point:   ExportPoint::from_point(&pg.mid_point),
                 pg_point:    ExportPoint::from_point(&pg.pg_point),
@@ -413,7 +413,7 @@ pub fn convert_to_export(
                 width:       pg.width,
             },
             CanvasWidget::RightTriangle(tr) => ExportWidget::RightTriangle {
-                points:    tr.points.iter().map(|p| ExportPoint::from_point(p)).collect(),
+                points:    tr.points.iter().map(ExportPoint::from_point).collect(),
                 mid_point: ExportPoint::from_point(&tr.mid_point),
                 tr_point:  ExportPoint::from_point(&tr.tr_point),
                 degrees:   tr.degrees,
@@ -421,7 +421,7 @@ pub fn convert_to_export(
                 width:     tr.width,
             },
             CanvasWidget::FreeHand(fh) => ExportWidget::FreeHand {
-                points: fh.points.iter().map(|p| ExportPoint::from_point(p)).collect(),
+                points: fh.points.iter().map(ExportPoint::from_point).collect(),
                 color:  color_to_arr(fh.color),
                 width:  fh.width,
             },

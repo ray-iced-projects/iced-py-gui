@@ -144,13 +144,12 @@ where
         shell: &mut Shell<'_, Message>,
         viewport: &Rectangle,
     ) {
-        if let Event::Mouse(mouse::Event::ButtonPressed(mouse::Button::Left)) = event {
-            if cursor.is_over(layout.bounds()) {
-                if let Some(on_open) = &self.on_open {
-                    shell.publish((on_open)(!self.opened));
-                }
-            }
-        }
+        if let Event::Mouse(mouse::Event::ButtonPressed(mouse::Button::Left)) = event
+             && cursor.is_over(layout.bounds()) {
+                 if let Some(on_open) = &self.on_open {
+                     shell.publish((on_open)(!self.opened));
+                 }
+             }
 
         self.button.as_widget_mut().update(
             &mut tree.children[0],

@@ -243,7 +243,7 @@ impl ColorPickerState {
             color,
             {let f = on_msg.clone(); move |v| f(ContentMsg::HueChanged(v))},
             {let f = on_msg.clone(); move |fmt| f(ContentMsg::FormatSelected(fmt))},
-        ).into();
+        );
 
         let grad_hue_col: Element<M> = column(vec![grad_rgba_row, hue_row])
             .spacing(10.0)
@@ -273,7 +273,7 @@ impl ColorPickerState {
             .width(if show_palette { 460.0 } else { 370.0 })
             .height(190.0)
             .padding(5.0))
-            .into()
+            
     }
 }
 

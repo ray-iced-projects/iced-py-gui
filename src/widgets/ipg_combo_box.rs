@@ -50,6 +50,7 @@ pub struct ComboBox {
 }
 
 #[derive(Debug, Clone)]
+#[allow(clippy::enum_variant_names)]
 pub enum CBMessage {
     OnSelect(String),
     OnOpen,
@@ -203,17 +204,18 @@ impl ComboBoxMenuStyle {
         let shd_color =
             Color::rgba_ipg_color_to_iced(self.shadow_rgba, &self.shadow_color, self.shadow_color_alpha);
 
-        let shadow =
-            if shd_color.is_some() && self.shadow_blur_radius.is_some() {
-                let offset = self.shadow_offset_xy
-                    .map(|of| Vector { x: of[0], y: of[1] })
-                    .unwrap_or_default();
-                Shadow {
-                    color: shd_color.unwrap(),
-                    offset,
-                    blur_radius: self.shadow_blur_radius.unwrap(),
-                }
-            } else { Shadow::default() };
+        let shadow = if let (Some(color), Some(blur_radius)) = (shd_color, self.shadow_blur_radius) {
+            let offset = self.shadow_offset_xy
+                .map(|of| Vector { x: of[0], y: of[1] })
+                .unwrap_or_default();
+            Shadow {
+                color,
+                offset,
+                blur_radius,
+            }
+        } else {
+            Shadow::default()
+        };
 
         let radius = self.border_radius.as_ref()
             .map(|rd| get_radius(rd, "combo_box".to_string()))

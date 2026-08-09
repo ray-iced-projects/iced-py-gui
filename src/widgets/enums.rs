@@ -19,9 +19,7 @@ impl Rotation {
     }
 
     pub fn to_iced(&self, rad: Option<f32>) -> iced::Rotation {
-        let rads = if let Some(rad) = rad {
-            rad
-        } else { 0.0 };
+        let rads = rad.unwrap_or(0.0);
         match self {
             Rotation::Floating => iced::Rotation::Floating(Radians(rads)),
             Rotation::Solid => iced::Rotation::Solid(Radians(rads)),

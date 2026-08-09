@@ -47,8 +47,8 @@ pub fn build_arc_path(arc: &Arc,
                         );
                     mid_point = cursor;
                 } 
-                if edit_point_index.is_some() && edit_point_index != Some(0) {
-                    pts[edit_point_index.unwrap()] = cursor;
+                if let Some(index) = edit_point_index && edit_point_index != Some(0) {
+                    pts[index] = cursor;
                     if edit_point_index == Some(1) {
                         radius = mid_point.distance(cursor);
 
@@ -202,8 +202,8 @@ pub fn build_bezier_path(bz: &Bezier,
                         );
                     mid_point = pending_cursor.unwrap();
                 } 
-                if edit_point_index.is_some() {
-                    pts[edit_point_index.unwrap()] = pending_cursor.unwrap();
+                if let Some(index) = edit_point_index {
+                    pts[index] = pending_cursor.unwrap();
                     mid_point = get_mid_point(pts[0], pts[1]);
                     
                     degrees = 
@@ -447,8 +447,8 @@ pub fn build_line_path(line: &Line,
                     mid_point = pending_cursor.unwrap();
                 };
 
-                if edit_point_index.is_some() {
-                    pts[edit_point_index.unwrap()] = pending_cursor.unwrap();
+                if let Some(index) = edit_point_index {
+                    pts[index] = pending_cursor.unwrap();
                     mid_point = get_mid_point(pts[0], pts[1])
                 }
 
@@ -628,8 +628,8 @@ pub fn build_polyline_path(pl: &PolyLine,
                     pl_point = pts.pop().unwrap();
                     mid_point = pending_cursor.unwrap();
                 } 
-                if edit_point_index.is_some() {
-                    pts[edit_point_index.unwrap()] = pending_cursor.unwrap();
+                if let Some(index) = edit_point_index {
+                    pts[index] = pending_cursor.unwrap();
                     mid_point = get_mid_geometry(&pts, DrawWidget::PolyLine);
                     pl_point = translate_geometry(
                                     &[pl_point], 
@@ -729,8 +729,7 @@ pub fn build_right_triangle_path(tr: &RightTriangle,
                     tr_point = pts.pop().unwrap();
                     mid_point = pending_cursor.unwrap();
                 } 
-                if edit_point_index.is_some() {
-                    let index = edit_point_index.unwrap();
+                if let Some(index) = edit_point_index {
                     let cursor = pending_cursor.unwrap();
                     if index == 0 {
                         pts[0].y = cursor.y
@@ -829,8 +828,8 @@ pub fn build_free_hand_path(fh: &FreeHand,
                 }
             },
             DrawMode::Edit => {
-                if edit_point_index.is_some() {
-                    pts[edit_point_index.unwrap()] = pending_cursor.unwrap();
+                if let Some(index) = edit_point_index {
+                    pts[index] = pending_cursor.unwrap();
                 }
                 
                 for (index, point) in pts.iter().enumerate() {

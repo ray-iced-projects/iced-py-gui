@@ -14,7 +14,7 @@ pub fn get_content(size: Option<f32>, dpc: &DpContent) -> Element<'static, DPMes
     
     let content =
         column(vec![
-            create_first_row_arrows(size, &dpc),
+            create_first_row_arrows(size, dpc),
             
             // Column titles S M T W T F S
             row(
@@ -25,7 +25,7 @@ pub fn get_content(size: Option<f32>, dpc: &DpContent) -> Element<'static, DPMes
             // days of the month
             row(
                 vec![Space::new().width(5.0*size).into(), 
-                get_calendar_days(size, &dpc),
+                get_calendar_days(size, dpc),
                 ]).width(Length::Fill).into(),
 
             // close btn and format picklist
@@ -50,8 +50,8 @@ pub fn get_content(size: Option<f32>, dpc: &DpContent) -> Element<'static, DPMes
         .width(Length::Fill)
         .align_x(iced::Alignment::Center);
 
-    let width = Length::Fixed(dpc.show_width.clone() * size);
-    let height = Length::Fixed(dpc.show_height.clone() * size);
+    let width = Length::Fixed(dpc.show_width * size);
+    let height = Length::Fixed(dpc.show_height * size);
 
     let cont  = container(content)
             .width(width)
@@ -282,9 +282,7 @@ fn create_select_row(
         Button::new(close_text)
             .on_press(DPMessage::HideModal)
             .padding(2.0)
-            .style(move|theme, status| 
-                button::primary(theme, status)
-            )
+            .style(button::primary)
             .into();
                                 
     let picklist: Element<DPMessage, Theme, Renderer> = 
@@ -320,14 +318,14 @@ fn create_submit_row(size_factor: f32, selected_date: String) -> Element<'static
         Button::new(submit_text)
             .padding(3.0)
             .on_press(DPMessage::OnSubmit)
-            .style(move|theme, status| button::primary(theme, status))
+            .style(button::primary)
             .into();
 
     let clip_btn: Element<DPMessage, Theme, Renderer> = 
         Button::new(clip_text)
             .padding(3.0)
             .on_press(DPMessage::CopyToClipBoard)
-            .style(move|theme, status| button::primary(theme, status))
+            .style(button::primary)
             .into();
     
     Row::new()
@@ -365,6 +363,6 @@ fn arrow_button(icon: Text<'static, Theme, Renderer>, message: DPMessage, width:
             .width(width)
             .height(height)
             .padding(0)
-            .style(move |theme, status| button::text(theme, status))
+            .style(button::text)
             .into()
 }

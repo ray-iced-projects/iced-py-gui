@@ -18,7 +18,9 @@ use super::path_builds::{build_arc_path, build_bezier_path, build_circle_path,
     build_ellipse_path, build_free_hand_path, build_line_path, 
     build_polygon_path, build_polyline_path, build_right_triangle_path, build_text_path};
 
-
+// ── Type aliases for complex types ───────────────────────────────────────
+/// Pending path data: (path, color, width, anchor_point, degrees_left, degrees_center)
+type PendingPathData = (Path, Color, f32, Point, Option<f32>, Option<f32>);
 
 #[derive(Debug, Clone, Default)]
 pub enum CanvasWidget {
@@ -253,7 +255,7 @@ impl CanvasWidget {
         edit_mid: bool,
         edit_other: bool,
         degrees_override: Option<f32>,
-    ) -> Option<(Path, Color, f32, Point, Option<f32>, Option<f32>)> {
+    ) -> Option<PendingPathData> {
         let color = self.color();
         let width = self.width();
         match self {
@@ -531,7 +533,7 @@ impl DrawState {
 
     /// Ensure a cache entry exists for this text Id, then clear it.
     pub fn request_text_redraw_for(&mut self, id: &Id) {
-        self.text_cache.entry(id.clone()).or_insert_with(canvas::Cache::new).clear();
+        self.text_cache.entry(id.clone()).or_default();
     }
 
     /// Remove the cache entry for a deleted text widget.
@@ -542,7 +544,7 @@ impl DrawState {
     /// Seed cache entries for all text_curves currently loaded (e.g. at startup).
     pub fn init_text_caches(&mut self) {
         for id in self.text_curves.keys() {
-            self.text_cache.entry(id.clone()).or_insert_with(canvas::Cache::new);
+            self.text_cache.entry(id.clone()).or_default();
         }
     }
 }
@@ -563,9 +565,8 @@ impl<'a> canvas::Program<CanvasWidget> for DrawPending<'a> {
         bounds: iced::Rectangle,
         cursor: mouse::Cursor,
     ) -> Option<canvas::Action<CanvasWidget>>{
-        let Some(cursor_position) = cursor.position_in(bounds) else {
-            return None;
-        };
+        
+        let cursor_position = cursor.position_in(bounds)?;
         
         match event {
             Event::Mouse(mouse_event) => {
@@ -587,9 +588,7 @@ impl<'a> canvas::Program<CanvasWidget> for DrawPending<'a> {
                                     // otherwise store the anchor and wait for text submit.
                                     // For all other widgets: start the normal multi-click flow.
                                     None => {
-                                        if self.state.radio_widget.is_none() {
-                                            return None
-                                        }
+                                        self.state.radio_widget?;
 
                                         // ── Text widget special path ──────────────────
                                         if self.state.radio_widget == Some(DrawWidget::Text) {
@@ -617,13 +616,12 @@ impl<'a> canvas::Program<CanvasWidget> for DrawPending<'a> {
                                                 None => {
                                                     // No text yet — store anchor and wait.
                                                     return Some(canvas::Action::publish(
-                                                        CanvasWidget::Text({
-                                                            let mut dummy = Text::default();
-                                                            dummy.draw_mode = DrawMode::New;
-                                                            dummy.status = DrawStatus::Inprogress;
-                                                            dummy.position = cursor_position;
-                                                            dummy
-                                                        })
+                                                        CanvasWidget::Text(
+                                                            Text { 
+                                                                draw_mode: DrawMode::New, status: DrawStatus::Inprogress, position: cursor_position, 
+                                                                ..Default::default()
+                                                            }
+                                                        )
                                                     ));
                                                 }
                                             }
@@ -680,11 +678,7 @@ impl<'a> canvas::Program<CanvasWidget> for DrawPending<'a> {
                                         let widget_opt = 
                                             find_closest_widget(self.curves, self.text_curves, cursor_position);
                                         
-                                        let selected_widget = 
-                                            match widget_opt {
-                                                Some(w) => w,
-                                                None => return None,
-                                            };
+                                        let selected_widget = widget_opt?;
 
                                         // set draw_mode to indicate being edited
                                         let widget = 
@@ -733,14 +727,14 @@ impl<'a> canvas::Program<CanvasWidget> for DrawPending<'a> {
                                             edit_mid_point,
                                             edit_other_point, 
                                         }) = program_state.take() {
-                                            Some(update_edited_widget(
-                                                widget.clone(), 
+                                            Some(canvas::Action::publish(update_edited_widget(
+                                                 widget.clone(), 
                                                 cursor_position, 
-                                                edit_point_index, 
-                                                edit_mid_point,
-                                                edit_other_point,
-                                                DrawStatus::Completed,
-                                            )).map(canvas::Action::publish)
+                                                 edit_point_index, 
+                                                 edit_mid_point,
+                                                 edit_other_point,
+                                                 DrawStatus::Completed,
+                                             )))
                                         } else {
                                             None
                                         }
@@ -758,11 +752,7 @@ impl<'a> canvas::Program<CanvasWidget> for DrawPending<'a> {
                                         let widget_opt = 
                                             find_closest_widget(self.curves, self.text_curves, cursor_position);
                                         
-                                        let selected_widget = 
-                                            match widget_opt {
-                                                Some(w) => w,
-                                                None => return None,
-                                            };
+                                        let selected_widget = widget_opt?;
                                         
                                         // The widget needs to be in Display initially, 
                                         // in order to display it in pending
@@ -801,7 +791,7 @@ impl<'a> canvas::Program<CanvasWidget> for DrawPending<'a> {
                                                     Some(DrawStatus::Completed),
                                                 );
 
-                                            Some(rotated_widget).map(canvas::Action::publish)
+                                            Some(canvas::Action::publish(rotated_widget))
                                         } else {
                                             None
                                         }
@@ -859,7 +849,7 @@ impl<'a> canvas::Program<CanvasWidget> for DrawPending<'a> {
                 message
             },
             Event::Keyboard(key_event) => {
-                let message = match key_event {
+                match key_event {
                     iced::keyboard::Event::KeyPressed { 
                         key:_, 
                         modified_key, 
@@ -912,9 +902,7 @@ impl<'a> canvas::Program<CanvasWidget> for DrawPending<'a> {
                         },
                     iced::keyboard::Event::KeyReleased {key: _, location:_, modifiers:_, modified_key: _, physical_key: _ } => None,
                     iced::keyboard::Event::ModifiersChanged(_) => None,
-                };
-
-                message.map(canvas::Action::publish)
+                }.map(canvas::Action::publish)
             },
             _ => None,
         }
@@ -1016,7 +1004,7 @@ impl DrawCurve {
     fn draw_all(curves: &HashMap<Id, CanvasWidget>, frame: &mut Frame, _theme: &Theme) {
         // Redraws only when the cache is cleared (i.e. a shape is completed/deleted).
         // Inprogress widgets are skipped — the pending overlay renders them instead.
-        for (_id, widget) in curves.iter() {
+        for widget in curves.values() {
             if let Some((path, color, width)) = widget.display_path() {
                 frame.stroke(&path, Stroke::default().with_width(width).with_color(color));
             }
@@ -1537,7 +1525,7 @@ fn add_new_widget(widget: DrawWidget,
                     line_height: LineHeight::Relative(1.2),
                     font: Default::default(),
                     align_x: h_align.into(),
-                    align_y: v_align.into(),
+                    align_y: v_align,
                     shaping: Shaping::Basic,
                     degrees: 0.0,
                     draw_mode,
@@ -1682,7 +1670,7 @@ pub fn build_placed_text_widget(
         line_height: LineHeight::Relative(1.2),
         font: Default::default(),
         align_x: h_align.into(),
-        align_y: v_align.into(),
+        align_y: v_align,
         shaping: Shaping::Basic,
         degrees: 0.0,
         draw_mode: DrawMode::Display,
@@ -1701,9 +1689,9 @@ fn update_edited_widget(widget: CanvasWidget,                        cursor: Poi
             CanvasWidget::None
         },
         CanvasWidget::Arc(mut arc) => {
-            if index.is_some() {
-                arc.points[index.unwrap()] = cursor;
-                if index.unwrap() == 1 {
+            if let Some(idx) = index {
+                arc.points[idx] = cursor;
+                if idx == 1 {
                     arc.radius = arc.mid_point.distance(cursor);
                     arc.start_angle = get_angle_of_vectors(
                             arc.mid_point, 
@@ -1715,7 +1703,7 @@ fn update_edited_widget(widget: CanvasWidget,                        cursor: Poi
                                 cursor, 
                                 arc.points[2]) + arc.start_angle;
                 }
-                if index.unwrap() == 2 {
+                if idx == 2 {
                     arc.end_angle = 
                         get_angle_of_vectors(
                             arc.points[0], 
@@ -1742,8 +1730,8 @@ fn update_edited_widget(widget: CanvasWidget,                        cursor: Poi
             CanvasWidget::Arc(arc)
         },
         CanvasWidget::Bezier(mut bz) => {
-            if index.is_some() {
-                bz.points[index.unwrap()] = cursor;
+            if let Some(idx) = index {
+                bz.points[idx] = cursor;
                 bz.mid_point = get_mid_point(bz.points[0], bz.points[1]);
             } else if mid_point {
                 bz.points = 
@@ -1816,8 +1804,8 @@ fn update_edited_widget(widget: CanvasWidget,                        cursor: Poi
             CanvasWidget::Ellipse(ell)
         },
         CanvasWidget::Line(mut line) => {
-            if index.is_some() {
-                line.points[index.unwrap()] = cursor;
+            if let Some(idx) = index {
+                line.points[idx] = cursor;
                 line.mid_point = get_mid_point(line.points[0], line.points[1]);
             } else if mid_point {
                 line.points = 
@@ -1870,8 +1858,8 @@ fn update_edited_widget(widget: CanvasWidget,                        cursor: Poi
             CanvasWidget::Polygon(pg)
         },
         CanvasWidget::PolyLine(mut pl) => {
-            if index.is_some() {
-                pl.points[index.unwrap()] = cursor;
+            if let Some(idx) = index {
+                pl.points[idx] = cursor;
                 let mid_point = 
                     get_mid_geometry(
                         &pl.points, 
@@ -1912,16 +1900,15 @@ fn update_edited_widget(widget: CanvasWidget,                        cursor: Poi
             CanvasWidget::PolyLine(pl)
         },
         CanvasWidget::RightTriangle(mut tr) => {
-            if index.is_some() {
-                let index = index.unwrap();
-                if index == 0 {
-                    tr.points[index].y = cursor.y;
+            if let Some(idx) = index {
+                if idx == 0 {
+                    tr.points[idx].y = cursor.y;
                 }
-                if index == 1 {
+                if idx == 1 {
                     tr.points[1].y = cursor.y;
                     tr.points[2].y = cursor.y;
                 }
-                if index == 2 {
+                if idx == 2 {
                     tr.points[2].x = cursor.x;
                 }
                 let mid = get_mid_point(tr.points[1], tr.points[2]);
@@ -1950,8 +1937,8 @@ fn update_edited_widget(widget: CanvasWidget,                        cursor: Poi
             CanvasWidget::RightTriangle(tr)
         },
         CanvasWidget::FreeHand(mut fh) => {
-            if index.is_some() {
-                fh.points[index.unwrap()] = cursor;
+            if let Some(idx) = index {
+                fh.points[idx] = cursor;
             }
             fh.status = status;
             CanvasWidget::FreeHand(fh)
@@ -1991,8 +1978,8 @@ fn update_rotated_widget(widget: &mut CanvasWidget,
 
             arc.points[2] = translate_geometry(&[point_b], arc.mid_point, Point::default())[0];
             
-            if status.is_some() {
-                arc.status = status.unwrap();
+            if let Some(ds) = status {
+                arc.status = ds;
             }
             (CanvasWidget::Arc(arc.clone()), Radians::into(arc.start_angle))
         },
@@ -2010,16 +1997,16 @@ fn update_rotated_widget(widget: &mut CanvasWidget,
         CanvasWidget::Ellipse(ell) => {
             let rads = to_radians(&step_degrees) + ell.rotation.0;
             ell.rotation = Radians(rads);
-            if status.is_some() {
-                ell.status = status.unwrap();
+            if let Some(ds) = status {
+                ell.status = ds;
             }
             (CanvasWidget::Ellipse(ell.clone()), to_degrees(&rads))
         },
         CanvasWidget::Line(ln) => {
             ln.points = rotate_geometry(&ln.points, &ln.mid_point, &step_degrees, DrawWidget::Line);
             ln.degrees = get_horizontal_angle_of_vector(ln.mid_point, ln.points[1]);
-            if status.is_some() {
-                ln.status = status.unwrap();
+            if let Some(ds) = status {
+                ln.status = ds;
             }
             (CanvasWidget::Line(ln.clone()), ln.degrees)
         },
@@ -2027,8 +2014,8 @@ fn update_rotated_widget(widget: &mut CanvasWidget,
             pg.points = rotate_geometry(&pg.points, &pg.mid_point, &step_degrees, DrawWidget::Polygon);
             pg.pg_point = rotate_geometry(&[pg.pg_point], &pg.mid_point, &step_degrees, DrawWidget::Line)[0];
             pg.degrees = get_horizontal_angle_of_vector(pg.mid_point, pg.pg_point);
-            if status.is_some() {
-                pg.status = status.unwrap();
+            if let Some(ds) = status {
+                pg.status = ds;
             }
             (CanvasWidget::Polygon(pg.clone()), pg.degrees)
         },
@@ -2039,8 +2026,8 @@ fn update_rotated_widget(widget: &mut CanvasWidget,
             pl.pl_point = pts.pop().unwrap();
             pl.points = pts;
             pl.degrees = get_horizontal_angle_of_vector(pl.mid_point, pl.pl_point);
-            if status.is_some() {
-                pl.status = status.unwrap();
+            if let Some(ds) = status {
+                pl.status = ds;
             }
             (CanvasWidget::PolyLine(pl.clone()), pl.degrees)
         },
@@ -2051,8 +2038,8 @@ fn update_rotated_widget(widget: &mut CanvasWidget,
             tr.tr_point = pts.pop().unwrap();
             tr.points = pts;
             tr.degrees = get_horizontal_angle_of_vector(tr.mid_point, tr.tr_point);
-            if status.is_some() {
-                tr.status = status.unwrap();
+            if let Some(ds) = status {
+                tr.status = ds;
             }
             (CanvasWidget::RightTriangle(tr.clone()), tr.degrees)
         },
@@ -2061,8 +2048,8 @@ fn update_rotated_widget(widget: &mut CanvasWidget,
         },
         CanvasWidget::Text(txt) => {
             txt.degrees += step_degrees;
-            if status.is_some() {
-                txt.status = status.unwrap();
+            if let Some(ds) = status {
+                txt.status = ds;
             }
             (CanvasWidget::Text(txt.clone()), txt.degrees)
         }
@@ -2072,11 +2059,10 @@ fn update_rotated_widget(widget: &mut CanvasWidget,
 fn add_keypress(widget: &mut CanvasWidget, modified: &Key) -> (Option<CanvasWidget>, bool) {
     match widget {
         CanvasWidget::FreeHand(fh) => {
-            if let Key::Named(named) = modified.as_ref() {
-                if named == iced::keyboard::key::Named::Enter {
-                    fh.completed = true;
-                }
-            }
+            if let Key::Named(named) = modified.as_ref()
+                 && named == iced::keyboard::key::Named::Enter {
+                     fh.completed = true;
+                 }
             
            (Some(CanvasWidget::FreeHand(fh.clone())), fh.completed)
             

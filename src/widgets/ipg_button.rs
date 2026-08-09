@@ -137,16 +137,14 @@ impl Button {
                 } else {txt};
 
             // default is word so not checked
-            let txt = 
-                if style.wrapping_none == Some(true) {
-                    txt.wrapping(Wrapping::None)
-                } else if style.wrapping_glyph == Some(true) {
-                    txt.wrapping(Wrapping::Glyph)
-                } else if style.wrapping_word_glyph == Some(true) {
-                    txt.wrapping(Wrapping::WordOrGlyph)
-                } else { txt };
-            txt
-
+            if style.wrapping_none == Some(true) {
+                txt.wrapping(Wrapping::None)
+            } else if style.wrapping_glyph == Some(true) {
+                txt.wrapping(Wrapping::Glyph)
+            } else if style.wrapping_word_glyph == Some(true) {
+                txt.wrapping(Wrapping::WordOrGlyph)
+            } else { txt }
+            
         } else { txt };
 
         let txt = 
@@ -264,17 +262,18 @@ impl ButtonStyle {
         let bd_color =
             Color::rgba_ipg_color_to_iced(self.border_rgba, &self.border_color, self.border_color_alpha);
 
-        let shadow =
-            if shd_color.is_some() && self.shadow_blur_radius.is_some() {
-                let offset = self.shadow_offset_xy
-                    .map(|of| Vector { x: of[0], y: of[1] })
-                    .unwrap_or_default();
-                Shadow {
-                    color: shd_color.unwrap(),
-                    offset,
-                    blur_radius: self.shadow_blur_radius.unwrap(),
-                }
-            } else { Shadow::default() };
+        let shadow = if let (Some(color), Some(blur_radius)) = (shd_color, self.shadow_blur_radius) {
+            let offset = self.shadow_offset_xy
+                .map(|of| Vector { x: of[0], y: of[1] })
+                .unwrap_or_default();
+            Shadow {
+                color,
+                offset,
+                blur_radius,
+            }
+        } else {
+            Shadow::default()
+        };
 
         let radius = self.border_radius.as_ref()
             .map(|rd| get_radius(rd, "button".to_string()))
@@ -290,10 +289,12 @@ impl ButtonStyle {
             
             style.shadow = shadow;
 
-            let mut border = iced::Border::default();
-            border.color = bd_color.unwrap_or_default();
-            border.radius = radius;
-            border.width = self.border_width.unwrap_or_default();
+            let border = iced::Border{
+                color: bd_color.unwrap_or_default(),
+                radius: radius,
+                width: self.border_width.unwrap_or_default(),
+            };
+            
             style.border = border;
             style.snap = self.snap.unwrap_or_default();
 
@@ -416,7 +417,7 @@ impl ButtonStyle {
             button::Status::Active => {
                 let (bkg_color, text_color, b_color, _) = resolve_parts(WidgetStatus::Active);
                 button::Style {
-                    background: gradient_background.clone()
+                    background: gradient_background
                         .or(Some(iced::Background::Color(bkg_color))),
                     text_color,
                     border: iced::Border{
@@ -431,7 +432,7 @@ impl ButtonStyle {
             button::Status::Pressed => {
                 let (bkg_color, text_color, b_color, _) = resolve_parts(WidgetStatus::Pressed);
                 button::Style {
-                    background: gradient_background.clone()
+                    background: gradient_background
                         .or(Some(iced::Background::Color(bkg_color))),
                     text_color,
                     border: iced::Border{
@@ -446,7 +447,7 @@ impl ButtonStyle {
             button::Status::Hovered => {
                 let (bkg_color, text_color, b_color, _) = resolve_parts(WidgetStatus::Hovered);
                 button::Style {
-                    background: gradient_background.clone()
+                    background: gradient_background
                         .or(Some(iced::Background::Color(bkg_color))),
                     text_color,
                     border: iced::Border{
@@ -460,7 +461,7 @@ impl ButtonStyle {
             },
             button::Status::Disabled => {
                 let (bkg_color, text_color, b_color, alpha) = resolve_parts(WidgetStatus::Disabled);
-                let background = gradient_background.clone()
+                let background = gradient_background
                     .map(|g| g.scale_alpha(alpha))
                     .or(Some(iced::Background::Color(bkg_color)));
                 button::Style {

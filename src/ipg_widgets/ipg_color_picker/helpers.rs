@@ -229,12 +229,11 @@ impl<Message: 'static> canvas::Program<Message> for HsvSquare<Message> {
                 None
             }
             canvas::Event::Mouse(iced::mouse::Event::CursorMoved { .. }) => {
-                if state.is_dragging {
-                    if let Some(pos) = cursor.position_in(bounds) {
+                if state.is_dragging
+                    && let Some(pos) = cursor.position_in(bounds) {
                         let (r, g, b) = color_at(pos, bounds.size(), self.hue);
                         return Some(canvas::Action::publish((self.on_pick)(r, g, b)));
                     }
-                }
                 None
             }
             canvas::Event::Mouse(iced::mouse::Event::ButtonReleased(
@@ -387,6 +386,7 @@ where
     row([col, value_cont]).spacing(10.0).into()
 }
 
+#[allow(clippy::too_many_arguments)]
 pub fn submit_row<'a, M: Clone + 'static>(
     show_palette: bool,
     on_submit: M,
@@ -405,24 +405,21 @@ pub fn submit_row<'a, M: Clone + 'static>(
         button(text("Submit").size(size))
             .on_press(on_submit)
             .padding(padding)
-            .style(|theme, status| 
-                btn_style(theme, status))
+            .style(btn_style)
             .into();
 
     let cancel_btn: Element<M> = 
         button(text("Cancel").size(size))
             .on_press(on_cancel)
             .padding(padding)
-            .style(|theme, status| 
-                btn_style(theme, status))
+            .style(btn_style)
             .into();
 
     let clipbrd_btn: Element<M> = 
         button(text("ClipBoard").size(size))
             .on_press(on_copy)
             .padding(padding)
-            .style(|theme, status| 
-                btn_style(theme, status))
+            .style(btn_style)
             .into();
 
     let palette_chk: Element<M> = 

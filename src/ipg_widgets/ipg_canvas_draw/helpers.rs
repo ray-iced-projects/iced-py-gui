@@ -139,8 +139,8 @@ pub fn get_horizontal_angle_of_vector(center: Point, p2: Point) -> f32 {
             center,
         );
 
-    let angle = ((pts[0].y).atan2(pts[0].x) -
-                        (pts[1].y).atan2(pts[1].x)) * -1.0;
+    let angle = -((pts[0].y).atan2(pts[0].x) -
+                        (pts[1].y).atan2(pts[1].x));
 
     // Since beyond pi, angle goes negative
     let new_angle = if angle < 0.0 {
@@ -161,8 +161,8 @@ pub fn get_angle_of_vectors(center: Point, p1: Point, p2: Point) -> Radians {
             center,
         );
 
-    let angle = ((pts[0].y).atan2(pts[0].x) -
-                        (pts[1].y).atan2(pts[1].x)) * -1.0;
+    let angle = -((pts[0].y).atan2(pts[0].x) -
+                        (pts[1].y).atan2(pts[1].x));
     
     // Since beyond pi, angle goes negative
     let new_angle = if angle < 0.0 {

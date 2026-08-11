@@ -3,8 +3,8 @@ use pyo3::{Py, PyAny, pyfunction, PyResult};
 type PyObject = Py<PyAny>;
 
 use crate::widgets::ipg_file_system::FileSystemDialog;
-use crate::{access_state, add_callback_to_mutex};
-use crate::state::{Widgets, get_id};
+use crate::access_state;
+use crate::state::{CallbackName, Widgets, add_callback_name_to_mutex, get_id};
 
 
 
@@ -35,14 +35,14 @@ use crate::state::{Widgets, get_id};
         load_file=None,
         load_file_for_editor=None,
         save_file=None,
+        file_name=None,
+        file_content=None,
         filters=vec![],
-        initial_directory=None,
+        set_directory=None,
         show_hidden_files=None,
         remember_last_directory=None,
         update_json_file=None,
-        on_folder_selected=None,
-        on_file_selected=None,
-        on_file_loaded=None,
+        results_callback=None,
         ))]
 pub fn add_file_system_dialog(
     select_file: Option<bool>,
@@ -52,29 +52,21 @@ pub fn add_file_system_dialog(
     load_file: Option<bool>,
     load_file_for_editor: Option<bool>,
     save_file: Option<bool>,
+    file_name: Option<String>,
+    file_content: Option<String>,
     filters: Vec<String>,
-    initial_directory: Option<String>,
+    set_directory: Option<String>,
     show_hidden_files: Option<bool>,
     remember_last_directory: Option<bool>,
     update_json_file: Option<bool>,
-    on_folder_selected: Option<PyObject>,
-    on_file_selected: Option<PyObject>,
-    on_file_loaded: Option<PyObject>,
+    results_callback: Option<PyObject>,
     ) -> PyResult<usize> 
 {
     let id = get_id(None);
 
     // Store callback if provided
-    if let Some(py) = on_folder_selected {
-        add_callback_to_mutex(id, "on_folder_selected".to_string(), py);
-    }
-
-    if let Some(py) = on_file_selected {
-        add_callback_to_mutex(id, "on_file_selected".to_string(), py);
-    }
-
-    if let Some(py) = on_file_loaded {
-        add_callback_to_mutex(id, "on_file_loaded".to_string(), py);
+    if let Some(py) = results_callback {
+        add_callback_name_to_mutex(id, CallbackName::Result, py);
     }
 
     let mut state = access_state();
@@ -91,12 +83,14 @@ pub fn add_file_system_dialog(
                 save_file,
                 is_loading: false,
                 folder_path: None,
+                folder_paths: None,
                 file_path: None,
                 file_paths: None,
-                file_content: None,
+                file_name,
+                file_content,
                 selected_path: None,
                 filters,
-                initial_directory,
+                set_directory,
                 show_hidden_files,
                 remember_last_directory,
                 update_json_file,

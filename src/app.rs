@@ -2,6 +2,7 @@
 use std::collections::HashMap;
 use std::time::Instant;
 
+use iced::advanced::Shell;
 use iced::time::milliseconds;
 use iced::widget::{Column, scrollable};
 use iced::window;
@@ -184,7 +185,7 @@ impl App {
                 combo_box_callback(&mut self.state, id, message);
                 process_widget_updates(&mut self.state);
                 process_draw_updates(&mut self.state);
-                Task::none()
+                get_tasks(&mut self.state)
             }
             Message::DatePicker(id, message) => {
                 let task = 
@@ -238,7 +239,7 @@ impl App {
                 pick_list_callback(&mut self.state, id, message);
                 process_widget_updates(&mut self.state);
                 process_draw_updates(&mut self.state);
-                Task::none()
+                get_tasks(&mut self.state)
             },
             Message::PopUp(id, message) => {
                 popup_callback(id, message);
@@ -250,7 +251,7 @@ impl App {
                 radio_callback(&mut self.state, id, message);
                 process_widget_updates(&mut self.state);
                 process_draw_updates(&mut self.state);
-                Task::none()
+                get_tasks(&mut self.state)
             },
             Message::RichTextLinkClicked(id, link_id) => {
                 rich_text_callback(id, link_id);
@@ -264,12 +265,12 @@ impl App {
             Message::Scrolled(vp, id) => {
                 scrollable_callback(id, vp);
                 process_widget_updates(&mut self.state);
-                Task::none()
+                get_tasks(&mut self.state)
             },
             Message::Slider(id, message) => {
                 slider_callback(&mut self.state, id, message);
                 process_widget_updates(&mut self.state);
-                Task::none()
+                get_tasks(&mut self.state)
             },
             Message::Table(id, message) => {
                 table_callback(&mut self.state, id, message);
@@ -285,12 +286,12 @@ impl App {
                 text_input_callback(&mut self.state, id, message);
                 process_widget_updates(&mut self.state);
                 process_draw_updates(&mut self.state);
-                Task::none()
+                get_tasks(&mut self.state)
             },
             Message::Tick(id, instant) => {
                 timer_callback(&mut self.state, id, instant);
                 process_widget_updates(&mut self.state);
-                Task::none()
+                get_tasks(&mut self.state)
             },
             Message::Toggler(id, message) => {
                 toggle_callback(&mut self.state, id, message);

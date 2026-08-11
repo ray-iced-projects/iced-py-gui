@@ -91,7 +91,7 @@ use crate::widgets::ipg_combo_box::{ComboBoxParam, ComboBoxMenuStyleParam};
 use crate::widgets::ipg_container::{ContainerParam, ContainerStyleParam, ContainerStyleStd};
 use crate::widgets::ipg_date_picker::DatePickerParam;
 use crate::widgets::ipg_draw::DrawParam;
-use crate::widgets::ipg_file_system::FileSystemDialogParam;
+use crate::widgets::ipg_file_system::{FileSystemDialogParam, FileSystemDialogCallbackType};
 use crate::widgets::ipg_float::FloatParam;
 use crate::widgets::ipg_font::{FontFamily, FontStretch, FontStyle, FontWeight};
 use crate::widgets::ipg_grid::GridParam;
@@ -256,6 +256,7 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<DrawParam>()?;
     m.add_class::<DrawWidget>()?;
     m.add_class::<FileSystemDialogParam>()?;
+    m.add_class::<FileSystemDialogCallbackType>()?;
     m.add_class::<FloatParam>()?;
     m.add_class::<GridParam>()?;
     m.add_class::<ImageParam>()?;

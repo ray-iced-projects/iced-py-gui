@@ -6,6 +6,7 @@
 use std::collections::HashMap;
 use std::sync::{Mutex, MutexGuard};
 use once_cell::sync::Lazy;
+use strum::Display;
 
 use iced::{Task, message, window};
 use iced::Theme;
@@ -283,10 +284,12 @@ pub struct WidgetNode {
 #[derive(Debug)]
 pub struct Callbacks {
     pub(crate) callbacks: Lazy<HashMap<(usize, String), PyObject>>,
+    pub(crate) callback_names: Lazy<HashMap<(usize, CallbackName), PyObject>>,
 }
 
 pub static CALLBACKS: Mutex<Callbacks> = Mutex::new(Callbacks {
     callbacks: Lazy::new(|| HashMap::new()),
+    callback_names: Lazy::new(|| HashMap::new()),
 });
 
 pub fn access_callbacks() -> MutexGuard<'static, Callbacks> {
@@ -294,12 +297,21 @@ pub fn access_callbacks() -> MutexGuard<'static, Callbacks> {
 }
 
 impl Callbacks {
+    // First two calls will be depreciated
     pub fn insert(&mut self, id: usize, event_name: String, callback: PyObject) {
         self.callbacks.insert((id, event_name), callback);
     }
     
     pub fn get(&self, id: usize, event_name: &str) -> Option<&PyObject> {
         self.callbacks.get(&(id, event_name.to_string()))
+    }
+    // Implementing these calls
+    pub fn insert_name(&mut self, id: usize, event_name: CallbackName, callback: PyObject) {
+        self.callback_names.insert((id, event_name), callback);
+    }
+    
+    pub fn get_name(&self, id: usize, event_name: CallbackName) -> Option<&PyObject> {
+        self.callback_names.get(&(id, event_name))
     }
 }
 
@@ -832,6 +844,16 @@ pub fn get_id(gen_id: Option<usize>) -> usize {
     id
 }
 
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Display)]
+pub enum CallbackName {
+    Result,
+}
+
+pub fn add_callback_name_to_mutex(id: usize, event_name: CallbackName, callback: PyObject) {
+    let mut callbacks = access_callbacks();
+    callbacks.insert_name(id, event_name, callback);
+    drop(callbacks);
+}
 
 pub fn add_callback_to_mutex(id: usize, event_name: String, callback: PyObject) {
     let mut callbacks = access_callbacks();

@@ -133,6 +133,7 @@ from .icedpygui import (
     ComboBoxParam,
     DatePickerParam,
     FileSystemDialogParam,
+    FileSystemDialogCallbackType,
     FloatParam,
     FontFamily,
     FontWeight,

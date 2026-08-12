@@ -5,7 +5,7 @@ use std::collections::HashMap;
 
 use iced::widget::text_input;
 use iced::widget::text_input::{Style, Status};
-use iced::{Border, Element, Theme, alignment};
+use iced::{Border, Element, Length, Theme, alignment};
 use iced::widget;
 use iced::theme::palette::{self, Background};
 
@@ -61,6 +61,16 @@ impl TextInput {
             self.lookup(widgets, self.style_id)
                 .and_then(Widgets::as_text_input_style).cloned();
 
+        let wd = get_len(None, self.width_fill, self.width);
+
+        let width = if wd == Length::Shrink {
+            Length::Fill
+        } else { wd };
+
+        let pd = get_padding(&self.padding);
+
+        let padding = if pd.left == 0.0 { pd.left(2.0) } else { pd };
+
         let txt: widget::TextInput<'_, TIMessage> =  
             widget::TextInput::new(
                     self.placeholder.as_str(), 
@@ -70,8 +80,8 @@ impl TextInput {
                 .on_submit(TIMessage::OnSubmit(self.value.clone()))
                 .on_paste(TIMessage::OnPaste)
                 .secure(self.is_secure.unwrap_or(false))
-                .width(get_len(None, self.width_fill, self.width))
-                .padding(get_padding(&self.padding))
+                .width(width)
+                .padding(padding)
                 .style(move|theme: &Theme, status| {   
                     if let Some(ti) = &style_opt {
                         ti.to_iced(theme, status)

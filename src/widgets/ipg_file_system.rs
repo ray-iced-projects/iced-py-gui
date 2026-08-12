@@ -42,7 +42,7 @@ pub struct FileSystemDialog {
     pub file_content: Option<String>,
     pub selected_path: Option<PathBuf>,
     pub filters: Vec<String>,
-    pub set_directory: Option<String>,
+    pub default_directory: Option<String>,
     pub show_hidden_files: Option<bool>,
     pub remember_last_directory: Option<bool>,
     pub update_json_file: Option<bool>,
@@ -70,7 +70,7 @@ pub struct FileSystemDialog {
 
 #[derive(Debug, Clone)]
 struct FileDialogSettings {
-    set_directory: Option<String>,
+    defult_directory: Option<String>,
     filters: Vec<String>,
     #[allow(dead_code)]
     file_name: Option<String>,
@@ -89,7 +89,7 @@ impl FileSystemDialog {
         }
 
         FileDialogSettings {
-            set_directory: self.set_directory.clone(),
+            defult_directory: self.default_directory.clone(),
             filters,
             file_name: self.file_name.clone(),
             file_content: self.file_content.clone().unwrap_or_default(),
@@ -117,7 +117,7 @@ fn create_file_dialog(settings: &FileDialogSettings) -> AsyncFileDialog {
     
     let mut dialog = AsyncFileDialog::new();
     
-    if let Some(ref dir) = settings.set_directory {
+    if let Some(ref dir) = settings.defult_directory {
         dialog = dialog.set_directory(dir);
     }
 
@@ -385,7 +385,7 @@ pub enum FileSystemDialogParam {
     FileContent,
     FileName,
     Filters,
-    InitialDirectory,
+    DefaultDirectory,
     LoadFile,
     RememberLastDirectory,
     SaveFile,
@@ -523,7 +523,6 @@ impl WidgetParamUpdate for FileSystemDialog {
                 set_t_value(&mut self.file_content, value, "FileSystemDialogParam::FileContent");
             },
             FileSystemDialogParam::FileName => {
-                self.set_directory = None;
                 set_t_value(&mut self.file_name, value, "FileSystemDialogParam::FileName");
             }
             FileSystemDialogParam::SaveFile => {
@@ -551,8 +550,8 @@ impl WidgetParamUpdate for FileSystemDialog {
             FileSystemDialogParam::Filters => {
                 set_t_value(&mut self.filters, value, "FileSystemWindowParams::Filters");
             },
-            FileSystemDialogParam::InitialDirectory => {
-                set_t_value(&mut self.set_directory, value, "FileSystemWindowParams::InitialDirectory");
+            FileSystemDialogParam::DefaultDirectory => {
+                set_t_value(&mut self.default_directory, value, "FileSystemWindowParams::DefaultDirectory");
             },
             FileSystemDialogParam::ShowHiddenFiles => {
                 set_t_value(&mut self.show_hidden_files, value, "FileSystemWindowParams::ShowHiddenFiles");

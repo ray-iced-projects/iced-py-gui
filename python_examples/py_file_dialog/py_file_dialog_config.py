@@ -61,7 +61,7 @@ def set_default_directory(_btn_id: int):
 radio_labels = ["Select a single file name", "Select many file names",
                 "Select a single folder name", "Select many folder names",
                 "Load a file", "Set file name (first use input text below)", "Save a file",
-                "Clear Filter List", "Set default Directory"]
+                "Set default Directory", "Clear Filter List",]
 
 fsd_callbacks = ["file", "files", "folder", "folders"]
 
@@ -90,6 +90,8 @@ def dialog_callbacks(_rd_id: int, index: int):
                 FileSystemDialogParam.FileContent: SOME_FILE_CONTENT,
                 FileSystemDialogParam.SaveFile: True,
                 })
+        case 7: # "Set default Directory"
+            update_widget(fsd_id, FileSystemDialogParam.DefaultDirectory, "/home/charles/Documents")
 
 
 def results_callback(_fsd_id: int, results: tuple[FsdCallType, any]):

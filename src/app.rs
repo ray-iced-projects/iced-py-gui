@@ -2,7 +2,6 @@
 use std::collections::HashMap;
 use std::time::Instant;
 
-use iced::advanced::Shell;
 use iced::time::milliseconds;
 use iced::widget::{Column, scrollable};
 use iced::window;

@@ -60,6 +60,9 @@ use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex,
 ///     Whether the radio group is visible.
 /// gen_id : int, Optional
 ///     Obtains an ID of a widget that have not been created, used for the gen_id parameter.
+/// group_id : int, Optional
+///     Sets the Group ID for radio button grouping. When multiple radios share the same
+///     group_id, selecting one will automatically unselect all others in that group.
 /// Returns
 /// -------
 /// int
@@ -95,6 +98,7 @@ use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex,
     user_data=None, 
     show=true, 
     gen_id=None,
+    group_id=None,
     ))]
 pub fn add_radio(
     parent_id: String,
@@ -126,6 +130,7 @@ pub fn add_radio(
     user_data: Option<PyObject>,
     show: bool,
     gen_id: Option<usize>,
+    group_id: Option<usize>,
     ) -> PyResult<usize>
 {
     let id = get_id(gen_id);
@@ -162,6 +167,7 @@ pub fn add_radio(
             radio_wrap_align_end,
             padding,
             selected_index,
+            group_id,
             width,
             width_fill,
             height,

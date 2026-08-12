@@ -35,6 +35,7 @@ pub struct Radio {
     pub radio_wrap_align_end: Option<bool>,
     pub padding: Option<Vec<f32>>,
     pub selected_index: Option<usize>,
+    pub group_id: Option<usize>,
     pub width: Option<f32>,
     pub width_fill: Option<bool>,
     pub height: Option<f32>,
@@ -219,10 +220,43 @@ pub enum RDMessage {
 pub fn radio_callback(state: &mut IpgState, id: usize, message: RDMessage) {
     match message {
         RDMessage::OnSelected(selected) => {
-            // Update widget state directly
+            // Get the group_id from the selected radio
+            let group_id = if let Some(Widgets::Radio(rd)) = state.widgets.get(&id) {
+                rd.group_id
+            } else {
+                None
+            };
+
+            // Update the selected radio
             if let Some(Widgets::Radio(rd)) = state.widgets.get_mut(&id) {
                 rd.selected_index = Some(selected);
             }
+
+            // If this radio is part of a group, unselect all other radios in that group
+            if let Some(gid) = group_id {
+                let other_ids: Vec<usize> = state.widgets
+                    .iter()
+                    .filter_map(|(widget_id, widget)| {
+                        if let Widgets::Radio(rd) = widget {
+                            if *widget_id != id && rd.group_id == Some(gid) {
+                                Some(*widget_id)
+                            } else {
+                                None
+                            }
+                        } else {
+                            None
+                        }
+                    })
+                    .collect();
+
+                // Unselect all other radios in the group
+                for other_id in other_ids {
+                    if let Some(Widgets::Radio(rd)) = state.widgets.get_mut(&other_id) {
+                        rd.selected_index = None;
+                    }
+                }
+            }
+
             invoke_callback_with_args(id, "on_selected", "Radio", selected,
                 "def cb(wid: int, on_selected: int)");
         },
@@ -331,6 +365,7 @@ pub enum RadioStyleParam {
 pub enum RadioParam {
     Fill,
     FontId,
+    GroupId,
     Height,
     HeightFill,
     Horizontal,
@@ -362,6 +397,7 @@ impl WidgetParamUpdate for Radio {
         match param {
             RadioParam::Fill => set_t_value(&mut self.fill, value, "RadioParam::Fill"),
             RadioParam::FontId => set_t_value(&mut self.font_id, value, "RadioParam::FontId"),
+            RadioParam::GroupId => set_t_value(&mut self.group_id, value, "RadioParam::GroupId"),
             RadioParam::Height => set_t_value(&mut self.height, value, "RadioParam::Height"),
             RadioParam::HeightFill => set_t_value(&mut self.height_fill, value, "RadioParam::HeightFill"),
             RadioParam::Horizontal => set_t_value(&mut self.horizontal, value, "RadioParam::Horizontal"),

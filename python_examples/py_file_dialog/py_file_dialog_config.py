@@ -21,6 +21,7 @@ from icedpygui import (
     get_dialog_filters,
     update_widget,
     update_widget_params,
+    generate_id,
     )
 
 
@@ -124,10 +125,17 @@ with Window(title="FileSystemDialog Example", center=True):
 
     with Container(width_fill=True, height_fill=True, align_center=True):
         with Row():
-            with Column():
-                add_radio(labels=radio_labels, radio_spacing=5, on_selected=dialog_callbacks)
+            with Column(spacing=10, padding=[0,0,0,10]): # left_padding set
+                # Using the group_id in a radio button, with adding only 1 button,
+                # one can separate the radios to allowing the results close by or
+                # help with any alignment issues.  More than one button can be
+                # added so that groups of buttons can act as one set of radios where
+                # the selection remains as one.
+                group_id = generate_id()
+                for label in radio_labels:
+                    add_radio(labels=[label], group_id=group_id, on_selected=dialog_callbacks)
 
-            with Column(spacing=5, padding=[0,0,0,10]):
+            with Column(spacing=10):
                 file_text_id = add_text(content="File name: None")
                 files_text_id = add_text(content="File names: None")
 

@@ -60,7 +60,7 @@ def set_default_directory(_btn_id: int):
 
 radio_labels = ["Select a single file name", "Select many file names",
                 "Select a single folder name", "Select many folder names",
-                "Load a file", "Set file name (first use input text below)", "Save a file",
+                "Load a file", "Set file name", "Save a file",
                 "Set default Directory", "Clear Filter List",]
 
 fsd_callbacks = ["file", "files", "folder", "folders"]
@@ -123,21 +123,30 @@ fsd_id = add_file_system_dialog(results_callback=results_callback)
 with Window(title="FileSystemDialog Example", center=True):
 
     with Container(width_fill=True, height_fill=True, align_center=True):
-        with Column(spacing=20, padding=[20]):
+        with Row():
+            with Column():
+                add_radio(labels=radio_labels, radio_spacing=5, on_selected=dialog_callbacks)
 
-            with Row(spacing=20):
-                with Column(spacing=10):
-                    add_radio(labels=radio_labels, radio_spacing=5, on_selected=dialog_callbacks)
+            with Column(spacing=5, padding=[0,0,0,10]):
+                file_text_id = add_text(content="File name: None")
+                files_text_id = add_text(content="File names: None")
 
-            cb_id = add_combobox(options=filters, placeholder="Add a Filter",
-                         width=200, on_select=add_to_filter_list)
-            text_id = add_text(
-                content=f"Your filter list: {state['filter_list']}")
+                folder_text_id = add_text(content="Folder name: None")
+                folders_text_id = add_text(content="Folder names: None")
 
-            add_text(content="Use the text input below to set a file name")
-            add_text_input(placeholder="Set file name", width=200, on_submit=set_file_name)
+                load_file_text_id = add_text(content="First 30 chars of file: None")
 
-            warning_id = add_text(content="***[WARNINGS]: None")
+                add_text(content="Use the text input below to set a file name")
+                add_text_input(placeholder="Set file name", width=200, on_submit=set_file_name)
 
-            file_id = add_text(content="File content: None")
+                warning_id = add_text(content="***[WARNINGS]: None")
+
+                file_id = add_text(content="File content: None")
+
+                cb_id = add_combobox(options=filters, placeholder="Add a Filter",
+                            width=200, on_select=add_to_filter_list)
+
+                text_id = add_text(
+                    content=f"Your filter list: {state['filter_list']}")
+
 start_session()

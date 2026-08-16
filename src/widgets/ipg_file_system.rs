@@ -70,7 +70,7 @@ pub struct FileSystemDialog {
 
 #[derive(Debug, Clone)]
 struct FileDialogSettings {
-    defult_directory: Option<String>,
+    default_directory: Option<String>,
     filters: Vec<String>,
     #[allow(dead_code)]
     file_name: Option<String>,
@@ -79,7 +79,6 @@ struct FileDialogSettings {
 }
 
 impl FileSystemDialog {
-
     /// Extract dialog settings
     fn extract_dialog_settings(&self) -> FileDialogSettings {
         let mut filters = self.filters.clone();
@@ -87,28 +86,14 @@ impl FileSystemDialog {
         if !filters.contains(&"All Files".to_string()) {
             filters.push("All Files".to_string());
         }
-
+        dbg!(&self.default_directory);
         FileDialogSettings {
-            defult_directory: self.default_directory.clone(),
+            default_directory: self.default_directory.clone(),
             filters,
             file_name: self.file_name.clone(),
             file_content: self.file_content.clone().unwrap_or_default(),
-            
         }
     }
-}
-
-
-#[derive(Debug, Clone)]
-pub enum FileSystemMessage {
-    FolderPicked(Option<PathBuf>),
-    FoldersPicked(Option<Vec<PathBuf>>),
-    FilePicked(Option<PathBuf>),
-    FilesPicked(Option<Vec<PathBuf>>),
-    LoadFile(Option<PathBuf>),
-    FileLoaded(Option<String>, Option<String>),
-    SaveFile(Option<PathBuf>),
-    FileSaved(Option<PathBuf>),
 }
 
 
@@ -117,12 +102,12 @@ fn create_file_dialog(settings: &FileDialogSettings) -> AsyncFileDialog {
     
     let mut dialog = AsyncFileDialog::new();
     
-    if let Some(ref dir) = settings.defult_directory {
-        dialog = dialog.set_directory(dir);
+    if let Some(ref dir) = settings.default_directory {
+        dialog = dialog.set_directory(Path::new(dir));
     }
 
     if let Some(name) = &settings.file_name {
-        dialog = dialog.set_file_name(name)
+        dialog = dialog.set_file_name(name);
     }
     
     // Load filters from configuration
@@ -159,6 +144,7 @@ fn create_file_dialog(settings: &FileDialogSettings) -> AsyncFileDialog {
 #[derive(Debug, Clone, PartialEq, Hash)]
 #[pyclass(eq, eq_int, hash, frozen)]
 pub enum FileSystemDialogCallbackType {
+    DefaultDirectory,
     File,
     Files,
     Folder,
@@ -168,10 +154,37 @@ pub enum FileSystemDialogCallbackType {
     FileSaved,
 }
 
+#[derive(Debug, Clone)]
+pub enum FileSystemMessage {
+    DefaultDirectory(String),
+    FolderPicked(Option<PathBuf>),
+    FoldersPicked(Option<Vec<PathBuf>>),
+    FilePicked(Option<PathBuf>),
+    FilesPicked(Option<Vec<PathBuf>>),
+    LoadFile(Option<PathBuf>),
+    FileLoaded(Option<String>, Option<String>),
+    SaveFile(Option<PathBuf>),
+    FileSaved(Option<PathBuf>),
+}
 
 pub fn fsd_callback(state: &mut IpgState, id: usize, message: FileSystemMessage) {
 
     match message {
+        FileSystemMessage::DefaultDirectory(dir) => {
+            if let Some(Widgets::FileSystemDialog(fsd)) = state.widgets.get_mut(&id) {
+                fsd.is_loading = false;
+
+                // Invoke callback with the selected data
+                invoke_callback_with_args_enum(
+                    id,
+                    CallbackName::Result,
+                    "FileSystemDialog",
+                    (FsdCallbackType::DefaultDirectory, dir.clone()),
+                    "def fsd_results(_fsd_id: int, results: tuple[FsdCallbackType, any])",
+                );
+            }
+                
+        }
         FileSystemMessage::FilePicked(path_opt) => {
             if let Some(Widgets::FileSystemDialog(fsd)) = state.widgets.get_mut(&id) {
                 fsd.is_loading = false;
@@ -303,6 +316,7 @@ pub fn fsd_callback(state: &mut IpgState, id: usize, message: FileSystemMessage)
                 && let Some(Widgets::FileSystemDialog(fsd)) = state.widgets.get_mut(&id)
                 && let Some(content) = fsd.file_content.clone()
             {
+                dbg!(&content);
                 fsd.is_loading = true;
                 let task = Task::perform(
                     save_file(Some(path.clone()), content),
@@ -539,7 +553,7 @@ impl WidgetParamUpdate for FileSystemDialog {
                                     .set_title("Save File")
                                     .save_file().await.map(|h| h.path().to_path_buf())
                             },
-                            move |path| Message::FileSystemWindow(id, FileSystemMessage::FileSaved(path)),
+                            move |path| Message::FileSystemWindow(id, FileSystemMessage::SaveFile(path)),
                         );
 
                         let mut state = access_file_dialog_actions();
@@ -552,6 +566,7 @@ impl WidgetParamUpdate for FileSystemDialog {
             },
             FileSystemDialogParam::DefaultDirectory => {
                 set_t_value(&mut self.default_directory, value, "FileSystemWindowParams::DefaultDirectory");
+                dbg!(&self.default_directory);
             },
             FileSystemDialogParam::ShowHiddenFiles => {
                 set_t_value(&mut self.show_hidden_files, value, "FileSystemWindowParams::ShowHiddenFiles");

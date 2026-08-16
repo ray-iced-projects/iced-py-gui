@@ -232,6 +232,40 @@ pub fn radio_callback(state: &mut IpgState, id: usize, message: RDMessage) {
                 rd.selected_index = Some(selected);
             }
 
+            // Calculate callback index (group index if grouped, otherwise selected index)
+            let callback_index = if let Some(gid) = group_id {
+                // Find all radios in this group and sort by ID
+                let mut group_radios: Vec<(usize, usize)> = state.widgets
+                    .iter()
+                    .filter_map(|(widget_id, widget)| {
+                        if let Widgets::Radio(rd) = widget {
+                            if rd.group_id == Some(gid) {
+                                Some((*widget_id, rd.labels.len()))
+                            } else {
+                                None
+                            }
+                        } else {
+                            None
+                        }
+                    })
+                    .collect();
+                group_radios.sort_by_key(|x| x.0);
+
+                // Calculate cumulative index
+                let mut cumulative = 0usize;
+                let mut found_index = selected;
+                for (widget_id, label_count) in group_radios {
+                    if widget_id == id {
+                        found_index = cumulative + selected;
+                        break;
+                    }
+                    cumulative += label_count;
+                }
+                found_index
+            } else {
+                selected
+            };
+
             // If this radio is part of a group, unselect all other radios in that group
             if let Some(gid) = group_id {
                 let other_ids: Vec<usize> = state.widgets
@@ -257,7 +291,7 @@ pub fn radio_callback(state: &mut IpgState, id: usize, message: RDMessage) {
                 }
             }
 
-            invoke_callback_with_args(id, "on_selected", "Radio", selected,
+            invoke_callback_with_args(id, "on_selected", "Radio", callback_index,
                 "def cb(wid: int, on_selected: int)");
         },
     }

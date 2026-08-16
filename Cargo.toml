@@ -14,7 +14,7 @@ crate-type = ["cdylib", "rlib"]
 [dependencies]
 pyo3 = { version = "0.26", features = ["indexmap"] }
 pyo3-stub-gen = "0.19.0"
-iced = { git = "https://github.com/iced-rs/iced", rev = "5ca4f19a128ad9dfb22d7c77b2ac715f65d4959b", features = ["advanced", "canvas", "debug", "highlighter", "image", "lazy", "smol", "svg", "tokio"] }
+iced = { git = "https://github.com/iced-rs/iced", rev = "2cffa99b395d84fe469b44dccb56bbacd2f1a157", features = ["advanced", "canvas", "debug", "highlighter", "image", "lazy", "smol", "svg", "tokio"] }
 tokio = { version = "1.0", features = ["fs"]}
 iced_sash = { git = "https://github.com/ray-iced-projects/iced_sash.git", branch = "main" }
 csv = "1"

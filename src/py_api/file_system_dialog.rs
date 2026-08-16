@@ -39,6 +39,7 @@ use crate::state::{CallbackName, Widgets, add_callback_name_to_mutex, get_id};
         file_content=None,
         filters=vec![],
         default_directory=None,
+        title=None,
         show_hidden_files=None,
         remember_last_directory=None,
         update_json_file=None,
@@ -56,6 +57,7 @@ pub fn add_file_system_dialog(
     file_content: Option<String>,
     filters: Vec<String>,
     default_directory: Option<String>,
+    title: Option<String>,
     show_hidden_files: Option<bool>,
     remember_last_directory: Option<bool>,
     update_json_file: Option<bool>,
@@ -94,6 +96,7 @@ pub fn add_file_system_dialog(
                 show_hidden_files,
                 remember_last_directory,
                 update_json_file,
+                title,
             }));
 
 drop(state);

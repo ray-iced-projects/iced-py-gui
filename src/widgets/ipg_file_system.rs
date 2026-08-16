@@ -6,6 +6,7 @@ use std::sync::Arc;
 
 use iced::Task;
 use rfd::AsyncFileDialog;
+use native_dialog::DialogBuilder;
 
 use crate::state::CallbackName;
 use crate::state::Widgets;
@@ -46,6 +47,7 @@ pub struct FileSystemDialog {
     pub show_hidden_files: Option<bool>,
     pub remember_last_directory: Option<bool>,
     pub update_json_file: Option<bool>,
+    pub title: Option<String>,
 }
 
 // Rules
@@ -76,6 +78,8 @@ struct FileDialogSettings {
     file_name: Option<String>,
     #[allow(dead_code)]
     file_content: String,
+    #[allow(dead_code)]
+    title: Option<String>,
 }
 
 impl FileSystemDialog {
@@ -86,12 +90,13 @@ impl FileSystemDialog {
         if !filters.contains(&"All Files".to_string()) {
             filters.push("All Files".to_string());
         }
-        dbg!(&self.default_directory);
+
         FileDialogSettings {
             default_directory: self.default_directory.clone(),
             filters,
             file_name: self.file_name.clone(),
             file_content: self.file_content.clone().unwrap_or_default(),
+            title: self.title.clone(),
         }
     }
 }
@@ -135,6 +140,54 @@ fn create_file_dialog(settings: &FileDialogSettings) -> AsyncFileDialog {
         
     } else {
         eprintln!("***[Error]*** Unable to load file filters, check the config file is setup properly");
+    }
+    
+    dialog
+}
+
+// Helper function to create native dialog with configured settings
+fn create_native_dialog(settings: &FileDialogSettings) -> native_dialog::FileDialogBuilder {
+    let mut dialog = DialogBuilder::file();
+    
+    if let Some(ref dir) = settings.default_directory {
+        dialog = dialog.set_location(dir);
+    }
+
+    if let Some(ref name) = settings.file_name {
+        dialog = dialog.set_filename(name);
+    }
+    
+    // Load filters from configuration
+    // Process all filters first, save "All Files" for last
+    if let Ok(default_filters) = load_file_filters() {
+        let mut has_all_files = false;
+        
+        for requested_filter in &settings.filters {
+            if requested_filter == "All Files" {
+                has_all_files = true;
+                continue;
+            }
+            if let Some((_, extensions)) = default_filters.iter().find(|(name, _)| name == requested_filter) {
+                let ext_list: Vec<&str> = extensions
+                    .split(';')
+                    .map(|e| {
+                        e.trim()
+                            .trim_start_matches('*')
+                            .trim_start_matches('.')
+                    })
+                    .filter(|e| !e.is_empty())
+                    .collect();
+                
+                if !ext_list.is_empty() {
+                    dialog = dialog.add_filter(requested_filter, &ext_list);
+                }
+            }
+        }
+        
+        // Add "All Files" as last filter with empty extension list (accepts all)
+        if has_all_files {
+            dialog = dialog.add_filter("All Files", &["*"]);
+        }
     }
     
     dialog
@@ -426,14 +479,21 @@ impl WidgetParamUpdate for FileSystemDialog {
                 let id = self.id;
                 if self.select_file == Some(true) && !self.is_loading {
                     self.is_loading = true;
-                    
+
                     let settings = self.extract_dialog_settings();
                     
                     let task = Task::perform(
                             async move {
-                                create_file_dialog(&settings)
-                                    .set_title("Select File")
-                                    .pick_file().await.map(|h| h.path().to_path_buf())
+                                tokio::task::spawn_blocking(move || {
+                                    create_native_dialog(&settings)
+                                        .open_single_file()
+                                        .show()
+                                        .ok()
+                                        .flatten()
+                                })
+                                .await
+                                .ok()
+                                .flatten()
                             },
                             move |path| Message::FileSystemWindow(id, FileSystemMessage::FilePicked(path)),
                         );
@@ -453,9 +513,15 @@ impl WidgetParamUpdate for FileSystemDialog {
                     
                     let task = Task::perform(
                             async move {
-                                create_file_dialog(&settings)
-                                    .set_title("Select Files")
-                                    .pick_files().await.map(|handles| handles.iter().map(|h| h.path().to_path_buf()).collect())
+                                tokio::task::spawn_blocking(move || {
+                                    create_native_dialog(&settings)
+                                        .open_multiple_file()
+                                        .show()
+                                        .ok()
+                                })
+                                .await
+                                .ok()
+                                .flatten()
                             },
                             move |paths| Message::FileSystemWindow(id, FileSystemMessage::FilesPicked(paths)),
                         );
@@ -476,9 +542,16 @@ impl WidgetParamUpdate for FileSystemDialog {
 
                     let task = Task::perform(
                             async move {
-                                create_file_dialog(&settings)
-                                    .set_title("Select Folder")
-                                    .pick_folder().await.map(|h| h.path().to_path_buf())
+                                tokio::task::spawn_blocking(move || {
+                                    create_native_dialog(&settings)
+                                        .open_single_dir()
+                                        .show()
+                                        .ok()
+                                        .flatten()
+                                })
+                                .await
+                                .ok()
+                                .flatten()
                             },
                             move |path| Message::FileSystemWindow(id, FileSystemMessage::FolderPicked(path)),
                         );
@@ -521,9 +594,16 @@ impl WidgetParamUpdate for FileSystemDialog {
                     
                     let task = Task::perform(
                             async move {
-                                create_file_dialog(&settings)
-                                    .set_title("Load File")
-                                    .pick_file().await.map(|h| h.path().to_path_buf())
+                                tokio::task::spawn_blocking(move || {
+                                    create_native_dialog(&settings)
+                                        .open_single_file()
+                                        .show()
+                                        .ok()
+                                        .flatten()
+                                })
+                                .await
+                                .ok()
+                                .flatten()
                             },
                             move |path| Message::FileSystemWindow(id, FileSystemMessage::LoadFile(path)),
                         );
@@ -549,9 +629,16 @@ impl WidgetParamUpdate for FileSystemDialog {
                     
                     let task = Task::perform(
                             async move {
-                                create_file_dialog(&settings)
-                                    .set_title("Save File")
-                                    .save_file().await.map(|h| h.path().to_path_buf())
+                                tokio::task::spawn_blocking(move || {
+                                    create_native_dialog(&settings)
+                                        .save_single_file()
+                                        .show()
+                                        .ok()
+                                        .flatten()
+                                })
+                                .await
+                                .ok()
+                                .flatten()
                             },
                             move |path| Message::FileSystemWindow(id, FileSystemMessage::SaveFile(path)),
                         );

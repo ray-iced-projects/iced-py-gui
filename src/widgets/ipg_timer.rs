@@ -5,7 +5,7 @@ use std::time::Instant;
 use pyo3::{Py, PyAny, Python, pyclass, pyfunction};
 type PyObject = Py<PyAny>;
 
-use crate::{IpgState, access_state, widgets::{callbacks::{CallbackName, invoke_callback_with_args_enum}, widget_param_update::extract_param}};
+use crate::{IpgState, access_state, widgets::{callbacks::{CallbackName, invoke_callback_with_args}, widget_param_update::extract_param}};
 
 
 #[derive(Clone, Debug, Hash)]
@@ -40,11 +40,11 @@ pub fn timer_callback(state: &mut IpgState, id: usize, _instant: Instant) {
     }
 
     if was_disabled {
-        invoke_callback_with_args_enum(id, CallbackName::OnStart, "Timer",(tick_count, elapsed_ms),
+        invoke_callback_with_args(id, CallbackName::OnStart, "Timer",(tick_count, elapsed_ms),
             "def cb(wid: int, tick_count: int, elapsed_ms: int)");
     }
 
-    invoke_callback_with_args_enum(id, CallbackName::OnTick, "Timer", (tick_count, elapsed_ms),
+    invoke_callback_with_args(id, CallbackName::OnTick, "Timer", (tick_count, elapsed_ms),
         "def cb(wid: int, tick_count: int, elapsed_ms: int)");
 }
 
@@ -76,7 +76,7 @@ pub fn update_timer(
                         tmr.tick_count = 0;
                         tmr.elapsed_ms = 0;
                         drop(state);
-                        invoke_callback_with_args_enum(wid, CallbackName::OnStop, "Timer", (tick_count, elapsed_ms),
+                        invoke_callback_with_args(wid, CallbackName::OnStop, "Timer", (tick_count, elapsed_ms),
                             "def cb(wid: int, tick_count: int, elapsed_ms: int)");
                         return;
                     }

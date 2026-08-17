@@ -12,7 +12,7 @@ use crate::state::Widgets;
 use crate::state::access_file_dialog_actions;
 use crate::config_creator::load_file_filters;
 use crate::widgets::callbacks::CallbackName;
-use crate::widgets::callbacks::invoke_callback_with_args_enum;
+use crate::widgets::callbacks::invoke_callback_with_args;
 use crate::{IpgState, app::Message,
     widgets::{widget_param_update::{WidgetParamUpdate, set_t_value}}};
 
@@ -228,7 +228,7 @@ pub fn fsd_callback(state: &mut IpgState, id: usize, message: FileSystemMessage)
                 fsd.is_loading = false;
 
                 // Invoke callback with the selected data
-                invoke_callback_with_args_enum(
+                invoke_callback_with_args(
                     id,
                     CallbackName::Result,
                     "FileSystemDialog",
@@ -247,7 +247,7 @@ pub fn fsd_callback(state: &mut IpgState, id: usize, message: FileSystemMessage)
                     fsd.file_path = Some(path.display().to_string());
                     
                     // Invoke callback with the selected data
-                        invoke_callback_with_args_enum(
+                        invoke_callback_with_args(
                             id,
                             CallbackName::Result,
                             "FileSystemDialog",
@@ -266,7 +266,7 @@ pub fn fsd_callback(state: &mut IpgState, id: usize, message: FileSystemMessage)
                     fsd.file_paths = Some(paths.iter().map(|p| p.display().to_string()).collect());
                     
                     // Invoke callback with the selected data
-                        invoke_callback_with_args_enum(
+                        invoke_callback_with_args(
                             id,
                             CallbackName::Result,
                             "FileSystemDialog",
@@ -285,7 +285,7 @@ pub fn fsd_callback(state: &mut IpgState, id: usize, message: FileSystemMessage)
                     fsd.folder_path = Some(path.display().to_string());
                     
                     // Invoke callback with the selected data
-                        invoke_callback_with_args_enum(
+                        invoke_callback_with_args(
                             id,
                             CallbackName::Result,
                             "FileSystemDialog",
@@ -308,7 +308,7 @@ pub fn fsd_callback(state: &mut IpgState, id: usize, message: FileSystemMessage)
                     fsd.folder_paths = Some(folders);
                     
                     // Invoke callback with the selected data
-                        invoke_callback_with_args_enum(
+                        invoke_callback_with_args(
                             id,
                             CallbackName::Result,
                             "FileSystemDialog",
@@ -355,7 +355,7 @@ pub fn fsd_callback(state: &mut IpgState, id: usize, message: FileSystemMessage)
                 fsd.is_loading = false;
                 
                 // Invoke callback with the loaded data
-                invoke_callback_with_args_enum(
+                invoke_callback_with_args(
                     id,
                     CallbackName::Result,
                     "FileSystemDialog",
@@ -402,7 +402,7 @@ pub fn fsd_callback(state: &mut IpgState, id: usize, message: FileSystemMessage)
                     fsd.file_path = Some(path.display().to_string());
                     
                     // Invoke callback with the saved file path
-                    invoke_callback_with_args_enum(
+                    invoke_callback_with_args(
                         id,
                         CallbackName::Result,
                         "FileSystemDialog",

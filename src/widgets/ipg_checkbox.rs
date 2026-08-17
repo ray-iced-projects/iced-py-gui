@@ -9,7 +9,7 @@ use crate::state::IpgState;
 use crate::app::Message;
 use crate::widgets::widget_param_update::{
     WidgetParamUpdate, set_t_value};
-use crate::widgets::callbacks::{CallbackName, invoke_callback_with_args_enum};
+use crate::widgets::callbacks::{CallbackName, invoke_callback_with_args};
 use crate::state::Widgets;
 
 use crate::graphics::BOOTSTRAP_FONT;
@@ -172,7 +172,7 @@ pub fn checkbox_callback(state: &mut IpgState, id: usize, message: ChkMessage) {
             if let Some(Widgets::CheckBox(cb)) = state.widgets.get_mut(&id) {
                 cb.is_checked = is_checked;
             }
-            invoke_callback_with_args_enum(id, CallbackName::OnToggle, "Checkbox", is_checked,
+            invoke_callback_with_args(id, CallbackName::OnToggle, "Checkbox", is_checked,
                 "def cb(wid: int, is_checked: bool)");
         }
     }

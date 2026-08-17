@@ -6,7 +6,7 @@ use crate::app::Message;
 use crate::graphics::colors::Color;
 use crate::py_api::helpers::{get_len, get_padding};
 use crate::state::Widgets;
-use crate::widgets::callbacks::{CallbackName, invoke_callback_enum};
+use crate::widgets::callbacks::{CallbackName, invoke_callback};
 use crate::widgets::widget_param_update::{
     WidgetParamUpdate, set_t_value};
 
@@ -212,7 +212,7 @@ pub enum CardMessage {
 pub fn card_callback(id: usize, message: CardMessage) {
     match message {
         CardMessage::OnClose => {
-            invoke_callback_enum(id, CallbackName::OnClose, "Card");
+            invoke_callback(id, CallbackName::OnClose, "Card");
         },
     }
 }

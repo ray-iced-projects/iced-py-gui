@@ -8,7 +8,7 @@ use crate::graphics::colors::background;
 use crate::py_api::helpers::get_radius;
 use crate::state::Widgets;
 use crate::widgets::callbacks::CallbackName;
-use crate::widgets::callbacks::invoke_callback_with_args_enum;
+use crate::widgets::callbacks::invoke_callback_with_args;
 use crate::widgets::widget_param_update::extract_param;
 use crate::widgets::widget_param_update::{WidgetParamUpdate, set_t_value};
 use crate::py_api::helpers::{get_len, get_padding};
@@ -152,19 +152,19 @@ impl ComboBox {
                 return
             }
 
-            invoke_callback_with_args_enum(id, CallbackName::OnSelect, "ComboBox", selected,
+            invoke_callback_with_args(id, CallbackName::OnSelect, "ComboBox", selected,
                 "def cb(wid: int, selected: str)");
         },
         CBMessage::OnOpen => {
-            invoke_callback_with_args_enum(id, CallbackName::OnOpen, "ComboBox", (),
+            invoke_callback_with_args(id, CallbackName::OnOpen, "ComboBox", (),
                 "def cb(wid: int)");
         },
         CBMessage::OnClose => {
-            invoke_callback_with_args_enum(id, CallbackName::OnClose, "ComboBox", (),
+            invoke_callback_with_args(id, CallbackName::OnClose, "ComboBox", (),
                 "def cb(wid: int)");
         },
         CBMessage::OnInput => {
-            invoke_callback_with_args_enum(id, CallbackName::OnInput, "ComboBox", (),
+            invoke_callback_with_args(id, CallbackName::OnInput, "ComboBox", (),
                 "def cb(wid: int)");
         },
     }

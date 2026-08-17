@@ -2,7 +2,7 @@
 """
 File System Dialog Updating use demo
 """
-from enum import Enum
+
 from icedpygui import (
     Window,
     Column,

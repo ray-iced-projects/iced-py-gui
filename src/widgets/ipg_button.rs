@@ -6,7 +6,7 @@ use crate::graphics::bootstrap::bootstrap_arrow::Arrow;
 use crate::graphics::colors::Color;
 use crate::py_api::colors::{CustomPalette, PaletteKey, StateVariant, StylePart, WidgetStatus};
 use crate::state::Widgets;
-use crate::widgets::callbacks::{CallbackName, invoke_callback_enum};
+use crate::widgets::callbacks::{CallbackName, invoke_callback};
 use crate::py_api::helpers::{get_len, get_padding, get_radius};
 use crate::widgets::widget_param_update::{
     WidgetParamUpdate, set_t_value
@@ -192,7 +192,7 @@ pub enum BtnMessage {
 pub fn button_callback(id: usize, message: BtnMessage) {
     match message {
         BtnMessage::OnPress => {
-            invoke_callback_enum(id, CallbackName::OnPress, "Button");
+            invoke_callback(id, CallbackName::OnPress, "Button");
         }
     }
 }

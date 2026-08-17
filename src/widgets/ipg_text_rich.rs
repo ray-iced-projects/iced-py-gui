@@ -9,7 +9,7 @@ use crate::app::Message;
 use crate::graphics::colors::Color;
 use crate::py_api::helpers::{get_len, get_padding, get_radius};
 use crate::state::Widgets;
-use crate::widgets::callbacks::{CallbackName, invoke_callback_with_args_enum};
+use crate::widgets::callbacks::{CallbackName, invoke_callback_with_args};
 use crate::widgets::widget_param_update::{set_t_value, WidgetParamUpdate};
 
 use pyo3::{pyclass, Py, PyAny};
@@ -254,7 +254,7 @@ impl Span {
 }
 
 pub fn rich_text_callback(id: usize, link_id: usize) {
-    invoke_callback_with_args_enum(
+    invoke_callback_with_args(
         id,
         CallbackName::OnLinkClick,
         "RichText",

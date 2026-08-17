@@ -4,7 +4,7 @@ use std::collections::HashMap;
 
 use crate::graphics::colors::Color;
 use crate::py_api::helpers::{get_len, get_padding};
-use crate::widgets::callbacks::{CallbackName, invoke_callback_with_args_enum};
+use crate::widgets::callbacks::{CallbackName, invoke_callback_with_args};
 use crate::widgets::widget_param_update::{
     WidgetParamUpdate, set_t_value};
 
@@ -291,7 +291,7 @@ pub fn radio_callback(state: &mut IpgState, id: usize, message: RDMessage) {
                 }
             }
 
-            invoke_callback_with_args_enum(id, CallbackName::OnSelected, "Radio", callback_index,
+            invoke_callback_with_args(id, CallbackName::OnSelected, "Radio", callback_index,
                 "def cb(wid: int, on_selected: int)");
         },
     }

@@ -9,7 +9,7 @@ use crate::app::Message;
 use crate::graphics::colors::{self, Color};
 use crate::py_api::helpers::get_radius;
 use crate::state::{Containers, IpgState, Widgets};
-use crate::widgets::callbacks::{CallbackName, invoke_callback_with_args_enum};
+use crate::widgets::callbacks::{CallbackName, invoke_callback_with_args};
 use crate::widgets::widget_param_update::{WidgetParamUpdate, set_t_value};
 
 use pyo3::{pyclass, Py, PyAny};
@@ -149,7 +149,7 @@ pub fn sash_callback(state: &mut IpgState, widget_id: usize, message: SashMessag
             }
 
             // Fire Python callback if registered: def cb(wid: int, data: tuple[int, float])
-            invoke_callback_with_args_enum(widget_id, CallbackName::OnResize, "SashH", (index, size),
+            invoke_callback_with_args(widget_id, CallbackName::OnResize, "SashH", (index, size),
                 "def cb(wid: int, data: tuple[int, float])");
         },
         SashMessage::ResizedV(_id, _index, _size) => {
@@ -183,11 +183,11 @@ pub fn sash_callback(state: &mut IpgState, widget_id: usize, message: SashMessag
             }
 
             // Fire Python callback if registered: def cb(wid: int, data: tuple[int, float])
-            invoke_callback_with_args_enum(widget_id, CallbackName::OnResizeOuter, "Sash", new_total,
+            invoke_callback_with_args(widget_id, CallbackName::OnResizeOuter, "Sash", new_total,
                 "def cb(wid: int, size: float)");
         }
         SashMessage::Released(_id, index) => {
-            invoke_callback_with_args_enum(widget_id, CallbackName::OnRelease, "Sash", index,
+            invoke_callback_with_args(widget_id, CallbackName::OnRelease, "Sash", index,
                 "def cb(wid: int, index: int)");
         },
         SashMessage::ResizedCrossH(_id, size) => {

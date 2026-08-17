@@ -8,7 +8,7 @@ use crate::app::Message;
 use crate::graphics::colors::Color;
 use crate::py_api::helpers::get_radius;
 use crate::state::{Containers, Widgets};
-use crate::widgets::callbacks::{CallbackName, invoke_callback_with_args_enum};
+use crate::widgets::callbacks::{CallbackName, invoke_callback_with_args};
 use crate::widgets::styling::apply_background_color_overrides;
 use crate::widgets::widget_param_update::{
     WidgetParamUpdate, set_t_value
@@ -488,7 +488,7 @@ pub fn table_callback(
             };
 
             // Fire Python callback if registered: def cb(wid: int, data: tuple[int, float])
-            invoke_callback_with_args_enum(widget_id, CallbackName::OnResize, "Table-SashH", (idx, size),
+            invoke_callback_with_args(widget_id, CallbackName::OnResize, "Table-SashH", (idx, size),
                 "def cb(wid: int, data: tuple[int, float])");
         },
     }

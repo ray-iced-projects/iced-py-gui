@@ -9,7 +9,7 @@ use crate::py_api::helpers::{get_padding, get_radius};
 use crate::state::Widgets;
 use crate::widgets::callbacks::CallbackName;
 use crate::widgets::widget_param_update::{WidgetParamUpdate, set_t_value};
-use super::callbacks::invoke_callback_with_args_enum;
+use super::callbacks::invoke_callback_with_args;
 
 use iced::widget::pick_list::{self, Status};
 use iced::widget::text::Ellipsis;
@@ -132,7 +132,7 @@ impl PickList {
             if let Some(Widgets::PickList(pl)) = state.widgets.get_mut(&id) {
                 pl.selected = Some(selected.clone());
             }
-            invoke_callback_with_args_enum(id, CallbackName::OnSelect, "PickList", selected,
+            invoke_callback_with_args(id, CallbackName::OnSelect, "PickList", selected,
                 "def cb(wid: int, selected: str)");
         },
     }

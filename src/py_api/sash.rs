@@ -4,7 +4,8 @@ use pyo3::prelude::*;
 use pyo3::{Py, PyAny, pyfunction};
 
 use crate::graphics::colors::Color;
-use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex};
+use crate::widgets::callbacks::CallbackName;
+use crate::{access_state, add_callback_name_to_mutex, add_user_data_to_mutex};
 use crate::state::{Containers, Widgets, get_id, set_state_cont_wnd_ids, set_state_of_container};
 use crate::widgets::ipg_sash::{Sash, SashStyle, SashStyleStd};
 type PyObject = Py<PyAny>;
@@ -148,15 +149,15 @@ pub fn add_sash(
 
     // Store callback if provided
     if let Some(py) = on_resize {
-        add_callback_to_mutex(id, "on_resize".to_string(), py);
+        add_callback_name_to_mutex(id, CallbackName::OnResize, py);
     }
 
     if let Some(py) = on_resize_outer {
-        add_callback_to_mutex(id, "on_resize_outer".to_string(), py);
+        add_callback_name_to_mutex(id, CallbackName::OnResizeOuter, py);
     }
 
     if let Some(py) = on_release {
-        add_callback_to_mutex(id, "on_release".to_string(), py);
+        add_callback_name_to_mutex(id, CallbackName::OnRelease, py);
     }
 
     // Store user data if provided

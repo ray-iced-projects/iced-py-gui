@@ -3,8 +3,9 @@
 use pyo3::{Py, PyAny, pyfunction, PyResult};
 type PyObject = Py<PyAny>;
 
-use crate::{add_callback_to_mutex, add_user_data_to_mutex};
-use crate::state::{Containers, access_state, get_id, set_state_cont_wnd_ids, set_state_of_container};
+use crate::widgets::callbacks::CallbackName;
+use crate::add_user_data_to_mutex;
+use crate::state::{Containers, access_state, add_callback_name_to_mutex, get_id, set_state_cont_wnd_ids, set_state_of_container};
 use crate::widgets::ipg_color_picker::ColorPicker;
 use crate::ipg_widgets::ipg_color_picker::{ColorOutFormat, ColorPickerState, Position};
 
@@ -104,15 +105,15 @@ pub fn add_color_picker(
     };
 
     if let Some(py) = on_open {
-        add_callback_to_mutex(id, "on_open".to_string(), py);
+        add_callback_name_to_mutex(id, CallbackName::OnOpen, py);
     }
 
     if let Some(py) = on_submit {
-        add_callback_to_mutex(id, "on_submit".to_string(), py);
+        add_callback_name_to_mutex(id, CallbackName::OnSubmit, py);
     }
 
     if let Some(py) = on_cancel {
-        add_callback_to_mutex(id, "on_cancel".to_string(), py);
+        add_callback_name_to_mutex(id, CallbackName::OnCancel, py);
     }
 
     if let Some(py) = user_data {

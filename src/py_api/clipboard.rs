@@ -2,9 +2,9 @@
 
 use pyo3::{Py, PyAny, pyfunction};
 
-use crate::state::{
-    access_clipboard_actions, add_callback_to_mutex, add_user_data_to_mutex, get_id,
-};
+use crate::{state::{
+    access_clipboard_actions, add_callback_name_to_mutex, add_user_data_to_mutex, get_id,
+}, widgets::callbacks::CallbackName};
 
 type PyObject = Py<PyAny>;
 
@@ -42,7 +42,7 @@ pub fn clipboard_write(text: String) {
 pub fn clipboard_callback(callback: PyObject, user_data: Option<PyObject>, gen_id: Option<usize>) -> usize {
     let id = get_id(gen_id);
 
-    add_callback_to_mutex(id, "callback".to_string(), callback);
+    add_callback_name_to_mutex(id, CallbackName::Callback, callback);
 
     if let Some(py) = user_data {
         add_user_data_to_mutex(id, py);

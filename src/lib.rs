@@ -23,7 +23,7 @@ mod config_creator;
 // Re-export for internal use
 pub use state::{
     access_state, access_callbacks, access_user_data1,
-    add_callback_to_mutex, add_user_data_to_mutex, clone_state_to_runtime,
+    add_callback_name_to_mutex, add_user_data_to_mutex, clone_state_to_runtime,
     WidgetNode, IpgState
 };
 

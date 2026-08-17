@@ -6,7 +6,9 @@ type PyObject = Py<PyAny>;
 
 use crate::add_user_data_to_mutex;
 use crate::graphics::colors::Color;
-use crate::state::{Containers, Widgets, access_state, add_callback_to_mutex, get_id, set_state_cont_wnd_ids, set_state_of_container, set_state_of_widget};
+use crate::state::{Containers, Widgets, access_state, add_callback_name_to_mutex, 
+    get_id, set_state_cont_wnd_ids, set_state_of_container, set_state_of_widget};
+use crate::widgets::callbacks::CallbackName;
 use crate::widgets::ipg_card::{Card, CardClass, CardStyle, CardStyleStd};
 
 
@@ -117,7 +119,7 @@ pub fn add_card_class(
     let id = get_id(gen_id);
 
     if let Some(py) = on_close {
-        add_callback_to_mutex(id, "on_close".to_string(), py);
+        add_callback_name_to_mutex(id, CallbackName::OnClose, py);
     }
 
     if let Some(py) = user_data {
@@ -272,7 +274,7 @@ pub fn add_card(
     let id = get_id(gen_id);
 
     if let Some(py) = on_close {
-        add_callback_to_mutex(id, "on_close".to_string(), py);
+        add_callback_name_to_mutex(id, CallbackName::OnClose, py);
     }
 
     if let Some(py) = user_data {

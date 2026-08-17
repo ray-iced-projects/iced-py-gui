@@ -2,11 +2,8 @@
 
 use pyo3::{pyfunction, Py, PyAny, PyResult};
 
-use crate::{access_state, add_callback_to_mutex, 
-    add_user_data_to_mutex, graphics::colors::Color, 
-    state::{Widgets, 
-        get_id, set_state_of_widget}, 
-        widgets::ipg_slider::{Slider, SliderStyle}};
+use crate::{access_state, add_callback_name_to_mutex, add_user_data_to_mutex, graphics::colors::Color, state::{Widgets, 
+        get_id, set_state_of_widget}, widgets::{callbacks::CallbackName, ipg_slider::{Slider, SliderStyle}}};
 type PyObject = Py<PyAny>;
 
 
@@ -91,10 +88,10 @@ pub fn add_slider(
     let id = get_id(gen_id);
 
     if let Some(py) = on_change {
-        add_callback_to_mutex(id, "on_change".to_string(), py);
+        add_callback_name_to_mutex(id, CallbackName::OnChange, py);
     }
     if let Some(py) = on_release {
-        add_callback_to_mutex(id, "on_release".to_string(), py);
+        add_callback_name_to_mutex(id, CallbackName::OnRelease, py);
     }
 
     if let Some(py) = user_data {

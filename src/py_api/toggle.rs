@@ -2,11 +2,9 @@
 use pyo3::{pyfunction, Py, PyAny, PyResult};
 type PyObject = Py<PyAny>;
 
-use crate::{access_state, add_callback_to_mutex, 
-    add_user_data_to_mutex, graphics::colors::Color, 
-    state::{Widgets, get_id, 
+use crate::{access_state, add_callback_name_to_mutex, add_user_data_to_mutex, graphics::colors::Color, state::{Widgets, get_id, 
         set_state_of_widget}, widgets::{  
-        ipg_toggle::{Toggler, TogglerStyle}}};
+        callbacks::CallbackName, ipg_toggle::{Toggler, TogglerStyle}}};
 
 
 /// Add a toggler widget.
@@ -107,7 +105,7 @@ pub fn add_toggler(
     let id = get_id(gen_id);
 
     if let Some(py) = toggled {
-        add_callback_to_mutex(id, "toggled".to_string(), py);
+        add_callback_name_to_mutex(id, CallbackName::Toggled, py);
     }
 
     if let Some(py) = user_data {

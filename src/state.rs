@@ -15,6 +15,7 @@ use pyo3::{Py, PyAny};
 
 use crate::app::Message;
 use crate::py_api::colors::CustomPalette;
+use crate::widgets::callbacks::CallbackName;
 use crate::widgets::ipg_card::{Card, CardClass, CardStyle};
 use crate::widgets::ipg_checkbox::{CheckBox, CheckboxStyle};
 use crate::widgets::ipg_color_picker::ColorPicker;
@@ -844,20 +845,9 @@ pub fn get_id(gen_id: Option<usize>) -> usize {
     id
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Display)]
-pub enum CallbackName {
-    Result,
-}
-
 pub fn add_callback_name_to_mutex(id: usize, event_name: CallbackName, callback: PyObject) {
     let mut callbacks = access_callbacks();
     callbacks.insert_name(id, event_name, callback);
-    drop(callbacks);
-}
-
-pub fn add_callback_to_mutex(id: usize, event_name: String, callback: PyObject) {
-    let mut callbacks = access_callbacks();
-    callbacks.insert(id, event_name, callback);
     drop(callbacks);
 }
 

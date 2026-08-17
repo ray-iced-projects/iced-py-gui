@@ -5,7 +5,8 @@ use pyo3::prelude::*;
 use pyo3::{pyfunction, Py, PyAny};
 type PyObject = Py<PyAny>;
 
-use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex};
+use crate::widgets::callbacks::CallbackName;
+use crate::{access_state, add_callback_name_to_mutex, add_user_data_to_mutex};
 use crate::state::get_id;
 use crate::widgets::ipg_timer::TimerState;
 
@@ -58,15 +59,15 @@ pub fn add_event_timer (
     let id = get_id(gen_id);
 
     if let Some(py) = on_start {
-        add_callback_to_mutex(id, "on_start".to_string(), py);
+        add_callback_name_to_mutex(id, CallbackName::OnStart, py);
     }
 
     if let Some(py) = on_tick {
-        add_callback_to_mutex(id, "on_tick".to_string(), py);
+        add_callback_name_to_mutex(id, CallbackName::OnTick, py);
     }
 
     if let Some(py) = on_stop {
-        add_callback_to_mutex(id, "on_stop".to_string(), py);
+        add_callback_name_to_mutex(id, CallbackName::OnStop, py);
     }
 
     if let Some(py) = user_data {

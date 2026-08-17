@@ -8,18 +8,22 @@ from icedpygui import (Window, Column, Container,
     TimerParam, TextParam, update_widget)
 
 
-def on_start(_timer_id: int, tick_count: int, elapsed_ms: int):
-    """Callback by timer when started"""
+def on_start(_timer_id: int, data: tuple[int, int]):
+    """Callback by timer when started
+        The timer callbacks have a tuple data format"""
+    (tick_count, elapsed_ms) = data
     update_widget(wid=txt_id, param=TextParam.Content,
                   value=f"Timer started: tick_count={tick_count}, elapsed_ms={elapsed_ms}")
 
-def on_tick(_timer_id: int, tick_count: int, elapsed_ms: int):
+def on_tick(_timer_id: int, data: tuple[int, int]):
     """Callback by timer on each tick"""
+    (tick_count, elapsed_ms) = data
     update_widget(wid=txt_id, param=TextParam.Content,
                   value=f"ticking {tick_count} elapsed_ms={elapsed_ms}")
 
-def on_stop(_timer_id: int, tick_count: int, elapsed_ms: int):
+def on_stop(_timer_id: int, data: tuple[int, int]):
     """Callback by timer when stopped"""
+    (tick_count, elapsed_ms) = data
     update_widget(wid=txt_id, param=TextParam.Content,
                   value=f"Timer stopped: tick_count={tick_count}, elapsed_ms={elapsed_ms}")
 

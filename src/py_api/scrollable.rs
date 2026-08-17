@@ -3,10 +3,8 @@
 
 use pyo3::{Py, PyAny, PyResult, pyfunction};
 
-use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex, 
-    graphics::colors::Color,
-    state::{Containers, Widgets, get_id, set_state_cont_wnd_ids, 
-        set_state_of_container}, widgets::{ipg_scrollable::{
+use crate::{access_state, add_callback_name_to_mutex, add_user_data_to_mutex, graphics::colors::Color, state::{Containers, Widgets, get_id, set_state_cont_wnd_ids, 
+        set_state_of_container}, widgets::{callbacks::CallbackName, ipg_scrollable::{
             AutoScrollStyle, RailStyle, Scrollable, ScrollableStyle, Scroller}}};
 type PyObject = Py<PyAny>;
 
@@ -91,7 +89,7 @@ pub fn add_scrollable(
     let id = get_id(None);
 
     if let Some(py) = on_scroll {
-        add_callback_to_mutex(id, "on_scroll".to_string(), py);
+        add_callback_name_to_mutex(id, CallbackName::OnScroll, py);
     }
 
     if let Some(py) = user_data {

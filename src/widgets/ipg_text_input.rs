@@ -18,7 +18,7 @@ use crate::graphics::colors::Color;
 use crate::py_api::helpers::{get_len, get_padding};
 use crate::{IpgState};
 use crate::state::Widgets;
-use crate::widgets::callbacks::invoke_callback_with_args;
+use crate::widgets::callbacks::{CallbackName, invoke_callback_with_args_enum};
 use crate::widgets::widget_param_update::{
     WidgetParamUpdate,  set_t_value};
 
@@ -129,21 +129,21 @@ pub fn text_input_callback(state: &mut IpgState, id: usize, message: TIMessage) 
             if let Some(Widgets::TextInput(ti)) = state.widgets.get_mut(&id) {
                 ti.value = value.clone();
             }
-            invoke_callback_with_args(id, "on_input", "TextInput", value,
+            invoke_callback_with_args_enum(id, CallbackName::OnInput, "TextInput", value,
                 "def cb(wid: int, value: str)");
         },
         TIMessage::OnSubmit(value) => {
             if let Some(Widgets::TextInput(ti)) = state.widgets.get_mut(&id) {
                 ti.value = String::new();
             }
-            invoke_callback_with_args(id, "on_submit", "TextInput", value,
+            invoke_callback_with_args_enum(id, CallbackName::OnSubmit, "TextInput", value,
                 "def cb(wid: int, value: str)");
         }
         TIMessage::OnPaste(value) => {
             if let Some(Widgets::TextInput(ti)) = state.widgets.get_mut(&id) {
                 ti.value = value.clone();
             }
-            invoke_callback_with_args(id, "on_paste", "TextInput", value,
+            invoke_callback_with_args_enum(id, CallbackName::OnPaste, "TextInput", value,
                 "def cb(wid: int, value: str)");
         }
             

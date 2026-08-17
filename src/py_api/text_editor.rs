@@ -3,7 +3,8 @@
 use pyo3::{pyfunction, PyResult, Py, PyAny};
 type PyObject = Py<PyAny>;
 
-use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex};
+use crate::widgets::callbacks::CallbackName;
+use crate::{access_state, add_callback_name_to_mutex, add_user_data_to_mutex};
 use crate::graphics::colors::Color;
 use crate::state::{Widgets, get_id, set_state_of_widget};
 use crate::widgets::ipg_text_editor::{TextEditorStyle, TextEditor};
@@ -125,7 +126,7 @@ pub fn add_text_editor(
 
     // Store callback if provided
     if let Some(py) = on_edit {
-        add_callback_to_mutex(id, "on_edit".to_string(), py);
+        add_callback_name_to_mutex(id, CallbackName::OnEdit, py);
     }
 
     // Store user data if provided

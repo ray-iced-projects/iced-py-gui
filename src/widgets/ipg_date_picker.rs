@@ -2,7 +2,7 @@
 use crate::IpgState;
 use crate::ipg_widgets::ipg_date_picker::lib::helpers::{convert_to_len_two, format_date, get_content};
 use crate::state::{Containers};
-use crate::widgets::callbacks::{invoke_callback_with_args};
+use crate::widgets::callbacks::{CallbackName, invoke_callback_with_args_enum};
 use crate::app::Message;
 
 use crate::ipg_widgets::ipg_date_picker::{
@@ -127,7 +127,7 @@ pub fn date_picker_callback(
         DatePikMessage::Noop => (),
         DatePikMessage::Opened(open) => {
             dp.opened = open;
-            invoke_callback_with_args(id, "on_open", "DaterPicker", open,
+            invoke_callback_with_args_enum(id, CallbackName::OnOpen, "DaterPicker", open,
                     "def cb(wid: int, opened: bool)");
             
         },
@@ -179,7 +179,7 @@ pub fn date_picker_callback(
                 },
                 DPMessage::OnSubmit => {
                     dp.opened = false;
-                    invoke_callback_with_args(id, "on_submit", "Calendar", 
+                    invoke_callback_with_args_enum(id, CallbackName::OnSubmit, "Calendar", 
                     dp.dp_content.selected_date.clone(), "def cb(wid: int, on_submit: str)");
                 },
                 DPMessage::ShowModal => dp.opened = true,

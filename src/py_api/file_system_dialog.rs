@@ -2,9 +2,10 @@
 use pyo3::{Py, PyAny, pyfunction, PyResult};
 type PyObject = Py<PyAny>;
 
+use crate::widgets::callbacks::CallbackName;
 use crate::widgets::ipg_file_system::FileSystemDialog;
 use crate::access_state;
-use crate::state::{CallbackName, Widgets, add_callback_name_to_mutex, get_id};
+use crate::state::{Widgets, add_callback_name_to_mutex, get_id};
 
 
 

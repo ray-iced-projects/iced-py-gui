@@ -15,7 +15,7 @@ use crate::py_api::helpers::get_len;
 use crate::state::Widgets;
 use crate::widgets::widget_param_update::{WidgetParamUpdate, set_t_value};
 use crate::IpgState;
-use crate::widgets::callbacks::invoke_callback_with_args;
+use crate::widgets::callbacks::{CallbackName, invoke_callback_with_args_enum};
 type PyObject = Py<PyAny>;
 
 
@@ -140,7 +140,7 @@ pub fn toggle_callback(state: &mut IpgState, id: usize, message: TOGMessage) {
             if let Some(Widgets::Toggler(tog)) = state.widgets.get_mut(&id) {
                 tog.is_toggled = is_toggled;
             }
-            invoke_callback_with_args(id, "toggled", "Toggler", is_toggled,
+            invoke_callback_with_args_enum(id, CallbackName::Toggled, "Toggler", is_toggled,
                 "def cb(wid: int, is_toggled: bool)");
         }
     }

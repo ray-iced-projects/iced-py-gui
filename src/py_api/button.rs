@@ -6,8 +6,8 @@ type PyObject = Py<PyAny>;
 
 use crate::add_user_data_to_mutex;
 use crate::graphics::{colors::Color, bootstrap::bootstrap_arrow::Arrow};
-use crate::state::{Widgets, access_state, add_callback_to_mutex, 
-    get_id, set_state_of_widget};
+use crate::state::{Widgets, access_state, add_callback_name_to_mutex, get_id, set_state_of_widget};
+use crate::widgets::callbacks::CallbackName;
 use crate::widgets::ipg_button::{Button,  
     ButtonStyle, ButtonStyleStd};
 
@@ -109,7 +109,7 @@ pub fn add_button(
 
     // Store callback if provided
     if let Some(py) = on_press {
-        add_callback_to_mutex(id, "on_press".to_string(), py);
+        add_callback_name_to_mutex(id, CallbackName::OnPress, py);
     }
 
     // Store user data if provided

@@ -14,7 +14,7 @@ use crate::py_api::helpers::{get_len, get_radius};
 use crate::widgets::widget_param_update::{WidgetParamUpdate, set_t_value};
 use crate::{IpgState, app};
 use crate::state::Widgets;
-use crate::widgets::callbacks::invoke_callback_with_args;
+use crate::widgets::callbacks::{CallbackName, invoke_callback_with_args_enum};
 
 
 #[derive(Debug, Clone)]
@@ -87,12 +87,12 @@ pub fn slider_callback(state: &mut IpgState, id: usize, message: SldMessage) {
             if let Some(Widgets::Slider(cb)) = state.widgets.get_mut(&id) {
                 cb.value = value;
             }
-            invoke_callback_with_args(id, "on_change", "Slider", value,
+            invoke_callback_with_args_enum(id, CallbackName::OnChange, "Slider", value,
                 "def cb(wid: int, value: float)");
         },
         SldMessage::OnRelease => {
             if let Some(Widgets::Slider(cb)) = state.widgets.get_mut(&id) {
-                invoke_callback_with_args(id, "on_release", "Slider", cb.value,
+                invoke_callback_with_args_enum(id, CallbackName::OnRelease, "Slider", cb.value,
                     "def cb(wid: int, value: float)");
             }
         },

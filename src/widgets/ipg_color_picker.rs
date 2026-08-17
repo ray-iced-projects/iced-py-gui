@@ -1,7 +1,7 @@
 //! ipg_color_picker
 use crate::IpgState;
 use crate::state::{Containers};
-use crate::widgets::callbacks::{invoke_callback, invoke_callback_with_args};
+use crate::widgets::callbacks::{CallbackName, invoke_callback_enum, invoke_callback_with_args_enum};
 use crate::app::Message;
 
 use crate::ipg_widgets::ipg_color_picker::{
@@ -79,7 +79,7 @@ pub fn color_picker_callback(
         ColorPikMessage::SetOpened(open) => {
             if let Some(Containers::ColorPicker(cp)) = state.containers.get_mut(&id) {
                 cp.opened = open;
-                invoke_callback_with_args(id, "on_open", "ColorPicker", open,
+                invoke_callback_with_args_enum(id, CallbackName::OnOpen, "ColorPicker", open,
                     "def cb(wid: int, opened: bool)");
             }
         },
@@ -90,12 +90,12 @@ pub fn color_picker_callback(
                 match event {
                     Some(ColorPickerEvent::Submitted(_)) => {
                         cp.opened = false;
-                        invoke_callback_with_args(id, "on_submit", "ColorPicker", cp.cp.current_color(),
+                        invoke_callback_with_args_enum(id, CallbackName::OnSubmit, "ColorPicker", cp.cp.current_color(),
                             "def cb(wid: int, color: list)");
                     }
                     Some(ColorPickerEvent::Cancelled) => {
                         cp.opened = false;
-                        invoke_callback(id, "on_cancel", "ColorPicker");
+                        invoke_callback_enum(id, CallbackName::OnCancel, "ColorPicker");
                     }
                     Some(ColorPickerEvent::Copy(text)) => {
                         return Some(iced::clipboard::write(text).discard());

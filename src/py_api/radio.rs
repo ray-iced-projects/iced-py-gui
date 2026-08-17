@@ -2,10 +2,7 @@
 
 use pyo3::{pyfunction, PyResult, Py, PyAny};
 type PyObject = Py<PyAny>;
-use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex, 
-    graphics::colors::Color,
-    state::{Widgets, get_id, set_state_of_widget}, 
-    widgets::{ipg_radio::{Radio, RadioStyle}}};
+use crate::{access_state, add_callback_name_to_mutex, add_user_data_to_mutex, graphics::colors::Color, state::{Widgets, get_id, set_state_of_widget}, widgets::{callbacks::CallbackName, ipg_radio::{Radio, RadioStyle}}};
 
 
 /// Add a radio button group widget.
@@ -142,7 +139,7 @@ pub fn add_radio(
     } else { None };
 
     if let Some(py) = on_selected {
-        add_callback_to_mutex(id, "on_selected".to_string(), py);
+        add_callback_name_to_mutex(id, CallbackName::OnSelected, py);
     }
 
     if let Some(py) = user_data {

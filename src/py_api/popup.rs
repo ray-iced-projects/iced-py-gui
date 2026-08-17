@@ -2,7 +2,8 @@
 use pyo3::{Py, PyAny, pyfunction, PyResult};
 type PyObject = Py<PyAny>;
 
-use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex};
+use crate::widgets::callbacks::CallbackName;
+use crate::{access_state, add_callback_name_to_mutex, add_user_data_to_mutex};
 use crate::state::{Containers, get_id, set_state_cont_wnd_ids, 
     set_state_of_container};
 
@@ -93,15 +94,15 @@ pub fn add_popup(
     let id = get_id(None);
 
     if let Some(py) = on_open {
-        add_callback_to_mutex(id, "on_open".to_string(), py);
+        add_callback_name_to_mutex(id, CallbackName::OnOpen, py);
     }
 
     if let Some(py) = on_close {
-        add_callback_to_mutex(id, "on_close".to_string(), py);
+        add_callback_name_to_mutex(id, CallbackName::OnClose, py);
     }
 
     if let Some(py) = on_click_outside {
-        add_callback_to_mutex(id, "on_click_outside".to_string(), py);
+        add_callback_name_to_mutex(id, CallbackName::OnClickOutside, py);
     }
 
     if let Some(py) = user_data {

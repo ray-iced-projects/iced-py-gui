@@ -1,8 +1,5 @@
 //! Text inputs display fields that can be filled with text.
-use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex, 
-    graphics::colors::Color, 
-    state::{Widgets, get_id, set_state_of_widget}, 
-    widgets::ipg_text_input::{TextInput, TextInputStyle}};
+use crate::{access_state, add_callback_name_to_mutex, add_user_data_to_mutex, graphics::colors::Color, state::{Widgets, get_id, set_state_of_widget}, widgets::{callbacks::CallbackName, ipg_text_input::{TextInput, TextInputStyle}}};
 
 use pyo3::{Py, PyAny, pyfunction, PyResult};
 type PyObject = Py<PyAny>;
@@ -106,14 +103,14 @@ pub fn add_text_input(
     let id = get_id(gen_id);
 
     if let Some(py) = on_input {
-        add_callback_to_mutex(id, "on_input".to_string(), py);
+        add_callback_name_to_mutex(id, CallbackName::OnInput, py);
     }
     if let Some(py) = on_submit {
-        add_callback_to_mutex(id, "on_submit".to_string(), py);
+        add_callback_name_to_mutex(id, CallbackName::OnSubmit, py);
     }
 
     if let Some(py) = on_paste {
-        add_callback_to_mutex(id, "on_paste".to_string(), py);
+        add_callback_name_to_mutex(id, CallbackName::OnPaste, py);
     }
 
     if let Some(py) = user_data {

@@ -1,7 +1,7 @@
 //! ipg_mousearea
 
 
-use crate::widgets::callbacks::{invoke_callback, invoke_callback_with_args};
+use crate::widgets::callbacks::{CallbackName, invoke_callback_enum, invoke_callback_with_args_enum};
 use crate::widgets::widget_param_update::{WidgetParamUpdate, set_t_value};
 use crate::app::Message;
 
@@ -70,18 +70,18 @@ pub enum MaMessage {
 
 pub fn mousearea_callback(id: usize, message: MaMessage) {
     match message {
-        MaMessage::OnPress => invoke_callback(id, "on_press", "MouseArea"),
-        MaMessage::OnRelease => invoke_callback(id, "on_release", "MouseArea"),
-        MaMessage::OnRightPress => invoke_callback(id, "on_right_press", "MouseArea"),
-        MaMessage::OnRightRelease => invoke_callback(id, "on_right_release", "MouseArea"),
-        MaMessage::OnMiddlePress => invoke_callback(id, "on_middle_press", "MouseArea"),
-        MaMessage::OnMiddleRelease => invoke_callback(id, "on_middle_release", "MouseArea"),
-        MaMessage::OnEnter => invoke_callback(id, "on_enter", "MouseArea"),
-        MaMessage::OnMove(point) => invoke_callback_with_args(
-            id, "on_move", "MouseArea",
+        MaMessage::OnPress => invoke_callback_enum(id, CallbackName::OnPress, "MouseArea"),
+        MaMessage::OnRelease => invoke_callback_enum(id, CallbackName::OnRelease, "MouseArea"),
+        MaMessage::OnRightPress => invoke_callback_enum(id, CallbackName::OnRightPress, "MouseArea"),
+        MaMessage::OnRightRelease => invoke_callback_enum(id, CallbackName::OnRightRelease, "MouseArea"),
+        MaMessage::OnMiddlePress => invoke_callback_enum(id, CallbackName::OnMiddlePress, "MouseArea"),
+        MaMessage::OnMiddleRelease => invoke_callback_enum(id, CallbackName::OnMiddleRelease, "MouseArea"),
+        MaMessage::OnEnter => invoke_callback_enum(id, CallbackName::OnEnter, "MouseArea"),
+        MaMessage::OnMove(point) => invoke_callback_with_args_enum(
+            id, CallbackName::OnMove, "MouseArea",
             (point.x, point.y),
             "def on_move(ma_id: int, point: tuple[float, float])"),
-        MaMessage::OnExit => invoke_callback(id, "on_exit", "MouseArea"),
+        MaMessage::OnExit => invoke_callback_enum(id, CallbackName::OnExit, "MouseArea"),
     }
 }
 

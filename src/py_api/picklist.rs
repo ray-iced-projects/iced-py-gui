@@ -4,8 +4,9 @@ use pyo3::{Py, PyAny, PyResult, Python, pyfunction};
 use pyo3::types::{PyAnyMethods, PyListMethods};
 type PyObject = Py<PyAny>;
 
+use crate::widgets::callbacks::CallbackName;
 use crate::widgets::ipg_pick_list::HandleParams;
-use crate::{access_state, add_callback_to_mutex, 
+use crate::{access_state, add_callback_name_to_mutex, 
     add_user_data_to_mutex};
 use crate::graphics::colors::Color; 
 
@@ -143,15 +144,15 @@ pub fn add_pick_list(
         handle_dynamic_open_icon_id };
 
     if let Some(py) = on_select {
-        add_callback_to_mutex(id, "on_select".to_string(), py);
+        add_callback_name_to_mutex(id, CallbackName::OnSelect, py);
     }
 
     if let Some(py) = on_open {
-        add_callback_to_mutex(id, "on_open".to_string(), py);
+        add_callback_name_to_mutex(id, CallbackName::OnOpen, py);
     }
 
     if let Some(py) = on_close{
-        add_callback_to_mutex(id, "on_close".to_string(), py);
+        add_callback_name_to_mutex(id, CallbackName::OnClose, py);
     }
 
     if let Some(py) = user_data {

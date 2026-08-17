@@ -8,10 +8,10 @@ use iced::Task;
 use rfd::AsyncFileDialog;
 use native_dialog::DialogBuilder;
 
-use crate::state::CallbackName;
 use crate::state::Widgets;
 use crate::state::access_file_dialog_actions;
 use crate::config_creator::load_file_filters;
+use crate::widgets::callbacks::CallbackName;
 use crate::widgets::callbacks::invoke_callback_with_args_enum;
 use crate::{IpgState, app::Message,
     widgets::{widget_param_update::{WidgetParamUpdate, set_t_value}}};

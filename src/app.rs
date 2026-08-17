@@ -14,7 +14,7 @@ type PyObject = Py<PyAny>;
 use crate::ipg_widgets::ipg_canvas_draw::canvas_draw::CanvasWidget;
 use crate::py_api::helpers::find_key_for_value;
 use crate::state::{Containers, IpgState, WidgetNode, Widgets, access_clipboard_actions, access_file_dialog_actions, access_state, access_update_widgets, access_window_actions, set_state_of_widget_running_state};
-use crate::widgets::callbacks::invoke_callback_with_args;
+use crate::widgets::callbacks::{CallbackName, invoke_callback_with_args_enum};
 
 use crate::widgets::ipg_button::{BtnMessage, button_callback};
 use crate::widgets::ipg_card::{CardMessage, card_callback};
@@ -160,9 +160,9 @@ impl App {
                 get_tasks(&mut self.state)
             },
             Message::ClipboardReadResult(id, text) => {
-                invoke_callback_with_args(
+                invoke_callback_with_args_enum(
                     id,
-                    "callback",
+                    CallbackName::Callback,
                     "Clipboard",
                     text,
                     "def callback(req_id: int, text: str | None)",

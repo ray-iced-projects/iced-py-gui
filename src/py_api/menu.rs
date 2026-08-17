@@ -5,8 +5,9 @@ use pyo3::{Py, PyAny, pyfunction};
 type PyObject = Py<PyAny>;
 
 use crate::graphics::colors::Color;
+use crate::widgets::callbacks::CallbackName;
 use crate::widgets::ipg_menu::{Menu, MenuBarItem, MenuSubItem, MenuStyle};
-use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex};
+use crate::{access_state, add_callback_name_to_mutex, add_user_data_to_mutex};
 use crate::state::{Containers, Widgets, get_id, set_state_cont_wnd_ids, set_state_of_container};
 
 
@@ -137,7 +138,7 @@ pub fn add_menu(
     let id = get_id(gen_id);
 
     if let Some(py) = on_select {
-        add_callback_to_mutex(id, "on_select".to_string(), py);
+        add_callback_name_to_mutex(id, CallbackName::OnSelect, py);
     }
 
     if let Some(py) = user_data {

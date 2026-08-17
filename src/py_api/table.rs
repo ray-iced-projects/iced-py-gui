@@ -3,7 +3,7 @@
 use pyo3::{Py, PyAny, PyResult, pyfunction};
 type PyObject = Py<PyAny>;
 
-use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex, graphics::colors::Color, state::{Containers, Widgets, get_id, set_state_cont_wnd_ids, set_state_of_container}, widgets::ipg_table::{Table, TableBasic, TableBody, TableFooter, TableHeader, TableStyle}};
+use crate::{access_state, add_callback_name_to_mutex, add_user_data_to_mutex, graphics::colors::Color, state::{Containers, Widgets, get_id, set_state_cont_wnd_ids, set_state_of_container}, widgets::{callbacks::CallbackName, ipg_table::{Table, TableBasic, TableBody, TableFooter, TableHeader, TableStyle}}};
 
 
 /// Add a table basic widget.
@@ -168,11 +168,11 @@ pub fn add_table_basic(
     }
 
     if let Some(py) = on_column_resize {
-        add_callback_to_mutex(id, "on_resize".to_string(), py);
+        add_callback_name_to_mutex(id, CallbackName::OnResize, py);
     }
 
     let released = if let Some(py) = on_column_resize_release {
-        add_callback_to_mutex(id, "released".to_string(), py);
+        add_callback_name_to_mutex(id, CallbackName::OnReleased, py);
         true
     } else {
         false
@@ -264,11 +264,11 @@ pub fn add_table(
     }
 
     if let Some(py) = on_column_resize {
-        add_callback_to_mutex(id, "on_resize".to_string(), py);
+        add_callback_name_to_mutex(id, CallbackName::OnResize, py);
     }
 
     let _released = if let Some(py) = on_column_resize_release {
-        add_callback_to_mutex(id, "released".to_string(), py);
+        add_callback_name_to_mutex(id, CallbackName::OnReleased, py);
         true
     } else {
         false
@@ -336,11 +336,11 @@ pub fn add_table_header(
     }
 
     if let Some(py) = on_column_resize {
-        add_callback_to_mutex(id, "on_resize".to_string(), py);
+        add_callback_name_to_mutex(id, CallbackName::OnResize, py);
     }
 
     let _released = if let Some(py) = on_column_resize_release {
-        add_callback_to_mutex(id, "released".to_string(), py);
+        add_callback_name_to_mutex(id, CallbackName::OnReleased, py);
         true
     } else {
         false
@@ -405,11 +405,11 @@ pub fn add_table_body(
     }
 
     if let Some(py) = on_column_resize {
-        add_callback_to_mutex(id, "on_resize".to_string(), py);
+        add_callback_name_to_mutex(id, CallbackName::OnResize, py);
     }
 
     let _released = if let Some(py) = on_column_resize_release {
-        add_callback_to_mutex(id, "released".to_string(), py);
+        add_callback_name_to_mutex(id, CallbackName::OnReleased, py);
         true
     } else {
         false
@@ -473,11 +473,11 @@ pub fn add_table_footer(
     }
 
     if let Some(py) = on_column_resize {
-        add_callback_to_mutex(id, "on_resize".to_string(), py);
+        add_callback_name_to_mutex(id, CallbackName::OnResize, py);
     }
 
     let _released = if let Some(py) = on_column_resize_release {
-        add_callback_to_mutex(id, "released".to_string(), py);
+        add_callback_name_to_mutex(id, CallbackName::OnReleased, py);
         true
     } else {
         false

@@ -4,7 +4,7 @@ use crate::app::Message;
 use crate::graphics::colors::Color;
 use crate::py_api::helpers::get_len;
 use crate::state::Widgets;
-use crate::widgets::callbacks::invoke_callback_with_args;
+use crate::widgets::callbacks::{CallbackName, invoke_callback_with_args_enum};
 use crate::widgets::styling::{apply_border_overrides, apply_shadow_overrides_xy};
 use crate::widgets::widget_param_update::{
     WidgetParamUpdate, set_t_value
@@ -240,7 +240,7 @@ pub fn scrollable_callback(id: usize, vp: Viewport) {
     hmap.insert("content_width".to_string(), content.width);
     hmap.insert("content_height".to_string(), content.height);
     
-    invoke_callback_with_args(id, "on_scroll", "Scrollable", hmap,
+    invoke_callback_with_args_enum(id, CallbackName::OnScroll, "Scrollable", hmap,
                 "def cb(wid: int, scroll_data: dict)");
 }
 

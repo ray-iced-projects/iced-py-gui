@@ -5,7 +5,9 @@ use pyo3::{Py, PyAny, pyfunction};
 type PyObject = Py<PyAny>;
 
 use crate::add_user_data_to_mutex;
-use crate::state::{Containers, access_state, add_callback_to_mutex, get_id, set_state_cont_wnd_ids, set_state_of_container};
+use crate::state::{Containers, access_state, add_callback_name_to_mutex, 
+    get_id, set_state_cont_wnd_ids, set_state_of_container};
+use crate::widgets::callbacks::CallbackName;
 use crate::widgets::ipg_mouse_area::{MouseArea, MousePointer};
 
 
@@ -102,39 +104,39 @@ pub fn add_mouse_area(
     };
 
     if let Some(py) = on_press {
-    add_callback_to_mutex(id, "on_press".to_string(), py);
+    add_callback_name_to_mutex(id, CallbackName::OnPress, py);
     }
     
     if let Some(py) = on_release {
-        add_callback_to_mutex(id, "on_release".to_string(), py);
+        add_callback_name_to_mutex(id, CallbackName::OnRelease, py);
     }
     
     if let Some(py) = on_right_press {
-        add_callback_to_mutex(id, "on_right_press".to_string(), py);
+        add_callback_name_to_mutex(id, CallbackName::OnRightPress, py);
     }
     
     if let Some(py) = on_right_release {
-        add_callback_to_mutex(id, "on_right_release".to_string(), py);
+        add_callback_name_to_mutex(id, CallbackName::OnRightRelease, py);
     }
     
     if let Some(py) = on_middle_press {
-        add_callback_to_mutex(id, "on_middle_press".to_string(), py);
+        add_callback_name_to_mutex(id, CallbackName::OnMiddlePress, py);
     }
     
     if let Some(py) = on_middle_release {
-        add_callback_to_mutex(id, "on_middle_release".to_string(), py);
+        add_callback_name_to_mutex(id, CallbackName::OnMiddleRelease, py);
     }
     
     if let Some(py) = on_enter {
-        add_callback_to_mutex(id, "on_enter".to_string(), py);
+        add_callback_name_to_mutex(id, CallbackName::OnEnter, py);
     }
     
     if let Some(py) = on_move {
-        add_callback_to_mutex(id, "on_move".to_string(), py);
+        add_callback_name_to_mutex(id, CallbackName::OnMove, py);
     }
     
     if let Some(py) = on_exit {
-        add_callback_to_mutex(id, "on_exit".to_string(), py);
+        add_callback_name_to_mutex(id, CallbackName::OnExit, py);
     }
 
     if let Some(py) = user_data {

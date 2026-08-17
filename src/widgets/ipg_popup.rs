@@ -1,7 +1,7 @@
 //! PopUp widget definition
 
 use crate::app::Message;
-use crate::widgets::callbacks::invoke_callback;
+use crate::widgets::callbacks::{CallbackName, invoke_callback_enum};
 use crate::widgets::widget_param_update::{WidgetParamUpdate, set_t_value};
 
 use iced::{Element, Pixels};
@@ -102,13 +102,13 @@ pub enum PopUpMessage {
 pub fn popup_callback(id: usize, message: PopUpMessage) {
     match message {
         PopUpMessage::ClickedOutside => {
-            invoke_callback(id, "on_click_outside", "PopUp");
+            invoke_callback_enum(id, CallbackName::OnClickOutside, "PopUp");
         },
         PopUpMessage::OnClose => {
-            invoke_callback(id, "on_close", "PopUp");
+            invoke_callback_enum(id, CallbackName::OnClose, "PopUp");
         },
         PopUpMessage::OnOpen => {
-            invoke_callback(id, "on_open", "PopUp");
+            invoke_callback_enum(id, CallbackName::OnOpen, "PopUp");
         },
     }
 }

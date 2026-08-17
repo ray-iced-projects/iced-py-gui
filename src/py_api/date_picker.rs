@@ -1,10 +1,8 @@
 //! DatePicker module - provides add_date_picker pyfunction
 
 use pyo3::{Py, PyAny, pyfunction, PyResult};
-use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex, 
-    ipg_widgets::ipg_date_picker::Position, state::{Containers, get_id, 
-        set_state_cont_wnd_ids, set_state_of_container}, 
-        widgets::ipg_date_picker::{DatePicker, DpContent}};
+use crate::{access_state, add_callback_name_to_mutex, add_user_data_to_mutex, ipg_widgets::ipg_date_picker::Position, state::{Containers, get_id, 
+        set_state_cont_wnd_ids, set_state_of_container}, widgets::{callbacks::CallbackName, ipg_date_picker::{DatePicker, DpContent}}};
 type PyObject = Py<PyAny>;
 
 
@@ -89,15 +87,15 @@ pub fn add_date_picker(
     };
 
     if let Some(py) = on_open {
-        add_callback_to_mutex(id, "on_open".to_string(), py);
+        add_callback_name_to_mutex(id, CallbackName::OnOpen, py);
     }
 
     if let Some(py) = on_submit {
-        add_callback_to_mutex(id, "on_submit".to_string(), py);
+        add_callback_name_to_mutex(id, CallbackName::OnSubmit, py);
     }
 
     if let Some(py) = on_cancel {
-        add_callback_to_mutex(id, "on_cancel".to_string(), py);
+        add_callback_name_to_mutex(id, CallbackName::OnCancel, py);
     }
 
     if let Some(py) = user_data {

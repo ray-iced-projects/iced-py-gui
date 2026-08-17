@@ -1,7 +1,8 @@
 //! Window module - provides add_window pyfunction
 use pyo3::{Py, PyAny, PyResult, pyfunction};
-use crate::state::{access_state, add_callback_to_mutex, 
+use crate::state::{access_state, add_callback_name_to_mutex, 
     add_user_data_to_mutex, WidgetNode, Containers};
+use crate::widgets::callbacks::CallbackName;
 use crate::widgets::ipg_window::{
     Window, WindowLevel, WindowTheme, theme_names, register_custom_theme,
 };
@@ -209,7 +210,7 @@ pub fn add_window(
 
     // Handle callbacks and user data outside of state lock
     if let Some(py) = on_resize {
-        add_callback_to_mutex(id, "on_resize".to_string(), py);
+        add_callback_name_to_mutex(id, CallbackName::OnResize, py);
     }
 
     if let Some(py) = user_data {

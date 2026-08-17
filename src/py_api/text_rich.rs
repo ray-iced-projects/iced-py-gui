@@ -3,7 +3,8 @@ use pyo3::{pyfunction, PyResult, Py, PyAny};
 type PyObject = Py<PyAny>;
 
 
-use crate::{access_state, add_callback_to_mutex, add_user_data_to_mutex};
+use crate::widgets::callbacks::CallbackName;
+use crate::{access_state, add_callback_name_to_mutex, add_user_data_to_mutex};
 use crate::graphics::colors::Color;
 use crate::state::{Containers, Widgets, get_id, set_state_cont_wnd_ids, set_state_of_container, set_state_of_widget};
 use crate::widgets::ipg_text_rich::{RichText, Span};
@@ -110,7 +111,7 @@ pub fn add_rich_text(
 
     // Store callback if provided
     if let Some(py) = on_link_click {
-        add_callback_to_mutex(id, "on_link_click".to_string(), py);
+        add_callback_name_to_mutex(id, CallbackName::OnLinkClick, py);
     }
 
     // Store user data if provided

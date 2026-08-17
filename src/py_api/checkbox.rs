@@ -6,8 +6,8 @@ type PyObject = Py<PyAny>;
 use crate::add_user_data_to_mutex;
 use crate::graphics::bootstrap::bootstrap_icon::Icon;
 use crate::graphics::colors::Color;
-use crate::state::{Widgets, access_state, 
-    add_callback_to_mutex, get_id, set_state_of_widget};
+use crate::state::{Widgets, access_state, add_callback_name_to_mutex, get_id, set_state_of_widget};
+use crate::widgets::callbacks::CallbackName;
 use crate::widgets::ipg_checkbox::{CheckBox, CheckboxStyle, CheckboxStyleStd};
 
 
@@ -128,7 +128,7 @@ pub fn add_checkbox(
     let id = get_id(gen_id);
     
     if let Some(py) = on_toggle {
-        add_callback_to_mutex(id, "on_toggle".to_string(), py);
+        add_callback_name_to_mutex(id, CallbackName::OnToggle, py);
     }
 
     if let Some(py) = user_data {

@@ -58,7 +58,7 @@ with Window(
                        on_click_outside=clicked_outside) as popup_id:
                 add_button(label="Press Me", on_press=open_popup)
                 with Container(style_std=ContainerStyleStd.BorderedBox):
-                    add_text(content="I'm a PopUp Container")
+                    add_text(content="I'm a PopUp Container, Press outside to close")
 
             # add the popup but set the opened to True to see it immediately
             with PopUp(opened=True):

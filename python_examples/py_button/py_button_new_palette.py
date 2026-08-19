@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Button crating a new palette.
+Button creating a new palette.
 """
 import os
 from icedpygui import (
@@ -14,6 +14,7 @@ from icedpygui import (
     start_session,
     add_button,
     add_button_style,
+    add_pick_list,
     add_text,
     add_font_style,
     FontWeight,
@@ -25,15 +26,21 @@ from icedpygui import (
     StylePart,
     add_text_editor,
     add_text_editor_style,
+    update_widget,
+    WindowParam,
+    window_theme_names,
 )
 
-def make_tiles(status: tuple[WidgetStatus, list[list[StylePart, PaletteKey, float]]],
-               col_pal: dict):
+new_color = [0.32, 0.2, 0.13, 1.0]
+
+color_pal = get_color_palette(rgba=new_color)
+
+def make_tiles(status: tuple[WidgetStatus, list[list[StylePart, PaletteKey, float]]]):
     """Make the tiles"""
     # ((WidgetStatus, StateVariant) (StylePart, PaletteKey, alpha))
 
     for( part, pal_key, alpha) in status[1]:
-        rgba= col_pal.get(pal_key)
+        rgba= color_pal.get(pal_key)
         rgba[3] *= alpha
 
         c = "Color" if alpha == 1.0 else f"Color Alpha {alpha}"
@@ -77,12 +84,11 @@ pal = [
     ),
 ]
 
-new_color = [0.32, 0.2, 0.13, 1.0]
-pal_id = custom_palette(rgba=new_color, statuses=pal)
+def on_theme_select(_pl_id: int, theme_name: str):
+    """Select a Theme by PickList"""
+    update_widget(wnd_id, WindowParam.Theme, theme_name)
 
-# This demo will need the colors for the containers, normally
-# only the above custom_palette() would be used.
-color_pal = get_color_palette(theme_name="TokyoNight", rgba=new_color)
+pal_id = custom_palette(rgba=new_color, statuses=pal)
 
 font_id = add_font_style(family_name="Roboto", weight=FontWeight.Bold)
 btn_style_id = add_button_style(border_width=3)
@@ -98,7 +104,7 @@ except FileNotFoundError:
     print(f"*********The file does not exist using {FILE_PATH}.*******")
 
 # ---------------------------------------------------------------------------
-# GUI — Initial display with a TokyoNight background
+# GUI — Display with a TokyoNight background
 # ---------------------------------------------------------------------------
 with Window(title="Button Custom Palette",
             size=(1100, 850), center=True, theme=WindowTheme.TokyoNight) as wnd_id:
@@ -110,45 +116,41 @@ with Window(title="Button Custom Palette",
                                 width_fill=True,
                                 style_id=txt_ed_style_id)
 
-            with Column(spacing=10, width_fill=True):
-                add_text(content=(
-                    ""))
+        with Column(spacing=20, width_fill=True, padding=[0, 0, 0, 20]):
+            add_pick_list(options=window_theme_names(), selected="TokyoNight",
+                                placeholder="Select Theme", on_select=on_theme_select)
 
-                add_text(content=("The Button statuses: Active (base), Hovered (strong), "
-                                    "Disabled(base alpha 0.5)"))
+            add_text(content="******Custom Status Styling******")
 
-                with Column(spacing=20, width_fill=True, height_fill=True):
-                    add_text(content="******Custom Status Styling******")
+            with Row(spacing=20, width_fill=True):
+                with Column(spacing=5):
+                    add_text(content="Status: Active",
+                            size=20, font_id=font_id)
+                    make_tiles(pal[0])
 
-                    with Row(spacing=20, width_fill=True):
-                        with Column(spacing=5):
-                            add_text(content="Status: Active",
-                                    size=20, font_id=font_id)
-                            make_tiles(pal[0], color_pal)
+                with Column(spacing=5):
+                    add_text(content="Status: Hovered",
+                                size=20, font_id=font_id)
+                    make_tiles(pal[1])
 
-                        with Column(spacing=5):
-                            add_text(content="Status: Hovered",
-                                        size=20, font_id=font_id)
-                            make_tiles(pal[1], color_pal)
+                with Column(spacing=5):
+                    add_text(content="Status: Pressed",
+                                size=20, font_id=font_id)
+                    make_tiles(pal[2])
 
-                        with Column(spacing=5):
-                            add_text(content="Status: Pressed",
-                                        size=20, font_id=font_id)
-                            make_tiles(pal[2], color_pal)
+                with Column(spacing=5):
+                    add_text(content="Status: Disabled",
+                                size=20, font_id=font_id)
+                    make_tiles(pal[3])
 
-                        with Column(spacing=5):
-                            add_text(content="Status: Disabled",
-                                        size=20, font_id=font_id)
-                            make_tiles(pal[3], color_pal)
-
-                    with Row(spacing=20):
-                        with Column(spacing=5):
-                            add_button(label="Custom Palette", padding=[10],
-                                    palette_id=pal_id, style_id=btn_style_id)
-                            add_button(label="Custom Palette Disabled", padding=[10],
-                                        palette_id=pal_id, disabled=True)
-                        with Column(spacing=5):
-                            add_button(label="Default Palette", padding=[10])
-                            add_button(label="Default Palette Disabled", padding=[10],
-                                        disabled=True)
+            with Row(spacing=20):
+                with Column(spacing=5):
+                    add_button(label="Custom Palette", padding=[10],
+                            palette_id=pal_id, style_id=btn_style_id)
+                    add_button(label="Custom Palette Disabled", padding=[10],
+                                palette_id=pal_id, disabled=True)
+                with Column(spacing=5):
+                    add_button(label="Default Palette", padding=[10])
+                    add_button(label="Default Palette Disabled", padding=[10],
+                                disabled=True)
 start_session()

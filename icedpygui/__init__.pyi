@@ -134,37 +134,106 @@ def add_button(
     *,
     parent_id: str | None = None,
     label: str = ...,
-    gen_id: int | None = None,
     on_press: Callable | None = None,
     width: float | None = None,
     width_fill: bool = False,
     height: float | None = None,
     height_fill: bool = False,
+    fill: bool | None = None,
     padding: list[float] | None = None,
     clip: bool | None = None,
-    status_active: bool | None = None,
-    status_hovered: bool | None = None,
-    status_pressed: bool | None = None,
-    status_disabled: bool | None = None,
+    disabled: bool | None = None,
     font_id: int | None = None,
     style_id: int | None = None,
-    style_standard: ButtonStyleStd | None = None,
+    style_std: ButtonStyleStd | None = None,
     style_arrow: Arrow | None = None,
+    palette_id: int | None = None,
     user_data: Any | None = None,
     show: bool = True,
+    gen_id: int | None = None,
 ) -> int:
     """Adds a button widget.
 
-    A widget must go into a container type,
+    A clickable button used for GUI actions. The button must go into a
+    container type (Container, Column, Row, etc.).
 
-    i.e. Container, Column, Row, etc.
+    Parameters
+    ----------
+    parent_id : str, optional
+        Sets the parent container ID that this button belongs to.
+    label : str, optional
+        Sets the text label displayed on the button.
+    on_press : callable, optional
+        Sets the callback method to invoke when the button is pressed.
+    width : float, optional
+        Sets the fixed width in logical pixels.
+    width_fill : bool, default False
+        Whether the button fills available width.
+    height : float, optional
+        Sets the fixed height in logical pixels.
+    height_fill : bool, default False
+        Whether the button fills available height.
+    fill : bool, optional
+        Whether the button fills available width and height.
+    padding : list of float, optional
+        Sets the padding as [all], [vertical, horizontal], or
+        [top, right, bottom, left].
+    clip : bool, optional
+        Whether to clip content that overflows the button.
+    disabled : bool, optional
+        Whether the button is disabled.
+    font_id : int, optional
+        Sets the ID of a custom font created with ``add_font_style``.
+    style_id : int, optional
+        Sets the ID of a custom style created with ``add_button_style``.
+    style_std : ButtonStyleStd, optional
+        Sets a predefined standard style variant.
+    style_arrow : Arrow, optional
+        Sets an arrow icon style for the button.
+    palette_id : int, optional
+        Sets the ID of a custom color palette for the button.
+    user_data : Any, optional
+        Sets arbitrary data forwarded to callbacks.
+    show : bool, default True
+        Whether the button is visible.
+    gen_id : int, optional
+        Obtains an ID for a widget that has not been created;
+        used for the gen_id parameter.
 
-    Usage::
+    Returns
+    -------
+    int
+        The numeric widget ID of the newly created button.
 
-        with Window(title="My App", pos_centered=True) as wnd_id: (if needed)
-            with Container(align_center=True):
-                add_button(label="Press Me")
+    Usage
+    -----
+    ::
+
+        from icedpygui import (
+            Window,
+            Column,
+            Container,
+            add_button,
+            start_session)
+
+        def btn_cb(btn_id: int):
+            print(btn_id)
+
+        def cb_with_data(btn_id: int, data: any):
+            print(btn_id, data)
+
+        with Window(title="My App", center=True):
+            with Container(align_center=True, fill=True):
+                with Column(spacing=20):
+                        add_button(label="Press Me", on_press=btn_cb)
+                        add_button(
+                            label="Press Me",
+                            on_press=cb_with_data,
+                            user_data="Some Data"
+                        )
+
         start_session()
+
     """
     ...
 

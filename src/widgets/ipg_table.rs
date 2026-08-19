@@ -6,6 +6,7 @@ use std::num::NonZeroU16;
 
 use crate::app::Message;
 use crate::graphics::colors::Color;
+use crate::ipg_widgets::ipg_sash;
 use crate::py_api::helpers::get_radius;
 use crate::state::{Containers, Widgets};
 use crate::widgets::callbacks::{CallbackName, invoke_callback_with_args};
@@ -23,8 +24,8 @@ use iced::Length::Fill;
 use iced::{Element, Renderer, Theme};
 use iced::widget::{Space, center, column, container, row, rule, scrollable, stack, text};
 
-use iced_sash::{Id, SashH};
-pub use iced_sash::resize as sash_resize;
+use ipg_sash::sash::{Id, SashH};
+use ipg_sash::sash::resize as sash_resize;
 
 use pyo3::{pyclass, Py, PyAny};
 type PyObject = Py<PyAny>;
@@ -142,7 +143,7 @@ fn table_header<'a>(id: usize, header: &[String], sizes: Vec<f32>, height: f32) 
     .min_size(10.0)
     .on_resize(move |s_id, idx, val| Message::Table(id, TableBasicMessage::ResizeH(s_id, idx, val)))
     .sync_sashes(sizes.clone())
-    .style(iced_sash::subtle)
+    .style(ipg_sash::sash::subtle)
     .clip(true)
     .into();
 
@@ -168,7 +169,7 @@ fn table_body<'a>(id: usize, body: &[Vec<String>], sizes: Vec<f32>, height: f32)
             .min_size(10.0)
             .on_resize(move |s_id, idx, val| Message::Table(id, TableBasicMessage::ResizeH(s_id, idx, val)))
             .sync_sashes(sizes.clone())
-            .style(iced_sash::subtle)
+            .style(ipg_sash::sash::subtle)
             .clip(true)
             .into();
 
@@ -299,7 +300,7 @@ fn adv_header<'a>(
             .min_size(min_size)
             .on_resize(move |s_id, idx, val| Message::Table(id, TableBasicMessage::ResizeH(s_id, idx, val)))
             .sync_sashes(sizes.clone())
-            .style(iced_sash::subtle)
+            .style(ipg_sash::sash::subtle)
             .clip(true)
             .into();
         header_rows.push(sash);
@@ -331,7 +332,7 @@ fn adv_body<'a>(
             .min_size(min_size)
             .on_resize(move |s_id, idx, val| Message::Table(id, TableBasicMessage::ResizeH(s_id, idx, val)))
             .sync_sashes(sizes.clone())
-            .style(iced_sash::subtle)
+            .style(ipg_sash::sash::subtle)
             .clip(true)
             .into();
         if row_idx % 2 == 1 {
@@ -370,7 +371,7 @@ fn adv_footer<'a>(
         .min_size(min_size)
         .on_resize(move |s_id, idx, val| Message::Table(id, TableBasicMessage::ResizeH(s_id, idx, val)))
         .sync_sashes(sizes)
-        .style(iced_sash::subtle)
+        .style(ipg_sash::sash::subtle)
         .clip(true)
         .into();
     container(column![

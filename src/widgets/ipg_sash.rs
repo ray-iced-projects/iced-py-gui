@@ -1,12 +1,13 @@
 use std::collections::HashMap;
 
 use iced::{Element, Theme};
-
-use iced_sash::{Id, OuterResizeMode, SashH, SashV, Status, Style};
-pub use iced_sash::resize as sash_resize;
+use ipg_sash::sash::{Id, OuterResizeMode, SashH, SashV, Status, Style};
+use ipg_sash::sash::resize as sash_resize;
 
 use crate::app::Message;
 use crate::graphics::colors::{self, Color};
+use crate::ipg_widgets::ipg_sash;
+use crate::ipg_widgets::ipg_sash::sash::{apply_outer_resize, primary, subtle, transparent};
 use crate::py_api::helpers::get_radius;
 use crate::state::{Containers, IpgState, Widgets};
 use crate::widgets::callbacks::{CallbackName, invoke_callback_with_args};
@@ -49,7 +50,7 @@ impl Sash {
     }
 
     pub fn construct<'a>(
-        &self,
+        &'a self,
         content: Vec<Element<'a, Message>>, 
         widgets: &HashMap<usize, Widgets>,
     ) -> Option<Element<'a, Message>> {
@@ -106,7 +107,7 @@ impl Sash {
 
         let sh = if let Some(st) = style_opt {
             sh.style(move|theme, status| {   
-                    st.to_iced(theme, status)})
+                    st.to_iced(theme, status, &self.style_std)})
         } else { sh };
 
         Some(sh.into())
@@ -162,7 +163,7 @@ pub fn sash_callback(state: &mut IpgState, widget_id: usize, message: SashMessag
                     _ => return,
                 };
                 let min = sash.min_size.unwrap_or(0.0);
-                iced_sash::apply_outer_resize(
+                apply_outer_resize(
                         &mut sash.current_sizes,
                         new_total,
                         sash.resize_mode,
@@ -243,9 +244,17 @@ impl SashStyle {
         &self,
         theme: &Theme,
         status: Status,
+        style_std: &Option<SashStyleStd>,
     ) -> Style {
 
-        let mut style = iced_sash::subtle(theme, status);
+
+        let mut style = if let Some(st) = style_std {
+            match st {
+                SashStyleStd::Primary => primary(theme, status),
+                SashStyleStd::Subtle => subtle(theme, status),
+                SashStyleStd::Transparent => transparent(theme, status),
+            }
+        } else { subtle(theme, status) };
 
         let bkg_color = Color::rgba_ipg_color_to_iced(self.bkg_rgba, &self.bkg_color, self.bkg_color_alpha);
         let bc_color = Color::rgba_ipg_color_to_iced(self.border_rgba, &self.border_color, self.border_color_alpha);

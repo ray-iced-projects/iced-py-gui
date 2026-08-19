@@ -36,7 +36,6 @@ with Window(title="Menu", center=True, size=[600, 600]):
                     # dropdown items
                     add_button(
                         label="New",
-                        width_fill=True,
                         style_std=ButtonStyleStd.Text,
                         on_press=on_press,
                         user_data="New")
@@ -44,19 +43,17 @@ with Window(title="Menu", center=True, size=[600, 600]):
                         dot=True,
                         dot_radius=3.0,
                         dot_count=8,
-                        spacing=10.0,)
+                        spacing=10.0)
 
                     #  Submenu
-                    with MenuSubItem(width=130, spacing=5.0, offset=2.0):
+                    with MenuSubItem(width=70, spacing=5.0, offset=2.0):
                         # trigger (shown in dropdown)
-                        add_text(content="Open Recent >", width_fill=True,)
+                        add_text(content="Open Recent >")
                         add_button(
                             label="project1.py",
-                            width_fill=True,
                             style_std=ButtonStyleStd.Text)
                         add_button(
                             label="project2.py",
-                            width_fill=True,
                             style_std=ButtonStyleStd.Text)
 
                     add_separator(
@@ -67,14 +64,12 @@ with Window(title="Menu", center=True, size=[600, 600]):
 
                     add_button(
                         label="Open",
-                        width_fill=True,
                         style_std=ButtonStyleStd.Text,
                         on_press=on_press,
                         user_data="Open")
 
                     add_button(
                         label="Save",
-                        width_fill=True,
                         style_std=ButtonStyleStd.Text,
                         on_press=on_press,
                         user_data="Save")

@@ -34,23 +34,11 @@ pub fn get_rgba_color(
 }
 
 #[pyfunction]
-#[pyo3(signature = (
-    theme_name,
-    color=None, 
-    rgba=None,
-    color_alpha=None))]
-pub fn get_color_palette(
+#[pyo3(signature = (theme_name))]
+pub fn get_theme_palette(
     theme_name: String,
-    color: Option<Color>,
-    rgba: Option<[f32; 4]>,
-    color_alpha: Option<f32>,
 ) -> PyResult<HashMap<PaletteKey, [f64; 4]>>
 {
-    let base = Color::rgba_ipg_color_to_iced(rgba, &color, color_alpha)
-        .ok_or_else(|| pyo3::exceptions::PyValueError::new_err(
-            "get_color_palette: no color supplied — provide base_color or base_rgba"
-        ))?;
-
     // Resolve built-in themes via WindowTheme enum; fall back to custom theme store.
     let theme: Theme = if let Some(wt) = name_to_window_theme(&theme_name) {
         wt.to_iced()
@@ -58,12 +46,30 @@ pub fn get_color_palette(
         ct
     } else {
         return Err(pyo3::exceptions::PyValueError::new_err(
-            format!("get_styling_palette: unknown theme '{theme_name}'")
+            format!("get_theme_palette: unknown theme '{theme_name}'")
         ));
     };
 
-    Ok(color_palette(&theme, base))
-    
+    Ok(color_palette_from_theme(&theme))
+}
+
+#[pyfunction]
+#[pyo3(signature = (
+    color=None, 
+    rgba=None,
+    color_alpha=None))]
+pub fn get_color_palette(
+    color: Option<Color>,
+    rgba: Option<[f32; 4]>,
+    color_alpha: Option<f32>,
+) -> PyResult<HashMap<PaletteKey, [f64; 4]>>
+{
+    let base = Color::rgba_ipg_color_to_iced(rgba, &color, color_alpha)
+        .ok_or_else(|| pyo3::exceptions::PyValueError::new_err(
+            "get_color_palette: no color supplied — provide color, rgba, or color_alpha"
+        ))?;
+
+    Ok(color_palette_from_color(base))
 }
 
 /// Returns the palette used by the standard widget styles (button, container, etc.)
@@ -218,10 +224,9 @@ pub fn get_button_palette(
     
 }
 
-fn color_palette(theme: &iced::Theme, base: iced::Color) -> HashMap<PaletteKey, [f64; 4]> {
+fn color_palette_from_color(base: iced::Color) -> HashMap<PaletteKey, [f64; 4]> {
     let text_color = readable(base, iced::Color::WHITE);
     let color_pal = iced::theme::palette::Background::new(base, text_color);
-    let color_theme = theme.palette().background;
 
     fn to_arr(c: iced::Color) -> [f64; 4] {
         let r = |v: f32| ((v as f64) * 100.0).round() / 100.0;
@@ -247,6 +252,19 @@ fn color_palette(theme: &iced::Theme, base: iced::Color) -> HashMap<PaletteKey, 
     map.insert(PaletteKey::Strongest, to_arr(color_pal.strongest.color));
     map.insert(PaletteKey::StrongestText, to_arr(color_pal.strongest.text));
 
+    map
+}
+
+fn color_palette_from_theme(theme: &iced::Theme) -> HashMap<PaletteKey, [f64; 4]> {
+    let color_theme = theme.palette().background;
+
+    fn to_arr(c: iced::Color) -> [f64; 4] {
+        let r = |v: f32| ((v as f64) * 100.0).round() / 100.0;
+        [r(c.r), r(c.g), r(c.b), r(c.a)]
+    }
+    
+    let mut map = HashMap::new();
+    
     map.insert(PaletteKey::ThemeBase,     to_arr(color_theme.base.color));
     map.insert(PaletteKey::ThemeBaseText, to_arr(color_theme.base.text));
     map.insert(PaletteKey::ThemeWeak,     to_arr(color_theme.weak.color));
@@ -263,7 +281,6 @@ fn color_palette(theme: &iced::Theme, base: iced::Color) -> HashMap<PaletteKey, 
     map.insert(PaletteKey::ThemeStrongerText, to_arr(color_theme.stronger.text));
     map.insert(PaletteKey::ThemeStrongest, to_arr(color_theme.strongest.color));
     map.insert(PaletteKey::ThemeStrongestText, to_arr(color_theme.strongest.text));
-    
 
     map
 }

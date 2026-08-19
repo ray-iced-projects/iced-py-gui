@@ -4,6 +4,7 @@ use pyo3::prelude::*;
 use pyo3::{Py, PyAny, pyfunction};
 
 use crate::graphics::colors::Color;
+use crate::ipg_widgets::ipg_sash::sash::OuterResizeMode;
 use crate::widgets::callbacks::CallbackName;
 use crate::{access_state, add_callback_name_to_mutex, add_user_data_to_mutex};
 use crate::state::{Containers, Widgets, get_id, set_state_cont_wnd_ids, set_state_of_container};
@@ -199,7 +200,7 @@ pub fn add_sash(
             style_std,
             clip,
             show,
-            resize_mode: iced_sash::OuterResizeMode::LastOnly,
+            resize_mode: OuterResizeMode::LastOnly,
         }));
 
     drop(state);

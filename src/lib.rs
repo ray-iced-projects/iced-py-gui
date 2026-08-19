@@ -35,7 +35,7 @@ use crate::py_api::clipboard::{clipboard_write, clipboard_callback};
 use crate::py_api::config::{get_file_filters, reload_filters, get_config_path};
 use crate::py_api::card::{add_card_class, add_card, add_card_style};
 use crate::py_api::checkbox::{add_checkbox, add_checkbox_style};
-use crate::py_api::colors::{PaletteKey, StateVariant, StylePart, WidgetStatus, custom_palette, get_button_palette, get_color_palette, get_rgba_color, get_styling_palette};
+use crate::py_api::colors::{PaletteKey, StateVariant, StylePart, WidgetStatus, custom_palette, get_button_palette, get_color_palette, get_rgba_color, get_styling_palette, get_theme_palette};
 use crate::py_api::color_picker::{add_color_picker};
 use crate::py_api::column::add_column;
 use crate::py_api::combo_box::{add_combobox, add_combobox_input_style, add_combobox_menu_style};
@@ -309,6 +309,7 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     //Color functions
     m.add_function(wrap_pyfunction!(get_rgba_color, m)?)?;
     m.add_function(wrap_pyfunction!(get_color_palette, m)?)?;
+    m.add_function(wrap_pyfunction!(get_theme_palette, m)?)?;
     m.add_function(wrap_pyfunction!(get_styling_palette, m)?)?;
     m.add_function(wrap_pyfunction!(custom_palette, m)?)?;
     m.add_function(wrap_pyfunction!(get_button_palette, m)?)?;

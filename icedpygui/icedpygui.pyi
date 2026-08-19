@@ -84,46 +84,52 @@ def add_button_style(
     ) -> int:
     """Adds styling to a button
 
-    Run the doc_helper.py to see the individual parameter definitions.
-
-    Notes
-    --------
     Styles can be defined in 3 ways:
     custom - Only defines using the class parameters (limited for colors)
-    palette - define a new palette, see example (range of colors and statuses)
+    palette - define a new palette, see palette example (range of colors and statuses)
     standard - using the style_std parameter and the ButtonStyleStd class
-    Just use the style_std=ButtonStyleStd.Primary parameter in the add_button method.
 
-    Examples
-    --------
-    >>> from icedpygui import Window, Column, Container, ButtonStyleStd, \
-    >>>       add_button, add_button_style, Color, start_session
-    >>>
-    >>> style = add_button_style(
-    >>>             border_color=Color.ALICE_BLUE,
-    >>>             border_width=2.0,
-    >>>             border_radius=[5.0])
-    >>>
-    >>> with Window(title="Button Styling", center=True):
-    >>>     with Container(align_center=True, fill=True):
-    >>>         with Column(spacing=20.0):
-    >>>             add_button(
-    >>>                 label="Border Color and Width",
-    >>>                 padding=[5.0],
-    >>>                 style_id=style)
-    >>>
-    >>>             add_button(
-    >>>                 label="Style Standard-Danger",
-    >>>                 padding=[5.0],
-    >>>                 style_std=ButtonStyleStd.Danger)
-    >>>
-    >>>             add_button(
-    >>>                 label="Style Standard-Text",
-    >>>                 padding=[5.0],
-    >>>                 style_std=ButtonStyleStd.Text)
-    >>>
-    >>> start_session()
-    >>>
+    Parameters
+    ----------
+
+
+    Usage
+    -----
+    ::
+        from icedpygui import (
+            Window,
+            Column,
+            Container,
+            ButtonStyleStd,
+            add_button,
+            add_button_style,
+            Color,
+            start_session)
+
+            style = add_button_style(
+                border_color=Color.ALICE_BLUE,
+                border_width=2.0,
+                border_radius=[5.0])
+
+        with Window(title="Button Styling", center=True):
+            with Container(align_center=True, fill=True):
+                with Column(spacing=20.0):
+                    add_button(
+                        label="Border Color and Width",
+                        padding=[5.0],
+                        style_id=style)
+
+                    add_button(
+                        label="Style Standard-Danger",
+                        padding=[5.0],
+                        style_std=ButtonStyleStd.Danger)
+
+                    add_button(
+                        label="Style Standard-Text",
+                        padding=[5.0],
+                        style_std=ButtonStyleStd.Text)
+
+        start_session()
     """
 
 def add_card_style(

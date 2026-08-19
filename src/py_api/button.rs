@@ -21,8 +21,6 @@ use crate::widgets::ipg_button::{Button,
 ///     Sets the parent container ID that this button belongs to.
 /// label : str,  Optional
 ///     Sets the Text label displayed on the button.
-/// label_style_id: int, Optional
-///     Makes the label a text object that can be styled
 /// on_press : callable,  Optional
 ///     Sets the Callback method to invoke when the button is pressed.
 /// width : float,  Optional
@@ -40,14 +38,18 @@ use crate::widgets::ipg_button::{Button,
 ///     [top, right, bottom, left].
 /// clip : bool,  Optional
 ///     Whether to clip content that overflows the button.
-/// diabled: bool, Optional
+/// disabled: bool, Optional
 ///     Whether the button is disabled.
-/// style_id : int,  Optional
-///     Stes the ID of a custom style created with ``add_button_style``.
+/// font_id : int, Optional
+///     Sets the ID of a custom style created with ``add_font_style``.
+/// style_id : int, Optional
+///     Sets the ID of a custom style created with ``add_button_style``.
 /// style_std : ButtonStyleStd,  Optional
 ///     Sets the a predefined standard style variant.
 /// style_arrow : Arrow,  Optional
 ///     Sets an arrow icon style for the button.
+/// palette_id : int, Optional
+///     Sets the ID of a custom palette created with ``custom_palette``.
 /// user_data : Any,  Optional
 ///     Sets an arbitrary data forwarded to callbacks.
 /// show : bool, default True
@@ -150,78 +152,31 @@ pub fn add_button(
 /// """
 /// Adds styling to a button
 ///
-/// The standard styles for the button are defined below which gives
-/// you the approach to developing your own styles, if wanted.
+/// There are 5 ways to add styling to a widget.  Widgets vary a bit
+/// because some have statues like checked, pressed, etc.
+/// 1. Do nothing and the widgets default to one of the standard styles
+///    which is usually primary but varies some from widget to widget.
+/// 2. You select one of the available standard styles (see below for button)
+/// 3. You create your own palette (see the palette example which gives a full explanation)
+/// 4. You override the standard style colors.  Maybe you want a different background
+///    color for danger.
+/// 5. You add styling that is not set by any of the standard styles like gradient, 
+///    shadow, text parameters, border width and color.  These are listed below.
 /// 
-/// if you want to produce your own styles from a new background,
-/// then you will need to define the new background and optionally 
-/// a text color.  The text color can be auto generated or defined.
-/// 
-/// You also have the ability to define all the colors individually or
-/// define an active color which replaces all the colors for that parameter.
-/// 
-/// Below are the settings for the current styles.
+/// The standard style colors will vary depending on the theme selected
+/// for the window. This makes sure that there is enough contrast between the
+/// colors and the theme background to be seen.
 /// 
 /// Standard styles are:
-/// Background,
-/// Danger,
-/// Primary,
-/// Secondary,
-/// Subtle (unique settings),
-/// Success,
-/// Warning,
-/// Text,
+/// Background, Danger, Primary, Secondary,
+/// Subtle, Success, Warning, Text,
 ///
-/// Status    |  Standard Styles
-/// Active    |  base
-/// Hovered   |  strong
-/// Pressed   |  base
-/// Disabled  |  base => background scale_alpha(0.5)
-///
-/// Status    |  Text button
-/// Active    |  base
-/// Hovered   |  base text scale alpha(0.8)
-/// Pressed   |  base
-/// Disabled  |  base => background scale_alpha(0.5)
-///
-/// Status    |  Background Custom Colors
-/// Active    |  base
-/// Hovered   |  weak
-/// Pressed   |  strong
-/// Disabled  |  base => background scale_alpha(0.5)
-///
-/// Status    |  Standard Style Subtle (unique)
-/// Active    |  base
-/// Hovered   |  strong
-/// Pressed   |  base
-/// Disabled  |  base => background scale_alpha(0.5)
+/// Each widget has a status where the color changes based on the state of the widget.
+/// The status type will vary among the widgets due of the actions they produce.  
+/// For example, a button has a status of pressed and a checkbox has a status of checked.
 /// 
-/// Parameters
-/// ----------
-/// **Color triplet** — Each color group accepts one of three formats:
-///   <name>_color: Color         — named Color enum value
-///   <name>_alpha: float         — alpha multiplier applied to _color (0.0–1.0)
-///   <name>_rgba: list[float, 4] — raw [r, g, b, a] (takes priority over color + alpha)
-///
-/// bkg (background):
-///   bkg_color, bkg_color_alpha, bkg_rgba
-///     Background color. Defaults to the primary theme color.
-///
-/// text (global — all statuses inherit from this unless per-status override is set):
-///   text_color, text_color_alpha, text_rgba
-///     Overall text color. Defaults to the text color paired with the background.
-///
-/// text per-status (overrides the global text color for that status only):
-///   active:   text_color_active,   text_color_alpha_active,   text_rgba_active
-///   hovered:  text_color_hovered,  text_color_alpha_hovered,  text_rgba_hovered
-///   pressed:  text_color_pressed,  text_color_alpha_pressed,  text_rgba_pressed
-///   disabled: text_color_disabled, text_color_alpha_disabled, text_rgba_disabled
-///
-/// border per-status (defaults to the background color for that status):
-///   active:   border_color_active,   border_color_alpha_active,   border_rgba_active
-///   hovered:  border_color_hovered,  border_color_alpha_hovered,  border_rgba_hovered
-///   pressed:  border_color_pressed,  border_color_alpha_pressed,  border_rgba_pressed
-///   disabled: border_color_disabled, border_color_alpha_disabled, border_rgba_disabled
+/// The statuses are:
+/// Active, Hovered, Pressed, Disabled
 ///
 /// gradient — applied to the background instead of a solid color:
 ///   gradient_color_stops: list[Color, ≤8]

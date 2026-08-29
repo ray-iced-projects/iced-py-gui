@@ -11,21 +11,48 @@ use crate::state::{Widgets, add_callback_name_to_mutex, get_id};
 
 /// Adds a file system dialog window.
 ///
-/// Create a file system dialog for selecting folders or files
+/// Create a file system dialog for selecting folders or files. Multiple modes are supported:
+/// selecting single/multiple files or folders, loading file content, or saving files.
 ///
 /// Parameters
 /// ----------
 /// select_file : bool, Optional
-///     Whether to select a file name
+///     Whether to select a single file name
+/// select_files : bool, Optional
+///     Whether to select multiple file names
 /// select_folder : bool, Optional
-///     Whether to select a folder name
-/// load_content : bool, Optional
-///     Whether to load a file based on select_file
+///     Whether to select a single folder name
+/// select_folders : bool, Optional
+///     Whether to select multiple folder names
+/// load_file : bool, Optional
+///     Whether to load a single file's content
+/// load_file_for_editor : bool, Optional
+///     Whether to load a file for editing in a text editor
+/// save_file : bool, Optional
+///     Whether to save/create a new file
+/// file_name : str, Optional
+///     Default file name for save operations
+/// file_content : str, Optional
+///     Initial file content or loaded file content
+/// filters : list[str], Optional
+///     List of file type filters (e.g., ["*.txt", "*.yml", "*.py"]). Default: all files
+/// default_directory : str, Optional
+///     Starting directory path for the dialog
+/// title : str, Optional
+///     Custom title for the dialog window
+/// show_hidden_files : bool, Optional
+///     Whether to show hidden files and folders
+/// remember_last_directory : bool, Optional
+///     Whether to remember the last opened directory
+/// update_json_file : bool, Optional
+///     Whether to update a JSON configuration file with the result
+/// results_callback : callable, Optional
+///     Callback function to invoke when file/folder selection completes
 /// 
 /// Returns
 /// -------
 /// int
-///     The numeric widget ID of the newly created column.
+///     The numeric widget ID of the newly created file system dialog.
 /// 
 #[pyfunction]
 #[pyo3(signature = (
@@ -127,4 +154,3 @@ pub fn get_dialog_filters() -> Vec<String> {
         }
     }
 }
-

@@ -25,6 +25,7 @@ pub mod image;
 pub mod menu;
 pub mod mouse_area;
 pub mod opaque;
+pub mod palette_helpers;
 pub mod popup;
 pub mod picklist;
 pub mod progress_bar;

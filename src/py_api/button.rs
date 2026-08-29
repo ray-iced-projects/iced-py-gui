@@ -52,6 +52,14 @@ use crate::widgets::ipg_button::{Button,
 ///     Sets the ID of a custom palette created with ``custom_palette``.
 /// user_data : Any,  Optional
 ///     Sets an arbitrary data forwarded to callbacks.
+/// active: bool, Optional
+///     Whether to set the button status as Active.
+/// hovered: bool, Optional
+///     Whether to set the button status as Hovered.
+/// pressed: bool, Optional
+///     Whether to set the button status as Pressed.
+/// disabled: bool, Optional
+///     Whether to set the button status as Disabled.
 /// show : bool, default True
 ///     Whether the button is visible.
 /// gen_id : int,  Optional
@@ -72,13 +80,16 @@ use crate::widgets::ipg_button::{Button,
     fill=None,
     padding=None,
     clip=None,
-    disabled=None,
     font_id=None,
     style_id=None,
     style_std=None,
     style_arrow=None,
     palette_id=None,
     user_data=None,
+    active=None,
+    hovered=None,
+    pressed=None,
+    disabled=None,
     show=true,
     gen_id=None,
 ))]
@@ -93,13 +104,16 @@ pub fn add_button(
     fill: Option<bool>,
     padding: Option<Vec<f32>>,
     clip: Option<bool>,
-    disabled: Option<bool>,
     font_id: Option<usize>,
     style_id: Option<usize>,
     style_std: Option<ButtonStyleStd>,
     style_arrow: Option<Arrow>,
     palette_id: Option<usize>,
     user_data: Option<PyObject>,
+    active: Option<bool>,
+    hovered: Option<bool>,
+    pressed: Option<bool>,
+    disabled: Option<bool>,
     show: bool,
     gen_id: Option<usize>,
 ) -> PyResult<usize> {
@@ -134,13 +148,16 @@ pub fn add_button(
                 fill,
                 padding,
                 clip,
-                disabled,
                 font_id,
                 style_id,
                 style_std,
                 style_arrow,
                 palette_id,
                 show,
+                active,
+                hovered,
+                pressed,
+                disabled,
             }),
         );
     drop(state);

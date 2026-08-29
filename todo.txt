@@ -46,3 +46,36 @@ adding features
 Some features to later add_textSome features are mutually exclusive / competing. iced exposes three executor features — tokio, smol, and thread-pool — that all set executor::Default. Enabling all of them together doesn't make sense; you pick one (you're on tokio).
 You're not actually using all of them. Your current line omits plenty (qr_code, markdown, sysinfo, selector, sipper, webgl, time-travel, unconditional-rendering, etc.), and iced's default features (wgpu, tiny-skia, crisp, web-colors, thread-pool, linux-theme-detection, x11, wayland) are already on unless you set default-features = false.
 *******************************
+
+Callback Error Handling
+*************************
+Currently invoke_callback_with_args() uses panic! on callback signature mismatch
+Problem: Crashes entire GUI session instead of graceful error handling
+
+Options to consider:
+
+Option 1: Dedicated Error Callback
+- Register a global error callback that fires when callback errors occur
+- Python receives: on_callback_error(widget_id, event_name, error_msg)
+- Downside: Adds complexity to callback registration system
+
+Option 2: Logging + Silent Continuation
+- Log errors to stderr/eprintln instead of panicking
+- App continues running, errors visible in logs only
+- Simplest approach, but silent failures can be confusing
+- Good for production but harder to debug
+
+Option 3: Status/Error Queue
+- Store callback errors in a thread-safe queue
+- Python can poll with get_callback_errors() to retrieve recent errors
+- Good for introspection without blocking
+- Flexible for UI error display
+
+Option 4: Callback Returns Error Tuple (API Change)
+- Callbacks return (success: bool, error_msg: str | None)
+- Requires all callbacks to follow this pattern
+- More invasive API change, breaks existing code
+
+Recommendation: Option 3 (error queue) or Option 2 (logging) for robust GUI experience
+*************************
+

@@ -1,0 +1,135 @@
+# ============================================================================
+# Button Widget Palette Configuration
+# ============================================================================
+# Defines default palette mappings for button widget states and styles.
+# Used to generate custom palettes with status-specific color/text/border rules.
+
+widget: button
+
+# Widget metadata
+metadata:
+  description: "Button widget palette configuration"
+  palette_enabled: true
+  
+# Available statuses for this widget
+statuses:
+  - Active
+  - Hovered
+  - Pressed
+  - Disabled
+
+# Available state variants
+state_variants:
+  - NoVariant
+
+# Available style parts that can be customized
+parts:
+  - Background
+  - Text
+  - Border
+
+# ============================================================================
+# Palette Definitions
+# ============================================================================
+# Each status maps to palette keys for Background, Text, and Border.
+# Format: 
+#   - status: <WidgetStatus>
+#     variant: <StateVariant>
+#     parts:
+#       - part: <StylePart>
+#         key: <PaletteKey>
+#         alpha: <0.0 - 1.0>
+
+palette_mappings:
+  
+  # Active State - Default button appearance
+  - status: Active
+    variant: NoVariant
+    parts:
+      - part: Background
+        key: Base
+        alpha: 1.0
+        description: "Base color for button background"
+      
+      - part: Text
+        key: BaseText
+        alpha: 0.8
+        description: "Readable text on base background"
+      
+      - part: Border
+        key: Stronger
+        alpha: 1.0
+        description: "Subtle border using stronger palette tier"
+
+  # Hovered State - When mouse hovers over button
+  - status: Hovered
+    variant: NoVariant
+    parts:
+      - part: Background
+        key: Strong
+        alpha: 1.0
+        description: "Strong color to indicate hover"
+      
+      - part: Text
+        key: StrongText
+        alpha: 0.8
+        description: "High contrast text on strong background"
+      
+      - part: Border
+        key: Strongest
+        alpha: 1.0
+        description: "Pronounced border on hover"
+
+  # Pressed State - When button is actively clicked
+  - status: Pressed
+    variant: NoVariant
+    parts:
+      - part: Background
+        key: Base
+        alpha: 1.0
+        description: "Return to base for pressed state"
+      
+      - part: Text
+        key: BaseText
+        alpha: 0.8
+        description: "Text remains consistent with base"
+      
+      - part: Border
+        key: Stronger
+        alpha: 1.0
+        description: "Border returns to stronger tier"
+
+  # Disabled State - Button is disabled/inactive
+  - status: Disabled
+    variant: NoVariant
+    parts:
+      - part: Background
+        key: Base
+        alpha: 0.5
+        description: "Semi-transparent background"
+      
+      - part: Text
+        key: BaseText
+        alpha: 0.5
+        description: "Dimmed text indicates disabled state"
+      
+      - part: Border
+        key: Stronger
+        alpha: 0.5
+        description: "Faded border indicates disabled state"
+
+# ============================================================================
+# Palette Key Tiers Reference
+# ============================================================================
+# Available palette keys for color selection:
+#
+# Color Tiers (from weakest to strongest):
+#   - Weakest / WeakestText
+#   - Weak / WeakText
+#   - Base / BaseText
+#   - Strong / StrongText
+#   - Stronger / StrongerText
+#   - Strongest / StrongestText
+#
+# Each tier is generated from the base color using the iced framework's
+# readable() function to ensure WCAG contrast compliance.

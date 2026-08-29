@@ -1387,9 +1387,30 @@ def add_chart_series(
             Internal id of widget and can be used by user if equated.
     """
 
+class TextContrast:
+    """
+    Option for get_color_palette — Provides different contrasting text colors.
+
+    Attributes
+    ----------
+    Maximum : TextContrast
+        Pure white/black — accessibility floor (WCAG AA minimum).
+    Soft : TextContrast
+        Off-white/off-black — comfortable default (Material Design style).
+    Muted : TextContrast
+        Reduced emphasis — secondary text feel (~70% opacity).
+    """
+    Maximum=''
+    Soft=''
+    Muted=''
+
+
 def get_color_palette(
         base_color: Color | None = None,
         base_rgba: list[float, 4] | None = None,
+        color_alpha: float | None = None,
+        text_contrast: TextContrast | None = TextContrast.Maximum,
+        text_rgba: list[float, 4] | None = None,
     ) -> list[list[float], list[float, 4], list[float, 4]]:
 
     """
@@ -1401,11 +1422,20 @@ def get_color_palette(
             The color with class Color
         base_rgba: list[float, 4] | None,
             The color in rgba format
+        color_alpha: float | None
+            Sets the alpha of the color
+        text_constrast: TextConstrast | None
+            Set the type of text constract desired,
+            Maximum, Soft, or Muted
+        text_rgba: list[float, 4] | None
+            Overrides the contrast and uses the same
+            color for all palettes
 
     Returns:
     -------
-        list of 3 lists of rgba colors (strong, weak, text)
+        Dictionary {PaletteKey, RGBA}
     """
+
 
 def custom_palette(
         color: Color | None = None,

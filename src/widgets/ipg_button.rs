@@ -20,6 +20,15 @@ use iced::{Element, Theme};
 use pyo3::{Py, PyAny, pyclass};
 type PyObject = Py<PyAny>;
 
+/// Represents the user-forced button status, prioritizing explicit states over iced's computed status
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum UserButtonStatus {
+    Active,
+    Hovered,
+    Pressed,
+    Disabled,
+    None,
+}
 
 #[derive(Debug, Clone)]
 pub struct Button {
@@ -32,13 +41,16 @@ pub struct Button {
     pub fill: Option<bool>,
     pub padding: Option<Vec<f32>>,
     pub clip: Option<bool>,
-    pub disabled: Option<bool>,
     pub font_id: Option<usize>,
     pub style_id: Option<usize>,
     pub style_std: Option<ButtonStyleStd>,
     pub style_arrow: Option<Arrow>,
     pub palette_id: Option<usize>,
     pub show: bool,
+    pub active: Option<bool>,
+    pub hovered: Option<bool>,
+    pub pressed: Option<bool>,
+    pub disabled: Option<bool>,
 }
 
 impl Button {
@@ -156,6 +168,14 @@ impl Button {
             if self.clip == Some(true) {
                 txt.wrapping(Wrapping::None)
             } else { txt };
+
+        let user_status = match (self.active, self.hovered, self.pressed, self.disabled) {
+            (Some(true), None, None, None) => UserButtonStatus::Active,
+            (None, Some(true), None, None) => UserButtonStatus::Hovered,
+            (None, None, Some(true), None) => UserButtonStatus::Pressed,
+            (None, None, None, Some(true)) => UserButtonStatus::Disabled,
+            _ => UserButtonStatus::None,
+        };
             
         let btn = 
             button(txt)
@@ -164,9 +184,13 @@ impl Button {
                 .width(get_len(self.fill, self.width_fill, self.width))
                 .height(get_len(self.fill, self.height_fill, self.height))
                 .style(move |theme: &Theme, status| {
-                    let status = if self.disabled == Some(true) {
-                        button::Status::Disabled
-                    } else { status };
+                    let status = match user_status {
+                        UserButtonStatus::Active => button::Status::Active,
+                        UserButtonStatus::Hovered => button::Status::Hovered,
+                        UserButtonStatus::Pressed => button::Status::Pressed,
+                        UserButtonStatus::Disabled => button::Status::Disabled,
+                        UserButtonStatus::None => status,
+                    };
                     if style_opt.is_some() || c_pal_opt.is_some() {
                         let btn_st = ButtonStyle::default();
                         let st = style_opt.as_ref().unwrap_or(&btn_st);

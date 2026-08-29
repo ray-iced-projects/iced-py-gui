@@ -57,19 +57,26 @@ pub fn get_theme_palette(
 #[pyo3(signature = (
     color=None, 
     rgba=None,
-    color_alpha=None))]
+    color_alpha=None,
+    text_contrast=None,
+    text_rgba=None))]
 pub fn get_color_palette(
     color: Option<Color>,
     rgba: Option<[f32; 4]>,
     color_alpha: Option<f32>,
+    text_contrast: Option<TextContrast>,
+    text_rgba: Option<[f32; 4]>,
 ) -> PyResult<HashMap<PaletteKey, [f64; 4]>>
 {
     let base = Color::rgba_ipg_color_to_iced(rgba, &color, color_alpha)
         .ok_or_else(|| pyo3::exceptions::PyValueError::new_err(
-            "get_color_palette: no color supplied — provide color, rgba, or color_alpha"
+            "get_color_palette: no color supplied — provide a Color, a rgba, or with optional color_alpha"
         ))?;
 
-    Ok(color_palette_from_color(base))
+    let contrast = text_contrast.unwrap_or(TextContrast::Soft);
+    let text_override = text_rgba.map(|c| iced::Color::from_rgba(c[0], c[1], c[2], c[3]));
+
+    Ok(color_palette_from_color(base, contrast, text_override))
 }
 
 /// Returns the palette used by the standard widget styles (button, container, etc.)
@@ -224,33 +231,67 @@ pub fn get_button_palette(
     
 }
 
-fn color_palette_from_color(base: iced::Color) -> HashMap<PaletteKey, [f64; 4]> {
-    let text_color = readable(base, iced::Color::WHITE);
-    let color_pal = iced::theme::palette::Background::new(base, text_color);
+/// Resolve a tier's text color: readable() picks black/white against the tier
+/// background, then TextContrast softens/mutes the extreme for comfort.
+fn resolve_text(bg: iced::Color, contrast: TextContrast) -> iced::Color {
+    let is_light_text = readable(bg, iced::Color::WHITE) == iced::Color::WHITE;
+    match contrast {
+        TextContrast::Maximum => {
+            if is_light_text { iced::Color::WHITE } else { iced::Color::BLACK }
+        }
+        TextContrast::Soft => {
+            if is_light_text {
+                iced::Color::from_rgb(0.88, 0.88, 0.88)
+            } else {
+                iced::Color::from_rgb(0.13, 0.13, 0.13)
+            }
+        }
+        TextContrast::Muted => {
+            if is_light_text {
+                iced::Color::from_rgb(0.70, 0.70, 0.70)
+            } else {
+                iced::Color::from_rgb(0.30, 0.30, 0.30)
+            }
+        }
+    }
+}
+
+fn color_palette_from_color(
+    base: iced::Color,
+    contrast: TextContrast,
+    text_override: Option<iced::Color>,
+) -> HashMap<PaletteKey, [f64; 4]> {
+    let seed = readable(base, iced::Color::WHITE);
+    let color_pal = iced::theme::palette::Background::new(base, seed);
 
     fn to_arr(c: iced::Color) -> [f64; 4] {
         let r = |v: f32| ((v as f64) * 100.0).round() / 100.0;
         [r(c.r), r(c.g), r(c.b), r(c.a)]
     }
+
+    // Explicit override wins for every tier; otherwise resolve per tier background.
+    let text_for = |bg: iced::Color| -> iced::Color {
+        text_override.unwrap_or_else(|| resolve_text(bg, contrast))
+    };
     
     let mut map = HashMap::new();
     
     map.insert(PaletteKey::Base,     to_arr(color_pal.base.color));
-    map.insert(PaletteKey::BaseText, to_arr(color_pal.base.text));
+    map.insert(PaletteKey::BaseText, to_arr(text_for(color_pal.base.color)));
     map.insert(PaletteKey::Weak,     to_arr(color_pal.weak.color));
-    map.insert(PaletteKey::WeakText, to_arr(color_pal.weak.text));
+    map.insert(PaletteKey::WeakText, to_arr(text_for(color_pal.weak.color)));
     map.insert(PaletteKey::Weaker,   to_arr(color_pal.weaker.color));
-    map.insert(PaletteKey::WeakerText, to_arr(color_pal.weaker.text));
+    map.insert(PaletteKey::WeakerText, to_arr(text_for(color_pal.weaker.color)));
     map.insert(PaletteKey::Weakest,  to_arr(color_pal.weakest.color));
-    map.insert(PaletteKey::WeakestText, to_arr(color_pal.weakest.text));
+    map.insert(PaletteKey::WeakestText, to_arr(text_for(color_pal.weakest.color)));
     map.insert(PaletteKey::Neutral,  to_arr(color_pal.neutral.color));
-    map.insert(PaletteKey::NeutralText,  to_arr(color_pal.neutral.text));
+    map.insert(PaletteKey::NeutralText,  to_arr(text_for(color_pal.neutral.color)));
     map.insert(PaletteKey::Strong,   to_arr(color_pal.strong.color));
-    map.insert(PaletteKey::StrongText, to_arr(color_pal.strong.text));
+    map.insert(PaletteKey::StrongText, to_arr(text_for(color_pal.strong.color)));
     map.insert(PaletteKey::Stronger, to_arr(color_pal.stronger.color));
-    map.insert(PaletteKey::StrongerText, to_arr(color_pal.stronger.text));
+    map.insert(PaletteKey::StrongerText, to_arr(text_for(color_pal.stronger.color)));
     map.insert(PaletteKey::Strongest, to_arr(color_pal.strongest.color));
-    map.insert(PaletteKey::StrongestText, to_arr(color_pal.strongest.text));
+    map.insert(PaletteKey::StrongestText, to_arr(text_for(color_pal.strongest.color)));
 
     map
 }
@@ -327,6 +368,15 @@ pub enum StateVariant {
     NoVariant,
     Checked,
     Unchecked,
+}
+
+/// Controls how generated text colors trade off legibility against comfort.
+#[derive(Debug, Clone, Copy, Eq, PartialEq, Hash)]
+#[pyclass(eq, eq_int, hash, frozen)]
+pub enum TextContrast {
+    Maximum, // pure white/black — accessibility floor
+    Soft,    // off-white/off-black — comfortable default
+    Muted,   // reduced emphasis — secondary text feel
 }
 
 #[derive(Debug, Clone)]

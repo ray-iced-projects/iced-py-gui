@@ -1,0 +1,202 @@
+# ============================================================================
+# Widget Palette Parts Configuration
+# ============================================================================
+# Defines the available palette parts (Background, Text, Border, etc.) and
+# statuses (Active, Hovered, Pressed, etc.) for each widget.
+#
+# Used by PaletteConfigLoader.load_widget_parts() to provide information
+# about which widgets support palette customization and their capabilities.
+
+# File type identifier (required for validation)
+file_type: widget_palette_parts
+version: 1.0
+
+# PALETTE-ENABLED WIDGETS (Ready for custom color palettes)
+# ============================================================================
+
+button:
+  description: "Button widget with clickable states"
+  statuses: [Active, Pressed, Hovered, Disabled]
+  state_variants: [NoVariant]
+  parts: [Background, Text, Border]
+  palette_enabled: true
+
+checkbox:
+  description: "Checkbox with checked/unchecked states"
+  statuses: [Active, Hovered, Disabled]
+  state_variants: [Checked, Unchecked]
+  parts: [Background, Text, Border, Icon]
+  palette_enabled: true
+
+# STATUS-BASED WIDGETS (Status styling implemented, ready for palettes)
+# ============================================================================
+
+card:
+  description: "Card widget with expandable states"
+  statuses: [Active, Hovered, Disabled]
+  state_variants: [NoVariant]
+  parts: [Background, Border, Text]
+  palette_enabled: false
+  notes: "Has status-based styling, ready for palette implementation"
+
+menu:
+  description: "Menu bar widget with dropdown items"
+  statuses: [Active, Hovered]
+  state_variants: [NoVariant]
+  parts: [Background, Text, Border]
+  palette_enabled: false
+  notes: "Has status-based styling, ready for palette implementation"
+
+pick_list:
+  description: "Dropdown list widget"
+  statuses: [Active, Opened, Hovered, Disabled]
+  state_variants: [NoVariant]
+  parts: [Background, Text, Border]
+  palette_enabled: false
+  notes: "Has status-based styling, supports Opened status"
+
+radio:
+  description: "Radio button widget"
+  statuses: [Active, Hovered, Disabled]
+  state_variants: [NoVariant]
+  parts: [Background, Border, Text]
+  palette_enabled: false
+  notes: "Has status-based styling, ready for palette implementation"
+
+progress_bar:
+  description: "Progress bar widget"
+  statuses: [Active, Disabled]
+  state_variants: [NoVariant]
+  parts: [Background, Base]
+  palette_enabled: false
+  notes: "Has status-based styling, supports fill/track backgrounds"
+
+sash:
+  description: "Sash widget for resizing panels"
+  statuses: [Active, Hovered, Dragged, Disabled]
+  state_variants: [NoVariant]
+  parts: [Background, Border]
+  palette_enabled: false
+  notes: "Has status-based styling, supports Dragged status"
+
+scrollable:
+  description: "Scrollable container widget"
+  statuses: [Active, Hovered, Disabled]
+  state_variants: [NoVariant]
+  parts: [Background, Border]
+  palette_enabled: false
+  notes: "Has status-based styling for scrollbar"
+
+slider:
+  description: "Slider widget for numeric input"
+  statuses: [Active, Hovered, Focused, Disabled]
+  state_variants: [NoVariant]
+  parts: [Background, Border]
+  palette_enabled: false
+  notes: "Has status-based styling, supports Focused status"
+
+text_editor:
+  description: "Text editor widget"
+  statuses: [Active, Focused, Disabled]
+  state_variants: [NoVariant]
+  parts: [Background, Text, Border]
+  palette_enabled: false
+  notes: "Has status-based styling, supports Focused status"
+
+text_input:
+  description: "Text input field widget"
+  statuses: [Active, Focused, Hovered, Disabled]
+  state_variants: [NoVariant]
+  parts: [Background, Text, Border]
+  palette_enabled: false
+  notes: "Has status-based styling, supports Focused and Hovered"
+
+toggle:
+  description: "Toggle switch widget"
+  statuses: [Active, Hovered, Disabled]
+  state_variants: [IsToggled, NoVariant]
+  parts: [Background, Border, Text]
+  palette_enabled: false
+  notes: "Has status-based styling, similar to checkbox but simpler"
+
+# THEME-ONLY WIDGETS (No status-based styling, theme colors only)
+# ============================================================================
+
+container:
+  description: "Container widget for layout grouping"
+  statuses: []
+  state_variants: []
+  parts: [Background, Border]
+  palette_enabled: false
+  notes: "Theme-only styling, no status-based styles"
+
+color_picker:
+  description: "Color picker widget"
+  statuses: []
+  state_variants: []
+  parts: [Background]
+  palette_enabled: false
+  notes: "Theme-only styling, no status-based styles"
+
+date_picker:
+  description: "Date picker calendar widget"
+  statuses: []
+  state_variants: []
+  parts: [Background]
+  palette_enabled: false
+  notes: "Theme-only styling, no status-based styles"
+
+rule:
+  description: "Horizontal/vertical rule separator"
+  statuses: []
+  state_variants: []
+  parts: [Border]
+  palette_enabled: false
+  notes: "Theme-only styling, no status-based styles"
+
+svg:
+  description: "SVG image widget"
+  statuses: []
+  state_variants: []
+  parts: []
+  palette_enabled: false
+  notes: "Theme-only styling, minimal styling"
+
+text:
+  description: "Static text label widget"
+  statuses: []
+  state_variants: []
+  parts: [Text]
+  palette_enabled: false
+  notes: "Theme-only styling, no status-based styles"
+
+tool_tip:
+  description: "Tooltip popup widget"
+  statuses: [Active]
+  state_variants: [NoVariant]
+  parts: [Background, Text, Border]
+  palette_enabled: false
+  notes: "Simple widget with basic styling"
+
+# ============================================================================
+# REFERENCE: Available Status Types
+# ============================================================================
+# - Active:    Default widget state
+# - Hovered:   Mouse hovering over widget
+# - Focused:   Widget has keyboard focus (inputs, editors)
+# - Pressed:   Widget actively being clicked
+# - Disabled:  Widget is inactive/disabled
+# - Opened:    Widget menu/dropdown is open
+# - Dragged:   Widget is being dragged (sash)
+# - Checked:   Checkbox/radio is checked
+# - Unchecked: Checkbox/radio is unchecked
+# - IsToggled: Toggle switch is on
+
+# ============================================================================
+# REFERENCE: Available Part Types
+# ============================================================================
+# - Background: Widget background fill color
+# - Text:       Widget text/label color
+# - Border:     Widget border color
+# - Icon:       Widget icon color (checkboxes, etc.)
+# - Base:       Base fill color (progress bars)

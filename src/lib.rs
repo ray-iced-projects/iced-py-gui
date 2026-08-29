@@ -35,7 +35,7 @@ use crate::py_api::clipboard::{clipboard_write, clipboard_callback};
 use crate::py_api::config::{get_file_filters, reload_filters, get_config_path};
 use crate::py_api::card::{add_card_class, add_card, add_card_style};
 use crate::py_api::checkbox::{add_checkbox, add_checkbox_style};
-use crate::py_api::colors::{PaletteKey, StateVariant, StylePart, WidgetStatus, custom_palette, get_button_palette, get_color_palette, get_rgba_color, get_styling_palette, get_theme_palette};
+use crate::py_api::colors::{PaletteKey, StateVariant, StylePart, TextContrast, WidgetStatus, custom_palette, get_button_palette, get_color_palette, get_rgba_color, get_styling_palette, get_theme_palette};
 use crate::py_api::color_picker::{add_color_picker};
 use crate::py_api::column::add_column;
 use crate::py_api::combo_box::{add_combobox, add_combobox_input_style, add_combobox_menu_style};
@@ -44,13 +44,14 @@ use crate::py_api::date_picker::add_date_picker;
 use crate::py_api::draw::add_draw;
 use crate::py_api::draw_update::{update_draw_params, delete_draw_widget};
 use crate::py_api::events::{add_event_keyboard, add_event_mouse};
-use crate::py_api::file_system_dialog::{add_file_system_dialog, get_dialog_filters};
+use crate::py_api::file_system_dialog::{add_file_system_dialog, get_dialog_filters}; 
 use crate::py_api::float::add_float;
 use crate::py_api::grid::add_grid;
 use crate::py_api::font::{add_font_style, add_icon, load_font, arrow_to_str, arrow_variants};
 use crate::py_api::image::add_image;
 use crate::py_api::menu::{add_menu, add_menu_bar_item, add_menu_sub_item, add_menu_style};
 use crate::py_api::mouse_area::add_mouse_area;
+use crate::py_api::palette_helpers::{get_widget_palette_part, get_widget_palette_list};
 use crate::py_api::opaque::add_opaque;
 use crate::py_api::popup::add_popup;
 use crate::py_api::progress_bar::{add_progress_bar, add_progress_bar_style};
@@ -147,6 +148,8 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     
     // Configuration functions
     m.add_function(wrap_pyfunction!(get_file_filters, m)?)?;
+    m.add_function(wrap_pyfunction!(get_widget_palette_part, m)?)?;
+    m.add_function(wrap_pyfunction!(get_widget_palette_list, m)?)?;
     m.add_function(wrap_pyfunction!(reload_filters, m)?)?;
     m.add_function(wrap_pyfunction!(get_config_path, m)?)?;
     
@@ -329,6 +332,7 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<WidgetStatus>()?;
     m.add_class::<StylePart>()?;
     m.add_class::<StateVariant>()?;
+    m.add_class::<TextContrast>()?;
 
     // misc functions
     m.add_function(wrap_pyfunction!(arrow_to_str, m)?)?;

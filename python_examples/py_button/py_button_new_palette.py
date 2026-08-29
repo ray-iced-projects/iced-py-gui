@@ -6,8 +6,6 @@ import os
 from icedpygui import (
     Window,
     WindowTheme,
-    add_container,
-    add_container_style,
     Column,
     Scrollable,
     Row,
@@ -16,8 +14,6 @@ from icedpygui import (
     add_button_style,
     add_pick_list,
     add_text,
-    add_font_style,
-    FontWeight,
     custom_palette,
     get_color_palette,
     PaletteKey,
@@ -34,27 +30,6 @@ from icedpygui import (
 new_color = [0.32, 0.2, 0.13, 1.0]
 
 color_pal = get_color_palette(rgba=new_color)
-
-def make_tiles(status: tuple[WidgetStatus, list[list[StylePart, PaletteKey, float]]]):
-    """Make the tiles"""
-    # ((WidgetStatus, StateVariant) (StylePart, PaletteKey, alpha))
-
-    for( part, pal_key, alpha) in status[1]:
-        rgba= color_pal.get(pal_key)
-        rgba[3] *= alpha
-
-        c = "Color" if alpha == 1.0 else f"Color Alpha {alpha}"
-        match part:
-            case StylePart.Background:
-                content = f"Background\n{c}"
-            case StylePart.Text:
-                content = f"Text\n{c}"
-            case StylePart.Border:
-                content = f"Border\n{c}"
-        add_text(content=content, width=150)
-        style_id = add_container_style(bkg_rgba=rgba)
-        add_container(width=120, height=20, style_id=style_id)
-
 
 # See the py_button_text for an explanation or run this example to see.
 pal = [
@@ -90,7 +65,6 @@ def on_theme_select(_pl_id: int, theme_name: str):
 
 pal_id = custom_palette(rgba=new_color, statuses=pal)
 
-font_id = add_font_style(family_name="Roboto", weight=FontWeight.Bold)
 btn_style_id = add_button_style(border_width=3)
 
 cwd = os.getcwd()
@@ -117,40 +91,33 @@ with Window(title="Button Custom Palette",
                                 style_id=txt_ed_style_id)
 
         with Column(spacing=20, width_fill=True, padding=[0, 0, 0, 20]):
+            add_text(content=("***Select a theme to see how the buttons look\n"
+                              "***with a different background."))
+
             add_pick_list(options=window_theme_names(), selected="TokyoNight",
                                 placeholder="Select Theme", on_select=on_theme_select)
 
-            add_text(content="******Custom Status Styling******")
+            add_text(content="***Buttons where the Status is locked***")
 
             with Row(spacing=20, width_fill=True):
-                with Column(spacing=5):
-                    add_text(content="Status: Active",
-                            size=20, font_id=font_id)
-                    make_tiles(pal[0])
+                add_button(label="Status: Active", active=True,
+                           palette_id=pal_id, padding=[10])
 
-                with Column(spacing=5):
-                    add_text(content="Status: Hovered",
-                                size=20, font_id=font_id)
-                    make_tiles(pal[1])
+                add_button(label="Status: Hovered", hovered=True,
+                           palette_id=pal_id, padding=[10])
 
-                with Column(spacing=5):
-                    add_text(content="Status: Pressed",
-                                size=20, font_id=font_id)
-                    make_tiles(pal[2])
+                add_button(label="Status: Pressed", pressed=True,
+                           palette_id=pal_id, padding=[10])
 
-                with Column(spacing=5):
-                    add_text(content="Status: Disabled",
-                                size=20, font_id=font_id)
-                    make_tiles(pal[3])
+                add_button(label="Status: Disabled", disabled=True,
+                           palette_id=pal_id, padding=[10])
 
-            with Row(spacing=20):
-                with Column(spacing=5):
-                    add_button(label="Custom Palette", padding=[10],
-                            palette_id=pal_id, style_id=btn_style_id)
-                    add_button(label="Custom Palette Disabled", padding=[10],
-                                palette_id=pal_id, disabled=True)
-                with Column(spacing=5):
-                    add_button(label="Default Palette", padding=[10])
-                    add_button(label="Default Palette Disabled", padding=[10],
-                                disabled=True)
+
+            add_button(label="Custom Button Palette", padding=[10],
+                        palette_id=pal_id)
+
+            add_button(label="Custom Button Palette with border", padding=[10],
+                                    palette_id=pal_id, style_id=btn_style_id)
+
+
 start_session()

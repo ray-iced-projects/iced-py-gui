@@ -359,8 +359,8 @@ pub fn fsd_callback(state: &mut IpgState, id: usize, message: FileSystemMessage)
                     id,
                     CallbackName::Result,
                     "FileSystemDialog",
-                    (FsdCallbackType::FileLoaded, fsd.file_content.clone()),
-                    "def fsd_results(_fsd_id: int, results: tuple[FsdCallbackType, any])",
+                    (FsdCallbackType::FileLoaded, fsd.file_path.clone(), fsd.file_content.clone()),
+                    "def fsd_results(_fsd_id: int, results: tuple[FsdCallbackType, file_name: str, file_content: any])",
                 );
             }
         },

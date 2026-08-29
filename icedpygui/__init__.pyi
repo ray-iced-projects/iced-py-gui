@@ -63,6 +63,8 @@ from .icedpygui import (
     FileSystemDialogParam as FileSystemDialogParam,
     FileSystemDialogCallbackType as FileSystemDialogCallbackType,
     get_dialog_filters as get_dialog_filters,
+    get_widget_palette_part as get_widget_palette_part,
+    get_widget_palette_list as get_widget_palette_list,
     FilterMethod as FilterMethod,
     FloatParam as FloatParam,
     FontFamily as FontFamily,
@@ -93,6 +95,7 @@ from .icedpygui import (
     StyleStandard as StyleStandard,
     SvgParam as SvgParam,
     TableParam as TableParam,
+    TextContrast as TextContrast,
     TextInputParam as TextInputParam,
     TextEditorParam as TextEditorParam,
     TextParam as TextParam,
@@ -142,13 +145,16 @@ def add_button(
     fill: bool | None = None,
     padding: list[float] | None = None,
     clip: bool | None = None,
-    disabled: bool | None = None,
     font_id: int | None = None,
     style_id: int | None = None,
     style_std: ButtonStyleStd | None = None,
     style_arrow: Arrow | None = None,
     palette_id: int | None = None,
     user_data: Any | None = None,
+    active: bool | None = None,
+    hovered: bool | None = None,
+    pressed: bool | None = None,
+    disabled: bool | None = None,
     show: bool = True,
     gen_id: int | None = None,
 ) -> int:
@@ -180,8 +186,6 @@ def add_button(
         [top, right, bottom, left].
     clip : bool, optional
         Whether to clip content that overflows the button.
-    disabled : bool, optional
-        Whether the button is disabled.
     font_id : int, optional
         Sets the ID of a custom font created with ``add_font_style``.
     style_id : int, optional
@@ -196,6 +200,14 @@ def add_button(
         Sets arbitrary data forwarded to callbacks.
     show : bool, default True
         Whether the button is visible.
+    active: bool, Optional
+         Whether to set the button status as Active.
+     hovered: bool, Optional
+         Whether to set the button status as Hovered.
+     pressed: bool, Optional
+         Whether to set the button status as Pressed.
+     disabled: bool, Optional
+         Whether to set the button status as Disabled.
     gen_id : int, optional
         Obtains an ID for a widget that has not been created;
         used for the gen_id parameter.
@@ -631,37 +643,67 @@ def add_event_window(
 
 def add_file_system_dialog(
     select_file: bool | None = None,
+    select_files: bool | None = None,
     select_folder: bool | None = None,
+    select_folders: bool | None = None,
     load_file: bool | None = None,
     load_file_for_editor: bool | None = None,
     save_file: bool | None = None,
+    file_name: str | None = None,
+    file_content: str | None = None,
     filters: list[str] | None = None,
-    initial_directory: str | None = None,
+    default_directory: str | None = None,
+    title: str | None = None,
     show_hidden_files: bool | None = None,
     remember_last_directory: bool | None = None,
     update_json_file: bool | None = None,
-    on_folder_selected: Callable | None = None,
-    on_file_selected: Callable | None = None,
-    on_file_loaded: Callable | None = None,
+    results_callback: callable | None = None,
     ) -> int:
-    """
-    Adds a file system dialog window.
+    """Create a file system dialog for selecting folders or files.
 
-    Create a file system dialog for selecting folders or files
+    Multiple modes are supported: selecting single/multiple files or folders,
+    loading file content, or saving files. Results are returned via callback.
 
     Parameters
     ----------
-    select_file : bool, Optional
-        Whether to select a file name
-    select_folder : bool, Optional
-        Whether to select a folder name
-    load_content : bool, Optional
-        Whether to load a file based on select_file
+    select_file : bool, optional
+        Whether to select a single file name
+    select_files : bool, optional
+        Whether to select multiple file names
+    select_folder : bool, optional
+        Whether to select a single folder name
+    select_folders : bool, optional
+        Whether to select multiple folder names
+    load_file : bool, optional
+        Whether to load a single file's content
+    load_file_for_editor : bool, optional
+        Whether to load a file for editing in a text editor
+    save_file : bool, optional
+        Whether to save/create a new file
+    file_name : str, optional
+        Default file name for save operations
+    file_content : str, optional
+        Initial file content or loaded file content
+    filters : list[str], optional
+        List of file type filters (e.g., ["*.txt", "*.yml", "*.py"]).
+        Default: ["*"] (all files)
+    default_directory : str, optional
+        Starting directory path for the dialog
+    title : str, optional
+        Custom title for the dialog window
+    show_hidden_files : bool, optional
+        Whether to show hidden files and folders
+    remember_last_directory : bool, optional
+        Whether to remember the last opened directory
+    update_json_file : bool, optional
+        Whether to update a JSON configuration file with the result
+    results_callback : callable, optional
+        Callback function to invoke when file/folder selection completes
 
     Returns
     -------
     int
-        The numeric widget ID of the newly created column.
+        The numeric widget ID of the newly created file system dialog
     """
 def add_float(
     window_id: str ,
@@ -863,14 +905,35 @@ def add_image(
     """
     ...
 def add_pick_list(
+    options: list[str],
     *,
     parent_id: str | None = None,
-    **kwargs: Any) -> int:
+    on_select: callable | None = None,
+    on_open: callable | None = None,
+    on_close: callable | None = None,
+    width: float | None = None,
+    width_fill: bool | None = None,
+    menu_height: float | None = None,
+    menu_height_fill: bool | None = None,
+    padding: list[float] | None = None,
+    placeholder: str | None = None,
+    selected: str | None = None,
+    text_size: float | None = None,
+    text_line_height: float | None = None,
+    text_ellipsis_start: bool | None = None,
+    text_ellipsis_middle: bool | None = None,
+    text_ellipsis_end: bool = True,
+    handle_size: float | None = None,
+    handle_static_icon_id: int | None = None,
+    handle_dynamic_closed_icon_id: int | None = None,
+    handle_dynamic_open_icon_id: int | None = None,
+    style_id: int | None = None,
+    user_data: any | None = None,
+    show: bool = True,
+    gen_id: int | None = None,
+    ) -> int:
     """
     Adds a Pick List widget
-    A widget must go into a container type.
-
-    i.e. Container, Column, Row, etc.
 
     Usage::
         def picked_item(pl_id: int, data: str):
@@ -885,8 +948,54 @@ def add_pick_list(
                     placeholder="Choose a Number...",
                     on_select=picked_item)
 
-    Returns:
-        int: widget id
+    Parameters
+    ----------
+    parent_id : str
+        Sets the parent container ID that this pick list belongs to.
+    options : list of str
+        Sets the list of selectable options.
+    gen_id : int, Optional
+        Obtains an ID of a widget that have not been created, used for the gen_id parameter.
+    on_select : callable, Optional
+        Sets the Callback method to invoke when an option is selected.
+    width : float, Optional
+        Sets the Fixed width in logical pixels.
+    width_fill : bool, default False
+        Whether the pick list fills available width.
+    menu_height : float, Optional
+        Sets the Fixed height of the dropdown menu in logical pixels.
+    menu_height_fill : bool, default False
+        Whether the dropdown menu fills available height.
+    padding : list of float, Optional
+        Sets the Padding as [all], [vertical, horizontal], or
+        [top, right, bottom, left].
+    placeholder : str, Optional
+        Sets the placeholder text shown when no option is selected.
+    selected : str, Optional
+        Sets the currently selected option.
+    text_size : float, Optional
+        Sets the Font size for the text.
+    text_line_height : float, Optional
+        Sets the Line height for the text.
+    handle_size : float, Optional
+        Sets the size of the icon.
+    handle_static_icon_id : int, Optional
+        Sets the id using the add_icon id.
+    handle_dynamic_closed_icon_id : int, Optional
+        Sets the id using the add_icon id.
+    handle_dynamic_open_icon_id : int, Optional
+        Sets the id using the add_icon id.
+    style_id : int, Optional
+        Sets the ID of a custom style created with ``add_pick_list_style``.
+    user_data : Any, Optional
+        Sets the Arbitrary data forwarded to callbacks.
+    show : bool, default True
+        Whether the pick list is visible.
+
+    Returns
+    -------
+    int
+        The numeric widget ID of the newly created pick list.
     """
     ...
 def add_progress_bar(

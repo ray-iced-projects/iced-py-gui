@@ -1,6 +1,5 @@
 ***Scroll to see all****
-When creating a palette for the button, you can only use Background, Text, and Border.  The other StyleParts belong
-to other widgets with overlap.  You don't need to use all 3 parts but it's advisable to use all statuses for each part.
+When creating a palette for the button, you can only use Background, Text, and Border.  The other StyleParts that sre see in the hint list belong to other widgets with overlap.  You don't need to use all 3 parts but it's advisable to use all statuses for each part.
 Border will only show when the border width > 0.
 
 To define a palette use the following steps. 

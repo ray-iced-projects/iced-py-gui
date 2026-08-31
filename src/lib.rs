@@ -218,7 +218,6 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(add_text_input, m)?)?;
     m.add_function(wrap_pyfunction!(add_text, m)?)?;
     m.add_function(wrap_pyfunction!(add_toggler_style, m)?)?;
-    m.add_function(wrap_pyfunction!(add_toggler_style, m)?)?;
     m.add_function(wrap_pyfunction!(add_toggler, m)?)?;
     m.add_function(wrap_pyfunction!(add_tool_tip, m)?)?;
     

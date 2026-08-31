@@ -13,6 +13,7 @@ crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 pyo3 = { version = "0.26", features = ["indexmap"] }
+indexmap = "2"
 pyo3-stub-gen = "0.19.0"
 iced = { git = "https://github.com/iced-rs/iced", rev = "a8ff2d522552c1252b88afc02bc310dd657cd25e", features = ["advanced", "canvas", "debug", "highlighter", "image", "lazy", "smol", "svg", "tokio"] }
 tokio = { version = "1.0", features = ["fs"]}

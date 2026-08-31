@@ -224,6 +224,15 @@ pub fn button_callback(id: usize, message: BtnMessage) {
 #[derive(Debug, Clone, Default)]
 pub struct ButtonStyle {
     pub id: usize,
+
+    pub bkg_color: Option<Color>,
+    pub bkg_color_alpha: Option<f32>,
+    pub bkg_rgba: Option<[f32; 4]>,
+
+    pub text_color: Option<Color>,
+    pub text_color_alpha: Option<f32>,
+    pub text_rgba: Option<[f32; 4]>,
+
     pub text_top_left: Option<bool>,
     pub text_top_center: Option<bool>,
     pub text_top_right: Option<bool>,
@@ -283,8 +292,12 @@ impl ButtonStyle {
         let shd_color =
             Color::rgba_ipg_color_to_iced(self.shadow_rgba, &self.shadow_color, self.shadow_color_alpha);
 
-        let bd_color =
+        let brd_color =
             Color::rgba_ipg_color_to_iced(self.border_rgba, &self.border_color, self.border_color_alpha);
+
+        // Fixed background overrides all statuses when set
+        let fixed_bkg = Color::rgba_ipg_color_to_iced(self.bkg_rgba, &self.bkg_color, self.bkg_color_alpha);
+        let fixed_text_color = Color::rgba_ipg_color_to_iced(self.text_rgba, &self.text_color, self.text_color_alpha);
 
         let shadow = if let (Some(color), Some(blur_radius)) = (shd_color, self.shadow_blur_radius) {
             let offset = self.shadow_offset_xy
@@ -314,15 +327,33 @@ impl ButtonStyle {
             style.shadow = shadow;
 
             let border = iced::Border{
-                color: bd_color.unwrap_or_default(),
+                color: brd_color.unwrap_or_default(),
                 radius: radius,
                 width: self.border_width.unwrap_or_default(),
             };
             
             style.border = border;
             style.snap = self.snap.unwrap_or_default();
+            if let Some(bg) = fixed_bkg {
+                style.background = Some(iced::Background::Color(bg));
+            }
 
             return style
+        }
+
+        // Fixed bkg_color short-circuits the full palette/status logic
+        if let Some(bg) = fixed_bkg {
+            let mut style = button::primary(theme, status);
+            style.background = Some(iced::Background::Color(bg));
+            style.border = iced::Border {
+                color: brd_color.unwrap_or_default(),
+                radius,
+                width: self.border_width.unwrap_or_default(),
+            };
+            style.text_color = fixed_text_color.unwrap_or(iced::Color::BLACK);
+            style.shadow = shadow;
+            style.snap = snap;
+            return style;
         }
 
         let bkg_grad_color_stops =
@@ -382,8 +413,8 @@ impl ButtonStyle {
                     })
                     .collect();
 
-                // Button has no variant dimension; prefer Unchecked if provided.
-                if *variant == StateVariant::Unchecked || !collapsed.contains_key(widget_status) {
+                // Button has no variant; NoVariant takes precedence over any selected StateVariant.
+                if *variant == StateVariant::NoVariant || !collapsed.contains_key(widget_status) {
                     collapsed.insert(widget_status.clone(), part_map);
                 }
             }
@@ -430,7 +461,7 @@ impl ButtonStyle {
 
             // The style border color overrides the palette border color
             let bd_color = 
-                if let Some(bc) = bd_color {
+                if let Some(bc) = brd_color {
                     bc
                 } else { border_color };
             

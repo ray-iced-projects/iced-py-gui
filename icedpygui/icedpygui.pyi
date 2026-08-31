@@ -3226,6 +3226,24 @@ class SliderStyleParam:
     HandleRectangleWidth:int
     HandleRectangleBorderRadius:list[float]
 
+class StateVariant:
+    """
+    Vairants used in the cration of a palette.
+    Variant are specific to certain widgets
+
+    Parameters
+    ----------
+    NoVariant: bool
+        Selected when no varient is needed.
+    Checked: bool
+        Selected for the Checkbox widget.
+    Unchecked: bool
+        Selected for the Checkbox widget.
+    """
+    NoVariant: bool
+    Checked: bool
+    Unchecked: bool
+
 class StackParam:
     """
     Stack update parameters
@@ -3236,7 +3254,6 @@ class StackParam:
         Show the top widget of the stack.
     """
     ShowStack: bool
-
 
 class SvgParam:
     """

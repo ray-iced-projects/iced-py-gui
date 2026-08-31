@@ -1157,7 +1157,9 @@ fn get_window_container(container_opt: Option<&Containers>) -> &Window {
 fn process_widget_updates(
     state: &mut IpgState, 
 ) {
-    
+    // Must run before process_moves so add-then-move works in the same callback
+    process_new_widgets(state);
+
     let mut all_updates = access_update_widgets();
 
     process_deletes(state, &all_updates.deletes);
@@ -1173,8 +1175,6 @@ fn process_widget_updates(
     all_updates.shows = vec![];
 
     drop(all_updates);
-
-    process_new_widgets(state);
 
     // Sync timer state from static mutex to runtime state
     let mutex_state = access_state();
@@ -1350,8 +1350,9 @@ fn match_widget(
 fn process_new_widgets(state: &mut IpgState) {
     let mut mutex_state = access_state();
     if !mutex_state.widgets.is_empty() {
-        // Move new widgets into the runtime state
-        let new_widgets: HashMap<usize, Widgets> = mutex_state.widgets.drain().collect();
+        // Move new widgets into the runtime state; sort by id to preserve insertion order
+        let mut new_widgets: Vec<(usize, Widgets)> = mutex_state.widgets.drain().collect();
+        new_widgets.sort_by_key(|(id, _)| *id);
         let new_parent_ids: HashMap<usize, String> = mutex_state.widget_container_ids.drain().collect();
         // Sync the last_id so future IDs don't collide
         state.last_id = mutex_state.last_id;

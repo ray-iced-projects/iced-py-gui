@@ -235,6 +235,14 @@ pub fn add_button(
 /// """
 #[pyfunction]
 #[pyo3(signature = (
+    bkg_color = None,
+    bkg_color_alpha = None,
+    bkg_rgba = None,
+
+    text_color = None,
+    text_color_alpha = None,
+    text_rgba = None,
+
     text_top_left = None,
     text_top_center = None,
     text_top_right = None,
@@ -273,6 +281,14 @@ pub fn add_button(
     gen_id=None
         ))]
 pub fn add_button_style(
+    bkg_color: Option<Color>,
+    bkg_color_alpha: Option<f32>,
+    bkg_rgba: Option<[f32; 4]>,
+
+    text_color: Option<Color>,
+    text_color_alpha: Option<f32>,
+    text_rgba: Option<[f32; 4]>,
+
     text_top_left: Option<bool>,
     text_top_center: Option<bool>,
     text_top_right: Option<bool>,
@@ -318,6 +334,15 @@ pub fn add_button_style(
     state.widgets.insert(id, Widgets::ButtonStyle(
         ButtonStyle {
             id,
+
+            bkg_color,
+            bkg_color_alpha,
+            bkg_rgba,
+
+            text_color,
+            text_color_alpha,
+            text_rgba,
+
             text_top_left,
             text_top_center,
             text_top_right,

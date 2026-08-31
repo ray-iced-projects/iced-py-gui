@@ -2,6 +2,7 @@
 
 use std::collections::HashMap;
 
+use indexmap::IndexMap;
 use iced::Theme;
 use iced::theme::palette::{self, readable};
 use pyo3::prelude::*;
@@ -37,7 +38,7 @@ pub fn get_rgba_color(
 #[pyo3(signature = (theme_name))]
 pub fn get_theme_palette(
     theme_name: String,
-) -> PyResult<HashMap<PaletteKey, [f64; 4]>>
+) -> PyResult<IndexMap<PaletteKey, [f64; 4]>>
 {
     // Resolve built-in themes via WindowTheme enum; fall back to custom theme store.
     let theme: Theme = if let Some(wt) = name_to_window_theme(&theme_name) {
@@ -53,6 +54,9 @@ pub fn get_theme_palette(
     Ok(color_palette_from_theme(&theme))
 }
 
+
+/// Get the color palette based on color and not theme.
+/// Used to make a new palette for a widget.
 #[pyfunction]
 #[pyo3(signature = (
     color=None, 
@@ -66,7 +70,7 @@ pub fn get_color_palette(
     color_alpha: Option<f32>,
     text_contrast: Option<TextContrast>,
     text_rgba: Option<[f32; 4]>,
-) -> PyResult<HashMap<PaletteKey, [f64; 4]>>
+) -> PyResult<IndexMap<PaletteKey, [f64; 4]>>
 {
     let base = Color::rgba_ipg_color_to_iced(rgba, &color, color_alpha)
         .ok_or_else(|| pyo3::exceptions::PyValueError::new_err(
@@ -97,7 +101,7 @@ pub fn get_color_palette(
 pub fn get_styling_palette(
     theme_name: String,
     std_style_color: StdColorStyle,
-) -> PyResult<HashMap<PaletteKey, ([f64; 4], [f64; 4])>>
+) -> PyResult<IndexMap<PaletteKey, ([f64; 4], [f64; 4])>>
 {
     // Resolve built-in themes via WindowTheme enum; fall back to custom theme store.
     let theme: Theme = if let Some(wt) = name_to_window_theme(&theme_name) {
@@ -118,7 +122,7 @@ pub fn get_styling_palette(
     // theme.palette() works for both built-in and Custom themes.
     let pal = theme.palette();
 
-    let mut hm = HashMap::new();
+    let mut hm = IndexMap::new();
     match std_style_color {
         StdColorStyle::Primary => {
             hm.insert(PaletteKey::Base, (to_arr(pal.primary.base.color), to_arr(pal.primary.base.text)));
@@ -147,20 +151,18 @@ pub fn get_styling_palette(
         },
     }
 
-    // let bkg_pal = color_palette(pal.background.base.color);
-    
-    // hm.extend(bkg_pal);
-
     Ok(hm)
     
 }
 
+
+/// This is the button theme palette
 #[pyfunction]
 #[pyo3(signature = (theme_name, std_color))]
 pub fn get_button_palette(
     theme_name: String,
     std_color: ButtonStyleStd,
-) -> PyResult<HashMap<PaletteKey, ([f64; 4], [f64; 4])>>
+) -> PyResult<IndexMap<PaletteKey, ([f64; 4], [f64; 4])>>
 {
     // Resolve built-in themes via WindowTheme enum; fall back to custom theme store.
     let theme: Theme = if let Some(wt) = name_to_window_theme(&theme_name) {
@@ -181,7 +183,7 @@ pub fn get_button_palette(
     // theme.palette() works for both built-in and Custom themes.
     let pal = theme.palette();
 
-    let mut hm = HashMap::new();
+    let mut hm = IndexMap::new();
     match std_color {
         ButtonStyleStd::Primary => {
             hm.insert(PaletteKey::Base, (to_arr(pal.primary.base.color), to_arr(pal.primary.base.text)));
@@ -260,7 +262,7 @@ fn color_palette_from_color(
     base: iced::Color,
     contrast: TextContrast,
     text_override: Option<iced::Color>,
-) -> HashMap<PaletteKey, [f64; 4]> {
+) -> IndexMap<PaletteKey, [f64; 4]> {
     let seed = readable(base, iced::Color::WHITE);
     let color_pal = iced::theme::palette::Background::new(base, seed);
 
@@ -274,7 +276,7 @@ fn color_palette_from_color(
         text_override.unwrap_or_else(|| resolve_text(bg, contrast))
     };
     
-    let mut map = HashMap::new();
+    let mut map = IndexMap::new();
     
     map.insert(PaletteKey::Base,     to_arr(color_pal.base.color));
     map.insert(PaletteKey::BaseText, to_arr(text_for(color_pal.base.color)));
@@ -296,7 +298,7 @@ fn color_palette_from_color(
     map
 }
 
-fn color_palette_from_theme(theme: &iced::Theme) -> HashMap<PaletteKey, [f64; 4]> {
+fn color_palette_from_theme(theme: &iced::Theme) -> IndexMap<PaletteKey, [f64; 4]> {
     let color_theme = theme.palette().background;
 
     fn to_arr(c: iced::Color) -> [f64; 4] {
@@ -304,7 +306,7 @@ fn color_palette_from_theme(theme: &iced::Theme) -> HashMap<PaletteKey, [f64; 4]
         [r(c.r), r(c.g), r(c.b), r(c.a)]
     }
     
-    let mut map = HashMap::new();
+    let mut map = IndexMap::new();
     
     map.insert(PaletteKey::ThemeBase,     to_arr(color_theme.base.color));
     map.insert(PaletteKey::ThemeBaseText, to_arr(color_theme.base.text));

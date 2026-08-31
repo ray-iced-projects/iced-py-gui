@@ -17,16 +17,19 @@ from icedpygui import (
     ColorPicker,
     Column,
     Container,
+    ContainerStyleStd,
+    Grid,
     Row,
     Scrollable,
     start_session,
     add_button,
+    add_button_style,
+    add_checkbox,
     add_pick_list,
     PickListParam,
     add_text,
     add_text_input,
     TextParam,
-    add_text_editor,
     custom_palette,
     PaletteKey,
     WidgetStatus,
@@ -38,6 +41,7 @@ from icedpygui import (
     update_widget,
     get_widget_palette_part,
     get_widget_palette_list,
+    get_color_palette,
 )
 
 
@@ -169,13 +173,19 @@ class PaletteManager:
 pm = PaletteManager()
 state = {
     "widget_list": [],
+    "widget_active_id": None,
+    "widget_hovered_id": None,
+    "widget_pressed_id": None,
+    "widget_disabled_id": None,
+    "widget_parts": {},
     "parts_file": None,
     "parts_file_name": None,
-    "widget_part": None,
     "current_color": None,
+    "palette": {},
     "palette_name": "",
     "color_preview": "",
     "palette_ids": {},  # palette_name -> palette_id
+    "palette_row_ids": [],  # list of row IDs for palette display
 }
 
 
@@ -219,6 +229,37 @@ file_types = ["yml", "yaml"]
 cwd = os.getcwd()
 FILE_PATH = os.path.join(cwd, "python_examples", "py_palette")
 
+def place_widgets(widget: str):
+    """Add the selected widget with status"""
+    match widget:
+        case "button":
+            state["widget_active_id"] = add_button(
+                label="Status=Active",
+                parent_id=new_widget_row_id,
+                active=True,
+                padding=[10],
+                )
+            state["widget_hovered_id"] = add_button(
+                label="Status=Hovered",
+                parent_id=new_widget_row_id,
+                hovered=True,
+                padding=[10],
+                )
+            state["widget_pressed_id"] = add_button(
+                label="Status=Pressed",
+                parent_id=new_widget_row_id,
+                pressed=True,
+                padding=[10],
+                )
+            state["widget_disabled_id"] = add_button(
+                label="Status=Disabled",
+                parent_id=new_widget_row_id,
+                disabled=True,
+                padding=[10],
+                )
+
+
+
 def load_parts_file(_btn_id: int):
     """Opens the FSDr"""
     update_widget(fsd_id, FsdParam.LoadFile, True)
@@ -232,15 +273,18 @@ def on_parts_loaded(_fsd_id: int, results: tuple[FsdCallType, str, any]):
     state['parts_file_name'] = file_name
     state["widget_list"] = get_widget_palette_list(data)
 
-    update_widget(pl_id, PickListParam.Options, state["widget_list"])
-    update_widget(pl_id, PickListParam.Placeholder, "Select a widget")
+    update_widget(widget_pl_id, PickListParam.Options, state["widget_list"])
+    update_widget(widget_pl_id, PickListParam.Placeholder, "Select a widget")
     update_widget(parts_file_status_txt_id, TextParam.Content,
                       f"Parts file selected = {file_name}")
 
 
 def parse_parts_selection(_pl_id: int, selection: str):
     """Parsing the parts file for the selected widget"""
-    state["widget_part"] = get_widget_palette_part(selection, state["parts_file"])
+    state["widget_parts"] = get_widget_palette_part(selection, state["parts_file"])
+    place_widgets(selection)
+    for part in state["widget_parts"].get("parts"):
+        add_text(parent_id=parts_row_id, content=part)
 
 
 # Setup the FSD
@@ -254,8 +298,24 @@ def on_color_picked(_cp_id: int, color: list[float]):
     """Handle color selection from ColorPicker."""
     state["current_color"] = color
     formatted = [round(c, 2) for c in color]
-    update_widget(txt_id_color, TextParam.Content, f"Selected color = {formatted}")
-
+    update_widget(selected_color_txt_id, TextParam.Content, f"Selected color = {formatted}")
+    state["palette"] = get_color_palette(rgba=color)
+    statuses = state["widget_parts"].get("statuses")
+    for (idx, status) in enumerate(statuses):
+        pal_by_name = {str(k).rsplit('.', maxsplit=1)[-1]: v for k, v in state["palette"].items()}
+        add_text(parent_id=state["palette_row_ids"][idx], content=status)
+        for (k, pal_color) in pal_by_name.items():
+            if "Text" not in k:
+                text_color = pal_by_name.get(k + "Text")
+                btn_style_id = add_button_style(bkg_rgba=pal_color, text_rgba=text_color)
+                add_button(
+                    parent_id=state["palette_row_ids"][idx],
+                    label=k,
+                    width=100,
+                    padding=[10],
+                    style_id=btn_style_id)
+                # add_checkbox(parent_id=state["palette_row_ids"][idx],
+                #              label="Select")
 
 
 def on_color_text_input(_ti_id: int, text: str):
@@ -263,9 +323,10 @@ def on_color_text_input(_ti_id: int, text: str):
     color = pm.parse_color_from_text_input(text)
     if color:
         state["current_color"] = color
-        update_widget(txt_id_color, TextParam.Content, f"Selected color = {color}")
+        update_widget(selected_color_txt_id, TextParam.Content, f"Selected color = {color}")
     else:
-        update_widget(txt_id_color, TextParam.Content, "Invalid color format, use float values")
+        update_widget(selected_color_txt_id, TextParam.Content,
+                      "Invalid color format, use float values")
 
 
 # ============================================================================
@@ -275,23 +336,23 @@ def on_color_text_input(_ti_id: int, text: str):
 with Window(title="Palette Creator - Interactive Workflow", center=True, size=(1000, 700)):
     with Scrollable(height=650):
         with Container(width_fill=True, padding=[20]):
-            with Column(spacing=15):
+            with Column(spacing=15) as col:
                 # Instructions
                 add_text(content=
                     "Palette Creation Workflow\n")
 
-                add_text(content="Step 1: Load Palettes Part file.")
+                add_text(content="***Step 1: Load Palettes Part file.")
                 with Row(spacing=20):
                     add_button(label="Select Palette Parts file", on_press=load_parts_file)
                     parts_file_status_txt_id = add_text(content="Parts file selected = None")
 
 
-                add_text(content="Step 2: Select the widget to create the palette for")
-                pl_id = add_pick_list(options=state["widget_list"],
+                add_text(content="***Step 2: Select the widget to create the palette for")
+                widget_pl_id = add_pick_list(options=state["widget_list"],
                                       placeholder="Empty until parts file selected",
                                       on_select=parse_parts_selection)
 
-                add_text(content=("Step 3: Select Color for new palette using\n"
+                add_text(content=("***Step 3: Select Color for new palette using\n"
                                   "either ColorPicker(press submit) or \n"
                                   "text_input(press enter to submit)."))
 
@@ -304,35 +365,26 @@ with Window(title="Palette Creator - Interactive Workflow", center=True, size=(1
                         width=300
                     )
 
-                # Color preview
-                txt_id_color = add_text(content="Selected color = []")
+                selected_color_txt_id = add_text(content="Selected color = []")
 
+                widget_selected_txt_id = add_text(content="***Selected Widget")
 
+                with Row(spacing=20) as new_widget_row_id:
+                # The selected widget should be placed here
+                    pass
 
-                # Step 4: Palette Management
-                add_text(content="\n═══ Step 3: Save Palette ═══")
-                with Row(spacing=10, width_fill=True):
-                    add_text_input(
-                        placeholder="Enter palette name (e.g., 'MyBrown')",
-                        on_submit=on_palette_name_input,
-                        width=300
-                    )
-                    add_button(label="Create & Save Palette", on_press=on_create_palette)
+                add_text(content="Status=")
+                with Grid(width=600, columns_amount=6, spacing=10.0):
+                            for row in range(8):
+                                for col in range(6):
+                                    with Container(height=40, align_center=True,
+                                                   style_std=ContainerStyleStd.BorderedBox):
+                                        add_text(content=f"Grid {row} {col}")
 
-                # Status log
-                add_text(content="\n═══ Status Log ═══")
-                with Scrollable(height=250, width_fill=True):
-                    add_text_editor(
-                        content=state.get("status_log", "Ready\n"),
-                        width_fill=True,
-                    )
-
-                # Usage info
-                add_text(content=(
-                    "\nUsage in your code:\n"
-                    "  pal_id = custom_palette(rgba=[0.5, 0.3, 0.2, 1.0], statuses=[...])\n"
-                    "  add_button(label='My Button', palette_id=pal_id)"
-                ))
-
+                # Populate state with column IDs for dynamic access
+                # state["palette_row_ids"] = [
+                #     row_palette_id_0, row_palette_id_1, row_palette_id_2,
+                #     row_palette_id_3, row_palette_id_4, row_palette_id_5
+                # ]
 
 start_session()

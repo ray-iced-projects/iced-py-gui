@@ -15,10 +15,10 @@ use crate::widgets::widget_param_update::{
 #[derive(Clone, Debug)]
 pub struct Grid {
     pub id: usize,
+    pub columns_amount: usize,
     pub width: f32,
     pub spacing: Option<f32>,
     pub columns_max_width: Option<f32>,
-    pub columns_amount: Option<usize>,
     pub height_aspect_ratio: Option<f32>,
     pub height_evenly_distribute: Option<f32>,
     pub height_evenly_distribute_fill: Option<bool>,
@@ -43,11 +43,11 @@ impl Grid{
         
         // columns and fluid equate to the same columns parameter
         let grd = 
-            if let Some(amt) = self.columns_amount {
-                grd.columns(amt)
-            } else if let Some(max) = self.columns_max_width {
+            if let Some(max) = self.columns_max_width {
                 grd.fluid(max)
-            } else { grd };
+            } else {
+                grd.columns(self.columns_amount)
+            };
 
         Some(grd.into())
     }

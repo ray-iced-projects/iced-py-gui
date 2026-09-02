@@ -304,10 +304,10 @@ pub fn add_button_style(
     wrapping_glyph: Option<bool>,
     wrapping_word_glyph: Option<bool>,
 
-    gradient_color_stops: Option<Vec<Option<Color>>>,
-    gradient_color_alpha_stops: Option<Vec<Option<f32>>>,
-    gradient_rgba_stops: Option<Vec<Option<[f32; 4]>>>,
-    gradient_offset_stops: Option<Vec<Option<f32>>>,
+    gradient_color_stops: Option<Vec<Color>>,
+    gradient_color_alpha_stops: Option<Vec<f32>>,
+    gradient_rgba_stops: Option<Vec<[f32; 4]>>,
+    gradient_offset_stops: Option<Vec<f32>>,
     gradient_degrees: Option<f32>,
     gradient_radians: Option<f32>,
 

@@ -1918,43 +1918,110 @@ class ButtonStyleParam:
 
     Parameters
     ----------
-    BackgroundColor: Color
+    BkgColor: Color
         Background color in Color format
-    BackgroundRbga :list[float, 4]
+    BkgColorAlpha: float
+        Modifies the BkgColor alpha
+    BkgRgba :list[float, 4]
         Background color in rgba format
-    BorderColor: Color
-        Border color in Color format
-    BorderRgba: list[float, 4]
-        Border color in rgba format
-    BorderRadius: list
+    TextColor: Color
+        The label text color in Color format
+    TextColorAlpha: float
+        Modifies the TextColor alpha
+    TextRgba: list[float, 4]
+        The label text color in rgba format
+    TextAlignBottomCenter: bool
+        Whether to align the label bottom center
+    TextAlignBottomLeft: bool
+        Whether to align the label bottom left
+    TextAlignBottomRight: bool
+        Whether to align the label bottom right
+    TextAlignCenter: bool
+        Whether to align the label centered (default)
+    TextAlignCenterLeft: bool
+        Whether to align the label center left
+    TextAlignCenterRight: bool
+        Whether to align the label center right
+    TextAlignTopCenter: bool
+        Whether to align the label top center
+    TextAlignTopLeft: bool
+        Whether to align the label top left
+    TextAlignTopRight: bool
+        Whether to align the label top right
+    TextSize: float
+        The size of the text
+    WrappingNone: bool
+        Disable text wrapping
+    WrappingGlyph: bool
+        Enable glyph-based text wrapping
+    WrappingWordGlyph: bool
+        Enable word or glyph text wrapping
+    GradientColorStops: list[Color]
+        List of color stops for the gradient
+    GradientColorAlphaStops: list[float]
+        List of alpha values for each gradient color stop
+    GradientRgbaStops: list[list[float, 4]]
+        List of RGBA color stops for the gradient
+    GradientDegrees: float
+        Gradient angle in degrees
+    GradientRadians: float
+        Gradient angle in radians
+    BorderRadius: list[float]
         The border radius [float]=all, [float, 4]=each individual one
     BorderWidth: float
         The width of the border line
     ShadowColor: Color
         Shadow color in Color format
+    ShadowColorAlpha: float
+        Modifies the ShadowColor alpha
     ShadowRgba: list[float, 4]
         Shadow color in rgba format
-    ShadowOffsetXY: [float, 2]
-        The offfset of the show towards the x and y directions
+    ShadowOffsetXy: list[float, 2]
+        The offset of the shadow towards the x and y directions
     ShadowBlurRadius: float
         How much to blur the shadow radius
-    TextColor: Color
-        The label text color in Color format
-    TextRgba: list[float, 4]
-        The label text color in rgba format
+    Snap: bool
+        Whether to snap the button rendering
     """
-    BackgroundColor:Color
-    BackgroundRbga:list[float, 4]
-    BorderColor:Color
-    BorderRgba:list[float, 4]
-    BorderRadius:list
-    BorderWidth:float
-    ShadowColor:Color
-    ShadowRgba:list[float, 4]
-    ShadowOffsetXY:list[float, 2]
-    ShadowBlurRadius:float
-    TextColor:Color
-    TextRgba:list[float, 4]
+    BkgColor: Color
+    BkgColorAlpha: float
+    BkgRgba: list[float]
+
+    TextColor: Color
+    TextColorAlpha: float
+    TextRgba: list[float]
+
+    TextAlignBottomCenter: bool
+    TextAlignBottomLeft: bool
+    TextAlignBottomRight: bool
+    TextAlignCenter: bool
+    TextAlignCenterLeft: bool
+    TextAlignCenterRight: bool
+    TextAlignTopCenter: bool
+    TextAlignTopLeft: bool
+    TextAlignTopRight: bool
+    TextSize: float
+
+    WrappingNone: bool
+    WrappingGlyph: bool
+    WrappingWordGlyph: bool
+
+    GradientColorStops: list[Color]
+    GradientColorAlphaStops: list[float]
+    GradientRgbaStops: list[list[float, 4]]
+    GradientDegrees: float
+    GradientRadians: float
+
+    BorderRadius: list[float]
+    BorderWidth: float
+
+    ShadowColor: Color
+    ShadowColorAlpha: float
+    ShadowRgba: list[float, 4]
+    ShadowOffsetXy: list[float, 2]
+    ShadowBlurRadius: float
+
+    Snap: bool
 
 
 class DrawMode:
@@ -2129,7 +2196,7 @@ class CheckboxStyleParam:
     ----------
     BackgroundColor: Color
         Background color in Color format
-    BackgroundRbgaColor :list[float, 4]
+    BackgroundRgbaColor :list[float, 4]
         Background color in rgba format
     BackgroundColorHovered: Color
         When hovered, the Background color in Color format
@@ -2222,7 +2289,7 @@ class ColorPickerStyleParam:
     ----------
     BackgroundColor: Color
         Background color in Color format
-    BackgroundRbgaColor :list[float, 4]
+    BackgroundRgbaColor :list[float, 4]
         Background color in rgba format
     BackgroundColorHovered: Color
         When hovered, the Background color in Color format
@@ -2252,7 +2319,7 @@ class ColorPickerStyleParam:
         The label text color in rgba format
     """
     Background:Color
-    BackgroundRbga:list[float, 4]
+    BackgroundRgba:list[float, 4]
     BackgroundColorHovered:Color
     BackgroundRgbaHovered:list[float, 4]
     BorderColor:Color
@@ -2427,12 +2494,7 @@ class FileSystemDialogParams:
 
 
 class FloatParam:
-    """Float parameters"""
-    Scale: float
-    Translate: list[float]
-    ScaleClamped: bool
-    """
-    Parameters for the Float container
+    """FloatParam
 
     Parameters
     ---------
@@ -2443,6 +2505,40 @@ class FloatParam:
     ScaleClamped: FloatParam.ScaleClamped
         Whether the scaled content exceeds the container size
     """
+    Scale: float
+    Translate: list[float]
+    ScaleClamped: bool
+
+class GridParam:
+    """Grid Parameters
+
+    Parameters
+    ----------
+    ColumnsAmount: int
+        Sets the number of columns.
+    ColumnsMaxWidth: float
+        Sets a max width for the Grid.
+    HeightAspectRatio: float
+        Sets the height aspect ratio of the Grid
+    HeightEvenlyDistribute: bool
+        Sets whether the cell heights are evenly distributed
+    HeightEvenlyDistributeFill: bool
+        Sets whether evenly distrubute the height when height is fill.
+    Show: bool
+        Whether to show the Grid
+    Spacing: float
+        Sets the spacing between the columns
+    Width: float
+        Sets the width of the Grid.
+    """
+    ColumnsAmount: int | None = None
+    ColumnsMaxWidth: float | None = None
+    HeightAspectRatio: float | None = None
+    HeightEvenlyDistribute: bool | None = None
+    HeightEvenlyDistributeFill: bool | None = None
+    Show: bool | None = None
+    Spacing: float | None = None
+    Width: float | None = None
 
 class ContentFit:
     """
@@ -2791,7 +2887,7 @@ class PickListStyleParam:
     ----------
     BackgroundColor: Color
         Background color in Color format
-    BackgroundRbgaColor :list[float, 4]
+    BackgroundRgbaColor :list[float, 4]
         Background color in rgba format
     BorderColor: Color
         Border color in Color format
@@ -2815,7 +2911,7 @@ class PickListStyleParam:
         The label text color in rgba format
     """
     BackgroundColor: Color
-    BackgroundRbgaColor: list[float, 4]
+    BackgroundRgbaColor: list[float, 4]
     BorderColor: Color
     BorderRgbaColor: list[float, 4]
     BorderRadius: list
@@ -2874,7 +2970,7 @@ class ProgressBarStyleParam:
     ----------
     BackgroundColor: Color
         Background color in Color format
-    BackgroundRbgaColor :list[float, 4]
+    BackgroundRgbaColor :list[float, 4]
         Background color in rgba format
     BarColor: Color
         Bar color in Color format
@@ -2890,7 +2986,7 @@ class ProgressBarStyleParam:
         The width of the border line
     """
     BackgroundColor:Color
-    BackgroundRbgaColor: list[float, 4]
+    BackgroundRgbaColor: list[float, 4]
     BarColor: Color
     BarRgbaColor: list[float, 4]
     BorderColor:Color
@@ -2976,7 +3072,7 @@ class RadioStyleParam:
     ----------
     BackgroundColor: Color
         Background color in Color format
-    BackgroundRbgaColor :list[float, 4]
+    BackgroundRgbaColor :list[float, 4]
         Background color in rgba format
     DotColor: Color
         Dot color in Color format
@@ -2998,7 +3094,7 @@ class RadioStyleParam:
         The label text color in rgba format
     """
     BackgroundColor:Color
-    BackgroundRbgaColor: list[float, 4]
+    BackgroundRgbaColor: list[float, 4]
     DotColor: Color
     DotRgbaColor: list[float, 4]
     DotColorHovered:Color
@@ -3081,7 +3177,7 @@ class ScrollableStyleParam:
     ----------
     BackgroundColor: Color
         Background color in Color format
-    BackgroundRbgaColor: list[float, 4]
+    BackgroundRgbaColor: list[float, 4]
         Background color in rgba format
     BorderColor: Color
         Border color in Color format
@@ -3131,7 +3227,7 @@ class ScrollableStyleParam:
         Scroller drag color in rgba format
     """
     BackgroundColor:Color
-    BackgroundRbgaColor:list[float, 4]
+    BackgroundRgbaColor:list[float, 4]
     BorderColor:Color
     BorderRgbaColor:list[float, 4]
     BorderRadius:list[float]
@@ -3633,7 +3729,7 @@ class TimerStyleParam:
     ----------
     BackgroundColor: Color
         Background color in Color format
-    BackgroundRbgaColor :list[float, 4]
+    BackgroundRgbaColor :list[float, 4]
         Background color in rgba format
     BackgroundColorHovered: Color
         When hovered, the Background color in Color format
@@ -3663,7 +3759,7 @@ class TimerStyleParam:
         The label text color in rgba format
     """
     BackgroundColor:Color
-    BackgroundRbgaColor:list[float]
+    BackgroundRgbaColor:list[float]
     BackgroundColorHovered:Color
     BackgroundRgbaHovered:list[float]
     BorderColor:Color

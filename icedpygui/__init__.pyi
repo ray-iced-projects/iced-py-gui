@@ -1004,24 +1004,104 @@ def add_progress_bar(
     **kwargs: Any) -> int:
     """_summary_
 
-    Args:
-        parent_id (str | None, optional): _description_. Defaults to None.
+    Keyword Arguments:
+        parent_id -- _description_ (default: {None})
 
     Returns:
-        int: _description_
+        _description_
     """
     ...
 def add_radio(
     *,
     parent_id: str | None = None,
-    **kwargs: Any) -> int:
-    """_summary_
+    labels: list[str],
+    horizontal: bool = False,
+    spacing: float | None = None,
+    radio_spacing: float | None = None,
+    radio_wrap: bool | None = None,
+    radio_wrap_spacing: float | None = None,
+    radio_wrap_align_start: bool | None = None,
+    radio_wrap_align_center: bool | None = None,
+    radio_wrap_align_end: bool | None = None,
+    padding: list[float] | None = None,
+    width: float | None = None,
+    width_fill: bool | None = None,
+    height: float | None = None,
+    height_fill: bool | None = None,
+    fill: bool | None = None,
+    on_selected: Callable | None = None,
+    selected_index: int | None = None,
+    size: float | None = None,
+    style_id: int | None = None,
+    font_id: int | None = None,
+    text_size: float | None = None,
+    line_height: float | None = None,
+    text_wrapping_none: bool | None = None,
+    text_wrapping_glyph: bool | None = None,
+    text_wrapping_word_glyph: bool | None = None,
+    user_data: Callable | None = None,
+    show: bool = True,
+    gen_id: int | None = None,
+    group_id: int | None = None,
+) -> int:
+    """
+    Add a radio button group widget.
+    A group of radio buttons where the user can select one option
+    from a list of labels.
 
-    Args:
-        parent_id (str | None, optional): _description_. Defaults to None.
+    Parameters
+    ----------
+    parent_id : str
+        Sets the parent container ID that this radio group belongs to.
+    labels : list of str
+        Sets the list of labels for each radio button.
+    horizontal : bool, default false
+        Whether the layout direction is horizontal (default vertical).
+    spacing : float, Optional
+        Sets the spacing between the radio circle and its label.
+    radio_spacing: float, Optional
+        Sets the spacing between radio buttons.
+    padding : list of float, Optional
+        Sets the Padding as [all], [vertical, horizontal], or
+        [top, right, bottom, left].
+    width : float, Optional
+        Sets the Fixed width in logical pixels.
+    width_fill : bool, default False
+        Whether the radio group fills available width.
+    height : float, Optional
+        Sets the Fixed height in logical pixels.
+    height_fill : bool, default False
+        Whether the radio group fills available height.
+    on_selected : callable, Optional
+        Sets the Callback method to invoke when a radio button is selected.
+    selected_index : int, Optional
+        Sets the index of the initially selected radio button.
+    size : float, Optional
+        Sets the size of the radio circle in logical pixels.
+    style_id : int, Optional
+        Sets the ID of a custom style created with ``add_radio_style``.
+    font_id : int, Optional
+        Sets the Font ID for the label text.
+    text_spacing : float, Optional
+        Sets the spacing between the radio circle and text.
+    text_size : float, Optional
+        Sets the Font size for the label text.
+    line_height : float, Optional
+        Sets the Line height for the label text.
+    wrapping : TextWrapping, Optional
+        Sets the Text wrapping strategy for the labels.
+    user_data : Any, Optional
+        Sets the Arbitrary data forwarded to callbacks.
+    show : bool, default True
+        Whether the radio group is visible.
+    gen_id : int, Optional
+        Obtains an ID of a widget that have not been created, used for the gen_id parameter.
+    group_id : int, Optional
+        Sets the Group ID for radio button grouping. When multiple radios share the same
+        group_id, selecting one will automatically unselect all others in that group.
 
     Returns:
-        int: _description_
+        int: The numeric widget ID of the newly created radio group.
     """
     ...
 def add_separator(

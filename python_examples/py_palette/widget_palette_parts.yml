@@ -16,7 +16,7 @@ version: 1.0
 
 button:
   description: "Button widget with clickable states"
-  statuses: [Active, Pressed, Hovered, Disabled]
+  statuses: [Active, Hovered, Pressed, Disabled]
   state_variants: [NoVariant]
   parts: [Background, Text, Border]
   palette_enabled: true
@@ -49,7 +49,7 @@ menu:
 
 pick_list:
   description: "Dropdown list widget"
-  statuses: [Active, Opened, Hovered, Disabled]
+  statuses: [Active, Hovered, Opened, Disabled]
   state_variants: [NoVariant]
   parts: [Background, Text, Border]
   palette_enabled: false

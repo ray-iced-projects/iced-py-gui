@@ -216,21 +216,26 @@ impl Color {
         }
     }
 
-    pub fn gradient_stops_to_iced(rgba: &Option<Vec<Option<[f32; 4]>>>, color: &Option<Vec<Option<Color>>>, alpha: &Option<Vec<Option<f32>>>, offsets: Option<Vec<Option<f32>>>) -> Option<Vec<ColorStop>> {
+    pub fn gradient_stops_to_iced(
+            rgba: &Option<Vec<[f32; 4]>>, 
+            color: &Option<Vec<Color>>, 
+            alpha: &Option<Vec<f32>>, 
+            offsets: Option<Vec<f32>>) 
+        -> Option<Vec<ColorStop>> {
+        
         let offsets = offsets?;
 
         let stops: Vec<ColorStop> = offsets
             .iter()
             .take(8)
             .enumerate()
-            .filter_map(|(i, off_opt)| {
-                let off = (*off_opt)?;
-                let rgba_i = rgba.as_ref().and_then(|v| v.get(i).copied().flatten());
-                let color_i = color.as_ref().and_then(|v| v.get(i).and_then(|c| c.clone()));
-                let alpha_i = alpha.as_ref().and_then(|v| v.get(i).copied().flatten());
+            .filter_map(|(i, off)| {
+                let rgba_i = rgba.as_ref().and_then(|v| v.get(i)).copied();
+                let color_i = color.as_ref().and_then(|v| v.get(i)).cloned();
+                let alpha_i = alpha.as_ref().and_then(|v| v.get(i)).copied();
 
                 Color::rgba_ipg_color_to_iced(rgba_i, &color_i, alpha_i)
-                    .map(|c| ColorStop { offset: off, color: c })
+                    .map(|c| ColorStop { offset: *off, color: c })
             })
             .collect();
 

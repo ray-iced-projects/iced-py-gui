@@ -57,6 +57,12 @@ use crate::widgets::ipg_checkbox::{CheckBox, CheckboxStyle, CheckboxStyleStd};
 ///     Sets the Arbitrary data forwarded to callbacks.
 /// show : bool, default True
 ///     Whether the checkbox is visible.
+/// active : bool, Optional
+///     Sets the checkbox to the Active status.
+/// hovered : bool, Optional
+///     Sets the checkbox to the Hovered status.
+/// disabled : bool, Optional
+///     Sets the checkbox to the Disabled status.
 /// style_id : int,  Optional
 ///     Sets the ID of a custom style created with ``add_checkbox_style``.
 /// style_std : CheckboxStyleStd,  Optional
@@ -91,6 +97,8 @@ use crate::widgets::ipg_checkbox::{CheckBox, CheckboxStyle, CheckboxStyleStd};
     icon_line_height=None,
     user_data=None, 
     show=true,
+    active=None,
+    hovered=None,
     disabled=None,
     style_id=None, 
     style_std=None,
@@ -118,6 +126,8 @@ pub fn add_checkbox(
     icon_line_height: Option<f32>,
     user_data: Option<PyObject>,
     show: bool,
+    active: Option<bool>,
+    hovered: Option<bool>,
     disabled: Option<bool>,
     style_id: Option<usize>,
     style_std: Option<CheckboxStyleStd>,
@@ -159,6 +169,8 @@ pub fn add_checkbox(
             icon,
             icon_size,
             icon_line_height,
+            active,
+            hovered,
             disabled,
             style_id,
             style_std,

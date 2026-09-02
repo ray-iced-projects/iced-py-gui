@@ -12,6 +12,8 @@ Workflow:
 import json
 from pathlib import Path
 import os
+from python_examples.py_palette.widget_helpers import match_widget_str, place_widgets
+
 from icedpygui import (
     Window,
     ColorPicker,
@@ -44,7 +46,7 @@ from icedpygui import (
     get_widget_palette_list,
     get_color_palette,
 )
-from python_examples.py_palette.widget_matching import WidgetMatcher
+
 
 
 # ============================================================================
@@ -167,69 +169,42 @@ class PaletteManager:
             return None
 
 
-
-# ============================================================================
-# Application State and UI Callbacks
-# ============================================================================
-
 pm = PaletteManager()
-matcher = WidgetMatcher()
+class PaletteCreator:
+    """Manages palette state and widget selection logic."""
 
-state = {
-    "widget_list": [],
-    "widget_active_id": None,
-    "widget_active_style_id": None,
-    "widget_hovered_id": None,
-    "widget_hovered_style_id": None,
-    "widget_pressed_id": None,
-    "widget_pressed_style_id": None,
-    "widget_disabled_id": None,
-    "widget_disabled_style_id": None,
-    "widget_name": "",
-    "widget_parts": {},
-    "widget_ids": [],
-    "parts_file": "",
-    "parts_file_name": None,
-    "current_color": None,
-    "palette": {},
-    "palette_name": "",
-    "color_preview": "",
-    "palette_ids": {},  # palette_name -> palette_id
-    "palette_row_ids": [],  # list of row IDs for palette display
-    "empty_ids": [], # The empty text ids
-    "row_ids": [], # rows containing the widget and checkboxes
-    "checkbox_grid": [],  # 2D grid: [row][col] for matrix selection
-}
+    def __init__(self):
+        self.widget_list: list[str] = []
+        self.widget_active_id: int = None
+        self.widget_active_style_id: int = None
+        self.widget_hovered_id: int = None
+        self.widget_hovered_style_id: int = None
+        self.widget_pressed_id: int = None
+        self.widget_pressed_style_id: int = None
+        self.widget_disabled_id: int = None
+        self.widget_disabled_style_id: int = None
+        self.widget_name: str = None
+        self.widget_parts: dict = {}
+        self.widget_ids: list[int] = []
+        self.new_widget_row_id: int = None
+        self.parts_file: dict = {}
+        self.parts_file_name: str = None
+        self.current_color: list[float, 4] = []
+        self.palette: dict = {}
+        self.palette_name: str = ""
+        self.palette_ids: dict = {}  # palette_name -> palette_id
+        self.palette_row_ids: list[int] = []  # list of row IDs for palette display
+        self.row_ids: list[int] = [] # rows containing the widget and checkboxes
+        self.checkbox_grid: list[list[int, 2]] = [] # 2D grid: [row][col] for matrix selection
+
+    def set_new_widgets(self, widget_str: str):
+        """Place the selected widget"""
+        widget = match_widget_str(widget_str)
+        place_widgets(self, widget)
 
 
-def on_palette_name_input(_ti_id: int, text: str):
-    """Handle palette name input."""
-    matcher.palette_name = text.strip()
 
-
-# def on_create_palette(_btn_id: int):
-#     """Create a palette with the current color and save it."""
-#     if not state["current_color"]:
-#         state["status_log"] += "ERROR: No color selected\n"
-#         print("Error: Select a color first")
-#         return
-
-#     if not state["palette_name"]:
-#         state["status_log"] += "ERROR: No palette name entered\n"
-#         print("Error: Enter a palette name")
-#         return
-
-#     try:
-#         palette_id = pm.save_palette(state["palette_name"], state["current_color"])
-#         if palette_id is not None:
-#             state["palette_ids"][state["palette_name"]] = palette_id
-#             print(f"Palette created: {state['palette_name']} (ID: {palette_id})")
-#         else:
-#             state["status_log"] += "ERROR: Failed to create palette\n"
-#     except Exception as e:
-#         state["status_log"] += f"ERROR: {str(e)}\n"
-#         print(f"Error: {e}")
-
+pc = PaletteCreator()
 
 
 
@@ -242,49 +217,6 @@ DEFAULT_DIRECTORY = os.path.join(cwd, "python_examples", "py_palette")
 BUTTON_WIDTH = 150
 
 
-def place_widgets(widget: str):
-    """Add the selected widget with status"""
-    match widget:
-        case "button":
-            state["widget_active_style_id"] = add_button_style()
-            state["widget_active_id"] = add_button(
-                label="Status=Active",
-                parent_id=new_widget_row_id,
-                active=True,
-                padding=[10],
-                width=BUTTON_WIDTH,
-                style_id=state["widget_active_style_id"]
-                )
-
-            state["widget_hovered_style_id"] = add_button_style()
-            state["widget_hovered_id"] = add_button(
-                label="Status=Hovered",
-                parent_id=new_widget_row_id,
-                hovered=True,
-                padding=[10],
-                width=BUTTON_WIDTH,
-                style_id=state["widget_hovered_style_id"]
-                )
-
-            state["widget_pressed_style_id"] = add_button_style()
-            state["widget_pressed_id"] = add_button(
-                label="Status=Pressed",
-                parent_id=new_widget_row_id,
-                pressed=True,
-                padding=[10],
-                width=BUTTON_WIDTH,
-                style_id=state["widget_pressed_style_id"]
-                )
-
-            state["widget_disabled_style_id"] = add_button_style()
-            state["widget_disabled_id"] = add_button(
-                label="Status=Disabled",
-                parent_id=new_widget_row_id,
-                disabled=True,
-                padding=[10],
-                width=BUTTON_WIDTH,
-                style_id=state["widget_disabled_style_id"]
-                )
 
 
 def load_parts_file(_btn_id: int):
@@ -296,11 +228,11 @@ def on_parts_loaded(_fsd_id: int, results: tuple[FsdCallType, str, any]):
     """Callback results for the FSD"""
     # store parts file
     (_fsd_type, file_name, data) = results
-    state["parts_file"] = data
-    state['parts_file_name'] = file_name
-    state["widget_list"] = get_widget_palette_list(data)
+    pc.parts_file = data
+    pc.parts_file_name = file_name
+    pc.widget_list = get_widget_palette_list(data)
 
-    update_widget(widget_pl_id, PickListParam.Options, state["widget_list"])
+    update_widget(widget_pl_id, PickListParam.Options, pc.widget_list)
     update_widget(widget_pl_id, PickListParam.Placeholder, "Select a widget")
     update_widget(parts_file_status_txt_id, TextParam.Content,
                       f"Parts file selected = {file_name}")
@@ -308,9 +240,9 @@ def on_parts_loaded(_fsd_id: int, results: tuple[FsdCallType, str, any]):
 
 def parse_parts_selection(_pl_id: int, selection: str):
     """Parsing the parts file for the selected widget"""
-    state["widget_parts"] = get_widget_palette_part(selection, state["parts_file"])
-    state["widget_name"] = selection
-    place_widgets(selection)
+    pc.widget_parts = get_widget_palette_part(selection, pc.parts_file)
+    pc.widget_name = selection
+    pc.set_new_widgets(selection)
 
 
 
@@ -323,7 +255,7 @@ fsd_id = add_file_system_dialog(
 
 def on_color_picked(_cp_id: int, color: list[float]):
     """Handle color selection from ColorPicker."""
-    state["current_color"] = color
+    pc.current_color = color
     formatted = [round(c, 2) for c in color]
     update_widget(selected_color_txt_id, TextParam.Content, f"Selected color = {formatted}")
     populate_widgets_checkboxes(color)
@@ -333,7 +265,7 @@ def on_color_text_input(_ti_id: int, text: str):
     """Handle color input from TextInput (format: [r, g, b, a])."""
     color = pm.parse_color_from_text_input(text)
     if color:
-        state["current_color"] = color
+        pc.current_color = color
         update_widget(selected_color_txt_id, TextParam.Content, f"Selected color = {color}")
         populate_widgets_checkboxes(color)
     else:
@@ -346,12 +278,12 @@ def on_status_checked(cb_id: int, is_checked: bool):
     Enforce matrix selection: only one checked per row AND per column.
     On check, clear the rest of the target's row and column, then set it True.
     """
-    grid = state["checkbox_grid"]  # list[list[tuple[int, bool]]]
+    grid = pc.checkbox_grid  # list[list[tuple[int, bool]]]
 
     # Locate the target id in the grid
     target_row = target_col = None
-    for r, row in enumerate(grid):
-        for c, (wid, _state) in enumerate(row):
+    for r, row_ in enumerate(grid):
+        for c, (wid, _state) in enumerate(row_):
             if wid == cb_id:
                 target_row, target_col = r, c
                 break
@@ -368,12 +300,12 @@ def on_status_checked(cb_id: int, is_checked: bool):
             grid[target_row][c] = (wid, False)
 
     # Clear every True in the target's column (except the target)
-    for r, row in enumerate(grid):
+    for r, row_ in enumerate(grid):
         if r != target_row:
-            wid, checked = row[target_col]
+            wid, checked = row_[target_col]
             if checked:
                 update_widget(wid, CheckboxParam.IsChecked, False)
-                row[target_col] = (wid, False)
+                row_[target_col] = (wid, False)
 
     # Set the target to its incoming state
     update_widget(cb_id, CheckboxParam.IsChecked, is_checked)
@@ -383,12 +315,12 @@ def on_status_checked(cb_id: int, is_checked: bool):
 
 def populate_widgets_checkboxes(color: list):
     """Updating the widget and checkboxes for palette matrix selection"""
-    state["palette"] = get_color_palette(rgba=color)
-    statuses = state["widget_parts"].get("statuses")
-    pal_by_name = {str(k).rsplit('.', maxsplit=1)[-1]: v for k, v in state["palette"].items()}
+    pc.palette = get_color_palette(rgba=color)
+    statuses = pc.widget_parts.get("statuses")
+    pal_by_name = {str(k).rsplit('.', maxsplit=1)[-1]: v for k, v in pc.palette.items()}
 
     # Initialize the checkbox grid (8 rows x 4 columns)
-    state["checkbox_grid"] = [[] for _ in range(8)]
+    pc.checkbox_grid = [[] for _ in range(8)]
 
     # add the palette color buttons (one per status/column)
     idx = 0
@@ -397,58 +329,58 @@ def populate_widgets_checkboxes(color: list):
             text_color = pal_by_name.get(k + "Text")
             btn_style_id = add_button_style(bkg_rgba=pal_color, text_rgba=text_color)
             widget_id = add_button(
-                            parent_id=state["row_ids"][idx],
+                            parent_id=pc.row_ids[idx],
                             label=k,
                             width=100,
                             padding=[10],
                             style_id=btn_style_id)
-            state["widget_ids"].append(widget_id)
+            pc.widget_ids.append(widget_id)
             idx += 1
 
     # Create checkboxes in a 8x4 matrix (8 rows x 4 statuses/columns)
-    for c, (idx, status) in enumerate(enumerate(statuses)):
+    for _c, (idx, status) in enumerate(enumerate(statuses)):
         for r in range(8):
             cb_id = add_checkbox(
-                        parent_id=state["row_ids"][r],
+                        parent_id=pc.row_ids[r],
                         label=status,
                         on_toggle=on_status_checked,
                         )
-            state["checkbox_grid"][r].append((cb_id, False))
+            pc.checkbox_grid[r].append((cb_id, False))
 
 
 # the widget and palette is found by row=status_index, col=pal_idx of the matrix
 def set_widget_status(pal_idx: int, status_index: int):
     """Radio select for status"""
-    statuses = state["widget_parts"].get("statuses")
-    _pal, bkg_rgba = list(state["palette"].items())[pal_idx*2]
-    _text_pal, bkg_text_color = list(state["palette"].items())[pal_idx*2 + 1]
+    statuses = pc.widget_parts.get("statuses")
+    _pal, bkg_rgba = list(pc.palette.items())[pal_idx*2]
+    _text_pal, bkg_text_color = list(pc.palette.items())[pal_idx*2 + 1]
     status = statuses[status_index]
     print(status)
     # update the widget
-    match state["widget_name"]:
+    match pc.widget_name:
         case "button":
             match status:
                 case "Active":
                     update_widget_params(
-                        state["widget_active_style_id"], {
+                        pc.widget_active_style_id, {
                         ButtonStyleParam.BkgRgba: bkg_rgba,
                         ButtonStyleParam.TextRgba: bkg_text_color
                         })
                 case "Hovered":
                     update_widget_params(
-                        state["widget_hovered_style_id"], {
+                        pc.widget_hovered_style_id, {
                         ButtonStyleParam.BkgRgba: bkg_rgba,
                         ButtonStyleParam.TextRgba: bkg_text_color
                         })
                 case "Pressed":
                     update_widget_params(
-                        state["widget_pressed_style_id"], {
+                        pc.widget_pressed_style_id, {
                         ButtonStyleParam.BkgRgba: bkg_rgba,
                         ButtonStyleParam.TextRgba: bkg_text_color
                         })
                 case "Disabled":
                     update_widget_params(
-                        state["widget_disabled_style_id"], {
+                        pc.widget_disabled_style_id, {
                         ButtonStyleParam.BkgRgba: bkg_rgba,
                         ButtonStyleParam.TextRgba: bkg_text_color
                         })
@@ -459,19 +391,19 @@ def load_demo(_btn_id: int):
     file_path = os.path.join(cwd, "python_examples", "py_palette", "widget_palette_parts.yml")
     try:
         with open(file_path, "r", encoding='utf-8') as file:
-            state["parts_file"] = file.read()
+            pc.parts_file = file.read()
     except FileNotFoundError:
         print(f"*********The file does not exist using {file_path}.*******")
 
     # Parts
-    state['parts_file_name'] = file_path
-    state["widget_list"] = get_widget_palette_list(state["parts_file"])
-    state["widget_parts"] = get_widget_palette_part("button", state["parts_file"])
-    state["widget_name"] = "button"
-    place_widgets("button")
+    pc.parts_file_name = file_path
+    pc.widget_list = get_widget_palette_list(pc.parts_file)
+    pc.widget_parts = get_widget_palette_part("button", pc.parts_file)
+    pc.widget_name = "button"
+    pc.set_new_widgets("button")
     # color
     color = [0.32, 0.2, 0.13, 1.0]
-    state["current_color"] = color
+    pc.current_color = color
     update_widget(selected_color_txt_id, TextParam.Content, f"Selected color = {color}")
     populate_widgets_checkboxes(color)
 
@@ -497,7 +429,7 @@ with Window(title="Palette Creator - Interactive Workflow", center=True, size=(1
 
 
             add_text(content="***Step 2: Select the widget to create the palette for")
-            widget_pl_id = add_pick_list(options=state["widget_list"],
+            widget_pl_id = add_pick_list(options=pc.widget_list,
                                     placeholder="Empty until parts file selected",
                                     on_select=parse_parts_selection)
 
@@ -520,15 +452,15 @@ with Window(title="Palette Creator - Interactive Workflow", center=True, size=(1
             widget_selected_txt_id = add_text(content="***Selected Widget")
 
             with Row(spacing=10) as new_widget_row_id:
+                pc.new_widget_row_id = new_widget_row_id
             # The selected widget should be placed here
-                pass
 
             with Scrollable(width=600, height=275):
                 with Column(spacing=10):
                     for row in range(8):
                         with Row(spacing=10) as row_id:
                             # initialize some ids
-                            state["row_ids"].append(row_id)
+                            pc.row_ids.append(row_id)
 
 
 start_session()

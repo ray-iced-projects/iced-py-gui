@@ -44,6 +44,8 @@ pub struct CheckBox {
     pub icon: Option<Icon>,
     pub icon_size: Option<f32>,
     pub icon_line_height: Option<f32>,
+    pub active: Option<bool>,
+    pub hovered: Option<bool>,
     pub disabled: Option<bool>,
     pub style_id: Option<usize>,
     pub style_std: Option<CheckboxStyleStd>,
@@ -101,6 +103,13 @@ impl CheckBox {
                 text::LineHeight::Relative(lh)
             } else { text::LineHeight::default() };
 
+        let user_status = match (self.active, self.hovered, self.disabled) {
+            (Some(true), None, None) => UserCheckboxStatus::Active,
+            (None, Some(true), None) => UserCheckboxStatus::Hovered,
+            (None, None, Some(true)) => UserCheckboxStatus::Disabled,
+            _ => UserCheckboxStatus::None,
+        };
+
         let chk = 
             Checkbox::new(self.is_checked)
                 .on_toggle(ChkMessage::OnToggle)
@@ -108,14 +117,20 @@ impl CheckBox {
                 .line_height(line_height)
                 .icon(icon)
                 .style(move|theme: &Theme, status| {
-                    let status = if self.disabled == Some(true) {
-                        let is_checked = match status {
-                            checkbox::Status::Active { is_checked }
-                            | checkbox::Status::Hovered { is_checked }
-                            | checkbox::Status::Disabled { is_checked } => is_checked,
-};
-                        checkbox::Status::Disabled{is_checked}
-                    } else { status };
+
+                    let is_checked = match status {
+                        checkbox::Status::Active { is_checked } => is_checked,
+                        checkbox::Status::Hovered { is_checked } => is_checked,
+                        checkbox::Status::Disabled { is_checked } => is_checked,
+                    };
+
+                    let status = match user_status {
+                        UserCheckboxStatus::Active => checkbox::Status::Active { is_checked },
+                        UserCheckboxStatus::Hovered => checkbox::Status::Hovered { is_checked },
+                        UserCheckboxStatus::Disabled => checkbox::Status::Disabled { is_checked },
+                        UserCheckboxStatus::None => status,
+                    };
+
                     if style_opt.is_some() || pal_opt.is_some() {
                         let chk_st = CheckboxStyle::default();
                         let st = style_opt.as_ref().unwrap_or(&chk_st);
@@ -158,6 +173,14 @@ impl CheckBox {
         Some(chk.map(move |message| Message::CheckBox(self.id, message)))
 
     }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum UserCheckboxStatus {
+    Active,
+    Hovered,
+    Disabled,
+    None,
 }
 
 #[derive(Debug, Clone)]
@@ -329,18 +352,6 @@ impl CheckboxStyle {
             resolved_statuses.insert((ws, StateVariant::Checked), checked_parts);
         }
 
-        let (widget_status, variant) = match status {
-            checkbox::Status::Active { is_checked } => {
-                (WidgetStatus::Active, if is_checked { StateVariant::Checked } else { StateVariant::Unchecked })
-            },
-            checkbox::Status::Hovered { is_checked } => {
-                (WidgetStatus::Hovered, if is_checked { StateVariant::Checked } else { StateVariant::Unchecked })
-            },
-            checkbox::Status::Disabled { is_checked } => {
-                (WidgetStatus::Disabled, if is_checked { StateVariant::Checked } else { StateVariant::Unchecked })
-            },
-        };
-
         let resolve_status_parts = |ws: WidgetStatus, sv: StateVariant| {
             let parts = resolved_statuses.get(&(ws, sv)).unwrap();
             let (border_pal, bd_alpha) = parts.get(&StylePart::Border).unwrap();
@@ -356,22 +367,32 @@ impl CheckboxStyle {
             (border_color, base_color, icon_color, status_text_color)
         };
 
-        let (border_color, background_color, icon_color, status_text_color) = resolve_status_parts(widget_status, variant);
+        // Mirrors iced's `styled()` helper — builds the final Style once per status arm.
+        let build_style = |ws: WidgetStatus, is_checked: bool| {
+            let sv = if is_checked { StateVariant::Checked } else { StateVariant::Unchecked };
+            let (border_color, background_color, icon_color, status_text_color) =
+                resolve_status_parts(ws, sv);
 
-        let text_color = Color::rgba_ipg_color_to_iced(self.text_rgba, &self.text_color, self.text_color_alpha)
-            .unwrap_or(status_text_color);
+            let text_color = Color::rgba_ipg_color_to_iced(
+                    self.text_rgba, &self.text_color, self.text_color_alpha)
+                .unwrap_or(status_text_color);
 
-        let border = iced::Border {
-            radius: self.border_radius.unwrap_or(2.0).into(),
-            width: self.border_width.unwrap_or(1.0),
-            color: border_color,
+            checkbox::Style {
+                background: Background::Color(background_color),
+                icon_color,
+                border: iced::Border {
+                    radius: self.border_radius.unwrap_or(2.0).into(),
+                    width: self.border_width.unwrap_or(1.0),
+                    color: border_color,
+                },
+                text_color: Some(text_color),
+            }
         };
 
-        checkbox::Style {
-            background: Background::Color(background_color),
-            icon_color,
-            border,
-            text_color: Some(text_color),
+        match status {
+            checkbox::Status::Active { is_checked }   => build_style(WidgetStatus::Active, is_checked),
+            checkbox::Status::Hovered { is_checked }  => build_style(WidgetStatus::Hovered, is_checked),
+            checkbox::Status::Disabled { is_checked } => build_style(WidgetStatus::Disabled, is_checked),
         }
 
         

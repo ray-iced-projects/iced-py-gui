@@ -2194,47 +2194,51 @@ class CheckboxStyleParam:
 
     Parameters
     ----------
-    BackgroundColor: Color
-        Background color in Color format
-    BackgroundRgbaColor :list[float, 4]
-        Background color in rgba format
-    BackgroundColorHovered: Color
-        When hovered, the Background color in Color format
-    BackgroundRgbaHovered: list[float, 4]
-        When hovered, the background color in rgba format
-    AccentColor: Color
-    AccentRgbaColor: list[float, 4]
-    AccentColorHovered: Color
-    AccentRgbaColorHovered: list[float, 4]
+    BkgColor: Color
+        Background color in Color format.
+    bkgColorAlpha: float
+        Sets the alpha value of the background Color.
+    BkgRgba: list[float, 4]
+        Background color in rgba format.
+    icon_color: Color, Optional
+        Sets the icon color.
+    icon_color_alpha: float, Optional
+        Sets the alpha value of the icon Color.
+    icon_rgba: list[float, 4], Optional
+        The icon color in rgba format.
     BorderColor: Color
-        Border color in Color format
-    BorderRgbaColor: list[float, 4]
-        Border color in rgba format
+        Border color in Color format.
+    BorderColorAlpha: float
+        Sets the alpha of the border Color.
+    BorderRgba: list[float, 4]
+        Border color in rgba format.
     BorderRadius: list
         The border radius [float]=all, [float, 4]=each individual one
     BorderWidth: float
-        The width of the border line
+        The width of the border line.
     TextColor: Color
-        The label text color in Color format
-    TextRgbaColor: list[float, 4]
-        The label text color in rgba format
+        The label text color in Color format.
+    TextRgba: list[float, 4]
+        The label text color in rgba format.
     """
-    BackgroundColor:Color
-    BackgroundRgbaColor:list[float, 4]
-    BackgroundColorHovered:Color
-    BackgroundRgbaColorHovered:list[float, 4]
-    AccentColor:Color
-    AccentRgbaColor:list[float, 4]
-    AccentColorHovered:Color
-    AccentRgbaColorHovered:list[float, 4]
-    BorderColor:Color
-    BorderRgbaColor:list[float, 4]
-    BorderRadius:list[float]
-    BorderWidth:float
-    IconColor:Color
-    IconRgbaColor:list[float, 4]
-    TextColor:Color
-    TextRgbaColor:list[float, 4]
+    BkgColor: Color
+    BkgColorAlpha: float
+    BkgRgba: list[float, 4]
+
+    IconColor: Color
+    IconColorAlpha: float
+    IconRgba: list[float, 4]
+
+    BorderColor: Color
+    BorderColorAlpha: float
+    BorderRgbaColor: list[float, 4]
+
+    BorderRadius: list[float]
+    BorderWidth: float
+
+    TextColor: Color
+    TextRgba: list[float, 4]
+    TextRgba: list[float, 4]
 
 
 class ColorPickerParam:

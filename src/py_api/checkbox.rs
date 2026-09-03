@@ -188,6 +188,24 @@ pub fn add_checkbox(
 /// 
 /// Parameters
 /// ----------
+/// bkg_color: Color, Optional
+///     Sets the background color.
+/// bkg_color_alpha: float, Optional
+///     Sets the alpha value of the background Color.
+/// bkg_rgba: list[float, 4], Optional
+///     The background color in rgba format.
+/// icon_color: Color, Optional
+///     Sets the icon color.
+/// icon_color_alpha: float, Optional
+///     Sets the alpha value of the icon Color.
+/// icon_rgba: list[float, 4], Optional
+///     The icon color in rgba format.
+/// border_color: Color, Optional
+///     Sets the border color.
+/// border_color_alpha: float, Optional
+///     Sets the alpha value of the border Color.
+/// border_rgba: list[float, 4], Optional
+///     The border color in rgba format.
 /// border_radius: float
 ///     The radius of the 4 corners.
 /// border_width: float
@@ -202,6 +220,15 @@ pub fn add_checkbox(
 ///      Obtains an ID of a widget that have not been created, used for the gen_id parameter.
 #[pyfunction]
 #[pyo3(signature = ( 
+    bkg_color=None,
+    bkg_color_alpha=None,
+    bkg_rgba=None,
+    icon_color=None,
+    icon_color_alpha=None,
+    icon_rgba=None,
+    border_color=None,
+    border_color_alpha=None,
+    border_rgba=None,
     border_radius=None, 
     border_width=None,
     text_color=None,
@@ -210,8 +237,21 @@ pub fn add_checkbox(
     gen_id=None
     ))]
 pub fn add_checkbox_style(
+    bkg_color: Option<Color>,
+    bkg_color_alpha: Option<f32>,
+    bkg_rgba: Option<[f32; 4]>,
+
+    icon_color: Option<Color>,
+    icon_color_alpha: Option<f32>,
+    icon_rgba: Option<[f32; 4]>,
+
+    border_color: Option<Color>,
+    border_color_alpha: Option<f32>,
+    border_rgba: Option<[f32; 4]>,
+
     border_radius: Option<f32>,
     border_width: Option<f32>,
+    
     text_color: Option<Color>,
     text_color_alpha: Option<f32>,
     text_rgba: Option<[f32; 4]>,
@@ -225,8 +265,22 @@ pub fn add_checkbox_style(
     state.widgets.insert(id, Widgets::CheckboxStyle(
         CheckboxStyle {
             id,
+
+            bkg_color,
+            bkg_color_alpha,
+            bkg_rgba,
+
+            icon_color,
+            icon_color_alpha,
+            icon_rgba,
+
+            border_color,
+            border_color_alpha,
+            border_rgba,
+            
             border_radius, 
             border_width,
+
             text_color,
             text_color_alpha,
             text_rgba,

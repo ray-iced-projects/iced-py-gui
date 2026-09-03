@@ -12,7 +12,7 @@ Workflow:
 import json
 from pathlib import Path
 import os
-from python_examples.py_palette.widget_helpers import match_widget_str, place_widgets
+from python_examples.py_palette.widget_helpers import match_widget_str, place_widgets, set_widget_status
 
 from icedpygui import (
     Window,
@@ -24,7 +24,6 @@ from icedpygui import (
     start_session,
     add_button,
     add_button_style,
-    ButtonStyleParam,
     add_pick_list,
     PickListParam,
     add_checkbox,
@@ -41,7 +40,6 @@ from icedpygui import (
     FileSystemDialogCallbackType as FsdCallType,
     FileSystemDialogParam as FsdParam,
     update_widget,
-    update_widget_params,
     get_widget_palette_part,
     get_widget_palette_list,
     get_color_palette,
@@ -310,7 +308,7 @@ def on_status_checked(cb_id: int, is_checked: bool):
     # Set the target to its incoming state
     update_widget(cb_id, CheckboxParam.IsChecked, is_checked)
     grid[target_row][target_col] = (cb_id, is_checked)
-    set_widget_status(target_row, target_col)
+    set_widget_status(pc, target_row, target_col)
 
 
 def populate_widgets_checkboxes(color: list):
@@ -348,42 +346,6 @@ def populate_widgets_checkboxes(color: list):
             pc.checkbox_grid[r].append((cb_id, False))
 
 
-# the widget and palette is found by row=status_index, col=pal_idx of the matrix
-def set_widget_status(pal_idx: int, status_index: int):
-    """Radio select for status"""
-    statuses = pc.widget_parts.get("statuses")
-    _pal, bkg_rgba = list(pc.palette.items())[pal_idx*2]
-    _text_pal, bkg_text_color = list(pc.palette.items())[pal_idx*2 + 1]
-    status = statuses[status_index]
-    print(status)
-    # update the widget
-    match pc.widget_name:
-        case "button":
-            match status:
-                case "Active":
-                    update_widget_params(
-                        pc.widget_active_style_id, {
-                        ButtonStyleParam.BkgRgba: bkg_rgba,
-                        ButtonStyleParam.TextRgba: bkg_text_color
-                        })
-                case "Hovered":
-                    update_widget_params(
-                        pc.widget_hovered_style_id, {
-                        ButtonStyleParam.BkgRgba: bkg_rgba,
-                        ButtonStyleParam.TextRgba: bkg_text_color
-                        })
-                case "Pressed":
-                    update_widget_params(
-                        pc.widget_pressed_style_id, {
-                        ButtonStyleParam.BkgRgba: bkg_rgba,
-                        ButtonStyleParam.TextRgba: bkg_text_color
-                        })
-                case "Disabled":
-                    update_widget_params(
-                        pc.widget_disabled_style_id, {
-                        ButtonStyleParam.BkgRgba: bkg_rgba,
-                        ButtonStyleParam.TextRgba: bkg_text_color
-                        })
 
 
 def load_demo(_btn_id: int):
@@ -398,9 +360,9 @@ def load_demo(_btn_id: int):
     # Parts
     pc.parts_file_name = file_path
     pc.widget_list = get_widget_palette_list(pc.parts_file)
-    pc.widget_parts = get_widget_palette_part("button", pc.parts_file)
-    pc.widget_name = "button"
-    pc.set_new_widgets("button")
+    pc.widget_parts = get_widget_palette_part("checkbox", pc.parts_file)
+    pc.widget_name = "checkbox"
+    pc.set_new_widgets("checkbox")
     # color
     color = [0.32, 0.2, 0.13, 1.0]
     pc.current_color = color

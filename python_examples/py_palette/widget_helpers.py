@@ -8,6 +8,11 @@ from enum import Enum
 from icedpygui import (
     add_button,
     add_button_style,
+    ButtonStyleParam,
+    add_checkbox,
+    add_checkbox_style,
+    CheckboxStyleParam,
+    update_widget_params,
 )
 
 if TYPE_CHECKING:
@@ -86,6 +91,92 @@ def place_widgets(pc: PaletteCreator, widget: Widget):
                 width=BUTTON_WIDTH,
                 style_id=pc.widget_disabled_style_id
                 )
+
+        case Widget.CHECKBOX:
+            pc.widget_active_style_id = add_checkbox_style()
+            pc.widget_active_id = add_checkbox(
+                label="Status=Active",
+                parent_id=pc.new_widget_row_id,
+                active=True,
+                width=BUTTON_WIDTH,
+                style_id=pc.widget_active_style_id
+                )
+
+            pc.widget_hovered_style_id = add_checkbox_style()
+            pc.widget_hovered_id = add_checkbox(
+                label="Status=Hovered",
+                parent_id=pc.new_widget_row_id,
+                hovered=True,
+                width=BUTTON_WIDTH,
+                style_id=pc.widget_hovered_style_id
+                )
+
+            pc.widget_disabled_style_id = add_checkbox_style()
+            pc.widget_disabled_id = add_checkbox(
+                label="Status=Disabled",
+                parent_id=pc.new_widget_row_id,
+                disabled=True,
+                width=BUTTON_WIDTH,
+                style_id=pc.widget_disabled_style_id
+                )
+
+# the widget and palette is found by row=status_index, col=pal_idx of the matrix
+def set_widget_status(pc: PaletteCreator, pal_idx: int, status_index: int):
+    """Radio select for status"""
+    statuses = pc.widget_parts.get("statuses")
+    _pal, bkg_rgba = list(pc.palette.items())[pal_idx*2]
+    _text_pal, bkg_text_color = list(pc.palette.items())[pal_idx*2 + 1]
+    status = statuses[status_index]
+
+    # update the widget
+    match pc.widget_name:
+        case "button":
+            match status:
+                case "Active":
+                    update_widget_params(
+                        pc.widget_active_style_id, {
+                        ButtonStyleParam.BkgRgba: bkg_rgba,
+                        ButtonStyleParam.TextRgba: bkg_text_color
+                        })
+                case "Hovered":
+                    update_widget_params(
+                        pc.widget_hovered_style_id, {
+                        ButtonStyleParam.BkgRgba: bkg_rgba,
+                        ButtonStyleParam.TextRgba: bkg_text_color
+                        })
+                case "Pressed":
+                    update_widget_params(
+                        pc.widget_pressed_style_id, {
+                        ButtonStyleParam.BkgRgba: bkg_rgba,
+                        ButtonStyleParam.TextRgba: bkg_text_color
+                        })
+                case "Disabled":
+                    update_widget_params(
+                        pc.widget_disabled_style_id, {
+                        ButtonStyleParam.BkgRgba: bkg_rgba,
+                        ButtonStyleParam.TextRgba: bkg_text_color
+                        })
+        case "checkbox":
+            match status:
+                case "Active":
+                    update_widget_params(
+                        pc.widget_active_style_id, {
+                        CheckboxStyleParam.BkgRgba: bkg_rgba,
+                        CheckboxStyleParam.TextRgba: bkg_text_color
+                        })
+                case "Hovered":
+                    update_widget_params(
+                        pc.widget_hovered_style_id, {
+                        CheckboxStyleParam.BkgRgba: bkg_rgba,
+                        CheckboxStyleParam.TextRgba: bkg_text_color
+                        })
+                case "Disabled":
+                    update_widget_params(
+                        pc.widget_disabled_style_id, {
+                        CheckboxStyleParam.BkgRgba: bkg_rgba,
+                        CheckboxStyleParam.TextRgba: bkg_text_color
+                        })
+
 
 def match_widget_str(w_str: str):
     """Match the str to return the Widget"""

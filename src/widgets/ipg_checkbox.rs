@@ -128,9 +128,9 @@ impl CheckBox {
                         UserCheckboxStatus::Active => checkbox::Status::Active { is_checked },
                         UserCheckboxStatus::Hovered => checkbox::Status::Hovered { is_checked },
                         UserCheckboxStatus::Disabled => checkbox::Status::Disabled { is_checked },
-                        UserCheckboxStatus::None => status,
+                        UserCheckboxStatus::None => status
                     };
-
+                    
                     if style_opt.is_some() || pal_opt.is_some() {
                         let chk_st = CheckboxStyle::default();
                         let st = style_opt.as_ref().unwrap_or(&chk_st);
@@ -205,6 +205,18 @@ pub fn checkbox_callback(state: &mut IpgState, id: usize, message: ChkMessage) {
 pub struct CheckboxStyle {
     pub id: usize,
 
+    pub bkg_color: Option<Color>,
+    pub bkg_color_alpha: Option<f32>,
+    pub bkg_rgba: Option<[f32; 4]>,
+
+    pub icon_color: Option<Color>,
+    pub icon_color_alpha: Option<f32>,
+    pub icon_rgba: Option<[f32; 4]>,
+
+    pub border_color: Option<Color>,
+    pub border_color_alpha: Option<f32>,
+    pub border_rgba: Option<[f32; 4]>,
+
     pub border_radius: Option<f32>,
     pub border_width: Option<f32>,
     
@@ -222,6 +234,45 @@ impl CheckboxStyle {
         style_std_opt: &Option<CheckboxStyleStd>,
         ) -> checkbox::Style {
 
+        // Fixed background overrides all statuses when set
+        let fixed_bkg = Color::rgba_ipg_color_to_iced(self.bkg_rgba, &self.bkg_color, self.bkg_color_alpha);
+        let fixed_icon = Color::rgba_ipg_color_to_iced(self.bkg_rgba, &self.bkg_color, self.bkg_color_alpha);
+        let fixed_text = Color::rgba_ipg_color_to_iced(self.text_rgba, &self.text_color, self.text_color_alpha);
+        let fixed_border = Color::rgba_ipg_color_to_iced(self.border_rgba, &self.border_color, self.border_color_alpha);
+
+        // Fixed colors short-circuits the full palette/status logic
+        if fixed_bkg.is_some() || fixed_icon.is_some() || fixed_border.is_some() || fixed_text.is_some() {
+
+            let style = checkbox::primary(theme, status);
+            
+            let background = if let Some(bkg_color) = fixed_bkg {
+                Background::Color(bkg_color)
+            } else { style.background };
+
+            let icon_color = if let Some(ic) = fixed_icon {
+                ic
+            } else { style.icon_color };
+
+            let border_color = if let Some(bc) = fixed_border {
+                bc
+            } else { style.border.color };
+
+            let text_color = if let Some(tc) = fixed_text {
+                Some(tc)
+            } else {None };
+
+            return checkbox::Style {
+                background,
+                icon_color,
+                border: iced::Border {
+                    radius: self.border_radius.unwrap_or(2.0).into(),
+                    width: self.border_width.unwrap_or(1.0),
+                    color: border_color,
+                },
+                text_color,
+            }
+        }
+
         // style_std overides all except for border, shadow, and snap
         if style_std_opt.is_some() || c_pal_opt.is_none() {
             let mut style =  if let Some(std) = style_std_opt {
@@ -232,7 +283,7 @@ impl CheckboxStyle {
             
             return style
         }
-        
+
         // Build the background palette — either from CustomPalette or theme default.
         let custom_pal = if let Some(cp) = c_pal_opt {
             cp
@@ -456,11 +507,20 @@ pub enum CheckboxParam {
     TextWrappingNone,
     TextWrappingWordGlyph,
     Width,
+    Active,
+    Hovered,
+    Disabled,
 }
 
 #[derive(Debug, Clone, PartialEq, Hash)]
 #[pyclass(eq, eq_int, hash, frozen)]
 pub enum CheckboxStyleParam {
+    BkgColor,
+    BkgColorAlpha,
+    BkgRgba,
+    IconColor,
+    IconColorAlpha,
+    IconRgba,
     BorderRadius,
     BorderWidth,
     TextColor,
@@ -498,6 +558,9 @@ impl WidgetParamUpdate for CheckBox {
             CheckboxParam::TextWrappingNone => set_t_value(&mut self.text_wrapping_none, value, "CheckboxParam::TextWrappingNone"),
             CheckboxParam::TextWrappingWordGlyph => set_t_value(&mut self.text_wrapping_word_glyph, value, "CheckboxParam::TextWrappingWordGlyph"),
             CheckboxParam::Width => set_t_value(&mut self.width, value, "CheckboxParam::Width"),
+            CheckboxParam::Active => set_t_value(&mut self.active, value, "CheckboxParam::Active"),
+            CheckboxParam::Hovered => set_t_value(&mut self.hovered, value, "CheckboxParam::Hovered"),
+            CheckboxParam::Disabled => set_t_value(&mut self.disabled, value, "CheckboxParam::Disabled"),
         }
     }
 }
@@ -507,6 +570,12 @@ impl WidgetParamUpdate for CheckboxStyle {
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
+            CheckboxStyleParam::BkgColor => set_t_value(&mut self.bkg_color, value, "CheckboxStyleParam::BkgColor"),
+            CheckboxStyleParam::BkgColorAlpha => set_t_value(&mut self.bkg_color_alpha, value, "CheckboxStyleParam::BkgColorAlpha"),
+            CheckboxStyleParam::BkgRgba => set_t_value(&mut self.bkg_rgba, value, "CheckboxStyleParam::BkgRgba"),
+            CheckboxStyleParam::IconColor => set_t_value(&mut self.icon_color, value, "CheckboxStyleParam::IconColor"),
+            CheckboxStyleParam::IconColorAlpha => set_t_value(&mut self.icon_color_alpha, value, "CheckboxStyleParam::IconColorAlpha"),
+            CheckboxStyleParam::IconRgba => set_t_value(&mut self.icon_rgba, value, "CheckboxStyleParam::IconRgba"),
             CheckboxStyleParam::BorderRadius => set_t_value(&mut self.border_radius, value, "CheckboxStyleParam::BorderRadius"),
             CheckboxStyleParam::BorderWidth => set_t_value(&mut self.border_width, value, "CheckboxStyleParam::BorderWidth"),
             CheckboxStyleParam::TextColor => set_t_value(&mut self.text_color, value, "CheckboxStyleParam::TextColor"),

@@ -1,0 +1,193 @@
+# ============================================================================
+# Checkbox Widget Palette Configuration
+# ============================================================================
+# Defines default palette mappings for checkbox widget states and styles.
+# Used to generate custom palettes with status-specific color/text/border rules.
+
+widget: checkbox
+
+# Selected base color (rgba) used to generate the palette
+selected_color: [0.32, 0.2, 0.13, 1.0]
+
+# Widget metadata
+metadata:
+  description: "Checkbox widget palette configuration"
+  palette_enabled: true
+
+# Available statuses for this widget
+statuses:
+  - Active
+  - Hovered
+  - Disabled
+
+# Available state variants
+state_variants:
+  - Unchecked
+  - Checked
+
+# Available style parts that can be customized
+parts:
+  - Background
+  - Text
+  - Border
+  - Icon
+
+# ============================================================================
+# Palette Definitions
+# ============================================================================
+# Each status/variant maps to palette keys for Background, Text, Border, and Icon.
+# The Icon part is only used in the Checked variant.
+# Format:
+#   - status: <WidgetStatus>
+#     variant: <StateVariant>
+#     parts:
+#       - part: <StylePart>
+#         key: <PaletteKey>
+#         alpha: <0.0 - 1.0>
+
+palette_mappings:
+
+  # Active State - Unchecked
+  - status: Active
+    variant: Unchecked
+    parts:
+      - part: Background
+        key: Base
+        alpha: 1.0
+        description: "Base color for checkbox background"
+
+      - part: Text
+        key: BaseText
+        alpha: 0.8
+        description: "Readable text on base background"
+
+      - part: Border
+        key: Strong
+        alpha: 1.0
+        description: "Border using strong palette tier"
+
+  # Hovered State - Unchecked
+  - status: Hovered
+    variant: Unchecked
+    parts:
+      - part: Background
+        key: Weak
+        alpha: 1.0
+        description: "Weak color to indicate hover"
+
+      - part: Text
+        key: BaseText
+        alpha: 0.8
+        description: "Readable text on weak background"
+
+      - part: Border
+        key: Strong
+        alpha: 1.0
+        description: "Border using strong palette tier"
+
+  # Disabled State - Unchecked
+  - status: Disabled
+    variant: Unchecked
+    parts:
+      - part: Background
+        key: Weaker
+        alpha: 1.0
+        description: "Weaker background indicates disabled state"
+
+      - part: Text
+        key: BaseText
+        alpha: 0.8
+        description: "Dimmed text on weaker background"
+
+      - part: Border
+        key: Strong
+        alpha: 1.0
+        description: "Border using strong palette tier"
+
+  # Active State - Checked
+  - status: Active
+    variant: Checked
+    parts:
+      - part: Background
+        key: Base
+        alpha: 1.0
+        description: "Base color for checked background"
+
+      - part: Icon
+        key: BaseText
+        alpha: 1.0
+        description: "Icon contrasts with base background"
+
+      - part: Text
+        key: BaseText
+        alpha: 0.8
+        description: "Readable text on base background"
+
+      - part: Border
+        key: Strong
+        alpha: 1.0
+        description: "Border using strong palette tier"
+
+  # Hovered State - Checked
+  - status: Hovered
+    variant: Checked
+    parts:
+      - part: Background
+        key: Strong
+        alpha: 1.0
+        description: "Strong color to indicate hover when checked"
+
+      - part: Icon
+        key: BaseText
+        alpha: 1.0
+        description: "Icon contrasts with strong background"
+
+      - part: Text
+        key: BaseText
+        alpha: 0.8
+        description: "Readable text on strong background"
+
+      - part: Border
+        key: Strong
+        alpha: 1.0
+        description: "Border using strong palette tier"
+
+  # Disabled State - Checked
+  - status: Disabled
+    variant: Checked
+    parts:
+      - part: Background
+        key: Weak
+        alpha: 1.0
+        description: "Weak background indicates disabled state when checked"
+
+      - part: Icon
+        key: BaseText
+        alpha: 1.0
+        description: "Icon contrasts with weak background"
+
+      - part: Text
+        key: BaseText
+        alpha: 0.8
+        description: "Dimmed text on weak background"
+
+      - part: Border
+        key: Strong
+        alpha: 1.0
+        description: "Border using strong palette tier"
+
+# ============================================================================
+# Palette Key Tiers Reference
+# ============================================================================
+# Available palette keys for color selection:
+#
+# Color Tiers (from weakest to strongest):
+#   - Weakest / WeakestText
+#   - Weak / WeakText
+#   - Base / BaseText
+#   - Strong / StrongText
+#   - Stronger / StrongerText
+#   - Strongest / StrongestText
+#
+# Each tier is generated from the base color using the iced framework's
+# readable() function to ensure WCAG contrast compliance.

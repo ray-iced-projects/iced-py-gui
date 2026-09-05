@@ -12,8 +12,9 @@ Workflow:
 import json
 from pathlib import Path
 import os
-from python_examples.py_palette.widget_helpers import match_widget_str, place_widgets, set_widget_status
-
+from python_examples.py_palette.demo_helpers import demo_populate_widget_checkboxes
+from python_examples.py_palette.widget_helpers import (
+    WidgetConfig, load_demo_config, match_widget_str, place_widgets, set_widget_status)
 from icedpygui import (
     Window,
     ColorPicker,
@@ -168,6 +169,7 @@ class PaletteManager:
 
 
 pm = PaletteManager()
+
 class PaletteCreator:
     """Manages palette state and widget selection logic."""
 
@@ -183,6 +185,7 @@ class PaletteCreator:
         self.widget_disabled_style_id: int = None
         self.widget_name: str = None
         self.widget_parts: dict = {}
+        self.widget_config: WidgetConfig = WidgetConfig()
         self.widget_ids: list[int] = []
         self.new_widget_row_id: int = None
         self.parts_file: dict = {}
@@ -204,8 +207,6 @@ class PaletteCreator:
 
 pc = PaletteCreator()
 
-
-
 # Set the file types
 file_types = ["yml", "yaml"]
 
@@ -214,7 +215,17 @@ cwd = os.getcwd()
 DEFAULT_DIRECTORY = os.path.join(cwd, "python_examples", "py_palette")
 BUTTON_WIDTH = 150
 
+def load_demo_parts_file():
+    """Method to load the demo"""
+    file_path = os.path.join(cwd, "python_examples", "py_palette", "widget_palette_parts.yml")
+    try:
+        with open(file_path, "r", encoding='utf-8') as file:
+            pc.parts_file = file.read()
+    except FileNotFoundError:
+        print(f"*********The file does not exist using {file_path}.*******")
+    pc.widget_list = get_widget_palette_list(pc.parts_file)
 
+load_demo_parts_file()
 
 
 def load_parts_file(_btn_id: int):
@@ -256,7 +267,7 @@ def on_color_picked(_cp_id: int, color: list[float]):
     pc.current_color = color
     formatted = [round(c, 2) for c in color]
     update_widget(selected_color_txt_id, TextParam.Content, f"Selected color = {formatted}")
-    populate_widgets_checkboxes(color)
+    populate_widget_checkboxes(color)
 
 
 def on_color_text_input(_ti_id: int, text: str):
@@ -265,7 +276,7 @@ def on_color_text_input(_ti_id: int, text: str):
     if color:
         pc.current_color = color
         update_widget(selected_color_txt_id, TextParam.Content, f"Selected color = {color}")
-        populate_widgets_checkboxes(color)
+        populate_widget_checkboxes(color)
     else:
         update_widget(selected_color_txt_id, TextParam.Content,
                       "Invalid color format, use float values")
@@ -311,7 +322,7 @@ def on_status_checked(cb_id: int, is_checked: bool):
     set_widget_status(pc, target_row, target_col)
 
 
-def populate_widgets_checkboxes(color: list):
+def populate_widget_checkboxes(color: list):
     """Updating the widget and checkboxes for palette matrix selection"""
     pc.palette = get_color_palette(rgba=color)
     statuses = pc.widget_parts.get("statuses")
@@ -346,28 +357,14 @@ def populate_widgets_checkboxes(color: list):
             pc.checkbox_grid[r].append((cb_id, False))
 
 
+def load_demo(_pl_id: int, selected: str):
+    """Loading a demo setup"""
+    pc.widget_name = selected
+    load_demo_config(pc)
+    update_widget(selected_color_txt_id, TextParam.Content,
+                  f"Selected color = {pc.widget_config.selected_color}")
+    demo_populate_widget_checkboxes(pc)
 
-
-def load_demo(_btn_id: int):
-    """Method to load the demo"""
-    file_path = os.path.join(cwd, "python_examples", "py_palette", "widget_palette_parts.yml")
-    try:
-        with open(file_path, "r", encoding='utf-8') as file:
-            pc.parts_file = file.read()
-    except FileNotFoundError:
-        print(f"*********The file does not exist using {file_path}.*******")
-
-    # Parts
-    pc.parts_file_name = file_path
-    pc.widget_list = get_widget_palette_list(pc.parts_file)
-    pc.widget_parts = get_widget_palette_part("checkbox", pc.parts_file)
-    pc.widget_name = "checkbox"
-    pc.set_new_widgets("checkbox")
-    # color
-    color = [0.32, 0.2, 0.13, 1.0]
-    pc.current_color = color
-    update_widget(selected_color_txt_id, TextParam.Content, f"Selected color = {color}")
-    populate_widgets_checkboxes(color)
 
 # ============================================================================
 # GUI
@@ -376,7 +373,9 @@ def load_demo(_btn_id: int):
 with Window(title="Palette Creator - Interactive Workflow", center=True, size=(1000, 800)):
 
     with Container(padding=[20]):
-        add_button(label="Load Demo", padding=[10], on_press=load_demo)
+        add_pick_list(options=pc.widget_list,
+                      placeholder="Load the Demo Widget Palette file",
+                      on_select=load_demo)
 
     with Container(width_fill=True, padding=[20]):
         with Column(spacing=15) as col:

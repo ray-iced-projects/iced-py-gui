@@ -63,6 +63,8 @@ use crate::widgets::ipg_checkbox::{CheckBox, CheckboxStyle, CheckboxStyleStd};
 ///     Sets the checkbox to the Hovered status.
 /// disabled : bool, Optional
 ///     Sets the checkbox to the Disabled status.
+/// lock_is_checked: bool, Optional
+///     Keeps the check or unchecked value to True or False.
 /// style_id : int,  Optional
 ///     Sets the ID of a custom style created with ``add_checkbox_style``.
 /// style_std : CheckboxStyleStd,  Optional
@@ -100,6 +102,7 @@ use crate::widgets::ipg_checkbox::{CheckBox, CheckboxStyle, CheckboxStyleStd};
     active=None,
     hovered=None,
     disabled=None,
+    lock_is_checked=None,
     style_id=None, 
     style_std=None,
     palette_id=None,
@@ -129,6 +132,7 @@ pub fn add_checkbox(
     active: Option<bool>,
     hovered: Option<bool>,
     disabled: Option<bool>,
+    lock_is_checked: Option<bool>,
     style_id: Option<usize>,
     style_std: Option<CheckboxStyleStd>,
     palette_id: Option<usize>,
@@ -172,6 +176,7 @@ pub fn add_checkbox(
             active,
             hovered,
             disabled,
+            lock_is_checked,
             style_id,
             style_std,
             palette_id,
@@ -206,10 +211,28 @@ pub fn add_checkbox(
 ///     Sets the alpha value of the border Color.
 /// border_rgba: list[float, 4], Optional
 ///     The border color in rgba format.
-/// border_radius: float
-///     The radius of the 4 corners.
-/// border_width: float
-///     The border width.
+/// border_radius: list[float, 4], Optional
+///     Sets the radius for all four corners as [top_left, top_right, bottom_right, bottom_left].
+/// border_rounded: float, Optional
+///     Sets the radius for all four corners to the same value.
+/// border_radius_top: float, Optional
+///     Sets the radius for top-left and top-right corners.
+/// border_radius_top_left: float, Optional
+///     Sets the radius for the top-left corner.
+/// border_radius_top_right: float, Optional
+///     Sets the radius for the top-right corner.
+/// border_radius_bottom: float, Optional
+///     Sets the radius for bottom-left and bottom-right corners.
+/// border_radius_bottom_left: float, Optional
+///     Sets the radius for the bottom-left corner.
+/// border_radius_bottom_right: float, Optional
+///     Sets the radius for the bottom-right corner.
+/// border_radius_left: float, Optional
+///     Sets the radius for top-left and bottom-left corners.
+/// border_radius_right: float, Optional
+///     Sets the radius for top-right and bottom-right corners.
+/// border_width: float, Optional
+///     Sets the border width.
 /// text_color: Color, Optional
 ///     The text color.
 /// text_color_alpha: float, Optional
@@ -223,14 +246,31 @@ pub fn add_checkbox(
     bkg_color=None,
     bkg_color_alpha=None,
     bkg_rgba=None,
+
     icon_color=None,
     icon_color_alpha=None,
     icon_rgba=None,
+
     border_color=None,
     border_color_alpha=None,
     border_rgba=None,
-    border_radius=None, 
+
+    border_radius=None,
+    border_rounded=None,
+
+    border_radius_top=None,
+    border_radius_top_left=None,
+    border_radius_top_right=None,
+
+    border_radius_bottom=None,
+    border_radius_bottom_left=None,
+    border_radius_bottom_right=None,
+    
+    border_radius_left=None,
+    border_radius_right=None,
+
     border_width=None,
+
     text_color=None,
     text_color_alpha=None,
     text_rgba=None,
@@ -249,7 +289,19 @@ pub fn add_checkbox_style(
     border_color_alpha: Option<f32>,
     border_rgba: Option<[f32; 4]>,
 
-    border_radius: Option<f32>,
+    border_radius: Option<[f32; 4]>,
+    border_rounded: Option<f32>,
+    border_radius_top: Option<f32>,
+    border_radius_top_left: Option<f32>,
+    border_radius_top_right: Option<f32>,
+
+    border_radius_bottom: Option<f32>,
+    border_radius_bottom_left: Option<f32>,
+    border_radius_bottom_right: Option<f32>,
+
+    border_radius_left: Option<f32>,
+    border_radius_right: Option<f32>,
+
     border_width: Option<f32>,
     
     text_color: Option<Color>,
@@ -278,7 +330,20 @@ pub fn add_checkbox_style(
             border_color_alpha,
             border_rgba,
             
-            border_radius, 
+            border_radius,
+            border_rounded,
+            
+            border_radius_top,
+            border_radius_top_left,
+            border_radius_top_right,
+
+            border_radius_bottom,
+            border_radius_bottom_left,
+            border_radius_bottom_right,
+            
+            border_radius_left,
+            border_radius_right,
+
             border_width,
 
             text_color,

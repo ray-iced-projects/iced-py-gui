@@ -204,22 +204,37 @@ def add_checkbox_style(
         background_color: Color | None = None,
         background_color_alpha: float | None = None,
         background_rgba: list[float, 4] | None = None,
+
         border_color: Color | None = None,
         border_color_alpha: float | None = None,
         border_rgba: list[float, 4] | None = None,
-        border_radius: list[float] | list[float, 4] | None = None,
+
+        border_radius: list[float, 4] | list[float, 4] | None = None,
+        border_rounded: float | None = None,
+
+        border_radius_top: float | None = None,
+        border_radius_top_left: float | None = None,
+        border_radius_top_right: float | None = None,
+
+        border_radius_bottom: float | None = None,
+        border_radius_bottom_left: float | None = None,
+        border_radius_bottom_right: float | None = None,
+
+        border_radius_left: float | None = None,
+        border_radius_right: float | None = None,
+
         border_width: float | None = None,
+
         icon_color: Color | None = None,
         icon_color_alpha: float | None = None,
         icon_rgba: list[float, 4] | None = None,
+
         text_color: Color | None = None,
         text_color_alpha: float | None = None,
         text_rgba: list[float, 4] | None = None,
         gen_id: int | None = None,
     ) -> int:
     """Adds styling to a checkbox
-
-    Run the doc_helper.py to see the individual parameter definitions.
 
     Notes
     --------
@@ -235,6 +250,55 @@ def add_checkbox_style(
     standard - using the style_std parameter and the CheckboxStyleStd class
 
     Just use the style_std=CheckboxStyleStd.Primary parameter in the add_checkbox method.
+
+    Additional style can be done by using the custom_palette.
+
+    Parameters
+    ----------
+    bkg_color: Color
+        Background color in Color format.
+    bkg_color_alpha: float
+        Sets the alpha value of the background Color.
+    bkg_rgba: list[float, 4]
+        Background color in rgba format.
+    icon_color: Color, Optional
+        Sets the icon color.
+    icon_color_alpha: float, Optional
+        Sets the alpha value of the icon Color.
+    icon_rgba: list[float, 4], Optional
+        The icon color in rgba format.
+    border_color: Color
+        Border color in Color format.
+    border_color_alpha: float
+        Sets the alpha of the border Color.
+    border_rgba: list[float, 4]
+        Border color in rgba format.
+    border_radius: list[float, 4], Optional
+        Sets the radius for all four corners as [top_left, top_right, bottom_right, bottom_left].
+    border_rounded: float, Optional
+        Sets the radius for all four corners to the same value.
+    border_radius_top: float, Optional
+        Sets the radius for top-left and top-right corners.
+    border_radius_top_left: float, Optional
+        Sets the radius for the top-left corner.
+    border_radius_top_right: float, Optional
+        Sets the radius for the top-right corner.
+    border_radius_bottom: float, Optional
+        Sets the radius for bottom-left and bottom-right corners.
+    border_radius_bottom_left: float, Optional
+        Sets the radius for the bottom-left corner.
+    border_radius_bottom_right: float, Optional
+        Sets the radius for the bottom-right corner.
+    border_radius_left: float, Optional
+        Sets the radius for top-left and bottom-left corners.
+    border_radius_right: float, Optional
+        Sets the radius for top-right and bottom-right corners.
+    border_width: float
+        The width of the border line.
+    text_color: Color
+        The label text color in Color format.
+    text_rgba: list[float, 4]
+        The label text color in rgba format.
 
     Examples
     --------
@@ -259,6 +323,145 @@ def add_checkbox_style(
     >>> start_session()
     >>>
     """
+class CheckboxParam:
+    """
+    The Checkbox parameters
+
+    Parameters
+    ----------
+    IconSize: float
+        Size of the icon.
+    IconX: bool
+        Whether to use and x or the default check.
+    IsChecked: bool
+        Whether the checkbox is checked or not.
+    Label: str
+        THe label of the checkbox.
+    Show: bool
+        Whether to show the checkbox.
+    Size: float
+        The size of the square.
+    Spacing: float
+        The spacing between the square and label.
+    StyleId: int
+        The id of the add_checkbox_style() function.
+    StyleStandard: StyleStandard
+        One of the standard styles.
+    TextLineHeight: float
+        The height of the text box holding the label.
+    TextSize: float
+        The size of the label text.
+    Width: float
+        The width of the entire checkbox.
+    WidthFill: bool
+        Whether the checkbox width fills the available space of the container.
+
+    Examples
+        --------
+        Given a widget id for a checkbox = wid
+        >>> update_widget(wid, CheckboxParam.Width, 100.0)
+    """
+    IconSize: float
+    IconX: bool
+    IsChecked: bool
+    Label: str
+    Show: bool
+    Size: float
+    Spacing: float
+    StyleId: int
+    StyleStandard: ButtonStyleStd
+    TextLineHeight: float
+    TextSize: float
+    Width: float
+    WidthFill: bool
+
+class CheckboxStyleParam:
+    """
+    Checkbox style parameters
+
+    Parameters
+    ----------
+    BkgColor: Color
+        Background color in Color format.
+    BkgColorAlpha: float
+        Sets the alpha value of the background Color.
+    BkgRgba: list[float, 4]
+        Background color in rgba format.
+    IconColor: Color, Optional
+        Sets the icon color.
+    IconColor_alpha: float, Optional
+        Sets the alpha value of the icon Color.
+    IconRgba: list[float, 4], Optional
+        The icon color in rgba format.
+    BorderColor: Color
+        Border color in Color format.
+    BorderColorAlpha: float
+        Sets the alpha of the border Color.
+    BorderRgba: list[float, 4]
+        Border color in rgba format.
+    BorderRadius: list[float, 4], Optional
+        Sets the radius for all four corners as [top_left, top_right, bottom_right, bottom_left].
+    BorderRounded: float, Optional
+        Sets the radius for all four corners to the same value.
+    BorderRadiusTop: float, Optional
+        Sets the radius for top-left and top-right corners.
+    BorderRadiusTopLeft: float, Optional
+        Sets the radius for the top-left corner.
+    BorderRadiusTopRight: float, Optional
+        Sets the radius for the top-right corner.
+    BorderRadiusBottom: float, Optional
+        Sets the radius for bottom-left and bottom-right corners.
+    BorderRadiusBottomLeft: float, Optional
+        Sets the radius for the bottom-left corner.
+    BorderRadiusBottomRight: float, Optional
+        Sets the radius for the bottom-right corner.
+    BorderRadiusLeft: float, Optional
+        Sets the radius for top-left and bottom-left corners.
+    BorderRadiusRight: float, Optional
+        Sets the radius for top-right and bottom-right corners.
+    BorderWidth: float
+        The width of the border line.
+    TextColor: Color
+        The label text color in Color format.
+    TextRgba: list[float, 4]
+        The label text color in rgba format.
+
+    Examples
+        --------
+        Given a checkbox style id = wid
+        >>> update_widget(wid, CheckboxStyleParam.TextColor, Color.WHITE)
+    """
+    BkgColor: Color
+    BkgColorAlpha: float
+    BkgRgba: list[float, 4]
+
+    IconColor: Color
+    IconColorAlpha: float
+    IconRgba: list[float, 4]
+
+    BorderColor: Color
+    BorderColorAlpha: float
+    BorderRgbaColor: list[float, 4]
+
+    BorderRadius: list[float, 4]
+    BorderRounded: float
+
+    BorderRadius_top: float
+    BorderRadius_top_left: float
+    BorderRadius_top_right: float
+
+    BorderRadius_bottom: float
+    BorderRadius_bottom_left: float
+    BorderRadius_bottom_right: float
+
+    BorderRadius_left: float
+    BorderRadius_right: float
+
+    BorderWidth: float
+
+    TextColor: Color
+    TextRgba: list[float, 4]
+    TextRgba: list[float, 4]
 
 def add_color_picker_style(
         background_color: Color | None = None,
@@ -2138,107 +2341,6 @@ class CardParam:
     Head: str
     IsOpen: bool
     Style: str
-
-
-class CheckboxParam:
-    """
-    The Checkbox parameters
-
-    Parameters
-    ----------
-    IconSize: float
-        Size of the icon.
-    IconX: bool
-        Whether to use and x or the default check.
-    IsChecked: bool
-        Whether the checkbox is checked or not.
-    Label: str
-        THe label of the checkbox.
-    Show: bool
-        Whether to show the checkbox.
-    Size: float
-        The size of the square.
-    Spacing: float
-        The spacing between the square and label.
-    StyleId: int
-        The id of the add_checkbox_style() function.
-    StyleStandard: StyleStandard
-        One of the standard styles.
-    TextLineHeight: float
-        The height of the text box holding the label.
-    TextSize: float
-        The size of the label text.
-    Width: float
-        The width of the entire checkbox.
-    WidthFill: bool
-        Whether the checkbox width fills the available space of the container.
-    """
-    IconSize: float
-    IconX: bool
-    IsChecked: bool
-    Label: str
-    Show: bool
-    Size: float
-    Spacing: float
-    StyleId: int
-    StyleStandard: ButtonStyleStd
-    TextLineHeight: float
-    TextSize: float
-    Width: float
-    WidthFill: bool
-
-
-class CheckboxStyleParam:
-    """
-    Checkbox style parameters
-
-    Parameters
-    ----------
-    BkgColor: Color
-        Background color in Color format.
-    bkgColorAlpha: float
-        Sets the alpha value of the background Color.
-    BkgRgba: list[float, 4]
-        Background color in rgba format.
-    icon_color: Color, Optional
-        Sets the icon color.
-    icon_color_alpha: float, Optional
-        Sets the alpha value of the icon Color.
-    icon_rgba: list[float, 4], Optional
-        The icon color in rgba format.
-    BorderColor: Color
-        Border color in Color format.
-    BorderColorAlpha: float
-        Sets the alpha of the border Color.
-    BorderRgba: list[float, 4]
-        Border color in rgba format.
-    BorderRadius: list
-        The border radius [float]=all, [float, 4]=each individual one
-    BorderWidth: float
-        The width of the border line.
-    TextColor: Color
-        The label text color in Color format.
-    TextRgba: list[float, 4]
-        The label text color in rgba format.
-    """
-    BkgColor: Color
-    BkgColorAlpha: float
-    BkgRgba: list[float, 4]
-
-    IconColor: Color
-    IconColorAlpha: float
-    IconRgba: list[float, 4]
-
-    BorderColor: Color
-    BorderColorAlpha: float
-    BorderRgbaColor: list[float, 4]
-
-    BorderRadius: list[float]
-    BorderWidth: float
-
-    TextColor: Color
-    TextRgba: list[float, 4]
-    TextRgba: list[float, 4]
 
 
 class ColorPickerParam:

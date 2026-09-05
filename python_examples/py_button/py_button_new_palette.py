@@ -53,7 +53,7 @@ pal = [
     ),
     ((WidgetStatus.Disabled, StateVariant.NoVariant), (
                             (StylePart.Background, PaletteKey.Base, 0.5),
-                            (StylePart.Text, PaletteKey.BaseText, 0.5),
+                            (StylePart.Text, PaletteKey.BaseText, 0.6),
                             (StylePart.Border, PaletteKey.Stronger, 0.5),
                             ),
     ),

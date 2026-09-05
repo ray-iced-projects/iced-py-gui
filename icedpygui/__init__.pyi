@@ -318,25 +318,84 @@ def add_checkbox(
     active: bool | None = None,
     hovered: bool | None = None,
     disabled: bool | None = None,
+    lock_is_checked: bool | None = None,
     style_id: int | None = None,
     style_std: int | None = None,
     gen_id: int | None = None,
 ) -> int:
     """Adds a checkbox widget.
 
-    A widget must go into a container type,
+    Add a checkbox widget.
 
-    i.e. Container, Column, Row, etc.
+    A checkbox with a text label that can be toggled on and off.
 
-    Usage::
+    Parameters
+    ----------
+    parent_id : str
+        Sets the parent container ID that this checkbox belongs to.
+    on_toggle : callable,  Optional
+        Sets the Callback method to invoke when the checkbox is toggled.
+    is_checked : bool, default False
+        Whether the checkbox starts in the checked state.
+    label : str,  Optional
+        Sets the Text label displayed next to the checkbox.
+    width : float,  Optional
+        Sets the Fixed width in logical pixels.
+    width_fill : bool, default False
+        Whether the checkbox fills available width.
+    size : float,  Optional
+        Sets the size of the checkbox square in logical pixels.
+    spacing : float,  Optional
+        Sets the Spacing between the checkbox square and the label.
+    text_size : float,  Optional
+        Sets the Font size for the label text.
+    text_line_height : float,  Optional
+        Sets the Line height for the label text.
+    text_wrapping_none: Optional[bool]
+        Sets the wrapping mode of the label to no wrapping, default is on a word.
+    text_wrapping_glyph: Optional[bool]
+        Sets the wrapping mode of the label to wrap on a glyph.
+    text_wrapping_word_glyph: Optional[bool]
+        Sets the wrapping mode of the label to wrap on a glyph or glyph.
+    text_font_id : int,  Optional
+        Sets the Font ID for the label text.
+    icon_font_id : int,  Optional
+        Sets the Font ID for the checkbox icon.
+    icon : Icon,  Optional
+        Sets the Icon displayed inside the checkbox when checked.
+    icon_size : float,  Optional
+        Sets the Size of the checkbox icon.
+    icon_line_height : float,  Optional
+        Sets the Line height of the checkbox icon.
+    user_data : Any,  Optional
+        Sets the Arbitrary data forwarded to callbacks.
+    show : bool, default True
+        Whether the checkbox is visible.
+    active : bool, Optional
+        Sets the checkbox to the Active status.
+    hovered : bool, Optional
+        Sets the checkbox to the Hovered status.
+    disabled : bool, Optional
+        Sets the checkbox to the Disabled status.
+    lock_is_checked: bool, Optional
+        Keeps the check or unchecked value to True or False.
+    style_id : int,  Optional
+        Sets the ID of a custom style created with ``add_checkbox_style``.
+    style_std : CheckboxStyleStd,  Optional
+        Sets the predefined standard style variant.
+    gen_id : int,  Optional
+        Obtains an ID of a widget that have not been created, used for the gen_id parameter.
+
+    Usage:
         def checked(chk_id: int, is_checked: bool):
             print(chk_id, is_checked)
 
-        with Window(title="My App", pos_centered=True) as wnd_id: (if needed)
+        with Window(title="My App", pos_centered=True):
             with Container(align_center=True):
                 add_checkbox(
                     label="Check Me",
                     on_toggle=checked)
+
         start_session()
     """
     ...

@@ -16,7 +16,7 @@ use crate::graphics::BOOTSTRAP_FONT;
 use crate::graphics::bootstrap::bootstrap_icon::Icon;
 
 use iced::advanced::text;
-use iced::{Background, Element, Theme};
+use iced::{Background, Element, border::Radius, Theme};
 use iced::widget::text::{LineHeight, Shaping, Wrapping};
 use iced::widget::{Checkbox, checkbox};
 
@@ -47,6 +47,7 @@ pub struct CheckBox {
     pub active: Option<bool>,
     pub hovered: Option<bool>,
     pub disabled: Option<bool>,
+    pub lock_is_checked: Option<bool>,
     pub style_id: Option<usize>,
     pub style_std: Option<CheckboxStyleStd>,
     pub palette_id: Option<usize>,
@@ -110,8 +111,12 @@ impl CheckBox {
             _ => UserCheckboxStatus::None,
         };
 
+        let is_checked = if let Some(lock) = self.lock_is_checked {
+            lock
+        } else { self.is_checked };
+
         let chk = 
-            Checkbox::new(self.is_checked)
+            Checkbox::new(is_checked)
                 .on_toggle(ChkMessage::OnToggle)
                 .width(get_len(self.fill, None, self.width))
                 .line_height(line_height)
@@ -193,10 +198,16 @@ pub fn checkbox_callback(state: &mut IpgState, id: usize, message: ChkMessage) {
     match message {
         ChkMessage::OnToggle(is_checked) => {
             if let Some(Widgets::CheckBox(cb)) = state.widgets.get_mut(&id) {
+                let is_checked = if let Some(lock) = cb.lock_is_checked {
+                    lock
+                } else { is_checked };
+
                 cb.is_checked = is_checked;
-            }
-            invoke_callback_with_args(id, CallbackName::OnToggle, "Checkbox", is_checked,
+                invoke_callback_with_args(id, CallbackName::OnToggle, "Checkbox", is_checked,
                 "def cb(wid: int, is_checked: bool)");
+            } else {
+                eprint!("Checkbox widget using id {} could not be found therefore callback ignored.", &id)
+            }
         }
     }
 }
@@ -217,7 +228,20 @@ pub struct CheckboxStyle {
     pub border_color_alpha: Option<f32>,
     pub border_rgba: Option<[f32; 4]>,
 
-    pub border_radius: Option<f32>,
+    pub border_radius: Option<[f32; 4]>,
+    pub border_rounded: Option<f32>,
+
+    pub border_radius_top: Option<f32>,
+    pub border_radius_top_left: Option<f32>,
+    pub border_radius_top_right: Option<f32>,
+    
+    pub border_radius_bottom: Option<f32>,
+    pub border_radius_bottom_left: Option<f32>,
+    pub border_radius_bottom_right: Option<f32>,
+    
+    pub border_radius_left: Option<f32>,
+    pub border_radius_right: Option<f32>,
+    
     pub border_width: Option<f32>,
     
     pub text_color: Option<Color>,
@@ -239,6 +263,49 @@ impl CheckboxStyle {
         let fixed_icon = Color::rgba_ipg_color_to_iced(self.bkg_rgba, &self.bkg_color, self.bkg_color_alpha);
         let fixed_text = Color::rgba_ipg_color_to_iced(self.text_rgba, &self.text_color, self.text_color_alpha);
         let fixed_border = Color::rgba_ipg_color_to_iced(self.border_rgba, &self.border_color, self.border_color_alpha);
+
+        let radius = Radius::default();
+
+        let radius = if let Some(bd) = self.border_radius {
+            Radius::default()
+                .top_left(bd[0])
+                .top_right(bd[1])
+                .bottom_right(bd[2])
+                .bottom_left(bd[3])
+        } else { radius };
+
+        let radius = if let Some(bottom) = self.border_radius_bottom {
+            Radius::default().bottom(bottom)
+        } else { radius };
+
+        let radius = if let Some(left) = self.border_radius_bottom_left {
+            Radius::default().bottom_left(left)
+        } else { radius };
+
+        let radius = if let Some(right) = self.border_radius_bottom_right {
+            Radius::default().bottom_right(right)
+        } else { radius };
+
+        let radius = if let Some(top) = self.border_radius_top {
+            Radius::default().top(top)
+        } else { radius };
+
+        let radius = if let Some(left) = self.border_radius_top_left {
+            Radius::default().top_left(left)
+        } else { radius };
+
+        let radius = if let Some(right) = self.border_radius_top_right {
+            Radius::default().top_right(right)
+        } else { radius };
+
+        let radius = if let Some(left) = self.border_radius_left {
+            Radius::default().left(left)
+        } else { radius };
+
+        let radius = if let Some(right) = self.border_radius_right {
+            Radius::default().right(right)
+        } else { radius };
+
 
         // Fixed colors short-circuits the full palette/status logic
         if fixed_bkg.is_some() || fixed_icon.is_some() || fixed_border.is_some() || fixed_text.is_some() {
@@ -265,8 +332,8 @@ impl CheckboxStyle {
                 background,
                 icon_color,
                 border: iced::Border {
-                    radius: self.border_radius.unwrap_or(2.0).into(),
-                    width: self.border_width.unwrap_or(1.0),
+                    radius,
+                    width: self.border_width.unwrap_or_default(),
                     color: border_color,
                 },
                 text_color,
@@ -274,12 +341,12 @@ impl CheckboxStyle {
         }
 
         // style_std overides all except for border, shadow, and snap
-        if style_std_opt.is_some() || c_pal_opt.is_none() {
+        if style_std_opt.is_some() {
             let mut style =  if let Some(std) = style_std_opt {
                 std.to_iced(theme, status)
             } else { checkbox::primary(theme, status) };
-            style.border.radius = self.border_radius.unwrap_or(2.0).into();
-            style.border.width = self.border_width.unwrap_or(1.0);
+            style.border.radius = radius;
+            style.border.width = self.border_width.unwrap_or_default();
             
             return style
         }
@@ -288,12 +355,7 @@ impl CheckboxStyle {
         let custom_pal = if let Some(cp) = c_pal_opt {
             cp
         } else {
-            let palette = theme.palette();
-            &CustomPalette { 
-                id: 0, 
-                palette: palette.background, 
-                statuses: None, 
-            }
+            return checkbox::primary(theme, status)
          };
 
         let mut default_unchecked_statuses: HashMap<WidgetStatus, HashMap<StylePart, (PaletteKey, f32)>> = HashMap::new();
@@ -413,9 +475,9 @@ impl CheckboxStyle {
             let border_color = border_pal.pal_key_to_color(&theme_color, &cust_color).scale_alpha(*bd_alpha);
             let base_color = base_pal.pal_key_to_color(&theme_color, &cust_color).scale_alpha(*base_alpha);
             let icon_color = icon_pal.pal_key_to_color(&theme_color, &cust_color).scale_alpha(*ic_alpha);
-            let status_text_color = text_pal.pal_key_to_color(&theme_color, &cust_color).scale_alpha(*txt_alpha);
+            let text_color = text_pal.pal_key_to_color(&theme_color, &cust_color).scale_alpha(*txt_alpha);
 
-            (border_color, base_color, icon_color, status_text_color)
+            (border_color, base_color, icon_color, text_color)
         };
 
         // Mirrors iced's `styled()` helper — builds the final Style once per status arm.
@@ -432,7 +494,7 @@ impl CheckboxStyle {
                 background: Background::Color(background_color),
                 icon_color,
                 border: iced::Border {
-                    radius: self.border_radius.unwrap_or(2.0).into(),
+                    radius,
                     width: self.border_width.unwrap_or(1.0),
                     color: border_color,
                 },
@@ -510,6 +572,7 @@ pub enum CheckboxParam {
     Active,
     Hovered,
     Disabled,
+    LockIsChecked,
 }
 
 #[derive(Debug, Clone, PartialEq, Hash)]
@@ -518,11 +581,27 @@ pub enum CheckboxStyleParam {
     BkgColor,
     BkgColorAlpha,
     BkgRgba,
+
     IconColor,
     IconColorAlpha,
     IconRgba,
+
     BorderRadius,
+    BorderRounded,
+
+    BorderRadiusTop,
+    BorderRadiusTopLeft,
+    BorderRadiusTopRight,
+
+    BorderRadiusBottom,
+    BorderRadiusBottomLeft,
+    BorderRadiusBottomRight,
+
+    BorderRadiusLeft,
+    BorderRadiusRight,
+
     BorderWidth,
+    
     TextColor,
     TextColorAlpha,
     TextRgba,
@@ -561,6 +640,7 @@ impl WidgetParamUpdate for CheckBox {
             CheckboxParam::Active => set_t_value(&mut self.active, value, "CheckboxParam::Active"),
             CheckboxParam::Hovered => set_t_value(&mut self.hovered, value, "CheckboxParam::Hovered"),
             CheckboxParam::Disabled => set_t_value(&mut self.disabled, value, "CheckboxParam::Disabled"),
+            CheckboxParam::LockIsChecked => set_t_value(&mut self.lock_is_checked, value, "CheckboxParam::LockIsChecked"),
         }
     }
 }
@@ -576,11 +656,20 @@ impl WidgetParamUpdate for CheckboxStyle {
             CheckboxStyleParam::IconColor => set_t_value(&mut self.icon_color, value, "CheckboxStyleParam::IconColor"),
             CheckboxStyleParam::IconColorAlpha => set_t_value(&mut self.icon_color_alpha, value, "CheckboxStyleParam::IconColorAlpha"),
             CheckboxStyleParam::IconRgba => set_t_value(&mut self.icon_rgba, value, "CheckboxStyleParam::IconRgba"),
-            CheckboxStyleParam::BorderRadius => set_t_value(&mut self.border_radius, value, "CheckboxStyleParam::BorderRadius"),
             CheckboxStyleParam::BorderWidth => set_t_value(&mut self.border_width, value, "CheckboxStyleParam::BorderWidth"),
             CheckboxStyleParam::TextColor => set_t_value(&mut self.text_color, value, "CheckboxStyleParam::TextColor"),
             CheckboxStyleParam::TextColorAlpha => set_t_value(&mut self.text_color_alpha, value, "CheckboxStyleParam::TextColorAlpha"),
             CheckboxStyleParam::TextRgba => set_t_value(&mut self.text_rgba, value, "CheckboxStyleParam::TextRgbaColor"),
+            CheckboxStyleParam::BorderRadius => set_t_value(&mut self.border_radius, value, "CheckboxStyleParam::BorderRadius"),
+            CheckboxStyleParam::BorderRounded => set_t_value(&mut self.border_rounded, value, "CheckboxStyleParam::BorderRounded"),
+            CheckboxStyleParam::BorderRadiusTop => set_t_value(&mut self.border_radius_top, value, "CheckboxStyleParam::BorderRadiusTop"),
+            CheckboxStyleParam::BorderRadiusTopLeft => set_t_value(&mut self.border_radius_top_left, value, "CheckboxStyleParam::BorderRadiusTopLeft"),
+            CheckboxStyleParam::BorderRadiusTopRight => set_t_value(&mut self.border_radius_top_right, value, "CheckboxStyleParam::BorderRadiusTopRight"),
+            CheckboxStyleParam::BorderRadiusBottom => set_t_value(&mut self.border_radius_bottom, value, "CheckboxStyleParam::BorderRadiusBottom"),
+            CheckboxStyleParam::BorderRadiusBottomLeft => set_t_value(&mut self.border_radius_bottom_left, value, "CheckboxStyleParam::BorderRadiusBottomLeft"),
+            CheckboxStyleParam::BorderRadiusBottomRight => set_t_value(&mut self.border_radius_bottom_right, value, "CheckboxStyleParam::BorderRadiusBottomRight"),
+            CheckboxStyleParam::BorderRadiusLeft => set_t_value(&mut self.border_radius_left, value, "CheckboxStyleParam::BorderRadiusLeft"),
+            CheckboxStyleParam::BorderRadiusRight => set_t_value(&mut self.border_radius_right, value, "CheckboxStyleParam::BorderRadiusRight"),
         }
     }
 }

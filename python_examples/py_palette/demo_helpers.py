@@ -7,10 +7,13 @@ from typing import TYPE_CHECKING
 from icedpygui import (
     add_button,
     add_button_style,
-    add_checkbox,
     CheckboxParam,
+    PickListParam,
+    add_pick_list,
     get_color_palette,
-    update_widget
+    move_widget,
+    update_widget,
+    update_widget_params,
 )
 from python_examples.py_palette.widget_helpers import set_widget_status
 
@@ -23,11 +26,8 @@ def demo_populate_widget_checkboxes(pc: PaletteCreator):
     color = pc.widget_config.selected_color
     pc.palette = get_color_palette(rgba=color)
     statuses = pc.widget_config.statuses
-    print(statuses)
+    parts = pc.widget_config.parts
     pal_by_name = {str(k).rsplit('.', maxsplit=1)[-1]: v for k, v in pc.palette.items()}
-
-    # Initialize the checkbox grid (8 rows x 4 columns)
-    pc.checkbox_grid = [[] for _ in range(8)]
 
     # add the palette color buttons (one per status/column)
     idx = 0
@@ -41,27 +41,72 @@ def demo_populate_widget_checkboxes(pc: PaletteCreator):
                             width=100,
                             padding=[10],
                             style_id=btn_style_id)
-            pc.widget_ids.append(widget_id)
+            pc.palette_widget_ids.append(widget_id)
+            part_id = add_pick_list(parent_id=pc.row_ids[idx],
+                                    options=parts,
+                                    placeholder="Select a part",
+                                    width=100)
+            pc.palette_parts_ids.append(part_id)
             idx += 1
 
-    # Create checkboxes in a 8x4 matrix (8 rows x 4 statuses/columns)
-    for _c, (idx, status) in enumerate(enumerate(statuses)):
-        for r in range(8):
-            cb_id = add_checkbox(
-                        parent_id=pc.row_ids[r],
-                        label=status,
-                        on_toggle=demo_on_status_checked,
-                        user_data=pc,
-                        )
-            pc.checkbox_grid[r].append((cb_id, False))
+    # Update checkboxes in a 8x#statuses matrix (8 rows x statuses/columns)
+    # Also set picklist initial selection to first part (Background)
+    default_part = parts[0] if parts else None
 
-    demo_set_widget_statuses():
+    row_idx = 0
+    for pal_name in pal_by_name.items():
+        if "Text" not in pal_name[0]:  # Check the key part of the tuple
+            palette_tier_name = pal_name[0]
 
+            # Check if default_part has rules for this palette tier; if so, select it in picklist
+            if default_part and row_idx < len(pc.palette_parts_ids):
+                # Check if any rule exists for this part+palette_tier combination
+                has_rules = any(
+                    should_checkbox_be_checked(pc, status, palette_tier_name, default_part)
+                    for status in statuses
+                )
+                if has_rules:
+                    update_widget(
+                        pc.palette_parts_ids[row_idx],
+                        PickListParam.Selected,
+                        default_part
+                    )
 
+            for col_idx, status in enumerate(statuses):
+                # Check if this palette_tier+status+part combination has a rule
+                is_checked = should_checkbox_be_checked(pc, status, palette_tier_name, default_part)
 
-def demo_set_widget_statuses():
-    """Set the status based on the loaded config file"""
-    
+                update_widget_params(pc.checkbox_grid[row_idx][col_idx][0], {
+                    CheckboxParam.Show: True,
+                    CheckboxParam.Label: status,
+                    CheckboxParam.IsChecked: is_checked,
+                })
+                # Update the grid with the correct checked state
+                pc.checkbox_grid[row_idx][col_idx] = (pc.checkbox_grid[row_idx][col_idx][0], is_checked)
+
+            move_widget(wid=pc.palette_widget_ids[row_idx], move_before=pc.checkbox_grid[row_idx][0][0])
+            move_widget(wid=pc.palette_parts_ids[row_idx], move_before=pc.checkbox_grid[row_idx][0][0])
+            row_idx += 1
+
+def should_checkbox_be_checked(pc, status: str, palette_tier_name: str, part_name: str = None) -> bool:
+    """Check if checkbox should be checked based on part rule matching the palette tier.
+
+    A checkbox is checked if:
+    - There exists a rule for (status, variant, part_name)
+    - AND that rule's key (palette tier) matches the palette_tier_name
+    """
+    if not part_name:
+        part_name = pc.widget_config.parts[0] if pc.widget_config.parts else None
+    if not part_name:
+        return False
+
+    # Check all variants to find a matching rule
+    for variant in pc.widget_config.state_variants:
+        rule = pc.widget_config.get_rule(status, variant, part_name)
+        if rule and rule.key == palette_tier_name:
+            return True
+    return False
+
 
 def demo_on_status_checked(cb_id: int, is_checked: bool, pc: PaletteCreator):
     """

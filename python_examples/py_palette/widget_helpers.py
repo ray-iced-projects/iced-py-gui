@@ -250,7 +250,24 @@ class WidgetConfig:
 
     @classmethod
     def from_config_dict(cls, data: dict) -> "WidgetConfig":
-        """Build a WidgetConfig from a parsed YAML config dict."""
+        """Build a WidgetConfig from a parsed YAML config dict (part-oriented).
+
+        Converts part-oriented YAML structure to internal (status, variant) -> parts structure.
+        YAML structure:
+          - part: Background
+            statuses:
+              Active:               # Single-variant: {key, alpha, description}
+                key: Base
+                alpha: 1.0
+              OR
+              Active:               # Multi-variant: {Unchecked: {...}, Checked: {...}}
+                Unchecked:
+                  key: Base
+                  alpha: 1.0
+                Checked:
+                  key: Strong
+                  alpha: 1.0
+        """
         cfg = cls(
             widget=data.get("widget", ""),
             selected_color=list(data.get("selected_color", [0.0, 0.0, 0.0, 1.0])),
@@ -258,18 +275,37 @@ class WidgetConfig:
             state_variants=list(data.get("state_variants", [])),
             parts=list(data.get("parts", [])),
         )
-        for mapping in data.get("palette_mappings", []):
-            key = (mapping.get("status"), mapping.get("variant"))
-            rules: dict[str, PartRule] = {}
-            for part in mapping.get("parts", []):
-                rule = PartRule(
-                    part=part.get("part"),
-                    key=part.get("key"),
-                    alpha=part.get("alpha", 1.0),
-                    description=part.get("description", ""),
-                )
-                rules[rule.part] = rule
-            cfg.mappings[key] = rules
+        # Parse part-oriented YAML and convert to (status, variant) -> parts structure
+        for part_mapping in data.get("palette_mappings", []):
+            part_name = part_mapping.get("part")
+            statuses_dict = part_mapping.get("statuses", {})
+
+            for status, status_value in statuses_dict.items():
+                if not isinstance(status_value, dict):
+                    continue
+
+                # Detect structure: "key" in dict means single-variant, else multi-variant
+                if "key" in status_value:
+                    # Single-variant case: {key, alpha, description}
+                    variant = cfg.state_variants[0] if cfg.state_variants else "NoVariant"
+                    rule = PartRule(
+                        part=part_name,
+                        key=status_value.get("key"),
+                        alpha=status_value.get("alpha", 1.0),
+                        description=status_value.get("description", ""),
+                    )
+                    cfg.mappings.setdefault((status, variant), {})[part_name] = rule
+                else:
+                    # Multi-variant case: {variant1: {...}, variant2: {...}}
+                    for variant, rule_data in status_value.items():
+                        if isinstance(rule_data, dict) and "key" in rule_data:
+                            rule = PartRule(
+                                part=part_name,
+                                key=rule_data.get("key"),
+                                alpha=rule_data.get("alpha", 1.0),
+                                description=rule_data.get("description", ""),
+                            )
+                            cfg.mappings.setdefault((status, variant), {})[part_name] = rule
         return cfg
 
     def get_rule(self, status: str, variant: str, part: str) -> PartRule | None:
@@ -291,23 +327,33 @@ class WidgetConfig:
                 del self.mappings[(status, variant)]
 
     def to_config_dict(self) -> dict:
-        """Serialize back to the YAML config dict shape."""
-        palette_mappings = [
-            {
-                "status": status,
-                "variant": variant,
-                "parts": [
-                    {
-                        "part": r.part,
-                        "key": r.key,
-                        "alpha": r.alpha,
-                        "description": r.description,
-                    }
-                    for r in rules.values()
-                ],
-            }
-            for (status, variant), rules in self.mappings.items()
-        ]
+        """Serialize back to the part-oriented YAML config dict shape."""
+        # Reorganize from (status, variant) -> parts to parts -> statuses
+        parts_index: dict[str, dict] = {}
+
+        for (status, variant), rules in self.mappings.items():
+            for part_name, rule in rules.items():
+                if part_name not in parts_index:
+                    parts_index[part_name] = {"part": part_name, "statuses": {}}
+
+                if status not in parts_index[part_name]["statuses"]:
+                    parts_index[part_name]["statuses"][status] = {}
+
+                # Store rule data indexed by variant if multi-variant, else directly
+                rule_data = {
+                    "key": rule.key,
+                    "alpha": rule.alpha,
+                    "description": rule.description,
+                }
+
+                if len(self.state_variants) > 1:
+                    # Multi-variant: nest under variant key
+                    parts_index[part_name]["statuses"][status][variant] = rule_data
+                else:
+                    # Single variant: store directly
+                    parts_index[part_name]["statuses"][status] = rule_data
+
+        palette_mappings = list(parts_index.values())
         return {
             "widget": self.widget,
             "selected_color": self.selected_color,

@@ -1,8 +1,8 @@
 # ============================================================================
-# Button Widget Palette Configuration
+# Button Widget Palette Configuration (Part-Oriented)
 # ============================================================================
-# Defines default palette mappings for button widget states and styles.
-# Used to generate custom palettes with status-specific color/text/border rules.
+# Defines palette mappings for button widget parts and their status-specific rules.
+# Organized by PART to easily query which statuses use which palette tiers.
 
 widget: button
 
@@ -13,7 +13,7 @@ selected_color: [0.32, 0.2, 0.13, 1.0]
 metadata:
   description: "Button widget palette configuration"
   palette_enabled: true
-  
+
 # Available statuses for this widget
 statuses:
   - Active
@@ -32,91 +32,95 @@ parts:
   - Border
 
 # ============================================================================
-# Palette Definitions
+# Palette Mappings (Part-Oriented)
 # ============================================================================
-# Each status maps to palette keys for Background, Text, and Border.
-# Format: 
-#   - status: <WidgetStatus>
-#     variant: <StateVariant>
-#     parts:
-#       - part: <StylePart>
-#         key: <PaletteKey>
-#         alpha: <0.0 - 1.0>
+# Each part defines rules for how different statuses should be styled.
+# For a given part and status, specifies which palette tier (key) to use.
+#
+# This structure allows easy querying:
+#   "For part='Background' and status='Active', which palette tier (key) is used?"
+#
+# Format:
+#   - part: <StylePart>
+#     statuses:
+#       <status>:
+#         key: <PaletteKey>          # Which palette tier (Base, Strong, Stronger, etc.)
+#         alpha: <0.0 - 1.0>         # Transparency level
+#         description: <string>      # Purpose/rationale for this choice
 
 palette_mappings:
-  
-  # Active State - Default button appearance
-  - status: Active
-    variant: NoVariant
-    parts:
-      - part: Background
+
+  # ========================================================================
+  # Background Part - Controls the button's background color
+  # ========================================================================
+  - part: Background
+    statuses:
+      Active:
         key: Base
         alpha: 1.0
-        description: "Base color for button background"
+        description: "Base color for default button appearance"
       
-      - part: Text
-        key: BaseText
-        alpha: 0.8
-        description: "Readable text on base background"
-      
-      - part: Border
-        key: Stronger
-        alpha: 1.0
-        description: "Subtle border using stronger palette tier"
-
-  # Hovered State - When mouse hovers over button
-  - status: Hovered
-    variant: NoVariant
-    parts:
-      - part: Background
+      Hovered:
         key: Strong
         alpha: 1.0
-        description: "Strong color to indicate hover"
+        description: "Strong color to indicate hover state"
       
-      - part: Text
-        key: StrongText
-        alpha: 0.8
-        description: "High contrast text on strong background"
-      
-      - part: Border
-        key: Strongest
-        alpha: 1.0
-        description: "Pronounced border on hover"
-
-  # Pressed State - When button is actively clicked
-  - status: Pressed
-    variant: NoVariant
-    parts:
-      - part: Background
+      Pressed:
         key: Base
         alpha: 1.0
         description: "Return to base for pressed state"
       
-      - part: Text
-        key: BaseText
-        alpha: 0.8
-        description: "Text remains consistent with base"
-      
-      - part: Border
-        key: Stronger
-        alpha: 1.0
-        description: "Border returns to stronger tier"
-
-  # Disabled State - Button is disabled/inactive
-  - status: Disabled
-    variant: NoVariant
-    parts:
-      - part: Background
+      Disabled:
         key: Base
         alpha: 0.5
-        description: "Semi-transparent background"
+        description: "Semi-transparent base indicates disabled"
+
+  # ========================================================================
+  # Text Part - Controls button text color
+  # ========================================================================
+  - part: Text
+    statuses:
+      Active:
+        key: BaseText
+        alpha: 0.8
+        description: "Readable text on base background"
       
-      - part: Text
+      Hovered:
+        key: StrongText
+        alpha: 0.8
+        description: "High contrast text on strong background"
+      
+      Pressed:
+        key: BaseText
+        alpha: 0.8
+        description: "Text consistent with base state"
+      
+      Disabled:
         key: BaseText
         alpha: 0.5
         description: "Dimmed text indicates disabled state"
+
+  # ========================================================================
+  # Border Part - Controls button border color
+  # ========================================================================
+  - part: Border
+    statuses:
+      Active:
+        key: Stronger
+        alpha: 1.0
+        description: "Subtle border using stronger palette tier"
       
-      - part: Border
+      Hovered:
+        key: Strongest
+        alpha: 1.0
+        description: "Pronounced border on hover for emphasis"
+      
+      Pressed:
+        key: Stronger
+        alpha: 1.0
+        description: "Border returns to stronger tier"
+      
+      Disabled:
         key: Stronger
         alpha: 0.5
         description: "Faded border indicates disabled state"

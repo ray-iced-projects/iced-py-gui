@@ -1,8 +1,8 @@
 # ============================================================================
-# Checkbox Widget Palette Configuration
+# Checkbox Widget Palette Configuration (Part-Oriented)
 # ============================================================================
-# Defines default palette mappings for checkbox widget states and styles.
-# Used to generate custom palettes with status-specific color/text/border rules.
+# Defines palette mappings for checkbox widget parts and their status-specific rules.
+# Organized by PART for easy querying of which statuses/variants use which palette tiers.
 
 widget: checkbox
 
@@ -33,148 +33,152 @@ parts:
   - Icon
 
 # ============================================================================
-# Palette Definitions
+# Palette Mappings (Part-Oriented)
 # ============================================================================
-# Each status/variant maps to palette keys for Background, Text, Border, and Icon.
-# The Icon part is only used in the Checked variant.
+# Each part defines rules for how different statuses/variants should be styled.
+# For a given part, status, and variant, specifies which palette tier (key) to use.
+#
+# This structure allows easy querying:
+#   "For part='Background' and status='Active', which palette tiers for each variant?"
+#
 # Format:
-#   - status: <WidgetStatus>
-#     variant: <StateVariant>
-#     parts:
-#       - part: <StylePart>
-#         key: <PaletteKey>
-#         alpha: <0.0 - 1.0>
+#   - part: <StylePart>
+#     statuses:
+#       <status>:
+#         <variant>:
+#           key: <PaletteKey>          # Which palette tier
+#           alpha: <0.0 - 1.0>         # Transparency level
+#           description: <string>      # Purpose/rationale
 
 palette_mappings:
 
-  # Active State - Unchecked
-  - status: Active
-    variant: Unchecked
-    parts:
-      - part: Background
-        key: Base
-        alpha: 1.0
-        description: "Base color for checkbox background"
+  # ========================================================================
+  # Background Part - Checkbox background color
+  # ========================================================================
+  - part: Background
+    statuses:
+      Active:
+        Unchecked:
+          key: Base
+          alpha: 1.0
+          description: "Base background for unchecked state"
+        Checked:
+          key: Base
+          alpha: 1.0
+          description: "Base background for checked state"
+      
+      Hovered:
+        Unchecked:
+          key: Weak
+          alpha: 1.0
+          description: "Weak background on hover (unchecked)"
+        Checked:
+          key: Strong
+          alpha: 1.0
+          description: "Strong background on hover (checked)"
+      
+      Disabled:
+        Unchecked:
+          key: Weaker
+          alpha: 1.0
+          description: "Weaker background indicates disabled (unchecked)"
+        Checked:
+          key: Weak
+          alpha: 1.0
+          description: "Weak background indicates disabled (checked)"
 
-      - part: Text
-        key: BaseText
-        alpha: 0.8
-        description: "Readable text on base background"
+  # ========================================================================
+  # Text Part - Checkbox label text color
+  # ========================================================================
+  - part: Text
+    statuses:
+      Active:
+        Unchecked:
+          key: BaseText
+          alpha: 0.8
+          description: "Readable text on base background"
+        Checked:
+          key: BaseText
+          alpha: 0.8
+          description: "Readable text on base background"
+      
+      Hovered:
+        Unchecked:
+          key: BaseText
+          alpha: 0.8
+          description: "Text on weak background (unchecked)"
+        Checked:
+          key: BaseText
+          alpha: 0.8
+          description: "Text on strong background (checked)"
+      
+      Disabled:
+        Unchecked:
+          key: BaseText
+          alpha: 0.8
+          description: "Dimmed text on weaker background"
+        Checked:
+          key: BaseText
+          alpha: 0.8
+          description: "Dimmed text on weak background"
 
-      - part: Border
-        key: Strong
-        alpha: 1.0
-        description: "Border using strong palette tier"
+  # ========================================================================
+  # Border Part - Checkbox border color
+  # ========================================================================
+  - part: Border
+    statuses:
+      Active:
+        Unchecked:
+          key: Strong
+          alpha: 1.0
+          description: "Border using strong palette tier"
+        Checked:
+          key: Strong
+          alpha: 1.0
+          description: "Border using strong palette tier"
+      
+      Hovered:
+        Unchecked:
+          key: Strong
+          alpha: 1.0
+          description: "Border on hover (unchecked)"
+        Checked:
+          key: Strong
+          alpha: 1.0
+          description: "Border on hover (checked)"
+      
+      Disabled:
+        Unchecked:
+          key: Strong
+          alpha: 1.0
+          description: "Border in disabled state (unchecked)"
+        Checked:
+          key: Strong
+          alpha: 1.0
+          description: "Border in disabled state (checked)"
 
-  # Hovered State - Unchecked
-  - status: Hovered
-    variant: Unchecked
-    parts:
-      - part: Background
-        key: Weak
-        alpha: 1.0
-        description: "Weak color to indicate hover"
-
-      - part: Text
-        key: BaseText
-        alpha: 0.8
-        description: "Readable text on weak background"
-
-      - part: Border
-        key: Strong
-        alpha: 1.0
-        description: "Border using strong palette tier"
-
-  # Disabled State - Unchecked
-  - status: Disabled
-    variant: Unchecked
-    parts:
-      - part: Background
-        key: Weaker
-        alpha: 1.0
-        description: "Weaker background indicates disabled state"
-
-      - part: Text
-        key: BaseText
-        alpha: 0.8
-        description: "Dimmed text on weaker background"
-
-      - part: Border
-        key: Strong
-        alpha: 1.0
-        description: "Border using strong palette tier"
-
-  # Active State - Checked
-  - status: Active
-    variant: Checked
-    parts:
-      - part: Background
-        key: Base
-        alpha: 1.0
-        description: "Base color for checked background"
-
-      - part: Icon
-        key: BaseText
-        alpha: 1.0
-        description: "Icon contrasts with base background"
-
-      - part: Text
-        key: BaseText
-        alpha: 0.8
-        description: "Readable text on base background"
-
-      - part: Border
-        key: Strong
-        alpha: 1.0
-        description: "Border using strong palette tier"
-
-  # Hovered State - Checked
-  - status: Hovered
-    variant: Checked
-    parts:
-      - part: Background
-        key: Strong
-        alpha: 1.0
-        description: "Strong color to indicate hover when checked"
-
-      - part: Icon
-        key: BaseText
-        alpha: 1.0
-        description: "Icon contrasts with strong background"
-
-      - part: Text
-        key: BaseText
-        alpha: 0.8
-        description: "Readable text on strong background"
-
-      - part: Border
-        key: Strong
-        alpha: 1.0
-        description: "Border using strong palette tier"
-
-  # Disabled State - Checked
-  - status: Disabled
-    variant: Checked
-    parts:
-      - part: Background
-        key: Weak
-        alpha: 1.0
-        description: "Weak background indicates disabled state when checked"
-
-      - part: Icon
-        key: BaseText
-        alpha: 1.0
-        description: "Icon contrasts with weak background"
-
-      - part: Text
-        key: BaseText
-        alpha: 0.8
-        description: "Dimmed text on weak background"
-
-      - part: Border
-        key: Strong
-        alpha: 1.0
-        description: "Border using strong palette tier"
+  # ========================================================================
+  # Icon Part - Checkmark icon color (only in Checked variant)
+  # ========================================================================
+  - part: Icon
+    statuses:
+      Active:
+        Checked:
+          key: BaseText
+          alpha: 1.0
+          description: "Icon contrasts with base background"
+      
+      Hovered:
+        Checked:
+          key: BaseText
+          alpha: 1.0
+          description: "Icon contrasts with strong background"
+      
+      Disabled:
+        Checked:
+          key: BaseText
+          alpha: 1.0
+          description: "Icon contrasts with weak background"
 
 # ============================================================================
 # Palette Key Tiers Reference

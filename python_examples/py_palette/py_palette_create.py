@@ -40,7 +40,9 @@ from icedpygui import (
     add_file_system_dialog,
     FileSystemDialogCallbackType as FsdCallType,
     FileSystemDialogParam as FsdParam,
+    move_widget,
     update_widget,
+    update_widget_params,
     get_widget_palette_part,
     get_widget_palette_list,
     get_color_palette,
@@ -186,7 +188,8 @@ class PaletteCreator:
         self.widget_name: str = None
         self.widget_parts: dict = {}
         self.widget_config: WidgetConfig = WidgetConfig()
-        self.widget_ids: list[int] = []
+        self.palette_widget_ids: list[int] = []
+        self.palette_parts_ids: list[int] = []
         self.new_widget_row_id: int = None
         self.parts_file: dict = {}
         self.parts_file_name: str = None
@@ -282,7 +285,7 @@ def on_color_text_input(_ti_id: int, text: str):
                       "Invalid color format, use float values")
 
 
-def on_status_checked(cb_id: int, is_checked: bool):
+def on_status_checked(_cb_id: int, is_checked: bool):
     """
     Enforce matrix selection: only one checked per row AND per column.
     On check, clear the rest of the target's row and column, then set it True.
@@ -291,10 +294,10 @@ def on_status_checked(cb_id: int, is_checked: bool):
 
     # Locate the target id in the grid
     target_row = target_col = None
-    for r, row_ in enumerate(grid):
+    for _r, row_ in enumerate(grid):
         for c, (wid, _state) in enumerate(row_):
-            if wid == cb_id:
-                target_row, target_col = r, c
+            if wid == _cb_id:
+                target_row, target_col = _r, c
                 break
         if target_row is not None:
             break
@@ -309,16 +312,16 @@ def on_status_checked(cb_id: int, is_checked: bool):
             grid[target_row][c] = (wid, False)
 
     # Clear every True in the target's column (except the target)
-    for r, row_ in enumerate(grid):
-        if r != target_row:
+    for _r, row_ in enumerate(grid):
+        if _r != target_row:
             wid, checked = row_[target_col]
             if checked:
                 update_widget(wid, CheckboxParam.IsChecked, False)
                 row_[target_col] = (wid, False)
 
     # Set the target to its incoming state
-    update_widget(cb_id, CheckboxParam.IsChecked, is_checked)
-    grid[target_row][target_col] = (cb_id, is_checked)
+    update_widget(_cb_id, CheckboxParam.IsChecked, is_checked)
+    grid[target_row][target_col] = (_cb_id, is_checked)
     set_widget_status(pc, target_row, target_col)
 
 
@@ -326,10 +329,8 @@ def populate_widget_checkboxes(color: list):
     """Updating the widget and checkboxes for palette matrix selection"""
     pc.palette = get_color_palette(rgba=color)
     statuses = pc.widget_parts.get("statuses")
+    parts = pc.widget_parts.get("parts")
     pal_by_name = {str(k).rsplit('.', maxsplit=1)[-1]: v for k, v in pc.palette.items()}
-
-    # Initialize the checkbox grid (8 rows x 4 columns)
-    pc.checkbox_grid = [[] for _ in range(8)]
 
     # add the palette color buttons (one per status/column)
     idx = 0
@@ -343,18 +344,21 @@ def populate_widget_checkboxes(color: list):
                             width=100,
                             padding=[10],
                             style_id=btn_style_id)
-            pc.widget_ids.append(widget_id)
+            pc.palette_widget_ids.append(widget_id)
+            part_id = add_pick_list(options=parts, widht=100)
+            pc.palette_parts_ids.append(part_id)
             idx += 1
 
-    # Create checkboxes in a 8x4 matrix (8 rows x 4 statuses/columns)
-    for _c, (idx, status) in enumerate(enumerate(statuses)):
-        for r in range(8):
-            cb_id = add_checkbox(
-                        parent_id=pc.row_ids[r],
-                        label=status,
-                        on_toggle=on_status_checked,
-                        )
-            pc.checkbox_grid[r].append((cb_id, False))
+    # Update checkboxes in a 8x#statuses matrix (8 rows x statuses/columns)
+    for _r in range(8):
+        for (idx, status) in enumerate(statuses):
+            update_widget_params(pc.checkbox_grid[_r][idx][0], # the id
+                                 {
+                                     CheckboxParam.Show: True,
+                                     CheckboxParam.Label: status,
+                                     CheckboxParam.IsChecked: pc.checkbox_grid[_r][idx][1],
+                                 })
+            move_widget(wid=pc.checkbox_grid[_r][idx][0], move_after=pc.palette_widget_ids[_r])
 
 
 def load_demo(_pl_id: int, selected: str):
@@ -378,7 +382,7 @@ with Window(title="Palette Creator - Interactive Workflow", center=True, size=(1
                       on_select=load_demo)
 
     with Container(width_fill=True, padding=[20]):
-        with Column(spacing=15) as col:
+        with Column(spacing=15, width_fill=True) as col:
             # Instructions
             add_text(content=
                 "Palette Creation Workflow\n")
@@ -416,12 +420,21 @@ with Window(title="Palette Creator - Interactive Workflow", center=True, size=(1
                 pc.new_widget_row_id = new_widget_row_id
             # The selected widget should be placed here
 
-            with Scrollable(width=600, height=275):
+            with Scrollable(width_fill=True, height=275):
                 with Column(spacing=10):
                     for row in range(8):
+                        pc.checkbox_grid.append([])
                         with Row(spacing=10) as row_id:
                             # initialize some ids
                             pc.row_ids.append(row_id)
+                            for r in range(8):
+                                cb_id = add_checkbox(
+                                            parent_id=row_id,
+                                            label="",
+                                            show=False,
+                                            on_toggle=on_status_checked,
+                                            )
+                                pc.checkbox_grid[row].append((cb_id, False))
 
 
 start_session()

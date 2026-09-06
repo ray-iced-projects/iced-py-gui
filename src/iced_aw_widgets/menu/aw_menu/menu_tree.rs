@@ -227,8 +227,13 @@ where
         viewport: &Rectangle,
     ) -> (Node, (Direction, Direction)) {
 
-        let limits = limits
-            .width(Length::Fixed(self.compute_max_available_width(parent_bounds, viewport)));
+        // Cap the max width so the menu doesn't overflow the screen, but keep
+        // min at 0 so `self.width` (applied in flex::resolve) can set a smaller fixed width.
+        let max_available_width = self.compute_max_available_width(parent_bounds, viewport);
+        let limits = Limits::new(
+            Size::ZERO,
+            Size::new(max_available_width, limits.max().height),
+        );
 
         // Ensure all item trees have their widget children initialized before layout
         for (item, item_tree) in self.items.iter_mut().zip(tree.children.iter_mut()) {

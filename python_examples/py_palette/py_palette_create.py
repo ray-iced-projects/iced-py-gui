@@ -29,6 +29,8 @@ from icedpygui import (
     PickListParam,
     add_checkbox,
     CheckboxParam,
+    Menu,
+    MenuBarItem,
     add_text,
     add_text_input,
     TextParam,
@@ -421,20 +423,24 @@ with Window(title="Palette Creator - Interactive Workflow", center=True, size=(1
             # The selected widget should be placed here
 
             with Scrollable(width_fill=True, height=275):
-                with Column(spacing=10):
-                    for row in range(8):
-                        pc.checkbox_grid.append([])
-                        with Row(spacing=10) as row_id:
-                            # initialize some ids
-                            pc.row_ids.append(row_id)
-                            for r in range(8):
-                                cb_id = add_checkbox(
-                                            parent_id=row_id,
-                                            label="",
-                                            show=False,
-                                            on_toggle=on_status_checked,
-                                            )
-                                pc.checkbox_grid[row].append((cb_id, False))
+                with Container(align_center=True, width_fill=True):
+                    with Column(spacing=20):
+                        for col in range(4):
+                            with Row(spacing=30):
+                                with Menu():
+                                    # First item of the MenuBarItem is the bar item followed by the dropdown items
+                                    with MenuBarItem(width=125, spacing=5.0, offset=3.0):
+                                        add_text(content="Parts") # bar item
+                                        # dropdown items
+                                        for i in range(8):
+                                            add_button(label="label")
+
+                                with Menu():
+                                    with MenuBarItem(width=50.0, spacing=5.0, offset=3.0):
+                                        add_text(content="Palette") # bar item
+                                        # dropdown items
+                                        for i in range(8):
+                                            add_button(label="label")
 
 
 start_session()

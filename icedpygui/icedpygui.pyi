@@ -2586,7 +2586,7 @@ class DividerStyleParam:
     BorderRadius: float
     Transparent: bool
 
-class FileSystemDialogParams:
+class FileSystemDialogParam:
     """FileSystemDialogParams"""
     SelectFile: bool
     SelectFolder: bool

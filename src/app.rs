@@ -746,6 +746,13 @@ fn get_menu_children<'a>(
     for child_id in parents[*menu_index].child_ids.iter() {
         // Each child should be a MenuBarItem container
         if parent_ids.contains(child_id) {
+            // Skip MenuBarItems whose `show` is false before building any children.
+            if let Some(bar_item) = state.containers.get(child_id).and_then(Containers::as_menu_bar_item) {
+                if !bar_item.show {
+                    continue;
+                }
+            }
+
             let bar_item_index = parents.iter().position(|r| &r.parent_id == child_id).unwrap();
 
             let mut group: Vec<GroupedItem<'a>> = vec![];

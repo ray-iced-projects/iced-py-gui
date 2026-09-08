@@ -21,6 +21,18 @@ if TYPE_CHECKING:
     from python_examples.py_palette.py_palette_create import PaletteCreator
 
 
+def load_demo_parts_file(pc: PaletteCreator):
+    """Method to load the demo"""
+    file_path = os.path.join(cwd, "python_examples", "py_palette", "widget_palette_parts.yml")
+    try:
+        with open(file_path, "r", encoding='utf-8') as file:
+            pc.parts_file = file.read()
+    except FileNotFoundError:
+        print(f"*********The file does not exist using {file_path}.*******")
+
+    pc.widget_list = get_widget_palette_list(pc.parts_file)
+
+
 def demo_populate_widget_checkboxes(pc: PaletteCreator):
     """Updating the widget and checkboxes for palette matrix selection"""
     color = pc.widget_config.selected_color
@@ -46,7 +58,7 @@ def demo_populate_widget_checkboxes(pc: PaletteCreator):
                                     options=parts,
                                     placeholder="Select a part",
                                     width=100)
-            pc.palette_parts_ids.append(part_id)
+            pc.palette_button_ids.append(part_id)
             idx += 1
 
     # Update checkboxes in a 8x#statuses matrix (8 rows x statuses/columns)
@@ -59,7 +71,7 @@ def demo_populate_widget_checkboxes(pc: PaletteCreator):
             palette_tier_name = pal_name[0]
 
             # Check if default_part has rules for this palette tier; if so, select it in picklist
-            if default_part and row_idx < len(pc.palette_parts_ids):
+            if default_part and row_idx < len(pc.palette_button_ids):
                 # Check if any rule exists for this part+palette_tier combination
                 has_rules = any(
                     should_checkbox_be_checked(pc, status, palette_tier_name, default_part)
@@ -67,7 +79,7 @@ def demo_populate_widget_checkboxes(pc: PaletteCreator):
                 )
                 if has_rules:
                     update_widget(
-                        pc.palette_parts_ids[row_idx],
+                        pc.palette_button_ids[row_idx],
                         PickListParam.Selected,
                         default_part
                     )
@@ -85,7 +97,7 @@ def demo_populate_widget_checkboxes(pc: PaletteCreator):
                 pc.checkbox_grid[row_idx][col_idx] = (pc.checkbox_grid[row_idx][col_idx][0], is_checked)
 
             move_widget(wid=pc.palette_widget_ids[row_idx], move_before=pc.checkbox_grid[row_idx][0][0])
-            move_widget(wid=pc.palette_parts_ids[row_idx], move_before=pc.checkbox_grid[row_idx][0][0])
+            move_widget(wid=pc.palette_button_ids[row_idx], move_before=pc.checkbox_grid[row_idx][0][0])
             row_idx += 1
 
 def should_checkbox_be_checked(pc, status: str, palette_tier_name: str, part_name: str = None) -> bool:

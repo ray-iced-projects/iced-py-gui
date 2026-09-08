@@ -308,6 +308,72 @@ class WidgetConfig:
                             cfg.mappings.setdefault((status, variant), {})[part_name] = rule
         return cfg
 
+    @classmethod
+    def get_unique_parts_from_file(cls, parts_file: str) -> list[str]:
+        """Extract all unique parts across all widgets from the parts YAML file.
+
+        Args:
+            parts_filea: YAML file content as a string (widget_palette_parts.yml)
+
+        Returns:
+            Sorted list of unique part names (e.g., ['Background', ...])
+        """
+        try:
+            with open(parts_file, encoding='utf-8') as stream:
+                data = yaml.safe_load(stream)
+
+            if not data:
+                print("yml file not found")
+                return []
+
+            unique_parts = set()
+
+            # Iterate through all widget definitions in the YAML
+            for _widget_name, widget_config in data.items():
+                # Skip non-dict entries (like file_type, version)
+                if isinstance(widget_config, dict) and 'parts' in widget_config:
+                    parts_list = widget_config['parts']
+                    if isinstance(parts_list, list):
+                        unique_parts.update(parts_list)
+
+            # Return sorted list for consistent ordering
+            return sorted(list(unique_parts))
+
+        except Exception as e:
+            print(f"Error parsing parts file: {e}")
+            return []
+
+    @classmethod
+    def get_widget_names_from_file(cls, parts_file: str) -> list[str]:
+            """Extract all widgets names across all widgets from the parts YAML file.
+
+            Args:
+                parts_file: YAML file content as a string (widget_palette_parts.yml)
+
+            Returns:
+                Sorted list of names (e.g., ['button', ...])
+            """
+            try:
+                with open(parts_file, encoding='utf-8') as stream:
+                    data = yaml.safe_load(stream)
+
+                if not data:
+                    print("yml file not found")
+                    return []
+
+                names = []
+
+                # Iterate through all widget definitions in the YAML
+                for name, _widget_config in data.items():
+                    names.append(name)
+
+                # Return sorted list for consistent ordering
+                return sorted(list(names))
+
+            except Exception as e:
+                print(f"Error parsing parts file: {e}")
+                return []
+
     def get_rule(self, status: str, variant: str, part: str) -> PartRule | None:
         """Return the PartRule for a status/variant/part, or None."""
         return self.mappings.get((status, variant), {}).get(part)
@@ -384,6 +450,7 @@ def load_demo_config(pc: PaletteCreator) -> PaletteCreator:
     try:
         with open(file_path, "r", encoding='utf-8') as file:
             config_file = file.read()
+
     except FileNotFoundError:
         print(f"*********The file does not exist using {file_path}.*******")
         return pc

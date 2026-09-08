@@ -111,8 +111,14 @@ impl Menu {
                     menu_bar, 
                     menu
                     );
+     
             bar_items.push(bar_item);
             
+        }
+
+        // No visible bar items: skip rendering to avoid an empty MenuBar panic.
+        if bar_items.is_empty() {
+            return None;
         }
 
         let mut mb: MenuBar<'a, app::Message, Theme, Renderer> = 

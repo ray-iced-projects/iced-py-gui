@@ -10,12 +10,12 @@ Workflow:
 """
 
 import json
-import yaml
 from pathlib import Path
 import os
-from python_examples.py_palette.demo_helpers import demo_populate_widget_checkboxes
+
+from python_examples.py_palette.demo_helpers import demo_populate_palette_area
 from python_examples.py_palette.widget_helpers import (
-    WidgetConfig, load_demo_config, match_widget_str, place_widgets, set_widget_status)
+    WidgetConfig, load_demo_config, match_widget_str, place_widget, set_widget_status)
 from icedpygui import (
     Window,
     ColorPicker,
@@ -189,11 +189,12 @@ class PaletteCreator:
         self.widget_parts: dict = {}
         self.widget_config: WidgetConfig = WidgetConfig()
         self.palette_widget_ids: list[int] = []
-        self.palette_button_ids: list[int] = []
+        self.palette_menu_item_btn_ids: list[int] = []
         self.new_widget_row_id: int = None
         self.parts_file: dict = {}
         self.parts_file_name: str = None
         self.unique_parts_list: list[str] = []
+        self.unique_status_list: list[str] = []
         self.parts_list_ids: list[int] = []
         self.current_color: list[float, 4] = []
         self.palette: dict = {}
@@ -204,10 +205,10 @@ class PaletteCreator:
         self.checkbox_grid: list[list[int, 2]] = [] # 2D grid: [row][col] for matrix selection
         self.menu_bar_item_id: int = None # MenuBarItem is hidden until populated
 
-    def set_new_widgets(self, widget_str: str):
+    def set_new_widget(self, widget_str: str):
         """Place the selected widget"""
         widget = match_widget_str(widget_str)
-        place_widgets(self, widget)
+        place_widget(self, widget)
 
 
 
@@ -230,7 +231,7 @@ def load_parts_file(_btn_id: int):
 def on_file_path_selected(_fsd_id: int, results: tuple[FsdType, str]):
     """Callback results for the FSD"""
     _fsd_type, file_path = results
-    pc.unique_parts_list = WidgetConfig.get_unique_parts_from_file(file_path)
+    pc.unique_parts_list = WidgetConfig.get_unique_parts_status_from_file(file_path)
 
 
 # Setup the FSD to select the file name
@@ -249,7 +250,7 @@ def parse_parts_selection(_pl_id: int, selection: str):
     """Parsing the parts file for the selected widget"""
     pc.widget_parts = get_widget_palette_part(selection, pc.parts_file)
     pc.widget_name = selection
-    pc.set_new_widgets(selection)
+    pc.set_new_widget(selection)
 
 
 def on_color_picked(_cp_id: int, color: list[float]):
@@ -333,25 +334,28 @@ def populate_widget_checkboxes(color: list):
                             style_id=btn_style_id)
             pc.palette_widget_ids.append(widget_id)
             part_id = add_pick_list(options=parts, widht=100)
-            pc.palette_button_ids.append(part_id)
+            pc.palette_menu_item_btn_ids.append(part_id)
             idx += 1
 
     # Update checkboxes in a 8x#statuses matrix (8 rows x statuses/columns)
     for _r in range(8):
-        for (idx, status) in enumerate(statuses):
+        for (idx, status_) in enumerate(statuses):
             update_widget_params(pc.checkbox_grid[_r][idx][0], # the id
                                  {
                                      CheckboxParam.Show: True,
-                                     CheckboxParam.Label: status,
+                                     CheckboxParam.Label: status_,
                                      CheckboxParam.IsChecked: pc.checkbox_grid[_r][idx][1],
                                  })
             move_widget(wid=pc.checkbox_grid[_r][idx][0], move_after=pc.palette_widget_ids[_r])
 
+def on_palette_selected(_btn_id):
+    """update the selected widget palette"""
+    pass
 
 # populate the dropdown for the demo widgets
 parts_file_path = os.path.join(cwd, "python_examples", "py_palette", "widget_palette_parts.yml")
 pc.widget_list = WidgetConfig.get_widget_names_from_file(parts_file_path)
-pc.unique_parts_list = WidgetConfig.get_unique_parts_from_file(parts_file_path)
+(pc.unique_parts_list, pc.unique_status_list) = WidgetConfig.get_unique_parts_status_from_file(parts_file_path)
 
 def load_demo(_pl_id: int, selected: str):
     """Loading a demo setup"""
@@ -359,7 +363,8 @@ def load_demo(_pl_id: int, selected: str):
     load_demo_config(pc)
     update_widget(selected_color_txt_id, TextParam.Content,
                   f"Selected color = {pc.widget_config.selected_color}")
-    # demo_populate_widget_checkboxes(pc)
+    pc.set_new_widget(selected)
+    demo_populate_palette_area(pc)
 
 
 # ============================================================================
@@ -413,24 +418,28 @@ with Window(title="Palette Creator - Interactive Workflow", center=True, size=(1
             # The selected widget should be placed here
 
             # This area is hidden until the color and widget is selected
+            # area prepopulated with widget that only need to be updated later
+            # one could take the approach to add these widgets as needed.
             with Scrollable(width_fill=True, height=275):
                 with Row(spacing=20):
                     with Column(spacing=20):
-                        for part in pc.unique_parts_list:
-                            pc.parts_list_ids.append(
-                                add_text(content=part, show=False))
+                        for (pt_idx, part) in enumerate(pc.unique_parts_list):
+                            pc.parts_list_ids.append([])
+                            for status in pc.unique_status_list:
+                                pc.parts_list_ids[pt_idx].append(
+                                    add_text(content=f"{part}-{status}", show=False))
                     with Column(spacing=20):
-                        for _part in pc.unique_parts_list:
+                        for pt_idx in range(len(pc.unique_parts_list)*8):
+                            pc.palette_menu_item_btn_ids.append([])
                             with Menu(width=100):
                                 with MenuBarItem(width=100.0, spacing=5.0, offset=3.0,
                                                 close_on_item_click=True,
                                                 close_on_background_click=True,
-                                                show=False) as pc.menu_bar_item_id:
+                                                show=False):
                                     add_text(content="Palettes") # bar item
                                     # dropdown items
-                                    for i in range(8):
-                                        pc.palette_button_ids.append(
-                                            add_button(label="Pal"))
-
+                                    for _ in range(8):
+                                        pc.palette_menu_item_btn_ids[pt_idx].append(
+                                            add_button(label="Pal", on_press=on_palette_selected))
 
 start_session()

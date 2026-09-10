@@ -76,7 +76,7 @@ use crate::py_api::text_editor::{add_text_editor, add_text_editor_style};
 use crate::py_api::text_rich::{add_rich_text, add_span};
 use crate::py_api::toggle::{add_toggler, add_toggler_style};
 use crate::py_api::tool_tip::add_tool_tip;
-use crate::py_api::update::{update_widget, update_widget_params, delete_widget, hide_widget, move_widget, show_widget};
+use crate::py_api::widget_parameters::{update_widget, update_widget_params, delete_widget, hide_widget, move_widget, show_widget};
 
 // Import enums from widgets module
 use crate::widgets::enums::ContentFit;

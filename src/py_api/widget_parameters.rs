@@ -195,3 +195,16 @@ pub fn move_widget(
     drop(all_updates);
 }
 
+
+#[pyfunction]
+#[pyo3(signature = (
+    wid, 
+    ))]
+pub fn get_widget_parameters(
+    wid: usize,
+    parameters: Vec<WidgetParameter>,)
+{
+    
+    
+    
+}

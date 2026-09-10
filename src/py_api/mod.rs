@@ -49,4 +49,4 @@ pub mod timer;
 pub mod toggle;
 pub mod tool_tip;
 pub mod helpers;
-pub mod update;
+pub mod widget_parameters;

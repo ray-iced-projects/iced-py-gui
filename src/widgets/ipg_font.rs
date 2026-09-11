@@ -223,15 +223,13 @@ pub struct IpgIcon {
 
 impl IpgIcon {
     /// Convert to an iced `pick_list::Icon`.
-    pub fn to_iced(&self) -> pick_list::Icon<iced::Font> {
+    pub fn to_iced(&self) -> pick_list::Icon {
         
         pick_list::Icon {
             font: self.font,
             code_point: self.code_point,
             size: self.size.map(Pixels),
-            line_height: self.line_height
-                .map(LineHeight::Relative)
-                .unwrap_or(LineHeight::Relative(1.0)),
+            line_height: self.line_height.map(LineHeight::Relative),
             shaping: iced::advanced::text::Shaping::default(),
         }
     }

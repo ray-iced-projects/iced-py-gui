@@ -336,21 +336,25 @@ where
         renderer: &Renderer,
         viewport: &Rectangle,
         translation: Vector,
-    ) -> Option<overlay::Element<'b, Message, Theme, Renderer>> {
+    ) -> Vec<overlay::Element<'b, Message, Theme, Renderer>> {
         let mut children = tree.children.iter_mut();
 
-        let widget_overlay = self.widget.as_mut().and_then(|widget| {
-            widget.as_widget_mut().overlay(
-                children.next().unwrap(),
-                layout,
-                renderer,
-                viewport,
-                translation,
-            )
-        });
+        let mut overlays = self
+            .widget
+            .as_mut()
+            .map(|widget| {
+                widget.as_widget_mut().overlay(
+                    children.next().unwrap(),
+                    layout,
+                    renderer,
+                    viewport,
+                    translation,
+                )
+            })
+            .unwrap_or_default();
 
-        let content = if self.opened {
-            Some(overlay::Element::new(Box::new(Overlay {
+        if self.opened {
+            overlays.push(overlay::Element::new(Box::new(Overlay {
                 position: layout.position() + translation,
                 content: &mut self.content,
                 tree: children.next().unwrap(),
@@ -363,19 +367,10 @@ where
                 on_click_outside: self.on_click_outside.as_deref(),
                 id: self.id.clone(),
                 focus_trap: self.focus_trap,
-            })))
-        } else {
-            None
-        };
-
-        if widget_overlay.is_some() || content.is_some() {
-            Some(
-                overlay::Group::with_children(widget_overlay.into_iter().chain(content).collect())
-                    .overlay(),
-            )
-        } else {
-            None
+            })));
         }
+
+        overlays
     }
 
     fn operate(
@@ -623,7 +618,7 @@ where
         &'c mut self,
         layout: Layout<'c>,
         renderer: &Renderer,
-    ) -> Option<overlay::Element<'c, Message, Theme, Renderer>> {
+    ) -> Vec<overlay::Element<'c, Message, Theme, Renderer>> {
         self.content.as_widget_mut().overlay(
             self.tree,
             layout.children().next().unwrap(),

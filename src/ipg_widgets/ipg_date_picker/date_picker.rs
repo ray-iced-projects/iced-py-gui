@@ -207,10 +207,10 @@ where
         renderer: &Renderer,
         viewport: &Rectangle,
         translation: Vector,
-    ) -> Option<overlay::Element<'b, Message, Theme, Renderer>> {
+    ) -> Vec<overlay::Element<'b, Message, Theme, Renderer>> {
         let mut children = tree.children.iter_mut();
 
-        let button = self.button.as_widget_mut().overlay(
+        let mut overlays = self.button.as_widget_mut().overlay(
             children.next().unwrap(),
             layout,
             renderer,
@@ -218,8 +218,8 @@ where
             translation,
         );
 
-        let content = if self.opened {
-            Some(overlay::Element::new(Box::new(Overlay {
+        if self.opened {
+            overlays.push(overlay::Element::new(Box::new(Overlay {
                 position: layout.position() + translation,
                 content: &mut self.content,
                 tree: children.next().unwrap(),
@@ -230,19 +230,10 @@ where
                 gap: self.gap,
                 padding: self.padding,
                 class: &self.class,
-            })))
-        } else {
-            None
-        };
-
-        if button.is_some() || content.is_some() {
-            Some(
-                overlay::Group::with_children(button.into_iter().chain(content).collect())
-                    .overlay(),
-            )
-        } else {
-            None
+            })));
         }
+
+        overlays
     }
 
     fn operate(
@@ -473,7 +464,7 @@ where
         &'c mut self,
         layout: Layout<'c>,
         renderer: &Renderer,
-    ) -> Option<overlay::Element<'c, Message, Theme, Renderer>> {
+    ) -> Vec<overlay::Element<'c, Message, Theme, Renderer>> {
         self.content.as_widget_mut().overlay(
             self.tree,
             layout.children().next().unwrap(),

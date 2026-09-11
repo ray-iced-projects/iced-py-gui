@@ -350,12 +350,13 @@ def populate_widget_checkboxes(color: list):
 
 def on_palette_selected(_btn_id):
     """update the selected widget palette"""
-    pass
+
 
 # populate the dropdown for the demo widgets
 parts_file_path = os.path.join(cwd, "python_examples", "py_palette", "widget_palette_parts.yml")
 pc.widget_list = WidgetConfig.get_widget_names_from_file(parts_file_path)
-(pc.unique_parts_list, pc.unique_status_list) = WidgetConfig.get_unique_parts_status_from_file(parts_file_path)
+(pc.unique_parts_list, pc.unique_status_list) = \
+    WidgetConfig.get_unique_parts_status_from_file(parts_file_path)
 
 def load_demo(_pl_id: int, selected: str):
     """Loading a demo setup"""

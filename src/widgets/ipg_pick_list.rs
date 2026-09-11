@@ -13,7 +13,7 @@ use super::callbacks::invoke_callback_with_args;
 
 use iced::widget::pick_list::{self, Status};
 use iced::widget::text::Ellipsis;
-use iced::{Font, Pixels, Theme};
+use iced::{Pixels, Theme};
 use iced::{Element};
 use iced::widget;
 use iced::widget::pick_list::Handle;
@@ -142,10 +142,10 @@ impl PickList {
 fn get_handle(
     widgets: &HashMap<usize, Widgets>, 
     hp: &HandleParams,
-) -> Handle<Font> 
+) -> Handle 
 {
-    // Helper: resolve an IpgIcon by widget ID into an iced Icon<Font>
-    let resolve_icon = |icon_id: usize| -> Option<pick_list::Icon<Font>> {
+    // Helper: resolve an IpgIcon by widget ID into an iced Icon
+    let resolve_icon = |icon_id: usize| -> Option<pick_list::Icon> {
         let ipg_icon = widgets.get(&icon_id).and_then(Widgets::as_icon)?;
         Some(ipg_icon.to_iced())
     };

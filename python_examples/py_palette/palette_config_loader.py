@@ -62,42 +62,42 @@ def print_config_info(config_file: str | Path, base_dir: str | Path | None = Non
     print(f"\n{'='*70}\n")
 
 
-def parse_mappings(mappings: list) -> list:
+def parse_mappings(_mappings: list) -> list:
     """Convert YAML palette mappings to Python tuple structure."""
     result = []
 
-    for mapping in mappings:
-        status_str = mapping.get("status")
-        variant_str = mapping.get("variant", "NoVariant")
-        parts_list = mapping.get("parts", [])
+    # for mapping in mappings:
+    #     status_str = mapping.get("status")
+    #     variant_str = mapping.get("variant", "NoVariant")
+    #     parts_list = mapping.get("parts", [])
 
-        # Convert status and variant strings to enums
-        status = cls.STATUS_MAP.get(status_str)
-        variant = cls.VARIANT_MAP.get(variant_str)
+    #     # Convert status and variant strings to enums
+    #     status = cls.STATUS_MAP.get(status_str)
+    #     variant = cls.VARIANT_MAP.get(variant_str)
 
-        if not status:
-            raise ValueError(f"Unknown status: {status_str}")
-        if not variant:
-            raise ValueError(f"Unknown variant: {variant_str}")
+    #     if not status:
+    #         raise ValueError(f"Unknown status: {status_str}")
+    #     if not variant:
+    #         raise ValueError(f"Unknown variant: {variant_str}")
 
-        # Convert parts to tuples
-        parts_tuples = []
-        for part_def in parts_list:
-            part_str = part_def.get("part")
-            key_str = part_def.get("key")
-            alpha = float(part_def.get("alpha", 1.0))
+    #     # Convert parts to tuples
+    #     parts_tuples = []
+    #     for part_def in parts_list:
+    #         part_str = part_def.get("part")
+    #         key_str = part_def.get("key")
+    #         alpha = float(part_def.get("alpha", 1.0))
 
-            part = cls.PART_MAP.get(part_str)
-            key = cls.PALETTE_KEY_MAP.get(key_str)
+    #         part = cls.PART_MAP.get(part_str)
+    #         key = cls.PALETTE_KEY_MAP.get(key_str)
 
-            if not part:
-                raise ValueError(f"Unknown part: {part_str}")
-            if not key:
-                raise ValueError(f"Unknown palette key: {key_str}")
+    #         if not part:
+    #             raise ValueError(f"Unknown part: {part_str}")
+    #         if not key:
+    #             raise ValueError(f"Unknown palette key: {key_str}")
 
-            parts_tuples.append((part, key, alpha))
+    #         parts_tuples.append((part, key, alpha))
 
-        # Create the status-variant mapping
-        result.append(((status, variant), tuple(parts_tuples)))
+    #     # Create the status-variant mapping
+    #     result.append(((status, variant), tuple(parts_tuples)))
 
     return result

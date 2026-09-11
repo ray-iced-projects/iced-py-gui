@@ -141,7 +141,7 @@ where
     pub fn on_close(mut self, msg: Message) -> Self
     where
         Message: Clone + 'a,
-        Renderer: iced::advanced::text::Renderer<Font = iced::Font> + 'a,
+        Renderer: iced::advanced::text::Renderer + 'a,
         Theme: iced::widget::text::Catalog + iced::widget::button::Catalog + 'a,
         <Theme as iced::widget::button::Catalog>::Class<'a>:
             From<iced::widget::button::StyleFn<'a, Theme>>,
@@ -155,7 +155,7 @@ where
     fn create_close_button(&self, msg: Message) -> Element<'a, Message, Theme, Renderer>
     where
         Message: Clone + 'a,
-        Renderer: iced::advanced::text::Renderer<Font = iced::Font> + 'a,
+        Renderer: iced::advanced::text::Renderer + 'a,
         Theme: iced::widget::text::Catalog + iced::widget::button::Catalog + 'a,
         <Theme as iced::widget::button::Catalog>::Class<'a>:
             From<iced::widget::button::StyleFn<'a, Theme>>,
@@ -249,7 +249,7 @@ impl<'a, Message, Theme, Renderer> Widget<Message, Theme, Renderer>
     for Card<'a, Message, Theme, Renderer>
 where
     Message: 'a + Clone,
-    Renderer: 'a + renderer::Renderer + iced::advanced::text::Renderer<Font = iced::Font>,
+    Renderer: 'a + renderer::Renderer + iced::advanced::text::Renderer,
     Theme: Catalog,
 {
     fn diff(&mut self, tree: &mut Tree) {
@@ -647,33 +647,31 @@ where
         renderer: &Renderer,
         viewport: &Rectangle,
         translation: Vector,
-    ) -> Option<iced::overlay::Element<'b, Message, Theme, Renderer>> {
+    ) -> Vec<iced::overlay::Element<'b, Message, Theme, Renderer>> {
         let mut children = vec![&mut self.head, &mut self.body];
         if let Some(foot) = &mut self.foot {
             children.push(foot);
         }
-        let children = children
+        children
             .into_iter()
             .zip(&mut tree.children)
             .zip(layout.children())
-            .filter_map(|((child, state), layout)| {
-                layout.children().next().and_then(|child_layout| {
-                    child.as_widget_mut().overlay(
-                        state,
-                        child_layout,
-                        renderer,
-                        viewport,
-                        translation,
-                    )
-                })
+            .flat_map(|((child, state), layout)| {
+                layout
+                    .children()
+                    .next()
+                    .map(|child_layout| {
+                        child.as_widget_mut().overlay(
+                            state,
+                            child_layout,
+                            renderer,
+                            viewport,
+                            translation,
+                        )
+                    })
+                    .unwrap_or_default()
             })
-            .collect::<Vec<_>>();
-
-        if children.is_empty() {
-            None
-        } else {
-            Some(iced::advanced::overlay::Group::with_children(children).overlay())
-        }
+            .collect()
     }
 }
 
@@ -691,7 +689,7 @@ fn head_node<Message, Theme, Renderer>(
     close_button_tree_index: usize,
 ) -> Node
 where
-    Renderer: renderer::Renderer + iced::advanced::text::Renderer<Font = iced::Font>,
+    Renderer: renderer::Renderer + iced::advanced::text::Renderer,
 {
     let header_size = head.as_widget().size();
 
@@ -701,7 +699,7 @@ where
         .height(header_size.height)
         .shrink(padding);
 
-    let close_size = close_size.unwrap_or_else(|| renderer.default_size().0);
+    let close_size = close_size.unwrap_or_else(|| renderer.text_size().0);
 
     if close_button.is_some() {
         limits = limits.shrink(Size::new(close_size, 0.0));
@@ -831,7 +829,7 @@ fn draw_head<Message, Theme, Renderer>(
     close_button: Option<&Element<'_, Message, Theme, Renderer>>,
     close_button_state: Option<&Tree>,
 ) where
-    Renderer: renderer::Renderer + iced::advanced::text::Renderer<Font = iced::Font>,
+    Renderer: renderer::Renderer + iced::advanced::text::Renderer,
     Theme: Catalog,
 {
     let mut head_children = layout.children();
@@ -923,7 +921,7 @@ fn draw_body<Message, Theme, Renderer>(
     theme: &Theme,
     style: &Style,
 ) where
-    Renderer: renderer::Renderer + iced::advanced::text::Renderer<Font = iced::Font>,
+    Renderer: renderer::Renderer + iced::advanced::text::Renderer,
     Theme: Catalog,
 {
     let mut body_children = layout.children();
@@ -973,7 +971,7 @@ fn draw_foot<Message, Theme, Renderer>(
     theme: &Theme,
     style: &Style,
 ) where
-    Renderer: renderer::Renderer + iced::advanced::text::Renderer<Font = iced::Font>,
+    Renderer: renderer::Renderer + iced::advanced::text::Renderer,
     Theme: Catalog,
 {
     let mut foot_children = layout.children();
@@ -1016,7 +1014,7 @@ fn draw_foot<Message, Theme, Renderer>(
 impl<'a, Message, Theme, Renderer> From<Card<'a, Message, Theme, Renderer>>
     for Element<'a, Message, Theme, Renderer>
 where
-    Renderer: 'a + renderer::Renderer + iced::advanced::text::Renderer<Font = iced::Font>,
+    Renderer: 'a + renderer::Renderer + iced::advanced::text::Renderer,
     Theme: 'a + Catalog,
     Message: Clone + 'a,
 {

@@ -1124,7 +1124,7 @@ where
         renderer: &iced::Renderer,
         viewport: &Rectangle,
         translation: iced::Vector,
-    ) -> Option<overlay::Element<'b, Message, Theme, iced::Renderer>> {
+    ) -> Vec<overlay::Element<'b, Message, Theme, iced::Renderer>> {
         overlay::from_children(&mut self.children, tree, layout, renderer, viewport, translation)
     }
 }

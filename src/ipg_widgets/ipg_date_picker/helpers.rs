@@ -339,7 +339,7 @@ fn create_submit_row(size_factor: f32, selected_date: String) -> Element<'static
 }
 
 use crate::graphics::BOOTSTRAP_FONT;
-fn icon(unicode: char, size: f32) -> Text<'static, Theme, Renderer> {
+fn icon(unicode: char, size: f32) -> Text<'static, Theme> {
     text(unicode.to_string())
         .font(BOOTSTRAP_FONT)
         .size(size)
@@ -347,15 +347,15 @@ fn icon(unicode: char, size: f32) -> Text<'static, Theme, Renderer> {
         .align_y(alignment::Vertical::Center)
 }
 
-fn left_arrow_icon(size: f32) -> Text<'static, Theme, Renderer> {
+fn left_arrow_icon(size: f32) -> Text<'static, Theme> {
     icon('\u{f12c}', size)
 }
 
-fn right_arrow_icon(size: f32) -> Text<'static, Theme, Renderer> {
+fn right_arrow_icon(size: f32) -> Text<'static, Theme> {
     icon('\u{f135}', size)
 }
 
-fn arrow_button(icon: Text<'static, Theme, Renderer>, message: DPMessage, width: f32, height: f32) 
+fn arrow_button(icon: Text<'static, Theme>, message: DPMessage, width: f32, height: f32) 
     -> Element<'static, DPMessage, Theme, Renderer> {
     
         Button::new(icon)

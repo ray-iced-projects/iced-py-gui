@@ -555,7 +555,7 @@ where
         &'c mut self,
         layout: Layout<'c>,
         renderer: &Renderer,
-    ) -> Option<overlay::Element<'c, Message, Theme, Renderer>> {
+    ) -> Vec<overlay::Element<'c, Message, Theme, Renderer>> {
         
         let Tree {
             state,
@@ -570,16 +570,24 @@ where
         let slice = bar_menu_state.slice;
 
         if !global_state.open {
-            return None;
+            return Vec::new();
         }
 
-        let active = bar_menu_state.active?;
+        let Some(active) = bar_menu_state.active else {
+            return Vec::new();
+        };
 
         let mut lc = layout.children();
         let viewport = layout.bounds();
-        let _bar_bounds = lc.next()?.bounds();
-        let _roots_layout = lc.next()?;
-        let menu_layouts_layout = lc.next()?; // Node{0, [menu_node...]}
+        let Some(_bar_bounds_layout) = lc.next() else {
+            return Vec::new();
+        };
+        let Some(_roots_layout) = lc.next() else {
+            return Vec::new();
+        };
+        let Some(menu_layouts_layout) = lc.next() else {
+            return Vec::new();
+        }; // Node{0, [menu_node...]}
         let mut menu_layouts = menu_layouts_layout.children(); // [menu_node...]
 
         fn rec<'a, 'b, Message, Theme: Catalog, Renderer: renderer::Renderer>(
@@ -626,15 +634,13 @@ where
                         &mut item_tree.children.as_mut_slice()[0]
                     };
 
-                    if let Some(overlay) = item_widget.as_widget_mut().overlay(
+                    overlays.extend(item_widget.as_widget_mut().overlay(
                         item_widget_tree,
                         item_layout,
                         renderer,
                         viewport,
                         Vector::ZERO,
-                    ) {
-                        overlays.push(overlay);
-                    }
+                    ));
                 }
 
                 if let Some((next_menu, next_menu_tree)) = next {
@@ -660,15 +666,13 @@ where
                         item: item_widget, ..
                     } = item;
 
-                    if let Some(overlay) = item_widget.as_widget_mut().overlay(
+                    overlays.extend(item_widget.as_widget_mut().overlay(
                         &mut item_tree.children[0],
                         item_layout,
                         renderer,
                         viewport,
                         Vector::ZERO,
-                    ) {
-                        overlays.push(overlay);
-                    }
+                    ));
 
                 }
             }
@@ -677,7 +681,9 @@ where
         let mut overlays = vec![];
         let mut next = None;
 
-        let slice_layout = self.layout.children().next()?;
+        let Some(slice_layout) = self.layout.children().next() else {
+            return Vec::new();
+        };
 
         for (i, ((item, item_tree), item_layout)) in itl_iter_slice_enum!(
             slice,
@@ -694,20 +700,18 @@ where
                 continue;
             };
 
-            if i == active
-                && let Some(menu) = item_menu.as_mut()
+            if let Some(menu) = item_menu.as_mut()
+                && i == active
             {
                 next = Some((menu, item_menu_tree));
             }
-            if let Some(overlay) = item_widget.as_widget_mut().overlay(
+            overlays.extend(item_widget.as_widget_mut().overlay(
                 item_widget_tree,
                 item_layout,
                 renderer,
                 &viewport,
                 self.translation,
-            ) {
-                overlays.push(overlay);
-            }
+            ));
         }
 
         if let Some((next_menu, next_menu_tree)) = next {
@@ -721,11 +725,7 @@ where
             );
         }
 
-        if overlays.is_empty() {
-            None
-        } else {
-            Some(iced::advanced::overlay::Group::with_children(overlays).overlay())
-        }
+        overlays
     }
 
     fn draw(

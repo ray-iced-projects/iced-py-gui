@@ -7,7 +7,6 @@ use iced::Border;
 use iced::Length;
 use iced::Padding;
 use iced::Theme;
-use iced::highlighter;
 use iced::widget;
 
 use iced::Element;
@@ -91,19 +90,6 @@ impl TextEditor {
             self.lookup(widgets, self.style_id)
                 .and_then(Widgets::as_text_editor_style).cloned();
 
-        // Parse highlighter theme, defaulting to SolarizedDark
-        let hl_theme = match (
-            self.theme_base_16_mocha,
-            self.theme_base_16_ocean,
-            self.theme_base_16_eighties,
-            self.theme_inspired_github) {
-            (Some(_), _, _, _) => highlighter::Theme::Base16Mocha,
-            (_, Some(_), _, _) => highlighter::Theme::Base16Ocean,
-            (_, _, Some(_), _) => highlighter::Theme::Base16Eighties,
-            (_, _, _,Some(_)) => highlighter::Theme::InspiredGitHub,
-            _ => highlighter::Theme::SolarizedDark,
-            };
-        
         // Use provided token or default to "txt" for plain text
         let token = self.highlighter_token.as_deref().unwrap_or("txt");
 
@@ -112,7 +98,7 @@ impl TextEditor {
                 .height(hgt)
                 .on_action(TxtEdMessage::ActionPerformed)
                 .wrapping(wrapping)
-                .highlight(token, hl_theme)
+                .highlight(token)
                 .style(move|theme, status|{
                     if let Some(st) = &style_opt {
                         st.to_iced(theme, status)
@@ -160,7 +146,6 @@ pub enum TxtEdStatus {
 #[derive(Debug, Clone)]
 pub enum TxtEdMessage {
     ActionPerformed(widget::text_editor::Action),
-    ThemeSelected(highlighter::Theme),
     WordWrapToggled(bool),
     // NewFile,
     // OpenFile,
@@ -178,7 +163,6 @@ pub fn text_ed_callback(id: usize, message: TxtEdMessage, state: &mut IpgState) 
                 .expect("text_ed_callback: widget is not an TextEditor");
             ed.content.perform(action);
         },
-        TxtEdMessage::ThemeSelected(_theme) => todo!(),
         TxtEdMessage::WordWrapToggled(_) => todo!(),
     }
 }

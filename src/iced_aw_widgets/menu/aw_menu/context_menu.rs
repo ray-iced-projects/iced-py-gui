@@ -253,7 +253,7 @@ where
         renderer: &Renderer,
         viewport: &Rectangle,
         translation: Vector,
-    ) -> Option<overlay::Element<'b, Message, Theme, Renderer>> {
+    ) -> Vec<overlay::Element<'b, Message, Theme, Renderer>> {
         let s: &mut State = tree.state.downcast_mut();
         let show = self.force_open.unwrap_or(s.show);
 
@@ -271,7 +271,7 @@ where
         let position = s.cursor_position;
         let content = self.overlay_instance.get_or_insert_with(&self.overlay);
         tree.children[1].diff(&mut *content);
-        Some(
+        vec![
             ContextMenuOverlay::new(
                 position + translation,
                 &mut tree.children[1],
@@ -280,7 +280,7 @@ where
                 s,
             )
             .overlay(),
-        )
+        ]
     }
 }
 

@@ -627,11 +627,11 @@ where
         renderer: &Renderer,
         viewport: &Rectangle,
         translation: iced::Vector,
-    ) -> Option<overlay::Element<'b, Message, Theme, Renderer>> {
+    ) -> Vec<overlay::Element<'b, Message, Theme, Renderer>> {
         let bar = tree.state.downcast_mut::<MenuBarState>();
 
         if bar.global_state.open {
-            Some(
+            vec![
                 MenuBarOverlay {
                     menu_bar: self,
                     layout,
@@ -639,9 +639,11 @@ where
                     tree,
                 }
                 .overlay_element(),
-            )
+            ]
         } else {
-            let slice_layout = layout.children().next()?;
+            let Some(slice_layout) = layout.children().next() else {
+                return Vec::new();
+            };
 
             let Tree {
                 state,
@@ -656,8 +658,8 @@ where
 
             let slice = bar_menu_state.slice;
 
-            let overlays = itl_iter_slice!(slice, self.roots;iter_mut, item_trees;iter_mut, slice_layout.children())
-                .filter_map(|((item, item_tree), item_layout)| {
+            itl_iter_slice!(slice, self.roots;iter_mut, item_trees;iter_mut, slice_layout.children())
+                .flat_map(|((item, item_tree), item_layout)| {
                     item.item.as_widget_mut().overlay(
                         &mut item_tree.children[0],
                         item_layout,
@@ -666,13 +668,7 @@ where
                         translation,
                     )
                 })
-                .collect::<Vec<_>>();
-
-            if overlays.is_empty() {
-                None
-            } else {
-                Some(iced::advanced::overlay::Group::with_children(overlays).overlay())
-            }
+                .collect()
         }
     }
 }

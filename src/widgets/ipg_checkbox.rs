@@ -119,9 +119,7 @@ impl CheckBox {
         let size = self.icon_size.map(iced::Pixels);
 
         let line_height = 
-            if let Some(lh) = self.icon_line_height {
-                LineHeight::Relative(lh)
-            } else { LineHeight::default() };
+            self.icon_line_height.map(LineHeight::Relative);
 
         let icon = 
             checkbox::Icon {

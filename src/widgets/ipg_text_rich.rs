@@ -55,7 +55,7 @@ impl RichText {
         
         if !self.show { return None }
 
-        let spans: Vec<text::Span<'static, usize, iced::Font>> = child_ids
+        let spans: Vec<text::Span<'static, usize>> = child_ids
             .iter()
             .filter_map(|id| widgets.get(id))
             .filter_map(Widgets::as_span)
@@ -183,7 +183,7 @@ pub struct Span {
 }
 
 impl Span {
-    pub fn to_iced(&self, widgets: &HashMap<usize, Widgets>) -> text::Span<'static, usize, iced::Font> {
+    pub fn to_iced(&self, widgets: &HashMap<usize, Widgets>) -> text::Span<'static, usize> {
         let mut sp = span(self.text.clone());
 
         if let Some(size) = self.size {

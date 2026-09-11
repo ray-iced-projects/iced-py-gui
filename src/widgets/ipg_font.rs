@@ -4,7 +4,8 @@ use iced::font;
 use iced::{Pixels};
 use iced::advanced::text::LineHeight;
 use iced::widget::pick_list;
-use pyo3::{Py, PyAny, pyclass};
+use pyo3::{Py, PyAny, pyclass, Bound, PyResult, Python};
+use pyo3::types::{PyDict, PyDictMethods};
 type PyObject = Py<PyAny>;
 
 use crate::widgets::widget_param_update::{WidgetParamUpdate, set_t_value};
@@ -18,6 +19,21 @@ pub struct Font {
     pub weight: Option<FontWeight>,
     pub stretch: Option<FontStretch>,
     pub style: Option<FontStyle>,
+}
+
+impl Font {
+    /// Serialize all font parameters into a Python dict keyed by field name.
+    /// Enum values are returned as their name string.
+    pub fn to_py_dict<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyDict>> {
+        let dict = PyDict::new(py);
+        dict.set_item("id", self.id)?;
+        dict.set_item("family", self.family.as_ref().map(|f| format!("{f:?}")))?;
+        dict.set_item("family_name", self.family_name.clone())?;
+        dict.set_item("weight", self.weight.as_ref().map(|w| format!("{w:?}")))?;
+        dict.set_item("stretch", self.stretch.as_ref().map(|s| format!("{s:?}")))?;
+        dict.set_item("style", self.style.as_ref().map(|s| format!("{s:?}")))?;
+        Ok(dict)
+    }
 }
 
 impl Font {

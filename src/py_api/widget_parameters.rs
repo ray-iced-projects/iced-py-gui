@@ -3,8 +3,9 @@
 use pyo3::{Py, PyAny, pyfunction};
 use pyo3::types::PyDict;
 use pyo3::prelude::*;
+use pyo3::exceptions::PyValueError;
 
-use crate::state::access_update_widgets;
+use crate::state::{access_update_widgets, access_callback_widgets, Widgets};
 type PyObject = Py<PyAny>;
 
 
@@ -196,15 +197,152 @@ pub fn move_widget(
 }
 
 
+///"""
+///Returns a dict of all parameters for the widget with the given id.
+///
+///Must be called during a callback (e.g. a button's on_press handler). All
+///widgets ids can be used.
+///
+///Parameters
+///----------
+///widget_id : int
+///    A widget's id.
+///
+///Returns
+///-------
+///dict
+///    Field name -> value for every parameter of the widget.
+///"""
 #[pyfunction]
-#[pyo3(signature = (
-    wid, 
-    ))]
-pub fn get_widget_parameters(
-    wid: usize,
-    parameters: Vec<WidgetParameter>,)
-{
-    
-    
-    
+#[pyo3(signature = (widget_id))]
+pub fn get_widget_parameters(py: Python<'_>, widget_id: usize) -> PyResult<PyObject> {
+    let widget = {
+        let snapshot = access_callback_widgets();
+        snapshot.get(&widget_id).cloned()
+    };
+
+    match widget {
+        Some(Widgets::Button(button)) => {
+            Ok(button.to_py_dict(py)?.into_any().unbind())
+        }
+        Some(Widgets::CheckBox(checkbox)) => {
+            Ok(checkbox.to_py_dict(py)?.into_any().unbind())
+        }
+        Some(other) => Err(PyValueError::new_err(format!(
+            "get_widget_parameters does not yet support {other:?}"))),
+        None => Err(PyValueError::new_err(format!(
+            "No widget snapshot found for id {widget_id}. \
+             get_widget_parameters must be called during a widget callback."))),
+    }
+}
+
+
+///"""
+///Returns a dict of all style parameters for the style with the given id.
+///
+///Must be called during a callback whose style_id is set.
+///
+///Parameters
+///----------
+///style_id : int
+///    A widget's style_id.
+///
+///Returns
+///-------
+///dict
+///    Field name -> value for every style parameter.
+///"""
+#[pyfunction]
+#[pyo3(signature = (style_id))]
+pub fn get_widget_style_parameters(py: Python<'_>, style_id: usize) -> PyResult<PyObject> {
+    let widget = {
+        let snapshot = access_callback_widgets();
+        snapshot.get(&style_id).cloned()
+    };
+
+    match widget {
+        Some(Widgets::ButtonStyle(style)) => {
+            Ok(style.to_py_dict(py)?.into_any().unbind())
+        }
+        Some(Widgets::CheckboxStyle(style)) => {
+            Ok(style.to_py_dict(py)?.into_any().unbind())
+        }
+        Some(other) => Err(PyValueError::new_err(format!(
+            "get_widget_style_parameters does not yet support {other:?}"))),
+        None => Err(PyValueError::new_err(format!(
+            "No style snapshot found for id {style_id}. \
+             get_widget_style_parameters must be called during a callback or sid is wrong."))),
+    }
+}
+
+
+///"""
+///Returns a dict of all font parameters for the font with the given id.
+///
+///Must be called during a callback whose font_id is set.
+///
+///Parameters
+///----------
+///font_id : int
+///    A widget's font_id.
+///
+///Returns
+///-------
+///dict
+///    Field name -> value for every font parameter.
+///"""
+#[pyfunction]
+#[pyo3(signature = (font_id))]
+pub fn get_widget_font_parameters(py: Python<'_>, font_id: usize) -> PyResult<PyObject> {
+    let widget = {
+        let snapshot = access_callback_widgets();
+        snapshot.get(&font_id).cloned()
+    };
+
+    match widget {
+        Some(Widgets::Font(font)) => {
+            Ok(font.to_py_dict(py)?.into_any().unbind())
+        }
+        Some(_) => Err(PyValueError::new_err(
+            "get_widget_font_parameters: id does not reference a font")),
+        None => Err(PyValueError::new_err(format!(
+            "No font snapshot found for id {font_id}. \
+             get_widget_font_parameters must be called during acallback or the fid is wrong."))),
+    }
+}
+
+
+///"""
+///Returns a dict of all palette parameters for the palette with the given id.
+///
+///Must be called during a callback whose's palette_id is set.
+///
+///Parameters
+///----------
+///palette_id : int
+///    A widget's palette_id.
+///
+///Returns
+///-------
+///dict
+///    Palette pairs (base, weak, strong, ...) and status mappings.
+///"""
+#[pyfunction]
+#[pyo3(signature = (palette_id))]
+pub fn get_widget_palette_parameters(py: Python<'_>, palette_id: usize) -> PyResult<PyObject> {
+    let widget = {
+        let snapshot = access_callback_widgets();
+        snapshot.get(&palette_id).cloned()
+    };
+
+    match widget {
+        Some(Widgets::Palette(palette)) => {
+            Ok(palette.to_py_dict(py)?.into_any().unbind())
+        }
+        Some(_) => Err(PyValueError::new_err(
+            "get_widget_palette_parameters: id does not reference a palette")),
+        None => Err(PyValueError::new_err(format!(
+            "No palette snapshot found for id {palette_id}. \
+             get_widget_palette_parameters must be called during a callback or the pid is wrong."))),
+    }
 }

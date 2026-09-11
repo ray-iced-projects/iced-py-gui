@@ -5,7 +5,7 @@ use crate::app::Message;
 use crate::graphics::bootstrap::bootstrap_arrow::Arrow;
 use crate::graphics::colors::Color;
 use crate::py_api::colors::{CustomPalette, PaletteKey, StateVariant, StylePart, WidgetStatus};
-use crate::state::Widgets;
+use crate::state::{IpgState, Widgets, access_callback_widgets};
 use crate::widgets::callbacks::{CallbackName, invoke_callback};
 use crate::py_api::helpers::{get_len, get_padding, get_radius};
 use crate::widgets::widget_param_update::{
@@ -17,7 +17,8 @@ use iced::{Shadow, Vector, alignment, gradient};
 use iced::widget::{button, text};
 use iced::{Element, Theme};
 
-use pyo3::{Py, PyAny, pyclass};
+use pyo3::{Py, PyAny, pyclass, Bound, PyResult, Python};
+use pyo3::types::{PyDict, PyDictMethods};
 type PyObject = Py<PyAny>;
 
 /// Represents the user-forced button status, prioritizing explicit states over iced's computed status
@@ -213,11 +214,108 @@ pub enum BtnMessage {
     OnPress,
 }
 
-pub fn button_callback(id: usize, message: BtnMessage) {
+pub fn button_callback(state: &IpgState, id: usize, message: BtnMessage) {
     match message {
         BtnMessage::OnPress => {
+            // Snapshot all widgets so get_widget_*_parameters() can read any
+            // widget (and referenced style/font/palette) by id during this callback.
+            {
+                let mut snapshot = access_callback_widgets();
+                snapshot.clear();
+                for (wid, widget) in state.widgets.iter() {
+                    snapshot.insert(*wid, widget.clone());
+                }
+            }
             invoke_callback(id, CallbackName::OnPress, "Button");
+            access_callback_widgets().clear();
         }
+    }
+}
+
+impl Button {
+    /// Serialize all button parameters into a Python dict keyed by field name.
+    pub fn to_py_dict<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyDict>> {
+        let dict = PyDict::new(py);
+        dict.set_item("id", self.id)?;
+        dict.set_item("label", self.label.clone())?;
+        dict.set_item("width", self.width)?;
+        dict.set_item("width_fill", self.width_fill)?;
+        dict.set_item("height", self.height)?;
+        dict.set_item("height_fill", self.height_fill)?;
+        dict.set_item("fill", self.fill)?;
+        dict.set_item("padding", self.padding.clone())?;
+        dict.set_item("clip", self.clip)?;
+        dict.set_item("font_id", self.font_id)?;
+        dict.set_item("style_id", self.style_id)?;
+        dict.set_item("style_std", self.style_std.as_ref().map(|s| format!("{s:?}")))?;
+        dict.set_item("style_arrow", self.style_arrow.as_ref().map(|a| format!("{a:?}")))?;
+        dict.set_item("palette_id", self.palette_id)?;
+        dict.set_item("show", self.show)?;
+        dict.set_item("active", self.active)?;
+        dict.set_item("hovered", self.hovered)?;
+        dict.set_item("pressed", self.pressed)?;
+        dict.set_item("disabled", self.disabled)?;
+        Ok(dict)
+    }
+}
+
+impl ButtonStyle {
+    /// Serialize all button-style parameters into a Python dict keyed by field name.
+    /// Named colors are returned as their name string; rgba values as [r, g, b, a] lists.
+    pub fn to_py_dict<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyDict>> {
+        let color_name = |c: &Option<Color>| c.as_ref().map(|c| format!("{c:?}"));
+        let colors_names = |v: &Option<Vec<Color>>| {
+            v.as_ref().map(|v| v.iter().map(|c| format!("{c:?}")).collect::<Vec<_>>())
+        };
+
+        let dict = PyDict::new(py);
+        dict.set_item("id", self.id)?;
+
+        dict.set_item("bkg_color", color_name(&self.bkg_color))?;
+        dict.set_item("bkg_color_alpha", self.bkg_color_alpha)?;
+        dict.set_item("bkg_rgba", self.bkg_rgba.map(|c| c.to_vec()))?;
+
+        dict.set_item("text_color", color_name(&self.text_color))?;
+        dict.set_item("text_color_alpha", self.text_color_alpha)?;
+        dict.set_item("text_rgba", self.text_rgba.map(|c| c.to_vec()))?;
+
+        dict.set_item("text_top_left", self.text_top_left)?;
+        dict.set_item("text_top_center", self.text_top_center)?;
+        dict.set_item("text_top_right", self.text_top_right)?;
+        dict.set_item("text_center_left", self.text_center_left)?;
+        dict.set_item("text_center", self.text_center)?;
+        dict.set_item("text_center_right", self.text_center_right)?;
+        dict.set_item("text_bottom_left", self.text_bottom_left)?;
+        dict.set_item("text_bottom_center", self.text_bottom_center)?;
+        dict.set_item("text_bottom_right", self.text_bottom_right)?;
+        dict.set_item("text_size", self.text_size)?;
+
+        dict.set_item("wrapping_none", self.wrapping_none)?;
+        dict.set_item("wrapping_glyph", self.wrapping_glyph)?;
+        dict.set_item("wrapping_word_glyph", self.wrapping_word_glyph)?;
+
+        dict.set_item("gradient_color_stops", colors_names(&self.gradient_color_stops))?;
+        dict.set_item("gradient_color_alpha_stops", self.gradient_color_alpha_stops.clone())?;
+        dict.set_item("gradient_rgba_stops",
+            self.gradient_rgba_stops.as_ref().map(|v| v.iter().map(|c| c.to_vec()).collect::<Vec<_>>()))?;
+        dict.set_item("gradient_offset_stops", self.gradient_offset_stops.clone())?;
+        dict.set_item("gradient_degrees", self.gradient_degrees)?;
+        dict.set_item("gradient_radians", self.gradient_radians)?;
+
+        dict.set_item("border_color", color_name(&self.border_color))?;
+        dict.set_item("border_color_alpha", self.border_color_alpha)?;
+        dict.set_item("border_rgba", self.border_rgba.map(|c| c.to_vec()))?;
+        dict.set_item("border_radius", self.border_radius.clone())?;
+        dict.set_item("border_width", self.border_width)?;
+
+        dict.set_item("shadow_color", color_name(&self.shadow_color))?;
+        dict.set_item("shadow_color_alpha", self.shadow_color_alpha)?;
+        dict.set_item("shadow_rgba", self.shadow_rgba.map(|c| c.to_vec()))?;
+        dict.set_item("shadow_offset_xy", self.shadow_offset_xy.map(|c| c.to_vec()))?;
+        dict.set_item("shadow_blur_radius", self.shadow_blur_radius)?;
+
+        dict.set_item("snap", self.snap)?;
+        Ok(dict)
     }
 }
 

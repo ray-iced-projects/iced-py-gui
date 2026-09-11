@@ -1913,6 +1913,91 @@ def move_widget(
     """
 
 
+def get_widget_parameters(
+        widget_id: int,
+    ) -> dict:
+
+    """
+    Returns a dict of all parameters for the widget with the given id.
+
+    Must be called during a callback (for example a button's on_press
+    handler).
+
+    Parameters
+    ----------
+        widget_id: int
+            The id of the widget whose parameters are requested.
+
+    Returns
+    -------
+    dict
+        Field name -> value for every parameter of the widget.
+    """
+
+
+def get_widget_style_parameters(
+        style_id: int,
+    ) -> dict:
+
+    """
+    Returns a dict of all style parameters for the style with the given id.
+
+    Must be called during a callback whose's style_id is set.
+
+    Parameters
+    ----------
+        style_id: int
+            The style id (a widget's style_id).
+
+    Returns
+    -------
+    dict
+        Field name -> value for every style parameter.
+    """
+
+
+def get_widget_font_parameters(
+        font_id: int,
+    ) -> dict:
+
+    """
+    Returns a dict of all font parameters for the font with the given id.
+
+    Must be called during a callback whose's font_id is set.
+
+    Parameters
+    ----------
+        font_id: int
+            The font id (a widget's font_id).
+
+    Returns
+    -------
+    dict
+        Field name -> value for every font parameter.
+    """
+
+
+def get_widget_palette_parameters(
+        palette_id: int,
+    ) -> dict:
+
+    """
+    Returns a dict of all palette parameters for the palette with the given id.
+
+    Must be called during a callback whose's palette_id is set
+
+    Parameters
+    ----------
+        palette_id: int
+            The palette id (a widget's palette_id).
+
+    Returns
+    -------
+    dict
+        Palette pairs (base, weak, strong, ...) and status mappings.
+    """
+
+
 class Arrow:
     """
     The various arrows for the widgets

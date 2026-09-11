@@ -138,7 +138,7 @@ impl App {
                 Task::none()
             },
             Message::Button(id, message) => {
-                button_callback(id, message);
+                button_callback(&self.state, id, message);
                 process_widget_updates(&mut self.state);
                 process_draw_updates(&mut self.state);
                 get_tasks(&mut self.state)

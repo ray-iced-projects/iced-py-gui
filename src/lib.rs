@@ -76,7 +76,7 @@ use crate::py_api::text_editor::{add_text_editor, add_text_editor_style};
 use crate::py_api::text_rich::{add_rich_text, add_span};
 use crate::py_api::toggle::{add_toggler, add_toggler_style};
 use crate::py_api::tool_tip::add_tool_tip;
-use crate::py_api::widget_parameters::{update_widget, update_widget_params, delete_widget, hide_widget, move_widget, show_widget};
+use crate::py_api::widget_parameters::{update_widget, update_widget_params, delete_widget, hide_widget, move_widget, show_widget, get_widget_parameters, get_widget_style_parameters, get_widget_font_parameters, get_widget_palette_parameters};
 
 // Import enums from widgets module
 use crate::widgets::enums::ContentFit;
@@ -224,6 +224,10 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(add_window, m)?)?;
     m.add_function(wrap_pyfunction!(delete_widget, m)?)?;
     m.add_function(wrap_pyfunction!(hide_widget, m)?)?;
+    m.add_function(wrap_pyfunction!(get_widget_parameters, m)?)?;
+    m.add_function(wrap_pyfunction!(get_widget_style_parameters, m)?)?;
+    m.add_function(wrap_pyfunction!(get_widget_font_parameters, m)?)?;
+    m.add_function(wrap_pyfunction!(get_widget_palette_parameters, m)?)?;
     m.add_function(wrap_pyfunction!(load_font, m)?)?;
     m.add_function(wrap_pyfunction!(move_widget, m)?)?;
     m.add_function(wrap_pyfunction!(show_widget, m)?)?;

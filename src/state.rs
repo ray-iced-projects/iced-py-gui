@@ -408,6 +408,17 @@ pub fn access_update_widgets() -> MutexGuard<'static, UpdateWidgets> {
     UPDATE_WIDGETS.lock().unwrap()
 }
 
+// Snapshot of widgets captured during callback dispatch so Python can read a
+// widget's parameters by id while a callback is executing. The runtime widgets
+// live in IpgState (owned by the Iced loop) and STATE.widgets is drained at
+// startup, so this bridge is the only way a pyfunction can see live values.
+pub static CALLBACK_WIDGETS: Mutex<Lazy<HashMap<usize, Widgets>>> =
+    Mutex::new(Lazy::new(|| HashMap::new()));
+
+pub fn access_callback_widgets() -> MutexGuard<'static, Lazy<HashMap<usize, Widgets>>> {
+    CALLBACK_WIDGETS.lock().unwrap()
+}
+
 #[derive(Debug)]
 pub struct UpdateCanvasDraw {
     // (wid, item, value)

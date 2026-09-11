@@ -20,7 +20,8 @@ use iced::{Background, Element, border::Radius, Theme};
 use iced::widget::text::{LineHeight, Shaping, Wrapping};
 use iced::widget::{Checkbox, checkbox};
 
-use pyo3::{pyclass, Py, PyAny};
+use pyo3::{pyclass, Py, PyAny, Bound, PyResult, Python};
+use pyo3::types::{PyDict, PyDictMethods};
 type PyObject = Py<PyAny>;
 
 
@@ -51,6 +52,39 @@ pub struct CheckBox {
     pub style_id: Option<usize>,
     pub style_std: Option<CheckboxStyleStd>,
     pub palette_id: Option<usize>,
+}
+
+impl CheckBox {
+    /// Serialize all checkbox parameters into a Python dict keyed by field name.
+    pub fn to_py_dict<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyDict>> {
+        let dict = PyDict::new(py);
+        dict.set_item("id", self.id)?;
+        dict.set_item("show", self.show)?;
+        dict.set_item("is_checked", self.is_checked)?;
+        dict.set_item("label", self.label.clone())?;
+        dict.set_item("width", self.width)?;
+        dict.set_item("fill", self.fill)?;
+        dict.set_item("size", self.size)?;
+        dict.set_item("spacing", self.spacing)?;
+        dict.set_item("text_size", self.text_size)?;
+        dict.set_item("line_height", self.line_height)?;
+        dict.set_item("text_wrapping_none", self.text_wrapping_none)?;
+        dict.set_item("text_wrapping_glyph", self.text_wrapping_glyph)?;
+        dict.set_item("text_wrapping_word_glyph", self.text_wrapping_word_glyph)?;
+        dict.set_item("text_font_id", self.text_font_id)?;
+        dict.set_item("icon_font_id", self.icon_font_id)?;
+        dict.set_item("icon", self.icon.as_ref().map(|i| format!("{i:?}")))?;
+        dict.set_item("icon_size", self.icon_size)?;
+        dict.set_item("icon_line_height", self.icon_line_height)?;
+        dict.set_item("active", self.active)?;
+        dict.set_item("hovered", self.hovered)?;
+        dict.set_item("disabled", self.disabled)?;
+        dict.set_item("lock_is_checked", self.lock_is_checked)?;
+        dict.set_item("style_id", self.style_id)?;
+        dict.set_item("style_std", self.style_std.as_ref().map(|s| format!("{s:?}")))?;
+        dict.set_item("palette_id", self.palette_id)?;
+        Ok(dict)
+    }
 }
 
 impl CheckBox {
@@ -247,6 +281,50 @@ pub struct CheckboxStyle {
     pub text_color: Option<Color>,
     pub text_color_alpha: Option<f32>,
     pub text_rgba: Option<[f32; 4]>,
+}
+
+impl CheckboxStyle {
+    /// Serialize all checkbox-style parameters into a Python dict keyed by field name.
+    /// Named colors are returned as their name string; rgba values as [r, g, b, a] lists.
+    pub fn to_py_dict<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyDict>> {
+        let color_name = |c: &Option<Color>| c.as_ref().map(|c| format!("{c:?}"));
+
+        let dict = PyDict::new(py);
+        dict.set_item("id", self.id)?;
+
+        dict.set_item("bkg_color", color_name(&self.bkg_color))?;
+        dict.set_item("bkg_color_alpha", self.bkg_color_alpha)?;
+        dict.set_item("bkg_rgba", self.bkg_rgba.map(|c| c.to_vec()))?;
+
+        dict.set_item("icon_color", color_name(&self.icon_color))?;
+        dict.set_item("icon_color_alpha", self.icon_color_alpha)?;
+        dict.set_item("icon_rgba", self.icon_rgba.map(|c| c.to_vec()))?;
+
+        dict.set_item("border_color", color_name(&self.border_color))?;
+        dict.set_item("border_color_alpha", self.border_color_alpha)?;
+        dict.set_item("border_rgba", self.border_rgba.map(|c| c.to_vec()))?;
+
+        dict.set_item("border_radius", self.border_radius.map(|c| c.to_vec()))?;
+        dict.set_item("border_rounded", self.border_rounded)?;
+
+        dict.set_item("border_radius_top", self.border_radius_top)?;
+        dict.set_item("border_radius_top_left", self.border_radius_top_left)?;
+        dict.set_item("border_radius_top_right", self.border_radius_top_right)?;
+
+        dict.set_item("border_radius_bottom", self.border_radius_bottom)?;
+        dict.set_item("border_radius_bottom_left", self.border_radius_bottom_left)?;
+        dict.set_item("border_radius_bottom_right", self.border_radius_bottom_right)?;
+
+        dict.set_item("border_radius_left", self.border_radius_left)?;
+        dict.set_item("border_radius_right", self.border_radius_right)?;
+
+        dict.set_item("border_width", self.border_width)?;
+
+        dict.set_item("text_color", color_name(&self.text_color))?;
+        dict.set_item("text_color_alpha", self.text_color_alpha)?;
+        dict.set_item("text_rgba", self.text_rgba.map(|c| c.to_vec()))?;
+        Ok(dict)
+    }
 }
 
 impl CheckboxStyle {

@@ -7,6 +7,7 @@ use iced::Theme;
 use iced::theme::palette::{self, readable};
 use pyo3::prelude::*;
 use pyo3::pyfunction;
+use pyo3::types::PyDict;
 
 use crate::access_state;
 use crate::graphics::colors::{Color, StdColorStyle};
@@ -386,6 +387,59 @@ pub struct CustomPalette{
     pub id: usize,
     pub palette: iced::theme::palette::Background,
     pub statuses: Option<HashMap<(WidgetStatus, StateVariant), Vec<(StylePart, PaletteKey, f32)>>>,
+}
+
+impl CustomPalette {
+    /// Serialize all palette parameters into a Python dict keyed by field name.
+    /// Each palette pair is {"color": [r,g,b,a], "text": [r,g,b,a]}.
+    pub fn to_py_dict<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyDict>> {
+        let rgba = |c: iced::Color| vec![c.r, c.g, c.b, c.a];
+        let pair = |p: &palette::Pair| -> PyResult<Bound<'py, PyDict>> {
+            let d = PyDict::new(py);
+            d.set_item("color", rgba(p.color))?;
+            d.set_item("text", rgba(p.text))?;
+            Ok(d)
+        };
+
+        let dict = PyDict::new(py);
+        dict.set_item("id", self.id)?;
+
+        let bg = &self.palette;
+        dict.set_item("base", pair(&bg.base)?)?;
+        dict.set_item("neutral", pair(&bg.neutral)?)?;
+        dict.set_item("weak", pair(&bg.weak)?)?;
+        dict.set_item("weaker", pair(&bg.weaker)?)?;
+        dict.set_item("weakest", pair(&bg.weakest)?)?;
+        dict.set_item("strong", pair(&bg.strong)?)?;
+        dict.set_item("stronger", pair(&bg.stronger)?)?;
+        dict.set_item("strongest", pair(&bg.strongest)?)?;
+
+        let statuses_py = match &self.statuses {
+            Some(map) => {
+                let mut entries: Vec<Bound<'py, PyDict>> = Vec::new();
+                for ((status, variant), parts) in map.iter() {
+                    let entry = PyDict::new(py);
+                    entry.set_item("status", format!("{status:?}"))?;
+                    entry.set_item("variant", format!("{variant:?}"))?;
+                    let mut parts_py: Vec<Bound<'py, PyDict>> = Vec::new();
+                    for (part, key, alpha) in parts.iter() {
+                        let pd = PyDict::new(py);
+                        pd.set_item("part", format!("{part:?}"))?;
+                        pd.set_item("key", format!("{key:?}"))?;
+                        pd.set_item("alpha", *alpha)?;
+                        parts_py.push(pd);
+                    }
+                    entry.set_item("parts", parts_py)?;
+                    entries.push(entry);
+                }
+                Some(entries)
+            }
+            None => None,
+        };
+        dict.set_item("statuses", statuses_py)?;
+
+        Ok(dict)
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Hash)]

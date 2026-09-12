@@ -1,18 +1,14 @@
 #!/usr/bin/env python3
 """
 Highlighter Theme Demo - shows Python syntax highlighting with different themes
-The highlighter themes when set to True are:
-theme_solarized_dark (default, parameter not needed),
-theme_base_16_mocha,
-theme_base_16_ocean,
-theme_base_16_eighties,
-theme_inspired_github,
 """
 
 from icedpygui import Window, start_session, Container, add_text_editor
 
 # Sample Python code
-PYTHON = '''def fibonacci(n):
+PYTHON = '''
+# ***Scroll to see all ***
+def fibonacci(n):
     """Calculate fibonacci sequence."""
     if n <= 1:
         return n
@@ -31,10 +27,62 @@ if __name__ == "__main__":
     print(processor.process())
 '''
 
-# For documnetation purposes, the complete list of highlighter tokens are below
-# but only "py" is used.  You would have to have the proper content in the editor to see the
+# Sample Rust code
+RUST = '''
+//***Scroll to see all ***
+///Calculate fibonacci sequence.
+fn fibonacci(n: u32) -> u64 {
+    let mut a: u64 = 0;
+    let mut b: u64 = 1;
+    for _ in 0..n {
+        let next = a + b;
+        a = b;
+        b = next;
+    }
+    a
+}
+
+fn main() {
+    let count = 10;
+    let series: Vec<u64> = (0..count).map(fibonacci).collect();
+    println!("First {count} Fibonacci numbers: {series:?}");
+}
+'''
+
+# sample c++ code
+C_PLUS_PLUS = '''
+#***Scroll to see all ***
+#include <iostream>
+#include <vector>
+
+std::vector<unsigned long long> fibonacci(int count) {
+    std::vector<unsigned long long> series;
+    unsigned long long a = 0, b = 1;
+    for (int i = 0; i < count; ++i) {
+        series.push_back(a);
+        unsigned long long next = a + b;
+        a = b;
+        b = next;
+    }
+    return series;
+}
+
+int main() {
+    int count = 10;
+    std::cout << "First " << count << " Fibonacci numbers:";
+    for (auto n : fibonacci(count)) {
+        std::cout << " " << n;
+    }
+    std::cout << std::endl;
+    return 0;
+}
+'''
+
+# For documnetation purposes, the complete list of highlighter tokens are below.
+# You would have to have the proper content in the editor to see the
 # effects. This text_editor demo is not a complete code editor but by adding the
-# appropriate menu to load files copy and paste, etc. it could be made.
+# appropriate menu to load files copy and paste, and of course a code hinting method.
+# But if you just want to view a file, it would surfice.
 TOKENS = [
     "actionscript", "ada", "apache", "applescript", "asciidoc", "asp", "asm",
         "arm", "x86_64", "awk",
@@ -74,8 +122,7 @@ def on_select(_wid: int, selected: str):
 
 with Window(title="Syntax Highlighter Themes", center=True):
 
-    # SolarizedDark theme (dark background) is the default
-    # so parameter not needed
+    # Python token
     with Container(fill=True):
         add_text_editor(
             content=PYTHON,
@@ -84,24 +131,22 @@ with Window(title="Syntax Highlighter Themes", center=True):
             highlighter_token="py"
         )
 
-    # Base16Mocha theme (dark background)
+    # Rust token
     with Container(fill=True):
         add_text_editor(
-            content=PYTHON,
+            content=RUST,
             height=200,
             fill=True,
-            theme_base_16_mocha=True,
-            highlighter_token="py"
+            highlighter_token="r"
         )
 
-    # InspiredGitHub theme (light background)
+    # C++ token
     with Container(fill=True):
         add_text_editor(
-            content=PYTHON,
+            content=C_PLUS_PLUS,
             height=200,
             fill=True,
-            theme_inspired_github=True,
-            highlighter_token="py"
+            highlighter_token="c++"
         )
 
 start_session()

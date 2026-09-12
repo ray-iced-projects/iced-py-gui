@@ -44,10 +44,6 @@ pub struct TextEditor {
     pub wrapping_word_glyph: Option<bool>,
     pub last_status: TxtEdStatus,
     pub style_id: Option<usize>,
-    pub theme_base_16_mocha: Option<bool>,
-    pub theme_base_16_ocean: Option<bool>,
-    pub theme_base_16_eighties: Option<bool>,
-    pub theme_inspired_github: Option<bool>,
     pub highlighter_token: Option<String>,
 }
 

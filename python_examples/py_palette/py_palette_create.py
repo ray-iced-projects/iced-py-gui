@@ -26,8 +26,8 @@ from icedpygui import (
     start_session,
     add_button,
     add_button_style,
+    ButtonStyleParam,
     add_pick_list,
-    CheckboxParam,
     Menu,
     MenuBarItem,
     add_text,
@@ -41,12 +41,10 @@ from icedpygui import (
     add_file_system_dialog,
     FileSystemDialogParam as FsdParam,
     FileSystemDialogCallbackType as FsdType,
-    move_widget,
     update_widget,
-    update_widget_params,
     get_widget_palette_part,
-    get_color_palette,
     get_widget_parameters,
+    get_dialog_filters,
 )
 
 
@@ -178,6 +176,7 @@ class PaletteCreator:
 
     def __init__(self):
         self.widget_list: list[str] = []
+        self.demo_widget_list: list[str] = []
         self.widget_active_id: int = None
         self.widget_active_style_id: int = None
         self.widget_hovered_id: int = None
@@ -244,6 +243,8 @@ fsd_id = add_file_system_dialog(
     default_directory=DEFAULT_DIRECTORY,
 )
 
+print(get_dialog_filters())
+
 def open_fsd_for_file_path(_btn_id: int):
     """Opens the file dialog"""
     update_widget(fsd_id, FsdParam.SelectFile, True)
@@ -261,7 +262,6 @@ def on_color_picked(_cp_id: int, color: list[float]):
     pc.current_color = color
     formatted = [round(c, 2) for c in color]
     update_widget(selected_color_txt_id, TextParam.Content, f"Selected color = {formatted}")
-    populate_widget_checkboxes(color)
 
 
 def on_color_text_input(_ti_id: int, text: str):
@@ -270,98 +270,29 @@ def on_color_text_input(_ti_id: int, text: str):
     if color:
         pc.current_color = color
         update_widget(selected_color_txt_id, TextParam.Content, f"Selected color = {color}")
-        populate_widget_checkboxes(color)
     else:
         update_widget(selected_color_txt_id, TextParam.Content,
                       "Invalid color format, use float values")
 
 
-def on_status_checked(_cb_id: int, is_checked: bool):
-    """
-    Enforce matrix selection: only one checked per row AND per column.
-    On check, clear the rest of the target's row and column, then set it True.
-    """
-    grid = pc.checkbox_grid  # list[list[tuple[int, bool]]]
-
-    # Locate the target id in the grid
-    target_row = target_col = None
-    for _r, row_ in enumerate(grid):
-        for c, (wid, _state) in enumerate(row_):
-            if wid == _cb_id:
-                target_row, target_col = _r, c
-                break
-        if target_row is not None:
-            break
-
-    if target_row is None:
-        return  # id not found
-
-    # Clear every True in the target's row (except the target)
-    for c, (wid, checked) in enumerate(grid[target_row]):
-        if c != target_col and checked:
-            update_widget(wid, CheckboxParam.IsChecked, False)
-            grid[target_row][c] = (wid, False)
-
-    # Clear every True in the target's column (except the target)
-    for _r, row_ in enumerate(grid):
-        if _r != target_row:
-            wid, checked = row_[target_col]
-            if checked:
-                update_widget(wid, CheckboxParam.IsChecked, False)
-                row_[target_col] = (wid, False)
-
-    # Set the target to its incoming state
-    update_widget(_cb_id, CheckboxParam.IsChecked, is_checked)
-    grid[target_row][target_col] = (_cb_id, is_checked)
-    set_widget_status(pc, target_row, target_col)
-
-
-def populate_widget_checkboxes(color: list):
-    """Updating the widget and checkboxes for palette matrix selection"""
-    pc.palette = get_color_palette(rgba=color)
-    statuses = pc.widget_parts.get("statuses")
-    parts = pc.widget_parts.get("parts")
-    pal_by_name = {str(k).rsplit('.', maxsplit=1)[-1]: v for k, v in pc.palette.items()}
-
-    # add the palette color buttons (one per status/column)
-    idx = 0
-    for (k, pal_color) in pal_by_name.items():
-        if "Text" not in k:
-            text_color = pal_by_name.get(k + "Text")
-            btn_style_id = add_button_style(bkg_rgba=pal_color, text_rgba=text_color)
-            widget_id = add_button(
-                            parent_id=pc.row_ids[idx],
-                            label=k,
-                            width=100,
-                            padding=[10],
-                            style_id=btn_style_id)
-            pc.palette_widget_ids.append(widget_id)
-            part_id = add_pick_list(options=parts, widht=100)
-            pc.palette_menu_item_btn_ids.append(part_id)
-            idx += 1
-
-    # Update checkboxes in a 8x#statuses matrix (8 rows x statuses/columns)
-    for _r in range(8):
-        for (idx, status_) in enumerate(statuses):
-            update_widget_params(pc.checkbox_grid[_r][idx][0], # the id
-                                 {
-                                     CheckboxParam.Show: True,
-                                     CheckboxParam.Label: status_,
-                                     CheckboxParam.IsChecked: pc.checkbox_grid[_r][idx][1],
-                                 })
-            move_widget(wid=pc.checkbox_grid[_r][idx][0], move_after=pc.palette_widget_ids[_r])
-
 def on_palette_selected(btn_id):
     """update the selected widget palette"""
     params = get_widget_parameters(btn_id)
+    pal = pc.palette
+    label = params.get("label")
     style_id_ = params.get("style_id")
-    print(style_id_)
+    key = getattr(PaletteKey, label, None)
+    rgba_value = ""
+    if key:
+        rgba_value = pal[key]
+    else:
+        print(f"Key {label} not found")
+    update_widget(style_id_, ButtonStyleParam.BkgRgba, rgba_value)
+
 
 # populate the dropdown for the demo widgets
 parts_file_path = os.path.join(cwd, "python_examples", "py_palette", "widget_palette_parts.yml")
-pc.widget_list = WidgetConfig.get_widget_names_from_file(parts_file_path)
-(pc.unique_parts_list, pc.unique_status_list) = \
-    WidgetConfig.get_unique_parts_status_from_file(parts_file_path)
+pc.demo_widget_list = WidgetConfig.get_widget_names_from_file(parts_file_path)
 
 def load_demo(_pl_id: int, selected: str):
     """Loading a demo setup"""
@@ -380,7 +311,7 @@ def load_demo(_pl_id: int, selected: str):
 with Window(title="Palette Creator - Interactive Workflow", center=True, size=(1000, 800)):
 
     with Container(padding=[20]):
-        add_pick_list(options=pc.widget_list,
+        add_pick_list(options=pc.demo_widget_list,
                       placeholder="Load the Demo Widget Palette file",
                       on_select=load_demo)
 

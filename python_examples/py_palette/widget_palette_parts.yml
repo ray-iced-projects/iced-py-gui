@@ -18,14 +18,14 @@ button:
   description: "Button widget with clickable states"
   statuses: [Active, Hovered, Pressed, Disabled]
   state_variants: [NoVariant]
-  parts: [Background, Text, Border]
+  parts: [Background, Border, Text]
   palette_enabled: true
 
 checkbox:
   description: "Checkbox with checked/unchecked states"
   statuses: [Active, Hovered, Disabled]
   state_variants: [Checked, Unchecked]
-  parts: [Background, Text, Border, Icon]
+  parts: [Background, Border, Icon, Text]
   palette_enabled: true
 
 # STATUS-BASED WIDGETS (Status styling implemented, ready for palettes)
@@ -43,7 +43,7 @@ menu:
   description: "Menu bar widget with dropdown items"
   statuses: [Active, Hovered]
   state_variants: [NoVariant]
-  parts: [Background, Text, Border]
+  parts: [Background, Border, Text]
   palette_enabled: false
   notes: "Has status-based styling, ready for palette implementation"
 
@@ -51,7 +51,7 @@ pick_list:
   description: "Dropdown list widget"
   statuses: [Active, Hovered, Opened, Disabled]
   state_variants: [NoVariant]
-  parts: [Background, Text, Border]
+  parts: [Background, Border, Text]
   palette_enabled: false
   notes: "Has status-based styling, supports Opened status"
 
@@ -99,7 +99,7 @@ text_editor:
   description: "Text editor widget"
   statuses: [Active, Focused, Disabled]
   state_variants: [NoVariant]
-  parts: [Background, Text, Border]
+  parts: [Background, Border, Text]
   palette_enabled: false
   notes: "Has status-based styling, supports Focused status"
 
@@ -107,7 +107,7 @@ text_input:
   description: "Text input field widget"
   statuses: [Active, Focused, Hovered, Disabled]
   state_variants: [NoVariant]
-  parts: [Background, Text, Border]
+  parts: [Background, Border, Text]
   palette_enabled: false
   notes: "Has status-based styling, supports Focused and Hovered"
 
@@ -174,7 +174,7 @@ tool_tip:
   description: "Tooltip popup widget"
   statuses: [Active]
   state_variants: [NoVariant]
-  parts: [Background, Text, Border]
+  parts: [Background, Border, Text]
   palette_enabled: false
   notes: "Simple widget with basic styling"
 

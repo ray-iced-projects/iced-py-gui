@@ -344,7 +344,7 @@ class WidgetConfig:
             # Return sorted list for consistent ordering
             return (sorted(list(unique_parts)), sorted(list(unique_statuses)))
 
-        except Exception as e:
+        except (FileNotFoundError, OSError, ValueError, yaml.YAMLError) as e:
             print(f"Error parsing parts file: {e}")
             return []
 
@@ -375,7 +375,7 @@ class WidgetConfig:
             # Return sorted list for consistent ordering
             return sorted(list(names))
 
-        except Exception as e:
+        except (FileNotFoundError, OSError, ValueError, yaml.YAMLError) as e:
             print(f"Error parsing parts file: {e}")
             return []
 

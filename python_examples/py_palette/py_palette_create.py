@@ -46,6 +46,7 @@ from icedpygui import (
     update_widget_params,
     get_widget_palette_part,
     get_color_palette,
+    get_widget_parameters,
 )
 
 
@@ -190,6 +191,7 @@ class PaletteCreator:
         self.widget_config: WidgetConfig = WidgetConfig()
         self.palette_widget_ids: list[int] = []
         self.palette_menu_item_btn_ids: list[int] = []
+        self.palette_menu_item_btn_style_ids: list[int] = []
         self.new_widget_row_id: int = None
         self.parts_file: dict = {}
         self.parts_file_name: str = None
@@ -203,7 +205,8 @@ class PaletteCreator:
         self.palette_row_ids: list[int] = []  # list of row IDs for palette display
         self.row_ids: list[int] = [] # rows containing the widget and checkboxes
         self.checkbox_grid: list[list[int, 2]] = [] # 2D grid: [row][col] for matrix selection
-        self.menu_bar_item_id: int = None # MenuBarItem is hidden until populated
+        self.menu_bar_ids: list[int] = [] # MenuBarItem is hidden until populated
+
 
     def set_new_widget(self, widget_str: str):
         """Place the selected widget"""
@@ -348,9 +351,11 @@ def populate_widget_checkboxes(color: list):
                                  })
             move_widget(wid=pc.checkbox_grid[_r][idx][0], move_after=pc.palette_widget_ids[_r])
 
-def on_palette_selected(_btn_id):
+def on_palette_selected(btn_id):
     """update the selected widget palette"""
-
+    params = get_widget_parameters(btn_id)
+    style_id_ = params.get("style_id")
+    print(style_id_)
 
 # populate the dropdown for the demo widgets
 parts_file_path = os.path.join(cwd, "python_examples", "py_palette", "widget_palette_parts.yml")
@@ -380,67 +385,74 @@ with Window(title="Palette Creator - Interactive Workflow", center=True, size=(1
                       on_select=load_demo)
 
     with Container(width_fill=True, padding=[40]):
-        with Column(spacing=15, width_fill=True) as col:
-            # Instructions
-            add_text(content=
-                "Palette Creation Workflow\n")
+        with Scrollable(width_fill=True, height=750):
+            with Column(spacing=15, width_fill=True) as col:
+                # Instructions
+                add_text(content=
+                    "Palette Creation Workflow\n")
 
-            add_text(content="***Step 1: Load Palettes Part file.")
-            with Row(spacing=20):
-                add_button(label="Select Palette Parts file", on_press=open_fsd_for_file_path)
-                parts_file_status_txt_id = add_text(content="Parts file selected = None")
+                add_text(content="***Step 1: Load Palettes Part file.")
+                with Row(spacing=20):
+                    add_button(label="Select Palette Parts file", on_press=open_fsd_for_file_path)
+                    parts_file_status_txt_id = add_text(content="Parts file selected = None")
 
 
-            add_text(content="***Step 2: Select the widget to create the palette for")
-            widget_pl_id = add_pick_list(options=pc.widget_list,
-                                    placeholder="Empty until parts file selected",
-                                    on_select=parse_parts_selection)
+                add_text(content="***Step 2: Select the widget to create the palette for")
+                widget_pl_id = add_pick_list(options=pc.widget_list,
+                                        placeholder="Empty until parts file selected",
+                                        on_select=parse_parts_selection)
 
-            add_text(content=("***Step 3: Select Color for new palette using "
-                                "either ColorPicker(press submit) or "
-                                "text_input(press enter to submit)."),
-                     width=600, wrapping_word_glyph=True)
+                add_text(content=("***Step 3: Select Color for new palette using "
+                                    "either ColorPicker(press submit) or "
+                                    "text_input(press enter to submit)."),
+                        width=600, wrapping_word_glyph=True)
 
-            with Row(spacing=10, width_fill=True, height=30):
-                with ColorPicker(on_submit=on_color_picked):
-                    add_button(label="Select a Palette Color")
-                add_text_input(
-                    placeholder="Or type/paste: [r, g, b, a] float format",
-                    on_submit=on_color_text_input,
-                    width=300
-                )
+                with Row(spacing=10, width_fill=True, height=30):
+                    with ColorPicker(on_submit=on_color_picked):
+                        add_button(label="Select a Palette Color")
+                    add_text_input(
+                        placeholder="Or type/paste: [r, g, b, a] float format",
+                        on_submit=on_color_text_input,
+                        width=300
+                    )
 
-            selected_color_txt_id = add_text(content="Selected color = []")
+                selected_color_txt_id = add_text(content="Selected color = []")
 
-            widget_selected_txt_id = add_text(content="***Selected Widget")
+                widget_selected_txt_id = add_text(content="***Selected Widget")
 
-            with Row(spacing=10) as new_widget_row_id:
-                pc.new_widget_row_id = new_widget_row_id
-            # The selected widget should be placed here
+                with Row(spacing=10) as new_widget_row_id:
+                    pc.new_widget_row_id = new_widget_row_id
+                # The selected widget should be placed here
 
-            # This area is hidden until the color and widget is selected
-            # area prepopulated with widget that only need to be updated later
-            # one could take the approach to add these widgets as needed.
-            with Scrollable(width_fill=True, height=275):
+                # This area is hidden until the color and widget is selected
+                # area prepopulated with widget that only need to be updated later
+                # one could take the approach to add these widgets as needed.
                 with Row(spacing=20):
                     with Column(spacing=20):
-                        for (pt_idx, part) in enumerate(pc.unique_parts_list):
+                        for part in range(8):
                             pc.parts_list_ids.append([])
-                            for status in pc.unique_status_list:
-                                pc.parts_list_ids[pt_idx].append(
-                                    add_text(content=f"{part}-{status}", show=False))
+                            for status in range(8):
+                                pc.parts_list_ids[-1].append(
+                                    add_text(content="", show=False))
                     with Column(spacing=20):
-                        for pt_idx in range(len(pc.unique_parts_list)*8):
+                        for pt_idx in range(64):
                             pc.palette_menu_item_btn_ids.append([])
+                            pc.palette_menu_item_btn_style_ids.append([])
                             with Menu(width=100):
                                 with MenuBarItem(width=100.0, spacing=5.0, offset=3.0,
                                                 close_on_item_click=True,
                                                 close_on_background_click=True,
-                                                show=False):
+                                                show=False) as menu_bar_id:
+                                    pc.menu_bar_ids.append(menu_bar_id)
                                     add_text(content="Palettes") # bar item
                                     # dropdown items
                                     for _ in range(8):
+                                        style_id = add_button_style()
+                                        pc.palette_menu_item_btn_style_ids[pt_idx].append(style_id)
                                         pc.palette_menu_item_btn_ids[pt_idx].append(
-                                            add_button(label="Pal", on_press=on_palette_selected))
+                                            add_button(label="Pal",
+                                                        width=100,
+                                                        style_id=style_id,
+                                                        on_press=on_palette_selected))
 
 start_session()

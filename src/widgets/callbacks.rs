@@ -15,12 +15,12 @@ type PyObject = Py<PyAny>;
 fn get_user_data(id: usize) -> Option<PyObject> {
     let lock1 = USERDATA1.try_lock();
     if let Ok(ref ud1) = lock1 {
-        let opt = ud1.get(id).map(|ud| Python::attach(|py| ud.clone_ref(py)));
+        let opt = ud1.get(id).ok().map(|ud| Python::attach(|py| ud.clone_ref(py)));
         drop(lock1);
         opt
     } else {
         let ud2 = access_user_data2();
-        let opt = ud2.get(id).map(|ud| Python::attach(|py| ud.clone_ref(py)));
+        let opt = ud2.get(id).ok().map(|ud| Python::attach(|py| ud.clone_ref(py)));
         drop(ud2);
         opt
     }

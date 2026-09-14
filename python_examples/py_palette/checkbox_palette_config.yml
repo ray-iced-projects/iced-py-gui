@@ -28,9 +28,9 @@ state_variants:
 # Available style parts that can be customized
 parts:
   - Background
-  - Text
   - Border
   - Icon
+  - Text
 
 # ============================================================================
 # Palette Mappings (Part-Oriented)

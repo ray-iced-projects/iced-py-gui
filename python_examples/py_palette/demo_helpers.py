@@ -49,7 +49,7 @@ def demo_populate_palette_area(pc: PaletteCreator):
             update_widget(pc.menu_bar_ids[menu_bar_index], MenuBarItemParam.Show, True)
 
     # show the menu bars and update the palette bar items with the correct button color
-    for (idx, bar_id) in enumerate(pc.menu_bar_ids):
+    for (idx, _bar_id) in enumerate(pc.menu_bar_ids):
         # Calculate which part and status this menu bar corresponds to
         part_idx = idx // len(statuses)
         status_idx = idx % len(statuses)
@@ -57,10 +57,10 @@ def demo_populate_palette_area(pc: PaletteCreator):
         # Check if we're within the bounds of actual parts and statuses
         if part_idx >= len(parts) or status_idx >= len(statuses):
             continue
-        
+
         part = parts[part_idx]
         pals_list = list(pals_by_name.items())
-        
+
         # Filter palette based on whether part contains "Text"
         if "Text" in part:
             # Use only Text-related palettes for Text parts
@@ -68,12 +68,15 @@ def demo_populate_palette_area(pc: PaletteCreator):
         else:
             # Use non-Text palettes for non-Text parts
             filtered_pals = [(name, rgba) for name, rgba in pals_list if "Text" not in name]
-        
+        print(part)
+        print(statuses[status_idx])
+        # update the menu buttons with the palette name and bkg color
         for index in range(8):
             if index < len(filtered_pals):
                 (name, rgba) = filtered_pals[index]
-                update_widget(pc.palette_menu_item_btn_ids[idx][index], ButtonParam.Label, name)
+                update_widget_params(pc.palette_menu_item_btn_ids[idx][index], {
+                                    ButtonParam.Label, name,
+                                    ButtonParam.})
+                
                 update_widget(pc.palette_menu_item_btn_style_ids[idx][index],
                             ButtonStyleParam.BkgRgba, rgba)
-            
-

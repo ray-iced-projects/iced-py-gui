@@ -351,13 +351,27 @@ pub fn access_user_data1() -> MutexGuard<'static, UserData1> {
 }
 
 impl UserData1 {
-    pub fn insert(&mut self, id: usize, data: PyObject) {
-        self.user_data.insert(id, data);
+    pub fn insert(&mut self, id: usize, data: PyObject) -> Result<(), String> {
+        if self.user_data.contains_key(&id) {
+            Err(format!("UserData1: ID {} already exists", id))
+        } else {
+            self.user_data.insert(id, data);
+            Ok(())
+        }
     }
     
-    pub fn get(&self, id: usize) -> Option<&PyObject> {
-        self.user_data.get(&id)
+    pub fn get(&self, id: usize) -> Result<&PyObject, String> {
+        self.user_data.get(&id).ok_or_else(|| format!("UserData1: ID {} not found", id))
     }
+
+    pub fn update(&mut self, id: usize, data: PyObject) -> Result<(), String> {
+    if self.user_data.contains_key(&id) {
+        self.user_data.insert(id, data);
+        Ok(())
+    } else {
+        Err(format!("UserData1: ID {} not found", id))
+    }
+}
 }
 
 #[derive(Debug)]
@@ -374,12 +388,26 @@ pub fn access_user_data2() -> MutexGuard<'static, UserData2> {
 }
 
 impl UserData2 {
-    pub fn insert(&mut self, id: usize, data: PyObject) {
-        self.user_data.insert(id, data);
+    pub fn insert(&mut self, id: usize, data: PyObject) -> Result<(), String> {
+        if self.user_data.contains_key(&id) {
+            Err(format!("UserData2: ID {} already exists", id))
+        } else {
+            self.user_data.insert(id, data);
+            Ok(())
+        }
     }
     
-    pub fn get(&self, id: usize) -> Option<&PyObject> {
-        self.user_data.get(&id)
+    pub fn get(&self, id: usize) -> Result<&PyObject, String> {
+        self.user_data.get(&id).ok_or_else(|| format!("UserData2: ID {} not found", id))
+    }
+
+    pub fn update(&mut self, id: usize, data: PyObject) -> Result<(), String> {
+        if self.user_data.contains_key(&id) {
+            self.user_data.insert(id, data);
+            Ok(())
+        } else {
+            Err(format!("UserData2: ID {} not found", id))
+        }
     }
 }
 
@@ -408,15 +436,14 @@ pub fn access_update_widgets() -> MutexGuard<'static, UpdateWidgets> {
     UPDATE_WIDGETS.lock().unwrap()
 }
 
-// Snapshot of widgets captured during callback dispatch so Python can read a
-// widget's parameters by id while a callback is executing. The runtime widgets
-// live in IpgState (owned by the Iced loop) and STATE.widgets is drained at
-// startup, so this bridge is the only way a pyfunction can see live values.
-pub static CALLBACK_WIDGETS: Mutex<Lazy<HashMap<usize, Widgets>>> =
+// Snapshot of widgets parameters for the python methods 
+// get_widget_parameters, get_widget_style_parameters, and
+// get widget_palette_parameters
+pub static WIDGET_PARAMETERS: Mutex<Lazy<HashMap<usize, Widgets>>> =
     Mutex::new(Lazy::new(|| HashMap::new()));
 
-pub fn access_callback_widgets() -> MutexGuard<'static, Lazy<HashMap<usize, Widgets>>> {
-    CALLBACK_WIDGETS.lock().unwrap()
+pub fn access_widget_parameters() -> MutexGuard<'static, Lazy<HashMap<usize, Widgets>>> {
+    WIDGET_PARAMETERS.lock().unwrap()
 }
 
 #[derive(Debug)]
@@ -876,4 +903,11 @@ pub fn add_user_data_to_mutex(
         drop(temp_ud);
     }
     drop(lock);
+}
+
+pub fn update_user_data_to_mutex(
+    id: usize, 
+    user_data: PyObject) 
+{
+    
 }

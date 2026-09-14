@@ -28,9 +28,6 @@ checkbox:
   parts: [Background, Border, Icon, Text]
   palette_enabled: true
 
-# STATUS-BASED WIDGETS (Status styling implemented, ready for palettes)
-# ============================================================================
-
 card:
   description: "Card widget with expandable states"
   statuses: [Active, Hovered, Disabled]
@@ -118,65 +115,6 @@ toggle:
   parts: [Background, Border, Text]
   palette_enabled: false
   notes: "Has status-based styling, similar to checkbox but simpler"
-
-# THEME-ONLY WIDGETS (No status-based styling, theme colors only)
-# ============================================================================
-
-container:
-  description: "Container widget for layout grouping"
-  statuses: []
-  state_variants: []
-  parts: [Background, Border]
-  palette_enabled: false
-  notes: "Theme-only styling, no status-based styles"
-
-color_picker:
-  description: "Color picker widget"
-  statuses: []
-  state_variants: []
-  parts: [Background]
-  palette_enabled: false
-  notes: "Theme-only styling, no status-based styles"
-
-date_picker:
-  description: "Date picker calendar widget"
-  statuses: []
-  state_variants: []
-  parts: [Background]
-  palette_enabled: false
-  notes: "Theme-only styling, no status-based styles"
-
-rule:
-  description: "Horizontal/vertical rule separator"
-  statuses: []
-  state_variants: []
-  parts: [Border]
-  palette_enabled: false
-  notes: "Theme-only styling, no status-based styles"
-
-svg:
-  description: "SVG image widget"
-  statuses: []
-  state_variants: []
-  parts: []
-  palette_enabled: false
-  notes: "Theme-only styling, minimal styling"
-
-text:
-  description: "Static text label widget"
-  statuses: []
-  state_variants: []
-  parts: [Text]
-  palette_enabled: false
-  notes: "Theme-only styling, no status-based styles"
-
-tool_tip:
-  description: "Tooltip popup widget"
-  statuses: [Active]
-  state_variants: [NoVariant]
-  parts: [Background, Border, Text]
-  palette_enabled: false
-  notes: "Simple widget with basic styling"
 
 # ============================================================================
 # REFERENCE: Available Status Types

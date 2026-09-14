@@ -15,7 +15,7 @@ import os
 
 from python_examples.py_palette.demo_helpers import demo_populate_palette_area
 from python_examples.py_palette.widget_helpers import (
-    WidgetConfig, load_demo_config, match_widget_str, place_widget, set_widget_status)
+    WidgetConfig, load_demo_config, match_widget_str, place_widget)
 from icedpygui import (
     Window,
     ColorPicker,
@@ -28,6 +28,7 @@ from icedpygui import (
     add_button_style,
     ButtonStyleParam,
     add_pick_list,
+    PickListParam,
     Menu,
     MenuBarItem,
     add_text,
@@ -44,7 +45,6 @@ from icedpygui import (
     update_widget,
     get_widget_palette_part,
     get_widget_parameters,
-    get_dialog_filters,
 )
 
 
@@ -210,14 +210,13 @@ class PaletteCreator:
     def set_new_widget(self, widget_str: str):
         """Place the selected widget"""
         widget = match_widget_str(widget_str)
-        place_widget(self, widget)
-
+        if not widget is None:
+            place_widget(self, widget)
+        else:
+            print(f"Failed to sett the new widget, unable to find {widget_str}")
 
 
 pc = PaletteCreator()
-
-# Set the file types
-file_types = ["yml", "yaml"]
 
 # Default directory
 cwd = os.getcwd()
@@ -233,17 +232,27 @@ def load_parts_file(_btn_id: int):
 def on_file_path_selected(_fsd_id: int, results: tuple[FsdType, str]):
     """Callback results for the FSD"""
     _fsd_type, file_path = results
-    pc.unique_parts_list = WidgetConfig.get_unique_parts_status_from_file(file_path)
+    pc.widget_list = WidgetConfig.get_widget_names_from_file(file_path)
+    update_widget(widget_pl_id, PickListParam.Options, pc.widget_list)
 
+
+
+# file_types = get_dialog_filters
+# The results of using get_dialog_filters gives you  a list of the various
+# filters that the dialog widget has.  'All files' is always append to the end
+# so that if the file is not available, you can simple select all file in the
+# dialog to search for any file.  The 'All Files' is also the default.
+# ['All Files', 'Archive Files', 'Audio Files', 'C Files', 'C++ Files', 'CSS Files',
+# 'HTML Files', 'Image Files', 'JPEG Images', 'JSON Files', 'Java Files', 'JavaScript Files',
+# 'PDF Files', 'PNG Images', 'Python Files', 'Rust Files', 'Text Files', 'TypeScript Files',
+# 'Video Files', 'Word Documents', 'XML Files', 'YAML Files']
 
 # Setup the FSD to select the file name
 fsd_id = add_file_system_dialog(
     results_callback=on_file_path_selected,
-    filters=file_types,
+    filters=['YAML Files'],
     default_directory=DEFAULT_DIRECTORY,
 )
-
-print(get_dialog_filters())
 
 def open_fsd_for_file_path(_btn_id: int):
     """Opens the file dialog"""
@@ -252,8 +261,8 @@ def open_fsd_for_file_path(_btn_id: int):
 
 def parse_parts_selection(_pl_id: int, selection: str):
     """Parsing the parts file for the selected widget"""
-    pc.widget_parts = get_widget_palette_part(selection, pc.parts_file)
     pc.widget_name = selection
+    load_demo_config(pc)
     pc.set_new_widget(selection)
 
 
@@ -262,6 +271,7 @@ def on_color_picked(_cp_id: int, color: list[float]):
     pc.current_color = color
     formatted = [round(c, 2) for c in color]
     update_widget(selected_color_txt_id, TextParam.Content, f"Selected color = {formatted}")
+    demo_populate_palette_area(pc)
 
 
 def on_color_text_input(_ti_id: int, text: str):
@@ -273,20 +283,28 @@ def on_color_text_input(_ti_id: int, text: str):
     else:
         update_widget(selected_color_txt_id, TextParam.Content,
                       "Invalid color format, use float values")
+    demo_populate_palette_area(pc)
 
 
 def on_palette_selected(btn_id):
     """update the selected widget palette"""
+    # get the parameters of the palette menu button that was pressed
     params = get_widget_parameters(btn_id)
-    pal = pc.palette
+    # get the label which has the palette name
     label = params.get("label")
+    # get the style_id of the button that was presssed
     style_id_ = params.get("style_id")
+    # Using the label get the PaletteKey
     key = getattr(PaletteKey, label, None)
+    # get the palette
+    pal = pc.palette
     rgba_value = ""
+    # get the rgba value
     if key:
         rgba_value = pal[key]
     else:
         print(f"Key {label} not found")
+    
     update_widget(style_id_, ButtonStyleParam.BkgRgba, rgba_value)
 
 

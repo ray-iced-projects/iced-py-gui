@@ -5,7 +5,7 @@ use pyo3::types::PyDict;
 use pyo3::prelude::*;
 use pyo3::exceptions::PyValueError;
 
-use crate::state::{access_update_widgets, access_callback_widgets, Widgets};
+use crate::state::{access_update_widgets, access_widget_parameters, Widgets};
 type PyObject = Py<PyAny>;
 
 
@@ -217,7 +217,7 @@ pub fn move_widget(
 #[pyo3(signature = (widget_id))]
 pub fn get_widget_parameters(py: Python<'_>, widget_id: usize) -> PyResult<PyObject> {
     let widget = {
-        let snapshot = access_callback_widgets();
+        let snapshot = access_widget_parameters();
         snapshot.get(&widget_id).cloned()
     };
 
@@ -256,7 +256,7 @@ pub fn get_widget_parameters(py: Python<'_>, widget_id: usize) -> PyResult<PyObj
 #[pyo3(signature = (style_id))]
 pub fn get_widget_style_parameters(py: Python<'_>, style_id: usize) -> PyResult<PyObject> {
     let widget = {
-        let snapshot = access_callback_widgets();
+        let snapshot = access_widget_parameters();
         snapshot.get(&style_id).cloned()
     };
 
@@ -295,7 +295,7 @@ pub fn get_widget_style_parameters(py: Python<'_>, style_id: usize) -> PyResult<
 #[pyo3(signature = (font_id))]
 pub fn get_widget_font_parameters(py: Python<'_>, font_id: usize) -> PyResult<PyObject> {
     let widget = {
-        let snapshot = access_callback_widgets();
+        let snapshot = access_widget_parameters();
         snapshot.get(&font_id).cloned()
     };
 
@@ -331,7 +331,7 @@ pub fn get_widget_font_parameters(py: Python<'_>, font_id: usize) -> PyResult<Py
 #[pyo3(signature = (palette_id))]
 pub fn get_widget_palette_parameters(py: Python<'_>, palette_id: usize) -> PyResult<PyObject> {
     let widget = {
-        let snapshot = access_callback_widgets();
+        let snapshot = access_widget_parameters();
         snapshot.get(&palette_id).cloned()
     };
 

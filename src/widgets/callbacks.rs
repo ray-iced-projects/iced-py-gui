@@ -1,5 +1,5 @@
 //! callbacks
-use crate::state::{USERDATA1, access_callbacks, access_user_data2};
+use crate::state::{access_user_data1, access_callbacks};
 
 use pyo3::{Py, PyAny, Python};
 use pyo3::conversion::IntoPyObject;
@@ -9,21 +9,11 @@ use strum::Display;
 type PyObject = Py<PyAny>;
 
 
-// Get user data for a widget, trying USERDATA1 first with fallback to USERDATA2.
-// Sometimes a lock is found when more than one callback is used in succession, it
-// seems like two is enough.
 fn get_user_data(id: usize) -> Option<PyObject> {
-    let lock1 = USERDATA1.try_lock();
-    if let Ok(ref ud1) = lock1 {
-        let opt = ud1.get(id).ok().map(|ud| Python::attach(|py| ud.clone_ref(py)));
-        drop(lock1);
-        opt
-    } else {
-        let ud2 = access_user_data2();
-        let opt = ud2.get(id).ok().map(|ud| Python::attach(|py| ud.clone_ref(py)));
-        drop(ud2);
-        opt
-    }
+    let ud = access_user_data1();
+    let opt = ud.user_data.get(&id).map(|ud| Python::attach(|py| ud.clone_ref(py)));
+    drop(ud);
+    opt
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Display)]

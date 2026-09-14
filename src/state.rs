@@ -375,43 +375,6 @@ impl UserData1 {
 }
 
 #[derive(Debug)]
-pub struct UserData2 {
-    pub user_data: Lazy<HashMap<usize, PyObject>>,
-}
-
-pub static USERDATA2: Mutex<UserData2> = Mutex::new(UserData2 {
-    user_data: Lazy::new(|| HashMap::new()),
-});
-
-pub fn access_user_data2() -> MutexGuard<'static, UserData2> {
-    USERDATA2.lock().unwrap()
-}
-
-impl UserData2 {
-    pub fn insert(&mut self, id: usize, data: PyObject) -> Result<(), String> {
-        if self.user_data.contains_key(&id) {
-            Err(format!("UserData2: ID {} already exists", id))
-        } else {
-            self.user_data.insert(id, data);
-            Ok(())
-        }
-    }
-    
-    pub fn get(&self, id: usize) -> Result<&PyObject, String> {
-        self.user_data.get(&id).ok_or_else(|| format!("UserData2: ID {} not found", id))
-    }
-
-    pub fn update(&mut self, id: usize, data: PyObject) -> Result<(), String> {
-        if self.user_data.contains_key(&id) {
-            self.user_data.insert(id, data);
-            Ok(())
-        } else {
-            Err(format!("UserData2: ID {} not found", id))
-        }
-    }
-}
-
-#[derive(Debug)]
 pub struct UpdateWidgets {
     // (wid, item, value)
     pub updates: Vec<(usize, PyObject, PyObject)>, 
@@ -893,16 +856,7 @@ pub fn add_user_data_to_mutex(
     id: usize, 
     user_data: PyObject) 
 {
-    let mut lock = USERDATA1.try_lock();
-    if let Ok(ref mut ud) = lock {
-        ud.user_data.insert(id, user_data);
-        
-    } else {
-        let mut temp_ud = access_user_data2();
-        temp_ud.user_data.insert(id, user_data);
-        drop(temp_ud);
-    }
-    drop(lock);
+    access_user_data1().user_data.insert(id, user_data);
 }
 
 pub fn update_user_data_to_mutex(

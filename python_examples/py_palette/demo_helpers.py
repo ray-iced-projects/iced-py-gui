@@ -8,11 +8,12 @@ from typing import TYPE_CHECKING
 from icedpygui import (
     ButtonParam,
     ButtonStyleParam,
-    MenuBarItemParam,
     TextParam,
     get_color_palette,
     update_widget,
     update_widget_params,
+    update_user_data,
+    get_user_data,
 )
 
 
@@ -45,15 +46,15 @@ def demo_populate_palette_area(pc: PaletteCreator):
             update_widget_params(pc.parts_list_ids[parts_index][status_index],
                           {TextParam.Content: f"{part}-{status}",
                            TextParam.Show: True})
-            menu_bar_index = parts_index * len(statuses) + status_index
-            update_widget(pc.menu_bar_ids[menu_bar_index], MenuBarItemParam.Show, True)
+            popup_index = parts_index * len(statuses) + status_index
+            update_widget(pc.popup_btn_ids[popup_index], ButtonParam.Show, True)
 
     # show the menu bars and update the palette bar items with the correct button color
-    for (idx, _bar_id) in enumerate(pc.menu_bar_ids):
+    for (idx, _btn_id) in enumerate(pc.popup_btn_ids):
         # Calculate which part and status this menu bar corresponds to
         part_idx = idx // len(statuses)
         status_idx = idx % len(statuses)
-        
+
         # Check if we're within the bounds of actual parts and statuses
         if part_idx >= len(parts) or status_idx >= len(statuses):
             continue
@@ -68,15 +69,16 @@ def demo_populate_palette_area(pc: PaletteCreator):
         else:
             # Use non-Text palettes for non-Text parts
             filtered_pals = [(name, rgba) for name, rgba in pals_list if "Text" not in name]
-        print(part)
-        print(statuses[status_idx])
+
         # update the menu buttons with the palette name and bkg color
+        # The add the new user_data so that when the button is pressed,
+        # the user data can be used to update the new widget
         for index in range(8):
             if index < len(filtered_pals):
                 (name, rgba) = filtered_pals[index]
-                update_widget_params(pc.palette_menu_item_btn_ids[idx][index], {
-                                    ButtonParam.Label, name,
-                                    ButtonParam.})
-                
-                update_widget(pc.palette_menu_item_btn_style_ids[idx][index],
-                            ButtonStyleParam.BkgRgba, rgba)
+                update_widget(pc.palette_popup_btn_ids[idx][index], ButtonParam.Label, name)
+                update_widget(pc.palette_popup_btn_style_ids[idx][index],
+                                            ButtonStyleParam.BkgRgba, rgba)
+                popup_id = get_user_data(pc.palette_popup_btn_ids[idx][index])
+                update_user_data(pc.palette_popup_btn_ids[idx][index],
+                                 (part, statuses[status_idx], rgba, popup_id))

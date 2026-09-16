@@ -723,6 +723,9 @@ pub enum ButtonStyleParam {
     GradientDegrees,
     GradientRadians,
 
+    BorderColor,
+    BorderColorAlpha,
+    BorderRgba,
     BorderRadius,
     BorderWidth,
 
@@ -793,6 +796,9 @@ impl WidgetParamUpdate for ButtonStyle {
             ButtonStyleParam::GradientDegrees => set_t_value(&mut self.gradient_degrees, value, "ButtonStyleParam::GradientDegrees"),
             ButtonStyleParam::GradientRadians => set_t_value(&mut self.gradient_radians, value, "ButtonStyleParam::GradientRadians"),
             
+            ButtonStyleParam::BorderColor => set_t_value(&mut self.border_color, value, "ButtonStyleParam::BorderColor"),
+            ButtonStyleParam::BorderColorAlpha => set_t_value(&mut self.border_color_alpha, value, "ButtonStyleParam::BorderColorAlpha"),
+            ButtonStyleParam::BorderRgba => set_t_value(&mut self.border_rgba, value, "ButtonStyleParam::BorderRgba"),
             ButtonStyleParam::BorderRadius => set_t_value(&mut self.border_radius, value, "ButtonStyleParam::BorderRadius"),
             ButtonStyleParam::BorderWidth => set_t_value(&mut self.border_width, value, "ButtonStyleParam::BorderWidth"),
             

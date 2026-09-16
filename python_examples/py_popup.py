@@ -53,7 +53,8 @@ with Window(
         # Add a column to hold multiple widgets
         with Column(spacing=20.0, width=200):
             # Add the popup
-            with PopUp(on_open=pop_opened,
+            with PopUp(position_right=True,
+                on_open=pop_opened,
                        on_close=on_pop_closed,
                        on_click_outside=clicked_outside) as popup_id:
                 add_button(label="Press Me", on_press=open_popup)

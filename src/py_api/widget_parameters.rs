@@ -5,7 +5,7 @@ use pyo3::types::PyDict;
 use pyo3::prelude::*;
 use pyo3::exceptions::PyValueError;
 
-use crate::state::{access_update_widgets, access_widget_parameters, Widgets};
+use crate::state::{access_update_widgets, access_user_data1, access_widget_parameters, update_user_data_to_mutex, Widgets};
 type PyObject = Py<PyAny>;
 
 
@@ -345,4 +345,22 @@ pub fn get_widget_palette_parameters(py: Python<'_>, palette_id: usize) -> PyRes
             "No palette snapshot found for id {palette_id}. \
              get_widget_palette_parameters must be called during a callback or the pid is wrong."))),
     }
+}
+
+
+#[pyfunction]
+#[pyo3(signature = (wid))]
+pub fn get_user_data(py: Python<'_>, wid: usize) -> PyResult<PyObject> {
+    let ud = access_user_data1();
+    match ud.user_data.get(&wid) {
+        Some(data) => Ok(data.clone_ref(py)),
+        None => Err(PyValueError::new_err(format!("No user data found for id {wid}."))),
+    }
+}
+
+
+#[pyfunction]
+#[pyo3(signature = (wid, value))]
+pub fn update_user_data(wid: usize, value: PyObject) {
+    update_user_data_to_mutex(wid, value);
 }

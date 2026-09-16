@@ -47,8 +47,8 @@ impl PopUp {
                 (Some(true), None, None, None, None) => Position::Bottom,
                 (None, Some(true), None, None, None) => Position::Center,
                 (None, None, Some(true), None, None) => Position::Left,
-                (None, None, None, Some(true), None) => Position::Right,
-                (None, None, None, None, Some(true)) => Position::Top,
+                (None, None, None, Some(true), None) => Position::Top,
+                (None, None, None, None, Some(true)) => Position::Right,
                 _ => Position::Center
             };
         

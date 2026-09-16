@@ -95,6 +95,8 @@ from .icedpygui import (
     load_font,
     delete_widget,
     hide_widget,
+    get_user_data,
+    update_user_data,
     get_widget_parameters,
     get_widget_style_parameters,
     get_widget_font_parameters,

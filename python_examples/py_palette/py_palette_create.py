@@ -15,22 +15,22 @@ import os
 
 from python_examples.py_palette.demo_helpers import demo_populate_palette_area
 from python_examples.py_palette.widget_helpers import (
-    WidgetConfig, load_demo_config, match_widget_str, place_widget)
+    WidgetConfig, load_demo_config, match_widget_str, place_widget, set_new_widget_palette)
 from icedpygui import (
     Window,
     ColorPicker,
     Column,
     Container,
+    ContainerStyleStd,
     Row,
     Scrollable,
     start_session,
     add_button,
     add_button_style,
-    ButtonStyleParam,
     add_pick_list,
     PickListParam,
-    Menu,
-    MenuBarItem,
+    PopUp,
+    PopUpParam,
     add_text,
     add_text_input,
     TextParam,
@@ -43,8 +43,6 @@ from icedpygui import (
     FileSystemDialogParam as FsdParam,
     FileSystemDialogCallbackType as FsdType,
     update_widget,
-    get_widget_palette_part,
-    get_widget_parameters,
 )
 
 
@@ -189,8 +187,8 @@ class PaletteCreator:
         self.widget_parts: dict = {}
         self.widget_config: WidgetConfig = WidgetConfig()
         self.palette_widget_ids: list[int] = []
-        self.palette_menu_item_btn_ids: list[int] = []
-        self.palette_menu_item_btn_style_ids: list[int] = []
+        self.palette_popup_btn_ids: list[int] = []
+        self.palette_popup_btn_style_ids: list[int] = []
         self.new_widget_row_id: int = None
         self.parts_file: dict = {}
         self.parts_file_name: str = None
@@ -204,7 +202,8 @@ class PaletteCreator:
         self.palette_row_ids: list[int] = []  # list of row IDs for palette display
         self.row_ids: list[int] = [] # rows containing the widget and checkboxes
         self.checkbox_grid: list[list[int, 2]] = [] # 2D grid: [row][col] for matrix selection
-        self.menu_bar_ids: list[int] = [] # MenuBarItem is hidden until populated
+        self.popup_ids: list[int] = []
+        self.popup_btn_ids: list[int] = []
 
 
     def set_new_widget(self, widget_str: str):
@@ -285,27 +284,30 @@ def on_color_text_input(_ti_id: int, text: str):
                       "Invalid color format, use float values")
     demo_populate_palette_area(pc)
 
+# When the palette button is pressed this def is called
+# Key point is to remember to add the user_data parameter
+def on_palette_selected(_btn_id, user_data: tuple[str, str, list[float], int]):
+    """update the new widget colors
+    user_data:
+        str=widget part, i.e. background,
+        str=widget status, i.e., Active
+        list[float] = rgba color
+        int = popup_id
+    """
+    # Will need to match both widget and status later
+    (part_, status_, rgba, popup_id_) = user_data
+    update_widget(popup_id_, PopUpParam.Opened, False)
+    set_new_widget_palette(pc, part_, status_, rgba)
 
-def on_palette_selected(btn_id):
-    """update the selected widget palette"""
-    # get the parameters of the palette menu button that was pressed
-    params = get_widget_parameters(btn_id)
-    # get the label which has the palette name
-    label = params.get("label")
-    # get the style_id of the button that was presssed
-    style_id_ = params.get("style_id")
-    # Using the label get the PaletteKey
-    key = getattr(PaletteKey, label, None)
-    # get the palette
-    pal = pc.palette
-    rgba_value = ""
-    # get the rgba value
-    if key:
-        rgba_value = pal[key]
-    else:
-        print(f"Key {label} not found")
-    
-    update_widget(style_id_, ButtonStyleParam.BkgRgba, rgba_value)
+
+def open_palette_popup(_btn_id: int, popup_id_: int):
+    """Opens the popup to select the palette"""
+    update_widget(popup_id_, PopUpParam.Opened, True)
+
+
+def clicked_outside(pop_id: int):
+    """Called when mouse clicked outside palette selection popup"""
+    update_widget(pop_id, PopUpParam.Opened, False)
 
 
 # populate the dropdown for the demo widgets
@@ -385,23 +387,27 @@ with Window(title="Palette Creator - Interactive Workflow", center=True, size=(1
                                     add_text(content="", show=False))
                     with Column(spacing=20):
                         for pt_idx in range(64):
-                            pc.palette_menu_item_btn_ids.append([])
-                            pc.palette_menu_item_btn_style_ids.append([])
-                            with Menu(width=100):
-                                with MenuBarItem(width=100.0, spacing=5.0, offset=3.0,
-                                                close_on_item_click=True,
-                                                close_on_background_click=True,
-                                                show=False) as menu_bar_id:
-                                    pc.menu_bar_ids.append(menu_bar_id)
-                                    add_text(content="Palettes") # bar item
-                                    # dropdown items
-                                    for _ in range(8):
-                                        style_id = add_button_style()
-                                        pc.palette_menu_item_btn_style_ids[pt_idx].append(style_id)
-                                        pc.palette_menu_item_btn_ids[pt_idx].append(
-                                            add_button(label="Pal",
-                                                        width=100,
-                                                        style_id=style_id,
-                                                        on_press=on_palette_selected))
+                            pc.palette_popup_btn_ids.append([])
+                            pc.palette_popup_btn_style_ids.append([])
+
+                            with PopUp(position_top=True,
+                                        on_click_outside=clicked_outside) as popup_id:
+                                pc.popup_ids.append(popup_id)
+                                pc.popup_btn_ids.append(add_button(label="Select Palette",
+                                                               on_press=open_palette_popup,
+                                                               show=False,
+                                                               user_data=popup_id))
+                                with Container(style_std=ContainerStyleStd.BorderedBox):
+                                    with Column():
+                                        for _ in range(8):
+                                            style_id = add_button_style()
+                                            pc.palette_popup_btn_style_ids[pt_idx].append(style_id)
+                                            pc.palette_popup_btn_ids[pt_idx].append(
+                                                add_button(label="Pal",
+                                                            width=100,
+                                                            style_id=style_id,
+                                                            on_press=on_palette_selected,
+                                                            user_data=popup_id))
+
 
 start_session()

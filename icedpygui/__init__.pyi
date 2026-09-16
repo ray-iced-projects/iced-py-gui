@@ -63,6 +63,8 @@ from .icedpygui import (
     FileSystemDialogParam as FileSystemDialogParam,
     FileSystemDialogCallbackType as FileSystemDialogCallbackType,
     get_dialog_filters as get_dialog_filters,
+    get_user_data as get_user_data,
+    update_user_data as update_user_data,
     get_widget_parameters as get_widget_parameters,
     get_widget_palette_part as get_widget_palette_part,
     get_widget_palette_list as get_widget_palette_list,

@@ -1,4 +1,5 @@
 {
+    "editor.formatOnSave": true,
     "[python]": {
         "files.trimTrailingWhitespace": true
     },

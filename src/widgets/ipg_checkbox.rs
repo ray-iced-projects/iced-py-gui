@@ -662,6 +662,10 @@ pub enum CheckboxStyleParam {
     IconColorAlpha,
     IconRgba,
 
+    BorderColor,
+    BorderColorAlpha,
+    BorderRgba,
+
     BorderRadius,
     BorderRounded,
 
@@ -729,13 +733,20 @@ impl WidgetParamUpdate for CheckboxStyle {
             CheckboxStyleParam::BkgColor => set_t_value(&mut self.bkg_color, value, "CheckboxStyleParam::BkgColor"),
             CheckboxStyleParam::BkgColorAlpha => set_t_value(&mut self.bkg_color_alpha, value, "CheckboxStyleParam::BkgColorAlpha"),
             CheckboxStyleParam::BkgRgba => set_t_value(&mut self.bkg_rgba, value, "CheckboxStyleParam::BkgRgba"),
+            
             CheckboxStyleParam::IconColor => set_t_value(&mut self.icon_color, value, "CheckboxStyleParam::IconColor"),
             CheckboxStyleParam::IconColorAlpha => set_t_value(&mut self.icon_color_alpha, value, "CheckboxStyleParam::IconColorAlpha"),
             CheckboxStyleParam::IconRgba => set_t_value(&mut self.icon_rgba, value, "CheckboxStyleParam::IconRgba"),
-            CheckboxStyleParam::BorderWidth => set_t_value(&mut self.border_width, value, "CheckboxStyleParam::BorderWidth"),
+            
             CheckboxStyleParam::TextColor => set_t_value(&mut self.text_color, value, "CheckboxStyleParam::TextColor"),
             CheckboxStyleParam::TextColorAlpha => set_t_value(&mut self.text_color_alpha, value, "CheckboxStyleParam::TextColorAlpha"),
             CheckboxStyleParam::TextRgba => set_t_value(&mut self.text_rgba, value, "CheckboxStyleParam::TextRgbaColor"),
+            
+            CheckboxStyleParam::BorderColor => set_t_value(&mut self.border_color, value, "CheckboxStyleParam::BorderColor"),
+            CheckboxStyleParam::BorderColorAlpha => set_t_value(&mut self.border_color_alpha, value, "CheckboxStyleParam::BorderColorAlpha"),
+            CheckboxStyleParam::BorderRgba => set_t_value(&mut self.border_rgba, value, "CheckboxStyleParam::BorderRgba"),
+
+            CheckboxStyleParam::BorderWidth => set_t_value(&mut self.border_width, value, "CheckboxStyleParam::BorderWidth"),
             CheckboxStyleParam::BorderRadius => set_t_value(&mut self.border_radius, value, "CheckboxStyleParam::BorderRadius"),
             CheckboxStyleParam::BorderRounded => set_t_value(&mut self.border_rounded, value, "CheckboxStyleParam::BorderRounded"),
             CheckboxStyleParam::BorderRadiusTop => set_t_value(&mut self.border_radius_top, value, "CheckboxStyleParam::BorderRadiusTop"),

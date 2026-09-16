@@ -123,61 +123,32 @@ def place_widget(pc: PaletteCreator, widget: Widget):
                 )
 
 # the widget and palette is found by row=status_index, col=pal_idx of the matrix
-def set_widget_status(pc: PaletteCreator, pal_idx: int, status_index: int):
-    """Radio select for status"""
-    statuses = pc.widget_parts.get("statuses")
-    _pal, bkg_rgba = list(pc.palette.items())[pal_idx*2]
-    _text_pal, bkg_text_color = list(pc.palette.items())[pal_idx*2 + 1]
-    status = statuses[status_index]
+# Map (widget_name, part) → the StyleParam enum value
+PART_PARAM = {
+    ("button",   "background"): ButtonStyleParam.BkgRgba,
+    ("button",   "border"):     ButtonStyleParam.BorderRgba,
+    ("button",   "text"):       ButtonStyleParam.TextRgba,
+    ("checkbox", "background"): CheckboxStyleParam.BkgRgba,
+    ("checkbox", "border"):     CheckboxStyleParam.BorderRgba,
+    ("checkbox", "icon"):       CheckboxStyleParam.IconRgba,
+    ("checkbox", "text"):       CheckboxStyleParam.TextRgba,
+    # ... add new widgets here, one line per part
+}
 
-    # update the widget
-    match pc.widget_name:
-        case "button":
-            match status:
-                case "Active":
-                    update_widget_params(
-                        pc.widget_active_style_id, {
-                        ButtonStyleParam.BkgRgba: bkg_rgba,
-                        ButtonStyleParam.TextRgba: bkg_text_color
-                        })
-                case "Hovered":
-                    update_widget_params(
-                        pc.widget_hovered_style_id, {
-                        ButtonStyleParam.BkgRgba: bkg_rgba,
-                        ButtonStyleParam.TextRgba: bkg_text_color
-                        })
-                case "Pressed":
-                    update_widget_params(
-                        pc.widget_pressed_style_id, {
-                        ButtonStyleParam.BkgRgba: bkg_rgba,
-                        ButtonStyleParam.TextRgba: bkg_text_color
-                        })
-                case "Disabled":
-                    update_widget_params(
-                        pc.widget_disabled_style_id, {
-                        ButtonStyleParam.BkgRgba: bkg_rgba,
-                        ButtonStyleParam.TextRgba: bkg_text_color
-                        })
-        case "checkbox":
-            match status:
-                case "Active":
-                    update_widget_params(
-                        pc.widget_active_style_id, {
-                        CheckboxStyleParam.BkgRgba: bkg_rgba,
-                        CheckboxStyleParam.TextRgba: bkg_text_color
-                        })
-                case "Hovered":
-                    update_widget_params(
-                        pc.widget_hovered_style_id, {
-                        CheckboxStyleParam.BkgRgba: bkg_rgba,
-                        CheckboxStyleParam.TextRgba: bkg_text_color
-                        })
-                case "Disabled":
-                    update_widget_params(
-                        pc.widget_disabled_style_id, {
-                        CheckboxStyleParam.BkgRgba: bkg_rgba,
-                        CheckboxStyleParam.TextRgba: bkg_text_color
-                        })
+# Map status → which style_id attribute to use
+STATUS_ID = {
+    "Active":   "widget_active_style_id",
+    "Hovered":  "widget_hovered_style_id",
+    "Pressed":  "widget_pressed_style_id",
+    "Disabled": "widget_disabled_style_id",
+}
+
+def set_new_widget_palette(pc: PaletteCreator, part: str, status: str, rgba: list[float]):
+    """Setting the palette of the new widget"""
+    param = PART_PARAM.get((pc.widget_name, part.lower()))
+    style_id = getattr(pc, STATUS_ID.get(status, ""), None)
+    if param and style_id:
+        update_widget_params(style_id, {param: rgba})
 
 
 def match_widget_str(w_str: str) -> Widget:

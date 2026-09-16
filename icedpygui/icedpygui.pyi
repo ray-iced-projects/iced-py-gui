@@ -1997,6 +1997,23 @@ def get_widget_palette_parameters(
         Palette pairs (base, weak, strong, ...) and status mappings.
     """
 
+def get_user_data(
+        wid: int,
+    ) -> any:
+
+    """
+    Returns the user data of a widget.
+
+    Parameters
+    ----------
+        widd: int
+            The widget id.
+
+    Returns
+    -------
+    any
+        Depends on the attribute of the user data.
+    """
 
 class Arrow:
     """
@@ -2254,6 +2271,12 @@ class ButtonStyleParam:
         Gradient angle in degrees
     GradientRadians: float
         Gradient angle in radians
+    BorderColor: Color
+        Border color in Color format
+    BorderColorAlpha: float
+        Modifies the BorderColor alpha
+    BorderRgba :list[float, 4]
+        Border color in rgba format
     BorderRadius: list[float]
         The border radius [float]=all, [float, 4]=each individual one
     BorderWidth: float
@@ -2300,6 +2323,9 @@ class ButtonStyleParam:
     GradientDegrees: float
     GradientRadians: float
 
+    BorderColor: Color
+    BorderColorAlpha: float
+    BorderRgba: list[float]
     BorderRadius: list[float]
     BorderWidth: float
 

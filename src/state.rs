@@ -863,5 +863,5 @@ pub fn update_user_data_to_mutex(
     id: usize, 
     user_data: PyObject) 
 {
-    
+    access_user_data1().user_data.insert(id, user_data);
 }

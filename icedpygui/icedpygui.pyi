@@ -41,46 +41,49 @@ class ButtonStyleStd:
 
 
 def add_button_style(
-        text_top_left: bool | None = None,
-        text_top_center: bool | None = None,
-        text_top_right: bool | None = None,
-        text_center_left: bool | None = None,
-        text_center: bool | None = None,
-        text_center_right: bool | None = None,
-        text_bottom_left: bool | None = None,
-        text_bottom_center: bool | None = None,
-        text_bottom_right: bool | None = None,
-        text_size: float | None = None,
+    bkg_color: Color | None = None,
+    bkg_color_alpha: float | None = None,
+    bkg_rgba: list[float, 4] | None = None,
 
-        wrapping_none: bool | None = None,
-        wrapping_glyph: bool | None = None,
-        wrapping_word_glyph: bool | None = None,
+    text_top_left: bool | None = None,
+    text_top_center: bool | None = None,
+    text_top_right: bool | None = None,
+    text_center_left: bool | None = None,
+    text_center: bool | None = None,
+    text_center_right: bool | None = None,
+    text_bottom_left: bool | None = None,
+    text_bottom_center: bool | None = None,
+    text_bottom_right: bool | None = None,
+    text_size: float | None = None,
 
-        gradient_color_stops: list[Color] | None = None,
-        gradient_color_alpha_stops: list[float] | None = None,
-        gradient_rgba_stops: list[float, 4] | None = None,
-        gradient_offset_stops: list[float] | None = None,
-        gradient_degrees: float | None = None,
-        gradient_radians: float | None = None,
+    wrapping_none: bool | None = None,
+    wrapping_glyph: bool | None = None,
+    wrapping_word_glyph: bool | None = None,
 
-        border_color: Color | None = None,
-        border_color_alpha: float | None = None,
-        border_rgba_active: list[float, 4] | None = None,
+    gradient_color_stops: list[Color] | None = None,
+    gradient_color_alpha_stops: list[float] | None = None,
+    gradient_rgba_stops: list[float, 4] | None = None,
+    gradient_offset_stops: list[float] | None = None,
 
-        border_color_hovered: Color | None = None,
-        border_color_alpha_hovered: float | None = None,
-        border_rgba_hovered: list[float, 4] | None = None,
-        border_radius: list[float] | list[float, 4] | None = None,
-        border_width: float | None = None,
+    gradient_degrees: float | None = None,
+    gradient_radians: float | None = None,
 
-        shadow_color: Color | None = None,
-        shadow_color_alpha: float | None = None,
-        shadow_rgba: list[float, 4] | None = None,
-        shadow_offset_xy: list[float, 2] | None = None,
-        shadow_blur_radius: float | None = None,
+    border_color: Color | None = None,
+    border_color_alpha: float | None = None,
+    border_rgba_active: list[float, 4] | None = None,
 
-        snap: bool | None = None,
-        gen_id: int | None = None,
+    border_radius: list[float] | list[float, 4] | None = None,
+    border_width: float | None = None,
+
+    shadow_color: Color | None = None,
+    shadow_color_alpha: float | None = None,
+    shadow_rgba: list[float, 4] | None = None,
+
+    shadow_offset_xy: list[float, 2] | None = None,
+    shadow_blur_radius: float | None = None,
+
+    snap: bool | None = None,
+    gen_id: int | None = None,
     ) -> int:
     """Adds styling to a button
 
@@ -1609,8 +1612,8 @@ class TextContrast:
 
 
 def get_color_palette(
-        base_color: Color | None = None,
-        base_rgba: list[float, 4] | None = None,
+        color: Color | None = None,
+        rgba: list[float, 4] | None = None,
         color_alpha: float | None = None,
         text_contrast: TextContrast | None = TextContrast.Maximum,
         text_rgba: list[float, 4] | None = None,
@@ -1621,9 +1624,9 @@ def get_color_palette(
 
     Parameters:
     -----------
-        base_color: Color | None,
+        color: Color | None,
             The color with class Color
-        base_rgba: list[float, 4] | None,
+        rgba: list[float, 4] | None,
             The color in rgba format
         color_alpha: float | None
             Sets the alpha of the color

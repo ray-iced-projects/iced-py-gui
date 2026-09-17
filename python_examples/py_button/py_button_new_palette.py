@@ -32,7 +32,7 @@ new_color = [0.32, 0.2, 0.13, 1.0]
 color_pal = get_color_palette(rgba=new_color)
 
 # See the py_button_text for an explanation or run this example to see.
-pal = [
+statuses = [
     ((WidgetStatus.Active, StateVariant.NoVariant), (
                             (StylePart.Background, PaletteKey.Base, 1.0),
                             (StylePart.Text, PaletteKey.BaseText, 0.8),
@@ -63,7 +63,7 @@ def on_theme_select(_pl_id: int, theme_name: str):
     """Select a Theme by PickList"""
     update_widget(wnd_id, WindowParam.Theme, theme_name)
 
-pal_id = custom_palette(rgba=new_color, statuses=pal)
+pal_id = custom_palette(rgba=new_color, statuses=statuses)
 
 btn_style_id = add_button_style(border_width=3)
 

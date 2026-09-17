@@ -18,6 +18,8 @@ from icedpygui import (
     add_checkbox_style,
     CheckboxStyleParam,
     update_widget_params,
+    update_widget,
+    custom_palette,
 )
 
 if TYPE_CHECKING:
@@ -94,6 +96,15 @@ def place_widget(pc: PaletteCreator, widget: Widget):
                 style_id=pc.widget_disabled_style_id
                 )
 
+            pc.widget_normal_style_id = add_button_style()
+            pc.widget_normal_id = add_button(
+                label="Normal Button",
+                parent_id=pc.new_widget_row_id,
+                padding=[10],
+                width=BUTTON_WIDTH,
+                style_id=pc.widget_normal_style_id
+                )
+
         case Widget.CHECKBOX:
             pc.widget_active_style_id = add_checkbox_style()
             pc.widget_active_id = add_checkbox(
@@ -147,8 +158,12 @@ def set_new_widget_palette(pc: PaletteCreator, part: str, status: str, rgba: lis
     """Setting the palette of the new widget"""
     param = PART_PARAM.get((pc.widget_name, part.lower()))
     style_id = getattr(pc, STATUS_ID.get(status, ""), None)
+    
+    pal_id = custom_palette(pc.current_color, )
     if param and style_id:
         update_widget_params(style_id, {param: rgba})
+        update_widget(pc.widget_normal_style_id, param, rgba)
+
 
 
 def match_widget_str(w_str: str) -> Widget:

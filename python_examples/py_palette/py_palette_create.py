@@ -183,6 +183,8 @@ class PaletteCreator:
         self.widget_pressed_style_id: int = None
         self.widget_disabled_id: int = None
         self.widget_disabled_style_id: int = None
+        self.widget_normal_id: int = None
+        self.widget_normal_style_id: int = None
         self.widget_name: str = None
         self.widget_parts: dict = {}
         self.widget_config: WidgetConfig = WidgetConfig()
@@ -218,8 +220,8 @@ class PaletteCreator:
 pc = PaletteCreator()
 
 # Default directory
-cwd = os.getcwd()
-DEFAULT_DIRECTORY = os.path.join(cwd, "python_examples", "py_palette")
+CWD = os.getcwd()
+DEFAULT_DIRECTORY = os.path.join(CWD, "python_examples", "py_palette")
 BUTTON_WIDTH = 150
 
 
@@ -311,7 +313,7 @@ def clicked_outside(pop_id: int):
 
 
 # populate the dropdown for the demo widgets
-parts_file_path = os.path.join(cwd, "python_examples", "py_palette", "widget_palette_parts.yml")
+parts_file_path = os.path.join(CWD, "python_examples", "py_palette", "widget_palette_parts.yml")
 pc.demo_widget_list = WidgetConfig.get_widget_names_from_file(parts_file_path)
 
 def load_demo(_pl_id: int, selected: str):
@@ -375,17 +377,22 @@ with Window(title="Palette Creator - Interactive Workflow", center=True, size=(1
                     pc.new_widget_row_id = new_widget_row_id
                 # The selected widget should be placed here
 
+
                 # This area is hidden until the color and widget is selected
                 # area prepopulated with widget that only need to be updated later
                 # one could take the approach to add these widgets as needed.
                 with Row(spacing=20):
                     with Column(spacing=20):
+                        with Container(style_std=ContainerStyleStd.BorderedBox):
+                            add_text(content="Parts-Status")
                         for part in range(8):
                             pc.parts_list_ids.append([])
                             for status in range(8):
                                 pc.parts_list_ids[-1].append(
                                     add_text(content="", show=False))
                     with Column(spacing=20):
+                        with Container(style_std=ContainerStyleStd.BorderedBox):
+                            add_text(content="Palette Selectors")
                         for pt_idx in range(64):
                             pc.palette_popup_btn_ids.append([])
                             pc.palette_popup_btn_style_ids.append([])
@@ -408,6 +415,10 @@ with Window(title="Palette Creator - Interactive Workflow", center=True, size=(1
                                                             style_id=style_id,
                                                             on_press=on_palette_selected,
                                                             user_data=popup_id))
-
-
+                    with Column(spacing=20):
+                        with Container(style_std=ContainerStyleStd.BorderedBox):
+                            add_text(content="Palette Opacity")
+                    with Column(spacing=20):
+                        with Container(style_std=ContainerStyleStd.BorderedBox):
+                            add_text(content="Border Width")
 start_session()

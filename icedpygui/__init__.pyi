@@ -2042,7 +2042,7 @@ class Container:
         padding: list[float] | None = None,
         show: bool = True,
         style_id: int | None = None,
-        styl_std: ContainerStyleStd | None = None,
+        style_std: ContainerStyleStd | None = None,
     ) -> None: ...
     def __enter__(self) -> int: ...
     def __exit__(self, exc_type: type[BaseException] | None, \

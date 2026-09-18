@@ -19,7 +19,6 @@ from icedpygui import (
     CheckboxStyleParam,
     update_widget_params,
     update_widget,
-    custom_palette,
 )
 
 if TYPE_CHECKING:
@@ -158,8 +157,8 @@ def set_new_widget_palette(pc: PaletteCreator, part: str, status: str, rgba: lis
     """Setting the palette of the new widget"""
     param = PART_PARAM.get((pc.widget_name, part.lower()))
     style_id = getattr(pc, STATUS_ID.get(status, ""), None)
-    
-    pal_id = custom_palette(pc.current_color, )
+
+    # pal_id = custom_palette(pc.current_color, )
     if param and style_id:
         update_widget_params(style_id, {param: rgba})
         update_widget(pc.widget_normal_style_id, param, rgba)

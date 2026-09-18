@@ -3,4 +3,5 @@
     "[python]": {
         "files.trimTrailingWhitespace": true
     },
+    "python-envs.defaultEnvManager": "ms-python.python:venv",
 }

@@ -2000,6 +2000,24 @@ def get_widget_palette_parameters(
         Palette pairs (base, weak, strong, ...) and status mappings.
     """
 
+def get_widget_default_statuses(
+    style_id: int
+) -> any:
+    """
+    returns the default widget statuses
+
+    Parameters
+        ----------
+        style_id: int
+            The style id of the widget.
+            This is needed to defined the widget type.
+            Even if no style id is needed, just use, i.e.
+            style_id = add_button_style()
+
+    Returns:
+        A dictionary of the default statuses
+    """
+
 def get_user_data(
         wid: int,
     ) -> any:
@@ -2009,7 +2027,7 @@ def get_user_data(
 
     Parameters
     ----------
-        widd: int
+        wid: int
             The widget id.
 
     Returns

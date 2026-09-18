@@ -434,52 +434,10 @@ impl CheckboxStyle {
             return checkbox::primary(theme, status)
          };
 
-        let mut default_unchecked_statuses: HashMap<WidgetStatus, HashMap<StylePart, (PaletteKey, f32)>> = HashMap::new();
-        
-        let mut inner = HashMap::new();
-        inner.insert(StylePart::Border, (PaletteKey::ThemeStrong,   1.0));
-        inner.insert(StylePart::Background, (PaletteKey::ThemeBase, 1.0));
-        inner.insert(StylePart::Icon, (PaletteKey::BaseText,       1.0));
-        inner.insert(StylePart::Text, (PaletteKey::ThemeBaseText,  1.0));
-        default_unchecked_statuses.insert(WidgetStatus::Active, inner);
-                                                    
-        let mut inner = HashMap::new();
-        inner.insert(StylePart::Border, (PaletteKey::ThemeStrong,   1.0));
-        inner.insert(StylePart::Background, (PaletteKey::ThemeWeak, 1.0));
-        inner.insert(StylePart::Icon, (PaletteKey::BaseText,       1.0));
-        inner.insert(StylePart::Text, (PaletteKey::ThemeBaseText,  1.0));
-        
-        default_unchecked_statuses.insert(WidgetStatus::Hovered, inner);
-         
-        let mut inner = HashMap::new();
-        inner.insert(StylePart::Border, (PaletteKey::ThemeWeak,       1.0));
-        inner.insert(StylePart::Background, (PaletteKey::ThemeWeaker, 1.0));
-        inner.insert(StylePart::Icon, (PaletteKey::BaseText,     1.0));
-        inner.insert(StylePart::Text, (PaletteKey::ThemeBaseText, 1.0));
-        
-        default_unchecked_statuses.insert(WidgetStatus::Disabled, inner);
+        let statuses = self.default_statuses();
+        let default_unchecked_statuses = statuses.get(&"unchecked".to_string()).unwrap(); 
+        let default_checked_overrides = statuses.get(&"checked".to_string()).unwrap().clone();
 
-        // Default checked overrides per interaction status.
-        let mut default_checked_overrides: HashMap<WidgetStatus, HashMap<StylePart, (PaletteKey, f32)>> = HashMap::new();
-
-        let mut inner = HashMap::new();
-        inner.insert(StylePart::Border, (PaletteKey::Base, 1.0));
-        inner.insert(StylePart::Background, (PaletteKey::Base, 1.0));
-        inner.insert(StylePart::Text, (PaletteKey::ThemeBaseText, 1.0));
-        default_checked_overrides.insert(WidgetStatus::Active, inner);
-
-        let mut inner = HashMap::new();
-        inner.insert(StylePart::Border, (PaletteKey::Strong, 1.0));
-        inner.insert(StylePart::Background, (PaletteKey::Strong, 1.0));
-        inner.insert(StylePart::Text, (PaletteKey::ThemeBaseText, 1.0));
-        default_checked_overrides.insert(WidgetStatus::Hovered, inner);
-
-        let mut inner = HashMap::new();
-        inner.insert(StylePart::Border, (PaletteKey::ThemeStrong, 1.0));
-        inner.insert(StylePart::Background, (PaletteKey::ThemeStrong, 1.0));
-        inner.insert(StylePart::Text, (PaletteKey::ThemeBaseText, 1.0));
-        default_checked_overrides.insert(WidgetStatus::Disabled, inner);
-        
         let cust_color = custom_pal.palette;
         let theme_color = theme.palette().background;
 
@@ -585,6 +543,66 @@ impl CheckboxStyle {
         }
 
         
+    }
+
+    pub fn default_statuses(&self) -> HashMap<String, HashMap<WidgetStatus, HashMap<StylePart, (PaletteKey, f32)>>> {
+        
+        let mut default_unchecked_statuses: HashMap<WidgetStatus, HashMap<StylePart, (PaletteKey, f32)>> = HashMap::new();
+        
+        let mut inner = HashMap::new();
+        inner.insert(StylePart::Border, (PaletteKey::ThemeStrong,   1.0));
+        inner.insert(StylePart::Background, (PaletteKey::ThemeBase, 1.0));
+        inner.insert(StylePart::Icon, (PaletteKey::BaseText,       1.0));
+        inner.insert(StylePart::Text, (PaletteKey::ThemeBaseText,  1.0));
+        default_unchecked_statuses.insert(WidgetStatus::Active, inner);
+                                                    
+        let mut inner = HashMap::new();
+        inner.insert(StylePart::Border, (PaletteKey::ThemeStrong,   1.0));
+        inner.insert(StylePart::Background, (PaletteKey::ThemeWeak, 1.0));
+        inner.insert(StylePart::Icon, (PaletteKey::BaseText,       1.0));
+        inner.insert(StylePart::Text, (PaletteKey::ThemeBaseText,  1.0));
+        
+        default_unchecked_statuses.insert(WidgetStatus::Hovered, inner);
+         
+        let mut inner = HashMap::new();
+        inner.insert(StylePart::Border, (PaletteKey::ThemeWeak,       1.0));
+        inner.insert(StylePart::Background, (PaletteKey::ThemeWeaker, 1.0));
+        inner.insert(StylePart::Icon, (PaletteKey::BaseText,     1.0));
+        inner.insert(StylePart::Text, (PaletteKey::ThemeBaseText, 1.0));
+        
+        default_unchecked_statuses.insert(WidgetStatus::Disabled, inner);
+
+        let mut default_checked_overrides: HashMap<WidgetStatus, HashMap<StylePart, (PaletteKey, f32)>> = HashMap::new();
+
+        let mut inner = HashMap::new();
+        inner.insert(StylePart::Border, (PaletteKey::Base, 1.0));
+        inner.insert(StylePart::Background, (PaletteKey::Base, 1.0));
+        inner.insert(StylePart::Text, (PaletteKey::ThemeBaseText, 1.0));
+        default_checked_overrides.insert(WidgetStatus::Active, inner);
+
+        let mut inner = HashMap::new();
+        inner.insert(StylePart::Border, (PaletteKey::Strong, 1.0));
+        inner.insert(StylePart::Background, (PaletteKey::Strong, 1.0));
+        inner.insert(StylePart::Text, (PaletteKey::ThemeBaseText, 1.0));
+        default_checked_overrides.insert(WidgetStatus::Hovered, inner);
+
+        let mut inner = HashMap::new();
+        inner.insert(StylePart::Border, (PaletteKey::ThemeStrong, 1.0));
+        inner.insert(StylePart::Background, (PaletteKey::ThemeStrong, 1.0));
+        inner.insert(StylePart::Text, (PaletteKey::ThemeBaseText, 1.0));
+        default_checked_overrides.insert(WidgetStatus::Disabled, inner);
+
+        let mut statuses = HashMap::new();
+        statuses.insert("unchecked".to_string(), default_unchecked_statuses);
+        statuses.insert("Checked".to_string(), default_checked_overrides);
+        
+        statuses
+    }
+
+    pub fn default_statuses_to_py_dict<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyDict>> {
+        let dict = PyDict::new(py);
+
+        Ok(dict)
     }
 }
 

@@ -68,6 +68,7 @@ from .icedpygui import (
     get_widget_parameters as get_widget_parameters,
     get_widget_palette_part as get_widget_palette_part,
     get_widget_palette_list as get_widget_palette_list,
+    get_widget_default_statuses as get_widget_default_statuses,
     FilterMethod as FilterMethod,
     FloatParam as FloatParam,
     FontFamily as FontFamily,

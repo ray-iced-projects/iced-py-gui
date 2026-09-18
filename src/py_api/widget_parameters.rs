@@ -364,3 +364,41 @@ pub fn get_user_data(py: Python<'_>, wid: usize) -> PyResult<PyObject> {
 pub fn update_user_data(wid: usize, value: PyObject) {
     update_user_data_to_mutex(wid, value);
 }
+
+///"""
+///Returns a dict of all style parameters for the style with the given id.
+///
+///Must be called during a callback whose style_id is set.
+///
+///Parameters
+///----------
+///style_id : int
+///    A widget's style_id.
+///
+///Returns
+///-------
+///dict
+///    Field name -> value for every style parameter.
+///"""
+#[pyfunction]
+#[pyo3(signature = (style_id))]
+pub fn get_widget_default_statuses(py: Python<'_>, style_id: usize) -> PyResult<PyObject> {
+    let widget = {
+        let snapshot = access_widget_parameters();
+        snapshot.get(&style_id).cloned()
+    };
+
+    match widget {
+        Some(Widgets::ButtonStyle(style)) => {
+            Ok(style.default_statuses_to_py_dict(py)?.into_any().unbind())
+        }
+        Some(Widgets::CheckboxStyle(style)) => {
+            Ok(style.default_statuses_to_py_dict(py)?.into_any().unbind())
+        }
+        Some(other) => Err(PyValueError::new_err(format!(
+            "get_widget_style_parameters does not yet support {other:?}"))),
+        None => Err(PyValueError::new_err(format!(
+            "No style snapshot found for id {style_id}. \
+             get_widget_style_parameters must be called during a callback or sid is wrong."))),
+    }
+}

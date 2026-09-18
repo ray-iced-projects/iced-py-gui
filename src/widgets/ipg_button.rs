@@ -395,32 +395,7 @@ impl ButtonStyle {
             }
          };
 
-        let mut default_statuses: HashMap<WidgetStatus, HashMap<StylePart, (PaletteKey, f32)>> = HashMap::new();
-        
-        let mut inner = HashMap::new();
-        inner.insert(StylePart::Background, (PaletteKey::Base,  1.0));
-        inner.insert(StylePart::Text, (PaletteKey::Base, 1.0));
-        inner.insert(StylePart::Border, (PaletteKey::Base, 1.0));
-        default_statuses.insert(WidgetStatus::Active, inner);
-                                                    
-        let mut inner = HashMap::new();
-        inner.insert(StylePart::Background, (PaletteKey::Base,  1.0));
-        inner.insert(StylePart::Text, (PaletteKey::Base, 1.0));
-        inner.insert(StylePart::Border, (PaletteKey::Base, 1.0));
-        default_statuses.insert(WidgetStatus::Pressed, inner);
-                
-        let mut inner = HashMap::new();
-        inner.insert(StylePart::Background, (PaletteKey::Strong,  1.0));
-        inner.insert(StylePart::Text, (PaletteKey::Strong, 1.0));
-        inner.insert(StylePart::Border, (PaletteKey::Strong, 1.0));
-        default_statuses.insert(WidgetStatus::Hovered, inner);
-         
-        let mut inner = HashMap::new();
-        inner.insert(StylePart::Background, (PaletteKey::Base,  0.5));
-        inner.insert(StylePart::Text, (PaletteKey::Base, 0.8));
-        inner.insert(StylePart::Background, (PaletteKey::Base,  0.5));
-        inner.insert(StylePart::Border, (PaletteKey::Strong, 0.5));
-        default_statuses.insert(WidgetStatus::Disabled, inner);
+        let default_statuses = self.default_statuses();
         
         let statuses = if let Some(status) = custom_pal.statuses.as_ref() {
             let mut collapsed: HashMap<WidgetStatus, HashMap<StylePart, (PaletteKey, f32)>> = HashMap::new();
@@ -553,6 +528,51 @@ impl ButtonStyle {
             },
         }
 
+    }
+
+    pub fn default_statuses(&self) -> HashMap<WidgetStatus, HashMap<StylePart, (PaletteKey, f32)>> {
+        let mut default_statuses: HashMap<WidgetStatus, HashMap<StylePart, (PaletteKey, f32)>> = HashMap::new();
+        
+        let mut inner = HashMap::new();
+        inner.insert(StylePart::Background, (PaletteKey::Base,  1.0));
+        inner.insert(StylePart::Text, (PaletteKey::Base, 1.0));
+        inner.insert(StylePart::Border, (PaletteKey::Base, 1.0));
+        default_statuses.insert(WidgetStatus::Active, inner);
+                                                    
+        let mut inner = HashMap::new();
+        inner.insert(StylePart::Background, (PaletteKey::Base,  1.0));
+        inner.insert(StylePart::Text, (PaletteKey::Base, 1.0));
+        inner.insert(StylePart::Border, (PaletteKey::Base, 1.0));
+        default_statuses.insert(WidgetStatus::Pressed, inner);
+                
+        let mut inner = HashMap::new();
+        inner.insert(StylePart::Background, (PaletteKey::Strong,  1.0));
+        inner.insert(StylePart::Text, (PaletteKey::Strong, 1.0));
+        inner.insert(StylePart::Border, (PaletteKey::Strong, 1.0));
+        default_statuses.insert(WidgetStatus::Hovered, inner);
+         
+        let mut inner = HashMap::new();
+        inner.insert(StylePart::Background, (PaletteKey::Base,  0.5));
+        inner.insert(StylePart::Text, (PaletteKey::Base, 0.8));
+        inner.insert(StylePart::Background, (PaletteKey::Base,  0.5));
+        inner.insert(StylePart::Border, (PaletteKey::Strong, 0.5));
+        default_statuses.insert(WidgetStatus::Disabled, inner);
+
+        default_statuses
+    }
+
+    pub fn default_statuses_to_py_dict<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyDict>> {
+        let dict = PyDict::new(py);
+
+        for (widget_status, parts) in self.default_statuses() {
+            let parts_dict = PyDict::new(py);
+            for (style_part, (palette_key, alpha)) in parts {
+                parts_dict.set_item(style_part, (palette_key, alpha))?;
+            }
+            dict.set_item(widget_status, parts_dict)?;
+        }
+
+        Ok(dict)
     }
 
     // Serialize all button-style parameters into a Python dict keyed by field name.

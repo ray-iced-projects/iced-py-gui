@@ -45,7 +45,7 @@ def demo_populate_palette_area(pc: PaletteCreator):
     # i.e. Background-Active, popup button, Opacity, Border width
     for (parts_idx, part) in enumerate(pc.widget_parts):
         for (status_idx, status) in enumerate(statuses):
-            update_widget_params(pc.parts_list_ids[parts_idx][status_idx],
+            update_widget_params(pc.parts_list_ids[parts_idx * num_statuses + status_idx],
                           {TextParam.Content: f"{part}-{status}",
                            TextParam.Show: True})
 
@@ -62,18 +62,16 @@ def demo_populate_palette_area(pc: PaletteCreator):
             # the user data can be used to update the new widget
 
             # Get the ids
-            (popup_id, open_id) = pc.popup_open_btn_ids[parts_idx * num_statuses + status_idx]
-            print(popup_id, open_id)
-            # show the popup open button
-            update_widget(open_id, ButtonParam.Show, True)
+            # (popup_id, open_id) = pc.popup_open_btn_ids[parts_idx * num_statuses + status_idx]
 
             # iterate through the 8 palette containers updating
             # with the palette name
-            for index in range(8):
-                (name, rgba) = filtered_pals[index]
-                update_widget(pc.palette_popup_cnt_text_ids[parts_idx][index],
+            row = parts_idx * num_statuses + status_idx
+            for pal_index in range(8):
+                (name, rgba) = filtered_pals[pal_index]
+                update_widget(pc.palette_popup_cnt_text_ids[row][pal_index],
                                 TextParam.Content, name)
-                update_widget(pc.palette_popup_cnt_style_ids[parts_idx][index],
+                update_widget(pc.palette_popup_cnt_style_ids[row][pal_index],
                                             ContainerStyleParam.BkgRgba, rgba)
-                update_user_data(pc.palette_popup_ma_ids[parts_idx][index],
-                                    (part, status, rgba, popup_id, open_id))
+                update_user_data(pc.palette_popup_ma_ids[row][pal_index],
+                                    (row, pal_index))

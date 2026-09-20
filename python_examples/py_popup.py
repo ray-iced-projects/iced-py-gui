@@ -53,7 +53,7 @@ with Window(
         # Add a column to hold multiple widgets
         with Column(spacing=20.0, width=200):
             # Add the popup
-            with PopUp(position_right=True,
+            with PopUp(position_top=True,
                 on_open=pop_opened,
                        on_close=on_pop_closed,
                        on_click_outside=clicked_outside) as popup_id:

@@ -41,10 +41,6 @@ class ButtonStyleStd:
 
 
 def add_button_style(
-    bkg_color: Color | None = None,
-    bkg_color_alpha: float | None = None,
-    bkg_rgba: list[float, 4] | None = None,
-
     text_top_left: bool | None = None,
     text_top_center: bool | None = None,
     text_top_right: bool | None = None,
@@ -70,7 +66,7 @@ def add_button_style(
 
     border_color: Color | None = None,
     border_color_alpha: float | None = None,
-    border_rgba_active: list[float, 4] | None = None,
+    border_rgba: list[float, 4] | None = None,
 
     border_radius: list[float] | list[float, 4] | None = None,
     border_width: float | None = None,
@@ -1751,6 +1747,8 @@ class StylePart:
     Background = ...
     Border = ...
     Text = ...
+    Icon = ...
+    Base = ...
 
 
 # **************all item ops***********
@@ -2015,7 +2013,8 @@ def get_widget_default_statuses(
             style_id = add_button_style()
 
     Returns:
-        A dictionary of the default statuses
+        A list of statuses in the format accepted by custom_palette():
+        [((WidgetStatus, StateVariant), [(StylePart, PaletteKey, alpha), ...]), ...]
     """
 
 def get_user_data(

@@ -7,13 +7,12 @@ import os
 from typing import TYPE_CHECKING
 from icedpygui import (
     ButtonParam,
-    ButtonStyleParam,
+    ContainerStyleParam,
     TextParam,
     get_color_palette,
     update_widget,
     update_widget_params,
     update_user_data,
-    get_user_data,
 )
 
 
@@ -34,51 +33,47 @@ def load_demo_parts_file(pc: PaletteCreator):
 
 def demo_populate_palette_area(pc: PaletteCreator):
     """Updating the widget and checkboxes for palette matrix selection"""
-    color = pc.widget_config.selected_color
+    # get/generating the data
+    color = pc.selected_color
     pc.palette = get_color_palette(rgba=color)
-    statuses = pc.widget_config.statuses
-    parts = pc.widget_config.parts
+    statuses = [str(status).rsplit('.', maxsplit=1)[-1] for (status, variant), parts in pc.statuses]
     pals_by_name = {str(k).rsplit('.', maxsplit=1)[-1]: v for k, v in pc.palette.items()}
+    pals_list = list(pals_by_name.items())
+    num_statuses = len(statuses)
 
-    # Populate the text widget with parts_list coupled with status
-    for (parts_index, part) in enumerate(parts):
-        for (status_index, status) in enumerate(statuses):
-            update_widget_params(pc.parts_list_ids[parts_index][status_index],
+    # Populate the columns left to right
+    # i.e. Background-Active, popup button, Opacity, Border width
+    for (parts_idx, part) in enumerate(pc.widget_parts):
+        for (status_idx, status) in enumerate(statuses):
+            update_widget_params(pc.parts_list_ids[parts_idx][status_idx],
                           {TextParam.Content: f"{part}-{status}",
                            TextParam.Show: True})
-            popup_index = parts_index * len(statuses) + status_index
-            update_widget(pc.popup_btn_ids[popup_index], ButtonParam.Show, True)
 
-    # show the menu bars and update the palette bar items with the correct button color
-    for (idx, _btn_id) in enumerate(pc.popup_btn_ids):
-        # Calculate which part and status this menu bar corresponds to
-        part_idx = idx // len(statuses)
-        status_idx = idx % len(statuses)
+            # Filter palette based on whether part contains "Text"
+            if "Text" in part:
+                # Use only Text-related palettes for Text parts
+                filtered_pals = [(name, rgba) for name, rgba in pals_list if "Text" in name]
+            else:
+                # Use non-Text palettes for non-Text parts
+                filtered_pals = [(name, rgba) for name, rgba in pals_list if "Text" not in name]
 
-        # Check if we're within the bounds of actual parts and statuses
-        if part_idx >= len(parts) or status_idx >= len(statuses):
-            continue
+            # update the popup containers and mouse areas with the palette name and bkg color
+            # The add the new user_data so that when the button is pressed,
+            # the user data can be used to update the new widget
 
-        part = parts[part_idx]
-        pals_list = list(pals_by_name.items())
+            # Get the ids
+            (popup_id, open_id) = pc.popup_open_btn_ids[parts_idx * num_statuses + status_idx]
+            print(popup_id, open_id)
+            # show the popup open button
+            update_widget(open_id, ButtonParam.Show, True)
 
-        # Filter palette based on whether part contains "Text"
-        if "Text" in part:
-            # Use only Text-related palettes for Text parts
-            filtered_pals = [(name, rgba) for name, rgba in pals_list if "Text" in name]
-        else:
-            # Use non-Text palettes for non-Text parts
-            filtered_pals = [(name, rgba) for name, rgba in pals_list if "Text" not in name]
-
-        # update the menu buttons with the palette name and bkg color
-        # The add the new user_data so that when the button is pressed,
-        # the user data can be used to update the new widget
-        for index in range(8):
-            if index < len(filtered_pals):
+            # iterate through the 8 palette containers updating
+            # with the palette name
+            for index in range(8):
                 (name, rgba) = filtered_pals[index]
-                update_widget(pc.palette_popup_btn_ids[idx][index], ButtonParam.Label, name)
-                update_widget(pc.palette_popup_btn_style_ids[idx][index],
-                                            ButtonStyleParam.BkgRgba, rgba)
-                popup_id = get_user_data(pc.palette_popup_btn_ids[idx][index])
-                update_user_data(pc.palette_popup_btn_ids[idx][index],
-                                 (part, statuses[status_idx], rgba, popup_id))
+                update_widget(pc.palette_popup_cnt_text_ids[parts_idx][index],
+                                TextParam.Content, name)
+                update_widget(pc.palette_popup_cnt_style_ids[parts_idx][index],
+                                            ContainerStyleParam.BkgRgba, rgba)
+                update_user_data(pc.palette_popup_ma_ids[parts_idx][index],
+                                    (part, status, rgba, popup_id, open_id))

@@ -7,18 +7,18 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 from enum import Enum
 from pathlib import Path
-import os
 import yaml
 
 from icedpygui import (
     add_button,
     add_button_style,
-    ButtonStyleParam,
     add_checkbox,
     add_checkbox_style,
-    CheckboxStyleParam,
     update_widget_params,
     update_widget,
+    get_widget_default_statuses,
+    custom_palette,
+    StylePart,
 )
 
 if TYPE_CHECKING:
@@ -51,18 +51,27 @@ class Widget(Enum):
     TOOL_TIP = "tool_tip"
 
 
-def place_widget(pc: PaletteCreator, widget: Widget):
+def place_widget(pc: PaletteCreator):
     """Add the selected widget with status"""
-    match widget:
-        case Widget.BUTTON:
+    match pc.widget_name:
+        case "button":
             pc.widget_active_style_id = add_button_style()
+            statuses = get_widget_default_statuses(pc.widget_active_style_id)
+            pc.statuses = statuses
+            pc.widget_parts = [str(part).rsplit('.', maxsplit=1)[-1] \
+                for part in dict.fromkeys([p for (status, variant), parts in statuses
+                                            for p, key, alpha in parts])]
+
+            pal_id = custom_palette(rgba=pc.selected_color, statuses=statuses)
+
             pc.widget_active_id = add_button(
                 label="Status=Active",
                 parent_id=pc.new_widget_row_id,
                 active=True,
                 padding=[10],
                 width=BUTTON_WIDTH,
-                style_id=pc.widget_active_style_id
+                style_id=pc.widget_active_style_id,
+                palette_id=pal_id,
                 )
 
             pc.widget_hovered_style_id = add_button_style()
@@ -72,7 +81,8 @@ def place_widget(pc: PaletteCreator, widget: Widget):
                 hovered=True,
                 padding=[10],
                 width=BUTTON_WIDTH,
-                style_id=pc.widget_hovered_style_id
+                style_id=pc.widget_hovered_style_id,
+                palette_id=pal_id,
                 )
 
             pc.widget_pressed_style_id = add_button_style()
@@ -82,7 +92,8 @@ def place_widget(pc: PaletteCreator, widget: Widget):
                 pressed=True,
                 padding=[10],
                 width=BUTTON_WIDTH,
-                style_id=pc.widget_pressed_style_id
+                style_id=pc.widget_pressed_style_id,
+                palette_id=pal_id,
                 )
 
             pc.widget_disabled_style_id = add_button_style()
@@ -92,7 +103,8 @@ def place_widget(pc: PaletteCreator, widget: Widget):
                 disabled=True,
                 padding=[10],
                 width=BUTTON_WIDTH,
-                style_id=pc.widget_disabled_style_id
+                style_id=pc.widget_disabled_style_id,
+                palette_id=pal_id,
                 )
 
             pc.widget_normal_style_id = add_button_style()
@@ -101,17 +113,25 @@ def place_widget(pc: PaletteCreator, widget: Widget):
                 parent_id=pc.new_widget_row_id,
                 padding=[10],
                 width=BUTTON_WIDTH,
-                style_id=pc.widget_normal_style_id
+                style_id=pc.widget_normal_style_id,
+                palette_id=pal_id,
                 )
 
-        case Widget.CHECKBOX:
+        case "checkbox":
             pc.widget_active_style_id = add_checkbox_style()
+            statuses = get_widget_default_statuses(pc.widget_active_style_id )
+            pc.statuses = statuses
+            pc.widget_parts = list(dict.fromkeys([part for (status, variant), parts in statuses
+                                               for part, key, alpha in parts]))
+            pal_id = custom_palette(rgba=pc.selected_color, statuses=statuses)
+
             pc.widget_active_id = add_checkbox(
                 label="Status=Active",
                 parent_id=pc.new_widget_row_id,
                 active=True,
                 width=BUTTON_WIDTH,
-                style_id=pc.widget_active_style_id
+                style_id=pc.widget_active_style_id,
+                palette_id=pal_id,
                 )
 
             pc.widget_hovered_style_id = add_checkbox_style()
@@ -120,7 +140,8 @@ def place_widget(pc: PaletteCreator, widget: Widget):
                 parent_id=pc.new_widget_row_id,
                 hovered=True,
                 width=BUTTON_WIDTH,
-                style_id=pc.widget_hovered_style_id
+                style_id=pc.widget_hovered_style_id,
+                palette_id=pal_id,
                 )
 
             pc.widget_disabled_style_id = add_checkbox_style()
@@ -129,19 +150,20 @@ def place_widget(pc: PaletteCreator, widget: Widget):
                 parent_id=pc.new_widget_row_id,
                 disabled=True,
                 width=BUTTON_WIDTH,
-                style_id=pc.widget_disabled_style_id
+                style_id=pc.widget_disabled_style_id,
+                palette_id=pal_id,
                 )
 
 # the widget and palette is found by row=status_index, col=pal_idx of the matrix
 # Map (widget_name, part) → the StyleParam enum value
 PART_PARAM = {
-    ("button",   "background"): ButtonStyleParam.BkgRgba,
-    ("button",   "border"):     ButtonStyleParam.BorderRgba,
-    ("button",   "text"):       ButtonStyleParam.TextRgba,
-    ("checkbox", "background"): CheckboxStyleParam.BkgRgba,
-    ("checkbox", "border"):     CheckboxStyleParam.BorderRgba,
-    ("checkbox", "icon"):       CheckboxStyleParam.IconRgba,
-    ("checkbox", "text"):       CheckboxStyleParam.TextRgba,
+    ("button",   "background"): StylePart.Background,
+    ("button",   "border"):     StylePart.Border,
+    ("button",   "text"):       StylePart.Text,
+    ("checkbox", "background"): StylePart.Background,
+    ("checkbox", "border"):     StylePart.Border,
+    ("checkbox", "icon"):       StylePart.Icon,
+    ("checkbox", "text"):       StylePart.Text,
     # ... add new widgets here, one line per part
 }
 
@@ -158,58 +180,13 @@ def set_new_widget_palette(pc: PaletteCreator, part: str, status: str, rgba: lis
     param = PART_PARAM.get((pc.widget_name, part.lower()))
     style_id = getattr(pc, STATUS_ID.get(status, ""), None)
 
-    # pal_id = custom_palette(pc.current_color, )
+    # update the selected widget palette
     if param and style_id:
         update_widget_params(style_id, {param: rgba})
-        update_widget(pc.widget_normal_style_id, param, rgba)
 
+    # update the normal widget palette
+    update_widget(pc.widget_normal_style_id, param, rgba)
 
-
-def match_widget_str(w_str: str) -> Widget:
-    """Match the str to return the Widget"""
-    match w_str.lower():
-        case "button":
-            return Widget.BUTTON
-        case "checkbox":
-            return Widget.CHECKBOX
-        case "card":
-            return Widget.CARD
-        case "menu":
-            return Widget.MENU
-        case "pick_list":
-            return Widget.PICK_LIST
-        case "radio":
-            return Widget.RADIO
-        case "progress_bar":
-            return Widget.PROGRESS_BAR
-        case "sash":
-            return Widget.SASH
-        case "scrollable":
-            return Widget.SCROLLABLE
-        case "slider":
-            return Widget.SLIDER
-        case "text_editor":
-            return Widget.TEXT_EDITOR
-        case "text_input":
-            return Widget.TEXT_INPUT
-        case "toggle":
-            return Widget.TOGGLE
-        case "container":
-            return Widget.CONTAINER
-        case "color_picker":
-            return Widget.COLOR_PICKER
-        case "date_picker":
-            return Widget.DATE_PICKER
-        case "rule":
-            return Widget.RULE
-        case "svg":
-            return Widget.SVG
-        case "text":
-            return Widget.TEXT
-        case "tool_tip":
-            return Widget.TOOL_TIP
-        case _:
-            return None
 
 def populate_widget_config(pc: PaletteCreator):
     """Saves the widget config to a .yml file"""
@@ -426,27 +403,3 @@ class PartRule:
     key: str
     alpha: float = 1.0
     description: str = ""
-
-
-def load_demo_config(pc: PaletteCreator) -> PaletteCreator:
-    """Load the demo widget configs file"""
-    # Local import breaks the circular dependency with py_palette_create.
-    # from python_examples.py_palette.py_palette_create import WidgetConfig
-
-    cwd = os.getcwd()
-
-    file_path = os.path.join(cwd, "python_examples",
-                            "py_palette", f"{pc.widget_name}_palette_config.yml")
-    try:
-        with open(file_path, "r", encoding='utf-8') as file:
-            config_file = file.read()
-
-    except FileNotFoundError:
-        print(f"*********The file does not exist using {file_path}.*******")
-        return pc
-
-    match pc.widget_name:
-        case "button" | "checkbox":
-            pc.widget_config = WidgetConfig.from_config_dict(yaml.safe_load(config_file))
-
-    return pc

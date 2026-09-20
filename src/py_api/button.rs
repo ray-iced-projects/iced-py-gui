@@ -169,15 +169,13 @@ pub fn add_button(
 /// """
 /// Adds styling to a button
 ///
-/// There are 5 ways to add styling to a widget.  Widgets vary a bit
+/// There are 4 ways to add styling to a widget.  Widgets vary a bit
 /// because some have statues like checked, pressed, etc.
 /// 1. Do nothing and the widgets default to one of the standard styles
 ///    which is usually primary but varies some from widget to widget.
-/// 2. You select one of the available standard styles (see below for button)
+/// 2. You select one of the available standard styles (see below)
 /// 3. You create your own palette (see the palette example which gives a full explanation)
-/// 4. You override the standard style colors.  Maybe you want a different background
-///    color for danger.
-/// 5. You add styling that is not set by any of the standard styles like gradient, 
+/// 4. You add styling that is not set by any of the standard styles like gradient, 
 ///    shadow, text parameters, border width and color.  These are listed below.
 /// 
 /// The standard style colors will vary depending on the theme selected
@@ -226,23 +224,18 @@ pub fn add_button(
 ///   wrapping_word_glyph: bool — wrap at word, fall back to glyph
 ///
 /// border_radius: list[float] — [all] or [top-left, top-right, bottom-right, bottom-left]
-/// border_width: float — border line width
-///
-/// snap: bool — snap rendering to pixel grid
-///
+/// border_width: float
+///     Sets the border line width.  Unless border width is set, no other parameters take effect.
+/// border_rounded: float
+///     Whether to round the button box. Rounded overrides any other border settings.
+/// 
+/// snap: bool
+///     Whether to snap rendering to pixel grid
 /// gen_id: int, Optional
 ///     Obtain an ID for a widget not yet created; use for the gen_id parameter.
 /// """
 #[pyfunction]
 #[pyo3(signature = (
-    bkg_color = None,
-    bkg_color_alpha = None,
-    bkg_rgba = None,
-
-    text_color = None,
-    text_color_alpha = None,
-    text_rgba = None,
-
     text_top_left = None,
     text_top_center = None,
     text_top_right = None,
@@ -270,6 +263,7 @@ pub fn add_button(
     border_rgba = None,
     border_radius = None,
     border_width = None,
+    border_rounded = None,
 
     shadow_color = None,
     shadow_color_alpha = None,
@@ -279,16 +273,8 @@ pub fn add_button(
 
     snap = None,
     gen_id=None
-        ))]
+    ))]
 pub fn add_button_style(
-    bkg_color: Option<Color>,
-    bkg_color_alpha: Option<f32>,
-    bkg_rgba: Option<[f32; 4]>,
-
-    text_color: Option<Color>,
-    text_color_alpha: Option<f32>,
-    text_rgba: Option<[f32; 4]>,
-
     text_top_left: Option<bool>,
     text_top_center: Option<bool>,
     text_top_right: Option<bool>,
@@ -317,6 +303,7 @@ pub fn add_button_style(
     
     border_radius: Option<Vec<f32>>,
     border_width: Option<f32>,
+    border_rounded: Option<f32>,
 
     shadow_color: Option<Color>,
     shadow_color_alpha: Option<f32>,
@@ -336,14 +323,6 @@ pub fn add_button_style(
     state.widgets.insert(id, Widgets::ButtonStyle(
         ButtonStyle {
             id,
-
-            bkg_color,
-            bkg_color_alpha,
-            bkg_rgba,
-
-            text_color,
-            text_color_alpha,
-            text_rgba,
 
             text_top_left,
             text_top_center,
@@ -372,6 +351,7 @@ pub fn add_button_style(
             border_rgba,
             border_radius,
             border_width,
+            border_rounded,
 
             shadow_color,
             shadow_color_alpha,

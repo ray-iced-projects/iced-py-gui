@@ -554,6 +554,19 @@ pub enum StylePart {
     Text,
 }
 
+impl StylePart {
+    // Stable display/emit order for default statuses.
+    pub fn sort_index(&self) -> u8 {
+        match self {
+            StylePart::Background => 0,
+            StylePart::Border => 1,
+            StylePart::Icon => 2,
+            StylePart::Text => 3,
+            StylePart::Base => 4,
+        }
+    }
+}
+
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
 #[pyclass(eq, eq_int, hash, frozen)]
 pub enum WidgetStatus {
@@ -566,6 +579,23 @@ pub enum WidgetStatus {
     IsToggled,
     Opened,
     Pressed,
+}
+
+impl WidgetStatus {
+    // Stable display/emit order for default statuses.
+    pub fn sort_index(&self) -> u8 {
+        match self {
+            WidgetStatus::Active => 0,
+            WidgetStatus::Hovered => 1,
+            WidgetStatus::Pressed => 2,
+            WidgetStatus::Disabled => 3,
+            WidgetStatus::Focused => 4,
+            WidgetStatus::Dragged => 5,
+            WidgetStatus::Opened => 6,
+            WidgetStatus::IsChecked => 7,
+            WidgetStatus::IsToggled => 8,
+        }
+    }
 }
 
 use pyo3::{Py, PyAny};

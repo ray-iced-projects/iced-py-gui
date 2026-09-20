@@ -5,6 +5,7 @@ use pyo3::types::PyDict;
 use pyo3::prelude::*;
 use pyo3::exceptions::PyValueError;
 
+use crate::access_state;
 use crate::state::{access_update_widgets, access_user_data1, access_widget_parameters, update_user_data_to_mutex, Widgets};
 type PyObject = Py<PyAny>;
 
@@ -383,17 +384,17 @@ pub fn update_user_data(wid: usize, value: PyObject) {
 #[pyfunction]
 #[pyo3(signature = (style_id))]
 pub fn get_widget_default_statuses(py: Python<'_>, style_id: usize) -> PyResult<PyObject> {
-    let widget = {
-        let snapshot = access_widget_parameters();
-        snapshot.get(&style_id).cloned()
-    };
+    
+    let state = access_state();
+
+    let widget = state.widgets.get(&style_id);
 
     match widget {
         Some(Widgets::ButtonStyle(style)) => {
-            Ok(style.default_statuses_to_py_dict(py)?.into_any().unbind())
+            Ok(style.default_statuses_to_py_list(py)?.into_any().unbind())
         }
         Some(Widgets::CheckboxStyle(style)) => {
-            Ok(style.default_statuses_to_py_dict(py)?.into_any().unbind())
+            Ok(style.default_statuses_to_py_list(py)?.into_any().unbind())
         }
         Some(other) => Err(PyValueError::new_err(format!(
             "get_widget_style_parameters does not yet support {other:?}"))),

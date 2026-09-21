@@ -6,7 +6,6 @@ helper file for automating the demo widgets
 import os
 from typing import TYPE_CHECKING
 from icedpygui import (
-    ButtonParam,
     ContainerStyleParam,
     TextParam,
     get_color_palette,
@@ -45,9 +44,11 @@ def demo_populate_palette_area(pc: PaletteCreator):
     # i.e. Background-Active, popup button, Opacity, Border width
     for (parts_idx, part) in enumerate(pc.widget_parts):
         for (status_idx, status) in enumerate(statuses):
-            update_widget_params(pc.parts_list_ids[parts_idx * num_statuses + status_idx],
+            part_id = pc.parts_list_ids[parts_idx * num_statuses + status_idx]
+            update_widget_params(part_id,
                           {TextParam.Content: f"{part}-{status}",
                            TextParam.Show: True})
+            update_user_data(part_id, (part, status))
 
             # Filter palette based on whether part contains "Text"
             if "Text" in part:
@@ -62,7 +63,8 @@ def demo_populate_palette_area(pc: PaletteCreator):
             # the user data can be used to update the new widget
 
             # Get the ids
-            # (popup_id, open_id) = pc.popup_open_btn_ids[parts_idx * num_statuses + status_idx]
+            (popup_id, open_id) = pc.popup_open_btn_ids[parts_idx * num_statuses + status_idx]
+            
 
             # iterate through the 8 palette containers updating
             # with the palette name

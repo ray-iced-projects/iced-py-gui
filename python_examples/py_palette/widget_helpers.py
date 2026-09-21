@@ -12,11 +12,13 @@ import yaml
 from icedpygui import (
     add_button,
     add_button_style,
+    ButtonParam,
     add_checkbox,
     add_checkbox_style,
     update_widget_params,
     update_widget,
     get_widget_default_statuses,
+    get_user_data,
     custom_palette,
     StylePart,
 )
@@ -175,10 +177,14 @@ STATUS_ID = {
     "Disabled": "widget_disabled_style_id",
 }
 
-def set_new_widget_palette(pc: PaletteCreator, part: str, status: str, rgba: list[float]):
+def set_new_widget_palette(pc: PaletteCreator, row_: int,
+                           pal_index: int):
     """Setting the palette of the new widget"""
+    (part, status) = get_user_data(pc.parts_list_ids[row_])
     param = PART_PARAM.get((pc.widget_name, part.lower()))
     style_id = getattr(pc, STATUS_ID.get(status, ""), None)
+    rgba = list(pc.palette.values())[pal_index]
+    label = list(pc.palette.keys())[pal_index]
 
     # update the selected widget palette
     if param and style_id:
@@ -186,6 +192,10 @@ def set_new_widget_palette(pc: PaletteCreator, part: str, status: str, rgba: lis
 
     # update the normal widget palette
     update_widget(pc.widget_normal_style_id, param, rgba)
+
+    # change the palette select button to reflect the selected palette
+    (_, open_id) = pc.popup_open_btn_ids[row_]
+    update_widget(open_id, ButtonParam.Label, label)
 
 
 def populate_widget_config(pc: PaletteCreator):

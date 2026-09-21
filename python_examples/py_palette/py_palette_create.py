@@ -287,21 +287,18 @@ def on_color_text_input(_ti_id: int, text: str):
 
 # When the palette button is pressed this def is called
 # Key point is to remember to add the user_data parameter
-def on_palette_selected(btn_id, user_data: tuple[int, int]):
+def on_palette_selected(_btn_id, user_data: tuple[int, int]):
     """update the new widget colors
     user_data:
-        int = button popup open column index
-        int = palette index
+        int = button popup open row index
+        int = palette index (0..8)
     """
     # Will need to match both widget and status later
-    (btn_open_col_index, pal_index) = user_data
-    (popup_id_, open_id_) = pc.popup_open_btn_ids[btn_open_col_index]
-    # (part_, status_, rgba, popup_id_, popup_btn_id) = user_data
+    (row_, pal_index) = user_data
+    (popup_id_, _) = pc.popup_open_btn_ids[row_]
+
     update_widget(popup_id_, PopUpParam.Opened, False)
-    # set_new_widget_palette(pc, part_, status_, rgba)
-    # change the palette select button to reflect the selected palette
-    # params_select_btn = get_widget_parameters(btn_id)
-    # update_widget(open_id_, ButtonParam.Label, params_select_btn.get("label"))
+    set_new_widget_palette(pc, row_, pal_index)
 
 
 def open_palette_popup(_btn_id: int, popup_id_: int):

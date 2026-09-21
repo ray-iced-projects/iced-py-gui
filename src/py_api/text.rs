@@ -1,8 +1,8 @@
 //! Text module - provides add_text pyfunction
-use pyo3::{pyfunction, PyResult};
-
+use pyo3::{Py, PyAny, pyfunction, PyResult};
+type PyObject = Py<PyAny>;
 use crate::state::{Widgets, get_id, set_state_of_widget}; 
-use crate::access_state; 
+use crate::{access_state, add_user_data_to_mutex}; 
 use crate::graphics::colors::Color;
 use crate::widgets::ipg_text::{Text, TextColorStd};
 
@@ -102,6 +102,7 @@ use crate::widgets::ipg_text::{Text, TextColorStd};
     wrapping_glyph=None,
     wrapping_word_glyph=None,
     show=true,
+    user_data=None,
     gen_id=None, 
     ))]
 pub fn add_text(
@@ -132,11 +133,17 @@ pub fn add_text(
     wrapping_glyph: Option<bool>,
     wrapping_word_glyph: Option<bool>,
     show: bool,
+    user_data: Option<PyObject>,
     gen_id: Option<usize>,
     ) -> PyResult<usize> 
 {
 
     let id = get_id(gen_id);
+
+    // Store user data if provided
+    if let Some(py) = user_data {
+        add_user_data_to_mutex(id, py);
+    }
 
     set_state_of_widget(id, parent_id.clone());
 

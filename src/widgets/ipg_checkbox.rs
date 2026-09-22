@@ -325,9 +325,7 @@ impl CheckboxStyle {
         dict.set_item("text_rgba", self.text_rgba.map(|c| c.to_vec()))?;
         Ok(dict)
     }
-}
 
-impl CheckboxStyle {
     fn to_iced(
         &self,
         theme: &Theme,
@@ -649,7 +647,8 @@ impl CheckboxStyle {
                 parts_vec.sort_by_key(|(part, _)| part.sort_index());
                 let parts_list = PyList::empty(py);
                 for (style_part, (palette_key, alpha)) in parts_vec {
-                    parts_list.append((style_part, palette_key, alpha))?;
+                    let alpha_rounded = (alpha as f64 * 10000.0_f64).round() / 10000.0_f64;
+                    parts_list.append((style_part, palette_key, alpha_rounded))?;
                 }
                 list.append(((widget_status, variant), parts_list))?;
             }

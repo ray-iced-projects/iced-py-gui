@@ -563,8 +563,9 @@ impl ButtonStyle {
             let mut parts_vec: Vec<_> = parts.into_iter().collect();
             parts_vec.sort_by_key(|(part, _)| part.sort_index());
             let parts_list = PyList::empty(py);
-            for (style_part, (palette_key, alpha)) in parts_vec {
-                parts_list.append((style_part, palette_key, alpha))?;
+            for (style_part, (palette_key, alpha )) in parts_vec {
+                let alpha_rounded = (alpha as f64 * 10000.0_f64).round() / 10000.0_f64;
+                parts_list.append((style_part, palette_key, alpha_rounded))?;
             }
             // Button has no variant.
             list.append(((widget_status, StateVariant::NoVariant), parts_list))?;

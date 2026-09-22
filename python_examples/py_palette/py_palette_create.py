@@ -27,7 +27,7 @@ from icedpygui import (
     Scrollable,
     start_session,
     add_button,
-    ButtonParam,
+    add_button_style,
     add_pick_list,
     MouseArea,
     PickListParam,
@@ -48,7 +48,6 @@ from icedpygui import (
     FileSystemDialogParam as FsdParam,
     FileSystemDialogCallbackType as FsdType,
     update_widget,
-    get_widget_parameters,
 )
 
 
@@ -196,6 +195,8 @@ class PaletteCreator:
         self.widget_normal_style_id: int = None
         self.widget_name: str = None
         self.widget_parts: list[str] = []
+        self.opacity_id: list[int] = []
+        self.border_id: list[int] = []
         self.palette_widget_ids: list[int] = []
         self.palette_popup_cnt_ids: list[int] = []
         self.palette_popup_cnt_text_ids: list[int] = []
@@ -383,7 +384,8 @@ with Window(title="Palette Creator - Interactive Workflow", center=True, size=(1
                 headers = ["Parts-Status", "Palette Selectors", "Palette Opacity", "Border Width"]
                 with Table(
                     row_height=30.0,
-                    col_widths=[200]*len(headers)):
+                    col_widths=[200, 150, 150, 150],
+                    ):
 
                     with TableHeader():
                         for h in headers:
@@ -397,7 +399,7 @@ with Window(title="Palette Creator - Interactive Workflow", center=True, size=(1
                                 match column:
                                     case 0:
                                         with Container(fill=True):
-                                            pc.parts_list_ids.append(add_text(content="part-status"))
+                                            pc.parts_list_ids.append(add_text(content="part-status", show=False))
                                     case 1:
                                         # Create a popup that holds the 8 containers
                                         # with a mouse area. Each of the 8 containers is
@@ -409,11 +411,14 @@ with Window(title="Palette Creator - Interactive Workflow", center=True, size=(1
                                         with PopUp(position_top=True,
                                                     on_click_outside=clicked_outside) as popup_id:
                                             # add the button to open the popup
+                                            btn_style_id = add_button_style(text_center=True)
                                             open_id = add_button(
                                                         label="Select Palette",
                                                         on_press=open_palette_popup,
                                                         width=130,
                                                         padding=[5],
+                                                        style_id=btn_style_id,
+                                                        show=False,
                                                         user_data=popup_id)
                                             # store the ids
                                             pc.popup_open_btn_ids.append((popup_id, open_id))
@@ -450,8 +455,10 @@ with Window(title="Palette Creator - Interactive Workflow", center=True, size=(1
                                                                 pc.palette_popup_cnt_text_ids[-1]\
                                                                     .append(add_text(content="Pal"))
                                     case 2:
-                                        add_text(content="Opacity")
+                                        with Row():
+                                            pc.opacity_id.append(add_text_input(placeholder="Opacity", width=75, show=False))
+                                            
                                     case 3:
-                                        add_text(content="Border Width")
+                                        pc.border_id.append(add_text_input(placeholder="Border Width", width=100, show=False))
 
 start_session()

@@ -402,8 +402,6 @@ impl TableHeader {
         widgets: &'a HashMap<usize, Widgets>,
     ) -> Option<Element<'a, Message, Theme, Renderer>> {
 
-
-
         None
     }
 
@@ -429,8 +427,6 @@ impl TableBody {
         widgets: &'a HashMap<usize, Widgets>,
     ) -> Option<Element<'a, Message, Theme, Renderer>> {
 
-
-
         None
     }
 
@@ -454,8 +450,6 @@ impl TableFooter {
         mut content: Vec<Element<'a, Message, Theme, Renderer>>,
         widgets: &'a HashMap<usize, Widgets>,
     ) -> Option<Element<'a, Message, Theme, Renderer>> {
-
-
 
         None
     }

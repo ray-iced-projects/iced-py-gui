@@ -400,6 +400,6 @@ pub fn get_widget_default_statuses(py: Python<'_>, style_id: usize) -> PyResult<
             "get_widget_style_parameters does not yet support {other:?}"))),
         None => Err(PyValueError::new_err(format!(
             "No style snapshot found for id {style_id}. \
-             get_widget_style_parameters must be called during a callback or sid is wrong."))),
+             get_widget_style_parameters must be called during a callback or style_id is wrong or you used the widget id versus the style_id."))),
     }
 }

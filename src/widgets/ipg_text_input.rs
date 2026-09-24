@@ -25,7 +25,6 @@ use crate::widgets::widget_param_update::{
 #[derive(Debug, Clone)]
 pub struct TextInput {
     pub id: usize,
-    pub parent_id: String,
     pub placeholder: String,
     pub value: String,
     pub is_secure: Option<bool>,

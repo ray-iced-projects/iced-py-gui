@@ -23,6 +23,8 @@ use crate::widgets::ipg_checkbox::{ChkMessage, checkbox_callback};
 use crate::widgets::ipg_combo_box::{CBMessage, combo_box_callback};
 use crate::widgets::ipg_date_picker::{DatePikMessage, date_picker_callback};
 use crate::widgets::ipg_file_system::{FileSystemMessage, fsd_callback};
+use crate::widgets::ipg_input_float::{InputFloatMessage, input_float_callback};
+use crate::widgets::ipg_input_int::{InputIntMessage, input_int_callback};
 use crate::widgets::ipg_sash::{sash_callback, SashMessage};
 use crate::widgets::ipg_draw::{draw_callback, process_draw_updates};
 use crate::widgets::ipg_events::{process_keyboard_events, process_mouse_events, process_touch_events, process_window_event};
@@ -57,6 +59,8 @@ pub enum Message {
     EventWindow((window::Id, Event)),
     EventTouch(Event),
     FileSystemWindow(usize, FileSystemMessage),
+    InputFloat(usize, InputFloatMessage),
+    InputInt(usize, InputIntMessage),
     MouseArea(usize, MaMessage),
     PickList(usize, PLMessage),
     PopUp(usize, PopUpMessage),
@@ -228,6 +232,18 @@ impl App {
                 process_touch_events(event, self.state.touch_event_id_enabled.0);
                 process_widget_updates(&mut self.state);
                 Task::none()
+            },
+            Message::InputFloat(id, message) => {
+                input_float_callback(&mut self.state, id, message);
+                process_widget_updates(&mut self.state);
+                process_draw_updates(&mut self.state);
+                get_tasks(&mut self.state)
+            },
+            Message::InputInt(id, message) => {
+                input_int_callback(&mut self.state, id, message);
+                process_widget_updates(&mut self.state);
+                process_draw_updates(&mut self.state);
+                get_tasks(&mut self.state)
             },
             Message::MouseArea(id, message) => {
                 mousearea_callback(id, message);
@@ -933,6 +949,9 @@ fn get_container<'a>(state: &'a IpgState,
                 Containers::Grid(grid) => {
                     grid.construct(content)
                 },
+                Containers::InputFloat(input_flt) => {
+                    input_flt.construct(content, &state.widgets)
+                }
                 Containers::Menu(_) => {
                     // Menu children are consumed by get_menu_children;
                     // it should never reach get_container.
@@ -1000,7 +1019,7 @@ fn get_container<'a>(state: &'a IpgState,
                 },
                 Containers::ToolTip(tool) => {
                     if content.len() > 2 {
-                        eprintln!("[WARNING] A tooltip can have only 2 containersor widgets, place your multiple widgets into a column or row, otehr are ignored.")
+                        eprintln!("[WARNING] A tooltip can have only 2 containers or widgets, place your multiple widgets into a column or row, otehr are ignored.")
                     }
                     tool.construct(content, &state.widgets)
                 },
@@ -1036,6 +1055,9 @@ fn get_widget<'a>(state: &'a IpgState, id: &usize) -> Option<Element<'a, Message
                 },
                 Widgets::Image(image) => {
                     image.construct()
+                },
+                Widgets::InputInt(input) => {
+                    input.construct(&state.widgets)       
                 },
                 Widgets::PickList(pick) => {
                     pick.construct(&state.widgets)
@@ -1073,10 +1095,58 @@ fn get_widget<'a>(state: &'a IpgState, id: &usize) -> Option<Element<'a, Message
                 Widgets::Toggler(tog) => {
                     tog.construct(&state.widgets)   
                 },
-                _ => None,
-
+                Widgets::FileSystemDialog(_) => {
+                    eprint!("ERROR: add_file_system_dialog() is a special method which doesn't have a widget construct method, returning None");
+                    None
+                },
+                Widgets::Font(_) => {
+                    eprint!("ERROR: add_font() is a special method which doesn't have a widget construct method, returning None");
+                    None
+                },
+                Widgets::Icon(_) => {
+                    eprint!("ERROR: add_icon() is a special method which doesn't have a widget construct method, returning None");
+                    None
+                },
+                Widgets::Palette(_) => {
+                    eprint!("ERROR: get_color_palette() is a special method which doesn't have a widget construct method, returning None");
+                    None
+                },
+                Widgets::Scroller(_) => {
+                    eprint!("ERROR: add_scroller() is part of add_scrollable and doesn't have a construct method, returning None");
+                    None
+                },
+                Widgets::Span(_) => {
+                    eprintln!("ERROR: add_span() is a add_rich_text widget that doesn't have a construct method, returning None");
+                    None
+                },
+                Widgets::ButtonStyle(_) |
+                Widgets::CardStyle(_) |
+                Widgets::CheckboxStyle(_) |
+                Widgets::ComboBoxInputStyle(_) |
+                Widgets::ComboBoxMenuStyle(_) |
+                Widgets::ContainerStyle(_) |
+                Widgets::InputFloatStyle(_) |
+                Widgets::InputIntStyle(_) |
+                Widgets::MenuStyle(_) |
+                Widgets::PickListStyle(_) |
+                Widgets::ProgressBarStyle(_) |
+                Widgets::RadioStyle(_) |
+                Widgets::RuleStyle(_) |
+                Widgets::SashStyle(_) |
+                Widgets::ScrollableStyle(_) |
+                Widgets::TableStyle(_) |
+                Widgets::RailStyle(_) |
+                Widgets::AutoScrollStyle(_) |
+                Widgets::SeparatorStyle(_) |
+                Widgets::SliderStyle(_) |
+                Widgets::TextEditorStyle(_) |
+                Widgets::TextInputStyle(_) |
+                Widgets::TogglerStyle(_) => {
+                    eprint!("ERROR: Style methods should not have a widget construct method, returning None");
+                    None
+                }
             },
-        None => panic!("App: Widgets not found in fn get_widget id={}", id)
+            None => None,
     }
 }
 
@@ -1415,6 +1485,7 @@ fn process_shows(
             Widgets::CheckBox(w) => w.show = *val,
             Widgets::ComboBox(w) => w.show = *val,
             Widgets::Image(w) => w.show = *val,
+            Widgets::InputInt(w) => w.show = *val,
             Widgets::PickList(w) => w.show = *val,
             Widgets::ProgressBar(w) => w.show = *val,
             Widgets::Radio(w) => w.show = *val,
@@ -1439,6 +1510,8 @@ fn process_shows(
             | Widgets::Font(_)
             | Widgets::Icon(_)
             | Widgets::MenuStyle(_)
+            | Widgets::InputFloatStyle(_)
+            | Widgets::InputIntStyle(_)
             | Widgets::Palette(_)
             | Widgets::PickListStyle(_)
             | Widgets::ProgressBarStyle(_)
@@ -1458,7 +1531,6 @@ fn process_shows(
             | Widgets::TogglerStyle(_) => {
                 eprintln!("Widget {:?} does not support the show parameter", widget)
             }
-            
         }
     }
 }

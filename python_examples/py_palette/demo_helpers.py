@@ -7,8 +7,8 @@ import os
 from typing import TYPE_CHECKING
 from icedpygui import (ButtonParam,
     ContainerStyleParam,
+    InputIntParam,
     TextParam,
-    TextInputParam,
     get_color_palette,
     get_widget_default_statuses,
     update_widget,
@@ -100,5 +100,5 @@ def demo_populate_palette_area(pc: PaletteCreator):
                 ButtonParam.Show: True})
 
             # Show the opacity and border widgets
-            update_widget(pc.opacity_id[row_index], TextInputParam.Show, True)
-            update_widget(pc.border_id[row_index], TextInputParam.Show, True)
+            update_widget(pc.opacity_id[row_index], InputIntParam.Show, True)
+            update_widget(pc.border_id[row_index], InputIntParam.Show, True)

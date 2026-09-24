@@ -23,6 +23,7 @@ from .icedpygui import (
     add_combobox_menu_style as add_combobox_menu_style,
     add_container_style as add_container_style,
     add_font_style as add_font_style,
+    add_input_int_style as add_input_int_style,
     # add_menu_style as add_menu_style,
     add_opaque_style as add_opaque_style,
     add_progress_bar_style as add_progress_bar_style,
@@ -77,6 +78,8 @@ from .icedpygui import (
     FontStyle as FontStyle,
     GridParam as GridParam,
     Icon as Icon,
+    InputIntParam as InputIntParam,
+    InputIntStyleParam as InputIntStyleParam,
     MenuBarItemParam as MenuBarItemParam,
     MenuParam as MenuParam,
     MenuStyleParam as MenuStyleParam,
@@ -972,6 +975,79 @@ def add_image(
 
     Returns:
         int: widget id
+    """
+    ...
+def add_input_int(
+    *,
+    parent_id: str | None = None,
+    placeholder: str | None = None,
+    on_input: Any | None = None,
+    on_submit: Any | None = None,
+    on_paste: Any | None = None,
+    arrows: Arrow | None = None,
+    width: float | None = None,
+    width_fill: bool | None = None,
+    padding: list[float, 4 | list[float]] | None = None,
+    size: float | None = None,
+    line_height: float | None = None,
+    align_left: bool | None = None,
+    align_center: bool | None = None,
+    align_right: bool | None = None,
+    user_data: Any | None = None,
+    font_id: int | None = None,
+    style_id: int | None = None,
+    show: bool = True,
+    gen_id: int | None = None,
+) -> int:
+    """
+Add a text input widget.
+
+    A integer input field with placeholder text.
+
+    Parameters
+    ----------
+    parent_id : str
+        Sets the parent container ID that this text input belongs to.
+    placeholder : str
+        Sets the placeholder text shown when the input is empty.
+    gen_id : int, Optional
+        Obtains an ID of a widget that have not been created, used for the gen_id parameter.
+    on_input : callable, Optional
+        Sets the Callback method to invoke when the input text changes.
+    on_submit : callable, Optional
+        Sets the Callback method to invoke when the user presses enter.
+    on_paste : callable, Optional
+        Sets the Callback method to invoke when text is pasted.
+    width : float, Optional
+        Sets the Fixed width in logical pixels.
+    width_fill : bool, default False
+        Whether the text input fills available width.
+    padding : list of float, Optional
+        Sets the Padding as [all], [vertical, horizontal], or
+        [top, right, bottom, left].
+    size : float, Optional
+        Sets the font size for the input text.
+    line_height : float, Optional
+        Sets the line height for the input text.
+    align_left : bool, Optional
+        Whether to set the horizontal alignment left (default).
+    align_center : bool, Optional
+        Whether to set the horizontal alignment center.
+    align_right : bool, Optional
+        Whether to set the horizontal alignment right.
+    user_data : Any, Optional
+        Sets the Arbitrary data forwarded to callbacks.
+    font_id : int, Optional
+        Sets the Font ID for the input text.
+    style_id : int, Optional
+        Sets the ID of a custom style created with ``add_text_input_style``.
+    show : bool, default True
+        Whether the text input is visible.
+
+    Returns
+    -------
+    int
+        The numeric widget ID of the newly created text input.
     """
     ...
 def add_pick_list(

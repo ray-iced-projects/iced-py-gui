@@ -27,6 +27,8 @@ use crate::widgets::ipg_draw::Draw;
 use crate::ipg_widgets::ipg_canvas_draw::canvas_draw::{
     DrawState, CanvasWidget, Circle, DrawMode, DrawStatus};
 use crate::widgets::ipg_file_system::FileSystemDialog;
+use crate::widgets::ipg_input_float::{InputFloat, InputFloatStyle};
+use crate::widgets::ipg_input_int::{InputInt, InputIntStyle};
 use crate::widgets::ipg_menu::{Menu, MenuBarItem, MenuSubItem, MenuStyle};
 use crate::widgets::ipg_popup::PopUp;
 use iced::widget::Id;
@@ -80,6 +82,7 @@ pub enum Containers {
     DatePicker(DatePicker),
     Float(Float),
     Grid(Grid),
+    InputFloat(InputFloat),
     Menu(Menu),
     MenuBarItem(MenuBarItem),
     MenuSubItem(MenuSubItem),
@@ -118,6 +121,9 @@ pub enum Widgets {
     Font(Font),
     Icon(IpgIcon),
     Image(Image),
+    InputFloatStyle(InputFloatStyle),
+    InputInt(InputInt),
+    InputIntStyle(InputIntStyle),
     MenuStyle(MenuStyle),
     Palette(CustomPalette),
     PickList(PickList),
@@ -191,6 +197,9 @@ ipg_widget_accessors! {
     Font               => Font,                as_font,                  as_font_mut;
     Icon               => IpgIcon,             as_icon,                  as_icon_mut;
     Image              => Image,               as_image,                 as_image_mut;
+    InputFloatStyle    => InputFloatStyle,     as_input_float_style,     as_input_float_style_mut;
+    InputInt           => InputInt,            as_input_int,             as_input_int_mut;
+    InputIntStyle      => InputIntStyle,       as_input_int_style,       as_input_int_style_mut;
     MenuStyle          => MenuStyle,           as_menu_style,            as_menu_style_mut;
     Palette            => CustomPalette,       as_palette,               as_palette_mut;
     PickList           => PickList,            as_pick_list,             as_pick_list_mut;
@@ -253,6 +262,7 @@ ipg_container_accessors! {
     Container    => Container,    as_container,       as_container_mut;
     Float        => Float,        as_float,           as_float_mut;
     Grid         => Grid,         as_grid,            as_grid_mut;
+    InputFloat   => InputFloat,   as_input_float,     as_input_float_mut;
     Menu         => Menu,         as_menu,            as_menu_mut;
     MenuBarItem  => MenuBarItem,  as_menu_bar_item,   as_menu_bar_item_mut;
     MenuSubItem  => MenuSubItem,  as_menu_sub_item,   as_menu_sub_item_mut;

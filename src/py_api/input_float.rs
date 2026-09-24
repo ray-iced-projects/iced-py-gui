@@ -1,13 +1,13 @@
-//! Text inputs display fields that can be filled with text.
-use crate::{access_state, add_callback_name_to_mutex, add_user_data_to_mutex, graphics::colors::Color, state::{Widgets, get_id, set_state_of_widget}, widgets::{callbacks::CallbackName, ipg_text_input::{TextInput, TextInputStyle}}};
+//! Input float display fields that can be filled with numbers.
+use crate::{access_state, add_callback_name_to_mutex, add_user_data_to_mutex, graphics::colors::Color, state::{Containers, Widgets, get_id, set_state_cont_wnd_ids, set_state_of_container}, widgets::{callbacks::CallbackName, ipg_input_float::{InputFloat, InputFloatStyle}}};
 
 use pyo3::{Py, PyAny, pyfunction, PyResult};
 type PyObject = Py<PyAny>;
 
 
-/// Add a text input widget.
+/// Add a input float widget.
 ///
-/// A single-line text input field with placeholder text.
+/// An float input field with placeholder text.
 ///
 /// Parameters
 /// ----------
@@ -42,8 +42,6 @@ type PyObject = Py<PyAny>;
 ///     Whether to set the horizontal alignment right.
 /// user_data: Any, Optional
 ///     Sets the Arbitrary data forwarded to callbacks.
-/// is_secure: bool, Optional
-///     Whether the input text is obscured (password mode).
 /// text_font_id: int, Optional
 ///     Sets the Font ID for the input text.
 /// style_id: int, Optional
@@ -57,12 +55,15 @@ type PyObject = Py<PyAny>;
 ///     The numeric widget ID of the newly created text input.
 #[pyfunction]
 #[pyo3(signature = (
-    parent_id, 
-    placeholder, 
-    gen_id=None,
+    window_id, 
+    container_id, 
+    parent_id=None, 
+    placeholder=None, 
     on_input=None, 
     on_submit=None, 
-    on_paste=None, 
+    on_paste=None,
+    on_press=None,
+    left_side=None,
     width=None, 
     width_fill=None, 
     padding=None, 
@@ -72,18 +73,21 @@ type PyObject = Py<PyAny>;
     align_center=None,
     align_right=None,
     user_data=None,
-    is_secure=None,
     text_font_id=None,
     style_id=None, 
     show=true,
+    gen_id=None,
     ))]
-pub fn add_text_input(
-        parent_id: String,
-        placeholder: String,
-        gen_id: Option<usize>,
+pub fn add_input_float(
+        window_id: String,
+        container_id: String,
+        parent_id: Option<String>,
+        placeholder: Option<String>,
         on_input: Option<PyObject>,
         on_submit: Option<PyObject>,
         on_paste: Option<PyObject>,
+        on_press: Option<PyObject>,
+        left_side: Option<bool>,
         width: Option<f32>,
         width_fill: Option<bool>,
         padding: Option<Vec<f32>>,
@@ -93,14 +97,18 @@ pub fn add_text_input(
         align_center: Option<bool>,
         align_right: Option<bool>,
         user_data: Option<PyObject>,
-        is_secure: Option<bool>,
         text_font_id: Option<usize>,
         style_id: Option<usize>,
         show: bool,
+        gen_id: Option<usize>,
     ) -> PyResult<usize> 
 {
-
     let id = get_id(gen_id);
+
+    let prt_id = match parent_id {
+        Some(id) => id,
+        None => window_id.clone(),
+    };
 
     if let Some(py) = on_input {
         add_callback_name_to_mutex(id, CallbackName::OnInput, py);
@@ -113,20 +121,26 @@ pub fn add_text_input(
         add_callback_name_to_mutex(id, CallbackName::OnPaste, py);
     }
 
+    if let Some(py) = on_press {
+        add_callback_name_to_mutex(id, CallbackName::OnPress, py);
+    }
+
     if let Some(py) = user_data {
         add_user_data_to_mutex(id, py);
     }
     
-    set_state_of_widget(id, parent_id.clone());
+    set_state_of_container(id, window_id.clone(), Some(container_id.clone()), prt_id);
 
     let mut state = access_state();
+
+    set_state_cont_wnd_ids(&mut state, &window_id, container_id, id, "add_input_float".to_string());
     
-    state.widgets.insert(id, Widgets::TextInput(
-        TextInput {
+    state.containers.insert(id, Containers::InputFloat(
+        InputFloat {
             id,
-            placeholder,
             value: String::new(),
-            is_secure,
+            placeholder,
+            left_side,
             width,
             width_fill,
             padding,
@@ -323,7 +337,7 @@ pub fn add_text_input(
 
     gen_id=None
 ))]
-pub fn add_text_input_style(
+pub fn add_input_int_style(
         background_color: Option<Color>,
         background_color_alpha: Option<f32>,
         background_rgba: Option<[f32; 4]>,
@@ -414,8 +428,8 @@ pub fn add_text_input_style(
 
     let mut state = access_state();
     
-    state.widgets.insert(id, Widgets::TextInputStyle(
-        TextInputStyle { 
+    state.widgets.insert(id, Widgets::InputFloatStyle(
+        InputFloatStyle { 
             id,
             background_color,
             background_color_alpha,

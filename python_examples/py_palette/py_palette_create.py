@@ -18,6 +18,7 @@ from python_examples.py_palette.widget_helpers import (
     WidgetConfig, place_widget, set_new_widget_palette)
 from icedpygui import (
     Window,
+    Arrow,
     ColorPicker,
     Column,
     Container,
@@ -28,6 +29,9 @@ from icedpygui import (
     start_session,
     add_button,
     add_button_style,
+    add_event_keyboard,
+    add_input_int,
+    InputIntParam,
     add_pick_list,
     MouseArea,
     PickListParam,
@@ -217,6 +221,9 @@ class PaletteCreator:
         self.checkbox_grid: list[list[int, 2]] = [] # 2D grid: [row][col] for matrix selection
         self.popup_ids: list[int] = []
         self.popup_open_btn_ids: list[int] = []
+        self.key_pressed: dict = {}
+        self.opacity: int = 0
+
 
 pc = PaletteCreator()
 
@@ -311,6 +318,53 @@ def clicked_outside(pop_id: int):
     """Called when mouse clicked outside palette selection popup"""
     update_widget(pop_id, PopUpParam.Opened, False)
 
+def event_kp(_kp_id:int, key: dict):
+    """Kep press event"""
+    pc.key_pressed = key
+
+
+def event_kr(_kp_id:int, _key: dict):
+    """Kep press event"""
+    pc.key_pressed = {}
+
+
+add_event_keyboard(enabled=True,
+                   on_key_press=event_kp,
+                   on_key_release=event_kr)
+
+def op_pressed(op_id: int):
+    """Incrementing or decrementing Opacity"""
+    modifier = pc.key_pressed.get("modifier")
+    key = pc.key_pressed.get("key")
+    # print(pc.key_pressed)
+
+    if modifier == "None":
+        mod_key = key
+    else:
+        mod_key = f"{modifier}-{key}"
+    print(mod_key)
+    match mod_key:
+        case "UpArrow":
+            pc.opacity += 1
+        case "ArrowDown":
+            pc.opacity -= 1
+        case "Control":
+            pc.opacity += 5
+        case "Shift":
+            pc.opacity += 10
+        case "Control-ArrowUp":
+            pc.opacity += 5
+        case "Control-ArrowDown":
+            pc.opacity -= 5
+        case "Shift-ArrowUp":
+            pc.opacity += 10
+        case "Shift-ArrowDown":
+            pc.opacity -= 10
+        case _:
+            pc.opacity += 1
+
+    update_widget(op_id, InputIntParam.Value, pc.opacity)
+
 
 # populate the dropdown for the demo widgets
 parts_file_path = os.path.join(CWD, "python_examples", "py_palette", "widget_palette_parts.yml")
@@ -399,7 +453,8 @@ with Window(title="Palette Creator - Interactive Workflow", center=True, size=(1
                                 match column:
                                     case 0:
                                         with Container(fill=True):
-                                            pc.parts_list_ids.append(add_text(content="part-status", show=False))
+                                            pc.parts_list_ids.append(
+                                                add_text(content="part-status", show=False))
                                     case 1:
                                         # Create a popup that holds the 8 containers
                                         # with a mouse area. Each of the 8 containers is
@@ -445,7 +500,8 @@ with Window(title="Palette Creator - Interactive Workflow", center=True, size=(1
                                                             # add the container
                                                             with Container(width=100,
                                                                     style_id=style_id,
-                                                                    align_center=True) as popup_cnt_id:
+                                                                    align_center=True)\
+                                                                    as popup_cnt_id:
                                                                 # store the id
                                                                 pc.palette_popup_cnt_ids[-1].append(
                                                                     popup_cnt_id)
@@ -455,10 +511,14 @@ with Window(title="Palette Creator - Interactive Workflow", center=True, size=(1
                                                                 pc.palette_popup_cnt_text_ids[-1]\
                                                                     .append(add_text(content="Pal"))
                                     case 2:
-                                        with Row():
-                                            pc.opacity_id.append(add_text_input(placeholder="Opacity", width=75, show=False))
-                                            
+                                        pc.opacity_id.append(add_input_int(
+                                            placeholder="Opacity", width=75,
+                                            arrows=[Arrow.ArrowUp], show=False,
+                                            button_outline=True,
+                                            on_press=op_pressed))
+
                                     case 3:
-                                        pc.border_id.append(add_text_input(placeholder="Border Width", width=100, show=False))
+                                        pc.border_id.append(add_input_int(
+                                            placeholder="Border Width", width=100, show=False))
 
 start_session()

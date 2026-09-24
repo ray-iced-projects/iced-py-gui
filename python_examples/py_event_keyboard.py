@@ -19,7 +19,7 @@ def key_pressed(_event_id: int, key: dict, user_data: any):
         modifier = ""
 
     name = key.get("name")
-
+    print("modifier=", modifier, "\n", "name=", name, "\n", "key=", key.get('key'), "\n")
     update_widget(
         wid=text_pressed,
         param=TextParam.Content,
@@ -46,7 +46,7 @@ def key_released(_event_id: int, key: dict,_user_data: any):
 # add the event and the two callbacks along with the user_data if needed.
 # Unlike widgets, the events can be added at any time since they are not widgets
 add_event_keyboard(
-        enabled=True,
+        enabled=True, # required
         on_key_press=key_pressed,
         on_key_release=key_released,
         user_data=[25])

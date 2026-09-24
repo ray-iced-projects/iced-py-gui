@@ -41,6 +41,8 @@ from .icedpygui import (
     add_grid as _add_grid,
     add_icon,
     add_image as _add_image,
+    add_input_int as _add_input_int,
+    add_input_int_style,
     add_menu as _add_menu,
     add_menu_bar_item as _add_menu_bar_item,
     add_menu_sub_item as _add_menu_sub_item,
@@ -150,6 +152,7 @@ from .icedpygui import (
     FontStyle,
     GridParam,
     Icon,
+    InputIntParam,
     ImageParam,
     MenuBarItemParam,
     MenuParam,
@@ -298,6 +301,8 @@ add_combobox = _wrap_widget(_add_combobox, "add_combobox")
 add_combobox.__doc__ = _add_combobox.__doc__
 add_image = _wrap_widget(_add_image, "add_image")
 add_image.__doc__ = _add_image.__doc__
+add_input_int = _wrap_widget(_add_input_int, "add_input_int")
+add_input_int.__doc__ = _add_input_int.__doc__
 add_pick_list = _wrap_widget(_add_pick_list, "add_pick_list")
 add_pick_list.__doc__ = _add_pick_list.__doc__
 add_progress_bar = _wrap_widget(_add_progress_bar, "add_progress_bar")

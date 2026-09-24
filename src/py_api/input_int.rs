@@ -1,13 +1,13 @@
-//! Text inputs display fields that can be filled with text.
-use crate::{access_state, add_callback_name_to_mutex, add_user_data_to_mutex, graphics::colors::Color, state::{Widgets, get_id, set_state_of_widget}, widgets::{callbacks::CallbackName, ipg_text_input::{TextInput, TextInputStyle}}};
+//! Input integer display fields that can be filled with numbers.
+use crate::{access_state, add_callback_name_to_mutex, add_user_data_to_mutex, graphics::{bootstrap::{bootstrap_arrow::Arrow, bootstrap_icon::Icon}, colors::Color}, state::{Widgets, get_id, set_state_of_widget}, widgets::{callbacks::CallbackName, ipg_input_int::{InputInt, InputIntStyle}}};
 
 use pyo3::{Py, PyAny, pyfunction, PyResult};
 type PyObject = Py<PyAny>;
 
 
-/// Add a text input widget.
+/// Add a input integer widget.
 ///
-/// A single-line text input field with placeholder text.
+/// An integer input field with placeholder text.
 ///
 /// Parameters
 /// ----------
@@ -42,8 +42,6 @@ type PyObject = Py<PyAny>;
 ///     Whether to set the horizontal alignment right.
 /// user_data: Any, Optional
 ///     Sets the Arbitrary data forwarded to callbacks.
-/// is_secure: bool, Optional
-///     Whether the input text is obscured (password mode).
 /// text_font_id: int, Optional
 ///     Sets the Font ID for the input text.
 /// style_id: int, Optional
@@ -59,10 +57,13 @@ type PyObject = Py<PyAny>;
 #[pyo3(signature = (
     parent_id, 
     placeholder, 
-    gen_id=None,
     on_input=None, 
     on_submit=None, 
-    on_paste=None, 
+    on_paste=None,
+    on_press=None,
+    icons=None,
+    arrows=None,
+    button_outline=None,
     width=None, 
     width_fill=None, 
     padding=None, 
@@ -72,18 +73,21 @@ type PyObject = Py<PyAny>;
     align_center=None,
     align_right=None,
     user_data=None,
-    is_secure=None,
     text_font_id=None,
     style_id=None, 
     show=true,
+    gen_id=None,
     ))]
-pub fn add_text_input(
+pub fn add_input_int(
         parent_id: String,
         placeholder: String,
-        gen_id: Option<usize>,
         on_input: Option<PyObject>,
         on_submit: Option<PyObject>,
         on_paste: Option<PyObject>,
+        on_press: Option<PyObject>,
+        icons: Option<Vec<Icon>>,
+        arrows: Option<Vec<Arrow>>,
+        button_outline: Option<bool>,
         width: Option<f32>,
         width_fill: Option<bool>,
         padding: Option<Vec<f32>>,
@@ -93,13 +97,12 @@ pub fn add_text_input(
         align_center: Option<bool>,
         align_right: Option<bool>,
         user_data: Option<PyObject>,
-        is_secure: Option<bool>,
         text_font_id: Option<usize>,
         style_id: Option<usize>,
         show: bool,
+        gen_id: Option<usize>,
     ) -> PyResult<usize> 
 {
-
     let id = get_id(gen_id);
 
     if let Some(py) = on_input {
@@ -113,6 +116,10 @@ pub fn add_text_input(
         add_callback_name_to_mutex(id, CallbackName::OnPaste, py);
     }
 
+    if let Some(py) = on_press {
+        add_callback_name_to_mutex(id, CallbackName::OnPress, py);
+    }
+
     if let Some(py) = user_data {
         add_user_data_to_mutex(id, py);
     }
@@ -121,12 +128,15 @@ pub fn add_text_input(
 
     let mut state = access_state();
     
-    state.widgets.insert(id, Widgets::TextInput(
-        TextInput {
+    state.widgets.insert(id, Widgets::InputInt(
+        InputInt {
             id,
+            parent_id,
             placeholder,
             value: String::new(),
-            is_secure,
+            icons,
+            arrows,
+            button_outline,
             width,
             width_fill,
             padding,
@@ -323,7 +333,7 @@ pub fn add_text_input(
 
     gen_id=None
 ))]
-pub fn add_text_input_style(
+pub fn add_input_int_style(
         background_color: Option<Color>,
         background_color_alpha: Option<f32>,
         background_rgba: Option<[f32; 4]>,
@@ -414,8 +424,8 @@ pub fn add_text_input_style(
 
     let mut state = access_state();
     
-    state.widgets.insert(id, Widgets::TextInputStyle(
-        TextInputStyle { 
+    state.widgets.insert(id, Widgets::InputIntStyle(
+        InputIntStyle { 
             id,
             background_color,
             background_color_alpha,

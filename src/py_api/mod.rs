@@ -22,6 +22,8 @@ pub mod float;
 pub mod font;
 pub mod grid;
 pub mod image;
+pub mod input_int;
+pub mod input_float;
 pub mod menu;
 pub mod mouse_area;
 pub mod opaque;

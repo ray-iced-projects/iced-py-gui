@@ -19,12 +19,12 @@ use crate::graphics::colors::Color;
 use crate::py_api::helpers::{get_len, get_padding};
 use crate::state::Widgets;
 use crate::widgets::callbacks::{CallbackName, invoke_callback, invoke_callback_with_args};
-use crate::widgets::widget_param_update::{WidgetParamUpdate, extract_param, set_t_value};
+use crate::widgets::widget_param_update::{WidgetParamUpdate, set_t_value};
 
 #[derive(Debug, Clone)]
 pub struct InputFloat {
     pub id: usize,
-    pub value: String,
+    pub value: Option<f64>,
     pub placeholder: Option<String>,
     pub left_side: Option<bool>,
     pub width: Option<f32>,
@@ -46,11 +46,10 @@ impl InputFloat {
     }
 
     pub fn construct<'a>(
-        &self,
+        &'a self,
         content: Vec<Element<'a, Message>>,
         widgets: &HashMap<usize, Widgets>,
     ) -> Option<Element<'a, Message>> {
-        
         if !self.show {
             return None;
         }
@@ -73,10 +72,16 @@ impl InputFloat {
             String::new()
         };
 
+        let value = if let Some(val) = self.value {
+            val.to_string()
+        } else {
+            String::new()
+        };
+
         let txt_input: widget::TextInput<'_, InputFloatMessage> =
-            widget::TextInput::new(placeholder, self.value.as_str())
+            widget::TextInput::new(placeholder, value.clone())
                 .on_input(InputFloatMessage::OnInput)
-                .on_submit(InputFloatMessage::OnSubmit(self.value.clone()))
+                .on_submit(InputFloatMessage::OnSubmit(value.clone()))
                 .on_paste(InputFloatMessage::OnPaste)
                 .width(width)
                 .padding(padding)
@@ -117,7 +122,8 @@ impl InputFloat {
 
         let txt_input: Element<'_, InputFloatMessage> = txt_input.into();
 
-        let ti: Element<'a, Message> = txt_input.map(move |message| Message::InputFloat(self.id, message));
+        let id = self.id;
+        let ti = txt_input.map(move |message| Message::InputFloat(id, message));
 
         let cnt = if self.left_side == Some(true) {
             let mut cnt = content;
@@ -130,6 +136,7 @@ impl InputFloat {
         };
 
         Some(iced::widget::Row::with_children(cnt).into())
+    
     }
 }
 
@@ -654,10 +661,7 @@ impl WidgetParamUpdate for InputFloat {
             InputFloatParam::Show => set_t_value(&mut self.show, value, "InputIntParam::Show"),
             InputFloatParam::Size => set_t_value(&mut self.size, value, "InputIntParam::Size"),
             InputFloatParam::StyleId => set_t_value(&mut self.style_id, value, "InputIntParam::StyleId"),
-            InputFloatParam::Value => {
-                let v: f64 = extract_param(value);
-                self.value = v.to_string();
-            }
+            InputFloatParam::Value => set_t_value(&mut self.value, value, "InputFloatParam::Value"),
             InputFloatParam::Width => set_t_value(&mut self.width, value, "InputIntParam::Width"),
             InputFloatParam::WidthFill => set_t_value(&mut self.width_fill, value, "TextInputParam::WidthFill"),
         }

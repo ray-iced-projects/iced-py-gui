@@ -5,9 +5,10 @@ helper file for automating the demo widgets
 
 import os
 from typing import TYPE_CHECKING
-from icedpygui import (ButtonParam,
+from icedpygui import (
+    ButtonParam,
     ContainerStyleParam,
-    InputIntParam,
+    InputFloatParam,
     TextParam,
     get_color_palette,
     get_widget_default_statuses,
@@ -100,5 +101,5 @@ def demo_populate_palette_area(pc: PaletteCreator):
                 ButtonParam.Show: True})
 
             # Show the opacity and border widgets
-            update_widget(pc.opacity_id[row_index], InputIntParam.Show, True)
-            update_widget(pc.border_id[row_index], InputIntParam.Show, True)
+            update_widget(pc.opacity_ids[row_index], InputFloatParam.Show, True)
+            update_widget(pc.border_ids[row_index], InputFloatParam.Show, True)

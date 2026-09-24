@@ -2904,6 +2904,44 @@ class ImageParam:
     WidthFill: bool
     Width: float
 
+class InputFloatParam:
+    """
+    add_input_int parameters
+
+    Parameters
+    ----------
+    LeftSide: bool
+        Wheter the put the buttons on the left side.
+    LineHeight: float
+        Sets additional height added to the box.
+    Padding: list[float, 4] | list[float]
+        Sets the padding around the integer.
+    Placeholder: str
+        Set the placeholder value.
+    Show: bool
+        Whether to show the widget.
+    Size: float
+        Sets the font size for the input text.
+    StyleId: int
+        Sets the style_id using addd_input_style().
+    Value: int
+        Sets the value of the input.
+    Width: float
+        Sets the width of the widget.
+    WidthFill: bool
+        Whether the widget fill the available space.
+    """
+    LeftSide: bool
+    LineHeight: float
+    Padding: list[float, 4] | list[float]
+    Placeholder: str
+    Show: bool
+    Size: float
+    StyleId: int
+    Value: float
+    Width: float
+    WidthFill: bool
+
 class InputIntParam:
     """
     add_input_int parameters

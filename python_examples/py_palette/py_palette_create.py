@@ -30,8 +30,8 @@ from icedpygui import (
     add_button,
     add_button_style,
     add_event_keyboard,
-    add_input_int,
-    InputIntParam,
+    InputFloat,
+    InputFloatParam,
     add_pick_list,
     MouseArea,
     PickListParam,
@@ -199,8 +199,10 @@ class PaletteCreator:
         self.widget_normal_style_id: int = None
         self.widget_name: str = None
         self.widget_parts: list[str] = []
-        self.opacity_id: list[int] = []
-        self.border_id: list[int] = []
+        self.opacity_ids: list[int] = []
+        self.opacity: float = 1.0
+        self.border: float = 2.0
+        self.border_ids: list[int] = []
         self.palette_widget_ids: list[int] = []
         self.palette_popup_cnt_ids: list[int] = []
         self.palette_popup_cnt_text_ids: list[int] = []
@@ -222,7 +224,7 @@ class PaletteCreator:
         self.popup_ids: list[int] = []
         self.popup_open_btn_ids: list[int] = []
         self.key_pressed: dict = {}
-        self.opacity: int = 0
+
 
 
 pc = PaletteCreator()
@@ -332,7 +334,7 @@ add_event_keyboard(enabled=True,
                    on_key_press=event_kp,
                    on_key_release=event_kr)
 
-def op_pressed(op_id: int):
+def op_pressed(_btn_id: int, op_input_id):
     """Incrementing or decrementing Opacity"""
     modifier = pc.key_pressed.get("modifier")
     key = pc.key_pressed.get("key")
@@ -342,28 +344,48 @@ def op_pressed(op_id: int):
         mod_key = key
     else:
         mod_key = f"{modifier}-{key}"
-    print(mod_key)
+
     match mod_key:
         case "UpArrow":
-            pc.opacity += 1
+            if pc.opacity < 1.0:
+                pc.opacity += 0.1
         case "ArrowDown":
-            pc.opacity -= 1
-        case "Control":
-            pc.opacity += 5
-        case "Shift":
-            pc.opacity += 10
-        case "Control-ArrowUp":
-            pc.opacity += 5
-        case "Control-ArrowDown":
-            pc.opacity -= 5
-        case "Shift-ArrowUp":
-            pc.opacity += 10
-        case "Shift-ArrowDown":
-            pc.opacity -= 10
+            if pc.opacity > 0.0:
+                pc.opacity -= 0.1
         case _:
-            pc.opacity += 1
+            pc.opacity += 0.1
 
-    update_widget(op_id, InputIntParam.Value, pc.opacity)
+    update_widget(op_input_id, InputFloatParam.Value, pc.opacity)
+
+
+def border_pressed(_btn_id_: int, border_input_id: int):
+    """Incrementing or decrementing Opacity"""
+    modifier = pc.key_pressed.get("modifier")
+    key = pc.key_pressed.get("key")
+    # print(pc.key_pressed)
+
+    if modifier == "None":
+        mod_key = key
+    else:
+        mod_key = f"{modifier}-{key}"
+
+    match mod_key:
+        case "UpArrow":
+            pc.border += 1.0
+        case "ArrowDown":
+            pc.border -= 1.0
+            pc.border = max(pc.border, 0.0)
+        case "Control":
+            pc.border += 0.5
+        case "Control-ArrowUp":
+            pc.border += 0.5
+        case "Control-ArrowDown":
+            pc.border -= 0.5
+            pc.border = max(pc.border, 0.0)
+        case _:
+            pc.border += 0.5
+
+    update_widget(border_input_id, InputFloatParam.Value, pc.border)
 
 
 # populate the dropdown for the demo widgets
@@ -511,14 +533,25 @@ with Window(title="Palette Creator - Interactive Workflow", center=True, size=(1
                                                                 pc.palette_popup_cnt_text_ids[-1]\
                                                                     .append(add_text(content="Pal"))
                                     case 2:
-                                        pc.opacity_id.append(add_input_int(
-                                            placeholder="Opacity", width=75,
-                                            arrows=[Arrow.ArrowUp], show=False,
-                                            button_outline=True,
-                                            on_press=op_pressed))
+                                        with InputFloat(
+                                            value=1.0,
+                                            width=75,
+                                            show=False) as op_id:
+
+                                            add_button(
+                                                on_press=op_pressed,
+                                                style_arrow=Arrow.ArrowUp,
+                                                user_data=op_id)
 
                                     case 3:
-                                        pc.border_id.append(add_input_int(
-                                            placeholder="Border Width", width=100, show=False))
+                                        with InputFloat(
+                                            value=2.0,
+                                            width=75,
+                                            show=False) as border_id:
+
+                                            add_button(
+                                                on_press=border_pressed,
+                                                style_arrow=Arrow.ArrowUp,
+                                                user_data=border_id)
 
 start_session()

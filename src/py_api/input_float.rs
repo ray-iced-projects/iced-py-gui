@@ -5,7 +5,7 @@ use pyo3::{Py, PyAny, pyfunction, PyResult};
 type PyObject = Py<PyAny>;
 
 
-/// Add a input float widget.
+/// Add a input float Container.
 ///
 /// An float input field with placeholder text.
 ///
@@ -23,6 +23,8 @@ type PyObject = Py<PyAny>;
 ///     Sets the Callback method to invoke when the user presses enter.
 /// on_paste: callable, Optional
 ///     Sets the Callback method to invoke when text is pasted.
+/// left_side: bool, Optional
+///     Whether to put the button on the left side, default is right.
 /// width: float, Optional
 ///     Sets the Fixed width in logical pixels.
 /// width_fill: bool, default False
@@ -57,12 +59,12 @@ type PyObject = Py<PyAny>;
 #[pyo3(signature = (
     window_id, 
     container_id, 
-    parent_id=None, 
+    parent_id=None,
+    value=None,
     placeholder=None, 
     on_input=None, 
     on_submit=None, 
     on_paste=None,
-    on_press=None,
     left_side=None,
     width=None, 
     width_fill=None, 
@@ -82,11 +84,11 @@ pub fn add_input_float(
         window_id: String,
         container_id: String,
         parent_id: Option<String>,
+        value: Option<f64>,
         placeholder: Option<String>,
         on_input: Option<PyObject>,
         on_submit: Option<PyObject>,
         on_paste: Option<PyObject>,
-        on_press: Option<PyObject>,
         left_side: Option<bool>,
         width: Option<f32>,
         width_fill: Option<bool>,
@@ -121,10 +123,6 @@ pub fn add_input_float(
         add_callback_name_to_mutex(id, CallbackName::OnPaste, py);
     }
 
-    if let Some(py) = on_press {
-        add_callback_name_to_mutex(id, CallbackName::OnPress, py);
-    }
-
     if let Some(py) = user_data {
         add_user_data_to_mutex(id, py);
     }
@@ -138,7 +136,7 @@ pub fn add_input_float(
     state.containers.insert(id, Containers::InputFloat(
         InputFloat {
             id,
-            value: String::new(),
+            value,
             placeholder,
             left_side,
             width,
@@ -159,7 +157,7 @@ pub fn add_input_float(
 
 }
 
-/// Add styling to a text input.
+/// Add styling to a float input.
 ///
 /// Creates a custom style that can be applied to a text input
 /// via its ``style_id`` parameter.
@@ -337,7 +335,7 @@ pub fn add_input_float(
 
     gen_id=None
 ))]
-pub fn add_input_int_style(
+pub fn add_input_float_style(
         background_color: Option<Color>,
         background_color_alpha: Option<f32>,
         background_rgba: Option<[f32; 4]>,

@@ -116,6 +116,7 @@ pub fn container_param_update(
         Containers::Container(w) => apply_update(w, item, value),
         Containers::Float(w)=> apply_update(w, item, value),
         Containers::Grid(w)=> apply_update(w, item, value),
+        Containers::InputFloat(w)=> apply_update(w, item, value),
         Containers::MenuBarItem(w) => apply_update(w, item, value),
         Containers::MenuSubItem(w) => apply_update(w, item, value),
         Containers::MouseArea(w) => apply_update(w, item, value),

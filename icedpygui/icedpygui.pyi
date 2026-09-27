@@ -1998,6 +1998,26 @@ def get_widget_palette_parameters(
         Palette pairs (base, weak, strong, ...) and status mappings.
     """
 
+def update_widget_palette_parameters(
+        palette_id: int,
+        value: dict,
+    )
+    """
+    Updates all of thepalette parameters for the palette with the given id.
+
+    Must be called during a callback whose's palette_id is set
+
+    Parameters
+    ----------
+        palette_id: int
+            The palette id (a widget's palette_id).
+        value: A dict of of returned from using get_widget_default_stastuses()
+
+    Returns
+    -------
+    None
+    """
+
 def get_widget_default_statuses(
     style_id: int
 ) -> any:

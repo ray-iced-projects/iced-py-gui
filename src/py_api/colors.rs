@@ -393,7 +393,15 @@ impl CustomPalette {
     /// Serialize all palette parameters into a Python dict keyed by field name.
     /// Each palette pair is {"color": [r,g,b,a], "text": [r,g,b,a]}.
     pub fn to_py_dict<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyDict>> {
-        let rgba = |c: iced::Color| vec![c.r, c.g, c.b, c.a];
+        // Round f32 to f64 to avoid precision loss: ((val as f64) * 1000.0).round() / 10000.0
+        let rgba = |c: iced::Color| {
+            vec![
+                ((c.r as f64) * 1000.0).round() / 1000.0,
+                ((c.g as f64) * 1000.0).round() / 1000.0,
+                ((c.b as f64) * 1000.0).round() / 1000.0,
+                ((c.a as f64) * 1000.0).round() / 1000.0,
+            ]
+        };
         let pair = |p: &palette::Pair| -> PyResult<Bound<'py, PyDict>> {
             let d = PyDict::new(py);
             d.set_item("color", rgba(p.color))?;
@@ -426,7 +434,9 @@ impl CustomPalette {
                         let pd = PyDict::new(py);
                         pd.set_item("part", format!("{part:?}"))?;
                         pd.set_item("key", format!("{key:?}"))?;
-                        pd.set_item("alpha", *alpha)?;
+                        // Round alpha f32 to f64 to avoid precision loss
+                        let alpha_rounded = ((*alpha as f64) * 10000.0).round() / 10000.0;
+                        pd.set_item("alpha", alpha_rounded)?;
                         parts_py.push(pd);
                     }
                     entry.set_item("parts", parts_py)?;
@@ -442,10 +452,101 @@ impl CustomPalette {
     }
 }
 
+/// Parse a Python `statuses` list (as returned by `to_py_dict`) into the internal HashMap.
+pub fn parse_palette_statuses(
+    py: Python<'_>,
+    value: &PyObject,
+) -> PyResult<std::collections::HashMap<(WidgetStatus, StateVariant), Vec<(StylePart, PaletteKey, f32)>>> {
+    use pyo3::types::{PyDict, PyList};
+
+    let dict = value.bind(py).downcast::<PyDict>()
+        .map_err(|_| pyo3::exceptions::PyValueError::new_err("value must be a dict"))?;
+
+    let statuses_obj = dict.get_item("statuses")?
+        .ok_or_else(|| pyo3::exceptions::PyValueError::new_err("missing 'statuses' key"))?;
+    let statuses_list = statuses_obj.downcast::<PyList>()
+        .map_err(|_| pyo3::exceptions::PyValueError::new_err("'statuses' must be a list"))?;
+
+    let mut map = std::collections::HashMap::new();
+
+    for entry in statuses_list.iter() {
+        let ed = entry.downcast::<PyDict>()
+            .map_err(|_| pyo3::exceptions::PyValueError::new_err("each status entry must be a dict"))?;
+
+        let status_str: String = ed.get_item("status")?.ok_or_else(|| pyo3::exceptions::PyValueError::new_err("missing 'status'"))?.extract()?;
+        let variant_str: String = ed.get_item("variant")?.ok_or_else(|| pyo3::exceptions::PyValueError::new_err("missing 'variant'"))?.extract()?;
+
+        let status = match status_str.as_str() {
+            "Active"    => WidgetStatus::Active,
+            "Hovered"   => WidgetStatus::Hovered,
+            "Pressed"   => WidgetStatus::Pressed,
+            "Disabled"  => WidgetStatus::Disabled,
+            "Focused"   => WidgetStatus::Focused,
+            "Dragged"   => WidgetStatus::Dragged,
+            "Opened"    => WidgetStatus::Opened,
+            "IsChecked" => WidgetStatus::IsChecked,
+            "IsToggled" => WidgetStatus::IsToggled,
+            other => return Err(pyo3::exceptions::PyValueError::new_err(format!("unknown status '{other}'"))),
+        };
+        let variant = match variant_str.as_str() {
+            "NoVariant" => StateVariant::NoVariant,
+            "Checked"   => StateVariant::Checked,
+            "Unchecked" => StateVariant::Unchecked,
+            other => return Err(pyo3::exceptions::PyValueError::new_err(format!("unknown variant '{other}'"))),
+        };
+
+        let parts_obj = ed.get_item("parts")?.ok_or_else(|| pyo3::exceptions::PyValueError::new_err("missing 'parts'"))?;
+        let parts_list = parts_obj.downcast::<PyList>()
+            .map_err(|_| pyo3::exceptions::PyValueError::new_err("'parts' must be a list"))?;
+
+        let mut parts: Vec<(StylePart, PaletteKey, f32)> = Vec::new();
+        for pe in parts_list.iter() {
+            let pd = pe.downcast::<PyDict>()
+                .map_err(|_| pyo3::exceptions::PyValueError::new_err("each part entry must be a dict"))?;
+            let part_str: String = pd.get_item("part")?.ok_or_else(|| pyo3::exceptions::PyValueError::new_err("missing 'part'"))?.extract()?;
+            let key_str: String = pd.get_item("key")?.ok_or_else(|| pyo3::exceptions::PyValueError::new_err("missing 'key'"))?.extract()?;
+            let alpha: f32 = pd.get_item("alpha")?.ok_or_else(|| pyo3::exceptions::PyValueError::new_err("missing 'alpha'"))?.extract()?;
+
+            let part = match part_str.as_str() {
+                "Background" => StylePart::Background,
+                "Base"       => StylePart::Base,
+                "Border"     => StylePart::Border,
+                "Icon"       => StylePart::Icon,
+                "Text"       => StylePart::Text,
+                other => return Err(pyo3::exceptions::PyValueError::new_err(format!("unknown part '{other}'"))),
+            };
+            let key = match key_str.as_str() {
+                "Base"          => PaletteKey::Base,
+                "BaseText"      => PaletteKey::BaseText,
+                "Neutral"       => PaletteKey::Neutral,
+                "NeutralText"   => PaletteKey::NeutralText,
+                "Strong"        => PaletteKey::Strong,
+                "StrongText"    => PaletteKey::StrongText,
+                "Stronger"      => PaletteKey::Stronger,
+                "StrongerText"  => PaletteKey::StrongerText,
+                "Strongest"     => PaletteKey::Strongest,
+                "StrongestText" => PaletteKey::StrongestText,
+                "Weak"          => PaletteKey::Weak,
+                "WeakText"      => PaletteKey::WeakText,
+                "Weaker"        => PaletteKey::Weaker,
+                "WeakerText"    => PaletteKey::WeakerText,
+                "Weakest"       => PaletteKey::Weakest,
+                "WeakestText"   => PaletteKey::WeakestText,
+                "Transparent"   => PaletteKey::Transparent,
+                other => return Err(pyo3::exceptions::PyValueError::new_err(format!("unknown palette key '{other}'"))),
+            };
+            parts.push((part, key, alpha));
+        }
+        map.insert((status, variant), parts);
+    }
+    Ok(map)
+}
+
 #[derive(Debug, Clone, PartialEq, Hash)]
 #[pyclass(eq, eq_int, hash, frozen)]
 pub enum CustomPaletteParam {
     Background,
+    Statuses,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
@@ -607,9 +708,16 @@ type PyObject = Py<PyAny>;
 impl WidgetParamUpdate for CustomPalette {
     type Param = CustomPaletteParam;
 
-    fn param_update(&mut self, param: Self::Param, _value: &PyObject) {
+    fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
             CustomPaletteParam::Background => todo!(),
+            CustomPaletteParam::Statuses => {
+                Python::with_gil(|py| {
+                    if let Ok(new_statuses) = parse_palette_statuses(py, value) {
+                        self.statuses = Some(new_statuses);
+                    }
+                });
+            }
         }
     }
 }

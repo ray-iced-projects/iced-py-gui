@@ -348,6 +348,17 @@ pub fn get_widget_palette_parameters(py: Python<'_>, palette_id: usize) -> PyRes
     }
 }
 
+#[pyfunction]
+#[pyo3(signature = (wid, value))]
+pub fn update_widget_palette_parameters(wid: usize, value: PyObject) {
+    use crate::py_api::colors::CustomPaletteParam;
+    use pyo3::Python;
+    // Queue via the standard update path so process_updates() applies it to IpgState.widgets
+    let param = Python::with_gil(|py| CustomPaletteParam::Statuses.into_pyobject(py).unwrap().into_any().unbind());
+    let mut all_updates = access_update_widgets();
+    all_updates.updates.push((wid, param, value));
+    drop(all_updates);
+}
 
 #[pyfunction]
 #[pyo3(signature = (wid))]

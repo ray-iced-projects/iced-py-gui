@@ -23,12 +23,9 @@ from icedpygui import (
     add_checkbox_style,
     add_text,
     custom_palette,
-    PaletteKey,
-    WidgetId,
-    StylePart,
-    StateVariant,
     add_text_editor,
     add_text_editor_style,
+    get_widget_default_statuses,
 )
 
 
@@ -36,55 +33,14 @@ from icedpygui import (
 # Create all of the ids and additional needed items
 # ---------------------------------------------------------------------------
 
-# See exaplanation in the py_checkbox_text.txt or launch and read.
-# Note that the Icon is not used in the unchecked.
-pal = [
-    ((WidgetId.Active, StateVariant.Unchecked), (
-                            (StylePart.Background,  PaletteKey.Base,     1.0),
-                            (StylePart.Text,        PaletteKey.BaseText, 0.8),
-                            (StylePart.Border,      PaletteKey.Strong,   1.0),
-                            ),
-    ),
-    ((WidgetId.Hovered, StateVariant.Unchecked), (
-                            (StylePart.Background,  PaletteKey.Weak,     1.0),
-                            (StylePart.Text,        PaletteKey.BaseText, 0.8),
-                            (StylePart.Border,      PaletteKey.Strong,   1.0),
-                            ),
-    ),
-    ((WidgetId.Disabled, StateVariant.Unchecked), (
-                            (StylePart.Background,  PaletteKey.Weaker,   1.0),
-                            (StylePart.Text,        PaletteKey.BaseText, 0.8),
-                            (StylePart.Border,      PaletteKey.Strong,   1.0),
-                            ),
-    ),
-    ((WidgetId.Active, StateVariant.Checked), (
-                            (StylePart.Background,  PaletteKey.Base,     1.0),
-                            (StylePart.Icon,        PaletteKey.BaseText, 1.0),
-                            (StylePart.Text,        PaletteKey.BaseText, 0.8),
-                            (StylePart.Border,      PaletteKey.Strong,   1.0),
-                            ),
-    ),
-    ((WidgetId.Hovered, StateVariant.Checked), (
-                            (StylePart.Background,  PaletteKey.Strong,   1.0),
-                            (StylePart.Icon,        PaletteKey.BaseText, 1.0),
-                            (StylePart.Text,        PaletteKey.BaseText, 0.8),
-                            (StylePart.Border,      PaletteKey.Strong,   1.0),
-                            ),
-    ),
-    ((WidgetId.Disabled, StateVariant.Checked), (
-                            (StylePart.Background,  PaletteKey.Weak,     1.0),
-                            (StylePart.Icon,        PaletteKey.BaseText, 1.0),
-                            (StylePart.Text,        PaletteKey.BaseText, 0.8),
-                            (StylePart.Border,      PaletteKey.Strong,   1.0),
-                            ),
-    ),
-]
-
 # Select the color you want, use ColorPicker
 new_color = [0.32, 0.2, 0.13, 1.0]
 
+# get the default statuses for a checkbox
+statuses = get_widget_default_statuses(add_checkbox_style())
+
 # Get the custom palette
-pal_id = custom_palette(rgba=new_color, statuses=pal)
+pal_id = custom_palette(rgba=new_color, statuses=statuses)
 
 # If you want a border, use the style to add the width
 style_id = add_checkbox_style(border_width=2.0)

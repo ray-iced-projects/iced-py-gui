@@ -55,6 +55,8 @@ from icedpygui import (
     FileSystemDialogCallbackType as FsdType,
     update_widget,
     generate_id,
+    get_widget_parameters,
+    get_widget_palette_parameters,
 )
 
 
@@ -502,6 +504,13 @@ def load_demo(_pl_id: int, selected: str):
     place_selected_widget(pc)
     demo_populate_palette_area(pc)
 
+def print_pal(_btn_id):
+    params = get_widget_parameters(4463)
+    print(params, "\n")
+    pal = get_widget_palette_parameters(4461)
+    for status in pal["statuses"]:
+        if status.get("status") == "Active":
+            print(status)
 
 # ============================================================================
 # GUI
@@ -517,6 +526,7 @@ with Window(title="Palette Creator - Interactive Workflow", center=True, size=(1
     with Container(width_fill=True, padding=[40]):
         with Scrollable(width_fill=True, height=750):
             with Column(spacing=15, width_fill=True) as col:
+                add_button(label="print pal", on_press=print_pal)
                 # Instructions
                 add_text(content=
                     "Palette Creation Workflow\n")
@@ -550,8 +560,8 @@ with Window(title="Palette Creator - Interactive Workflow", center=True, size=(1
 
                 widget_selected_txt_id = add_text(content="***Selected Widget")
 
-                with Row(spacing=10) as new_widget_row_id:
-                    pc.selected_widget_row_id = new_widget_row_id
+                with Row(spacing=10) as selected_widget_row_id:
+                    pc.selected_widget_row_id = selected_widget_row_id
                 # The selected widget should be placed here
 
 

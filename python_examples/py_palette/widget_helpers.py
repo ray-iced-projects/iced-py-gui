@@ -15,12 +15,11 @@ from icedpygui import (
     ButtonParam,
     add_checkbox,
     add_checkbox_style,
-    update_widget_params,
     update_widget,
     get_widget_default_statuses,
     get_user_data,
-    get_widget_parameters,
     get_widget_palette_parameters,
+    update_widget_palette_parameters,
     custom_palette,
     StylePart,
 )
@@ -103,17 +102,18 @@ def place_selected_widget(pc: PaletteCreator):
         for part in dict.fromkeys([p for (status, variant), parts in pc.statuses
                                     for p, key, alpha in parts])]
     pal_id = custom_palette(rgba=pc.selected_color, statuses=pc.statuses)
-    print("here")
+
     match pc.widget_name:
         case "button":
             style_id = add_button_style()
             wid = get_button(
-                "Status=Active",
-                pc.selected_widget_row_id,
-                [True, None, None, None],
-                style_id,
-                pal_id,
-                )
+                    "Status=Active",
+                    pc.selected_widget_row_id,
+                    [True, None, None, None],
+                    style_id,
+                    pal_id,
+                    )
+            print("selected_widget-Status=Active", wid, "pal_id", pal_id)
             pc.selected_widget_statuses["active"]["name"] = pc.widget_name
             pc.selected_widget_statuses["active"]["wid"] = wid
             pc.selected_widget_statuses["active"]["style_id"] = style_id
@@ -259,6 +259,40 @@ STATUS_ID = {
     "Disabled": "widget_disabled_style_id",
 }
 
+def get_pal_id_by_status_and_name(pc: PaletteCreator, my_status: str) -> int | None:
+    """Get all style IDs for a given widget name.
+
+    Returns an id.
+    """
+    results = []
+    for status, data in pc.selected_widget_statuses.items():
+        if data.get("name") == pc.widget_name:
+            if status == my_status.lower():
+                return data["pal_id"]
+    return results
+
+def update_palette_part_key(
+    pal: dict, status: str, part: str, new_key: str) -> bool:
+    """Update a palette's part key for a given status.
+
+    Args:
+        pal: Palette dict from get_widget_palette_parameters()
+        status: Status name (e.g., "Active", "Hovered", "Pressed", "Disabled")
+        part: Part name (e.g., "Background", "Text", "Border")
+        new_key: New PaletteKey name (e.g., "Strong", "Base", "Weakest")
+
+    Returns:
+        True if updated, False if status/part not found
+    """
+    for status_entry in pal.get('statuses', []):
+        if status_entry.get('status') == status:
+            for part_entry in status_entry.get('parts', []):
+                if part_entry.get('part') == part:
+                    part_entry['key'] = new_key
+                    return True
+    return False
+
+
 def set_selected_widget_palette(
     pc: PaletteCreator, row_: int, pal_index: int):
     """Setting the palette of the selected widget"""
@@ -269,26 +303,29 @@ def set_selected_widget_palette(
     if "text" in part.lower():
         # Use only Text palette keys
         filtered_keys = [k for k in pc.palette.keys() if "Text" in str(k)]
-        filtered_values = [pc.palette[k] for k in filtered_keys]
     else:
         # Use only non-Text palette keys
         filtered_keys = [k for k in pc.palette.keys() if "Text" not in str(k)]
-        filtered_values = [pc.palette[k] for k in filtered_keys]
 
-    # Get the rgba and label at the specified palette index (0..8)
-    rgba = filtered_values[pal_index]
-    label = str(filtered_keys[pal_index]).rsplit('.', maxsplit=1)[-1]  # Extract enum name
+    # Get the label at the specified palette index (0..8)
+    key = str(filtered_keys[pal_index]).rsplit('.', maxsplit=1)[-1]  # Extract enum name
 
     # change the palette select button to reflect the selected palette
     (_, open_id) = pc.popup_open_btn_ids[row_]
-    update_widget(open_id, ButtonParam.Label, label)
-
-    print(part, status, rgba, label) # Background Active [0.56, 0.32, 0.17, 1.0] Strong
+    update_widget(open_id, ButtonParam.Label, key)
 
     # Change the selected widget's palette
-    
+    pal_id = get_pal_id_by_status_and_name(pc, status)
+    pal = get_widget_palette_parameters(pal_id)
 
+    # Update the key for Background in Active status
+    success = update_palette_part_key(pal, status, part, key)
+    if success:
+        print(f"Updated palette {pal_id}")
+    else:
+        print(f"Status/Part not found in palette with id: {pal_id}")
 
+    update_widget_palette_parameters(pal_id, pal)
 
 
 def populate_widget_config(pc: PaletteCreator):

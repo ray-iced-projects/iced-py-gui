@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Unit tests for event_kp keyboard event handler and button press functions.
-Run with: python test_event_kp.py
+Unit tests for palette creation workflow including event handlers and palette filtering.
+Run with: python palette_tests.py
 """
 
 import unittest
@@ -310,6 +310,180 @@ class TestBorderBtnPressed(unittest.TestCase):
         """Test that function handles nonexistent button gracefully."""
         # Should not raise exception
         border_btn_pressed(999, 999)
+
+
+def update_palette_part_key(
+    pal: dict, status: str, part: str, new_key: str) -> bool:
+    """Update a palette's part key for a given status.
+
+    Args:
+        pal: Palette dict from get_widget_palette_parameters()
+        status: Status name (e.g., "Active", "Hovered", "Pressed", "Disabled")
+        part: Part name (e.g., "Background", "Text", "Border")
+        new_key: New PaletteKey name (e.g., "Strong", "Base", "Weakest")
+
+    Returns:
+        True if updated, False if status/part not found
+    """
+    for status_entry in pal.get('statuses', []):
+        if status_entry.get('status') == status:
+            for part_entry in status_entry.get('parts', []):
+                if part_entry.get('part') == part:
+                    part_entry['key'] = new_key
+                    return True
+    return False
+
+
+class TestUpdatePalettePartKey(unittest.TestCase):
+    """Test cases for update_palette_part_key function."""
+
+    def setUp(self):
+        """Set up test fixtures with a mock palette structure."""
+        self.test_palette = {
+            'id': 4460,
+            'base': {'color': [0.32, 0.2, 0.13, 1.0], 'text': [1.0, 1.0, 1.0, 1.0]},
+            'strong': {'color': [0.56, 0.32, 0.17, 1.0], 'text': [1.0, 1.0, 1.0, 1.0]},
+            'statuses': [
+                {
+                    'status': 'Active',
+                    'variant': 'NoVariant',
+                    'parts': [
+                        {'part': 'Background', 'key': 'Base', 'alpha': 1.0},
+                        {'part': 'Border', 'key': 'Base', 'alpha': 1.0},
+                        {'part': 'Text', 'key': 'BaseText', 'alpha': 1.0},
+                    ]
+                },
+                {
+                    'status': 'Hovered',
+                    'variant': 'NoVariant',
+                    'parts': [
+                        {'part': 'Background', 'key': 'Strong', 'alpha': 1.0},
+                        {'part': 'Border', 'key': 'Strong', 'alpha': 1.0},
+                        {'part': 'Text', 'key': 'StrongText', 'alpha': 1.0},
+                    ]
+                },
+                {
+                    'status': 'Disabled',
+                    'variant': 'NoVariant',
+                    'parts': [
+                        {'part': 'Background', 'key': 'Base', 'alpha': 0.5},
+                        {'part': 'Border', 'key': 'Strong', 'alpha': 0.5},
+                        {'part': 'Text', 'key': 'BaseText', 'alpha': 0.8},
+                    ]
+                },
+            ]
+        }
+
+    def test_update_existing_key(self):
+        """Test updating an existing part key for a status."""
+        result = update_palette_part_key(
+            self.test_palette, "Active", "Background", "Strong"
+        )
+
+        self.assertTrue(result)
+        # Verify the key was updated
+        active_status = next(
+            s for s in self.test_palette['statuses'] if s['status'] == 'Active'
+        )
+        bg_part = next(
+            p for p in active_status['parts'] if p['part'] == 'Background'
+        )
+        self.assertEqual(bg_part['key'], 'Strong')
+
+    def test_update_text_part_key(self):
+        """Test updating Text part key."""
+        result = update_palette_part_key(
+            self.test_palette, "Active", "Text", "StrongText"
+        )
+
+        self.assertTrue(result)
+        active_status = next(
+            s for s in self.test_palette['statuses'] if s['status'] == 'Active'
+        )
+        text_part = next(
+            p for p in active_status['parts'] if p['part'] == 'Text'
+        )
+        self.assertEqual(text_part['key'], 'StrongText')
+
+    def test_update_border_part_key(self):
+        """Test updating Border part key."""
+        result = update_palette_part_key(
+            self.test_palette, "Hovered", "Border", "Weak"
+        )
+
+        self.assertTrue(result)
+        hovered_status = next(
+            s for s in self.test_palette['statuses'] if s['status'] == 'Hovered'
+        )
+        border_part = next(
+            p for p in hovered_status['parts'] if p['part'] == 'Border'
+        )
+        self.assertEqual(border_part['key'], 'Weak')
+
+    def test_update_nonexistent_status(self):
+        """Test updating with a status that doesn't exist."""
+        result = update_palette_part_key(
+            self.test_palette, "Nonexistent", "Background", "Weakest"
+        )
+
+        self.assertFalse(result)
+
+    def test_update_nonexistent_part(self):
+        """Test updating with a part that doesn't exist in the status."""
+        result = update_palette_part_key(
+            self.test_palette, "Active", "Icon", "Base"
+        )
+
+        self.assertFalse(result)
+
+    def test_update_disabled_status(self):
+        """Test updating multiple parts in Disabled status."""
+        result1 = update_palette_part_key(
+            self.test_palette, "Disabled", "Background", "Weakest"
+        )
+        result2 = update_palette_part_key(
+            self.test_palette, "Disabled", "Text", "WeakestText"
+        )
+
+        self.assertTrue(result1)
+        self.assertTrue(result2)
+
+        disabled_status = next(
+            s for s in self.test_palette['statuses'] if s['status'] == 'Disabled'
+        )
+        bg_part = next(
+            p for p in disabled_status['parts'] if p['part'] == 'Background'
+        )
+        text_part = next(
+            p for p in disabled_status['parts'] if p['part'] == 'Text'
+        )
+        self.assertEqual(bg_part['key'], 'Weakest')
+        self.assertEqual(text_part['key'], 'WeakestText')
+
+    def test_alpha_unchanged_after_key_update(self):
+        """Test that alpha value is not changed when updating key."""
+        original_alpha = 0.8
+
+        # Find the original alpha for Disabled/Text
+        disabled_status = next(
+            s for s in self.test_palette['statuses'] if s['status'] == 'Disabled'
+        )
+        text_part = next(
+            p for p in disabled_status['parts'] if p['part'] == 'Text'
+        )
+        self.assertEqual(text_part['alpha'], original_alpha)
+
+        # Update the key
+        update_palette_part_key(
+            self.test_palette, "Disabled", "Text", "NewTextKey"
+        )
+
+        # Verify alpha is unchanged
+        text_part = next(
+            p for p in disabled_status['parts'] if p['part'] == 'Text'
+        )
+        self.assertEqual(text_part['alpha'], original_alpha)
+        self.assertEqual(text_part['key'], 'NewTextKey')
 
 
 if __name__ == "__main__":

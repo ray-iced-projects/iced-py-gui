@@ -71,14 +71,17 @@ use crate::py_api::space::add_space;
 use crate::py_api::stack::add_stack;
 use crate::py_api::svg::add_svg;
 use crate::py_api::table::{add_table_basic, add_table_style,
-add_table, add_table_header, add_table_body, add_table_footer};
+    add_table, add_table_header, add_table_body, add_table_footer};
 use crate::py_api::text_input::{add_text_input, add_text_input_style};
 use crate::py_api::text::add_text;
 use crate::py_api::text_editor::{add_text_editor, add_text_editor_style};
 use crate::py_api::text_rich::{add_rich_text, add_span};
 use crate::py_api::toggle::{add_toggler, add_toggler_style};
 use crate::py_api::tool_tip::add_tool_tip;
-use crate::py_api::widget_parameters::{update_widget, update_widget_params, delete_widget, hide_widget, move_widget, show_widget, get_widget_parameters, get_widget_style_parameters, get_widget_font_parameters, get_widget_palette_parameters, get_user_data, update_user_data, get_widget_default_statuses};
+use crate::py_api::widget_parameters::{update_widget, update_widget_params, delete_widget, 
+    hide_widget, move_widget, show_widget, get_widget_parameters, 
+    get_widget_style_parameters, get_widget_font_parameters, get_widget_palette_parameters, 
+    update_widget_palette_parameters, get_user_data, update_user_data, get_widget_default_statuses};
 
 // Import enums from widgets module
 use crate::widgets::enums::ContentFit;
@@ -236,6 +239,7 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(get_widget_style_parameters, m)?)?;
     m.add_function(wrap_pyfunction!(get_widget_font_parameters, m)?)?;
     m.add_function(wrap_pyfunction!(get_widget_palette_parameters, m)?)?;
+    m.add_function(wrap_pyfunction!(update_widget_palette_parameters, m)?)?;
     m.add_function(wrap_pyfunction!(get_widget_default_statuses, m)?)?;
     m.add_function(wrap_pyfunction!(load_font, m)?)?;
     m.add_function(wrap_pyfunction!(move_widget, m)?)?;

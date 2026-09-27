@@ -105,6 +105,7 @@ from .icedpygui import (
     get_widget_style_parameters,
     get_widget_font_parameters,
     get_widget_palette_parameters,
+    update_widget_palette_parameters,
     get_widget_default_statuses,
     move_widget,
     show_widget,

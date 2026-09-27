@@ -131,6 +131,8 @@ from .icedpygui import (
     update_timer as update_timer,
     update_widget as update_widget,
     update_widget_params as update_widget_params,
+    get_widget_palette_parameters as get_widget_palette_parameters,
+    update_widget_palette_parameters as update_widget_palette_parameters,
     load_font as load_font,
     generate_id as generate_id,
     get_rgba_color as get_rgba_color,

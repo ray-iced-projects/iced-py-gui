@@ -24,7 +24,7 @@ from icedpygui import (
     add_text,
     custom_palette,
     PaletteKey,
-    WidgetStatus,
+    WidgetId,
     StylePart,
     StateVariant,
     add_text_editor,
@@ -39,39 +39,39 @@ from icedpygui import (
 # See exaplanation in the py_checkbox_text.txt or launch and read.
 # Note that the Icon is not used in the unchecked.
 pal = [
-    ((WidgetStatus.Active, StateVariant.Unchecked), (
+    ((WidgetId.Active, StateVariant.Unchecked), (
                             (StylePart.Background,  PaletteKey.Base,     1.0),
                             (StylePart.Text,        PaletteKey.BaseText, 0.8),
                             (StylePart.Border,      PaletteKey.Strong,   1.0),
                             ),
     ),
-    ((WidgetStatus.Hovered, StateVariant.Unchecked), (
+    ((WidgetId.Hovered, StateVariant.Unchecked), (
                             (StylePart.Background,  PaletteKey.Weak,     1.0),
                             (StylePart.Text,        PaletteKey.BaseText, 0.8),
                             (StylePart.Border,      PaletteKey.Strong,   1.0),
                             ),
     ),
-    ((WidgetStatus.Disabled, StateVariant.Unchecked), (
+    ((WidgetId.Disabled, StateVariant.Unchecked), (
                             (StylePart.Background,  PaletteKey.Weaker,   1.0),
                             (StylePart.Text,        PaletteKey.BaseText, 0.8),
                             (StylePart.Border,      PaletteKey.Strong,   1.0),
                             ),
     ),
-    ((WidgetStatus.Active, StateVariant.Checked), (
+    ((WidgetId.Active, StateVariant.Checked), (
                             (StylePart.Background,  PaletteKey.Base,     1.0),
                             (StylePart.Icon,        PaletteKey.BaseText, 1.0),
                             (StylePart.Text,        PaletteKey.BaseText, 0.8),
                             (StylePart.Border,      PaletteKey.Strong,   1.0),
                             ),
     ),
-    ((WidgetStatus.Hovered, StateVariant.Checked), (
+    ((WidgetId.Hovered, StateVariant.Checked), (
                             (StylePart.Background,  PaletteKey.Strong,   1.0),
                             (StylePart.Icon,        PaletteKey.BaseText, 1.0),
                             (StylePart.Text,        PaletteKey.BaseText, 0.8),
                             (StylePart.Border,      PaletteKey.Strong,   1.0),
                             ),
     ),
-    ((WidgetStatus.Disabled, StateVariant.Checked), (
+    ((WidgetId.Disabled, StateVariant.Checked), (
                             (StylePart.Background,  PaletteKey.Weak,     1.0),
                             (StylePart.Icon,        PaletteKey.BaseText, 1.0),
                             (StylePart.Text,        PaletteKey.BaseText, 0.8),

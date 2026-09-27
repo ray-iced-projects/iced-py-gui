@@ -9,13 +9,14 @@ Workflow:
 4. Get palette_id to use with widgets
 """
 
+from dataclasses import dataclass
 import json
 from pathlib import Path
 import os
 
 from python_examples.py_palette.demo_helpers import demo_populate_palette_area
 from python_examples.py_palette.widget_helpers import (
-    WidgetConfig, place_widget, set_new_widget_palette)
+    WidgetConfig, place_selected_widget, set_selected_widget_palette)
 from icedpygui import (
     Window,
     Arrow,
@@ -29,6 +30,8 @@ from icedpygui import (
     start_session,
     add_button,
     add_button_style,
+    ButtonParam,
+    ButtonStyleStd,
     add_event_keyboard,
     InputFloat,
     InputFloatParam,
@@ -45,13 +48,13 @@ from icedpygui import (
     TextParam,
     custom_palette,
     PaletteKey,
-    WidgetStatus,
     StateVariant,
     StylePart,
     add_file_system_dialog,
     FileSystemDialogParam as FsdParam,
     FileSystemDialogCallbackType as FsdType,
     update_widget,
+    generate_id,
 )
 
 
@@ -62,6 +65,15 @@ from icedpygui import (
 
 PALETTES_DIR = Path.home() / ".icedpygui_palettes"
 PALETTES_DIR.mkdir(exist_ok=True)
+
+@dataclass
+class WidgetStatus:
+    """Statuses"""
+    Active=...
+    Hovered=...
+    Disabled=...
+    Pressed=...
+
 
 class PaletteManager:
     """Manages palette creation, storage, and retrieval."""
@@ -178,52 +190,65 @@ class PaletteManager:
 
 pm = PaletteManager()
 
+opacity_default_kp = {'location': 'standard', 'modifier': 'None',
+               'name': 'key pressed', 'key': 'ArrowDown'}
+border_default_kp = {'location': 'standard', 'modifier': 'None',
+               'name': 'key pressed', 'key': 'ArrowUp'}
+
 class PaletteCreator:
     """Manages palette state and widget selection logic."""
 
     def __init__(self):
+        self.widget_name: str = None,
         self.widget_list: list[str] = []
         self.demo_widget_list: list[str] = []
         self.demo_color: list[float, 4] = [0.32, 0.2, 0.13, 1.0]
         self.demo_active: bool = False
         self.statuses: list[any] = []
-        self.widget_active_id: int = None
-        self.widget_active_style_id: int = None
-        self.widget_hovered_id: int = None
-        self.widget_hovered_style_id: int = None
-        self.widget_pressed_id: int = None
-        self.widget_pressed_style_id: int = None
-        self.widget_disabled_id: int = None
-        self.widget_disabled_style_id: int = None
-        self.widget_normal_id: int = None
-        self.widget_normal_style_id: int = None
-        self.widget_name: str = None
-        self.widget_parts: list[str] = []
-        self.opacity_ids: list[int] = []
+
+        self.selected_widget_statuses: dict = {
+            "active": {"name": None, "wid": 0, "style_id": 0, "pal_id": 0},
+            "hovered": {"name": None, "wid": 0, "style_id": 0, "pal_id": 0},
+            "pressed": {"name": None, "wid": 0, "style_id": 0, "pal_id": 0},
+            "disabled": {"name": None, "wid": 0, "style_id": 0, "pal_id": 0},
+            "normal": {"name": None, "wid": 0, "style_id": 0, "pal_id": 0},
+            "checked": {"name": None, "wid": 0, "style_id": 0, "pal_id": 0},
+        }
+
+        self.opacity_btn_hovered: int = 0
+        self.opacity_btn_ids: dict = {}
+        self.opacity_input_ids: list[int] = []
+        self.opacity_key_pressed: dict = opacity_default_kp
+        self.opacity_step_size: float = 0.1
+        self.opacity_step_txt_id: int = 0.1
         self.opacity: float = 1.0
+
+        self.border_btn_hovered: int = 0
+        self.border_btn_ids: dict = {}
+        self.border_input_ids: list[int] = []
+        self.border_key_pressed: dict = border_default_kp
+        self.border_step_size: float = 1.0
         self.border: float = 2.0
-        self.border_ids: list[int] = []
-        self.palette_widget_ids: list[int] = []
-        self.palette_popup_cnt_ids: list[int] = []
-        self.palette_popup_cnt_text_ids: list[int] = []
-        self.palette_popup_cnt_style_ids: list[int] = []
-        self.palette_popup_ma_ids: list[int] = []
-        self.new_widget_row_id: int = None
-        self.parts_file: dict = {}
-        self.parts_file_name: str = None
-        self.unique_parts_list: list[str] = []
-        self.unique_status_list: list[str] = []
-        self.parts_list_ids: list[int] = []
-        self.selected_color: list[float, 4] = []
-        self.palette: dict = {}
-        self.palette_name: str = ""
+
         self.palette_ids: dict = {}  # palette_name -> palette_id
+        self.palette_name: str = ""
+        self.palette_popup_cnt_ids: list[int] = []
+        self.palette_popup_cnt_style_ids: list[int] = []
+        self.palette_popup_cnt_text_ids: list[int] = []
+        self.palette_popup_ma_ids: list[int] = []
         self.palette_row_ids: list[int] = []  # list of row IDs for palette display
-        self.row_ids: list[int] = [] # rows containing the widget and checkboxes
-        self.checkbox_grid: list[list[int, 2]] = [] # 2D grid: [row][col] for matrix selection
-        self.popup_ids: list[int] = []
+        self.palette_widget_ids: list[int] = []
+        self.palette: dict = {}
+
+        self.parts_file_name: str = None
+        self.parts_file: dict = {}
+        self.parts_list_ids: list[int] = []
+        self.part_status_cnts: list[int] = []
+
+        self.selected_widget_row_id: int = None
+        self.selected_color: list[float, 4] = []
+
         self.popup_open_btn_ids: list[int] = []
-        self.key_pressed: dict = {}
 
 
 
@@ -273,7 +298,7 @@ def open_fsd_for_file_path(_btn_id: int):
 def parse_parts_selection(_pl_id: int, selection: str):
     """Parsing the parts file for the selected widget"""
     pc.widget_name = selection
-    place_widget(pc)
+    place_selected_widget(pc)
 
 
 def on_color_picked(_cp_id: int, color: list[float]):
@@ -298,17 +323,17 @@ def on_color_text_input(_ti_id: int, text: str):
 # When the palette button is pressed this def is called
 # Key point is to remember to add the user_data parameter
 def on_palette_selected(_btn_id, user_data: tuple[int, int]):
-    """update the new widget colors
+    """update theselected widget colors
     user_data:
         int = button popup open row index
-        int = palette index (0..8)
+        int = palette index (0..8) from the popup container
     """
     # Will need to match both widget and status later
     (row_, pal_index) = user_data
     (popup_id_, _) = pc.popup_open_btn_ids[row_]
 
     update_widget(popup_id_, PopUpParam.Opened, False)
-    set_new_widget_palette(pc, row_, pal_index)
+    set_selected_widget_palette(pc, row_, pal_index)
 
 
 def open_palette_popup(_btn_id: int, popup_id_: int):
@@ -320,72 +345,148 @@ def clicked_outside(pop_id: int):
     """Called when mouse clicked outside palette selection popup"""
     update_widget(pop_id, PopUpParam.Opened, False)
 
-def event_kp(_kp_id:int, key: dict):
-    """Kep press event"""
-    pc.key_pressed = key
+
+def event_kp(_kb_id: int, keyboard: dict):
+    """Key press event"""
+    if pc.opacity_btn_hovered == 0 and pc.border_btn_hovered == 0:
+        return
+
+    key_pressed = keyboard.get("key")
+
+    if key_pressed == "Escape":
+        if pc.opacity_btn_hovered > 0:
+            pc.opacity_btn_ids[pc.opacity_btn_hovered]["modifier"] = "None"
+        else:
+            pc.border_btn_ids[pc.border_btn_hovered]["modifier"] = "None"
+        return
+
+    # Handle opacity button
+    if pc.opacity_btn_hovered > 0:
+        if key_pressed == "Control":
+            pc.opacity_btn_ids[pc.opacity_btn_hovered]["modifier"] = key_pressed
+        else:
+            pc.opacity_btn_ids[pc.opacity_btn_hovered]["key"] = keyboard.get("key")
+
+    # Handle border button
+    if pc.border_btn_hovered > 0:
+        if key_pressed in ["Control", "Shift"]:
+            pc.border_btn_ids[pc.border_btn_hovered]["modifier"] = key_pressed
+        else:
+            pc.border_btn_ids[pc.border_btn_hovered]["key"] = keyboard.get("key")
+
+    match key_pressed:
+        case "ArrowUp":
+            if pc.opacity_btn_hovered > 0:
+                update_widget(pc.opacity_btn_hovered, ButtonParam.StyleArrow, Arrow.ArrowUp)
+            else:
+                update_widget(pc.border_btn_hovered, ButtonParam.StyleArrow, Arrow.ArrowUp)
+        case "ArrowDown":
+            if pc.opacity_btn_hovered > 0:
+                update_widget(pc.opacity_btn_hovered, ButtonParam.StyleArrow, Arrow.ArrowDown)
+            else:
+                update_widget(pc.border_btn_hovered, ButtonParam.StyleArrow, Arrow.ArrowDown)
 
 
-def event_kr(_kp_id:int, _key: dict):
-    """Kep press event"""
-    pc.key_pressed = {}
+def event_kr(_kb_id: int, _key: dict):
+    """Kep release event"""
 
 
 add_event_keyboard(enabled=True,
                    on_key_press=event_kp,
                    on_key_release=event_kr)
 
-def op_pressed(_btn_id: int, op_input_id):
-    """Incrementing or decrementing Opacity"""
-    modifier = pc.key_pressed.get("modifier")
-    key = pc.key_pressed.get("key")
-    # print(pc.key_pressed)
+def opacity_btn_pressed(btn_id_: int):
+    """Increment or decrement opacity based on stored modifier-key combination."""
+    if btn_id_ not in pc.opacity_btn_ids:
+        return
 
-    if modifier == "None":
-        mod_key = key
+    btn_state = pc.opacity_btn_ids[btn_id_]
+    modifier = btn_state.get("modifier", "None")
+    key = btn_state.get("key", "ArrowDown")
+
+    # Determine step size based on modifier
+    step = pc.opacity_step_size
+    if modifier == "Control":
+        step = step / 10  # Fine adjustment: 0.01 instead of 0.1
+
+    # Apply step based on key direction
+    opacity = btn_state["opacity"]
+    if key == "ArrowUp":
+        opacity += step
+    elif key == "ArrowDown":
+        opacity -= step
     else:
-        mod_key = f"{modifier}-{key}"
+        return  # Invalid key
 
-    match mod_key:
-        case "UpArrow":
-            if pc.opacity < 1.0:
-                pc.opacity += 0.1
-        case "ArrowDown":
-            if pc.opacity > 0.0:
-                pc.opacity -= 0.1
-        case _:
-            pc.opacity += 0.1
+    # Clamp to [0, 1]
+    opacity = max(0.0, min(1.0, opacity))
+    btn_state["opacity"] = opacity
 
-    update_widget(op_input_id, InputFloatParam.Value, pc.opacity)
+    # Update the widget
+    input_id = btn_state.get("input_id")
+    if input_id:
+        update_widget(input_id, InputFloatParam.Value, opacity)
 
 
-def border_pressed(_btn_id_: int, border_input_id: int):
-    """Incrementing or decrementing Opacity"""
-    modifier = pc.key_pressed.get("modifier")
-    key = pc.key_pressed.get("key")
-    # print(pc.key_pressed)
+def border_btn_pressed(btn_id_: int, border_input_id: int):
+    """Increment or decrement border width based on stored modifier-key combination."""
+    if btn_id_ not in pc.border_btn_ids:
+        return
 
+    btn_state = pc.border_btn_ids[btn_id_]
+    modifier = btn_state.get("modifier", "None")
+    key = btn_state.get("key", "ArrowUp")
+
+    # Determine step size based on modifier
     if modifier == "None":
-        mod_key = key
+        step = 1.0      # Normal: ±1.0
+    elif modifier == "Control":
+        step = 0.5      # Medium: ±0.5
+    elif modifier == "Shift":
+        step = 0.1      # Fine: ±0.1
     else:
-        mod_key = f"{modifier}-{key}"
+        return          # Unknown modifier
 
-    match mod_key:
-        case "UpArrow":
-            pc.border += 1.0
-        case "ArrowDown":
-            pc.border -= 1.0
-            pc.border = max(pc.border, 0.0)
-        case "Control":
-            pc.border += 0.5
-        case "Control-ArrowUp":
-            pc.border += 0.5
-        case "Control-ArrowDown":
-            pc.border -= 0.5
-            pc.border = max(pc.border, 0.0)
-        case _:
-            pc.border += 0.5
+    # Apply step based on key direction
+    width = btn_state["width"]
+    if key == "ArrowUp":
+        width += step
+    elif key == "ArrowDown":
+        width -= step
+    else:
+        return  # Invalid key
 
-    update_widget(border_input_id, InputFloatParam.Value, pc.border)
+    # Clamp to [0, ∞)
+    width = max(0.0, width)
+    btn_state["width"] = width
+
+    # Update the widgets
+    # get the btn_index which correlates to the row
+    btn_ids = list(pc.opacity_btn_ids.keys())
+    # if btn_id in btn_ids:
+    #     idx = btn_ids.index(btn_id)
+    #     # get the parts_stastus labels
+    #     part_status = pc.parts_list_ids[idx]
+
+
+    update_widget(border_input_id, InputFloatParam.Value, width)
+
+
+def ma_entered(_ma_id: int, btn_id_: int):
+    """Determine which opacity button is hovered"""
+    if pc.opacity_btn_ids.get(btn_id_):
+        pc.opacity_btn_hovered = btn_id_
+        pc.border_btn_hovered = 0
+
+    if pc.border_btn_ids.get(btn_id_):
+        pc.opacity_btn_hovered = 0
+        pc.border_btn_hovered = btn_id_
+
+
+def ma_exited(_ma_id, _):
+    """Unsets the hovered op_id"""
+    pc.opacity_btn_hovered = 0
+    pc.border_btn_hovered = 0
 
 
 # populate the dropdown for the demo widgets
@@ -398,7 +499,7 @@ def load_demo(_pl_id: int, selected: str):
     pc.selected_color = pc.demo_color
     update_widget(selected_color_txt_id, TextParam.Content,
                   f"Selected color = {pc.selected_color}")
-    place_widget(pc)
+    place_selected_widget(pc)
     demo_populate_palette_area(pc)
 
 
@@ -450,17 +551,18 @@ with Window(title="Palette Creator - Interactive Workflow", center=True, size=(1
                 widget_selected_txt_id = add_text(content="***Selected Widget")
 
                 with Row(spacing=10) as new_widget_row_id:
-                    pc.new_widget_row_id = new_widget_row_id
+                    pc.selected_widget_row_id = new_widget_row_id
                 # The selected widget should be placed here
 
 
                 # This area is hidden until the color and widget is selected
                 # area prepopulated with widget that only need to be updated later
                 # one could take the approach to add these widgets as needed.
+
                 headers = ["Parts-Status", "Palette Selectors", "Palette Opacity", "Border Width"]
                 with Table(
                     row_height=30.0,
-                    col_widths=[200, 150, 150, 150],
+                    col_widths=[200, 150, 125, 125],
                     ):
 
                     with TableHeader():
@@ -474,9 +576,10 @@ with Window(title="Palette Creator - Interactive Workflow", center=True, size=(1
                             for column in range(4):
                                 match column:
                                     case 0:
-                                        with Container(fill=True):
+                                        with Container(fill=True, show=False) as part_status_cnt:
                                             pc.parts_list_ids.append(
-                                                add_text(content="part-status", show=False))
+                                                add_text(content="part-status"))
+                                            pc.part_status_cnts.append(part_status_cnt)
                                     case 1:
                                         # Create a popup that holds the 8 containers
                                         # with a mouse area. Each of the 8 containers is
@@ -492,9 +595,9 @@ with Window(title="Palette Creator - Interactive Workflow", center=True, size=(1
                                             open_id = add_button(
                                                         label="Select Palette",
                                                         on_press=open_palette_popup,
-                                                        width=130,
-                                                        padding=[5],
+                                                        width=150,
                                                         style_id=btn_style_id,
+                                                        style_std=ButtonStyleStd.Subtle,
                                                         show=False,
                                                         user_data=popup_id)
                                             # store the ids
@@ -514,7 +617,7 @@ with Window(title="Palette Creator - Interactive Workflow", center=True, size=(1
                                                         # add the mouse area to detect the selection
                                                         with MouseArea(
                                                             on_press=on_palette_selected,
-                                                            user_data=(row, column)
+                                                            user_data=(row, column),
                                                             ) as ma_id:
                                                             # Store the mouse area id
                                                             pc.palette_popup_ma_ids[-1]\
@@ -535,23 +638,51 @@ with Window(title="Palette Creator - Interactive Workflow", center=True, size=(1
                                     case 2:
                                         with InputFloat(
                                             value=1.0,
-                                            width=75,
-                                            show=False) as op_id:
-
-                                            add_button(
-                                                on_press=op_pressed,
-                                                style_arrow=Arrow.ArrowUp,
-                                                user_data=op_id)
-
+                                            align_center=True,
+                                            show=False) as input_op_id:
+                                            # add mouse area to detect when hovered
+                                            # key changes only when button is hovered
+                                            btn_id = generate_id()
+                                            with MouseArea(
+                                                on_enter=ma_entered,
+                                                on_exit=ma_exited,
+                                                user_data=btn_id
+                                                ):
+                                                add_button(
+                                                    on_press=opacity_btn_pressed,
+                                                    style_arrow=Arrow.ArrowDown,
+                                                    gen_id=btn_id)
+                                                pc.opacity_input_ids.append(input_op_id)
+                                                pc.opacity_btn_ids[btn_id] = {
+                                                    "modifier": "None",
+                                                    "key": "ArrowDown",
+                                                    "opacity": 1.00,
+                                                    "input_id": input_op_id
+                                                }
                                     case 3:
                                         with InputFloat(
                                             value=2.0,
-                                            width=75,
-                                            show=False) as border_id:
+                                            align_center=True,
+                                            show=False) as input_border_id:
+                                            btn_id = generate_id()
+                                            # add mouse area to detect when hovered
+                                            # key changes only when button is hovered
+                                            with MouseArea(
+                                                on_enter=ma_entered,
+                                                on_exit=ma_exited,
+                                                user_data=btn_id
+                                                ):
+                                                add_button(
+                                                    on_press=border_btn_pressed,
+                                                    style_arrow=Arrow.ArrowUp,
+                                                    user_data=input_border_id,
+                                                    gen_id=btn_id)
+                                                pc.border_input_ids.append(input_border_id)
+                                                pc.border_btn_ids[btn_id] = {
+                                                    "modifier": "None",
+                                                    "key": "ArrowUp",
+                                                    "width": 2.00
+                                                }
 
-                                            add_button(
-                                                on_press=border_pressed,
-                                                style_arrow=Arrow.ArrowUp,
-                                                user_data=border_id)
-
-start_session()
+if __name__ == "__main__":
+    start_session()

@@ -61,7 +61,8 @@ type PyObject = Py<PyAny>;
     container_id, 
     parent_id=None,
     value=None,
-    placeholder=None, 
+    placeholder=None,
+    decimal_places=None,
     on_input=None, 
     on_submit=None, 
     on_paste=None,
@@ -86,6 +87,7 @@ pub fn add_input_float(
         parent_id: Option<String>,
         value: Option<f64>,
         placeholder: Option<String>,
+        decimal_places: Option<usize>,
         on_input: Option<PyObject>,
         on_submit: Option<PyObject>,
         on_paste: Option<PyObject>,
@@ -132,12 +134,17 @@ pub fn add_input_float(
     let mut state = access_state();
 
     set_state_cont_wnd_ids(&mut state, &window_id, container_id, id, "add_input_float".to_string());
-    
+
+    let decimal_places = if let Some(decimals) = decimal_places {
+        decimals
+    } else { 2 };
+
     state.containers.insert(id, Containers::InputFloat(
         InputFloat {
             id,
             value,
             placeholder,
+            decimal_places,
             left_side,
             width,
             width_fill,

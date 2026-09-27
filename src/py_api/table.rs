@@ -221,8 +221,10 @@ pub fn add_table_basic(
 #[pyo3(signature = (
     window_id,
     container_id,
-    row_height,
     col_widths,
+    row_height,
+    header_height=None,
+    footer_height=None,
     parent_id=None,
     sash_size=4.0,
     min_size=10.0,
@@ -237,8 +239,10 @@ pub fn add_table_basic(
 pub fn add_table(
         window_id: String,
         container_id: String,
-        row_height: f32,
         col_widths: Vec<f32>,
+        row_height: f32,
+        header_height: Option<f32>,
+        footer_height: Option<f32>,
         parent_id: Option<String>,
         sash_size: f32,
         min_size: f32,
@@ -281,18 +285,18 @@ pub fn add_table(
     set_state_cont_wnd_ids(&mut state, &window_id, container_id, id, "add_table".to_string());
 
     state.containers.insert(id, Containers::Table(
-        Table {
-            id,
-            col_widths,
-            row_height,
-            sash_size,
-            min_size,
-            file_path,
-            style_id,
-            sash_style_id,
-            show,
-            ..Default::default()
-        }));
+        Table { 
+            id, 
+            col_widths, 
+            row_height, 
+            header_height, 
+            footer_height, 
+            sash_size, 
+            min_size, 
+            file_path, 
+            style_id, 
+            sash_style_id, 
+            show }));
 
     drop(state);
     Ok(id)
@@ -304,6 +308,7 @@ pub fn add_table(
     window_id,
     container_id,
     parent_id=None,
+    height=None,
     style_id=None,
     sash_style_id=None,
     on_column_resize=None,
@@ -315,6 +320,7 @@ pub fn add_table_header(
         window_id: String,
         container_id: String,
         parent_id: Option<String>,
+        height: Option<f32>,
         style_id: Option<usize>,
         sash_style_id: Option<usize>,
         on_column_resize: Option<PyObject>,
@@ -355,6 +361,7 @@ pub fn add_table_header(
     state.containers.insert(id, Containers::TableHeader(
         TableHeader{
             id,
+            height,
             style_id,
             sash_style_id,
             show,

@@ -7,6 +7,7 @@ import os
 from typing import TYPE_CHECKING
 from icedpygui import (
     ButtonParam,
+    ContainerParam,
     ContainerStyleParam,
     InputFloatParam,
     TextParam,
@@ -44,7 +45,7 @@ def demo_populate_palette_area(pc: PaletteCreator):
     num_statuses = len(statuses)
 
     # get a default statuses for a button (any will do)
-    default_statuses = get_widget_default_statuses(pc.widget_normal_style_id)
+    default_statuses = get_widget_default_statuses(pc.selected_widget_statuses["normal"].get("style_id"))
 
     # Build a lookup dict
     status_parts = {}
@@ -101,5 +102,7 @@ def demo_populate_palette_area(pc: PaletteCreator):
                 ButtonParam.Show: True})
 
             # Show the opacity and border widgets
-            update_widget(pc.opacity_ids[row_index], InputFloatParam.Show, True)
-            update_widget(pc.border_ids[row_index], InputFloatParam.Show, True)
+            update_widget(pc.part_status_cnts[row_index], ContainerParam.Show, True)
+            update_widget(pc.popup_open_btn_ids[row_index][1], ButtonParam.Show, True)
+            update_widget(pc.opacity_input_ids[row_index], InputFloatParam.Show, True)
+            update_widget(pc.border_input_ids[row_index], InputFloatParam.Show, True)

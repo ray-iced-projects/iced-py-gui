@@ -26,6 +26,7 @@ pub enum CallbackName {
     OnEdit,
     OnEnter,
     OnExit,
+    OnHover,
     OnInput,
     OnLinkClick,
     OnMiddlePress,

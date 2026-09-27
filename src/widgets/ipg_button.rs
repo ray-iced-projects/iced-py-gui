@@ -307,7 +307,7 @@ impl ButtonStyle {
         &self,
         theme: &Theme,
         status: button::Status,
-        c_pal_opt: &Option<CustomPalette>,
+        c_pal_opt: &Option<CustomPalette>, // the palette using the palette_id
         style_std: &Option<ButtonStyleStd>,
     ) -> button::Style {
         let shd_color = Color::rgba_ipg_color_to_iced(self.shadow_rgba, &self.shadow_color, self.shadow_color_alpha);
@@ -677,6 +677,7 @@ pub enum ButtonParam {
     HeightFill,
     Label,
     Padding,
+    PaletteId,
     Show,
     StyleArrow,
     StyleId,
@@ -750,6 +751,8 @@ impl WidgetParamUpdate for Button {
                 set_t_value(&mut self.label, value, "ButtonParam::Label"),
             ButtonParam::Padding => 
                 set_t_value(&mut self.padding, value, "ButtonParam::Padding"),
+            ButtonParam::PaletteId => 
+                set_t_value(&mut self.palette_id, value, "ButtonParam::PaletteId"),
             ButtonParam::Show => 
                 set_t_value(&mut self.show, value, "Show"),
             ButtonParam::StyleArrow => 

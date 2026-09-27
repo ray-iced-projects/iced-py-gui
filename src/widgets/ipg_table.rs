@@ -229,6 +229,8 @@ pub struct Table {
     pub id: usize,
     pub col_widths: Vec<f32>,
     pub row_height: f32,
+    pub header_height: Option<f32>,
+    pub footer_height: Option<f32>,
     pub sash_size: f32,
     pub min_size: f32,
     pub file_path: Option<String>,
@@ -252,24 +254,32 @@ impl Table {
 
         let id = self.id;
         let sizes = self.col_widths.clone();
-        let height = self.row_height;
         let sash_size = self.sash_size;
         let min_size = self.min_size;
 
         let mut parts: Vec<Element<'a, Message, Theme, Renderer>> = vec![];
 
+        let header_height = if let Some(hh) = self.header_height {
+            hh
+        } else { self.row_height };
+
         if !sections.header.is_empty() {
-            parts.push(adv_header(id, sections.header, sizes.clone(), height, sash_size, min_size));
+            parts.push(adv_header(id, sections.header, sizes.clone(), header_height, sash_size, min_size));
         }
         parts.push(container(rule::horizontal(6.0))
                     .width(Length::Fixed(sizes.iter().sum()
                     )).into());
 
         if !sections.body.is_empty() {
-            parts.push(adv_body(id, sections.body, sizes.clone(), height, sash_size, min_size));
+            parts.push(adv_body(id, sections.body, sizes.clone(), self.row_height, sash_size, min_size));
         }
+
+        let footer_height = if let Some(fh) = self.footer_height {
+            fh
+        } else { self.row_height };
+
         if !sections.footer.is_empty() {
-            parts.push(adv_footer(id, sections.footer, sizes.clone(), height, sash_size, min_size));
+            parts.push(adv_footer(id, sections.footer, sizes.clone(), footer_height, sash_size, min_size));
         }
 
         Some(container(column(parts))
@@ -385,6 +395,7 @@ fn adv_footer<'a>(
 #[derive(Debug, Clone, Default)]
 pub struct TableHeader {
     pub id: usize,
+    pub height: Option<f32>,
     pub style_id: Option<usize>,
     pub sash_style_id: Option<usize>,
     pub show: bool,

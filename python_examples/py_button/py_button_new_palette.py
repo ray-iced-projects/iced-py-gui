@@ -17,7 +17,7 @@ from icedpygui import (
     custom_palette,
     get_color_palette,
     PaletteKey,
-    WidgetStatus,
+    WidgetId,
     StateVariant,
     StylePart,
     add_text_editor,
@@ -33,25 +33,25 @@ color_pal = get_color_palette(rgba=new_color)
 
 # See the py_button_text for an explanation or run this example to see.
 statuses = [
-    ((WidgetStatus.Active, StateVariant.NoVariant), (
+    ((WidgetId.Active, StateVariant.NoVariant), (
                             (StylePart.Background, PaletteKey.Base, 1.0),
                             (StylePart.Text, PaletteKey.BaseText, 0.8),
                             (StylePart.Border, PaletteKey.Stronger, 1.0),
                             ),
     ),
-    ((WidgetStatus.Hovered, StateVariant.NoVariant), (
+    ((WidgetId.Hovered, StateVariant.NoVariant), (
                             (StylePart.Background, PaletteKey.Strong, 1.0),
                             (StylePart.Text, PaletteKey.StrongText, 0.8),
                             (StylePart.Border, PaletteKey.Strongest, 1.0),
                             ),
     ),
-    ((WidgetStatus.Pressed, StateVariant.NoVariant), (
+    ((WidgetId.Pressed, StateVariant.NoVariant), (
                             (StylePart.Background, PaletteKey.Base, 1.0),
                             (StylePart.Text, PaletteKey.BaseText, 0.8),
                             (StylePart.Border, PaletteKey.Stronger, 1.0),
                             ),
     ),
-    ((WidgetStatus.Disabled, StateVariant.NoVariant), (
+    ((WidgetId.Disabled, StateVariant.NoVariant), (
                             (StylePart.Background, PaletteKey.Base, 0.5),
                             (StylePart.Text, PaletteKey.BaseText, 0.6),
                             (StylePart.Border, PaletteKey.Stronger, 0.5),

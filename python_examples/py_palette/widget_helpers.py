@@ -19,6 +19,8 @@ from icedpygui import (
     update_widget,
     get_widget_default_statuses,
     get_user_data,
+    get_widget_parameters,
+    get_widget_palette_parameters,
     custom_palette,
     StylePart,
 )
@@ -52,109 +54,189 @@ class Widget(Enum):
     TEXT = "text"
     TOOL_TIP = "tool_tip"
 
+def get_button(label: str, row_id: int, status: list[bool], style_id: int, pal_id: int) -> int:
+    """Get a button"""
+    return add_button(
+        label=label,
+        parent_id=row_id,
+        active=status[0],
+        hovered=status[1],
+        pressed=status[2],
+        disabled=status[3],
+        padding=[10],
+        width=BUTTON_WIDTH,
+        style_id=style_id,
+        palette_id=pal_id,
+        )
 
-def place_widget(pc: PaletteCreator):
+def get_checkbox(label: str, parent_id: int, status: list[bool], style_id: int, pal_id: int) -> int:
+    """Get a checkbox"""
+    return add_checkbox(
+                label=label,
+                parent_id=parent_id,
+                active=status[0],
+                hovered=status[1],
+                disabled=status[2],
+                lock_is_checked=status[3],
+                width=BUTTON_WIDTH,
+                style_id=style_id,
+                palette_id=pal_id,
+                )
+
+def get_style(widget_name: str) -> int:
+    """Returns a style id"""
+    match widget_name:
+        case "button":
+            style_id = add_button_style()
+        case "checkbox":
+            style_id = add_checkbox_style()
+        case _:
+            print(f"Unknown widget type: {widget_name}")
+            return
+    return style_id
+
+
+def place_selected_widget(pc: PaletteCreator):
     """Add the selected widget with status"""
+    pc.statuses = get_widget_default_statuses(get_style(pc.widget_name))
+    pc.widget_parts = [str(part).rsplit('.', maxsplit=1)[-1] \
+        for part in dict.fromkeys([p for (status, variant), parts in pc.statuses
+                                    for p, key, alpha in parts])]
+    pal_id = custom_palette(rgba=pc.selected_color, statuses=pc.statuses)
+    print("here")
     match pc.widget_name:
         case "button":
-            pc.widget_active_style_id = add_button_style()
-            statuses = get_widget_default_statuses(pc.widget_active_style_id)
-            pc.statuses = statuses
-            pc.widget_parts = [str(part).rsplit('.', maxsplit=1)[-1] \
-                for part in dict.fromkeys([p for (status, variant), parts in statuses
-                                            for p, key, alpha in parts])]
-
-            pal_id = custom_palette(rgba=pc.selected_color, statuses=statuses)
-
-            pc.widget_active_id = add_button(
-                label="Status=Active",
-                parent_id=pc.new_widget_row_id,
-                active=True,
-                padding=[10],
-                width=BUTTON_WIDTH,
-                style_id=pc.widget_active_style_id,
-                palette_id=pal_id,
+            style_id = add_button_style()
+            wid = get_button(
+                "Status=Active",
+                pc.selected_widget_row_id,
+                [True, None, None, None],
+                style_id,
+                pal_id,
                 )
+            pc.selected_widget_statuses["active"]["name"] = pc.widget_name
+            pc.selected_widget_statuses["active"]["wid"] = wid
+            pc.selected_widget_statuses["active"]["style_id"] = style_id
+            pc.selected_widget_statuses["active"]["pal_id"] = pal_id
 
-            pc.widget_hovered_style_id = add_button_style()
-            pc.widget_hovered_id = add_button(
-                label="Status=Hovered",
-                parent_id=pc.new_widget_row_id,
-                hovered=True,
-                padding=[10],
-                width=BUTTON_WIDTH,
-                style_id=pc.widget_hovered_style_id,
-                palette_id=pal_id,
-                )
+            style_id = add_button_style()
+            wid = get_button(
+                    "Status=Hovered",
+                    pc.selected_widget_row_id,
+                    [None, True, None, None],
+                    style_id,
+                    pal_id,
+                    )
+            pc.selected_widget_statuses["hovered"]["name"] = pc.widget_name
+            pc.selected_widget_statuses["hovered"]["wid"] = wid
+            pc.selected_widget_statuses["hovered"]["style_id"] = style_id
+            pc.selected_widget_statuses["hovered"]["pal_id"] = pal_id
 
-            pc.widget_pressed_style_id = add_button_style()
-            pc.widget_pressed_id = add_button(
-                label="Status=Pressed",
-                parent_id=pc.new_widget_row_id,
-                pressed=True,
-                padding=[10],
-                width=BUTTON_WIDTH,
-                style_id=pc.widget_pressed_style_id,
-                palette_id=pal_id,
-                )
+            style_id = add_button_style()
+            wid = get_button(
+                    "Status=Pressed",
+                    pc.selected_widget_row_id,
+                    [None, None, True, None],
+                    style_id,
+                    pal_id,
+                    )
+            pc.selected_widget_statuses["pressed"]["name"] = pc.widget_name
+            pc.selected_widget_statuses["pressed"]["wid"] = wid
+            pc.selected_widget_statuses["pressed"]["style_id"] = style_id
+            pc.selected_widget_statuses["pressed"]["pal_id"] = pal_id
 
-            pc.widget_disabled_style_id = add_button_style()
-            pc.widget_disabled_id = add_button(
-                label="Status=Disabled",
-                parent_id=pc.new_widget_row_id,
-                disabled=True,
-                padding=[10],
-                width=BUTTON_WIDTH,
-                style_id=pc.widget_disabled_style_id,
-                palette_id=pal_id,
-                )
+            style_id = add_button_style()
+            wid = get_button(
+                    "Status=Disabled",
+                    pc.selected_widget_row_id,
+                    [None, None, None, True],
+                    style_id,
+                    pal_id,
+                    )
+            pc.selected_widget_statuses["disabled"]["name"] = pc.widget_name
+            pc.selected_widget_statuses["disabled"]["wid"] = wid
+            pc.selected_widget_statuses["disabled"]["style_id"] = style_id
+            pc.selected_widget_statuses["disabled"]["pal_id"] = pal_id
 
-            pc.widget_normal_style_id = add_button_style()
-            pc.widget_normal_id = add_button(
-                label="Normal Button",
-                parent_id=pc.new_widget_row_id,
-                padding=[10],
-                width=BUTTON_WIDTH,
-                style_id=pc.widget_normal_style_id,
-                palette_id=pal_id,
-                )
+            style_id = add_button_style()
+            wid = get_button(
+                    "Status=Normal",
+                    pc.selected_widget_row_id,
+                    [None, None, None, None],
+                    style_id,
+                    pal_id,
+                    )
+            pc.selected_widget_statuses["normal"]["name"] = pc.widget_name
+            pc.selected_widget_statuses["normal"]["wid"] = wid
+            pc.selected_widget_statuses["normal"]["style_id"] = style_id
+            pc.selected_widget_statuses["normal"]["pal_id"] = pal_id
 
         case "checkbox":
-            pc.widget_active_style_id = add_checkbox_style()
-            statuses = get_widget_default_statuses(pc.widget_active_style_id )
-            pc.statuses = statuses
-            pc.widget_parts = list(dict.fromkeys([part for (status, variant), parts in statuses
-                                               for part, key, alpha in parts]))
-            pal_id = custom_palette(rgba=pc.selected_color, statuses=statuses)
+            style_id = add_checkbox_style()
+            wid = get_checkbox(
+                    "Status=Active",
+                    pc.selected_widget_row_id,
+                    [True, None, None, None],
+                    style_id,
+                    pal_id,
+                    )
+            pc.selected_widget_statuses["active"]["name"] = pc.widget_name
+            pc.selected_widget_statuses["active"]["wid"] = wid
+            pc.selected_widget_statuses["active"]["style_id"] = style_id
+            pc.selected_widget_statuses["active"]["pal_id"] = pal_id
 
-            pc.widget_active_id = add_checkbox(
-                label="Status=Active",
-                parent_id=pc.new_widget_row_id,
-                active=True,
-                width=BUTTON_WIDTH,
-                style_id=pc.widget_active_style_id,
-                palette_id=pal_id,
-                )
+            style_id = add_checkbox_style()
+            wid = get_checkbox(
+                    "Status=Hovered",
+                    pc.selected_widget_row_id,
+                    [None, True, None, None],
+                    style_id,
+                    pal_id,
+                    )
+            pc.selected_widget_statuses["hovered"]["name"] = pc.widget_name
+            pc.selected_widget_statuses["hovered"]["wid"] = wid
+            pc.selected_widget_statuses["hovered"]["style_id"] = style_id
+            pc.selected_widget_statuses["hovered"]["pal_id"] = pal_id
 
-            pc.widget_hovered_style_id = add_checkbox_style()
-            pc.widget_hovered_id = add_checkbox(
-                label="Status=Hovered",
-                parent_id=pc.new_widget_row_id,
-                hovered=True,
-                width=BUTTON_WIDTH,
-                style_id=pc.widget_hovered_style_id,
-                palette_id=pal_id,
-                )
+            style_id = add_checkbox_style()
+            wid = get_checkbox(
+                    "Status=Disabled",
+                    pc.selected_widget_row_id,
+                    [None, None, True, None],
+                    style_id,
+                    pal_id,
+                    )
+            pc.selected_widget_statuses["disabled"]["name"] = pc.widget_name
+            pc.selected_widget_statuses["disabled"]["wid"] = wid
+            pc.selected_widget_statuses["disabled"]["style_id"] = style_id
+            pc.selected_widget_statuses["disabled"]["pal_id"] = pal_id
 
-            pc.widget_disabled_style_id = add_checkbox_style()
-            pc.widget_disabled_id = add_checkbox(
-                label="Status=Disabled",
-                parent_id=pc.new_widget_row_id,
-                disabled=True,
-                width=BUTTON_WIDTH,
-                style_id=pc.widget_disabled_style_id,
-                palette_id=pal_id,
-                )
+            style_id = add_checkbox_style()
+            wid = get_checkbox(
+                    "Status=Checked",
+                    pc.selected_widget_row_id,
+                    [None, None, None, True],
+                    style_id,
+                    pal_id,
+                    )
+            pc.selected_widget_statuses["checked"]["name"] = pc.widget_name
+            pc.selected_widget_statuses["checked"]["wid"] = wid
+            pc.selected_widget_statuses["checked"]["style_id"] = style_id
+            pc.selected_widget_statuses["checked"]["pal_id"] = pal_id
+
+            style_id = add_checkbox_style()
+            wid = get_checkbox(
+                    "Status=Normal",
+                    pc.selected_widget_row_id,
+                    [None, None, None, True],
+                    style_id,
+                    pal_id,
+                    )
+            pc.selected_widget_statuses["normal"]["name"] = pc.widget_name
+            pc.selected_widget_statuses["normal"]["wid"] = wid
+            pc.selected_widget_statuses["normal"]["style_id"] = style_id
+            pc.selected_widget_statuses["normal"]["pal_id"] = pal_id
+
 
 # the widget and palette is found by row=status_index, col=pal_idx of the matrix
 # Map (widget_name, part) → the StyleParam enum value
@@ -177,25 +259,36 @@ STATUS_ID = {
     "Disabled": "widget_disabled_style_id",
 }
 
-def set_new_widget_palette(pc: PaletteCreator, row_: int,
-                           pal_index: int):
-    """Setting the palette of the new widget"""
+def set_selected_widget_palette(
+    pc: PaletteCreator, row_: int, pal_index: int):
+    """Setting the palette of the selected widget"""
+
     (part, status) = get_user_data(pc.parts_list_ids[row_])
-    param = PART_PARAM.get((pc.widget_name, part.lower()))
-    style_id = getattr(pc, STATUS_ID.get(status, ""), None)
-    rgba = list(pc.palette.values())[pal_index]
-    label = list(pc.palette.keys())[pal_index]
 
-    # update the selected widget palette
-    if param and style_id:
-        update_widget_params(style_id, {param: rgba})
+    # Filter palette based on whether part is "Text" or not
+    if "text" in part.lower():
+        # Use only Text palette keys
+        filtered_keys = [k for k in pc.palette.keys() if "Text" in str(k)]
+        filtered_values = [pc.palette[k] for k in filtered_keys]
+    else:
+        # Use only non-Text palette keys
+        filtered_keys = [k for k in pc.palette.keys() if "Text" not in str(k)]
+        filtered_values = [pc.palette[k] for k in filtered_keys]
 
-    # update the normal widget palette
-    update_widget(pc.widget_normal_style_id, param, rgba)
+    # Get the rgba and label at the specified palette index (0..8)
+    rgba = filtered_values[pal_index]
+    label = str(filtered_keys[pal_index]).rsplit('.', maxsplit=1)[-1]  # Extract enum name
 
     # change the palette select button to reflect the selected palette
     (_, open_id) = pc.popup_open_btn_ids[row_]
     update_widget(open_id, ButtonParam.Label, label)
+
+    print(part, status, rgba, label) # Background Active [0.56, 0.32, 0.17, 1.0] Strong
+
+    # Change the selected widget's palette
+    
+
+
 
 
 def populate_widget_config(pc: PaletteCreator):

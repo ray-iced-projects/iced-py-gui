@@ -140,7 +140,7 @@ from .icedpygui import (
     StdColorStyle as StdColorStyle,
     custom_palette as custom_palette,
     PaletteKey as PaletteKey,
-    WidgetStatus as WidgetStatus,
+    WidgetStatus as WidgetId,
     StylePart as StylePart,
     StateVariant as StateVariant,
 )
@@ -2713,6 +2713,85 @@ class Scrollable:
         exc_val: BaseException | None, \
             exc_tb: TracebackType | None) -> bool: ...
 
+
+class Table:
+    """Content manager wrapper for add_table.
+
+    Usage::
+
+        # See example - py_table_advanced.py
+        with Window(
+                title="Table Demo",
+                size=(1000, 600),
+                center=True):
+
+            # Add the container for centering the table
+            with Container(fill=True, align_center=True):
+
+                with Table(
+                    row_height=30.0,
+                    col_widths=column_widths,
+                    sash_size=6,):
+
+                    with TableHeader():
+                        for h1 in header:
+                            add_text(content=h1, align_center=True, fill=True, size=14)
+
+                        for h2 in header:
+                            pl_id = add_pick_list(
+                                options=pick_list_options,
+                                placeholder="Sort",
+                                handle_dynamic_closed_icon_id=icon_closed,
+                                handle_dynamic_open_icon_id=icon_open,
+                                on_select=sort_books)
+
+                            sort_dict[h2] = pl_id
+
+                    with TableHeader():
+                        for index in range(len(header)):
+                            if index == len(header)-1:
+                                add_pick_list(
+                                    options=genres,
+                                    placeholder="Filter",
+                                    on_select=filter_genre)
+                            else:
+                                add_space(width=0)
+
+
+                    with TableBody():
+                        for row in book_lines:
+                            for cell in row:
+                                body_text_ids.append(
+                                    add_text(content=cell, align_center=True, fill=True, size=12))
+
+                    with TableFooter():
+                        for f in footers:
+                            add_text(content=f, align_center=True, fill=True, size=12)
+
+        start_session()
+    """
+    def __init__(
+        self,
+        col_widths: list[float],
+        row_height: float,
+        *,
+        header_height: list[float] | None = None,
+        footer_height: list[float] | None = None,
+        parent_id: list[str] | None = None,
+        sash_size: float = 4.0,
+        min_size: float = 10.0,
+        file_path: list[str] | None = None,
+        style_id: int | None = None,
+        sash_style_id: int | None = None,
+        on_column_resize: callable | None = None,
+        on_column_resize_release: callable | None = None,
+        user_data: callable | None = None,
+        show: bool = True,
+    ) -> None: ...
+    def __enter__(self) -> int: ...
+    def __exit__(self, exc_type: type[BaseException] | None, \
+        exc_val: BaseException | None, \
+            exc_tb: TracebackType | None) -> bool: ...
 class ToolTip:
     """Context manager wrapper around add_tool_tip.
 

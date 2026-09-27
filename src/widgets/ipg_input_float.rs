@@ -26,6 +26,7 @@ pub struct InputFloat {
     pub id: usize,
     pub value: Option<f64>,
     pub placeholder: Option<String>,
+    pub decimal_places: usize,
     pub left_side: Option<bool>,
     pub width: Option<f32>,
     pub width_fill: Option<bool>,
@@ -73,7 +74,7 @@ impl InputFloat {
         };
 
         let value = if let Some(val) = self.value {
-            val.to_string()
+            format!("{:.prec$}", val, prec = self.decimal_places)
         } else {
             String::new()
         };
@@ -120,7 +121,7 @@ impl InputFloat {
             txt_input
         };
 
-        let txt_input: Element<'_, InputFloatMessage> = txt_input.into();
+        let txt_input: Element<'a, InputFloatMessage> = txt_input.into();
 
         let id = self.id;
         let ti = txt_input.map(move |message| Message::InputFloat(id, message));

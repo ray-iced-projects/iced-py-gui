@@ -1642,7 +1642,7 @@ def get_color_palette(
 def custom_palette(
         color: Color | None = None,
         rgba: list[float, 4] | None = None,
-        statuses: list[tuple[WidgetStatus, tuple[PaletteKey, float] ]] | None = None,
+        statuses: list[tuple[WidgetStatus, tuple[PaletteKey, float, float] ]] | None = None,
     ) -> int:
 
     """

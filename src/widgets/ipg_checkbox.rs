@@ -469,7 +469,9 @@ impl CheckboxStyle {
                     .map(|((widget_status, variant), parts)| {
                         let part_map: HashMap<StylePart, (PaletteKey, f32)> = parts
                             .iter()
-                            .map(|(style_part, palette_key, alpha)| (style_part.clone(), (palette_key.clone(), *alpha)))
+                            .map(|(style_part, palette_key, alpha, _bd_width)| {
+                                (style_part.clone(), (palette_key.clone(), *alpha))
+                            })
                             .collect();
                         ((widget_status.clone(), *variant), part_map)
                     })

@@ -351,15 +351,15 @@ impl ButtonStyle {
             } else {
                 if let Some(width) = self.border_width {
                     iced::Border {
-                    color: brd_color.unwrap_or_default(),
-                    radius: radius,
-                    width: width,
+                        color: brd_color.unwrap_or_default(),
+                        radius: radius,
+                        width: width,
                     }
                 } else {
                     iced::border::rounded(2)
                 }
             };
-            
+
             style.border = border;
             style.snap = self.snap.unwrap_or_default();
 
@@ -393,12 +393,15 @@ impl ButtonStyle {
         let default_statuses = self.default_statuses();
 
         let statuses = if let Some(status) = custom_pal.statuses.as_ref() {
-            let mut collapsed: HashMap<WidgetStatus, HashMap<StylePart, (PaletteKey, f32)>> = HashMap::new();
+            let mut collapsed: HashMap<WidgetStatus, HashMap<StylePart, (PaletteKey, f32, Option<f32>)>> =
+                HashMap::new();
 
             for ((widget_status, variant), parts) in status {
-                let part_map: HashMap<StylePart, (PaletteKey, f32)> = parts
+                let part_map: HashMap<StylePart, (PaletteKey, f32, Option<f32>)> = parts
                     .iter()
-                    .map(|(style_part, palette_key, alpha)| (style_part.clone(), (palette_key.clone(), *alpha)))
+                    .map(|(style_part, palette_key, alpha, bd_width)| {
+                        (style_part.clone(), (palette_key.clone(), *alpha, *bd_width))
+                    })
                     .collect();
 
                 // Button has no variant; NoVariant takes precedence over any selected StateVariant.
@@ -440,9 +443,9 @@ impl ButtonStyle {
 
         let resolve_parts = |widget_status: WidgetStatus| {
             let parts = statuses.get(&widget_status).unwrap();
-            let (bkg_key, alpha) = parts.get(&StylePart::Background).unwrap();
-            let (text_key, text_alpha) = parts.get(&StylePart::Text).unwrap();
-            let (bd_key, bd_alpha) = parts.get(&StylePart::Border).unwrap();
+            let (bkg_key, alpha, _) = parts.get(&StylePart::Background).unwrap();
+            let (text_key, text_alpha, _) = parts.get(&StylePart::Text).unwrap();
+            let (bd_key, bd_alpha, bd_width) = parts.get(&StylePart::Border).unwrap();
 
             let background_color = bkg_key.pal_key_to_color(&theme_color, &cust_color).scale_alpha(*alpha);
             let text_color = text_key
@@ -454,19 +457,20 @@ impl ButtonStyle {
 
             // The style border color overrides the palette border color
             let bd_color = if let Some(bc) = brd_color { bc } else { border_color };
+            let bd_w = bd_width.unwrap_or(self.border_width.unwrap_or_default());
 
-            (background_color, text_color, bd_color, *alpha)
+            (background_color, text_color, bd_color, *alpha, bd_w)
         };
 
         match status {
             button::Status::Active => {
-                let (bkg_color, text_color, b_color, _) = resolve_parts(WidgetStatus::Active);
+                let (bkg_color, text_color, b_color, _, bd_width) = resolve_parts(WidgetStatus::Active);
                 button::Style {
                     background: gradient_background.or(Some(iced::Background::Color(bkg_color))),
                     text_color,
                     border: iced::Border {
                         color: b_color,
-                        width: self.border_width.unwrap_or_default(),
+                        width: bd_width,
                         radius,
                     },
                     shadow,
@@ -474,13 +478,13 @@ impl ButtonStyle {
                 }
             }
             button::Status::Pressed => {
-                let (bkg_color, text_color, b_color, _) = resolve_parts(WidgetStatus::Pressed);
+                let (bkg_color, text_color, b_color, _, bd_width) = resolve_parts(WidgetStatus::Pressed);
                 button::Style {
                     background: gradient_background.or(Some(iced::Background::Color(bkg_color))),
                     text_color,
                     border: iced::Border {
                         color: b_color,
-                        width: self.border_width.unwrap_or_default(),
+                        width: bd_width,
                         radius,
                     },
                     shadow,
@@ -488,13 +492,13 @@ impl ButtonStyle {
                 }
             }
             button::Status::Hovered => {
-                let (bkg_color, text_color, b_color, _) = resolve_parts(WidgetStatus::Hovered);
+                let (bkg_color, text_color, b_color, _, bd_width) = resolve_parts(WidgetStatus::Hovered);
                 button::Style {
                     background: gradient_background.or(Some(iced::Background::Color(bkg_color))),
                     text_color,
                     border: iced::Border {
                         color: b_color,
-                        width: self.border_width.unwrap_or_default(),
+                        width: bd_width,
                         radius,
                     },
                     shadow,
@@ -502,7 +506,7 @@ impl ButtonStyle {
                 }
             }
             button::Status::Disabled => {
-                let (bkg_color, text_color, b_color, alpha) = resolve_parts(WidgetStatus::Disabled);
+                let (bkg_color, text_color, b_color, alpha, bd_width) = resolve_parts(WidgetStatus::Disabled);
                 let background = gradient_background
                     .map(|g| g.scale_alpha(alpha))
                     .or(Some(iced::Background::Color(bkg_color)));
@@ -511,7 +515,7 @@ impl ButtonStyle {
                     text_color,
                     border: iced::Border {
                         color: b_color,
-                        width: self.border_width.unwrap_or_default(),
+                        width: bd_width,
                         radius,
                     },
                     shadow,
@@ -521,35 +525,36 @@ impl ButtonStyle {
         }
     }
 
-    pub fn default_statuses(&self) -> HashMap<WidgetStatus, HashMap<StylePart, (PaletteKey, f32)>> {
+    pub fn default_statuses(&self) -> HashMap<WidgetStatus, HashMap<StylePart, (PaletteKey, f32, Option<f32>)>> {
         // HashMap definitions
         // StylePart: Bacground, Text, Border, ...
         // PaletteKey = Base, Basetext, Strong, StrongText, ...
-        // f32 value: opacity or alpha color setting
-        let mut default_statuses: HashMap<WidgetStatus, HashMap<StylePart, (PaletteKey, f32)>> = HashMap::new();
+        // f32: alpha; Option<f32>: border width (Some overrides style width, None falls back)
+        let mut default_statuses: HashMap<WidgetStatus, HashMap<StylePart, (PaletteKey, f32, Option<f32>)>> =
+            HashMap::new();
 
         let mut inner = HashMap::new();
-        inner.insert(StylePart::Background, (PaletteKey::Base, 1.0));
-        inner.insert(StylePart::Text, (PaletteKey::BaseText, 1.0));
-        inner.insert(StylePart::Border, (PaletteKey::Base, 1.0));
+        inner.insert(StylePart::Background, (PaletteKey::Base, 1.0, None));
+        inner.insert(StylePart::Text, (PaletteKey::BaseText, 1.0, None));
+        inner.insert(StylePart::Border, (PaletteKey::Base, 1.0, None));
         default_statuses.insert(WidgetStatus::Active, inner);
 
         let mut inner = HashMap::new();
-        inner.insert(StylePart::Background, (PaletteKey::Base, 1.0));
-        inner.insert(StylePart::Text, (PaletteKey::BaseText, 1.0));
-        inner.insert(StylePart::Border, (PaletteKey::Base, 1.0));
+        inner.insert(StylePart::Background, (PaletteKey::Base, 1.0, None));
+        inner.insert(StylePart::Text, (PaletteKey::BaseText, 1.0, None));
+        inner.insert(StylePart::Border, (PaletteKey::Base, 1.0, None));
         default_statuses.insert(WidgetStatus::Pressed, inner);
 
         let mut inner = HashMap::new();
-        inner.insert(StylePart::Background, (PaletteKey::Strong, 1.0));
-        inner.insert(StylePart::Text, (PaletteKey::StrongText, 0.8));
-        inner.insert(StylePart::Border, (PaletteKey::Strong, 1.0));
+        inner.insert(StylePart::Background, (PaletteKey::Strong, 1.0, None));
+        inner.insert(StylePart::Text, (PaletteKey::StrongText, 0.8, None));
+        inner.insert(StylePart::Border, (PaletteKey::Strong, 1.0, None));
         default_statuses.insert(WidgetStatus::Hovered, inner);
 
         let mut inner = HashMap::new();
-        inner.insert(StylePart::Background, (PaletteKey::Base, 0.5));
-        inner.insert(StylePart::Text, (PaletteKey::BaseText, 0.8));
-        inner.insert(StylePart::Border, (PaletteKey::Strong, 0.5));
+        inner.insert(StylePart::Background, (PaletteKey::Base, 0.5, None));
+        inner.insert(StylePart::Text, (PaletteKey::BaseText, 0.8, None));
+        inner.insert(StylePart::Border, (PaletteKey::Strong, 0.5, None));
         default_statuses.insert(WidgetStatus::Disabled, inner);
 
         default_statuses
@@ -566,9 +571,10 @@ impl ButtonStyle {
             let mut parts_vec: Vec<_> = parts.into_iter().collect();
             parts_vec.sort_by_key(|(part, _)| part.sort_index());
             let parts_list = PyList::empty(py);
-            for (style_part, (palette_key, alpha )) in parts_vec {
+            for (style_part, (palette_key, alpha, border_width)) in parts_vec {
                 let alpha_rounded = (alpha as f64 * 10000.0_f64).round() / 10000.0_f64;
-                parts_list.append((style_part, palette_key, alpha_rounded))?;
+                let bw = border_width.map(|w| w as f64);
+                parts_list.append((style_part, palette_key, alpha_rounded, bw))?;
             }
             // Button has no variant.
             list.append(((widget_status, StateVariant::NoVariant), parts_list))?;
@@ -738,36 +744,21 @@ impl WidgetParamUpdate for Button {
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
-            ButtonParam::Clip => 
-                set_t_value(&mut self.clip, value, "ButtonParam::Clip"),
-            ButtonParam::Disabled => 
-                set_t_value(&mut self.disabled, value, "ButtonParam::Disabled"),
-            ButtonParam::Fill => 
-                set_t_value(&mut self.fill, value, "ButtonParam::Fill"),
-            ButtonParam::FontId => 
-                set_t_value(&mut self.font_id, value, "ButtonParam::FontId"),
-            ButtonParam::Height => 
-                set_t_value(&mut self.height, value, "ButtonParam::Height"),
-            ButtonParam::HeightFill => 
-                set_t_value(&mut self.height, value, "ButtonParam::HeightFill"),
-            ButtonParam::Label => 
-                set_t_value(&mut self.label, value, "ButtonParam::Label"),
-            ButtonParam::Padding => 
-                set_t_value(&mut self.padding, value, "ButtonParam::Padding"),
-            ButtonParam::PaletteId => 
-                set_t_value(&mut self.palette_id, value, "ButtonParam::PaletteId"),
-            ButtonParam::Show => 
-                set_t_value(&mut self.show, value, "Show"),
-            ButtonParam::StyleArrow => 
-                set_t_value(&mut self.style_arrow, value, "ButtonParam::StyleArrow"),
-            ButtonParam::StyleId => 
-                set_t_value(&mut self.style_id, value, "ButtonParam::StyleId"),
-            ButtonParam::StyleStd => 
-                set_t_value(&mut self.style_std, value, "ButtonParam::StyleStd"),
-            ButtonParam::Width => 
-                set_t_value(&mut self.width, value, "ButtonParam::Width"),
-            ButtonParam::WidthFill => 
-                set_t_value(&mut self.width, value, "ButtonParam::WidthFill"),
+            ButtonParam::Clip => set_t_value(&mut self.clip, value, "ButtonParam::Clip"),
+            ButtonParam::Disabled => set_t_value(&mut self.disabled, value, "ButtonParam::Disabled"),
+            ButtonParam::Fill => set_t_value(&mut self.fill, value, "ButtonParam::Fill"),
+            ButtonParam::FontId => set_t_value(&mut self.font_id, value, "ButtonParam::FontId"),
+            ButtonParam::Height => set_t_value(&mut self.height, value, "ButtonParam::Height"),
+            ButtonParam::HeightFill => set_t_value(&mut self.height, value, "ButtonParam::HeightFill"),
+            ButtonParam::Label => set_t_value(&mut self.label, value, "ButtonParam::Label"),
+            ButtonParam::Padding => set_t_value(&mut self.padding, value, "ButtonParam::Padding"),
+            ButtonParam::PaletteId => set_t_value(&mut self.palette_id, value, "ButtonParam::PaletteId"),
+            ButtonParam::Show => set_t_value(&mut self.show, value, "Show"),
+            ButtonParam::StyleArrow => set_t_value(&mut self.style_arrow, value, "ButtonParam::StyleArrow"),
+            ButtonParam::StyleId => set_t_value(&mut self.style_id, value, "ButtonParam::StyleId"),
+            ButtonParam::StyleStd => set_t_value(&mut self.style_std, value, "ButtonParam::StyleStd"),
+            ButtonParam::Width => set_t_value(&mut self.width, value, "ButtonParam::Width"),
+            ButtonParam::WidthFill => set_t_value(&mut self.width, value, "ButtonParam::WidthFill"),
         }
     }
 }
@@ -777,71 +768,117 @@ impl WidgetParamUpdate for ButtonStyle {
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
-            ButtonStyleParam::TextAlignBottomCenter => 
-                set_t_value(&mut self.text_bottom_center, value, "ButtonStyleParam::TextAlignBottomCenter"),
-            ButtonStyleParam::TextAlignBottomLeft => 
-                set_t_value(&mut self.text_bottom_left, value, "ButtonStyleParam::TextAlignBottomLeft"),
-            ButtonStyleParam::TextAlignBottomRight => 
-                set_t_value(&mut self.text_bottom_right, value, "ButtonStyleParam::TextAlignBottomRight"),
-            ButtonStyleParam::TextAlignCenter => 
-                set_t_value(&mut self.text_center, value, "ButtonStyleParam::TextAlignCenter"),
-            ButtonStyleParam::TextAlignCenterLeft => 
-                set_t_value( &mut self.text_center_left, value, "ButtonStyleParam::TextAlignCenterLeft"),
-            ButtonStyleParam::TextAlignCenterRight => 
-                set_t_value(&mut self.text_center_right, value, "ButtonStyleParam::TextAlignCenterRight"),
-            ButtonStyleParam::TextAlignTopCenter =>
-                set_t_value(&mut self.text_top_center, value, "ButtonStyleParam::TextAlignTopCenter"),
-            ButtonStyleParam::TextAlignTopLeft =>
-                set_t_value(&mut self.text_top_left, value, "ButtonStyleParam::TextAlignTopLeft"),
-            ButtonStyleParam::TextAlignTopRight =>
-                set_t_value(&mut self.text_top_right, value, "ButtonStyleParam::TextAlignTopRight"),
-            ButtonStyleParam::TextSize => 
-                set_t_value(&mut self.text_size, value, "ButtonStyleParam::TextSize"),
+            ButtonStyleParam::TextAlignBottomCenter => set_t_value(
+                &mut self.text_bottom_center,
+                value,
+                "ButtonStyleParam::TextAlignBottomCenter",
+            ),
+            ButtonStyleParam::TextAlignBottomLeft => set_t_value(
+                &mut self.text_bottom_left,
+                value,
+                "ButtonStyleParam::TextAlignBottomLeft",
+            ),
+            ButtonStyleParam::TextAlignBottomRight => set_t_value(
+                &mut self.text_bottom_right,
+                value,
+                "ButtonStyleParam::TextAlignBottomRight",
+            ),
+            ButtonStyleParam::TextAlignCenter => {
+                set_t_value(&mut self.text_center, value, "ButtonStyleParam::TextAlignCenter")
+            }
+            ButtonStyleParam::TextAlignCenterLeft => set_t_value(
+                &mut self.text_center_left,
+                value,
+                "ButtonStyleParam::TextAlignCenterLeft",
+            ),
+            ButtonStyleParam::TextAlignCenterRight => set_t_value(
+                &mut self.text_center_right,
+                value,
+                "ButtonStyleParam::TextAlignCenterRight",
+            ),
+            ButtonStyleParam::TextAlignTopCenter => {
+                set_t_value(&mut self.text_top_center, value, "ButtonStyleParam::TextAlignTopCenter")
+            }
+            ButtonStyleParam::TextAlignTopLeft => {
+                set_t_value(&mut self.text_top_left, value, "ButtonStyleParam::TextAlignTopLeft")
+            }
+            ButtonStyleParam::TextAlignTopRight => {
+                set_t_value(&mut self.text_top_right, value, "ButtonStyleParam::TextAlignTopRight")
+            }
+            ButtonStyleParam::TextSize => set_t_value(&mut self.text_size, value, "ButtonStyleParam::TextSize"),
 
-            ButtonStyleParam::GradientColorStops =>
-                set_t_value(&mut self.gradient_color_stops, value, "ButtonStyleParam::GradientColorStops",),
-            ButtonStyleParam::GradientColorAlphaStops => 
-                set_t_value(&mut self.gradient_color_alpha_stops, value, "ButtonStyleParam::GradientColorAlphaStops"),
-            ButtonStyleParam::GradientRgbaStops => 
-                set_t_value(&mut self.gradient_rgba_stops, value, "ButtonStyleParam::GradientRgbaStops"),
-            ButtonStyleParam::GradientDegrees =>
-                set_t_value(&mut self.gradient_degrees, value, "ButtonStyleParam::GradientDegrees"),
-            ButtonStyleParam::GradientRadians => 
-                set_t_value(&mut self.gradient_radians, value, "ButtonStyleParam::GradientRadians"),
-            
-            ButtonStyleParam::BorderColor => 
-                set_t_value(&mut self.border_color, value, "ButtonStyleParam::BorderColor"),
-            ButtonStyleParam::BorderColorAlpha => 
-                set_t_value(&mut self.border_color_alpha, value, "ButtonStyleParam::BorderColorAlpha"),
-            ButtonStyleParam::BorderRgba => 
-                set_t_value(&mut self.border_rgba, value, "ButtonStyleParam::BorderRgba"),
-            ButtonStyleParam::BorderRadius => 
-                set_t_value(&mut self.border_radius, value, "ButtonStyleParam::BorderRadius"),
-            ButtonStyleParam::BorderWidth => 
-                set_t_value(&mut self.border_width, value, "ButtonStyleParam::BorderWidth"),
-            ButtonStyleParam::BorderRounded => 
-                set_t_value(&mut self.border_rounded, value, "ButtonStyleParam::BorderRounded"),
+            ButtonStyleParam::GradientColorStops => set_t_value(
+                &mut self.gradient_color_stops,
+                value,
+                "ButtonStyleParam::GradientColorStops",
+            ),
+            ButtonStyleParam::GradientColorAlphaStops => set_t_value(
+                &mut self.gradient_color_alpha_stops,
+                value,
+                "ButtonStyleParam::GradientColorAlphaStops",
+            ),
+            ButtonStyleParam::GradientRgbaStops => set_t_value(
+                &mut self.gradient_rgba_stops,
+                value,
+                "ButtonStyleParam::GradientRgbaStops",
+            ),
+            ButtonStyleParam::GradientDegrees => {
+                set_t_value(&mut self.gradient_degrees, value, "ButtonStyleParam::GradientDegrees")
+            }
+            ButtonStyleParam::GradientRadians => {
+                set_t_value(&mut self.gradient_radians, value, "ButtonStyleParam::GradientRadians")
+            }
 
-            ButtonStyleParam::ShadowColor => 
-                set_t_value(&mut self.shadow_color, value, "ButtonStyleParam::ShadowColor"),
-            ButtonStyleParam::ShadowColorAlpha => 
-                set_t_value(&mut self.shadow_color_alpha, value,"ButtonStyleParam::ShadowColorAlpha"),
-            ButtonStyleParam::ShadowRgba => 
-                set_t_value(&mut self.shadow_rgba, value, "ButtonStyleParam::ShadowRgba"),
-            ButtonStyleParam::ShadowOffsetXy => 
-                set_t_value(&mut self.shadow_offset_xy, value, "ButtonStyleParam::ShadowOffsetXy"),
-            ButtonStyleParam::ShadowBlurRadius => 
-                set_t_value(&mut self.shadow_blur_radius, value,"ButtonStyleParam::ShadowBlurRadius"),
+            ButtonStyleParam::BorderColor => {
+                set_t_value(&mut self.border_color, value, "ButtonStyleParam::BorderColor")
+            }
+            ButtonStyleParam::BorderColorAlpha => set_t_value(
+                &mut self.border_color_alpha,
+                value,
+                "ButtonStyleParam::BorderColorAlpha",
+            ),
+            ButtonStyleParam::BorderRgba => set_t_value(&mut self.border_rgba, value, "ButtonStyleParam::BorderRgba"),
+            ButtonStyleParam::BorderRadius => {
+                set_t_value(&mut self.border_radius, value, "ButtonStyleParam::BorderRadius")
+            }
+            ButtonStyleParam::BorderWidth => {
+                set_t_value(&mut self.border_width, value, "ButtonStyleParam::BorderWidth")
+            }
+            ButtonStyleParam::BorderRounded => {
+                set_t_value(&mut self.border_rounded, value, "ButtonStyleParam::BorderRounded")
+            }
 
-            ButtonStyleParam::WrappingNone => 
-                set_t_value(&mut self.wrapping_none, value, "ButtonStyleParam::WrappingNone"),
-            ButtonStyleParam::WrappingGlyph => 
-                set_t_value(&mut self.wrapping_glyph, value, "ButtonStyleParam::WrappingGlyph"),
-            ButtonStyleParam::WrappingWordGlyph => 
-                set_t_value(&mut self.wrapping_word_glyph, value,"ButtonStyleParam::WrappingWordGlyph"),
-                
-            ButtonStyleParam::Snap => 
-                set_t_value(&mut self.snap, value, "ButtonStyleParam::Snap"),
+            ButtonStyleParam::ShadowColor => {
+                set_t_value(&mut self.shadow_color, value, "ButtonStyleParam::ShadowColor")
+            }
+            ButtonStyleParam::ShadowColorAlpha => set_t_value(
+                &mut self.shadow_color_alpha,
+                value,
+                "ButtonStyleParam::ShadowColorAlpha",
+            ),
+            ButtonStyleParam::ShadowRgba => set_t_value(&mut self.shadow_rgba, value, "ButtonStyleParam::ShadowRgba"),
+            ButtonStyleParam::ShadowOffsetXy => {
+                set_t_value(&mut self.shadow_offset_xy, value, "ButtonStyleParam::ShadowOffsetXy")
+            }
+            ButtonStyleParam::ShadowBlurRadius => set_t_value(
+                &mut self.shadow_blur_radius,
+                value,
+                "ButtonStyleParam::ShadowBlurRadius",
+            ),
+
+            ButtonStyleParam::WrappingNone => {
+                set_t_value(&mut self.wrapping_none, value, "ButtonStyleParam::WrappingNone")
+            }
+            ButtonStyleParam::WrappingGlyph => {
+                set_t_value(&mut self.wrapping_glyph, value, "ButtonStyleParam::WrappingGlyph")
+            }
+            ButtonStyleParam::WrappingWordGlyph => set_t_value(
+                &mut self.wrapping_word_glyph,
+                value,
+                "ButtonStyleParam::WrappingWordGlyph",
+            ),
+
+            ButtonStyleParam::Snap => set_t_value(&mut self.snap, value, "ButtonStyleParam::Snap"),
         }
     }
 }

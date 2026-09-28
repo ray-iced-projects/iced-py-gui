@@ -56,7 +56,6 @@ from icedpygui import (
     FileSystemDialogCallbackType as FsdType,
     update_widget,
     generate_id,
-    get_widget_parameters,
     get_widget_palette_parameters,
 )
 
@@ -219,7 +218,11 @@ class PaletteCreator:
         }
 
         self.opacity_btn_hovered: int = 0
-        self.opacity_btn_ids: dict = {}
+        self.opacity_btn_ids: dict = {"modifier": str,
+                                    "key": str, # i.e. ArrowDown
+                                    "opacity": float,
+                                    "input_id": int,
+                                    "row": int,}
         self.opacity_input_ids: list[int] = []
         self.opacity_key_pressed: dict = opacity_default_kp
         self.opacity_step_size: float = 0.1
@@ -227,7 +230,10 @@ class PaletteCreator:
         self.opacity: float = 1.0
 
         self.border_btn_hovered: int = 0
-        self.border_btn_ids: dict = {}
+        self.border_btn_ids: dict = {"modifier": str,
+                                    "key": str, # "ArrowUp"
+                                    "border_width": float,
+                                    "row": int}
         self.border_input_ids: list[int] = []
         self.border_key_pressed: dict = border_default_kp
         self.border_step_size: float = 1.0
@@ -451,7 +457,7 @@ def border_btn_pressed(btn_id_: int, border_input_id: int):
         return          # Unknown modifier
 
     # Apply step based on key direction
-    width = btn_state["width"]
+    width = btn_state["border_width"]
     if key == "ArrowUp":
         width += step
     elif key == "ArrowDown":
@@ -461,12 +467,11 @@ def border_btn_pressed(btn_id_: int, border_input_id: int):
 
     # Clamp to [0, ∞)
     width = max(0.0, width)
-    btn_state["width"] = width
+    btn_state["border_width"] = width
 
     # Update the widget
     update_widget(border_input_id, InputFloatParam.Value, width)
     set_selected_widget_border(pc, btn_id_)
-
 
 
 def ma_entered(_ma_id: int, btn_id_: int):
@@ -689,7 +694,7 @@ with Window(title="Palette Creator - Interactive Workflow", center=True, size=(1
                                                 pc.border_btn_ids[btn_id] = {
                                                     "modifier": "None",
                                                     "key": "ArrowUp",
-                                                    "width": 0.00,
+                                                    "border_width": 0.0,
                                                     "row": row,
                                                 }
                                         null_id = add_text(content="", show=False)

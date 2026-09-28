@@ -338,7 +338,7 @@ fn color_palette_from_theme(theme: &iced::Theme) -> IndexMap<PaletteKey, [f64; 4
 pub fn custom_palette(
     color: Option<Color>,
     rgba: Option<[f32; 4]>,
-    statuses: Option<Vec<((WidgetStatus, StateVariant), Vec<(StylePart, PaletteKey, f32)>)>>,
+    statuses: Option<Vec<((WidgetStatus, StateVariant), Vec<(StylePart, PaletteKey, f32, Option<f32>)>)>>,
     gen_id: Option<usize>,
 ) -> PyResult<usize>
 {
@@ -386,7 +386,7 @@ pub enum TextContrast {
 pub struct CustomPalette{
     pub id: usize,
     pub palette: iced::theme::palette::Background,
-    pub statuses: Option<HashMap<(WidgetStatus, StateVariant), Vec<(StylePart, PaletteKey, f32)>>>,
+    pub statuses: Option<HashMap<(WidgetStatus, StateVariant), Vec<(StylePart, PaletteKey, f32, Option<f32>)>>>,
 }
 
 impl CustomPalette {
@@ -430,13 +430,14 @@ impl CustomPalette {
                     entry.set_item("status", format!("{status:?}"))?;
                     entry.set_item("variant", format!("{variant:?}"))?;
                     let mut parts_py: Vec<Bound<'py, PyDict>> = Vec::new();
-                    for (part, key, alpha) in parts.iter() {
+                    for (part, key, alpha, bd_width) in parts.iter() {
                         let pd = PyDict::new(py);
                         pd.set_item("part", format!("{part:?}"))?;
                         pd.set_item("key", format!("{key:?}"))?;
                         // Round alpha f32 to f64 to avoid precision loss
-                        let alpha_rounded = ((*alpha as f64) * 10000.0).round() / 10000.0;
+                        let alpha_rounded = ((*alpha as f64) * 1000.0).round() / 1000.0;
                         pd.set_item("alpha", alpha_rounded)?;
+                        pd.set_item("border_width", bd_width.map(|w| ((w as f64) * 100.0).round() / 100.0))?;
                         parts_py.push(pd);
                     }
                     entry.set_item("parts", parts_py)?;
@@ -456,7 +457,7 @@ impl CustomPalette {
 pub fn parse_palette_statuses(
     py: Python<'_>,
     value: &PyObject,
-) -> PyResult<std::collections::HashMap<(WidgetStatus, StateVariant), Vec<(StylePart, PaletteKey, f32)>>> {
+) -> PyResult<std::collections::HashMap<(WidgetStatus, StateVariant), Vec<(StylePart, PaletteKey, f32, Option<f32>)>>> {
     use pyo3::types::{PyDict, PyList};
 
     let dict = value.bind(py).downcast::<PyDict>()
@@ -499,13 +500,14 @@ pub fn parse_palette_statuses(
         let parts_list = parts_obj.downcast::<PyList>()
             .map_err(|_| pyo3::exceptions::PyValueError::new_err("'parts' must be a list"))?;
 
-        let mut parts: Vec<(StylePart, PaletteKey, f32)> = Vec::new();
+        let mut parts: Vec<(StylePart, PaletteKey, f32, Option<f32>)> = Vec::new();
         for pe in parts_list.iter() {
             let pd = pe.downcast::<PyDict>()
                 .map_err(|_| pyo3::exceptions::PyValueError::new_err("each part entry must be a dict"))?;
             let part_str: String = pd.get_item("part")?.ok_or_else(|| pyo3::exceptions::PyValueError::new_err("missing 'part'"))?.extract()?;
             let key_str: String = pd.get_item("key")?.ok_or_else(|| pyo3::exceptions::PyValueError::new_err("missing 'key'"))?.extract()?;
             let alpha: f32 = pd.get_item("alpha")?.ok_or_else(|| pyo3::exceptions::PyValueError::new_err("missing 'alpha'"))?.extract()?;
+            let border_width: Option<f32> = pd.get_item("border_width")?.and_then(|v| v.extract::<f32>().ok());
 
             let part = match part_str.as_str() {
                 "Background" => StylePart::Background,
@@ -535,7 +537,7 @@ pub fn parse_palette_statuses(
                 "Transparent"   => PaletteKey::Transparent,
                 other => return Err(pyo3::exceptions::PyValueError::new_err(format!("unknown palette key '{other}'"))),
             };
-            parts.push((part, key, alpha));
+            parts.push((part, key, alpha, border_width));
         }
         map.insert((status, variant), parts);
     }

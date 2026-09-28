@@ -47,13 +47,16 @@ def demo_populate_palette_area(pc: PaletteCreator):
     # get a default statuses for a button (any will do)
     default_statuses = get_widget_default_statuses(
         pc.selected_widget_statuses["normal"].get("style_id"))
+    print(default_statuses)
 
     # Build a lookup dict
     status_parts = {}
+    border_width = None
+    print("border")
     for (status, variant), parts in default_statuses:
         status_key = str(status).rsplit('.', maxsplit=1)[-1].lower() # "active"
         status_parts[status_key] = {}
-        for part, key, alpha in parts:
+        for part, key, alpha, border_width in parts:
             part_key = str(part).rsplit('.', maxsplit=1)[-1].lower()  # "background"
             status_parts[status_key][part_key] = (key, alpha)
 
@@ -110,5 +113,8 @@ def demo_populate_palette_area(pc: PaletteCreator):
                 InputFloatParam.Show: True})
             if part == "Border":
                 update_widget(pc.border_input_ids[row_index], InputFloatParam.Show, True)
-            else:
+                if border_width is None:
+                    border_width = 0.0
+                update_widget(pc.border_input_ids[row_index], InputFloatParam.Value, border_width)
+            else: # insert a placeholder to keep table row positions correct.
                 update_widget(pc.border_null_position_ids[row_index], TextParam.Show, True)

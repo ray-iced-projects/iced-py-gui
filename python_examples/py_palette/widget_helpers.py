@@ -4,7 +4,8 @@ helper file for creating a palette
 """
 
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
+from typing import TypedDict
 from enum import Enum
 from pathlib import Path
 import yaml
@@ -26,6 +27,24 @@ from icedpygui import (
 
 if TYPE_CHECKING:
     from python_examples.py_palette.py_palette_create import PaletteCreator
+
+class PalettePartEntry(TypedDict):
+    """Hint helpers"""
+    part: str
+    key: str
+    alpha: float
+    border_width: Optional[float]
+
+class PaletteStatusEntry(TypedDict):
+    """Hint helpers"""
+    status: str
+    variant: str
+    parts: list[PalettePartEntry]
+
+class PaletteDict(TypedDict):
+    """Hint helpers"""
+    statuses: list[PaletteStatusEntry]
+
 
 DEMO_FILE_DIR = Path.home() / ".python_examples/py_palette"
 BUTTON_WIDTH = 150
@@ -100,7 +119,7 @@ def place_selected_widget(pc: PaletteCreator):
     pc.statuses = get_widget_default_statuses(get_style(pc.widget_name))
     pc.widget_parts = [str(part).rsplit('.', maxsplit=1)[-1] \
         for part in dict.fromkeys([p for (status, variant), parts in pc.statuses
-                                    for p, key, alpha in parts])]
+                                    for p, key, alpha, border_width in parts])]
     pal_id = custom_palette(rgba=pc.selected_color, statuses=pc.statuses)
 
     match pc.widget_name:
@@ -271,7 +290,7 @@ def get_pal_id_by_status_and_name(pc: PaletteCreator, my_status: str) -> int | N
     return results
 
 def update_palette_part_key(
-    pal: dict, status: str, part: str, new_key: str) -> bool:
+    pal: PaletteDict, status: str, part: str, new_key: str) -> bool:
     """Update a palette's part key for a given status.
 
     Args:
@@ -292,7 +311,7 @@ def update_palette_part_key(
     return False
 
 def update_palette_part_alpha(
-    pal: dict, status: str, part: str, new_alpha: float) -> bool:
+    pal: PaletteDict, status: str, part: str, new_alpha: float) -> bool:
     """Update a palette's part alpha for a given status.
 
     Args:
@@ -312,6 +331,27 @@ def update_palette_part_alpha(
                     return True
     return False
 
+
+def update_palette_part_border(
+    pal: PaletteDict, status: str, part: str, new_border: float) -> bool:
+    """Update a palette's part alpha for a given status.
+
+    Args:
+        pal: Palette dict from get_widget_palette_parameters()
+        status: Status name (e.g., "Active", "Hovered", "Pressed", "Disabled")
+        part: Part name (e.g., "Background", "Text", "Border")
+        new_border: border width, float
+
+    Returns:
+        True if updated, False if status/part not found
+    """
+    for status_entry in pal.get('statuses', []):
+        if status_entry.get('status') == status:
+            for part_entry in status_entry.get('parts', []):
+                if part_entry.get('part') == part:
+                    part_entry['border_width'] = new_border
+                    return True
+    return False
 
 def set_selected_widget_palette(
     pc: PaletteCreator, row_: int, pal_index: int):
@@ -375,8 +415,8 @@ def set_selected_widget_border(pc: PaletteCreator, btn_id_: int):
     pal = get_widget_palette_parameters(pal_id)
 
     # Update the border width in the status for the selected widget
-    width_value = pc.border_btn_ids[btn_id_].get("width", 0.0)
-    success = update_palette_part_alpha(pal, status, part, width_value)
+    width_value = pc.border_btn_ids[btn_id_].get("border_width", 0.0)
+    success = update_palette_part_border(pal, status, part, width_value)
     if success:
         print(f"Updated palette {pal_id} with border width {width_value}")
     else:

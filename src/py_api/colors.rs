@@ -712,7 +712,7 @@ impl WidgetParamUpdate for CustomPalette {
         match param {
             CustomPaletteParam::Background => todo!(),
             CustomPaletteParam::Statuses => {
-                Python::with_gil(|py| {
+                Python::attach(|py| {
                     if let Ok(new_statuses) = parse_palette_statuses(py, value) {
                         self.statuses = Some(new_statuses);
                     }

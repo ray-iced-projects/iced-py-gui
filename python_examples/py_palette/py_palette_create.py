@@ -16,7 +16,7 @@ import os
 
 from python_examples.py_palette.demo_helpers import demo_populate_palette_area
 from python_examples.py_palette.widget_helpers import (
-    WidgetConfig, place_selected_widget, set_selected_widget_palette)
+    WidgetConfig, place_selected_widget, set_selected_widget_opacity, set_selected_widget_palette)
 from icedpygui import (
     Window,
     Arrow,
@@ -428,6 +428,7 @@ def opacity_btn_pressed(btn_id_: int):
     input_id = btn_state.get("input_id")
     if input_id:
         update_widget(input_id, InputFloatParam.Value, opacity)
+        set_selected_widget_opacity(pc, btn_id_)
 
 
 def border_btn_pressed(btn_id_: int, border_input_id: int):
@@ -465,11 +466,8 @@ def border_btn_pressed(btn_id_: int, border_input_id: int):
     # Update the widgets
     # get the btn_index which correlates to the row
     btn_ids = list(pc.opacity_btn_ids.keys())
-    # if btn_id in btn_ids:
-    #     idx = btn_ids.index(btn_id)
-    #     # get the parts_stastus labels
-    #     part_status = pc.parts_list_ids[idx]
-
+    if btn_id in btn_ids:
+        idx = btn_ids.index(btn_id)
 
     update_widget(border_input_id, InputFloatParam.Value, width)
 
@@ -505,6 +503,7 @@ def load_demo(_pl_id: int, selected: str):
     demo_populate_palette_area(pc)
 
 def print_pal(_btn_id):
+    """Temp"""
     params = get_widget_parameters(4463)
     print(params, "\n")
     pal = get_widget_palette_parameters(4461)
@@ -667,11 +666,12 @@ with Window(title="Palette Creator - Interactive Workflow", center=True, size=(1
                                                     "modifier": "None",
                                                     "key": "ArrowDown",
                                                     "opacity": 1.00,
-                                                    "input_id": input_op_id
+                                                    "input_id": input_op_id,
+                                                    "row": row,
                                                 }
                                     case 3:
                                         with InputFloat(
-                                            value=2.0,
+                                            value=0.0,
                                             align_center=True,
                                             show=False) as input_border_id:
                                             btn_id = generate_id()
@@ -691,7 +691,8 @@ with Window(title="Palette Creator - Interactive Workflow", center=True, size=(1
                                                 pc.border_btn_ids[btn_id] = {
                                                     "modifier": "None",
                                                     "key": "ArrowUp",
-                                                    "width": 2.00
+                                                    "width": 2.00,
+                                                    "row": row,
                                                 }
 
 if __name__ == "__main__":

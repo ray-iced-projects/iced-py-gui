@@ -45,7 +45,8 @@ def demo_populate_palette_area(pc: PaletteCreator):
     num_statuses = len(statuses)
 
     # get a default statuses for a button (any will do)
-    default_statuses = get_widget_default_statuses(pc.selected_widget_statuses["normal"].get("style_id"))
+    default_statuses = get_widget_default_statuses(
+        pc.selected_widget_statuses["normal"].get("style_id"))
 
     # Build a lookup dict
     status_parts = {}
@@ -93,7 +94,7 @@ def demo_populate_palette_area(pc: PaletteCreator):
                                     (row_index, pal_index))
 
             # Get the ids of the popup and the button that opens the popup
-            # The button needs to reflect the palette name using the demo color
+            # The button needs to reflect the palette name using the selected color
             (_, btn_open_id) = pc.popup_open_btn_ids[row_index]
             key, alpha = status_parts[status.lower()][part.lower()]
             key_str = str(key).rsplit('.', maxsplit=1)[-1]
@@ -104,5 +105,7 @@ def demo_populate_palette_area(pc: PaletteCreator):
             # Show the opacity and border widgets
             update_widget(pc.part_status_cnts[row_index], ContainerParam.Show, True)
             update_widget(pc.popup_open_btn_ids[row_index][1], ButtonParam.Show, True)
-            update_widget(pc.opacity_input_ids[row_index], InputFloatParam.Show, True)
+            update_widget_params(pc.opacity_input_ids[row_index], {
+                InputFloatParam.Value: alpha,
+                InputFloatParam.Show: True})
             update_widget(pc.border_input_ids[row_index], InputFloatParam.Show, True)

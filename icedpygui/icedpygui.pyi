@@ -2001,7 +2001,7 @@ def get_widget_palette_parameters(
 def update_widget_palette_parameters(
         palette_id: int,
         value: dict,
-    )
+    ):
     """
     Updates all of thepalette parameters for the palette with the given id.
 

@@ -113,7 +113,6 @@ def place_selected_widget(pc: PaletteCreator):
                     style_id,
                     pal_id,
                     )
-            print("selected_widget-Status=Active", wid, "pal_id", pal_id)
             pc.selected_widget_statuses["active"]["name"] = pc.widget_name
             pc.selected_widget_statuses["active"]["wid"] = wid
             pc.selected_widget_statuses["active"]["style_id"] = style_id
@@ -292,6 +291,27 @@ def update_palette_part_key(
                     return True
     return False
 
+def update_palette_part_alpha(
+    pal: dict, status: str, part: str, new_alpha: float) -> bool:
+    """Update a palette's part alpha for a given status.
+
+    Args:
+        pal: Palette dict from get_widget_palette_parameters()
+        status: Status name (e.g., "Active", "Hovered", "Pressed", "Disabled")
+        part: Part name (e.g., "Background", "Text", "Border")
+        new_alpha: color alpha value 0.0..1.0 values
+
+    Returns:
+        True if updated, False if status/part not found
+    """
+    for status_entry in pal.get('statuses', []):
+        if status_entry.get('status') == status:
+            for part_entry in status_entry.get('parts', []):
+                if part_entry.get('part') == part:
+                    part_entry['alpha'] = new_alpha
+                    return True
+    return False
+
 
 def set_selected_widget_palette(
     pc: PaletteCreator, row_: int, pal_index: int):
@@ -318,10 +338,28 @@ def set_selected_widget_palette(
     pal_id = get_pal_id_by_status_and_name(pc, status)
     pal = get_widget_palette_parameters(pal_id)
 
-    # Update the key for Background in Active status
+    # Update the key in the status for the selected widget
     success = update_palette_part_key(pal, status, part, key)
     if success:
         print(f"Updated palette {pal_id}")
+    else:
+        print(f"Status/Part not found in palette with id: {pal_id}")
+
+    update_widget_palette_parameters(pal_id, pal)
+
+def set_selected_widget_opacity(pc: PaletteCreator, btn_id_: int):
+    """Sets the opacity"""
+    row = pc.opacity_btn_ids[btn_id_].get("row")
+    (part, status) = get_user_data(pc.parts_list_ids[row])
+    # Change the selected widget's palette
+    pal_id = get_pal_id_by_status_and_name(pc, status)
+    pal = get_widget_palette_parameters(pal_id)
+
+    # Update the alpha in the status for the selected widget
+    opacity_value = pc.opacity_btn_ids[btn_id_].get("opacity", 1.0)
+    success = update_palette_part_alpha(pal, status, part, opacity_value)
+    if success:
+        print(f"Updated palette {pal_id} with opacity {opacity_value}")
     else:
         print(f"Status/Part not found in palette with id: {pal_id}")
 

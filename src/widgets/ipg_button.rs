@@ -522,7 +522,10 @@ impl ButtonStyle {
     }
 
     pub fn default_statuses(&self) -> HashMap<WidgetStatus, HashMap<StylePart, (PaletteKey, f32)>> {
-        
+        // HashMap definitions
+        // StylePart: Bacground, Text, Border, ...
+        // PaletteKey = Base, Basetext, Strong, StrongText, ...
+        // f32 value: opacity or alpha color setting
         let mut default_statuses: HashMap<WidgetStatus, HashMap<StylePart, (PaletteKey, f32)>> = HashMap::new();
 
         let mut inner = HashMap::new();

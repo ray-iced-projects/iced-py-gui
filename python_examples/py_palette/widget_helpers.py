@@ -366,6 +366,25 @@ def set_selected_widget_opacity(pc: PaletteCreator, btn_id_: int):
     update_widget_palette_parameters(pal_id, pal)
 
 
+def set_selected_widget_border(pc: PaletteCreator, btn_id_: int):
+    """Sets the border width"""
+    row = pc.border_btn_ids[btn_id_].get("row")
+    (part, status) = get_user_data(pc.parts_list_ids[row])
+    # Change the selected widget's palette
+    pal_id = get_pal_id_by_status_and_name(pc, status)
+    pal = get_widget_palette_parameters(pal_id)
+
+    # Update the border width in the status for the selected widget
+    width_value = pc.border_btn_ids[btn_id_].get("width", 0.0)
+    success = update_palette_part_alpha(pal, status, part, width_value)
+    if success:
+        print(f"Updated palette {pal_id} with border width {width_value}")
+    else:
+        print(f"Status/Part not found in palette with id: {pal_id}")
+
+    update_widget_palette_parameters(pal_id, pal)
+
+
 def populate_widget_config(pc: PaletteCreator):
     """Saves the widget config to a .yml file"""
     match pc.widget_name:

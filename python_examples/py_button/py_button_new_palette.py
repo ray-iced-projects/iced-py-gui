@@ -17,7 +17,6 @@ from icedpygui import (
     custom_palette,
     get_color_palette,
     PaletteKey,
-    WidgetId,
     StateVariant,
     StylePart,
     add_text_editor,

@@ -108,4 +108,7 @@ def demo_populate_palette_area(pc: PaletteCreator):
             update_widget_params(pc.opacity_input_ids[row_index], {
                 InputFloatParam.Value: alpha,
                 InputFloatParam.Show: True})
-            update_widget(pc.border_input_ids[row_index], InputFloatParam.Show, True)
+            if part == "Border":
+                update_widget(pc.border_input_ids[row_index], InputFloatParam.Show, True)
+            else:
+                update_widget(pc.border_null_position_ids[row_index], TextParam.Show, True)

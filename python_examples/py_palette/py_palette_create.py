@@ -16,7 +16,8 @@ import os
 
 from python_examples.py_palette.demo_helpers import demo_populate_palette_area
 from python_examples.py_palette.widget_helpers import (
-    WidgetConfig, place_selected_widget, set_selected_widget_opacity, set_selected_widget_palette)
+    WidgetConfig, place_selected_widget, set_selected_widget_border,
+    set_selected_widget_opacity, set_selected_widget_palette)
 from icedpygui import (
     Window,
     Arrow,
@@ -231,6 +232,7 @@ class PaletteCreator:
         self.border_key_pressed: dict = border_default_kp
         self.border_step_size: float = 1.0
         self.border: float = 2.0
+        self.border_null_position_ids: list[int] = []
 
         self.palette_ids: dict = {}  # palette_name -> palette_id
         self.palette_name: str = ""
@@ -397,7 +399,7 @@ add_event_keyboard(enabled=True,
                    on_key_press=event_kp,
                    on_key_release=event_kr)
 
-def opacity_btn_pressed(btn_id_: int):
+def opacity_btn_pressed(btn_id_: int, op_input_id: int):
     """Increment or decrement opacity based on stored modifier-key combination."""
     if btn_id_ not in pc.opacity_btn_ids:
         return
@@ -425,10 +427,8 @@ def opacity_btn_pressed(btn_id_: int):
     btn_state["opacity"] = opacity
 
     # Update the widget
-    input_id = btn_state.get("input_id")
-    if input_id:
-        update_widget(input_id, InputFloatParam.Value, opacity)
-        set_selected_widget_opacity(pc, btn_id_)
+    update_widget(op_input_id, InputFloatParam.Value, opacity)
+    set_selected_widget_opacity(pc, btn_id_)
 
 
 def border_btn_pressed(btn_id_: int, border_input_id: int):
@@ -463,13 +463,10 @@ def border_btn_pressed(btn_id_: int, border_input_id: int):
     width = max(0.0, width)
     btn_state["width"] = width
 
-    # Update the widgets
-    # get the btn_index which correlates to the row
-    btn_ids = list(pc.opacity_btn_ids.keys())
-    if btn_id in btn_ids:
-        idx = btn_ids.index(btn_id)
-
+    # Update the widget
     update_widget(border_input_id, InputFloatParam.Value, width)
+    set_selected_widget_border(pc, btn_id_)
+
 
 
 def ma_entered(_ma_id: int, btn_id_: int):
@@ -504,9 +501,9 @@ def load_demo(_pl_id: int, selected: str):
 
 def print_pal(_btn_id):
     """Temp"""
-    params = get_widget_parameters(4463)
-    print(params, "\n")
-    pal = get_widget_palette_parameters(4461)
+    # params = get_widget_parameters(4463)
+    # print(params, "\n")
+    pal = get_widget_palette_parameters(4525)
     for status in pal["statuses"]:
         if status.get("status") == "Active":
             print(status)
@@ -660,6 +657,7 @@ with Window(title="Palette Creator - Interactive Workflow", center=True, size=(1
                                                 add_button(
                                                     on_press=opacity_btn_pressed,
                                                     style_arrow=Arrow.ArrowDown,
+                                                    user_data=input_op_id,
                                                     gen_id=btn_id)
                                                 pc.opacity_input_ids.append(input_op_id)
                                                 pc.opacity_btn_ids[btn_id] = {
@@ -691,9 +689,11 @@ with Window(title="Palette Creator - Interactive Workflow", center=True, size=(1
                                                 pc.border_btn_ids[btn_id] = {
                                                     "modifier": "None",
                                                     "key": "ArrowUp",
-                                                    "width": 2.00,
+                                                    "width": 0.00,
                                                     "row": row,
                                                 }
+                                        null_id = add_text(content="", show=False)
+                                        pc.border_null_position_ids.append(null_id)
 
 if __name__ == "__main__":
     start_session()

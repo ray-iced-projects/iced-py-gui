@@ -234,6 +234,10 @@ class PaletteCreator:
                                     "key": str, # "ArrowUp"
                                     "border_width": float,
                                     "row": int}}
+
+        self.color_picker_ids: list[int] = []
+        self.cp_btn_open_ids: list[int] = []
+
         self.border_input_ids: list[int] = []
         self.border_key_pressed: dict = border_default_kp
         self.border_step_size: float = 1.0
@@ -492,6 +496,11 @@ def ma_exited(_ma_id, _):
     pc.border_btn_hovered = 0
 
 
+def set_custom_color(_cp_id: int, rgba: list[float, 4], row_idx: int):
+    """Sets (overides) the custom color for the palette"""
+    print(rgba, row_idx)
+
+
 # populate the dropdown for the demo widgets
 parts_file_path = os.path.join(CWD, "python_examples", "py_palette", "widget_palette_parts.yml")
 pc.demo_widget_list = WidgetConfig.get_widget_names_from_file(parts_file_path)
@@ -571,10 +580,12 @@ with Window(title="Palette Creator - Interactive Workflow", center=True, size=(1
                 # area prepopulated with widget that only need to be updated later
                 # one could take the approach to add these widgets as needed.
 
-                headers = ["Parts-Status", "Palette Selectors", "Palette Opacity", "Border Width"]
+                headers = ["Parts-Status", "Palette Selectors", "Palette Opacity",
+                           "Border Width", "Custom Rgba"]
+                col_widths = [200, 150, 125, 125, 125]
                 with Table(
                     row_height=30.0,
-                    col_widths=[200, 150, 125, 125],
+                    col_widths=col_widths,
                     ):
 
                     with TableHeader():
@@ -585,7 +596,7 @@ with Window(title="Palette Creator - Interactive Workflow", center=True, size=(1
                         # There are a possible 64 palette selectors (8 x 8)
                         # The info will be stored in a 8 x 8 lists
                         for row in range(64):
-                            for column in range(4):
+                            for column in range(len(col_widths)):
                                 match column:
                                     case 0:
                                         with Container(fill=True, show=False) as part_status_cnt:
@@ -701,5 +712,16 @@ with Window(title="Palette Creator - Interactive Workflow", center=True, size=(1
                                         null_id = add_text(content="", show=False)
                                         pc.border_null_position_ids.append(null_id)
 
-if __name__ == "__main__":
+                                    case 4:
+                                        with ColorPicker(color_format_rgba=True,
+                                                         on_submit=set_custom_color,
+                                                         user_data=row) as cp_id:
+                                            cp_btn_open_id = add_button(
+                                                label="Custom Rgba",
+                                                show=False,
+                                                style_std=ButtonStyleStd.Subtle,
+                                                user_data = cp_id)
+                                        pc.color_picker_ids.append(cp_id)
+                                        pc.cp_btn_open_ids.append(cp_btn_open_id)
+
     start_session()

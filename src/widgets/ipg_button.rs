@@ -621,11 +621,7 @@ impl ButtonStyle {
         dict.set_item("gradient_degrees", self.gradient_degrees)?;
         dict.set_item("gradient_radians", self.gradient_radians)?;
 
-        dict.set_item("border_color", color_name(&self.border_color))?;
-        dict.set_item("border_color_alpha", self.border_color_alpha)?;
-        dict.set_item("border_rgba", self.border_rgba.map(|c| c.to_vec()))?;
         dict.set_item("border_radius", self.border_radius.clone())?;
-        dict.set_item("border_width", self.border_width)?;
         dict.set_item("border_rounded", self.border_rounded)?;
 
         dict.set_item("shadow_color", color_name(&self.shadow_color))?;
@@ -720,11 +716,7 @@ pub enum ButtonStyleParam {
     GradientDegrees,
     GradientRadians,
 
-    BorderColor,
-    BorderColorAlpha,
-    BorderRgba,
     BorderRadius,
-    BorderWidth,
     BorderRounded,
 
     ShadowColor,
@@ -829,21 +821,8 @@ impl WidgetParamUpdate for ButtonStyle {
             ButtonStyleParam::GradientRadians => {
                 set_t_value(&mut self.gradient_radians, value, "ButtonStyleParam::GradientRadians")
             }
-
-            ButtonStyleParam::BorderColor => {
-                set_t_value(&mut self.border_color, value, "ButtonStyleParam::BorderColor")
-            }
-            ButtonStyleParam::BorderColorAlpha => set_t_value(
-                &mut self.border_color_alpha,
-                value,
-                "ButtonStyleParam::BorderColorAlpha",
-            ),
-            ButtonStyleParam::BorderRgba => set_t_value(&mut self.border_rgba, value, "ButtonStyleParam::BorderRgba"),
             ButtonStyleParam::BorderRadius => {
                 set_t_value(&mut self.border_radius, value, "ButtonStyleParam::BorderRadius")
-            }
-            ButtonStyleParam::BorderWidth => {
-                set_t_value(&mut self.border_width, value, "ButtonStyleParam::BorderWidth")
             }
             ButtonStyleParam::BorderRounded => {
                 set_t_value(&mut self.border_rounded, value, "ButtonStyleParam::BorderRounded")

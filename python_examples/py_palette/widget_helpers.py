@@ -377,7 +377,7 @@ def set_selected_widget_palette(
     # Change the selected widget's palette
     pal_id = get_pal_id_by_status_and_name(pc, status)
     pal = get_widget_palette_parameters(pal_id)
-
+    print(pal)
     # Update the key in the status for the selected widget
     success = update_palette_part_key(pal, status, part, key)
     if success:

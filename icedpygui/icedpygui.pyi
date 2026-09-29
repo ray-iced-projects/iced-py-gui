@@ -26,20 +26,6 @@ def clipboard_callback(
     ) -> int:
     """invoke callback(req_id, text) for clipboard."""
 
-class ButtonStyleStd:
-    """
-    Standard styles for Button widget
-    """
-    Background=''
-    Danger=''
-    Primary=''
-    Secondary=''
-    Subtle=''
-    Success=''
-    Warning=''
-    Text=''
-
-
 def add_button_style(
     text_top_left: bool | None = None,
     text_top_center: bool | None = None,
@@ -2334,14 +2320,6 @@ class ButtonStyleParam:
     Snap: bool
         Whether to snap the button rendering
     """
-    BkgColor: Color
-    BkgColorAlpha: float
-    BkgRgba: list[float]
-
-    TextColor: Color
-    TextColorAlpha: float
-    TextRgba: list[float]
-
     TextAlignBottomCenter: bool
     TextAlignBottomLeft: bool
     TextAlignBottomRight: bool
@@ -2376,6 +2354,38 @@ class ButtonStyleParam:
     ShadowBlurRadius: float
 
     Snap: bool
+
+class ButtonStyleStd:
+    """
+    Standard styles for Button widget
+
+    Parameters
+    ----------
+    Background: bool
+        Sets the bkg color to that of the background
+    Danger:
+        Sets the bkg color to taht of a Danger
+    Primary: bool
+        Sets the bkg color to that of the Primary Theme
+    Secondary: bool
+        Sets the bkg color to that of the Secondary Theme
+    Subtle: bool
+        Sets the bkg color to a more sublr color
+    Success: bool
+        Sets the bkg color to that of the Success Theme
+    Warning: bool
+        Sets the bkg color to that of the Warning Theme
+    Text: bool
+        Sets the bkg color to that of the bakg Theme
+    """
+    Background=...
+    Danger=...
+    Primary=...
+    Secondary=...
+    Subtle=...
+    Success=...
+    Warning=...
+    Text=...
 
 
 class DrawMode:

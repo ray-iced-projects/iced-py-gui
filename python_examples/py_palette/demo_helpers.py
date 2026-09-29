@@ -117,7 +117,7 @@ def demo_populate_palette_area(pc: PaletteCreator):
                         border_width = 0
                     value["border_width"] = border_width
 
-            # Show the opacity and border widgets
+            # Show the opacity, border, and colorpicker buttons widgets
             update_widget(pc.part_status_cnts[row_index], ContainerParam.Show, True)
             update_widget(pc.popup_open_btn_ids[row_index][1], ButtonParam.Show, True)
             update_widget_params(pc.opacity_input_ids[row_index], {
@@ -130,3 +130,5 @@ def demo_populate_palette_area(pc: PaletteCreator):
                 update_widget(pc.border_input_ids[row_index], InputFloatParam.Value, border_width)
             else: # insert a placeholder to keep table row positions correct.
                 update_widget(pc.border_null_position_ids[row_index], TextParam.Show, True)
+
+            update_widget(pc.cp_btn_open_ids[row_index], ButtonParam.Show, True)

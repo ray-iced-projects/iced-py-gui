@@ -46,13 +46,12 @@ def demo_populate_palette_area(pc: PaletteCreator):
 
     # get a default statuses for a button (any will do)
     default_statuses = get_widget_default_statuses(
-        pc.selected_widget_statuses["normal"].get("style_id"))
-    print(default_statuses)
+    pc.selected_widget_statuses["normal"].get("style_id"))
 
     # Build a lookup dict
     status_parts = {}
     border_width = None
-    print("border")
+
     for (status, variant), parts in default_statuses:
         status_key = str(status).rsplit('.', maxsplit=1)[-1].lower() # "active"
         status_parts[status_key] = {}
@@ -99,11 +98,24 @@ def demo_populate_palette_area(pc: PaletteCreator):
             # Get the ids of the popup and the button that opens the popup
             # The button needs to reflect the palette name using the selected color
             (_, btn_open_id) = pc.popup_open_btn_ids[row_index]
+            # print(status_parts[status.lower()][part.lower()])
             key, alpha = status_parts[status.lower()][part.lower()]
             key_str = str(key).rsplit('.', maxsplit=1)[-1]
             update_widget_params(btn_open_id, {
                 ButtonParam.Label: key_str,
                 ButtonParam.Show: True})
+
+            # Update the opacity button state
+            for key, value in pc.opacity_btn_ids.items():
+                if value.get("row") == row_index:
+                    value["opacity"] = alpha
+
+            # Update the border button state
+            for key, value in pc.border_btn_ids.items():
+                if value.get("row") == row_index:
+                    if border_width is None:
+                        border_width = 0
+                    value["border_width"] = border_width
 
             # Show the opacity and border widgets
             update_widget(pc.part_status_cnts[row_index], ContainerParam.Show, True)

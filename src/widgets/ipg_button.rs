@@ -529,7 +529,8 @@ impl ButtonStyle {
         // HashMap definitions
         // StylePart: Bacground, Text, Border, ...
         // PaletteKey = Base, Basetext, Strong, StrongText, ...
-        // f32: alpha; Option<f32>: border width (Some overrides style width, None falls back)
+        // f32: alpha, default = 1.0
+        // Option<f32>: border width (Some overrides style width, None = 0.0)
         let mut default_statuses: HashMap<WidgetStatus, HashMap<StylePart, (PaletteKey, f32, Option<f32>)>> =
             HashMap::new();
 

@@ -218,11 +218,11 @@ class PaletteCreator:
         }
 
         self.opacity_btn_hovered: int = 0
-        self.opacity_btn_ids: dict = {"modifier": str,
+        self.opacity_btn_ids: dict = {int: {"modifier": str,
                                     "key": str, # i.e. ArrowDown
                                     "opacity": float,
                                     "input_id": int,
-                                    "row": int,}
+                                    "row": int,}}
         self.opacity_input_ids: list[int] = []
         self.opacity_key_pressed: dict = opacity_default_kp
         self.opacity_step_size: float = 0.1
@@ -230,10 +230,10 @@ class PaletteCreator:
         self.opacity: float = 1.0
 
         self.border_btn_hovered: int = 0
-        self.border_btn_ids: dict = {"modifier": str,
+        self.border_btn_ids: dict = {int: {"modifier": str,
                                     "key": str, # "ArrowUp"
                                     "border_width": float,
-                                    "row": int}
+                                    "row": int}}
         self.border_input_ids: list[int] = []
         self.border_key_pressed: dict = border_default_kp
         self.border_step_size: float = 1.0
@@ -408,6 +408,7 @@ add_event_keyboard(enabled=True,
 def opacity_btn_pressed(btn_id_: int, op_input_id: int):
     """Increment or decrement opacity based on stored modifier-key combination."""
     if btn_id_ not in pc.opacity_btn_ids:
+        print("Opacity button id not found")
         return
 
     btn_state = pc.opacity_btn_ids[btn_id_]

@@ -1,6 +1,6 @@
 //! ipg_float
 
-use iced::{Element, Vector};
+use iced::{Element, Vector, Widget};
 use iced::widget::float;
 
 use pyo3::{pyclass, Py, PyAny};
@@ -48,7 +48,7 @@ impl Float {
             } else {
                 Vector::ZERO
             }
-        }).into())
+        }).boxed())
     }
 }
 

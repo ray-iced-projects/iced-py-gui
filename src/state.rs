@@ -30,7 +30,7 @@ use crate::widgets::ipg_file_system::FileSystemDialog;
 use crate::widgets::ipg_input_float::{InputFloat, InputFloatStyle};
 use crate::widgets::ipg_input_int::{InputInt, InputIntStyle};
 use crate::widgets::ipg_menu::{Menu, MenuBarItem, MenuSubItem, MenuStyle};
-use crate::widgets::ipg_popup::PopUp;
+// use crate::widgets::ipg_popup::PopUp;
 use iced::widget::Id;
 use iced::Point;
 use crate::widgets::ipg_events::Events;
@@ -88,7 +88,7 @@ pub enum Containers {
     MenuSubItem(MenuSubItem),
     MouseArea(MouseArea),
     Opaque(Opaque),
-    PopUp(PopUp),
+    // PopUp(PopUp),
     RichText(RichText),
     Sash(Sash),
     Stack(Stack),
@@ -268,7 +268,7 @@ ipg_container_accessors! {
     MenuSubItem  => MenuSubItem,  as_menu_sub_item,   as_menu_sub_item_mut;
     MouseArea    => MouseArea,    as_mouse_area,      as_mouse_area_mut;
     Opaque       => Opaque,       as_opaque,          as_opaque_mut;
-    PopUp        => PopUp,        as_popup,           as_popup_mut;
+    // PopUp        => PopUp,        as_popup,           as_popup_mut;
     RichText     => RichText,     as_rich_text,       as_rich_text_mut;
     Row          => Row,          as_row,             as_row_mut;
     Scrollable   => Scrollable,   as_scrollable,      as_scrollable_mut;

@@ -4,7 +4,7 @@ use crate::py_api::helpers::{get_len, get_padding};
 use crate::widgets::widget_param_update::{
     WidgetParamUpdate, set_t_value};
 
-use iced::{Alignment, Element, alignment};
+use iced::{Alignment, Element, alignment, Widget};
 use iced::widget;
 
 use pyo3::{pyclass, Py, PyAny};
@@ -75,7 +75,7 @@ impl Column {
             } else { col };
 
         let wrap = if self.wrap.is_none() {
-            return Some(col.into())
+            return Some(col.boxed())
         } else {
             col.wrap()
         };
@@ -98,7 +98,7 @@ impl Column {
                 wrap.align_y(align)
             } else { wrap };
 
-        Some(wrap.into())
+        Some(wrap.boxed())
 
     }
 }

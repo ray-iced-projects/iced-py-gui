@@ -1,7 +1,7 @@
 //! ipg_text
 use std::collections::HashMap;
 
-use iced::{Element, alignment};
+use iced::{Element, alignment, Widget};
 use iced::widget::text::{Style, Wrapping};
 use iced::widget;
 
@@ -173,7 +173,7 @@ impl Text {
                 txt.wrapping(Wrapping::WordOrGlyph)
             } else { txt };
 
-        Some(txt.into())
+        Some(txt.boxed())
 
     }
 }

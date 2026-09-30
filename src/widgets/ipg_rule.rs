@@ -3,7 +3,7 @@
 use std::collections::HashMap;
 
 use iced::widget::rule::{self, FillMode, Style};
-use iced::{Element, Theme};
+use iced::{Element, Theme, Widget};
 use iced::widget::Container;
 
 use pyo3::{pyclass, Py, PyAny};
@@ -65,7 +65,7 @@ impl Rule {
         };
 
 
-        Some(Container::new(rul).into())
+        Some(Container::new(rul).boxed())
 
     }
 }

@@ -1,7 +1,7 @@
 //!Helpers
 use chrono::{NaiveDate, Datelike};
 use iced::advanced::widget::Text;
-use iced::{Element, Length, Renderer, Theme, alignment};
+use iced::{Element, Length, Renderer, Theme, alignment, Widget};
 
 use iced::widget::{Button, Container, PickList, Row, Space};
 use iced::widget::{button, container, column, row, space, text};
@@ -18,31 +18,31 @@ pub fn get_content(size: Option<f32>, dpc: &DpContent) -> Element<'static, DPMes
             
             // Column titles S M T W T F S
             row(
-                vec![space().width(7.0*size).into(), 
+                vec![space().width(7.0*size).boxed(), 
                 create_day_row(size)]
-            ).width(Length::Fill).into(),
+            ).width(Length::Fill).boxed(),
             
             // days of the month
             row(
-                vec![Space::new().width(5.0*size).into(), 
+                vec![Space::new().width(5.0*size).boxed(), 
                 get_calendar_days(size, dpc),
-                ]).width(Length::Fill).into(),
+                ]).width(Length::Fill).boxed(),
 
             // close btn and format picklist
             row(
-                vec![Space::new().width(5.0*size).into(), 
+                vec![Space::new().width(5.0*size).boxed(), 
                 create_select_row(
                     dpc.selected_format.clone(), 
                     size),
-                ]).width(Length::Fill).into(),
+                ]).width(Length::Fill).boxed(),
             
             // bottom submit btn and selected date, if any
             row(
-                vec![Space::new().width(5.0*size).into(),
+                vec![Space::new().width(5.0*size).boxed(),
                 create_submit_row(
                         size, 
                         dpc.selected_date.clone())
-                ]).width(Length::Fill).into(),
+                ]).width(Length::Fill).boxed(),
             
         ])
         .spacing(3.0*size)
@@ -60,7 +60,7 @@ pub fn get_content(size: Option<f32>, dpc: &DpContent) -> Element<'static, DPMes
                 container::bordered_box(theme)
             });
 
-    cont.into()
+    cont.boxed()
 
 }
 
@@ -122,20 +122,20 @@ fn create_first_row_arrows(
             .align_x(alignment::Horizontal::Center)
             .align_y(alignment::Vertical::Center)
             .width(Length::Fixed(month_container_width))
-            .into();
+            .boxed();
 
     let f_row: Element<DPMessage, Theme, Renderer> = row(vec![
         arrow_button(left_arrow_icon(arrow_size), DPMessage::MonthLeftPressed(dpc.selected_month_index), w, h),
         selected_month_cont,
         arrow_button(right_arrow_icon(arrow_size), DPMessage::MonthRightPressed(dpc.selected_month_index), w, h),
         arrow_button(left_arrow_icon(arrow_size), DPMessage::YearLeftPressed, w, h),
-        text(dpc.selected_year).size(text_size).into(),
+        text(dpc.selected_year).size(text_size).boxed(),
         arrow_button(right_arrow_icon(arrow_size), DPMessage::YearRightPressed, w, h),
     ])
     .spacing(2)
     .align_y(iced::Alignment::Center)
     .width(Length::Fill)
-    .into();
+    .boxed();
 
     f_row
 
@@ -205,7 +205,7 @@ fn get_calendar_days(
                         Space::new()
                             .width(15.0*size_factor)
                             .height(15.0*size_factor)
-                            .into());
+                            .boxed());
                 }
             }
             if day <= days as usize && start_weekday {
@@ -230,14 +230,14 @@ fn get_calendar_days(
                                     button::primary(theme, status)
                                 }}
                             )
-                        .into();
+                        .boxed();
 
                 cal_row.push(btn);
 
             }
         }
         
-        calendar_days.push(Row::with_children(cal_row).spacing(5.0*size_factor).into());
+        calendar_days.push(Row::with_children(cal_row).spacing(5.0*size_factor).boxed());
     
     }
 
@@ -246,7 +246,7 @@ fn get_calendar_days(
         .width(Length::Fill)
         .padding(0);
 
-    let col: Element<'static, DPMessage, Theme, Renderer> = col.into();
+    let col: Element<'static, DPMessage, Theme, Renderer> = col.boxed();
     col
 }
 
@@ -260,7 +260,7 @@ fn create_day_row(size_factor: f32) -> Element<'static, DPMessage, Theme, Render
             .into())
             .collect::<Vec<Element<'static, DPMessage, Theme, Renderer>>>();
 
-    Row::with_children(days).spacing(15.0*size_factor).width(Length::Fill).into()
+    Row::with_children(days).spacing(15.0*size_factor).width(Length::Fill).boxed()
 }
 
 fn create_select_row(
@@ -283,7 +283,7 @@ fn create_select_row(
             .on_press(DPMessage::HideModal)
             .padding(2.0)
             .style(button::primary)
-            .into();
+            .boxed();
                                 
     let picklist: Element<DPMessage, Theme, Renderer> = 
         PickList::new(
@@ -294,7 +294,7 @@ fn create_select_row(
         .on_select(DPMessage::DatePickerFormat)
         .text_size(8.0*size_factor)
         .placeholder("Choose format...")
-        .into();
+        .boxed();
     
     Row::with_children(vec![
         Row::with_children(vec![
@@ -302,9 +302,10 @@ fn create_select_row(
             picklist,    
         ]).width(Length::Fill)
         .spacing(10.0*size_factor)
-        .into(),
+        .boxed(),
 
-    ]).into()  
+    ]).boxed()
+
 }
 
 
@@ -319,14 +320,14 @@ fn create_submit_row(size_factor: f32, selected_date: String) -> Element<'static
             .padding(3.0)
             .on_press(DPMessage::OnSubmit)
             .style(button::primary)
-            .into();
+            .boxed();
 
     let clip_btn: Element<DPMessage, Theme, Renderer> = 
         Button::new(clip_text)
             .padding(3.0)
             .on_press(DPMessage::CopyToClipBoard)
             .style(button::primary)
-            .into();
+            .boxed();
     
     Row::new()
         .push(submit_btn)
@@ -335,16 +336,19 @@ fn create_submit_row(size_factor: f32, selected_date: String) -> Element<'static
         .width(Length::Fill)
         .spacing(10.0*size_factor)
         .wrap()
-        .into()
+        .boxed()
+
 }
 
 use crate::graphics::BOOTSTRAP_FONT;
 fn icon(unicode: char, size: f32) -> Text<'static, Theme> {
+    
     text(unicode.to_string())
         .font(BOOTSTRAP_FONT)
         .size(size)
         .align_x(alignment::Horizontal::Center)
         .align_y(alignment::Vertical::Center)
+        
 }
 
 fn left_arrow_icon(size: f32) -> Text<'static, Theme> {
@@ -364,5 +368,5 @@ fn arrow_button(icon: Text<'static, Theme>, message: DPMessage, width: f32, heig
             .height(height)
             .padding(0)
             .style(button::text)
-            .into()
+            .boxed()
 }

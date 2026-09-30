@@ -2,7 +2,7 @@
 
 use std::collections::HashMap;
 
-use iced::Element;
+use iced::{Element, Widget};
 use iced::time::seconds;
 use iced::widget::{self, container, text};
 use pyo3::{pyclass, Py, PyAny};
@@ -24,7 +24,6 @@ pub struct ToolTip {
     pub position_right: Option<bool>,
     pub text: Option<String>,
     pub gap: Option<u32>,
-    pub padding: Option<f32>,
     pub snap_within_viewport: Option<bool>,
     pub delay_sec: Option<u64>,
     pub style_id: Option<usize>,
@@ -65,23 +64,22 @@ impl ToolTip {
 
         let tooltip: Element<'a, Message> = 
             if let Some(txt) = &self.text {
-                    text(txt).into()
+                    text(txt).boxed()
                 } else {
                     if content.len() < 2 {
                         text("If you are not using the text parameter,
-                            \nyou must use two widgets/containers").into()
+                            \nyou must use two widgets/containers").boxed()
                     } else {
                         content.remove(0)
                     }
                 };
 
-        let tt: Element<'a, Message> = widget::tooltip::Tooltip::new(
+        let tt = widget::tooltip::Tooltip::new(
                 content.remove(0),
                 tooltip,
                 position,
                 )
                 .gap(self.gap.unwrap_or(0))
-                .padding(self.padding.unwrap_or(0.0))
                 .snap_within_viewport(self.snap_within_viewport.unwrap_or(false))
                 .delay(seconds(self.delay_sec.unwrap_or(0)))
                 .style(move|theme|
@@ -94,7 +92,7 @@ impl ToolTip {
                         }
                     }
                 )
-                .into();
+                .boxed();
         Some(tt)
     }
 }
@@ -108,7 +106,6 @@ pub enum ToolTipParam {
     ContentId,
     DelaySec,
     Gap,
-    Padding,
     PositionFollowCursor,
     PositionBottom,
     PositionLeft,
@@ -132,7 +129,6 @@ impl WidgetParamUpdate for ToolTip {
             ToolTipParam::ContentId => set_t_value(&mut self.style_id, value, "ToolTipParam::ContentId"),
             ToolTipParam::DelaySec => set_t_value(&mut self.delay_sec, value, "ToolTipParam::DelaySec"),
             ToolTipParam::Gap => set_t_value(&mut self.gap, value, "ToolTipParam::Gap"),
-            ToolTipParam::Padding => set_t_value(&mut self.padding, value, "ToolTipParam::Padding"),
             ToolTipParam::PositionBottom => set_t_value(&mut self.position_bottom, value, "ToolTipParam::PositionBottom"),
             ToolTipParam::PositionFollowCursor => set_t_value(&mut self.position_follow_cursor, value, "ToolTipParam::PositionFollowCursor"),
             ToolTipParam::PositionLeft => set_t_value(&mut self.position_left, value, "ToolTipParam::PositionBottom"),

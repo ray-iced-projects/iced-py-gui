@@ -14,7 +14,7 @@ use super::callbacks::invoke_callback_with_args;
 use iced::widget::pick_list::{self, Status};
 use iced::widget::text::Ellipsis;
 use iced::{Pixels, Theme};
-use iced::{Element};
+use iced::{Element, Widget};
 use iced::widget;
 use iced::widget::pick_list::Handle;
 use iced::overlay::menu;
@@ -118,8 +118,8 @@ impl PickList {
             pl.line_height(lh)
         } else { pl };
 
-        let pl: Element<'_, PLMessage> = pl.into();
-        Some(pl.map(move |message| app::Message::PickList(self.id, message)))
+        let pl: Element<'_, PLMessage> = pl.boxed();
+        Some(pl.map(move |message| app::Message::PickList(self.id, message)).boxed())
 
     }
  }

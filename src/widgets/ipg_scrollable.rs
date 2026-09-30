@@ -12,8 +12,8 @@ use crate::widgets::widget_param_update::{
 
 use std::collections::HashMap;
 use iced::widget::scrollable;
-use iced::widget::scrollable::Viewport;
-use iced::{Element, Theme};
+use iced::widget::scrollable::Scroll;
+use iced::{Element, Theme, Widget};
 use iced::widget::Column;
 
 use pyo3::pyclass;
@@ -53,7 +53,7 @@ impl Scrollable {
         let ipg_scroll_style  = self.lookup(widgets, self.style_id)
             .and_then(Widgets::as_scrollable_style).cloned();
 
-        let content: Element<'a, Message> = Column::with_children(content).into();
+        let content = Column::with_children(content).boxed();
 
         let sb_x_opt = self.lookup(widgets, self.scroller_x_id);
         let sb_y_opt = self.lookup(widgets, self.scroller_y_id);
@@ -90,8 +90,8 @@ impl Scrollable {
             .width(get_len(self.fill, self.width_fill, self.width))
             .height(get_len(self.fill, self.height_fill, self.height))
             .auto_scroll(self.auto_scroll.unwrap_or(false))
-            .on_scroll(move|vp| 
-                Message::Scrolled(vp, self.id))
+            .on_scroll(move|scr| 
+                Message::Scrolled(self.id, scr))
             .style(move|theme, status| {
                 if let Some(ipg_style) = &ipg_scroll_style {
                     ipg_style.set_style(theme, status, widgets)
@@ -100,7 +100,7 @@ impl Scrollable {
                 }
                 
             })
-            .into())
+            .boxed())
         
     }
 }
@@ -219,26 +219,24 @@ impl Scroller {
     }
 }
 
-pub fn scrollable_callback(id: usize, vp: Viewport) {
+pub fn scrollable_callback(id: usize, scroll: Scroll) {
     let mut hmap = HashMap::new();
-    hmap.insert("abs_x".to_string(), vp.absolute_offset().x);
-    hmap.insert("abs_y".to_string(), vp.absolute_offset().y);
-    hmap.insert("rel_x".to_string(), vp.relative_offset().x);
-    hmap.insert("rel_y".to_string(), vp.relative_offset().y);
-    hmap.insert("rev_x".to_string(), vp.absolute_offset_reversed().x);
-    hmap.insert("rev_y".to_string(), vp.absolute_offset_reversed().y);
+    hmap.insert("abs_x".to_string(), scroll.viewport.absolute_offset().x);
+    hmap.insert("abs_y".to_string(), scroll.viewport.absolute_offset().y);
+    hmap.insert("rel_x".to_string(), scroll.viewport.relative_offset().x);
+    hmap.insert("rel_y".to_string(), scroll.viewport.relative_offset().y);
+    hmap.insert("rev_x".to_string(), scroll.viewport.absolute_offset_reversed().x);
+    hmap.insert("rev_y".to_string(), scroll.viewport.absolute_offset_reversed().y);
     
-    let bounds = vp.bounds();
+    let bounds = scroll.viewport.bounds;
     hmap.insert("bounds_x".to_string(), bounds.x);
     hmap.insert("bounds_y".to_string(), bounds.y);
     hmap.insert("bounds_width".to_string(), bounds.width);
     hmap.insert("bounds_height".to_string(), bounds.height);
 
-    let content = vp.content_bounds();
-    hmap.insert("content_x".to_string(), content.x);
-    hmap.insert("content_y".to_string(), content.y);
-    hmap.insert("content_width".to_string(), content.width);
-    hmap.insert("content_height".to_string(), content.height);
+    let size = scroll.viewport.content;
+    hmap.insert("content_width".to_string(), size.width);
+    hmap.insert("content_height".to_string(), size.height);
     
     invoke_callback_with_args(id, CallbackName::OnScroll, "Scrollable", hmap,
                 "def cb(wid: int, scroll_data: dict)");

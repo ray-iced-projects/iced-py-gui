@@ -5,7 +5,7 @@ use std::collections::HashMap;
 
 use iced::widget::text_input;
 use iced::widget::text_input::{Style, Status};
-use iced::{Border, Element, Length, Theme, alignment};
+use iced::{Border, Element, Length, Theme, alignment, Widget};
 use iced::widget;
 use iced::theme::palette::{self, Background};
 
@@ -98,20 +98,15 @@ impl TextInput {
             txt.line_height(lh)
         } else { txt };
 
-        // default
-        let txt = txt.align_x(alignment::Horizontal::Left);
+        let align = match (self.align_center, self.align_left, self.align_right) {
+            (Some(true), None, None) => alignment::Horizontal::Center,
+            (None, None, Some(true)) => alignment::Horizontal::Right,
+            (None, Some(true), None) | _ => alignment::Horizontal::Left,
+        };
 
-        let txt = if self.align_center == Some(true) {
-            txt.align_x(alignment::Horizontal::Center)
-        } else { txt };
+        let txt = txt.align_x(align).boxed();
 
-        let txt = if self.align_right == Some(true) {
-            txt.align_x(alignment::Horizontal::Right)
-        } else { txt };
-
-        let txt: Element<'_, TIMessage> = txt.into();
-
-        Some(txt.map(move |message| Message::TextInput(self.id, message)))
+        Some(txt.map(move |message| Message::TextInput(self.id, message)).boxed())
 
     }
 

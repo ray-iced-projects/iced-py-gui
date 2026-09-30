@@ -202,7 +202,7 @@ where
 }
 
 impl<Message, Theme, Renderer> Widget<Message, Theme, Renderer>
-    for Popup<'_, Message, Theme, Renderer>
+    for Popup
 where
     Theme: container::Catalog,
     Renderer: text::Renderer,
@@ -245,7 +245,7 @@ where
             Some(widget) => widget
                 .as_widget_mut()
                 .layout(&mut tree.children[0], renderer, limits),
-            None => layout::Node::new(Size::new(0.0, 0.0)),
+            None => Size::new(0.0, 0.0),
         }
     }
 
@@ -253,7 +253,7 @@ where
         &mut self,
         tree: &mut widget::Tree,
         event: &Event,
-        layout: Layout<'_>,
+        layout: Layout,
         cursor: mouse::Cursor,
         renderer: &Renderer,
         shell: &mut Shell<'_, Message>,

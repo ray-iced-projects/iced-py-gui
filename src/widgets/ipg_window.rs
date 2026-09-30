@@ -5,7 +5,7 @@ use iced::theme::palette;
 use iced::widget::Column;
 use iced::window::settings::PlatformSpecific;
 use iced::window::{self, Level, Position, icon};
-use iced::{Color as IcedColor, Element, Size, Task, Theme};
+use iced::{Color as IcedColor, Element, Size, Task, Theme, Widget};
 
 use pyo3::{pyclass, Py, PyAny};
 type PyObject = Py<PyAny>;
@@ -211,7 +211,7 @@ pub fn add_windows(state: &mut IpgState) -> Vec<Task<Message>> {
 }
 
 pub fn construct_window(content: Vec<Element<Message>>) -> Element<Message> {
-    Column::with_children(content).into()
+    Column::with_children(content).boxed()
 }
 
 #[derive(Debug, Clone, PartialEq, Hash)]

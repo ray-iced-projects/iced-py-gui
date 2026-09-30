@@ -2,7 +2,7 @@
 
 use std::collections::HashMap;
 
-use iced::{Element, Length, Theme};
+use iced::{Element, Length, Theme, Widget};
 use iced::widget::{self, progress_bar};
 
 use pyo3::{pyclass, Py, PyAny};
@@ -68,7 +68,7 @@ impl ProgressBar {
                             progress_bar::primary(theme)
                         }
                     })
-                .into()
+                .boxed()
         )
 
     }

@@ -2,6 +2,7 @@
 use std::collections::HashMap;
 use std::time::Instant;
 
+use iced::Widget;
 use iced::time::milliseconds;
 use iced::widget::{Column, scrollable};
 use iced::window;
@@ -30,7 +31,7 @@ use crate::widgets::ipg_draw::{draw_callback, process_draw_updates};
 use crate::widgets::ipg_events::{process_keyboard_events, process_mouse_events, process_touch_events, process_window_event};
 use crate::widgets::ipg_mouse_area::{MaMessage, mousearea_callback};
 use crate::widgets::ipg_pick_list::{PLMessage, pick_list_callback};
-use crate::widgets::ipg_popup::{PopUpMessage, popup_callback};
+// use crate::widgets::ipg_popup::{PopUpMessage, popup_callback};
 use crate::widgets::ipg_radio::{RDMessage, radio_callback};
 use crate::widgets::ipg_scrollable::scrollable_callback;
 use crate::widgets::ipg_slider::{SldMessage, slider_callback};
@@ -63,11 +64,11 @@ pub enum Message {
     InputInt(usize, InputIntMessage),
     MouseArea(usize, MaMessage),
     PickList(usize, PLMessage),
-    PopUp(usize, PopUpMessage),
+    // PopUp(usize, PopUpMessage),
     Radio(usize, RDMessage),
     RichTextLinkClicked(usize, usize),
     Sash(usize, SashMessage),
-    Scrolled(scrollable::Viewport, usize),
+    Scrolled(usize, scrollable::Scroll),
     Slider(usize, SldMessage),
     Table(usize, TableBasicMessage),
     TextEditor(usize, TxtEdMessage),
@@ -256,12 +257,12 @@ impl App {
                 process_draw_updates(&mut self.state);
                 get_tasks(&mut self.state)
             },
-            Message::PopUp(id, message) => {
-                popup_callback(id, message);
-                process_widget_updates(&mut self.state);
-                process_draw_updates(&mut self.state);
-                Task::none()
-            }
+            // Message::PopUp(id, message) => {
+            //     popup_callback(id, message);
+            //     process_widget_updates(&mut self.state);
+            //     process_draw_updates(&mut self.state);
+            //     Task::none()
+            // }
             Message::Radio(id, message) => {
                 radio_callback(&mut self.state, id, message);
                 process_widget_updates(&mut self.state);
@@ -277,8 +278,8 @@ impl App {
                 sash_callback(&mut self.state, widget_id, message);
                 Task::none()
             },
-            Message::Scrolled(vp, id) => {
-                scrollable_callback(id, vp);
+            Message::Scrolled(id, scroll) => {
+                scrollable_callback(id, scroll);
                 process_widget_updates(&mut self.state);
                 get_tasks(&mut self.state)
             },
@@ -318,7 +319,7 @@ impl App {
         
     }
 
-    pub fn view(&self, window_id: window::Id) -> Element<'_, Message> {
+    pub fn view(&self, window_id: window::Id) -> impl Widget<Message> {
 
         let (debug, theme) = get_window_values(window_id, &self.state);
  
@@ -327,9 +328,9 @@ impl App {
         
         if debug {
             let color = match_theme_with_debug_color(theme);
-                content.explain(color)  
+                content.explain(color).boxed()
         } else {
-            content
+            content.boxed()
         }
 
     }
@@ -569,7 +570,7 @@ fn create_content<'a>(
     iced_id: window::Id, 
     state: &'a IpgState, 
     // canvas_state: &'a IpgCanvasState
-    ) -> Element<'a, Message> {
+    ) -> impl Widget<Message> {
     
     let ipg_window_id_opt = state.windows_iced_ipg_ids.get(&iced_id);
 
@@ -703,7 +704,7 @@ fn get_children<'a>(parents: &Vec<ParentChildIds>,
                 index: &usize, 
                 parent_ids: &Vec<usize>, 
                 state: &'a IpgState,
-                ) -> Option<Element<'a, Message>> 
+                ) -> Option<Element<'a, Message>>
 {
 
     let mut content= vec![];
@@ -741,7 +742,7 @@ fn get_children<'a>(parents: &Vec<ParentChildIds>,
     if id != &0 {
         get_container(state, id, content)
     } else {
-        Some(Column::with_children(content).into())  // the final container
+        Some(Column::with_children(content).boxed())  // the final container
     }
 }
 
@@ -973,12 +974,12 @@ fn get_container<'a>(state: &'a IpgState,
                 Containers::Opaque(op) => {
                     op.construct(content)
                 },
-                Containers::PopUp(pu) => {
-                    if content.len() > 2 {
-                        eprintln!("[WARNING] A PopUp can have only 1 or 2 widgets, If 1 widget, the PopUp is hidden until shown by updating the Opened parameter to true, if 2 widgets, then the first one is a widget that allows a callback to update the PopUp like a Button, etc.  The second should be a Container containing all of the other widgets to be displayed. All other added widgets ignored.")
-                    }
-                    pu.construct(content)
-                },
+                // Containers::PopUp(pu) => {
+                //     if content.len() > 2 {
+                //         eprintln!("[WARNING] A PopUp can have only 1 or 2 widgets, If 1 widget, the PopUp is hidden until shown by updating the Opened parameter to true, if 2 widgets, then the first one is a widget that allows a callback to update the PopUp like a Button, etc.  The second should be a Container containing all of the other widgets to be displayed. All other added widgets ignored.")
+                //     }
+                //     pu.construct(content)
+                // },
                 Containers::Sash(sh) => {
                     sh.construct(content, &state.widgets)
                 },

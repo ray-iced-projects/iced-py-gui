@@ -7,7 +7,7 @@ use iced::theme::palette::{self, Background};
 use iced::widget;
 use iced::widget::text_input;
 use iced::widget::text_input::{Status, Style};
-use iced::{Border, Element, Length, Theme, alignment};
+use iced::{Border, Element, Length, Theme, alignment, Widget};
 
 use pyo3::pyclass;
 use pyo3::{Py, PyAny};
@@ -79,7 +79,7 @@ impl InputFloat {
             String::new()
         };
 
-        let txt_input: widget::TextInput<'_, InputFloatMessage> =
+        let txt_input =
             widget::TextInput::new(placeholder, value.clone())
                 .on_input(InputFloatMessage::OnInput)
                 .on_submit(InputFloatMessage::OnSubmit(value.clone()))
@@ -96,35 +96,22 @@ impl InputFloat {
 
         let txt_input = if let Some(sz) = self.size {
             txt_input.size(sz)
-        } else {
-            txt_input
-        };
+        } else { txt_input };
 
         let txt_input = if let Some(lh) = self.line_height {
             txt_input.line_height(lh)
-        } else {
-            txt_input
+        } else { txt_input };
+
+        let align = match (self.align_center, self.align_left, self.align_right) {
+            (Some(true), None, None) => alignment::Horizontal::Center,
+            (None, None, Some(true)) => alignment::Horizontal::Right,
+            (None, Some(true), None) | _ => alignment::Horizontal::Left,
         };
 
-        // default
-        let txt_input = txt_input.align_x(alignment::Horizontal::Left);
-
-        let txt_input = if self.align_center == Some(true) {
-            txt_input.align_x(alignment::Horizontal::Center)
-        } else {
-            txt_input
-        };
-
-        let txt_input = if self.align_right == Some(true) {
-            txt_input.align_x(alignment::Horizontal::Right)
-        } else {
-            txt_input
-        };
-
-        let txt_input: Element<'a, InputFloatMessage> = txt_input.into();
+        let txt_input = txt_input.align_x(align).boxed();
 
         let id = self.id;
-        let ti = txt_input.map(move |message| Message::InputFloat(id, message));
+        let ti = txt_input.map(move |message| Message::InputFloat(id, message)).boxed();
 
         let cnt = if self.left_side == Some(true) {
             let mut cnt = content;
@@ -136,7 +123,7 @@ impl InputFloat {
             cnt
         };
 
-        Some(iced::widget::Row::with_children(cnt).into())
+        Some(iced::widget::Row::with_children(cnt).boxed())
     
     }
 }

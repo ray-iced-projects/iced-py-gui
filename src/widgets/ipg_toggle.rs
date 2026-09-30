@@ -5,7 +5,7 @@ use std::collections::HashMap;
 use iced::advanced::text;
 use iced::widget::{self, toggler};
 use iced::widget::text::Wrapping;
-use iced::{Element, Theme};
+use iced::{Element, Theme, Widget};
 
 use pyo3::{pyclass, Py, PyAny};
 
@@ -127,8 +127,8 @@ impl Toggler {
                 tog.wrapping(Wrapping::WordOrGlyph)
             } else { tog };
 
-        let tog: Element<'_, TOGMessage> = tog.into();
-        Some(tog.map(move |message| Message::Toggler(self.id, message)))
+        let tog = tog.boxed();
+        Some(tog.map(move |message| Message::Toggler(self.id, message)).boxed())
 
     }
 }

@@ -14,7 +14,7 @@ use crate::state::Widgets;
 
 use iced::widget::radio::{self, Status};
 use iced::widget::text::Wrapping;
-use iced::{Element, Theme, alignment};
+use iced::{Element, Theme, alignment, Widget};
 use iced::widget::{self, Column, Row};
 
 use pyo3::{pyclass, Py, PyAny};
@@ -133,10 +133,10 @@ impl Radio {
         }
 
         let elements: Vec<Element<'_, RDMessage>> = 
-            radio_elements.into_iter().map(|r| r.into()).collect();
+            radio_elements.into_iter().map(|r| r.boxed()).collect();
 
         let rd: Element<RDMessage> = if self.horizontal == Some(true) {
-                    let mut rw: Row<'_, RDMessage> = 
+                    let mut rw = 
                         Row::with_children(elements)
                             .width(get_len(self.fill, self.width_fill, self.width))
                             .height(get_len(self.fill, self.height_fill, self.height))
@@ -147,7 +147,7 @@ impl Radio {
                     }
 
                     if self.radio_wrap.is_none() {
-                        rw.into()
+                        rw.boxed()
                     } else {
                         let wrap = rw.wrap();
                         let wrap = 
@@ -168,10 +168,10 @@ impl Radio {
                                 wrap.align_x(align)
                             } else { wrap };
 
-                        wrap.into()
+                        wrap.boxed()
                     }
                 } else {
-                    let mut col: Column<'_, RDMessage> = 
+                    let mut col = 
                         Column::with_children(elements)
                             .padding(get_padding(&self.padding))
                             .width(get_len(self.fill, self.width_fill, self.width))
@@ -182,7 +182,7 @@ impl Radio {
                     }                                    
 
                     if self.radio_wrap.is_none() {
-                        col.into()
+                        col.boxed()
                     } else {
                         let wrap = col.wrap();
                         let wrap = 
@@ -203,11 +203,11 @@ impl Radio {
                                 wrap.align_y(align)
                             } else { wrap };
 
-                        wrap.into()
+                        wrap.boxed()
                     }                                                               
                 };
 
-        Some(rd.map(move |message| app::Message::Radio(self.id, message)))
+        Some(rd.map(move |message| app::Message::Radio(self.id, message)).boxed())
 
     }
 }

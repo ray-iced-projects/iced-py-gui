@@ -1,6 +1,6 @@
 //! ipg_space
 
-use iced::Element;
+use iced::{Element, Widget};
 use iced::widget;
 
 use pyo3::{pyclass, Py, PyAny};
@@ -31,7 +31,7 @@ impl Space {
         if self.show {
             Some(widget::Space::new()
                 .width(get_len(self.fill, self.width_fill, self.width))
-                .height(get_len(self.fill, self.height_fill, self.height)).into())
+                .height(get_len(self.fill, self.height_fill, self.height)).boxed())
         } else {
             None
         }

@@ -166,7 +166,7 @@ where
 }
 
 impl<Message, Theme, Renderer> Widget<Message, Theme, Renderer>
-    for ColorPicker<'_, Message, Theme, Renderer>
+    for ColorPicker
 where
     Theme: container::Catalog,
     Renderer: text::Renderer,

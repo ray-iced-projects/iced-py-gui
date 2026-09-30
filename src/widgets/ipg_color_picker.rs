@@ -4,6 +4,8 @@ use crate::state::{Containers};
 use crate::widgets::callbacks::{CallbackName, invoke_callback, invoke_callback_with_args};
 use crate::app::Message;
 
+use iced::Widget;
+
 use crate::ipg_widgets::ipg_color_picker::{
     ColorPicker as CP,
     Position,
@@ -43,8 +45,8 @@ impl ColorPicker {
         let id = self.id;
 
         let cpk: Element<'_, ColorPikMessage> = CP::new(
-            btn,
-            panel,
+            btn.boxed(),
+            panel.boxed(),
             self.cp.current_color(),
             self.position,
         )
@@ -52,9 +54,9 @@ impl ColorPicker {
         .on_open(ColorPikMessage::SetOpened)
         .gap(self.gap.unwrap_or(10))
         .style(container::rounded_box)
-        .into();
+        .boxed();
 
-        Some(cpk.map(move |message| Message::ColorPicker(id, message)))
+        Some(cpk.map(move |message| Message::ColorPicker(id, message)).boxed())
 
     }
 

@@ -4,14 +4,13 @@ use crate::app::Message;
 use crate::widgets::callbacks::{CallbackName, invoke_callback};
 use crate::widgets::widget_param_update::{WidgetParamUpdate, set_t_value};
 
-use iced::{Element, Pixels};
+use iced::{Element, Pixels, Widget};
 use iced::widget::column;
 
 use crate::ipg_widgets::ipg_popup::popup::{Popup, Position};
 
 use pyo3::{Py, PyAny, pyclass};
 type PyObject = Py<PyAny>;
-
 
 
 #[derive(Debug, Clone)]
@@ -60,7 +59,7 @@ impl PopUp {
                     // Two or more elements: first is widget, rest are content
                     let mut remaining = vec![second];
                     remaining.extend(iter);
-                    let popup_content: Element<'a, Message> = column(remaining).into();
+                    let popup_content: Element<'a, Message> = column(remaining).boxed();
                     Some(Popup::new(first, popup_content, self.opened)
                         .position(position)
                         .gap(self.gap.unwrap_or_default())
@@ -69,7 +68,7 @@ impl PopUp {
                         .focus_trap(self.focus_trap.unwrap_or_default())
                         .on_click_outside(|_| Message::PopUp(self.id, PopUpMessage::ClickedOutside))
                         .on_open(|| Message::PopUp(self.id, PopUpMessage::OnOpen))
-                        .on_close(|| Message::PopUp(self.id, PopUpMessage::OnClose)).into())
+                        .on_close(|| Message::PopUp(self.id, PopUpMessage::OnClose)).boxed())
                 } else {
                     // One element: use as popup content only
                     Some(Popup::without_widget(first, self.opened)
@@ -80,7 +79,7 @@ impl PopUp {
                         .focus_trap(self.focus_trap.unwrap_or_default())
                         .on_click_outside(|_| Message::PopUp(self.id, PopUpMessage::ClickedOutside))
                         .on_open(|| Message::PopUp(self.id, PopUpMessage::OnOpen))
-                        .on_close(|| Message::PopUp(self.id, PopUpMessage::OnClose)).into())
+                        .on_close(|| Message::PopUp(self.id, PopUpMessage::OnClose)).boxed())
                 }
             } else {
                 None

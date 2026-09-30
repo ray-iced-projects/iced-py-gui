@@ -1,11 +1,10 @@
 //! ipg_mousearea
 
-
 use crate::widgets::callbacks::{CallbackName, invoke_callback, invoke_callback_with_args};
 use crate::widgets::widget_param_update::{WidgetParamUpdate, set_t_value};
 use crate::app::Message;
 
-use iced::{Element, Point};
+use iced::{Element, Point, Widget};
 use iced::widget::{self, Column};
 use iced::mouse;
 
@@ -35,7 +34,7 @@ impl MouseArea {
         
         let pointer: mouse::Interaction = MousePointer::to_iced(pt);
 
-        let content: Element<Message> = Column::with_children(content).into();
+        let content: Element<Message> = Column::with_children(content).boxed();
 
         Some(widget::MouseArea::new(content)
             .on_press(Message::MouseArea(self.id, MaMessage::OnPress))
@@ -48,7 +47,7 @@ impl MouseArea {
             .on_move(move|p| Message::MouseArea(self.id, MaMessage::OnMove(p)))
             .on_exit(Message::MouseArea(self.id, MaMessage::OnExit))
             .interaction(pointer)
-            .into())
+            .boxed())
     
     
     }

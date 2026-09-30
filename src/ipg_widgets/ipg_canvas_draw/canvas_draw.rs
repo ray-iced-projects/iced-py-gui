@@ -7,7 +7,7 @@ use iced::widget::text::{LineHeight, Shaping};
 use iced::{Color, Font, Pixels, Radians, Vector, mouse};
 use iced::widget::canvas::Event;
 use iced::widget::canvas::{self, Canvas, Frame, Geometry, Path, Stroke};
-use iced::{Element, Fill, Point, Renderer, Theme};
+use iced::{Fill, Point, Renderer, Theme, Widget};
 use serde::{Deserialize, Serialize};
 
 use pyo3::pyclass;
@@ -509,7 +509,7 @@ impl DrawState {
         &'a self, 
         curves: &'a HashMap<Id, CanvasWidget>, 
         text_curves: &'a HashMap<Id, CanvasWidget>,
-    ) -> Element<'a, CanvasWidget> {
+    ) -> impl Widget<CanvasWidget> {
 
         Canvas::new(DrawPending {
             state: self,
@@ -518,7 +518,6 @@ impl DrawState {
         })
         .width(Fill)
         .height(Fill)
-        .into()
     }
 
     pub fn request_redraw(&mut self) {

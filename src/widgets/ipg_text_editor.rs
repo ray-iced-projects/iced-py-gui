@@ -9,7 +9,7 @@ use iced::Padding;
 use iced::Theme;
 use iced::widget;
 
-use iced::Element;
+use iced::{Element, Widget};
 use iced::widget::text::Wrapping;
 use iced::widget::text_editor;
 use pyo3::{pyclass, Py, PyAny};
@@ -125,8 +125,8 @@ impl TextEditor {
             te.padding(Padding::new(5.0))
         };
 
-        let te: Element<'_, TxtEdMessage> = te.into();
-        Some(te.map(move |message| Message::TextEditor(self.id, message)))
+        Some(te.map(move |message| Message::TextEditor(self.id, message)).boxed())
+        
     }
 
 }

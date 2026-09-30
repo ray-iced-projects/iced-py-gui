@@ -20,7 +20,7 @@ use iced::Vector;
 use iced::overlay::menu;
 use iced::widget::combo_box;
 use iced::widget::text::Ellipsis;
-use iced::Element;
+use iced::{Element, Widget};
 use iced::widget;
 
 use iced::widget::text_input;
@@ -134,8 +134,8 @@ impl ComboBox {
             cb.font(f.to_iced())
         } else { cb };
 
-        let cb: Element<'_, CBMessage> = cb.into();
-        Some(cb.map(move |message| app::Message::ComboBox(self.id, message)))
+        let cb = cb.boxed();
+        Some(cb.map(move |message| app::Message::ComboBox(self.id, message)).boxed())
 
     }
  }

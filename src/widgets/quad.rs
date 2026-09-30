@@ -2,22 +2,23 @@
 
 use iced::{
     advanced::{
-        layout::{Limits, Node},
         renderer,
         widget::Tree,
-        Layout, Widget,
+        widget,
+        layout::{self, Layout}, 
+        Widget,
     },
     border::Radius,
     mouse::Cursor,
-    Background, Border, Element, Length, Rectangle, Shadow, Size,
+    Background, Border, Length, Rectangle, Shadow, Size,
 };
 
 #[derive(Debug, Clone, Copy)]
 pub struct Quad {
     /// Width of the quad
-    pub width: Length,
+    pub width: f32,
     /// Height of the quad
-    pub height: Length,
+    pub height: f32,
     /// Methods for creating inner bounds
     pub inner_bounds: InnerBounds,
     /// Color of the quad
@@ -33,8 +34,8 @@ pub struct Quad {
 impl Default for Quad {
     fn default() -> Self {
         Self {
-            width: Length::Fill,
-            height: Length::Fill,
+            width: 0.0,
+            height: 0.0,
             inner_bounds: InnerBounds::Ratio(0.5, 0.5),
             quad_color: iced::Color::from([0.5; 3]).into(),
             quad_border: Border {
@@ -48,23 +49,27 @@ impl Default for Quad {
     }
 }
 
+impl widget::Meta for Quad {}
+
 impl<Message, Theme, Renderer> Widget<Message, Theme, Renderer> for Quad
-where
-    Renderer: renderer::Renderer,
+    where
+        Renderer: renderer::Renderer,
 {
     fn size(&self) -> Size<Length> {
-        Size::new(self.width, self.height)
-    }
+            Size {
+                width: Length::Shrink,
+                height: Length::Shrink,
+            }
+        }
 
-    fn layout(&mut self, _tree: &mut Tree, _renderer: &Renderer, limits: &Limits) -> Node {
-        let intrinsic = match self.inner_bounds {
-            InnerBounds::Square(l) => Size::new(l, l),
-            InnerBounds::Ratio(_, _) => Size::ZERO,
-        };
-        let limits = limits.width(self.width).height(self.height);
-        let size = limits.resolve(self.width, self.height, intrinsic);
-        Node::new(size)
-    }
+    fn layout(
+            &mut self,
+            tree: &mut widget::Tree,
+            _renderer: &Renderer,
+            _limits: &layout::Limits,
+        ) {
+            tree.size = Size::new(self.width, self.height);
+        }
 
     fn draw(
         &self,
@@ -72,7 +77,7 @@ where
         renderer: &mut Renderer,
         _theme: &Theme,
         _style: &renderer::Style,
-        layout: Layout<'_>,
+        layout: Layout,
         _cursor: Cursor,
         _viewport: &Rectangle,
     ) {
@@ -88,15 +93,6 @@ where
     }
 }
 
-impl<'a, Message, Theme, Renderer> From<Quad> for Element<'a, Message, Theme, Renderer>
-where
-    Renderer: 'a + renderer::Renderer,
-    Theme: 'a,
-{
-    fn from(value: Quad) -> Self {
-        Self::new(value)
-    }
-}
 
 #[derive(Debug, Clone, Copy)]
 pub enum InnerBounds {

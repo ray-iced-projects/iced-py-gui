@@ -1,6 +1,6 @@
 //! ipg_float
 
-use iced::Element;
+use iced::{Element, Widget};
 use iced::widget::grid;
 
 use pyo3::{pyclass, Py, PyAny};
@@ -49,7 +49,7 @@ impl Grid{
                 grd.columns(self.columns_amount)
             };
 
-        Some(grd.into())
+        Some(grd.boxed())
     }
 }
 

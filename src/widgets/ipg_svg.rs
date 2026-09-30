@@ -7,7 +7,7 @@ use crate::widgets::enums::ContentFit;
 use crate::widgets::widget_param_update::WidgetParamUpdate;
 use crate::widgets::widget_param_update::set_t_value;
 
-use iced::Element;
+use iced::{Element, Widget};
 use iced::Radians;
 use iced::Rotation;
 use iced::widget;
@@ -72,9 +72,9 @@ impl Svg{
 
         let svg = if let Some(op) = self.opacity {
             svg.opacity(op)
-        } else { svg }.into();
+        } else { svg };
 
-        Some(svg)
+        Some(svg.boxed())
 
     }
 }

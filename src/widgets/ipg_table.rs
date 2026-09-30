@@ -19,7 +19,7 @@ use crate::IpgState;
 
 use iced::border::Radius;
 use iced::widget::{scrollable::Scrollbar};
-use iced::{Border, Length, alignment, widget};
+use iced::{Border, Length, alignment, widget, Widget};
 use iced::Length::Fill;
 use iced::{Element, Renderer, Theme};
 use iced::widget::{Space, center, column, container, row, rule, scrollable, stack, text};
@@ -118,7 +118,7 @@ impl TableBasic {
         };
 
         let body = if let Some(sh) = self.scrollable_height {
-            scrollable(body).height(sh).into()
+            scrollable(body).height(sh).boxed()
         } else { body };
 
         let table = column![header, body];
@@ -126,7 +126,7 @@ impl TableBasic {
         Some(container(table)
             .style(move|theme| {
                 container::bordered_box(theme)
-            }).into())
+            }).boxed())
 
     }
 }
@@ -135,7 +135,7 @@ impl TableBasic {
 fn table_header<'a>(id: usize, header: &[String], sizes: Vec<f32>, height: f32) -> Element<'a, Message> {
 
     let sash: Element<'a, Message> = SashH::new(
-        header.iter().map(|col| center(text(col.clone())).center(Fill).into()).collect(),
+        header.iter().map(|col| center(text(col.clone())).center(Fill).boxed()).collect(),
         sizes.clone(),
         height,
         6.0,
@@ -145,13 +145,13 @@ fn table_header<'a>(id: usize, header: &[String], sizes: Vec<f32>, height: f32) 
     .sync_sashes(sizes.clone())
     .style(ipg_sash::sash::subtle)
     .clip(true)
-    .into();
+    .boxed();
 
     let rl = container(rule::horizontal(6.0)).width(Length::Fixed(sizes.iter().sum()));
     
     container(column![sash, rl])
         .style(container::rounded_box)
-        .into()
+        .boxed()
 }
 
 fn table_body<'a>(id: usize, body: &[Vec<String>], sizes: Vec<f32>, height: f32) -> Element<'a, Message> {
@@ -161,7 +161,7 @@ fn table_body<'a>(id: usize, body: &[Vec<String>], sizes: Vec<f32>, height: f32)
         .enumerate()
         .map(|(i, row)| {
             let sash: Element<'a, Message> = SashH::new(
-                row.iter().map(|cell| center(text(cell.clone()).size(14.0)).center(Fill).into()).collect(),
+                row.iter().map(|cell| center(text(cell.clone()).size(14.0)).center(Fill).boxed()).collect(),
                 sizes.clone(),
                 height,
                 6.0,
@@ -171,7 +171,7 @@ fn table_body<'a>(id: usize, body: &[Vec<String>], sizes: Vec<f32>, height: f32)
             .sync_sashes(sizes.clone())
             .style(ipg_sash::sash::subtle)
             .clip(true)
-            .into();
+            .boxed();
 
             if i % 2 == 1 {
                 container(sash)
@@ -189,14 +189,14 @@ fn table_body<'a>(id: usize, body: &[Vec<String>], sizes: Vec<f32>, height: f32)
                             ..Default::default()
                         }
                     })
-                    .into()
+                    .boxed()
             } else {
                 sash
             }
         })
         .collect();
     
-    column(rows).into()
+    column(rows).boxed()
 }
 
 fn load_csv(path: &str) -> Result<(Vec<String>, Vec<Vec<String>>), csv::Error> {
@@ -268,7 +268,7 @@ impl Table {
         }
         parts.push(container(rule::horizontal(6.0))
                     .width(Length::Fixed(sizes.iter().sum()
-                    )).into());
+                    )).boxed());
 
         if !sections.body.is_empty() {
             parts.push(adv_body(id, sections.body, sizes.clone(), self.row_height, sash_size, min_size));
@@ -284,7 +284,7 @@ impl Table {
 
         Some(container(column(parts))
             .style(container::rounded_box)
-            .into())
+            .boxed())
     }
 
 }
@@ -312,13 +312,13 @@ fn adv_header<'a>(
             .sync_sashes(sizes.clone())
             .style(ipg_sash::sash::subtle)
             .clip(true)
-            .into();
+            .boxed();
         header_rows.push(sash);
     }
-    header_rows.push(container(rule::horizontal(1)).width(Length::Fixed(total_width)).into());
+    header_rows.push(container(rule::horizontal(1)).width(Length::Fixed(total_width)).boxed());
     container(column(header_rows))
     .style(container::rounded_box)
-    .into()
+    .boxed()
 }
 
 /// Renders the body: flat cells chunked by col count, each chunk becomes a SashH row.
@@ -344,7 +344,7 @@ fn adv_body<'a>(
             .sync_sashes(sizes.clone())
             .style(ipg_sash::sash::subtle)
             .clip(true)
-            .into();
+            .boxed();
         if row_idx % 2 == 1 {
             rows.push(container(sash)
                 .style(|theme: &Theme| {
@@ -358,13 +358,13 @@ fn adv_body<'a>(
                     };
                     container::Style { background: Some(mid.into()), ..Default::default() }
                 })
-                .into());
+                .boxed());
         } else {
             rows.push(sash);
         }
         row_idx += 1;
     }
-    scrollable(column(rows)).into()
+    scrollable(column(rows)).boxed()
 }
 
 /// Renders the footer as a single SashH row with a dividing rule above.
@@ -383,13 +383,13 @@ fn adv_footer<'a>(
         .sync_sashes(sizes)
         .style(ipg_sash::sash::subtle)
         .clip(true)
-        .into();
+        .boxed();
     container(column![
         container(rule::horizontal(1)).width(Length::Fixed(total_width)),
         sash,
     ])
     .style(container::rounded_box)
-    .into()
+    .boxed()
 }
 
 #[derive(Debug, Clone, Default)]

@@ -16,6 +16,10 @@ use crate::{access_state, graphics::colors::Color,
 /// ----------
 /// parent_id : str
 ///     Sets the parent container ID that this separator belongs to.
+/// width : float, Optional
+///     Sets the Fixed width in logical pixels.
+/// height : float, Optional
+///     Sets the Fixed height in logical pixels.
 /// label : str, Optional
 ///     Sets the text label displayed in the separator.
 /// separator_type : SeparatorType, Optional
@@ -36,14 +40,6 @@ use crate::{access_state, graphics::colors::Color,
 ///     Sets the length of the separator line in logical pixels.
 /// line_thickness : float, Optional
 ///     Sets the thickness of the separator line in logical pixels.
-/// width : float, Optional
-///     Sets the Fixed width in logical pixels.
-/// width_fill : bool, default False
-///     Whether the separator fills available width.
-/// height : float, Optional
-///     Sets the Fixed height in logical pixels.
-/// height_fill : bool, default False
-///     Whether the separator fills available height.
 /// spacing : float, Optional
 ///     Sets the spacing between separator elements in logical pixels.
 /// style_id : int, Optional
@@ -60,6 +56,8 @@ use crate::{access_state, graphics::colors::Color,
 #[pyfunction]
 #[pyo3(signature = (
     parent_id,
+    width, 
+    height, 
     dot=None,
     label=None,
     line=None,
@@ -71,11 +69,6 @@ use crate::{access_state, graphics::colors::Color,
     dot_border_width=None,
     line_length=None,
     line_thickness=None,
-    width=None, 
-    width_fill=None, 
-    height=None, 
-    height_fill=None,
-    fill=None,
     spacing=None, 
     style_id=None,
     gen_id=None, 
@@ -83,6 +76,8 @@ use crate::{access_state, graphics::colors::Color,
     ))]
 pub fn add_separator(
     parent_id: String,
+    width: f32, 
+    height: f32, 
     dot: Option<bool>,
     label: Option<String>,
     line: Option<bool>,
@@ -94,11 +89,6 @@ pub fn add_separator(
     dot_border_width: Option<f32>,
     line_length: Option<f32>,
     line_thickness: Option<f32>,
-    width: Option<f32>, 
-    width_fill: Option<bool>,
-    height: Option<f32>,
-    height_fill: Option<bool>,
-    fill: Option<bool>,
     spacing: Option<f32>,
     style_id: Option<usize>,
     gen_id: Option<usize>,
@@ -114,6 +104,8 @@ pub fn add_separator(
     state.widgets.insert(id, Widgets::Separator(
         Separator {
             id,
+            width, 
+            height,
             dot,
             label,
             line,
@@ -125,11 +117,6 @@ pub fn add_separator(
             dot_border_width,
             line_length,
             line_thickness,
-            width, 
-            width_fill, 
-            height, 
-            height_fill,
-            fill,
             spacing,
             style_id,
             show,

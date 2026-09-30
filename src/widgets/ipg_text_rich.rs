@@ -3,7 +3,7 @@
 use std::collections::HashMap;
 
 use iced::widget::{self, span, text};
-use iced::{Border, Element};
+use iced::{Border, Element, Widget};
 
 use crate::app::Message;
 use crate::graphics::colors::Color;
@@ -145,7 +145,7 @@ impl RichText {
 
         rt = rt.on_link_click(move |link| Message::RichTextLinkClicked(self.id, link));
 
-        Some(rt.into())
+        Some(rt.boxed())
     }
 }
 

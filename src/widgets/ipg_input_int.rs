@@ -9,7 +9,7 @@ use iced::theme::palette::{self, Background};
 use iced::widget;
 use iced::widget::text_input;
 use iced::widget::text_input::{Status, Style};
-use iced::{Border, Element, Length, Theme, alignment};
+use iced::{Border, Element, Length, Theme, alignment, Widget};
 
 use pyo3::pyclass;
 use pyo3::{Py, PyAny};
@@ -68,7 +68,7 @@ impl InputInt {
 
         let padding = if pd.left == 0.0 { pd.left(2.0) } else { pd };
 
-        let txt_input: widget::TextInput<'_, InputIntMessage> =
+        let txt_input =
             widget::TextInput::new(self.placeholder.as_str(), self.value.as_str())
                 .on_input(InputIntMessage::OnInput)
                 .on_submit(InputIntMessage::OnSubmit(self.value.clone()))
@@ -85,34 +85,21 @@ impl InputInt {
 
         let txt_input = if let Some(sz) = self.size {
             txt_input.size(sz)
-        } else {
-            txt_input
-        };
+        } else { txt_input };
 
         let txt_input = if let Some(lh) = self.line_height {
             txt_input.line_height(lh)
-        } else {
-            txt_input
+        } else { txt_input };
+
+        let align = match (self.align_center, self.align_left, self.align_right) {
+            (Some(true), None, None) => alignment::Horizontal::Center,
+            (None, None, Some(true)) => alignment::Horizontal::Right,
+            (None, Some(true), None) | _ => alignment::Horizontal::Left,
         };
 
-        // default
-        let txt_input = txt_input.align_x(alignment::Horizontal::Left);
-
-        let txt_input = if self.align_center == Some(true) {
-            txt_input.align_x(alignment::Horizontal::Center)
-        } else {
-            txt_input
-        };
-
-        let txt_input = if self.align_right == Some(true) {
-            txt_input.align_x(alignment::Horizontal::Right)
-        } else {
-            txt_input
-        };
-
-        let txt_input: Element<'_, InputIntMessage> = txt_input.into();
-
-        let ti: Element<'a, Message> = txt_input.map(move |message| Message::InputInt(self.id, message));
+        let txt_input = txt_input.align_x(align).boxed();
+    
+        let ti: Element<'a, Message> = txt_input.map(move |message| Message::InputInt(self.id, message)).boxed();
 
         let arrows = if let Some(arrows) = &self.arrows {
             let mut many_arrows = vec![];
@@ -140,7 +127,7 @@ impl InputInt {
                                 iced::widget::button::text(theme, status)
                             }
                         })
-                        .into(),
+                        .boxed(),
                 )
             }
             buttons
@@ -149,7 +136,8 @@ impl InputInt {
         let mut content = vec![ti];
         content.extend(btns);
 
-        Some(iced::widget::Row::with_children(content).into())
+        Some(iced::widget::Row::with_children(content).boxed())
+
     }
 }
 

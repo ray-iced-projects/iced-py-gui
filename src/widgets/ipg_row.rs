@@ -1,6 +1,6 @@
 //! ipg_row
 
-use iced::{Alignment, Element, alignment};
+use iced::{Alignment, Element, alignment, Widget};
 use iced::widget;
 
 use pyo3::{pyclass, Py, PyAny};
@@ -43,28 +43,20 @@ impl Row {
 
         if !self.show { return None }
 
-        let row = 
+        let mut row = 
             widget::Row::with_children(content)
                 .width(get_len(self.fill, self.width_fill, self.width))
                 .height(get_len(self.fill, self.height_fill, self.height));
-                            
-        let row = 
-            if self.align_top ==  Some(true) {
-                    row.align_y(Alignment::Start)
-                } else { row };
 
-        let row = 
-            if self.align_center ==  Some(true) {
-                    row.align_y(Alignment::Center)
-                } else { row };
+        let align = match (self.align_top, self.align_center, self.align_bottom) {
+            (None, Some(true), None) => Alignment::Center,
+            (None, None, Some(true)) => Alignment::End,
+            (Some(true), None, None) | _ => Alignment::Start,
+        };
 
-        let row = 
-            if self.align_bottom ==  Some(true) {
-                    row.align_y(Alignment::End)
-                } else { row };
+        row = row.align_y(align);
 
-        let row = 
-            row.padding(get_padding(&self.padding));
+        row = row.padding(get_padding(&self.padding));
 
         let row = 
             if let Some(sp) = self.spacing {
@@ -77,7 +69,7 @@ impl Row {
             } else { row };
 
         let wrap = if self.wrap.is_none() {
-            return Some(row.into())
+            return Some(row.boxed())
         } else {
             row.wrap()
         };
@@ -100,7 +92,7 @@ impl Row {
                 wrap.align_x(align)
             } else { wrap };
 
-        Some(wrap.into())
+        Some(wrap.boxed())
     }
 }
 

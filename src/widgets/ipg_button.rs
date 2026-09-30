@@ -10,6 +10,7 @@ use crate::state::{IpgState, Widgets, access_widget_parameters};
 use crate::widgets::callbacks::{CallbackName, invoke_callback};
 use crate::widgets::widget_param_update::{WidgetParamUpdate, set_t_value};
 
+use iced::Widget;
 use iced::widget::text::Wrapping;
 use iced::widget::{button, text};
 use iced::{Element, Theme};
@@ -212,10 +213,11 @@ impl Button {
                     }
                 }
             })
-            .into();
+            .boxed();
 
         access_widget_parameters().insert(self.id, Widgets::Button(self.clone()));
         Some(btn)
+        
     }
 }
 

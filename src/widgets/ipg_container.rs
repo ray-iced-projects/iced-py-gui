@@ -12,7 +12,7 @@ use crate::widgets::styling::{apply_background_color_overrides,
 use crate::widgets::widget_param_update::{
     WidgetParamUpdate, set_t_value};
 
-use iced::{Element, Theme, alignment};
+use iced::{Element, Theme, alignment, Widget};
 use iced::widget::{self, Space};
 
 use pyo3::{Py, PyAny, pyclass};
@@ -66,7 +66,7 @@ impl Container {
         // the process sends a vec then if empty container, put in a
         // space or remove the element in the vec.
         let new_content: Element<Message> = if content.is_empty() {
-            Space::new().into()
+            Space::new().boxed()
         } else {
             content.remove(0)
         };
@@ -146,7 +146,7 @@ impl Container {
                 cont.clip(true)
             } else { cont };
 
-        Some(cont.into())            
+        Some(cont.boxed())            
         
     }
 }

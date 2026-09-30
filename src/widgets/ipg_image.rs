@@ -8,8 +8,7 @@ use crate::widgets::widget_param_update::{
     WidgetParamUpdate, 
 };
 
-
-use iced::Element;
+use iced::{Element, Widget};
 use iced::Rectangle;
 use iced::widget;
 use iced::advanced::image;
@@ -123,7 +122,7 @@ impl Image {
             img.expand(ex)
         } else { img };
 
-        Some(img.into())
+        Some(img.boxed())
 
     }
 }

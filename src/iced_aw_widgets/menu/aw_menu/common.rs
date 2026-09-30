@@ -1,7 +1,7 @@
 use iced::{
     Padding, Rectangle, Size, mouse,
 };
-use iced::advanced::{renderer,Shell, layout::{Layout, Node}, widget::Tree};
+use iced::advanced::{renderer,Shell, layout::Layout, widget::Tree};
 
 use super::menu_bar::{GlobalState, MenuBarTask};
 use super::menu_tree::{Item, MenuState};

@@ -11,7 +11,7 @@ use crate::ipg_widgets::ipg_date_picker::{
 };
 
 use iced::widget::container;
-use iced::{Element, Task};
+use iced::{Element, Task, Widget};
 use pyo3::pyclass;
 
 use chrono::prelude::*;
@@ -45,8 +45,8 @@ impl DatePicker {
             .map(DatePikMessage::DatePicker);
         
         let dpk = DP::new(
-            btn,
-            content,
+            btn.boxed(),
+            content.boxed(),
             self.dp_content.selected_date.clone(),
             self.position,
         )
@@ -55,8 +55,8 @@ impl DatePicker {
         .gap(self.gap.unwrap_or(10))
         .style(container::rounded_box);
 
-        let dpk: Element<'_, DatePikMessage> = dpk.into();
-        Some(dpk.map(move |message| Message::DatePicker(self.id, message)))
+        let dpk: Element<'_, DatePikMessage> = dpk.boxed();
+        Some(dpk.map(move |message| Message::DatePicker(self.id, message)).boxed())
 
     }
 

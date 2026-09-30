@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use std::io::Write;
 
-use iced::{Element, widget::{container, Id}};
+use iced::{Element, widget::{container, Id}, Widget};
 
 use crate::{IpgState, app::Message, ipg_widgets::ipg_canvas_draw::{canvas_draw::{CanvasWidget, DrawMode, DrawState, DrawStatus, build_placed_text_widget, get_draw_mode_and_status, get_widget_id, set_widget_mode_or_status}, import_export::{import_widgets, convert_to_export}}, state::{Containers, access_update_canvas_draw}, widgets::widget_param_update::extract_param};
 
@@ -22,13 +22,14 @@ impl Draw {
         &'a self,
         draw_state: &'a DrawState,
     ) -> Option<Element<'a, Message>> {
+        
         let id = self.id;
 
         let canvas = draw_state
             .view(&draw_state.curves, &draw_state.text_curves)
-            .map(move |cw| Message::CanvasDraw(id, cw));
+            .map(move |cw| Message::CanvasDraw(id, cw)).boxed();
 
-        Some(container(canvas).into())
+        Some(container(canvas).boxed())
     }
 }
 

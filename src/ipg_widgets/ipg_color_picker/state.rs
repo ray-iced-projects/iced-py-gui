@@ -197,28 +197,28 @@ impl ColorPickerState {
             "r", r, RGBA::R,
             {let f = on_msg.clone(); move |v| f(ContentMsg::RChanged(v))},
             {let f = on_msg.clone(); move |ch, s| f(ContentMsg::RgbaInput(ch, s))},
-        ).into();
+        ).boxed();
         let g_row = rgba_slider(
             "g", g, RGBA::G,
             {let f = on_msg.clone(); move |v| f(ContentMsg::GChanged(v))},
             {let f = on_msg.clone(); move |ch, s| f(ContentMsg::RgbaInput(ch, s))},
-        ).into();
+        ).boxed();
         let b_row = rgba_slider(
             "b", b, RGBA::B,
             {let f = on_msg.clone(); move |v| f(ContentMsg::BChanged(v))},
             {let f = on_msg.clone(); move |ch, s| f(ContentMsg::RgbaInput(ch, s))},
-        ).into();
+        ).boxed();
         let a_row = rgba_slider(
             "a", a, RGBA::A,
             {let f = on_msg.clone(); move |v| f(ContentMsg::AChanged(v))},
             {let f = on_msg.clone(); move |ch, s| f(ContentMsg::RgbaInput(ch, s))},
-        ).into();
+        ).boxed();
 
         let rgba_col = column(vec![r_row, g_row, b_row, a_row])
             .spacing(5.0)
-            .into();
+            .boxed();
 
-        let grad_cont: Element<M> = Canvas::new(HsvSquare {
+        let grad_cont= Canvas::new(HsvSquare {
             hue,
             r,
             g,
@@ -230,12 +230,12 @@ impl ColorPickerState {
         })
         .width(Length::Fixed(100.0))
         .height(Length::Fixed(100.0))
-        .into();
+        .boxed();
 
         let grad_rgba_row = row(vec![grad_cont, rgba_col])
             .width(Length::Fill)
             .spacing(5.0)
-            .into();
+            .boxed();
 
         let hue_row = hue_slider_row(
             hue,
@@ -243,11 +243,11 @@ impl ColorPickerState {
             color,
             {let f = on_msg.clone(); move |v| f(ContentMsg::HueChanged(v))},
             {let f = on_msg.clone(); move |fmt| f(ContentMsg::FormatSelected(fmt))},
-        );
+        ).boxed();
 
         let grad_hue_col: Element<M> = column(vec![grad_rgba_row, hue_row])
             .spacing(10.0)
-            .into();
+            .boxed();
 
         let srow = submit_row(
             show_palette,
@@ -259,20 +259,21 @@ impl ColorPickerState {
             self.selected_color_name.as_ref(),
             {let f = on_msg.clone(); move |name| f(ContentMsg::ColorNameSelected(name))},
         )
-        .into();
+        .boxed();
 
         let cp_col = column(vec![grad_hue_col, srow]).spacing(3.0);
         let final_col: Element<M> = if show_palette {
             let pal = palette_panel(color);
-            row(vec![pal, cp_col.into()]).spacing(5.0).into()
+            row(vec![pal, cp_col.boxed()]).spacing(5.0).boxed()
         } else {
-            cp_col.into()
+            cp_col.boxed()
         };
 
         opaque(container(final_col)
             .width(if show_palette { 460.0 } else { 370.0 })
             .height(190.0)
             .padding(5.0))
+            .boxed()
             
     }
 }

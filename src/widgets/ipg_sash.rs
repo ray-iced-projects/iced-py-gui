@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use iced::{Element, Theme};
+use iced::{Element, Theme, Widget};
 use ipg_sash::sash::{Id, OuterResizeMode, SashH, SashV, Status, Style};
 use ipg_sash::sash::resize as sash_resize;
 
@@ -110,7 +110,7 @@ impl Sash {
                     st.to_iced(theme, status, &self.style_std)})
         } else { sh };
 
-        Some(sh.into())
+        Some(sh.boxed())
     }
 }
 

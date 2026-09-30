@@ -1,6 +1,6 @@
 //! ipg_stack
 
-use iced::Element;
+use iced::{Element, Widget};
 use iced::widget;
 
 use pyo3::{pyclass, Py, PyAny};
@@ -47,7 +47,7 @@ impl <'a> Stack {
         Some(widget::Stack::with_children(content)
                     .width(get_len(self.fill, self.width_fill, self.width))
                     .height(get_len(self.fill, self.height_fill, self.height))
-                    .into())
+                    .boxed())
 
     }
 }

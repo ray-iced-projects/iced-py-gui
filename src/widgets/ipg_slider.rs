@@ -3,7 +3,7 @@
 use std::collections::HashMap;
 
 use iced::widget::slider::{self, HandleShape, Status, Style};
-use iced::{Background, Element, Theme, border};
+use iced::{Background, Element, Theme, border, Widget};
 use iced::widget;
 
 use pyo3::{Py, PyAny, pyclass};
@@ -70,9 +70,9 @@ impl Slider {
             sld.shift_step(shift)
         } else { sld };
 
-        let sld: Element<'_, SldMessage> = sld.into();
+        let sld: Element<'_, SldMessage> = sld.boxed();
 
-        Some(sld.map(move |message| app::Message::Slider(self.id, message)))
+        Some(sld.map(move |message| app::Message::Slider(self.id, message)).boxed())
     }
 }
 #[derive(Debug, Clone)]

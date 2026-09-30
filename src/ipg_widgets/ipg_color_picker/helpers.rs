@@ -1,6 +1,6 @@
 //!Helpers
 use super::color_math::{color_at, hue_to_rgb, rgb_to_sv};
-use iced::{Border, Element, Length, Padding, Pixels, Point, Rectangle, Theme};
+use iced::{Border, Element, Length, Padding, Pixels, Point, Rectangle, Theme, Widget};
 use iced::theme::palette;
 use iced::widget::{canvas, combo_box};
 use iced::widget::{button, container, column, radio, row, slider, text, Checkbox, TextInput};
@@ -138,7 +138,7 @@ pub fn palette_swatch<M: 'static>(
         .padding(Padding::new(3.0))
         .center_x(Length::Fill)
         .height(20.0)
-        .into()
+        .boxed()
 }
 
 pub fn palette_panel<M: 'static>(selected: [f32; 4]) -> Element<'static, M> {
@@ -158,7 +158,7 @@ pub fn palette_panel<M: 'static>(selected: [f32; 4]) -> Element<'static, M> {
     ])
     .spacing(3.0)
     .width(80.0)
-    .into()
+    .boxed()
 }
 
 pub fn rgba_slider<'a, Message>(
@@ -167,14 +167,15 @@ pub fn rgba_slider<'a, Message>(
     rgba: RGBA,
     on_change: impl Fn(u8) -> Message + 'a,
     on_input: impl Fn(RGBA, String) -> Message + 'a,
-) -> iced::widget::Row<'a, Message>
+) -> iced::widget::Row<Message>
 where
-    Message: Clone + 'a,
+    Message: Clone,
 {
     let sld = slider(0..=255, value, on_change)
         .step(1)
         .width(200.0)
-        .style(move |theme, status| slider_style(theme, status, rgba, value));
+        .style(move |theme, status| slider_style(theme, status, rgba, value))
+        .boxed();
 
     let input_text = TextInput::new(
             "".to_string(),
@@ -182,12 +183,13 @@ where
         )
         .on_input(move |s| on_input(rgba, s))
         .size(Pixels(12.0))
-        .padding(Padding::default().left(5));
+        .padding(Padding::default().left(5))
+        .boxed();
 
     row(vec![
-        text(label.to_owned()).into(),
-        sld.into(),
-        input_text.into(),
+        text(label.to_owned()),
+        sld,
+        input_text,
     ])
     .spacing(3.0)
 }
@@ -335,7 +337,7 @@ where
             ..Default::default()
         },
         ..Default::default()
-    });
+    }).boxed();
 
     let size = 12.0;
     let text_size = 14.0;
@@ -358,12 +360,12 @@ where
         rad_hex.into(),
         rad_percent.into(),
     ])
-    .spacing(5.0);
+    .spacing(5.0).boxed();
 
     let col = column(
         [hue_sld.into(), rad_row.into()])
         .spacing(5.0)
-        .into();
+        .boxed();
 
     let bkg = iced::Color::from(selected_color);
     let [r, g, b, _] = selected_color;
@@ -373,7 +375,7 @@ where
     let color_label: Element<M> = text(selected_color_format_to_text(format, selected_color))
         .size(Pixels(10.0))
         .color(text_color)
-        .into();
+        .intboxedo();
 
     let value_cont = container(color_label)
         .style(move |_| container::background(bkg))
@@ -381,9 +383,9 @@ where
         .center_y(40.0)
         .width(150.0)
         .height(Length::Fixed(40.0))
-        .into();
+        .boxed();
 
-    row([col, value_cont]).spacing(10.0).into()
+    row([col, value_cont]).spacing(10.0).boxed()
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -396,7 +398,7 @@ pub fn submit_row<'a, M: Clone + 'static>(
     cb_state: &'a combo_box::State<String>,
     selected_color_name: Option<&'a String>,
     on_color_selected: impl Fn(String) -> M + 'static,
-) -> iced::widget::Row<'a, M> {
+) -> iced::widget::Row<M> {
     
     let size = Pixels(12.0);
     let padding = 2.0;
@@ -406,21 +408,21 @@ pub fn submit_row<'a, M: Clone + 'static>(
             .on_press(on_submit)
             .padding(padding)
             .style(btn_style)
-            .into();
+            .boxed();
 
     let cancel_btn: Element<M> = 
         button(text("Cancel").size(size))
             .on_press(on_cancel)
             .padding(padding)
             .style(btn_style)
-            .into();
+            .boxed();
 
     let clipbrd_btn: Element<M> = 
         button(text("ClipBoard").size(size))
             .on_press(on_copy)
             .padding(padding)
             .style(btn_style)
-            .into();
+            .boxed();
 
     let palette_chk: Element<M> = 
         Checkbox::new(show_palette)
@@ -429,7 +431,7 @@ pub fn submit_row<'a, M: Clone + 'static>(
         .size(14.0)
         .text_size(size)
         .spacing(2.0)
-        .into();
+        .boxed();
 
     let colors: Element<M> =
         combo_box(
@@ -441,7 +443,7 @@ pub fn submit_row<'a, M: Clone + 'static>(
         .width(200.0)
         .menu_height(200.0)
         .size(10.0)
-        .into();
+        .boxed();
 
     row([
         submit_btn,
@@ -452,4 +454,6 @@ pub fn submit_row<'a, M: Clone + 'static>(
         ])
         .spacing(3.0)
         .align_y(iced::Alignment::Center)
+        .boxed()
+
 }

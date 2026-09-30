@@ -6,7 +6,6 @@ use crate::app::Message;
 use crate::graphics::colors::Color;
 
 use crate::app;
-use crate::py_api::helpers::get_len;
 use crate::state::Widgets;
 use crate::widgets::widget_param_update::{
     WidgetParamUpdate, set_t_value};
@@ -14,7 +13,7 @@ use crate::widgets::widget_param_update::{
 use iced::border::Radius;
 use iced::widget::{row, Row, Text};
 use iced::{Background, Border, Element, 
-    Length, Renderer, Theme };
+    Renderer, Theme, Widget };
 
 use crate::widgets::quad::{InnerBounds, Quad};
 use pyo3::{pyclass, Py, PyAny};
@@ -23,6 +22,8 @@ type PyObject = Py<PyAny>;
 #[derive(Debug, Clone)]
 pub struct Separator {
     pub id: usize,
+    pub width: f32,
+    pub height: f32,
     pub dot: Option<bool>,
     pub label: Option<String>,
     pub line: Option<bool>,
@@ -34,11 +35,6 @@ pub struct Separator {
     pub dot_border_width: Option<f32>,
     pub line_length: Option<f32>,
     pub line_thickness: Option<f32>,
-    pub width: Option<f32>,
-    pub width_fill: Option<bool>,
-    pub height: Option<f32>,
-    pub height_fill: Option<bool>,
-    pub fill: Option<bool>,
     pub spacing: Option<f32>,
     pub style_id: Option<usize>,
     pub show: bool,
@@ -91,16 +87,17 @@ impl Separator {
 
 }
 
-fn get_dot(sep: &Separator, 
-            sep_color: iced::Color,
-            bd_color: iced::Color) 
-            -> Element<'_, app::Message>{
+fn get_dot(
+        sep: &Separator, 
+        sep_color: iced::Color,
+        bd_color: iced::Color) 
+        -> Element<'_, app::Message>{
     
     let dot_radius = sep.dot_radius.unwrap_or(1.0);
 
-    let width =  if let Some(rad) = sep.dot_radius {
-        Length::Fixed(rad*2.0)
-        } else { Length::Shrink };
+    // let width =  if let Some(rad) = sep.dot_radius {
+    //     Length::Fixed(rad*2.0)
+    //     } else { Length::Shrink };
     
     let dot_count = if let Some(dc) = sep.dot_count {
         dc
@@ -111,74 +108,67 @@ fn get_dot(sep: &Separator,
 
     let border_width = sep.dot_border_width.unwrap_or(1.0);
 
-    let height = get_len(sep.fill, sep.height_fill, sep.height);
-
     row((0..dot_count).map(|_| {
         Quad {
+            width: sep.width,
+            height: sep.height,
             inner_bounds: InnerBounds::Square(dot_radius*2.0),
+            quad_color: sep_color.into(),
             quad_border: Border {
                 radius: dot_radius.into(),
                 color: bd_color,
                 width: border_width,
             },
-            width,
-            height,
-            quad_color: sep_color.into(),
             ..Default::default()
-        }.into()
+        }.boxed()
     }))
-    .height(height)
+    .height(sep.height)
     .spacing(sep.spacing.unwrap_or(0.0))
-    .into()
+    .boxed()
+
 }
 
-fn get_label(sep: &Separator,
-            label: String,
-            sep_color: iced::Color) 
-            -> Element<'_, app::Message> {
+fn get_label(
+        sep: &Separator,
+        label: String,
+        sep_color: iced::Color) 
+        -> Element<'_, app::Message> {
     
     let q_1: Element<Message, Theme, Renderer> = Quad {
-        width: Length::Fixed(sep.label_left_width.unwrap_or(0.0)),
-        height: Length::Fill,
+        width: sep.width,
+        height: sep.height,
         inner_bounds: InnerBounds::Ratio(1.0, 1.0),
-        ..separator(sep_color.into())
-    }.into();
+        ..separator(sep.width, sep.height, sep_color.into())
+    }.boxed();
     let q_2: Element<Message, Theme, Renderer> = Quad {
-        width: Length::Fixed(sep.label_right_width.unwrap_or(0.0)),
-        height: Length::Fill,
+        width: sep.width,
+        height: sep.height,
         inner_bounds: InnerBounds::Ratio(1.0, 1.0),
-        ..separator(sep_color.into())
-    }.into();
+        ..separator(sep.width, sep.height, sep_color.into())
+    }.boxed();
 
     Row::with_children(vec![
                         q_1, 
-                        Text::new(label).color(sep_color).into(),
+                        Text::new(label).color(sep_color).boxed(),
                         q_2,
                         ])
                         .spacing(sep.spacing.unwrap_or(0.0))
-                        .into()
+                        .boxed()
 }
 
-fn get_line(sep: &Separator,
-            sep_color: iced::Color) 
-            -> Element<'_, app::Message> {
+fn get_line(
+        sep: &Separator,
+        sep_color: iced::Color) 
+        -> Element<'_, app::Message> {
     
-    let length = if let Some(ll) = sep.line_length {
-        Length::Fixed(ll)
-    } else { Length::Fixed(20.0) };
-
-    let thickness = if let Some(th) = sep.line_thickness {
-        Length::Fixed(th)
-    } else { Length::Fixed(2.0) };
-
     Quad {
             inner_bounds: InnerBounds::Ratio(1.0, 1.0),
             quad_border: Border::default(),
-            width: length,
-            height: thickness,
+            width: sep.width,
+            height: sep.height,
             quad_color: sep_color.into(),
             ..Default::default()
-        }.into()
+        }.boxed()
 }
 
 #[derive(Debug, Clone)]
@@ -199,15 +189,12 @@ pub enum SeparatorParam {
     DotFill,
     DotBorderWidth,
     DotRadius,
-    Fill,
     Height,
-    HeightFill,
     Label,
     Spacing,
     Show,
     StyleId,
     Width,
-    WidthFill,
 }
 
 
@@ -224,7 +211,7 @@ pub enum SeparatorStyleParam {
 
 
 
-fn separator(bg_color: Background) -> Quad {
+fn separator(width: f32, height: f32, bg_color: Background) -> Quad {
     Quad {
         quad_color: bg_color,
         quad_border: Border {
@@ -232,8 +219,8 @@ fn separator(bg_color: Background) -> Quad {
             ..Default::default()
         },
         inner_bounds: InnerBounds::Ratio(0.98, 0.2),
-        width: Length::Shrink,
-        height: Length::Shrink,
+        width,
+        height,
         ..Default::default()
     }
 }
@@ -251,15 +238,12 @@ impl WidgetParamUpdate for Separator {
             SeparatorParam::DotCount => set_t_value(&mut self.dot_count, value, "SeparatorParam::DotCount"),
             SeparatorParam::DotFill => set_t_value(&mut self.dot_fill, value, "SeparatorParam::DotFill"),
             SeparatorParam::DotRadius => set_t_value(&mut self.dot_radius, value, "SeparatorParam::DotRadius"),
-            SeparatorParam::Fill => set_t_value(&mut self.fill, value, "SeparatorParam::Fill"),
             SeparatorParam::Height => set_t_value(&mut self.height, value, "SeparatorParam::Height"),
-            SeparatorParam::HeightFill => set_t_value(&mut self.height_fill, value, "SeparatorParam::HeightFill"),
             SeparatorParam::Label => set_t_value(&mut self.label, value, "SeparatorParam::Label"),
             SeparatorParam::Show => set_t_value(&mut self.show, value, "SeparatorParam::Show"),
             SeparatorParam::Spacing => set_t_value(&mut self.spacing, value, "SeparatorParam::Spacing"),
             SeparatorParam::StyleId => set_t_value(&mut self.style_id, value, "SeparatorParam::StyleId"),
             SeparatorParam::Width => set_t_value(&mut self.width, value, "SeparatorParam::Width"),
-            SeparatorParam::WidthFill => set_t_value(&mut self.width_fill, value, "SeparatorParam::WidthFill"),
         }
     }
 }

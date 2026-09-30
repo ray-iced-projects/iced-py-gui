@@ -1,6 +1,6 @@
 //! ipg_opaque
 
-use iced::Element;
+use iced::{Element, Widget};
 use iced::widget::opaque;
 
 use crate::app::Message;
@@ -18,6 +18,6 @@ impl Opaque {
         mut content: Vec<Element<'a, Message>>,
         ) -> Option<Element<'a, Message>> {
             if !self.show { return None }
-            Some(opaque(content.remove(0)))
+            Some(opaque(content.remove(0)).boxed())
     }
 }

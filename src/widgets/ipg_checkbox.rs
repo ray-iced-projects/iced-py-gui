@@ -17,7 +17,7 @@ use crate::graphics::bootstrap::bootstrap_icon::Icon;
 use iced::advanced::text;
 use iced::widget::text::{LineHeight, Shaping, Wrapping};
 use iced::widget::{Checkbox, checkbox};
-use iced::{Background, Element, Theme, border::Radius};
+use iced::{Background, Element, Theme, Widget, border::Radius};
 
 use pyo3::types::{PyDict, PyDictMethods, PyList, PyListMethods};
 use pyo3::{Bound, Py, PyAny, PyResult, Python, pyclass};
@@ -200,8 +200,8 @@ impl CheckBox {
             chk
         };
 
-        let chk: Element<'_, ChkMessage> = chk.into();
-        Some(chk.map(move |message| Message::CheckBox(self.id, message)))
+        let chk = chk.boxed();
+        Some(chk.map(move |message| Message::CheckBox(self.id, message)).boxed())
     }
 }
 

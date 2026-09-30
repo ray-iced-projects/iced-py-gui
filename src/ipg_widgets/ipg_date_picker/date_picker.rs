@@ -2,7 +2,7 @@
 use iced::widget::container;
 use iced::advanced::text;
 use iced::advanced::layout::{self, Layout};
-use iced::advanced::widget::{self as widget};
+use iced::advanced::widget::{self as widget, Tree};
 use iced::advanced::overlay::{self as overlay};
 use iced::advanced::Overlay as IcedOverlay;
 use iced::mouse;
@@ -120,25 +120,29 @@ where
     }
 
     fn size(&self) -> Size<Length> {
-        self.button.as_widget().size()
+        self.button.size()
     }
 
-    fn layout(
-        &mut self,
-        tree: &mut widget::Tree,
-        renderer: &Renderer,
-        limits: &layout::Limits,
-    ) -> layout::Node {
-        self.button
-            .as_widget_mut()
-            .layout(&mut tree.children[0], renderer, limits)
+    fn layout(&mut self, tree: &mut Tree, renderer: &Renderer, limits: &layout::Limits) {
+        layout::padded(
+            tree,
+            limits,
+            Length::Fit,
+            Length::Fit,
+            Padding::default(),
+            |tree, limits| {
+                self.button.layout(&mut tree.children[0], renderer, limits);
+
+                tree.size
+            },
+        );
     }
 
     fn update(
         &mut self,
         tree: &mut widget::Tree,
         event: &Event,
-        layout: Layout<'_>,
+        layout: Layout,
         cursor: mouse::Cursor,
         renderer: &Renderer,
         shell: &mut Shell<'_, Message>,
@@ -151,7 +155,7 @@ where
                  }
              }
 
-        self.button.as_widget_mut().update(
+        self.button.update(
             &mut tree.children[0],
             event,
             layout,
@@ -165,12 +169,12 @@ where
     fn mouse_interaction(
         &self,
         tree: &widget::Tree,
-        layout: Layout<'_>,
+        layout: Layout,
         cursor: mouse::Cursor,
         viewport: &Rectangle,
         renderer: &Renderer,
     ) -> mouse::Interaction {
-        self.button.as_widget().mouse_interaction(
+        self.button.mouse_interaction(
             &tree.children[0],
             layout,
             cursor,
@@ -185,11 +189,11 @@ where
         renderer: &mut Renderer,
         theme: &Theme,
         inherited_style: &renderer::Style,
-        layout: Layout<'_>,
+        layout: Layout,
         cursor: mouse::Cursor,
         viewport: &Rectangle,
     ) {
-        self.button.as_widget().draw(
+        self.button.draw(
             &tree.children[0],
             renderer,
             theme,
@@ -203,14 +207,14 @@ where
     fn overlay<'b>(
         &'b mut self,
         tree: &'b mut widget::Tree,
-        layout: Layout<'b>,
+        layout: Layout,
         renderer: &Renderer,
         viewport: &Rectangle,
         translation: Vector,
     ) -> Vec<overlay::Element<'b, Message, Theme, Renderer>> {
         let mut children = tree.children.iter_mut();
 
-        let mut overlays = self.button.as_widget_mut().overlay(
+        let mut overlays = self.button.overlay(
             children.next().unwrap(),
             layout,
             renderer,
@@ -239,7 +243,7 @@ where
     fn operate(
         &mut self,
         tree: &mut widget::Tree,
-        layout: Layout<'_>,
+        layout: Layout,
         renderer: &Renderer,
         operation: &mut dyn widget::Operation,
     ) {
@@ -265,7 +269,7 @@ where
     fn from(
         content: DatePicker<'a, Message, Theme, Renderer>,
     ) -> Element<'a, Message, Theme, Renderer> {
-        Element::new(content)
+        Element::from(content)
     }
 }
 
@@ -314,7 +318,7 @@ where
     fn layout(&mut self, renderer: &Renderer, bounds: Size) -> layout::Node {
         let viewport = Rectangle::with_size(bounds);
 
-        let content_layout = self.content.as_widget_mut().layout(
+        let content_layout = self.content.layout(
             self.tree,
             renderer,
             &layout::Limits::new(

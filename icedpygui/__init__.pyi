@@ -43,9 +43,9 @@ from .icedpygui import (
     ButtonParam as ButtonParam,
     ButtonStyleParam as ButtonStyleParam,
     ButtonStyleStd as ButtonStyleStd,
-    CardParam as CardParam,
-    CardStyleParam as CardStyleParam,
-    CardStyleStd as CardStyleStd,
+    # CardParam as CardParam,
+    # CardStyleParam as CardStyleParam,
+    # CardStyleStd as CardStyleStd,
     CheckboxParam as CheckboxParam,
     CheckboxStyleStd as CheckboxStyleStd,
     CheckboxStyleParam as CheckboxStyleParam,
@@ -82,10 +82,10 @@ from .icedpygui import (
     InputFloatStyleParam as InputFloatStyleParam,
     InputIntParam as InputIntParam,
     InputIntStyleParam as InputIntStyleParam,
-    MenuBarItemParam as MenuBarItemParam,
-    MenuParam as MenuParam,
-    MenuStyleParam as MenuStyleParam,
-    MenuSubItemParam as MenuSubItemParam,
+    # MenuBarItemParam as MenuBarItemParam,
+    # MenuParam as MenuParam,
+    # MenuStyleParam as MenuStyleParam,
+    # MenuSubItemParam as MenuSubItemParam,
     MousePointer as MousePointer,
     OpaqueParam as OpaqueParam,
     PickListParam as PickListParam,
@@ -264,49 +264,49 @@ def add_button(
     """
     ...
 
-def add_card(
-    window_id: str,
-    container_id: str,
-    *,
-    parent_id: str | None = None,
-    head: str | None = None,
-    body: str | None = None,
-    is_open: bool = True,
-    min_max_id: int | None = None,
-    foot: str | None = None,
-    gen_id: int | None = None,
-    close_size: float | None = None,
-    on_close: Any | None = None,
-    width: float | None = None,
-    width_fill: bool = False,
-    height: float | None = None,
-    height_fill: bool = False,
-    max_width: float | None = None,
-    max_height: float | None = None,
-    padding: list[float] | None = None,
-    padding_head: list[float] | None = None,
-    padding_body: list[float] | None = None,
-    padding_foot: list[float] | None = None,
-    style_id: int | None = None,
-    style_std: CardStyleStd | None = None,
-    style_button: int | None = None,
-    show: bool = True,
-    user_data: Any | None = None,
-) -> int:
-    """Adds a card widget.
+# def add_card(
+#     window_id: str,
+#     container_id: str,
+#     *,
+#     parent_id: str | None = None,
+#     head: str | None = None,
+#     body: str | None = None,
+#     is_open: bool = True,
+#     min_max_id: int | None = None,
+#     foot: str | None = None,
+#     gen_id: int | None = None,
+#     close_size: float | None = None,
+#     on_close: Any | None = None,
+#     width: float | None = None,
+#     width_fill: bool = False,
+#     height: float | None = None,
+#     height_fill: bool = False,
+#     max_width: float | None = None,
+#     max_height: float | None = None,
+#     padding: list[float] | None = None,
+#     padding_head: list[float] | None = None,
+#     padding_body: list[float] | None = None,
+#     padding_foot: list[float] | None = None,
+#     style_id: int | None = None,
+#     style_std: CardStyleStd | None = None,
+#     style_button: int | None = None,
+#     show: bool = True,
+#     user_data: Any | None = None,
+# ) -> int:
+#     """Adds a card widget.
 
-    A widget must go into a container type,
+#     A widget must go into a container type,
 
-    i.e. Container, Column, Row, etc.
+#     i.e. Container, Column, Row, etc.
 
-    Usage::
+#     Usage::
 
-        with Window(title="My App", pos_centered=True) as wnd_id: (if needed)
-            with Container(align_center=True):
-                add_card(head="Card Header", body="Card Body")
-        start_session()
-    """
-    ...
+#         with Window(title="My App", pos_centered=True) as wnd_id: (if needed)
+#             with Container(align_center=True):
+#                 add_card(head="Card Header", body="Card Body")
+#         start_session()
+#     """
+#     ...
 
 def add_checkbox(
     *,
@@ -505,66 +505,66 @@ def add_combobox(
         The numeric widget ID of the newly created pick list.
     """
     ...
-def add_date_picker(
-    window_id: str,
-    container_id: str,
-    *,
-    parent_id: str | None = None,
-    on_open: bool | None = None,
-    on_submit: bool | None = None,
-    on_cancel: bool | None = None,
-    opened: bool = False,
-    size_factor: float | None = None,
-    gap: float | None = None,
-    snap_within_viewport: bool | None = None,
-    position_bottom: bool | None = None,
-    position_left: bool | None = None,
-    position_top: bool | None = None,
-    position_right: bool | None = None,
-    user_data: any | None = None,
-    gen_id: bool | None = None,
-    ) -> int:
-    """
-    Add a date picker container widget.
+# def add_date_picker(
+#     window_id: str,
+#     container_id: str,
+#     *,
+#     parent_id: str | None = None,
+#     on_open: bool | None = None,
+#     on_submit: bool | None = None,
+#     on_cancel: bool | None = None,
+#     opened: bool = False,
+#     size_factor: float | None = None,
+#     gap: float | None = None,
+#     snap_within_viewport: bool | None = None,
+#     position_bottom: bool | None = None,
+#     position_left: bool | None = None,
+#     position_top: bool | None = None,
+#     position_right: bool | None = None,
+#     user_data: any | None = None,
+#     gen_id: bool | None = None,
+#     ) -> int:
+#     """
+#     Add a date picker container widget.
 
-    A date picker that opens a calendar from a button or other widget,
-    allowing the user to select a date.
+#     A date picker that opens a calendar from a button or other widget,
+#     allowing the user to select a date.
 
-    Parameters
-    ----------
-    window_id: str
-        Sets the window id for the date picker.
-        When the parent is using a with ... construction then not required.
-    container_id: str,
-        Sets the container id of the date picker.
-        When the parent is using a with ... construction then not required.
-    parent_id : str
-        Sets the parent container ID that this date picker belongs to.
-        When the parent is using a with ... construction then not required.
-    label : str, Optional
-        Sets the Text label displayed on the button.
-    gen_id : int, Optional
-        Obtains an ID of a widget that have not been created, used for the gen_id parameter.
-    size_factor : float, Optional
-        Sets the size scaling factor for the calendar.
-    padding : list of float, Optional
-        Sets the Padding as [all], [vertical, horizontal], or
-        [top, right, bottom, left].
-    on_submit : callable, Optional
-        Sets the Callback method to invoke when a date is submitted.
-    user_data : Any, Optional
-        Sets the Arbitrary data forwarded to callbacks.
-    show : bool, default True
-        Whether the date picker is visible.
-    show_calendar : bool, Optional
-        Whether the calendar popup is shown.
+#     Parameters
+#     ----------
+#     window_id: str
+#         Sets the window id for the date picker.
+#         When the parent is using a with ... construction then not required.
+#     container_id: str,
+#         Sets the container id of the date picker.
+#         When the parent is using a with ... construction then not required.
+#     parent_id : str
+#         Sets the parent container ID that this date picker belongs to.
+#         When the parent is using a with ... construction then not required.
+#     label : str, Optional
+#         Sets the Text label displayed on the button.
+#     gen_id : int, Optional
+#         Obtains an ID of a widget that have not been created, used for the gen_id parameter.
+#     size_factor : float, Optional
+#         Sets the size scaling factor for the calendar.
+#     padding : list of float, Optional
+#         Sets the Padding as [all], [vertical, horizontal], or
+#         [top, right, bottom, left].
+#     on_submit : callable, Optional
+#         Sets the Callback method to invoke when a date is submitted.
+#     user_data : Any, Optional
+#         Sets the Arbitrary data forwarded to callbacks.
+#     show : bool, default True
+#         Whether the date picker is visible.
+#     show_calendar : bool, Optional
+#         Whether the calendar popup is shown.
 
-    Returns
-    -------
-    int
-        The numeric widget ID of the newly created date picker.
-    """
-    ...
+#     Returns
+#     -------
+#     int
+#         The numeric widget ID of the newly created date picker.
+#     """
+#     ...
 def add_event_keyboard(
         enabled: bool,
         *,
@@ -2019,105 +2019,105 @@ class Window:
             exc_tb: TracebackType | None) -> bool: ...
 
 
-class Card:
-    """Context manager wrapper around add_card.
+# class Card:
+#     """Context manager wrapper around add_card.
 
-    Wraps the iced_aw Card — a widget that aligns its contents inside
-    of its boundaries.\n
-    A Card take 1, 2, or 3 widgets.\n
-    if 1, assumed only body of card.\n
-    if 2, assumes head and body of card, respectively.\n
-    if 3, uses head, body, foot, respectively.
+#     Wraps the iced_aw Card — a widget that aligns its contents inside
+#     of its boundaries.\n
+#     A Card take 1, 2, or 3 widgets.\n
+#     if 1, assumed only body of card.\n
+#     if 2, assumes head and body of card, respectively.\n
+#     if 3, uses head, body, foot, respectively.
 
-    Usage::
+#     Usage::
 
-        with Window(title="Demo"):
-            with Card(
-                width=300.0,
-                height=200.0,
-                padding=[5],
-                on_close=minimize_card
-                ):
-                # If only one item added then body
-                add_text(content="Card") # 1st item header
-                add_text(content="This is the body of the card.") # 2nd, if added, item body
-                with Column(width_fill=True, height=30): # 3rd, if added, item footer
-                    add_separator(line_length=300)
-                    add_text(content="Foot content")
+#         with Window(title="Demo"):
+#             with Card(
+#                 width=300.0,
+#                 height=200.0,
+#                 padding=[5],
+#                 on_close=minimize_card
+#                 ):
+#                 # If only one item added then body
+#                 add_text(content="Card") # 1st item header
+#                 add_text(content="This is the body of the card.") # 2nd, if added, item body
+#                 with Column(width_fill=True, height=30): # 3rd, if added, item footer
+#                     add_separator(line_length=300)
+#                     add_text(content="Foot content")
 
-        start_session()
-    """
-    def __init__(
-        self,
-        *,
-        is_open: bool | None = True,
-        close_icon: bool | None = None,
-        close_icon_size: float | None = None,
-        on_close: Callable | None = None,
-        width: float | None = None,
-        width_fill: bool | None = None,
-        height: float | None = None,
-        height_fill: bool | None = None,
-        fill: bool | None = None,
-        max_width: float | None = None,
-        max_height: float | None = None,
-        padding: list[float] | None = None,
-        padding_body: list[float] | None = None,
-        padding_foot: list[float] | None = None,
-        style_id: int | None = None,
-        style_std: CardStyleStd | None = None,
-        show: bool = True,
-        user_data: Any | None = None,
-        gen_id: int | None = None,
-    ) -> None: ...
-    def __enter__(self) -> int: ...
-    def __exit__(self, exc_type: type[BaseException] | None, \
-        exc_val: BaseException | None, \
-            exc_tb: TracebackType | None) -> bool: ...
+#         start_session()
+#     """
+#     def __init__(
+#         self,
+#         *,
+#         is_open: bool | None = True,
+#         close_icon: bool | None = None,
+#         close_icon_size: float | None = None,
+#         on_close: Callable | None = None,
+#         width: float | None = None,
+#         width_fill: bool | None = None,
+#         height: float | None = None,
+#         height_fill: bool | None = None,
+#         fill: bool | None = None,
+#         max_width: float | None = None,
+#         max_height: float | None = None,
+#         padding: list[float] | None = None,
+#         padding_body: list[float] | None = None,
+#         padding_foot: list[float] | None = None,
+#         style_id: int | None = None,
+#         style_std: CardStyleStd | None = None,
+#         show: bool = True,
+#         user_data: Any | None = None,
+#         gen_id: int | None = None,
+#     ) -> None: ...
+#     def __enter__(self) -> int: ...
+#     def __exit__(self, exc_type: type[BaseException] | None, \
+#         exc_val: BaseException | None, \
+#             exc_tb: TracebackType | None) -> bool: ...
 
-class ColorPicker:
-    """Context manager wrapper around add_color_picker.
+# class ColorPicker:
+#     """Context manager wrapper around add_color_picker.
 
-    A container for selecting colors and holds an activating widget, i.e. button.
+#     A container for selecting colors and holds an activating widget, i.e. button.
 
-    Usage::
+#     Usage::
 
-        with Window(title="Demo"):
-            with Container(fill=True, align_center=True)
-                with ColorPicker(
-                    on_open=cp_opened, # Callback when button pressed
-                    on_submit=color_selected, # Callback with the selected color
-                    on_cancel=cp_canceled, # Callback when canceled
-                    ):
+#         with Window(title="Demo"):
+#             with Container(fill=True, align_center=True)
+#                 with ColorPicker(
+#                     on_open=cp_opened, # Callback when button pressed
+#                     on_submit=color_selected, # Callback with the selected color
+#                     on_cancel=cp_canceled, # Callback when canceled
+#                     ):
 
-                    add_button(label="Color Picker")
+#                     add_button(label="Color Picker")
 
-        start_session
-    """
-    def __init__(
-        self,
-        *,
-        on_open: bool | None = None,
-        on_submit: bool | None = None,
-        on_cancel: bool | None = None,
-        opened: bool = False,
-        color_format_int: bool | None = None,
-        color_format_rgba: bool | None = None,
-        color_format_hex: bool | None = None,
-        color_format_percent: bool | None = None,
-        gap: bool | None = None,
-        snap_within_viewport: bool | None = None,
-        position_bottom: bool | None = None,
-        position_left: bool | None = None,
-        position_top: bool | None = None,
-        position_right: bool | None = None,
-        user_data: bool | None = None,
-        gen_id: bool | None = None,
-    ) -> None: ...
-    def __enter__(self) -> int: ...
-    def __exit__(self, exc_type: type[BaseException] | None, \
-        exc_val: BaseException | None, \
-            exc_tb: TracebackType | None) -> bool: ...
+#         start_session
+#     """
+#     def __init__(
+#         self,
+#         *,
+#         on_open: bool | None = None,
+#         on_submit: bool | None = None,
+#         on_cancel: bool | None = None,
+#         opened: bool = False,
+#         color_format_int: bool | None = None,
+#         color_format_rgba: bool | None = None,
+#         color_format_hex: bool | None = None,
+#         color_format_percent: bool | None = None,
+#         gap: bool | None = None,
+#         snap_within_viewport: bool | None = None,
+#         position_bottom: bool | None = None,
+#         position_left: bool | None = None,
+#         position_top: bool | None = None,
+#         position_right: bool | None = None,
+#         user_data: bool | None = None,
+#         gen_id: bool | None = None,
+#     ) -> None: ...
+#     def __enter__(self) -> int: ...
+#     def __exit__(self, exc_type: type[BaseException] | None, \
+#         exc_val: BaseException | None, \
+#             exc_tb: TracebackType | None) -> bool: ...
 
 class Column:
     """Context manager wrapper around add_column.
@@ -2204,46 +2204,46 @@ class Container:
         exc_val: BaseException | None, \
             exc_tb: TracebackType | None) -> bool: ...
 
-class DatePicker:
-    """Context manager wrapper around add_date_picker.
+# class DatePicker:
+#     """Context manager wrapper around add_date_picker.
 
-    A container for selecting dates and holds an activating widget, i.e. button.
+#     A container for selecting dates and holds an activating widget, i.e. button.
 
-    Usage::
+#     Usage::
 
-        with Window(title="Demo"):
-            with Container(fill=True, align_center=True)
-                with DatePicker(
-                    on_open=cp_opened, # Callback when button pressed
-                    on_submit=date_selected, # Callback with the selected date
-                    on_cancel=cp_canceled, # Callback when canceled
-                    ):
+#         with Window(title="Demo"):
+#             with Container(fill=True, align_center=True)
+#                 with DatePicker(
+#                     on_open=cp_opened, # Callback when button pressed
+#                     on_submit=date_selected, # Callback with the selected date
+#                     on_cancel=cp_canceled, # Callback when canceled
+#                     ):
 
-                    add_button(label="Date Picker")
+#                     add_button(label="Date Picker")
 
-        start_session
-    """
-    def __init__(
-        self,
-        *,
-        on_open: bool | None = None,
-        on_submit: bool | None = None,
-        on_cancel: bool | None = None,
-        opened: bool = False,
-        size_factor: float | None = None,
-        gap: float | None = None,
-        snap_within_viewport: bool | None = None,
-        position_bottom: bool | None = None,
-        position_left: bool | None = None,
-        position_top: bool | None = None,
-        position_right: bool | None = None,
-        user_data: any | None = None,
-        gen_id: bool | None = None,
-    ) -> None: ...
-    def __enter__(self) -> int: ...
-    def __exit__(self, exc_type: type[BaseException] | None, \
-        exc_val: BaseException | None, \
-            exc_tb: TracebackType | None) -> bool: ...
+#         start_session
+#     """
+#     def __init__(
+#         self,
+#         *,
+#         on_open: bool | None = None,
+#         on_submit: bool | None = None,
+#         on_cancel: bool | None = None,
+#         opened: bool = False,
+#         size_factor: float | None = None,
+#         gap: float | None = None,
+#         snap_within_viewport: bool | None = None,
+#         position_bottom: bool | None = None,
+#         position_left: bool | None = None,
+#         position_top: bool | None = None,
+#         position_right: bool | None = None,
+#         user_data: any | None = None,
+#         gen_id: bool | None = None,
+#     ) -> None: ...
+#     def __enter__(self) -> int: ...
+#     def __exit__(self, exc_type: type[BaseException] | None, \
+#         exc_val: BaseException | None, \
+#             exc_tb: TracebackType | None) -> bool: ...
 
 class Float:
     """Context manager wrapper around add_float.

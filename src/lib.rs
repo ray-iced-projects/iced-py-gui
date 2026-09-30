@@ -33,14 +33,14 @@ use crate::py_api::window::{add_window, window_theme_names, create_custom_theme}
 use crate::py_api::button::{add_button, add_button_style};
 use crate::py_api::clipboard::{clipboard_write, clipboard_callback};
 use crate::py_api::config::{get_file_filters, reload_filters, get_config_path};
-use crate::py_api::card::{add_card_class, add_card, add_card_style};
+// use crate::py_api::card::{add_card_class, add_card, add_card_style};
 use crate::py_api::checkbox::{add_checkbox, add_checkbox_style};
 use crate::py_api::colors::{PaletteKey, StateVariant, StylePart, TextContrast, WidgetStatus, custom_palette, get_button_palette, get_color_palette, get_rgba_color, get_styling_palette, get_theme_palette};
-use crate::py_api::color_picker::{add_color_picker};
+// use crate::py_api::color_picker::{add_color_picker};
 use crate::py_api::column::add_column;
 use crate::py_api::combo_box::{add_combobox, add_combobox_input_style, add_combobox_menu_style};
 use crate::py_api::container::{add_container, add_container_style};
-use crate::py_api::date_picker::add_date_picker;
+// use crate::py_api::date_picker::add_date_picker;
 use crate::py_api::draw::add_draw;
 use crate::py_api::draw_update::{update_draw_params, delete_draw_widget};
 use crate::py_api::events::{add_event_keyboard, add_event_mouse};
@@ -51,7 +51,7 @@ use crate::py_api::font::{add_font_style, add_icon, load_font, arrow_to_str, arr
 use crate::py_api::image::add_image;
 use crate::py_api::input_float::{add_input_float, add_input_float_style};
 use crate::py_api::input_int::{add_input_int, add_input_int_style};
-use crate::py_api::menu::{add_menu, add_menu_bar_item, add_menu_sub_item, add_menu_style};
+// use crate::py_api::menu::{add_menu, add_menu_bar_item, add_menu_sub_item, add_menu_style};
 use crate::py_api::mouse_area::add_mouse_area;
 use crate::py_api::palette_helpers::{get_widget_palette_part, get_widget_palette_list};
 use crate::py_api::opaque::add_opaque;
@@ -84,17 +84,15 @@ use crate::py_api::widget_parameters::{update_widget, update_widget_params, dele
 
 // Import enums from widgets module
 use crate::widgets::enums::ContentFit;
-
-
 use crate::graphics::bootstrap::{bootstrap_icon::Icon, bootstrap_arrow::Arrow};
 use crate::graphics::colors::{Color, StdColorStyle};
 use crate::widgets::ipg_button::{ButtonParam, ButtonStyleParam, ButtonStyleStd};
-use crate::widgets::ipg_card::{CardParam, CardStyleParam, CardStyleStd};
+// use crate::widgets::ipg_card::{CardParam, CardStyleParam, CardStyleStd};
 use crate::widgets::ipg_checkbox::{CheckboxParam, CheckboxStyleParam, CheckboxStyleStd};
 use crate::widgets::ipg_column::ColumnParam;
 use crate::widgets::ipg_combo_box::{ComboBoxParam, ComboBoxMenuStyleParam};
 use crate::widgets::ipg_container::{ContainerParam, ContainerStyleParam, ContainerStyleStd};
-use crate::widgets::ipg_date_picker::DatePickerParam;
+// use crate::widgets::ipg_date_picker::DatePickerParam;
 use crate::widgets::ipg_draw::DrawParam;
 use crate::widgets::ipg_file_system::{FileSystemDialogParam, FileSystemDialogCallbackType};
 use crate::widgets::ipg_float::FloatParam;
@@ -103,7 +101,7 @@ use crate::widgets::ipg_grid::GridParam;
 use crate::widgets::ipg_image::ImageParam;
 use crate::widgets::ipg_input_float::{InputFloatParam, InputFloatStyleParam};
 use crate::widgets::ipg_input_int::{InputIntParam, InputIntStyleParam};
-use crate::widgets::ipg_menu::{MenuBarItemParam, MenuParam, MenuStyleParam, MenuSubItemParam};
+// use crate::widgets::ipg_menu::{MenuBarItemParam, MenuParam, MenuStyleParam, MenuSubItemParam};
 use crate::widgets::ipg_mouse_area::MousePointer;
 use crate::widgets::ipg_pick_list::PickListParam;
 // use crate::widgets::ipg_popup::PopUpParam;
@@ -159,19 +157,19 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(reload_filters, m)?)?;
     m.add_function(wrap_pyfunction!(get_config_path, m)?)?;
     
-    m.add_function(wrap_pyfunction!(add_card_style, m)?)?;
-    m.add_function(wrap_pyfunction!(add_card_class, m)?)?;
-    m.add_function(wrap_pyfunction!(add_card, m)?)?;
+    // m.add_function(wrap_pyfunction!(add_card_style, m)?)?;
+    // m.add_function(wrap_pyfunction!(add_card_class, m)?)?;
+    // m.add_function(wrap_pyfunction!(add_card, m)?)?;
     m.add_function(wrap_pyfunction!(add_checkbox_style, m)?)?;
     m.add_function(wrap_pyfunction!(add_checkbox, m)?)?;
-    m.add_function(wrap_pyfunction!(add_color_picker, m)?)?;
+    // m.add_function(wrap_pyfunction!(add_color_picker, m)?)?;
     m.add_function(wrap_pyfunction!(add_column, m)?)?;
     m.add_function(wrap_pyfunction!(add_combobox, m)?)?;
     m.add_function(wrap_pyfunction!(add_combobox_input_style, m)?)?;
     m.add_function(wrap_pyfunction!(add_combobox_menu_style, m)?)?;
     m.add_function(wrap_pyfunction!(add_container_style, m)?)?;
     m.add_function(wrap_pyfunction!(add_container, m)?)?;
-    m.add_function(wrap_pyfunction!(add_date_picker, m)?)?;
+    // m.add_function(wrap_pyfunction!(add_date_picker, m)?)?;
     m.add_function(wrap_pyfunction!(add_draw, m)?)?;
     m.add_function(wrap_pyfunction!(add_file_system_dialog, m)?)?;
     m.add_function(wrap_pyfunction!(get_dialog_filters, m)?)?;
@@ -184,10 +182,10 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(add_input_float_style, m)?)?;
     m.add_function(wrap_pyfunction!(add_input_int, m)?)?;
     m.add_function(wrap_pyfunction!(add_input_int_style, m)?)?;
-    m.add_function(wrap_pyfunction!(add_menu, m)?)?;
-    m.add_function(wrap_pyfunction!(add_menu_bar_item, m)?)?;
-    m.add_function(wrap_pyfunction!(add_menu_sub_item, m)?)?;
-    m.add_function(wrap_pyfunction!(add_menu_style, m)?)?;
+    // m.add_function(wrap_pyfunction!(add_menu, m)?)?;
+    // m.add_function(wrap_pyfunction!(add_menu_bar_item, m)?)?;
+    // m.add_function(wrap_pyfunction!(add_menu_sub_item, m)?)?;
+    // m.add_function(wrap_pyfunction!(add_menu_style, m)?)?;
     m.add_function(wrap_pyfunction!(add_mouse_area, m)?)?;
     m.add_function(wrap_pyfunction!(add_opaque, m)?)?;
     // m.add_function(wrap_pyfunction!(add_popup, m)?)?;
@@ -257,9 +255,9 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<ButtonParam>()?;
     m.add_class::<ButtonStyleParam>()?;
     m.add_class::<ButtonStyleStd>()?;
-    m.add_class::<CardParam>()?;
-    m.add_class::<CardStyleParam>()?;
-    m.add_class::<CardStyleStd>()?;
+    // m.add_class::<CardParam>()?;
+    // m.add_class::<CardStyleParam>()?;
+    // m.add_class::<CardStyleStd>()?;
     m.add_class::<CheckboxParam>()?;
     m.add_class::<CheckboxStyleParam>()?;
     m.add_class::<CheckboxStyleParam>()?;
@@ -271,7 +269,7 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<ContainerParam>()?;
     m.add_class::<ContainerStyleParam>()?;
     m.add_class::<ContainerStyleStd>()?;
-    m.add_class::<DatePickerParam>()?;
+    // m.add_class::<DatePickerParam>()?;
     m.add_class::<DrawMode>()?;
     m.add_class::<DrawParam>()?;
     m.add_class::<DrawWidget>()?;
@@ -284,10 +282,10 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<InputFloatStyleParam>()?;
     m.add_class::<InputIntParam>()?;
     m.add_class::<InputIntStyleParam>()?;
-    m.add_class::<MenuBarItemParam>()?;
-    m.add_class::<MenuParam>()?;
-    m.add_class::<MenuStyleParam>()?;
-    m.add_class::<MenuSubItemParam>()?;
+    // m.add_class::<MenuBarItemParam>()?;
+    // m.add_class::<MenuParam>()?;
+    // m.add_class::<MenuStyleParam>()?;
+    // m.add_class::<MenuSubItemParam>()?;
     m.add_class::<PickListParam>()?;
     // m.add_class::<PopUpParam>()?;
     m.add_class::<ProgressBarParam>()?;

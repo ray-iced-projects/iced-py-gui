@@ -110,7 +110,7 @@ where
 }
 
 impl<Message, Theme, Renderer> Widget<Message, Theme, Renderer>
-    for DatePicker<'_, Message, Theme, Renderer>
+    for DatePicker
 where
     Theme: container::Catalog,
     Renderer: text::Renderer,

@@ -16,20 +16,20 @@ use pyo3::{Py, PyAny};
 use crate::app::Message;
 use crate::py_api::colors::CustomPalette;
 use crate::widgets::callbacks::CallbackName;
-use crate::widgets::ipg_card::{Card, CardClass, CardStyle};
+// use crate::widgets::ipg_card::{Card, CardClass, CardStyle};
 use crate::widgets::ipg_checkbox::{CheckBox, CheckboxStyle};
-use crate::widgets::ipg_color_picker::ColorPicker;
+// use crate::widgets::ipg_color_picker::ColorPicker;
 use crate::widgets::ipg_column::Column;
 use crate::widgets::ipg_combo_box::{ComboBox, ComboBoxMenuStyle, ComboBoxInputStyle};
 use crate::widgets::ipg_container::{Container, ContainerStyle};
-use crate::widgets::ipg_date_picker::DatePicker;
+// use crate::widgets::ipg_date_picker::DatePicker;
 use crate::widgets::ipg_draw::Draw;
 use crate::ipg_widgets::ipg_canvas_draw::canvas_draw::{
     DrawState, CanvasWidget, Circle, DrawMode, DrawStatus};
 use crate::widgets::ipg_file_system::FileSystemDialog;
 use crate::widgets::ipg_input_float::{InputFloat, InputFloatStyle};
 use crate::widgets::ipg_input_int::{InputInt, InputIntStyle};
-use crate::widgets::ipg_menu::{Menu, MenuBarItem, MenuSubItem, MenuStyle};
+// use crate::widgets::ipg_menu::{Menu, MenuBarItem, MenuSubItem, MenuStyle};
 // use crate::widgets::ipg_popup::PopUp;
 use iced::widget::Id;
 use iced::Point;
@@ -75,17 +75,17 @@ type PyObject = Py<PyAny>;
 #[derive(Debug, Clone)]
 pub enum Containers {
     CanvasDraw(Draw),
-    CardClass(CardClass),
-    ColorPicker(ColorPicker),
+    // CardClass(CardClass),
+    // ColorPicker(ColorPicker),
     Column(Column),
     Container(Container),
-    DatePicker(DatePicker),
+    // DatePicker(DatePicker),
     Float(Float),
     Grid(Grid),
     InputFloat(InputFloat),
-    Menu(Menu),
-    MenuBarItem(MenuBarItem),
-    MenuSubItem(MenuSubItem),
+    // Menu(Menu),
+    // MenuBarItem(MenuBarItem),
+    // MenuSubItem(MenuSubItem),
     MouseArea(MouseArea),
     Opaque(Opaque),
     // PopUp(PopUp),
@@ -109,8 +109,8 @@ pub enum Containers {
 pub enum Widgets {
     Button(Button),
     ButtonStyle(ButtonStyle),
-    Card(Card),
-    CardStyle(CardStyle),
+    // Card(Card),
+    // CardStyle(CardStyle),
     CheckBox(CheckBox),
     CheckboxStyle(CheckboxStyle),
     ComboBox(ComboBox),
@@ -124,7 +124,7 @@ pub enum Widgets {
     InputFloatStyle(InputFloatStyle),
     InputInt(InputInt),
     InputIntStyle(InputIntStyle),
-    MenuStyle(MenuStyle),
+    // MenuStyle(MenuStyle),
     Palette(CustomPalette),
     PickList(PickList),
     PickListStyle(PickListStyle),
@@ -187,7 +187,7 @@ macro_rules! ipg_widget_accessors {
 ipg_widget_accessors! {
     Button             => Button,              as_button,                as_button_mut;
     ButtonStyle        => ButtonStyle,         as_button_style,          as_button_style_mut;
-    CardStyle          => CardStyle,           as_card_style,            as_card_style_mut;
+    // CardStyle          => CardStyle,           as_card_style,            as_card_style_mut;
     CheckBox           => CheckBox,            as_checkbox,              as_checkbox_mut;
     CheckboxStyle      => CheckboxStyle,       as_checkbox_style,        as_checkbox_style_mut;
     ComboBox           => ComboBox,            as_combobox,              as_combobox_mut;
@@ -200,7 +200,7 @@ ipg_widget_accessors! {
     InputFloatStyle    => InputFloatStyle,     as_input_float_style,     as_input_float_style_mut;
     InputInt           => InputInt,            as_input_int,             as_input_int_mut;
     InputIntStyle      => InputIntStyle,       as_input_int_style,       as_input_int_style_mut;
-    MenuStyle          => MenuStyle,           as_menu_style,            as_menu_style_mut;
+    // MenuStyle          => MenuStyle,           as_menu_style,            as_menu_style_mut;
     Palette            => CustomPalette,       as_palette,               as_palette_mut;
     PickList           => PickList,            as_pick_list,             as_pick_list_mut;
     PickListStyle      => PickListStyle,       as_pick_list_style,       as_pick_list_style_mut;
@@ -257,16 +257,16 @@ macro_rules! ipg_container_accessors {
 }
 
 ipg_container_accessors! {
-    CardClass    => CardClass,    as_card_class,      as_card_class_mut;
+    // CardClass    => CardClass,    as_card_class,      as_card_class_mut;
     Column       => Column,       as_column,          as_column_mut;
     Container    => Container,    as_container,       as_container_mut;
     Float        => Float,        as_float,           as_float_mut;
     Grid         => Grid,         as_grid,            as_grid_mut;
     InputFloat   => InputFloat,   as_input_float,     as_input_float_mut;
-    Menu         => Menu,         as_menu,            as_menu_mut;
-    MenuBarItem  => MenuBarItem,  as_menu_bar_item,   as_menu_bar_item_mut;
-    MenuSubItem  => MenuSubItem,  as_menu_sub_item,   as_menu_sub_item_mut;
-    MouseArea    => MouseArea,    as_mouse_area,      as_mouse_area_mut;
+    // Menu         => Menu,         as_menu,            as_menu_mut;
+    // MenuBarItem  => MenuBarItem,  as_menu_bar_item,   as_menu_bar_item_mut;
+    // MenuSubItem  => MenuSubItem,  as_menu_sub_item,   as_menu_sub_item_mut;
+    // MouseArea    => MouseArea,    as_mouse_area,      as_mouse_area_mut;
     Opaque       => Opaque,       as_opaque,          as_opaque_mut;
     // PopUp        => PopUp,        as_popup,           as_popup_mut;
     RichText     => RichText,     as_rich_text,       as_rich_text_mut;

@@ -18,11 +18,11 @@ use crate::state::{Containers, IpgState, WidgetNode, Widgets, access_widget_para
 use crate::widgets::callbacks::{CallbackName, invoke_callback_with_args};
 
 use crate::widgets::ipg_button::{BtnMessage, button_callback};
-use crate::widgets::ipg_card::{CardMessage, card_callback};
-use crate::widgets::ipg_color_picker::{ColorPikMessage, color_picker_callback};
+// use crate::widgets::ipg_card::{CardMessage, card_callback};
+// use crate::widgets::ipg_color_picker::{ColorPikMessage, color_picker_callback};
 use crate::widgets::ipg_checkbox::{ChkMessage, checkbox_callback};
 use crate::widgets::ipg_combo_box::{CBMessage, combo_box_callback};
-use crate::widgets::ipg_date_picker::{DatePikMessage, date_picker_callback};
+// use crate::widgets::ipg_date_picker::{DatePikMessage, date_picker_callback};
 use crate::widgets::ipg_file_system::{FileSystemMessage, fsd_callback};
 use crate::widgets::ipg_input_float::{InputFloatMessage, input_float_callback};
 use crate::widgets::ipg_input_int::{InputIntMessage, input_int_callback};
@@ -42,7 +42,7 @@ use crate::widgets::ipg_text_input::{TIMessage, text_input_callback};
 use crate::widgets::ipg_timer::timer_callback;
 use crate::widgets::ipg_toggle::{TOGMessage, toggle_callback};
 use crate::widgets::ipg_window::{Window, add_windows, construct_window};
-use crate::widgets::ipg_menu::GroupedItem;
+// use crate::widgets::ipg_menu::GroupedItem;
 use crate::widgets::widget_param_update::{param_update, container_param_update};
 
 
@@ -50,11 +50,11 @@ use crate::widgets::widget_param_update::{param_update, container_param_update};
 pub enum Message {
     Button(usize, BtnMessage),
     CanvasDraw(usize, CanvasWidget),
-    Card(usize, CardMessage),
+    // Card(usize, CardMessage),
     CheckBox(usize, ChkMessage),
-    ColorPicker(usize, ColorPikMessage),
+    // ColorPicker(usize, ColorPikMessage),
     ComboBox(usize, CBMessage),
-    DatePicker(usize, DatePikMessage),
+    // DatePicker(usize, DatePikMessage),
     EventKeyboard(Event),
     EventMouse(Event),
     EventWindow((window::Id, Event)),
@@ -153,11 +153,11 @@ impl App {
                 process_draw_updates(&mut self.state);
                 get_tasks(&mut self.state)
             },
-            Message::Card(id, message) => {
-                card_callback(id, message);
-                process_widget_updates(&mut self.state);
-                Task::none()
-            },
+            // Message::Card(id, message) => {
+            //     card_callback(id, message);
+            //     process_widget_updates(&mut self.state);
+            //     Task::none()
+            // },
             Message::CheckBox(id, message) => {
                 checkbox_callback(&mut self.state, id, message);
                 process_widget_updates(&mut self.state);
@@ -175,32 +175,32 @@ impl App {
                 process_widget_updates(&mut self.state);
                 get_tasks(&mut self.state)
             },
-            Message::ColorPicker(id, message) => {
-                let task = 
-                    color_picker_callback(&mut self.state, id, message);
-                process_widget_updates(&mut self.state);
-                process_draw_updates(&mut self.state);
-                match task {
-                    Some(t) => t,
-                    None => Task::none()
-                }
-            },
+            // Message::ColorPicker(id, message) => {
+            //     let task = 
+            //         color_picker_callback(&mut self.state, id, message);
+            //     process_widget_updates(&mut self.state);
+            //     process_draw_updates(&mut self.state);
+            //     match task {
+            //         Some(t) => t,
+            //         None => Task::none()
+            //     }
+            // },
             Message::ComboBox(id, message) => {
                 combo_box_callback(&mut self.state, id, message);
                 process_widget_updates(&mut self.state);
                 process_draw_updates(&mut self.state);
                 get_tasks(&mut self.state)
             }
-            Message::DatePicker(id, message) => {
-                let task = 
-                    date_picker_callback(&mut self.state, id, message);
-                process_widget_updates(&mut self.state);
-                process_draw_updates(&mut self.state);
-                match task {
-                    Some(t) => t,
-                    None => Task::none()
-                }
-            },
+            // Message::DatePicker(id, message) => {
+            //     let task = 
+            //         date_picker_callback(&mut self.state, id, message);
+            //     process_widget_updates(&mut self.state);
+            //     process_draw_updates(&mut self.state);
+            //     match task {
+            //         Some(t) => t,
+            //         None => Task::none()
+            //     }
+            // },
             Message::EventKeyboard(event) => {
                 process_keyboard_events(event, self.state.keyboard_event_id_enabled.0);
                 process_widget_updates(&mut self.state);
@@ -712,21 +712,21 @@ fn get_children<'a>(parents: &Vec<ParentChildIds>,
     let id = &parents[*index].parent_id;
 
     // Special handling for Menu: build grouped content from MenuBarItem children
-    if id != &0 {
-        if let Some(Containers::Menu(menu)) = state.containers.get(id) {
-            let grouped = get_menu_children(parents, index, parent_ids, state);
-            return menu.construct(grouped, &state.widgets, &state.containers);
-        }
+    // if id != &0 {
+    //     if let Some(Containers::Menu(menu)) = state.containers.get(id) {
+    //         let grouped = get_menu_children(parents, index, parent_ids, state);
+    //         return menu.construct(grouped, &state.widgets, &state.containers);
+    //     }
 
-        if let Some(Containers::RichText(rt)) = state.containers.get(id) {
-            return rt.construct(&parents[*index].child_ids, &state.widgets);
-        }
+    //     if let Some(Containers::RichText(rt)) = state.containers.get(id) {
+    //         return rt.construct(&parents[*index].child_ids, &state.widgets);
+    //     }
 
-        if let Some(Containers::Table(table)) = state.containers.get(id) {
-            let sections = get_table_sections(parents, index, parent_ids, state);
-            return table.construct(sections, &state.widgets);
-        }
-    }
+    //     if let Some(Containers::Table(table)) = state.containers.get(id) {
+    //         let sections = get_table_sections(parents, index, parent_ids, state);
+    //         return table.construct(sections, &state.widgets);
+    //     }
+    // }
 
     for child in parents[*index].child_ids.iter() {
         if parent_ids.contains(child) {
@@ -752,110 +752,110 @@ fn get_children<'a>(parents: &Vec<ParentChildIds>,
 /// the remaining children become dropdown menu items.
 /// Returns (MenuBarItem id, elements) tuples so construct() can
 /// look up per-item parameters.
-fn get_menu_children<'a>(
-    parents: &Vec<ParentChildIds>,
-    menu_index: &usize,
-    parent_ids: &Vec<usize>,
-    state: &'a IpgState,
-) -> Vec<(usize, Vec<GroupedItem<'a>>)> {
-    let mut grouped: Vec<(usize, Vec<GroupedItem<'a>>)> = vec![];
+// fn get_menu_children<'a>(
+//     parents: &Vec<ParentChildIds>,
+//     menu_index: &usize,
+//     parent_ids: &Vec<usize>,
+//     state: &'a IpgState,
+// ) -> Vec<(usize, Vec<GroupedItem<'a>>)> {
+//     let mut grouped: Vec<(usize, Vec<GroupedItem<'a>>)> = vec![];
 
-    for child_id in parents[*menu_index].child_ids.iter() {
-        // Each child should be a MenuBarItem container
-        if parent_ids.contains(child_id) {
-            // Skip MenuBarItems whose `show` is false before building any children.
-            if let Some(bar_item) = state.containers.get(child_id).and_then(Containers::as_menu_bar_item) {
-                if !bar_item.show {
-                    continue;
-                }
-            }
+//     for child_id in parents[*menu_index].child_ids.iter() {
+//         // Each child should be a MenuBarItem container
+//         if parent_ids.contains(child_id) {
+//             // Skip MenuBarItems whose `show` is false before building any children.
+//             if let Some(bar_item) = state.containers.get(child_id).and_then(Containers::as_menu_bar_item) {
+//                 if !bar_item.show {
+//                     continue;
+//                 }
+//             }
 
-            let bar_item_index = parents.iter().position(|r| &r.parent_id == child_id).unwrap();
+//             let bar_item_index = parents.iter().position(|r| &r.parent_id == child_id).unwrap();
 
-            let mut group: Vec<GroupedItem<'a>> = vec![];
+//             let mut group: Vec<GroupedItem<'a>> = vec![];
 
-            for grandchild in parents[bar_item_index].child_ids.iter() {
-                if parent_ids.contains(grandchild) {
-                    // Check if this child container is a MenuSubItem
-                    if matches!(state.containers.get(grandchild), Some(Containers::MenuSubItem(_))) {
-                        let sub_index = parents.iter().position(|r| &r.parent_id == grandchild).unwrap();
-                        let sub_items = collect_sub_items(parents, &sub_index, parent_ids, state);
-                        if let Some((trigger, children)) = sub_items {
-                            group.push(GroupedItem::Sub {
-                                trigger,
-                                children,
-                                sub_item_id: *grandchild,
-                            });
-                        }
-                    } else {
-                        let idx = parents.iter().position(|r| &r.parent_id == grandchild).unwrap();
-                        if let Some(el) = get_children(parents, &idx, parent_ids, state) {
-                            group.push(GroupedItem::Plain(el));
-                        }
-                    }
-                } else if let Some(widget_el) = get_widget(state, grandchild) {
-                    group.push(GroupedItem::Plain(widget_el));
-                }
-            }
+//             for grandchild in parents[bar_item_index].child_ids.iter() {
+//                 if parent_ids.contains(grandchild) {
+//                     // Check if this child container is a MenuSubItem
+//                     if matches!(state.containers.get(grandchild), Some(Containers::MenuSubItem(_))) {
+//                         let sub_index = parents.iter().position(|r| &r.parent_id == grandchild).unwrap();
+//                         let sub_items = collect_sub_items(parents, &sub_index, parent_ids, state);
+//                         if let Some((trigger, children)) = sub_items {
+//                             group.push(GroupedItem::Sub {
+//                                 trigger,
+//                                 children,
+//                                 sub_item_id: *grandchild,
+//                             });
+//                         }
+//                     } else {
+//                         let idx = parents.iter().position(|r| &r.parent_id == grandchild).unwrap();
+//                         if let Some(el) = get_children(parents, &idx, parent_ids, state) {
+//                             group.push(GroupedItem::Plain(el));
+//                         }
+//                     }
+//                 } else if let Some(widget_el) = get_widget(state, grandchild) {
+//                     group.push(GroupedItem::Plain(widget_el));
+//                 }
+//             }
 
-            grouped.push((*child_id, group));
-        }
-    }
+//             grouped.push((*child_id, group));
+//         }
+//     }
 
-    grouped
-}
+//     grouped
+// }
 
 /// Collect the trigger element and child GroupedItems for a MenuSubItem container.
 /// Returns `Some((trigger, children))` where `trigger` is the first child and
 /// `children` are the remaining items (which may themselves be further MenuSubItems).
-fn collect_sub_items<'a>(
-    parents: &Vec<ParentChildIds>,
-    sub_index: &usize,
-    parent_ids: &Vec<usize>,
-    state: &'a IpgState,
-) -> Option<(Element<'a, Message>, Vec<GroupedItem<'a>>)> {
-    let child_ids = &parents[*sub_index].child_ids;
-    if child_ids.is_empty() {
-        return None;
-    }
+// fn collect_sub_items<'a>(
+//     parents: &Vec<ParentChildIds>,
+//     sub_index: &usize,
+//     parent_ids: &Vec<usize>,
+//     state: &'a IpgState,
+// ) -> Option<(Element<'a, Message>, Vec<GroupedItem<'a>>)> {
+//     let child_ids = &parents[*sub_index].child_ids;
+//     if child_ids.is_empty() {
+//         return None;
+//     }
 
-    let mut iter = child_ids.iter();
+//     let mut iter = child_ids.iter();
 
-    // First child is always the trigger element
-    let first_id = iter.next().unwrap();
-    let trigger = if parent_ids.contains(first_id) {
-        let idx = parents.iter().position(|r| &r.parent_id == first_id).unwrap();
-        get_children(parents, &idx, parent_ids, state)?
-    } else {
-        get_widget(state, first_id)?
-    };
+//     // First child is always the trigger element
+//     let first_id = iter.next().unwrap();
+//     let trigger = if parent_ids.contains(first_id) {
+//         let idx = parents.iter().position(|r| &r.parent_id == first_id).unwrap();
+//         get_children(parents, &idx, parent_ids, state)?
+//     } else {
+//         get_widget(state, first_id)?
+//     };
 
-    // Remaining children become the sub-menu items (recursively)
-    let mut children: Vec<GroupedItem<'a>> = vec![];
-    for child_id in iter {
-        if parent_ids.contains(child_id) {
-            if matches!(state.containers.get(child_id), Some(Containers::MenuSubItem(_))) {
-                let sub_idx = parents.iter().position(|r| &r.parent_id == child_id).unwrap();
-                if let Some((trigger, sub_children)) = collect_sub_items(parents, &sub_idx, parent_ids, state) {
-                    children.push(GroupedItem::Sub {
-                        trigger,
-                        children: sub_children,
-                        sub_item_id: *child_id,
-                    });
-                }
-            } else {
-                let idx = parents.iter().position(|r| &r.parent_id == child_id).unwrap();
-                if let Some(el) = get_children(parents, &idx, parent_ids, state) {
-                    children.push(GroupedItem::Plain(el));
-                }
-            }
-        } else if let Some(widget_el) = get_widget(state, child_id) {
-            children.push(GroupedItem::Plain(widget_el));
-        }
-    }
+//     // Remaining children become the sub-menu items (recursively)
+//     let mut children: Vec<GroupedItem<'a>> = vec![];
+//     for child_id in iter {
+//         if parent_ids.contains(child_id) {
+//             if matches!(state.containers.get(child_id), Some(Containers::MenuSubItem(_))) {
+//                 let sub_idx = parents.iter().position(|r| &r.parent_id == child_id).unwrap();
+//                 if let Some((trigger, sub_children)) = collect_sub_items(parents, &sub_idx, parent_ids, state) {
+//                     children.push(GroupedItem::Sub {
+//                         trigger,
+//                         children: sub_children,
+//                         sub_item_id: *child_id,
+//                     });
+//                 }
+//             } else {
+//                 let idx = parents.iter().position(|r| &r.parent_id == child_id).unwrap();
+//                 if let Some(el) = get_children(parents, &idx, parent_ids, state) {
+//                     children.push(GroupedItem::Plain(el));
+//                 }
+//             }
+//         } else if let Some(widget_el) = get_widget(state, child_id) {
+//             children.push(GroupedItem::Plain(widget_el));
+//         }
+//     }
 
-    Some((trigger, children))
-}
+//     Some((trigger, children))
+// }
 
 /// Build the three sections (header, body, footer) for a Table container.
 /// Each direct child of Table should be a TableHeader, TableBody, or TableFooter.
@@ -917,15 +917,15 @@ fn get_container<'a>(state: &'a IpgState,
                         None
                     }
                 },
-                Containers::CardClass(crd) => {
-                    crd.construct(content, &state.widgets)
-                },
-                Containers::ColorPicker(cp) => {
-                    if content.len() > 1 {
-                        eprintln!("[WARNING] A color picker can have only 1 trigger widget, others are ignored")
-                    }
-                    cp.construct(content)
-                },
+                // Containers::CardClass(crd) => {
+                //     crd.construct(content, &state.widgets)
+                // },
+                // Containers::ColorPicker(cp) => {
+                //     if content.len() > 1 {
+                //         eprintln!("[WARNING] A color picker can have only 1 trigger widget, others are ignored")
+                //     }
+                //     cp.construct(content)
+                // },
                 Containers::Column(col) => {
                     col.construct(content)
                 },
@@ -935,12 +935,12 @@ fn get_container<'a>(state: &'a IpgState,
                     }
                     cont.construct(content, &state.widgets)
                 },
-                Containers::DatePicker(dp) => {
-                    if content.len() > 1 {
-                        eprintln!("[WARNING] A date picker can have only 1 trigger widget, others ignored")
-                    }
-                    dp.construct(content)
-                },
+                // Containers::DatePicker(dp) => {
+                //     if content.len() > 1 {
+                //         eprintln!("[WARNING] A date picker can have only 1 trigger widget, others ignored")
+                //     }
+                //     dp.construct(content)
+                // },
                 Containers::Float(float) => {
                     if content.len() > 1 {
                         eprintln!("[WARNING] A float can have only one widget, place your multiple widgets into a column or row, others ignored")
@@ -953,21 +953,21 @@ fn get_container<'a>(state: &'a IpgState,
                 Containers::InputFloat(input_flt) => {
                     input_flt.construct(content, &state.widgets)
                 }
-                Containers::Menu(_) => {
-                    // Menu children are consumed by get_menu_children;
-                    // it should never reach get_container.
-                    panic!("Menu should not reach get_container directly")
-                },
-                Containers::MenuBarItem(_) => {
-                    // MenuBarItem children are consumed by get_menu_children;
-                    // it should never reach get_container.
-                    panic!("MenuBarItem should not reach get_container directly")
-                },
-                Containers::MenuSubItem(_) => {
-                    // MenuSubItem children are consumed by collect_sub_items;
-                    // it should never reach get_container.
-                    panic!("MenuSubItem should not reach get_container directly")
-                },
+                // Containers::Menu(_) => {
+                //     // Menu children are consumed by get_menu_children;
+                //     // it should never reach get_container.
+                //     panic!("Menu should not reach get_container directly")
+                // },
+                // Containers::MenuBarItem(_) => {
+                //     // MenuBarItem children are consumed by get_menu_children;
+                //     // it should never reach get_container.
+                //     panic!("MenuBarItem should not reach get_container directly")
+                // },
+                // Containers::MenuSubItem(_) => {
+                //     // MenuSubItem children are consumed by collect_sub_items;
+                //     // it should never reach get_container.
+                //     panic!("MenuSubItem should not reach get_container directly")
+                // },
                 Containers::MouseArea(m_area) => {
                     m_area.construct(content)
                 },
@@ -1045,9 +1045,9 @@ fn get_widget<'a>(state: &'a IpgState, id: &usize) -> Option<Element<'a, Message
                 Widgets::Button(btn) => {
                     btn.construct(&state.widgets)
                 },
-                Widgets::Card(card) => {
-                    card.construct(&state.widgets)
-                },
+                // Widgets::Card(card) => {
+                //     card.construct(&state.widgets)
+                // },
                 Widgets::CheckBox(chk) => {
                     chk.construct(&state.widgets)
                 },
@@ -1121,14 +1121,14 @@ fn get_widget<'a>(state: &'a IpgState, id: &usize) -> Option<Element<'a, Message
                     None
                 },
                 Widgets::ButtonStyle(_) |
-                Widgets::CardStyle(_) |
+                // Widgets::CardStyle(_) |
                 Widgets::CheckboxStyle(_) |
                 Widgets::ComboBoxInputStyle(_) |
                 Widgets::ComboBoxMenuStyle(_) |
                 Widgets::ContainerStyle(_) |
                 Widgets::InputFloatStyle(_) |
                 Widgets::InputIntStyle(_) |
-                Widgets::MenuStyle(_) |
+                // Widgets::MenuStyle(_) |
                 Widgets::PickListStyle(_) |
                 Widgets::ProgressBarStyle(_) |
                 Widgets::RadioStyle(_) |
@@ -1482,7 +1482,7 @@ fn process_shows(
         match widget {
             // Widgets that support the show parameter
             Widgets::Button(w) => w.show = *val,
-            Widgets::Card(w) => w.show = *val,
+            // Widgets::Card(w) => w.show = *val,
             Widgets::CheckBox(w) => w.show = *val,
             Widgets::ComboBox(w) => w.show = *val,
             Widgets::Image(w) => w.show = *val,
@@ -1502,7 +1502,7 @@ fn process_shows(
             // Widgets that do NOT support show parameter
               Widgets::AutoScrollStyle(_)
             | Widgets::ButtonStyle(_)
-            | Widgets::CardStyle(_)
+            // | Widgets::CardStyle(_)
             | Widgets::CheckboxStyle(_)
             | Widgets::ComboBoxInputStyle(_)
             | Widgets::ComboBoxMenuStyle(_)
@@ -1510,7 +1510,7 @@ fn process_shows(
             | Widgets::FileSystemDialog(_)
             | Widgets::Font(_)
             | Widgets::Icon(_)
-            | Widgets::MenuStyle(_)
+            // | Widgets::MenuStyle(_)
             | Widgets::InputFloatStyle(_)
             | Widgets::InputIntStyle(_)
             | Widgets::Palette(_)

@@ -6,7 +6,7 @@ use super::helpers::{
 };
 use iced::widget::opaque;
 use iced::widget::{canvas::Canvas, combo_box, container, column, row};
-use iced::{Element, Length};
+use iced::{Element, Length, Widget};
 use crate::graphics::colors::Color as IpgColor;
 
 /// A message produced internally by [`ColorPickerState::view`].

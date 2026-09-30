@@ -9,9 +9,9 @@ use iced::touch;
 use iced::advanced::widget::tree::{self, Tree};
 use iced::{
     self, Color, Length, 
-    Rectangle, Size, Theme,
+    Rectangle, Size, Theme, Widget
 };
-use iced::advanced::{mouse, overlay, Layout, Shell, Widget};
+use iced::advanced::{mouse, overlay, Layout, Shell};
 use iced::advanced::Renderer as AdvancedRenderer;
 use iced::Point;
 use std::sync::atomic::{AtomicU64, Ordering};
@@ -695,8 +695,7 @@ where
     }
 }
 
-impl<Message, Theme> Widget<Message, Theme, iced::Renderer>
-    for SashWidget<'_, Message, Theme>
+impl<Message, Theme> Widget<Message, Theme, iced::Renderer> for SashWidget
 where
     Message: Clone,
     Theme: Catalog,

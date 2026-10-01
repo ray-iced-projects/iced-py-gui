@@ -40,7 +40,7 @@ use crate::py_api::color_picker::{add_color_picker};
 use crate::py_api::column::add_column;
 use crate::py_api::combo_box::{add_combobox, add_combobox_input_style, add_combobox_menu_style};
 use crate::py_api::container::{add_container, add_container_style};
-// use crate::py_api::date_picker::add_date_picker;
+use crate::py_api::date_picker::add_date_picker;
 use crate::py_api::draw::add_draw;
 use crate::py_api::draw_update::{update_draw_params, delete_draw_widget};
 use crate::py_api::events::{add_event_keyboard, add_event_mouse};
@@ -92,7 +92,7 @@ use crate::widgets::ipg_checkbox::{CheckboxParam, CheckboxStyleParam, CheckboxSt
 use crate::widgets::ipg_column::ColumnParam;
 use crate::widgets::ipg_combo_box::{ComboBoxParam, ComboBoxMenuStyleParam};
 use crate::widgets::ipg_container::{ContainerParam, ContainerStyleParam, ContainerStyleStd};
-// use crate::widgets::ipg_date_picker::DatePickerParam;
+use crate::widgets::ipg_date_picker::DatePickerParam;
 use crate::widgets::ipg_draw::DrawParam;
 use crate::widgets::ipg_file_system::{FileSystemDialogParam, FileSystemDialogCallbackType};
 use crate::widgets::ipg_float::FloatParam;
@@ -169,7 +169,7 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(add_combobox_menu_style, m)?)?;
     m.add_function(wrap_pyfunction!(add_container_style, m)?)?;
     m.add_function(wrap_pyfunction!(add_container, m)?)?;
-    // m.add_function(wrap_pyfunction!(add_date_picker, m)?)?;
+    m.add_function(wrap_pyfunction!(add_date_picker, m)?)?;
     m.add_function(wrap_pyfunction!(add_draw, m)?)?;
     m.add_function(wrap_pyfunction!(add_file_system_dialog, m)?)?;
     m.add_function(wrap_pyfunction!(get_dialog_filters, m)?)?;
@@ -269,7 +269,7 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<ContainerParam>()?;
     m.add_class::<ContainerStyleParam>()?;
     m.add_class::<ContainerStyleStd>()?;
-    // m.add_class::<DatePickerParam>()?;
+    m.add_class::<DatePickerParam>()?;
     m.add_class::<DrawMode>()?;
     m.add_class::<DrawParam>()?;
     m.add_class::<DrawWidget>()?;

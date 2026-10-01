@@ -22,7 +22,7 @@ use crate::widgets::ipg_button::{BtnMessage, button_callback};
 use crate::widgets::ipg_color_picker::{ColorPikMessage, color_picker_callback};
 use crate::widgets::ipg_checkbox::{ChkMessage, checkbox_callback};
 use crate::widgets::ipg_combo_box::{CBMessage, combo_box_callback};
-// use crate::widgets::ipg_date_picker::{DatePikMessage, date_picker_callback};
+use crate::widgets::ipg_date_picker::{DatePikMessage, date_picker_callback};
 use crate::widgets::ipg_file_system::{FileSystemMessage, fsd_callback};
 use crate::widgets::ipg_input_float::{InputFloatMessage, input_float_callback};
 use crate::widgets::ipg_input_int::{InputIntMessage, input_int_callback};
@@ -54,7 +54,7 @@ pub enum Message {
     CheckBox(usize, ChkMessage),
     ColorPicker(usize, ColorPikMessage),
     ComboBox(usize, CBMessage),
-    // DatePicker(usize, DatePikMessage),
+    DatePicker(usize, DatePikMessage),
     EventKeyboard(Event),
     EventMouse(Event),
     EventWindow((window::Id, Event)),
@@ -191,16 +191,16 @@ impl App {
                 process_draw_updates(&mut self.state);
                 get_tasks(&mut self.state)
             }
-            // Message::DatePicker(id, message) => {
-            //     let task = 
-            //         date_picker_callback(&mut self.state, id, message);
-            //     process_widget_updates(&mut self.state);
-            //     process_draw_updates(&mut self.state);
-            //     match task {
-            //         Some(t) => t,
-            //         None => Task::none()
-            //     }
-            // },
+            Message::DatePicker(id, message) => {
+                let task = 
+                    date_picker_callback(&mut self.state, id, message);
+                process_widget_updates(&mut self.state);
+                process_draw_updates(&mut self.state);
+                match task {
+                    Some(t) => t,
+                    None => Task::none()
+                }
+            },
             Message::EventKeyboard(event) => {
                 process_keyboard_events(event, self.state.keyboard_event_id_enabled.0);
                 process_widget_updates(&mut self.state);
@@ -935,12 +935,12 @@ fn get_container<'a>(state: &'a IpgState,
                     }
                     cont.construct(content, &state.widgets)
                 },
-                // Containers::DatePicker(dp) => {
-                //     if content.len() > 1 {
-                //         eprintln!("[WARNING] A date picker can have only 1 trigger widget, others ignored")
-                //     }
-                //     dp.construct(content)
-                // },
+                Containers::DatePicker(dp) => {
+                    if content.len() > 1 {
+                        eprintln!("[WARNING] A date picker can have only 1 trigger widget, others ignored")
+                    }
+                    dp.construct(content)
+                },
                 Containers::Float(float) => {
                     if content.len() > 1 {
                         eprintln!("[WARNING] A float can have only one widget, place your multiple widgets into a column or row, others ignored")

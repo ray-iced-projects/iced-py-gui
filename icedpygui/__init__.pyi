@@ -505,66 +505,66 @@ def add_combobox(
         The numeric widget ID of the newly created pick list.
     """
     ...
-# def add_date_picker(
-#     window_id: str,
-#     container_id: str,
-#     *,
-#     parent_id: str | None = None,
-#     on_open: bool | None = None,
-#     on_submit: bool | None = None,
-#     on_cancel: bool | None = None,
-#     opened: bool = False,
-#     size_factor: float | None = None,
-#     gap: float | None = None,
-#     snap_within_viewport: bool | None = None,
-#     position_bottom: bool | None = None,
-#     position_left: bool | None = None,
-#     position_top: bool | None = None,
-#     position_right: bool | None = None,
-#     user_data: any | None = None,
-#     gen_id: bool | None = None,
-#     ) -> int:
-#     """
-#     Add a date picker container widget.
+def add_date_picker(
+    window_id: str,
+    container_id: str,
+    *,
+    parent_id: str | None = None,
+    on_open: bool | None = None,
+    on_submit: bool | None = None,
+    on_cancel: bool | None = None,
+    opened: bool = False,
+    size_factor: float | None = None,
+    gap: float | None = None,
+    snap_within_viewport: bool | None = None,
+    position_bottom: bool | None = None,
+    position_left: bool | None = None,
+    position_top: bool | None = None,
+    position_right: bool | None = None,
+    user_data: any | None = None,
+    gen_id: bool | None = None,
+    ) -> int:
+    """
+    Add a date picker container widget.
 
-#     A date picker that opens a calendar from a button or other widget,
-#     allowing the user to select a date.
+    A date picker that opens a calendar from a button or other widget,
+    allowing the user to select a date.
 
-#     Parameters
-#     ----------
-#     window_id: str
-#         Sets the window id for the date picker.
-#         When the parent is using a with ... construction then not required.
-#     container_id: str,
-#         Sets the container id of the date picker.
-#         When the parent is using a with ... construction then not required.
-#     parent_id : str
-#         Sets the parent container ID that this date picker belongs to.
-#         When the parent is using a with ... construction then not required.
-#     label : str, Optional
-#         Sets the Text label displayed on the button.
-#     gen_id : int, Optional
-#         Obtains an ID of a widget that have not been created, used for the gen_id parameter.
-#     size_factor : float, Optional
-#         Sets the size scaling factor for the calendar.
-#     padding : list of float, Optional
-#         Sets the Padding as [all], [vertical, horizontal], or
-#         [top, right, bottom, left].
-#     on_submit : callable, Optional
-#         Sets the Callback method to invoke when a date is submitted.
-#     user_data : Any, Optional
-#         Sets the Arbitrary data forwarded to callbacks.
-#     show : bool, default True
-#         Whether the date picker is visible.
-#     show_calendar : bool, Optional
-#         Whether the calendar popup is shown.
+    Parameters
+    ----------
+    window_id: str
+        Sets the window id for the date picker.
+        When the parent is using a with ... construction then not required.
+    container_id: str,
+        Sets the container id of the date picker.
+        When the parent is using a with ... construction then not required.
+    parent_id : str
+        Sets the parent container ID that this date picker belongs to.
+        When the parent is using a with ... construction then not required.
+    label : str, Optional
+        Sets the Text label displayed on the button.
+    gen_id : int, Optional
+        Obtains an ID of a widget that have not been created, used for the gen_id parameter.
+    size_factor : float, Optional
+        Sets the size scaling factor for the calendar.
+    padding : list of float, Optional
+        Sets the Padding as [all], [vertical, horizontal], or
+        [top, right, bottom, left].
+    on_submit : callable, Optional
+        Sets the Callback method to invoke when a date is submitted.
+    user_data : Any, Optional
+        Sets the Arbitrary data forwarded to callbacks.
+    show : bool, default True
+        Whether the date picker is visible.
+    show_calendar : bool, Optional
+        Whether the calendar popup is shown.
 
-#     Returns
-#     -------
-#     int
-#         The numeric widget ID of the newly created date picker.
-#     """
-#     ...
+    Returns
+    -------
+    int
+        The numeric widget ID of the newly created date picker.
+    """
+    ...
 def add_event_keyboard(
         enabled: bool,
         *,
@@ -2204,46 +2204,46 @@ class Container:
         exc_val: BaseException | None, \
             exc_tb: TracebackType | None) -> bool: ...
 
-# class DatePicker:
-#     """Context manager wrapper around add_date_picker.
+class DatePicker:
+    """Context manager wrapper around add_date_picker.
 
-#     A container for selecting dates and holds an activating widget, i.e. button.
+    A container for selecting dates and holds an activating widget, i.e. button.
 
-#     Usage::
+    Usage::
 
-#         with Window(title="Demo"):
-#             with Container(fill=True, align_center=True)
-#                 with DatePicker(
-#                     on_open=cp_opened, # Callback when button pressed
-#                     on_submit=date_selected, # Callback with the selected date
-#                     on_cancel=cp_canceled, # Callback when canceled
-#                     ):
+        with Window(title="Demo"):
+            with Container(fill=True, align_center=True)
+                with DatePicker(
+                    on_open=cp_opened, # Callback when button pressed
+                    on_submit=date_selected, # Callback with the selected date
+                    on_cancel=cp_canceled, # Callback when canceled
+                    ):
 
-#                     add_button(label="Date Picker")
+                    add_button(label="Date Picker")
 
-#         start_session
-#     """
-#     def __init__(
-#         self,
-#         *,
-#         on_open: bool | None = None,
-#         on_submit: bool | None = None,
-#         on_cancel: bool | None = None,
-#         opened: bool = False,
-#         size_factor: float | None = None,
-#         gap: float | None = None,
-#         snap_within_viewport: bool | None = None,
-#         position_bottom: bool | None = None,
-#         position_left: bool | None = None,
-#         position_top: bool | None = None,
-#         position_right: bool | None = None,
-#         user_data: any | None = None,
-#         gen_id: bool | None = None,
-#     ) -> None: ...
-#     def __enter__(self) -> int: ...
-#     def __exit__(self, exc_type: type[BaseException] | None, \
-#         exc_val: BaseException | None, \
-#             exc_tb: TracebackType | None) -> bool: ...
+        start_session
+    """
+    def __init__(
+        self,
+        *,
+        on_open: bool | None = None,
+        on_submit: bool | None = None,
+        on_cancel: bool | None = None,
+        opened: bool = False,
+        size_factor: float | None = None,
+        gap: float | None = None,
+        snap_within_viewport: bool | None = None,
+        position_bottom: bool | None = None,
+        position_left: bool | None = None,
+        position_top: bool | None = None,
+        position_right: bool | None = None,
+        user_data: any | None = None,
+        gen_id: bool | None = None,
+    ) -> None: ...
+    def __enter__(self) -> int: ...
+    def __exit__(self, exc_type: type[BaseException] | None, \
+        exc_val: BaseException | None, \
+            exc_tb: TracebackType | None) -> bool: ...
 
 class Float:
     """Context manager wrapper around add_float.

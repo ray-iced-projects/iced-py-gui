@@ -22,7 +22,7 @@ use crate::widgets::ipg_color_picker::ColorPicker;
 use crate::widgets::ipg_column::Column;
 use crate::widgets::ipg_combo_box::{ComboBox, ComboBoxMenuStyle, ComboBoxInputStyle};
 use crate::widgets::ipg_container::{Container, ContainerStyle};
-// use crate::widgets::ipg_date_picker::DatePicker;
+use crate::widgets::ipg_date_picker::DatePicker;
 use crate::widgets::ipg_draw::Draw;
 use crate::ipg_widgets::ipg_canvas_draw::canvas_draw::{
     DrawState, CanvasWidget, Circle, DrawMode, DrawStatus};
@@ -79,7 +79,7 @@ pub enum Containers {
     ColorPicker(ColorPicker),
     Column(Column),
     Container(Container),
-    // DatePicker(DatePicker),
+    DatePicker(DatePicker),
     Float(Float),
     Grid(Grid),
     InputFloat(InputFloat),

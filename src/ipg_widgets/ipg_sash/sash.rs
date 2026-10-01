@@ -27,6 +27,8 @@ impl SashH {
         initial_sizes: Vec<f32>,
         height: f32,
         sash_size: f32,
+        min_size: Option<f32>,
+        max_size: Option<f32>,
     ) -> SashWidget<'a, Message, Theme>
     where
         Message: Clone,
@@ -39,8 +41,8 @@ impl SashH {
             sash_size,
             axis: Axis::Horizontal,
             id: Id::unique(),
-            max_size: None,
-            min_size: 0.0,
+            max_size,
+            min_size,
             on_resize: None,
             on_release: None,
             sync_sizes: None,
@@ -49,11 +51,12 @@ impl SashH {
             outer_resize_mode: OuterResizeMode::LastOnly,
             on_outer_resize: None,
             cross_handle_size: None,
-            min_cross_size: 0.0,
+            min_cross_size: None,
             max_cross_size: None,
             on_cross_resize: None,
             sync_cross_size: None,
             clip: false,
+            disabled: false,
         }
     }
 }
@@ -72,6 +75,8 @@ impl SashV {
         initial_sizes: Vec<f32>,
         width: f32,
         sash_size: f32,
+        min_size: Option<f32>,
+        max_size: Option<f32>,
     ) -> SashWidget<'a, Message, Theme>
     where
         Message: Clone + 'a,
@@ -84,8 +89,8 @@ impl SashV {
             sash_size,
             axis: Axis::Vertical,
             id: Id::unique(),
-            max_size: None,
-            min_size: 0.0,
+            max_size,
+            min_size,
             on_resize: None,
             on_release: None,
             sync_sizes: None,
@@ -94,11 +99,12 @@ impl SashV {
             outer_resize_mode: OuterResizeMode::LastOnly,
             on_outer_resize: None,
             cross_handle_size: None,
-            min_cross_size: 0.0,
+            min_cross_size: None,
             max_cross_size: None,
             on_cross_resize: None,
             sync_cross_size: None,
             clip: false,
+            disabled: false,
         }
     }
 }
@@ -571,7 +577,7 @@ where
     axis: Axis,
     id: Id,
     max_size: Option<f32>,
-    min_size: f32,
+    min_size: Option<f32>,
     on_resize: Option<Box<dyn Fn(Id, usize, f32) -> Message + 'a>>,
     on_release: Option<Box<dyn Fn(Id, usize) -> Message + 'a>>,
     sync_sizes: Option<Vec<f32>>,
@@ -580,11 +586,12 @@ where
     outer_resize_mode: OuterResizeMode,
     on_outer_resize: Option<Box<dyn Fn(Id, f32) -> Message + 'a>>,
     cross_handle_size: Option<f32>,
-    min_cross_size: f32,
+    min_cross_size: Option<f32>,
     max_cross_size: Option<f32>,
     on_cross_resize: Option<Box<dyn Fn(Id, f32) -> Message + 'a>>,
     sync_cross_size: Option<f32>,
     clip: bool,
+    disabled: bool,
 }
 
 impl<'a, Message, Theme> SashWidget<'a, Message, Theme>
@@ -592,18 +599,6 @@ where
     Message: Clone,
     Theme: Catalog,
 {
-    /// Overrides the auto-generated [`Id`]. Only needed for multi-sash routing.
-    pub fn id(mut self, id: Id) -> Self {
-        self.id = id;
-        self
-    }
-
-    /// Maximum total size; panels scale proportionally when exceeded.
-    pub fn max_size(mut self, max: f32) -> Self {
-        self.max_size = Some(max);
-        self
-    }
-
     /// Maximum total size; panels scale proportionally when exceeded.
     pub fn max_size_maybe(mut self, max: Option<f32>) -> Self {
         if let Some(v) = max {
@@ -613,8 +608,10 @@ where
     }
 
     /// Minimum panel size enforced while dragging. Default: `0.0`.
-    pub fn min_size(mut self, min: f32) -> Self {
-        self.min_size = min;
+    pub fn min_size_maybe(mut self, min: Option<f32>) -> Self {
+        if let Some(v) = min {
+            self.min_size = Some(v);
+        }
         self
     }
 
@@ -673,22 +670,18 @@ where
         self
     }
 
-    /// Minimum cross size enforced while dragging the cross handle. Default: `0.0`.
-    pub fn min_cross_size(mut self, min: f32) -> Self {
-        self.min_cross_size = min;
-        self
-    }
-
-    /// Maximum cross size enforced while dragging the cross handle.
-    pub fn max_cross_size(mut self, max: f32) -> Self {
-        self.max_cross_size = Some(max);
-        self
-    }
-
     /// Maximum cross size enforced while dragging the cross handle.
     pub fn max_cross_size_maybe(mut self, max: Option<f32>) -> Self {
         if let Some(v) = max {
             self.max_cross_size = Some(v);
+        }
+        self
+    }
+
+    /// Minimum cross size enforced while dragging the cross handle.
+    pub fn min_cross_size_maybe(mut self, min: Option<f32>) -> Self {
+        if let Some(v) = min {
+            self.min_cross_size = Some(v);
         }
         self
     }
@@ -867,7 +860,9 @@ where
         let hbs = get_handle_bounds(bounds, &display, hw, hh, &offsets, false, ax.direction());
         let hover = st.hovered;
         for (i, hb) in hbs.iter().enumerate() {
-            let status = if st.is_dragging && i == st.drag_index {
+            let status = if self.disabled {
+                Status::Disabled
+            } else if st.is_dragging && i == st.drag_index {
                 Status::Dragged
             } else if Some(i) == hover {
                 Status::Hovered
@@ -893,7 +888,9 @@ where
             let n_sashes = display.len().saturating_sub(1);
             let panel_total: f32 = display.iter().sum::<f32>() + n_sashes as f32 * self.sash_size;
             let outer_rect = ax.outer_handle_rect(bounds, panel_total, ohs, cross_size);
-            let outer_status = if st.is_outer_dragging {
+            let outer_status = if self.disabled {
+                Status::Disabled
+            } else if st.is_outer_dragging {
                 Status::Dragged
             } else if st.outer_hovered {
                 Status::Hovered
@@ -920,7 +917,9 @@ where
             let panel_total: f32 = display.iter().sum::<f32>() + n_sashes as f32 * self.sash_size;
             let total_main = panel_total + self.outer_handle_size.unwrap_or(0.0);
             let cross_rect = ax.cross_handle_rect(bounds, cross_size, chs, total_main);
-            let cross_status = if st.is_cross_dragging {
+            let cross_status = if self.disabled {
+                Status::Disabled
+            } else if st.is_cross_dragging {
                 Status::Dragged
             } else if st.cross_hovered {
                 Status::Hovered
@@ -955,6 +954,10 @@ where
     ) {
         for (child, (child_layout, child_tree)) in self.children.iter_mut().zip(layout.iter_mut(&mut tree.children)) {
             child.update(child_tree, event, child_layout, cursor, renderer, shell, viewport);
+        }
+
+        if self.disabled {
+            return;
         }
 
         let ax = self.axis;
@@ -1012,9 +1015,8 @@ where
             | Event::Touch(touch::Event::FingerLifted { .. })
             | Event::Touch(touch::Event::FingerLost { .. }) => {
                 if is_dragging {
-                    let id = st.id;
                     if let Some(f) = &self.on_release {
-                        shell.publish(f(id, st.drag_index));
+                        shell.publish(f(st.id, st.drag_index));
                     }
                     st.is_dragging = false;
                     st.drag_index = 0;
@@ -1057,7 +1059,7 @@ where
                     } else {
                         (pos - pb_start).round()
                     };
-                    resize(&mut st.sizes, idx, v * scale, self.min_size);
+                    resize(&mut st.sizes, idx, v * scale, self.min_size.unwrap_or_default());
                     if let Some(f) = &self.on_resize {
                         shell.publish(f(id, idx, v * scale));
                     }
@@ -1076,7 +1078,7 @@ where
                         .max(0.0)
                         .min(self.max_size.unwrap_or(f32::MAX))
                         .min(container_max);
-                    apply_outer_resize(&mut st.sizes, new_total, self.outer_resize_mode, self.min_size);
+                    apply_outer_resize(&mut st.sizes, new_total, self.outer_resize_mode, self.min_size.unwrap_or_default());
                     if let Some(f) = &self.on_outer_resize {
                         let total: f32 = st.sizes.iter().sum();
                         shell.publish(f(id, total));
@@ -1090,7 +1092,7 @@ where
                     let container_max_cross = (st.limits_max_cross - self.cross_handle_size.unwrap_or(0.0)).max(0.0);
                     let new_cross = (st.cross_drag_start_size + pos - st.cross_drag_start_cursor)
                         .round()
-                        .max(self.min_cross_size)
+                        .max(self.min_cross_size.unwrap_or_default())
                         .min(self.max_cross_size.unwrap_or(f32::MAX))
                         .min(container_max_cross);
                     st.cross_size = new_cross;
@@ -1208,7 +1210,7 @@ where
 // where
 //     Message: Clone + 'a,
 //     Theme: Catalog + 'a,
-// {   
+// {
 //     fn from(w: SashWidget<'a, Message, Theme>) -> Self {
 //         w._boxed()
 //     }

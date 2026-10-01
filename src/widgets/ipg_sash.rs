@@ -64,16 +64,18 @@ impl Sash {
         let widget_id = self.id;
 
         let sh = if self.vertical_direction == Some(true) {
-            SashV::new(content, self.initial_sizes.clone(), self.size, self.sash_size)
+            SashV::new(content, self.initial_sizes.clone(), self.size, self.sash_size, self.min_size, self.max_size)
         } else {
-            SashH::new(content, self.initial_sizes.clone(), self.size, self.sash_size)
+            SashH::new(content, self.initial_sizes.clone(), self.size, self.sash_size, self.min_size, self.max_size)
         }
         .on_resize(move |id, index, size| Message::Sash(widget_id, SashMessage::ResizedH(id, index, size)))
         .on_release(move |id, index| Message::Sash(widget_id, SashMessage::Released(id, index)))
         .on_outer_resize(move |id, size| Message::Sash(widget_id, SashMessage::ResizedOuter(id, size)))
         .on_cross_resize(move |id, size| Message::Sash(widget_id, SashMessage::ResizedCrossH(id, size)))
         .max_size_maybe(self.max_size)
-        .max_cross_size_maybe(self.max_cross_size);
+        .min_size_maybe(self.min_size)
+        .max_cross_size_maybe(self.max_cross_size)
+        .min_cross_size_maybe(self.min_cross_size);
 
         let sh = if self.sync_sashes == Some(true) {
             sh.sync_sashes(self.current_sizes.clone())
@@ -89,14 +91,6 @@ impl Sash {
 
         let sh = if let Some(sz) = self.cross_handle_size {
             sh.cross_handle(sz)
-        } else { sh };
-
-        let sh = if let Some(min) = self.min_size {
-            sh.min_size(min)
-        } else { sh };
-
-        let sh = if let Some(min) = self.min_cross_size {
-            sh.min_cross_size(min)
         } else { sh };
 
         let sh = if self.clip == Some(true) {

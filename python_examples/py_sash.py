@@ -16,7 +16,8 @@ from icedpygui import (
     add_radio,
     add_text,
     add_container_style,
-    update_widget,)
+    update_widget
+    )
 
 cont_styles = []
 cont_styles.append(add_container_style(bkg_rgba=[0.25, 0.35, 0.55, 1.0]))

@@ -24,7 +24,7 @@ from .icedpygui import (
     add_combobox as _add_combobox,
     add_combobox_input_style,
     add_combobox_menu_style,
-    # add_color_picker as _add_color_picker,
+    add_color_picker as _add_color_picker,
     add_column as _add_column,
     add_container as _add_container,
     add_container_style,
@@ -361,8 +361,8 @@ def _wrap_container(rust_fn, name):
 
 # add_card_class = _wrap_container(_add_card_class, "add_card_class")
 # add_card_class.__doc__ = _add_card_class.__doc__
-# add_color_picker = _wrap_container(_add_color_picker, "add_color_picker")
-# add_color_picker.__doc__ = _add_color_picker.__doc__
+add_color_picker = _wrap_container(_add_color_picker, "add_color_picker")
+add_color_picker.__doc__ = _add_color_picker.__doc__
 # add_date_picker = _wrap_container(_add_date_picker, "add_date_picker")
 # add_date_picker.__doc__ = _add_date_picker.__doc__
 add_column = _wrap_container(_add_column, "add_column")
@@ -526,43 +526,43 @@ class Column:
         return False
 
 
-# class ColorPicker:
-#     """Wrapper for add_color_picker"""
-#     def __init__(self, *, container_id=None, window_id=None, parent_id=None, **kwargs):
-#         self.window_id = (
-#             _resolve_window_id(window_id)
-#             if window_id is not None
-#             else _current_window_or_parent(parent_id)
-#         )
-#         if self.window_id is None:
-#             raise ValueError("ColorPicker: window_id is required (either pass it\
-#                 or use a Window context manager)")
-#         self.container_id = (
-#             container_id
-#             if container_id is not None
-#             else str(generate_id())
-#         )
-#         self.parent_id = parent_id
-#         self.kwargs = kwargs
-#         self.numeric_id = 0
+class ColorPicker:
+    """Wrapper for add_color_picker"""
+    def __init__(self, *, container_id=None, window_id=None, parent_id=None, **kwargs):
+        self.window_id = (
+            _resolve_window_id(window_id)
+            if window_id is not None
+            else _current_window_or_parent(parent_id)
+        )
+        if self.window_id is None:
+            raise ValueError("ColorPicker: window_id is required (either pass it\
+                or use a Window context manager)")
+        self.container_id = (
+            container_id
+            if container_id is not None
+            else str(generate_id())
+        )
+        self.parent_id = parent_id
+        self.kwargs = kwargs
+        self.numeric_id = 0
 
-#     def __enter__(self):
-#         pid = self.parent_id or _current_parent()
-#         if pid is not None:
-#             pid = _resolve_parent_id(pid)
-#         self.numeric_id = _add_color_picker(
-#             window_id=self.window_id,
-#             container_id=self.container_id,
-#             parent_id=pid,
-#             **self.kwargs,
-#         )
-#         _register_container(self.numeric_id, self.container_id, self.window_id)
-#         _parent_stack.append(self.container_id)
-#         return self.numeric_id
+    def __enter__(self):
+        pid = self.parent_id or _current_parent()
+        if pid is not None:
+            pid = _resolve_parent_id(pid)
+        self.numeric_id = _add_color_picker(
+            window_id=self.window_id,
+            container_id=self.container_id,
+            parent_id=pid,
+            **self.kwargs,
+        )
+        _register_container(self.numeric_id, self.container_id, self.window_id)
+        _parent_stack.append(self.container_id)
+        return self.numeric_id
 
-#     def __exit__(self, exc_type, exc_val, exc_tb):
-#         _parent_stack.pop()
-#         return False
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        _parent_stack.pop()
+        return False
 
 class Container:
     """Wrapper for add_container"""

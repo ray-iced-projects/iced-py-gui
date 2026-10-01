@@ -19,7 +19,7 @@ use crate::widgets::callbacks::{CallbackName, invoke_callback_with_args};
 
 use crate::widgets::ipg_button::{BtnMessage, button_callback};
 // use crate::widgets::ipg_card::{CardMessage, card_callback};
-// use crate::widgets::ipg_color_picker::{ColorPikMessage, color_picker_callback};
+use crate::widgets::ipg_color_picker::{ColorPikMessage, color_picker_callback};
 use crate::widgets::ipg_checkbox::{ChkMessage, checkbox_callback};
 use crate::widgets::ipg_combo_box::{CBMessage, combo_box_callback};
 // use crate::widgets::ipg_date_picker::{DatePikMessage, date_picker_callback};
@@ -52,7 +52,7 @@ pub enum Message {
     CanvasDraw(usize, CanvasWidget),
     // Card(usize, CardMessage),
     CheckBox(usize, ChkMessage),
-    // ColorPicker(usize, ColorPikMessage),
+    ColorPicker(usize, ColorPikMessage),
     ComboBox(usize, CBMessage),
     // DatePicker(usize, DatePikMessage),
     EventKeyboard(Event),
@@ -175,16 +175,16 @@ impl App {
                 process_widget_updates(&mut self.state);
                 get_tasks(&mut self.state)
             },
-            // Message::ColorPicker(id, message) => {
-            //     let task = 
-            //         color_picker_callback(&mut self.state, id, message);
-            //     process_widget_updates(&mut self.state);
-            //     process_draw_updates(&mut self.state);
-            //     match task {
-            //         Some(t) => t,
-            //         None => Task::none()
-            //     }
-            // },
+            Message::ColorPicker(id, message) => {
+                let task = 
+                    color_picker_callback(&mut self.state, id, message);
+                process_widget_updates(&mut self.state);
+                process_draw_updates(&mut self.state);
+                match task {
+                    Some(t) => t,
+                    None => Task::none()
+                }
+            },
             Message::ComboBox(id, message) => {
                 combo_box_callback(&mut self.state, id, message);
                 process_widget_updates(&mut self.state);
@@ -712,21 +712,21 @@ fn get_children<'a>(parents: &Vec<ParentChildIds>,
     let id = &parents[*index].parent_id;
 
     // Special handling for Menu: build grouped content from MenuBarItem children
-    // if id != &0 {
+    if id != &0 {
     //     if let Some(Containers::Menu(menu)) = state.containers.get(id) {
     //         let grouped = get_menu_children(parents, index, parent_ids, state);
     //         return menu.construct(grouped, &state.widgets, &state.containers);
     //     }
 
-    //     if let Some(Containers::RichText(rt)) = state.containers.get(id) {
-    //         return rt.construct(&parents[*index].child_ids, &state.widgets);
-    //     }
+        if let Some(Containers::RichText(rt)) = state.containers.get(id) {
+            return rt.construct(&parents[*index].child_ids, &state.widgets);
+        }
 
-    //     if let Some(Containers::Table(table)) = state.containers.get(id) {
-    //         let sections = get_table_sections(parents, index, parent_ids, state);
-    //         return table.construct(sections, &state.widgets);
-    //     }
-    // }
+        if let Some(Containers::Table(table)) = state.containers.get(id) {
+            let sections = get_table_sections(parents, index, parent_ids, state);
+            return table.construct(sections, &state.widgets);
+        }
+    }
 
     for child in parents[*index].child_ids.iter() {
         if parent_ids.contains(child) {
@@ -920,12 +920,12 @@ fn get_container<'a>(state: &'a IpgState,
                 // Containers::CardClass(crd) => {
                 //     crd.construct(content, &state.widgets)
                 // },
-                // Containers::ColorPicker(cp) => {
-                //     if content.len() > 1 {
-                //         eprintln!("[WARNING] A color picker can have only 1 trigger widget, others are ignored")
-                //     }
-                //     cp.construct(content)
-                // },
+                Containers::ColorPicker(cp) => {
+                    if content.len() > 1 {
+                        eprintln!("[WARNING] A color picker can have only 1 trigger widget, others are ignored")
+                    }
+                    cp.construct(content)
+                },
                 Containers::Column(col) => {
                     col.construct(content)
                 },

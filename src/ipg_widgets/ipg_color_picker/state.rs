@@ -1,13 +1,13 @@
 //! ColorPickerState
 use super::color_math::{hue_to_rgb, rgb_to_hue};
 use super::helpers::{
-    hue_slider_row, palette_panel, rgba_slider, selected_color_format_to_text,
-    submit_row, ColorOutFormat, HsvSquare, RGBA,
+    ColorOutFormat, HsvSquare, RGBA, hue_slider_row, palette_panel, rgba_slider, selected_color_format_to_text,
+    submit_row,
 };
-use iced::widget::opaque;
-use iced::widget::{canvas::Canvas, combo_box, container, column, row};
-use iced::{Element, Length, Widget};
 use crate::graphics::colors::Color as IpgColor;
+use iced::widget::opaque;
+use iced::widget::{canvas::Canvas, column, combo_box, container, row};
+use iced::{Element, Length, Widget};
 
 /// A message produced internally by [`ColorPickerState::view`].
 /// Wrap this in one variant of your own `Message` enum and pass it back
@@ -34,8 +34,8 @@ pub enum ContentMsg {
 /// of the color picker itself).
 #[derive(Debug, Clone)]
 pub enum ColorPickerEvent {
-    /// The user confirmed the selection. Carries the current RGBA color.
-    Submitted([f32; 4]),
+    /// The user confirmed the selection. Carries the formatted color text.
+    Submitted(String),
     /// The user cancelled without confirming.
     Cancelled,
     /// The user requested a clipboard copy. Carries the formatted text.
@@ -89,7 +89,7 @@ impl ColorPickerState {
     pub fn update(&mut self, msg: ContentMsg) -> Option<ColorPickerEvent> {
         match msg {
             ContentMsg::Submit => {
-                return Some(ColorPickerEvent::Submitted(self.current_color()));
+                return Some(ColorPickerEvent::Submitted(self.current_color_text()));
             }
             ContentMsg::Cancel => {
                 return Some(ColorPickerEvent::Cancelled);
@@ -194,31 +194,61 @@ impl ColorPickerState {
         let wrap = |msg: ContentMsg| on_msg.clone()(msg);
 
         let r_row = rgba_slider(
-            "r", r, RGBA::R,
-            {let f = on_msg.clone(); move |v| f(ContentMsg::RChanged(v))},
-            {let f = on_msg.clone(); move |ch, s| f(ContentMsg::RgbaInput(ch, s))},
-        ).boxed();
+            "r",
+            r,
+            RGBA::R,
+            {
+                let f = on_msg.clone();
+                move |v| f(ContentMsg::RChanged(v))
+            },
+            {
+                let f = on_msg.clone();
+                move |ch, s| f(ContentMsg::RgbaInput(ch, s))
+            },
+        );
         let g_row = rgba_slider(
-            "g", g, RGBA::G,
-            {let f = on_msg.clone(); move |v| f(ContentMsg::GChanged(v))},
-            {let f = on_msg.clone(); move |ch, s| f(ContentMsg::RgbaInput(ch, s))},
-        ).boxed();
+            "g",
+            g,
+            RGBA::G,
+            {
+                let f = on_msg.clone();
+                move |v| f(ContentMsg::GChanged(v))
+            },
+            {
+                let f = on_msg.clone();
+                move |ch, s| f(ContentMsg::RgbaInput(ch, s))
+            },
+        );
         let b_row = rgba_slider(
-            "b", b, RGBA::B,
-            {let f = on_msg.clone(); move |v| f(ContentMsg::BChanged(v))},
-            {let f = on_msg.clone(); move |ch, s| f(ContentMsg::RgbaInput(ch, s))},
-        ).boxed();
+            "b",
+            b,
+            RGBA::B,
+            {
+                let f = on_msg.clone();
+                move |v| f(ContentMsg::BChanged(v))
+            },
+            {
+                let f = on_msg.clone();
+                move |ch, s| f(ContentMsg::RgbaInput(ch, s))
+            },
+        );
         let a_row = rgba_slider(
-            "a", a, RGBA::A,
-            {let f = on_msg.clone(); move |v| f(ContentMsg::AChanged(v))},
-            {let f = on_msg.clone(); move |ch, s| f(ContentMsg::RgbaInput(ch, s))},
-        ).boxed();
+            "a",
+            a,
+            RGBA::A,
+            {
+                let f = on_msg.clone();
+                move |v| f(ContentMsg::AChanged(v))
+            },
+            {
+                let f = on_msg.clone();
+                move |ch, s| f(ContentMsg::RgbaInput(ch, s))
+            },
+        );
 
-        let rgba_col = column(vec![r_row, g_row, b_row, a_row])
-            .spacing(5.0)
-            .boxed();
+        let rgba_col = column(vec![r_row, g_row, b_row, a_row]).spacing(5.0).boxed();
 
-        let grad_cont= Canvas::new(HsvSquare {
+        let grad_cont = Canvas::new(HsvSquare {
             hue,
             r,
             g,
@@ -232,34 +262,40 @@ impl ColorPickerState {
         .height(Length::Fixed(100.0))
         .boxed();
 
-        let grad_rgba_row = row(vec![grad_cont, rgba_col])
-            .width(Length::Fill)
-            .spacing(5.0)
-            .boxed();
+        let grad_rgba_row = row(vec![grad_cont, rgba_col]).width(Length::Fill).spacing(5.0).boxed();
 
         let hue_row = hue_slider_row(
             hue,
             format,
             color,
-            {let f = on_msg.clone(); move |v| f(ContentMsg::HueChanged(v))},
-            {let f = on_msg.clone(); move |fmt| f(ContentMsg::FormatSelected(fmt))},
-        ).boxed();
+            {
+                let f = on_msg.clone();
+                move |v| f(ContentMsg::HueChanged(v))
+            },
+            {
+                let f = on_msg.clone();
+                move |fmt| f(ContentMsg::FormatSelected(fmt))
+            },
+        );
 
-        let grad_hue_col: Element<M> = column(vec![grad_rgba_row, hue_row])
-            .spacing(10.0)
-            .boxed();
+        let grad_hue_col: Element<M> = column(vec![grad_rgba_row, hue_row]).spacing(10.0).boxed();
 
         let srow = submit_row(
             show_palette,
             wrap(ContentMsg::Submit),
             wrap(ContentMsg::Cancel),
             wrap(ContentMsg::Copy),
-            {let f = on_msg.clone(); move |b| f(ContentMsg::ShowPalette(b))},
+            {
+                let f = on_msg.clone();
+                move |b| f(ContentMsg::ShowPalette(b))
+            },
             &self.cb_state,
             self.selected_color_name.as_ref(),
-            {let f = on_msg.clone(); move |name| f(ContentMsg::ColorNameSelected(name))},
-        )
-        .boxed();
+            {
+                let f = on_msg.clone();
+                move |name| f(ContentMsg::ColorNameSelected(name))
+            },
+        );
 
         let cp_col = column(vec![grad_hue_col, srow]).spacing(3.0);
         let final_col: Element<M> = if show_palette {
@@ -269,12 +305,13 @@ impl ColorPickerState {
             cp_col.boxed()
         };
 
-        opaque(container(final_col)
-            .width(if show_palette { 460.0 } else { 370.0 })
-            .height(190.0)
-            .padding(5.0))
-            .boxed()
-            
+        opaque(
+            container(final_col)
+                .width(if show_palette { 460.0 } else { 370.0 })
+                .height(190.0)
+                .padding(5.0),
+        )
+        .boxed()
     }
 }
 

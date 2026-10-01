@@ -27,7 +27,6 @@ def color_selected(_cp_id: int, color: str):
     update_widget(text_id, TextParam.Content, color)
 
 
-
 def cp_opened(_cp_id: int, opened: bool):
     """Color Picker Callback"""
     print(f"color picker opened {opened}")

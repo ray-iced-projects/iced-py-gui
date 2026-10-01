@@ -18,7 +18,7 @@ use crate::py_api::colors::CustomPalette;
 use crate::widgets::callbacks::CallbackName;
 // use crate::widgets::ipg_card::{Card, CardClass, CardStyle};
 use crate::widgets::ipg_checkbox::{CheckBox, CheckboxStyle};
-// use crate::widgets::ipg_color_picker::ColorPicker;
+use crate::widgets::ipg_color_picker::ColorPicker;
 use crate::widgets::ipg_column::Column;
 use crate::widgets::ipg_combo_box::{ComboBox, ComboBoxMenuStyle, ComboBoxInputStyle};
 use crate::widgets::ipg_container::{Container, ContainerStyle};
@@ -76,7 +76,7 @@ type PyObject = Py<PyAny>;
 pub enum Containers {
     CanvasDraw(Draw),
     // CardClass(CardClass),
-    // ColorPicker(ColorPicker),
+    ColorPicker(ColorPicker),
     Column(Column),
     Container(Container),
     // DatePicker(DatePicker),

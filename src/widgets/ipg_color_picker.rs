@@ -1,17 +1,13 @@
 //! ipg_color_picker
 use crate::IpgState;
-use crate::state::{Containers};
-use crate::widgets::callbacks::{CallbackName, invoke_callback, invoke_callback_with_args};
 use crate::app::Message;
+use crate::state::Containers;
+use crate::widgets::callbacks::{CallbackName, invoke_callback, invoke_callback_with_args};
 
 use iced::Widget;
 
 use crate::ipg_widgets::ipg_color_picker::{
-    ColorPicker as CP,
-    Position,
-    ColorPickerState,
-    ContentMsg,
-    ColorPickerEvent,
+    ColorPicker as CP, ColorPickerEvent, ColorPickerState, ContentMsg, Position,
 };
 
 use iced::widget::container;
@@ -23,45 +19,33 @@ pub struct ColorPicker {
     pub gap: Option<u32>,
     pub position: Position,
     pub snap_within_viewport: Option<bool>,
+    pub decimal_places: Option<u8>,
     pub cp: ColorPickerState,
 }
 
 impl ColorPicker {
-
-    pub fn construct<'a>(
-        &'a self,
-        mut content: Vec<Element<'a, Message>>,
-        ) -> Option<Element<'a, Message>> {
-
+    pub fn construct<'a>(&'a self, mut content: Vec<Element<'a, Message>>) -> Option<Element<'a, Message>> {
         let btn = if content.is_empty() {
             return None;
         } else {
             content.remove(0).map(|_| ColorPikMessage::Noop)
         };
 
-        let panel = 
-            self.cp.view(|msg| ColorPikMessage::ColorPicker(msg));
+        let panel = self.cp.view(|msg| ColorPikMessage::ColorPicker(msg));
 
         let id = self.id;
 
-        let cpk: Element<'_, ColorPikMessage> = CP::new(
-            btn.boxed(),
-            panel.boxed(),
-            self.cp.current_color(),
-            self.position,
-        )
-        .opened(self.opened)
-        .on_open(ColorPikMessage::SetOpened)
-        .gap(self.gap.unwrap_or(10))
-        .style(container::rounded_box)
-        .boxed();
+        let cpk: Element<'_, ColorPikMessage> =
+            CP::new(btn.boxed(), panel.boxed(), self.cp.current_color(), self.position)
+                .opened(self.opened)
+                .on_open(ColorPikMessage::SetOpened)
+                .gap(self.gap.unwrap_or(10))
+                .style(container::rounded_box)
+                .boxed();
 
         Some(cpk.map(move |message| Message::ColorPicker(id, message)).boxed())
-
     }
-
 }
-
 
 #[derive(Debug, Clone)]
 pub enum ColorPikMessage {
@@ -70,30 +54,35 @@ pub enum ColorPikMessage {
     ColorPicker(ContentMsg),
 }
 
-pub fn color_picker_callback(
-    state: &mut IpgState, 
-    id: usize, 
-    message: ColorPikMessage,
-) -> Option<Task<Message>> {
-
+pub fn color_picker_callback(state: &mut IpgState, id: usize, message: ColorPikMessage) -> Option<Task<Message>> {
     match message {
         ColorPikMessage::Noop => (),
         ColorPikMessage::SetOpened(open) => {
             if let Some(Containers::ColorPicker(cp)) = state.containers.get_mut(&id) {
                 cp.opened = open;
-                invoke_callback_with_args(id, CallbackName::OnOpen, "ColorPicker", open,
-                    "def cb(wid: int, opened: bool)");
+                invoke_callback_with_args(
+                    id,
+                    CallbackName::OnOpen,
+                    "ColorPicker",
+                    open,
+                    "def cb(wid: int, opened: bool)",
+                );
             }
-        },
+        }
         ColorPikMessage::ColorPicker(content) => {
             if let Some(Containers::ColorPicker(cp)) = state.containers.get_mut(&id) {
                 let event = cp.cp.update(content);
 
                 match event {
-                    Some(ColorPickerEvent::Submitted(_)) => {
+                    Some(ColorPickerEvent::Submitted(text)) => {
                         cp.opened = false;
-                        invoke_callback_with_args(id, CallbackName::OnSubmit, "ColorPicker", cp.cp.current_color(),
-                            "def cb(wid: int, color: list)");
+                        invoke_callback_with_args(
+                            id,
+                            CallbackName::OnSubmit,
+                            "ColorPicker",
+                            text,
+                            "def cb(wid: int, color: str)",
+                        );
                     }
                     Some(ColorPickerEvent::Cancelled) => {
                         cp.opened = false;
@@ -105,11 +94,8 @@ pub fn color_picker_callback(
                     None => {}
                 }
             }
-        },
-        
+        }
     }
 
     None
-        
 }
-

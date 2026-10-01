@@ -1,9 +1,9 @@
 //!Helpers
 use super::color_math::{color_at, hue_to_rgb, rgb_to_sv};
-use iced::{Border, Element, Length, Padding, Pixels, Point, Rectangle, Theme, Widget};
 use iced::theme::palette;
+use iced::widget::{Checkbox, TextInput, button, column, container, radio, row, slider, text};
 use iced::widget::{canvas, combo_box};
-use iced::widget::{button, container, column, radio, row, slider, text, Checkbox, TextInput};
+use iced::{Border, Element, Length, Padding, Pixels, Point, Rectangle, Theme, Widget};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ColorOutFormat {
@@ -14,12 +14,15 @@ pub enum ColorOutFormat {
 }
 
 #[derive(Debug, Clone, Copy)]
-pub enum RGBA { R, G, B, A, H }
+pub enum RGBA {
+    R,
+    G,
+    B,
+    A,
+    H,
+}
 
-pub fn selected_color_format_to_text(
-    format: Option<ColorOutFormat>,
-    selected_color: [f32; 4],
-) -> String {
+pub fn selected_color_format_to_text(format: Option<ColorOutFormat>, selected_color: [f32; 4]) -> String {
     let [r, g, b, a] = selected_color;
     match format {
         Some(ColorOutFormat::Integer) => format!(
@@ -29,9 +32,7 @@ pub fn selected_color_format_to_text(
             (b * 255.0).round() as u8,
             (a * 255.0).round() as u8,
         ),
-        Some(ColorOutFormat::Float) => format!(
-            "[{:.2}, {:.2}, {:.2}, {:.2}]", r, g, b, a
-        ),
+        Some(ColorOutFormat::Float) => format!("[{:.2}, {:.2}, {:.2}, {:.2}]", r, g, b, a),
         Some(ColorOutFormat::Hex) => format!(
             "[#{:02X}{:02X}{:02X}{:02X}]",
             (r * 255.0).round() as u8,
@@ -41,7 +42,10 @@ pub fn selected_color_format_to_text(
         ),
         Some(ColorOutFormat::Percent) => format!(
             "[{:.0}%, {:.0}%, {:.0}%, {:.0}%]",
-            r * 100.0, g * 100.0, b * 100.0, a * 100.0
+            r * 100.0,
+            g * 100.0,
+            b * 100.0,
+            a * 100.0
         ),
         None => String::new(),
     }
@@ -59,22 +63,17 @@ pub fn btn_style(theme: &Theme, status: button::Status) -> button::Style {
 pub fn hue_rail_gradient() -> iced::Background {
     use std::f32::consts::FRAC_PI_2;
     let gradient = iced::gradient::Linear::new(FRAC_PI_2)
-        .add_stop(0.0,        iced::Color::from_rgb(1.0, 0.0, 0.0)) // red
+        .add_stop(0.0, iced::Color::from_rgb(1.0, 0.0, 0.0)) // red
         .add_stop(1.0 / 6.0, iced::Color::from_rgb(1.0, 1.0, 0.0)) // yellow
         .add_stop(2.0 / 6.0, iced::Color::from_rgb(0.0, 1.0, 0.0)) // green
         .add_stop(3.0 / 6.0, iced::Color::from_rgb(0.0, 1.0, 1.0)) // cyan
         .add_stop(4.0 / 6.0, iced::Color::from_rgb(0.0, 0.0, 1.0)) // blue
         .add_stop(5.0 / 6.0, iced::Color::from_rgb(1.0, 0.0, 1.0)) // magenta
-        .add_stop(1.0,        iced::Color::from_rgb(1.0, 0.0, 0.0)); // red again
+        .add_stop(1.0, iced::Color::from_rgb(1.0, 0.0, 0.0)); // red again
     iced::Background::Gradient(gradient.into())
 }
 
-pub fn slider_style(
-    theme: &Theme,
-    status: slider::Status,
-    rgba: RGBA,
-    value: u8,
-) -> slider::Style {
+pub fn slider_style(theme: &Theme, status: slider::Status, rgba: RGBA, value: u8) -> slider::Style {
     let mut style = iced::widget::slider::default(theme, status);
 
     let base = match rgba {
@@ -88,7 +87,7 @@ pub fn slider_style(
     let pal = palette::Background::new(base, iced::Color::WHITE);
 
     let color = match status {
-        slider::Status::Active  => pal.base.color,
+        slider::Status::Active => pal.base.color,
         slider::Status::Hovered => pal.strong.color,
         slider::Status::Dragged => pal.weak.color,
     };
@@ -121,10 +120,7 @@ pub fn slider_style(
     style
 }
 
-pub fn palette_swatch<M: 'static>(
-    label: &'static str,
-    pair: palette::Pair,
-) -> Element<'static, M> {
+pub fn palette_swatch<M: 'static>(label: &'static str, pair: palette::Pair) -> Element<'static, M> {
     let bg = pair.color;
     let fg = pair.text;
 
@@ -132,7 +128,10 @@ pub fn palette_swatch<M: 'static>(
         .style(move |_theme: &Theme| container::Style {
             background: Some(iced::Background::Color(bg)),
             text_color: Some(fg),
-            border: iced::Border { radius: 4.0.into(), ..Default::default() },
+            border: iced::Border {
+                radius: 4.0.into(),
+                ..Default::default()
+            },
             ..Default::default()
         })
         .padding(Padding::new(3.0))
@@ -143,31 +142,35 @@ pub fn palette_swatch<M: 'static>(
 
 pub fn palette_panel<M: 'static>(selected: [f32; 4]) -> Element<'static, M> {
     let base = iced::Color::from_rgb(selected[0], selected[1], selected[2]);
-    let text_seed = if palette::is_dark(base) { iced::Color::WHITE } else { iced::Color::BLACK };
+    let text_seed = if palette::is_dark(base) {
+        iced::Color::WHITE
+    } else {
+        iced::Color::BLACK
+    };
     let bg = palette::Background::new(base, text_seed);
 
     column(vec![
-        palette_swatch("weakest",  bg.weakest),
-        palette_swatch("weaker",   bg.weaker),
-        palette_swatch("weak",     bg.weak),
-        palette_swatch("neutral",  bg.neutral),
-        palette_swatch("base",     bg.base),
-        palette_swatch("strong",   bg.strong),
+        palette_swatch("weakest", bg.weakest),
+        palette_swatch("weaker", bg.weaker),
+        palette_swatch("weak", bg.weak),
+        palette_swatch("neutral", bg.neutral),
+        palette_swatch("base", bg.base),
+        palette_swatch("strong", bg.strong),
         palette_swatch("stronger", bg.stronger),
-        palette_swatch("strongest",bg.strongest),
+        palette_swatch("strongest", bg.strongest),
     ])
     .spacing(3.0)
     .width(80.0)
     .boxed()
 }
 
-pub fn rgba_slider<'a, Message>(
+pub fn rgba_slider<'a, Message: 'a>(
     label: &'a str,
     value: u8,
     rgba: RGBA,
     on_change: impl Fn(u8) -> Message + 'a,
     on_input: impl Fn(RGBA, String) -> Message + 'a,
-) -> iced::widget::Row<Message>
+) -> Element<'a, Message>
 where
     Message: Clone,
 {
@@ -177,21 +180,15 @@ where
         .style(move |theme, status| slider_style(theme, status, rgba, value))
         .boxed();
 
-    let input_text = TextInput::new(
-            "".to_string(),
-            value.to_string(),
-        )
+    let input_text = TextInput::new("".to_string(), value.to_string())
         .on_input(move |s| on_input(rgba, s))
         .size(Pixels(12.0))
         .padding(Padding::default().left(5))
         .boxed();
 
-    row(vec![
-        text(label.to_owned()),
-        sld,
-        input_text,
-    ])
-    .spacing(3.0)
+    row(vec![text(label.to_owned()).boxed(), sld, input_text])
+        .spacing(3.0)
+        .boxed()
 }
 
 /// Canvas program that draws the HSV color square.
@@ -220,9 +217,7 @@ impl<Message: 'static> canvas::Program<Message> for HsvSquare<Message> {
         cursor: iced::mouse::Cursor,
     ) -> Option<canvas::Action<Message>> {
         match event {
-            canvas::Event::Mouse(iced::mouse::Event::ButtonPressed(
-                iced::mouse::Button::Left,
-            )) => {
+            canvas::Event::Mouse(iced::mouse::Event::ButtonPressed(iced::mouse::Button::Left)) => {
                 if let Some(pos) = cursor.position_in(bounds) {
                     state.is_dragging = true;
                     let (r, g, b) = color_at(pos, bounds.size(), self.hue);
@@ -232,15 +227,14 @@ impl<Message: 'static> canvas::Program<Message> for HsvSquare<Message> {
             }
             canvas::Event::Mouse(iced::mouse::Event::CursorMoved { .. }) => {
                 if state.is_dragging
-                    && let Some(pos) = cursor.position_in(bounds) {
-                        let (r, g, b) = color_at(pos, bounds.size(), self.hue);
-                        return Some(canvas::Action::publish((self.on_pick)(r, g, b)));
-                    }
+                    && let Some(pos) = cursor.position_in(bounds)
+                {
+                    let (r, g, b) = color_at(pos, bounds.size(), self.hue);
+                    return Some(canvas::Action::publish((self.on_pick)(r, g, b)));
+                }
                 None
             }
-            canvas::Event::Mouse(iced::mouse::Event::ButtonReleased(
-                iced::mouse::Button::Left,
-            )) => {
+            canvas::Event::Mouse(iced::mouse::Event::ButtonReleased(iced::mouse::Button::Left)) => {
                 state.is_dragging = false;
                 None
             }
@@ -264,16 +258,11 @@ impl<Message: 'static> canvas::Program<Message> for HsvSquare<Message> {
             Point::ORIGIN,
             size,
             canvas::Fill {
-                style: canvas::Style::Gradient(
-                    canvas::Gradient::Linear(
-                        canvas::gradient::Linear::new(
-                            Point::new(0.0, 0.0),
-                            Point::new(size.width, 0.0),
-                        )
+                style: canvas::Style::Gradient(canvas::Gradient::Linear(
+                    canvas::gradient::Linear::new(Point::new(0.0, 0.0), Point::new(size.width, 0.0))
                         .add_stop(0.0, iced::Color::WHITE)
                         .add_stop(1.0, hue_to_rgb(self.hue)),
-                    ),
-                ),
+                )),
                 ..Default::default()
             },
         );
@@ -283,16 +272,14 @@ impl<Message: 'static> canvas::Program<Message> for HsvSquare<Message> {
             Point::ORIGIN,
             size,
             canvas::Fill {
-                style: canvas::Style::Gradient(
-                    canvas::Gradient::Linear(
-                        canvas::gradient::Linear::new(
-                            Point::new(0.0, size.height), // transparent at bottom
-                            Point::new(0.0, 0.0),          // black at top
-                        )
-                        .add_stop(0.0, iced::Color::TRANSPARENT)
-                        .add_stop(1.0, iced::Color::BLACK),
-                    ),
-                ),
+                style: canvas::Style::Gradient(canvas::Gradient::Linear(
+                    canvas::gradient::Linear::new(
+                        Point::new(0.0, size.height), // transparent at bottom
+                        Point::new(0.0, 0.0),         // black at top
+                    )
+                    .add_stop(0.0, iced::Color::TRANSPARENT)
+                    .add_stop(1.0, iced::Color::BLACK),
+                )),
                 ..Default::default()
             },
         );
@@ -304,9 +291,7 @@ impl<Message: 'static> canvas::Program<Message> for HsvSquare<Message> {
         let radius = 5.0_f32;
         frame.stroke(
             &canvas::Path::circle(Point::new(cx, cy), radius),
-            canvas::Stroke::default()
-                .with_color(iced::Color::WHITE)
-                .with_width(2.0),
+            canvas::Stroke::default().with_color(iced::Color::WHITE).with_width(2.0),
         );
 
         vec![frame.into_geometry()]
@@ -324,7 +309,7 @@ where
     M: Clone + 'static,
     F: Fn(ColorOutFormat) -> M + Clone + 'static,
 {
-    let hue_sld = container(
+    let hue_sld: Element<'static, M> = container(
         slider(0..=255, hue_value, on_hue_change)
             .step(1)
             .width(200.0)
@@ -337,45 +322,45 @@ where
             ..Default::default()
         },
         ..Default::default()
-    }).boxed();
+    })
+    .boxed();
 
     let size = 12.0;
     let text_size = 14.0;
-    let rad_int = radio("Int", ColorOutFormat::Integer, format, on_format_selected.clone())
+    let rad_int: Element<M> = radio("Int", ColorOutFormat::Integer, format, on_format_selected.clone())
         .size(size)
-        .text_size(text_size);
-    let rad_float = radio("Float", ColorOutFormat::Float, format, on_format_selected.clone())
-        .size(size)
-        .text_size(text_size);
-    let rad_hex = radio("Hex", ColorOutFormat::Hex, format, on_format_selected.clone())
-        .size(size)
-        .text_size(text_size);
-    let rad_percent = radio("Percent", ColorOutFormat::Percent, format, on_format_selected)
-        .size(size)
-        .text_size(text_size);
-
-    let rad_row = row([
-        rad_int.into(),
-        rad_float.into(),
-        rad_hex.into(),
-        rad_percent.into(),
-    ])
-    .spacing(5.0).boxed();
-
-    let col = column(
-        [hue_sld.into(), rad_row.into()])
-        .spacing(5.0)
+        .text_size(text_size)
         .boxed();
+    let rad_float: Element<M> = radio("Float", ColorOutFormat::Float, format, on_format_selected.clone())
+        .size(size)
+        .text_size(text_size)
+        .boxed();
+    let rad_hex: Element<M> = radio("Hex", ColorOutFormat::Hex, format, on_format_selected.clone())
+        .size(size)
+        .text_size(text_size)
+        .boxed();
+    let rad_percent: Element<M> = radio("Percent", ColorOutFormat::Percent, format, on_format_selected)
+        .size(size)
+        .text_size(text_size)
+        .boxed();
+
+    let rad_row = row([rad_int, rad_float, rad_hex, rad_percent]).spacing(5.0).boxed();
+
+    let col: Element<'static, M> = column([hue_sld, rad_row]).spacing(5.0).boxed();
 
     let bkg = iced::Color::from(selected_color);
     let [r, g, b, _] = selected_color;
     let luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b;
-    let text_color = if luminance > 0.5 { iced::Color::BLACK } else { iced::Color::WHITE };
+    let text_color = if luminance > 0.5 {
+        iced::Color::BLACK
+    } else {
+        iced::Color::WHITE
+    };
 
     let color_label: Element<M> = text(selected_color_format_to_text(format, selected_color))
         .size(Pixels(10.0))
         .color(text_color)
-        .intboxedo();
+        .boxed();
 
     let value_cont = container(color_label)
         .style(move |_| container::background(bkg))
@@ -398,34 +383,29 @@ pub fn submit_row<'a, M: Clone + 'static>(
     cb_state: &'a combo_box::State<String>,
     selected_color_name: Option<&'a String>,
     on_color_selected: impl Fn(String) -> M + 'static,
-) -> iced::widget::Row<M> {
-    
+) -> Element<'a, M> {
     let size = Pixels(12.0);
     let padding = 2.0;
 
-    let submit_btn: Element<M> = 
-        button(text("Submit").size(size))
-            .on_press(on_submit)
-            .padding(padding)
-            .style(btn_style)
-            .boxed();
+    let submit_btn: Element<M> = button(text("Submit").size(size))
+        .on_press(on_submit)
+        .padding(padding)
+        .style(btn_style)
+        .boxed();
 
-    let cancel_btn: Element<M> = 
-        button(text("Cancel").size(size))
-            .on_press(on_cancel)
-            .padding(padding)
-            .style(btn_style)
-            .boxed();
+    let cancel_btn: Element<M> = button(text("Cancel").size(size))
+        .on_press(on_cancel)
+        .padding(padding)
+        .style(btn_style)
+        .boxed();
 
-    let clipbrd_btn: Element<M> = 
-        button(text("ClipBoard").size(size))
-            .on_press(on_copy)
-            .padding(padding)
-            .style(btn_style)
-            .boxed();
+    let clipbrd_btn: Element<M> = button(text("ClipBoard").size(size))
+        .on_press(on_copy)
+        .padding(padding)
+        .style(btn_style)
+        .boxed();
 
-    let palette_chk: Element<M> = 
-        Checkbox::new(show_palette)
+    let palette_chk: Element<M> = Checkbox::new(show_palette)
         .label("Show Palette")
         .on_toggle(on_show_palette)
         .size(14.0)
@@ -433,27 +413,14 @@ pub fn submit_row<'a, M: Clone + 'static>(
         .spacing(2.0)
         .boxed();
 
-    let colors: Element<M> =
-        combo_box(
-            cb_state,
-            "Colors",
-            selected_color_name,
-            on_color_selected,
-        )
+    let colors: Element<M> = combo_box(cb_state, "Colors", selected_color_name, on_color_selected)
         .width(200.0)
         .menu_height(200.0)
         .size(10.0)
         .boxed();
 
-    row([
-        submit_btn,
-        cancel_btn,
-        clipbrd_btn,
-        palette_chk,
-        colors,
-        ])
+    row([submit_btn, cancel_btn, clipbrd_btn, palette_chk, colors])
         .spacing(3.0)
         .align_y(iced::Alignment::Center)
         .boxed()
-
 }

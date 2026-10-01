@@ -74,6 +74,7 @@ use crate::ipg_widgets::ipg_color_picker::{ColorOutFormat, ColorPickerState, Pos
     position_right=None,
     user_data=None,
     gen_id=None,
+    decimal_places=None,
     ))]
 pub fn add_color_picker(
     window_id: String,
@@ -95,6 +96,7 @@ pub fn add_color_picker(
     position_right: Option<bool>,
     user_data: Option<PyObject>,
     gen_id: Option<usize>,
+    decimal_places: Option<u8>,
     ) -> PyResult<usize> 
 {
     let id = get_id(gen_id);
@@ -155,6 +157,7 @@ pub fn add_color_picker(
             gap,
             position,
             snap_within_viewport,
+            decimal_places,
             cp,
         }));
 

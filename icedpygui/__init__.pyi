@@ -2075,49 +2075,49 @@ class Window:
 #         exc_val: BaseException | None, \
 #             exc_tb: TracebackType | None) -> bool: ...
 
-# class ColorPicker:
-#     """Context manager wrapper around add_color_picker.
+class ColorPicker:
+    """Context manager wrapper around add_color_picker.
 
-#     A container for selecting colors and holds an activating widget, i.e. button.
+    A container for selecting colors and holds an activating widget, i.e. button.
 
-#     Usage::
+    Usage::
 
-#         with Window(title="Demo"):
-#             with Container(fill=True, align_center=True)
-#                 with ColorPicker(
-#                     on_open=cp_opened, # Callback when button pressed
-#                     on_submit=color_selected, # Callback with the selected color
-#                     on_cancel=cp_canceled, # Callback when canceled
-#                     ):
+        with Window(title="Demo"):
+            with Container(fill=True, align_center=True)
+                with ColorPicker(
+                    on_open=cp_opened, # Callback when button pressed
+                    on_submit=color_selected, # Callback with the selected color
+                    on_cancel=cp_canceled, # Callback when canceled
+                    ):
 
-#                     add_button(label="Color Picker")
+                    add_button(label="Color Picker")
 
-#         start_session
-#     """
-#     def __init__(
-#         self,
-#         *,
-#         on_open: bool | None = None,
-#         on_submit: bool | None = None,
-#         on_cancel: bool | None = None,
-#         opened: bool = False,
-#         color_format_int: bool | None = None,
-#         color_format_rgba: bool | None = None,
-#         color_format_hex: bool | None = None,
-#         color_format_percent: bool | None = None,
-#         gap: bool | None = None,
-#         snap_within_viewport: bool | None = None,
-#         position_bottom: bool | None = None,
-#         position_left: bool | None = None,
-#         position_top: bool | None = None,
-#         position_right: bool | None = None,
-#         user_data: bool | None = None,
-#         gen_id: bool | None = None,
-#     ) -> None: ...
-#     def __enter__(self) -> int: ...
-#     def __exit__(self, exc_type: type[BaseException] | None, \
-#         exc_val: BaseException | None, \
-#             exc_tb: TracebackType | None) -> bool: ...
+        start_session
+    """
+    def __init__(
+        self,
+        *,
+        on_open: bool | None = None,
+        on_submit: bool | None = None,
+        on_cancel: bool | None = None,
+        opened: bool = False,
+        color_format_int: bool | None = None,
+        color_format_rgba: bool | None = None,
+        color_format_hex: bool | None = None,
+        color_format_percent: bool | None = None,
+        gap: bool | None = None,
+        snap_within_viewport: bool | None = None,
+        position_bottom: bool | None = None,
+        position_left: bool | None = None,
+        position_top: bool | None = None,
+        position_right: bool | None = None,
+        user_data: bool | None = None,
+        gen_id: bool | None = None,
+    ) -> None: ...
+    def __enter__(self) -> int: ...
+    def __exit__(self, exc_type: type[BaseException] | None, \
+        exc_val: BaseException | None, \
+            exc_tb: TracebackType | None) -> bool: ...
 
 class Column:
     """Context manager wrapper around add_column.

@@ -7,7 +7,7 @@ pub mod widget_param_update;
 pub mod ipg_button;
 // pub mod ipg_card;
 pub mod ipg_checkbox;
-// pub mod ipg_color_picker;
+pub mod ipg_color_picker;
 pub mod ipg_column;
 pub mod ipg_combo_box;
 pub mod ipg_container;

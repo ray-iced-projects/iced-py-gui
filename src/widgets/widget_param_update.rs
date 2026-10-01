@@ -44,12 +44,7 @@ pub trait WidgetParamUpdate {
 //     }
 // }
 
-
-pub fn param_update(
-    widget: &mut Widgets,
-    item: &PyObject,
-    value: &PyObject,
-) {
+pub fn param_update(widget: &mut Widgets, item: &PyObject, value: &PyObject) {
     match widget {
         Widgets::Button(w) => apply_update(w, item, value),
         Widgets::ButtonStyle(w) => apply_update(w, item, value),
@@ -105,23 +100,19 @@ pub fn param_update(
 // Dispatch for containers — one line per container variant
 // ---------------------------------------------------------------------------
 
-pub fn container_param_update(
-    container: &mut Containers,
-    item: &PyObject,
-    value: &PyObject,
-) {
+pub fn container_param_update(container: &mut Containers, item: &PyObject, value: &PyObject) {
     match container {
         // Containers::CardClass(w) => apply_update(w, item, value),
         Containers::Column(w) => apply_update(w, item, value),
         Containers::Container(w) => apply_update(w, item, value),
-        Containers::Float(w)=> apply_update(w, item, value),
-        Containers::Grid(w)=> apply_update(w, item, value),
-        Containers::InputFloat(w)=> apply_update(w, item, value),
+        Containers::Float(w) => apply_update(w, item, value),
+        Containers::Grid(w) => apply_update(w, item, value),
+        Containers::InputFloat(w) => apply_update(w, item, value),
         // Containers::MenuBarItem(w) => apply_update(w, item, value),
         // Containers::MenuSubItem(w) => apply_update(w, item, value),
         Containers::MouseArea(w) => apply_update(w, item, value),
         Containers::Opaque(_) => panic!("Opaque does not support param_update"),
-        // Containers::PopUp(w) => apply_update(w, item, value),
+        Containers::PopOver(w) => apply_update(w, item, value),
         Containers::RichText(w) => apply_update(w, item, value),
         Containers::Row(w) => apply_update(w, item, value),
         Containers::Sash(w) => apply_update(w, item, value),
@@ -130,20 +121,14 @@ pub fn container_param_update(
         Containers::TableBasic(w) => apply_update(w, item, value),
         Containers::ToolTip(w) => apply_update(w, item, value),
         Containers::Window(w) => apply_update(w, item, value),
-        _ => panic!("{:?} does not support param_update", container)
+        _ => panic!("{:?} does not support param_update", container),
     }
 }
 
-
-fn apply_update<W: WidgetParamUpdate>(
-    widget: &mut W,
-    item: &PyObject,
-    value: &PyObject,
-) {
+fn apply_update<W: WidgetParamUpdate>(widget: &mut W, item: &PyObject, value: &PyObject) {
     let param = extract_param::<W::Param>(item);
     widget.param_update(param, value);
 }
-
 
 // ---------------------------------------------------------------------------
 // Generic param extraction (works for any #[pyclass] enum)

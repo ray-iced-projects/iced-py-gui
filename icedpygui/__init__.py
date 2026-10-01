@@ -50,7 +50,7 @@ from .icedpygui import (
     # add_menu_sub_item as _add_menu_sub_item,
     add_mouse_area as _add_mouse_area,
     add_opaque as _add_opaque,
-    # add_popup as _add_popup,
+    add_popover as _add_popover,
     add_pick_list as _add_pick_list,
     add_pick_list_style,
     add_progress_bar as _add_progress_bar,
@@ -164,7 +164,7 @@ from .icedpygui import (
     # MenuSubItemParam,
     MousePointer,
     PickListParam,
-    # PopUpParam,
+    PopoverParam,
     ProgressBarParam,
     ProgressBarStyleParam,
     ProgressBarStyleStd,
@@ -387,8 +387,8 @@ add_mouse_area = _wrap_container(_add_mouse_area, "add_mouse_area")
 add_mouse_area.__doc__ = _add_mouse_area.__doc__
 add_opaque = _wrap_container(_add_opaque, "add_opaque")
 add_opaque.__doc__ = _add_opaque.__doc__
-# add_popup= _wrap_container(_add_popup, "add_popup")
-# add_popup.__doc__ = _add_popup.__doc__
+add_popover= _wrap_container(_add_popover, "add_popover")
+add_popover.__doc__ = _add_popover.__doc__
 add_rich_text = _wrap_container(_add_rich_text, "add_rich_text")
 add_rich_text.__doc__ = _add_rich_text.__doc__
 add_row = _wrap_container(_add_row, "add_row")
@@ -986,43 +986,43 @@ class Opaque:
         return False
 
 
-# class PopUp:
-#     """Wrapper for add_popup"""
-#     def __init__(self, *, container_id=None, window_id=None, parent_id=None, **kwargs):
-#         self.window_id = (
-#             _resolve_window_id(window_id)
-#             if window_id is not None
-#             else _current_window_or_parent(parent_id)
-#         )
-#         if self.window_id is None:
-#             raise ValueError("PopUp: window_id is required (either pass it\
-#                 or use a Window context manager)")
-#         self.container_id = (
-#             container_id
-#             if container_id is not None
-#             else str(generate_id())
-#         )
-#         self.parent_id = parent_id
-#         self.kwargs = kwargs
-#         self.numeric_id = 0
+class Popover:
+    """Wrapper for add_popover"""
+    def __init__(self, *, container_id=None, window_id=None, parent_id=None, **kwargs):
+        self.window_id = (
+            _resolve_window_id(window_id)
+            if window_id is not None
+            else _current_window_or_parent(parent_id)
+        )
+        if self.window_id is None:
+            raise ValueError("Popover: window_id is required (either pass it\
+                or use a Window context manager)")
+        self.container_id = (
+            container_id
+            if container_id is not None
+            else str(generate_id())
+        )
+        self.parent_id = parent_id
+        self.kwargs = kwargs
+        self.numeric_id = 0
 
-#     def __enter__(self):
-#         pid = self.parent_id or _current_parent()
-#         if pid is not None:
-#             pid = _resolve_parent_id(pid)
-#         self.numeric_id = _add_popup(
-#             window_id=self.window_id,
-#             container_id=self.container_id,
-#             parent_id=pid,
-#             **self.kwargs,
-#         )
-#         _register_container(self.numeric_id, self.container_id, self.window_id)
-#         _parent_stack.append(self.container_id)
-#         return self.numeric_id
+    def __enter__(self):
+        pid = self.parent_id or _current_parent()
+        if pid is not None:
+            pid = _resolve_parent_id(pid)
+        self.numeric_id = _add_popover(
+            window_id=self.window_id,
+            container_id=self.container_id,
+            parent_id=pid,
+            **self.kwargs,
+        )
+        _register_container(self.numeric_id, self.container_id, self.window_id)
+        _parent_stack.append(self.container_id)
+        return self.numeric_id
 
-#     def __exit__(self, exc_type, exc_val, exc_tb):
-#         _parent_stack.pop()
-#         return False
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        _parent_stack.pop()
+        return False
 
 
 class RichText:

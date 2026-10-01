@@ -26,6 +26,7 @@ use crate::widgets::ipg_date_picker::{DatePikMessage, date_picker_callback};
 use crate::widgets::ipg_file_system::{FileSystemMessage, fsd_callback};
 use crate::widgets::ipg_input_float::{InputFloatMessage, input_float_callback};
 use crate::widgets::ipg_input_int::{InputIntMessage, input_int_callback};
+use crate::widgets::ipg_popover::{PopOverMessage, popover_callback};
 use crate::widgets::ipg_sash::{sash_callback, SashMessage};
 use crate::widgets::ipg_draw::{draw_callback, process_draw_updates};
 use crate::widgets::ipg_events::{process_keyboard_events, process_mouse_events, process_touch_events, process_window_event};
@@ -64,7 +65,7 @@ pub enum Message {
     InputInt(usize, InputIntMessage),
     MouseArea(usize, MaMessage),
     PickList(usize, PLMessage),
-    // PopUp(usize, PopUpMessage),
+    Popover(usize, PopOverMessage),
     Radio(usize, RDMessage),
     RichTextLinkClicked(usize, usize),
     Sash(usize, SashMessage),
@@ -257,12 +258,12 @@ impl App {
                 process_draw_updates(&mut self.state);
                 get_tasks(&mut self.state)
             },
-            // Message::PopUp(id, message) => {
-            //     popup_callback(id, message);
-            //     process_widget_updates(&mut self.state);
-            //     process_draw_updates(&mut self.state);
-            //     Task::none()
-            // }
+            Message::Popover(id, message) => {
+                popover_callback(id, message);
+                process_widget_updates(&mut self.state);
+                process_draw_updates(&mut self.state);
+                Task::none()
+            },
             Message::Radio(id, message) => {
                 radio_callback(&mut self.state, id, message);
                 process_widget_updates(&mut self.state);
@@ -974,12 +975,12 @@ fn get_container<'a>(state: &'a IpgState,
                 Containers::Opaque(op) => {
                     op.construct(content)
                 },
-                // Containers::PopUp(pu) => {
-                //     if content.len() > 2 {
-                //         eprintln!("[WARNING] A PopUp can have only 1 or 2 widgets, If 1 widget, the PopUp is hidden until shown by updating the Opened parameter to true, if 2 widgets, then the first one is a widget that allows a callback to update the PopUp like a Button, etc.  The second should be a Container containing all of the other widgets to be displayed. All other added widgets ignored.")
-                //     }
-                //     pu.construct(content)
-                // },
+                Containers::PopOver(pu) => {
+                    if content.len() > 2 {
+                        eprintln!("[WARNING] A Popover can have only 1 or 2 widgets, If 1 widget, the Popover is hidden until shown by updating the Opened parameter to true, if 2 widgets, then the first one is a widget that allows a callback to update the Popover like a Button, etc.  The second should be a Container containing all of the other widgets to be displayed. All other added widgets ignored.")
+                    }
+                    pu.construct(content)
+                },
                 Containers::Sash(sh) => {
                     sh.construct(content, &state.widgets)
                 },

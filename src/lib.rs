@@ -13,6 +13,7 @@ mod graphics;
 mod style;
 mod iced_aw_widgets;
 mod ipg_widgets;
+mod iced_widgets;
 
 // Minimal widget definitions (self-contained)
 mod widgets;

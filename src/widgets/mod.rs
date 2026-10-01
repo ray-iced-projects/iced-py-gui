@@ -25,7 +25,7 @@ pub mod ipg_mouse_area;
 pub mod ipg_opaque;
 pub mod ipg_file_system;
 pub mod ipg_pick_list;
-// pub mod ipg_popup;
+pub mod ipg_popover;
 pub mod ipg_progress_bar;
 pub mod ipg_radio;
 pub mod ipg_row;

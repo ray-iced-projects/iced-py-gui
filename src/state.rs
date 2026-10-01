@@ -1,15 +1,15 @@
 //! Global state management using static Mutexes
-//! 
+//!
 //! This module provides the shared state that Python interacts with before Iced starts,
 //! and that Iced copies/clones when it begins running.
 #![allow(unused)]
+use once_cell::sync::Lazy;
 use std::collections::HashMap;
 use std::sync::{Mutex, MutexGuard};
-use once_cell::sync::Lazy;
 use strum::Display;
 
-use iced::{Task, message, window};
 use iced::Theme;
+use iced::{Task, message, window};
 
 use pyo3::{Py, PyAny};
 
@@ -17,22 +17,19 @@ use crate::app::Message;
 use crate::py_api::colors::CustomPalette;
 use crate::widgets::callbacks::CallbackName;
 // use crate::widgets::ipg_card::{Card, CardClass, CardStyle};
+use crate::ipg_widgets::ipg_canvas_draw::canvas_draw::{CanvasWidget, Circle, DrawMode, DrawState, DrawStatus};
 use crate::widgets::ipg_checkbox::{CheckBox, CheckboxStyle};
 use crate::widgets::ipg_color_picker::ColorPicker;
 use crate::widgets::ipg_column::Column;
-use crate::widgets::ipg_combo_box::{ComboBox, ComboBoxMenuStyle, ComboBoxInputStyle};
+use crate::widgets::ipg_combo_box::{ComboBox, ComboBoxInputStyle, ComboBoxMenuStyle};
 use crate::widgets::ipg_container::{Container, ContainerStyle};
 use crate::widgets::ipg_date_picker::DatePicker;
 use crate::widgets::ipg_draw::Draw;
-use crate::ipg_widgets::ipg_canvas_draw::canvas_draw::{
-    DrawState, CanvasWidget, Circle, DrawMode, DrawStatus};
 use crate::widgets::ipg_file_system::FileSystemDialog;
 use crate::widgets::ipg_input_float::{InputFloat, InputFloatStyle};
 use crate::widgets::ipg_input_int::{InputInt, InputIntStyle};
 // use crate::widgets::ipg_menu::{Menu, MenuBarItem, MenuSubItem, MenuStyle};
-// use crate::widgets::ipg_popup::PopUp;
-use iced::widget::Id;
-use iced::Point;
+use crate::widgets::ipg_button::{Button, ButtonStyle};
 use crate::widgets::ipg_events::Events;
 use crate::widgets::ipg_float::Float;
 use crate::widgets::ipg_font::Font;
@@ -42,13 +39,13 @@ use crate::widgets::ipg_image::Image;
 use crate::widgets::ipg_mouse_area::MouseArea;
 use crate::widgets::ipg_opaque::Opaque;
 use crate::widgets::ipg_pick_list::{PickList, PickListStyle};
+use crate::widgets::ipg_popover::PopOver;
 use crate::widgets::ipg_progress_bar::{ProgressBar, ProgressBarStyle};
 use crate::widgets::ipg_radio::{Radio, RadioStyle};
 use crate::widgets::ipg_row::Row;
 use crate::widgets::ipg_rule::{Rule, RuleStyle};
 use crate::widgets::ipg_sash::{Sash, SashStyle};
-use crate::widgets::ipg_scrollable::{AutoScrollStyle, RailStyle, 
-    Scrollable, ScrollableStyle, Scroller};
+use crate::widgets::ipg_scrollable::{AutoScrollStyle, RailStyle, Scrollable, ScrollableStyle, Scroller};
 use crate::widgets::ipg_separator::{Separator, SeparatorStyle};
 use crate::widgets::ipg_slider::{Slider, SliderStyle};
 use crate::widgets::ipg_space::Space;
@@ -57,13 +54,14 @@ use crate::widgets::ipg_svg::Svg;
 use crate::widgets::ipg_table::{Table, TableBasic, TableBody, TableFooter, TableHeader, TableStyle};
 use crate::widgets::ipg_text::Text;
 use crate::widgets::ipg_text_editor::{TextEditor, TextEditorStyle};
-use crate::widgets::ipg_text_rich::{RichText, Span};
 use crate::widgets::ipg_text_input::{TextInput, TextInputStyle};
+use crate::widgets::ipg_text_rich::{RichText, Span};
 use crate::widgets::ipg_timer::TimerState;
 use crate::widgets::ipg_toggle::{Toggler, TogglerStyle};
 use crate::widgets::ipg_tool_tip::ToolTip;
 use crate::widgets::ipg_window::Window;
-use crate::widgets::ipg_button::{Button, ButtonStyle};
+use iced::Point;
+use iced::widget::Id;
 
 // Type alias to replace deprecated PyObject
 type PyObject = Py<PyAny>;
@@ -88,7 +86,7 @@ pub enum Containers {
     // MenuSubItem(MenuSubItem),
     MouseArea(MouseArea),
     Opaque(Opaque),
-    // PopUp(PopUp),
+    PopOver(PopOver),
     RichText(RichText),
     Sash(Sash),
     Stack(Stack),
@@ -268,7 +266,7 @@ ipg_container_accessors! {
     // MenuSubItem  => MenuSubItem,  as_menu_sub_item,   as_menu_sub_item_mut;
     // MouseArea    => MouseArea,    as_mouse_area,      as_mouse_area_mut;
     Opaque       => Opaque,       as_opaque,          as_opaque_mut;
-    // PopUp        => PopUp,        as_popup,           as_popup_mut;
+    PopOver      => PopOver,      as_popover,         as_popover_mut;
     RichText     => RichText,     as_rich_text,       as_rich_text_mut;
     Row          => Row,          as_row,             as_row_mut;
     Scrollable   => Scrollable,   as_scrollable,      as_scrollable_mut;
@@ -312,7 +310,7 @@ impl Callbacks {
     pub fn insert(&mut self, id: usize, event_name: String, callback: PyObject) {
         self.callbacks.insert((id, event_name), callback);
     }
-    
+
     pub fn get(&self, id: usize, event_name: &str) -> Option<&PyObject> {
         self.callbacks.get(&(id, event_name.to_string()))
     }
@@ -320,7 +318,7 @@ impl Callbacks {
     pub fn insert_name(&mut self, id: usize, event_name: CallbackName, callback: PyObject) {
         self.callback_names.insert((id, event_name), callback);
     }
-    
+
     pub fn get_name(&self, id: usize, event_name: CallbackName) -> Option<&PyObject> {
         self.callback_names.get(&(id, event_name))
     }
@@ -336,7 +334,7 @@ pub struct IpgEvents {
 }
 
 pub static EVENTS: Mutex<IpgEvents> = Mutex::new(IpgEvents {
-    events:  Lazy::new(||HashMap::new()),
+    events: Lazy::new(|| HashMap::new()),
 });
 
 pub fn access_events() -> MutexGuard<'static, IpgEvents> {
@@ -369,25 +367,27 @@ impl UserData1 {
             Ok(())
         }
     }
-    
+
     pub fn get(&self, id: usize) -> Result<&PyObject, String> {
-        self.user_data.get(&id).ok_or_else(|| format!("UserData1: ID {} not found", id))
+        self.user_data
+            .get(&id)
+            .ok_or_else(|| format!("UserData1: ID {} not found", id))
     }
 
     pub fn update(&mut self, id: usize, data: PyObject) -> Result<(), String> {
-    if self.user_data.contains_key(&id) {
-        self.user_data.insert(id, data);
-        Ok(())
-    } else {
-        Err(format!("UserData1: ID {} not found", id))
+        if self.user_data.contains_key(&id) {
+            self.user_data.insert(id, data);
+            Ok(())
+        } else {
+            Err(format!("UserData1: ID {} not found", id))
+        }
     }
-}
 }
 
 #[derive(Debug)]
 pub struct UpdateWidgets {
     // (wid, item, value)
-    pub updates: Vec<(usize, PyObject, PyObject)>, 
+    pub updates: Vec<(usize, PyObject, PyObject)>,
     // (wid, move_after(wid), move_before(wid), target_parent_id)
     pub moves: Vec<(usize, Option<usize>, Option<usize>, Option<usize>)>,
     pub deletes: Vec<usize>,
@@ -401,19 +401,18 @@ pub static UPDATE_WIDGETS: Mutex<UpdateWidgets> = Mutex::new(UpdateWidgets {
     moves: vec![],
     deletes: vec![],
     shows: vec![],
-    new_widgets: Lazy::new(||HashMap::new()),
-    timers: Lazy::new(||HashMap::new()),
+    new_widgets: Lazy::new(|| HashMap::new()),
+    timers: Lazy::new(|| HashMap::new()),
 });
 
 pub fn access_update_widgets() -> MutexGuard<'static, UpdateWidgets> {
     UPDATE_WIDGETS.lock().unwrap()
 }
 
-// Snapshot of widgets parameters for the python methods 
+// Snapshot of widgets parameters for the python methods
 // get_widget_parameters, get_widget_style_parameters, and
 // get widget_palette_parameters
-pub static WIDGET_PARAMETERS: Mutex<Lazy<HashMap<usize, Widgets>>> =
-    Mutex::new(Lazy::new(|| HashMap::new()));
+pub static WIDGET_PARAMETERS: Mutex<Lazy<HashMap<usize, Widgets>>> = Mutex::new(Lazy::new(|| HashMap::new()));
 
 pub fn access_widget_parameters() -> MutexGuard<'static, Lazy<HashMap<usize, Widgets>>> {
     WIDGET_PARAMETERS.lock().unwrap()
@@ -422,7 +421,7 @@ pub fn access_widget_parameters() -> MutexGuard<'static, Lazy<HashMap<usize, Wid
 #[derive(Debug)]
 pub struct UpdateCanvasDraw {
     // (wid, item, value)
-    pub updates: Vec<(usize, PyObject, PyObject)>, 
+    pub updates: Vec<(usize, PyObject, PyObject)>,
     pub deletes: Vec<usize>,
     pub new: Lazy<HashMap<Id, CanvasWidget>>,
 }
@@ -430,7 +429,7 @@ pub struct UpdateCanvasDraw {
 pub static UPDATE_CANVAS_DRAW: Mutex<UpdateCanvasDraw> = Mutex::new(UpdateCanvasDraw {
     updates: vec![],
     deletes: vec![],
-    new: Lazy::new(||HashMap::new()),
+    new: Lazy::new(|| HashMap::new()),
 });
 
 pub fn access_update_canvas_draw() -> MutexGuard<'static, UpdateCanvasDraw> {
@@ -478,14 +477,11 @@ pub struct FileDialogActions {
     pub tasks: Vec<Task<Message>>,
 }
 
-pub static FILE_DIALOG_ACTIONS: Mutex<FileDialogActions> = Mutex::new(FileDialogActions {
-    tasks: Vec::new()
-});
+pub static FILE_DIALOG_ACTIONS: Mutex<FileDialogActions> = Mutex::new(FileDialogActions { tasks: Vec::new() });
 
 pub fn access_file_dialog_actions() -> MutexGuard<'static, FileDialogActions> {
     FILE_DIALOG_ACTIONS.lock().unwrap()
 }
-
 
 // ============================================================================
 // Main State - stores all widget/container definitions before Iced starts
@@ -493,22 +489,22 @@ pub fn access_file_dialog_actions() -> MutexGuard<'static, FileDialogActions> {
 
 #[derive(Debug)]
 pub struct State {
-    pub ids: Lazy<HashMap<usize, Vec<WidgetNode>>>,  // <window_id=usize, Vec<Ids=structure>>
+    pub ids: Lazy<HashMap<usize, Vec<WidgetNode>>>, // <window_id=usize, Vec<Ids=structure>>
     pub last_id: usize,
     pub gen_ids: Vec<usize>,
 
     pub containers: Lazy<HashMap<usize, Containers>>,
-    pub container_ids: Lazy<HashMap<usize, Vec<usize>>>,  // <window_id=usize, vec<container_id=usize>>
+    pub container_ids: Lazy<HashMap<usize, Vec<usize>>>, // <window_id=usize, vec<container_id=usize>>
     pub container_str_ids: Lazy<HashMap<String, usize>>, // get container usize id based on container string
     pub container_wnd_str_ids: Lazy<HashMap<String, String>>, // get window string id based on container string id
     pub container_window_usize_ids: Lazy<HashMap<usize, usize>>, //get window usize id based on container usize id
-    
+
     pub widgets: Lazy<HashMap<usize, Widgets>>,
     pub widget_container_ids: Lazy<HashMap<usize, String>>, //widget_id=usize, container_id=String
-    
+
     pub windows: Vec<Window>,
     pub windows_iced_ipg_ids: Lazy<HashMap<window::Id, usize>>, // <iced id, ipg id>
-    pub windows_str_ids: Lazy<HashMap<String, usize>>,  // <ipg_id=str, ipg id>
+    pub windows_str_ids: Lazy<HashMap<String, usize>>,          // <ipg_id=str, ipg id>
     pub window_debug: Lazy<HashMap<window::Id, (usize, bool)>>, // (wid, debug)
     pub window_theme: Lazy<HashMap<window::Id, (usize, Theme)>>, // (wid, window Theme)
     pub window_mode: Lazy<HashMap<window::Id, (usize, window::Mode)>>,
@@ -525,40 +521,38 @@ pub struct State {
     pub custom_palettes: Lazy<HashMap<usize, CustomPalette>>,
 }
 
-pub static STATE: Mutex<State> = Mutex::new(
-    State {
-        ids: Lazy::new(||HashMap::new()),
-        last_id: 0,
-        gen_ids: vec![],
+pub static STATE: Mutex<State> = Mutex::new(State {
+    ids: Lazy::new(|| HashMap::new()),
+    last_id: 0,
+    gen_ids: vec![],
 
-        containers: Lazy::new(||HashMap::new()),
-        container_ids: Lazy::new(||HashMap::new()),
-        container_str_ids: Lazy::new(||HashMap::new()),
-        container_wnd_str_ids: Lazy::new(||HashMap::new()),
-        container_window_usize_ids: Lazy::new(||HashMap::new()),
+    containers: Lazy::new(|| HashMap::new()),
+    container_ids: Lazy::new(|| HashMap::new()),
+    container_str_ids: Lazy::new(|| HashMap::new()),
+    container_wnd_str_ids: Lazy::new(|| HashMap::new()),
+    container_window_usize_ids: Lazy::new(|| HashMap::new()),
 
-        widgets: Lazy::new(||HashMap::new()),
-        widget_container_ids: Lazy::new(||HashMap::new()),
+    widgets: Lazy::new(|| HashMap::new()),
+    widget_container_ids: Lazy::new(|| HashMap::new()),
 
-        windows: vec![],
-        windows_iced_ipg_ids: Lazy::new(||HashMap::new()),
-        windows_str_ids: Lazy::new(||HashMap::new()),
-        window_debug: Lazy::new(||HashMap::new()),
-        window_theme: Lazy::new(||HashMap::new()),
-        window_mode: Lazy::new(||HashMap::new()),
-        
-        events: vec![],
-        keyboard_event_id_enabled: (0, false),
-        mouse_event_id_enabled: (0, false), 
-        canvas_timer_event_id_enabled: (0, false),
-        window_event_id_enabled: (0, false),
-        touch_event_id_enabled: (0, false),
-        timer_state: Lazy::new(||HashMap::new()),
-        canvas_timer_duration: 0,
-        user_fonts: vec![],
-        custom_palettes: Lazy::new(||HashMap::new()),
-    }
-);
+    windows: vec![],
+    windows_iced_ipg_ids: Lazy::new(|| HashMap::new()),
+    windows_str_ids: Lazy::new(|| HashMap::new()),
+    window_debug: Lazy::new(|| HashMap::new()),
+    window_theme: Lazy::new(|| HashMap::new()),
+    window_mode: Lazy::new(|| HashMap::new()),
+
+    events: vec![],
+    keyboard_event_id_enabled: (0, false),
+    mouse_event_id_enabled: (0, false),
+    canvas_timer_event_id_enabled: (0, false),
+    window_event_id_enabled: (0, false),
+    touch_event_id_enabled: (0, false),
+    timer_state: Lazy::new(|| HashMap::new()),
+    canvas_timer_duration: 0,
+    user_fonts: vec![],
+    custom_palettes: Lazy::new(|| HashMap::new()),
+});
 
 pub fn access_state() -> MutexGuard<'static, State> {
     STATE.lock().unwrap()
@@ -658,7 +652,7 @@ impl Clone for IpgState {
 /// Clone data from the static mutex state into IpgState for Iced runtime
 pub fn clone_state_to_runtime(runtime_state: &mut IpgState) {
     let mut state = access_state();
-    
+
     runtime_state.ids = state.ids.clone();
     runtime_state.last_id = state.last_id;
     runtime_state.containers = state.containers.clone();
@@ -673,7 +667,7 @@ pub fn clone_state_to_runtime(runtime_state: &mut IpgState) {
 
     runtime_state.events = state.events.clone();
     runtime_state.keyboard_event_id_enabled = state.keyboard_event_id_enabled;
-    runtime_state.mouse_event_id_enabled = state.mouse_event_id_enabled; 
+    runtime_state.mouse_event_id_enabled = state.mouse_event_id_enabled;
     runtime_state.canvas_timer_event_id_enabled = state.canvas_timer_event_id_enabled;
     runtime_state.window_event_id_enabled = state.window_event_id_enabled;
     runtime_state.touch_event_id_enabled = state.touch_event_id_enabled;
@@ -705,7 +699,7 @@ pub fn clone_state_to_runtime(runtime_state: &mut IpgState) {
     state.widgets = Lazy::new(|| HashMap::new());
     state.widget_container_ids = Lazy::new(|| HashMap::new());
     state.windows = vec![];
-    
+
     drop(state);
 }
 
@@ -764,14 +758,13 @@ pub fn set_state_of_widget(id: usize, parent_id: String) {
     drop(state);
 }
 
-pub fn set_state_of_widget_running_state(
-    state: &mut IpgState,
-    id: usize,  
-    parent_id: String)
-{
+pub fn set_state_of_widget_running_state(state: &mut IpgState, id: usize, parent_id: String) {
     let wnd_id_str = match state.container_wnd_str_ids.get(&parent_id) {
         Some(id) => id.clone(),
-        None => panic!("The main window id could not be found using parent_id {}, check that your parent_id matches a container ", parent_id)
+        None => panic!(
+            "The main window id could not be found using parent_id {}, check that your parent_id matches a container ",
+            parent_id
+        ),
     };
 
     let wnd_id_usize = match state.windows_str_ids.get(&wnd_id_str) {
@@ -780,23 +773,22 @@ pub fn set_state_of_widget_running_state(
     };
 
     let parent_uid = find_parent_uid(state.ids.get(&wnd_id_usize).unwrap(), parent_id.clone());
-    
-    state.ids.get_mut(&wnd_id_usize).unwrap().push(WidgetNode{id, parent_uid, container_id: None,
-                                                        parent_id, is_container: false});
 
+    state.ids.get_mut(&wnd_id_usize).unwrap().push(WidgetNode {
+        id,
+        parent_uid,
+        container_id: None,
+        parent_id,
+        is_container: false,
+    });
 }
 
-pub fn set_state_of_container(
-    id: usize, 
-    window_id: String, 
-    container_id: Option<String>, 
-    parent_id: String) 
-{
+pub fn set_state_of_container(id: usize, window_id: String, container_id: Option<String>, parent_id: String) {
     let state = access_state();
 
     let wnd_id_usize = match state.windows_str_ids.get(&window_id) {
         Some(id) => *id,
-        None => panic!("The main window id could not be found using window_id {}", window_id)
+        None => panic!("The main window id could not be found using window_id {}", window_id),
     };
     drop(state);
 
@@ -806,24 +798,23 @@ pub fn set_state_of_container(
         Some(container_id_str) => state.container_wnd_str_ids.insert(container_id_str, window_id),
         None => None,
     };
-    
+
     let parent_uid = find_parent_uid(state.ids.get(&wnd_id_usize).unwrap(), parent_id.clone());
-    
-    state.ids.get_mut(&wnd_id_usize).unwrap().push(WidgetNode{id, parent_uid, container_id,
-                                                        parent_id, is_container: true});
+
+    state.ids.get_mut(&wnd_id_usize).unwrap().push(WidgetNode {
+        id,
+        parent_uid,
+        container_id,
+        parent_id,
+        is_container: true,
+    });
 
     state.container_ids.get_mut(&wnd_id_usize).unwrap().push(id);
 
     drop(state);
-
 }
 
-pub fn set_state_cont_wnd_ids(
-    state: &mut State, 
-    wnd_id: &String, 
-    cnt_str_id: String, 
-    cnt_id: usize, name: String) 
-{
+pub fn set_state_cont_wnd_ids(state: &mut State, wnd_id: &String, cnt_str_id: String, cnt_id: usize, name: String) {
     state.container_str_ids.insert(cnt_str_id.clone(), cnt_id);
 
     let wnd_id_usize_opt = state.windows_str_ids.get(wnd_id);
@@ -839,7 +830,6 @@ pub fn set_state_cont_wnd_ids(
 }
 
 pub fn get_id(gen_id: Option<usize>) -> usize {
-    
     let mut state = access_state();
 
     // Get or generate ID
@@ -862,16 +852,10 @@ pub fn add_callback_name_to_mutex(id: usize, event_name: CallbackName, callback:
     drop(callbacks);
 }
 
-pub fn add_user_data_to_mutex(
-    id: usize, 
-    user_data: PyObject) 
-{
+pub fn add_user_data_to_mutex(id: usize, user_data: PyObject) {
     access_user_data1().user_data.insert(id, user_data);
 }
 
-pub fn update_user_data_to_mutex(
-    id: usize, 
-    user_data: PyObject) 
-{
+pub fn update_user_data_to_mutex(id: usize, user_data: PyObject) {
     access_user_data1().user_data.insert(id, user_data);
 }

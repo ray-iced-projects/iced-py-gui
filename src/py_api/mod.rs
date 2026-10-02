@@ -28,7 +28,7 @@ pub mod input_float;
 pub mod mouse_area;
 pub mod opaque;
 pub mod palette_helpers;
-// pub mod popup;
+pub mod popover;
 pub mod picklist;
 pub mod progress_bar;
 pub mod radio;

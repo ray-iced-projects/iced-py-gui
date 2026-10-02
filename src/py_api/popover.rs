@@ -7,7 +7,7 @@ use crate::{access_state, add_callback_name_to_mutex, add_user_data_to_mutex};
 use crate::state::{Containers, get_id, set_state_cont_wnd_ids, 
     set_state_of_container};
 
-use crate::widgets::ipg_popup::PopUp;
+use crate::widgets::ipg_popover::PopOver;
 
 
 
@@ -71,7 +71,7 @@ use crate::widgets::ipg_popup::PopUp;
         on_click_outside=None,
         user_data=None,
         ))]
-pub fn add_popup(
+pub fn add_popover(
     window_id: String,
     container_id: String,
     parent_id: Option<String>,
@@ -121,8 +121,8 @@ pub fn add_popup(
     set_state_cont_wnd_ids(&mut state, &window_id, container_id, id, "add_popup".to_string());
 
     state.containers
-        .insert(id, Containers::PopUp(
-            PopUp {
+        .insert(id, Containers::PopOver(
+            PopOver {
                 id,  
                 opened,
                 position_bottom,

@@ -164,7 +164,7 @@ from .icedpygui import (
     # MenuSubItemParam,
     MousePointer,
     PickListParam,
-    PopoverParam,
+    PopOverParam,
     ProgressBarParam,
     ProgressBarStyleParam,
     ProgressBarStyleStd,
@@ -986,7 +986,7 @@ class Opaque:
         return False
 
 
-class Popover:
+class PopOver:
     """Wrapper for add_popover"""
     def __init__(self, *, container_id=None, window_id=None, parent_id=None, **kwargs):
         self.window_id = (

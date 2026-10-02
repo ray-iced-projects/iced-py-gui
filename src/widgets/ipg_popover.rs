@@ -32,7 +32,11 @@ impl PopOver {
     //     id.and_then(|id| widgets.get(&id))
     // }
 
-    pub fn construct<'a>(&'a self, content: Vec<Element<'a, Message>>) -> Option<Element<'a, Message>> {
+    pub fn construct<'a>(
+        &'a self, 
+        content: Vec<Element<'a, Message>>
+    ) -> Option<Element<'a, Message>> {
+
         if content.len() == 1 && !self.opened {
             return None;
         }
@@ -56,7 +60,7 @@ impl PopOver {
 
         let pu: Option<Element<'a, Message>> = if let Some(first) = iter.next() {
             if let Some(second) = iter.next() {
-                // Two or more elements: first is base, rest are popup content
+                // Two or more elements: first is base (button, etc), rest are popup content
                 let mut remaining = vec![second];
                 remaining.extend(iter);
                 let popup_content: Element<'a, Message> = column(remaining).boxed();

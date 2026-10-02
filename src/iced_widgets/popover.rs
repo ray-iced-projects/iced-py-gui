@@ -202,17 +202,21 @@ where
     fn diff(&mut self, tree: &mut adv_widget::Tree) {
         if let Some(popup) = self.popup.as_mut() {
             if tree.children.len() != 2 {
-                tree.children = vec![adv_widget::Tree::new(&self.content), adv_widget::Tree::new(popup)];
+                let mut content_tree = adv_widget::Tree::new(&self.content);
+                self.content.diff(&mut content_tree);
+                let mut popup_tree = adv_widget::Tree::new(popup);
+                popup.diff(&mut popup_tree);
+                tree.children = vec![content_tree, popup_tree];
             } else {
                 tree.children[0].diff(&mut self.content);
                 tree.children[1].diff(popup);
             }
+        } else if tree.children.len() != 1 {
+            let mut content_tree = adv_widget::Tree::new(&self.content);
+            self.content.diff(&mut content_tree);
+            tree.children = vec![content_tree];
         } else {
-            if tree.children.len() != 1 {
-                tree.children = vec![adv_widget::Tree::new(&self.content)];
-            } else {
-                tree.children[0].diff(&mut self.content);
-            }
+            tree.children[0].diff(&mut self.content);
         }
     }
 
@@ -419,6 +423,20 @@ where
     Message: Clone,
     Renderer: iced::advanced::Renderer,
 {
+    fn tag(&self) -> adv_widget::tree::Tag {
+        match self {
+            Popup::Opaque(o) => o.tag(),
+            Popup::Transparent(e) => e.tag(),
+        }
+    }
+
+    fn state(&self) -> adv_widget::tree::State {
+        match self {
+            Popup::Opaque(o) => o.state(),
+            Popup::Transparent(e) => e.state(),
+        }
+    }
+
     fn size(&self) -> Size<Length> {
         match self {
             Popup::Opaque(o) => o.size(),

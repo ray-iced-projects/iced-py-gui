@@ -1,7 +1,10 @@
 use iced::{
-    Padding, Rectangle, Size, mouse,
+    Padding, Rectangle, advanced::Shell, Size,
+    advanced::layout::{Layout}, Node,
+    mouse, advanced::renderer,
+    advanced::widget::Tree,
 };
-use iced::advanced::{renderer,Shell, layout::Layout, widget::Tree};
+
 
 use super::menu_bar::{GlobalState, MenuBarTask};
 use super::menu_tree::{Item, MenuState};
@@ -211,7 +214,7 @@ pub(super) fn try_open_menu<'a, 'b, Message, Theme: Catalog, Renderer: renderer:
     items: &mut [Item<'a, Message, Theme, Renderer>],
     menu_state: &mut MenuState,
     item_trees: &mut [Tree],
-    item_layouts: impl Iterator<Item = Layout<'b>>,
+    item_layouts: impl Iterator<Item = Layout>,
     cursor: mouse::Cursor,
     shell: &mut Shell<'_, Message>,
 ) {
@@ -251,7 +254,7 @@ pub(super) fn schedule_close_on_click<
     global_parameters: &GlobalParameters<'_, Theme>,
     slice: MenuSlice,
     items: &mut [Item<'a, Message, Theme, Renderer>],
-    slice_layout: impl Iterator<Item = Layout<'b>>,
+    slice_layout: impl Iterator<Item = Layout>,
     cursor: mouse::Cursor,
     menu_close_on_item_click: Option<bool>,
     menu_close_on_background_click: Option<bool>,

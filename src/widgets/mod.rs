@@ -20,7 +20,7 @@ pub mod ipg_grid;
 pub mod ipg_image;
 pub mod ipg_input_float;
 pub mod ipg_input_int;
-// pub mod ipg_menu;
+pub mod ipg_menu;
 pub mod ipg_mouse_area;
 pub mod ipg_opaque;
 pub mod ipg_file_system;

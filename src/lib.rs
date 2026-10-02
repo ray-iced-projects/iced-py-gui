@@ -52,7 +52,7 @@ use crate::py_api::font::{add_font_style, add_icon, load_font, arrow_to_str, arr
 use crate::py_api::image::add_image;
 use crate::py_api::input_float::{add_input_float, add_input_float_style};
 use crate::py_api::input_int::{add_input_int, add_input_int_style};
-// use crate::py_api::menu::{add_menu, add_menu_bar_item, add_menu_sub_item, add_menu_style};
+use crate::py_api::menu::{add_menu, add_menu_bar_item, add_menu_sub_item, add_menu_style};
 use crate::py_api::mouse_area::add_mouse_area;
 use crate::py_api::palette_helpers::{get_widget_palette_part, get_widget_palette_list};
 use crate::py_api::opaque::add_opaque;
@@ -103,7 +103,7 @@ use crate::widgets::ipg_grid::GridParam;
 use crate::widgets::ipg_image::ImageParam;
 use crate::widgets::ipg_input_float::{InputFloatParam, InputFloatStyleParam};
 use crate::widgets::ipg_input_int::{InputIntParam, InputIntStyleParam};
-// use crate::widgets::ipg_menu::{MenuBarItemParam, MenuParam, MenuStyleParam, MenuSubItemParam};
+use crate::widgets::ipg_menu::{MenuBarItemParam, MenuParam, MenuStyleParam, MenuSubItemParam};
 use crate::widgets::ipg_mouse_area::MousePointer;
 use crate::widgets::ipg_pick_list::PickListParam;
 use crate::widgets::ipg_popover::PopOverParam;
@@ -151,14 +151,6 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(add_button, m)?)?;
     m.add_function(wrap_pyfunction!(clipboard_write, m)?)?;
     m.add_function(wrap_pyfunction!(clipboard_callback, m)?)?;
-    
-    // Configuration functions
-    m.add_function(wrap_pyfunction!(get_file_filters, m)?)?;
-    m.add_function(wrap_pyfunction!(get_widget_palette_part, m)?)?;
-    m.add_function(wrap_pyfunction!(get_widget_palette_list, m)?)?;
-    m.add_function(wrap_pyfunction!(reload_filters, m)?)?;
-    m.add_function(wrap_pyfunction!(get_config_path, m)?)?;
-    
     // m.add_function(wrap_pyfunction!(add_card_style, m)?)?;
     // m.add_function(wrap_pyfunction!(add_card_class, m)?)?;
     // m.add_function(wrap_pyfunction!(add_card, m)?)?;
@@ -184,10 +176,10 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(add_input_float_style, m)?)?;
     m.add_function(wrap_pyfunction!(add_input_int, m)?)?;
     m.add_function(wrap_pyfunction!(add_input_int_style, m)?)?;
-    // m.add_function(wrap_pyfunction!(add_menu, m)?)?;
-    // m.add_function(wrap_pyfunction!(add_menu_bar_item, m)?)?;
-    // m.add_function(wrap_pyfunction!(add_menu_sub_item, m)?)?;
-    // m.add_function(wrap_pyfunction!(add_menu_style, m)?)?;
+    m.add_function(wrap_pyfunction!(add_menu, m)?)?;
+    m.add_function(wrap_pyfunction!(add_menu_bar_item, m)?)?;
+    m.add_function(wrap_pyfunction!(add_menu_sub_item, m)?)?;
+    m.add_function(wrap_pyfunction!(add_menu_style, m)?)?;
     m.add_function(wrap_pyfunction!(add_mouse_area, m)?)?;
     m.add_function(wrap_pyfunction!(add_opaque, m)?)?;
     m.add_function(wrap_pyfunction!(add_popover, m)?)?;
@@ -250,6 +242,13 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(update_user_data, m)?)?;
     m.add_function(wrap_pyfunction!(update_draw_params, m)?)?;
     m.add_function(wrap_pyfunction!(delete_draw_widget, m)?)?;
+
+    // Configuration functions
+    m.add_function(wrap_pyfunction!(get_file_filters, m)?)?;
+    m.add_function(wrap_pyfunction!(get_widget_palette_part, m)?)?;
+    m.add_function(wrap_pyfunction!(get_widget_palette_list, m)?)?;
+    m.add_function(wrap_pyfunction!(reload_filters, m)?)?;
+    m.add_function(wrap_pyfunction!(get_config_path, m)?)?;
 
     // Widget parameters
     m.add_class::<Arrow>()?;

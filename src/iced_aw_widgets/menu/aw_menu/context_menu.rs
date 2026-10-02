@@ -1,317 +1,176 @@
-//! A context menu for showing actions on right click.
+//! Use a badge for color highlighting important information.
 //!
-use iced::{
-    Element, Event, advanced::Layout, Length, Point, Rectangle, advanced::Shell, Vector, advanced::Widget,
-    advanced::layout::{Limits, Node},
-    mouse::{self, Button, Cursor},
-    overlay, advanced::renderer,
-    advanced::widget::{Operation, Tree, tree},
-};
+//! *This API requires the following crate features to be activated: badge*
+use crate::iced_aw_widgets::menu::style::status::{Status, StyleFn};
+use iced::{Background, Color, Theme};
 
-pub use crate::iced_aw_widgets::menu::style::context_menu::{Catalog, Style};
-pub use crate::iced_aw_widgets::menu::style::status::{Status, StyleFn};
-
-use crate::iced_aw_widgets::menu::overlay::context_menu::ContextMenuOverlay;
-
-/// A context menu
-///
-///
-/// # Example
-/// ```ignore
-/// # use iced_widget::{Text, Button};
-/// # use iced_aw::ContextMenu;
-/// #
-/// #[derive(Debug, Clone)]
-/// enum Message {
-///     Action1,
-/// }
-///
-/// let underlay = Text::new("right click me");
-///
-/// let cm = ContextMenu::new(
-///     underlay,
-///     || Button::new("action1").on_press(Message::Action1).into()
-/// );
-/// ```
-#[allow(missing_debug_implementations)]
-pub struct ContextMenu<
-    'a,
-    Overlay,
-    Message,
-    Theme = iced::Theme,
-    Renderer = iced::Renderer,
-> where
-    Overlay: Fn() -> Element<'a, Message, Theme, Renderer>,
-    Message: Clone,
-    Renderer: renderer::Renderer,
-    Theme: Catalog,
-{
-    /// The underlying element.
-    underlay: Element<'a, Message, Theme, Renderer>,
-    /// The content of [`ContextMenuOverlay`].
-    overlay: Overlay,
-    overlay_instance: Option<Element<'a, Message, Theme, Renderer>>,
-    /// The style of the [`ContextMenu`].
-    class: Theme::Class<'a>,
-    /// Force the menu to be shown (for testing purposes). If None, uses internal state.
-    force_open: Option<bool>,
-}
-
-impl<'a, Overlay, Message, Theme, Renderer> ContextMenu<'a, Overlay, Message, Theme, Renderer>
-where
-    Overlay: Fn() -> Element<'a, Message, Theme, Renderer>,
-    Message: Clone,
-    Renderer: renderer::Renderer,
-    Theme: Catalog,
-{
-    /// Creates a new [`ContextMenu`]
+/// The style of a [`ContextMenu`](crate::widget::ContextMenu).
+#[derive(Clone, Copy, Debug)]
+pub struct Style {
+    /// The background of the [`ContextMenu`](crate::widget::ContextMenu).
     ///
-    /// `underlay`: The underlying element.
-    ///
-    /// `overlay`: The content of [`ContextMenuOverlay`] which will be displayed when `underlay` is clicked.
-    pub fn new<U>(underlay: U, overlay: Overlay) -> Self
-    where
-        U: Into<Element<'a, Message, Theme, Renderer>>,
-    {
-        ContextMenu {
-            underlay: underlay.into(),
-            overlay,
-            overlay_instance: None,
-            class: Theme::default(),
-            force_open: None,
-        }
-    }
-
-    /// Sets the style of the [`ContextMenu`].
-    #[must_use]
-    pub fn style(mut self, style: impl Fn(&Theme, Status) -> Style + 'a) -> Self
-    where
-        Theme::Class<'a>: From<StyleFn<'a, Theme, Style>>,
-    {
-        self.class = (Box::new(style) as StyleFn<'a, Theme, Style>).into();
-        self
-    }
-
-    /// Sets the class of the input of the [`ContextMenu`].
-    #[must_use]
-    pub fn class(mut self, class: impl Into<Theme::Class<'a>>) -> Self {
-        self.class = class.into();
-        self
-    }
-
-    /// Forces the menu to be open or closed, overriding the internal state.
-    /// This is primarily useful for testing purposes.
-    /// If `None`, the menu uses its internal state (toggled by right-click).
-    #[must_use]
-    pub fn open(mut self, open: bool) -> Self {
-        self.force_open = Some(open);
-        self
-    }
+    /// This is used to color the backdrop of the modal.
+    pub background: Background,
 }
 
-impl<'a, Content, Message, Theme, Renderer> Widget<Message, Theme, Renderer>
-    for ContextMenu<'a, Content, Message, Theme, Renderer>
-where
-    Content: 'a + Fn() -> Element<'a, Message, Theme, Renderer>,
-    Message: 'a + Clone,
-    Renderer: 'a + renderer::Renderer,
-    Theme: Catalog,
-{
-    fn size(&self) -> iced::Size<Length> {
-        self.underlay.as_widget().size()
-    }
-
-    fn layout(&mut self, tree: &mut Tree, renderer: &Renderer, limits: &Limits) -> Node {
-        self.underlay
-            .as_widget_mut()
-            .layout(&mut tree.children[0], renderer, limits)
-    }
-
-    fn draw(
-        &self,
-        state: &Tree,
-        renderer: &mut Renderer,
-        theme: &Theme,
-        style: &renderer::Style,
-        layout: Layout<'_>,
-        cursor: Cursor,
-        viewport: &Rectangle,
-    ) {
-        self.underlay.as_widget().draw(
-            &state.children[0],
-            renderer,
-            theme,
-            style,
-            layout,
-            cursor,
-            viewport,
-        );
-    }
-
-    fn tag(&self) -> tree::Tag {
-        tree::Tag::of::<State>()
-    }
-
-    fn state(&self) -> tree::State {
-        tree::State::new(State::new())
-    }
-
-    fn diff(&mut self, tree: &mut Tree) {
-        tree.children[0].diff(&mut self.underlay);
-        if let Some(overlay) = self.overlay_instance.as_mut() {
-            tree.children[1].diff(overlay);
-        }
-    }
-
-    fn operate<'b>(
-        &'b mut self,
-        state: &'b mut Tree,
-        layout: Layout<'_>,
-        renderer: &Renderer,
-        operation: &mut dyn Operation<()>,
-    ) {
-        let s: &mut State = state.state.downcast_mut();
-        let show = self.force_open.unwrap_or(s.show);
-
-        if show {
-            let content = self.overlay_instance.get_or_insert_with(&self.overlay);
-            state.children[1].diff(&mut *content);
-
-            content
-                .as_widget_mut()
-                .operate(&mut state.children[1], layout, renderer, operation);
-        } else {
-            self.overlay_instance = None;
-            self.underlay.as_widget_mut().operate(
-                &mut state.children[0],
-                layout,
-                renderer,
-                operation,
-            );
-        }
-    }
-
-    fn update(
-        &mut self,
-        state: &mut Tree,
-        event: &Event,
-        layout: Layout<'_>,
-        cursor: Cursor,
-        renderer: &Renderer,
-        shell: &mut Shell<'_, Message>,
-        viewport: &Rectangle,
-    ) {
-        if *event == Event::Mouse(mouse::Event::ButtonPressed(Button::Right)) {
-            let bounds = layout.bounds();
-
-            if cursor.is_over(bounds) {
-                let s: &mut State = state.state.downcast_mut();
-                s.cursor_position = cursor.position().unwrap_or_default();
-                s.show = !s.show;
-
-                if !s.show {
-                    self.overlay_instance = None;
-                }
-
-                shell.capture_event();
-                shell.request_redraw();
-            }
-        }
-
-        self.underlay.as_widget_mut().update(
-            &mut state.children[0],
-            event,
-            layout,
-            cursor,
-            renderer,
-            shell,
-            viewport,
-        );
-    }
-
-    fn mouse_interaction(
-        &self,
-        state: &Tree,
-        layout: Layout<'_>,
-        cursor: Cursor,
-        viewport: &Rectangle,
-        renderer: &Renderer,
-    ) -> mouse::Interaction {
-        self.underlay.as_widget().mouse_interaction(
-            &state.children[0],
-            layout,
-            cursor,
-            viewport,
-            renderer,
-        )
-    }
-
-    fn overlay<'b>(
-        &'b mut self,
-        tree: &'b mut Tree,
-        layout: Layout<'b>,
-        renderer: &Renderer,
-        viewport: &Rectangle,
-        translation: Vector,
-    ) -> Vec<overlay::Element<'b, Message, Theme, Renderer>> {
-        let s: &mut State = tree.state.downcast_mut();
-        let show = self.force_open.unwrap_or(s.show);
-
-        if !show {
-            self.overlay_instance = None;
-            return self.underlay.as_widget_mut().overlay(
-                &mut tree.children[0],
-                layout,
-                renderer,
-                viewport,
-                translation,
-            );
-        }
-
-        let position = s.cursor_position;
-        let content = self.overlay_instance.get_or_insert_with(&self.overlay);
-        tree.children[1].diff(&mut *content);
-        vec![
-            ContextMenuOverlay::new(
-                position + translation,
-                &mut tree.children[1],
-                content,
-                &self.class,
-                s,
-            )
-            .overlay(),
-        ]
-    }
-}
-
-impl<'a, Content, Message, Theme, Renderer> From<ContextMenu<'a, Content, Message, Theme, Renderer>>
-    for Element<'a, Message, Theme, Renderer>
-where
-    Content: 'a + Fn() -> Self,
-    Message: 'a + Clone,
-    Renderer: 'a + renderer::Renderer,
-    Theme: 'a + Catalog,
-{
-    fn from(modal: ContextMenu<'a, Content, Message, Theme, Renderer>) -> Self {
-        Element::new(modal)
-    }
-}
-
-/// The state of the ``context_menu``.
-#[derive(Debug, Default)]
-pub(crate) struct State {
-    /// The visibility of the [`ContextMenu`] overlay.
-    pub show: bool,
-    /// Use for showing the overlay where the click was made.
-    pub cursor_position: Point,
-}
-
-impl State {
-    /// Creates a new [`State`] containing the given state data.
-    pub const fn new() -> Self {
+impl Default for Style {
+    fn default() -> Self {
         Self {
-            show: false,
-            cursor_position: Point::ORIGIN,
+            background: Background::Color([0.87, 0.87, 0.87, 0.30].into()),
         }
+    }
+}
+
+/// The Catalog of a [`ContextMenu`](crate::widget::ContextMenu).
+pub trait Catalog {
+    ///Style for the trait to use.
+    type Class<'a>;
+
+    /// The default class produced by the [`Catalog`].
+    fn default<'a>() -> Self::Class<'a>;
+
+    /// The [`Style`] of a class with the given status.
+    fn style(&self, class: &Self::Class<'_>, status: Status) -> Style;
+}
+
+impl Catalog for Theme {
+    type Class<'a> = StyleFn<'a, Self, Style>;
+
+    fn default<'a>() -> Self::Class<'a> {
+        Box::new(primary)
+    }
+
+    fn style(&self, class: &Self::Class<'_>, status: Status) -> Style {
+        class(self, status)
+    }
+}
+
+/// The primary theme of a [`ContextMenu`](crate::widget::ContextMenu).
+#[must_use]
+pub fn primary(theme: &Theme, _status: Status) -> Style {
+    let palette = theme.palette();
+
+    Style {
+        background: Background::Color(Color {
+            a: 0f32,
+            ..palette.background.base.color
+        }),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use iced::{Background, Theme};
+
+    #[test]
+    fn style_default() {
+        let style = Style::default();
+        assert!(matches!(style.background, Background::Color(_)));
+
+        // Verify the default has a semi-transparent background
+        if let Background::Color(color) = style.background {
+            assert_eq!(color.a, 0.30);
+        }
+    }
+
+    #[test]
+    fn primary_theme_active() {
+        let theme = Theme::TokyoNight;
+        let style = primary(&theme, Status::Active);
+
+        assert!(matches!(style.background, Background::Color(_)));
+    }
+
+    #[test]
+    fn primary_theme_hovered() {
+        let theme = Theme::TokyoNight;
+        let style = primary(&theme, Status::Hovered);
+
+        assert!(matches!(style.background, Background::Color(_)));
+    }
+
+    #[test]
+    fn primary_theme_disabled() {
+        let theme = Theme::TokyoNight;
+        let style = primary(&theme, Status::Disabled);
+
+        assert!(matches!(style.background, Background::Color(_)));
+    }
+
+    #[test]
+    fn primary_theme_focused() {
+        let theme = Theme::TokyoNight;
+        let style = primary(&theme, Status::Focused);
+
+        assert!(matches!(style.background, Background::Color(_)));
+    }
+
+    #[test]
+    fn primary_theme_has_transparent_background() {
+        let theme = Theme::TokyoNight;
+        let style = primary(&theme, Status::Active);
+
+        // The primary theme should create a transparent background
+        #[allow(clippy::panic)]
+        if let Background::Color(color) = style.background {
+            assert_eq!(
+                color.a, 0.0,
+                "Primary theme should have fully transparent background"
+            );
+        } else {
+            panic!("Expected Background::Color");
+        }
+    }
+
+    #[test]
+    fn status_does_not_affect_style() {
+        let theme = Theme::TokyoNight;
+        let active_style = primary(&theme, Status::Active);
+        let hovered_style = primary(&theme, Status::Hovered);
+        let disabled_style = primary(&theme, Status::Disabled);
+        let focused_style = primary(&theme, Status::Focused);
+
+        // All statuses should produce the same style
+        assert_eq!(
+            format!("{:?}", active_style.background),
+            format!("{:?}", hovered_style.background)
+        );
+        assert_eq!(
+            format!("{:?}", active_style.background),
+            format!("{:?}", disabled_style.background)
+        );
+        assert_eq!(
+            format!("{:?}", active_style.background),
+            format!("{:?}", focused_style.background)
+        );
+    }
+
+    #[test]
+    fn catalog_default_class() {
+        let _class = <Theme as Catalog>::default();
+    }
+
+    #[test]
+    fn catalog_style() {
+        let theme = Theme::TokyoNight;
+        let class = <Theme as Catalog>::default();
+        let style = theme.style(&class, Status::Active);
+
+        assert!(matches!(style.background, Background::Color(_)));
+    }
+
+    #[test]
+    fn catalog_style_with_different_statuses() {
+        let theme = Theme::TokyoNight;
+        let class = <Theme as Catalog>::default();
+
+        let active_style = theme.style(&class, Status::Active);
+        let hovered_style = theme.style(&class, Status::Hovered);
+        let disabled_style = theme.style(&class, Status::Disabled);
+
+        assert!(matches!(active_style.background, Background::Color(_)));
+        assert!(matches!(hovered_style.background, Background::Color(_)));
+        assert!(matches!(disabled_style.background, Background::Color(_)));
     }
 }

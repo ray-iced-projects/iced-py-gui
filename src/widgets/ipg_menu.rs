@@ -9,7 +9,7 @@ use crate::{app, graphics::colors::Color, iced_aw_widgets::menu::aw_menu::{menu_
     apply_shadow_overrides_xy}, widget_param_update::{
     WidgetParamUpdate, set_t_value}}};
 
-use crate::iced_aw_widgets::menu::aw_menu;
+
 use crate::iced_aw_widgets::menu;
 
 use pyo3::{pyclass, Py, PyAny};

@@ -13,9 +13,8 @@
 use super::common::*;
 use super::flex;
 use iced::{
-    Element, Event, Length, Padding, 
-    Pixels, Point, Rectangle, advanced::Shell, Size, Vector,
-    alignment,
+    Element, Event, Length, Padding, Pixels, Point, Rectangle, 
+    advanced::Shell, Size, Vector, alignment,
     advanced::layout::{Layout, Limits, Node},
     mouse, advanced::renderer,
     time::Instant,
@@ -28,6 +27,8 @@ use std::iter::once;
 use super::menu_bar::*;
 use crate::iced_aw_widgets::menu::style::menu_bar::*;
 
+#[cfg(feature = "debug_log")]
+use log::{debug, warn};
 
 /*
 menu tree:
@@ -73,17 +74,32 @@ impl MenuState {
     pub(super) fn open_new_menu<'a, Message, Theme: Catalog, Renderer: renderer::Renderer>(
         &mut self,
         active_index: usize,
-        item: &Item<'a, Message, Theme, Renderer>,
+        item: &mut Item<'a, Message, Theme, Renderer>,
         item_tree: &mut Tree,
     ) {
-        let Some(menu) = item.menu.as_ref() else {
+        #[cfg(feature = "debug_log")]
+        debug!(target:"menu::MenuState::open_new_menu", "");
+        let Some(menu) = item.menu.as_mut() else {
+            #[cfg(feature = "debug_log")]
+            debug!(target:"menu::MenuState::open_new_menu", "item.menu is None");
             return;
         };
 
         self.active = Some(active_index);
 
-        // build the state tree for the new menu
-        let menu_tree = menu.tree();
+        let mut menu_tree = menu.tree();
+        menu.diff(&mut menu_tree);
+
+        #[cfg(feature = "debug_log")]
+        {
+            if item_tree.children.len() > 2 {
+                warn!(
+                    target:"menu::MenuState::open_new_menu",
+                    "item_tree.children.len() > 2 | len: {:?}",
+                    item_tree.children.len()
+                );
+            }
+        }
 
         if item_tree.children.len() == 1 {
             item_tree.children.push(menu_tree);
@@ -226,25 +242,13 @@ where
         parent_direction: (Direction, Direction),
         viewport: &Rectangle,
     ) -> (Node, (Direction, Direction)) {
+        #[cfg(feature = "debug_log")]
+        debug!(target:"menu::Menu::layout", "");
 
-        // Cap the max width so the menu doesn't overflow the screen, but keep
-        // min at 0 so `self.width` (applied in flex::resolve) can set a smaller fixed width.
-        let max_available_width = self.compute_max_available_width(parent_bounds, viewport);
-        let limits = Limits::new(
-            Size::ZERO,
-            Size::new(max_available_width, limits.max().height),
+        let limits = limits.width(
+            self.width
+                .max(self.compute_max_available_width(parent_bounds, viewport)),
         );
-
-        // Ensure all item trees have their widget children initialized before layout
-        for (item, item_tree) in self.items.iter_mut().zip(tree.children.iter_mut()) {
-            if item_tree.children.is_empty() {
-                *item_tree = item.tree();
-            }
-            // Call diff to initialize the widget tree's children
-            if let Some(widget_tree) = item_tree.children.get_mut(0) {
-                widget_tree.diff(&mut item.item);
-            }
-        }
 
         let items_node = flex::resolve(
             flex::Axis::Vertical,
@@ -303,6 +307,8 @@ where
                 n.bounds().y
             });
         menu_state.slice = slice;
+        #[cfg(feature = "debug_log")]
+        debug!(target:"menu::Menu::layout", "slice: {:?}", slice);
 
         let slice_node = if slice.start_index == slice.end_index {
             let node = &items_node.children()[slice.start_index];
@@ -389,7 +395,7 @@ where
         rec_event: RecEvent,
         tree: &mut Tree,
         event: &Event,
-        layout: Layout<'_>,
+        layout: Layout,
         cursor: mouse::Cursor,
         renderer: &Renderer,
         shell: &mut Shell<'_, Message>,
@@ -429,10 +435,10 @@ where
                 )
             };
 
-            if cursor.is_over(parent_bounds) {
-                if let Some(pos) = cursor.position() {
-                    menu_state.last_cursor_on_parent = Some(pos);
-                }
+            if cursor.is_over(parent_bounds)
+                && let Some(pos) = cursor.position()
+            {
+                menu_state.last_cursor_on_parent = Some(pos);
             }
 
             let p1 = menu_state
@@ -440,6 +446,10 @@ where
                 .unwrap_or_else(|| parent_bounds.center());
 
             let triangle = SafeTriangle::new(p1, background_bounds, parent_direction);
+
+            #[cfg(feature = "debug_log")]
+            debug!(target:"menu::Menu::update", "SafeTriangle created: p1={:?}, p2={:?}, p3={:?}",
+                triangle.p1, triangle.p2, triangle.p3);
 
             menu_state.safe_triangle = Some(triangle);
         }
@@ -469,9 +479,7 @@ where
                         slice_layout.children()
                     )
                     .for_each(|((item, tree), layout)| {
-                        item.update(
-                            tree, event, layout, cursor, renderer, shell, viewport,
-                        );
+                        item.update(tree, event, layout, cursor, renderer, shell, viewport);
                     });
                 }
                 Op::RedrawUpdate => {
@@ -496,7 +504,7 @@ where
                         cursor
                     };
 
-                    let mut temp_messages = iced::advanced::shell::Bus::new();
+                    let mut temp_messages = vec![];
                     let mut temp_shell = shell.local(&mut temp_messages);
 
                     let redraw_event =
@@ -625,8 +633,12 @@ where
                         (cursor.position(), menu_state.safe_triangle)
                     {
                         let result = triangle.contains(cursor_pos);
+                        #[cfg(feature = "debug_log")]
+                        debug!(target:"menu::Menu::update", "Cursor at {:?}, in_safe_triangle: {}", cursor_pos, result);
                         result
                     } else {
+                        #[cfg(feature = "debug_log")]
+                        debug!(target:"menu::Menu::update", "No cursor position or no safe triangle");
                         false
                     };
 
@@ -634,6 +646,8 @@ where
                         if global_state.pressed {
                             true
                         } else if in_safe_triangle {
+                            #[cfg(feature = "debug_log")]
+                            debug!(target:"menu::Menu::update", "Keeping menu open due to safe triangle");
                             true
                         } else if prev_bounds_list.iter().any(|r| cursor.is_over(*r)) {
                             false
@@ -649,6 +663,8 @@ where
                         RecEvent::Event
                     } else {
                         // the current menu is ready to close
+                        #[cfg(feature = "debug_log")]
+                        debug!(target:"menu::Menu::update", "close menu");
                         assert!(!shell.is_event_captured(), "Returning RecEvent::Close");
                         *prev_active = None;
                         if tree.children.len() == 2 {
@@ -676,7 +692,7 @@ where
     pub(super) fn operate(
         &mut self,
         tree: &mut Tree,
-        layout: Layout<'_>,
+        layout: Layout,
         renderer: &Renderer,
         operation: &mut dyn Operation<()>,
     ) {
@@ -701,7 +717,7 @@ where
     pub(super) fn mouse_interaction(
         &self,
         tree: &Tree,
-        layout: Layout<'_>,
+        layout: Layout,
         cursor: mouse::Cursor,
         renderer: &Renderer,
     ) -> mouse::Interaction {
@@ -728,7 +744,7 @@ where
         theme: &Theme,
         style: &renderer::Style,
         theme_style: &Style,
-        layout: Layout<'_>,
+        layout: Layout,
         cursor: mouse::Cursor,
         viewport: &Rectangle,
     ) {
@@ -864,25 +880,18 @@ where
     /// tree: Tree{stateless, \[widget_tree, menu_tree]}
     #[allow(clippy::option_if_let_else)]
     pub(super) fn diff(&mut self, tree: &mut Tree) {
-        if let Some(t0) = tree.children.get_mut(0) {
-            t0.diff(&mut self.item);
-            if let Some(m) = self.menu.as_mut() {
-                if let Some(t1) = tree.children.get_mut(1) {
-                    m.diff(t1);
-                } else {
-                    *tree = self.tree();
-                    // After creating new tree, ensure widget tree is initialized
-                    if let Some(t0) = tree.children.get_mut(0) {
-                        t0.diff(&mut self.item);
-                    }
-                }
+        if tree.children.is_empty() {
+            tree.children.push(Tree::empty());
+        }
+        self.item.as_widget_mut().diff(&mut tree.children[0]);
+
+        if let Some(m) = self.menu.as_mut() {
+            if tree.children.len() < 2 {
+                tree.children.push(Tree::empty());
             }
-        } else {
-            *tree = self.tree();
-            // After creating new tree, ensure widget tree is initialized
-            if let Some(t0) = tree.children.get_mut(0) {
-                t0.diff(&mut self.item);
-            }
+            m.diff(&mut tree.children[1]);
+        } else if tree.children.len() > 1 {
+            tree.children.truncate(1);
         }
     }
 
@@ -892,12 +901,14 @@ where
         &mut self,
         tree: &mut Tree,
         event: &Event,
-        layout: Layout<'_>,
+        layout: Layout,
         cursor: mouse::Cursor,
         renderer: &Renderer,
         shell: &mut Shell<'_, Message>,
         viewport: &Rectangle,
     ) {
+        #[cfg(feature = "debug_log")]
+        debug!(target:"Item::update", "");
         self.item.as_widget_mut().update(
             &mut tree.children[0],
             event,
@@ -914,7 +925,7 @@ where
     pub(super) fn mouse_interaction(
         &self,
         tree: &Tree,
-        layout: Layout<'_>,
+        layout: Layout,
         cursor: mouse::Cursor,
         renderer: &Renderer,
     ) -> mouse::Interaction {
@@ -935,7 +946,7 @@ where
         renderer: &mut Renderer,
         theme: &Theme,
         style: &renderer::Style,
-        layout: Layout<'_>,
+        layout: Layout,
         cursor: mouse::Cursor,
         viewport: &Rectangle,
     ) {
@@ -953,7 +964,7 @@ where
     pub(super) fn operate(
         &mut self,
         tree: &mut Tree,
-        layout: Layout<'_>,
+        layout: Layout,
         renderer: &Renderer,
         operation: &mut dyn Operation<()>,
     ) {

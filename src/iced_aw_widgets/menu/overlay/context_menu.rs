@@ -1,19 +1,18 @@
 //! A modal for showing elements as an overlay on top of another.
 //!
-use crate::iced_aw_widgets::menu::aw_menu;
-use crate::iced_aw_widgets::menu::style::status::Status;
-use crate::iced_aw_widgets::menu::style::{
-    context_menu::Catalog,
-};
+//! *This API requires the following crate features to be activated: ``context_menu``*
+
+use crate::iced_aw_widgets::menu::aw_menu::context_menu::Catalog;
+
 use iced::{
-    Border, Color, Element, Event, Point, advanced::Shell, Size, keyboard,
-    advanced::layout::{Layout, Limits, Node},
+    Border, Color, Element, Event, advanced::Layout, Point, 
+    advanced::Shell, Size, keyboard,
+    advanced::layout::{Limits, Node},
     mouse::{self, Cursor},
     overlay, advanced::renderer, touch,
     advanced::widget::Tree,
     window,
 };
-
 
 /// The overlay of the [`ContextMenu`](crate::widget::ContextMenu).
 #[allow(missing_debug_implementations)]
@@ -26,7 +25,7 @@ pub struct ContextMenuOverlay<
 > where
     Message: 'a + Clone,
     Renderer: 'a + renderer::Renderer,
-    Theme: Catalog,
+    Theme: crate::iced_aw_widgets::menu::aw_menu::context_menu::Catalog,
     'b: 'a,
 {
     // The position of the element
@@ -38,7 +37,7 @@ pub struct ContextMenuOverlay<
     /// The style of the [`ContextMenuOverlay`].
     class: &'a Theme::Class<'b>,
     /// The state shared between [`ContextMenu`](crate::widget::ContextMenu) and [`ContextMenuOverlay`].
-    state: &'a mut aw_menu::context_menu::State,
+    state: &'a mut State,
 }
 
 impl<'a, 'b, Message, Theme, Renderer> ContextMenuOverlay<'a, 'b, Message, Theme, Renderer>
@@ -54,7 +53,7 @@ where
         tree: &'a mut Tree,
         content: &'a mut Element<'b, Message, Theme, Renderer>,
         class: &'a <Theme as Catalog>::Class<'b>,
-        state: &'a mut aw_menu::context_menu::State,
+        state: &'a mut crate::iced_aw_widgets::menu::context_menu::State,
     ) -> Self {
         ContextMenuOverlay {
             position,
@@ -72,7 +71,7 @@ where
     }
 }
 
-impl<'a, 'b, Message, Theme, Renderer> iced::advanced::Overlay<Message, Theme, Renderer>
+impl<'a, 'b, Message, Theme, Renderer> iced::advanced::overlay::Overlay<Message, Theme, Renderer>
     for ContextMenuOverlay<'a, 'b, Message, Theme, Renderer>
 where
     Message: 'a + Clone,
@@ -108,12 +107,12 @@ where
         renderer: &mut Renderer,
         theme: &Theme,
         style: &renderer::Style,
-        layout: Layout<'_>,
+        layout: Layout,
         cursor: Cursor,
     ) {
         let bounds = layout.bounds();
 
-        let style_sheet = theme.style(self.class, Status::Active);
+        let style_sheet = theme.style(self.class, status::Status::Active);
 
         // Background
 
@@ -150,7 +149,7 @@ where
     fn update(
         &mut self,
         event: &Event,
-        layout: Layout<'_>,
+        layout: Layout,
         cursor: iced::mouse::Cursor,
         renderer: &Renderer,
         shell: &mut Shell<'_, Message>,
@@ -221,7 +220,7 @@ where
 
     fn operate(
         &mut self,
-        layout: Layout<'_>,
+        layout: Layout,
         renderer: &Renderer,
         operation: &mut dyn iced::advanced::widget::Operation,
     ) {
@@ -237,8 +236,7 @@ where
 
     fn mouse_interaction(
         &self,
-        layout: Layout<'_>,
-
+        layout: Layout,
         cursor: mouse::Cursor,
         renderer: &Renderer,
     ) -> mouse::Interaction {
@@ -254,5 +252,177 @@ where
             &bounds,
             renderer,
         )
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use iced_core::Point;
+    use iced_widget::text::Text;
+
+    #[derive(Clone)]
+    enum TestMessage {}
+
+    fn create_test_tree() -> Tree {
+        Tree::empty()
+    }
+
+    fn create_test_content()
+    -> Element<'static, TestMessage, iced_widget::Theme, iced_widget::Renderer> {
+        Text::new("Test content").into()
+    }
+
+    fn create_test_state() -> crate::context_menu::State {
+        crate::context_menu::State::new()
+    }
+
+    #[test]
+    fn context_menu_overlay_new_creates_instance() {
+        // Test basic creation of overlay
+        let mut tree = create_test_tree();
+        let mut content = create_test_content();
+        let class = &<iced_widget::Theme as Catalog>::default();
+        let mut state = create_test_state();
+        let position = Point::new(100.0, 100.0);
+
+        let overlay = ContextMenuOverlay::new(position, &mut tree, &mut content, class, &mut state);
+
+        assert_eq!(overlay.position, position);
+    }
+
+    #[test]
+    fn context_menu_overlay_creates_with_different_positions() {
+        // Test overlay creation with various positions
+        let mut tree1 = create_test_tree();
+        let mut tree2 = create_test_tree();
+        let mut tree3 = create_test_tree();
+        let mut content1 = create_test_content();
+        let mut content2 = create_test_content();
+        let mut content3 = create_test_content();
+        let class = &<iced_widget::Theme as Catalog>::default();
+        let mut state1 = create_test_state();
+        let mut state2 = create_test_state();
+        let mut state3 = create_test_state();
+
+        let overlay1 =
+            ContextMenuOverlay::new(Point::ORIGIN, &mut tree1, &mut content1, class, &mut state1);
+        let overlay2 = ContextMenuOverlay::new(
+            Point::new(500.0, 300.0),
+            &mut tree2,
+            &mut content2,
+            class,
+            &mut state2,
+        );
+        let overlay3 = ContextMenuOverlay::new(
+            Point::new(1000.0, 800.0),
+            &mut tree3,
+            &mut content3,
+            class,
+            &mut state3,
+        );
+
+        assert_eq!(overlay1.position, Point::ORIGIN);
+        assert_eq!(overlay2.position, Point::new(500.0, 300.0));
+        assert_eq!(overlay3.position, Point::new(1000.0, 800.0));
+    }
+
+    #[test]
+    fn context_menu_overlay_converts_to_overlay_element() {
+        // Test conversion to overlay::Element
+        let mut tree = create_test_tree();
+        let mut content = create_test_content();
+        let class = &<iced_widget::Theme as Catalog>::default();
+        let mut state = create_test_state();
+        let position = Point::new(100.0, 100.0);
+
+        let overlay = ContextMenuOverlay::new(position, &mut tree, &mut content, class, &mut state);
+        let _overlay_element = overlay.overlay();
+
+        // If we get here without panic, the conversion worked
+    }
+
+    #[test]
+    fn context_menu_overlay_state_can_be_shown() {
+        // Test that state can be set to shown
+        let mut state = create_test_state();
+        assert!(!state.show);
+
+        state.show = true;
+        assert!(state.show);
+    }
+
+    #[test]
+    fn context_menu_overlay_state_can_be_hidden() {
+        // Test that state can be set to hidden
+        let mut state = create_test_state();
+        state.show = true;
+        assert!(state.show);
+
+        state.show = false;
+        assert!(!state.show);
+    }
+
+    #[test]
+    fn context_menu_overlay_state_tracks_cursor_position() {
+        // Test that state can track cursor position for overlay placement
+        let mut state = create_test_state();
+        assert_eq!(state.cursor_position, Point::ORIGIN);
+
+        state.cursor_position = Point::new(123.4, 567.8);
+        assert_eq!(state.cursor_position.x, 123.4);
+        assert_eq!(state.cursor_position.y, 567.8);
+    }
+
+    #[test]
+    fn context_menu_overlay_state_show_and_position_update_together() {
+        // Test that state can track both show status and cursor position
+        // This simulates what happens during a right-click event
+        let mut state = create_test_state();
+        assert!(!state.show);
+        assert_eq!(state.cursor_position, Point::ORIGIN);
+
+        // Simulate showing the overlay at a specific position
+        state.show = true;
+        state.cursor_position = Point::new(200.0, 300.0);
+
+        assert!(state.show);
+        assert_eq!(state.cursor_position, Point::new(200.0, 300.0));
+
+        // Simulate hiding the overlay (position stays the same)
+        state.show = false;
+        assert!(!state.show);
+        assert_eq!(state.cursor_position, Point::new(200.0, 300.0));
+    }
+
+    #[test]
+    fn context_menu_overlay_position_can_be_negative() {
+        // Test that overlay can be positioned with negative coordinates
+        // (Though layout() will adjust it, the initial position can be negative)
+        let mut tree = create_test_tree();
+        let mut content = create_test_content();
+        let class = &<iced_widget::Theme as Catalog>::default();
+        let mut state = create_test_state();
+        let position = Point::new(-50.0, -100.0);
+
+        let overlay = ContextMenuOverlay::new(position, &mut tree, &mut content, class, &mut state);
+
+        assert_eq!(overlay.position.x, -50.0);
+        assert_eq!(overlay.position.y, -100.0);
+    }
+
+    #[test]
+    fn context_menu_overlay_position_accuracy() {
+        // Test that position is stored with floating-point precision
+        let mut tree = create_test_tree();
+        let mut content = create_test_content();
+        let class = &<iced_widget::Theme as Catalog>::default();
+        let mut state = create_test_state();
+        let position = Point::new(123.456, 789.012);
+
+        let overlay = ContextMenuOverlay::new(position, &mut tree, &mut content, class, &mut state);
+
+        assert_eq!(overlay.position.x, 123.456);
+        assert_eq!(overlay.position.y, 789.012);
     }
 }

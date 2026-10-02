@@ -28,7 +28,7 @@ use crate::widgets::ipg_draw::Draw;
 use crate::widgets::ipg_file_system::FileSystemDialog;
 use crate::widgets::ipg_input_float::{InputFloat, InputFloatStyle};
 use crate::widgets::ipg_input_int::{InputInt, InputIntStyle};
-// use crate::widgets::ipg_menu::{Menu, MenuBarItem, MenuSubItem, MenuStyle};
+use crate::widgets::ipg_menu::{Menu, MenuBarItem, MenuSubItem, MenuStyle};
 use crate::widgets::ipg_button::{Button, ButtonStyle};
 use crate::widgets::ipg_events::Events;
 use crate::widgets::ipg_float::Float;
@@ -81,9 +81,9 @@ pub enum Containers {
     Float(Float),
     Grid(Grid),
     InputFloat(InputFloat),
-    // Menu(Menu),
-    // MenuBarItem(MenuBarItem),
-    // MenuSubItem(MenuSubItem),
+    Menu(Menu),
+    MenuBarItem(MenuBarItem),
+    MenuSubItem(MenuSubItem),
     MouseArea(MouseArea),
     Opaque(Opaque),
     PopOver(PopOver),
@@ -122,7 +122,7 @@ pub enum Widgets {
     InputFloatStyle(InputFloatStyle),
     InputInt(InputInt),
     InputIntStyle(InputIntStyle),
-    // MenuStyle(MenuStyle),
+    MenuStyle(MenuStyle),
     Palette(CustomPalette),
     PickList(PickList),
     PickListStyle(PickListStyle),
@@ -198,7 +198,7 @@ ipg_widget_accessors! {
     InputFloatStyle    => InputFloatStyle,     as_input_float_style,     as_input_float_style_mut;
     InputInt           => InputInt,            as_input_int,             as_input_int_mut;
     InputIntStyle      => InputIntStyle,       as_input_int_style,       as_input_int_style_mut;
-    // MenuStyle          => MenuStyle,           as_menu_style,            as_menu_style_mut;
+    MenuStyle          => MenuStyle,           as_menu_style,            as_menu_style_mut;
     Palette            => CustomPalette,       as_palette,               as_palette_mut;
     PickList           => PickList,            as_pick_list,             as_pick_list_mut;
     PickListStyle      => PickListStyle,       as_pick_list_style,       as_pick_list_style_mut;
@@ -261,9 +261,9 @@ ipg_container_accessors! {
     Float        => Float,        as_float,           as_float_mut;
     Grid         => Grid,         as_grid,            as_grid_mut;
     InputFloat   => InputFloat,   as_input_float,     as_input_float_mut;
-    // Menu         => Menu,         as_menu,            as_menu_mut;
-    // MenuBarItem  => MenuBarItem,  as_menu_bar_item,   as_menu_bar_item_mut;
-    // MenuSubItem  => MenuSubItem,  as_menu_sub_item,   as_menu_sub_item_mut;
+    Menu         => Menu,         as_menu,            as_menu_mut;
+    MenuBarItem  => MenuBarItem,  as_menu_bar_item,   as_menu_bar_item_mut;
+    MenuSubItem  => MenuSubItem,  as_menu_sub_item,   as_menu_sub_item_mut;
     // MouseArea    => MouseArea,    as_mouse_area,      as_mouse_area_mut;
     Opaque       => Opaque,       as_opaque,          as_opaque_mut;
     PopOver      => PopOver,      as_popover,         as_popover_mut;

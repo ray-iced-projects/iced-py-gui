@@ -39,8 +39,8 @@ from icedpygui import (
     add_pick_list,
     MouseArea,
     PickListParam,
-    PopUp,
-    PopUpParam,
+    PopOver,
+    PopOverParam,
     Table,
     TableHeader,
     TableBody,
@@ -346,18 +346,18 @@ def on_palette_selected(_btn_id, user_data: tuple[int, int]):
     (row_, pal_index) = user_data
     (popup_id_, _) = pc.popup_open_btn_ids[row_]
 
-    update_widget(popup_id_, PopUpParam.Opened, False)
+    update_widget(popup_id_, PopOverParam.Opened, False)
     set_selected_widget_palette(pc, row_, pal_index)
 
 
 def open_palette_popup(_btn_id: int, popup_id_: int):
     """Opens the popup to select the palette"""
-    update_widget(popup_id_, PopUpParam.Opened, True)
+    update_widget(popup_id_, PopOverParam.Opened, True)
 
 
 def clicked_outside(pop_id: int):
     """Called when mouse clicked outside palette selection popup"""
-    update_widget(pop_id, PopUpParam.Opened, False)
+    update_widget(pop_id, PopOverParam.Opened, False)
 
 
 def event_kp(_kb_id: int, keyboard: dict):
@@ -611,7 +611,7 @@ with Window(title="Palette Creator - Interactive Workflow", center=True, size=(1
                                         pc.palette_popup_cnt_style_ids.append([])
                                         pc.palette_popup_ma_ids.append([])
                                         pc.palette_popup_cnt_text_ids.append([])
-                                        with PopUp(position_top=True,
+                                        with PopOver(position_top=True,
                                                     on_click_outside=clicked_outside) as popup_id:
                                             # add the button to open the popup
                                             btn_style_id = add_button_style(text_center=True)

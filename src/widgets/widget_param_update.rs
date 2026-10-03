@@ -93,6 +93,7 @@ pub fn param_update(widget: &mut Widgets, item: &PyObject, value: &PyObject) {
         Widgets::TextInputStyle(w) => apply_update(w, item, value),
         Widgets::Toggler(w) => apply_update(w, item, value),
         Widgets::TogglerStyle(w) => apply_update(w, item, value),
+        Widgets::MenuStyle(menu_style) => todo!(),
     }
 }
 

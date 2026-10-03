@@ -7,16 +7,11 @@ from icedpygui import (
     Container,
     start_session,
     Menu,
-    MenuBarItem,
-    MenuSubItem,
-    add_button,
     add_button_style,
-    add_separator,
-    add_text,
-    ButtonStyleStd)
+)
 
 
-def on_press(_id, name: str):
+def on_bar_select(_id, name: str):
     """Button callback"""
     print(f"selected: {name}")
 
@@ -27,85 +22,85 @@ with Window(title="Menu", center=True, size=[600, 600]):
 
     with Container(padding=[20.0], fill=True):
         with Column(spacing=20):
-            with Menu(spacing=20.0):
+            with Menu(
+                bar_items = ["File", "Edit", "Help"],
+                on_bar_select=on_bar_select,
+                user_data="File"):
+                pass
+                # The MenuBarItem's order must match the order of the Menu bar_items position.
+                # with MenuBarItem(width=125, spacing=5.0, offset=3.0):
+                #     # dropdown for "File"
+                #     add_button(
+                #         label="New",
+                #         style_std=ButtonStyleStd.Text,
+                #         on_press=on_press,
+                #         user_data="New")
+                #     add_separator(
+                #         dot=True,
+                #         dot_radius=3.0,
+                #         dot_count=8,
+                #         spacing=10.0)
 
-                # First item of the MenuBarItem is the bar item followed by the dropdown items
-                with MenuBarItem(width=125, spacing=5.0, offset=3.0):
+                #     with MenuSubItem(label="Open Recent"):
+                #         add_button(
+                #             label="project1.py",
+                #             style_std=ButtonStyleStd.Text)
+                #         add_button(
+                #             label="project2.py",
+                #             style_std=ButtonStyleStd.Text)
 
-                    add_text(content="File") # bar item
-                    # dropdown items
-                    add_button(
-                        label="New",
-                        style_std=ButtonStyleStd.Text,
-                        on_press=on_press,
-                        user_data="New")
-                    add_separator(
-                        dot=True,
-                        dot_radius=3.0,
-                        dot_count=8,
-                        spacing=10.0)
+                #     add_button(
+                #         label="Search",
+                #         style_std=ButtonStyleStd.Text,
+                #         on_press=on_press,
+                #         user_data="Search")
 
-                    #  Submenu
-                    with MenuSubItem(width=70, spacing=5.0, offset=2.0):
-                        # trigger (shown in dropdown)
-                        add_text(content="Open Recent >")
-                        add_button(
-                            label="project1.py",
-                            style_std=ButtonStyleStd.Text)
-                        add_button(
-                            label="project2.py",
-                            style_std=ButtonStyleStd.Text)
+                #     add_separator(
+                #         dot=True,
+                #         dot_radius=3.0,
+                #         dot_count=8,
+                #         spacing=10.0,)
 
-                    add_separator(
-                        dot=True,
-                        dot_radius=3.0,
-                        dot_count=8,
-                        spacing=10.0,)
+                #     add_button(
+                #         label="Open",
+                #         style_std=ButtonStyleStd.Text,
+                #         on_press=on_press,
+                #         user_data="Open")
 
-                    add_button(
-                        label="Open",
-                        style_std=ButtonStyleStd.Text,
-                        on_press=on_press,
-                        user_data="Open")
+                #     add_button(
+                #         label="Save",
+                #         style_std=ButtonStyleStd.Text,
+                #         on_press=on_press,
+                #         user_data="Save")
 
-                    add_button(
-                        label="Save",
-                        style_std=ButtonStyleStd.Text,
-                        on_press=on_press,
-                        user_data="Save")
+                # with MenuBarItem(width=50.0, spacing=5.0, offset=3.0):
+                #     # dropdown items for "Edit"
+                #     add_button(
+                #         label="Cut",
+                #         style_std=ButtonStyleStd.Text,
+                #         on_press=on_press,
+                #         user_data="Cut")
 
-                with MenuBarItem(width=50.0, spacing=5.0, offset=3.0):
+                #     add_button(
+                #         label="Copy",
+                #         style_std=ButtonStyleStd.Text,
+                #         on_press=on_press,
+                #         user_data="Copy")
 
-                    add_text(content="Edit") # bar item
-                    # dropdown items
-                    add_button(
-                        label="Cut",
-                        style_std=ButtonStyleStd.Text,
-                        on_press=on_press,
-                        user_data="Cut")
+                #     add_button(
+                #         label="Paste",
+                #         style_std=ButtonStyleStd.Text,
+                #         on_press=on_press,
+                #         user_data="Paste")
 
-                    add_button(
-                        label="Copy",
-                        style_std=ButtonStyleStd.Text,
-                        on_press=on_press,
-                        user_data="Copy")
+                # with MenuBarItem(width=75.0, offset=3.0):
+                #     # dropdown items "Help"
+                #     add_button(
+                #         label="About",
+                #         style_std=ButtonStyleStd.Text,
+                #         on_press=on_press,
+                #         user_data="About")
 
-                    add_button(
-                        label="Paste",
-                        style_std=ButtonStyleStd.Text,
-                        on_press=on_press,
-                        user_data="Paste")
-
-                with MenuBarItem(width=75.0, offset=3.0):
-
-                    add_text(content="Help") # bar item
-
-                    # dropdown items
-                    add_button(
-                        label="About",
-                        style_std=ButtonStyleStd.Text,
-                        on_press=on_press,
-                        user_data="About")
 
 
 # Required to be the last widget sent to Iced,  If you start the program

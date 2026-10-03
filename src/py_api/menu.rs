@@ -6,7 +6,7 @@ type PyObject = Py<PyAny>;
 
 use crate::graphics::colors::Color;
 use crate::widgets::callbacks::CallbackName;
-use crate::widgets::ipg_menu::{Menu, MenuBarItem, MenuSubItem, MenuStyle};
+use crate::widgets::ipg_menu::{Menu, MenuBar, MenuSubItem, MenuStyle};
 use crate::{access_state, add_callback_name_to_mutex, add_user_data_to_mutex};
 use crate::state::{Containers, Widgets, get_id, set_state_cont_wnd_ids, set_state_of_container};
 
@@ -91,6 +91,7 @@ use crate::state::{Containers, Widgets, get_id, set_state_cont_wnd_ids, set_stat
 #[pyo3(signature = ( 
     window_id,
     container_id,
+    bar_items,
     parent_id=None,
     padding=None,
     spacing=None,
@@ -101,10 +102,7 @@ use crate::state::{Containers, Widgets, get_id, set_state_cont_wnd_ids, set_stat
     close_on_bar_background_click=None,
     items_close_on_click_global=None,
     items_close_on_background_click_global=None,
-    cursor_bounds_margin=None,
-    scroll_speed_line=None,
-    scroll_speed_pixel=None,
-    on_select=None,
+    on_bar_select=None,
     style_id=None,
     style_primary=None,
     show=true, 
@@ -114,6 +112,7 @@ use crate::state::{Containers, Widgets, get_id, set_state_cont_wnd_ids, set_stat
 pub fn add_menu(
     window_id: String,
     container_id: String,
+    bar_items: Vec<String>,
     parent_id: Option<String>,
     padding: Option<Vec<f32>>,
     spacing: Option<f32>,
@@ -124,10 +123,7 @@ pub fn add_menu(
     close_on_bar_background_click: Option<bool>,
     items_close_on_click_global: Option<bool>,
     items_close_on_background_click_global: Option<bool>,
-    cursor_bounds_margin: Option<f32>,
-    scroll_speed_line: Option<f32>,
-    scroll_speed_pixel: Option<f32>,
-    on_select: Option<PyObject>,
+    on_bar_select: Option<PyObject>,
     style_id: Option<usize>,
     style_primary: Option<bool>,
     show: bool,
@@ -137,8 +133,8 @@ pub fn add_menu(
 {
     let id = get_id(gen_id);
 
-    if let Some(py) = on_select {
-        add_callback_name_to_mutex(id, CallbackName::OnSelect, py);
+    if let Some(py) = on_bar_select {
+        add_callback_name_to_mutex(id, CallbackName::OnBarSelect, py);
     }
 
     if let Some(py) = user_data {
@@ -159,6 +155,7 @@ pub fn add_menu(
     state.containers.insert(id, Containers::Menu(
         Menu {
             id,
+            bar_items,
             padding,
             spacing,
             width,
@@ -170,15 +167,78 @@ pub fn add_menu(
             items_close_on_background_click_global,
             style_id,
             style_primary,
-            cursor_bounds_margin,
-            scroll_speed_line,
-            scroll_speed_pixel,
             show,
         }));
 
     drop(state);
     Ok(id)
 }
+
+// #[pyfunction]
+// #[pyo3(signature = ( 
+//     window_id,
+//     container_id,
+//     parent_id=None,
+//     on_select=None,
+//     padding=None,
+//     spacing=None,
+//     width=None,
+//     width_fill=None,
+//     height=None,
+//     show=true, 
+//     user_data=None, 
+//     gen_id=None
+//     ))]
+// pub fn add_menu_bar(
+//     window_id: String,
+//     container_id: String,
+//     parent_id: Option<String>,
+//     on_select: Option<PyObject>,
+//     padding: Option<Vec<f32>>,
+//     spacing: Option<f32>,
+//     width: Option<f32>,
+//     width_fill: Option<bool>,
+//     height: Option<f32>,
+//     show: bool,
+//     user_data: Option<PyObject>,
+//     gen_id: Option<usize>,
+// ) -> PyResult<usize> 
+// {
+//     let id = get_id(gen_id);
+
+//     if let Some(py) = on_select {
+//         add_callback_name_to_mutex(id, CallbackName::OnSelect, py);
+//     }
+
+//     if let Some(py) = user_data {
+//         add_user_data_to_mutex(id, py);
+//     }
+
+//     let prt_id = match parent_id {
+//         Some(id) => id,
+//         None => window_id.clone(),
+//     };
+    
+//     set_state_of_container(id, window_id.clone(), Some(container_id.clone()), prt_id);
+
+//     let mut state = access_state();
+
+//     set_state_cont_wnd_ids(&mut state, &window_id, container_id, id, "add_menu_bar".to_string());
+
+//     state.containers.insert(id, Containers::MenuBar(
+//         MenuBar {
+//             id,
+//             padding,
+//             spacing,
+//             width,
+//             width_fill,
+//             height,
+//             show,
+//         }));
+
+//     drop(state);
+//     Ok(id)
+// }
 
 /// Add a menu bar item container.
 ///
@@ -262,8 +322,8 @@ pub fn add_menu_bar_item(
 
     set_state_cont_wnd_ids(&mut state, &window_id, container_id, id, "add_menu_bar_item".to_string());
 
-    state.containers.insert(id, Containers::MenuBarItem(
-        MenuBarItem {
+    state.containers.insert(id, Containers::MenuBar(
+        MenuBar {
             id,
             width,
             spacing,

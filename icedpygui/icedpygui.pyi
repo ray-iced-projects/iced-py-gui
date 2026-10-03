@@ -3041,68 +3041,68 @@ class MenuParam:
     WidthFill: bool | None
 
 
-class MenuBarItemParam:
-    """
-    Menu Bar Item Parameters
+# class MenuBarItemParam:
+#     """
+#     Menu Bar Item Parameters
 
-    Parameters
-    ----------
-    CloseOnBackgroundClick: bool
-        Whether to close items on background click
-    CloseOnItemClick: bool
-        Whether to close on items click
-    Offset: float
-        Set the offset of the items column
-    Padding: list[float, 4] | list[float]
-        Set the padding of the items,
-        [float] = all sides, [float, 4]=[top, right, bottom, left]
-    Show: bool
-        Whether to show the items
-    Spacing: float
-        Sets the spacing between the items
-    Width: float
-        Sets the width of the items container
-    """
-    CloseOnBackgroundClick: bool | None
-    CloseOnItemClick: bool | None
-    Offset: float | None
-    Padding: list[float, 4] | list[float] | None
-    Show: bool | None
-    Spacing: float | None
-    Width: float | None
+#     Parameters
+#     ----------
+#     CloseOnBackgroundClick: bool
+#         Whether to close items on background click
+#     CloseOnItemClick: bool
+#         Whether to close on items click
+#     Offset: float
+#         Set the offset of the items column
+#     Padding: list[float, 4] | list[float]
+#         Set the padding of the items,
+#         [float] = all sides, [float, 4]=[top, right, bottom, left]
+#     Show: bool
+#         Whether to show the items
+#     Spacing: float
+#         Sets the spacing between the items
+#     Width: float
+#         Sets the width of the items container
+#     """
+#     CloseOnBackgroundClick: bool | None
+#     CloseOnItemClick: bool | None
+#     Offset: float | None
+#     Padding: list[float, 4] | list[float] | None
+#     Show: bool | None
+#     Spacing: float | None
+#     Width: float | None
 
 
-class MenuStyleParam:
-    """Menu style parameters"""
-    BaseColor:Color
-    BaseRgbaColor:list[float, 4]
-    BorderColor:Color
-    BorderRgbaColor:list[float, 4]
-    BorderRadius:list[float]
-    BorderWidth:float
-    ShadowColor:Color
-    ShadowRgbaColor:list[float, 4]
-    ShadowOffsetXY:list[float, 2]
-    ShadowBlurRadius:float
-    PathBaseColor:Color
-    PathBaseRgbaColor:list[float, 4]
-    PathBorderColor:Color
-    PathBorderRgbaColor:list[float, 4]
-    PathBorderRadius:list[float]
-    PathBorderWidth:float
+# class MenuStyleParam:
+#     """Menu style parameters"""
+#     BaseColor:Color
+#     BaseRgbaColor:list[float, 4]
+#     BorderColor:Color
+#     BorderRgbaColor:list[float, 4]
+#     BorderRadius:list[float]
+#     BorderWidth:float
+#     ShadowColor:Color
+#     ShadowRgbaColor:list[float, 4]
+#     ShadowOffsetXY:list[float, 2]
+#     ShadowBlurRadius:float
+#     PathBaseColor:Color
+#     PathBaseRgbaColor:list[float, 4]
+#     PathBorderColor:Color
+#     PathBorderRgbaColor:list[float, 4]
+#     PathBorderRadius:list[float]
+#     PathBorderWidth:float
 
-class MenuBarStyleParam:
-    """Menu bar style parameters"""
-    BaseColor:Color
-    BaseRgbaColor:list[float, 4]
-    BorderColor:Color
-    BorderRgbaColor:list[float, 4]
-    BorderRadius:list[float]
-    BorderWidth:float
-    ShadowColor:Color
-    ShadowRgbaColor:list[float, 4]
-    ShadowOffsetXY:list[float, 2]
-    ShadowBlurRadius:float
+# class MenuBarStyleParam:
+#     """Menu bar style parameters"""
+#     BaseColor:Color
+#     BaseRgbaColor:list[float, 4]
+#     BorderColor:Color
+#     BorderRgbaColor:list[float, 4]
+#     BorderRadius:list[float]
+#     BorderWidth:float
+#     ShadowColor:Color
+#     ShadowRgbaColor:list[float, 4]
+#     ShadowOffsetXY:list[float, 2]
+#     ShadowBlurRadius:float
 
 
 class MenuSeparatorStyleParam:

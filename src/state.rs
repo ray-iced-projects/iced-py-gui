@@ -18,6 +18,7 @@ use crate::py_api::colors::CustomPalette;
 use crate::widgets::callbacks::CallbackName;
 // use crate::widgets::ipg_card::{Card, CardClass, CardStyle};
 use crate::ipg_widgets::ipg_canvas_draw::canvas_draw::{CanvasWidget, Circle, DrawMode, DrawState, DrawStatus};
+use crate::widgets::ipg_button::{Button, ButtonStyle};
 use crate::widgets::ipg_checkbox::{CheckBox, CheckboxStyle};
 use crate::widgets::ipg_color_picker::ColorPicker;
 use crate::widgets::ipg_column::Column;
@@ -25,17 +26,16 @@ use crate::widgets::ipg_combo_box::{ComboBox, ComboBoxInputStyle, ComboBoxMenuSt
 use crate::widgets::ipg_container::{Container, ContainerStyle};
 use crate::widgets::ipg_date_picker::DatePicker;
 use crate::widgets::ipg_draw::Draw;
-use crate::widgets::ipg_file_system::FileSystemDialog;
-use crate::widgets::ipg_input_float::{InputFloat, InputFloatStyle};
-use crate::widgets::ipg_input_int::{InputInt, InputIntStyle};
-use crate::widgets::ipg_menu::{Menu, MenuBarItem, MenuSubItem, MenuStyle};
-use crate::widgets::ipg_button::{Button, ButtonStyle};
 use crate::widgets::ipg_events::Events;
+use crate::widgets::ipg_file_system::FileSystemDialog;
 use crate::widgets::ipg_float::Float;
 use crate::widgets::ipg_font::Font;
 use crate::widgets::ipg_font::IpgIcon;
 use crate::widgets::ipg_grid::Grid;
 use crate::widgets::ipg_image::Image;
+use crate::widgets::ipg_input_float::{InputFloat, InputFloatStyle};
+use crate::widgets::ipg_input_int::{InputInt, InputIntStyle};
+use crate::widgets::ipg_menu::{Menu, MenuBar, MenuStyle, MenuSubItem};
 use crate::widgets::ipg_mouse_area::MouseArea;
 use crate::widgets::ipg_opaque::Opaque;
 use crate::widgets::ipg_pick_list::{PickList, PickListStyle};
@@ -82,7 +82,7 @@ pub enum Containers {
     Grid(Grid),
     InputFloat(InputFloat),
     Menu(Menu),
-    MenuBarItem(MenuBarItem),
+    MenuBar(MenuBar),
     MenuSubItem(MenuSubItem),
     MouseArea(MouseArea),
     Opaque(Opaque),
@@ -262,7 +262,7 @@ ipg_container_accessors! {
     Grid         => Grid,         as_grid,            as_grid_mut;
     InputFloat   => InputFloat,   as_input_float,     as_input_float_mut;
     Menu         => Menu,         as_menu,            as_menu_mut;
-    MenuBarItem  => MenuBarItem,  as_menu_bar_item,   as_menu_bar_item_mut;
+    MenuBar      => MenuBar,      as_menu_bar_item,   as_menu_bar_item_mut;
     MenuSubItem  => MenuSubItem,  as_menu_sub_item,   as_menu_sub_item_mut;
     // MouseArea    => MouseArea,    as_mouse_area,      as_mouse_area_mut;
     Opaque       => Opaque,       as_opaque,          as_opaque_mut;

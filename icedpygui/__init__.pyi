@@ -1591,8 +1591,7 @@ def add_menu(
     *,
     window_id: str | None = None,
     container_id: str | None = None,
-    bar_items: str | None = None,
-    menu_items: list[int],
+    bar_items: list[str],
     parent_id: str | None = None,
     item_offset: list[float] | None = None,
     item_padding: list[float] | None = None,
@@ -2330,6 +2329,7 @@ class Menu:
     """
     def __init__(
         self,
+        bar_items,
         *,
         height: float | None = None,
         padding: list[float] | None = None,

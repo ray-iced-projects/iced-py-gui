@@ -168,7 +168,7 @@ class TestOpacityBtnPressed(unittest.TestCase):
             "input_id": 999
         }
 
-        opacity_btn_pressed(btn_id)
+        opacity_btn_pressed(btn_id, 999)
 
         self.assertAlmostEqual(pc.opacity_btn_ids[btn_id]["opacity"], 0.6, places=2)
 
@@ -182,7 +182,7 @@ class TestOpacityBtnPressed(unittest.TestCase):
             "input_id": 999
         }
 
-        opacity_btn_pressed(btn_id)
+        opacity_btn_pressed(btn_id, 999)
 
         self.assertAlmostEqual(pc.opacity_btn_ids[btn_id]["opacity"], 0.4, places=2)
 
@@ -196,7 +196,7 @@ class TestOpacityBtnPressed(unittest.TestCase):
             "input_id": 999
         }
 
-        opacity_btn_pressed(btn_id)
+        opacity_btn_pressed(btn_id, 999)
 
         self.assertAlmostEqual(pc.opacity_btn_ids[btn_id]["opacity"], 0.51, places=2)
 
@@ -210,7 +210,7 @@ class TestOpacityBtnPressed(unittest.TestCase):
             "input_id": 999
         }
 
-        opacity_btn_pressed(btn_id)
+        opacity_btn_pressed(btn_id, 999)
 
         self.assertEqual(pc.opacity_btn_ids[btn_id]["opacity"], 1.0)
 
@@ -224,14 +224,14 @@ class TestOpacityBtnPressed(unittest.TestCase):
             "input_id": 999
         }
 
-        opacity_btn_pressed(btn_id)
+        opacity_btn_pressed(btn_id, 999)
 
         self.assertEqual(pc.opacity_btn_ids[btn_id]["opacity"], 0.0)
 
     def test_nonexistent_button_returns(self):
         """Test that function handles nonexistent button gracefully."""
         # Should not raise exception
-        opacity_btn_pressed(999)
+        opacity_btn_pressed(0, 999)
 
 
 class TestBorderBtnPressed(unittest.TestCase):

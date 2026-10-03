@@ -19,6 +19,7 @@ fn get_user_data(id: usize) -> Option<PyObject> {
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Display)]
 pub enum CallbackName {
     Callback,
+    OnBarSelect,
     OnCancel,
     OnChange,
     OnClickOutside,

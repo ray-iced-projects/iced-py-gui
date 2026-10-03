@@ -4,13 +4,16 @@
 
 use std::collections::HashMap;
 
-use iced::{Element, Length, Renderer, Theme};
-use crate::{app, graphics::colors::Color, iced_aw_widgets::menu::aw_menu::{menu_bar::MenuBar, menu_tree::Item}, py_api::helpers::{get_len, get_padding}, state::{Containers, Widgets}, widgets::{styling::{apply_border_overrides, 
+use iced::{Element, Length, Renderer, Theme, Widget};
+use iced::widget::{button, mouse_area, row, text};
+
+use crate::app::Message;
+use crate::widgets::callbacks::{CallbackName, invoke_callback_with_args};
+use crate::{app, graphics::colors::Color, py_api::helpers::{get_len, get_padding}, state::{Containers, Widgets}, widgets::{styling::{apply_border_overrides, 
     apply_shadow_overrides_xy}, widget_param_update::{
     WidgetParamUpdate, set_t_value}}};
 
 
-use crate::iced_aw_widgets::menu;
 
 use pyo3::{pyclass, Py, PyAny};
 
@@ -32,6 +35,7 @@ pub enum GroupedItem<'a> {
 #[derive(Debug, Clone)]
 pub struct Menu {
     pub id: usize,
+    pub bar_items: Vec<String>,
     pub padding: Option<Vec<f32>>,
     pub spacing: Option<f32>,
     pub width: Option<f32>,
@@ -43,120 +47,92 @@ pub struct Menu {
     pub items_close_on_background_click_global: Option<bool>,
     pub style_id: Option<usize>,
     pub style_primary: Option<bool>,
-    pub cursor_bounds_margin: Option<f32>,
-    pub scroll_speed_line: Option<f32>,
-    pub scroll_speed_pixel: Option<f32>,
     pub show: bool,
 }
 
 impl Menu {
 
-    fn lookup<'a>(&self, widgets: &'a HashMap<usize, Widgets>, id: Option<usize>) -> Option<&'a Widgets> {
-        id.and_then(|id| widgets.get(&id))
+    fn lookup<'a>(&self, containers: &'a HashMap<usize, Containers>, id: Option<usize>) -> Option<&'a Containers> {
+        id.and_then(|id| containers.get(&id))
     }
 
     pub fn construct<'a>(
         &'a self, 
-        grouped_content: Vec<(usize, Vec<GroupedItem<'a>>)>,
-        widgets: &HashMap<usize, Widgets>,
-        containers: &HashMap<usize, Containers>,
+        // widgets: &HashMap<usize, Widgets>,
+        // containers: &HashMap<usize, Containers>,
         )-> Option<Element<'a, app::Message, Theme, Renderer>> 
     {
         
-        let style_opt = 
-            self.lookup(widgets, self.style_id)
-                .and_then(Widgets::as_menu_style).cloned();
 
+        let rw = 
+            row((0..self.bar_items.len())
+                .map(|i| {
+                    let btn = button(text(self.bar_items[i].clone()))
+                        .on_press(MenuMessage::OnBarSelect)
+                        .boxed();
+                    mouse_area(btn)
+                    .boxed()
+                }
+                ));
         
-        let mut bar_items: Vec<Item<app::Message, Theme, Renderer>> = vec![];
-        
-        for (bar_item_id, mut group) in grouped_content.into_iter() {
-            if group.is_empty() {
-                continue;
-            }
+        let rw = rw.boxed();
+        Some(rw.map(move |message| Message::Menu(self.id, message)).boxed())
 
-            let bar_item_data = containers.get(&bar_item_id)
-                .and_then(Containers::as_menu_bar_item)
-                .expect("MenuBarItem not found in containers");
 
-            // First element is the bar widget (always Plain), rest are dropdown items
-            let menu_bar = match group.remove(0) {
-                GroupedItem::Plain(el) => el,
-                GroupedItem::Sub { trigger, .. } => trigger,
-            };
-
-            let items = build_items(group, containers);
-
-            let mut menu = aw_menu::menu_tree::Menu::new(items)
-                .width({
-                        if let Some(width) = bar_item_data.width {
-                            iced::Length::Fixed(width)
-                        } else {
-                            Length::Shrink
-                        }
-                    })
-                .offset(bar_item_data.offset.unwrap_or(0.0))
-                .padding(get_padding(&bar_item_data.padding))
-                .spacing(bar_item_data.spacing.unwrap_or_default());
-
-            if let Some(v) = bar_item_data.close_on_item_click {
-                menu = menu.close_on_item_click(v);
-            }
-            if let Some(v) = bar_item_data.close_on_background_click {
-                menu = menu.close_on_background_click(v);
-            }
-            
-            let bar_item = 
-                Item::with_menu(
-                    menu_bar, 
-                    menu
-                    );
-     
-            bar_items.push(bar_item);
-            
-        }
-
-        // No visible bar items: skip rendering to avoid an empty MenuBar panic.
-        if bar_items.is_empty() {
-            return None;
-        }
-
-        let mut mb: MenuBar<'a, app::Message, Theme, Renderer> = 
-            MenuBar::new(bar_items)
-                .close_on_item_click_global(self.items_close_on_click_global.unwrap_or_default())
-                .close_on_background_click_global(self.items_close_on_background_click_global.unwrap_or_default())
-                .draw_path(aw_menu::common::DrawPath::FakeHovering)
-                .spacing(self.spacing.unwrap_or_default())
-                .padding(get_padding(&self.padding))
-                .width(get_len(None, self.width_fill, self.width))
-                .height(get_len(None, None, self.height))
-                .safe_bounds_margin(self.cursor_bounds_margin.unwrap_or(50.0))
-                .scroll_speed(aw_menu::common::ScrollSpeed{
-                    line: self.scroll_speed_line.unwrap_or(60.0),
-                    pixel: self.scroll_speed_pixel.unwrap_or(1.0)
-                })
-                .style(move |theme: &Theme, status| {
-                    if let Some(st) = &style_opt {
-                        st.to_iced(theme, status, self.style_primary)
-                    } else {
-                        primary(theme)
-                    }
-                });
-
-        if let Some(v) = self.close_on_bar_item_click {
-            mb = mb.close_on_item_click(v);
-        }
-        if let Some(v) = self.close_on_bar_background_click {
-            mb = mb.close_on_background_click(v);
-        }
-
-        Some(mb.into())
     }
 }
 
+#[derive(Debug, Clone)]
+pub enum MenuMessage {
+    OnBarSelect,
+}
+
+pub fn menu_callback(id: usize, message: MenuMessage) {
+    match message {
+        MenuMessage::OnBarSelect => {
+            invoke_callback_with_args(
+                id,
+                CallbackName::OnPress,
+                "MenuBarButton",
+                "def cb(wid: int)",
+                "def cb(wid: int)",
+            )
+        }
+    }
+}
+
+// #[derive(Debug, Clone)]
+// pub struct MenuBar {
+//     id: usize,
+//     items: Vec<String>,
+//     padding: Option<Vec<f32>>,
+//     spacing: Option<f32>,
+//     width: Option<f32>,
+//     width_fill: Option<bool>,
+//     height: Option<f32>,
+//     show: bool,
+// }
+
+// impl MenuBar {
+
+//     fn lookup<'a>(&self, widgets: &'a HashMap<usize, Widgets>, id: Option<usize>) -> Option<&'a Widgets> {
+//         id.and_then(|id| widgets.get(&id))
+//     }
+
+//     pub fn construct<'a>(
+//         &'a self, 
+//         widgets: &HashMap<usize, Widgets>,
+//         )-> Option<Element<'a, app::Message, Theme, Renderer>> 
+//     {
+    
+//         let bar_items = self.lookup(widgets, Some(self.id))
+//                 .and_then(Widgets::as_menu_bar_item).cloned();
+    
+//     }
+// }
 
 #[derive(Debug, Clone)]
-pub struct MenuBarItem {
+pub struct MenuBar {
     pub id: usize,
     pub width: Option<f32>,
     pub spacing: Option<f32>,
@@ -185,39 +161,39 @@ pub struct MenuSubItem {
 
 /// Recursively convert a `Vec<GroupedItem>` into aw_menu `Item`s,
 /// using `Item::with_menu` for any `GroupedItem::Sub`.
-fn build_items<'a>(
-    group: Vec<GroupedItem<'a>>,
-    containers: &HashMap<usize, Containers>,
-) -> Vec<Item<'a, app::Message, Theme, Renderer>> {
+// fn build_items<'a>(
+//     group: Vec<GroupedItem<'a>>,
+//     containers: &HashMap<usize, Containers>,
+// ) -> Vec<Item<'a, app::Message, Theme, Renderer>> {
     
-    group.into_iter().map(|gi| match gi {
-        GroupedItem::Plain(el) => Item::new(el),
-        GroupedItem::Sub { trigger, children, sub_item_id } => {
-            let sub_data = containers.get(&sub_item_id)
-                .and_then(Containers::as_menu_sub_item);
+//     group.into_iter().map(|gi| match gi {
+//         GroupedItem::Plain(el) => Item::new(el),
+//         GroupedItem::Sub { trigger, children, sub_item_id } => {
+//             let sub_data = containers.get(&sub_item_id)
+//                 .and_then(Containers::as_menu_sub_item);
 
-            let sub_items = build_items(children, containers);
+//             let sub_items = build_items(children, containers);
 
-            let mut sub_menu = aw_menu::menu_tree::Menu::new(sub_items)
-                .width(match sub_data.and_then(|d| d.width) {
-                    Some(w) => iced::Length::Fixed(w),
-                    None    => Length::Shrink,
-                })
-                .offset(sub_data.and_then(|d| d.offset).unwrap_or(0.0))
-                .padding(get_padding(&sub_data.and_then(|d| d.padding.clone())))
-                .spacing(sub_data.and_then(|d| d.spacing).unwrap_or_default());
+//             let mut sub_menu = aw_menu::menu_tree::Menu::new(sub_items)
+//                 .width(match sub_data.and_then(|d| d.width) {
+//                     Some(w) => iced::Length::Fixed(w),
+//                     None    => Length::Shrink,
+//                 })
+//                 .offset(sub_data.and_then(|d| d.offset).unwrap_or(0.0))
+//                 .padding(get_padding(&sub_data.and_then(|d| d.padding.clone())))
+//                 .spacing(sub_data.and_then(|d| d.spacing).unwrap_or_default());
 
-            if let Some(v) = sub_data.and_then(|d| d.close_on_item_click) {
-                sub_menu = sub_menu.close_on_item_click(v);
-            }
-            if let Some(v) = sub_data.and_then(|d| d.close_on_background_click) {
-                sub_menu = sub_menu.close_on_background_click(v);
-            }
+//             if let Some(v) = sub_data.and_then(|d| d.close_on_item_click) {
+//                 sub_menu = sub_menu.close_on_item_click(v);
+//             }
+//             if let Some(v) = sub_data.and_then(|d| d.close_on_background_click) {
+//                 sub_menu = sub_menu.close_on_background_click(v);
+//             }
 
-            Item::with_menu(trigger, sub_menu)
-        }
-    }).collect()
-}
+//             Item::with_menu(trigger, sub_menu)
+//         }
+//     }).collect()
+// }
 
 
 #[derive(Debug, Clone)]
@@ -267,139 +243,136 @@ pub struct MenuStyle {
     pub path_border_width: Option<f32>,
 }
 
-impl MenuStyle {
-    fn to_iced(
-        &self,
-        theme: &Theme,
-        status: menu::style::status::Status,
-        style_std: Option<bool>,
-        ) -> menu::style::menu_bar::Style {
+// impl MenuStyle {
+//     fn to_iced(
+//         &self,
+//         theme: &Theme,
+//         status: menu::style::status::Status,
+//         style_std: Option<bool>,
+//         ) -> menu::style::menu_bar::Style {
 
-        //The base style will be either default or primary
-        let mut style = 
-            if style_std == Some(true) {
-                menu::style::menu_bar::primary(theme, status)
-            } else { menu::style::menu_bar::Style::default() };
+//         //The base style will be either default or primary
+//         let mut style = 
+//             if style_std == Some(true) {
+//                 menu::style::menu_bar::primary(theme, status)
+//             } else { menu::style::menu_bar::Style::default() };
 
-        let bar_background_color = 
-        Color::rgba_ipg_color_to_iced(
-            self.bar_background_rgba, 
-            &self.bar_background_color, 
-            self.bar_background_color_alpha);
+//         let bar_background_color = 
+//         Color::rgba_ipg_color_to_iced(
+//             self.bar_background_rgba, 
+//             &self.bar_background_color, 
+//             self.bar_background_color_alpha);
         
-        let bar_border_color = 
-            Color::rgba_ipg_color_to_iced(
-                self.bar_border_rgba, 
-                &self.bar_border_color, 
-                self.bar_border_color_alpha);
+//         let bar_border_color = 
+//             Color::rgba_ipg_color_to_iced(
+//                 self.bar_border_rgba, 
+//                 &self.bar_border_color, 
+//                 self.bar_border_color_alpha);
         
-        let bar_shadow_color = 
-            Color::rgba_ipg_color_to_iced(
-                self.bar_shadow_rgba, 
-                &self.bar_shadow_color, 
-                self.bar_shadow_color_alpha);
+//         let bar_shadow_color = 
+//             Color::rgba_ipg_color_to_iced(
+//                 self.bar_shadow_rgba, 
+//                 &self.bar_shadow_color, 
+//                 self.bar_shadow_color_alpha);
 
-        let menu_background_color = 
-            Color::rgba_ipg_color_to_iced(
-                self.menu_background_rgba, 
-                &self.menu_background_color, 
-                self.menu_background_color_alpha);
+//         let menu_background_color = 
+//             Color::rgba_ipg_color_to_iced(
+//                 self.menu_background_rgba, 
+//                 &self.menu_background_color, 
+//                 self.menu_background_color_alpha);
         
-        let menu_border_color = 
-            Color::rgba_ipg_color_to_iced(
-                self.menu_border_rgba, 
-                &self.menu_border_color, 
-                self.menu_border_color_alpha);
+//         let menu_border_color = 
+//             Color::rgba_ipg_color_to_iced(
+//                 self.menu_border_rgba, 
+//                 &self.menu_border_color, 
+//                 self.menu_border_color_alpha);
         
-        let menu_shadow_color = 
-            Color::rgba_ipg_color_to_iced(
-                self.menu_shadow_rgba, 
-                &self.menu_shadow_color, 
-                self.menu_shadow_color_alpha);
+//         let menu_shadow_color = 
+//             Color::rgba_ipg_color_to_iced(
+//                 self.menu_shadow_rgba, 
+//                 &self.menu_shadow_color, 
+//                 self.menu_shadow_color_alpha);
 
-        let path_background_color = 
-            Color::rgba_ipg_color_to_iced(
-                self.path_background_rgba, 
-                &self.path_background_color, 
-                self.path_background_color_alpha);
+//         let path_background_color = 
+//             Color::rgba_ipg_color_to_iced(
+//                 self.path_background_rgba, 
+//                 &self.path_background_color, 
+//                 self.path_background_color_alpha);
         
-        let path_border_color = 
-            Color::rgba_ipg_color_to_iced(
-                self.path_border_rgba, 
-                &self.path_border_color, 
-                self.path_border_color_alpha);
+//         let path_border_color = 
+//             Color::rgba_ipg_color_to_iced(
+//                 self.path_border_rgba, 
+//                 &self.path_border_color, 
+//                 self.path_border_color_alpha);
 
-        // making defaults square
-        style.bar_border.radius = 0.0.into();
-        style.menu_border.radius = 0.0.into();
+//         // making defaults square
+//         style.bar_border.radius = 0.0.into();
+//         style.menu_border.radius = 0.0.into();
 
-        // bar
-        if let Some(color) = bar_background_color {
-            style.bar_background = color.into()
-        }
+//         // bar
+//         if let Some(color) = bar_background_color {
+//             style.bar_background = color.into()
+//         }
 
-        apply_border_overrides(
-            &mut style.bar_border, bar_border_color,
-            &self.bar_border_radius, self.bar_border_width, "Menu-bar",
-        );
+//         apply_border_overrides(
+//             &mut style.bar_border, bar_border_color,
+//             &self.bar_border_radius, self.bar_border_width, "Menu-bar",
+//         );
 
-        apply_shadow_overrides_xy(
-            &mut style.bar_shadow, bar_shadow_color, 
-            self.bar_shadow_offset_xy, self.bar_shadow_blur_radius);
+//         apply_shadow_overrides_xy(
+//             &mut style.bar_shadow, bar_shadow_color, 
+//             self.bar_shadow_offset_xy, self.bar_shadow_blur_radius);
         
-        // menu
-        if let Some(color) = menu_background_color {
-            style.menu_background = color.into()
-        }
+//         // menu
+//         if let Some(color) = menu_background_color {
+//             style.menu_background = color.into()
+//         }
 
-        apply_border_overrides(
-            &mut style.menu_border, menu_border_color,
-            &self.menu_border_radius, self.menu_border_width, "Menu-menu",
-        );
+//         apply_border_overrides(
+//             &mut style.menu_border, menu_border_color,
+//             &self.menu_border_radius, self.menu_border_width, "Menu-menu",
+//         );
 
-        apply_shadow_overrides_xy(
-            &mut style.menu_shadow, menu_shadow_color, 
-            self.menu_shadow_offset_xy, self.menu_shadow_blur_radius);
+//         apply_shadow_overrides_xy(
+//             &mut style.menu_shadow, menu_shadow_color, 
+//             self.menu_shadow_offset_xy, self.menu_shadow_blur_radius);
 
-        // path
-        if let Some(color) = path_background_color {
-            style.path = color.into()
-        }
+//         // path
+//         if let Some(color) = path_background_color {
+//             style.path = color.into()
+//         }
 
-        apply_border_overrides(
-            &mut style.path_border, path_border_color,
-            &self.path_border_radius, self.path_border_width, "Menu-path",
-        );
+//         apply_border_overrides(
+//             &mut style.path_border, path_border_color,
+//             &self.path_border_radius, self.path_border_width, "Menu-path",
+//         );
 
-        style
+//         style
 
-    }
-}
+//     }
+// }
 
-pub fn primary(theme: &Theme) -> menu::style::menu_bar::Style {
-    let palette = theme.palette();
-    let pair = palette.background.strong;
+// pub fn primary(theme: &Theme) -> menu::style::menu_bar::Style {
+//     let palette = theme.palette();
+//     let pair = palette.background.strong;
     
-    menu::style::menu_bar::Style {
-        bar_background: pair.color.into(),
-        menu_background: pair.color.into(),
-        bar_border: iced::border::rounded(2),
-        ..menu::style::menu_bar::Style::default()
-    }
-}
+//     menu::style::menu_bar::Style {
+//         bar_background: pair.color.into(),
+//         menu_background: pair.color.into(),
+//         bar_border: iced::border::rounded(2),
+//         ..menu::style::menu_bar::Style::default()
+//     }
+// }
 
 #[derive(Debug, Clone, PartialEq, Hash)]
 #[pyclass(eq, eq_int, hash, frozen)]
 pub enum MenuParam {
     CloseOnBarBackgroundClick,
     CloseOnBarItemClick,
-    CursorBoundsMargin,
     Height,
     ItemsCloseOnBackgroundClickGlobal,
     ItemsCloseOnClickGlobal,
     Padding,
-    ScrollSpeedLine,
-    ScrollSpeedPixel,
     Show,
     Spacing,
     StyleId,
@@ -484,11 +457,8 @@ impl WidgetParamUpdate for Menu {
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
-            MenuParam::CursorBoundsMargin => set_t_value(&mut self.cursor_bounds_margin, value, "MenuParam::CheckBoundsMargin"),
             MenuParam::Height => set_t_value(&mut self.height, value, "MenuParam::Height"),
             MenuParam::Padding => set_t_value(&mut self.padding, value, "MenuParam::Padding"),
-            MenuParam::ScrollSpeedLine => set_t_value(&mut self.scroll_speed_line, value, "MenuParam::ScrollSpeedLine"),
-            MenuParam::ScrollSpeedPixel => set_t_value(&mut self.scroll_speed_pixel, value, "MenuParam::ScrollSpeedPixel"),
             MenuParam::Show => set_t_value(&mut self.show, value, "MenuParam::Show"),
             MenuParam::Spacing => set_t_value(&mut self.spacing, value, "Spacing"),
             MenuParam::Width => set_t_value(&mut self.width, value, "MenuParam::Width"),
@@ -503,7 +473,7 @@ impl WidgetParamUpdate for Menu {
     }
 }
 
-impl WidgetParamUpdate for MenuBarItem {
+impl WidgetParamUpdate for MenuBar {
     type Param = MenuBarItemParam;
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {

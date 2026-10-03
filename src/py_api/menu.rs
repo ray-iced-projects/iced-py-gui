@@ -102,7 +102,9 @@ use crate::state::{Containers, Widgets, get_id, set_state_cont_wnd_ids, set_stat
     close_on_bar_background_click=None,
     items_close_on_click_global=None,
     items_close_on_background_click_global=None,
-    on_bar_select=None,
+    on_bar_item_press=None,
+    on_bar_item_enter=None,
+    on_bar_item_exit=None,
     style_id=None,
     style_primary=None,
     show=true, 
@@ -123,7 +125,9 @@ pub fn add_menu(
     close_on_bar_background_click: Option<bool>,
     items_close_on_click_global: Option<bool>,
     items_close_on_background_click_global: Option<bool>,
-    on_bar_select: Option<PyObject>,
+    on_bar_item_press: Option<PyObject>,
+    on_bar_item_enter: Option<PyObject>,
+    on_bar_item_exit: Option<PyObject>,
     style_id: Option<usize>,
     style_primary: Option<bool>,
     show: bool,
@@ -133,8 +137,16 @@ pub fn add_menu(
 {
     let id = get_id(gen_id);
 
-    if let Some(py) = on_bar_select {
-        add_callback_name_to_mutex(id, CallbackName::OnBarSelect, py);
+    if let Some(py) = on_bar_item_press {
+        add_callback_name_to_mutex(id, CallbackName::OnBarPress, py);
+    }
+
+    if let Some(py) = on_bar_item_enter {
+        add_callback_name_to_mutex(id, CallbackName::OnBarEnter, py);
+    }
+
+    if let Some(py) = on_bar_item_exit {
+        add_callback_name_to_mutex(id, CallbackName::OnBarExit, py);
     }
 
     if let Some(py) = user_data {

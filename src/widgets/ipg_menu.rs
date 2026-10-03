@@ -4,18 +4,23 @@
 
 use std::collections::HashMap;
 
-use iced::{Element, Length, Renderer, Theme, Widget};
 use iced::widget::{button, mouse_area, row, text};
+use iced::{Element, Length, Renderer, Theme, Widget};
 
 use crate::app::Message;
-use crate::widgets::callbacks::{CallbackName, invoke_callback_with_args};
-use crate::{app, graphics::colors::Color, py_api::helpers::{get_len, get_padding}, state::{Containers, Widgets}, widgets::{styling::{apply_border_overrides, 
-    apply_shadow_overrides_xy}, widget_param_update::{
-    WidgetParamUpdate, set_t_value}}};
+use crate::widgets::callbacks::{CallbackName, invoke_callback, invoke_callback_with_args};
+use crate::{
+    app,
+    graphics::colors::Color,
+    py_api::helpers::{get_len, get_padding},
+    state::{Containers, Widgets},
+    widgets::{
+        styling::{apply_border_overrides, apply_shadow_overrides_xy},
+        widget_param_update::{WidgetParamUpdate, set_t_value},
+    },
+};
 
-
-
-use pyo3::{pyclass, Py, PyAny};
+use pyo3::{Py, PyAny, pyclass};
 
 // Type alias to replace deprecated PyObject
 type PyObject = Py<PyAny>;
@@ -51,53 +56,62 @@ pub struct Menu {
 }
 
 impl Menu {
-
     fn lookup<'a>(&self, containers: &'a HashMap<usize, Containers>, id: Option<usize>) -> Option<&'a Containers> {
         id.and_then(|id| containers.get(&id))
     }
 
     pub fn construct<'a>(
-        &'a self, 
+        &'a self,
         // widgets: &HashMap<usize, Widgets>,
         // containers: &HashMap<usize, Containers>,
-        )-> Option<Element<'a, app::Message, Theme, Renderer>> 
-    {
-        
+    ) -> Option<Element<'a, app::Message, Theme, Renderer>> {
+        let rw = row((0..self.bar_items.len()).map(|idx| {
+            let btn = button(text(self.bar_items[idx].clone()))
+                .on_press(MenuMessage::OnBarPress(idx))
+                .boxed();
+            mouse_area(btn)
+                .on_enter(MenuMessage::OnBarEnter(idx))
+                .boxed()
+        }));
 
-        let rw = 
-            row((0..self.bar_items.len())
-                .map(|i| {
-                    let btn = button(text(self.bar_items[i].clone()))
-                        .on_press(MenuMessage::OnBarSelect)
-                        .boxed();
-                    mouse_area(btn)
-                    .boxed()
-                }
-                ));
-        
         let rw = rw.boxed();
         Some(rw.map(move |message| Message::Menu(self.id, message)).boxed())
-
-
     }
 }
 
 #[derive(Debug, Clone)]
 pub enum MenuMessage {
-    OnBarSelect,
+    OnBarPress(usize),
+    OnBarEnter(usize),
+    OnBarExit(usize),
 }
 
 pub fn menu_callback(id: usize, message: MenuMessage) {
     match message {
-        MenuMessage::OnBarSelect => {
+        MenuMessage::OnBarPress(idx) => {
             invoke_callback_with_args(
-                id,
-                CallbackName::OnPress,
-                "MenuBarButton",
-                "def cb(wid: int)",
-                "def cb(wid: int)",
-            )
-        }
+                id, 
+                CallbackName::OnBarPress, 
+                "MenuBar",
+                idx,
+                "def cb(wid: int, bar_index: int)");
+        },
+        MenuMessage::OnBarEnter(idx) => {
+            invoke_callback_with_args(
+                id, 
+                CallbackName::OnBarEnter, 
+                "MenuBar",
+                idx,
+                "def cb(wid: int, bar_index: int)");
+        },
+        MenuMessage::OnBarExit(idx) => {
+            invoke_callback_with_args(
+                id, 
+                CallbackName::OnBarExit, 
+                "MenuBar",
+                idx,
+                "def cb(wid: int, bar_index: int)");
+        },
     }
 }
 
@@ -120,14 +134,14 @@ pub fn menu_callback(id: usize, message: MenuMessage) {
 //     }
 
 //     pub fn construct<'a>(
-//         &'a self, 
+//         &'a self,
 //         widgets: &HashMap<usize, Widgets>,
-//         )-> Option<Element<'a, app::Message, Theme, Renderer>> 
+//         )-> Option<Element<'a, app::Message, Theme, Renderer>>
 //     {
-    
+
 //         let bar_items = self.lookup(widgets, Some(self.id))
 //                 .and_then(Widgets::as_menu_bar_item).cloned();
-    
+
 //     }
 // }
 
@@ -165,7 +179,7 @@ pub struct MenuSubItem {
 //     group: Vec<GroupedItem<'a>>,
 //     containers: &HashMap<usize, Containers>,
 // ) -> Vec<Item<'a, app::Message, Theme, Renderer>> {
-    
+
 //     group.into_iter().map(|gi| match gi {
 //         GroupedItem::Plain(el) => Item::new(el),
 //         GroupedItem::Sub { trigger, children, sub_item_id } => {
@@ -195,20 +209,19 @@ pub struct MenuSubItem {
 //     }).collect()
 // }
 
-
 #[derive(Debug, Clone)]
 pub struct MenuStyle {
     pub id: usize,
     pub bar_background_color: Option<Color>,
     pub bar_background_color_alpha: Option<f32>,
     pub bar_background_rgba: Option<[f32; 4]>,
-    
+
     pub bar_border_color: Option<Color>,
     pub bar_border_color_alpha: Option<f32>,
     pub bar_border_rgba: Option<[f32; 4]>,
     pub bar_border_radius: Option<Vec<f32>>,
     pub bar_border_width: Option<f32>,
-    
+
     pub bar_shadow_color: Option<Color>,
     pub bar_shadow_color_alpha: Option<f32>,
     pub bar_shadow_rgba: Option<[f32; 4]>,
@@ -218,14 +231,13 @@ pub struct MenuStyle {
     pub menu_background_color: Option<Color>,
     pub menu_background_color_alpha: Option<f32>,
     pub menu_background_rgba: Option<[f32; 4]>,
-    
-    
+
     pub menu_border_color: Option<Color>,
     pub menu_border_color_alpha: Option<f32>,
     pub menu_border_rgba: Option<[f32; 4]>,
     pub menu_border_radius: Option<Vec<f32>>,
     pub menu_border_width: Option<f32>,
-    
+
     pub menu_shadow_color: Option<Color>,
     pub menu_shadow_color_alpha: Option<f32>,
     pub menu_shadow_rgba: Option<[f32; 4]>,
@@ -235,7 +247,7 @@ pub struct MenuStyle {
     pub path_background_color: Option<Color>,
     pub path_background_color_alpha: Option<f32>,
     pub path_background_rgba: Option<[f32; 4]>,
-    
+
     pub path_border_color: Option<Color>,
     pub path_border_color_alpha: Option<f32>,
     pub path_border_rgba: Option<[f32; 4]>,
@@ -252,57 +264,57 @@ pub struct MenuStyle {
 //         ) -> menu::style::menu_bar::Style {
 
 //         //The base style will be either default or primary
-//         let mut style = 
+//         let mut style =
 //             if style_std == Some(true) {
 //                 menu::style::menu_bar::primary(theme, status)
 //             } else { menu::style::menu_bar::Style::default() };
 
-//         let bar_background_color = 
+//         let bar_background_color =
 //         Color::rgba_ipg_color_to_iced(
-//             self.bar_background_rgba, 
-//             &self.bar_background_color, 
+//             self.bar_background_rgba,
+//             &self.bar_background_color,
 //             self.bar_background_color_alpha);
-        
-//         let bar_border_color = 
+
+//         let bar_border_color =
 //             Color::rgba_ipg_color_to_iced(
-//                 self.bar_border_rgba, 
-//                 &self.bar_border_color, 
+//                 self.bar_border_rgba,
+//                 &self.bar_border_color,
 //                 self.bar_border_color_alpha);
-        
-//         let bar_shadow_color = 
+
+//         let bar_shadow_color =
 //             Color::rgba_ipg_color_to_iced(
-//                 self.bar_shadow_rgba, 
-//                 &self.bar_shadow_color, 
+//                 self.bar_shadow_rgba,
+//                 &self.bar_shadow_color,
 //                 self.bar_shadow_color_alpha);
 
-//         let menu_background_color = 
+//         let menu_background_color =
 //             Color::rgba_ipg_color_to_iced(
-//                 self.menu_background_rgba, 
-//                 &self.menu_background_color, 
+//                 self.menu_background_rgba,
+//                 &self.menu_background_color,
 //                 self.menu_background_color_alpha);
-        
-//         let menu_border_color = 
+
+//         let menu_border_color =
 //             Color::rgba_ipg_color_to_iced(
-//                 self.menu_border_rgba, 
-//                 &self.menu_border_color, 
+//                 self.menu_border_rgba,
+//                 &self.menu_border_color,
 //                 self.menu_border_color_alpha);
-        
-//         let menu_shadow_color = 
+
+//         let menu_shadow_color =
 //             Color::rgba_ipg_color_to_iced(
-//                 self.menu_shadow_rgba, 
-//                 &self.menu_shadow_color, 
+//                 self.menu_shadow_rgba,
+//                 &self.menu_shadow_color,
 //                 self.menu_shadow_color_alpha);
 
-//         let path_background_color = 
+//         let path_background_color =
 //             Color::rgba_ipg_color_to_iced(
-//                 self.path_background_rgba, 
-//                 &self.path_background_color, 
+//                 self.path_background_rgba,
+//                 &self.path_background_color,
 //                 self.path_background_color_alpha);
-        
-//         let path_border_color = 
+
+//         let path_border_color =
 //             Color::rgba_ipg_color_to_iced(
-//                 self.path_border_rgba, 
-//                 &self.path_border_color, 
+//                 self.path_border_rgba,
+//                 &self.path_border_color,
 //                 self.path_border_color_alpha);
 
 //         // making defaults square
@@ -320,9 +332,9 @@ pub struct MenuStyle {
 //         );
 
 //         apply_shadow_overrides_xy(
-//             &mut style.bar_shadow, bar_shadow_color, 
+//             &mut style.bar_shadow, bar_shadow_color,
 //             self.bar_shadow_offset_xy, self.bar_shadow_blur_radius);
-        
+
 //         // menu
 //         if let Some(color) = menu_background_color {
 //             style.menu_background = color.into()
@@ -334,7 +346,7 @@ pub struct MenuStyle {
 //         );
 
 //         apply_shadow_overrides_xy(
-//             &mut style.menu_shadow, menu_shadow_color, 
+//             &mut style.menu_shadow, menu_shadow_color,
 //             self.menu_shadow_offset_xy, self.menu_shadow_blur_radius);
 
 //         // path
@@ -355,7 +367,7 @@ pub struct MenuStyle {
 // pub fn primary(theme: &Theme) -> menu::style::menu_bar::Style {
 //     let palette = theme.palette();
 //     let pair = palette.background.strong;
-    
+
 //     menu::style::menu_bar::Style {
 //         bar_background: pair.color.into(),
 //         menu_background: pair.color.into(),
@@ -405,7 +417,6 @@ pub enum MenuSubItemParam {
     Width,
 }
 
-
 #[derive(Debug, Clone, PartialEq, Hash)]
 #[pyclass(eq, eq_int, hash, frozen)]
 pub enum MenuStyleParam {
@@ -447,7 +458,6 @@ pub enum MenuStyleParam {
     PathBorderWidth,
 }
 
-
 // ---------------------------------------------------------------------------
 // WidgetParamUpdate implementations
 // ---------------------------------------------------------------------------
@@ -462,10 +472,26 @@ impl WidgetParamUpdate for Menu {
             MenuParam::Show => set_t_value(&mut self.show, value, "MenuParam::Show"),
             MenuParam::Spacing => set_t_value(&mut self.spacing, value, "Spacing"),
             MenuParam::Width => set_t_value(&mut self.width, value, "MenuParam::Width"),
-            MenuParam::CloseOnBarBackgroundClick => set_t_value(&mut self.close_on_bar_background_click, value, "MenuParam::CloseOnBarBackgroundClick"),
-            MenuParam::CloseOnBarItemClick => set_t_value(&mut self.close_on_bar_item_click, value, "MenuParam::CloseOnBarItemClick"),
-            MenuParam::ItemsCloseOnBackgroundClickGlobal => set_t_value(&mut self.items_close_on_background_click_global, value, "MenuParam::ItemsCloseOnBackgroundClickGlobal"),
-            MenuParam::ItemsCloseOnClickGlobal => set_t_value(&mut self.items_close_on_click_global, value, "MenuParam::ItemsCloseOnClickGlobal"),
+            MenuParam::CloseOnBarBackgroundClick => set_t_value(
+                &mut self.close_on_bar_background_click,
+                value,
+                "MenuParam::CloseOnBarBackgroundClick",
+            ),
+            MenuParam::CloseOnBarItemClick => set_t_value(
+                &mut self.close_on_bar_item_click,
+                value,
+                "MenuParam::CloseOnBarItemClick",
+            ),
+            MenuParam::ItemsCloseOnBackgroundClickGlobal => set_t_value(
+                &mut self.items_close_on_background_click_global,
+                value,
+                "MenuParam::ItemsCloseOnBackgroundClickGlobal",
+            ),
+            MenuParam::ItemsCloseOnClickGlobal => set_t_value(
+                &mut self.items_close_on_click_global,
+                value,
+                "MenuParam::ItemsCloseOnClickGlobal",
+            ),
             MenuParam::StyleId => set_t_value(&mut self.style_id, value, "MenuParam::StyleId"),
             MenuParam::StylePrimary => set_t_value(&mut self.style_primary, value, "MenuParam::StylePrimary"),
             MenuParam::WidthFill => set_t_value(&mut self.width_fill, value, "MenuParam::WidthFill"),
@@ -478,8 +504,16 @@ impl WidgetParamUpdate for MenuBar {
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
-            MenuBarItemParam::CloseOnBackgroundClick => set_t_value(&mut self.close_on_background_click, value, "MenuBarItemParam::CloseOnBackgroundClick"),
-            MenuBarItemParam::CloseOnItemClick => set_t_value(&mut self.close_on_item_click, value, "MenuBarItemParam::CloseOnItemClick"),
+            MenuBarItemParam::CloseOnBackgroundClick => set_t_value(
+                &mut self.close_on_background_click,
+                value,
+                "MenuBarItemParam::CloseOnBackgroundClick",
+            ),
+            MenuBarItemParam::CloseOnItemClick => set_t_value(
+                &mut self.close_on_item_click,
+                value,
+                "MenuBarItemParam::CloseOnItemClick",
+            ),
             MenuBarItemParam::Offset => set_t_value(&mut self.offset, value, "MenuBarItemParam::Offset"),
             MenuBarItemParam::Padding => set_t_value(&mut self.padding, value, "MenuBarItemParam::Paddings"),
             MenuBarItemParam::Show => set_t_value(&mut self.show, value, "MenuBarItemParam::Show"),
@@ -494,8 +528,16 @@ impl WidgetParamUpdate for MenuSubItem {
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
-            MenuSubItemParam::CloseOnBackgroundClick => set_t_value(&mut self.close_on_background_click, value, "MenuSubItemParam::CloseOnBackgroundClick"),
-            MenuSubItemParam::CloseOnItemClick => set_t_value(&mut self.close_on_item_click, value, "MenuSubItemParam::CloseOnItemClick"),
+            MenuSubItemParam::CloseOnBackgroundClick => set_t_value(
+                &mut self.close_on_background_click,
+                value,
+                "MenuSubItemParam::CloseOnBackgroundClick",
+            ),
+            MenuSubItemParam::CloseOnItemClick => set_t_value(
+                &mut self.close_on_item_click,
+                value,
+                "MenuSubItemParam::CloseOnItemClick",
+            ),
             MenuSubItemParam::Offset => set_t_value(&mut self.offset, value, "MenuSubItemParam::Offset"),
             MenuSubItemParam::Padding => set_t_value(&mut self.padding, value, "MenuSubItemParam::Padding"),
             MenuSubItemParam::Show => set_t_value(&mut self.show, value, "MenuSubItemParam::Show"),
@@ -511,37 +553,63 @@ impl WidgetParamUpdate for MenuStyle {
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
             // bar
-            MenuStyleParam::BarBackgroundAlpha => set_t_value(&mut self.bar_background_color_alpha, value, "BarBackgroundAlpha"),
-            MenuStyleParam::BarBackgroundColor => set_t_value(&mut self.bar_background_color, value, "BarBackgroundColor"),
-            MenuStyleParam::BarBackgroundRgba => set_t_value(&mut self.bar_background_color, value, "BarBackgroundRgba"),
+            MenuStyleParam::BarBackgroundAlpha => {
+                set_t_value(&mut self.bar_background_color_alpha, value, "BarBackgroundAlpha")
+            }
+            MenuStyleParam::BarBackgroundColor => {
+                set_t_value(&mut self.bar_background_color, value, "BarBackgroundColor")
+            }
+            MenuStyleParam::BarBackgroundRgba => {
+                set_t_value(&mut self.bar_background_color, value, "BarBackgroundRgba")
+            }
             MenuStyleParam::BarBorderAlpha => set_t_value(&mut self.bar_border_color_alpha, value, "BarBorderAlpha"),
             MenuStyleParam::BarBorderColor => set_t_value(&mut self.bar_border_color, value, "BarBorderColor"),
             MenuStyleParam::BarBorderRadius => set_t_value(&mut self.bar_border_radius, value, "BarBorderRadius"),
             MenuStyleParam::BarBorderRgba => set_t_value(&mut self.bar_border_color, value, "BarBorderRgba"),
             MenuStyleParam::BarBorderWidth => set_t_value(&mut self.bar_border_width, value, "BarBorderWidth"),
             MenuStyleParam::BarShadowAlpha => set_t_value(&mut self.bar_shadow_color_alpha, value, "BarShadowAlpha"),
-            MenuStyleParam::BarShadowBlurRadius => set_t_value(&mut self.bar_shadow_blur_radius, value, "BarShadowBlurRadius"),
+            MenuStyleParam::BarShadowBlurRadius => {
+                set_t_value(&mut self.bar_shadow_blur_radius, value, "BarShadowBlurRadius")
+            }
             MenuStyleParam::BarShadowColor => set_t_value(&mut self.bar_shadow_color, value, "BarShadowColor"),
-            MenuStyleParam::BarShadowOffsetXY => set_t_value(&mut self.bar_shadow_offset_xy, value, "BarShadowOffsetXY"),
+            MenuStyleParam::BarShadowOffsetXY => {
+                set_t_value(&mut self.bar_shadow_offset_xy, value, "BarShadowOffsetXY")
+            }
             MenuStyleParam::BarShadowRgba => set_t_value(&mut self.bar_shadow_color, value, "BarShadowRgba"),
             // menu
-            MenuStyleParam::MenuBackgroundAlpha => set_t_value(&mut self.menu_background_color_alpha, value, "MenuBackgroundAlpha"),
-            MenuStyleParam::MenuBackgroundColor => set_t_value(&mut self.menu_background_color, value, "MenuBackgroundColor"),
-            MenuStyleParam::MenuBackgroundRgba => set_t_value(&mut self.menu_background_color, value, "MenuBackgroundRgba"),
+            MenuStyleParam::MenuBackgroundAlpha => {
+                set_t_value(&mut self.menu_background_color_alpha, value, "MenuBackgroundAlpha")
+            }
+            MenuStyleParam::MenuBackgroundColor => {
+                set_t_value(&mut self.menu_background_color, value, "MenuBackgroundColor")
+            }
+            MenuStyleParam::MenuBackgroundRgba => {
+                set_t_value(&mut self.menu_background_color, value, "MenuBackgroundRgba")
+            }
             MenuStyleParam::MenuBorderAlpha => set_t_value(&mut self.menu_border_color_alpha, value, "MenuBorderAlpha"),
             MenuStyleParam::MenuBorderColor => set_t_value(&mut self.menu_border_color, value, "MenuBorderColor"),
             MenuStyleParam::MenuBorderRadius => set_t_value(&mut self.menu_border_radius, value, "MenuBorderRadius"),
             MenuStyleParam::MenuBorderRgba => set_t_value(&mut self.menu_border_color, value, "MenuBorderRgba"),
             MenuStyleParam::MenuBorderWidth => set_t_value(&mut self.menu_border_width, value, "MenuBorderWidth"),
             MenuStyleParam::MenuShadowAlpha => set_t_value(&mut self.menu_shadow_color_alpha, value, "MenuShadowAlpha"),
-            MenuStyleParam::MenuShadowBlurRadius => set_t_value(&mut self.menu_shadow_blur_radius, value, "MenuShadowBlurRadius"),
+            MenuStyleParam::MenuShadowBlurRadius => {
+                set_t_value(&mut self.menu_shadow_blur_radius, value, "MenuShadowBlurRadius")
+            }
             MenuStyleParam::MenuShadowColor => set_t_value(&mut self.menu_shadow_color, value, "MenuShadowColor"),
-            MenuStyleParam::MenuShadowOffsetXy => set_t_value(&mut self.menu_shadow_offset_xy, value, "MenuShadowOffsetXy"),
+            MenuStyleParam::MenuShadowOffsetXy => {
+                set_t_value(&mut self.menu_shadow_offset_xy, value, "MenuShadowOffsetXy")
+            }
             MenuStyleParam::MenuShadowRgba => set_t_value(&mut self.menu_shadow_color, value, "MenuShadowRgba"),
             // path
-            MenuStyleParam::PathBackgroundAlpha => set_t_value(&mut self.path_background_color_alpha, value, "PathBackgroundAlpha"),
-            MenuStyleParam::PathBackgroundColor => set_t_value(&mut self.path_background_color, value, "PathBackgroundColor"),
-            MenuStyleParam::PathBackgroundRgba => set_t_value(&mut self.path_background_color, value, "PathBackgroundRgba"),
+            MenuStyleParam::PathBackgroundAlpha => {
+                set_t_value(&mut self.path_background_color_alpha, value, "PathBackgroundAlpha")
+            }
+            MenuStyleParam::PathBackgroundColor => {
+                set_t_value(&mut self.path_background_color, value, "PathBackgroundColor")
+            }
+            MenuStyleParam::PathBackgroundRgba => {
+                set_t_value(&mut self.path_background_color, value, "PathBackgroundRgba")
+            }
             MenuStyleParam::PathBorderAlpha => set_t_value(&mut self.path_border_color_alpha, value, "PathBorderAlpha"),
             MenuStyleParam::PathBorderColor => set_t_value(&mut self.path_border_color, value, "PathBorderColor"),
             MenuStyleParam::PathBorderRadius => set_t_value(&mut self.path_border_radius, value, "PathBorderRadius"),

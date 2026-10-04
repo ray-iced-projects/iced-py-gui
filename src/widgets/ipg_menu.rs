@@ -4,20 +4,19 @@
 
 use std::collections::HashMap;
 
-use iced::widget::{button, mouse_area, row, text};
-use iced::{Element, Length, Renderer, Theme, Widget};
+use iced::widget::{button, column, container, mouse_area, row, text};
+use iced::{Element, Renderer, Theme, Widget};
 
+use crate::IpgState;
 use crate::app::Message;
-use crate::widgets::callbacks::{CallbackName, invoke_callback, invoke_callback_with_args};
+use crate::widgets::callbacks::{CallbackName, invoke_callback_with_args};
+
+use crate::iced_widgets::popover::{Popover, Position};
 use crate::{
     app,
     graphics::colors::Color,
-    py_api::helpers::{get_len, get_padding},
     state::{Containers, Widgets},
-    widgets::{
-        styling::{apply_border_overrides, apply_shadow_overrides_xy},
-        widget_param_update::{WidgetParamUpdate, set_t_value},
-    },
+    widgets::widget_param_update::{WidgetParamUpdate, set_t_value},
 };
 
 use pyo3::{Py, PyAny, pyclass};
@@ -53,6 +52,7 @@ pub struct Menu {
     pub style_id: Option<usize>,
     pub style_primary: Option<bool>,
     pub show: bool,
+    pub is_open: Vec<bool>,
 }
 
 impl Menu {
@@ -62,16 +62,68 @@ impl Menu {
 
     pub fn construct<'a>(
         &'a self,
-        // widgets: &HashMap<usize, Widgets>,
-        // containers: &HashMap<usize, Containers>,
+        grouped_content: Vec<(usize, Vec<GroupedItem<'_>>)>,
+        widgets: &HashMap<usize, Widgets>,
+        containers: &HashMap<usize, Containers>,
     ) -> Option<Element<'a, app::Message, Theme, Renderer>> {
+        // let mut bar_items: Vec<Item<app::Message, Theme, Renderer>> = vec![];
+
+        // for (bar_item_id, mut group) in grouped_content.into_iter() {
+        //     if group.is_empty() {
+        //         continue;
+        //     }
+
+        // let bar_item_data = containers.get(&bar_item_id)
+        //     .and_then(Containers::as_menu_bar_item)
+        //     .expect("MenuBarItem not found in containers");
+
+        // // First element is the bar widget (always Plain), rest are dropdown items
+        // let menu_bar = match group.remove(0) {
+        //     GroupedItem::Plain(el) => el,
+        //     GroupedItem::Sub { trigger, .. } => trigger,
+        // };
+
+        // let items = build_items(group, containers);
+
+        // let mut menu = aw_menu::menu_tree::Menu::new(items)
+        //     .width({
+        //             if let Some(width) = bar_item_data.width {
+        //                 iced::Length::Fixed(width)
+        //             } else {
+        //                 Length::Shrink
+        //             }
+        //         })
+        //     .offset(bar_item_data.offset.unwrap_or(0.0))
+        //     .padding(get_padding(&bar_item_data.padding))
+        //     .spacing(bar_item_data.spacing.unwrap_or_default());
+
+        // if let Some(v) = bar_item_data.close_on_item_click {
+        //     menu = menu.close_on_item_click(v);
+        // }
+        // if let Some(v) = bar_item_data.close_on_background_click {
+        //     menu = menu.close_on_background_click(v);
+        // }
+
+        // let bar_item =
+        //     Item::with_menu(
+        //         menu_bar,
+        //         menu
+        //         );
+
+        // bar_items.push(bar_item);
+
+        // }
+
         let rw = row((0..self.bar_items.len()).map(|idx| {
-            let btn = button(text(self.bar_items[idx].clone()))
-                .on_press(MenuMessage::OnBarPress(idx))
-                .boxed();
-            mouse_area(btn)
-                .on_enter(MenuMessage::OnBarEnter(idx))
-                .boxed()
+            let pop = Popover::new(
+                button(text("Click me!"))
+                    .on_press(MenuMessage::OpenPopover(idx))
+                    .boxed(),
+                self.is_open[idx].then(|| container("This is the popover contents!").boxed()),
+            )
+            .position(Position::Bottom)
+            .on_close(MenuMessage::OnClose);
+            mouse_area(pop).on_enter(MenuMessage::OnBarEnter(idx)).boxed()
         }));
 
         let rw = rw.boxed();
@@ -79,102 +131,8 @@ impl Menu {
     }
 }
 
-#[derive(Debug, Clone)]
-pub enum MenuMessage {
-    OnBarPress(usize),
-    OnBarEnter(usize),
-    OnBarExit(usize),
-}
-
-pub fn menu_callback(id: usize, message: MenuMessage) {
-    match message {
-        MenuMessage::OnBarPress(idx) => {
-            invoke_callback_with_args(
-                id, 
-                CallbackName::OnBarPress, 
-                "MenuBar",
-                idx,
-                "def cb(wid: int, bar_index: int)");
-        },
-        MenuMessage::OnBarEnter(idx) => {
-            invoke_callback_with_args(
-                id, 
-                CallbackName::OnBarEnter, 
-                "MenuBar",
-                idx,
-                "def cb(wid: int, bar_index: int)");
-        },
-        MenuMessage::OnBarExit(idx) => {
-            invoke_callback_with_args(
-                id, 
-                CallbackName::OnBarExit, 
-                "MenuBar",
-                idx,
-                "def cb(wid: int, bar_index: int)");
-        },
-    }
-}
-
-// #[derive(Debug, Clone)]
-// pub struct MenuBar {
-//     id: usize,
-//     items: Vec<String>,
-//     padding: Option<Vec<f32>>,
-//     spacing: Option<f32>,
-//     width: Option<f32>,
-//     width_fill: Option<bool>,
-//     height: Option<f32>,
-//     show: bool,
-// }
-
-// impl MenuBar {
-
-//     fn lookup<'a>(&self, widgets: &'a HashMap<usize, Widgets>, id: Option<usize>) -> Option<&'a Widgets> {
-//         id.and_then(|id| widgets.get(&id))
-//     }
-
-//     pub fn construct<'a>(
-//         &'a self,
-//         widgets: &HashMap<usize, Widgets>,
-//         )-> Option<Element<'a, app::Message, Theme, Renderer>>
-//     {
-
-//         let bar_items = self.lookup(widgets, Some(self.id))
-//                 .and_then(Widgets::as_menu_bar_item).cloned();
-
-//     }
-// }
-
-#[derive(Debug, Clone)]
-pub struct MenuBar {
-    pub id: usize,
-    pub width: Option<f32>,
-    pub spacing: Option<f32>,
-    pub offset: Option<f32>,
-    pub padding: Option<Vec<f32>>,
-    pub close_on_item_click: Option<bool>,
-    pub close_on_background_click: Option<bool>,
-    pub show: bool,
-}
-
-/// A sub-menu item inside a dropdown.  The first child added to a
-/// `MenuSubItem` context-manager is the trigger widget (shown in the
-/// dropdown list); the remaining children become the items of the
-/// child menu that opens on hover.
-#[derive(Debug, Clone)]
-pub struct MenuSubItem {
-    pub id: usize,
-    pub width: Option<f32>,
-    pub spacing: Option<f32>,
-    pub offset: Option<f32>,
-    pub padding: Option<Vec<f32>>,
-    pub close_on_item_click: Option<bool>,
-    pub close_on_background_click: Option<bool>,
-    pub show: bool,
-}
-
-/// Recursively convert a `Vec<GroupedItem>` into aw_menu `Item`s,
-/// using `Item::with_menu` for any `GroupedItem::Sub`.
+// Recursively convert a `Vec<GroupedItem>` into aw_menu `Item`s,
+// using `Item::with_menu` for any `GroupedItem::Sub`.
 // fn build_items<'a>(
 //     group: Vec<GroupedItem<'a>>,
 //     containers: &HashMap<usize, Containers>,
@@ -208,6 +166,88 @@ pub struct MenuSubItem {
 //         }
 //     }).collect()
 // }
+
+#[derive(Debug, Clone)]
+pub enum MenuMessage {
+    OpenPopover(usize),
+    OnClose,
+    OnBarPress(usize),
+    OnBarEnter(usize),
+    OnBarExit(usize),
+}
+
+pub fn menu_callback(state: &mut IpgState, id: usize, message: MenuMessage) {
+    match message {
+        MenuMessage::OnBarPress(idx) => {
+            invoke_callback_with_args(
+                id,
+                CallbackName::OnBarPress,
+                "MenuBar",
+                idx,
+                "def cb(wid: int, bar_index: int)",
+            );
+        }
+        MenuMessage::OnBarEnter(idx) => {
+            invoke_callback_with_args(
+                id,
+                CallbackName::OnBarEnter,
+                "MenuBar",
+                idx,
+                "def cb(wid: int, bar_index: int)",
+            );
+        }
+        MenuMessage::OnBarExit(idx) => {
+            invoke_callback_with_args(
+                id,
+                CallbackName::OnBarExit,
+                "MenuBar",
+                idx,
+                "def cb(wid: int, bar_index: int)",
+            );
+        }
+        MenuMessage::OpenPopover(idx) => {
+            if let Some(Containers::Menu(cb)) = state.containers.get_mut(&id) {
+                cb.is_open = cb.is_open.iter().enumerate().map(|(i, _)| i == idx).collect();
+            }
+        }
+        MenuMessage::OnClose => {
+            dbg!(&"MenuMessage::OnClose");
+        }
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct MenuBarItem {
+    pub id: usize,
+}
+
+impl MenuBarItem {
+    pub fn construct<'a>(
+        &'a self,
+        content: Vec<Element<'a, Message>>,
+    ) -> Option<Element<'a, app::Message, Theme, Renderer>> {
+        let pop = Popover::new(column(content).boxed(), None::<Element<'a, Message>>);
+
+        let pop = pop.boxed();
+        Some(pop)
+    }
+}
+
+/// A sub-menu item inside a dropdown.  The first child added to a
+/// `MenuSubItem` context-manager is the trigger widget (shown in the
+/// dropdown list); the remaining children become the items of the
+/// child menu that opens on hover.
+#[derive(Debug, Clone)]
+pub struct MenuSubItem {
+    pub id: usize,
+    pub width: Option<f32>,
+    pub spacing: Option<f32>,
+    pub offset: Option<f32>,
+    pub padding: Option<Vec<f32>>,
+    pub close_on_item_click: Option<bool>,
+    pub close_on_background_click: Option<bool>,
+    pub show: bool,
+}
 
 #[derive(Debug, Clone)]
 pub struct MenuStyle {
@@ -396,13 +436,7 @@ pub enum MenuParam {
 #[derive(Debug, Clone, PartialEq, Hash)]
 #[pyclass(eq, eq_int, hash, frozen)]
 pub enum MenuBarItemParam {
-    CloseOnBackgroundClick,
-    CloseOnItemClick,
-    Offset,
-    Padding,
-    Show,
-    Spacing,
-    Width,
+    IsOpen,
 }
 
 #[derive(Debug, Clone, PartialEq, Hash)]
@@ -499,26 +533,12 @@ impl WidgetParamUpdate for Menu {
     }
 }
 
-impl WidgetParamUpdate for MenuBar {
+impl WidgetParamUpdate for MenuBarItem {
     type Param = MenuBarItemParam;
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
-            MenuBarItemParam::CloseOnBackgroundClick => set_t_value(
-                &mut self.close_on_background_click,
-                value,
-                "MenuBarItemParam::CloseOnBackgroundClick",
-            ),
-            MenuBarItemParam::CloseOnItemClick => set_t_value(
-                &mut self.close_on_item_click,
-                value,
-                "MenuBarItemParam::CloseOnItemClick",
-            ),
-            MenuBarItemParam::Offset => set_t_value(&mut self.offset, value, "MenuBarItemParam::Offset"),
-            MenuBarItemParam::Padding => set_t_value(&mut self.padding, value, "MenuBarItemParam::Paddings"),
-            MenuBarItemParam::Show => set_t_value(&mut self.show, value, "MenuBarItemParam::Show"),
-            MenuBarItemParam::Spacing => set_t_value(&mut self.spacing, value, "MenuBarItemParam::Spacing"),
-            MenuBarItemParam::Width => set_t_value(&mut self.width, value, "MenuBarItemParam::Width"),
+            MenuBarItemParam::IsOpen => todo!(),
         }
     }
 }

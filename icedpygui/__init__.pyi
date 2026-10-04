@@ -2371,15 +2371,7 @@ class MenuBarItem:
     """
     def __init__(
         self,
-        *,
-        width: float | None = None,
-        spacing: float | None = None,
-        offset: float | None = None,
-        padding: list[float] | None = None,
-        close_on_item_click: bool | None = None,
-        close_on_background_click: bool | None = None,
-        show: bool = True,
-        gen_id: int | None = None,
+        is_open,
     )  -> None: ...
     def __enter__(self) -> int: ...
     def __exit__(self, exc_type: type[BaseException] | None, \

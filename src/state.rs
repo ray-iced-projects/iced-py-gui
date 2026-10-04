@@ -35,7 +35,7 @@ use crate::widgets::ipg_grid::Grid;
 use crate::widgets::ipg_image::Image;
 use crate::widgets::ipg_input_float::{InputFloat, InputFloatStyle};
 use crate::widgets::ipg_input_int::{InputInt, InputIntStyle};
-use crate::widgets::ipg_menu::{Menu, MenuBar, MenuStyle, MenuSubItem};
+use crate::widgets::ipg_menu::{Menu, MenuBarItem, MenuStyle, MenuSubItem};
 use crate::widgets::ipg_mouse_area::MouseArea;
 use crate::widgets::ipg_opaque::Opaque;
 use crate::widgets::ipg_pick_list::{PickList, PickListStyle};
@@ -82,7 +82,7 @@ pub enum Containers {
     Grid(Grid),
     InputFloat(InputFloat),
     Menu(Menu),
-    MenuBar(MenuBar),
+    MenuBarItem(MenuBarItem),
     MenuSubItem(MenuSubItem),
     MouseArea(MouseArea),
     Opaque(Opaque),
@@ -262,7 +262,7 @@ ipg_container_accessors! {
     Grid         => Grid,         as_grid,            as_grid_mut;
     InputFloat   => InputFloat,   as_input_float,     as_input_float_mut;
     Menu         => Menu,         as_menu,            as_menu_mut;
-    MenuBar      => MenuBar,      as_menu_bar_item,   as_menu_bar_item_mut;
+    MenuBarItem  => MenuBarItem,  as_menu_bar_item,   as_menu_bar_item_mut;
     MenuSubItem  => MenuSubItem,  as_menu_sub_item,   as_menu_sub_item_mut;
     // MouseArea    => MouseArea,    as_mouse_area,      as_mouse_area_mut;
     Opaque       => Opaque,       as_opaque,          as_opaque_mut;

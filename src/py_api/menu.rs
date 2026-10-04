@@ -6,7 +6,7 @@ type PyObject = Py<PyAny>;
 
 use crate::graphics::colors::Color;
 use crate::widgets::callbacks::CallbackName;
-use crate::widgets::ipg_menu::{Menu, MenuBar, MenuSubItem, MenuStyle};
+use crate::widgets::ipg_menu::{Menu, MenuBarItem, MenuStyle, MenuSubItem};
 use crate::{access_state, add_callback_name_to_mutex, add_user_data_to_mutex};
 use crate::state::{Containers, Widgets, get_id, set_state_cont_wnd_ids, set_state_of_container};
 
@@ -164,6 +164,8 @@ pub fn add_menu(
 
     set_state_cont_wnd_ids(&mut state, &window_id, container_id, id, "add_menu".to_string());
 
+    let items = bar_items.len();
+
     state.containers.insert(id, Containers::Menu(
         Menu {
             id,
@@ -180,148 +182,26 @@ pub fn add_menu(
             style_id,
             style_primary,
             show,
+            is_open: vec![false; items],
         }));
 
     drop(state);
     Ok(id)
 }
 
-// #[pyfunction]
-// #[pyo3(signature = ( 
-//     window_id,
-//     container_id,
-//     parent_id=None,
-//     on_select=None,
-//     padding=None,
-//     spacing=None,
-//     width=None,
-//     width_fill=None,
-//     height=None,
-//     show=true, 
-//     user_data=None, 
-//     gen_id=None
-//     ))]
-// pub fn add_menu_bar(
-//     window_id: String,
-//     container_id: String,
-//     parent_id: Option<String>,
-//     on_select: Option<PyObject>,
-//     padding: Option<Vec<f32>>,
-//     spacing: Option<f32>,
-//     width: Option<f32>,
-//     width_fill: Option<bool>,
-//     height: Option<f32>,
-//     show: bool,
-//     user_data: Option<PyObject>,
-//     gen_id: Option<usize>,
-// ) -> PyResult<usize> 
-// {
-//     let id = get_id(gen_id);
-
-//     if let Some(py) = on_select {
-//         add_callback_name_to_mutex(id, CallbackName::OnSelect, py);
-//     }
-
-//     if let Some(py) = user_data {
-//         add_user_data_to_mutex(id, py);
-//     }
-
-//     let prt_id = match parent_id {
-//         Some(id) => id,
-//         None => window_id.clone(),
-//     };
-    
-//     set_state_of_container(id, window_id.clone(), Some(container_id.clone()), prt_id);
-
-//     let mut state = access_state();
-
-//     set_state_cont_wnd_ids(&mut state, &window_id, container_id, id, "add_menu_bar".to_string());
-
-//     state.containers.insert(id, Containers::MenuBar(
-//         MenuBar {
-//             id,
-//             padding,
-//             spacing,
-//             width,
-//             width_fill,
-//             height,
-//             show,
-//         }));
-
-//     drop(state);
-//     Ok(id)
-// }
-
-/// Add a menu bar item container.
-///
-/// Groups a bar-level widget with its dropdown items.  The first
-/// child added inside the ``MenuBarItem`` is rendered on the menu
-/// bar; all subsequent children become dropdown items.
-///
-/// Parameters
-/// ----------
-/// window_id : str
-///     Sets the window this menu bar item belongs to.
-/// container_id : str
-///     Sets the unique string identifier for the menu bar item.
-/// parent_id : str, Optional
-///     Sets the parent container ID.  Defaults to the window itself.
-/// width : float, Optional
-///     Sets the width of this dropdown menu in logical pixels.
-/// spacing : float, Optional
-///     Sets the vertical spacing between dropdown items.
-/// offset : float, Optional
-///     Sets the horizontal offset of the dropdown relative to its
-///     bar item.
-/// paddings : list of float, Optional
-///     Sets the padding inside this dropdown as ``[all]``,
-///     ``[vertical, horizontal]``, or
-///     ``[top, right, bottom, left]``.
-/// close_on_item_click : bool, Optional
-///     Per-dropdown override for closing when an item is clicked.
-///     Overrides the global default set on the Menu.
-/// close_on_background_click : bool, Optional
-///     Per-dropdown override for closing when the background is
-///     clicked.  Overrides the global default set on the Menu.
-/// show : bool, default True
-///     Whether the menu bar item is visible.
-/// gen_id : int, Optional
-///     Obtains an ID of a widget that have not been created, used
-///     for the gen_id parameter.
-///
-/// Returns
-/// -------
-/// int
-///     The numeric widget ID of the newly created menu bar item.
 #[pyfunction]
 #[pyo3(signature = ( 
     window_id,
     container_id,
     parent_id=None,
-    width=None,
-    spacing=None,
-    offset=None,
-    padding=None,
-    close_on_item_click=None,
-    close_on_background_click=None,
-    show=true,
-    gen_id=None
     ))]
 pub fn add_menu_bar_item(
     window_id: String,
     container_id: String,
     parent_id: Option<String>,
-    width: Option<f32>,
-    spacing: Option<f32>,
-    offset: Option<f32>,
-    padding: Option<Vec<f32>>,
-    close_on_item_click: Option<bool>,
-    close_on_background_click: Option<bool>,
-    show: bool,
-    gen_id: Option<usize>,
 ) -> PyResult<usize> 
 {
-    let id = get_id(gen_id);
+    let id = get_id(None);
 
     let prt_id = match parent_id {
         Some(id) => id,
@@ -334,16 +214,9 @@ pub fn add_menu_bar_item(
 
     set_state_cont_wnd_ids(&mut state, &window_id, container_id, id, "add_menu_bar_item".to_string());
 
-    state.containers.insert(id, Containers::MenuBar(
-        MenuBar {
+    state.containers.insert(id, Containers::MenuBarItem(
+        MenuBarItem {
             id,
-            width,
-            spacing,
-            offset,
-            padding,
-            close_on_item_click,
-            close_on_background_click,
-            show,
         }));
 
     drop(state);

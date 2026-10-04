@@ -177,7 +177,7 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(add_input_int, m)?)?;
     m.add_function(wrap_pyfunction!(add_input_int_style, m)?)?;
     m.add_function(wrap_pyfunction!(add_menu, m)?)?;
-    // m.add_function(wrap_pyfunction!(add_menu_bar_item, m)?)?;
+    m.add_function(wrap_pyfunction!(add_menu_bar_item, m)?)?;
     // m.add_function(wrap_pyfunction!(add_menu_sub_item, m)?)?;
     // m.add_function(wrap_pyfunction!(add_menu_style, m)?)?;
     m.add_function(wrap_pyfunction!(add_mouse_area, m)?)?;

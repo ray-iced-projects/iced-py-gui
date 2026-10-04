@@ -7,7 +7,10 @@ from icedpygui import (
     Container,
     start_session,
     Menu,
+    MenuBarItem,
+    add_button,
     add_button_style,
+    add_separator,
 )
 
 bar_items = ["File", "Edit", "Help"]
@@ -24,6 +27,9 @@ def on_bar_item_exit(bar_id, idx: int):
     """Menu bar callback"""
     print(f"exit = id: {bar_id} name: {bar_items[idx]}")
 
+def on_item_press(btn_id):
+    """Menu item press"""
+    print("The button item was pressed", btn_id)
 
 btn_style = add_button_style(text_center_left=True)
 
@@ -38,20 +44,20 @@ with Window(title="Menu", center=True, size=[600, 600]):
                 on_bar_item_enter=on_bar_item_enter,
                 on_bar_item_exit=on_bar_item_exit,
                 ):
-                pass
+
                 # The MenuBarItem's order must match the order of the Menu bar_items position.
-                # with MenuBarItem(width=125, spacing=5.0, offset=3.0):
-                #     # dropdown for "File"
-                #     add_button(
-                #         label="New",
-                #         style_std=ButtonStyleStd.Text,
-                #         on_press=on_press,
-                #         user_data="New")
-                #     add_separator(
-                #         dot=True,
-                #         dot_radius=3.0,
-                #         dot_count=8,
-                #         spacing=10.0)
+                with MenuBarItem():
+                    # "File"
+                    add_button(
+                        label="New",
+                        on_press=on_item_press)
+                    add_separator(
+                        width=100,
+                        height=5,
+                        dot=True,
+                        dot_radius=3.0,
+                        dot_count=8,
+                        spacing=10.0)
 
                 #     with MenuSubItem(label="Open Recent"):
                 #         add_button(

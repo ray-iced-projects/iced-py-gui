@@ -74,7 +74,6 @@ impl Menu {
         widgets: &HashMap<usize, Widgets>,
         containers: &HashMap<usize, Containers>,
     ) -> Option<Element<'a, app::Message, Theme, Renderer>> {
-
         let style_opt = self
             .lookup_widgets(widgets, self.style_id)
             .and_then(Widgets::as_button_style)
@@ -85,8 +84,10 @@ impl Menu {
             .and_then(Widgets::as_palette)
             .cloned();
 
-        let font_opt = self.lookup_widgets(
-            widgets, self.font_id).and_then(Widgets::as_font).cloned();
+        let font_opt = self
+            .lookup_widgets(widgets, self.font_id)
+            .and_then(Widgets::as_font)
+            .cloned();
 
         let bar_widths = match self.bar_widths.clone() {
             Some(widths) => {
@@ -103,11 +104,10 @@ impl Menu {
 
         let mut index = 0;
         for (menu_bar_item_id, group) in grouped_content.into_iter() {
-            
             let menu_bar_item = self
                 .lookup(containers, Some(menu_bar_item_id))
                 .and_then(Containers::as_menu_bar_item);
-            
+
             let style_opt = menu_bar_item
                 .and_then(|mbi| mbi.style_id)
                 .and_then(|id| self.lookup_widgets(widgets, Some(id)))
@@ -144,8 +144,7 @@ impl Menu {
             let mut inner_col = vec![];
             for grp in group.into_iter() {
                 match grp {
-                    GroupedItem::Plain(element) => 
-                    inner_col.push(element.boxed()),
+                    GroupedItem::Plain(element) => inner_col.push(element.boxed()),
                     GroupedItem::Sub {
                         trigger: _,
                         children,
@@ -169,7 +168,7 @@ impl Menu {
                         inner_col.push(
                             Popover::new(
                                 button(text(label))
-                                    .on_press(Message::Menu(self.id, MenuMessage::OpenPopoverSub(index, path)))
+                                    .on_press(Message::Menu(self.id, MenuMessage::OpenPopoverSub(index, path.clone())))
                                     .style(move |theme: &Theme, status| {
                                         if style_opt_clone.is_some() || c_pal_opt_clone.is_some() {
                                             let btn_st = ButtonStyle::default();
@@ -186,7 +185,10 @@ impl Menu {
                                 is_open_now.then_some(sub_col),
                             )
                             .position(Position::Right)
-                            .on_close(Message::Menu(self.id, MenuMessage::OnClose))
+                            .on_close(Message::Menu(
+                                self.id,
+                                MenuMessage::CloseSubPopover(index, path.clone()),
+                            ))
                             .boxed(),
                         );
                     }
@@ -276,12 +278,18 @@ fn build_sub_items<'a>(
 
                 Popover::new(
                     button(text(label))
-                        .on_press(Message::Menu(menu_id, MenuMessage::OpenPopoverSub(bar_idx, path)))
+                        .on_press(Message::Menu(
+                            menu_id,
+                            MenuMessage::OpenPopoverSub(bar_idx, path.clone()),
+                        ))
                         .boxed(),
                     is_open_now.then_some(sub_col),
                 )
                 .position(Position::Right)
-                .on_close(Message::Menu(menu_id, MenuMessage::OnClose))
+                .on_close(Message::Menu(
+                    menu_id,
+                    MenuMessage::CloseSubPopover(bar_idx, path.clone()),
+                ))
                 .boxed()
             }
         })
@@ -297,11 +305,11 @@ pub struct MenuBarItem {
     pub font_id: Option<usize>,
 }
 
-
 #[derive(Debug, Clone)]
 pub enum MenuMessage {
     OpenPopover(usize),
     OpenPopoverSub(usize, String),
+    CloseSubPopover(usize, String),
     OnClose,
     OnBarPress(usize),
     OnBarEnter(usize),
@@ -340,6 +348,18 @@ pub fn menu_callback(state: &mut IpgState, id: usize, message: MenuMessage) {
         MenuMessage::OpenPopover(idx) => {
             if let Some(Containers::Menu(cb)) = state.containers.get_mut(&id) {
                 cb.is_open = cb.is_open.iter().enumerate().map(|(i, _)| i == idx).collect();
+            }
+        }
+        MenuMessage::CloseSubPopover(bar_idx, path) => {
+            if let Some(Containers::Menu(menu)) = state.containers.get_mut(&id) {
+                if let Some(sub_map) = menu.sub_is_open.get_mut(bar_idx) {
+                    // Close this path and any of its children
+                    let prefix = format!("{path}/");
+                    sub_map
+                        .iter_mut()
+                        .filter(|(k, _)| *k == &path || k.starts_with(&prefix))
+                        .for_each(|(_, v)| *v = false);
+                }
             }
         }
         MenuMessage::OpenPopoverSub(bar_idx, path) => {

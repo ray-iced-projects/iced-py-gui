@@ -93,7 +93,7 @@ with Window(title="Menu", center=True, size=[600, 600]):
                                     label="project2.py",
                                     width=100,
                                     style_std=ButtonStyleStd.Text)
-
+                            
                     add_button(
                         label="Search",
                         width=100,

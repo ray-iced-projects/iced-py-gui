@@ -812,9 +812,8 @@ fn get_menu_children<'a>(
     grouped
 }
 
-/// Collect the trigger element and child GroupedItems for a MenuSubItem container.
-/// Returns `Some((trigger, children))` where `trigger` is the first child and
-/// `children` are the remaining items (which may themselves be further MenuSubItems).
+/// Collect the child GroupedItems for a MenuSubItem container.
+/// The trigger is built from the label field; all children are dropdown items.
 fn collect_sub_items<'a>(
     parents: &Vec<ParentChildIds>,
     sub_index: &usize,
@@ -826,20 +825,9 @@ fn collect_sub_items<'a>(
         return None;
     }
 
-    let mut iter = child_ids.iter();
-
-    // First child is always the trigger element
-    let first_id = iter.next().unwrap();
-    let trigger = if parent_ids.contains(first_id) {
-        let idx = parents.iter().position(|r| &r.parent_id == first_id).unwrap();
-        get_children(parents, &idx, parent_ids, state)?
-    } else {
-        get_widget(state, first_id)?
-    };
-
-    // Remaining children become the sub-menu items (recursively)
+    // All children are dropdown items; trigger is built from label in ipg_menu.rs
     let mut children: Vec<GroupedItem<'a>> = vec![];
-    for child_id in iter {
+    for child_id in child_ids.iter() {
         if parent_ids.contains(child_id) {
             if matches!(state.containers.get(child_id), Some(Containers::MenuSubItem(_))) {
                 let sub_idx = parents.iter().position(|r| &r.parent_id == child_id).unwrap();
@@ -861,7 +849,9 @@ fn collect_sub_items<'a>(
         }
     }
 
-    Some((trigger, children))
+    // Dummy trigger element — ignored by ipg_menu.rs which uses label= instead
+    let dummy = iced::widget::text("").boxed();
+    Some((dummy, children))
 }
 
 /// Build the three sections (header, body, footer) for a Table container.

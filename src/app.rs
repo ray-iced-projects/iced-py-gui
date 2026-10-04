@@ -722,7 +722,7 @@ fn get_children<'a>(parents: &Vec<ParentChildIds>,
     if id != &0 {
         if let Some(Containers::Menu(menu)) = state.containers.get(id) {
             let grouped = get_menu_children(parents, index, parent_ids, state);
-            return menu.construct(grouped, &state.widgets, &state.containers);
+            return menu.construct(grouped, &state.containers); //, &state.widgets;
         }
 
         if let Some(Containers::RichText(rt)) = state.containers.get(id) {

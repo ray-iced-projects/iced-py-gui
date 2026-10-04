@@ -1,5 +1,7 @@
 //! Menu module - provides add_menu pyfunction
 
+use std::collections::HashMap;
+
 use pyo3::prelude::*;
 use pyo3::{Py, PyAny, pyfunction};
 type PyObject = Py<PyAny>;
@@ -92,11 +94,10 @@ use crate::state::{Containers, Widgets, get_id, set_state_cont_wnd_ids, set_stat
     window_id,
     container_id,
     bar_items,
+    bar_widths=None,
     parent_id=None,
     padding=None,
     spacing=None,
-    width=None,
-    width_fill=None,
     height=None,
     close_on_bar_item_click=None,
     close_on_bar_background_click=None,
@@ -115,11 +116,10 @@ pub fn add_menu(
     window_id: String,
     container_id: String,
     bar_items: Vec<String>,
+    bar_widths: Option<Vec<f32>>,
     parent_id: Option<String>,
     padding: Option<Vec<f32>>,
     spacing: Option<f32>,
-    width: Option<f32>,
-    width_fill: Option<bool>,
     height: Option<f32>,
     close_on_bar_item_click: Option<bool>,
     close_on_bar_background_click: Option<bool>,
@@ -170,10 +170,9 @@ pub fn add_menu(
         Menu {
             id,
             bar_items,
+            bar_widths,
             padding,
             spacing,
-            width,
-            width_fill,
             height,
             close_on_bar_item_click,
             close_on_bar_background_click,
@@ -183,6 +182,7 @@ pub fn add_menu(
             style_primary,
             show,
             is_open: vec![false; items],
+            sub_is_open: vec![HashMap::new(); items],
         }));
 
     drop(state);
@@ -264,6 +264,7 @@ pub fn add_menu_bar_item(
 #[pyo3(signature = (
     window_id,
     container_id,
+    label,
     parent_id=None,
     width=None,
     spacing=None,
@@ -277,6 +278,7 @@ pub fn add_menu_bar_item(
 pub fn add_menu_sub_item(
     window_id: String,
     container_id: String,
+    label: String,
     parent_id: Option<String>,
     width: Option<f32>,
     spacing: Option<f32>,
@@ -304,6 +306,7 @@ pub fn add_menu_sub_item(
     state.containers.insert(id, Containers::MenuSubItem(
         MenuSubItem {
             id,
+            label,
             width,
             spacing,
             offset,

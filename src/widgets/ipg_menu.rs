@@ -9,9 +9,11 @@ use iced::{Element, Renderer, Theme, Widget};
 
 use crate::IpgState;
 use crate::app::Message;
+use crate::state::Widgets;
 use crate::widgets::callbacks::{CallbackName, invoke_callback_with_args};
 
 use crate::iced_widgets::popover::{Popover, Position};
+use crate::widgets::ipg_button::{ButtonStyle, ButtonStyleStd};
 use crate::{
     app,
     graphics::colors::Color,
@@ -49,10 +51,195 @@ pub struct Menu {
     pub items_close_on_click_global: Option<bool>,
     pub items_close_on_background_click_global: Option<bool>,
     pub style_id: Option<usize>,
-    pub style_primary: Option<bool>,
+    pub style_std: Option<ButtonStyleStd>,
+    pub palette_id: Option<usize>,
+    pub font_id: Option<usize>,
     pub show: bool,
     pub is_open: Vec<bool>,
     pub sub_is_open: Vec<HashMap<String, bool>>,
+}
+
+impl Menu {
+    fn lookup<'a>(&self, containers: &'a HashMap<usize, Containers>, id: Option<usize>) -> Option<&'a Containers> {
+        id.and_then(|id| containers.get(&id))
+    }
+
+    fn lookup_widgets<'a>(&self, widgets: &'a HashMap<usize, Widgets>, id: Option<usize>) -> Option<&'a Widgets> {
+        id.and_then(|id| widgets.get(&id))
+    }
+
+    pub fn construct<'a>(
+        &'a self,
+        grouped_content: Vec<(usize, Vec<GroupedItem<'a>>)>,
+        widgets: &HashMap<usize, Widgets>,
+        containers: &HashMap<usize, Containers>,
+    ) -> Option<Element<'a, app::Message, Theme, Renderer>> {
+
+        let style_opt = self
+            .lookup_widgets(widgets, self.style_id)
+            .and_then(Widgets::as_button_style)
+            .cloned();
+
+        let c_pal_opt = self
+            .lookup_widgets(widgets, self.palette_id)
+            .and_then(Widgets::as_palette)
+            .cloned();
+
+        let font_opt = self.lookup_widgets(
+            widgets, self.font_id).and_then(Widgets::as_font).cloned();
+
+        let bar_widths = match self.bar_widths.clone() {
+            Some(widths) => {
+                if widths.len() == 1 {
+                    vec![widths[0]; self.bar_items.len()]
+                } else {
+                    widths
+                }
+            }
+            None => vec![],
+        };
+
+        let mut bar_columns = vec![];
+
+        let mut index = 0;
+        for (menu_bar_item_id, group) in grouped_content.into_iter() {
+            
+            let menu_bar_item = self
+                .lookup(containers, Some(menu_bar_item_id))
+                .and_then(Containers::as_menu_bar_item);
+            
+            let style_opt = menu_bar_item
+                .and_then(|mbi| mbi.style_id)
+                .and_then(|id| self.lookup_widgets(widgets, Some(id)))
+                .and_then(Widgets::as_button_style)
+                .cloned()
+                .or_else(|| {
+                    self.lookup_widgets(widgets, self.style_id)
+                        .and_then(Widgets::as_button_style)
+                        .cloned()
+                });
+
+            let c_pal_opt = menu_bar_item
+                .and_then(|mbi| mbi.palette_id)
+                .and_then(|id| self.lookup_widgets(widgets, Some(id)))
+                .and_then(Widgets::as_palette)
+                .cloned()
+                .or_else(|| {
+                    self.lookup_widgets(widgets, self.palette_id)
+                        .and_then(Widgets::as_palette)
+                        .cloned()
+                });
+
+            let font_opt = menu_bar_item
+                .and_then(|mbi| mbi.font_id)
+                .and_then(|id| self.lookup_widgets(widgets, Some(id)))
+                .and_then(Widgets::as_font)
+                .cloned()
+                .or_else(|| {
+                    self.lookup_widgets(widgets, self.font_id)
+                        .and_then(Widgets::as_font)
+                        .cloned()
+                });
+
+            let mut inner_col = vec![];
+            for grp in group.into_iter() {
+                match grp {
+                    GroupedItem::Plain(element) => 
+                    inner_col.push(element.boxed()),
+                    GroupedItem::Sub {
+                        trigger: _,
+                        children,
+                        sub_item_id,
+                    } => {
+                        let label = self
+                            .lookup(containers, Some(sub_item_id))
+                            .and_then(Containers::as_menu_sub_item)
+                            .map(|sm| sm.label.clone())
+                            .unwrap_or_else(|| "No Label Found".to_string());
+
+                        let path = label.clone();
+                        let sub_is_open = self.sub_is_open.get(index).cloned().unwrap_or_default();
+                        let is_open_now = sub_is_open.get(&path).copied().unwrap_or(false);
+                        let sub_items = build_sub_items(children, containers, self.id, index, &sub_is_open, &path);
+                        let sub_col = column(sub_items).boxed();
+
+                        let style_opt_clone = style_opt.clone();
+                        let c_pal_opt_clone = c_pal_opt.clone();
+
+                        inner_col.push(
+                            Popover::new(
+                                button(text(label))
+                                    .on_press(Message::Menu(self.id, MenuMessage::OpenPopoverSub(index, path)))
+                                    .style(move |theme: &Theme, status| {
+                                        if style_opt_clone.is_some() || c_pal_opt_clone.is_some() {
+                                            let btn_st = ButtonStyle::default();
+                                            let st = style_opt_clone.as_ref().unwrap_or(&btn_st);
+                                            st.to_iced(theme, status, &c_pal_opt_clone, &self.style_std)
+                                        } else {
+                                            match &self.style_std {
+                                                Some(std) => std.to_iced(theme, status),
+                                                None => button::background(theme, status),
+                                            }
+                                        }
+                                    })
+                                    .boxed(),
+                                is_open_now.then_some(sub_col),
+                            )
+                            .position(Position::Right)
+                            .on_close(Message::Menu(self.id, MenuMessage::OnClose))
+                            .boxed(),
+                        );
+                    }
+                }
+            }
+            bar_columns.push(
+                container(column(inner_col).boxed())
+                    // .width(bar_widths[index])
+                    .style(move |theme| container::bordered_box(theme))
+                    .boxed(),
+            );
+            index += 1;
+        }
+
+        let id = self.id;
+        let rw = row(self
+            .bar_items
+            .iter()
+            .zip(bar_columns.into_iter())
+            .zip(bar_widths.iter())
+            .enumerate()
+            .map(|(idx, ((label, col), width))| {
+                let style_opt_clone = style_opt.clone();
+                let c_pal_opt_clone = c_pal_opt.clone();
+                let pop = Popover::new(
+                    button(text(label.as_str()))
+                        .on_press(Message::Menu(id, MenuMessage::OpenPopover(idx)))
+                        .width(*width)
+                        .style(move |theme: &Theme, status| {
+                            if style_opt_clone.is_some() || c_pal_opt_clone.is_some() {
+                                let btn_st = ButtonStyle::default();
+                                let st = style_opt_clone.as_ref().unwrap_or(&btn_st);
+                                st.to_iced(theme, status, &c_pal_opt_clone, &self.style_std)
+                            } else {
+                                match &self.style_std {
+                                    Some(std) => std.to_iced(theme, status),
+                                    None => button::background(theme, status),
+                                }
+                            }
+                        })
+                        .boxed(),
+                    self.is_open[idx].then_some(col),
+                )
+                .position(Position::Bottom)
+                .on_close(Message::Menu(id, MenuMessage::OnClose));
+                mouse_area(pop)
+                    .on_enter(Message::Menu(id, MenuMessage::OnBarEnter(idx)))
+                    .boxed()
+            }));
+
+        let rw = rw.boxed();
+        Some(rw)
+    }
 }
 
 /// Recursively build popover elements for nested Sub items.
@@ -101,155 +288,15 @@ fn build_sub_items<'a>(
         .collect()
 }
 
-impl Menu {
-    fn lookup<'a>(&self, containers: &'a HashMap<usize, Containers>, id: Option<usize>) -> Option<&'a Containers> {
-        id.and_then(|id| containers.get(&id))
-    }
-
-    pub fn construct<'a>(
-        &'a self,
-        grouped_content: Vec<(usize, Vec<GroupedItem<'a>>)>,
-        // widgets: &HashMap<usize, Widgets>,
-        containers: &HashMap<usize, Containers>,
-    ) -> Option<Element<'a, app::Message, Theme, Renderer>> {
-        let bar_widths = match self.bar_widths.clone() {
-            Some(widths) => {
-                if widths.len() == 1 {
-                    vec![widths[0]; self.bar_items.len()]
-                } else {
-                    widths
-                }
-            }
-            None => vec![],
-        };
-
-        let mut bar_columns = vec![];
-
-        let mut index = 0;
-        for (bar_item_id, group) in grouped_content.into_iter() {
-            let mut inner_col = vec![];
-            for grp in group.into_iter() {
-                match grp {
-                    GroupedItem::Plain(element) => inner_col.push(element.boxed()),
-                    GroupedItem::Sub {
-                        trigger: _,
-                        children,
-                        sub_item_id,
-                    } => {
-                        let label = self
-                            .lookup(containers, Some(sub_item_id))
-                            .and_then(Containers::as_menu_sub_item)
-                            .map(|sm| sm.label.clone())
-                            .unwrap_or_else(|| "Sub".to_string());
-
-                        let path = label.clone();
-                        let sub_is_open = self.sub_is_open.get(index).cloned().unwrap_or_default();
-                        let is_open_now = sub_is_open.get(&path).copied().unwrap_or(false);
-                        let sub_items = build_sub_items(children, containers, self.id, index, &sub_is_open, &path);
-                        let sub_col = column(sub_items).boxed();
-
-                        inner_col.push(
-                            Popover::new(
-                                button(text(label))
-                                    .on_press(Message::Menu(self.id, MenuMessage::OpenPopoverSub(index, path)))
-                                    .boxed(),
-                                is_open_now.then_some(sub_col),
-                            )
-                            .position(Position::Right)
-                            .on_close(Message::Menu(self.id, MenuMessage::OnClose))
-                            .boxed(),
-                        );
-                    }
-                }
-            }
-            bar_columns.push(
-                container(column(inner_col).boxed())
-                    // .width(bar_widths[index])
-                    .style(move |theme| container::bordered_box(theme))
-                    .boxed(),
-            );
-            index += 1;
-        }
-
-        let id = self.id;
-        let rw = row(self
-            .bar_items
-            .iter()
-            .zip(bar_columns.into_iter())
-            .zip(bar_widths.iter())
-            .enumerate()
-            .map(|(idx, ((label, col), width))| {
-                let pop = Popover::new(
-                    button(text(label.as_str()))
-                        .on_press(Message::Menu(id, MenuMessage::OpenPopover(idx)))
-                        .width(*width)
-                        .boxed(),
-                    self.is_open[idx].then_some(col),
-                )
-                .position(Position::Bottom)
-                .on_close(Message::Menu(id, MenuMessage::OnClose));
-                mouse_area(pop)
-                    .on_enter(Message::Menu(id, MenuMessage::OnBarEnter(idx)))
-                    .boxed()
-            }));
-
-        let rw = rw.boxed();
-        Some(rw)
-    }
-}
-
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct MenuBarItem {
     pub id: usize,
+    pub style_id: Option<usize>,
+    pub style_std: Option<ButtonStyleStd>,
+    pub palette_id: Option<usize>,
+    pub font_id: Option<usize>,
 }
 
-impl MenuBarItem {
-    pub fn construct<'a>(
-        &'a self,
-        content: Vec<Element<'a, Message>>,
-    ) -> Option<Element<'a, app::Message, Theme, Renderer>> {
-        let pop = Popover::new(column(content).boxed(), None::<Element<'a, Message>>);
-
-        let pop = pop.boxed();
-        Some(pop)
-    }
-}
-
-// Recursively convert a `Vec<GroupedItem>` into aw_menu `Item`s,
-// using `Item::with_menu` for any `GroupedItem::Sub`.
-// fn build_items<'a>(
-//     group: Vec<GroupedItem<'a>>,
-//     containers: &HashMap<usize, Containers>,
-// ) -> Vec<Item<'a, app::Message, Theme, Renderer>> {
-
-//     group.into_iter().map(|gi| match gi {
-//         GroupedItem::Plain(el) => Item::new(el),
-//         GroupedItem::Sub { trigger, children, sub_item_id } => {
-//             let sub_data = containers.get(&sub_item_id)
-//                 .and_then(Containers::as_menu_sub_item);
-
-//             let sub_items = build_items(children, containers);
-
-//             let mut sub_menu = aw_menu::menu_tree::Menu::new(sub_items)
-//                 .width(match sub_data.and_then(|d| d.width) {
-//                     Some(w) => iced::Length::Fixed(w),
-//                     None    => Length::Shrink,
-//                 })
-//                 .offset(sub_data.and_then(|d| d.offset).unwrap_or(0.0))
-//                 .padding(get_padding(&sub_data.and_then(|d| d.padding.clone())))
-//                 .spacing(sub_data.and_then(|d| d.spacing).unwrap_or_default());
-
-//             if let Some(v) = sub_data.and_then(|d| d.close_on_item_click) {
-//                 sub_menu = sub_menu.close_on_item_click(v);
-//             }
-//             if let Some(v) = sub_data.and_then(|d| d.close_on_background_click) {
-//                 sub_menu = sub_menu.close_on_background_click(v);
-//             }
-
-//             Item::with_menu(trigger, sub_menu)
-//         }
-//     }).collect()
-// }
 
 #[derive(Debug, Clone)]
 pub enum MenuMessage {
@@ -524,7 +571,7 @@ pub enum MenuParam {
     Show,
     Spacing,
     StyleId,
-    StylePrimary,
+    StyleStd,
 }
 
 #[derive(Debug, Clone, PartialEq, Hash)]
@@ -621,7 +668,7 @@ impl WidgetParamUpdate for Menu {
                 "MenuParam::ItemsCloseOnClickGlobal",
             ),
             MenuParam::StyleId => set_t_value(&mut self.style_id, value, "MenuParam::StyleId"),
-            MenuParam::StylePrimary => set_t_value(&mut self.style_primary, value, "MenuParam::StylePrimary"),
+            MenuParam::StyleStd => set_t_value(&mut self.style_std, value, "MenuParam::StyleStd"),
         }
     }
 }

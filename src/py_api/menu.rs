@@ -8,6 +8,7 @@ type PyObject = Py<PyAny>;
 
 use crate::graphics::colors::Color;
 use crate::widgets::callbacks::CallbackName;
+use crate::widgets::ipg_button::ButtonStyleStd;
 use crate::widgets::ipg_menu::{Menu, MenuBarItem, MenuStyle, MenuSubItem};
 use crate::{access_state, add_callback_name_to_mutex, add_user_data_to_mutex};
 use crate::state::{Containers, Widgets, get_id, set_state_cont_wnd_ids, set_state_of_container};
@@ -107,7 +108,9 @@ use crate::state::{Containers, Widgets, get_id, set_state_cont_wnd_ids, set_stat
     on_bar_item_enter=None,
     on_bar_item_exit=None,
     style_id=None,
-    style_primary=None,
+    style_std=None,
+    palette_id=None,
+    font_id=None,
     show=true, 
     user_data=None, 
     gen_id=None
@@ -129,7 +132,9 @@ pub fn add_menu(
     on_bar_item_enter: Option<PyObject>,
     on_bar_item_exit: Option<PyObject>,
     style_id: Option<usize>,
-    style_primary: Option<bool>,
+    style_std: Option<ButtonStyleStd>,
+    palette_id: Option<usize>,
+    font_id: Option<usize>,
     show: bool,
     user_data: Option<PyObject>,
     gen_id: Option<usize>,
@@ -179,7 +184,9 @@ pub fn add_menu(
             items_close_on_click_global,
             items_close_on_background_click_global,
             style_id,
-            style_primary,
+            style_std,
+            palette_id,
+            font_id,
             show,
             is_open: vec![false; items],
             sub_is_open: vec![HashMap::new(); items],
@@ -194,11 +201,19 @@ pub fn add_menu(
     window_id,
     container_id,
     parent_id=None,
+    style_id=None,
+    style_std=None,
+    palette_id=None,
+    font_id=None,
     ))]
 pub fn add_menu_bar_item(
     window_id: String,
     container_id: String,
     parent_id: Option<String>,
+    style_id: Option<usize>,
+    style_std: Option<ButtonStyleStd>,
+    palette_id: Option<usize>,
+    font_id: Option<usize>,
 ) -> PyResult<usize> 
 {
     let id = get_id(None);
@@ -217,6 +232,10 @@ pub fn add_menu_bar_item(
     state.containers.insert(id, Containers::MenuBarItem(
         MenuBarItem {
             id,
+            style_id,
+            style_std,
+            palette_id,
+            font_id,
         }));
 
     drop(state);

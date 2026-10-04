@@ -32,7 +32,12 @@ def on_item_press(btn_id):
     """Menu item press"""
     print("The button item was pressed", btn_id)
 
-btn_style = add_button_style(text_center_left=True)
+def on_item_press_ud(btn_id, label: str):
+    """Menu item press with user data"""
+    print("The button item was pressed", btn_id, label)
+
+btn_style = add_button_style(
+                text_center=True,)
 
 # Add a window
 with Window(title="Menu", center=True, size=[600, 600]):
@@ -53,17 +58,21 @@ with Window(title="Menu", center=True, size=[600, 600]):
                     add_button(
                         label="New",
                         width=100,
-                        on_press=on_item_press)
+                        on_press=on_item_press,
+                        style_std=ButtonStyleStd.Background,
+                        style_id=btn_style)
 
                     with MenuSubItem(label="Open Recent 1"):
                         add_button(
                             label="project1.py",
                             width=100,
-                            style_std=ButtonStyleStd.Text)
+                            style_std=ButtonStyleStd.Background,
+                            style_id=btn_style)
                         add_button(
                             label="project2.py",
                             width=100,
-                            style_std=ButtonStyleStd.Text)
+                            style_std=ButtonStyleStd.Background,
+                            style_id=btn_style)
 
                         with MenuSubItem(label="Open Recent Sub"):
                             add_button(
@@ -88,22 +97,25 @@ with Window(title="Menu", center=True, size=[600, 600]):
                     add_button(
                         label="Search",
                         width=100,
-                        style_std=ButtonStyleStd.Text,
-                        on_press=on_item_press,
+                        on_press=on_item_press_ud,
+                        style_std=ButtonStyleStd.Background,
+                        style_id=btn_style,
                         user_data="Search")
 
                     add_button(
                         label="Open",
                         width=100,
-                        style_std=ButtonStyleStd.Text,
-                        on_press=on_item_press,
+                        on_press=on_item_press_ud,
+                        style_std=ButtonStyleStd.Background,
+                        style_id=btn_style,
                         user_data="Open")
 
                     add_button(
                         label="Save",
                         width=100,
-                        style_std=ButtonStyleStd.Text,
-                        on_press=on_item_press,
+                        on_press=on_item_press_ud,
+                        style_std=ButtonStyleStd.Background,
+                        style_id=btn_style,
                         user_data="Save")
 
                 with MenuBarItem():
@@ -111,22 +123,25 @@ with Window(title="Menu", center=True, size=[600, 600]):
                     add_button(
                         label="Cut",
                         width=100,
-                        style_std=ButtonStyleStd.Text,
-                        on_press=on_item_press,
+                        on_press=on_item_press_ud,
+                        style_std=ButtonStyleStd.Background,
+                        style_id=btn_style,
                         user_data="Cut")
 
                     add_button(
                         label="Copy",
                         width=100,
-                        style_std=ButtonStyleStd.Text,
-                        on_press=on_item_press,
+                        on_press=on_item_press_ud,
+                        style_std=ButtonStyleStd.Background,
+                        style_id=btn_style,
                         user_data="Copy")
 
                     add_button(
                         label="Paste",
                         width=100,
-                        style_std=ButtonStyleStd.Text,
-                        on_press=on_item_press,
+                        on_press=on_item_press_ud,
+                        style_std=ButtonStyleStd.Background,
+                        style_id=btn_style,
                         user_data="Paste")
 
                 with MenuBarItem():
@@ -134,8 +149,9 @@ with Window(title="Menu", center=True, size=[600, 600]):
                     add_button(
                         label="About",
                         width=100,
-                        style_std=ButtonStyleStd.Text,
-                        on_press=on_item_press,
+                        on_press=on_item_press_ud,
+                        style_std=ButtonStyleStd.Background,
+                        style_id=btn_style,
                         user_data="About")
 
 

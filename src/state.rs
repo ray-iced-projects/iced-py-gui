@@ -52,7 +52,7 @@ use crate::widgets::ipg_space::Space;
 use crate::widgets::ipg_stack::Stack;
 use crate::widgets::ipg_svg::Svg;
 use crate::widgets::ipg_table::{Table, TableBasic, TableBody, TableFooter, TableHeader, TableStyle};
-use crate::widgets::ipg_text::Text;
+use crate::widgets::ipg_text::{Text, TextStyle};
 use crate::widgets::ipg_text_editor::{TextEditor, TextEditorStyle};
 use crate::widgets::ipg_text_input::{TextInput, TextInputStyle};
 use crate::widgets::ipg_text_rich::{RichText, Span};
@@ -146,6 +146,7 @@ pub enum Widgets {
     Span(Span),
     Svg(Svg),
     Text(Text),
+    TextStyle(TextStyle),
     TextEditor(TextEditor),
     TextEditorStyle(TextEditorStyle),
     TextInput(TextInput),
@@ -222,6 +223,7 @@ ipg_widget_accessors! {
     Svg                => Svg,                 as_svg,                   as_svg_mut;
     TableStyle         => TableStyle,          as_table_style,           as_table_style_mut;
     Text               => Text,                as_text,                  as_text_mut;
+    TextStyle          => TextStyle,           as_text_style,            as_text_style_mut;
     TextEditor         => TextEditor,          as_text_editor,           as_text_editor_mut;
     TextEditorStyle    => TextEditorStyle,     as_text_editor_style,     as_text_editor_style_mut;
     TextInputStyle     => TextInputStyle,      as_text_input_style,      as_text_input_style_mut;

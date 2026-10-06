@@ -14,19 +14,19 @@ from icedpygui import (
     ButtonStyleStd,
 )
 
-bar_items = ["File", "Edit", "Help"]
+bar_labels = ["File", "Edit", "Help"]
 
 def on_bar_item_press(bar_id, idx: int):
     """Menu bar callback"""
-    print(f"press = id: {bar_id} name: {bar_items[idx]}")
+    print(f"press = id: {bar_id} name: {bar_labels[idx]}")
 
 def on_bar_item_enter(bar_id, idx: int):
     """Menu bar callback"""
-    print(f"enter = id: {bar_id} name: {bar_items[idx]}")
+    print(f"enter = id: {bar_id} name: {bar_labels[idx]}")
 
 def on_bar_item_exit(bar_id, idx: int):
     """Menu bar callback"""
-    print(f"exit = id: {bar_id} name: {bar_items[idx]}")
+    print(f"exit = id: {bar_id} name: {bar_labels[idx]}")
 
 def on_item_press(btn_id):
     """Menu item press"""
@@ -45,8 +45,8 @@ with Window(title="Menu", center=True, size=[600, 600]):
     with Container(padding=[20.0], fill=True):
         with Column(spacing=20):
             with Menu(
-                bar_items=bar_items,
-                bar_widths=[100.0],
+                bar_labels=bar_labels,
+                bar_widths=[75.0],
                 on_bar_item_press=on_bar_item_press,
                 on_bar_item_enter=on_bar_item_enter,
                 on_bar_item_exit=on_bar_item_exit,
@@ -93,7 +93,7 @@ with Window(title="Menu", center=True, size=[600, 600]):
                                     label="project2.py",
                                     width=100,
                                     style_std=ButtonStyleStd.Text)
-                            
+
                     add_button(
                         label="Search",
                         width=100,

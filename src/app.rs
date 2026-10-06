@@ -1137,6 +1137,7 @@ fn get_widget<'a>(state: &'a IpgState, id: &usize) -> Option<Element<'a, Message
                 Widgets::AutoScrollStyle(_) |
                 Widgets::SeparatorStyle(_) |
                 Widgets::SliderStyle(_) |
+                Widgets::TextStyle(_) |
                 Widgets::TextEditorStyle(_) |
                 Widgets::TextInputStyle(_) |
                 Widgets::TogglerStyle(_) => {
@@ -1523,6 +1524,7 @@ fn process_shows(
             | Widgets::SliderStyle(_)
             | Widgets::Span(_)
             | Widgets::TableStyle(_)
+            | Widgets::TextStyle(_)
             | Widgets::TextEditor(_)
             | Widgets::TextEditorStyle(_)
             | Widgets::TextInputStyle(_)

@@ -6,14 +6,14 @@
 use pyo3::prelude::*;
 
 // Core modules for the minimal prototype
-mod state;
 mod app;
-mod py_api;
 mod graphics;
+mod py_api;
+mod state;
 mod style;
 // mod iced_aw_widgets;
-mod ipg_widgets;
 mod iced_widgets;
+mod ipg_widgets;
 
 // Minimal widget definitions (self-contained)
 mod widgets;
@@ -23,80 +23,83 @@ mod config_creator;
 
 // Re-export for internal use
 pub use state::{
-    access_state, access_callbacks, access_user_data1,
-    add_callback_name_to_mutex, add_user_data_to_mutex, clone_state_to_runtime,
-    WidgetNode, IpgState
+    IpgState, WidgetNode, access_callbacks, access_state, access_user_data1, add_callback_name_to_mutex,
+    add_user_data_to_mutex, clone_state_to_runtime,
 };
 
 use crate::ipg_widgets::ipg_canvas_draw::canvas_draw::{DrawMode, DrawWidget};
 // Import pyfunctions from py_api modules
-use crate::py_api::window::{add_window, window_theme_names, create_custom_theme};
 use crate::py_api::button::{add_button, add_button_style};
-use crate::py_api::clipboard::{clipboard_write, clipboard_callback};
-use crate::py_api::config::{get_file_filters, reload_filters, get_config_path};
+use crate::py_api::clipboard::{clipboard_callback, clipboard_write};
+use crate::py_api::config::{get_config_path, get_file_filters, reload_filters};
+use crate::py_api::window::{add_window, create_custom_theme, window_theme_names};
 // use crate::py_api::card::{add_card_class, add_card, add_card_style};
 use crate::py_api::checkbox::{add_checkbox, add_checkbox_style};
-use crate::py_api::colors::{PaletteKey, StateVariant, StylePart, TextContrast, WidgetStatus, custom_palette, get_button_palette, get_color_palette, get_rgba_color, get_styling_palette, get_theme_palette};
-use crate::py_api::color_picker::{add_color_picker};
+use crate::py_api::color_picker::add_color_picker;
+use crate::py_api::colors::{
+    PaletteKey, StateVariant, StylePart, TextContrast, WidgetStatus, custom_palette, get_button_palette,
+    get_color_palette, get_rgba_color, get_styling_palette, get_theme_palette,
+};
 use crate::py_api::column::add_column;
 use crate::py_api::combo_box::{add_combobox, add_combobox_input_style, add_combobox_menu_style};
 use crate::py_api::container::{add_container, add_container_style};
 use crate::py_api::date_picker::add_date_picker;
 use crate::py_api::draw::add_draw;
-use crate::py_api::draw_update::{update_draw_params, delete_draw_widget};
+use crate::py_api::draw_update::{delete_draw_widget, update_draw_params};
 use crate::py_api::events::{add_event_keyboard, add_event_mouse};
-use crate::py_api::file_system_dialog::{add_file_system_dialog, get_dialog_filters}; 
+use crate::py_api::file_system_dialog::{add_file_system_dialog, get_dialog_filters};
 use crate::py_api::float::add_float;
+use crate::py_api::font::{add_font_style, add_icon, arrow_to_str, arrow_variants, load_font};
 use crate::py_api::grid::add_grid;
-use crate::py_api::font::{add_font_style, add_icon, load_font, arrow_to_str, arrow_variants};
 use crate::py_api::image::add_image;
 use crate::py_api::input_float::{add_input_float, add_input_float_style};
 use crate::py_api::input_int::{add_input_int, add_input_int_style};
-use crate::py_api::menu::{add_menu, add_menu_bar_item, add_menu_sub_item, add_menu_style};
+use crate::py_api::menu::{add_menu, add_menu_bar_item, add_menu_style, add_menu_sub_item};
 use crate::py_api::mouse_area::add_mouse_area;
-use crate::py_api::palette_helpers::{get_widget_palette_part, get_widget_palette_list};
 use crate::py_api::opaque::add_opaque;
+use crate::py_api::palette_helpers::{get_widget_palette_list, get_widget_palette_part};
+use crate::py_api::picklist::{add_pick_list, add_pick_list_style};
 use crate::py_api::popover::add_popover;
 use crate::py_api::progress_bar::{add_progress_bar, add_progress_bar_style};
 use crate::py_api::radio::{add_radio, add_radio_style};
 use crate::py_api::row::add_row;
 use crate::py_api::rule::{add_rule, add_rule_style};
-use crate::py_api::picklist::{add_pick_list, add_pick_list_style};
 use crate::py_api::sash::{add_sash, add_sash_style};
-use crate::py_api::scrollable::{add_scrollable, add_scrollable_style, 
-    add_scroller, add_autoscroll_style, add_rail_style};
+use crate::py_api::scrollable::{
+    add_autoscroll_style, add_rail_style, add_scrollable, add_scrollable_style, add_scroller};
 use crate::py_api::separator::{add_separator, add_separator_style};
-use crate::py_api::session::{start_session, generate_id};
+use crate::py_api::session::{generate_id, start_session};
 use crate::py_api::slider::{add_slider, add_slider_style};
 use crate::py_api::space::add_space;
 use crate::py_api::stack::add_stack;
 use crate::py_api::svg::add_svg;
-use crate::py_api::table::{add_table_basic, add_table_style,
-    add_table, add_table_header, add_table_body, add_table_footer};
-use crate::py_api::text_input::{add_text_input, add_text_input_style};
-use crate::py_api::text::add_text;
+use crate::py_api::table::{
+    add_table, add_table_basic, add_table_body, add_table_footer, add_table_header, add_table_style};
+use crate::py_api::text::{add_text, add_text_style};
 use crate::py_api::text_editor::{add_text_editor, add_text_editor_style};
+use crate::py_api::text_input::{add_text_input, add_text_input_style};
 use crate::py_api::text_rich::{add_rich_text, add_span};
 use crate::py_api::toggle::{add_toggler, add_toggler_style};
 use crate::py_api::tool_tip::add_tool_tip;
-use crate::py_api::widget_parameters::{update_widget, update_widget_params, delete_widget, 
-    hide_widget, move_widget, show_widget, get_widget_parameters, 
-    get_widget_style_parameters, get_widget_font_parameters, get_widget_palette_parameters, 
-    update_widget_palette_parameters, get_user_data, update_user_data, get_widget_default_statuses};
+use crate::py_api::widget_parameters::{
+    delete_widget, get_user_data, get_widget_default_statuses, get_widget_font_parameters,
+    get_widget_palette_parameters, get_widget_parameters, get_widget_style_parameters, hide_widget, move_widget,
+    show_widget, update_user_data, update_widget, update_widget_palette_parameters, update_widget_params,
+};
 
 // Import enums from widgets module
-use crate::widgets::enums::ContentFit;
-use crate::graphics::bootstrap::{bootstrap_icon::Icon, bootstrap_arrow::Arrow};
+use crate::graphics::bootstrap::{bootstrap_arrow::Arrow, bootstrap_icon::Icon};
 use crate::graphics::colors::{Color, StdColorStyle};
+use crate::widgets::enums::ContentFit;
 use crate::widgets::ipg_button::{ButtonParam, ButtonStyleParam, ButtonStyleStd};
 // use crate::widgets::ipg_card::{CardParam, CardStyleParam, CardStyleStd};
 use crate::widgets::ipg_checkbox::{CheckboxParam, CheckboxStyleParam, CheckboxStyleStd};
 use crate::widgets::ipg_column::ColumnParam;
-use crate::widgets::ipg_combo_box::{ComboBoxParam, ComboBoxMenuStyleParam};
+use crate::widgets::ipg_combo_box::{ComboBoxMenuStyleParam, ComboBoxParam};
 use crate::widgets::ipg_container::{ContainerParam, ContainerStyleParam, ContainerStyleStd};
 use crate::widgets::ipg_date_picker::DatePickerParam;
 use crate::widgets::ipg_draw::DrawParam;
-use crate::widgets::ipg_file_system::{FileSystemDialogParam, FileSystemDialogCallbackType};
+use crate::widgets::ipg_file_system::{FileSystemDialogCallbackType, FileSystemDialogParam};
 use crate::widgets::ipg_float::FloatParam;
 use crate::widgets::ipg_font::{FontFamily, FontStretch, FontStyle, FontWeight};
 use crate::widgets::ipg_grid::GridParam;
@@ -112,25 +115,26 @@ use crate::widgets::ipg_radio::{RadioParam, RadioStyleParam};
 use crate::widgets::ipg_row::RowParam;
 use crate::widgets::ipg_rule::{RuleParam, RuleStyleParam};
 use crate::widgets::ipg_sash::{SashParam, SashStyleParam, SashStyleStd};
-use crate::widgets::ipg_scrollable::{AutoScrollStyleParam, RailStyleParam, ScrollableParam, ScrollableStyleParam, ScrollerParam};
+use crate::widgets::ipg_scrollable::{
+    AutoScrollStyleParam, RailStyleParam, ScrollableParam, ScrollableStyleParam, ScrollerParam,
+};
 use crate::widgets::ipg_separator::{SeparatorParam, SeparatorStyleParam};
 use crate::widgets::ipg_slider::{SliderParam, SliderStyleParam};
 use crate::widgets::ipg_stack::StackParam;
 use crate::widgets::ipg_svg::SvgParam;
 use crate::widgets::ipg_table::{TableBasicParam, TableStyleParam};
+use crate::widgets::ipg_text::{TextColorStd, TextParam, TextStyleParam};
 use crate::widgets::ipg_text_editor::TextEditorParam;
 use crate::widgets::ipg_text_input::{TextInputParam, TextInputStyleParam};
 use crate::widgets::ipg_text_rich::{RichTextParam, SpanParam};
-use crate::widgets::ipg_text::{TextColorStd, TextParam};
 use crate::widgets::ipg_timer::{TimerParam, update_timer};
 use crate::widgets::ipg_toggle::{TogglerParam, TogglerStyleParam};
 use crate::widgets::ipg_tool_tip::ToolTipParam;
-use crate::widgets::ipg_window::{WindowLevel, WindowMode, WindowTheme, WindowParam};
+use crate::widgets::ipg_window::{WindowLevel, WindowMode, WindowParam, WindowTheme};
 use crate::widgets::styling::StyleStandard;
 // events
 use crate::py_api::events::add_event_window;
 use crate::py_api::timer::add_event_timer;
-
 
 /// Python module definition
 #[pymodule]
@@ -144,7 +148,7 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(add_event_timer, m)?)?;
     m.add_function(wrap_pyfunction!(add_event_keyboard, m)?)?;
     m.add_function(wrap_pyfunction!(add_event_mouse, m)?)?;
-    
+
     // widgets
     m.add_function(wrap_pyfunction!(add_autoscroll_style, m)?)?;
     m.add_function(wrap_pyfunction!(add_button_style, m)?)?;
@@ -214,15 +218,16 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(add_table_header, m)?)?;
     m.add_function(wrap_pyfunction!(add_table_body, m)?)?;
     m.add_function(wrap_pyfunction!(add_table_footer, m)?)?;
+    m.add_function(wrap_pyfunction!(add_text, m)?)?;
+    m.add_function(wrap_pyfunction!(add_text_style, m)?)?;
     m.add_function(wrap_pyfunction!(add_text_editor, m)?)?;
     m.add_function(wrap_pyfunction!(add_text_editor_style, m)?)?;
     m.add_function(wrap_pyfunction!(add_text_input_style, m)?)?;
     m.add_function(wrap_pyfunction!(add_text_input, m)?)?;
-    m.add_function(wrap_pyfunction!(add_text, m)?)?;
     m.add_function(wrap_pyfunction!(add_toggler_style, m)?)?;
     m.add_function(wrap_pyfunction!(add_toggler, m)?)?;
     m.add_function(wrap_pyfunction!(add_tool_tip, m)?)?;
-    
+
     m.add_function(wrap_pyfunction!(add_window, m)?)?;
     m.add_function(wrap_pyfunction!(delete_widget, m)?)?;
     m.add_function(wrap_pyfunction!(hide_widget, m)?)?;
@@ -320,6 +325,7 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<TextInputParam>()?;
     m.add_class::<TextInputStyleParam>()?;
     m.add_class::<TextParam>()?;
+    m.add_class::<TextStyleParam>()?;
     m.add_class::<TimerParam>()?;
     m.add_class::<TogglerParam>()?;
     m.add_class::<TogglerStyleParam>()?;
@@ -336,7 +342,7 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(get_styling_palette, m)?)?;
     m.add_function(wrap_pyfunction!(custom_palette, m)?)?;
     m.add_function(wrap_pyfunction!(get_button_palette, m)?)?;
-    
+
     // Enums
     m.add_class::<Arrow>()?;
     m.add_class::<Color>()?;

@@ -87,6 +87,7 @@ pub fn param_update(widget: &mut Widgets, item: &PyObject, value: &PyObject) {
         Widgets::Svg(w) => apply_update(w, item, value),
         Widgets::TableStyle(w) => apply_update(w, item, value),
         Widgets::Text(w) => apply_update(w, item, value),
+        Widgets::TextStyle(w) => apply_update(w, item, value),
         Widgets::TextEditor(w) => apply_update(w, item, value),
         Widgets::TextEditorStyle(w) => apply_update(w, item, value),
         Widgets::TextInput(w) => apply_update(w, item, value),

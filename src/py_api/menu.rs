@@ -9,6 +9,7 @@ type PyObject = Py<PyAny>;
 use crate::graphics::colors::Color;
 use crate::widgets::callbacks::CallbackName;
 use crate::widgets::ipg_button::ButtonStyleStd;
+use crate::widgets::ipg_container::ContainerStyleStd;
 use crate::widgets::ipg_menu::{Menu, MenuBarItem, MenuStyle, MenuSubItem};
 use crate::{access_state, add_callback_name_to_mutex, add_user_data_to_mutex};
 use crate::state::{Containers, Widgets, get_id, set_state_cont_wnd_ids, set_state_of_container};
@@ -94,9 +95,13 @@ use crate::state::{Containers, Widgets, get_id, set_state_cont_wnd_ids, set_stat
 #[pyo3(signature = ( 
     window_id,
     container_id,
-    bar_items,
+    bar_labels,
     bar_widths=None,
     parent_id=None,
+    bar_container_style_id=None,
+    bar_container_style_std=None,
+    bar_labels_text_style_id=None,
+    bar_labels_text_font_id=None,
     padding=None,
     spacing=None,
     height=None,
@@ -118,9 +123,13 @@ use crate::state::{Containers, Widgets, get_id, set_state_cont_wnd_ids, set_stat
 pub fn add_menu(
     window_id: String,
     container_id: String,
-    bar_items: Vec<String>,
+    bar_labels: Vec<String>,
     bar_widths: Option<Vec<f32>>,
     parent_id: Option<String>,
+    bar_container_style_id: Option<usize>,
+    bar_container_style_std: Option<ContainerStyleStd>,
+    bar_labels_text_style_id: Option<usize>,
+    bar_labels_text_font_id: Option<usize>,
     padding: Option<Vec<f32>>,
     spacing: Option<f32>,
     height: Option<f32>,
@@ -169,13 +178,17 @@ pub fn add_menu(
 
     set_state_cont_wnd_ids(&mut state, &window_id, container_id, id, "add_menu".to_string());
 
-    let items = bar_items.len();
+    let items = bar_labels.len();
 
     state.containers.insert(id, Containers::Menu(
         Menu {
             id,
-            bar_items,
+            bar_labels,
             bar_widths,
+            bar_container_style_id,
+            bar_container_style_std,
+            bar_labels_text_style_id,
+            bar_labels_text_font_id,
             padding,
             spacing,
             height,

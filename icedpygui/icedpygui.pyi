@@ -3964,6 +3964,83 @@ class TextParam:
     Width: float
     WidthFill: bool
 
+class TextStyleParam:
+    """
+    Text Style parameters
+    Not used to style a Text widget but used in more complex widgets
+    that use a text widget to add styling such as Menu, Table, Button...
+
+    Parameters
+    ----------
+    AlignBottomCenter: bool | None
+        Whether to align the text to bottom center.
+    AlignBottomLeft: bool | None
+        Whether to align the text bottom left,
+    AlignBottomRight: bool | None
+        Whether to align the text bottom right.
+    AlignCenter: bool | None
+        Whether to align the text centered.
+    AlignCenterLeft: bool | None
+        Whether to align the text center left.
+    AlignCenterRight: bool | None
+        Whether to align the text center right.
+    AlignTopCenter: bool | None
+        Whether to align the text top center.
+    AlignTopLeft: bool | None
+        Whether to align the text top left.
+    AlignTopRight: bool | None
+        Whether to align the text top right.
+    Height: float | None
+        The height of the widget, default height shrinks to text height.
+    HeightFill: bool | None
+        Whether to fill the height of the container with the widget.
+    LineHeight: float | None
+        The height of the text box.
+    Size: float | None
+        The size of the text.
+    Color: Color | None
+        The color of the text, default depends on theme.
+    ColorAlpha: float | None
+        The alpha value of the Color.
+    ColorRgba: list[float, 4] | None
+        The color of the text in rgba format.
+    ColorStd: TextColorStd | None
+        Some standard colors for the text.
+    Width: float | None
+        The width of the widget, default width shrinks to text width.
+    WidthFill: bool
+        Whether to fill the width of the container with the widget.
+    WrappingGlyph: bool | None
+        Whether to wrap at a glyph.
+    WrappingNone: bool | None
+        Whether to have no wrapping, default is word.
+    WrappingWordGlyph: bool | None
+        Whether to wrap on a glyph or word.
+    """
+    AlignBottomCenter: bool
+    AlignBottomLeft: bool
+    AlignBottomRight: bool
+    AlignCenter: bool
+    AlignCenterLeft: bool
+    AlignCenterRight: bool
+    AlignTopCenter: bool
+    AlignTopLeft: bool
+    AlignTopRight: bool
+    Height: float
+    HeightFill: bool
+    LineHeight: float
+    Show: bool
+    Size: float
+    Color: Color
+    ColorAlpha: bool
+    ColorRgba: list[float, 4]
+    ColorStd: TextColorStd
+    WrappingGlyph: bool
+    WrappingNone: bool
+    WrappingWordGlyph: bool
+    Width: float
+    WidthFill: bool
+
 
 class RichTextParam:
     """

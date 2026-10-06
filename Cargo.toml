@@ -16,7 +16,7 @@ pyo3 = { version = "0.26", features = ["indexmap"] }
 indexmap = "2"
 pyo3-stub-gen = "0.19.0"
 # iced = { git = "https://github.com/iced-rs/iced", rev = "d146509d893945de5c304cfaf4301335eee278bd", features = ["advanced", "canvas", "debug", "highlighter", "image", "smol", "svg", "tokio"] }
-iced = { git = "https://github.com/iced-rs/iced", rev = "84f785b06ac02a49901e4113451fedd31c9c3326", features = [
+iced = { git = "https://github.com/iced-rs/iced", rev = "edc5a2862011db643e3210940eb31420da8b994c", features = [
     "advanced",
     "canvas",
     "debug",

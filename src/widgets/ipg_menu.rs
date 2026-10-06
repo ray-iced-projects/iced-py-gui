@@ -5,7 +5,7 @@
 use std::collections::HashMap;
 
 use iced::widget::{button, column, container, mouse_area, row, text};
-use iced::{Element, Renderer, Theme, Widget};
+use iced::{Element, Length, Renderer, Theme, Widget, alignment};
 
 use crate::IpgState;
 use crate::app::Message;
@@ -14,6 +14,7 @@ use crate::widgets::callbacks::{CallbackName, invoke_callback_with_args};
 
 use crate::iced_widgets::popover::{Popover, Position};
 use crate::widgets::ipg_button::{ButtonStyle, ButtonStyleStd};
+use crate::widgets::ipg_container::ContainerStyleStd;
 use crate::{
     app,
     graphics::colors::Color,
@@ -41,8 +42,12 @@ pub enum GroupedItem<'a> {
 #[derive(Debug, Clone)]
 pub struct Menu {
     pub id: usize,
-    pub bar_items: Vec<String>,
+    pub bar_labels: Vec<String>,
     pub bar_widths: Option<Vec<f32>>,
+    pub bar_container_style_id: Option<usize>,
+    pub bar_container_style_std: Option<ContainerStyleStd>,
+    pub bar_labels_text_style_id: Option<usize>,
+    pub bar_labels_text_font_id: Option<usize>,
     pub padding: Option<Vec<f32>>,
     pub spacing: Option<f32>,
     pub height: Option<f32>,
@@ -71,9 +76,10 @@ impl Menu {
     pub fn construct<'a>(
         &'a self,
         grouped_content: Vec<(usize, Vec<GroupedItem<'a>>)>,
-        widgets: &HashMap<usize, Widgets>,
+        widgets: &'a HashMap<usize, Widgets>,
         containers: &HashMap<usize, Containers>,
     ) -> Option<Element<'a, app::Message, Theme, Renderer>> {
+        
         let style_opt = self
             .lookup_widgets(widgets, self.style_id)
             .and_then(Widgets::as_button_style)
@@ -92,13 +98,21 @@ impl Menu {
         let bar_widths = match self.bar_widths.clone() {
             Some(widths) => {
                 if widths.len() == 1 {
-                    vec![widths[0]; self.bar_items.len()]
+                    vec![widths[0]; self.bar_labels.len()]
                 } else {
                     widths
                 }
             }
             None => vec![],
         };
+
+        let bar_text_labels = configure_bar_labels(
+            self,
+            &self.bar_labels,
+            self.bar_labels_text_style_id,
+            self.bar_labels_text_font_id,
+            widgets,
+        );
 
         let mut bar_columns = vec![];
 
@@ -177,7 +191,7 @@ impl Menu {
                                         } else {
                                             match &self.style_std {
                                                 Some(std) => std.to_iced(theme, status),
-                                                None => button::background(theme, status),
+                                                None => button::text(theme, status),
                                             }
                                         }
                                     })
@@ -204,17 +218,16 @@ impl Menu {
         }
 
         let id = self.id;
-        let rw = row(self
-            .bar_items
-            .iter()
+        let rw = row(bar_text_labels
+            .into_iter()
             .zip(bar_columns.into_iter())
             .zip(bar_widths.iter())
             .enumerate()
-            .map(|(idx, ((label, col), width))| {
+            .map(|(idx, ((label_element, col), width))| {
                 let style_opt_clone = style_opt.clone();
                 let c_pal_opt_clone = c_pal_opt.clone();
                 let pop = Popover::new(
-                    button(text(label.as_str()))
+                    button(label_element)
                         .on_press(Message::Menu(id, MenuMessage::OpenPopover(idx)))
                         .width(*width)
                         .style(move |theme: &Theme, status| {
@@ -225,7 +238,7 @@ impl Menu {
                             } else {
                                 match &self.style_std {
                                     Some(std) => std.to_iced(theme, status),
-                                    None => button::background(theme, status),
+                                    None => button::subtle(theme, status),
                                 }
                             }
                         })
@@ -239,8 +252,24 @@ impl Menu {
                     .boxed()
             }));
 
-        let rw = rw.boxed();
-        Some(rw)
+        let cont_style_opt = 
+            self.lookup_widgets(widgets, self.bar_container_style_id)
+                .and_then(Widgets::as_container_style).cloned();
+                
+        let cont_rw = 
+            container(rw.boxed())
+            .style(move|theme|
+                if let Some(st) = &cont_style_opt {
+                    st.to_iced(theme, &self.bar_container_style_std)
+                } else {
+                    match &self.bar_container_style_std {
+                        Some(std) => std.to_iced(theme),
+                        None => container::bordered_box(theme),
+                    }
+                }
+            ).boxed();
+
+        Some(cont_rw)
     }
 }
 
@@ -294,6 +323,54 @@ fn build_sub_items<'a>(
             }
         })
         .collect()
+}
+
+fn configure_bar_labels<'a>(
+    menu: &Menu,
+    labels: &'a Vec<String>,
+    style_id: Option<usize>,
+    font_id: Option<usize>,
+    widgets: &'a HashMap<usize, Widgets>,
+) -> Vec<Element<'a, app::Message>> {
+
+    let style_opt = 
+        menu.lookup_widgets(widgets, style_id)
+            .and_then(Widgets::as_text_style);
+
+    let mut text_labels = vec![];
+
+    for label in labels.iter() {
+        let txt = match style_opt {
+            Some(style) => {
+                style.construct(
+                    label.clone(), 
+                    font_id, widgets, 
+                    Some(MenuStyleOverrides::default())).boxed()
+            },
+            None => text(label)
+                        .align_x(alignment::Horizontal::Center)
+                        .align_y(alignment::Vertical::Center)
+                        .width(Length::Fill)
+                        .boxed(),
+        };
+        text_labels.push(txt)
+    }
+
+    text_labels
+}
+
+pub struct MenuStyleOverrides {
+    pub width_fill: Option<bool>,
+    pub align_center: Option<bool>,
+}
+
+impl MenuStyleOverrides {
+    pub fn default() -> Self {
+        Self {
+            width_fill: Some(true),
+            align_center: Some(true),
+        }
+    }
 }
 
 #[derive(Debug, Clone, Default)]

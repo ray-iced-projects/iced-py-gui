@@ -14,6 +14,7 @@ use crate::state::Widgets;
 use crate::widgets::callbacks::{CallbackName, invoke_callback_with_args};
 
 use crate::iced_widgets::popover::{Popover, Position};
+use crate::py_api::colors::CustomPalette;
 use crate::widgets::ipg_button::{ButtonStyle, ButtonStyleStd};
 use crate::widgets::ipg_container::ContainerStyleStd;
 use crate::{
@@ -92,7 +93,7 @@ impl Menu {
         let mut bar_columns = vec![];
 
         let mut index = 0;
-        
+
         for (menu_bar_item_id, group) in grouped_content.into_iter() {
             let menu_bar_item = self
                 .lookup(containers, Some(menu_bar_item_id))
@@ -131,65 +132,19 @@ impl Menu {
                         .cloned()
                 });
 
-            let mut dropdowns = vec![];
-            for grp in group.into_iter() {
-                match grp {
-                    GroupedItem::Plain(element) => dropdowns.push(element.boxed()),
-                    GroupedItem::Sub {
-                        trigger: _,
-                        children,
-                        sub_item_id,
-                    } => {
-                        let label = self
-                            .lookup(containers, Some(sub_item_id))
-                            .and_then(Containers::as_menu_sub_item)
-                            .map(|sm| sm.label.clone())
-                            .unwrap_or_else(|| "No Label Found".to_string());
-                        let path = label.clone();
-                        let dropdown_is_open = self.dropdown_is_open.get(index).cloned().unwrap_or_default();
-                        let is_open_now = dropdown_is_open.get(&path).copied().unwrap_or(false);
-                        let dropdown_items =
-                            build_dropdown_items(children, containers, self.id, index, &dropdown_is_open, &path);
-                        let dropdown = 
-                            container(column(dropdown_items).boxed())
-                            .style(move|theme| container::bordered_box(theme))
-                            .boxed();
-
-                        let style_opt_clone = style_opt.clone();
-                        let c_pal_opt_clone = c_pal_opt.clone();
-
-                        // top-level dropdown in the bar panel; it's content are all other dropdowns 
-                        // built by build_dropdown_items()
-                        dropdowns.push(
-                            Popover::new(
-                                button(text(label))
-                                    .on_press(Message::Menu(self.id, MenuMessage::OpenPopoverSub(index, path.clone())))
-                                    .style(move |theme: &Theme, status| {
-                                        if style_opt_clone.is_some() || c_pal_opt_clone.is_some() {
-                                            let btn_st = ButtonStyle::default();
-                                            let st = style_opt_clone.as_ref().unwrap_or(&btn_st);
-                                            st.to_iced(theme, status, &c_pal_opt_clone, &self.bar_pop_btn_style_std)
-                                        } else {
-                                            match &self.bar_pop_btn_style_std {
-                                                Some(std) => std.to_iced(theme, status),
-                                                None => button::text(theme, status),
-                                            }
-                                        }
-                                    })
-                                    .boxed(),
-                                
-                                is_open_now.then_some(dropdown),
-                            )
-                            .position(get_menu_position(self, false))
-                            .on_close(Message::Menu(
-                                self.id,
-                                MenuMessage::CloseSubPopover(index, path.clone()),
-                            ))
-                            .boxed(),
-                        );
-                    }
-                }
-            }
+            let dropdown_is_open = self.dropdown_is_open.get(index).cloned().unwrap_or_default();
+            let dropdowns = build_dropdown_items(
+                group,
+                containers,
+                self.id,
+                index,
+                &dropdown_is_open,
+                "",
+                style_opt,
+                c_pal_opt,
+                self.bar_pop_btn_style_std.clone(),
+                get_menu_position(self, false),
+            );
             bar_columns.push(
                 container(column(dropdowns).boxed())
                     // .width(bar_widths[index])
@@ -230,11 +185,10 @@ impl Menu {
                     button(label_element)
                         .on_press(Message::Menu(id, MenuMessage::OpenPopover(idx)))
                         .width(*width)
-                        .style(move |theme: &Theme, status| {
+                        .style(move |theme: &Theme, status| 
                             get_popover_btn_style(self, widgets, theme, status, true)
-                        }
-                    )
-                    .boxed(),
+                        )
+                        .boxed(),
                     // menu bar popover
                     self.is_open[idx].then_some(popover_element),
                 )
@@ -269,7 +223,7 @@ impl Menu {
     }
 }
 
-/// Recursively build popover elements for nested Sub items.
+/// Recursively build popover elements for all Sub items at every depth.
 fn build_dropdown_items<'a>(
     items: Vec<GroupedItem<'a>>,
     containers: &HashMap<usize, Containers>,
@@ -277,6 +231,10 @@ fn build_dropdown_items<'a>(
     bar_idx: usize,
     sub_is_open: &HashMap<String, bool>,
     parent_path: &str,
+    style_opt: Option<ButtonStyle>,
+    c_pal_opt: Option<CustomPalette>,
+    style_std: Option<ButtonStyleStd>,
+    position: Position,
 ) -> Vec<Element<'a, app::Message>> {
     items
         .into_iter()
@@ -298,28 +256,51 @@ fn build_dropdown_items<'a>(
                 };
 
                 let is_open_now = sub_is_open.get(&path).copied().unwrap_or(false);
-                let sub_dropdown_items = 
-                    build_dropdown_items(children, containers, menu_id, bar_idx, sub_is_open, &path);
-                let sub_dropdown = 
-                    // column(sub_dropdown_items)
-                    container(column(sub_dropdown_items).boxed())
-                    .style(move|theme| container::bordered_box(theme))
+                // inner sub-items use plain text style and open to the right
+                let sub_items = build_dropdown_items(
+                    children,
+                    containers,
+                    menu_id,
+                    bar_idx,
+                    sub_is_open,
+                    &path,
+                    None,
+                    None,
+                    None,
+                    Position::Right,
+                );
+                let sub_dropdown = container(column(sub_items).boxed())
+                    .style(move |theme| container::bordered_box(theme))
                     .boxed();
+
+                let style_opt_clone = style_opt.clone();
+                let c_pal_opt_clone = c_pal_opt.clone();
+                let style_std_clone = style_std.clone();
+                
+                // Build the menu bar button dropdowns to all
                 Popover::new(
                     button(text(label))
                         .on_press(Message::Menu(
                             menu_id,
                             MenuMessage::OpenPopoverSub(bar_idx, path.clone()),
                         ))
-                        .style(move|theme, status| button::text(theme, status))
+                        .style(move |theme: &Theme, status| {
+                            if style_opt_clone.is_some() || c_pal_opt_clone.is_some() {
+                                let btn_st = ButtonStyle::default();
+                                let st = style_opt_clone.as_ref().unwrap_or(&btn_st);
+                                st.to_iced(theme, status, &c_pal_opt_clone, &style_std_clone)
+                            } else {
+                                match &style_std_clone {
+                                    Some(std) => std.to_iced(theme, status),
+                                    None => button::text(theme, status),
+                                }
+                            }
+                        })
                         .boxed(),
                     is_open_now.then_some(sub_dropdown),
                 )
-                .position(Position::Right)
-                .on_close(Message::Menu(
-                    menu_id,
-                    MenuMessage::CloseSubPopover(bar_idx, path.clone()),
-                ))
+                .position(position)
+                .on_close(Message::Menu(menu_id, MenuMessage::CloseSubPopover(bar_idx, path)))
                 .boxed()
             }
         })
@@ -361,11 +342,16 @@ fn get_popover_btn_style<'a>(
     status: button::Status,
     menu_bar: bool,
 ) -> button::Style {
-
     let (style_id, pal_id, font_id) = if menu_bar {
-        (menu.bar_pop_btn_style_id, menu.bar_pop_btn_palette_id, menu.bar_pop_btn_font_id)
-    } else { return button::Style::default() };
-    
+        (
+            menu.bar_pop_btn_style_id,
+            menu.bar_pop_btn_palette_id,
+            menu.bar_pop_btn_font_id,
+        )
+    } else {
+        return button::Style::default();
+    };
+
     let style_opt = menu
         .lookup_widgets(widgets, style_id)
         .and_then(Widgets::as_button_style)
@@ -382,26 +368,27 @@ fn get_popover_btn_style<'a>(
         .cloned();
 
     let style = if style_opt.is_some() || pal_opt.is_some() {
-            let btn_st = ButtonStyle::default();
-            let st = style_opt.as_ref().unwrap_or(&btn_st);
-            st.to_iced(theme, status, &pal_opt, &menu.bar_pop_btn_style_std)
-        } else {
-            match &menu.bar_pop_btn_style_std {
-                Some(std) => std.to_iced(theme, status),
-                None => button::text(theme, status),
-            }
-        };
+        let btn_st = ButtonStyle::default();
+        let st = style_opt.as_ref().unwrap_or(&btn_st);
+        st.to_iced(theme, status, &pal_opt, &menu.bar_pop_btn_style_std)
+    } else {
+        match &menu.bar_pop_btn_style_std {
+            Some(std) => std.to_iced(theme, status),
+            None => button::text(theme, status),
+        }
+    };
 
-        style
-    
+    style
 }
 
 fn get_menu_position(menu: &Menu, is_bar: bool) -> Position {
-    match (menu.dropdown_open_auto, 
-          menu.dropdown_open_bottom, 
-          menu.dropdown_open_left,
-          menu.dropdown_open_top,
-          menu.dropdown_open_right,) {
+    match (
+        menu.dropdown_open_auto,
+        menu.dropdown_open_bottom,
+        menu.dropdown_open_left,
+        menu.dropdown_open_top,
+        menu.dropdown_open_right,
+    ) {
         (Some(true), None, None, None, None) => Position::Auto,
         (None, Some(true), None, None, None) => Position::Bottom,
         (None, None, Some(true), None, None) => Position::Left,
@@ -410,9 +397,11 @@ fn get_menu_position(menu: &Menu, is_bar: bool) -> Position {
         _ => {
             if is_bar {
                 Position::Bottom
-            } else { Position::Right }
+            } else {
+                Position::Right
+            }
         }
-    }   
+    }
 }
 
 pub struct MenuStyleOverrides {

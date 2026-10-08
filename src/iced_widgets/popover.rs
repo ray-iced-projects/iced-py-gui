@@ -584,15 +584,18 @@ where
         inherited_style: &renderer::Style,
         cursor_position: mouse::Cursor,
     ) {
-        self.popup.draw(
-            self.tree,
-            renderer,
-            theme,
-            inherited_style,
-            self.popup_layout,
-            cursor_position,
-            &Rectangle::with_size(self.window),
-        );
+        let viewport = Rectangle::with_size(self.window);
+        renderer.with_layer(viewport, |renderer| {
+            self.popup.draw(
+                self.tree,
+                renderer,
+                theme,
+                inherited_style,
+                self.popup_layout,
+                cursor_position,
+                &viewport,
+            );
+        });
     }
 
     fn mouse_interaction(&self, cursor: mouse::Cursor, renderer: &Renderer) -> mouse::Interaction {

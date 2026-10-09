@@ -14,7 +14,6 @@ use crate::state::Widgets;
 use crate::widgets::callbacks::{CallbackName, invoke_callback_with_args};
 
 use crate::iced_widgets::popover::{Popover, Position};
-use crate::py_api::colors::CustomPalette;
 use crate::widgets::ipg_button::{ButtonStyle, ButtonStyleStd};
 use crate::widgets::ipg_container::ContainerStyleStd;
 use crate::{
@@ -48,16 +47,13 @@ pub struct Menu {
     pub bar_widths: Option<Vec<f32>>,
     pub bar_container_style_id: Option<usize>,
     pub bar_container_style_std: Option<ContainerStyleStd>,
+    pub bar_container_palette_id: Option<usize>,
     pub bar_labels_text_style_id: Option<usize>,
     pub bar_labels_text_font_id: Option<usize>,
-    pub bar_pop_btn_style_id: Option<usize>,
-    pub bar_pop_btn_style_std: Option<ButtonStyleStd>,
-    pub bar_pop_btn_palette_id: Option<usize>,
-    pub bar_pop_btn_font_id: Option<usize>,
-    pub bar_items_pop_btn_style_id: Option<usize>,
-    pub bar_items_pop_btn_style_std: Option<ButtonStyleStd>,
-    pub bar_items_pop_btn_palette_id: Option<usize>,
-    pub bar_items_pop_btn_font_id: Option<usize>,
+    pub bar_btn_style_id: Option<usize>,
+    pub bar_btn_style_std: Option<ButtonStyleStd>,
+    pub bar_btn_palette_id: Option<usize>,
+    pub bar_btn_font_id: Option<usize>,
     pub padding: Option<Vec<f32>>,
     pub spacing: Option<f32>,
     pub height: Option<f32>,
@@ -88,62 +84,23 @@ impl Menu {
         &'a self,
         grouped_content: Vec<(usize, Vec<GroupedItem<'a>>)>,
         widgets: &'a HashMap<usize, Widgets>,
-        containers: &HashMap<usize, Containers>,
+        containers: &'a HashMap<usize, Containers>,
     ) -> Option<Element<'a, app::Message, Theme, Renderer>> {
         let mut bar_columns = vec![];
 
         let mut index = 0;
 
         for (menu_bar_item_id, group) in grouped_content.into_iter() {
-            let menu_bar_item = self
-                .lookup(containers, Some(menu_bar_item_id))
-                .and_then(Containers::as_menu_bar_item);
-
-            let style_opt = menu_bar_item
-                .and_then(|mbi| mbi.style_id)
-                .and_then(|id| self.lookup_widgets(widgets, Some(id)))
-                .and_then(Widgets::as_button_style)
-                .cloned()
-                .or_else(|| {
-                    self.lookup_widgets(widgets, self.bar_pop_btn_style_id)
-                        .and_then(Widgets::as_button_style)
-                        .cloned()
-                });
-
-            let c_pal_opt = menu_bar_item
-                .and_then(|mbi| mbi.palette_id)
-                .and_then(|id| self.lookup_widgets(widgets, Some(id)))
-                .and_then(Widgets::as_palette)
-                .cloned()
-                .or_else(|| {
-                    self.lookup_widgets(widgets, self.bar_pop_btn_palette_id)
-                        .and_then(Widgets::as_palette)
-                        .cloned()
-                });
-
-            let font_opt = menu_bar_item
-                .and_then(|mbi| mbi.font_id)
-                .and_then(|id| self.lookup_widgets(widgets, Some(id)))
-                .and_then(Widgets::as_font)
-                .cloned()
-                .or_else(|| {
-                    self.lookup_widgets(widgets, self.bar_pop_btn_font_id)
-                        .and_then(Widgets::as_font)
-                        .cloned()
-                });
-
             let dropdown_is_open = self.dropdown_is_open.get(index).cloned().unwrap_or_default();
             let dropdowns = build_dropdown_items(
+                self,
+                widgets,
                 group,
                 containers,
-                self.id,
+                menu_bar_item_id,
                 index,
                 &dropdown_is_open,
                 "",
-                style_opt,
-                c_pal_opt,
-                self.bar_pop_btn_style_std.clone(),
-                get_menu_position(self, false),
             );
             bar_columns.push(
                 container(column(dropdowns).boxed())
@@ -186,9 +143,8 @@ impl Menu {
                         .on_press(Message::Menu(id, MenuMessage::OpenPopover(idx)))
                         .width(*width)
                         .style(move |theme: &Theme, status| 
-                            get_popover_btn_style(self, widgets, theme, status, true)
-                        )
-                        .boxed(),
+                            get_popover_btn_style(Some(self), None, widgets, theme, status))
+                            .boxed(),
                     // menu bar popover
                     self.is_open[idx].then_some(popover_element),
                 )
@@ -225,16 +181,14 @@ impl Menu {
 
 /// Recursively build popover elements for all Sub items at every depth.
 fn build_dropdown_items<'a>(
+    menu: &Menu,
+    widgets: &'a HashMap<usize, Widgets>,
     items: Vec<GroupedItem<'a>>,
-    containers: &HashMap<usize, Containers>,
-    menu_id: usize,
+    containers: &'a HashMap<usize, Containers>,
+    menu_bar_item_id: usize,
     bar_idx: usize,
     sub_is_open: &HashMap<String, bool>,
     parent_path: &str,
-    style_opt: Option<ButtonStyle>,
-    c_pal_opt: Option<CustomPalette>,
-    style_std: Option<ButtonStyleStd>,
-    position: Position,
 ) -> Vec<Element<'a, app::Message>> {
     items
         .into_iter()
@@ -243,64 +197,58 @@ fn build_dropdown_items<'a>(
             GroupedItem::Sub {
                 children, sub_item_id, ..
             } => {
-                let label = containers
+                let msi = containers
                     .get(&sub_item_id)
                     .and_then(Containers::as_menu_sub_item)
-                    .map(|sm| sm.label.clone())
-                    .unwrap_or_else(|| "Sub".to_string());
+                    .map(|msi| msi).unwrap();
 
                 let path = if parent_path.is_empty() {
-                    label.clone()
+                    msi.label.clone()
                 } else {
-                    format!("{parent_path}/{label}")
+                    format!("{parent_path}/'SubMenu Not Found'")
                 };
+
+                let menu_bar_item = menu
+                    .lookup(containers, Some(menu_bar_item_id))
+                    .and_then(Containers::as_menu_bar_item);
 
                 let is_open_now = sub_is_open.get(&path).copied().unwrap_or(false);
                 // inner sub-items use plain text style and open to the right
                 let sub_items = build_dropdown_items(
+                    menu,
+                    widgets,
                     children,
                     containers,
-                    menu_id,
+                    menu_bar_item_id,
                     bar_idx,
                     sub_is_open,
                     &path,
-                    None,
-                    None,
-                    None,
-                    Position::Right,
                 );
                 let sub_dropdown = container(column(sub_items).boxed())
                     .style(move |theme| container::bordered_box(theme))
                     .boxed();
 
-                let style_opt_clone = style_opt.clone();
-                let c_pal_opt_clone = c_pal_opt.clone();
-                let style_std_clone = style_std.clone();
-                
-                // Build the menu bar button dropdowns to all
+                let position_opt = menu_bar_item.and_then(|mbi| Some(mbi.position)).or_else(|| None);
+
+                let position = position_opt.unwrap_or(Position::Right);
+
+                let label = msi.label.clone();
+
+                // Build the menu bar button dropdowns for all
                 Popover::new(
                     button(text(label))
                         .on_press(Message::Menu(
-                            menu_id,
+                            menu.id,
                             MenuMessage::OpenPopoverSub(bar_idx, path.clone()),
                         ))
-                        .style(move |theme: &Theme, status| {
-                            if style_opt_clone.is_some() || c_pal_opt_clone.is_some() {
-                                let btn_st = ButtonStyle::default();
-                                let st = style_opt_clone.as_ref().unwrap_or(&btn_st);
-                                st.to_iced(theme, status, &c_pal_opt_clone, &style_std_clone)
-                            } else {
-                                match &style_std_clone {
-                                    Some(std) => std.to_iced(theme, status),
-                                    None => button::text(theme, status),
-                                }
-                            }
-                        })
+                        .style(move |theme: &Theme, status| 
+                            get_popover_btn_style(None, Some(msi), widgets, theme, status)
+                        )
                         .boxed(),
                     is_open_now.then_some(sub_dropdown),
                 )
                 .position(position)
-                .on_close(Message::Menu(menu_id, MenuMessage::CloseSubPopover(bar_idx, path)))
+                .on_close(Message::Menu(menu.id, MenuMessage::CloseSubPopover(bar_idx, path)))
                 .boxed()
             }
         })
@@ -336,43 +284,67 @@ fn configure_bar_labels<'a>(
 }
 
 fn get_popover_btn_style<'a>(
-    menu: &Menu,
+    menu_opt: Option<&Menu>,
+    msi_opt: Option<&MenuSubItem>,
     widgets: &'a HashMap<usize, Widgets>,
     theme: &Theme,
     status: button::Status,
-    menu_bar: bool,
 ) -> button::Style {
-    let (style_id, pal_id, font_id) = if menu_bar {
-        (
-            menu.bar_pop_btn_style_id,
-            menu.bar_pop_btn_palette_id,
-            menu.bar_pop_btn_font_id,
-        )
-    } else {
-        return button::Style::default();
-    };
 
-    let style_opt = menu
-        .lookup_widgets(widgets, style_id)
-        .and_then(Widgets::as_button_style)
-        .cloned();
+    let (style_opt, 
+        pal_opt, 
+        font_opt,
+        style_std_opt) = 
+        if menu_opt.is_some() {
+            let menu = menu_opt.unwrap();
+            let style_opt = menu
+            .lookup_widgets(widgets, menu.bar_btn_style_id)
+            .and_then(Widgets::as_button_style)
+            .cloned();
 
-    let pal_opt = menu
-        .lookup_widgets(widgets, pal_id)
-        .and_then(Widgets::as_palette)
-        .cloned();
+        let pal_opt = menu
+            .lookup_widgets(widgets, menu.bar_btn_palette_id)
+            .and_then(Widgets::as_palette)
+            .cloned();
 
-    let font_opt = menu
-        .lookup_widgets(widgets, font_id)
-        .and_then(Widgets::as_font)
-        .cloned();
+        let font_opt = menu
+            .lookup_widgets(widgets, menu.bar_btn_font_id)
+            .and_then(Widgets::as_font)
+            .cloned();
+
+            (style_opt, pal_opt, font_opt, menu.bar_btn_style_std.clone())
+        
+        } else if msi_opt.is_some() {
+            let msi = msi_opt.unwrap();
+            let style_opt = msi
+            .lookup_widgets(widgets, msi.btn_style_id)
+            .and_then(Widgets::as_button_style)
+            .cloned();
+
+        let pal_opt = msi
+            .lookup_widgets(widgets, msi.btn_palette_id)
+            .and_then(Widgets::as_palette)
+            .cloned();
+
+        let font_opt = msi
+            .lookup_widgets(widgets, msi.btn_font_id)
+            .and_then(Widgets::as_font)
+            .cloned();
+
+            (style_opt, pal_opt, font_opt, msi.btn_style_std.clone())
+
+        } else {
+            return button::Style::default();
+        };
+
+    
 
     let style = if style_opt.is_some() || pal_opt.is_some() {
         let btn_st = ButtonStyle::default();
         let st = style_opt.as_ref().unwrap_or(&btn_st);
-        st.to_iced(theme, status, &pal_opt, &menu.bar_pop_btn_style_std)
+        st.to_iced(theme, status, &pal_opt, &style_std_opt)
     } else {
-        match &menu.bar_pop_btn_style_std {
+        match &style_std_opt {
             Some(std) => std.to_iced(theme, status),
             None => button::text(theme, status),
         }
@@ -404,6 +376,17 @@ fn get_menu_position(menu: &Menu, is_bar: bool) -> Position {
     }
 }
 
+pub fn get_position(dropdowns: [Option<bool>; 5]) -> Position {
+    match dropdowns {
+        [Some(true), None, None, None, None] => Position::Auto,
+        [None, Some(true), None, None, None] => Position::Bottom,
+        [None, None, Some(true), None, None] => Position::Left,
+        [None, None, None, Some(true), None] => Position::Right,
+        [None, None, None, None, Some(true)] => Position::Top,
+        _ => Position::Right,
+    }
+}
+
 pub struct MenuStyleOverrides {
     pub width_fill: Option<bool>,
     pub align_center: Option<bool>,
@@ -418,14 +401,43 @@ impl MenuStyleOverrides {
     }
 }
 
+// The dropdown via the bar button
 #[derive(Debug, Clone, Default)]
 pub struct MenuBarItem {
     pub id: usize,
-    pub style_id: Option<usize>,
-    pub style_std: Option<ButtonStyleStd>,
-    pub palette_id: Option<usize>,
-    pub font_id: Option<usize>,
+    pub position: Position,
+    pub container_style_id: Option<usize>,
+    pub container_style_std: Option<ContainerStyleStd>,
+    pub spacing: Option<f32>,
+    pub gap: Option<f32>,
+    pub padding: Option<Vec<f32>>,
 }
+
+// A sub-menu item inside another dropdown.
+#[derive(Debug, Clone, Default)]
+pub struct MenuSubItem {
+    pub id: usize,
+    pub label: String,
+    pub width: Option<f32>,
+    pub spacing: Option<f32>,
+    pub gap: Option<f32>,
+    pub padding: Option<Vec<f32>>,
+    pub container_style_id: Option<usize>,
+    pub container_style_std: Option<ContainerStyleStd>,
+    pub btn_style_id: Option<usize>,
+    pub btn_style_std: Option<ButtonStyleStd>,
+    pub btn_palette_id: Option<usize>,
+    pub btn_font_id: Option<usize>,
+    pub text_style_id: Option<usize>,
+    pub text_font_id: Option<usize>,
+}
+
+impl MenuSubItem {
+    fn lookup_widgets<'a>(&self, widgets: &'a HashMap<usize, Widgets>, id: Option<usize>) -> Option<&'a Widgets> {
+        id.and_then(|id| widgets.get(&id))
+    }
+}
+
 
 #[derive(Debug, Clone)]
 pub enum MenuMessage {
@@ -516,193 +528,6 @@ pub fn menu_callback(state: &mut IpgState, id: usize, message: MenuMessage) {
     }
 }
 
-/// A sub-menu item inside a dropdown.  The first child added to a
-/// `MenuSubItem` context-manager is the trigger widget (shown in the
-/// dropdown list); the remaining children become the items of the
-/// child menu that opens on hover.
-#[derive(Debug, Clone)]
-pub struct MenuSubItem {
-    pub id: usize,
-    pub label: String,
-    pub width: Option<f32>,
-    pub spacing: Option<f32>,
-    pub offset: Option<f32>,
-    pub padding: Option<Vec<f32>>,
-    pub btn_style_id: Option<usize>,
-    pub btn_style_std: Option<ButtonStyleStd>,
-    pub btn_palette_id: Option<usize>,
-    pub btn_font_id: Option<usize>,
-    pub close_on_item_click: Option<bool>,
-    pub close_on_background_click: Option<bool>,
-    pub show: bool,
-}
-
-#[derive(Debug, Clone)]
-pub struct MenuStyle {
-    pub id: usize,
-    pub bar_background_color: Option<Color>,
-    pub bar_background_color_alpha: Option<f32>,
-    pub bar_background_rgba: Option<[f32; 4]>,
-
-    pub bar_border_color: Option<Color>,
-    pub bar_border_color_alpha: Option<f32>,
-    pub bar_border_rgba: Option<[f32; 4]>,
-    pub bar_border_radius: Option<Vec<f32>>,
-    pub bar_border_width: Option<f32>,
-
-    pub bar_shadow_color: Option<Color>,
-    pub bar_shadow_color_alpha: Option<f32>,
-    pub bar_shadow_rgba: Option<[f32; 4]>,
-    pub bar_shadow_offset_xy: Option<[f32; 2]>,
-    pub bar_shadow_blur_radius: Option<f32>,
-
-    pub menu_background_color: Option<Color>,
-    pub menu_background_color_alpha: Option<f32>,
-    pub menu_background_rgba: Option<[f32; 4]>,
-
-    pub menu_border_color: Option<Color>,
-    pub menu_border_color_alpha: Option<f32>,
-    pub menu_border_rgba: Option<[f32; 4]>,
-    pub menu_border_radius: Option<Vec<f32>>,
-    pub menu_border_width: Option<f32>,
-
-    pub menu_shadow_color: Option<Color>,
-    pub menu_shadow_color_alpha: Option<f32>,
-    pub menu_shadow_rgba: Option<[f32; 4]>,
-    pub menu_shadow_offset_xy: Option<[f32; 2]>,
-    pub menu_shadow_blur_radius: Option<f32>,
-
-    pub path_background_color: Option<Color>,
-    pub path_background_color_alpha: Option<f32>,
-    pub path_background_rgba: Option<[f32; 4]>,
-
-    pub path_border_color: Option<Color>,
-    pub path_border_color_alpha: Option<f32>,
-    pub path_border_rgba: Option<[f32; 4]>,
-    pub path_border_radius: Option<Vec<f32>>,
-    pub path_border_width: Option<f32>,
-}
-
-// impl MenuStyle {
-//     fn to_iced(
-//         &self,
-//         theme: &Theme,
-//         status: menu::style::status::Status,
-//         style_std: Option<bool>,
-//         ) -> menu::style::menu_bar::Style {
-
-//         //The base style will be either default or primary
-//         let mut style =
-//             if style_std == Some(true) {
-//                 menu::style::menu_bar::primary(theme, status)
-//             } else { menu::style::menu_bar::Style::default() };
-
-//         let bar_background_color =
-//         Color::rgba_ipg_color_to_iced(
-//             self.bar_background_rgba,
-//             &self.bar_background_color,
-//             self.bar_background_color_alpha);
-
-//         let bar_border_color =
-//             Color::rgba_ipg_color_to_iced(
-//                 self.bar_border_rgba,
-//                 &self.bar_border_color,
-//                 self.bar_border_color_alpha);
-
-//         let bar_shadow_color =
-//             Color::rgba_ipg_color_to_iced(
-//                 self.bar_shadow_rgba,
-//                 &self.bar_shadow_color,
-//                 self.bar_shadow_color_alpha);
-
-//         let menu_background_color =
-//             Color::rgba_ipg_color_to_iced(
-//                 self.menu_background_rgba,
-//                 &self.menu_background_color,
-//                 self.menu_background_color_alpha);
-
-//         let menu_border_color =
-//             Color::rgba_ipg_color_to_iced(
-//                 self.menu_border_rgba,
-//                 &self.menu_border_color,
-//                 self.menu_border_color_alpha);
-
-//         let menu_shadow_color =
-//             Color::rgba_ipg_color_to_iced(
-//                 self.menu_shadow_rgba,
-//                 &self.menu_shadow_color,
-//                 self.menu_shadow_color_alpha);
-
-//         let path_background_color =
-//             Color::rgba_ipg_color_to_iced(
-//                 self.path_background_rgba,
-//                 &self.path_background_color,
-//                 self.path_background_color_alpha);
-
-//         let path_border_color =
-//             Color::rgba_ipg_color_to_iced(
-//                 self.path_border_rgba,
-//                 &self.path_border_color,
-//                 self.path_border_color_alpha);
-
-//         // making defaults square
-//         style.bar_border.radius = 0.0.into();
-//         style.menu_border.radius = 0.0.into();
-
-//         // bar
-//         if let Some(color) = bar_background_color {
-//             style.bar_background = color.into()
-//         }
-
-//         apply_border_overrides(
-//             &mut style.bar_border, bar_border_color,
-//             &self.bar_border_radius, self.bar_border_width, "Menu-bar",
-//         );
-
-//         apply_shadow_overrides_xy(
-//             &mut style.bar_shadow, bar_shadow_color,
-//             self.bar_shadow_offset_xy, self.bar_shadow_blur_radius);
-
-//         // menu
-//         if let Some(color) = menu_background_color {
-//             style.menu_background = color.into()
-//         }
-
-//         apply_border_overrides(
-//             &mut style.menu_border, menu_border_color,
-//             &self.menu_border_radius, self.menu_border_width, "Menu-menu",
-//         );
-
-//         apply_shadow_overrides_xy(
-//             &mut style.menu_shadow, menu_shadow_color,
-//             self.menu_shadow_offset_xy, self.menu_shadow_blur_radius);
-
-//         // path
-//         if let Some(color) = path_background_color {
-//             style.path = color.into()
-//         }
-
-//         apply_border_overrides(
-//             &mut style.path_border, path_border_color,
-//             &self.path_border_radius, self.path_border_width, "Menu-path",
-//         );
-
-//         style
-
-//     }
-// }
-
-// pub fn primary(theme: &Theme) -> menu::style::menu_bar::Style {
-//     let palette = theme.palette();
-//     let pair = palette.background.strong;
-
-//     menu::style::menu_bar::Style {
-//         bar_background: pair.color.into(),
-//         menu_background: pair.color.into(),
-//         bar_border: iced::border::rounded(2),
-//         ..menu::style::menu_bar::Style::default()
-//     }
-// }
 
 #[derive(Debug, Clone, PartialEq, Hash)]
 #[pyclass(eq, eq_int, hash, frozen)]
@@ -729,55 +554,12 @@ pub enum MenuBarItemParam {
 #[derive(Debug, Clone, PartialEq, Hash)]
 #[pyclass(eq, eq_int, hash, frozen)]
 pub enum MenuSubItemParam {
-    CloseOnBackgroundClick,
-    CloseOnItemClick,
-    Offset,
+    Gap,
     Padding,
-    Show,
     Spacing,
     Width,
 }
 
-#[derive(Debug, Clone, PartialEq, Hash)]
-#[pyclass(eq, eq_int, hash, frozen)]
-pub enum MenuStyleParam {
-    BarBackgroundColor,
-    BarBackgroundRgba,
-    BarBackgroundAlpha,
-    BarBorderColor,
-    BarBorderRgba,
-    BarBorderAlpha,
-    BarBorderRadius,
-    BarBorderWidth,
-    BarShadowColor,
-    BarShadowRgba,
-    BarShadowAlpha,
-    BarShadowOffsetXY,
-    BarShadowBlurRadius,
-
-    MenuBackgroundColor,
-    MenuBackgroundRgba,
-    MenuBackgroundAlpha,
-    MenuBorderColor,
-    MenuBorderRgba,
-    MenuBorderAlpha,
-    MenuBorderRadius,
-    MenuBorderWidth,
-    MenuShadowColor,
-    MenuShadowRgba,
-    MenuShadowAlpha,
-    MenuShadowOffsetXy,
-    MenuShadowBlurRadius,
-
-    PathBackgroundColor,
-    PathBackgroundRgba,
-    PathBackgroundAlpha,
-    PathBorderColor,
-    PathBorderRgba,
-    PathBorderAlpha,
-    PathBorderRadius,
-    PathBorderWidth,
-}
 
 // ---------------------------------------------------------------------------
 // WidgetParamUpdate implementations
@@ -813,8 +595,8 @@ impl WidgetParamUpdate for Menu {
                 value,
                 "MenuParam::ItemsCloseOnClickGlobal",
             ),
-            MenuParam::StyleId => set_t_value(&mut self.bar_pop_btn_style_id, value, "MenuParam::StyleId"),
-            MenuParam::StyleStd => set_t_value(&mut self.bar_pop_btn_style_std, value, "MenuParam::StyleStd"),
+            MenuParam::StyleId => set_t_value(&mut self.bar_btn_style_id, value, "MenuParam::StyleId"),
+            MenuParam::StyleStd => set_t_value(&mut self.bar_btn_style_std, value, "MenuParam::StyleStd"),
         }
     }
 }
@@ -834,93 +616,10 @@ impl WidgetParamUpdate for MenuSubItem {
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
-            MenuSubItemParam::CloseOnBackgroundClick => set_t_value(
-                &mut self.close_on_background_click,
-                value,
-                "MenuSubItemParam::CloseOnBackgroundClick",
-            ),
-            MenuSubItemParam::CloseOnItemClick => set_t_value(
-                &mut self.close_on_item_click,
-                value,
-                "MenuSubItemParam::CloseOnItemClick",
-            ),
-            MenuSubItemParam::Offset => set_t_value(&mut self.offset, value, "MenuSubItemParam::Offset"),
+            MenuSubItemParam::Gap => set_t_value(&mut self.gap, value, "MenuSubItemParam::Gap"),
             MenuSubItemParam::Padding => set_t_value(&mut self.padding, value, "MenuSubItemParam::Padding"),
-            MenuSubItemParam::Show => set_t_value(&mut self.show, value, "MenuSubItemParam::Show"),
             MenuSubItemParam::Spacing => set_t_value(&mut self.spacing, value, "MenuSubItemParam::Spacing"),
             MenuSubItemParam::Width => set_t_value(&mut self.width, value, "MenuSubItemParam::Width"),
-        }
-    }
-}
-
-impl WidgetParamUpdate for MenuStyle {
-    type Param = MenuStyleParam;
-
-    fn param_update(&mut self, param: Self::Param, value: &PyObject) {
-        match param {
-            // bar
-            MenuStyleParam::BarBackgroundAlpha => {
-                set_t_value(&mut self.bar_background_color_alpha, value, "BarBackgroundAlpha")
-            }
-            MenuStyleParam::BarBackgroundColor => {
-                set_t_value(&mut self.bar_background_color, value, "BarBackgroundColor")
-            }
-            MenuStyleParam::BarBackgroundRgba => {
-                set_t_value(&mut self.bar_background_color, value, "BarBackgroundRgba")
-            }
-            MenuStyleParam::BarBorderAlpha => set_t_value(&mut self.bar_border_color_alpha, value, "BarBorderAlpha"),
-            MenuStyleParam::BarBorderColor => set_t_value(&mut self.bar_border_color, value, "BarBorderColor"),
-            MenuStyleParam::BarBorderRadius => set_t_value(&mut self.bar_border_radius, value, "BarBorderRadius"),
-            MenuStyleParam::BarBorderRgba => set_t_value(&mut self.bar_border_color, value, "BarBorderRgba"),
-            MenuStyleParam::BarBorderWidth => set_t_value(&mut self.bar_border_width, value, "BarBorderWidth"),
-            MenuStyleParam::BarShadowAlpha => set_t_value(&mut self.bar_shadow_color_alpha, value, "BarShadowAlpha"),
-            MenuStyleParam::BarShadowBlurRadius => {
-                set_t_value(&mut self.bar_shadow_blur_radius, value, "BarShadowBlurRadius")
-            }
-            MenuStyleParam::BarShadowColor => set_t_value(&mut self.bar_shadow_color, value, "BarShadowColor"),
-            MenuStyleParam::BarShadowOffsetXY => {
-                set_t_value(&mut self.bar_shadow_offset_xy, value, "BarShadowOffsetXY")
-            }
-            MenuStyleParam::BarShadowRgba => set_t_value(&mut self.bar_shadow_color, value, "BarShadowRgba"),
-            // menu
-            MenuStyleParam::MenuBackgroundAlpha => {
-                set_t_value(&mut self.menu_background_color_alpha, value, "MenuBackgroundAlpha")
-            }
-            MenuStyleParam::MenuBackgroundColor => {
-                set_t_value(&mut self.menu_background_color, value, "MenuBackgroundColor")
-            }
-            MenuStyleParam::MenuBackgroundRgba => {
-                set_t_value(&mut self.menu_background_color, value, "MenuBackgroundRgba")
-            }
-            MenuStyleParam::MenuBorderAlpha => set_t_value(&mut self.menu_border_color_alpha, value, "MenuBorderAlpha"),
-            MenuStyleParam::MenuBorderColor => set_t_value(&mut self.menu_border_color, value, "MenuBorderColor"),
-            MenuStyleParam::MenuBorderRadius => set_t_value(&mut self.menu_border_radius, value, "MenuBorderRadius"),
-            MenuStyleParam::MenuBorderRgba => set_t_value(&mut self.menu_border_color, value, "MenuBorderRgba"),
-            MenuStyleParam::MenuBorderWidth => set_t_value(&mut self.menu_border_width, value, "MenuBorderWidth"),
-            MenuStyleParam::MenuShadowAlpha => set_t_value(&mut self.menu_shadow_color_alpha, value, "MenuShadowAlpha"),
-            MenuStyleParam::MenuShadowBlurRadius => {
-                set_t_value(&mut self.menu_shadow_blur_radius, value, "MenuShadowBlurRadius")
-            }
-            MenuStyleParam::MenuShadowColor => set_t_value(&mut self.menu_shadow_color, value, "MenuShadowColor"),
-            MenuStyleParam::MenuShadowOffsetXy => {
-                set_t_value(&mut self.menu_shadow_offset_xy, value, "MenuShadowOffsetXy")
-            }
-            MenuStyleParam::MenuShadowRgba => set_t_value(&mut self.menu_shadow_color, value, "MenuShadowRgba"),
-            // path
-            MenuStyleParam::PathBackgroundAlpha => {
-                set_t_value(&mut self.path_background_color_alpha, value, "PathBackgroundAlpha")
-            }
-            MenuStyleParam::PathBackgroundColor => {
-                set_t_value(&mut self.path_background_color, value, "PathBackgroundColor")
-            }
-            MenuStyleParam::PathBackgroundRgba => {
-                set_t_value(&mut self.path_background_color, value, "PathBackgroundRgba")
-            }
-            MenuStyleParam::PathBorderAlpha => set_t_value(&mut self.path_border_color_alpha, value, "PathBorderAlpha"),
-            MenuStyleParam::PathBorderColor => set_t_value(&mut self.path_border_color, value, "PathBorderColor"),
-            MenuStyleParam::PathBorderRadius => set_t_value(&mut self.path_border_radius, value, "PathBorderRadius"),
-            MenuStyleParam::PathBorderRgba => set_t_value(&mut self.path_border_color, value, "PathBorderRgba"),
-            MenuStyleParam::PathBorderWidth => set_t_value(&mut self.path_border_width, value, "PathBorderWidth"),
         }
     }
 }

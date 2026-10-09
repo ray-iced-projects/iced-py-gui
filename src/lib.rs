@@ -54,7 +54,7 @@ use crate::py_api::grid::add_grid;
 use crate::py_api::image::add_image;
 use crate::py_api::input_float::{add_input_float, add_input_float_style};
 use crate::py_api::input_int::{add_input_int, add_input_int_style};
-use crate::py_api::menu::{add_menu, add_menu_bar_item, add_menu_style, add_menu_sub_item};
+use crate::py_api::menu::{add_menu, add_menu_bar_item, add_menu_sub_item};
 use crate::py_api::mouse_area::add_mouse_area;
 use crate::py_api::opaque::add_opaque;
 use crate::py_api::palette_helpers::{get_widget_palette_list, get_widget_palette_part};

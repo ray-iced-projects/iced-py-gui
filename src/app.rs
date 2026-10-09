@@ -1125,7 +1125,6 @@ fn get_widget<'a>(state: &'a IpgState, id: &usize) -> Option<Element<'a, Message
                 Widgets::ContainerStyle(_) |
                 Widgets::InputFloatStyle(_) |
                 Widgets::InputIntStyle(_) |
-                Widgets::MenuStyle(_) |
                 Widgets::PickListStyle(_) |
                 Widgets::ProgressBarStyle(_) |
                 Widgets::RadioStyle(_) |
@@ -1508,7 +1507,6 @@ fn process_shows(
             | Widgets::FileSystemDialog(_)
             | Widgets::Font(_)
             | Widgets::Icon(_)
-            | Widgets::MenuStyle(_)
             | Widgets::InputFloatStyle(_)
             | Widgets::InputIntStyle(_)
             | Widgets::Palette(_)

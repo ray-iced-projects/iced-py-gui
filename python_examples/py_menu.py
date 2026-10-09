@@ -162,6 +162,15 @@ with Window(title="Menu", center=True, size=[600, 600]):
                     style_std=ButtonStyleStd.Background,
                     style_id=btn_style,
                     user_data="About")
+                with MenuSubItem(label="Top dropdown 3.0"):
+                    add_button(
+                        label="About 1",
+                        width=100,
+                        style_std=ButtonStyleStd.Text)
+                    add_button(
+                        label="About 2",
+                        width=100,
+                        style_std=ButtonStyleStd.Text)
 
 
 

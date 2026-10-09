@@ -6,13 +6,12 @@ use pyo3::prelude::*;
 use pyo3::{Py, PyAny, pyfunction};
 type PyObject = Py<PyAny>;
 
-use crate::graphics::colors::Color;
 use crate::widgets::callbacks::CallbackName;
 use crate::widgets::ipg_button::ButtonStyleStd;
 use crate::widgets::ipg_container::ContainerStyleStd;
-use crate::widgets::ipg_menu::{Menu, MenuBarItem, MenuStyle, MenuSubItem};
+use crate::widgets::ipg_menu::{Menu, MenuBarItem, MenuSubItem, get_position};
 use crate::{access_state, add_callback_name_to_mutex, add_user_data_to_mutex};
-use crate::state::{Containers, Widgets, get_id, set_state_cont_wnd_ids, set_state_of_container};
+use crate::state::{Containers, get_id, set_state_cont_wnd_ids, set_state_of_container};
 
 
 
@@ -100,16 +99,13 @@ use crate::state::{Containers, Widgets, get_id, set_state_cont_wnd_ids, set_stat
     parent_id=None,
     bar_container_style_id=None,
     bar_container_style_std=None,
+    bar_container_palette_id=None,
     bar_labels_text_style_id=None,
     bar_labels_text_font_id=None,
-    bar_pop_btn_style_id=None,
-    bar_pop_btn_style_std=None,
-    bar_pop_btn_palette_id=None,
-    bar_pop_btn_font_id=None,
-    bar_items_pop_btn_style_id=None,
-    bar_items_pop_btn_style_std=None,
-    bar_items_pop_btn_palette_id=None,
-    bar_items_pop_btn_font_id=None,
+    bar_btn_style_id=None,
+    bar_btn_style_std=None,
+    bar_btn_palette_id=None,
+    bar_btn_font_id=None,
     padding=None,
     spacing=None,
     height=None,
@@ -137,16 +133,13 @@ pub fn add_menu(
     parent_id: Option<String>,
     bar_container_style_id: Option<usize>,
     bar_container_style_std: Option<ContainerStyleStd>,
+    bar_container_palette_id: Option<usize>,
     bar_labels_text_style_id: Option<usize>,
     bar_labels_text_font_id: Option<usize>,
-    bar_pop_btn_style_id: Option<usize>,
-    bar_pop_btn_style_std: Option<ButtonStyleStd>,
-    bar_pop_btn_palette_id: Option<usize>,
-    bar_pop_btn_font_id: Option<usize>,
-    bar_items_pop_btn_style_id: Option<usize>,
-    bar_items_pop_btn_style_std: Option<ButtonStyleStd>,
-    bar_items_pop_btn_palette_id: Option<usize>,
-    bar_items_pop_btn_font_id: Option<usize>,
+    bar_btn_style_id: Option<usize>,
+    bar_btn_style_std: Option<ButtonStyleStd>,
+    bar_btn_palette_id: Option<usize>,
+    bar_btn_font_id: Option<usize>,
     padding: Option<Vec<f32>>,
     spacing: Option<f32>,
     height: Option<f32>,
@@ -205,16 +198,13 @@ pub fn add_menu(
             bar_widths,
             bar_container_style_id,
             bar_container_style_std,
+            bar_container_palette_id,
             bar_labels_text_style_id,
             bar_labels_text_font_id,
-            bar_pop_btn_style_id,
-            bar_pop_btn_style_std,
-            bar_pop_btn_palette_id,
-            bar_pop_btn_font_id,
-            bar_items_pop_btn_style_id,
-            bar_items_pop_btn_style_std,
-            bar_items_pop_btn_palette_id,
-            bar_items_pop_btn_font_id,
+            bar_btn_style_id,
+            bar_btn_style_std,
+            bar_btn_palette_id,
+            bar_btn_font_id,
             padding,
             spacing,
             height,
@@ -236,24 +226,37 @@ pub fn add_menu(
     Ok(id)
 }
 
+
 #[pyfunction]
 #[pyo3(signature = ( 
     window_id,
     container_id,
     parent_id=None,
-    style_id=None,
-    style_std=None,
-    palette_id=None,
-    font_id=None,
+    dropdown_open_auto=None,
+    dropdown_open_top=None,
+    dropdown_open_bottom=None,
+    dropdown_open_left=None,
+    dropdown_open_right=None,
+    container_style_id=None,
+    container_style_std=None,
+    spacing=None,
+    gap=None,
+    padding=None,
     ))]
 pub fn add_menu_bar_item(
     window_id: String,
     container_id: String,
     parent_id: Option<String>,
-    style_id: Option<usize>,
-    style_std: Option<ButtonStyleStd>,
-    palette_id: Option<usize>,
-    font_id: Option<usize>,
+    dropdown_open_auto: Option<bool>,
+    dropdown_open_top: Option<bool>,
+    dropdown_open_bottom: Option<bool>,
+    dropdown_open_left: Option<bool>,
+    dropdown_open_right: Option<bool>,
+    container_style_id: Option<usize>,
+    container_style_std: Option<ContainerStyleStd>,
+    spacing: Option<f32>,
+    gap: Option<f32>,
+    padding: Option<Vec<f32>>,
 ) -> PyResult<usize> 
 {
     let id = get_id(None);
@@ -262,6 +265,17 @@ pub fn add_menu_bar_item(
         Some(id) => id,
         None => window_id.clone(),
     };
+
+    let positions = 
+        [
+            dropdown_open_auto,
+            dropdown_open_top,
+            dropdown_open_bottom,
+            dropdown_open_left,
+            dropdown_open_right,
+        ];
+
+    let position = get_position(positions);
     
     set_state_of_container(id, window_id.clone(), Some(container_id.clone()), prt_id);
 
@@ -272,10 +286,12 @@ pub fn add_menu_bar_item(
     state.containers.insert(id, Containers::MenuBarItem(
         MenuBarItem {
             id,
-            style_id,
-            style_std,
-            palette_id,
-            font_id,
+            position,
+            container_style_id,
+            container_style_std,
+            spacing,
+            gap,
+            padding,
         }));
 
     drop(state);
@@ -327,16 +343,16 @@ pub fn add_menu_bar_item(
     parent_id=None,
     width=None,
     spacing=None,
-    offset=None,
+    gap=None,
     padding=None,
+    container_style_id=None,
+    container_style_std=None,
     btn_style_id=None,
     btn_style_std=None,
     btn_palette_id=None,
     btn_font_id=None,
-    close_on_item_click=None,
-    close_on_background_click=None,
-    show=true,
-    gen_id=None
+    text_style_id=None,
+    text_font_id=None,
     ))]
 pub fn add_menu_sub_item(
     window_id: String,
@@ -345,19 +361,19 @@ pub fn add_menu_sub_item(
     parent_id: Option<String>,
     width: Option<f32>,
     spacing: Option<f32>,
-    offset: Option<f32>,
+    gap: Option<f32>,
     padding: Option<Vec<f32>>,
+    container_style_id: Option<usize>,
+    container_style_std: Option<ContainerStyleStd>,
     btn_style_id: Option<usize>,
     btn_style_std: Option<ButtonStyleStd>,
     btn_palette_id: Option<usize>,
     btn_font_id: Option<usize>,
-    close_on_item_click: Option<bool>,
-    close_on_background_click: Option<bool>,
-    show: bool,
-    gen_id: Option<usize>,
+    text_style_id: Option<usize>,
+    text_font_id: Option<usize>,
 ) -> PyResult<usize>
 {
-    let id = get_id(gen_id);
+    let id = get_id(None);
 
     let prt_id = match parent_id {
         Some(id) => id,
@@ -376,258 +392,16 @@ pub fn add_menu_sub_item(
             label,
             width,
             spacing,
-            offset,
+            gap,
             padding,
+            container_style_id,
+            container_style_std,
             btn_style_id,
             btn_style_std,
             btn_palette_id,
             btn_font_id,
-            close_on_item_click,
-            close_on_background_click,
-            show,
-        }));
-
-    drop(state);
-    Ok(id)
-}
-
-
-/// Add styling to a menu.
-///
-/// Creates a custom style that can be applied to a menu via its
-/// ``style_id`` parameter.  The style has three sections: **bar**
-/// (the horizontal menu bar), **menu** (the dropdown panels), and
-/// **path** (the highlighted trail from bar item to open menu).
-///
-/// Parameters
-/// ----------
-/// bar_background_color : Color, Optional
-///     Sets the bar background color.
-/// bar_background_rgba : list[float, 4], Optional
-///     Sets the bar background color in rgba format.
-/// bar_background_alpha : float, Optional
-///     Sets the alpha transparency for the bar background color.
-/// bar_border_color : Color, Optional
-///     Sets the bar border color.
-/// bar_border_rgba : list[float, 4], Optional
-///     Sets the bar border color in rgba format.
-/// bar_border_alpha : float, Optional
-///     Sets the alpha transparency for the bar border color.
-/// bar_border_radius : list of float, Optional
-///     Sets the bar border radius, ``[float]`` = all corners,
-///     ``[float, 4]`` = [top-left, top-right, bottom-right,
-///     bottom-left].
-/// bar_border_width : float, Optional
-///     Sets the bar border width.
-/// bar_shadow_color : Color, Optional
-///     Sets the bar shadow color.
-/// bar_shadow_rgba : list[float, 4], Optional
-///     Sets the bar shadow color in rgba format.
-/// bar_shadow_alpha : float, Optional
-///     Sets the alpha transparency for the bar shadow color.
-/// bar_shadow_offset_xy : list[float, 2], Optional
-///     Sets the bar shadow offset as [x, y].
-/// bar_shadow_blur_radius : float, Optional
-///     Sets the bar shadow blur radius.
-/// menu_background_color : Color, Optional
-///     Sets the dropdown menu background color.
-/// menu_background_rgba : list[float, 4], Optional
-///     Sets the dropdown menu background color in rgba format.
-/// menu_background_alpha : float, Optional
-///     Sets the alpha transparency for the dropdown menu
-///     background color.
-/// menu_border_color : Color, Optional
-///     Sets the dropdown menu border color.
-/// menu_border_rgba : list[float, 4], Optional
-///     Sets the dropdown menu border color in rgba format.
-/// menu_border_alpha : float, Optional
-///     Sets the alpha transparency for the dropdown menu border
-///     color.
-/// menu_border_radius : list of float, Optional
-///     Sets the dropdown menu border radius, ``[float]`` = all
-///     corners, ``[float, 4]`` = [top-left, top-right,
-///     bottom-right, bottom-left].
-/// menu_border_width : float, Optional
-///     Sets the dropdown menu border width.
-/// menu_shadow_color : Color, Optional
-///     Sets the dropdown menu shadow color.
-/// menu_shadow_rgba : list[float, 4], Optional
-///     Sets the dropdown menu shadow color in rgba format.
-/// menu_shadow_alpha : float, Optional
-///     Sets the alpha transparency for the dropdown menu shadow
-///     color.
-/// menu_shadow_offset_xy : list[float, 2], Optional
-///     Sets the dropdown menu shadow offset as [x, y].
-/// menu_shadow_blur_radius : float, Optional
-///     Sets the dropdown menu shadow blur radius.
-/// path_background_color : Color, Optional
-///     Sets the path highlight background color.
-/// path_background_rgba : list[float, 4], Optional
-///     Sets the path highlight background color in rgba format.
-/// path_background_alpha : float, Optional
-///     Sets the alpha transparency for the path background color.
-/// path_border_color : Color, Optional
-///     Sets the path highlight border color.
-/// path_border_rgba : list[float, 4], Optional
-///     Sets the path highlight border color in rgba format.
-/// path_border_alpha : float, Optional
-///     Sets the alpha transparency for the path border color.
-/// path_border_radius : list of float, Optional
-///     Sets the path highlight border radius, ``[float]`` = all
-///     corners, ``[float, 4]`` = [top-left, top-right,
-///     bottom-right, bottom-left].
-/// path_border_width : float, Optional
-///     Sets the path highlight border width.
-/// gen_id : int, Optional
-///     Obtains an ID of a widget that have not been created, used
-///     for the gen_id parameter.
-///
-/// Returns
-/// -------
-/// int
-///     The numeric style ID to pass as ``style_id`` to
-///     ``add_menu``.
-#[pyfunction]
-#[pyo3(signature = (
-    bar_background_color=None,
-    bar_background_color_alpha=None,
-    bar_background_rgba=None,
-    
-    bar_border_color=None,
-    bar_border_color_alpha=None,
-    bar_border_rgba=None,
-    bar_border_radius=None,
-    bar_border_width=None,
-
-    bar_shadow_color=None,
-    bar_shadow_color_alpha=None,
-    bar_shadow_rgba=None,
-    bar_shadow_offset_xy=None,
-    bar_shadow_blur_radius=None,
-
-    menu_background_color=None,
-    menu_background_color_alpha=None,
-    menu_background_rgba=None,
-    
-    menu_border_color=None,
-    menu_border_color_alpha=None,
-    menu_border_rgba=None,
-    menu_border_radius=None,
-    menu_border_width=None,
-
-    menu_shadow_color=None,
-    menu_shadow_color_alpha=None,
-    menu_shadow_rgba=None,
-    menu_shadow_offset_xy=None,
-    menu_shadow_blur_radius=None,
-
-    path_background_color=None,
-    path_background_color_alpha=None,
-    path_background_rgba=None,
-    
-    path_border_color=None,
-    path_border_color_alpha=None,
-    path_border_rgba=None,
-    path_border_radius=None,
-    path_border_width=None,
-
-    gen_id=None))]
-pub fn add_menu_style(
-    bar_background_color: Option<Color>,
-    bar_background_color_alpha: Option<f32>,
-    bar_background_rgba: Option<[f32; 4]>,
-    
-    bar_border_color: Option<Color>,
-    bar_border_color_alpha: Option<f32>,
-    bar_border_rgba: Option<[f32; 4]>,
-    bar_border_radius: Option<Vec<f32>>,
-    bar_border_width: Option<f32>,
-    
-    bar_shadow_color: Option<Color>,
-    bar_shadow_color_alpha: Option<f32>,
-    bar_shadow_rgba: Option<[f32; 4]>,
-    bar_shadow_offset_xy: Option<[f32; 2]>,
-    bar_shadow_blur_radius: Option<f32>,
-
-    menu_background_color: Option<Color>,
-    menu_background_color_alpha: Option<f32>,
-    menu_background_rgba: Option<[f32; 4]>,
-    
-    menu_border_color: Option<Color>,
-    menu_border_color_alpha: Option<f32>,
-    menu_border_rgba: Option<[f32; 4]>,
-    menu_border_radius: Option<Vec<f32>>,
-    menu_border_width: Option<f32>,
-    
-    menu_shadow_color: Option<Color>,
-    menu_shadow_color_alpha: Option<f32>,
-    menu_shadow_rgba: Option<[f32; 4]>,
-    menu_shadow_offset_xy: Option<[f32; 2]>,
-    menu_shadow_blur_radius: Option<f32>,
-
-    path_background_color: Option<Color>,
-    path_background_color_alpha: Option<f32>,
-    path_background_rgba: Option<[f32; 4]>,
-    
-    path_border_color: Option<Color>,
-    path_border_color_alpha: Option<f32>,
-    path_border_rgba: Option<[f32; 4]>,
-    path_border_radius: Option<Vec<f32>>,
-    path_border_width: Option<f32>,
-
-    gen_id: Option<usize>,
-    ) -> PyResult<usize>
-{
-    let id = get_id(gen_id);
-
-    
-
-    let mut state = access_state();
-
-    state.widgets.insert(id, Widgets::MenuStyle(
-        MenuStyle {
-            id,
-            bar_background_color,
-            bar_background_color_alpha,
-            bar_background_rgba,
-            
-            bar_border_color,
-            bar_border_color_alpha,
-            bar_border_rgba,
-            bar_border_radius,
-            bar_border_width,
-
-            bar_shadow_color,
-            bar_shadow_color_alpha,
-            bar_shadow_rgba,
-            bar_shadow_offset_xy,
-            bar_shadow_blur_radius,
-
-            menu_background_color,
-            menu_background_color_alpha,
-            menu_background_rgba,
-            
-            menu_border_color,
-            menu_border_color_alpha,
-            menu_border_rgba,
-            menu_border_radius,
-            menu_border_width,
-
-            menu_shadow_color,
-            menu_shadow_color_alpha,
-            menu_shadow_rgba,
-            menu_shadow_offset_xy,
-            menu_shadow_blur_radius,
-
-            path_background_color,
-            path_background_color_alpha,
-            path_background_rgba,
-            
-            path_border_color,
-            path_border_color_alpha,
-            path_border_rgba,
-            path_border_radius,
-            path_border_width,
+            text_style_id,
+            text_font_id,
         }));
 
     drop(state);

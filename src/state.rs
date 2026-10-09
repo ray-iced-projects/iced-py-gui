@@ -35,7 +35,7 @@ use crate::widgets::ipg_grid::Grid;
 use crate::widgets::ipg_image::Image;
 use crate::widgets::ipg_input_float::{InputFloat, InputFloatStyle};
 use crate::widgets::ipg_input_int::{InputInt, InputIntStyle};
-use crate::widgets::ipg_menu::{Menu, MenuBarItem, MenuStyle, MenuSubItem};
+use crate::widgets::ipg_menu::{Menu, MenuBarItem, MenuSubItem};
 use crate::widgets::ipg_mouse_area::MouseArea;
 use crate::widgets::ipg_opaque::Opaque;
 use crate::widgets::ipg_pick_list::{PickList, PickListStyle};
@@ -122,7 +122,6 @@ pub enum Widgets {
     InputFloatStyle(InputFloatStyle),
     InputInt(InputInt),
     InputIntStyle(InputIntStyle),
-    MenuStyle(MenuStyle),
     Palette(CustomPalette),
     PickList(PickList),
     PickListStyle(PickListStyle),
@@ -199,7 +198,6 @@ ipg_widget_accessors! {
     InputFloatStyle    => InputFloatStyle,     as_input_float_style,     as_input_float_style_mut;
     InputInt           => InputInt,            as_input_int,             as_input_int_mut;
     InputIntStyle      => InputIntStyle,       as_input_int_style,       as_input_int_style_mut;
-    MenuStyle          => MenuStyle,           as_menu_style,            as_menu_style_mut;
     Palette            => CustomPalette,       as_palette,               as_palette_mut;
     PickList           => PickList,            as_pick_list,             as_pick_list_mut;
     PickListStyle      => PickListStyle,       as_pick_list_style,       as_pick_list_style_mut;

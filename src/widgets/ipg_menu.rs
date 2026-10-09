@@ -9,7 +9,7 @@ use iced::{Element, Length, Renderer, Theme, Widget, alignment};
 
 use crate::IpgState;
 use crate::app::Message;
-use crate::py_api::helpers::get_padding;
+use crate::py_api::helpers::{get_len, get_padding};
 use crate::state::Widgets;
 use crate::widgets::callbacks::{CallbackName, invoke_callback_with_args};
 
@@ -18,7 +18,6 @@ use crate::widgets::ipg_button::{ButtonStyle, ButtonStyleStd};
 use crate::widgets::ipg_container::ContainerStyleStd;
 use crate::{
     app,
-    graphics::colors::Color,
     state::Containers,
     widgets::widget_param_update::{WidgetParamUpdate, set_t_value},
 };
@@ -44,7 +43,7 @@ pub enum GroupedItem<'a> {
 pub struct Menu {
     pub id: usize,
     pub bar_labels: Vec<String>,
-    pub bar_widths: Option<Vec<f32>>,
+    pub bar_widths: Vec<f32>,
     pub bar_container_style_id: Option<usize>,
     pub bar_container_style_std: Option<ContainerStyleStd>,
     pub bar_container_palette_id: Option<usize>,
@@ -88,6 +87,19 @@ impl Menu {
     ) -> Option<Element<'a, app::Message, Theme, Renderer>> {
         let mut bar_columns = vec![];
 
+        let bar_widths = if self.bar_widths.len() < self.bar_labels.len() {
+            let extend = self.bar_widths.last();
+            let mut widths = self.bar_widths.clone();
+            if let Some(&last_width) = extend {
+                while widths.len() < self.bar_labels.len() {
+                    widths.push(last_width);
+                }
+            }
+            widths
+        } else {
+            self.bar_widths.clone()
+        };
+
         let mut index = 0;
 
         for (menu_bar_item_id, group) in grouped_content.into_iter() {
@@ -102,27 +114,42 @@ impl Menu {
                 &dropdown_is_open,
                 "",
             );
+
+            let mbi = self
+                .lookup(containers, Some(menu_bar_item_id))
+                .and_then(Containers::as_menu_bar_item)
+                .cloned().unwrap();
+
+            let mbi_style_opt = self
+                .lookup_widgets(widgets, mbi.container_style_id)
+                .and_then(Widgets::as_container_style)
+                .cloned();
+
+            let width = if let Some(width) = mbi.width {
+                width
+            } else { bar_widths[index] };
+            dbg!(&width);
             bar_columns.push(
-                container(column(dropdowns).boxed())
-                    // .width(bar_widths[index])
-                    .style(move |theme| container::bordered_box(theme))
+                container(
+                    column(dropdowns)
+                        .spacing(if let Some(sp) = mbi.spacing { sp }  else { 0.0 })
+                        .boxed()
+                )
+                    .width(width)
+                    .height(get_len(None, mbi.height_fill, mbi.height))
+                    .padding(get_padding(&mbi.padding))
+                    .style(move |theme| 
+                        if let Some(st) = &mbi_style_opt {
+                            st.to_iced(theme, &mbi.container_style_std)
+                        } else {
+                            container::bordered_box(theme)
+                        })
                     .boxed(),
             );
             index += 1;
         }
 
         // Constructs the menu bar
-        let bar_widths = match self.bar_widths.clone() {
-            Some(widths) => {
-                if widths.len() == 1 {
-                    vec![widths[0]; self.bar_labels.len()]
-                } else {
-                    widths
-                }
-            }
-            None => vec![],
-        };
-
         let bar_text_labels = configure_bar_labels(
             self,
             &self.bar_labels,
@@ -225,7 +252,7 @@ fn build_dropdown_items<'a>(
                     &path,
                 );
                 let sub_dropdown = container(column(sub_items).boxed())
-                    .style(move |theme| container::bordered_box(theme))
+                    .style(move |theme| container::transparent(theme))
                     .boxed();
 
                 let position_opt = menu_bar_item.and_then(|mbi| Some(mbi.position)).or_else(|| None);
@@ -298,19 +325,19 @@ fn get_popover_btn_style<'a>(
         if menu_opt.is_some() {
             let menu = menu_opt.unwrap();
             let style_opt = menu
-            .lookup_widgets(widgets, menu.bar_btn_style_id)
-            .and_then(Widgets::as_button_style)
-            .cloned();
+                .lookup_widgets(widgets, menu.bar_btn_style_id)
+                .and_then(Widgets::as_button_style)
+                .cloned();
 
-        let pal_opt = menu
-            .lookup_widgets(widgets, menu.bar_btn_palette_id)
-            .and_then(Widgets::as_palette)
-            .cloned();
+            let pal_opt = menu
+                .lookup_widgets(widgets, menu.bar_btn_palette_id)
+                .and_then(Widgets::as_palette)
+                .cloned();
 
-        let font_opt = menu
-            .lookup_widgets(widgets, menu.bar_btn_font_id)
-            .and_then(Widgets::as_font)
-            .cloned();
+            let font_opt = menu
+                .lookup_widgets(widgets, menu.bar_btn_font_id)
+                .and_then(Widgets::as_font)
+                .cloned();
 
             (style_opt, pal_opt, font_opt, menu.bar_btn_style_std.clone())
         
@@ -336,8 +363,6 @@ fn get_popover_btn_style<'a>(
         } else {
             return button::Style::default();
         };
-
-    
 
     let style = if style_opt.is_some() || pal_opt.is_some() {
         let btn_st = ButtonStyle::default();
@@ -406,11 +431,15 @@ impl MenuStyleOverrides {
 pub struct MenuBarItem {
     pub id: usize,
     pub position: Position,
-    pub container_style_id: Option<usize>,
-    pub container_style_std: Option<ContainerStyleStd>,
+    pub width: Option<f32>,
+    pub width_fill: Option<bool>,
+    pub height: Option<f32>,
+    pub height_fill: Option<bool>,
     pub spacing: Option<f32>,
     pub gap: Option<f32>,
     pub padding: Option<Vec<f32>>,
+    pub container_style_id: Option<usize>,
+    pub container_style_std: Option<ContainerStyleStd>,
 }
 
 // A sub-menu item inside another dropdown.

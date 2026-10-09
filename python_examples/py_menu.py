@@ -9,7 +9,6 @@ from icedpygui import (
     MenuBarItem,
     MenuSubItem,
     add_button,
-    add_button_style,
     ButtonStyleStd,
 )
 
@@ -35,8 +34,6 @@ def on_item_press_ud(btn_id, label: str):
     """Menu item press with user data"""
     print("The button item was pressed", btn_id, label)
 
-btn_style = add_button_style(
-                text_center=True,)
 
 # Add a window
 with Window(title="Menu", center=True, size=[600, 600]):
@@ -51,26 +48,23 @@ with Window(title="Menu", center=True, size=[600, 600]):
             ):
 
             # The MenuBarItem's order must match the order of the Menu bar_items position.
-            with MenuBarItem():
+            with MenuBarItem(width=175):
                 # dropdown items for "File"
                 add_button(
                     label="New",
-                    width=100,
+                    width_fill=True,
                     on_press=on_item_press,
-                    style_std=ButtonStyleStd.Background,
-                    style_id=btn_style)
+                    style_std=ButtonStyleStd.Text)
 
                 with MenuSubItem(label="Top dropdown 1.0"):
                     add_button(
                         label="project1.py",
                         width=100,
-                        style_std=ButtonStyleStd.Background,
-                        style_id=btn_style)
+                        style_std=ButtonStyleStd.Text)
                     add_button(
                         label="project2.py",
                         width=100,
-                        style_std=ButtonStyleStd.Background,
-                        style_id=btn_style)
+                        style_std=ButtonStyleStd.Text)
 
                     with MenuSubItem(label="Inner dropdown 1.1"):
                         add_button(
@@ -94,10 +88,9 @@ with Window(title="Menu", center=True, size=[600, 600]):
 
                 add_button(
                     label="Search",
-                    width=100,
+                    width_fill=True,
                     on_press=on_item_press_ud,
-                    style_std=ButtonStyleStd.Background,
-                    style_id=btn_style,
+                    style_std=ButtonStyleStd.Text,
                     user_data="Search")
 
                 with MenuSubItem(label="Top dropdown 2.0"):
@@ -113,54 +106,48 @@ with Window(title="Menu", center=True, size=[600, 600]):
 
                 add_button(
                     label="Open",
-                    width=100,
+                    width_fill=True,
                     on_press=on_item_press_ud,
-                    style_std=ButtonStyleStd.Background,
-                    style_id=btn_style,
+                    style_std=ButtonStyleStd.Text,
                     user_data="Open")
 
                 add_button(
                     label="Save",
-                    width=100,
+                    width_fill=True,
                     on_press=on_item_press_ud,
-                    style_std=ButtonStyleStd.Background,
-                    style_id=btn_style,
+                    style_std=ButtonStyleStd.Text,
                     user_data="Save")
 
             with MenuBarItem():
                 # dropdown items for "Edit"
                 add_button(
                     label="Cut",
-                    width=100,
+                    width_fill=True,
                     on_press=on_item_press_ud,
-                    style_std=ButtonStyleStd.Background,
-                    style_id=btn_style,
+                    style_std=ButtonStyleStd.Text,
                     user_data="Cut")
 
                 add_button(
                     label="Copy",
-                    width=100,
+                    width_fill=True,
                     on_press=on_item_press_ud,
-                    style_std=ButtonStyleStd.Background,
-                    style_id=btn_style,
+                    style_std=ButtonStyleStd.Text,
                     user_data="Copy")
 
                 add_button(
                     label="Paste",
-                    width=100,
+                    width_fill=True,
                     on_press=on_item_press_ud,
-                    style_std=ButtonStyleStd.Background,
-                    style_id=btn_style,
+                    style_std=ButtonStyleStd.Text,
                     user_data="Paste")
 
-            with MenuBarItem():
+            with MenuBarItem(width=175):
                 # dropdown items "Help"
                 add_button(
                     label="About",
-                    width=100,
+                    width_fill=True,
                     on_press=on_item_press_ud,
-                    style_std=ButtonStyleStd.Background,
-                    style_id=btn_style,
+                    style_std=ButtonStyleStd.Text,
                     user_data="About")
                 with MenuSubItem(label="Top dropdown 3.0"):
                     add_button(

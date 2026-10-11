@@ -48,7 +48,7 @@ with Window(title="Menu", center=True, size=[600, 600]):
             ):
 
             # The MenuBarItem's order must match the order of the Menu bar_items position.
-            with MenuBarItem(width=175):
+            with MenuBarItem(width=125):
                 # dropdown items for "File"
                 add_button(
                     label="New",
@@ -56,33 +56,33 @@ with Window(title="Menu", center=True, size=[600, 600]):
                     on_press=on_item_press,
                     style_std=ButtonStyleStd.Text)
 
-                with MenuSubItem(label="Top dropdown 1.0"):
+                with MenuSubItem(label="Top 1.0 >>"):
                     add_button(
-                        label="project1.py",
+                        label="Item_1",
                         width=100,
                         style_std=ButtonStyleStd.Text)
                     add_button(
-                        label="project2.py",
+                        label="Item_2",
                         width=100,
                         style_std=ButtonStyleStd.Text)
 
-                    with MenuSubItem(label="Inner dropdown 1.1"):
+                    with MenuSubItem(label="Inner 1.1 >>"):
                         add_button(
-                            label="project1.py",
+                            label="Item_1",
                             width=100,
                             style_std=ButtonStyleStd.Text)
                         add_button(
-                            label="project2.py",
+                            label="Item_2",
                             width=100,
                             style_std=ButtonStyleStd.Text)
 
-                        with MenuSubItem(label="Inner dropdown 1.2"):
+                        with MenuSubItem(label="Inner 1.2 >>"):
                             add_button(
-                                label="project1.py",
+                                label="Item_1",
                                 width=100,
                                 style_std=ButtonStyleStd.Text)
                             add_button(
-                                label="project2.py",
+                                label="Item_2",
                                 width=100,
                                 style_std=ButtonStyleStd.Text)
 
@@ -93,13 +93,13 @@ with Window(title="Menu", center=True, size=[600, 600]):
                     style_std=ButtonStyleStd.Text,
                     user_data="Search")
 
-                with MenuSubItem(label="Top dropdown 2.0"):
+                with MenuSubItem(label="Top 2.0 >>"):
                     add_button(
-                        label="project1.py",
+                        label="Item_1",
                         width=100,
                         style_std=ButtonStyleStd.Text)
                     add_button(
-                        label="project2.py",
+                        label="Item_2",
                         width=100,
                         style_std=ButtonStyleStd.Text)
 
@@ -149,7 +149,7 @@ with Window(title="Menu", center=True, size=[600, 600]):
                     on_press=on_item_press_ud,
                     style_std=ButtonStyleStd.Text,
                     user_data="About")
-                with MenuSubItem(label="Top dropdown 3.0"):
+                with MenuSubItem(label="Top 3.0 >>"):
                     add_button(
                         label="About 1",
                         width=100,

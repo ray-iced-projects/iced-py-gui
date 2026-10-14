@@ -275,6 +275,7 @@ fn build_dropdown_items<'a>(
                     is_open_now.then_some(sub_dropdown),
                 )
                 .position(position)
+                .align(msi.align.unwrap())
                 .on_close(Message::Menu(menu.id, MenuMessage::CloseSubPopover(bar_idx, path)))
                 .boxed()
             }
@@ -459,7 +460,9 @@ pub struct MenuSubItem {
     pub btn_font_id: Option<usize>,
     pub text_style_id: Option<usize>,
     pub text_font_id: Option<usize>,
+    pub align: Option<iced::Alignment>,
 }
+
 
 impl MenuSubItem {
     fn lookup_widgets<'a>(&self, widgets: &'a HashMap<usize, Widgets>, id: Option<usize>) -> Option<&'a Widgets> {

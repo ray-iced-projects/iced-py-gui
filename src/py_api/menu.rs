@@ -365,6 +365,9 @@ pub fn add_menu_bar_item(
     btn_font_id=None,
     text_style_id=None,
     text_font_id=None,
+    align_start=None,
+    align_center=None,
+    align_end=None,
     ))]
 pub fn add_menu_sub_item(
     window_id: String,
@@ -383,6 +386,9 @@ pub fn add_menu_sub_item(
     btn_font_id: Option<usize>,
     text_style_id: Option<usize>,
     text_font_id: Option<usize>,
+    align_start: Option<bool>,
+    align_center: Option<bool>,
+    align_end: Option<bool>,
 ) -> PyResult<usize>
 {
     let id = get_id(None);
@@ -390,6 +396,13 @@ pub fn add_menu_sub_item(
     let prt_id = match parent_id {
         Some(id) => id,
         None => window_id.clone(),
+    };
+
+    let align = match (align_start, align_center, align_end) {
+        (Some(true), None, None) => iced::Alignment::Start,
+        (None, Some(true), None) => iced::Alignment::Center,
+        (None, None, Some(true)) => iced::Alignment::End,
+        _ => iced::Alignment::Start,
     };
 
     set_state_of_container(id, window_id.clone(), Some(container_id.clone()), prt_id);
@@ -414,6 +427,7 @@ pub fn add_menu_sub_item(
             btn_font_id,
             text_style_id,
             text_font_id,
+            align: Some(align),
         }));
 
     drop(state);

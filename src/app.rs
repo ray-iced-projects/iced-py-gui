@@ -944,7 +944,7 @@ fn get_container<'a>(state: &'a IpgState,
                 Containers::InputFloat(input_flt) => {
                     input_flt.construct(content, &state.widgets)
                 }
-                Containers::Menu(menu) => {
+                Containers::Menu(_) => {
                     // MenuBarItem children are consumed by collect_sub_items;
                     // it should never reach get_container.
                     panic!("MenuSubItem should not reach get_container directly")
@@ -954,10 +954,10 @@ fn get_container<'a>(state: &'a IpgState,
                     // it should never reach get_container.
                     panic!("MenuSubItem should not reach get_container directly")
                 },
-                Containers::MenuItem(_) => {
+                Containers::SubMenu(_) => {
                     // MenuSubItem children are consumed by collect_sub_items;
                     // it should never reach get_container.
-                    panic!("MenuSubItem should not reach get_container directly")
+                    panic!("MenuSub should not reach get_container directly")
                 },
                 Containers::MouseArea(m_area) => {
                     m_area.construct(content)
@@ -1099,6 +1099,9 @@ fn get_widget<'a>(state: &'a IpgState, id: &usize) -> Option<Element<'a, Message
                     eprint!("ERROR: add_icon() is a special method which doesn't have a widget construct method, returning None");
                     None
                 },
+                widgets::MenuSeparator(_) => {
+                    None
+                }
                 Widgets::Palette(_) => {
                     eprint!("ERROR: get_color_palette() is a special method which doesn't have a widget construct method, returning None");
                     None

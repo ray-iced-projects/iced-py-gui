@@ -26,6 +26,18 @@ use pyo3::{Py, PyAny, pyclass};
 // Type alias to replace deprecated PyObject
 type PyObject = Py<PyAny>;
 
+/// A dropdown item that is either a plain widget or a sub-menu.
+/// This is produced by `get_menu_children` in `app.rs` and consumed
+/// by `Menu::construct`.
+pub enum GroupedItem<'a> {
+    Plain(Element<'a, app::Message>),
+    Sub {
+        trigger: Element<'a, app::Message>,
+        children: Vec<GroupedItem<'a>>,
+        sub_item_id: usize,
+    },
+}
+
 #[derive(Debug, Clone)]
 pub struct Menu {
     pub id: usize,
@@ -50,28 +62,28 @@ impl Menu {
     }
 }
 
-fn get_menu_position(menu: &Menu, is_bar: bool) -> Position {
-    match (
-        menu.dropdown_open_auto,
-        menu.dropdown_open_bottom,
-        menu.dropdown_open_left,
-        menu.dropdown_open_top,
-        menu.dropdown_open_right,
-    ) {
-        (Some(true), None, None, None, None) => Position::Auto,
-        (None, Some(true), None, None, None) => Position::Bottom,
-        (None, None, Some(true), None, None) => Position::Left,
-        (None, None, None, Some(true), None) => Position::Right,
-        (None, None, None, None, Some(true)) => Position::Top,
-        _ => {
-            if is_bar {
-                Position::Bottom
-            } else {
-                Position::Right
-            }
-        }
-    }
-}
+// fn get_menu_position(menu: &Menu, is_bar: bool) -> Position {
+//     match (
+//         menu.dropdown_open_auto,
+//         menu.dropdown_open_bottom,
+//         menu.dropdown_open_left,
+//         menu.dropdown_open_top,
+//         menu.dropdown_open_right,
+//     ) {
+//         (Some(true), None, None, None, None) => Position::Auto,
+//         (None, Some(true), None, None, None) => Position::Bottom,
+//         (None, None, Some(true), None, None) => Position::Left,
+//         (None, None, None, Some(true), None) => Position::Right,
+//         (None, None, None, None, Some(true)) => Position::Top,
+//         _ => {
+//             if is_bar {
+//                 Position::Bottom
+//             } else {
+//                 Position::Right
+//             }
+//         }
+//     }
+// }
 
 pub fn get_position(dropdowns: [Option<bool>; 5]) -> Position {
     match dropdowns {
@@ -113,7 +125,7 @@ pub struct MenuBar {
 }
 
 #[derive(Debug, Clone, Default)]
-pub struct MenuSub {
+pub struct SubMenu {
     pub id: usize,
     pub label: String,
     pub width: f32,
@@ -133,128 +145,40 @@ pub struct MenuItem {
 }
 
 #[derive(Debug, Clone, Default)]
+pub struct SubMenuItem {
+    pub id: usize,
+    pub label: String,
+    pub size: Option<f32>,
+}
+
+#[derive(Debug, Clone, Default)]
 pub struct MenuSeparator {
-    pub id,
+    pub id: usize,
 }
 
 #[derive(Debug, Clone)]
-pub enum MenuMessage {
-    OpenPopover(usize),
-    OpenPopoverSub(usize, String),
-    CloseSubPopover(usize, String),
-    OnClose,
-    OnBarPress(usize),
-    OnBarEnter(usize),
-    OnBarExit(usize),
-}
+pub enum MenuMessage {}
 
 pub fn menu_callback(state: &mut IpgState, id: usize, message: MenuMessage) {
-    match message {
-        MenuMessage::OnBarPress(idx) => {
-            invoke_callback_with_args(
-                id,
-                CallbackName::OnBarPress,
-                "MenuBar",
-                idx,
-                "def cb(wid: int, bar_index: int)",
-            );
-        }
-        MenuMessage::OnBarEnter(idx) => {
-            invoke_callback_with_args(
-                id,
-                CallbackName::OnBarEnter,
-                "MenuBar",
-                idx,
-                "def cb(wid: int, bar_index: int)",
-            );
-        }
-        MenuMessage::OnBarExit(idx) => {
-            invoke_callback_with_args(
-                id,
-                CallbackName::OnBarExit,
-                "MenuBar",
-                idx,
-                "def cb(wid: int, bar_index: int)",
-            );
-        }
-        MenuMessage::OpenPopover(idx) => {
-            if let Some(Containers::Menu(cb)) = state.containers.get_mut(&id) {
-                cb.is_open = cb.is_open.iter().enumerate().map(|(i, _)| i == idx).collect();
-            }
-        }
-        MenuMessage::CloseSubPopover(bar_idx, path) => {
-            if let Some(Containers::Menu(menu)) = state.containers.get_mut(&id) {
-                if let Some(sub_map) = menu.dropdown_is_open.get_mut(bar_idx) {
-                    // Close this path and any of its children
-                    let prefix = format!("{path}/");
-                    sub_map
-                        .iter_mut()
-                        .filter(|(k, _)| *k == &path || k.starts_with(&prefix))
-                        .for_each(|(_, v)| *v = false);
-                }
-            }
-        }
-        MenuMessage::OpenPopoverSub(bar_idx, path) => {
-            if let Some(Containers::Menu(menu)) = state.containers.get_mut(&id) {
-                if let Some(sub_map) = menu.dropdown_is_open.get_mut(bar_idx) {
-                    let currently_open = sub_map.get(&path).copied().unwrap_or(false);
-                    if path.contains('/') {
-                        // Nested sub: close siblings at same depth, keep parent open, toggle this
-                        let parent = &path[..path.rfind('/').unwrap()];
-                        let sibling_prefix = format!("{parent}/");
-                        sub_map
-                            .iter_mut()
-                            .filter(|(k, _)| k.starts_with(&sibling_prefix) && k.as_str() != path.as_str())
-                            .for_each(|(_, v)| *v = false);
-                        sub_map.insert(path, !currently_open);
-                    } else {
-                        // Depth-1 sub: close all siblings, toggle this one
-                        sub_map.values_mut().for_each(|v| *v = false);
-                        sub_map.insert(path, !currently_open);
-                    }
-                }
-            }
-        }
-        MenuMessage::OnClose => {
-            if let Some(Containers::Menu(menu)) = state.containers.get_mut(&id) {
-                menu.is_open.iter_mut().for_each(|v| *v = false);
-                menu.dropdown_is_open
-                    .iter_mut()
-                    .for_each(|map| map.values_mut().for_each(|v| *v = false));
-            }
-        }
-    }
+    match message {}
 }
 
 #[derive(Debug, Clone, PartialEq, Hash)]
 #[pyclass(eq, eq_int, hash, frozen)]
 pub enum MenuParam {
-    BarWidths,
-    CloseOnBarBackgroundClick,
-    CloseOnBarItemClick,
-    Height,
-    ItemsCloseOnBackgroundClickGlobal,
-    ItemsCloseOnClickGlobal,
-    Padding,
-    Show,
-    Spacing,
-    StyleId,
-    StyleStd,
+    None
 }
 
 #[derive(Debug, Clone, PartialEq, Hash)]
 #[pyclass(eq, eq_int, hash, frozen)]
-pub enum MenuBarItemParam {
-    IsOpen,
+pub enum MenuBarParam {
+    None
 }
 
 #[derive(Debug, Clone, PartialEq, Hash)]
 #[pyclass(eq, eq_int, hash, frozen)]
-pub enum MenuSubItemParam {
-    Gap,
-    Padding,
-    Spacing,
-    Width,
+pub enum SubMenuParam {
+    None
 }
 
 // ---------------------------------------------------------------------------
@@ -266,56 +190,27 @@ impl WidgetParamUpdate for Menu {
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
-            MenuParam::BarWidths => set_t_value(&mut self.bar_widths, value, "MenuParam::BarWidths"),
-            MenuParam::Height => set_t_value(&mut self.height, value, "MenuParam::Height"),
-            MenuParam::Padding => set_t_value(&mut self.padding, value, "MenuParam::Padding"),
-            MenuParam::Show => set_t_value(&mut self.show, value, "MenuParam::Show"),
-            MenuParam::Spacing => set_t_value(&mut self.spacing, value, "Spacing"),
-            MenuParam::CloseOnBarBackgroundClick => set_t_value(
-                &mut self.close_on_bar_background_click,
-                value,
-                "MenuParam::CloseOnBarBackgroundClick",
-            ),
-            MenuParam::CloseOnBarItemClick => set_t_value(
-                &mut self.close_on_bar_item_click,
-                value,
-                "MenuParam::CloseOnBarItemClick",
-            ),
-            MenuParam::ItemsCloseOnBackgroundClickGlobal => set_t_value(
-                &mut self.items_close_on_background_click_global,
-                value,
-                "MenuParam::ItemsCloseOnBackgroundClickGlobal",
-            ),
-            MenuParam::ItemsCloseOnClickGlobal => set_t_value(
-                &mut self.items_close_on_click_global,
-                value,
-                "MenuParam::ItemsCloseOnClickGlobal",
-            ),
-            MenuParam::StyleId => set_t_value(&mut self.bar_btn_style_id, value, "MenuParam::StyleId"),
-            MenuParam::StyleStd => set_t_value(&mut self.bar_btn_style_std, value, "MenuParam::StyleStd"),
+            MenuParam::None => todo!(),
         }
     }
 }
 
-impl WidgetParamUpdate for MenuBarItem {
-    type Param = MenuBarItemParam;
+impl WidgetParamUpdate for MenuBar {
+    type Param = MenuBarParam;
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
-            MenuBarItemParam::IsOpen => todo!(),
+            MenuBarParam::None => todo!(),
         }
     }
 }
 
 impl WidgetParamUpdate for MenuItem {
-    type Param = MenuSubItemParam;
+    type Param = SubMenuParam;
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
-            MenuSubItemParam::Gap => set_t_value(&mut self.gap, value, "MenuSubItemParam::Gap"),
-            MenuSubItemParam::Padding => set_t_value(&mut self.padding, value, "MenuSubItemParam::Padding"),
-            MenuSubItemParam::Spacing => set_t_value(&mut self.spacing, value, "MenuSubItemParam::Spacing"),
-            MenuSubItemParam::Width => set_t_value(&mut self.width, value, "MenuSubItemParam::Width"),
+            SubMenuParam::None => todo!(),
         }
     }
 }

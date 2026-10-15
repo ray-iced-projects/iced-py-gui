@@ -9,6 +9,7 @@ from icedpygui import (
     MenuBar,
     SubMenu,
     add_menu_item,
+    add_sub_menu_item,
     add_menu_separator,
 )
 
@@ -48,12 +49,12 @@ with Window(title="Menu", center=True, size=[600, 600]):
                 add_menu_item(label="New File")
                 add_menu_item(label="New Window")
                 with SubMenu(label="New Window with Profile >"):
-                    add_menu_item(label="Profile 1")
-                    add_menu_item(label="Profile 2")
+                    add_sub_menu_item(label="Profile 1")
+                    add_sub_menu_item(label="Profile 2")
                 with SubMenu(label="Additional Profiles >"):
-                    add_menu_item(label="Profile 3")
-                    add_menu_item(label="Profile 4")
-                    add_menu_item(label="Profile 5")
+                    add_sub_menu_item(label="Profile 3")
+                    add_sub_menu_item(label="Profile 4")
+                    add_sub_menu_item(label="Profile 5")
                 add_menu_separator()
                 add_menu_item(label="Open File")
                 add_menu_item(label="Open Folder")

@@ -6,7 +6,7 @@ type PyObject = Py<PyAny>;
 
 use crate::access_state;
 use crate::widgets::ipg_container::ContainerStyleStd;
-use crate::widgets::ipg_menu::{Menu, MenuBar, MenuItem, MenuSeparator, MenuSub, get_position};
+use crate::widgets::ipg_menu::{Menu, MenuBar, MenuItem, MenuSeparator, SubMenu, SubMenuItem, get_position};
 use crate::state::{Containers, Widgets, get_id, set_state_cont_wnd_ids, set_state_of_container, set_state_of_widget};
 
 
@@ -259,8 +259,8 @@ pub fn add_sub_menu(
 
     set_state_cont_wnd_ids(&mut state, &window_id, container_id, id, "add_menu_bar".to_string());
 
-    state.containers.insert(id, Containers::MenuSub(
-        MenuSub {
+    state.containers.insert(id, Containers::SubMenu(
+        SubMenu {
             id,
             label,
             width,
@@ -332,6 +332,35 @@ pub fn add_menu_item(
 
     state.widgets.insert(id, Widgets::MenuItem(
         MenuItem {
+            id,
+            label,
+            size,
+        }));
+
+    drop(state);
+    Ok(id)
+}
+
+#[pyfunction]
+#[pyo3(signature = (
+    parent_id,
+    label,
+    size=None,
+    ))]
+pub fn add_sub_menu_item(
+    parent_id: String,
+    label: String,
+    size: Option<f32>,
+) -> PyResult<usize>
+{
+    let id = get_id(None);
+
+    set_state_of_widget(id, parent_id.clone());
+
+    let mut state = access_state();
+
+    state.widgets.insert(id, Widgets::SubMenuItem(
+        SubMenuItem {
             id,
             label,
             size,

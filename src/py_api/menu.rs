@@ -1,17 +1,13 @@
 //! Menu module - provides add_menu pyfunction
 
-use std::collections::HashMap;
-
 use pyo3::prelude::*;
 use pyo3::{Py, PyAny, pyfunction};
 type PyObject = Py<PyAny>;
 
-use crate::widgets::callbacks::CallbackName;
-use crate::widgets::ipg_button::ButtonStyleStd;
+use crate::access_state;
 use crate::widgets::ipg_container::ContainerStyleStd;
-use crate::widgets::ipg_menu::{Menu, MenuBarItem, MenuSubItem, get_position};
-use crate::{access_state, add_callback_name_to_mutex, add_user_data_to_mutex};
-use crate::state::{Containers, get_id, set_state_cont_wnd_ids, set_state_of_container};
+use crate::widgets::ipg_menu::{Menu, MenuBar, MenuItem, MenuSeparator, MenuSub, get_position};
+use crate::state::{Containers, Widgets, get_id, set_state_cont_wnd_ids, set_state_of_container, set_state_of_widget};
 
 
 
@@ -94,89 +90,15 @@ use crate::state::{Containers, get_id, set_state_cont_wnd_ids, set_state_of_cont
 #[pyo3(signature = ( 
     window_id,
     container_id,
-    bar_labels,
-    bar_widths,
-    parent_id=None,
-    bar_container_style_id=None,
-    bar_container_style_std=None,
-    bar_container_palette_id=None,
-    bar_labels_text_style_id=None,
-    bar_labels_text_font_id=None,
-    bar_btn_style_id=None,
-    bar_btn_style_std=None,
-    bar_btn_palette_id=None,
-    bar_btn_font_id=None,
-    padding=None,
-    spacing=None,
-    height=None,
-    dropdown_open_auto=None,
-    dropdown_open_top=None,
-    dropdown_open_bottom=None,
-    dropdown_open_left=None,
-    dropdown_open_right=None,
-    close_on_bar_item_click=None,
-    close_on_bar_background_click=None,
-    items_close_on_click_global=None,
-    items_close_on_background_click_global=None,
-    on_bar_item_press=None,
-    on_bar_item_enter=None,
-    on_bar_item_exit=None,
-    show=true, 
-    user_data=None, 
-    gen_id=None
+    parent_id,
     ))]
 pub fn add_menu(
     window_id: String,
     container_id: String,
-    bar_labels: Vec<String>,
-    bar_widths: Vec<f32>,
     parent_id: Option<String>,
-    bar_container_style_id: Option<usize>,
-    bar_container_style_std: Option<ContainerStyleStd>,
-    bar_container_palette_id: Option<usize>,
-    bar_labels_text_style_id: Option<usize>,
-    bar_labels_text_font_id: Option<usize>,
-    bar_btn_style_id: Option<usize>,
-    bar_btn_style_std: Option<ButtonStyleStd>,
-    bar_btn_palette_id: Option<usize>,
-    bar_btn_font_id: Option<usize>,
-    padding: Option<Vec<f32>>,
-    spacing: Option<f32>,
-    height: Option<f32>,
-    dropdown_open_auto: Option<bool>,
-    dropdown_open_top: Option<bool>,
-    dropdown_open_bottom: Option<bool>,
-    dropdown_open_left: Option<bool>,
-    dropdown_open_right: Option<bool>,
-    close_on_bar_item_click: Option<bool>,
-    close_on_bar_background_click: Option<bool>,
-    items_close_on_click_global: Option<bool>,
-    items_close_on_background_click_global: Option<bool>,
-    on_bar_item_press: Option<PyObject>,
-    on_bar_item_enter: Option<PyObject>,
-    on_bar_item_exit: Option<PyObject>,
-    show: bool,
-    user_data: Option<PyObject>,
-    gen_id: Option<usize>,
 ) -> PyResult<usize> 
 {
-    let id = get_id(gen_id);
-
-    if let Some(py) = on_bar_item_press {
-        add_callback_name_to_mutex(id, CallbackName::OnBarPress, py);
-    }
-
-    if let Some(py) = on_bar_item_enter {
-        add_callback_name_to_mutex(id, CallbackName::OnBarEnter, py);
-    }
-
-    if let Some(py) = on_bar_item_exit {
-        add_callback_name_to_mutex(id, CallbackName::OnBarExit, py);
-    }
-
-    if let Some(py) = user_data {
-        add_user_data_to_mutex(id, py);
-    }
+    let id = get_id(None);
 
     let prt_id = match parent_id {
         Some(id) => id,
@@ -189,37 +111,9 @@ pub fn add_menu(
 
     set_state_cont_wnd_ids(&mut state, &window_id, container_id, id, "add_menu".to_string());
 
-    let items = bar_labels.len();
-
     state.containers.insert(id, Containers::Menu(
         Menu {
             id,
-            bar_labels,
-            bar_widths,
-            bar_container_style_id,
-            bar_container_style_std,
-            bar_container_palette_id,
-            bar_labels_text_style_id,
-            bar_labels_text_font_id,
-            bar_btn_style_id,
-            bar_btn_style_std,
-            bar_btn_palette_id,
-            bar_btn_font_id,
-            padding,
-            spacing,
-            height,
-            close_on_bar_item_click,
-            close_on_bar_background_click,
-            items_close_on_click_global,
-            items_close_on_background_click_global,
-            show,
-            is_open: vec![false; items],
-            dropdown_is_open: vec![HashMap::new(); items],
-            dropdown_open_auto,
-            dropdown_open_top,
-            dropdown_open_bottom,
-            dropdown_open_left,
-            dropdown_open_right,
         }));
 
     drop(state);
@@ -231,11 +125,9 @@ pub fn add_menu(
 #[pyo3(signature = ( 
     window_id,
     container_id,
+    label,
+    width,
     parent_id=None,
-    width=None,
-    width_fill=None,
-    height=None,
-    height_fill=None,
     spacing=None,
     gap=None,
     padding=None,
@@ -247,14 +139,12 @@ pub fn add_menu(
     container_style_id=None,
     container_style_std=None,
     ))]
-pub fn add_menu_bar_item(
+pub fn add_menu_bar(
     window_id: String,
     container_id: String,
+    label: String,
+    width: f32,
     parent_id: Option<String>,
-    width: Option<f32>,
-    width_fill: Option<bool>,
-    height: Option<f32>,
-    height_fill: Option<bool>,
     spacing: Option<f32>,
     gap: Option<f32>,
     padding: Option<Vec<f32>>,
@@ -289,16 +179,14 @@ pub fn add_menu_bar_item(
 
     let mut state = access_state();
 
-    set_state_cont_wnd_ids(&mut state, &window_id, container_id, id, "add_menu_bar_item".to_string());
+    set_state_cont_wnd_ids(&mut state, &window_id, container_id, id, "add_menu_bar".to_string());
 
-    state.containers.insert(id, Containers::MenuBarItem(
-        MenuBarItem {
+    state.containers.insert(id, Containers::MenuBar(
+        MenuBar {
             id,
-            position,
+            label,
             width,
-            width_fill,
-            height,
-            height_fill,
+            position,
             spacing,
             gap,
             padding,
@@ -310,6 +198,83 @@ pub fn add_menu_bar_item(
     Ok(id)
 }
 
+
+#[pyfunction]
+#[pyo3(signature = ( 
+    window_id,
+    container_id,
+    label,
+    width,
+    parent_id=None,
+    spacing=None,
+    gap=None,
+    padding=None,
+    dropdown_open_auto=None,
+    dropdown_open_top=None,
+    dropdown_open_bottom=None,
+    dropdown_open_left=None,
+    dropdown_open_right=None,
+    container_style_id=None,
+    container_style_std=None,
+    ))]
+pub fn add_sub_menu(
+    window_id: String,
+    container_id: String,
+    label: String,
+    width: f32,
+    parent_id: Option<String>,
+    spacing: Option<f32>,
+    gap: Option<f32>,
+    padding: Option<Vec<f32>>,
+    dropdown_open_auto: Option<bool>,
+    dropdown_open_top: Option<bool>,
+    dropdown_open_bottom: Option<bool>,
+    dropdown_open_left: Option<bool>,
+    dropdown_open_right: Option<bool>,
+    container_style_id: Option<usize>,
+    container_style_std: Option<ContainerStyleStd>,
+) -> PyResult<usize> 
+{
+    let id = get_id(None);
+
+    let prt_id = match parent_id {
+        Some(id) => id,
+        None => window_id.clone(),
+    };
+
+    let positions = 
+        [
+            dropdown_open_auto,
+            dropdown_open_top,
+            dropdown_open_bottom,
+            dropdown_open_left,
+            dropdown_open_right,
+        ];
+
+    let position = get_position(positions);
+    
+    set_state_of_container(id, window_id.clone(), Some(container_id.clone()), prt_id);
+
+    let mut state = access_state();
+
+    set_state_cont_wnd_ids(&mut state, &window_id, container_id, id, "add_menu_bar".to_string());
+
+    state.containers.insert(id, Containers::MenuSub(
+        MenuSub {
+            id,
+            label,
+            width,
+            position,
+            spacing,
+            gap,
+            padding,
+            container_style_id,
+            container_style_std,
+        }));
+
+    drop(state);
+    Ok(id)
+}
 
 /// Add a menu sub-item container.
 ///
@@ -349,85 +314,50 @@ pub fn add_menu_bar_item(
 ///     The numeric widget ID of the newly created menu sub-item.
 #[pyfunction]
 #[pyo3(signature = (
-    window_id,
-    container_id,
+    parent_id,
     label,
-    parent_id=None,
-    width=None,
-    spacing=None,
-    gap=None,
-    padding=None,
-    container_style_id=None,
-    container_style_std=None,
-    btn_style_id=None,
-    btn_style_std=None,
-    btn_palette_id=None,
-    btn_font_id=None,
-    text_style_id=None,
-    text_font_id=None,
-    align_start=None,
-    align_center=None,
-    align_end=None,
+    size=None,
     ))]
-pub fn add_menu_sub_item(
-    window_id: String,
-    container_id: String,
+pub fn add_menu_item(
+    parent_id: String,
     label: String,
-    parent_id: Option<String>,
-    width: Option<f32>,
-    spacing: Option<f32>,
-    gap: Option<f32>,
-    padding: Option<Vec<f32>>,
-    container_style_id: Option<usize>,
-    container_style_std: Option<ContainerStyleStd>,
-    btn_style_id: Option<usize>,
-    btn_style_std: Option<ButtonStyleStd>,
-    btn_palette_id: Option<usize>,
-    btn_font_id: Option<usize>,
-    text_style_id: Option<usize>,
-    text_font_id: Option<usize>,
-    align_start: Option<bool>,
-    align_center: Option<bool>,
-    align_end: Option<bool>,
+    size: Option<f32>,
 ) -> PyResult<usize>
 {
     let id = get_id(None);
 
-    let prt_id = match parent_id {
-        Some(id) => id,
-        None => window_id.clone(),
-    };
-
-    let align = match (align_start, align_center, align_end) {
-        (Some(true), None, None) => iced::Alignment::Start,
-        (None, Some(true), None) => iced::Alignment::Center,
-        (None, None, Some(true)) => iced::Alignment::End,
-        _ => iced::Alignment::Start,
-    };
-
-    set_state_of_container(id, window_id.clone(), Some(container_id.clone()), prt_id);
+    set_state_of_widget(id, parent_id.clone());
 
     let mut state = access_state();
 
-    set_state_cont_wnd_ids(&mut state, &window_id, container_id, id, "add_menu_sub_item".to_string());
-
-    state.containers.insert(id, Containers::MenuSubItem(
-        MenuSubItem {
+    state.widgets.insert(id, Widgets::MenuItem(
+        MenuItem {
             id,
             label,
-            width,
-            spacing,
-            gap,
-            padding,
-            container_style_id,
-            container_style_std,
-            btn_style_id,
-            btn_style_std,
-            btn_palette_id,
-            btn_font_id,
-            text_style_id,
-            text_font_id,
-            align: Some(align),
+            size,
+        }));
+
+    drop(state);
+    Ok(id)
+}
+
+#[pyfunction]
+#[pyo3(signature = (
+    parent_id,
+    ))]
+pub fn add_menu_separator(
+    parent_id: String,
+) -> PyResult<usize>
+{
+    let id = get_id(None);
+
+    set_state_of_widget(id, parent_id.clone());
+
+    let mut state = access_state();
+
+    state.widgets.insert(id, Widgets::MenuSeparator(
+        MenuSeparator {
+            id,
         }));
 
     drop(state);

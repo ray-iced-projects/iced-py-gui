@@ -4,16 +4,15 @@
 
 use std::collections::HashMap;
 
-use iced::widget::{button, column, container, mouse_area, row, text};
-use iced::{Element, Length, Renderer, Theme, Widget, alignment};
+use iced::{Element, Length, Renderer, Theme, Widget};
 
 use crate::IpgState;
 use crate::app::Message;
+use crate::iced_widgets::popover::Position;
 use crate::py_api::helpers::{get_len, get_padding};
 use crate::state::Widgets;
 use crate::widgets::callbacks::{CallbackName, invoke_callback_with_args};
 
-use crate::iced_widgets::popover::{Popover, Position};
 use crate::widgets::ipg_button::{ButtonStyle, ButtonStyleStd};
 use crate::widgets::ipg_container::ContainerStyleStd;
 use crate::{
@@ -27,47 +26,9 @@ use pyo3::{Py, PyAny, pyclass};
 // Type alias to replace deprecated PyObject
 type PyObject = Py<PyAny>;
 
-/// A dropdown item that is either a plain widget or a sub-menu.
-/// This is produced by `get_menu_children` in `app.rs` and consumed
-/// by `Menu::construct`.
-pub enum GroupedItem<'a> {
-    Plain(Element<'a, app::Message>),
-    Sub {
-        trigger: Element<'a, app::Message>,
-        children: Vec<GroupedItem<'a>>,
-        sub_item_id: usize,
-    },
-}
-
 #[derive(Debug, Clone)]
 pub struct Menu {
     pub id: usize,
-    pub bar_labels: Vec<String>,
-    pub bar_widths: Vec<f32>,
-    pub bar_container_style_id: Option<usize>,
-    pub bar_container_style_std: Option<ContainerStyleStd>,
-    pub bar_container_palette_id: Option<usize>,
-    pub bar_labels_text_style_id: Option<usize>,
-    pub bar_labels_text_font_id: Option<usize>,
-    pub bar_btn_style_id: Option<usize>,
-    pub bar_btn_style_std: Option<ButtonStyleStd>,
-    pub bar_btn_palette_id: Option<usize>,
-    pub bar_btn_font_id: Option<usize>,
-    pub padding: Option<Vec<f32>>,
-    pub spacing: Option<f32>,
-    pub height: Option<f32>,
-    pub close_on_bar_item_click: Option<bool>,
-    pub close_on_bar_background_click: Option<bool>,
-    pub items_close_on_click_global: Option<bool>,
-    pub items_close_on_background_click_global: Option<bool>,
-    pub show: bool,
-    pub is_open: Vec<bool>,
-    pub dropdown_is_open: Vec<HashMap<String, bool>>,
-    pub dropdown_open_auto: Option<bool>,
-    pub dropdown_open_top: Option<bool>,
-    pub dropdown_open_bottom: Option<bool>,
-    pub dropdown_open_left: Option<bool>,
-    pub dropdown_open_right: Option<bool>,
 }
 
 impl Menu {
@@ -85,298 +46,8 @@ impl Menu {
         widgets: &'a HashMap<usize, Widgets>,
         containers: &'a HashMap<usize, Containers>,
     ) -> Option<Element<'a, app::Message, Theme, Renderer>> {
-        let mut bar_columns = vec![];
-
-        let bar_widths = if self.bar_widths.len() < self.bar_labels.len() {
-            let extend = self.bar_widths.last();
-            let mut widths = self.bar_widths.clone();
-            if let Some(&last_width) = extend {
-                while widths.len() < self.bar_labels.len() {
-                    widths.push(last_width);
-                }
-            }
-            widths
-        } else {
-            self.bar_widths.clone()
-        };
-
-        let mut index = 0;
-
-        for (menu_bar_item_id, group) in grouped_content.into_iter() {
-            let dropdown_is_open = self.dropdown_is_open.get(index).cloned().unwrap_or_default();
-            let dropdowns = build_dropdown_items(
-                self,
-                widgets,
-                group,
-                containers,
-                menu_bar_item_id,
-                index,
-                &dropdown_is_open,
-                "",
-            );
-
-            let mbi = self
-                .lookup(containers, Some(menu_bar_item_id))
-                .and_then(Containers::as_menu_bar_item)
-                .cloned().unwrap();
-
-            let mbi_style_opt = self
-                .lookup_widgets(widgets, mbi.container_style_id)
-                .and_then(Widgets::as_container_style)
-                .cloned();
-
-            let width = if let Some(width) = mbi.width {
-                width
-            } else { bar_widths[index] };
-            dbg!(&width);
-            bar_columns.push(
-                container(
-                    column(dropdowns)
-                        .spacing(if let Some(sp) = mbi.spacing { sp }  else { 0.0 })
-                        .boxed()
-                )
-                    .width(width)
-                    .height(get_len(None, mbi.height_fill, mbi.height))
-                    .padding(get_padding(&mbi.padding))
-                    .style(move |theme| 
-                        if let Some(st) = &mbi_style_opt {
-                            st.to_iced(theme, &mbi.container_style_std)
-                        } else {
-                            container::bordered_box(theme)
-                        })
-                    .boxed(),
-            );
-            index += 1;
-        }
-
-        // Constructs the menu bar
-        let bar_text_labels = configure_bar_labels(
-            self,
-            &self.bar_labels,
-            self.bar_labels_text_style_id,
-            self.bar_labels_text_font_id,
-            widgets,
-        );
-
-        let id = self.id;
-        let rw = row(bar_text_labels
-            .into_iter()
-            .zip(bar_columns.into_iter())
-            .zip(bar_widths.iter())
-            .enumerate()
-            .map(|(idx, ((label_element, popover_element), width))| {
-                let pop = Popover::new(
-                    button(label_element)
-                        .on_press(Message::Menu(id, MenuMessage::OpenPopover(idx)))
-                        .width(*width)
-                        .style(move |theme: &Theme, status| 
-                            get_popover_btn_style(Some(self), None, widgets, theme, status))
-                            .boxed(),
-                    // menu bar popover
-                    self.is_open[idx].then_some(popover_element),
-                )
-                .position(get_menu_position(self, true))
-                .on_close(Message::Menu(id, MenuMessage::OnClose));
-                mouse_area(pop)
-                    .on_enter(Message::Menu(id, MenuMessage::OnBarEnter(idx)))
-                    .boxed()
-            }));
-
-        // Places a container around the menu bar for styling
-        let cont_style_opt = self
-            .lookup_widgets(widgets, self.bar_container_style_id)
-            .and_then(Widgets::as_container_style)
-            .cloned();
-
-        let cont_rw = container(rw.boxed())
-            .style(move |theme| {
-                if let Some(st) = &cont_style_opt {
-                    st.to_iced(theme, &self.bar_container_style_std)
-                } else {
-                    match &self.bar_container_style_std {
-                        Some(std) => std.to_iced(theme),
-                        None => container::bordered_box(theme),
-                    }
-                }
-            })
-            .padding(get_padding(&self.padding))
-            .boxed();
-
-        Some(cont_rw)
+        None
     }
-}
-
-/// Recursively build popover elements for all Sub items at every depth.
-fn build_dropdown_items<'a>(
-    menu: &Menu,
-    widgets: &'a HashMap<usize, Widgets>,
-    items: Vec<GroupedItem<'a>>,
-    containers: &'a HashMap<usize, Containers>,
-    menu_bar_item_id: usize,
-    bar_idx: usize,
-    sub_is_open: &HashMap<String, bool>,
-    parent_path: &str,
-) -> Vec<Element<'a, app::Message>> {
-    items
-        .into_iter()
-        .map(|item| match item {
-            GroupedItem::Plain(el) => el.boxed(),
-            GroupedItem::Sub {
-                children, sub_item_id, ..
-            } => {
-                let msi = containers
-                    .get(&sub_item_id)
-                    .and_then(Containers::as_menu_sub_item)
-                    .map(|msi| msi).unwrap();
-
-                let path = if parent_path.is_empty() {
-                    msi.label.clone()
-                } else {
-                    format!("{parent_path}/'SubMenu Not Found'")
-                };
-
-                let menu_bar_item = menu
-                    .lookup(containers, Some(menu_bar_item_id))
-                    .and_then(Containers::as_menu_bar_item);
-
-                let is_open_now = sub_is_open.get(&path).copied().unwrap_or(false);
-                // inner sub-items use plain text style and open to the right
-                let sub_items = build_dropdown_items(
-                    menu,
-                    widgets,
-                    children,
-                    containers,
-                    menu_bar_item_id,
-                    bar_idx,
-                    sub_is_open,
-                    &path,
-                );
-                let sub_dropdown = container(column(sub_items).boxed())
-                    .style(move |theme| container::transparent(theme))
-                    .boxed();
-
-                let position_opt = menu_bar_item.and_then(|mbi| Some(mbi.position)).or_else(|| None);
-
-                let position = position_opt.unwrap_or(Position::Right);
-
-                let label = msi.label.clone();
-
-                // Build the menu bar button dropdowns for all
-                Popover::new(
-                    button(text(label))
-                        .on_press(Message::Menu(
-                            menu.id,
-                            MenuMessage::OpenPopoverSub(bar_idx, path.clone()),
-                        ))
-                        .style(move |theme: &Theme, status| 
-                            get_popover_btn_style(None, Some(msi), widgets, theme, status)
-                        )
-                        .boxed(),
-                    is_open_now.then_some(sub_dropdown),
-                )
-                .position(position)
-                .align(msi.align.unwrap())
-                .on_close(Message::Menu(menu.id, MenuMessage::CloseSubPopover(bar_idx, path)))
-                .boxed()
-            }
-        })
-        .collect()
-}
-
-fn configure_bar_labels<'a>(
-    menu: &Menu,
-    labels: &'a Vec<String>,
-    style_id: Option<usize>,
-    font_id: Option<usize>,
-    widgets: &'a HashMap<usize, Widgets>,
-) -> Vec<Element<'a, app::Message>> {
-    let style_opt = menu.lookup_widgets(widgets, style_id).and_then(Widgets::as_text_style);
-
-    let mut text_labels = vec![];
-
-    for label in labels.iter() {
-        let txt = match style_opt {
-            Some(style) => style
-                .construct(label.clone(), font_id, widgets, Some(MenuStyleOverrides::default()))
-                .boxed(),
-            None => text(label)
-                .align_x(alignment::Horizontal::Center)
-                .align_y(alignment::Vertical::Center)
-                .width(Length::Fill)
-                .boxed(),
-        };
-        text_labels.push(txt)
-    }
-
-    text_labels
-}
-
-fn get_popover_btn_style<'a>(
-    menu_opt: Option<&Menu>,
-    msi_opt: Option<&MenuSubItem>,
-    widgets: &'a HashMap<usize, Widgets>,
-    theme: &Theme,
-    status: button::Status,
-) -> button::Style {
-
-    let (style_opt, 
-        pal_opt, 
-        font_opt,
-        style_std_opt) = 
-        if menu_opt.is_some() {
-            let menu = menu_opt.unwrap();
-            let style_opt = menu
-                .lookup_widgets(widgets, menu.bar_btn_style_id)
-                .and_then(Widgets::as_button_style)
-                .cloned();
-
-            let pal_opt = menu
-                .lookup_widgets(widgets, menu.bar_btn_palette_id)
-                .and_then(Widgets::as_palette)
-                .cloned();
-
-            let font_opt = menu
-                .lookup_widgets(widgets, menu.bar_btn_font_id)
-                .and_then(Widgets::as_font)
-                .cloned();
-
-            (style_opt, pal_opt, font_opt, menu.bar_btn_style_std.clone())
-        
-        } else if msi_opt.is_some() {
-            let msi = msi_opt.unwrap();
-            let style_opt = msi
-            .lookup_widgets(widgets, msi.btn_style_id)
-            .and_then(Widgets::as_button_style)
-            .cloned();
-
-        let pal_opt = msi
-            .lookup_widgets(widgets, msi.btn_palette_id)
-            .and_then(Widgets::as_palette)
-            .cloned();
-
-        let font_opt = msi
-            .lookup_widgets(widgets, msi.btn_font_id)
-            .and_then(Widgets::as_font)
-            .cloned();
-
-            (style_opt, pal_opt, font_opt, msi.btn_style_std.clone())
-
-        } else {
-            return button::Style::default();
-        };
-
-    let style = if style_opt.is_some() || pal_opt.is_some() {
-        let btn_st = ButtonStyle::default();
-        let st = style_opt.as_ref().unwrap_or(&btn_st);
-        st.to_iced(theme, status, &pal_opt, &style_std_opt)
-    } else {
-        match &style_std_opt {
-            Some(std) => std.to_iced(theme, status),
-            None => button::text(theme, status),
-        }
-    };
-
-    style
 }
 
 fn get_menu_position(menu: &Menu, is_bar: bool) -> Position {
@@ -429,47 +100,42 @@ impl MenuStyleOverrides {
 
 // The dropdown via the bar button
 #[derive(Debug, Clone, Default)]
-pub struct MenuBarItem {
-    pub id: usize,
-    pub position: Position,
-    pub width: Option<f32>,
-    pub width_fill: Option<bool>,
-    pub height: Option<f32>,
-    pub height_fill: Option<bool>,
-    pub spacing: Option<f32>,
-    pub gap: Option<f32>,
-    pub padding: Option<Vec<f32>>,
-    pub container_style_id: Option<usize>,
-    pub container_style_std: Option<ContainerStyleStd>,
-}
-
-// A sub-menu item inside another dropdown.
-#[derive(Debug, Clone, Default)]
-pub struct MenuSubItem {
+pub struct MenuBar {
     pub id: usize,
     pub label: String,
-    pub width: Option<f32>,
+    pub width: f32,
+    pub position: Position,
     pub spacing: Option<f32>,
     pub gap: Option<f32>,
     pub padding: Option<Vec<f32>>,
     pub container_style_id: Option<usize>,
     pub container_style_std: Option<ContainerStyleStd>,
-    pub btn_style_id: Option<usize>,
-    pub btn_style_std: Option<ButtonStyleStd>,
-    pub btn_palette_id: Option<usize>,
-    pub btn_font_id: Option<usize>,
-    pub text_style_id: Option<usize>,
-    pub text_font_id: Option<usize>,
-    pub align: Option<iced::Alignment>,
 }
 
-
-impl MenuSubItem {
-    fn lookup_widgets<'a>(&self, widgets: &'a HashMap<usize, Widgets>, id: Option<usize>) -> Option<&'a Widgets> {
-        id.and_then(|id| widgets.get(&id))
-    }
+#[derive(Debug, Clone, Default)]
+pub struct MenuSub {
+    pub id: usize,
+    pub label: String,
+    pub width: f32,
+    pub position: Position,
+    pub spacing: Option<f32>,
+    pub gap: Option<f32>,
+    pub padding: Option<Vec<f32>>,
+    pub container_style_id: Option<usize>,
+    pub container_style_std: Option<ContainerStyleStd>,
 }
 
+#[derive(Debug, Clone, Default)]
+pub struct MenuItem {
+    pub id: usize,
+    pub label: String,
+    pub size: Option<f32>,
+}
+
+#[derive(Debug, Clone, Default)]
+pub struct MenuSeparator {
+    pub id,
+}
 
 #[derive(Debug, Clone)]
 pub enum MenuMessage {
@@ -560,7 +226,6 @@ pub fn menu_callback(state: &mut IpgState, id: usize, message: MenuMessage) {
     }
 }
 
-
 #[derive(Debug, Clone, PartialEq, Hash)]
 #[pyclass(eq, eq_int, hash, frozen)]
 pub enum MenuParam {
@@ -591,7 +256,6 @@ pub enum MenuSubItemParam {
     Spacing,
     Width,
 }
-
 
 // ---------------------------------------------------------------------------
 // WidgetParamUpdate implementations
@@ -643,7 +307,7 @@ impl WidgetParamUpdate for MenuBarItem {
     }
 }
 
-impl WidgetParamUpdate for MenuSubItem {
+impl WidgetParamUpdate for MenuItem {
     type Param = MenuSubItemParam;
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {

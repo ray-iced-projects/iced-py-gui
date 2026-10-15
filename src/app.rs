@@ -770,12 +770,6 @@ fn get_menu_children<'a>(
     for child_id in parents[*menu_index].child_ids.iter() {
         // Each child should be a MenuBarItem container
         if parent_ids.contains(child_id) {
-            // Skip MenuBarItems whose `show` is false before building any children.
-            // if let Some(bar_item) = state.containers.get(child_id).and_then(Containers::as_menu_bar_item) {
-            //     if !bar_item.is_open {
-            //         continue;
-            //     }
-            // }
 
             let bar_item_index = parents.iter().position(|r| &r.parent_id == child_id).unwrap();
 
@@ -784,7 +778,7 @@ fn get_menu_children<'a>(
             for grandchild in parents[bar_item_index].child_ids.iter() {
                 if parent_ids.contains(grandchild) {
                     // Check if this child container is a MenuSubItem
-                    if matches!(state.containers.get(grandchild), Some(Containers::MenuSubItem(_))) {
+                    if matches!(state.containers.get(grandchild), Some(Containers::MenuItem(_))) {
                         let sub_index = parents.iter().position(|r| &r.parent_id == grandchild).unwrap();
                         let sub_items = collect_sub_items(parents, &sub_index, parent_ids, state);
                         if let Some((trigger, children)) = sub_items {
@@ -829,7 +823,7 @@ fn collect_sub_items<'a>(
     let mut children: Vec<GroupedItem<'a>> = vec![];
     for child_id in child_ids.iter() {
         if parent_ids.contains(child_id) {
-            if matches!(state.containers.get(child_id), Some(Containers::MenuSubItem(_))) {
+            if matches!(state.containers.get(child_id), Some(Containers::MenuItem(_))) {
                 let sub_idx = parents.iter().position(|r| &r.parent_id == child_id).unwrap();
                 if let Some((trigger, sub_children)) = collect_sub_items(parents, &sub_idx, parent_ids, state) {
                     children.push(GroupedItem::Sub {
@@ -955,12 +949,12 @@ fn get_container<'a>(state: &'a IpgState,
                     // it should never reach get_container.
                     panic!("MenuSubItem should not reach get_container directly")
                 },
-                Containers::MenuBarItem(_) => {
+                Containers::MenuBar(_) => {
                     // MenuBarItem children are consumed by collect_sub_items;
                     // it should never reach get_container.
                     panic!("MenuSubItem should not reach get_container directly")
                 },
-                Containers::MenuSubItem(_) => {
+                Containers::MenuItem(_) => {
                     // MenuSubItem children are consumed by collect_sub_items;
                     // it should never reach get_container.
                     panic!("MenuSubItem should not reach get_container directly")

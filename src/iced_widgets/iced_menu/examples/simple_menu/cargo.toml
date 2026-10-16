@@ -1,0 +1,9 @@
+[package]
+name = "simple_menu"
+version = "0.1.0"
+authors = ["Charles Ray <ray-iced-projects@gmail.com>"]
+edition = "2024"
+
+[dependencies]
+iced_menu = { path = "../.." }
+iced = { git = "https://github.com/iced-rs/iced", rev = "edc5a2862011db643e3210940eb31420da8b994c", features = ["debug", "advanced"] }

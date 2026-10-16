@@ -128,7 +128,7 @@ impl Menu {
             let width = if let Some(width) = mbi.width {
                 width
             } else { bar_widths[index] };
-            dbg!(&width);
+            
             bar_columns.push(
                 container(
                     column(dropdowns)

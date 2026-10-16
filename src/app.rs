@@ -950,7 +950,7 @@ fn get_container<'a>(state: &'a IpgState,
                 Containers::InputFloat(input_flt) => {
                     input_flt.construct(content, &state.widgets)
                 }
-                Containers::Menu(menu) => {
+                Containers::Menu(_) => {
                     // MenuBarItem children are consumed by collect_sub_items;
                     // it should never reach get_container.
                     panic!("MenuSubItem should not reach get_container directly")

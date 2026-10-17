@@ -329,7 +329,7 @@ impl App {
     pub fn view(&self, window_id: window::Id) -> impl Widget<Message> {
 
         let (debug, theme) = get_window_values(window_id, &self.state);
- 
+        println!("***View Start***");
         let content = 
             create_content(window_id, &self.state);
         
@@ -754,11 +754,10 @@ fn get_children<'a>(parents: &Vec<ParentChildIds>,
 }
 
 /// Build grouped content for a Menu container.
-/// Each child of the Menu should be an MenuBarItem.
-/// For each MenuBarItem, its first child becomes the bar widget and
-/// the remaining children become dropdown menu items.
-/// Returns (MenuBarItem id, elements) tuples so construct() can
-/// look up per-item parameters.
+/// Structure: Menu > MenuBar (top-level items) > MenuItem (dropdown items)
+/// For each MenuItem, collect its content widgets + optional nested SubMenu.
+/// SubMenu appears nested within MenuItem, not as a sibling.
+/// Returns (MenuBar id, elements) tuples so construct() can look up per-item parameters.
 fn get_menu_children<'a>(
     parents: &Vec<ParentChildIds>,
     menu_index: &usize,
@@ -767,72 +766,140 @@ fn get_menu_children<'a>(
 ) -> Vec<(usize, Vec<GroupedItem<'a>>)> {
     let mut grouped: Vec<(usize, Vec<GroupedItem<'a>>)> = vec![];
 
-    for child_id in parents[*menu_index].child_ids.iter() {
-        // Each child should be a MenuBarItem container
-        if parent_ids.contains(child_id) {
-
-            let bar_item_index = parents.iter().position(|r| &r.parent_id == child_id).unwrap();
-
+    // Iterate each MenuBar (direct children of Menu)
+    for menu_bar_id in parents[*menu_index].child_ids.iter() {
+        if parent_ids.contains(menu_bar_id) {
+            let bar_index = parents.iter().position(|r| &r.parent_id == menu_bar_id).unwrap();
             let mut group: Vec<GroupedItem<'a>> = vec![];
 
-            for grandchild in parents[bar_item_index].child_ids.iter() {
-                if parent_ids.contains(grandchild) {
-                    // Check if this child container is a MenuSubItem
-                    if matches!(state.containers.get(grandchild), Some(Containers::MenuItem(_))) {
-                        let sub_index = parents.iter().position(|r| &r.parent_id == grandchild).unwrap();
-                        let sub_items = collect_sub_items(parents, &sub_index, parent_ids, state);
-                        if let Some((trigger, children)) = sub_items {
-                            group.push(GroupedItem::Sub {
-                                trigger,
-                                children,
-                                sub_item_id: *grandchild,
-                            });
-                        }
-                    } else {
-                        let idx = parents.iter().position(|r| &r.parent_id == grandchild).unwrap();
-                        if let Some(el) = get_children(parents, &idx, parent_ids, state) {
-                            group.push(GroupedItem::Plain(el));
-                        }
+            // Iterate each MenuItem (direct children of MenuBar)
+            for menu_item_id in parents[bar_index].child_ids.iter() {
+                if parent_ids.contains(menu_item_id) {
+                    // MenuItem is a container; collect its content + optional SubMenu
+                    let item_index = parents.iter().position(|r| &r.parent_id == menu_item_id).unwrap();
+                    if let Some(grouped_item) = collect_menu_item_content(
+                        parents,
+                        &item_index,
+                        parent_ids,
+                        state,
+                    ) {
+                        group.push(grouped_item);
                     }
-                } else if let Some(widget_el) = get_widget(state, grandchild) {
+                } else if let Some(widget_el) = get_widget(state, menu_item_id) {
+                    // Direct widget child of MenuBar (edge case)
                     group.push(GroupedItem::Plain(widget_el));
                 }
             }
 
-            grouped.push((*child_id, group));
+            grouped.push((*menu_bar_id, group));
         }
     }
 
     grouped
 }
 
-/// Collect the child GroupedItems for a MenuSubItem container.
-/// The trigger is built from the label field; all children are dropdown items.
+/// Collect content widgets from a MenuItem and check for nested SubMenu.
+/// MenuItem structure: content widgets + optional SubMenu (nested).
+/// Returns GroupedItem::Sub if SubMenu exists, GroupedItem::Plain otherwise.
+fn collect_menu_item_content<'a>(
+    parents: &Vec<ParentChildIds>,
+    item_index: &usize,
+    parent_ids: &Vec<usize>,
+    state: &'a IpgState,
+) -> Option<GroupedItem<'a>> {
+    let child_ids = &parents[*item_index].child_ids;
+    if child_ids.is_empty() {
+        return None;
+    }
+
+    let mut content_widgets: Vec<Element<'a, Message>> = vec![];
+    let mut submenu_id: Option<usize> = None;
+
+    // Collect content widgets and optional SubMenu from MenuItem
+    for child_id in child_ids.iter() {
+        if parent_ids.contains(child_id) {
+            // Check if it's a SubMenu container
+            if matches!(state.containers.get(child_id), Some(Containers::SubMenu(_))) {
+                submenu_id = Some(*child_id);
+            } else {
+                // Other containers as content
+                let idx = parents.iter().position(|r| &r.parent_id == child_id).unwrap();
+                if let Some(el) = get_children(parents, &idx, parent_ids, state) {
+                    content_widgets.push(el);
+                }
+            }
+        } else if let Some(widget_el) = get_widget(state, child_id) {
+            // Direct widget child
+            content_widgets.push(widget_el);
+        }
+    }
+
+    // If no content and no SubMenu, return None
+    if content_widgets.is_empty() && submenu_id.is_none() {
+        return None;
+    }
+
+    // If we have a SubMenu, build as GroupedItem::Sub
+    if let Some(sub_id) = submenu_id {
+        let sub_index = parents.iter().position(|r| r.parent_id == sub_id).unwrap();
+        let sub_children = collect_sub_items(parents, &sub_index, parent_ids, state);
+
+        // Combine content widgets into a single trigger element
+        let trigger = if content_widgets.is_empty() {
+            iced::widget::text("").boxed()
+        } else if content_widgets.len() == 1 {
+            content_widgets.into_iter().next().unwrap()
+        } else {
+            iced::widget::column(content_widgets).boxed()
+        };
+
+        Some(GroupedItem::Sub {
+            trigger,
+            children: sub_children,
+            sub_item_id: sub_id,
+        })
+    } else {
+        // No SubMenu, just content widgets as Plain
+        if content_widgets.len() == 1 {
+            Some(GroupedItem::Plain(content_widgets.into_iter().next().unwrap()))
+        } else {
+            Some(GroupedItem::Plain(iced::widget::column(content_widgets).boxed()))
+        }
+    }
+}
+
+/// Collect child items from a SubMenu container.
+/// SubMenu structure: MenuItem children, each with content + optional nested SubMenu.
+/// Returns vec of GroupedItem representing all items in this SubMenu.
 fn collect_sub_items<'a>(
     parents: &Vec<ParentChildIds>,
     sub_index: &usize,
     parent_ids: &Vec<usize>,
     state: &'a IpgState,
-) -> Option<(Element<'a, Message>, Vec<GroupedItem<'a>>)> {
+) -> Vec<GroupedItem<'a>> {
     let child_ids = &parents[*sub_index].child_ids;
     if child_ids.is_empty() {
-        return None;
+        return vec![];
     }
 
-    // All children are dropdown items; trigger is built from label in ipg_menu.rs
     let mut children: Vec<GroupedItem<'a>> = vec![];
+
+    // Iterate SubMenu's MenuItem children
     for child_id in child_ids.iter() {
         if parent_ids.contains(child_id) {
             if matches!(state.containers.get(child_id), Some(Containers::MenuItem(_))) {
-                let sub_idx = parents.iter().position(|r| &r.parent_id == child_id).unwrap();
-                if let Some((trigger, sub_children)) = collect_sub_items(parents, &sub_idx, parent_ids, state) {
-                    children.push(GroupedItem::Sub {
-                        trigger,
-                        children: sub_children,
-                        sub_item_id: *child_id,
-                    });
+                // MenuItem inside SubMenu: collect its content + optional nested SubMenu
+                let item_index = parents.iter().position(|r| &r.parent_id == child_id).unwrap();
+                if let Some(grouped_item) = collect_menu_item_content(
+                    parents,
+                    &item_index,
+                    parent_ids,
+                    state,
+                ) {
+                    children.push(grouped_item);
                 }
             } else {
+                // Other containers (non-MenuItem)
                 let idx = parents.iter().position(|r| &r.parent_id == child_id).unwrap();
                 if let Some(el) = get_children(parents, &idx, parent_ids, state) {
                     children.push(GroupedItem::Plain(el));
@@ -843,9 +910,7 @@ fn collect_sub_items<'a>(
         }
     }
 
-    // Dummy trigger element — ignored by ipg_menu.rs which uses label= instead
-    let dummy = iced::widget::text("").boxed();
-    Some((dummy, children))
+    children
 }
 
 /// Build the three sections (header, body, footer) for a Table container.
@@ -957,7 +1022,7 @@ fn get_container<'a>(state: &'a IpgState,
                 Containers::SubMenu(_) => {
                     // MenuSubItem children are consumed by collect_sub_items;
                     // it should never reach get_container.
-                    panic!("MenuSub should not reach get_container directly")
+                    panic!("SubMenu should not reach get_container directly")
                 },
                 Containers::MenuItem(_) => {
                     // MenuSubItem children are consumed by collect_sub_items;

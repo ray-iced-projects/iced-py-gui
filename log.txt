@@ -1,0 +1,227 @@
+***View Start***
+*********Start*************
+SubMenu 22
+*********Start*************
+MenuItem 48
+*********Start*************
+MenuButton 15
+*********Start*************
+MenuBar 8
+*********Start*************
+*********Start*************
+MenuItem 36
+*********Start*************
+MenuItem 31
+*********Start*************
+Menu 6
+*********Start*************
+MenuItem 10
+*********Start*************
+*********Start*************
+MenuBar 34
+*********Start*************
+MenuButton 41
+*********Start*************
+*********Start*************
+*********Start*************
+MenuItem 25
+*********Start*************
+SubMenu 28
+*********Start*************
+*********Start*************
+MenuButton 53
+*********Start*************
+*********Start*************
+*********Start*************
+wid 8 for grp Vec<GroupedItem>
+GroupedItem::Sub, children len 2
+GroupedItem::Sub, sub_item_id 22
+wid 34 for grp Vec<GroupedItem>
+Plain
+Plain
+***View Start***
+*********Start*************
+SubMenu 22
+*********Start*************
+MenuItem 48
+*********Start*************
+MenuButton 15
+*********Start*************
+MenuBar 8
+*********Start*************
+*********Start*************
+MenuItem 36
+*********Start*************
+MenuItem 31
+*********Start*************
+Menu 6
+*********Start*************
+MenuItem 10
+*********Start*************
+*********Start*************
+MenuBar 34
+*********Start*************
+MenuButton 41
+*********Start*************
+*********Start*************
+*********Start*************
+MenuItem 25
+*********Start*************
+SubMenu 28
+*********Start*************
+*********Start*************
+MenuButton 53
+*********Start*************
+*********Start*************
+*********Start*************
+wid 8 for grp Vec<GroupedItem>
+GroupedItem::Sub, children len 2
+GroupedItem::Sub, sub_item_id 22
+wid 34 for grp Vec<GroupedItem>
+Plain
+Plain
+***View Start***
+*********Start*************
+SubMenu 22
+*********Start*************
+MenuItem 48
+*********Start*************
+MenuButton 15
+*********Start*************
+MenuBar 8
+*********Start*************
+*********Start*************
+MenuItem 36
+*********Start*************
+MenuItem 31
+*********Start*************
+Menu 6
+*********Start*************
+MenuItem 10
+*********Start*************
+*********Start*************
+MenuBar 34
+*********Start*************
+MenuButton 41
+*********Start*************
+*********Start*************
+*********Start*************
+MenuItem 25
+*********Start*************
+SubMenu 28
+*********Start*************
+*********Start*************
+MenuButton 53
+*********Start*************
+*********Start*************
+*********Start*************
+wid 8 for grp Vec<GroupedItem>
+GroupedItem::Sub, children len 2
+GroupedItem::Sub, sub_item_id 22
+wid 34 for grp Vec<GroupedItem>
+Plain
+Plain
+***View Start***
+*********Start*************
+SubMenu 22
+*********Start*************
+MenuItem 48
+*********Start*************
+MenuButton 15
+*********Start*************
+MenuBar 8
+*********Start*************
+*********Start*************
+MenuItem 36
+*********Start*************
+MenuItem 31
+*********Start*************
+Menu 6
+*********Start*************
+MenuItem 10
+*********Start*************
+*********Start*************
+MenuBar 34
+*********Start*************
+MenuButton 41
+*********Start*************
+*********Start*************
+*********Start*************
+MenuItem 25
+*********Start*************
+SubMenu 28
+*********Start*************
+*********Start*************
+MenuButton 53
+*********Start*************
+*********Start*************
+*********Start*************
+wid 8 for grp Vec<GroupedItem>
+GroupedItem::Sub, children len 2
+GroupedItem::Sub, sub_item_id 22
+wid 34 for grp Vec<GroupedItem>
+Plain
+Plain
+***View Start***
+*********Start*************
+SubMenu 22
+*********Start*************
+MenuItem 48
+*********Start*************
+MenuButton 15
+*********Start*************
+MenuBar 8
+*********Start*************
+*********Start*************
+MenuItem 36
+*********Start*************
+MenuItem 31
+*********Start*************
+Menu 6
+*********Start*************
+MenuItem 10
+*********Start*************
+*********Start*************
+MenuBar 34
+*********Start*************
+MenuButton 41
+*********Start*************
+*********Start*************
+*********Start*************
+MenuItem 25
+*********Start*************
+SubMenu 28
+*********Start*************
+*********Start*************
+MenuButton 53
+*********Start*************
+*********Start*************
+*********Start*************
+wid 8 for grp Vec<GroupedItem>
+GroupedItem::Sub, children len 2
+GroupedItem::Sub, sub_item_id 22
+wid 34 for grp Vec<GroupedItem>
+Plain
+Plain
+line 92, menu_id 6
+line 94, menu_bar_id 8
+line 101, MenuItem 10
+menu_row() row_id 12
+menu_row() sp_id 13
+menu_row() MenuButton id 10
+menu_row() MenuButton, Row rw_id 17
+line 103, mb_element, menu_row(), 'New Text File' MenuButton 15
+line 105, SubMenu 22 text id 23
+line 108, MenuItem 25
+line 111, SubMenu 28
+line 114, MenuItem 31
+line 118, MenuBar last 34
+menu_row() row_id 38
+menu_row() sp_id 39
+menu_row() MenuButton id 31
+menu_row() MenuButton, Row rw_id 43
+line 126, MenuItem last 48
+menu_row() row_id 50
+menu_row() sp_id 51
+menu_row() MenuButton id 48
+menu_row() MenuButton, Row rw_id 55

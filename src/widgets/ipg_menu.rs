@@ -59,40 +59,39 @@ impl Menu {
         containers: &'a HashMap<usize, Containers>,
     ) -> Option<Element<'a, app::Message, Theme, Renderer>> {
         for (wid, cont) in containers {
-            dbg!("*********Start*************");
-            dbg!(&wid);
+            println!("*********Start*************");
             match cont {
                 Containers::Menu(menu) => {
-                    dbg!(&"menu", &menu);
+                    println!("Menu {}", menu.id);
                 },
                 Containers::MenuBar(menu_bar) => {
-                    dbg!(&"menu_bar", &menu_bar);
+                    println!("MenuBar {}", &menu_bar.id);
                 },
                 Containers::MenuButton(menu_button) => {
-                    dbg!(&"menu_button", &menu_button);
+                    println!("MenuButton {}", &menu_button.id);
                 },
                 Containers::SubMenu(sub_menu) => {
-                    dbg!(&"sub_menu", &sub_menu);
+                    println!("SubMenu {}", &sub_menu.id);
                 },
                 Containers::MenuItem(menu_item) => {
-                    dbg!(&"menu_item", &menu_item);
+                    println!("MenuItem {}", &menu_item.id);
                 },
                 _ => ()
             }
         }
         for (wid, grp) in grouped_content.iter() {
-            dbg!(&wid);
+            println!("wid {wid} for grp Vec<GroupedItem>");
             for g in grp {
                 match g {
                     GroupedItem::Plain(_element) => {
-                        dbg!("Plain");
+                        println!("Plain");
                     },
                     GroupedItem::Sub { 
                         trigger, 
                         children, 
                         sub_item_id } => {
-                            dbg!(children.len());
-                            dbg!(sub_item_id);
+                            println!("GroupedItem::Sub, children len {}" , children.len());
+                            println!("GroupedItem::Sub, sub_item_id {}" , sub_item_id);
                         },
                 }
             }

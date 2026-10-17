@@ -6,8 +6,8 @@ type PyObject = Py<PyAny>;
 
 use crate::access_state;
 use crate::widgets::ipg_container::ContainerStyleStd;
-use crate::widgets::ipg_menu::{Menu, MenuBar, MenuItem, MenuSeparator, SubMenu, SubMenuItem, get_position};
-use crate::state::{Containers, Widgets, get_id, set_state_cont_wnd_ids, set_state_of_container, set_state_of_widget};
+use crate::widgets::ipg_menu::{Menu, MenuBar, MenuItem, SubMenu, get_position};
+use crate::state::{Containers, get_id, set_state_cont_wnd_ids, set_state_of_container};
 
 
 
@@ -127,6 +127,7 @@ pub fn add_menu(
     container_id,
     label,
     width,
+    label_size=None,
     parent_id=None,
     spacing=None,
     gap=None,
@@ -144,6 +145,7 @@ pub fn add_menu_bar(
     container_id: String,
     label: String,
     width: f32,
+    label_size: Option<f32>,
     parent_id: Option<String>,
     spacing: Option<f32>,
     gap: Option<f32>,
@@ -185,6 +187,7 @@ pub fn add_menu_bar(
         MenuBar {
             id,
             label,
+            label_size,
             width,
             position,
             spacing,
@@ -203,7 +206,6 @@ pub fn add_menu_bar(
 #[pyo3(signature = ( 
     window_id,
     container_id,
-    label,
     width,
     parent_id=None,
     spacing=None,
@@ -220,7 +222,6 @@ pub fn add_menu_bar(
 pub fn add_sub_menu(
     window_id: String,
     container_id: String,
-    label: String,
     width: f32,
     parent_id: Option<String>,
     spacing: Option<f32>,
@@ -262,7 +263,6 @@ pub fn add_sub_menu(
     state.containers.insert(id, Containers::SubMenu(
         SubMenu {
             id,
-            label,
             width,
             position,
             spacing,
@@ -314,78 +314,31 @@ pub fn add_sub_menu(
 ///     The numeric widget ID of the newly created menu sub-item.
 #[pyfunction]
 #[pyo3(signature = (
-    parent_id,
-    label,
-    size=None,
+    window_id, 
+    container_id,
+    parent_id=None,
     ))]
 pub fn add_menu_item(
-    parent_id: String,
-    label: String,
-    size: Option<f32>,
+    window_id: String,
+    container_id: String,
+    parent_id: Option<String>,
 ) -> PyResult<usize>
 {
     let id = get_id(None);
 
-    set_state_of_widget(id, parent_id.clone());
+    let prt_id = match parent_id {
+        Some(id) => id,
+        None => window_id.clone(),
+    };
+
+    set_state_of_container(id, window_id.clone(), Some(container_id.clone()), prt_id);
 
     let mut state = access_state();
 
-    state.widgets.insert(id, Widgets::MenuItem(
+    set_state_cont_wnd_ids(&mut state, &window_id, container_id, id, "add_menu_item".to_string());
+
+    state.containers.insert(id, Containers::MenuItem(
         MenuItem {
-            id,
-            label,
-            size,
-        }));
-
-    drop(state);
-    Ok(id)
-}
-
-#[pyfunction]
-#[pyo3(signature = (
-    parent_id,
-    label,
-    size=None,
-    ))]
-pub fn add_sub_menu_item(
-    parent_id: String,
-    label: String,
-    size: Option<f32>,
-) -> PyResult<usize>
-{
-    let id = get_id(None);
-
-    set_state_of_widget(id, parent_id.clone());
-
-    let mut state = access_state();
-
-    state.widgets.insert(id, Widgets::SubMenuItem(
-        SubMenuItem {
-            id,
-            label,
-            size,
-        }));
-
-    drop(state);
-    Ok(id)
-}
-
-#[pyfunction]
-#[pyo3(signature = (
-    parent_id,
-    ))]
-pub fn add_menu_separator(
-    parent_id: String,
-) -> PyResult<usize>
-{
-    let id = get_id(None);
-
-    set_state_of_widget(id, parent_id.clone());
-
-    let mut state = access_state();
-
-    state.widgets.insert(id, Widgets::MenuSeparator(
-        MenuSeparator {
             id,
         }));
 

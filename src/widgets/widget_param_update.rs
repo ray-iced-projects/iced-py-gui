@@ -64,6 +64,7 @@ pub fn param_update(widget: &mut Widgets, item: &PyObject, value: &PyObject) {
         Widgets::InputInt(w) => apply_update(w, item, value),
         Widgets::InputIntStyle(w) => apply_update(w, item, value),
         // Widgets::MenuStyle(w) => apply_update(w, item, value),
+        Widgets::MenuButtonStyle(w) => apply_update(w, item, value),
         Widgets::Palette(w) => apply_update(w, item, value),
         Widgets::PickList(w) => apply_update(w, item, value),
         Widgets::PickListStyle(w) => apply_update(w, item, value),
@@ -94,9 +95,6 @@ pub fn param_update(widget: &mut Widgets, item: &PyObject, value: &PyObject) {
         Widgets::TextInputStyle(w) => apply_update(w, item, value),
         Widgets::Toggler(w) => apply_update(w, item, value),
         Widgets::TogglerStyle(w) => apply_update(w, item, value),
-        Widgets::MenuItem(menu_item) => todo!(),
-        Widgets::SubMenuItem(sub_menu_item) => todo!(),
-        Widgets::MenuSeparator(menu_separator) => todo!(),
     }
 }
 

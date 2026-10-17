@@ -1,92 +1,16 @@
 //! A menu widget for Iced built on Popover, Stack, and MouseArea.
-//!
-//! This widget enables building interactive menus with:
-//! - Dropdown items with hover navigation and configurable delays
-//! - Unlimited nesting depth with submenus
-//! - Custom widgets as menu items (separators, checkboxes, complex layouts)
-//! - Type-safe message handling via custom `UserMsg` types
-//!
-//! # Basic Example
-//!
-//! ```ignore
-//! use iced_menu::{Menu, MenuConfig, MenuItem, MenuMessage};
-//! use iced::Element;
-//! use std::rc::Rc;
-//!
-//! // Define your menu action type
-//! #[derive(Debug, Clone)]
-//! enum MenuAction {
-//!     NewFile,
-//!     OpenFile,
-//!     Save,
-//! }
-//!
-//! // Create a menu configuration
-//! let menu_config = MenuConfig {
-//!     label: "File",
-//!     label_size: 14.0,
-//!     width: 200.0,
-//!     items: vec![
-//!         MenuItem::Item { label: "New", size: 14.0 },
-//!         MenuItem::Item { label: "Open", size: 14.0 },
-//!         MenuItem::Item { label: "Save", size: 14.0 },
-//!     ],
-//!     ..Default::default()
-//! };
-//!
-//! // Initialize the menu
-//! let mut menu = Menu::default();
-//! menu.configs = vec![menu_config];
-//! menu.is_open = vec![false];
-//!
-//! // Handle messages from the menu
-//! let message = MenuMessage::ItemPressed("Save".to_string());
-//! let _task = menu.update(message);
-//! ```
-//!
-//! # Menu Items
-//!
-//! - **`Item`**: Simple text label with press handling
-//! - **`SubMenu`**: Dropdown with children, uses default label rendering
-//! - **`SubElement`**: Dropdown with custom trigger content (for complex layouts)
-//! - **`Element`**: Arbitrary widget (separators, checkboxes, custom layouts)
-//!
-//! # Rendering
-//!
-//! Use `menu.construct_menu()` to render the menu widget.
-//! The menu handles all hover timing, submenu open/close logic internally.
-//!
+
 
 use iced::widget::{button, text, column, container, row, mouse_area};
 use iced::{Alignment, Element, Task, Theme, Widget};
 use std::time::{Duration, Instant};
 use std::rc::Rc;
 
-use crate::iced_widgets::iced_menu::popover::{Popover, Position};
+
+use super::popover::{Popover, Position};
 
 
 #[derive(Clone)]
-/// Configuration for a menu or submenu dropdown.
-///
-/// # Fields
-/// - `label`: The text shown on the menu button
-/// - `label_size`: Font size for the label
-/// - `items`: Vec of menu items (can include submenus)
-/// - `width`: Fixed width of the dropdown
-/// - `gap`: Optional spacing between trigger and popover
-/// - `position`: Where the popover opens (Right, Left, Top, Bottom)
-/// - `align`: Vertical/horizontal alignment of popover content
-///
-/// # Example
-/// ```ignore
-/// MenuConfig {
-///     label: "File",
-///     label_size: 14.0,
-///     width: 250.0,
-///     items: vec![...],
-///     ..Default::default()
-/// }
-/// ```
 pub struct MenuConfig<'a, UserMsg = ()> {
     pub label: &'a str,
     pub label_size: f32,
@@ -113,46 +37,7 @@ impl<'a, UserMsg> Default for MenuConfig<'a, UserMsg> {
 }
 
 #[derive(Clone)]
-/// Menu item variants that can appear in a dropdown.
-///
-/// # Variants
-///
-/// - **`Item`**: A clickable menu entry with label and font size
-///   ```ignore
-///   MenuItem::Item { label: "Save", size: 14.0 }
-///   ```
-///
-/// - **`SubMenu`**: A dropdown trigger with automatic label rendering
-///   ```ignore
-///   MenuItem::SubMenu {
-///       config: MenuConfig {
-///           label: "File >",
-///           items: vec![...],
-///           ..Default::default()
-///       }
-///   }
-///   ```
-///
-/// - **`SubElement`**: A dropdown trigger with custom content (row, checkbox, etc.)
-///   Use when you need complex layouts like icon + label + shortcut key
-///   ```ignore
-///   MenuItem::SubElement {
-///       content: Rc::new(|| { /* return row with label, keys, icon */ }),
-///       config: MenuConfig { ... }
-///   }
-///   ```
-///
-/// - **`Element`**: Arbitrary widget content (separators, checkboxes, custom layouts)
-///   ```ignore
-///   MenuItem::Element(Rc::new(|| iced::widget::rule::horizontal(2.0).boxed()))
-///   ```
 pub enum MenuItem<'a, UserMsg = ()> {
-    Item{label: &'a str, size: f32},
-    SubMenu {
-        config: MenuConfig<'a, UserMsg>,
-    },
-    /// Like SubMenu but the trigger button's interior is provided by a closure.
-    /// The closure must return content (a row, text, etc.) — not a button.
     SubElement {
         content: Rc<dyn Fn() -> Element<'a, MenuMessage<UserMsg>> + 'a>,
         config: MenuConfig<'a, UserMsg>,
@@ -161,25 +46,6 @@ pub enum MenuItem<'a, UserMsg = ()> {
 }
 
 
-/// Menu state and message handler.
-///
-/// Manages dropdown open/close state, submenu navigation, and hover timing.
-/// Update this with messages from `get_menu()` to respond to user interactions.
-///
-/// # Example
-/// ```ignore
-/// let mut menu = Menu::default();
-/// menu.configs = vec![file_menu, edit_menu];
-/// menu.is_open = vec![false, false];
-///
-/// // In your update handler:
-/// match message {
-///     Message::Menu(mm) => {
-///         let task = menu.update(mm);
-///         // ... handle task
-///     }
-/// }
-/// ```
 pub struct Menu<'a, UserMsg = ()> {
     pub configs: Vec<MenuConfig<'a, UserMsg>>,
     pub is_open: Vec<bool>,
@@ -204,17 +70,6 @@ impl<'a, UserMsg> Menu<'a, UserMsg> {
         }
     }
 
-    /// Initialize menu with configurations and set up state.
-    ///
-    /// # Arguments
-    /// * `menu_configs` - Vector of MenuConfig, one per top-level menu button
-    ///
-    /// # Example
-    /// ```ignore
-    /// let mut menu = Menu::default();
-    /// let configs = vec![file_config, edit_config];
-    /// menu = menu.new(configs);
-    /// ```
     pub fn new(&mut self, menu_configs: Vec<MenuConfig<'a, UserMsg>>) -> Self {
         let mut m = Menu::default();
         m.is_open = vec![false; menu_configs.len()];
@@ -225,23 +80,6 @@ impl<'a, UserMsg> Menu<'a, UserMsg> {
 
 
 #[derive(Debug, Clone)]
-/// Messages emitted by menu interactions.
-///
-/// Most variants are internal; handle `ItemPressed` and `Custom` in your update loop.
-///
-/// # Important Variants
-///
-/// - `ItemPressed(String)`: User clicked a menu item; label is provided
-/// - `Custom(UserMsg)`: Custom message from a menu widget (checkbox, button, etc.)
-///
-/// # Example
-/// ```ignore
-/// match message {
-///     MenuMessage::ItemPressed(label) => println!("Clicked: {}", label),
-///     MenuMessage::Custom(action) => handle_custom_action(action),
-///     _ => { /* internal; forward to menu.update() */ }
-/// }
-/// ```
 pub enum MenuMessage<UserMsg = ()> {
     Close(usize),
     OpenOnHover(usize),
@@ -501,95 +339,7 @@ fn menu_with_subpopovers<'a, UserMsg: Clone + 'a>(
 ) -> Element<'a, MenuMessage<UserMsg>> {
     let buttons: Vec<Element<'a, MenuMessage<UserMsg>>> = config.items.iter().enumerate().map(|(idx, item)| {
         match item {
-            MenuItem::Item {label, size} => {
-                let lbl = 
-                    text(*label).size(*size).boxed();
-                button(lbl)
-                    .width(iced::Length::Fill)
-                    .on_press(MenuMessage::ItemPressed(label.to_string()))
-                    .style(|theme, status|
-                        button::text(theme, status))
-                    .boxed()
-            }
             MenuItem::Element(f) => f(),
-            MenuItem::SubMenu { config: sub_config } => {
-                let mut submenu_path = current_path.clone();
-                submenu_path.push(idx);
-                
-                // A submenu is open if it matches open_submenus or if open_submenus is deeper and this is an ancestor
-                let is_open = open_submenus == submenu_path || 
-                    (open_submenus.len() > submenu_path.len() && 
-                    open_submenus[0..submenu_path.len()] == submenu_path[..]);
-                
-                let submenu_content = if is_open {
-                    let content = menu_with_subpopovers(
-                        sub_config,
-                        open_submenus.clone(),
-                        submenu_path.clone(),
-                    );
-                    
-                    let leave_path = submenu_path.clone();
-                    let enter_path = submenu_path.clone();
-                    
-                    // Wrap content in mouse area first, then container for styling
-                    let with_mouse_area = mouse_area(content)
-                        .on_exit(MenuMessage::StartCloseSubmenuTimer(leave_path))
-                        .on_enter(MenuMessage::CancelCloseSubmenuTimer(enter_path))
-                        .boxed();
-                    
-                    let styled_content = 
-                        container(with_mouse_area)
-                        .width(iced::Length::Fixed(sub_config.width))
-                        .style(|theme: &Theme| container::bordered_box(theme))
-                        .padding(5.0)
-                        .boxed();
-                    
-                    Some(styled_content)
-                } else {
-                    None
-                };
-                
-                let toggle_path = submenu_path.clone();
-                let hover_path = submenu_path.clone();
-                let exit_path_cancel = submenu_path.clone();
-                let exit_path_close = submenu_path.clone();
-                let close_path = submenu_path;
-                
-                let label = 
-                    text(sub_config.label)
-                    .size(sub_config.label_size)
-                    .boxed();
-                let btn = 
-                    button(label)
-                    .width(iced::Length::Fill)
-                    .on_press(MenuMessage::ToggleSubmenu(toggle_path))
-                    .style(|theme, status| button::text(theme, status))
-                    .boxed();
-                
-                let btn_with_mouse = if is_open {
-                    // If submenu is open, exiting the button should start close timer
-                    mouse_area(btn)
-                        .on_enter(MenuMessage::OpenSubmenuOnHover(hover_path))
-                        .on_exit(MenuMessage::StartCloseSubmenuTimer(exit_path_close))
-                        .boxed()
-                } else {
-                    // If submenu is not open, exiting the button should cancel open timer
-                    mouse_area(btn)
-                        .on_enter(MenuMessage::OpenSubmenuOnHover(hover_path))
-                        .on_exit(MenuMessage::CancelSubmenuTimer(exit_path_cancel))
-                        .boxed()
-                };
-                
-                Popover::new(
-                    btn_with_mouse,
-                    submenu_content,
-                )
-                .position(sub_config.position.unwrap_or(Position::Right))
-                .align(config.align.unwrap_or(Alignment::Start))
-                .gap(config.gap.unwrap_or_default())
-                .on_close(MenuMessage::CloseSubmenu(close_path))
-                .boxed()
-            }
             MenuItem::SubElement { content, config: sub_config } => {
                 let mut submenu_path = current_path.clone();
                 submenu_path.push(idx);
@@ -666,91 +416,7 @@ fn submenu_with_subpopovers<UserMsg: Clone + 'static>(
 ) -> Element<'static, MenuMessage<UserMsg>> {
     let buttons: Vec<Element<'static, MenuMessage<UserMsg>>> = config.items.iter().enumerate().map(|(idx, item)| {
         match item {
-            MenuItem::Item{label, size} => {
-                let lbl = 
-                    text(*label).size(*size).boxed();
-                button(lbl)
-                    .width(iced::Length::Fill)
-                    .on_press(MenuMessage::ItemPressed(label.to_string()))
-                    .style(|theme, status|
-                        button::text(theme, status))
-                    .boxed()
-            }
             MenuItem::Element(f) => f(),
-            MenuItem::SubMenu { config: sub_config } => {
-                let mut submenu_path = current_path.clone();
-                submenu_path.push(idx);
-                
-                let is_open = open_submenus == submenu_path || 
-                    (open_submenus.len() > submenu_path.len() && 
-                    open_submenus[0..submenu_path.len()] == submenu_path[..]);
-                
-                let submenu_content = if is_open {
-                    let content = submenu_with_subpopovers(
-                        sub_config,
-                        open_submenus.clone(),
-                        submenu_path.clone(),
-                    );
-                    
-                    let leave_path = submenu_path.clone();
-                    let enter_path = submenu_path.clone();
-                    
-                    let with_mouse_area = mouse_area(content)
-                        .on_exit(MenuMessage::StartCloseSubmenuTimer(leave_path))
-                        .on_enter(MenuMessage::CancelCloseSubmenuTimer(enter_path))
-                        .boxed();
-                    
-                    let styled_content = 
-                        container(with_mouse_area)
-                        .width(iced::Length::Fixed(sub_config.width))
-                        .style(|theme: &Theme| container::bordered_box(theme))
-                        .padding(5.0)
-                        .boxed();
-                    
-                    Some(styled_content)
-                } else {
-                    None
-                };
-                
-                let toggle_path = submenu_path.clone();
-                let hover_path = submenu_path.clone();
-                let exit_path_cancel = submenu_path.clone();
-                let exit_path_close = submenu_path.clone();
-                let close_path = submenu_path;
-                
-                let label = 
-                    text(sub_config.label)
-                    .size(sub_config.label_size)
-                    .boxed();
-                let btn = 
-                    button(label)
-                    .width(iced::Length::Fill)
-                    .on_press(MenuMessage::ToggleSubmenu(toggle_path))
-                    .style(|theme, status| button::text(theme, status))
-                    .boxed();
-                
-                let btn_with_mouse = if is_open {
-                    mouse_area(btn)
-                        .on_enter(MenuMessage::OpenSubmenuOnHover(hover_path))
-                        .on_exit(MenuMessage::StartCloseSubmenuTimer(exit_path_close))
-                        .boxed()
-                } else {
-                    mouse_area(btn)
-                        .on_enter(MenuMessage::OpenSubmenuOnHover(hover_path))
-                        .on_exit(MenuMessage::CancelSubmenuTimer(exit_path_cancel))
-                        .boxed()
-                };
-                
-                Popover::new(
-                    btn_with_mouse,
-                    submenu_content,
-                )
-                .position(sub_config.position.unwrap_or(Position::Right))
-                .align(sub_config.align.unwrap_or(Alignment::Start))
-                .gap(sub_config.gap.unwrap_or_default())
-                .on_close(MenuMessage::CloseSubmenu(close_path))
-                .boxed()
-            }
             MenuItem::SubElement { content, config: sub_config } => {
                 let mut submenu_path = current_path.clone();
                 submenu_path.push(idx);

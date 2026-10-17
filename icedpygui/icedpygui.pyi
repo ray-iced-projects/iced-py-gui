@@ -757,19 +757,8 @@ def add_menu_style(
 
     """
 
-class MenuSeparatorType:
-    """
-    The separator types id used.
-    """
-    Circle=''
-    Dot=''
-    Label=''
-    Line=''
-
-
 def add_menu_separator_style(
         style_id: str,
-        separator_type: MenuSeparatorType,
         *,
         height: float=20.0,
         height_fill: bool=False,
@@ -3103,37 +3092,6 @@ class MenuParam:
 #     ShadowRgbaColor:list[float, 4]
 #     ShadowOffsetXY:list[float, 2]
 #     ShadowBlurRadius:float
-
-
-class MenuSeparatorStyleParam:
-    """Menu Separator style parameters"""
-    SeparatorType:MenuSeparatorType
-    Width:float
-    WidthFill:bool
-    Height:float
-    HeightFill:bool
-    QuadRatios:list[float, 2]
-    SeparatorColor:Color
-    SeparatorRgbaColor:list[float, 4]
-    SeparatorBorderColor:Color
-    SeparatorBorderRgbaColor:list[float, 4]
-    SeparatorBorderRadius:list[float]
-    SeparatorBorderWidth:float
-    SeparatorShadowColor:Color
-    SeparatorShadowRgbaColor:list[float, 4]
-    SeparatorShadowOffset:float
-    SeparatorShadowBlurRadius:float
-    BackgroundColor:Color
-    BackgroundRgbaColor:list[float, 4]
-    BackgroundBorderColor:Color
-    BackgroundBorderRbgaColor:list[float, 4]
-    BackgroundBorderWidth:float
-    BackgroundBorderRadius:list[float]
-    BackgroundShadowColor:Color
-    BackgroundShadowRbgaColor:list[float, 4]
-    BackgroundShadowOffset:float
-    BackgroundShadowBlurRadius:float
-
 
 class MenuType:
     """

@@ -58,6 +58,46 @@ impl Menu {
         widgets: &'a HashMap<usize, Widgets>,
         containers: &'a HashMap<usize, Containers>,
     ) -> Option<Element<'a, app::Message, Theme, Renderer>> {
+        for (wid, cont) in containers {
+            dbg!("*********Start*************");
+            dbg!(&wid);
+            match cont {
+                Containers::Menu(menu) => {
+                    dbg!(&"menu", &menu);
+                },
+                Containers::MenuBar(menu_bar) => {
+                    dbg!(&"menu_bar", &menu_bar);
+                },
+                Containers::MenuButton(menu_button) => {
+                    dbg!(&"menu_button", &menu_button);
+                },
+                Containers::SubMenu(sub_menu) => {
+                    dbg!(&"sub_menu", &sub_menu);
+                },
+                Containers::MenuItem(menu_item) => {
+                    dbg!(&"menu_item", &menu_item);
+                },
+                _ => ()
+            }
+        }
+        for (wid, grp) in grouped_content.iter() {
+            dbg!(&wid);
+            for g in grp {
+                match g {
+                    GroupedItem::Plain(_element) => {
+                        dbg!("Plain");
+                    },
+                    GroupedItem::Sub { 
+                        trigger, 
+                        children, 
+                        sub_item_id } => {
+                            dbg!(children.len());
+                            dbg!(sub_item_id);
+                        },
+                }
+            }
+        }
+        
         None
     }
 }
@@ -115,6 +155,7 @@ impl MenuStyleOverrides {
 pub struct MenuBar {
     pub id: usize,
     pub label: String,
+    pub label_size: Option<f32>,
     pub width: f32,
     pub position: Position,
     pub spacing: Option<f32>,
@@ -127,7 +168,6 @@ pub struct MenuBar {
 #[derive(Debug, Clone, Default)]
 pub struct SubMenu {
     pub id: usize,
-    pub label: String,
     pub width: f32,
     pub position: Position,
     pub spacing: Option<f32>,
@@ -140,8 +180,6 @@ pub struct SubMenu {
 #[derive(Debug, Clone, Default)]
 pub struct MenuItem {
     pub id: usize,
-    pub label: String,
-    pub size: Option<f32>,
 }
 
 #[derive(Debug, Clone, Default)]
@@ -157,10 +195,14 @@ pub struct MenuSeparator {
 }
 
 #[derive(Debug, Clone)]
-pub enum MenuMessage {}
+pub enum MenuMessage {
+    OnPress,
+}
 
 pub fn menu_callback(state: &mut IpgState, id: usize, message: MenuMessage) {
-    match message {}
+    match message {
+        MenuMessage::OnPress => todo!(),
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Hash)]

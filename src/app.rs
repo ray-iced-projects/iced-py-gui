@@ -959,6 +959,14 @@ fn get_container<'a>(state: &'a IpgState,
                     // it should never reach get_container.
                     panic!("MenuSub should not reach get_container directly")
                 },
+                Containers::MenuItem(_) => {
+                    // MenuSubItem children are consumed by collect_sub_items;
+                    // it should never reach get_container.
+                    panic!("MenuItem should not reach get_container directly")
+                },
+                Containers::MenuButton(mb) => {
+                    mb.construct(content, &state.widgets)
+                }
                 Containers::MouseArea(m_area) => {
                     m_area.construct(content)
                 },
@@ -1099,9 +1107,6 @@ fn get_widget<'a>(state: &'a IpgState, id: &usize) -> Option<Element<'a, Message
                     eprint!("ERROR: add_icon() is a special method which doesn't have a widget construct method, returning None");
                     None
                 },
-                widgets::MenuSeparator(_) => {
-                    None
-                }
                 Widgets::Palette(_) => {
                     eprint!("ERROR: get_color_palette() is a special method which doesn't have a widget construct method, returning None");
                     None
@@ -1122,6 +1127,7 @@ fn get_widget<'a>(state: &'a IpgState, id: &usize) -> Option<Element<'a, Message
                 Widgets::ContainerStyle(_) |
                 Widgets::InputFloatStyle(_) |
                 Widgets::InputIntStyle(_) |
+                Widgets::MenuButtonStyle(_) |
                 Widgets::PickListStyle(_) |
                 Widgets::ProgressBarStyle(_) |
                 Widgets::RadioStyle(_) |
@@ -1506,6 +1512,7 @@ fn process_shows(
             | Widgets::Icon(_)
             | Widgets::InputFloatStyle(_)
             | Widgets::InputIntStyle(_)
+            | Widgets::MenuButtonStyle(_)
             | Widgets::Palette(_)
             | Widgets::PickListStyle(_)
             | Widgets::ProgressBarStyle(_)

@@ -55,6 +55,7 @@ use crate::py_api::image::add_image;
 use crate::py_api::input_float::{add_input_float, add_input_float_style};
 use crate::py_api::input_int::{add_input_int, add_input_int_style};
 use crate::py_api::menu::{add_menu, add_menu_bar, add_sub_menu, add_menu_item};
+use crate::py_api::menu_button::add_menu_button;
 use crate::py_api::mouse_area::add_mouse_area;
 use crate::py_api::opaque::add_opaque;
 use crate::py_api::palette_helpers::{get_widget_palette_list, get_widget_palette_part};
@@ -182,8 +183,9 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(add_input_int_style, m)?)?;
     m.add_function(wrap_pyfunction!(add_menu, m)?)?;
     m.add_function(wrap_pyfunction!(add_menu_bar, m)?)?;
-    m.add_function(wrap_pyfunction!(add_sub_menu, m)?)?;
+    m.add_function(wrap_pyfunction!(add_menu_button, m)?)?;
     m.add_function(wrap_pyfunction!(add_menu_item, m)?)?;
+    m.add_function(wrap_pyfunction!(add_sub_menu, m)?)?;
     // m.add_function(wrap_pyfunction!(add_menu_style, m)?)?;
     m.add_function(wrap_pyfunction!(add_mouse_area, m)?)?;
     m.add_function(wrap_pyfunction!(add_opaque, m)?)?;

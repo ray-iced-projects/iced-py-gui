@@ -114,6 +114,12 @@ pub fn add_menu(
     state.containers.insert(id, Containers::Menu(
         Menu {
             id,
+            is_open: vec![],
+            open_submenus: vec![],
+            pending_submenu: None,
+            pending_timer: None,
+            pending_close: None,
+            close_timer: None,
         }));
 
     drop(state);

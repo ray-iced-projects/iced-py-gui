@@ -249,9 +249,9 @@ impl App {
                 get_tasks(&mut self.state)
             },
             Message::Menu(id, message) => {
-                menu_callback(&mut self.state, id, message);
+                let task = menu_callback(&mut self.state, id, message);
                 process_widget_updates(&mut self.state);
-                Task::none()
+                task
             },
             Message::MouseArea(id, message) => {
                 mousearea_callback(id, message);
@@ -329,7 +329,7 @@ impl App {
     pub fn view(&self, window_id: window::Id) -> impl Widget<Message> {
 
         let (debug, theme) = get_window_values(window_id, &self.state);
-        println!("***View Start***");
+
         let content = 
             create_content(window_id, &self.state);
         

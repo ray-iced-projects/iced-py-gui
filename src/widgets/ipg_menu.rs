@@ -70,11 +70,11 @@ impl Menu {
                 Some(Containers::MenuBar(b)) => b,
                 _ => continue,
             };
-
+            
             let is_open = self.is_open.get(bar_idx).copied().unwrap_or(false);
 
             let dropdown = if is_open {
-                let content = render_items(items, &self.open_submenus, vec![bar_idx], menu_id, containers);
+                let content = render_items(items, &self.open_submenus, vec![bar_idx], menu_id, containers, bar.dropdown_width, bar.spacing.unwrap_or_default());
                 Some(
                     container(content)
                         .style(|theme: &Theme| container::bordered_box(theme))
@@ -85,9 +85,11 @@ impl Menu {
                 None
             };
 
-            let label_el = text(bar.label.clone()).size(bar.label_size.unwrap_or(14.0)).boxed();
+            let label_el = text(bar.label.clone()).size(bar.label_size.unwrap_or(13.0)).boxed();
             let btn = button(label_el)
                 .on_press(Message::Menu(menu_id, MenuMessage::Close(bar_idx)))
+                .width(bar.width)
+                .padding(0)
                 .style(|theme, status| button::text(theme, status))
                 .boxed();
 
@@ -109,32 +111,101 @@ impl Menu {
             return None;
         }
 
-        Some(row(bar_elements).boxed())
+        Some(row(bar_elements).padding(10.0).boxed())
     }
 }
 
-// fn get_menu_position(menu: &Menu, is_bar: bool) -> Position {
-//     match (
-//         menu.dropdown_open_auto,
-//         menu.dropdown_open_bottom,
-//         menu.dropdown_open_left,
-//         menu.dropdown_open_top,
-//         menu.dropdown_open_right,
-//     ) {
-//         (Some(true), None, None, None, None) => Position::Auto,
-//         (None, Some(true), None, None, None) => Position::Bottom,
-//         (None, None, Some(true), None, None) => Position::Left,
-//         (None, None, None, Some(true), None) => Position::Right,
-//         (None, None, None, None, Some(true)) => Position::Top,
-//         _ => {
-//             if is_bar {
-//                 Position::Bottom
-//             } else {
-//                 Position::Right
-//             }
-//         }
-//     }
-// }
+fn render_items<'a>(
+    items: Vec<GroupedItem<'a>>,
+    open_submenus: &[usize],
+    current_path: Vec<usize>,
+    menu_id: usize,
+    containers: &'a HashMap<usize, Containers>,
+    bar_width: f32,
+    spacing: f32,
+) -> Element<'a, Message> {
+    let mut elements: Vec<Element<'a, Message>> = vec![];
+
+    for (idx, item) in items.into_iter().enumerate() {
+        match item {
+            GroupedItem::Plain(el) => {
+                elements.push(el);
+            }
+            GroupedItem::Sub {
+                trigger,
+                children,
+                sub_item_id,
+            } => {
+                let mut submenu_path = current_path.clone();
+                submenu_path.push(idx);
+
+                let is_open = open_submenus == submenu_path.as_slice()
+                    || (open_submenus.len() > submenu_path.len()
+                        && open_submenus[..submenu_path.len()] == submenu_path[..]);
+
+                let (sub_width, sub_position, sub_gap) = match containers.get(&sub_item_id) {
+                    Some(Containers::SubMenu(sm)) => (sm.width, sm.position, sm.gap.unwrap_or(5.0)),
+                    _ => (200.0, Position::Right, 5.0),
+                };
+
+                let submenu_el = if is_open {
+                    let inner = render_items(children, open_submenus, submenu_path.clone(), menu_id, containers, bar_width, spacing);
+                    let leave_path = submenu_path.clone();
+                    let enter_path = submenu_path.clone();
+                    let with_mouse = mouse_area(inner)
+                        .on_exit(Message::Menu(menu_id, MenuMessage::StartCloseSubmenuTimer(leave_path)))
+                        .on_enter(Message::Menu(menu_id, MenuMessage::CancelCloseSubmenuTimer(enter_path)))
+                        .boxed();
+                    Some(
+                        container(with_mouse)
+                            .width(Length::Fixed(sub_width))
+                            .style(|theme: &Theme| container::bordered_box(theme))
+                            .padding(5.0)
+                            .boxed(),
+                    )
+                } else {
+                    None
+                };
+
+                let toggle_path = submenu_path.clone();
+                let hover_path = submenu_path.clone();
+                let exit_cancel = submenu_path.clone();
+                let exit_close = submenu_path.clone();
+                let close_path = submenu_path;
+
+                let btn = button(trigger)
+                    .width(Length::Fill)
+                    .on_press(Message::Menu(menu_id, MenuMessage::ToggleSubmenu(toggle_path)))
+                    .padding(0.0)
+                    .style(|theme, status| button::text(theme, status))
+                    .boxed();
+
+                let btn_with_mouse = if is_open {
+                    mouse_area(btn)
+                        .on_enter(Message::Menu(menu_id, MenuMessage::OpenSubmenuOnHover(hover_path)))
+                        .on_exit(Message::Menu(menu_id, MenuMessage::StartCloseSubmenuTimer(exit_close)))
+                        .boxed()
+                } else {
+                    mouse_area(btn)
+                        .on_enter(Message::Menu(menu_id, MenuMessage::OpenSubmenuOnHover(hover_path)))
+                        .on_exit(Message::Menu(menu_id, MenuMessage::CancelSubmenuTimer(exit_cancel)))
+                        .boxed()
+                };
+
+                let pop = Popover::new(btn_with_mouse, submenu_el)
+                    .position(sub_position)
+                    .align(Alignment::Start)
+                    .gap(sub_gap)
+                    .on_close(Message::Menu(menu_id, MenuMessage::CloseSubmenu(close_path)))
+                    .boxed();
+
+                elements.push(pop);
+            }
+        }
+    }
+
+    column(elements).width(bar_width).spacing(spacing).boxed()
+}
 
 pub fn get_position(dropdowns: [Option<bool>; 5]) -> Position {
     match dropdowns {
@@ -168,6 +239,7 @@ pub struct MenuBar {
     pub label: String,
     pub label_size: Option<f32>,
     pub width: f32,
+    pub dropdown_width: f32,
     pub position: Position,
     pub spacing: Option<f32>,
     pub gap: Option<f32>,
@@ -190,18 +262,6 @@ pub struct SubMenu {
 
 #[derive(Debug, Clone, Default)]
 pub struct MenuItem {
-    pub id: usize,
-}
-
-#[derive(Debug, Clone, Default)]
-pub struct SubMenuItem {
-    pub id: usize,
-    pub label: String,
-    pub size: Option<f32>,
-}
-
-#[derive(Debug, Clone, Default)]
-pub struct MenuSeparator {
     pub id: usize,
 }
 
@@ -391,95 +451,6 @@ pub fn menu_callback(state: &mut IpgState, id: usize, message: MenuMessage) -> T
             Task::none()
         }
     }
-}
-
-fn render_items<'a>(
-    items: Vec<GroupedItem<'a>>,
-    open_submenus: &[usize],
-    current_path: Vec<usize>,
-    menu_id: usize,
-    containers: &'a HashMap<usize, Containers>,
-) -> Element<'a, Message> {
-    let mut elements: Vec<Element<'a, Message>> = vec![];
-
-    for (idx, item) in items.into_iter().enumerate() {
-        match item {
-            GroupedItem::Plain(el) => {
-                elements.push(el);
-            }
-            GroupedItem::Sub {
-                trigger,
-                children,
-                sub_item_id,
-            } => {
-                let mut submenu_path = current_path.clone();
-                submenu_path.push(idx);
-
-                let is_open = open_submenus == submenu_path.as_slice()
-                    || (open_submenus.len() > submenu_path.len()
-                        && open_submenus[..submenu_path.len()] == submenu_path[..]);
-
-                let (sub_width, sub_position, sub_gap) = match containers.get(&sub_item_id) {
-                    Some(Containers::SubMenu(sm)) => (sm.width, sm.position, sm.gap.unwrap_or(0.0)),
-                    _ => (200.0, Position::Right, 0.0),
-                };
-
-                let submenu_el = if is_open {
-                    let inner = render_items(children, open_submenus, submenu_path.clone(), menu_id, containers);
-                    let leave_path = submenu_path.clone();
-                    let enter_path = submenu_path.clone();
-                    let with_mouse = mouse_area(inner)
-                        .on_exit(Message::Menu(menu_id, MenuMessage::StartCloseSubmenuTimer(leave_path)))
-                        .on_enter(Message::Menu(menu_id, MenuMessage::CancelCloseSubmenuTimer(enter_path)))
-                        .boxed();
-                    Some(
-                        container(with_mouse)
-                            .width(Length::Fixed(sub_width))
-                            .style(|theme: &Theme| container::bordered_box(theme))
-                            .padding(5.0)
-                            .boxed(),
-                    )
-                } else {
-                    None
-                };
-
-                let toggle_path = submenu_path.clone();
-                let hover_path = submenu_path.clone();
-                let exit_cancel = submenu_path.clone();
-                let exit_close = submenu_path.clone();
-                let close_path = submenu_path;
-
-                let btn = button(trigger)
-                    .width(Length::Fill)
-                    .on_press(Message::Menu(menu_id, MenuMessage::ToggleSubmenu(toggle_path)))
-                    .style(|theme, status| button::text(theme, status))
-                    .boxed();
-
-                let btn_with_mouse = if is_open {
-                    mouse_area(btn)
-                        .on_enter(Message::Menu(menu_id, MenuMessage::OpenSubmenuOnHover(hover_path)))
-                        .on_exit(Message::Menu(menu_id, MenuMessage::StartCloseSubmenuTimer(exit_close)))
-                        .boxed()
-                } else {
-                    mouse_area(btn)
-                        .on_enter(Message::Menu(menu_id, MenuMessage::OpenSubmenuOnHover(hover_path)))
-                        .on_exit(Message::Menu(menu_id, MenuMessage::CancelSubmenuTimer(exit_cancel)))
-                        .boxed()
-                };
-
-                let pop = Popover::new(btn_with_mouse, submenu_el)
-                    .position(sub_position)
-                    .align(Alignment::Start)
-                    .gap(sub_gap)
-                    .on_close(Message::Menu(menu_id, MenuMessage::CloseSubmenu(close_path)))
-                    .boxed();
-
-                elements.push(pop);
-            }
-        }
-    }
-
-    column(elements).boxed()
 }
 
 #[derive(Debug, Clone, PartialEq, Hash)]

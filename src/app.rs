@@ -575,9 +575,11 @@ fn get_tasks(ipg_state: &mut IpgState) -> Task<Message> {
 /// - If no root container is returned from `get_children()`
 fn create_content<'a>(
     iced_id: window::Id, 
-    state: &'a IpgState, 
+    state: &'a IpgState,
     // canvas_state: &'a IpgCanvasState
     ) -> impl Widget<Message> {
+    
+    let (_, theme) = get_window_values(iced_id, state);
     
     let ipg_window_id_opt = state.windows_iced_ipg_ids.get(&iced_id);
 
@@ -599,6 +601,7 @@ fn create_content<'a>(
             &0, 
             &unique_parent_ids,
             state,
+            &theme,
         );
     content.expect("Root container should always produce an element")
 }
@@ -711,6 +714,7 @@ fn get_children<'a>(parents: &Vec<ParentChildIds>,
                 index: &usize, 
                 parent_ids: &Vec<usize>, 
                 state: &'a IpgState,
+                theme: &Theme,
                 ) -> Option<Element<'a, Message>>
 {
 
@@ -721,7 +725,7 @@ fn get_children<'a>(parents: &Vec<ParentChildIds>,
     // Special handling for Menu: build grouped content from MenuBarItem children
     if id != &0 {
         if let Some(Containers::Menu(menu)) = state.containers.get(id) {
-            let grouped = get_menu_children(parents, index, parent_ids, state);
+            let grouped = get_menu_children(parents, index, parent_ids, state, theme);
             return menu.construct(grouped, &state.widgets, &state.containers);
         }
 
@@ -730,7 +734,7 @@ fn get_children<'a>(parents: &Vec<ParentChildIds>,
         }
 
         if let Some(Containers::Table(table)) = state.containers.get(id) {
-            let sections = get_table_sections(parents, index, parent_ids, state);
+            let sections = get_table_sections(parents, index, parent_ids, state, theme);
             return table.construct(sections, &state.widgets);
         }
     }
@@ -738,11 +742,11 @@ fn get_children<'a>(parents: &Vec<ParentChildIds>,
     for child in parents[*index].child_ids.iter() {
         if parent_ids.contains(child) {
             let index = parents.iter().position(|r| &r.parent_id == child).unwrap();
-            if let Some(el) = get_children(parents, &index, parent_ids, state) {
+            if let Some(el) = get_children(parents, &index, parent_ids, state, theme) {
                 content.push(el);
             }
-        } else if get_widget(state, child).is_some() {
-                content.push(get_widget(state, child).unwrap());
+        } else if let Some(el) = get_widget(state, child, theme) {
+                content.push(el);
         }
     }
 
@@ -763,6 +767,7 @@ fn get_menu_children<'a>(
     menu_index: &usize,
     parent_ids: &Vec<usize>,
     state: &'a IpgState,
+    theme: &Theme,
 ) -> Vec<(usize, Vec<GroupedItem<'a>>)> {
     let mut grouped: Vec<(usize, Vec<GroupedItem<'a>>)> = vec![];
 
@@ -782,10 +787,11 @@ fn get_menu_children<'a>(
                         &item_index,
                         parent_ids,
                         state,
+                        theme,
                     ) {
                         group.push(grouped_item);
                     }
-                } else if let Some(widget_el) = get_widget(state, menu_item_id) {
+                } else if let Some(widget_el) = get_widget(state, menu_item_id, theme) {
                     // Direct widget child of MenuBar (edge case)
                     group.push(GroupedItem::Plain(widget_el));
                 }
@@ -806,6 +812,7 @@ fn collect_menu_item_content<'a>(
     item_index: &usize,
     parent_ids: &Vec<usize>,
     state: &'a IpgState,
+    theme: &Theme,
 ) -> Option<GroupedItem<'a>> {
     let child_ids = &parents[*item_index].child_ids;
     if child_ids.is_empty() {
@@ -824,11 +831,11 @@ fn collect_menu_item_content<'a>(
             } else {
                 // Other containers as content
                 let idx = parents.iter().position(|r| &r.parent_id == child_id).unwrap();
-                if let Some(el) = get_children(parents, &idx, parent_ids, state) {
+                if let Some(el) = get_children(parents, &idx, parent_ids, state, theme) {
                     content_widgets.push(el);
                 }
             }
-        } else if let Some(widget_el) = get_widget(state, child_id) {
+        } else if let Some(widget_el) = get_widget(state, child_id, theme) {
             // Direct widget child
             content_widgets.push(widget_el);
         }
@@ -842,7 +849,7 @@ fn collect_menu_item_content<'a>(
     // If we have a SubMenu, build as GroupedItem::Sub
     if let Some(sub_id) = submenu_id {
         let sub_index = parents.iter().position(|r| r.parent_id == sub_id).unwrap();
-        let sub_children = collect_sub_items(parents, &sub_index, parent_ids, state);
+        let sub_children = collect_sub_items(parents, &sub_index, parent_ids, state, theme);
 
         // Combine content widgets into a single trigger element
         let trigger = if content_widgets.is_empty() {
@@ -876,6 +883,7 @@ fn collect_sub_items<'a>(
     sub_index: &usize,
     parent_ids: &Vec<usize>,
     state: &'a IpgState,
+    theme: &Theme,
 ) -> Vec<GroupedItem<'a>> {
     let child_ids = &parents[*sub_index].child_ids;
     if child_ids.is_empty() {
@@ -895,17 +903,18 @@ fn collect_sub_items<'a>(
                     &item_index,
                     parent_ids,
                     state,
+                    theme,
                 ) {
                     children.push(grouped_item);
                 }
             } else {
                 // Other containers (non-MenuItem)
                 let idx = parents.iter().position(|r| &r.parent_id == child_id).unwrap();
-                if let Some(el) = get_children(parents, &idx, parent_ids, state) {
+                if let Some(el) = get_children(parents, &idx, parent_ids, state, theme) {
                     children.push(GroupedItem::Plain(el));
                 }
             }
-        } else if let Some(widget_el) = get_widget(state, child_id) {
+        } else if let Some(widget_el) = get_widget(state, child_id, theme) {
             children.push(GroupedItem::Plain(widget_el));
         }
     }
@@ -921,6 +930,7 @@ fn get_table_sections<'a>(
     table_index: &usize,
     parent_ids: &Vec<usize>,
     state: &'a IpgState,
+    theme: &Theme,
 ) -> TableSections<'a> {
     let mut header = vec![];
     let mut body   = vec![];
@@ -941,10 +951,10 @@ fn get_table_sections<'a>(
         for gc in parents[section_index].child_ids.iter() {
             if parent_ids.contains(gc) {
                 let idx = parents.iter().position(|r| &r.parent_id == gc).unwrap();
-                if let Some(el) = get_children(parents, &idx, parent_ids, state) {
+                if let Some(el) = get_children(parents, &idx, parent_ids, state, theme) {
                     target.push(el);
                 }
-            } else if let Some(el) = get_widget(state, gc) {
+            } else if let Some(el) = get_widget(state, gc, theme) {
                 target.push(el);
             }
         }
@@ -1098,7 +1108,7 @@ fn get_container<'a>(state: &'a IpgState,
     
 }
 
-fn get_widget<'a>(state: &'a IpgState, id: &usize) -> Option<Element<'a, Message>> {
+fn get_widget<'a>(state: &'a IpgState, id: &usize, theme: &Theme) -> Option<Element<'a, Message>> {
 
     let widget_opt = state.widgets.get(id);
 
@@ -1137,7 +1147,7 @@ fn get_widget<'a>(state: &'a IpgState, id: &usize) -> Option<Element<'a, Message
                     rule.construct(&state.widgets)
                 },
                 Widgets::Separator(sep) => {
-                    sep.construct(&state.widgets)
+                    sep.construct(&state.widgets, theme)
                 },
                 Widgets::Slider(slider) => {
                     slider.construct(&state.widgets)

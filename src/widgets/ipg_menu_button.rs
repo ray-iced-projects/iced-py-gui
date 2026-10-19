@@ -56,7 +56,7 @@ impl MenuButton {
 
     pub fn construct<'a>(
         &'a self,
-        mut content: Vec<Element<'a, Message>>,
+        content: Vec<Element<'a, Message>>,
         widgets: &HashMap<usize, Widgets>
     ) -> Option<Element<'a, Message>> {
         if !self.show {
@@ -101,7 +101,7 @@ impl MenuButton {
                 } else {
                     match &self.style_std {
                         Some(std) => std.to_iced(theme, status),
-                        None => button::primary(theme, status),
+                        None => button::text(theme, status),
                     }
                 }
             })

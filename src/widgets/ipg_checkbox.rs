@@ -14,6 +14,7 @@ use crate::widgets::widget_param_update::{WidgetParamUpdate, set_t_value};
 use crate::graphics::BOOTSTRAP_FONT;
 use crate::graphics::bootstrap::bootstrap_icon::Icon;
 
+use iced::Pixels;
 use iced::advanced::text;
 use iced::widget::text::{LineHeight, Shaping, Wrapping};
 use iced::widget::{Checkbox, checkbox};
@@ -188,6 +189,10 @@ impl CheckBox {
         } else {
             chk
         };
+
+        let chk = if let Some(size) = self.text_size {
+            chk.text_size(Pixels(size))
+        } else { chk };
 
         // default is word so not checked
         let chk = if self.text_wrapping_none.is_some() {

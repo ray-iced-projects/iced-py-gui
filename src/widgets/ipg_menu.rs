@@ -6,7 +6,7 @@ use std::collections::HashMap;
 use std::time::{Duration, Instant};
 
 use iced::widget::{button, column, container, mouse_area, row, text};
-use iced::{Alignment, Element, Length, Renderer, Task, Theme, Widget};
+use iced::{Alignment, Element, Length, Padding, Renderer, Task, Theme, Widget};
 
 use crate::IpgState;
 use crate::app::Message;
@@ -16,7 +16,7 @@ use crate::state::Widgets;
 use crate::widgets::callbacks::{CallbackName, invoke_callback};
 
 use crate::widgets::ipg_button::{ButtonStyle, ButtonStyleStd};
-use crate::widgets::ipg_container::ContainerStyleStd;
+use crate::widgets::ipg_container::{ContainerStyle, ContainerStyleStd};
 use crate::{
     app,
     state::Containers,
@@ -52,18 +52,20 @@ pub struct Menu {
 }
 
 impl Menu {
-
     fn lookup<'a>(&self, widgets: &'a HashMap<usize, Widgets>, id: Option<usize>) -> Option<&'a Widgets> {
         id.and_then(|id| widgets.get(&id))
     }
-    
+
+    fn lookup_container_style(&self, widgets: &HashMap<usize, Widgets>, id: Option<usize>) -> Option<ContainerStyle> {
+        self.lookup(widgets, id).and_then(Widgets::as_container_style).cloned()
+    }
+
     pub fn construct<'a>(
         &'a self,
         grouped_content: Vec<(usize, Vec<GroupedItem<'a>>)>,
         widgets: &'a HashMap<usize, Widgets>,
         containers: &'a HashMap<usize, Containers>,
     ) -> Option<Element<'a, app::Message, Theme, Renderer>> {
-        
         if grouped_content.is_empty() {
             return None;
         }
@@ -76,31 +78,38 @@ impl Menu {
                 Some(Containers::MenuBar(b)) => b,
                 _ => continue,
             };
-            
+
             let is_open = self.is_open.get(bar_idx).copied().unwrap_or(false);
 
             let dropdown = if is_open {
-                let content = render_items(items, &self.open_submenus, vec![bar_idx], menu_id, containers, bar.dropdown_width, bar.spacing.unwrap_or_default());
+                let content = self.render_items(
+                    items,
+                    &self.open_submenus,
+                    vec![bar_idx],
+                    menu_id,
+                    containers,
+                    bar.dropdown_width,
+                    bar.spacing.unwrap_or_default(),
+                    widgets,
+                );
 
-                let style_opt = 
-                    self.lookup(widgets, bar.container_style_id)
-                        .and_then(Widgets::as_container_style).cloned();
-                
+                let style_opt = self.lookup_container_style(widgets, bar.container_style_id);
+
                 let padding = get_padding(&bar.padding);
-                
+
                 Some(
                     container(content)
                         .padding(padding)
-                        .style(move|theme|
+                        .style(move |theme| {
                             if let Some(st) = &style_opt {
                                 st.to_iced(theme, &bar.container_style_std)
                             } else {
-                            match &bar.container_style_std {
+                                match &bar.container_style_std {
                                     Some(std) => std.to_iced(theme),
                                     None => container::bordered_box(theme),
                                 }
                             }
-                        )
+                        })
                         .boxed(),
                 )
             } else {
@@ -135,98 +144,125 @@ impl Menu {
 
         Some(row(bar_elements).padding(10.0).boxed())
     }
-}
 
-fn render_items<'a>(
-    items: Vec<GroupedItem<'a>>,
-    open_submenus: &[usize],
-    current_path: Vec<usize>,
-    menu_id: usize,
-    containers: &'a HashMap<usize, Containers>,
-    bar_width: f32,
-    spacing: f32,
-) -> Element<'a, Message> {
-    let mut elements: Vec<Element<'a, Message>> = vec![];
+    fn render_items<'a>(
+        &'a self,
+        items: Vec<GroupedItem<'a>>,
+        open_submenus: &[usize],
+        current_path: Vec<usize>,
+        menu_id: usize,
+        containers: &'a HashMap<usize, Containers>,
+        bar_width: f32,
+        spacing: f32,
+        widgets: &'a HashMap<usize, Widgets>,
+    ) -> Element<'a, Message> {
+        let mut elements: Vec<Element<'a, Message>> = vec![];
 
-    for (idx, item) in items.into_iter().enumerate() {
-        match item {
-            GroupedItem::Plain(el) => {
-                elements.push(el);
-            }
-            GroupedItem::Sub {
-                trigger,
-                children,
-                sub_item_id,
-            } => {
-                let mut submenu_path = current_path.clone();
-                submenu_path.push(idx);
+        for (idx, item) in items.into_iter().enumerate() {
+            match item {
+                GroupedItem::Plain(el) => {
+                    elements.push(el);
+                }
+                GroupedItem::Sub {
+                    trigger,
+                    children,
+                    sub_item_id,
+                } => {
+                    let mut submenu_path = current_path.clone();
+                    submenu_path.push(idx);
 
-                let is_open = open_submenus == submenu_path.as_slice()
-                    || (open_submenus.len() > submenu_path.len()
-                        && open_submenus[..submenu_path.len()] == submenu_path[..]);
+                    let is_open = open_submenus == submenu_path.as_slice()
+                        || (open_submenus.len() > submenu_path.len()
+                            && open_submenus[..submenu_path.len()] == submenu_path[..]);
 
-                let (sub_width, sub_position, sub_gap) = match containers.get(&sub_item_id) {
-                    Some(Containers::SubMenu(sm)) => (sm.width, sm.position, sm.gap.unwrap_or(5.0)),
-                    _ => (200.0, Position::Right, 5.0),
-                };
+                    let sub_menu = match containers.get(&sub_item_id) {
+                        Some(Containers::SubMenu(sm)) => sm.clone(),
+                        _ => panic!("SubMenu with id {} not found in containers", sub_item_id),
+                    };
 
-                let submenu_el = if is_open {
-                    let inner = render_items(children, open_submenus, submenu_path.clone(), menu_id, containers, bar_width, spacing);
-                    let leave_path = submenu_path.clone();
-                    let enter_path = submenu_path.clone();
-                    let with_mouse = mouse_area(inner)
-                        .on_exit(Message::Menu(menu_id, MenuMessage::StartCloseSubmenuTimer(leave_path)))
-                        .on_enter(Message::Menu(menu_id, MenuMessage::CancelCloseSubmenuTimer(enter_path)))
+                    let submenu_el = if is_open {
+                        let inner = self.render_items(
+                            children,
+                            open_submenus,
+                            submenu_path.clone(),
+                            menu_id,
+                            containers,
+                            bar_width,
+                            spacing,
+                            widgets,
+                        );
+                        let leave_path = submenu_path.clone();
+                        let enter_path = submenu_path.clone();
+                        let with_mouse = mouse_area(inner)
+                            .on_exit(Message::Menu(menu_id, MenuMessage::StartCloseSubmenuTimer(leave_path)))
+                            .on_enter(Message::Menu(menu_id, MenuMessage::CancelCloseSubmenuTimer(enter_path)))
+                            .boxed();
+
+                        let style_opt = self.lookup_container_style(widgets, sub_menu.container_style_id);
+
+                        Some(
+                            container(with_mouse)
+                                .width(Length::Fixed(sub_menu.width))
+                                .padding(if sub_menu.padding.is_some() {
+                                    get_padding(&sub_menu.padding)
+                                } else {
+                                    Padding::new(5.0)
+                                })
+                                .style(move |theme| {
+                                    if let Some(st) = &style_opt {
+                                        st.to_iced(theme, &sub_menu.container_style_std)
+                                    } else {
+                                        match &sub_menu.container_style_std {
+                                            Some(std) => std.to_iced(theme),
+                                            None => container::bordered_box(theme),
+                                        }
+                                    }
+                                })
+                                .boxed(),
+                        )
+                    } else {
+                        None
+                    };
+
+                    let toggle_path = submenu_path.clone();
+                    let hover_path = submenu_path.clone();
+                    let exit_cancel = submenu_path.clone();
+                    let exit_close = submenu_path.clone();
+                    let close_path = submenu_path;
+
+                    let btn = button(trigger)
+                        .width(Length::Fill)
+                        .on_press(Message::Menu(menu_id, MenuMessage::ToggleSubmenu(toggle_path)))
+                        .padding(0.0)
+                        .style(|theme, status| button::text(theme, status))
                         .boxed();
-                    Some(
-                        container(with_mouse)
-                            .width(Length::Fixed(sub_width))
-                            .style(|theme: &Theme| container::bordered_box(theme))
-                            .padding(5.0)
-                            .boxed(),
-                    )
-                } else {
-                    None
-                };
 
-                let toggle_path = submenu_path.clone();
-                let hover_path = submenu_path.clone();
-                let exit_cancel = submenu_path.clone();
-                let exit_close = submenu_path.clone();
-                let close_path = submenu_path;
+                    let btn_with_mouse = if is_open {
+                        mouse_area(btn)
+                            .on_enter(Message::Menu(menu_id, MenuMessage::OpenSubmenuOnHover(hover_path)))
+                            .on_exit(Message::Menu(menu_id, MenuMessage::StartCloseSubmenuTimer(exit_close)))
+                            .boxed()
+                    } else {
+                        mouse_area(btn)
+                            .on_enter(Message::Menu(menu_id, MenuMessage::OpenSubmenuOnHover(hover_path)))
+                            .on_exit(Message::Menu(menu_id, MenuMessage::CancelSubmenuTimer(exit_cancel)))
+                            .boxed()
+                    };
 
-                let btn = button(trigger)
-                    .width(Length::Fill)
-                    .on_press(Message::Menu(menu_id, MenuMessage::ToggleSubmenu(toggle_path)))
-                    .padding(0.0)
-                    .style(|theme, status| button::text(theme, status))
-                    .boxed();
+                    let pop = Popover::new(btn_with_mouse, submenu_el)
+                        .position(sub_menu.position)
+                        .align(Alignment::Start)
+                        .gap(sub_menu.gap.unwrap_or(5.0))
+                        .on_close(Message::Menu(menu_id, MenuMessage::CloseSubmenu(close_path)))
+                        .boxed();
 
-                let btn_with_mouse = if is_open {
-                    mouse_area(btn)
-                        .on_enter(Message::Menu(menu_id, MenuMessage::OpenSubmenuOnHover(hover_path)))
-                        .on_exit(Message::Menu(menu_id, MenuMessage::StartCloseSubmenuTimer(exit_close)))
-                        .boxed()
-                } else {
-                    mouse_area(btn)
-                        .on_enter(Message::Menu(menu_id, MenuMessage::OpenSubmenuOnHover(hover_path)))
-                        .on_exit(Message::Menu(menu_id, MenuMessage::CancelSubmenuTimer(exit_cancel)))
-                        .boxed()
-                };
-
-                let pop = Popover::new(btn_with_mouse, submenu_el)
-                    .position(sub_position)
-                    .align(Alignment::Start)
-                    .gap(sub_gap)
-                    .on_close(Message::Menu(menu_id, MenuMessage::CloseSubmenu(close_path)))
-                    .boxed();
-
-                elements.push(pop);
+                    elements.push(pop);
+                }
             }
         }
-    }
 
-    column(elements).width(bar_width).spacing(spacing).boxed()
+        column(elements).width(bar_width).spacing(spacing).boxed()
+    }
 }
 
 pub fn get_position(dropdowns: [Option<bool>; 5]) -> Position {
@@ -262,6 +298,7 @@ pub struct MenuBar {
     pub label_size: Option<f32>,
     pub width: f32,
     pub dropdown_width: f32,
+    pub str_id: Option<String>, // used for troubleshooting
     pub position: Position,
     pub spacing: Option<f32>,
     pub gap: Option<f32>,
@@ -275,6 +312,7 @@ pub struct SubMenu {
     pub id: usize,
     pub width: f32,
     pub position: Position,
+    pub str_id: Option<String>, //used for troubleshooting
     pub spacing: Option<f32>,
     pub gap: Option<f32>,
     pub padding: Option<Vec<f32>>,
@@ -285,6 +323,7 @@ pub struct SubMenu {
 #[derive(Debug, Clone, Default)]
 pub struct MenuItem {
     pub id: usize,
+    pub str_id: Option<String>, // Used for troubleshooting
 }
 
 #[derive(Debug, Clone)]

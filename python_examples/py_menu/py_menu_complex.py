@@ -1,5 +1,5 @@
 """
-Simple Menu
+Complet Menu
 """
 from icedpygui import (
     Window,
@@ -40,12 +40,22 @@ state = {"is_checked": False}
 
 # for testing the container style used in the MenuBar
 # When you change the style of the dropdown, which is a container
-# you need to use the sontainer styling widgets.
+# you need to use the container styling widgets.
 # You will also need to change the style of the text used in the MenuButton
-# in order to see the text of the text color doesn't
+# in order to see the text if the text color doesn't fit since
+# the text color is based on the window theme and not the container theme.
+
 # style_id = add_container_style(bkg_color=Color.ALICE_BLUE)
 
 
+# The menu item is construct to be a row of widgets in this case.
+# This is a more complex situation to show what can be done with the menu.
+# The most complex here is the alignment of the text so that the
+# label is aligned left and the keys are aligned right followed by an arrow
+# if there is a sub menu.  The first item in the row is just a
+# checkbox with no label.  This is a bit different than in the vscode
+# menu since it that case, its just a reflection of the settings and not
+# an actionable checkbox.
 def menu_row(
     checked: bool,
     label: str,
@@ -57,11 +67,14 @@ def menu_row(
     size_ = 13.0
 
     with Row(spacing=5, align_center=True, width_fill=True):
-        if checked is True or checked is False:
-            add_checkbox(on_toggle=set_auto_save, width=20, is_checked=checked)
-        else:
-            add_space(width=20)
+        # sapacing for the checkbox that is added later to keep alignment
+        add_space(width=20)
 
+        # The MenuButton is special since it is a container that accepts
+        # a single widget like row, column or container.  In doing this,
+        # as done below, the whole row is a button that when pressed does the callback.
+        # You can also use this outside of the menu if you want.
+        # If you menu is simple, you can just use a normal button.
         with MenuButton(window_id=wnd_id, on_press=do_action, width_fill=True,
                         padding=[0], user_data=label):
             with Row(align_center=True, width_fill=True):
@@ -82,11 +95,11 @@ def menu_row(
                 else:
                     add_space(width=25)
 
-
-def sub_menu_row(label: str):
+# a simple sub menu row
+def for_sub_menu_row(label: str, width: float):
     """Generates a sub menu row"""
-    with Row(align_center=True, width=300):
-        add_space(width=20)
+    with Row(align_center=True, width=width):
+        add_space(width=25)
         add_text(content=label, size=13, width_fill=True)
         add_text(content=">", width=25, size=14, align_center_right=True)
 
@@ -99,7 +112,7 @@ with Window(title="Menu", center=True, size=[600, 600]) as wnd_id:
         LABEL_SIZE = 13.0
         MAIN_WIDTH_1 = 275
 
-        with Menu() as menu_id:
+        with Menu():
             with MenuBar(
                 label="File",
                 label_size=LABEL_SIZE,
@@ -107,6 +120,8 @@ with Window(title="Menu", center=True, size=[600, 600]) as wnd_id:
                 dropdown_width=MAIN_WIDTH_1,
                 spacing=5,
                 gap=10,
+                # These are commented out to show you that the dropdown is a container
+                # and needs the container styling, if used.  Uncomment one and the style_id above.
                 # container_style_id=style_id,
                 # container_style_std=ContainerStyleStd.Secondary,
                 ):
@@ -116,22 +131,32 @@ with Window(title="Menu", center=True, size=[600, 600]) as wnd_id:
                     menu_row(None, "New File...", 200, "Ctrl+Alt+Super+N", None)
                 with MenuItem():
                     menu_row(None, "New Window", 200, "Ctrl+Shift+N", None)
+                # Important: The MenuItem before the SubMenu content will be the label
+                # that when pressed opens the submenu.  Therefore, the submenu must
+                # be in the MenuItem and therefore must be within the 'with' statement.
+                # if you see an error then it should indicate your issue.
+                # To help witht eh error message, you can use the str_id="Some text"
+                # in the MenuItem, SubMenu, MenuBar which will be printed when the error occurs.
                 with MenuItem():
-                    menu_row(None, "New Window with Profile", 200, None, True)
-                    with SubMenu(width=175):
+                    # No MenuButton used for the labels before a SubMenu
+                    with Row(spacing=5, align_center=True, width_fill=True):
+                        # The sub_menu_row just supplies a widget, no MenuButton()
+                        # Otherwise if if was pressed, the menu would close.
+                        for_sub_menu_row("New Window with Profile", MAIN_WIDTH_1)
+                    with SubMenu(width=200):
                         with MenuItem():
                             menu_row(None, "Profile 1", 125, None, None)
                         with MenuItem():
                             menu_row(None, "Profile 2", 125, None, None)
                         with MenuItem():
-                            menu_row(None, "Additional Profiles", 125, None, True)
-                            with SubMenu(width=75):
+                            for_sub_menu_row("Additional Profiles", 200)
+                            with SubMenu(width=100):
                                 with MenuItem():
-                                    add_text(content="Profile 3", size=SIZE)
+                                    menu_row(None, "Profile 3", 100, None, None)
                                 with MenuItem():
-                                    add_text(content="Profile 4", size=SIZE)
+                                    menu_row(None, "Profile 4", 100, None, None)
                                 with MenuItem():
-                                    add_text(content="Profile 5", size=SIZE)
+                                    menu_row(None, "Profile 5", 100, None, None)
                 with MenuItem():
                     add_separator(width=MAIN_WIDTH_1)
                 with MenuItem():
@@ -141,10 +166,10 @@ with Window(title="Menu", center=True, size=[600, 600]) as wnd_id:
                 with MenuItem():
                     menu_row(None, "Open Workspace from File...", 200, None, None)
                 with MenuItem():
-                    menu_row(None, "Open Recent", 200, None, True)
+                    for_sub_menu_row("Open Recent", MAIN_WIDTH_1)
                     with SubMenu(width=200):
                         with MenuItem():
-                            add_text(content="~/document/iced_menu", size=SIZE)
+                            menu_row(None, "~/document/iced_menu", 200, None, None)
                 with MenuItem():
                     add_separator(width=275)
                 with MenuItem():
@@ -156,20 +181,22 @@ with Window(title="Menu", center=True, size=[600, 600]) as wnd_id:
                 with MenuItem():
                     add_separator(width=275)
                 with MenuItem():
-                    menu_row(None, "Share", 250, None, True)
+                    for_sub_menu_row("Share", MAIN_WIDTH_1)
                     with SubMenu(width=240):
                         with MenuItem():
-                            add_text(content="Copy vscode.dec Link", size=SIZE)
+                            menu_row(None, "Copy vscode link", 240, None, None)
                         with MenuItem():
                             add_separator(width=240)
                         with MenuItem():
-                            add_text(content="Export Profile (default)", size=SIZE)
+                            menu_row(None, "Export Profile", 240, None, None)
                 with MenuItem():
                     add_separator(width=MAIN_WIDTH_1)
                 with MenuItem():
-                    menu_row(state["is_checked"], "Auto Save", 200, None, None)
+                    add_checkbox(label="Auto Save", on_toggle=set_auto_save,
+                                 width=200, is_checked=state["is_checked"],
+                                 text_size=SIZE)
                 with MenuItem():
-                    menu_row(None, "Preferences", 200, None, True)
+                    for_sub_menu_row("Preferences", MAIN_WIDTH_1)
                     with SubMenu(width=125):
                         with MenuItem():
                             menu_row(None, "Profiles", 200, None, None )
@@ -246,8 +273,11 @@ with Window(title="Menu", center=True, size=[600, 600]) as wnd_id:
                 with MenuItem():
                     add_separator(width=200, dot=True, dot_radius=2, dot_count=10)
                 with MenuItem():
-                    add_separator(width=200, label="Label", label_left_width=50,
-                                  label_right_width=50)
+                    with Row(align_center=True):
+                        add_separator(width=75)
+                        add_text(content="Label", size=SIZE,
+                                 width=50, align_center=True)
+                        add_separator(width=75)
 
 # Required to be the last widget sent to Iced,  If you start the program
 # and nothing happens, it might mean you forgot to add this command.

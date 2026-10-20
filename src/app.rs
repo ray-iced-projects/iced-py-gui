@@ -1022,22 +1022,22 @@ fn get_container<'a>(state: &'a IpgState,
                 Containers::Menu(_) => {
                     // MenuBarItem children are consumed by collect_sub_items;
                     // it should never reach get_container.
-                    panic!("MenuSubItem should not reach get_container directly")
+                    panic!("Menu should not reach get_container directly")
                 },
-                Containers::MenuBar(_) => {
-                    // MenuBarItem children are consumed by collect_sub_items;
+                Containers::MenuBar(mb) => {
+                    // MenuBar children are consumed by collect_sub_items;
                     // it should never reach get_container.
-                    panic!("MenuSubItem should not reach get_container directly")
+                    panic!("MenuBar must be nested within Menu: with Menu(...), str_id={:?}", mb.str_id)
                 },
-                Containers::SubMenu(_) => {
+                Containers::SubMenu(sm) => {
                     // MenuSubItem children are consumed by collect_sub_items;
                     // it should never reach get_container.
-                    panic!("SubMenu should not reach get_container directly")
+                    panic!("SubMenu must be nested within MenuItem: with MenuItem(...), str_id={:?}", sm.str_id)
                 },
-                Containers::MenuItem(_) => {
+                Containers::MenuItem(mi) => {
                     // MenuSubItem children are consumed by collect_sub_items;
                     // it should never reach get_container.
-                    panic!("MenuItem should not reach get_container directly")
+                    panic!("MenuItem must be nested within MenuBar: with MenuBar(...), str_id={:?}", mi.str_id)
                 },
                 Containers::MenuButton(mb) => {
                     mb.construct(content, &state.widgets)

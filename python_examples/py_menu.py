@@ -3,7 +3,10 @@ Simple Menu
 """
 from icedpygui import (
     Window,
+    # Color,
     Container,
+    # add_container_style,
+    # ContainerStyleStd,
     Row,
     start_session,
     Menu,
@@ -34,6 +37,14 @@ def do_action(_btn_id: int, label: str):
     print(f"Do some action: {label}")
 
 state = {"is_checked": False}
+
+# for testing the container style used in the MenuBar
+# When you change the style of the dropdown, which is a container
+# you need to use the sontainer styling widgets.
+# You will also need to change the style of the text used in the MenuButton
+# in order to see the text of the text color doesn't
+# style_id = add_container_style(bkg_color=Color.ALICE_BLUE)
+
 
 def menu_row(
     checked: bool,
@@ -96,6 +107,8 @@ with Window(title="Menu", center=True, size=[600, 600]) as wnd_id:
                 dropdown_width=MAIN_WIDTH_1,
                 spacing=5,
                 gap=10,
+                # container_style_id=style_id,
+                # container_style_std=ContainerStyleStd.Secondary,
                 ):
                 with MenuItem():
                     menu_row(None, "New Text File", 200, "Ctrl+N", None)

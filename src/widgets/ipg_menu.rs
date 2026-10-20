@@ -52,12 +52,18 @@ pub struct Menu {
 }
 
 impl Menu {
+
+    fn lookup<'a>(&self, widgets: &'a HashMap<usize, Widgets>, id: Option<usize>) -> Option<&'a Widgets> {
+        id.and_then(|id| widgets.get(&id))
+    }
+    
     pub fn construct<'a>(
         &'a self,
         grouped_content: Vec<(usize, Vec<GroupedItem<'a>>)>,
-        _widgets: &'a HashMap<usize, Widgets>,
+        widgets: &'a HashMap<usize, Widgets>,
         containers: &'a HashMap<usize, Containers>,
     ) -> Option<Element<'a, app::Message, Theme, Renderer>> {
+        
         if grouped_content.is_empty() {
             return None;
         }
@@ -75,10 +81,26 @@ impl Menu {
 
             let dropdown = if is_open {
                 let content = render_items(items, &self.open_submenus, vec![bar_idx], menu_id, containers, bar.dropdown_width, bar.spacing.unwrap_or_default());
+
+                let style_opt = 
+                    self.lookup(widgets, bar.container_style_id)
+                        .and_then(Widgets::as_container_style).cloned();
+                
+                let padding = get_padding(&bar.padding);
+                
                 Some(
                     container(content)
-                        .style(|theme: &Theme| container::bordered_box(theme))
-                        .padding(5.0)
+                        .padding(padding)
+                        .style(move|theme|
+                            if let Some(st) = &style_opt {
+                                st.to_iced(theme, &bar.container_style_std)
+                            } else {
+                            match &bar.container_style_std {
+                                    Some(std) => std.to_iced(theme),
+                                    None => container::bordered_box(theme),
+                                }
+                            }
+                        )
                         .boxed(),
                 )
             } else {

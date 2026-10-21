@@ -57,7 +57,6 @@ state = {"is_checked": False}
 # menu since it that case, its just a reflection of the settings and not
 # an actionable checkbox.
 def menu_row(
-    checked: bool,
     label: str,
     label_width: float,
     keys: str,
@@ -112,7 +111,7 @@ with Window(title="Menu", center=True, size=[600, 600]) as wnd_id:
         LABEL_SIZE = 13.0
         MAIN_WIDTH_1 = 275
 
-        with Menu():
+        with Menu(padding=[10]):
             with MenuBar(
                 label="File",
                 label_size=LABEL_SIZE,
@@ -121,22 +120,25 @@ with Window(title="Menu", center=True, size=[600, 600]) as wnd_id:
                 spacing=5,
                 gap=10,
                 # These are commented out to show you that the dropdown is a container
-                # and needs the container styling, if used.  Uncomment one and the style_id above.
+                # and needs the container styling, if used.  Uncomment one and the
+                # style_id above to see the effect.
                 # container_style_id=style_id,
                 # container_style_std=ContainerStyleStd.Secondary,
                 ):
                 with MenuItem():
-                    menu_row(None, "New Text File", 200, "Ctrl+N", None)
+                    menu_row("New Text File", 200, "Ctrl+N", None)
                 with MenuItem():
-                    menu_row(None, "New File...", 200, "Ctrl+Alt+Super+N", None)
+                    menu_row("New File...", 200, "Ctrl+Alt+Super+N", None)
                 with MenuItem():
-                    menu_row(None, "New Window", 200, "Ctrl+Shift+N", None)
+                    menu_row("New Window", 200, "Ctrl+Shift+N", None)
                 # Important: The MenuItem before the SubMenu content will be the label
                 # that when pressed opens the submenu.  Therefore, the submenu must
                 # be in the MenuItem and therefore must be within the 'with' statement.
                 # if you see an error then it should indicate your issue.
-                # To help witht eh error message, you can use the str_id="Some text"
+                # To help with the error message, you can use the str_id="Some text"
                 # in the MenuItem, SubMenu, MenuBar which will be printed when the error occurs.
+                # When you are first creating a menu, it might be useful to use the
+                # str_id in each so that the error can be tracked better when it occurs.
                 with MenuItem():
                     # No MenuButton used for the labels before a SubMenu
                     with Row(spacing=5, align_center=True, width_fill=True):
@@ -145,50 +147,50 @@ with Window(title="Menu", center=True, size=[600, 600]) as wnd_id:
                         for_sub_menu_row("New Window with Profile", MAIN_WIDTH_1)
                     with SubMenu(width=200):
                         with MenuItem():
-                            menu_row(None, "Profile 1", 125, None, None)
+                            menu_row("Profile 1", 125, None, None)
                         with MenuItem():
-                            menu_row(None, "Profile 2", 125, None, None)
+                            menu_row("Profile 2", 125, None, None)
                         with MenuItem():
                             for_sub_menu_row("Additional Profiles", 200)
                             with SubMenu(width=100):
                                 with MenuItem():
-                                    menu_row(None, "Profile 3", 100, None, None)
+                                    menu_row("Profile 3", 100, None, None)
                                 with MenuItem():
-                                    menu_row(None, "Profile 4", 100, None, None)
+                                    menu_row("Profile 4", 100, None, None)
                                 with MenuItem():
-                                    menu_row(None, "Profile 5", 100, None, None)
+                                    menu_row("Profile 5", 100, None, None)
                 with MenuItem():
                     add_separator(width=MAIN_WIDTH_1)
                 with MenuItem():
-                    menu_row(None, "Open File...", 200, "Ctrl+O", None)
+                    menu_row("Open File...", 200, "Ctrl+O", None)
                 with MenuItem():
-                    menu_row(None, "Open Folder...", 200, "Ctrl+K Ctrl+O", None)
+                    menu_row("Open Folder...", 200, "Ctrl+K Ctrl+O", None)
                 with MenuItem():
-                    menu_row(None, "Open Workspace from File...", 200, None, None)
+                    menu_row("Open Workspace from File...", 200, None, None)
                 with MenuItem():
                     for_sub_menu_row("Open Recent", MAIN_WIDTH_1)
                     with SubMenu(width=200):
                         with MenuItem():
-                            menu_row(None, "~/document/iced_menu", 200, None, None)
+                            menu_row("~/document/iced_menu", 200, None, None)
                 with MenuItem():
                     add_separator(width=275)
                 with MenuItem():
-                    menu_row(None, "Save", 200, "Ctrl+S", None)
+                    menu_row("Save", 200, "Ctrl+S", None)
                 with MenuItem():
-                    menu_row(None, "Save as...", 200, "Ctrl+Shift+S", None)
+                    menu_row("Save as...", 200, "Ctrl+Shift+S", None)
                 with MenuItem():
-                    menu_row(None, "Save All", 200, None, None)
+                    menu_row("Save All", 200, None, None)
                 with MenuItem():
                     add_separator(width=275)
                 with MenuItem():
                     for_sub_menu_row("Share", MAIN_WIDTH_1)
                     with SubMenu(width=240):
                         with MenuItem():
-                            menu_row(None, "Copy vscode link", 240, None, None)
+                            menu_row("Copy vscode link", 240, None, None)
                         with MenuItem():
                             add_separator(width=240)
                         with MenuItem():
-                            menu_row(None, "Export Profile", 240, None, None)
+                            menu_row("Export Profile", 240, None, None)
                 with MenuItem():
                     add_separator(width=MAIN_WIDTH_1)
                 with MenuItem():
@@ -199,27 +201,27 @@ with Window(title="Menu", center=True, size=[600, 600]) as wnd_id:
                     for_sub_menu_row("Preferences", MAIN_WIDTH_1)
                     with SubMenu(width=125):
                         with MenuItem():
-                            menu_row(None, "Profiles", 200, None, None )
+                            menu_row("Profiles", 200, None, None )
                         with MenuItem():
-                            menu_row(None, "Settings", 200, "Ctrl+,", None )
+                            menu_row("Settings", 200, "Ctrl+,", None )
                         with MenuItem():
-                            menu_row(None, "Extensions", 200, "Ctrl+Shift+X,", None )
+                            menu_row("Extensions", 200, "Ctrl+Shift+X,", None )
                         with MenuItem():
-                            menu_row(None, "Keyboard Shorcuts", 200, "Ctrl+K Ctrl+S,", None )
+                            menu_row("Keyboard Shorcuts", 200, "Ctrl+K Ctrl+S,", None )
                 with MenuItem():
                     add_separator(width=MAIN_WIDTH_1)
                 with MenuItem():
-                    menu_row(None, "Revert File", 175, None, None )
+                    menu_row("Revert File", 175, None, None )
                 with MenuItem():
-                    menu_row(None, "Close Editor", 175, "Ctrl+W", None )
+                    menu_row("Close Editor", 175, "Ctrl+W", None )
                 with MenuItem():
-                    menu_row(None, "Close Folder", 175, "Ctrl+k F", None )
+                    menu_row("Close Folder", 175, "Ctrl+k F", None )
                 with MenuItem():
-                    menu_row(None, "Close Window", 175, "Ctrl+F4", None )
+                    menu_row("Close Window", 175, "Ctrl+F4", None )
                 with MenuItem():
                     add_separator(width=MAIN_WIDTH_1)
                 with MenuItem():
-                    menu_row(None, "Exit", 125, "Ctrl+Q", None )
+                    menu_row("Exit", 125, "Ctrl+Q", None )
 
             MAIN_WIDTH_2 = 300
             with MenuBar(
@@ -230,35 +232,35 @@ with Window(title="Menu", center=True, size=[600, 600]) as wnd_id:
                 spacing=10,
                 ):
                 with MenuItem():
-                    menu_row(None, "Undo", 125, "Ctrl+Z", None)
+                    menu_row("Undo", 125, "Ctrl+Z", None)
                 with MenuItem():
-                    menu_row(None, "Redo", 125, "Ctrl+Y", None)
-                with MenuItem():
-                    add_separator(width=MAIN_WIDTH_2)
-                with MenuItem():
-                    menu_row(None, "Cut", 125, "Ctrl+X", None)
-                with MenuItem():
-                    menu_row(None, "Copy", 125, "Ctrl+C", None)
-                with MenuItem():
-                    menu_row(None, "Paste", 125, "Ctrl+V", None)
+                    menu_row("Redo", 125, "Ctrl+Y", None)
                 with MenuItem():
                     add_separator(width=MAIN_WIDTH_2)
                 with MenuItem():
-                    menu_row(None, "Find", 125, "Ctrl+F", None)
+                    menu_row("Cut", 125, "Ctrl+X", None)
                 with MenuItem():
-                    menu_row(None, "Replace", 125, "Ctrl+H", None)
+                    menu_row("Copy", 125, "Ctrl+C", None)
+                with MenuItem():
+                    menu_row("Paste", 125, "Ctrl+V", None)
                 with MenuItem():
                     add_separator(width=MAIN_WIDTH_2)
                 with MenuItem():
-                    menu_row(None, "Find in Files", 150, "Ctrl+Shift+F", None)
+                    menu_row("Find", 125, "Ctrl+F", None)
                 with MenuItem():
-                    menu_row(None, "Replace in Files", 150, "Ctrl+Shift+H", None)
+                    menu_row("Replace", 125, "Ctrl+H", None)
                 with MenuItem():
-                    menu_row(None, "Toggle Line Comment", 150, "Ctrl+/", None)
+                    add_separator(width=MAIN_WIDTH_2)
                 with MenuItem():
-                    menu_row(None, "Toggle Block Comment", 175, "Ctrl+Shift+A", None)
+                    menu_row("Find in Files", 150, "Ctrl+Shift+F", None)
                 with MenuItem():
-                    menu_row(None, "Emmet: Expand Abreviation", 200, "Tab", None)
+                    menu_row("Replace in Files", 150, "Ctrl+Shift+H", None)
+                with MenuItem():
+                    menu_row("Toggle Line Comment", 150, "Ctrl+/", None)
+                with MenuItem():
+                    menu_row("Toggle Block Comment", 175, "Ctrl+Shift+A", None)
+                with MenuItem():
+                    menu_row("Emmet: Expand Abreviation", 200, "Tab", None)
 
             with MenuBar(
                 label="Misc",

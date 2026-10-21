@@ -713,23 +713,55 @@ class FontWeight:
     Semibold=''
     Thin=''
 
-def add_menu_bar_style(
-        base_color: Color | None = None,
-        base_rgba: list[float, 4] | None = None,
-        border_color: Color | None = None,
-        border_rgba: list[float, 4] | None = None,
-        border_radius: list[float] | list[float, 4] | None = None,
-        border_width: float | None = None,
-        shadow_color: Color | None = None,
-        shadow_rgba: list[float, 4] | None = None,
-        shadow_offset_xy: list[float, 2] | None = None,
-        shadow_blur_radius: float | None = None,
-        gen_id: int | None = None,
+
+def add_menu_button_style(
+
+    gradient_color_stops: list[Color] | None = None,
+    gradient_color_alpha_stops: list[float] | None = None,
+    gradient_rgba_stops: list[float, 4] | None = None,
+    gradient_offset_stops: list[float] | None = None,
+
+    gradient_degrees: float | None = None,
+    gradient_radians: float | None = None,
+
+    border_color: Color | None = None,
+    border_color_alpha: float | None = None,
+    border_rgba: list[float, 4] | None = None,
+
+    border_radius: list[float] | list[float, 4] | None = None,
+    border_width: float | None = None,
+
+    shadow_color: Color | None = None,
+    shadow_color_alpha: float | None = None,
+    shadow_rgba: list[float, 4] | None = None,
+
+    shadow_offset_xy: list[float, 2] | None = None,
+    shadow_blur_radius: float | None = None,
+
+    snap: bool | None = None,
+    gen_id: int | None = None,
     ) -> int:
-
     """
-    Adds style in the menu itself, not the menu items or bar items
+    Adds style to the MenuButton, not the contents of the button.
 
+    Examples
+    --------
+    >>> style_id = add_menu_button_style(border_color=Color::BLUE, border_width=2.0)
+    >>>
+    >>> def on_item_press(_mb_id: int, label: str):
+    >>>     Print(f"You pressed {}", label)
+    >>>
+    >>>
+    >>> with Window(title="Simple Menu", center=True, size=[300, 300]):
+    >>>     with Container(fill=True):
+    >>>         with Menu():
+    >>>             with MenuBar(label="File"):
+    >>>                 with MenuItem():
+    >>>                     with MenuButton(on_press=on_item_press,
+    >>>                                     user_data="New File",
+    >>>                                     style_id=style_id):
+    >>>                         add_text(content="New File...")
+    >>> start_session()
     """
 
 def add_menu_style(

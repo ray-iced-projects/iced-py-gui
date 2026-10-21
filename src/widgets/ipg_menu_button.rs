@@ -5,8 +5,7 @@ use crate::app::Message;
 use crate::graphics::colors::Color;
 use crate::py_api::colors::{CustomPalette, PaletteKey, StateVariant, StylePart, WidgetStatus};
 use crate::py_api::helpers::{get_len, get_padding, get_radius};
-use crate::state::{IpgState, Widgets};
-use crate::widgets::callbacks::{CallbackName, invoke_callback};
+use crate::state::Widgets;
 use crate::widgets::ipg_menu::MenuMessage;
 use crate::widgets::widget_param_update::{WidgetParamUpdate, set_t_value};
 
@@ -111,19 +110,6 @@ impl MenuButton {
         
     }
 }
-
-// #[derive(Debug, Clone)]
-// pub enum MenuBtnMessage {
-//     OnPress,
-// }
-
-// pub fn menu_button_callback(_state: &IpgState, id: usize, message: MenuBtnMessage) {
-//     match message {
-//         MenuBtnMessage::OnPress => {
-//             invoke_callback(id, CallbackName::OnPress, "MenuButton");
-//         }
-//     }
-// }
 
 impl MenuButton {
     /// Serialize all button parameters into a Python dict keyed by field name.

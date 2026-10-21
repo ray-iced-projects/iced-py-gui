@@ -25,6 +25,7 @@ from .icedpygui import (
     add_font_style as add_font_style,
     add_input_int_style as add_input_int_style,
     # add_menu_style as add_menu_style,
+    add_menu_button_style as add_menu_button_style,
     add_opaque_style as add_opaque_style,
     add_progress_bar_style as add_progress_bar_style,
     add_radio_style as add_radio_style,

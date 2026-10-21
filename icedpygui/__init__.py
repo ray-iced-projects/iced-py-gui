@@ -48,6 +48,7 @@ from .icedpygui import (
     add_menu as _add_menu,
     add_menu_bar as _add_menu_bar,
     add_menu_button as _add_menu_button,
+    add_menu_button_style,
     add_menu_item as _add_menu_item,
     add_sub_menu as _add_sub_menu,
     add_mouse_area as _add_mouse_area,

@@ -11,16 +11,15 @@ use iced::{Alignment, Element, Length, Padding, Renderer, Task, Theme, Widget};
 use crate::IpgState;
 use crate::app::Message;
 use crate::iced_widgets::popover::{Popover, Position};
-use crate::py_api::helpers::{get_len, get_padding};
+use crate::py_api::helpers::get_padding;
 use crate::state::Widgets;
 use crate::widgets::callbacks::{CallbackName, invoke_callback};
 
-use crate::widgets::ipg_button::{ButtonStyle, ButtonStyleStd};
 use crate::widgets::ipg_container::{ContainerStyle, ContainerStyleStd};
 use crate::{
     app,
     state::Containers,
-    widgets::widget_param_update::{WidgetParamUpdate, set_t_value},
+    widgets::widget_param_update::WidgetParamUpdate,
 };
 
 use pyo3::{Py, PyAny, pyclass};
@@ -43,6 +42,8 @@ pub enum GroupedItem<'a> {
 #[derive(Debug, Clone)]
 pub struct Menu {
     pub id: usize,
+    pub bar_item_spacing: Option<f32>,
+    pub padding: Option<Vec<f32>>,
     pub is_open: Vec<bool>,
     pub open_submenus: Vec<usize>,
     pub pending_submenu: Option<Vec<usize>>,
@@ -130,8 +131,9 @@ impl Menu {
 
             let pop = Popover::new(btn_with_hover, dropdown)
                 .gap(bar.gap.unwrap_or(5.0))
-                .position(Position::Bottom)
-                .align(Alignment::Start)
+                .position(bar.position)
+                .align(bar.alignment)
+                .snap_within_viewport(bar.snap_within_viewport.unwrap_or(true))
                 .on_close(Message::Menu(menu_id, MenuMessage::Close(bar_idx)))
                 .boxed();
 
@@ -142,7 +144,12 @@ impl Menu {
             return None;
         }
 
-        Some(row(bar_elements).padding(10.0).boxed())
+        Some(
+            row(bar_elements)
+                .spacing(self.bar_item_spacing.unwrap_or_default())
+                .padding(get_padding(&self.padding))
+                .boxed()
+            )
     }
 
     fn render_items<'a>(
@@ -251,8 +258,9 @@ impl Menu {
 
                     let pop = Popover::new(btn_with_mouse, submenu_el)
                         .position(sub_menu.position)
-                        .align(Alignment::Start)
+                        .align(sub_menu.alignment)
                         .gap(sub_menu.gap.unwrap_or(5.0))
+                        .snap_within_viewport(sub_menu.snap_within_viewport.unwrap_or(true))
                         .on_close(Message::Menu(menu_id, MenuMessage::CloseSubmenu(close_path)))
                         .boxed();
 
@@ -265,33 +273,34 @@ impl Menu {
     }
 }
 
-pub fn get_position(dropdowns: [Option<bool>; 5]) -> Position {
+pub fn get_position(dropdowns: [Option<bool>; 5], bar: bool) -> Position {
     match dropdowns {
         [Some(true), None, None, None, None] => Position::Auto,
         [None, Some(true), None, None, None] => Position::Bottom,
         [None, None, Some(true), None, None] => Position::Left,
         [None, None, None, Some(true), None] => Position::Right,
         [None, None, None, None, Some(true)] => Position::Top,
-        _ => Position::Right,
-    }
-}
-
-pub struct MenuStyleOverrides {
-    pub width_fill: Option<bool>,
-    pub align_center: Option<bool>,
-}
-
-impl MenuStyleOverrides {
-    pub fn default() -> Self {
-        Self {
-            width_fill: Some(true),
-            align_center: Some(true),
+        _ => {
+            if bar {
+                Position::Bottom
+            } else {
+                Position::Right
+            }
         }
     }
 }
 
+pub fn get_alignment(alignments: [Option<bool>; 3]) -> Alignment {
+    match alignments {
+        [Some(true), None, None] => Alignment::Start,
+        [None, Some(true), None] => Alignment::Center,
+        [None, None, Some(true)] => Alignment::End,
+        _ => Alignment::Start,
+    }
+}
+
 // The dropdown via the bar button
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone)]
 pub struct MenuBar {
     pub id: usize,
     pub label: String,
@@ -300,24 +309,67 @@ pub struct MenuBar {
     pub dropdown_width: f32,
     pub str_id: Option<String>, // used for troubleshooting
     pub position: Position,
+    pub alignment: Alignment,
     pub spacing: Option<f32>,
     pub gap: Option<f32>,
     pub padding: Option<Vec<f32>>,
     pub container_style_id: Option<usize>,
     pub container_style_std: Option<ContainerStyleStd>,
+    pub snap_within_viewport: Option<bool>,
 }
 
-#[derive(Debug, Clone, Default)]
+impl Default for MenuBar {
+    fn default() -> Self {
+        Self {
+            id: 0,
+            label: String::new(),
+            label_size: None,
+            width: 100.0,
+            dropdown_width: 150.0,
+            str_id: None,
+            position: Position::Bottom,
+            alignment: Alignment::Start,
+            spacing: None,
+            gap: None,
+            padding: None,
+            container_style_id: None,
+            container_style_std: None,
+            snap_within_viewport: None,
+        }
+    }
+}
+
+#[derive(Debug, Clone)]
 pub struct SubMenu {
     pub id: usize,
     pub width: f32,
     pub position: Position,
+    pub alignment: Alignment,
     pub str_id: Option<String>, //used for troubleshooting
     pub spacing: Option<f32>,
     pub gap: Option<f32>,
     pub padding: Option<Vec<f32>>,
     pub container_style_id: Option<usize>,
     pub container_style_std: Option<ContainerStyleStd>,
+    pub snap_within_viewport: Option<bool>,
+}
+
+impl Default for SubMenu {
+    fn default() -> Self {
+        Self {
+            id: 0,
+            width: 150.0,
+            position: Position::Bottom,
+            alignment: Alignment::Start,
+            str_id: None,
+            spacing: None,
+            gap: None,
+            padding: None,
+            container_style_id: None,
+            container_style_std: None,
+            snap_within_viewport: None,
+        }
+    }
 }
 
 #[derive(Debug, Clone, Default)]
@@ -539,7 +591,7 @@ pub enum SubMenuParam {
 impl WidgetParamUpdate for Menu {
     type Param = MenuParam;
 
-    fn param_update(&mut self, param: Self::Param, value: &PyObject) {
+    fn param_update(&mut self, param: Self::Param, _value: &PyObject) {
         match param {
             MenuParam::None => todo!(),
         }
@@ -549,7 +601,7 @@ impl WidgetParamUpdate for Menu {
 impl WidgetParamUpdate for MenuBar {
     type Param = MenuBarParam;
 
-    fn param_update(&mut self, param: Self::Param, value: &PyObject) {
+    fn param_update(&mut self, param: Self::Param, _value: &PyObject) {
         match param {
             MenuBarParam::None => todo!(),
         }
@@ -559,7 +611,7 @@ impl WidgetParamUpdate for MenuBar {
 impl WidgetParamUpdate for MenuItem {
     type Param = SubMenuParam;
 
-    fn param_update(&mut self, param: Self::Param, value: &PyObject) {
+    fn param_update(&mut self, param: Self::Param, _value: &PyObject) {
         match param {
             SubMenuParam::None => todo!(),
         }

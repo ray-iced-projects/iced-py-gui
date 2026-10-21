@@ -5,6 +5,7 @@ use pyo3::pyfunction;
 
 use crate::access_state;
 use crate::widgets::ipg_container::ContainerStyleStd;
+use crate::widgets::ipg_menu::get_alignment;
 use crate::widgets::ipg_menu::{Menu, MenuBar, MenuItem, SubMenu, get_position};
 use crate::state::{Containers, get_id, set_state_cont_wnd_ids, set_state_of_container};
 
@@ -40,11 +41,15 @@ use crate::state::{Containers, get_id, set_state_cont_wnd_ids, set_state_of_cont
     window_id,
     container_id,
     parent_id,
+    bar_item_spacing=None,
+    padding=None,
     ))]
 pub fn add_menu(
     window_id: String,
     container_id: String,
     parent_id: Option<String>,
+    bar_item_spacing: Option<f32>,
+    padding: Option<Vec<f32>>,
 ) -> PyResult<usize> 
 {
     let id = get_id(None);
@@ -63,6 +68,8 @@ pub fn add_menu(
     state.containers.insert(id, Containers::Menu(
         Menu {
             id,
+            bar_item_spacing,
+            padding,
             is_open: vec![],
             open_submenus: vec![],
             pending_submenu: None,
@@ -153,8 +160,12 @@ pub fn add_menu(
     dropdown_open_bottom=None,
     dropdown_open_left=None,
     dropdown_open_right=None,
+    dropdown_align_start=None,
+    dropdown_align_center=None,
+    dropdown_align_end=None,
     container_style_id=None,
     container_style_std=None,
+    snap_within_viewport=None,
     ))]
 pub fn add_menu_bar(
     window_id: String,
@@ -173,8 +184,12 @@ pub fn add_menu_bar(
     dropdown_open_bottom: Option<bool>,
     dropdown_open_left: Option<bool>,
     dropdown_open_right: Option<bool>,
+    dropdown_align_start: Option<bool>,
+    dropdown_align_center: Option<bool>,
+    dropdown_align_end: Option<bool>,
     container_style_id: Option<usize>,
     container_style_std: Option<ContainerStyleStd>,
+    snap_within_viewport: Option<bool>,
 ) -> PyResult<usize> 
 {
     let id = get_id(None);
@@ -193,7 +208,15 @@ pub fn add_menu_bar(
             dropdown_open_right,
         ];
 
-    let position = get_position(positions);
+    let position = get_position(positions, true);
+
+    let alignments = [
+        dropdown_align_start,
+        dropdown_align_center,
+        dropdown_align_end,
+    ];
+
+    let alignment = get_alignment(alignments);
     
     set_state_of_container(id, window_id.clone(), Some(container_id.clone()), prt_id);
 
@@ -210,11 +233,13 @@ pub fn add_menu_bar(
             dropdown_width,
             str_id,
             position,
+            alignment,
             spacing,
             gap,
             padding,
             container_style_id,
             container_style_std,
+            snap_within_viewport,
         }));
 
     drop(state);
@@ -295,8 +320,12 @@ pub fn add_menu_bar(
     dropdown_open_bottom=None,
     dropdown_open_left=None,
     dropdown_open_right=None,
+    dropdown_align_start=None,
+    dropdown_align_center=None,
+    dropdown_align_end=None,
     container_style_id=None,
     container_style_std=None,
+    snap_within_viewport=None,
     ))]
 pub fn add_sub_menu(
     window_id: String,
@@ -312,8 +341,12 @@ pub fn add_sub_menu(
     dropdown_open_bottom: Option<bool>,
     dropdown_open_left: Option<bool>,
     dropdown_open_right: Option<bool>,
+    dropdown_align_start: Option<bool>,
+    dropdown_align_center: Option<bool>,
+    dropdown_align_end: Option<bool>,
     container_style_id: Option<usize>,
     container_style_std: Option<ContainerStyleStd>,
+    snap_within_viewport: Option<bool>,
 ) -> PyResult<usize> 
 {
     let id = get_id(None);
@@ -332,8 +365,16 @@ pub fn add_sub_menu(
             dropdown_open_right,
         ];
 
-    let position = get_position(positions);
+    let position = get_position(positions, false);
     
+    let alignments = [
+        dropdown_align_start,
+        dropdown_align_center,
+        dropdown_align_end,
+    ];
+
+    let alignment = get_alignment(alignments);
+
     set_state_of_container(id, window_id.clone(), Some(container_id.clone()), prt_id);
 
     let mut state = access_state();
@@ -345,12 +386,14 @@ pub fn add_sub_menu(
             id,
             width,
             position,
+            alignment,
             str_id,
             spacing,
             gap,
             padding,
             container_style_id,
             container_style_std,
+            snap_within_viewport,
         }));
 
     drop(state);

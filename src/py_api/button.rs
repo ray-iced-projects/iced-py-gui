@@ -5,69 +5,98 @@ use pyo3::{Py, PyAny, pyfunction};
 type PyObject = Py<PyAny>;
 
 use crate::add_user_data_to_mutex;
-use crate::graphics::{colors::Color, bootstrap::bootstrap_arrow::Arrow};
+use crate::graphics::{bootstrap::bootstrap_arrow::Arrow, colors::Color};
 use crate::state::{Widgets, access_state, add_callback_name_to_mutex, get_id, set_state_of_widget};
 use crate::widgets::callbacks::CallbackName;
-use crate::widgets::ipg_button::{Button,  
-    ButtonStyle, ButtonStyleStd};
-
+use crate::widgets::ipg_button::{Button, ButtonStyle, ButtonStyleStd};
 
 /// Adds a button widget.
-/// A clickable button used for some gui action.
-///  
-/// Parameters
-/// ----------
-/// parent_id : str, Optional
-///     Sets the parent container ID that this button belongs to.
-/// label : str,  Optional
-///     Sets the Text label displayed on the button.
-/// on_press : callable,  Optional
-///     Sets the Callback method to invoke when the button is pressed.
-/// width : float,  Optional
-///     Sets the Fixed Width in logical pixels.
-/// width_fill : bool, default False
-///     Whether the button fills available width.
-/// height : float,  Optional
-///     Sets the Fixed Height in logical pixels.
-/// height_fill : bool, default False
-///     Whether the button fills available height.
-/// fill : bool, Optional
-///     Whether the button fills available width and height.
-/// padding : list of float,  Optional
-///     Sets the Padding as [all], [vertical, horizontal], or
-///     [top, right, bottom, left].
-/// clip : bool,  Optional
-///     Whether to clip content that overflows the button.
-/// disabled: bool, Optional
-///     Whether the button is disabled.
-/// font_id : int, Optional
-///     Sets the ID of a custom style created with ``add_font_style``.
-/// style_id : int, Optional
-///     Sets the ID of a custom style created with ``add_button_style``.
-/// style_std : ButtonStyleStd,  Optional
-///     Sets the a predefined standard style variant.
-/// style_arrow : Arrow,  Optional
-///     Sets an arrow icon style for the button.
-/// palette_id : int, Optional
-///     Sets the ID of a custom palette created with ``custom_palette``.
-/// user_data : Any,  Optional
-///     Sets an arbitrary data forwarded to callbacks.
-/// active: bool, Optional
-///     Whether to set the button status as Active.
-/// hovered: bool, Optional
-///     Whether to set the button status as Hovered.
-/// pressed: bool, Optional
-///     Whether to set the button status as Pressed.
-/// disabled: bool, Optional
-///     Whether to set the button status as Disabled.
-/// show : bool, default True
-///     Whether the button is visible.
-/// gen_id : int,  Optional
-///     Obtains an ID of a widget that have not been created, used for the gen_id parameter.
-/// Returns
-/// -------
-/// int
-///    The numeric widget ID of the newly created button.
+///
+///     A clickable button used for GUI actions. The button must go into a
+///     container type (Container, Column, Row, etc.).
+///
+///     Parameters
+///     ----------
+///     parent_id : str, optional
+///         Sets the parent container ID that this button belongs to.
+///     label : str, optional
+///         Sets the text label displayed on the button.
+///     on_press : callable, optional
+///         Sets the callback method to invoke when the button is pressed.
+///     width : float, optional
+///         Sets the fixed width in logical pixels.
+///     width_fill : bool, default False
+///         Whether the button fills available width.
+///     height : float, optional
+///         Sets the fixed height in logical pixels.
+///     height_fill : bool, default False
+///         Whether the button fills available height.
+///     fill : bool, optional
+///         Whether the button fills available width and height.
+///     padding : list of float, optional
+///         Sets the padding as [all], [vertical, horizontal], or
+///         [top, right, bottom, left].
+///     clip : bool, optional
+///         Whether to clip content that overflows the button.
+///     font_id : int, optional
+///         Sets the ID of a custom font created with ``add_font_style``.
+///     style_id : int, optional
+///         Sets the ID of a custom style created with ``add_button_style``.
+///     style_std : ButtonStyleStd, optional
+///         Sets a predefined standard style variant.
+///     style_arrow : Arrow, optional
+///         Sets an arrow icon style for the button.
+///     palette_id : int, optional
+///         Sets the ID of a custom color palette for the button.
+///     user_data : Any, optional
+///         Sets arbitrary data forwarded to callbacks.
+///     show : bool, default True
+///         Whether the button is visible.
+///     active: bool, Optional
+///          Whether to set the button status as Active.
+///      hovered: bool, Optional
+///          Whether to set the button status as Hovered.
+///      pressed: bool, Optional
+///          Whether to set the button status as Pressed.
+///      disabled: bool, Optional
+///          Whether to set the button status as Disabled.
+///     gen_id : int, optional
+///         Obtains an ID for a widget that has not been created;
+///         used for the gen_id parameter.
+///
+///     Returns
+///     -------
+///     int
+///         The numeric widget ID of the newly created button.
+///
+///     Usage
+///     -----
+///     ::
+///
+///         from icedpygui import (
+///             Window,
+///             Column,
+///             Container,
+///             add_button,
+///             start_session)
+///
+///         def btn_cb(btn_id: int):
+///             print(btn_id)
+///
+///         def cb_with_data(btn_id: int, data: any):
+///             print(btn_id, data)
+///
+///         with Window(title="My App", center=True):
+///             with Container(align_center=True, fill=True):
+///                 with Column(spacing=20):
+///                         add_button(label="Press Me", on_press=btn_cb)
+///                         add_button(
+///                             label="Press Me",
+///                             on_press=cb_with_data,
+///                             user_data="Some Data"
+///                         )
+///
+///         start_session()
 #[pyfunction]
 #[pyo3(signature = (
     parent_id,
@@ -86,10 +115,10 @@ use crate::widgets::ipg_button::{Button,
     style_arrow=None,
     palette_id=None,
     user_data=None,
-    active=None,
-    hovered=None,
-    pressed=None,
-    disabled=None,
+    status_active=None,
+    status_disabled=None,
+    status_hovered=None,
+    status_pressed=None,
     show=true,
     gen_id=None,
 ))]
@@ -110,16 +139,15 @@ pub fn add_button(
     style_arrow: Option<Arrow>,
     palette_id: Option<usize>,
     user_data: Option<PyObject>,
-    active: Option<bool>,
-    hovered: Option<bool>,
-    pressed: Option<bool>,
-    disabled: Option<bool>,
+    status_active: Option<bool>,
+    status_disabled: Option<bool>,
+    status_hovered: Option<bool>,
+    status_pressed: Option<bool>,
     show: bool,
     gen_id: Option<usize>,
 ) -> PyResult<usize> {
-
     let id = get_id(gen_id);
-    
+
     // Register widget with parent
     set_state_of_widget(id, parent_id.clone());
 
@@ -137,230 +165,246 @@ pub fn add_button(
     let mut state = access_state();
     state.widgets.insert(
         id,
-        Widgets::Button(
-            Button {
-                id,
-                label,
-                width,
-                width_fill,
-                height,
-                height_fill,
-                fill,
-                padding,
-                clip,
-                font_id,
-                style_id,
-                style_std,
-                style_arrow,
-                palette_id,
-                show,
-                active,
-                hovered,
-                pressed,
-                disabled,
-            }),
-        );
+        Widgets::Button(Button {
+            id,
+            clip,
+            fill,
+            font_id,
+            height_fill,
+            height,
+            label,
+            padding,
+            palette_id,
+            show,
+            status_active,
+            status_disabled,
+            status_hovered,
+            status_pressed,
+            style_arrow,
+            style_id,
+            style_std,
+            width_fill,
+            width,
+        }),
+    );
     drop(state);
 
     Ok(id)
 }
 
-
-/// """
 /// Adds styling to a button
 ///
-/// There are 4 ways to add styling to a widget.  Widgets vary a bit
-/// because some have statues like checked, pressed, etc.
-/// 1. Do nothing and the widgets default to one of the standard styles
-///    which is usually primary but varies some from widget to widget.
-/// 2. You select one of the available standard styles (see below)
-/// 3. You create your own palette (see the palette example which gives a full explanation)
-/// 4. You add styling that is not set by any of the standard styles like gradient, 
-///    shadow, text parameters, border width and color.  These are listed below.
-/// 
-/// The standard style colors will vary depending on the theme selected
-/// for the window. This makes sure that there is enough contrast between the
-/// colors and the theme background to be seen.
-/// 
-/// Standard styles are:
-/// Background, Danger, Primary, Secondary,
-/// Subtle, Success, Warning, Text,
+///     There are 4 ways to add styling to a widget.  Widgets vary a bit
+///     because some have statues like checked, pressed, etc.
+///     1. Do nothing and the widgets default to one of the standard styles
+///        which is usually primary but varies some from widget to widget.
+///     2. You select one of the available standard styles (see below)
+///     3. You create your own palette (see the palette example which gives a full explanation)
+///     4. You add styling that is not set by any of the standard styles like gradient,
+///        shadow, text parameters, border width and color.  These are listed below.
 ///
-/// Each widget has a status where the color changes based on the state of the widget.
-/// The status type will vary among the widgets due of the actions they produce.  
-/// For example, a button has a status of pressed and a checkbox has a status of checked.
-/// 
-/// The statuses are:
-/// Active, Hovered, Pressed, Disabled
+///     The standard style colors will vary depending on the theme selected
+///     for the window. This makes sure that there is enough contrast between the
+///     colors and the theme background to be seen.
 ///
-/// gradient — applied to the background instead of a solid color:
-///   gradient_color_stops: list[Color, ≤8]
-///   gradient_color_alpha_stops: list[float]
-///   gradient_rgba_stops: list[list[float, 4], ≤8]
-///     Up to 8 stops total (color + rgba combined).
-///   gradient_offset_stops: list[float]
-///     Offset positions for each stop (0.0–1.0).
-///   gradient_degrees: float — angle in degrees
-///   gradient_radians: float — angle in radians (takes priority over degrees)
+///     Standard styles are:
+///     Background, Danger, Primary, Secondary,
+///     Subtle, Success, Warning, Text,
 ///
-/// shadow:
-///   shadow_color, shadow_color_alpha, shadow_rgba
-///     Shadow color.
-///   shadow_offset_xy: list[float, 2]
-///     Shadow offset [x, y].
-///   shadow_blur_radius: float
-///     Shadow blur radius.
+///     Each widget has a status where the color changes based on the state of the widget.
+///     The status type will vary among the widgets due of the actions they produce.
+///     For example, a button has a status of pressed and a checkbox has a status of checked.
 ///
-/// text alignment (default: center):
-///   text_top_left, text_top_center, text_top_right: bool
-///   text_center_left, text_center, text_center_right: bool
-///   text_bottom_left, text_bottom_center, text_bottom_right: bool
+///     The statuses are:
+///     Active, Hovered, Pressed, Disabled
 ///
-/// text_size: float — font size for the label
+///     gradient — applied to the background instead of a solid color:
+///       gradient_color_stops: list[Color, ≤8]
+///       gradient_color_alpha_stops: list[float]
+///       gradient_rgba_stops: list[list[float, 4], ≤8]
+///         Up to 8 stops total (color + rgba combined).
+///       gradient_offset_stops: list[float]
+///         Offset positions for each stop (0.0–1.0).
+///       gradient_degrees: float — angle in degrees
+///       gradient_radians: float — angle in radians (takes priority over degrees)
 ///
-/// text wrapping (default: Word):
-///   wrapping_none: bool — no wrapping
-///   wrapping_glyph: bool — wrap at glyph boundary
-///   wrapping_word_glyph: bool — wrap at word, fall back to glyph
+///     shadow:
+///       shadow_color, shadow_color_alpha, shadow_rgba
+///         Shadow color.
+///       shadow_offset_xy: list[float, 2]
+///         Shadow offset [x, y].
+///       shadow_blur_radius: float
+///         Shadow blur radius.
 ///
-/// border_radius: list[float] — [all] or [top-left, top-right, bottom-right, bottom-left]
-/// border_width: float
-///     Sets the border line width.  Unless border width is set, no other parameters take effect.
-/// border_rounded: float
-///     Whether to round the button box. Rounded overrides any other border settings.
-/// 
-/// snap: bool
-///     Whether to snap rendering to pixel grid
-/// gen_id: int, Optional
-///     Obtain an ID for a widget not yet created; use for the gen_id parameter.
-/// """
+///     text alignment (default: center):
+///       text_top_left, text_top_center, text_top_right: bool
+///       text_center_left, text_center, text_center_right: bool
+///       text_bottom_left, text_bottom_center, text_bottom_right: bool
+///
+///     text_size: float — font size for the label
+///
+///     text wrapping (default: Word):
+///       wrapping_none: bool — no wrapping
+///       wrapping_glyph: bool — wrap at glyph boundary
+///       wrapping_word_glyph: bool — wrap at word, fall back to glyph
+///
+///     border_radius: list[float] — [all] or [top-left, top-right, bottom-right, bottom-left]
+///     border_width: float
+///         Sets the border line width.  Unless border width is set, no other parameters take effect.
+///     border_rounded: float
+///         Whether to round the button box. Rounded overrides any other border settings.
+///
+///     snap: bool
+///         Whether to snap rendering to pixel grid
+///     gen_id: int, Optional
+///         Obtain an ID for a widget not yet created; use for the gen_id parameter.
+///
+///     Examples
+///     --------
+///     >>> from icedpygui import (
+///     ...     Window,
+///     ...     Column,
+///     ...     Container,
+///     ...     ButtonStyleStd,
+///     ...     add_button,
+///     ...     add_button_style,
+///     ...     Color,
+///     ...     start_session)
+///     >>>
+///     >>> style = add_button_style(
+///     ...     border_color=Color.ALICE_BLUE,
+///     ...     border_width=2.0,
+///     ...     border_radius=[5.0])
+///     >>>
+///     >>> with Window(title="Button Styling", center=True):
+///     ...     with Container(align_center=True, fill=True):
+///     ...         with Column(spacing=20.0):
+///     ...             add_button(
+///     ...                 label="Border Color and Width",
+///     ...                 padding=[5.0],
+///     ...                 style_id=style)
+///     ...
+///     ...             add_button(
+///     ...                 label="Style Standard-Danger",
+///     ...                 padding=[5.0],
+///     ...                 style_std=ButtonStyleStd.Danger)
+///     ...
+///     ...             add_button(
+///     ...                 label="Style Standard-Text",
+///     ...                 padding=[5.0],
+///     ...                 style_std=ButtonStyleStd.Text)
+///     >>>
+///     >>> start_session()
 #[pyfunction]
 #[pyo3(signature = (
-    text_top_left = None,
-    text_top_center = None,
-    text_top_right = None,
-    text_center_left = None,
-    text_center = None,
-    text_center_right = None,
-    text_bottom_left = None,
-    text_bottom_center = None,
-    text_bottom_right = None,
-    text_size = None,
-
-    wrapping_none = None,
-    wrapping_glyph = None,
-    wrapping_word_glyph = None,
-
-    gradient_color_stops = None,
-    gradient_color_alpha_stops = None,
-    gradient_rgba_stops = None,
-    gradient_offset_stops = None,
-    gradient_degrees = None,
-    gradient_radians = None,
-
     border_color = None,
     border_color_alpha = None,
-    border_rgba = None,
     border_radius = None,
-    border_width = None,
+    border_rgba = None,
     border_rounded = None,
-
+    border_width = None,
+    gen_id=None,
+    gradient_color_alpha_stops = None,
+    gradient_color_stops = None,
+    gradient_degrees = None,
+    gradient_offset_stops = None,
+    gradient_radians = None,
+    gradient_rgba_stops = None,
+    shadow_blur_radius = None,
     shadow_color = None,
     shadow_color_alpha = None,
-    shadow_rgba = None,
     shadow_offset_xy = None,
-    shadow_blur_radius = None,
-
+    shadow_rgba = None,
     snap = None,
-    gen_id=None
+    text_bottom_center = None,
+    text_bottom_left = None,
+    text_bottom_right = None,
+    text_center = None,
+    text_center_left = None,
+    text_center_right = None,
+    text_size = None,
+    text_top_center = None,
+    text_top_left = None,
+    text_top_right = None,
+    wrapping_glyph = None,
+    wrapping_none = None,
+    wrapping_word_glyph = None,
     ))]
 pub fn add_button_style(
-    text_top_left: Option<bool>,
-    text_top_center: Option<bool>,
-    text_top_right: Option<bool>,
-    text_center_left: Option<bool>,
-    text_center: Option<bool>,
-    text_center_right: Option<bool>,
-    text_bottom_left: Option<bool>,
-    text_bottom_center: Option<bool>,
-    text_bottom_right: Option<bool>,
-    text_size: Option<f32>,
-
-    wrapping_none: Option<bool>,
-    wrapping_glyph: Option<bool>,
-    wrapping_word_glyph: Option<bool>,
-
-    gradient_color_stops: Option<Vec<Color>>,
-    gradient_color_alpha_stops: Option<Vec<f32>>,
-    gradient_rgba_stops: Option<Vec<[f32; 4]>>,
-    gradient_offset_stops: Option<Vec<f32>>,
-    gradient_degrees: Option<f32>,
-    gradient_radians: Option<f32>,
-
     border_color: Option<Color>,
     border_color_alpha: Option<f32>,
-    border_rgba: Option<[f32; 4]>,
-    
     border_radius: Option<Vec<f32>>,
-    border_width: Option<f32>,
+    border_rgba: Option<[f32; 4]>,
     border_rounded: Option<f32>,
-
+    border_width: Option<f32>,
+    gen_id: Option<usize>,
+    gradient_color_alpha_stops: Option<Vec<f32>>,
+    gradient_color_stops: Option<Vec<Color>>,
+    gradient_degrees: Option<f32>,
+    gradient_offset_stops: Option<Vec<f32>>,
+    gradient_radians: Option<f32>,
+    gradient_rgba_stops: Option<Vec<[f32; 4]>>,
+    shadow_blur_radius: Option<f32>,
     shadow_color: Option<Color>,
     shadow_color_alpha: Option<f32>,
-    shadow_rgba: Option<[f32; 4]>,
-    
     shadow_offset_xy: Option<[f32; 2]>,
-    shadow_blur_radius: Option<f32>,
-
+    shadow_rgba: Option<[f32; 4]>,
     snap: Option<bool>,
-    gen_id: Option<usize>,
-    ) -> PyResult<usize>
-{
+    text_bottom_center: Option<bool>,
+    text_bottom_left: Option<bool>,
+    text_bottom_right: Option<bool>,
+    text_center: Option<bool>,
+    text_center_left: Option<bool>,
+    text_center_right: Option<bool>,
+    text_size: Option<f32>,
+    text_top_center: Option<bool>,
+    text_top_left: Option<bool>,
+    text_top_right: Option<bool>,
+    wrapping_glyph: Option<bool>,
+    wrapping_none: Option<bool>,
+    wrapping_word_glyph: Option<bool>,
+) -> PyResult<usize> {
     let id = get_id(gen_id);
 
     let mut state = access_state();
 
-    state.widgets.insert(id, Widgets::ButtonStyle(
-        ButtonStyle {
+    state.widgets.insert(
+        id,
+        Widgets::ButtonStyle(ButtonStyle {
             id,
-
-            text_top_left,
-            text_top_center,
-            text_top_right,
-            text_center_left,
-            text_center,
-            text_center_right,
-            text_bottom_left,
-            text_bottom_center,
-            text_bottom_right,
-            text_size,
-
-            wrapping_none,
-            wrapping_glyph,
-            wrapping_word_glyph,
-
-            gradient_color_stops,
-            gradient_color_alpha_stops,
-            gradient_rgba_stops,
-            gradient_offset_stops,
-            gradient_degrees,
-            gradient_radians,
-
-            border_color,
             border_color_alpha,
-            border_rgba,
+            border_color,
             border_radius,
-            border_width,
+            border_rgba,
             border_rounded,
-
-            shadow_color,
-            shadow_color_alpha,
-            shadow_rgba,
-            shadow_offset_xy,
+            border_width,
+            gradient_color_alpha_stops,
+            gradient_color_stops,
+            gradient_degrees,
+            gradient_offset_stops,
+            gradient_radians,
+            gradient_rgba_stops,
             shadow_blur_radius,
-
+            shadow_color_alpha,
+            shadow_color,
+            shadow_offset_xy,
+            shadow_rgba,
             snap,
-        }));
+            text_bottom_center,
+            text_bottom_left,
+            text_bottom_right,
+            text_center_left,
+            text_center_right,
+            text_center,
+            text_size,
+            text_top_center,
+            text_top_left,
+            text_top_right,
+            wrapping_glyph,
+            wrapping_none,
+            wrapping_word_glyph,
+        }),
+    );
 
     drop(state);
     Ok(id)

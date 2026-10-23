@@ -257,12 +257,12 @@ pub fn add_menu_bar(
 /// ```python
 /// with Menu():
 ///     with MenuBar(label="File", width=50.0):
+///         # NOTE: The MenuItem before a SubMenu DOES NOT use MenuButton
+///         # This prevents the label reacting to being pressed versus opening
+///         # the submenu.
 ///         with MenuItem():
-///             # The MenuItem before a SubMenu DOES NOT use MenuButtob
 ///             add_text(content="Open Recent")
-///             # SubMenu must be nested within the MenuIten
-///             # The MenuItem when pressed will open the SubMenu
-///             with SubMenu(width=200):
+///             with SubMenu(width=200): # The SubMenu needs to be in the MenuItems 'with'
 ///                 with MenuItem():
 ///                     add_text(content="~/document/iced_menu")
 /// ```
@@ -412,7 +412,8 @@ pub fn add_sub_menu(
 ///     with MenuBar(label="File", width=50.0):
 ///         with MenuItem():
 ///             # A MenuItem must use the special MenuButton, 
-///             # which is a container that accepts widgets.
+///             # which is a container that accepts a single widget.
+///             # If more than one widget is used, use column or row.
 ///             # except in the case where a SubMenu follows.
 ///             MenuButton(on_press=on_item_press):
 ///                 add_text(content="Open Recent")

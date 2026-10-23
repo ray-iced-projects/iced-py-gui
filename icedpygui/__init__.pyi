@@ -16,7 +16,6 @@ from types import TracebackType
 # Re-export everything that is directly imported (not wrapped)
 
 from .icedpygui import (
-    add_button_style as add_button_style,
     add_card_style as add_card_style,
     add_checkbox_style as add_checkbox_style,
     add_combobox_input_style as add_combobox_input_style,
@@ -42,9 +41,9 @@ from .icedpygui import (
     add_toggler_style as add_toggler_style,
     Arrow as Arrow,
     arrow_variants as arrow_variants,
-    ButtonParam as ButtonParam,
-    ButtonStyleParam as ButtonStyleParam,
-    ButtonStyleStd as ButtonStyleStd,
+    # ButtonParam,
+    # ButtonStyleParam,
+    # ButtonStyleStd,
     # CardParam as CardParam,
     # CardStyleParam as CardStyleParam,
     # CardStyleStd as CardStyleStd,
@@ -218,14 +217,14 @@ def add_button(
         Sets arbitrary data forwarded to callbacks.
     show : bool, default True
         Whether the button is visible.
-    active: bool, Optional
-         Whether to set the button status as Active.
-     hovered: bool, Optional
-         Whether to set the button status as Hovered.
-     pressed: bool, Optional
-         Whether to set the button status as Pressed.
-     disabled: bool, Optional
-         Whether to set the button status as Disabled.
+    status_active: bool, Optional
+        Whether to set the button status as Active.
+    status_disabled: bool, Optional
+        Whether to set the button status as Disabled.
+    status_hovered: bool, Optional
+        Whether to set the button status as Hovered.
+    status_pressed: bool, Optional
+        Whether to set the button status as Pressed.
     gen_id : int, optional
         Obtains an ID for a widget that has not been created;
         used for the gen_id parameter.
@@ -235,37 +234,367 @@ def add_button(
     int
         The numeric widget ID of the newly created button.
 
-    Usage
-    -----
-    ::
-
-        from icedpygui import (
-            Window,
-            Column,
-            Container,
-            add_button,
-            start_session)
-
-        def btn_cb(btn_id: int):
-            print(btn_id)
-
-        def cb_with_data(btn_id: int, data: any):
-            print(btn_id, data)
-
-        with Window(title="My App", center=True):
-            with Container(align_center=True, fill=True):
-                with Column(spacing=20):
-                        add_button(label="Press Me", on_press=btn_cb)
-                        add_button(
-                            label="Press Me",
-                            on_press=cb_with_data,
-                            user_data="Some Data"
-                        )
-
-        start_session()
+    Examples
+    --------
+    >>> from icedpygui import (
+    ...     Window,
+    ...     Column,
+    ...     Container,
+    ...     add_button,
+    ...     start_session)
+    >>>
+    >>> def btn_cb(btn_id: int):
+    ...     print(btn_id)
+    >>>
+    >>> def cb_with_data(btn_id: int, data: any):
+    ...     print(btn_id, data)
+    >>>
+    >>> with Window(title="My App", center=True):
+    ...     with Container(align_center=True, fill=True):
+    ...         with Column(spacing=20):
+    ...             add_button(label="Press Me", on_press=btn_cb)
+    ...             add_button(
+    ...                 label="Press Me",
+    ...                 on_press=cb_with_data,
+    ...                 user_data="Some Data"
+    ...             )
+    >>>
+    >>> start_session()
 
     """
     ...
+
+class ButtonParam:
+    """
+    Button parameters
+
+    Parameters
+    ----------
+    Clip: bool
+        Whether the label is clipped or not
+    Fill : bool, optional
+        Whether the button fills available width and height.
+    FontId : int, optional
+        Sets the ID of a custom font created with ``add_font_style``.
+    Height: float
+        The height of the button.
+    HeightFill: bool
+        Whether the button height fills the available space of a container.
+    Label: str
+        The label of the button.
+    Padding: list[float], one or four items
+        The padding around the button, [all sides], [top, right, bottom, left].
+    PaletteId : int, optional
+        Sets the ID of a custom color palette for the button.
+    Show: bool
+        Whether to show the button
+    StatusActive: bool, Optional
+        Whether to set the button status as Active.
+    StatusDisabled: bool, Optional
+        Whether to set the button status as Disabled.
+    StatusHovered: bool, Optional
+        Whether to set the button status as Hovered.
+    StatusPressed: bool, Optional
+        Whether to set the button status as Pressed.
+    StyleArrow: ButtonArrow
+        A button becomes a type of arrow.
+    StyleId: int
+        The id of the add_button_style() function
+    StyleStd: ButtonStyleStd
+        The standard styles for a button
+    Width: float
+        The width of the button
+    WidthFill: bool
+         Whether the button width fills the available space of a container.
+    """
+    Clip = ...
+    Fill = ...
+    FontId = ...
+    Height = ...
+    HeightFill = ...
+    Label = ...
+    Padding = ...
+    PaletteId = ...
+    Show = ...
+    StatusActive = ...
+    StatusDisabled = ...
+    StatusHovered = ...
+    StatusPressed = ...
+    StyleArrow = ...
+    StyleId = ...
+    StyleStd = ...
+    Width = ...
+    WidthFill = ...
+
+
+def add_button_style(
+    text_top_left: bool | None = None,
+    text_top_center: bool | None = None,
+    text_top_right: bool | None = None,
+    text_center_left: bool | None = None,
+    text_center: bool | None = None,
+    text_center_right: bool | None = None,
+    text_bottom_left: bool | None = None,
+    text_bottom_center: bool | None = None,
+    text_bottom_right: bool | None = None,
+    text_size: float | None = None,
+    wrapping_none: bool | None = None,
+    wrapping_glyph: bool | None = None,
+    wrapping_word_glyph: bool | None = None,
+    gradient_color_stops: list[Color] | None = None,
+    gradient_color_alpha_stops: list[float] | None = None,
+    gradient_rgba_stops: list[float, 4] | None = None,
+    gradient_offset_stops: list[float] | None = None,
+    gradient_degrees: float | None = None,
+    gradient_radians: float | None = None,
+    border_color: Color | None = None,
+    border_color_alpha: float | None = None,
+    border_rgba: list[float, 4] | None = None,
+    border_radius: list[float] | list[float, 4] | None = None,
+    border_width: float | None = None,
+    shadow_color: Color | None = None,
+    shadow_color_alpha: float | None = None,
+    shadow_rgba: list[float, 4] | None = None,
+    shadow_offset_xy: list[float, 2] | None = None,
+    shadow_blur_radius: float | None = None,
+    snap: bool | None = None,
+    gen_id: int | None = None,
+    ) -> int:
+    """Adds styling to a button
+
+    There are 4 ways to add styling to a widget.  Widgets vary a bit
+    because some have statues like checked, pressed, etc.
+    1. Do nothing and the widgets default to one of the standard styles
+       which is usually primary but varies some from widget to widget.
+    2. You select one of the available standard styles (see below)
+    3. You create your own palette (see the palette example which gives a full explanation)
+    4. You add styling that is not set by any of the standard styles like gradient,
+       shadow, text parameters, border width and color.  These are listed below.
+
+    The standard style colors will vary depending on the theme selected
+    for the window. This makes sure that there is enough contrast between the
+    colors and the theme background to be seen.
+
+    Standard styles are:
+    Background, Danger, Primary, Secondary,
+    Subtle, Success, Warning, Text,
+
+    Each widget has a status where the color changes based on the state of the widget.
+    The status type will vary among the widgets due of the actions they produce.
+    For example, a button has a status of pressed and a checkbox has a status of checked.
+
+    The statuses are:
+    Active, Hovered, Pressed, Disabled
+
+    gradient — applied to the background instead of a solid color:
+      gradient_color_stops: list[Color, ≤8]
+      gradient_color_alpha_stops: list[float]
+      gradient_rgba_stops: list[list[float, 4], ≤8]
+        Up to 8 stops total (color + rgba combined).
+      gradient_offset_stops: list[float]
+        Offset positions for each stop (0.0–1.0).
+      gradient_degrees: float — angle in degrees
+      gradient_radians: float — angle in radians (takes priority over degrees)
+
+    shadow:
+      shadow_color, shadow_color_alpha, shadow_rgba
+        Shadow color.
+      shadow_offset_xy: list[float, 2]
+        Shadow offset [x, y].
+      shadow_blur_radius: float
+        Shadow blur radius.
+
+    text alignment (default: center):
+      text_top_left, text_top_center, text_top_right: bool
+      text_center_left, text_center, text_center_right: bool
+      text_bottom_left, text_bottom_center, text_bottom_right: bool
+
+    text_size: float — font size for the label
+
+    text wrapping (default: Word):
+      wrapping_none: bool — no wrapping
+      wrapping_glyph: bool — wrap at glyph boundary
+      wrapping_word_glyph: bool — wrap at word, fall back to glyph
+
+    border_radius: list[float] — [all] or [top-left, top-right, bottom-right, bottom-left]
+    border_width: float
+        Sets the border line width.  Unless border width is set, no other parameters take effect.
+    border_rounded: float
+        Whether to round the button box. Rounded overrides any other border settings.
+
+    snap: bool
+        Whether to snap rendering to pixel grid
+    gen_id: int, Optional
+        Obtain an ID for a widget not yet created; use for the gen_id parameter.
+
+    Examples
+    --------
+    >>> from icedpygui import (
+    ...     Window,
+    ...     Column,
+    ...     Container,
+    ...     ButtonStyleStd,
+    ...     add_button,
+    ...     add_button_style,
+    ...     Color,
+    ...     start_session)
+    >>>
+    >>> style = add_button_style(
+    ...     border_color=Color.ALICE_BLUE,
+    ...     border_width=2.0,
+    ...     border_radius=[5.0])
+    >>>
+    >>> with Window(title="Button Styling", center=True):
+    ...     with Container(align_center=True, fill=True):
+    ...         with Column(spacing=20.0):
+    ...             add_button(
+    ...                 label="Border Color and Width",
+    ...                 padding=[5.0],
+    ...                 style_id=style)
+    ...
+    ...             add_button(
+    ...                 label="Style Standard-Danger",
+    ...                 padding=[5.0],
+    ...                 style_std=ButtonStyleStd.Danger)
+    ...
+    ...             add_button(
+    ...                 label="Style Standard-Text",
+    ...                 padding=[5.0],
+    ...                 style_std=ButtonStyleStd.Text)
+    >>>
+    >>> start_session()
+    """
+    ...
+
+class ButtonStyleParam:
+    """
+    Button style parameters
+
+    Parameters
+    ----------
+    BorderColor: Color
+        Border color in Color format
+    BorderColorAlpha: float
+        Modifies the BorderColor alpha
+    BorderRadius: list[float]
+        The border radius [float]=all, [float, 4]=each individual one
+    BorderRgba :list[float, 4]
+        Border color in rgba format
+    BorderRounded: bool
+        Whether to round the corners of the border.
+    BorderWidth: float
+        The width of the border line
+    GradientColorAlphaStops: list[float]
+        List of alpha values for each gradient color stop
+    GradientColorStops: list[Color]
+        List of color stops for the gradient
+    GradientDegrees: float
+        Gradient angle in degrees
+    GradientRadians: float
+        Gradient angle in radians
+    GradientRgbaStops: list[list[float, 4]]
+        List of RGBA color stops for the gradient
+    ShadowBlurRadius: float
+        How much to blur the shadow radius
+    ShadowColor: Color
+        Shadow color in Color format
+    ShadowColorAlpha: float
+        Modifies the ShadowColor alpha
+    ShadowOffsetXy: list[float, 2]
+        The offset of the shadow towards the x and y directions
+    ShadowRgba: list[float, 4]
+        Shadow color in rgba format
+    Snap: bool
+        Whether to snap the button rendering
+    TextAlignBottomCenter: bool
+        Whether to align the label bottom center
+    TextAlignBottomLeft: bool
+        Whether to align the label bottom left
+    TextAlignBottomRight: bool
+        Whether to align the label bottom right
+    TextAlignCenter: bool
+        Whether to align the label centered (default)
+    TextAlignCenterLeft: bool
+        Whether to align the label center left
+    TextAlignCenterRight: bool
+        Whether to align the label center right
+    TextAlignTopCenter: bool
+        Whether to align the label top center
+    TextAlignTopLeft: bool
+        Whether to align the label top left
+    TextAlignTopRight: bool
+        Whether to align the label top right
+    TextSize: float
+        The size of the text
+    WrappingGlyph: bool
+        Enable glyph-based text wrapping
+    WrappingNone: bool
+        Disable text wrapping
+    WrappingWordGlyph: bool
+        Enable word or glyph text wrapping
+    """
+    BorderColor: Color
+    BorderColorAlpha: float
+    BorderRadius: list[float]
+    BorderRgba: list[float]
+    BorderRounded: bool
+    BorderWidth: float
+    GradientColorAlphaStops: list[float]
+    GradientColorStops: list[Color]
+    GradientDegrees: float
+    GradientRadians: float
+    GradientRgbaStops: list[list[float, 4]]
+    ShadowBlurRadius: float
+    ShadowColor: Color
+    ShadowColorAlpha: float
+    ShadowOffsetXy: list[float, 2]
+    ShadowRgba: list[float, 4]
+    Snap: bool
+    TextAlignBottomCenter: bool
+    TextAlignBottomLeft: bool
+    TextAlignBottomRight: bool
+    TextAlignCenter: bool
+    TextAlignCenterLeft: bool
+    TextAlignCenterRight: bool
+    TextAlignTopCenter: bool
+    TextAlignTopLeft: bool
+    TextAlignTopRight: bool
+    TextSize: float
+    WrappingGlyph: bool
+    WrappingNone: bool
+    WrappingWordGlyph: bool
+
+class ButtonStyleStd:
+    """
+    Standard styles for Button widget
+
+    Parameters
+    ----------
+    Background: bool
+        Sets the bkg color to that of the background
+    Danger:
+        Sets the bkg color to taht of a Danger
+    Primary: bool
+        Sets the bkg color to that of the Primary Theme
+    Secondary: bool
+        Sets the bkg color to that of the Secondary Theme
+    Subtle: bool
+        Sets the bkg color to a more sublr color
+    Success: bool
+        Sets the bkg color to that of the Success Theme
+    Warning: bool
+        Sets the bkg color to that of the Warning Theme
+    Text: bool
+        Sets the bkg color to that of the bakg Theme
+    """
+    Background=...
+    Danger=...
+    Primary=...
+    Secondary=...
+    Subtle=...
+    Success=...
+    Warning=...
+    Text=...
 
 # def add_card(
 #     window_id: str,

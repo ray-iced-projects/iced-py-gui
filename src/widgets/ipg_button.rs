@@ -33,24 +33,24 @@ enum UserButtonStatus {
 #[derive(Debug, Clone)]
 pub struct Button {
     pub id: usize,
-    pub label: Option<String>,
-    pub width: Option<f32>,
-    pub width_fill: Option<bool>,
-    pub height: Option<f32>,
-    pub height_fill: Option<bool>,
-    pub fill: Option<bool>,
-    pub padding: Option<Vec<f32>>,
     pub clip: Option<bool>,
+    pub fill: Option<bool>,
     pub font_id: Option<usize>,
-    pub style_id: Option<usize>,
-    pub style_std: Option<ButtonStyleStd>,
-    pub style_arrow: Option<Arrow>,
+    pub height_fill: Option<bool>,
+    pub height: Option<f32>,
+    pub label: Option<String>,
+    pub padding: Option<Vec<f32>>,
     pub palette_id: Option<usize>,
     pub show: bool,
-    pub active: Option<bool>,
-    pub hovered: Option<bool>,
-    pub pressed: Option<bool>,
-    pub disabled: Option<bool>,
+    pub status_active: Option<bool>,
+    pub status_disabled: Option<bool>,
+    pub status_hovered: Option<bool>,
+    pub status_pressed: Option<bool>,
+    pub style_arrow: Option<Arrow>,
+    pub style_id: Option<usize>,
+    pub style_std: Option<ButtonStyleStd>,
+    pub width_fill: Option<bool>,
+    pub width: Option<f32>,
 }
 
 impl Button {
@@ -181,7 +181,12 @@ impl Button {
             txt
         };
 
-        let user_status = match (self.active, self.hovered, self.pressed, self.disabled) {
+        let user_status = match (
+            self.status_active,
+            self.status_hovered,
+            self.status_pressed,
+            self.status_disabled,
+        ) {
             (Some(true), None, None, None) => UserButtonStatus::Active,
             (None, Some(true), None, None) => UserButtonStatus::Hovered,
             (None, None, Some(true), None) => UserButtonStatus::Pressed,
@@ -217,7 +222,6 @@ impl Button {
 
         access_widget_parameters().insert(self.id, Widgets::Button(self.clone()));
         Some(btn)
-        
     }
 }
 
@@ -239,24 +243,24 @@ impl Button {
     pub fn to_py_dict<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyDict>> {
         let dict = PyDict::new(py);
         dict.set_item("id", self.id)?;
-        dict.set_item("label", self.label.clone())?;
-        dict.set_item("width", self.width)?;
-        dict.set_item("width_fill", self.width_fill)?;
-        dict.set_item("height", self.height)?;
-        dict.set_item("height_fill", self.height_fill)?;
-        dict.set_item("fill", self.fill)?;
-        dict.set_item("padding", self.padding.clone())?;
         dict.set_item("clip", self.clip)?;
+        dict.set_item("fill", self.fill)?;
         dict.set_item("font_id", self.font_id)?;
-        dict.set_item("style_id", self.style_id)?;
-        dict.set_item("style_std", self.style_std.as_ref().map(|s| format!("{s:?}")))?;
-        dict.set_item("style_arrow", self.style_arrow.as_ref().map(|a| format!("{a:?}")))?;
+        dict.set_item("height_fill", self.height_fill)?;
+        dict.set_item("height", self.height)?;
+        dict.set_item("label", self.label.clone())?;
+        dict.set_item("padding", self.padding.clone())?;
         dict.set_item("palette_id", self.palette_id)?;
         dict.set_item("show", self.show)?;
-        dict.set_item("active", self.active)?;
-        dict.set_item("hovered", self.hovered)?;
-        dict.set_item("pressed", self.pressed)?;
-        dict.set_item("disabled", self.disabled)?;
+        dict.set_item("status_active", self.status_active)?;
+        dict.set_item("status_disabled", self.status_disabled)?;
+        dict.set_item("status_hovered", self.status_hovered)?;
+        dict.set_item("status_pressed", self.status_pressed)?;
+        dict.set_item("style_arrow", self.style_arrow.as_ref().map(|a| format!("{a:?}")))?;
+        dict.set_item("style_id", self.style_id)?;
+        dict.set_item("style_std", self.style_std.as_ref().map(|s| format!("{s:?}")))?;
+        dict.set_item("width_fill", self.width_fill)?;
+        dict.set_item("width", self.width)?;
         Ok(dict)
     }
 }
@@ -264,43 +268,37 @@ impl Button {
 #[derive(Debug, Clone, Default)]
 pub struct ButtonStyle {
     pub id: usize,
-
-    pub text_top_left: Option<bool>,
-    pub text_top_center: Option<bool>,
-    pub text_top_right: Option<bool>,
-    pub text_center_left: Option<bool>,
-    pub text_center: Option<bool>,
-    pub text_center_right: Option<bool>,
-    pub text_bottom_left: Option<bool>,
-    pub text_bottom_center: Option<bool>,
-    pub text_bottom_right: Option<bool>,
-    pub text_size: Option<f32>,
-
-    pub wrapping_none: Option<bool>,
-    pub wrapping_glyph: Option<bool>,
-    pub wrapping_word_glyph: Option<bool>,
-
-    pub gradient_color_stops: Option<Vec<Color>>,
-    pub gradient_color_alpha_stops: Option<Vec<f32>>,
-    pub gradient_rgba_stops: Option<Vec<[f32; 4]>>,
-    pub gradient_offset_stops: Option<Vec<f32>>,
-    pub gradient_degrees: Option<f32>,
-    pub gradient_radians: Option<f32>,
-
-    pub border_color: Option<Color>,
     pub border_color_alpha: Option<f32>,
-    pub border_rgba: Option<[f32; 4]>,
+    pub border_color: Option<Color>,
     pub border_radius: Option<Vec<f32>>,
-    pub border_width: Option<f32>,
+    pub border_rgba: Option<[f32; 4]>,
     pub border_rounded: Option<f32>,
-
-    pub shadow_color: Option<Color>,
-    pub shadow_color_alpha: Option<f32>,
-    pub shadow_rgba: Option<[f32; 4]>,
-    pub shadow_offset_xy: Option<[f32; 2]>,
+    pub border_width: Option<f32>,
+    pub gradient_color_alpha_stops: Option<Vec<f32>>,
+    pub gradient_color_stops: Option<Vec<Color>>,
+    pub gradient_degrees: Option<f32>,
+    pub gradient_offset_stops: Option<Vec<f32>>,
+    pub gradient_radians: Option<f32>,
+    pub gradient_rgba_stops: Option<Vec<[f32; 4]>>,
     pub shadow_blur_radius: Option<f32>,
-
+    pub shadow_color_alpha: Option<f32>,
+    pub shadow_color: Option<Color>,
+    pub shadow_offset_xy: Option<[f32; 2]>,
+    pub shadow_rgba: Option<[f32; 4]>,
     pub snap: Option<bool>,
+    pub text_bottom_center: Option<bool>,
+    pub text_bottom_left: Option<bool>,
+    pub text_bottom_right: Option<bool>,
+    pub text_center_left: Option<bool>,
+    pub text_center_right: Option<bool>,
+    pub text_center: Option<bool>,
+    pub text_size: Option<f32>,
+    pub text_top_center: Option<bool>,
+    pub text_top_left: Option<bool>,
+    pub text_top_right: Option<bool>,
+    pub wrapping_glyph: Option<bool>,
+    pub wrapping_none: Option<bool>,
+    pub wrapping_word_glyph: Option<bool>,
 }
 
 impl ButtonStyle {
@@ -596,43 +594,34 @@ impl ButtonStyle {
         let dict = PyDict::new(py);
         dict.set_item("id", self.id)?;
 
-        dict.set_item("text_top_left", self.text_top_left)?;
-        dict.set_item("text_top_center", self.text_top_center)?;
-        dict.set_item("text_top_right", self.text_top_right)?;
-        dict.set_item("text_center_left", self.text_center_left)?;
-        dict.set_item("text_center", self.text_center)?;
-        dict.set_item("text_center_right", self.text_center_right)?;
-        dict.set_item("text_bottom_left", self.text_bottom_left)?;
-        dict.set_item("text_bottom_center", self.text_bottom_center)?;
-        dict.set_item("text_bottom_right", self.text_bottom_right)?;
-        dict.set_item("text_size", self.text_size)?;
-
-        dict.set_item("wrapping_none", self.wrapping_none)?;
-        dict.set_item("wrapping_glyph", self.wrapping_glyph)?;
-        dict.set_item("wrapping_word_glyph", self.wrapping_word_glyph)?;
-
-        dict.set_item("gradient_color_stops", colors_names(&self.gradient_color_stops))?;
-        dict.set_item("gradient_color_alpha_stops", self.gradient_color_alpha_stops.clone())?;
-        dict.set_item(
-            "gradient_rgba_stops",
-            self.gradient_rgba_stops
-                .as_ref()
-                .map(|v| v.iter().map(|c| c.to_vec()).collect::<Vec<_>>()),
-        )?;
-        dict.set_item("gradient_offset_stops", self.gradient_offset_stops.clone())?;
-        dict.set_item("gradient_degrees", self.gradient_degrees)?;
-        dict.set_item("gradient_radians", self.gradient_radians)?;
-
         dict.set_item("border_radius", self.border_radius.clone())?;
         dict.set_item("border_rounded", self.border_rounded)?;
-
-        dict.set_item("shadow_color", color_name(&self.shadow_color))?;
-        dict.set_item("shadow_color_alpha", self.shadow_color_alpha)?;
-        dict.set_item("shadow_rgba", self.shadow_rgba.map(|c| c.to_vec()))?;
-        dict.set_item("shadow_offset_xy", self.shadow_offset_xy.map(|c| c.to_vec()))?;
+        dict.set_item("gradient_color_alpha_stops", self.gradient_color_alpha_stops.clone())?;
+        dict.set_item("gradient_color_stops", colors_names(&self.gradient_color_stops))?;
+        dict.set_item("gradient_degrees", self.gradient_degrees)?;
+        dict.set_item("gradient_offset_stops", self.gradient_offset_stops.clone())?;
+        dict.set_item("gradient_radians", self.gradient_radians)?;
+        dict.set_item("gradient_rgba_stops", self.gradient_rgba_stops.as_ref()
+            .map(|v| v.iter().map(|c| c.to_vec()).collect::<Vec<_>>()))?;
         dict.set_item("shadow_blur_radius", self.shadow_blur_radius)?;
-
+        dict.set_item("shadow_color_alpha", self.shadow_color_alpha)?;
+        dict.set_item("shadow_color", color_name(&self.shadow_color))?;
+        dict.set_item("shadow_offset_xy", self.shadow_offset_xy.map(|c| c.to_vec()))?;
+        dict.set_item("shadow_rgba", self.shadow_rgba.map(|c| c.to_vec()))?;
         dict.set_item("snap", self.snap)?;
+        dict.set_item("text_bottom_center", self.text_bottom_center)?;
+        dict.set_item("text_bottom_left", self.text_bottom_left)?;
+        dict.set_item("text_bottom_right", self.text_bottom_right)?;
+        dict.set_item("text_center_left", self.text_center_left)?;
+        dict.set_item("text_center_right", self.text_center_right)?;
+        dict.set_item("text_center", self.text_center)?;
+        dict.set_item("text_size", self.text_size)?;
+        dict.set_item("text_top_center", self.text_top_center)?;
+        dict.set_item("text_top_left", self.text_top_left)?;
+        dict.set_item("text_top_right", self.text_top_right)?;
+        dict.set_item("wrapping_glyph", self.wrapping_glyph)?;
+        dict.set_item("wrapping_none", self.wrapping_none)?;
+        dict.set_item("wrapping_word_glyph", self.wrapping_word_glyph)?;
         Ok(dict)
     }
 }
@@ -678,7 +667,6 @@ impl ButtonStyleStd {
 #[pyclass(eq, eq_int, hash, frozen)]
 pub enum ButtonParam {
     Clip,
-    Disabled,
     Fill,
     FontId,
     Height,
@@ -687,6 +675,10 @@ pub enum ButtonParam {
     Padding,
     PaletteId,
     Show,
+    StatusActive,
+    StatusDisabled,
+    StatusHovered,
+    StatusPressed,
     StyleArrow,
     StyleId,
     StyleStd,
@@ -697,6 +689,23 @@ pub enum ButtonParam {
 #[derive(Debug, Clone, PartialEq, Hash)]
 #[pyclass(eq, eq_int, hash, frozen)]
 pub enum ButtonStyleParam {
+    BorderColor,
+    BorderColorAlpha,
+    BorderRadius,
+    BorderRgba,
+    BorderRounded,
+    BorderWidth,
+    GradientColorAlphaStops,
+    GradientColorStops,
+    GradientDegrees,
+    GradientRadians,
+    GradientRgbaStops,
+    ShadowBlurRadius,
+    ShadowColor,
+    ShadowColorAlpha,
+    ShadowOffsetXy,
+    ShadowRgba,
+    Snap,
     TextAlignBottomCenter,
     TextAlignBottomLeft,
     TextAlignBottomRight,
@@ -707,27 +716,9 @@ pub enum ButtonStyleParam {
     TextAlignTopLeft,
     TextAlignTopRight,
     TextSize,
-
-    WrappingNone,
     WrappingGlyph,
+    WrappingNone,
     WrappingWordGlyph,
-
-    GradientColorStops,
-    GradientColorAlphaStops,
-    GradientRgbaStops,
-    GradientDegrees,
-    GradientRadians,
-
-    BorderRadius,
-    BorderRounded,
-
-    ShadowColor,
-    ShadowColorAlpha,
-    ShadowRgba,
-    ShadowOffsetXy,
-    ShadowBlurRadius,
-
-    Snap,
 }
 
 // ---------------------------------------------------------------------------
@@ -739,21 +730,42 @@ impl WidgetParamUpdate for Button {
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
-            ButtonParam::Clip => set_t_value(&mut self.clip, value, "ButtonParam::Clip"),
-            ButtonParam::Disabled => set_t_value(&mut self.disabled, value, "ButtonParam::Disabled"),
-            ButtonParam::Fill => set_t_value(&mut self.fill, value, "ButtonParam::Fill"),
-            ButtonParam::FontId => set_t_value(&mut self.font_id, value, "ButtonParam::FontId"),
-            ButtonParam::Height => set_t_value(&mut self.height, value, "ButtonParam::Height"),
-            ButtonParam::HeightFill => set_t_value(&mut self.height, value, "ButtonParam::HeightFill"),
-            ButtonParam::Label => set_t_value(&mut self.label, value, "ButtonParam::Label"),
-            ButtonParam::Padding => set_t_value(&mut self.padding, value, "ButtonParam::Padding"),
-            ButtonParam::PaletteId => set_t_value(&mut self.palette_id, value, "ButtonParam::PaletteId"),
-            ButtonParam::Show => set_t_value(&mut self.show, value, "Show"),
-            ButtonParam::StyleArrow => set_t_value(&mut self.style_arrow, value, "ButtonParam::StyleArrow"),
-            ButtonParam::StyleId => set_t_value(&mut self.style_id, value, "ButtonParam::StyleId"),
-            ButtonParam::StyleStd => set_t_value(&mut self.style_std, value, "ButtonParam::StyleStd"),
-            ButtonParam::Width => set_t_value(&mut self.width, value, "ButtonParam::Width"),
-            ButtonParam::WidthFill => set_t_value(&mut self.width, value, "ButtonParam::WidthFill"),
+            ButtonParam::Clip => 
+                set_t_value(&mut self.clip, value, "ButtonParam::Clip"),
+            ButtonParam::Fill => 
+                set_t_value(&mut self.fill, value, "ButtonParam::Fill"),
+            ButtonParam::FontId => 
+                set_t_value(&mut self.font_id, value, "ButtonParam::FontId"),
+            ButtonParam::Height => 
+                set_t_value(&mut self.height, value, "ButtonParam::Height"),
+            ButtonParam::HeightFill => 
+                set_t_value(&mut self.height, value, "ButtonParam::HeightFill"),
+            ButtonParam::Label => 
+                set_t_value(&mut self.label, value, "ButtonParam::Label"),
+            ButtonParam::Padding => 
+                set_t_value(&mut self.padding, value, "ButtonParam::Padding"),
+            ButtonParam::PaletteId => 
+                set_t_value(&mut self.palette_id, value, "ButtonParam::PaletteId"),
+            ButtonParam::Show => 
+                set_t_value(&mut self.show, value, "Show"),
+            ButtonParam::StatusActive => 
+                set_t_value(&mut self.status_active, value, "ButtonParam::StatusActive"),
+            ButtonParam::StatusDisabled => 
+                set_t_value(&mut self.status_disabled, value, "ButtonParam::StatusDisabled"),
+            ButtonParam::StatusHovered => 
+                set_t_value(&mut self.status_hovered, value, "ButtonParam::StatusHovered"),
+            ButtonParam::StatusPressed => 
+                set_t_value(&mut self.status_pressed, value, "ButtonParam::StatusPressed"),
+            ButtonParam::StyleArrow => 
+                set_t_value(&mut self.style_arrow, value, "ButtonParam::StyleArrow"),
+            ButtonParam::StyleId => 
+                set_t_value(&mut self.style_id, value, "ButtonParam::StyleId"),
+            ButtonParam::StyleStd => 
+                set_t_value(&mut self.style_std, value, "ButtonParam::StyleStd"),
+            ButtonParam::Width => 
+                set_t_value(&mut self.width, value, "ButtonParam::Width"),
+            ButtonParam::WidthFill => 
+                set_t_value(&mut self.width, value, "ButtonParam::WidthFill"),
         }
     }
 }
@@ -763,104 +775,66 @@ impl WidgetParamUpdate for ButtonStyle {
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
-            ButtonStyleParam::TextAlignBottomCenter => set_t_value(
-                &mut self.text_bottom_center,
-                value,
-                "ButtonStyleParam::TextAlignBottomCenter",
-            ),
-            ButtonStyleParam::TextAlignBottomLeft => set_t_value(
-                &mut self.text_bottom_left,
-                value,
-                "ButtonStyleParam::TextAlignBottomLeft",
-            ),
-            ButtonStyleParam::TextAlignBottomRight => set_t_value(
-                &mut self.text_bottom_right,
-                value,
-                "ButtonStyleParam::TextAlignBottomRight",
-            ),
-            ButtonStyleParam::TextAlignCenter => {
-                set_t_value(&mut self.text_center, value, "ButtonStyleParam::TextAlignCenter")
-            }
-            ButtonStyleParam::TextAlignCenterLeft => set_t_value(
-                &mut self.text_center_left,
-                value,
-                "ButtonStyleParam::TextAlignCenterLeft",
-            ),
-            ButtonStyleParam::TextAlignCenterRight => set_t_value(
-                &mut self.text_center_right,
-                value,
-                "ButtonStyleParam::TextAlignCenterRight",
-            ),
-            ButtonStyleParam::TextAlignTopCenter => {
-                set_t_value(&mut self.text_top_center, value, "ButtonStyleParam::TextAlignTopCenter")
-            }
-            ButtonStyleParam::TextAlignTopLeft => {
-                set_t_value(&mut self.text_top_left, value, "ButtonStyleParam::TextAlignTopLeft")
-            }
-            ButtonStyleParam::TextAlignTopRight => {
-                set_t_value(&mut self.text_top_right, value, "ButtonStyleParam::TextAlignTopRight")
-            }
-            ButtonStyleParam::TextSize => set_t_value(&mut self.text_size, value, "ButtonStyleParam::TextSize"),
-
-            ButtonStyleParam::GradientColorStops => set_t_value(
-                &mut self.gradient_color_stops,
-                value,
-                "ButtonStyleParam::GradientColorStops",
-            ),
-            ButtonStyleParam::GradientColorAlphaStops => set_t_value(
-                &mut self.gradient_color_alpha_stops,
-                value,
-                "ButtonStyleParam::GradientColorAlphaStops",
-            ),
-            ButtonStyleParam::GradientRgbaStops => set_t_value(
-                &mut self.gradient_rgba_stops,
-                value,
-                "ButtonStyleParam::GradientRgbaStops",
-            ),
-            ButtonStyleParam::GradientDegrees => {
-                set_t_value(&mut self.gradient_degrees, value, "ButtonStyleParam::GradientDegrees")
-            }
-            ButtonStyleParam::GradientRadians => {
-                set_t_value(&mut self.gradient_radians, value, "ButtonStyleParam::GradientRadians")
-            }
-            ButtonStyleParam::BorderRadius => {
-                set_t_value(&mut self.border_radius, value, "ButtonStyleParam::BorderRadius")
-            }
-            ButtonStyleParam::BorderRounded => {
-                set_t_value(&mut self.border_rounded, value, "ButtonStyleParam::BorderRounded")
-            }
-
-            ButtonStyleParam::ShadowColor => {
-                set_t_value(&mut self.shadow_color, value, "ButtonStyleParam::ShadowColor")
-            }
-            ButtonStyleParam::ShadowColorAlpha => set_t_value(
-                &mut self.shadow_color_alpha,
-                value,
-                "ButtonStyleParam::ShadowColorAlpha",
-            ),
-            ButtonStyleParam::ShadowRgba => set_t_value(&mut self.shadow_rgba, value, "ButtonStyleParam::ShadowRgba"),
-            ButtonStyleParam::ShadowOffsetXy => {
-                set_t_value(&mut self.shadow_offset_xy, value, "ButtonStyleParam::ShadowOffsetXy")
-            }
-            ButtonStyleParam::ShadowBlurRadius => set_t_value(
-                &mut self.shadow_blur_radius,
-                value,
-                "ButtonStyleParam::ShadowBlurRadius",
-            ),
-
-            ButtonStyleParam::WrappingNone => {
-                set_t_value(&mut self.wrapping_none, value, "ButtonStyleParam::WrappingNone")
-            }
-            ButtonStyleParam::WrappingGlyph => {
-                set_t_value(&mut self.wrapping_glyph, value, "ButtonStyleParam::WrappingGlyph")
-            }
-            ButtonStyleParam::WrappingWordGlyph => set_t_value(
-                &mut self.wrapping_word_glyph,
-                value,
-                "ButtonStyleParam::WrappingWordGlyph",
-            ),
-
-            ButtonStyleParam::Snap => set_t_value(&mut self.snap, value, "ButtonStyleParam::Snap"),
+            ButtonStyleParam::BorderColor => 
+                set_t_value(&mut self.border_color, value, "ButtonStyleParam::BorderColor"),
+            ButtonStyleParam::BorderColorAlpha => 
+                set_t_value(&mut self.border_color_alpha, value, "ButtonStyleParam::BorderColorAlpha"),
+            ButtonStyleParam::BorderRgba => 
+                set_t_value(&mut self.border_rgba, value, "ButtonStyleParam::BorderRgba"),
+            ButtonStyleParam::BorderWidth => 
+                set_t_value(&mut self.border_width, value, "ButtonStyleParam::BorderWidth"),
+            ButtonStyleParam::BorderRadius => 
+                set_t_value(&mut self.border_radius, value, "ButtonStyleParam::BorderRadius"),
+            ButtonStyleParam::BorderRounded => 
+                set_t_value(&mut self.border_rounded, value, "ButtonStyleParam::BorderRounded"),
+            ButtonStyleParam::GradientColorAlphaStops => 
+                set_t_value(&mut self.gradient_color_alpha_stops, value, "ButtonStyleParam::GradientColorAlphaStops"),
+            ButtonStyleParam::GradientColorStops => 
+                set_t_value(&mut self.gradient_color_stops, value, "ButtonStyleParam::GradientColorStops"),
+            ButtonStyleParam::GradientDegrees => 
+                set_t_value(&mut self.gradient_degrees, value, "ButtonStyleParam::GradientDegrees"),
+            ButtonStyleParam::GradientRadians => 
+                set_t_value(&mut self.gradient_radians, value, "ButtonStyleParam::GradientRadians"),
+            ButtonStyleParam::GradientRgbaStops => 
+                set_t_value(&mut self.gradient_rgba_stops, value, "ButtonStyleParam::GradientRgbaStops"),
+            ButtonStyleParam::ShadowBlurRadius => 
+                set_t_value(&mut self.shadow_blur_radius, value, "ButtonStyleParam::ShadowBlurRadius"),
+            ButtonStyleParam::ShadowColor => 
+                set_t_value(&mut self.shadow_color, value, "ButtonStyleParam::ShadowColor"),
+            ButtonStyleParam::ShadowColorAlpha => 
+                set_t_value(&mut self.shadow_color_alpha, value, "ButtonStyleParam::ShadowColorAlpha"),
+            ButtonStyleParam::ShadowOffsetXy => 
+                set_t_value(&mut self.shadow_offset_xy, value, "ButtonStyleParam::ShadowOffsetXy"),
+            ButtonStyleParam::ShadowRgba => 
+                set_t_value(&mut self.shadow_rgba, value, "ButtonStyleParam::ShadowRgba"),
+            ButtonStyleParam::Snap => 
+                set_t_value(&mut self.snap, value, "ButtonStyleParam::Snap"),
+            ButtonStyleParam::TextAlignBottomCenter => 
+                set_t_value(&mut self.text_bottom_center, value,"ButtonStyleParam::TextAlignBottomCenter"),
+            ButtonStyleParam::TextAlignBottomLeft => 
+                set_t_value(&mut self.text_bottom_left, value, "ButtonStyleParam::TextAlignBottomLeft"),
+            ButtonStyleParam::TextAlignBottomRight => 
+                set_t_value(&mut self.text_bottom_right,value, "ButtonStyleParam::TextAlignBottomRight"),
+            ButtonStyleParam::TextAlignCenter => 
+                set_t_value(&mut self.text_center, value, "ButtonStyleParam::TextAlignCenter"),
+            ButtonStyleParam::TextAlignCenterLeft => 
+                set_t_value(&mut self.text_center_left, value, "ButtonStyleParam::TextAlignCenterLeft"),
+            ButtonStyleParam::TextAlignCenterRight => 
+                set_t_value(&mut self.text_center_right, value, "ButtonStyleParam::TextAlignCenterRight"),
+            ButtonStyleParam::TextAlignTopCenter => 
+                set_t_value(&mut self.text_top_center, value, "ButtonStyleParam::TextAlignTopCenter"),
+            ButtonStyleParam::TextAlignTopLeft => 
+                set_t_value(&mut self.text_top_left, value, "ButtonStyleParam::TextAlignTopLeft"),
+            ButtonStyleParam::TextAlignTopRight => 
+                set_t_value(&mut self.text_top_right, value, "ButtonStyleParam::TextAlignTopRight"),
+            ButtonStyleParam::TextSize => 
+                set_t_value(&mut self.text_size, value, "ButtonStyleParam::TextSize"),
+            ButtonStyleParam::WrappingGlyph => 
+                set_t_value(&mut self.wrapping_glyph, value, "ButtonStyleParam::WrappingGlyph"),
+            ButtonStyleParam::WrappingNone => 
+                set_t_value(&mut self.wrapping_none, value, "ButtonStyleParam::WrappingNone"),
+            ButtonStyleParam::WrappingWordGlyph => 
+                set_t_value(&mut self.wrapping_word_glyph, value, "ButtonStyleParam::WrappingWordGlyph"),
         }
     }
 }

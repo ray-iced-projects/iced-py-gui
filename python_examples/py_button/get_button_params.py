@@ -3,75 +3,61 @@ Demo: read a button's parameters (and its style, font, and palette) during
 its on_press callback, plus any other widget by id (a checkbox here).
 """
 from icedpygui import (
-    Window,
-    Container,
-    Column,
-    start_session,
-    add_button,
-    add_button_style,
-    add_checkbox,
-    add_font_style,
-    custom_palette,
-    FontWeight,
+    Window, start_session,
+    Container, Column, ColumnParam, Row,
+    add_button, ButtonParam,
+    add_space,
+    add_text,
+    TextParam,
     get_widget_parameters,
-    get_widget_style_parameters,
-    get_widget_font_parameters,
-    get_widget_palette_parameters,
+    update_widget,
 )
 
-# Holds ids created at build time so callbacks can query any widget by id.
-state = {"checkbox_id": None}
-
-
-def _print_dict(title: str, data: dict):
-    print(title)
+def print_dict(data: dict):
+    """Displaying the parameters"""
+    _content = ("Any time parameters are needed,\n"
+               "You can get them by using the\n"
+               "get_widget_paramters(wid=num)\n\n")
     for key, value in data.items():
-        print(f"  {key} = {value!r}")
+        _content += (f"{key} = {value}\n")
+    update_widget(txt_id, TextParam.Content, _content)
+    update_widget(right_col_id, ColumnParam.Show, True)
 
 
-def on_toggle(wid: int, is_checked: bool):
-    """Checkbox toggle handler."""
-    print(f"Checkbox {wid} toggled -> {is_checked}")
+def on_press(btn_id: int):
+    """Get the button's parameters"""
+    params = get_widget_parameters(btn_id)
+    print_dict(params)
 
-
-def on_press(wid: int):
-    """Get the pressed button's parameters, its resources, and the checkbox."""
-    params = get_widget_parameters(wid)
-    _print_dict(f"Button {wid} parameters:", params)
-
-    if params.get("style_id") is not None:
-        _print_dict("  style parameters:",
-                    get_widget_style_parameters(params["style_id"]))
-    if params.get("font_id") is not None:
-        _print_dict("  font parameters:",
-                    get_widget_font_parameters(params["font_id"]))
-    if params.get("palette_id") is not None:
-        _print_dict("  palette parameters:",
-                    get_widget_palette_parameters(params["palette_id"]))
-
-    # Get any widget by id, not just the pressed button.
-    if state["checkbox_id"] is not None:
-        _print_dict(f"Checkbox {state['checkbox_id']} parameters:",
-                    get_widget_parameters(state["checkbox_id"]))
-    print("-" * 40)
+btn_params = [
+    ButtonParam.Clip, ButtonParam.Fill, ButtonParam.FontId,
+    ButtonParam.Height, ButtonParam.HeightFill, ButtonParam.Label,
+    ButtonParam.Padding, ButtonParam.PaletteId, ButtonParam.Show,
+    ButtonParam.StatusActive, ButtonParam.StatusDisabled, ButtonParam.StatusHovered,
+    ButtonParam.StatusPressed, ButtonParam.StyleArrow, ButtonParam.StyleId,
+    ButtonParam.StyleStd, ButtonParam.Width, ButtonParam.WidthFill]
 
 
 with Window(title="Get Button Params", center=True):
+
     with Container(align_center=True, fill=True):
-        with Column(spacing=20):
-            style_id = add_button_style(bkg_rgba=[0.2, 0.4, 0.8, 1.0],
-                                        border_width=2.0)
-            font_id = add_font_style(weight=FontWeight.Bold)
-            palette_id = custom_palette(rgba=[0.32, 0.2, 0.13, 1.0])
+        with Row(width_fill=True, padding=[50], spacing=50):
+            with Column(spacing=20, align_center=True):
+                wid = add_button(label="Press to get the Button parameters",
+                                on_press=on_press)
+                txt_id = add_text(content="")
 
-            add_button(label="Styled Button", width=200, padding=[10],
-                       style_id=style_id, font_id=font_id,
-                       palette_id=palette_id, on_press=on_press)
-            add_button(label="Plain Button", on_press=on_press)
-
-            state["checkbox_id"] = add_checkbox(label="Enable feature",
-                                                is_checked=True,
-                                                on_toggle=on_toggle)
-
+            with Column(spacing=20, align_center=True, show=False) as right_col_id:
+                add_text(content=("When using the update_widget() function\n"
+                                  "The param is the UpperCamelCase of the\n"
+                                  "parameter name, preceeded by widget param name.\n"
+                                  "Which in this case is 'ButtonParam', as seen below"))
+                for (i, p) in enumerate(btn_params):
+                    with Row(spacing=10):
+                        add_text(content=str(btn_params[i]), width=200)
+                        if i < len(btn_params)-1:
+                            add_text(content=str(btn_params[i+1]), width=200)
+                        else:
+                            add_space(width=200)
 
 start_session()

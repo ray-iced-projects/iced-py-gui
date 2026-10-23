@@ -12,14 +12,15 @@ use crate::widgets::callbacks::CallbackName;
 use crate::widgets::ipg_menu_button::{MenuButton, MenuButtonStyle, MenuButtonStyleStd};
 
 /// Adds a menu button widget.
-/// A clickable button used for some gui action.
+/// A clickable button used as a MenuItem.
+/// The MenuButton accepts only one widget.
+/// Use a Row or Column if multiple widgets are needed.
+/// See the Menu for additional details on usage.
 ///  
 /// Parameters
 /// ----------
 /// parent_id : str, Optional
 ///     Sets the parent container ID that this button belongs to.
-/// label : str,  Optional
-///     Sets the Text label displayed on the button.
 /// on_press : callable,  Optional
 ///     Sets the Callback method to invoke when the button is pressed.
 /// width : float,  Optional

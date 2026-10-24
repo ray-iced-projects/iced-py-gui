@@ -30,21 +30,58 @@ class ParameterMapping:
     rust_name: str         # Name in Rust
 
 
-# Parameters to validate: (pyi source -> Rust target)
-PARAMETERS_TO_CHECK = [
-    ParameterMapping(
-        pyi_file="icedpygui/__init__.pyi",
-        pyi_name="ButtonParam",
-        rust_file="src/widgets/ipg_button.rs",
-        rust_name="ButtonParam",
-    ),
-    ParameterMapping(
-        pyi_file="icedpygui/__init__.pyi",
-        pyi_name="ButtonStyleParam",
-        rust_file="src/widgets/ipg_button.rs",
-        rust_name="ButtonStyleParam",
-    ),
+# Widget names to check
+# - will automatically generate Param and StyleParam mappings
+WIDGETS_TO_CHECK = [
+    "Button",
+    "Checkbox",
 ]
+
+
+def _build_parameter_mappings(
+    widgets: list[str],
+) -> list[ParameterMapping]:
+    """Build parameter mappings from a list of widget names.
+
+    For each widget, creates mappings for both WidgetParam
+    and WidgetStyleParam.
+
+    Args:
+        widgets: List of widget names (e.g., ["Button",
+                 "Checkbox"])
+
+    Returns:
+        List of ParameterMapping objects.
+    """
+    mappings = []
+    for widget in widgets:
+        widget_lower = widget.lower()
+
+        # Add widget parameter mapping
+        mappings.append(
+            ParameterMapping(
+                pyi_file="icedpygui/__init__.pyi",
+                pyi_name=f"{widget}Param",
+                rust_file=f"src/widgets/ipg_{widget_lower}.rs",
+                rust_name=f"{widget}Param",
+            )
+        )
+
+        # Add widget style parameter mapping
+        mappings.append(
+            ParameterMapping(
+                pyi_file="icedpygui/__init__.pyi",
+                pyi_name=f"{widget}StyleParam",
+                rust_file=f"src/widgets/ipg_{widget_lower}.rs",
+                rust_name=f"{widget}StyleParam",
+            )
+        )
+
+    return mappings
+
+
+# Parameters to validate: (pyi source -> Rust target)
+PARAMETERS_TO_CHECK = _build_parameter_mappings(WIDGETS_TO_CHECK)
 
 
 def extract_enum_variants_from_pyi(

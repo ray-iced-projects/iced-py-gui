@@ -27,61 +27,61 @@ type PyObject = Py<PyAny>;
 #[derive(Debug, Clone)]
 pub struct CheckBox {
     pub id: usize,
-    pub show: bool,
+    pub fill: Option<bool>,
+    pub icon_font_id: Option<usize>,
+    pub icon_line_height: Option<f32>,
+    pub icon_size: Option<f32>,
+    pub icon: Option<Icon>,
     pub is_checked: bool,
     pub label: Option<String>,
-    pub width: Option<f32>,
-    pub fill: Option<bool>,
+    pub line_height: Option<f32>,
+    pub lock_is_checked: Option<bool>,
+    pub palette_id: Option<usize>,
+    pub show: bool,
     pub size: Option<f32>,
     pub spacing: Option<f32>,
-    pub text_size: Option<f32>,
-    pub line_height: Option<f32>,
-    pub text_wrapping_none: Option<bool>,
-    pub text_wrapping_glyph: Option<bool>,
-    pub text_wrapping_word_glyph: Option<bool>,
-    pub text_font_id: Option<usize>,
-    pub icon_font_id: Option<usize>,
-    pub icon: Option<Icon>,
-    pub icon_size: Option<f32>,
-    pub icon_line_height: Option<f32>,
-    pub active: Option<bool>,
-    pub hovered: Option<bool>,
-    pub disabled: Option<bool>,
-    pub lock_is_checked: Option<bool>,
+    pub status_active: Option<bool>,
+    pub status_disabled: Option<bool>,
+    pub status_hovered: Option<bool>,
     pub style_id: Option<usize>,
     pub style_std: Option<CheckboxStyleStd>,
-    pub palette_id: Option<usize>,
+    pub text_font_id: Option<usize>,
+    pub text_size: Option<f32>,
+    pub text_wrapping_glyph: Option<bool>,
+    pub text_wrapping_none: Option<bool>,
+    pub text_wrapping_word_glyph: Option<bool>,
+    pub width: Option<f32>,
 }
 
 impl CheckBox {
     /// Serialize all checkbox parameters into a Python dict keyed by field name.
     pub fn to_py_dict<'py>(&self, py: Python<'py>) -> PyResult<Bound<'py, PyDict>> {
         let dict = PyDict::new(py);
+        dict.set_item("fill", self.fill)?;
+        dict.set_item("icon_font_id", self.icon_font_id)?;
+        dict.set_item("icon_line_height", self.icon_line_height)?;
+        dict.set_item("icon_size", self.icon_size)?;
+        dict.set_item("icon", self.icon.as_ref().map(|i| format!("{i:?}")))?;
         dict.set_item("id", self.id)?;
-        dict.set_item("show", self.show)?;
         dict.set_item("is_checked", self.is_checked)?;
         dict.set_item("label", self.label.clone())?;
-        dict.set_item("width", self.width)?;
-        dict.set_item("fill", self.fill)?;
+        dict.set_item("line_height", self.line_height)?;
+        dict.set_item("lock_is_checked", self.lock_is_checked)?;
+        dict.set_item("palette_id", self.palette_id)?;
+        dict.set_item("show", self.show)?;
         dict.set_item("size", self.size)?;
         dict.set_item("spacing", self.spacing)?;
-        dict.set_item("text_size", self.text_size)?;
-        dict.set_item("line_height", self.line_height)?;
-        dict.set_item("text_wrapping_none", self.text_wrapping_none)?;
-        dict.set_item("text_wrapping_glyph", self.text_wrapping_glyph)?;
-        dict.set_item("text_wrapping_word_glyph", self.text_wrapping_word_glyph)?;
-        dict.set_item("text_font_id", self.text_font_id)?;
-        dict.set_item("icon_font_id", self.icon_font_id)?;
-        dict.set_item("icon", self.icon.as_ref().map(|i| format!("{i:?}")))?;
-        dict.set_item("icon_size", self.icon_size)?;
-        dict.set_item("icon_line_height", self.icon_line_height)?;
-        dict.set_item("active", self.active)?;
-        dict.set_item("hovered", self.hovered)?;
-        dict.set_item("disabled", self.disabled)?;
-        dict.set_item("lock_is_checked", self.lock_is_checked)?;
+        dict.set_item("status_active", self.status_active)?;
+        dict.set_item("status_disabled", self.status_disabled)?;
+        dict.set_item("status_hovered", self.status_hovered)?;
         dict.set_item("style_id", self.style_id)?;
         dict.set_item("style_std", self.style_std.as_ref().map(|s| format!("{s:?}")))?;
-        dict.set_item("palette_id", self.palette_id)?;
+        dict.set_item("text_font_id", self.text_font_id)?;
+        dict.set_item("text_size", self.text_size)?;
+        dict.set_item("text_wrapping_glyph", self.text_wrapping_glyph)?;
+        dict.set_item("text_wrapping_none", self.text_wrapping_none)?;
+        dict.set_item("text_wrapping_word_glyph", self.text_wrapping_word_glyph)?;
+        dict.set_item("width", self.width)?;
         Ok(dict)
     }
 }
@@ -132,7 +132,7 @@ impl CheckBox {
             text::LineHeight::default()
         };
 
-        let user_status = match (self.active, self.hovered, self.disabled) {
+        let user_status = match (self.status_active, self.status_hovered, self.status_disabled) {
             (Some(true), None, None) => UserCheckboxStatus::Active,
             (None, Some(true), None) => UserCheckboxStatus::Hovered,
             (None, None, Some(true)) => UserCheckboxStatus::Disabled,
@@ -192,7 +192,9 @@ impl CheckBox {
 
         let chk = if let Some(size) = self.text_size {
             chk.text_size(Pixels(size))
-        } else { chk };
+        } else {
+            chk
+        };
 
         // default is word so not checked
         let chk = if self.text_wrapping_none.is_some() {
@@ -255,36 +257,28 @@ pub fn checkbox_callback(state: &mut IpgState, id: usize, message: ChkMessage) {
 pub struct CheckboxStyle {
     pub id: usize,
 
-    pub bkg_color: Option<Color>,
     pub bkg_color_alpha: Option<f32>,
+    pub bkg_color: Option<Color>,
     pub bkg_rgba: Option<[f32; 4]>,
-
-    pub icon_color: Option<Color>,
-    pub icon_color_alpha: Option<f32>,
-    pub icon_rgba: Option<[f32; 4]>,
-
-    pub border_color: Option<Color>,
     pub border_color_alpha: Option<f32>,
-    pub border_rgba: Option<[f32; 4]>,
-
-    pub border_radius: Option<[f32; 4]>,
-    pub border_rounded: Option<f32>,
-
-    pub border_radius_top: Option<f32>,
-    pub border_radius_top_left: Option<f32>,
-    pub border_radius_top_right: Option<f32>,
-
-    pub border_radius_bottom: Option<f32>,
+    pub border_color: Option<Color>,
     pub border_radius_bottom_left: Option<f32>,
     pub border_radius_bottom_right: Option<f32>,
-
+    pub border_radius_bottom: Option<f32>,
     pub border_radius_left: Option<f32>,
     pub border_radius_right: Option<f32>,
-
+    pub border_radius_top_left: Option<f32>,
+    pub border_radius_top_right: Option<f32>,
+    pub border_radius_top: Option<f32>,
+    pub border_radius: Option<[f32; 4]>,
+    pub border_rgba: Option<[f32; 4]>,
+    pub border_rounded: Option<f32>,
     pub border_width: Option<f32>,
-
-    pub text_color: Option<Color>,
+    pub icon_color_alpha: Option<f32>,
+    pub icon_color: Option<Color>,
+    pub icon_rgba: Option<[f32; 4]>,
     pub text_color_alpha: Option<f32>,
+    pub text_color: Option<Color>,
     pub text_rgba: Option<[f32; 4]>,
 }
 
@@ -296,37 +290,28 @@ impl CheckboxStyle {
 
         let dict = PyDict::new(py);
         dict.set_item("id", self.id)?;
-
-        dict.set_item("bkg_color", color_name(&self.bkg_color))?;
         dict.set_item("bkg_color_alpha", self.bkg_color_alpha)?;
+        dict.set_item("bkg_color", color_name(&self.bkg_color))?;
         dict.set_item("bkg_rgba", self.bkg_rgba.map(|c| c.to_vec()))?;
-
-        dict.set_item("icon_color", color_name(&self.icon_color))?;
-        dict.set_item("icon_color_alpha", self.icon_color_alpha)?;
-        dict.set_item("icon_rgba", self.icon_rgba.map(|c| c.to_vec()))?;
-
-        dict.set_item("border_color", color_name(&self.border_color))?;
         dict.set_item("border_color_alpha", self.border_color_alpha)?;
-        dict.set_item("border_rgba", self.border_rgba.map(|c| c.to_vec()))?;
-
-        dict.set_item("border_radius", self.border_radius.map(|c| c.to_vec()))?;
-        dict.set_item("border_rounded", self.border_rounded)?;
-
-        dict.set_item("border_radius_top", self.border_radius_top)?;
-        dict.set_item("border_radius_top_left", self.border_radius_top_left)?;
-        dict.set_item("border_radius_top_right", self.border_radius_top_right)?;
-
-        dict.set_item("border_radius_bottom", self.border_radius_bottom)?;
+        dict.set_item("border_color", color_name(&self.border_color))?;
         dict.set_item("border_radius_bottom_left", self.border_radius_bottom_left)?;
         dict.set_item("border_radius_bottom_right", self.border_radius_bottom_right)?;
-
+        dict.set_item("border_radius_bottom", self.border_radius_bottom)?;
         dict.set_item("border_radius_left", self.border_radius_left)?;
         dict.set_item("border_radius_right", self.border_radius_right)?;
-
+        dict.set_item("border_radius_top_left", self.border_radius_top_left)?;
+        dict.set_item("border_radius_top_right", self.border_radius_top_right)?;
+        dict.set_item("border_radius_top", self.border_radius_top)?;
+        dict.set_item("border_radius", self.border_radius.map(|c| c.to_vec()))?;
+        dict.set_item("border_rgba", self.border_rgba.map(|c| c.to_vec()))?;
+        dict.set_item("border_rounded", self.border_rounded)?;
         dict.set_item("border_width", self.border_width)?;
-
-        dict.set_item("text_color", color_name(&self.text_color))?;
+        dict.set_item("icon_color_alpha", self.icon_color_alpha)?;
+        dict.set_item("icon_color", color_name(&self.icon_color))?;
+        dict.set_item("icon_rgba", self.icon_rgba.map(|c| c.to_vec()))?;
         dict.set_item("text_color_alpha", self.text_color_alpha)?;
+        dict.set_item("text_color", color_name(&self.text_color))?;
         dict.set_item("text_rgba", self.text_rgba.map(|c| c.to_vec()))?;
         Ok(dict)
     }
@@ -688,18 +673,22 @@ impl CheckboxStyleStd {
 #[pyclass(eq, eq_int, hash, frozen)]
 pub enum CheckboxParam {
     Fill,
+    Icon,
     IconFontId,
     IconLineHeight,
     IconSize,
-    Icon,
     IsChecked,
     Label,
+    LockIsChecked,
+    PaletteId,
     Show,
     Size,
     Spacing,
+    StatusActive,
+    StatusDisabled,
+    StatusHovered,
     StyleId,
     StyleStd,
-    PaletteId,
     TextFontId,
     TextLineHeight,
     TextSize,
@@ -707,10 +696,6 @@ pub enum CheckboxParam {
     TextWrappingNone,
     TextWrappingWordGlyph,
     Width,
-    Active,
-    Hovered,
-    Disabled,
-    LockIsChecked,
 }
 
 #[derive(Debug, Clone, PartialEq, Hash)]
@@ -719,31 +704,23 @@ pub enum CheckboxStyleParam {
     BkgColor,
     BkgColorAlpha,
     BkgRgba,
-
-    IconColor,
-    IconColorAlpha,
-    IconRgba,
-
     BorderColor,
     BorderColorAlpha,
-    BorderRgba,
-
     BorderRadius,
-    BorderRounded,
-
-    BorderRadiusTop,
-    BorderRadiusTopLeft,
-    BorderRadiusTopRight,
-
     BorderRadiusBottom,
     BorderRadiusBottomLeft,
     BorderRadiusBottomRight,
-
     BorderRadiusLeft,
     BorderRadiusRight,
-
+    BorderRadiusTop,
+    BorderRadiusTopLeft,
+    BorderRadiusTopRight,
+    BorderRgba,
+    BorderRounded,
     BorderWidth,
-
+    IconColor,
+    IconColorAlpha,
+    IconRgba,
     TextColor,
     TextColorAlpha,
     TextRgba,
@@ -758,42 +735,54 @@ impl WidgetParamUpdate for CheckBox {
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
-            CheckboxParam::Fill => set_t_value(&mut self.fill, value, "CheckboxParam::WidthFill"),
-            CheckboxParam::Icon => set_t_value(&mut self.icon, value, "CheckboxParam::Icon"),
-            CheckboxParam::IconFontId => set_t_value(&mut self.icon_font_id, value, "CheckboxParam::IconFontId"),
-            CheckboxParam::IconLineHeight => {
-                set_t_value(&mut self.icon_line_height, value, "CheckboxParam::IconLineHeight")
-            }
-            CheckboxParam::IconSize => set_t_value(&mut self.icon_size, value, "CheckboxParam::IconSize"),
-            CheckboxParam::IsChecked => set_t_value(&mut self.is_checked, value, "CheckboxParam::IsChecked"),
-            CheckboxParam::Label => set_t_value(&mut self.label, value, "CheckboxParam::Label"),
-            CheckboxParam::Show => set_t_value(&mut self.show, value, "CheckboxParam::Show"),
-            CheckboxParam::Size => set_t_value(&mut self.size, value, "CheckboxParam::Size"),
-            CheckboxParam::Spacing => set_t_value(&mut self.spacing, value, "CheckboxParam::Spacing"),
-            CheckboxParam::StyleId => set_t_value(&mut self.style_id, value, "CheckboxParam::StyleId"),
-            CheckboxParam::StyleStd => set_t_value(&mut self.style_std, value, "CheckboxParam::StyleStd"),
-            CheckboxParam::PaletteId => set_t_value(&mut self.palette_id, value, "CheckboxParam::PaletteId"),
-            CheckboxParam::TextFontId => set_t_value(&mut self.text_font_id, value, "CheckboxParam::TextFontId"),
-            CheckboxParam::TextLineHeight => set_t_value(&mut self.line_height, value, "CheckboxParam::TextLineHeight"),
-            CheckboxParam::TextSize => set_t_value(&mut self.text_size, value, "CheckboxParam::TextSize"),
-            CheckboxParam::TextWrappingGlyph => {
-                set_t_value(&mut self.text_wrapping_glyph, value, "CheckboxParam::TextWrappingGlyph")
-            }
-            CheckboxParam::TextWrappingNone => {
-                set_t_value(&mut self.text_wrapping_none, value, "CheckboxParam::TextWrappingNone")
-            }
-            CheckboxParam::TextWrappingWordGlyph => set_t_value(
-                &mut self.text_wrapping_word_glyph,
-                value,
-                "CheckboxParam::TextWrappingWordGlyph",
-            ),
-            CheckboxParam::Width => set_t_value(&mut self.width, value, "CheckboxParam::Width"),
-            CheckboxParam::Active => set_t_value(&mut self.active, value, "CheckboxParam::Active"),
-            CheckboxParam::Hovered => set_t_value(&mut self.hovered, value, "CheckboxParam::Hovered"),
-            CheckboxParam::Disabled => set_t_value(&mut self.disabled, value, "CheckboxParam::Disabled"),
-            CheckboxParam::LockIsChecked => {
-                set_t_value(&mut self.lock_is_checked, value, "CheckboxParam::LockIsChecked")
-            }
+            CheckboxParam::Fill => 
+                set_t_value(&mut self.fill, value, "CheckboxParam::WidthFill"),
+            CheckboxParam::Icon => 
+                set_t_value(&mut self.icon, value, "CheckboxParam::Icon"),
+            CheckboxParam::IconFontId => 
+                set_t_value(&mut self.icon_font_id, value, "CheckboxParam::IconFontId"),
+            CheckboxParam::IconLineHeight => 
+                set_t_value(&mut self.icon_line_height, value, "CheckboxParam::IconLineHeight"),
+            CheckboxParam::IconSize => 
+                set_t_value(&mut self.icon_size, value, "CheckboxParam::IconSize"),
+            CheckboxParam::IsChecked => 
+                set_t_value(&mut self.is_checked, value, "CheckboxParam::IsChecked"),
+            CheckboxParam::Label => 
+                set_t_value(&mut self.label, value, "CheckboxParam::Label"),
+            CheckboxParam::LockIsChecked => 
+                set_t_value(&mut self.lock_is_checked, value, "CheckboxParam::LockIsChecked"),
+            CheckboxParam::PaletteId => 
+                set_t_value(&mut self.palette_id, value, "CheckboxParam::PaletteId"),
+            CheckboxParam::Show => 
+                set_t_value(&mut self.show, value, "CheckboxParam::Show"),
+            CheckboxParam::Size => 
+                set_t_value(&mut self.size, value, "CheckboxParam::Size"),
+            CheckboxParam::Spacing => 
+                set_t_value(&mut self.spacing, value, "CheckboxParam::Spacing"),
+            CheckboxParam::StatusActive => 
+                set_t_value(&mut self.status_active, value, "CheckboxParam::Active"),
+            CheckboxParam::StatusDisabled => 
+                set_t_value(&mut self.status_disabled, value, "CheckboxParam::Disabled"),
+            CheckboxParam::StatusHovered => 
+                set_t_value(&mut self.status_hovered, value, "CheckboxParam::Hovered"),
+            CheckboxParam::StyleId => 
+                set_t_value(&mut self.style_id, value, "CheckboxParam::StyleId"),
+            CheckboxParam::StyleStd => 
+                set_t_value(&mut self.style_std, value, "CheckboxParam::StyleStd"),
+            CheckboxParam::TextFontId => 
+                set_t_value(&mut self.text_font_id, value, "CheckboxParam::TextFontId"),
+            CheckboxParam::TextLineHeight => 
+                set_t_value(&mut self.line_height, value, "CheckboxParam::TextLineHeight"),
+            CheckboxParam::TextSize => 
+                set_t_value(&mut self.text_size, value, "CheckboxParam::TextSize"),
+            CheckboxParam::TextWrappingGlyph => 
+                set_t_value(&mut self.text_wrapping_glyph, value, "CheckboxParam::TextWrappingGlyph"),
+            CheckboxParam::TextWrappingNone => 
+                set_t_value(&mut self.text_wrapping_none, value, "CheckboxParam::TextWrappingNone"),
+            CheckboxParam::TextWrappingWordGlyph => 
+                set_t_value(&mut self.text_wrapping_word_glyph, value, "CheckboxParam::TextWrappingWordGlyph"),
+            CheckboxParam::Width => 
+                set_t_value(&mut self.width, value, "CheckboxParam::Width"),
         }
     }
 }
@@ -803,87 +792,52 @@ impl WidgetParamUpdate for CheckboxStyle {
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
-            CheckboxStyleParam::BkgColor => set_t_value(&mut self.bkg_color, value, "CheckboxStyleParam::BkgColor"),
-            CheckboxStyleParam::BkgColorAlpha => {
-                set_t_value(&mut self.bkg_color_alpha, value, "CheckboxStyleParam::BkgColorAlpha")
-            }
-            CheckboxStyleParam::BkgRgba => set_t_value(&mut self.bkg_rgba, value, "CheckboxStyleParam::BkgRgba"),
-
-            CheckboxStyleParam::IconColor => set_t_value(&mut self.icon_color, value, "CheckboxStyleParam::IconColor"),
-            CheckboxStyleParam::IconColorAlpha => {
-                set_t_value(&mut self.icon_color_alpha, value, "CheckboxStyleParam::IconColorAlpha")
-            }
-            CheckboxStyleParam::IconRgba => set_t_value(&mut self.icon_rgba, value, "CheckboxStyleParam::IconRgba"),
-
-            CheckboxStyleParam::TextColor => set_t_value(&mut self.text_color, value, "CheckboxStyleParam::TextColor"),
-            CheckboxStyleParam::TextColorAlpha => {
-                set_t_value(&mut self.text_color_alpha, value, "CheckboxStyleParam::TextColorAlpha")
-            }
-            CheckboxStyleParam::TextRgba => {
-                set_t_value(&mut self.text_rgba, value, "CheckboxStyleParam::TextRgbaColor")
-            }
-
-            CheckboxStyleParam::BorderColor => {
-                set_t_value(&mut self.border_color, value, "CheckboxStyleParam::BorderColor")
-            }
-            CheckboxStyleParam::BorderColorAlpha => set_t_value(
-                &mut self.border_color_alpha,
-                value,
-                "CheckboxStyleParam::BorderColorAlpha",
-            ),
-            CheckboxStyleParam::BorderRgba => {
-                set_t_value(&mut self.border_rgba, value, "CheckboxStyleParam::BorderRgba")
-            }
-
-            CheckboxStyleParam::BorderWidth => {
-                set_t_value(&mut self.border_width, value, "CheckboxStyleParam::BorderWidth")
-            }
-            CheckboxStyleParam::BorderRadius => {
-                set_t_value(&mut self.border_radius, value, "CheckboxStyleParam::BorderRadius")
-            }
-            CheckboxStyleParam::BorderRounded => {
-                set_t_value(&mut self.border_rounded, value, "CheckboxStyleParam::BorderRounded")
-            }
-            CheckboxStyleParam::BorderRadiusTop => set_t_value(
-                &mut self.border_radius_top,
-                value,
-                "CheckboxStyleParam::BorderRadiusTop",
-            ),
-            CheckboxStyleParam::BorderRadiusTopLeft => set_t_value(
-                &mut self.border_radius_top_left,
-                value,
-                "CheckboxStyleParam::BorderRadiusTopLeft",
-            ),
-            CheckboxStyleParam::BorderRadiusTopRight => set_t_value(
-                &mut self.border_radius_top_right,
-                value,
-                "CheckboxStyleParam::BorderRadiusTopRight",
-            ),
-            CheckboxStyleParam::BorderRadiusBottom => set_t_value(
-                &mut self.border_radius_bottom,
-                value,
-                "CheckboxStyleParam::BorderRadiusBottom",
-            ),
-            CheckboxStyleParam::BorderRadiusBottomLeft => set_t_value(
-                &mut self.border_radius_bottom_left,
-                value,
-                "CheckboxStyleParam::BorderRadiusBottomLeft",
-            ),
-            CheckboxStyleParam::BorderRadiusBottomRight => set_t_value(
-                &mut self.border_radius_bottom_right,
-                value,
-                "CheckboxStyleParam::BorderRadiusBottomRight",
-            ),
-            CheckboxStyleParam::BorderRadiusLeft => set_t_value(
-                &mut self.border_radius_left,
-                value,
-                "CheckboxStyleParam::BorderRadiusLeft",
-            ),
-            CheckboxStyleParam::BorderRadiusRight => set_t_value(
-                &mut self.border_radius_right,
-                value,
-                "CheckboxStyleParam::BorderRadiusRight",
-            ),
+            CheckboxStyleParam::BkgColor => 
+                set_t_value(&mut self.bkg_color, value, "CheckboxStyleParam::BkgColor"),
+            CheckboxStyleParam::BkgColorAlpha => 
+                set_t_value(&mut self.bkg_color_alpha, value, "CheckboxStyleParam::BkgColorAlpha"),
+            CheckboxStyleParam::BkgRgba => 
+                set_t_value(&mut self.bkg_rgba, value, "CheckboxStyleParam::BkgRgba"),
+            CheckboxStyleParam::BorderColor => 
+                set_t_value(&mut self.border_color, value, "CheckboxStyleParam::BorderColor"),
+            CheckboxStyleParam::BorderColorAlpha => 
+                set_t_value(&mut self.border_color_alpha, value, "CheckboxStyleParam::BorderColorAlpha"),
+            CheckboxStyleParam::BorderRadius => 
+                set_t_value(&mut self.border_radius, value, "CheckboxStyleParam::BorderRadius"),
+            CheckboxStyleParam::BorderRadiusBottom => 
+                set_t_value(&mut self.border_radius_bottom, value, "CheckboxStyleParam::BorderRadiusBottom"),
+            CheckboxStyleParam::BorderRadiusBottomLeft => 
+                set_t_value(&mut self.border_radius_bottom_left, value, "CheckboxStyleParam::BorderRadiusBottomLeft"),
+            CheckboxStyleParam::BorderRadiusBottomRight => 
+                set_t_value(&mut self.border_radius_bottom_right, value, "CheckboxStyleParam::BorderRadiusBottomRight"),
+            CheckboxStyleParam::BorderRadiusLeft => 
+                set_t_value(&mut self.border_radius_left, value, "CheckboxStyleParam::BorderRadiusLeft"),
+            CheckboxStyleParam::BorderRadiusRight => 
+                set_t_value(&mut self.border_radius_right, value, "CheckboxStyleParam::BorderRadiusRight"),
+            CheckboxStyleParam::BorderRadiusTop => 
+                set_t_value(&mut self.border_radius_top, value, "CheckboxStyleParam::BorderRadiusTop"),
+            CheckboxStyleParam::BorderRadiusTopLeft => 
+                set_t_value(&mut self.border_radius_top_left, value, "CheckboxStyleParam::BorderRadiusTopLeft"),
+            CheckboxStyleParam::BorderRadiusTopRight => 
+                set_t_value(&mut self.border_radius_top_right, value, "CheckboxStyleParam::BorderRadiusTopRight"),
+            CheckboxStyleParam::BorderRgba => 
+                set_t_value(&mut self.border_rgba, value, "CheckboxStyleParam::BorderRgba"),
+            CheckboxStyleParam::BorderRounded => 
+                set_t_value(&mut self.border_rounded, value, "CheckboxStyleParam::BorderRounded"),
+            CheckboxStyleParam::BorderWidth => 
+                set_t_value(&mut self.border_width, value, "CheckboxStyleParam::BorderWidth"),
+            CheckboxStyleParam::IconColor => 
+                set_t_value(&mut self.icon_color, value, "CheckboxStyleParam::IconColor"),
+            CheckboxStyleParam::IconColorAlpha => 
+                set_t_value(&mut self.icon_color_alpha, value, "CheckboxStyleParam::IconColorAlpha"),
+            CheckboxStyleParam::IconRgba => 
+                set_t_value(&mut self.icon_rgba, value, "CheckboxStyleParam::IconRgba"),
+            CheckboxStyleParam::TextColor => 
+                set_t_value(&mut self.text_color, value, "CheckboxStyleParam::TextColor"),
+            CheckboxStyleParam::TextColorAlpha => 
+                set_t_value(&mut self.text_color_alpha, value, "CheckboxStyleParam::TextColorAlpha"),
+            CheckboxStyleParam::TextRgba => 
+                set_t_value(&mut self.text_rgba, value, "CheckboxStyleParam::TextRgbaColor"),
         }
     }
 }

@@ -10,22 +10,30 @@ from icedpygui import (Window, Column, Container, Row, Scrollable, start_session
     add_checkbox, add_text, ContainerStyleStd, Icon)
 
 
-# callback to simply print if checkbox is checked
-# The checkbox always return a bool and a user_data, if used
+# This callback simply prints if checkbox is checked.
+# The checkbox always returns an id and a bool. If user_data
+# is used, you must have a parameter for it.
 # Normally the chk_id would not be used, the user would
 # be performing some other operation.  Therefore, it's
 # good practise to remind yourself, that the id is the source
 # and that you probably need other ids to do the operations.
-def on_toggle(chk_id, is_checked):
+def on_toggle(chk_id: int, is_checked: bool):
     """Checkbox Callback"""
     print(f"Checkbox id {chk_id} toggled to {is_checked}")
 
-def on_toggle_user_data(chk_id, is_checked, user_data):
-    """Checkbox Callback"""
-    print(f"Checkbox id {chk_id}, checked={is_checked}, user_data={user_data}")
 
+# You must always have 2 paramters defined, id and a bool for the checked.
+# If the add_chechbox is using user_data, then a parameter must be supplied.
+# You can name the parameters anything you like.
+# if you want to use the same callback for checkboxes with or without the
+# user data, simple pass a None value, i.e. user_data=None
+def on_toggle_user_data(chk_id: int, is_checked: bool, data: str):
+    """Checkbox Callback"""
+    print(f"Checkbox id {chk_id}, checked={is_checked}, user_data={data}")
+
+# Window size=(width, height)
 with Window(title="Checkbox Demo",
-            size=(800, 600), center=True):
+            size=(900, 600), center=True):
 
     with Scrollable(width_fill=True):
 
@@ -33,18 +41,20 @@ with Window(title="Checkbox Demo",
 
             # ***********************Checkbox Basics***************************
 
-            add_text(content="Basic Checkbox\nCheck the ones for callback and user_data to see results printed")
+            add_text(content=("Basic Checkbox\n"
+                              "Check the ones for callback and "
+                              "user_data to see results printed"))
 
             with Row(spacing=20.0):
 
                 add_checkbox(label="Default Checkbox")
 
                 add_checkbox(
-                    label="With Callback",
+                    label="With Callback, on_toggle=on_toggle",
                     on_toggle=on_toggle)
 
                 add_checkbox(
-                    label="With User Data",
+                    label="With use_data='some data'",
                     on_toggle=on_toggle_user_data,
                     user_data="some info"
                     )
@@ -56,11 +66,11 @@ with Window(title="Checkbox Demo",
             with Row(spacing=20.0):
 
                 add_checkbox(
-                    label="Unchecked (default)",
+                    label="is_checked=False (default)",
                     is_checked=False)
 
                 add_checkbox(
-                    label="Checked",
+                    label="is_checked=True",
                     is_checked=True)
 
             # ***********************Checkbox Sizing***************************
@@ -74,12 +84,12 @@ with Window(title="Checkbox Demo",
                     is_checked=True)
 
                 add_checkbox(
-                    label="Size 25",
+                    label="size=25",
                     size=25.0,
                     is_checked=True)
 
                 add_checkbox(
-                    label="Size 40",
+                    label="size=40",
                     size=40.0,
                     is_checked=True)
 
@@ -94,12 +104,12 @@ with Window(title="Checkbox Demo",
                     is_checked=True)
 
                 add_checkbox(
-                    label="Spacing 5",
+                    label="spacing=5",
                     spacing=5.0,
                     is_checked=True)
 
                 add_checkbox(
-                    label="Spacing 30",
+                    label="spacing=30",
                     spacing=30.0,
                     is_checked=True)
 
@@ -114,12 +124,12 @@ with Window(title="Checkbox Demo",
                     is_checked=True)
 
                 add_checkbox(
-                    label="Text Size 20",
+                    label="text_size=20",
                     text_size=20.0,
                     is_checked=True)
 
                 add_checkbox(
-                    label="Text Size 30",
+                    label="text_size=30",
                     text_size=30.0,
                     is_checked=True)
 
@@ -136,13 +146,13 @@ with Window(title="Checkbox Demo",
 
                 with Container(style_std=ContainerStyleStd.BorderedBox):
                     add_checkbox(
-                        label="Width 200",
+                        label="width=200",
                         width=200.0,
                         is_checked=True)
 
                 with Container(style_std=ContainerStyleStd.BorderedBox, width_fill=True):
                     add_checkbox(
-                        label="Fill, fills remaining area",
+                        label="Fill=True, fills remaining area",
                         fill=True,
                         is_checked=True)
 
@@ -157,17 +167,17 @@ with Window(title="Checkbox Demo",
                     is_checked=True)
 
                 add_checkbox(
-                    label="X Icon",
+                    label="Icon.X",
                     icon=Icon.X,
                     is_checked=True)
 
                 add_checkbox(
-                    label="Asterisk Icon",
+                    label="Icon.Asterisk",
                     icon=Icon.Asterisk,
                     is_checked=True)
 
                 add_checkbox(
-                    label="Heart Icon",
+                    label="Icon.Heart",
                     icon=Icon.HeartFill,
                     is_checked=True)
 
@@ -182,12 +192,12 @@ with Window(title="Checkbox Demo",
                     is_checked=True)
 
                 add_checkbox(
-                    label="Icon Size 25",
+                    label="icon_size=25",
                     icon_size=25.0,
                     is_checked=True)
 
                 add_checkbox(
-                    label="Icon Size 40",
+                    label="icon_size=40",
                     icon_size=40.0,
                     size=40.0,
                     is_checked=True)
@@ -202,5 +212,5 @@ with Window(title="Checkbox Demo",
 
                 add_checkbox(is_checked=False)
 
-
+# Must be the last executed step to start things off.
 start_session()

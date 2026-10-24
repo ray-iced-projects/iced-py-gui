@@ -16,8 +16,6 @@ from types import TracebackType
 # Re-export everything that is directly imported (not wrapped)
 
 from .icedpygui import (
-    add_card_style as add_card_style,
-    add_checkbox_style as add_checkbox_style,
     add_combobox_input_style as add_combobox_input_style,
     add_combobox_menu_style as add_combobox_menu_style,
     add_container_style as add_container_style,
@@ -41,15 +39,6 @@ from .icedpygui import (
     add_toggler_style as add_toggler_style,
     Arrow as Arrow,
     arrow_variants as arrow_variants,
-    # ButtonParam,
-    # ButtonStyleParam,
-    # ButtonStyleStd,
-    # CardParam as CardParam,
-    # CardStyleParam as CardStyleParam,
-    # CardStyleStd as CardStyleStd,
-    CheckboxParam as CheckboxParam,
-    CheckboxStyleStd as CheckboxStyleStd,
-    CheckboxStyleParam as CheckboxStyleParam,
     ComboBoxParam as ComboBoxParam,
     ComboBoxMenuStyleParam as ComboBoxMenuStyleParam,
     Color as Color,
@@ -212,7 +201,7 @@ def add_button(
     style_arrow : Arrow, optional
         Sets an arrow icon style for the button.
     palette_id : int, optional
-        Sets the ID of a custom color palette for the button.
+        Sets the ID of a custom color palette, see py_palette_create.py.
     user_data : Any, optional
         Sets arbitrary data forwarded to callbacks.
     show : bool, default True
@@ -272,9 +261,9 @@ class ButtonParam:
     ----------
     Clip: bool
         Whether the label is clipped or not
-    Fill : bool, optional
+    Fill : bool
         Whether the button fills available width and height.
-    FontId : int, optional
+    FontId : int
         Sets the ID of a custom font created with ``add_font_style``.
     Height: float
         The height of the button.
@@ -284,17 +273,17 @@ class ButtonParam:
         The label of the button.
     Padding: list[float], one or four items
         The padding around the button, [all sides], [top, right, bottom, left].
-    PaletteId : int, optional
-        Sets the ID of a custom color palette for the button.
+    PaletteId : int
+        Sets the ID of a custom color palette, see py_palette_create.py.
     Show: bool
         Whether to show the button
-    StatusActive: bool, Optional
+    StatusActive: bool
         Whether to set the button status as Active.
-    StatusDisabled: bool, Optional
+    StatusDisabled: bool
         Whether to set the button status as Disabled.
-    StatusHovered: bool, Optional
+    StatusHovered: bool
         Whether to set the button status as Hovered.
-    StatusPressed: bool, Optional
+    StatusPressed: bool
         Whether to set the button status as Pressed.
     StyleArrow: ButtonArrow
         A button becomes a type of arrow.
@@ -430,19 +419,15 @@ def add_button_style(
     Examples
     --------
     >>> from icedpygui import (
-    ...     Window,
-    ...     Column,
-    ...     Container,
+    ...     Window, Column, Container,
     ...     ButtonStyleStd,
-    ...     add_button,
-    ...     add_button_style,
-    ...     Color,
-    ...     start_session)
+    ...     add_button, add_button_style,
+    ...     Color, start_session)
     >>>
     >>> style = add_button_style(
     ...     border_color=Color.ALICE_BLUE,
     ...     border_width=2.0,
-    ...     border_radius=[5.0])
+    ...     border_rounded=5.0)
     >>>
     >>> with Window(title="Button Styling", center=True):
     ...     with Container(align_center=True, fill=True):
@@ -596,79 +581,36 @@ class ButtonStyleStd:
     Warning=...
     Text=...
 
-# def add_card(
-#     window_id: str,
-#     container_id: str,
-#     *,
-#     parent_id: str | None = None,
-#     head: str | None = None,
-#     body: str | None = None,
-#     is_open: bool = True,
-#     min_max_id: int | None = None,
-#     foot: str | None = None,
-#     gen_id: int | None = None,
-#     close_size: float | None = None,
-#     on_close: Any | None = None,
-#     width: float | None = None,
-#     width_fill: bool = False,
-#     height: float | None = None,
-#     height_fill: bool = False,
-#     max_width: float | None = None,
-#     max_height: float | None = None,
-#     padding: list[float] | None = None,
-#     padding_head: list[float] | None = None,
-#     padding_body: list[float] | None = None,
-#     padding_foot: list[float] | None = None,
-#     style_id: int | None = None,
-#     style_std: CardStyleStd | None = None,
-#     style_button: int | None = None,
-#     show: bool = True,
-#     user_data: Any | None = None,
-# ) -> int:
-#     """Adds a card widget.
-
-#     A widget must go into a container type,
-
-#     i.e. Container, Column, Row, etc.
-
-#     Usage::
-
-#         with Window(title="My App", pos_centered=True) as wnd_id: (if needed)
-#             with Container(align_center=True):
-#                 add_card(head="Card Header", body="Card Body")
-#         start_session()
-#     """
-#     ...
-
 def add_checkbox(
     *,
     parent_id: str | None = None,
-    on_toggle: Callable | None = None,
-    is_checked: bool = False,
-    label: str | None = None,
-    width: float | None = None,
-    width_fill: bool = False,
-    size: float | None = None,
-    spacing: float | None = None,
-    text_size: float | None = None,
-    text_line_height: float | None = None,
-    text_shaping: bool | None = None,
-    text_wrapping: bool | None = None,
-    text_font_id: int | None = None,
+    gen_id: int | None = None,
     icon_font_id: int | None = None,
-    icon: Icon | None = None,
-    icon_size: float | None = None,
     icon_line_height: float | None = None,
     icon_shaping: bool | None = None,
-    user_data: Any | None = None,
-    show: bool = True,
-    active: bool | None = None,
-    hovered: bool | None = None,
-    disabled: bool | None = None,
+    icon_size: float | None = None,
+    icon: Icon | None = None,
+    is_checked: bool = False,
+    label: str | None = None,
     lock_is_checked: bool | None = None,
+    on_toggle: Callable | None = None,
+    palette_id: int | None = None,
+    show: bool = True,
+    size: float | None = None,
+    spacing: float | None = None,
+    status_active: bool | None = None,
+    status_disabled: bool | None = None,
+    status_hovered: bool | None = None,
     style_id: int | None = None,
     style_std: int | None = None,
-    gen_id: int | None = None,
+    text_font_id: int | None = None,
+    text_line_height: float | None = None,
+    text_shaping: bool | None = None,
+    text_size: float | None = None,
+    text_wrapping: bool | None = None,
+    user_data: Any | None = None,
+    width_fill: bool = False,
+    width: float | None = None,
 ) -> int:
     """Adds a checkbox widget.
 
@@ -680,32 +622,8 @@ def add_checkbox(
     ----------
     parent_id : str
         Sets the parent container ID that this checkbox belongs to.
-    on_toggle : callable,  Optional
-        Sets the Callback method to invoke when the checkbox is toggled.
-    is_checked : bool, default False
-        Whether the checkbox starts in the checked state.
-    label : str,  Optional
-        Sets the Text label displayed next to the checkbox.
-    width : float,  Optional
-        Sets the Fixed width in logical pixels.
-    width_fill : bool, default False
-        Whether the checkbox fills available width.
-    size : float,  Optional
-        Sets the size of the checkbox square in logical pixels.
-    spacing : float,  Optional
-        Sets the Spacing between the checkbox square and the label.
-    text_size : float,  Optional
-        Sets the Font size for the label text.
-    text_line_height : float,  Optional
-        Sets the Line height for the label text.
-    text_wrapping_none: Optional[bool]
-        Sets the wrapping mode of the label to no wrapping, default is on a word.
-    text_wrapping_glyph: Optional[bool]
-        Sets the wrapping mode of the label to wrap on a glyph.
-    text_wrapping_word_glyph: Optional[bool]
-        Sets the wrapping mode of the label to wrap on a glyph or glyph.
-    text_font_id : int,  Optional
-        Sets the Font ID for the label text.
+    gen_id : int,  Optional
+        Obtains an ID of a widget that have not been created, used for the gen_id parameter.
     icon_font_id : int,  Optional
         Sets the Font ID for the checkbox icon.
     icon : Icon,  Optional
@@ -714,38 +632,375 @@ def add_checkbox(
         Sets the Size of the checkbox icon.
     icon_line_height : float,  Optional
         Sets the Line height of the checkbox icon.
-    user_data : Any,  Optional
-        Sets the Arbitrary data forwarded to callbacks.
-    show : bool, default True
-        Whether the checkbox is visible.
-    active : bool, Optional
-        Sets the checkbox to the Active status.
-    hovered : bool, Optional
-        Sets the checkbox to the Hovered status.
-    disabled : bool, Optional
-        Sets the checkbox to the Disabled status.
+    is_checked : bool, default False
+        Whether the checkbox starts in the checked state.
+    label : str,  Optional
+        Sets the Text label displayed next to the checkbox.
     lock_is_checked: bool, Optional
         Keeps the check or unchecked value to True or False.
+    palette_id: int, Optional
+        Sets the ID of a custom color palette, see py_palette_create.py.
+    on_toggle : callable,  Optional
+        Sets the Callback method to invoke when the checkbox is toggled.
+    show : bool, default True
+        Whether the checkbox is visible.
+    size : float,  Optional
+        Sets the size of the checkbox square in logical pixels.
+    spacing : float,  Optional
+        Sets the Spacing between the checkbox square and the label.
+    status_active : bool, Optional
+        Sets the checkbox to the Active status.
+    status_hovered : bool, Optional
+        Sets the checkbox to the Hovered status.
+    status_disabled : bool, Optional
+        Sets the checkbox to the Disabled status.
     style_id : int,  Optional
         Sets the ID of a custom style created with ``add_checkbox_style``.
     style_std : CheckboxStyleStd,  Optional
         Sets the predefined standard style variant.
-    gen_id : int,  Optional
-        Obtains an ID of a widget that have not been created, used for the gen_id parameter.
+    text_font_id : int,  Optional
+        Sets the Font ID for the label text.
+    text_line_height : float,  Optional
+        Sets the Line height for the label text.
+    text_size : float,  Optional
+        Sets the Font size for the label text.
+    text_wrapping_glyph: Optional[bool]
+        Sets the wrapping mode of the label to wrap on a glyph.
+    text_wrapping_none: Optional[bool]
+        Sets the wrapping mode of the label to no wrapping, default is on a word.
+    text_wrapping_word_glyph: Optional[bool]
+        Sets the wrapping mode of the label to wrap on a glyph or glyph.
+    user_data : Any,  Optional
+        Sets the Arbitrary data forwarded to callbacks.
+    width : float,  Optional
+        Sets the Fixed width in logical pixels.
+    width_fill : bool, default False
+        Whether the checkbox fills available width.
 
-    Usage:
-        def checked(chk_id: int, is_checked: bool):
-            print(chk_id, is_checked)
+    Returns
+    -------
+    int
+        The numeric widget ID of the newly created button.
 
-        with Window(title="My App", pos_centered=True):
-            with Container(align_center=True):
-                add_checkbox(
-                    label="Check Me",
-                    on_toggle=checked)
-
-        start_session()
+    Examples
+    --------
+    >>> def checked(chk_id: int, is_checked: bool):
+    ...     print(chk_id, is_checked)
+    >>>
+    >>> with Window(title="My App", pos_centered=True):
+    ...     with Container(align_center=True):
+    ...         add_checkbox(
+    ...             label="Check Me",
+    ...             on_toggle=checked)
+    >>>
+    >>> start_session()
     """
     ...
+
+class CheckboxParam:
+    """
+    The Checkbox parameters.
+
+    Parameters
+    ----------
+    Fill: bool
+        Whether to fill the containing width.
+    Icon: Icon
+        Sets the override Icon to use instead of the checkmark, i.e. a X icon.
+    IconFontId: int
+        The id of the get_font() method
+    IconLineHeight: float
+        Sets the line height of the icon, defaults 1.3
+    IconSize: float
+        Sets the size of the icon.
+    IsChecked: bool
+        Whether the checkbox is checked or not.
+    Label: str
+        Sets the label of the checkbox.
+    LockIsChecked: bool
+        Whether to lock the checkmark so it can't be changed.
+    PaletteId : int
+        Sets the ID of a custom color palette, see py_palette_create.py.
+    Show: bool
+        Whether to show the checkbox.
+    Size: float
+        The size of the square.
+    Spacing: float
+        The spacing between the square and label.
+    StatusActive: bool
+        Sets and holds the active status of the checkbox.
+    StatusDisabled: bool
+        Sets and holds the disabled status of the checkbox.
+    StatusHovered: bool
+        Sets and holds the hovered status of the checkbox.
+    StyleId: int
+        The id of the add_checkbox_style() function.
+    StyleStd: StyleStd
+        One of the standard styles of CheckboxStyleStd enum.
+    TextFontId: int
+        Sets the ID of the label font from get_font().
+    TextLineHeight: float
+        The height of the text box holding the label.
+    TextSize: float
+        The size of the label text.
+    TextWrappingGlyph: bool
+        Whether the label wraps on a glyph.
+    TextWrappingNone: bool
+        Sets for no wrapping.
+    TextWrappingWordGlyph: bool
+        Whether to wrap on a word or glyph.
+    Width: float
+        The width of the entire checkbox.
+
+    Examples
+        --------
+        Given a widget id for a checkbox = wid
+        >>>
+        >>> update_widget(wid, CheckboxParam.Width, 100.0)
+        >>>
+    """
+    Fill: bool
+    Icon: Icon
+    IconFontId: int
+    IconLineHeight: float
+    IconSize: float
+    IsChecked: bool
+    Label: str
+    LockIsChecked: bool
+    PaletteId: int
+    Show: bool
+    Size: float
+    Spacing: float
+    StatusActive: bool
+    StatusDisabled: bool
+    StatusHovered: bool
+    StyleId: int
+    StyleStd: CheckboxStyleStd
+    TextFontId: int
+    TextLineHeight: float
+    TextSize: float
+    TextWrappingGlyph: bool
+    TextWrappingNone: bool
+    TextWrappingWordGlyph: bool
+    Width: float
+    ...
+
+def add_checkbox_style(
+    bkg_color_alpha: float | None = None,
+    bkg_color: Color | None = None,
+    bkg_rgba: list[float, 4] | None = None,
+    border_color_alpha: float | None = None,
+    border_color: Color | None = None,
+    border_radius_bottom_left: float | None = None,
+    border_radius_bottom_right: float | None = None,
+    border_radius_bottom: float | None = None,
+    border_radius_left: float | None = None,
+    border_radius_right: float | None = None,
+    border_radius_top_left: float | None = None,
+    border_radius_top_right: float | None = None,
+    border_radius_top: float | None = None,
+    border_radius: list[float, 4] | list[float, 4] | None = None,
+    border_rgba: list[float, 4] | None = None,
+    border_rounded: float | None = None,
+    border_width: float | None = None,
+    gen_id: int | None = None,
+    icon_color_alpha: float | None = None,
+    icon_color: Color | None = None,
+    icon_rgba: list[float, 4] | None = None,
+    text_color_alpha: float | None = None,
+    text_color: Color | None = None,
+    text_rgba: list[float, 4] | None = None,
+    ) -> int:
+    """Adds styling to a checkbox
+
+    Notes
+    --------
+    Two styles can be defined:
+
+    custom - defined by using an add_style method
+
+    First, define the style, this can be placed anywhere as long as the
+    add_checkbox can access the style value, type int.
+
+    Then, add your checkbox(es) as usual and use the style_id=your_style parameter.
+
+    standard - using the style_std parameter and the CheckboxStyleStd class
+
+    Just use the style_std=CheckboxStyleStd.Primary parameter in the add_checkbox method.
+
+    Additional style can be done by using the custom_palette.
+
+    Parameters
+    ----------
+    bkg_color: Color
+        Background color in Color format.
+    bkg_color_alpha: float
+        Sets the alpha value of the background Color.
+    bkg_rgba: list[float, 4]
+        Background color in rgba format.
+    icon_color: Color, Optional
+        Sets the icon color.
+    icon_color_alpha: float, Optional
+        Sets the alpha value of the icon Color.
+    icon_rgba: list[float, 4], Optional
+        The icon color in rgba format.
+    border_color: Color
+        Border color in Color format.
+    border_color_alpha: float
+        Sets the alpha of the border Color.
+    border_rgba: list[float, 4]
+        Border color in rgba format.
+    border_radius: list[float, 4], Optional
+        Sets the radius for all four corners as [top_left, top_right, bottom_right, bottom_left].
+    border_rounded: float, Optional
+        Sets the radius for all four corners to the same value.
+    border_radius_top: float, Optional
+        Sets the radius for top-left and top-right corners.
+    border_radius_top_left: float, Optional
+        Sets the radius for the top-left corner.
+    border_radius_top_right: float, Optional
+        Sets the radius for the top-right corner.
+    border_radius_bottom: float, Optional
+        Sets the radius for bottom-left and bottom-right corners.
+    border_radius_bottom_left: float, Optional
+        Sets the radius for the bottom-left corner.
+    border_radius_bottom_right: float, Optional
+        Sets the radius for the bottom-right corner.
+    border_radius_left: float, Optional
+        Sets the radius for top-left and bottom-left corners.
+    border_radius_right: float, Optional
+        Sets the radius for top-right and bottom-right corners.
+    border_width: float
+        The width of the border line.
+    text_color: Color
+        The label text color in Color format.
+    text_rgba: list[float, 4]
+        The label text color in rgba format.
+
+    Examples
+    --------
+    >>> from icedpygui import (Window, Column, Container, CheckboxStyleStd,
+    ...     add_checkbox, add_checkbox_style, Color, start_session)
+    >>>
+    >>> style = add_checkbox_style(
+    ...     border_color=Color.RED,
+    ...     border_width=3.0)
+    >>>
+    >>> with Window(title="Checkbox Styling", center=True):
+    ...     with Container(align_center=True, width_fill=True, height_fill=True):
+    ...         with Column(spacing=20.0):
+    ...             add_checkbox(
+    ...                 label="Border Color and Width",
+    ...                 style_id=style)
+    ...
+    ...             add_checkbox(
+    ...                 label="Secondary",
+    ...                 style_std=CheckboxStyleStd.Secondary)
+    >>>
+    >>> start_session()
+    """
+
+class CheckboxStyleParam:
+    """
+    Checkbox style parameters
+
+    Parameters
+    ----------
+    BkgColor: Color
+        Background color in Color format.
+    BkgColorAlpha: float
+        Sets the alpha value of the background Color.
+    BkgRgba: list[float, 4]
+        Background color in rgba format.
+    BorderColor: Color
+        Border color in Color format.
+    BorderColorAlpha: float
+        Sets the alpha of the border Color.
+    BorderRadius: list[float, 4], Optional
+        Sets the radius for all four corners as [top_left, top_right, bottom_right, bottom_left].
+    BorderRadiusBottom: float, Optional
+        Sets the radius for bottom-left and bottom-right corners.
+    BorderRadiusBottomLeft: float, Optional
+        Sets the radius for the bottom-left corner.
+    BorderRadiusBottomRight: float, Optional
+        Sets the radius for the bottom-right corner.
+    BorderRadiusLeft: float, Optional
+        Sets the radius for top-left and bottom-left corners.
+    BorderRadiusRight: float, Optional
+        Sets the radius for top-right and bottom-right corners.
+    BorderRadiusTop: float, Optional
+        Sets the radius for top-left and top-right corners.
+    BorderRadiusTopLeft: float, Optional
+        Sets the radius for the top-left corner.
+    BorderRadiusTopRight: float, Optional
+        Sets the radius for the top-right corner.
+    BorderRgba: list[float, 4]
+        Border color in rgba format.
+    BorderRounded: float, Optional
+        Sets the radius for all four corners to the same value.
+    BorderWidth: float
+        The width of the border line.
+    IconColor: Color, Optional
+        Sets the icon color.
+    IconColorAlpha: float, Optional
+        Sets the alpha value of the icon Color.
+    IconRgba: list[float, 4], Optional
+        The icon color in rgba format.
+    TextColor: Color
+        The label text color in Color format.
+    TextColorAlpha: float, Optional
+        Sets the alpha value of the text_color.
+    TextRgba: list[float, 4]
+        The label text color in rgba format.
+
+    Examples
+        --------
+        Given a checkbox style id = wid
+        >>> update_widget(wid, CheckboxStyleParam.TextColor, Color.WHITE)
+    """
+    BkgColor: Color
+    BkgColorAlpha: float
+    BkgRgba: list[float, 4]
+    BorderColor: Color
+    BorderColorAlpha: float
+    BorderRadius: list[float, 4]
+    BorderRadiusBottom: float
+    BorderRadiusBottomLeft: float
+    BorderRadiusBottomRight: float
+    BorderRadiusLeft: float
+    BorderRadiusRight: float
+    BorderRadiusTop: float
+    BorderRadiusTopLeft: float
+    BorderRadiusTopRight: float
+    BorderRgba: list[float, 4]
+    BorderRounded: float
+    BorderWidth: float
+    IconColor: Color
+    IconColorAlpha: float
+    IconRgba: list[float, 4]
+    TextColor: Color
+    TextColorAlpha: float
+    TextRgba: list[float, 4]
+
+class CheckboxStyleStd:
+    """
+    Standard styles for Checkbox widget
+
+    Parameters
+    ----------
+    Danger:
+        Sets the bkg color to taht of a Danger
+    Primary: bool
+        Sets the bkg color to that of the Primary Theme
+    Secondary: bool
+        Sets the bkg color to that of the Secondary Theme
+    Success: bool
+        Sets the bkg color to that of the Success Theme
+    """
+    Danger=...
+    Primary=...
+    Secondary=...
+    Success=...
 
 
 def add_combobox(

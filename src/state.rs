@@ -27,7 +27,6 @@ use crate::widgets::ipg_container::{Container, ContainerStyle};
 use crate::widgets::ipg_date_picker::DatePicker;
 use crate::widgets::ipg_draw::Draw;
 use crate::widgets::ipg_events::Events;
-use crate::widgets::ipg_file_system::FileSystemDialog;
 use crate::widgets::ipg_float::Float;
 use crate::widgets::ipg_font::Font;
 use crate::widgets::ipg_font::IpgIcon;
@@ -118,7 +117,6 @@ pub enum Widgets {
     ComboBoxInputStyle(ComboBoxInputStyle),
     ComboBoxMenuStyle(ComboBoxMenuStyle),
     ContainerStyle(ContainerStyle),
-    FileSystemDialog(FileSystemDialog),
     Font(Font),
     Icon(IpgIcon),
     Image(Image),

@@ -23,7 +23,6 @@ use crate::widgets::ipg_color_picker::{ColorPikMessage, color_picker_callback};
 use crate::widgets::ipg_checkbox::{ChkMessage, checkbox_callback};
 use crate::widgets::ipg_combo_box::{CBMessage, combo_box_callback};
 use crate::widgets::ipg_date_picker::{DatePikMessage, date_picker_callback};
-use crate::widgets::ipg_file_system::{FileSystemMessage, fsd_callback};
 use crate::widgets::ipg_input_float::{InputFloatMessage, input_float_callback};
 use crate::widgets::ipg_input_int::{InputIntMessage, input_int_callback};
 use crate::widgets::ipg_popover::{PopOverMessage, popover_callback};
@@ -60,7 +59,6 @@ pub enum Message {
     EventMouse(Event),
     EventWindow((window::Id, Event)),
     EventTouch(Event),
-    FileSystemWindow(usize, FileSystemMessage),
     InputFloat(usize, InputFloatMessage),
     InputInt(usize, InputIntMessage),
     Menu(usize, MenuMessage),
@@ -222,11 +220,6 @@ impl App {
                     // check for any other window changes
                     get_tasks(&mut self.state)
                 }
-            },
-            Message::FileSystemWindow(id, message) => {
-                fsd_callback(&mut self.state, id, message);
-                process_widget_updates(&mut self.state);
-                get_tasks(&mut self.state)
             },
             Message::WindowOpened(_, _, _) => {
                 Task::none()
@@ -1170,10 +1163,6 @@ fn get_widget<'a>(state: &'a IpgState, id: &usize, theme: &Theme) -> Option<Elem
                 Widgets::Toggler(tog) => {
                     tog.construct(&state.widgets)   
                 },
-                Widgets::FileSystemDialog(_) => {
-                    eprint!("ERROR: add_file_system_dialog() is a special method which doesn't have a widget construct method, returning None");
-                    None
-                },
                 Widgets::Font(_) => {
                     eprint!("ERROR: add_font() is a special method which doesn't have a widget construct method, returning None");
                     None
@@ -1582,7 +1571,6 @@ fn process_shows(
             | Widgets::ComboBoxInputStyle(_)
             | Widgets::ComboBoxMenuStyle(_)
             | Widgets::ContainerStyle(_)
-            | Widgets::FileSystemDialog(_)
             | Widgets::Font(_)
             | Widgets::Icon(_)
             | Widgets::InputFloatStyle(_)

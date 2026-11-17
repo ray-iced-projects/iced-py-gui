@@ -2,7 +2,7 @@
 """
 File System Dialog Updating use demo
 """
-
+import os
 from icedpygui import (
     Window,
     Column,
@@ -25,8 +25,11 @@ from icedpygui import (
     generate_id,
     )
 
+
 state = {"filter_list": ["All Files"],
-         "file_name": None,}
+         "file_name": None,
+         "current_dir": os.getcwd(),}
+
 
 
 def set_file_name(_it_id: int, name: str):
@@ -94,33 +97,40 @@ def dialog_callbacks(_rd_id: int, idx: int):
                 })
         case 6: # "Set default Directory"results_callback
             print("case 6 Set directory")
-            update_widget(fsd_id, FsdParam.DefaultDirectory, "/home/charles/Documents")
+            update_widget(fsd_id, FsdParam.DefaultDirectory, state["current_dir"])
 
 
-def results_callback(_fsd_id: int, results: tuple[FsdCallType, any]):
+def results_callback(_fsd_id: int, results: tuple[FsdCallType, str]):
     """Results from Dialog"""
     (fsd_type, data) = results
     match fsd_type:
         case FsdCallType.File:
             update_widget(file_text_id, TextParam.Content,
-                          f"[MESSAGE]: Selected file name is: {data}")
+                          f"[MESSAGE]: Selected file name is:\n{data}")
         case FsdCallType.Files:
             update_widget(files_text_id, TextParam.Content,
                           "[MESSAGE]: Selected file names are:\n" + "\n".join(data))
         case FsdCallType.Folder:
             update_widget(folder_text_id, TextParam.Content,
-                          f"[MESSAGE]: Selected folder name is: {data}")
+                          f"[MESSAGE]: Selected folder name is:\n{data}")
         case FsdCallType.Folders:
             update_widget(folders_text_id, TextParam.Content,
                           "[MESSAGE]: Selected folder names are:\n" + "\n".join(data))
-        case FsdCallType.FileLoaded:
-            update_widget(file_loaded_id, TextParam.Content,
-                            f"[MESSAGE]: Loaded file is [30 chars]:\n{data[:30]}")
         case FsdCallType.FileSaved:
             update_widget(ms_fs_id, TextParam.Content,
                             f"[MESSAGE]: Saved file name is: {data}")
         case FsdCallType.DefaultDirectory:
             update_widget(ms_dir_id, TextParam.Content, f"[MESSAGE]: Default Directory is: {data}")
+
+def load_file_cb(_fsd_id: int, results: tuple[FsdCallType, str, str]):
+    """
+    Loads the selected file
+    A different cb is used because the results is a tuple of 3 vs 2 for the other callbacks
+    """
+    fn = results[1]
+    content = results[2]
+    content = f"[MESSAGE]: File name{fn}\nLoaded file [30 chars]:\n{content[:30]}"
+    update_widget(file_loaded_id, TextParam.Content, content)
 
 
 fsd_id = add_file_system_dialog(results_callback=results_callback)
@@ -128,7 +138,7 @@ ROW_WIDTH = 300
 
 with Window(title="FileSystemDialog Example", center=True):
 
-    with Container(width_fill=True, height_fill=True, align_center=True):
+    with Container(fill=True, align_center=True):
         with Row():
             # left column
             with Column(spacing=20, padding=[0,0,0,10]): # left_padding set
@@ -145,7 +155,8 @@ with Window(title="FileSystemDialog Example", center=True):
                                 with Container(width=ROW_WIDTH):
                                     add_radio(labels=[label], group_id=group_id,
                                             on_selected=dialog_callbacks)
-                                file_text_id = add_text(content="File name: None")
+                                file_text_id = add_text(content="File name: None",
+                                                        width=ROW_WIDTH*2.0)
 
                         case 1: # Select many file names
                             with Row(spacing=20):

@@ -51,9 +51,6 @@ from .icedpygui import (
     DividerDirection as DividerDirection,
     DividerParam as DividerParam,
     DividerStyleParam as DividerStyleParam,
-    FileSystemDialogParam as FileSystemDialogParam,
-    FileSystemDialogCallbackType as FileSystemDialogCallbackType,
-    get_dialog_filters as get_dialog_filters,
     get_user_data as get_user_data,
     update_user_data as update_user_data,
     get_widget_parameters as get_widget_parameters,
@@ -1305,70 +1302,6 @@ def add_event_window(
     """
     ...
 
-def add_file_system_dialog(
-    select_file: bool | None = None,
-    select_files: bool | None = None,
-    select_folder: bool | None = None,
-    select_folders: bool | None = None,
-    load_file: bool | None = None,
-    load_file_for_editor: bool | None = None,
-    save_file: bool | None = None,
-    file_name: str | None = None,
-    file_content: str | None = None,
-    filters: list[str] | None = None,
-    default_directory: str | None = None,
-    title: str | None = None,
-    show_hidden_files: bool | None = None,
-    remember_last_directory: bool | None = None,
-    update_json_file: bool | None = None,
-    results_callback: callable | None = None,
-    ) -> int:
-    """Create a file system dialog for selecting folders or files.
-
-    Multiple modes are supported: selecting single/multiple files or folders,
-    loading file content, or saving files. Results are returned via callback.
-
-    Parameters
-    ----------
-    select_file : bool, optional
-        Whether to select a single file name
-    select_files : bool, optional
-        Whether to select multiple file names
-    select_folder : bool, optional
-        Whether to select a single folder name
-    select_folders : bool, optional
-        Whether to select multiple folder names
-    load_file : bool, optional
-        Whether to load a single file's content
-    load_file_for_editor : bool, optional
-        Whether to load a file for editing in a text editor
-    save_file : bool, optional
-        Whether to save/create a new file
-    file_name : str, optional
-        Default file name for save operations
-    file_content : str, optional
-        Initial file content or loaded file content
-    filters : list[str], optional
-        List of file type filters (e.g., ["*.txt", "*.yml", "*.py"]).
-        Default: ["*"] (all files)
-    default_directory : str, optional
-        Starting directory path for the dialog
-    title : str, optional
-        Custom title for the dialog window
-    show_hidden_files : bool, optional
-        Whether to show hidden files and folders
-    remember_last_directory : bool, optional
-        Whether to remember the last opened directory
-    update_json_file : bool, optional
-        Whether to update a JSON configuration file with the result
-    results_callback : callable, optional
-        Callback function to invoke when file/folder selection completes
-
-    Returns
-    -------
-    int
-        The numeric widget ID of the newly created file system dialog
-    """
 def add_float(
     window_id: str ,
     container_id: str,

@@ -2131,19 +2131,6 @@ class DividerStyleParam:
     BorderRadius: float
     Transparent: bool
 
-class FileSystemDialogParam:
-    """FileSystemDialogParams"""
-    SelectFile: bool
-    SelectFolder: bool
-    SelectFileForLoad: bool
-    SaveFile: bool
-    Filters: list[str]
-    InitialDirectory: bool
-    ShowHiddenFiles: bool
-    RememberLastDirectory: bool
-    UpdateJsonFile: bool
-
-
 class FloatParam:
     """FloatParam
 

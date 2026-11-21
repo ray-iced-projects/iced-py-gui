@@ -15,7 +15,7 @@ width = sum(column_widths)
 header = ["zero", "one", "two", "three"]
 # The table basic only takes a str value but
 # these can easily be converted
-# using something like the to_str below.
+# using something like the to_str() below.
 body = [
     [0.0, 1.0, 2.0, 3.0],
     [0.0, 2.0, 4.0, 6.0],
@@ -39,7 +39,7 @@ def to_str(data: list[list[float]]) -> list[list[str]]:
 
 # Add the window
 with Window(
-        title="Table Demo",
+        title="Table Basic Demo",
         size=(700, 600),
         center=True):
 

@@ -38,8 +38,7 @@ with Window(
         # file_path needs a string so the check above using Path() is used.
         add_table_basic(
                 file_path=FILE_PATH,
-                col_widths=column_widths,
-                row_height=30.0,
+                column_widths=column_widths,
                 scrollable_height=300.0)
 
 

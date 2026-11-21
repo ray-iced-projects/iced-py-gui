@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::f32::MAX;
 
 use iced::{Element, Theme, Widget};
 use ipg_sash::sash::{Id, OuterResizeMode, SashH, SashV, Status, Style};
@@ -64,18 +65,18 @@ impl Sash {
         let widget_id = self.id;
 
         let sh = if self.vertical_direction == Some(true) {
-            SashV::new(content, self.initial_sizes.clone(), self.size, self.sash_size, self.min_size, self.max_size)
+            SashV::new(content, self.initial_sizes.clone(), self.size, self.sash_size)
         } else {
-            SashH::new(content, self.initial_sizes.clone(), self.size, self.sash_size, self.min_size, self.max_size)
+            SashH::new(content, self.initial_sizes.clone(), self.size, self.sash_size)
         }
         .on_resize(move |id, index, size| Message::Sash(widget_id, SashMessage::ResizedH(id, index, size)))
         .on_release(move |id, index| Message::Sash(widget_id, SashMessage::Released(id, index)))
         .on_outer_resize(move |id, size| Message::Sash(widget_id, SashMessage::ResizedOuter(id, size)))
         .on_cross_resize(move |id, size| Message::Sash(widget_id, SashMessage::ResizedCrossH(id, size)))
-        .max_size_maybe(self.max_size)
-        .min_size_maybe(self.min_size)
-        .max_cross_size_maybe(self.max_cross_size)
-        .min_cross_size_maybe(self.min_cross_size);
+        .max_size(self.max_size.unwrap_or(MAX))
+        .min_size(self.min_size.unwrap_or_default())
+        .max_cross_size(self.max_cross_size.unwrap_or(MAX))
+        .min_cross_size(self.min_cross_size.unwrap_or_default());
 
         let sh = if self.sync_sashes == Some(true) {
             sh.sync_sashes(self.current_sizes.clone())
@@ -264,15 +265,15 @@ impl SashStyle {
         }
 
         if let Some(bc) = bc_color {
-            style.border.color = bc;
+            style.border_color = bc;
         }
 
         if let Some(bw) = self.border_width {
-            style.border.width = bw;
+            style.border_width = bw;
         }
 
         if let Some(br) = self.border_radius {
-            style.border.radius = get_radius(&vec![br], "Sash".to_string())
+            style.border_radius = get_radius(&vec![br], "Sash".to_string())
         }
 
         style

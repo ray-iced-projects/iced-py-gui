@@ -44,6 +44,7 @@ pub struct TableBasic {
     pub min_size: f32,
     pub released: bool,
     pub resize_columns_enabled: bool,
+    pub resize_table_enabled: bool,
     pub sash_size: f32,
     pub sash_style_id: Option<usize>,
     pub scrollable_height: Option<f32>,
@@ -205,9 +206,8 @@ fn header_footer<'a>(
         sizes.clone(),
         height.unwrap_or(30.0),
         sash_size,
-        min_size,
-        None,
     )
+    .min_size(min_size.unwrap_or_default())
     .on_resize(move |s_id, idx, val| Message::Table(id, TableBasicMessage::ResizeH(s_id, idx, val)))
     .sync_sashes(sizes.clone())
     .style(ipg_sash::sash::subtle)
@@ -241,9 +241,8 @@ fn table_body<'a>(
                 sizes.clone(),
                 height,
                 sash_size,
-                min_size,
-                None,
             )
+            .min_size(min_size.unwrap_or_default())
             .on_resize(move |s_id, idx, val| Message::Table(id, TableBasicMessage::ResizeH(s_id, idx, val)))
             .sync_sashes(sizes.clone())
             .style(move|theme, status|{
@@ -419,7 +418,8 @@ fn adv_header<'a>(
             break;
         }
         let sash: Element<'a, Message, Theme, Renderer> =
-            SashH::new(cells, sizes.clone(), height, sash_size, Some(min_size), None)
+            SashH::new(cells, sizes.clone(), height, sash_size)
+                .min_size(min_size)
                 .on_resize(move |s_id, idx, val| Message::Table(id, TableBasicMessage::ResizeH(s_id, idx, val)))
                 .sync_sashes(sizes.clone())
                 .style(ipg_sash::sash::subtle)
@@ -451,8 +451,9 @@ fn adv_body<'a>(
             break;
         }
         let sash: Element<'a, Message, Theme, Renderer> =
-            SashH::new(cells, sizes.clone(), height, sash_size, Some(min_size), None)
+            SashH::new(cells, sizes.clone(), height, sash_size)
                 .on_resize(move |s_id, idx, val| Message::Table(id, TableBasicMessage::ResizeH(s_id, idx, val)))
+                .min_size(min_size)
                 .sync_sashes(sizes.clone())
                 .style(ipg_sash::sash::subtle)
                 .clip(true)
@@ -495,8 +496,9 @@ fn adv_footer<'a>(
 ) -> Element<'a, Message, Theme, Renderer> {
     let total_width: f32 = sizes.iter().sum();
     let sash: Element<'a, Message, Theme, Renderer> =
-        SashH::new(content, sizes.clone(), height, sash_size, Some(min_size), None)
+        SashH::new(content, sizes.clone(), height, sash_size)
             .on_resize(move |s_id, idx, val| Message::Table(id, TableBasicMessage::ResizeH(s_id, idx, val)))
+            .min_size(min_size)
             .sync_sashes(sizes)
             .style(ipg_sash::sash::subtle)
             .clip(true)

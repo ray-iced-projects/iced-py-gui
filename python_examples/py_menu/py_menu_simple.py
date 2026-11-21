@@ -112,7 +112,7 @@ with Window(title="Simple Menu", center=True, size=[600, 600]):
                         add_text(content="Copy", size=LABEL_SIZE)
                 with MenuItem():
                     with MenuButton(on_press=on_item_press_edit) as state["paste"]:
-                        print(state["Paste"])
+                        print(state["paste"])
                         add_text(content="Paste", size=LABEL_SIZE)
 
 

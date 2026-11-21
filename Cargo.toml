@@ -13,7 +13,6 @@ crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 pyo3 = { version = "0.26", features = ["indexmap"] }
-indexmap = "2"
 pyo3-stub-gen = "0.19.0"
 iced = { git = "https://github.com/iced-rs/iced", rev = "edc5a2862011db643e3210940eb31420da8b994c", features = [
     "advanced",
@@ -25,14 +24,15 @@ iced = { git = "https://github.com/iced-rs/iced", rev = "edc5a2862011db643e32109
     "svg",
     "tokio",
 ] }
-tokio = { version = "1.0", features = ["fs"] }
-csv = "1"
-once_cell = "1.19.0"
 chrono = "0.4.44"
+csv = "1"
+indexmap = "2"
+once_cell = "1.19.0"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "*"
 serde_yaml = "0.9"
 strum = { version = "0.28", features = ["derive"] }
+tokio = { version = "1.0", features = ["fs"] }
 
 [features]
 default = ["pyo3/extension-module"]

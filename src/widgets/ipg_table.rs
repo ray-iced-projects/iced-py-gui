@@ -11,135 +11,201 @@ use crate::py_api::helpers::get_radius;
 use crate::state::{Containers, Widgets};
 use crate::widgets::callbacks::{CallbackName, invoke_callback_with_args};
 use crate::widgets::styling::apply_background_color_overrides;
-use crate::widgets::widget_param_update::{
-    WidgetParamUpdate, set_t_value
-};
+use crate::widgets::widget_param_update::{WidgetParamUpdate, set_t_value};
 
 use crate::IpgState;
 
-use iced::border::Radius;
-use iced::widget::{scrollable::Scrollbar};
-use iced::{Border, Length, alignment, widget, Widget};
 use iced::Length::Fill;
-use iced::{Element, Renderer, Theme};
+use iced::border::Radius;
+use iced::widget::scrollable::Scrollbar;
 use iced::widget::{Space, center, column, container, row, rule, scrollable, stack, text};
+use iced::{Border, Length, Widget, alignment, widget};
+use iced::{Element, Renderer, Theme};
 
-use ipg_sash::sash::{Id, SashH};
 use ipg_sash::sash::resize as sash_resize;
+use ipg_sash::sash::{Id, SashH};
 
-use pyo3::{pyclass, Py, PyAny};
+use pyo3::{Py, PyAny, pyclass};
 type PyObject = Py<PyAny>;
-
 
 #[derive(Debug, Clone, Default)]
 pub struct TableBasic {
-        pub id: usize,
-        pub row_height: f32,
-        pub col_widths: Vec<f32>,
-        pub scrollable_height: Option<f32>,
-        pub file_path: Option<String>,
-        pub headers: Option<Vec<String>>,
-        pub body: Option<Vec<Vec<String>>>,
-        pub footers: Option<Vec<String>>,
-        pub column_widths: Option<Vec<f32>>,
-        pub sash_size: Option<f32>,
-        pub header_enabled: Option<bool>,
-        pub header_row_height: Option<f32>,
-        pub header_row_spacing: Option<f32>,
-        pub footer_height: Option<f32>,
-        pub footer_spacing: Option<f32>,
-        pub body_row_highlight: bool,
-        pub row_spacing: Option<f32>,
-        pub resize_columns_enabled: bool,
-        pub min_size: f32,
-        pub text_size: Option<f32>,
-        pub style_id: Option<usize>,
-        pub sash_style_id: Option<usize>,
-        pub released: bool,
-        pub show: bool,
+    pub id: usize,
+    pub body_row_heights: f32,
+    pub body_row_highlight: bool,
+    pub body_row_outline: bool,
+    pub body: Vec<Vec<String>>,
+    pub column_widths: Vec<f32>,
+    pub file_path: Option<String>,
+    pub footer_height: Option<f32>,
+    pub footer: Option<Vec<String>>,
+    pub header_height: Option<f32>,
+    pub header: Option<Vec<String>>,
+    pub min_size: f32,
+    pub released: bool,
+    pub resize_columns_enabled: bool,
+    pub sash_size: f32,
+    pub sash_style_id: Option<usize>,
+    pub scrollable_height: Option<f32>,
+    pub show: bool,
+    pub style_id: Option<usize>,
+    pub text_size: Option<f32>,
 }
 
 impl TableBasic {
-
     fn lookup<'a>(&self, widgets: &'a HashMap<usize, Widgets>, id: Option<usize>) -> Option<&'a Widgets> {
         id.and_then(|id| widgets.get(&id))
     }
 
     pub fn construct<'a>(
         &'a self,
-        mut content: Vec<Element<'a, Message, Theme, Renderer>>,
         widgets: &'a HashMap<usize, Widgets>,
     ) -> Option<Element<'a, Message, Theme, Renderer>> {
+        if !self.show {
+            return None;
+        }
 
-        if !self.show { return None }
-        
         let wid = self.id;
 
-        let scroll_style_header_opt  = self.lookup(widgets, self.style_id)
-            .and_then(Widgets::as_scrollable_style).cloned();
+        let scroll_style_header_opt = self
+            .lookup(widgets, self.style_id)
+            .and_then(Widgets::as_scrollable_style)
+            .cloned();
 
-        let scroll_style_body_opt  = self.lookup(widgets, self.style_id)
-            .and_then(Widgets::as_scrollable_style).cloned();
+        let scroll_style_body_opt = self
+            .lookup(widgets, self.style_id)
+            .and_then(Widgets::as_scrollable_style)
+            .cloned();
 
-        let scroll_style_footer_opt  = self.lookup(widgets, self.style_id)
-            .and_then(Widgets::as_scrollable_style).cloned();
-         
-        let table_style_opt = self.lookup(widgets, self.style_id)
-            .and_then(Widgets::as_table_style).cloned();
+        let scroll_style_footer_opt = self
+            .lookup(widgets, self.style_id)
+            .and_then(Widgets::as_scrollable_style)
+            .cloned();
+
+        let table_style_opt = self
+            .lookup(widgets, self.style_id)
+            .and_then(Widgets::as_table_style)
+            .cloned();
 
         let tbl_style = if let Some(tbl) = &table_style_opt {
             tbl.clone()
-        } else { TableStyle::default() };
+        } else {
+            TableStyle::default()
+        };
 
-        let bkg_color = 
+        let bkg_color =
             Color::rgba_ipg_color_to_iced(tbl_style.bkg_rgba, &tbl_style.bkg_color, tbl_style.bkg_color_alpha);
-        
-        let brd_color = 
-            Color::rgba_ipg_color_to_iced(tbl_style.border_rgba, &tbl_style.border_color, tbl_style.border_color_alpha);
 
-        let text_color = 
+        let brd_color = Color::rgba_ipg_color_to_iced(
+            tbl_style.border_rgba,
+            &tbl_style.border_color,
+            tbl_style.border_color_alpha,
+        );
+
+        let text_color =
             Color::rgba_ipg_color_to_iced(tbl_style.text_rgba, &tbl_style.text_color, tbl_style.text_color_alpha);
 
         let (header, body) = if let Some(fp) = &self.file_path {
-            let (header_data, body_data) =
-                load_csv(fp).unwrap_or_default();
+            let (header_data, body_data) = load_csv(fp).unwrap_or_default();
 
             let header = 
-                table_header(wid, &header_data, self.col_widths.clone(), self.row_height);
-            let body = 
-                table_body(wid, &body_data, self.col_widths.clone(), self.row_height);
+                header_footer(
+                    wid, 
+                    &header_data, 
+                    self.column_widths.clone(), 
+                    self.header_height,
+                    self.sash_size,
+                    Some(self.min_size),
+                );
+
+            let body = table_body(
+                wid,
+                &body_data,
+                self.column_widths.clone(),
+                self.body_row_heights,
+                self.body_row_highlight,
+                self.body_row_outline,
+                self.sash_size,
+                Some(self.min_size),
+            );
+
             (header, body)
         } else {
-            let header = 
-                table_header(wid, &self.headers.clone().unwrap_or(vec![]), self.col_widths.clone(), self.row_height);
-            let body = 
-                table_body(wid, &self.body.clone().unwrap_or(vec![vec![]]), self.col_widths.clone(), self.row_height);
+            let header = header_footer(
+                wid,
+                &self.header.clone().unwrap_or(vec![]),
+                self.column_widths.clone(),
+                self.header_height,
+                self.sash_size,
+                Some(self.min_size),
+            );
+
+            let body = table_body(
+                wid,
+                &self.body.clone(),
+                self.column_widths.clone(),
+                self.body_row_heights,
+                self.body_row_highlight,
+                self.body_row_outline,
+                self.sash_size,
+                Some(self.min_size),
+            );
+
             (header, body)
         };
 
+        let footer = header_footer(
+            wid,
+            &self.footer.clone().unwrap_or(vec![]),
+            self.column_widths.clone(),
+            self.footer_height,
+            self.sash_size,
+            Some(self.min_size),
+        );
+
         let body = if let Some(sh) = self.scrollable_height {
             scrollable(body).height(sh).boxed()
-        } else { body };
+        } else {
+            body
+        };
 
-        let table = column![header, body];
+        let mut table_vec = vec![];
+        if header.is_some() {
+            table_vec.push(header.unwrap())
+        }
+        table_vec.push(body);
+        if footer.is_some() {
+            table_vec.push(footer.unwrap())
+        }
 
-        Some(container(table)
-            .style(move|theme| {
-                container::bordered_box(theme)
-            }).boxed())
+        let table = column(table_vec);
 
+        Some(
+            container(table)
+                .style(move |theme| container::bordered_box(theme))
+                .boxed(),
+        )
     }
 }
 
-
-fn table_header<'a>(id: usize, header: &[String], sizes: Vec<f32>, height: f32) -> Element<'a, Message> {
-
+fn header_footer<'a>(
+    id: usize, hf: &[String], 
+    sizes: Vec<f32>, 
+    height: Option<f32>,
+    sash_size: f32,
+    min_size: Option<f32>,
+) -> Option<Element<'a, Message>> {
+    if hf.len() == 0 {
+        return None;
+    }
     let sash: Element<'a, Message> = SashH::new(
-        header.iter().map(|col| center(text(col.clone())).center(Fill).boxed()).collect(),
+        hf.iter()
+            .map(|col| center(text(col.clone())).center(Fill).boxed())
+            .collect(),
         sizes.clone(),
-        height,
-        6.0,
-        Some(10.0),
+        height.unwrap_or(30.0),
+        sash_size,
+        min_size,
         None,
     )
     .on_resize(move |s_id, idx, val| Message::Table(id, TableBasicMessage::ResizeH(s_id, idx, val)))
@@ -149,35 +215,46 @@ fn table_header<'a>(id: usize, header: &[String], sizes: Vec<f32>, height: f32) 
     .boxed();
 
     let rl = container(rule::horizontal(6.0)).width(Length::Fixed(sizes.iter().sum()));
-    
-    container(column![sash, rl])
-        .style(container::rounded_box)
-        .boxed()
+
+    Some(container(column![sash, rl]).style(container::rounded_box).boxed())
 }
 
-fn table_body<'a>(id: usize, body: &[Vec<String>], sizes: Vec<f32>, height: f32) -> Element<'a, Message> {
-    
+fn table_body<'a>(
+    id: usize,
+    body: &[Vec<String>],
+    sizes: Vec<f32>,
+    height: f32,
+    highlight: bool,
+    outline: bool,
+    sash_size: f32,
+    min_size: Option<f32>,
+) -> Element<'a, Message> {
+
     let rows: Vec<Element<'a, Message>> = body
         .iter()
         .enumerate()
         .map(|(i, row)| {
             let sash: Element<'a, Message> = SashH::new(
-                row.iter().map(|cell| center(text(cell.clone()).size(14.0)).center(Fill).boxed()).collect(),
+                row.iter()
+                    .map(|cell| center(text(cell.clone()).size(14.0)).center(Fill).boxed())
+                    .collect(),
                 sizes.clone(),
                 height,
-                6.0,
-                Some(10.0),
+                sash_size,
+                min_size,
                 None,
             )
             .on_resize(move |s_id, idx, val| Message::Table(id, TableBasicMessage::ResizeH(s_id, idx, val)))
             .sync_sashes(sizes.clone())
-            .style(ipg_sash::sash::subtle)
+            .style(move|theme, status|{
+                ipg_sash::sash::subtle(theme, status)
+            })
             .clip(true)
             .boxed();
 
-            if i % 2 == 1 {
+            if i % 2 == 1 && highlight {
                 container(sash)
-                    .style(|theme: &Theme| {
+                    .style(move |theme: &Theme| {
                         let base = theme.palette().background.base.color;
                         let weak = theme.palette().background.weak.color;
                         let mid = iced::Color {
@@ -186,30 +263,36 @@ fn table_body<'a>(id: usize, body: &[Vec<String>], sizes: Vec<f32>, height: f32)
                             b: (base.b + weak.b) / 2.0,
                             a: 1.0,
                         };
-                        container::Style {
-                            background: Some(mid.into()),
-                            ..Default::default()
+                        if outline {
+                            container::Style {
+                                background: Some(mid.into()),
+                                ..Default::default()
+                            }
+                        } else {
+                            let mut st = container::bordered_box(theme);
+                            st.background = Some(mid.into());
+                            st
                         }
                     })
                     .boxed()
             } else {
-                sash
+                if outline {
+                    container(sash).style(container::bordered_box).boxed()
+                } else {
+                    sash
+                }
+                
             }
         })
         .collect();
-    
+
     column(rows).boxed()
 }
 
 fn load_csv(path: &str) -> Result<(Vec<String>, Vec<Vec<String>>), csv::Error> {
-    
     let mut reader = csv::Reader::from_path(path)?;
 
-    let header: Vec<String> = reader
-        .headers()?
-        .iter()
-        .map(|s| s.to_string())
-        .collect();
+    let header: Vec<String> = reader.headers()?.iter().map(|s| s.to_string()).collect();
 
     let body: Vec<Vec<String>> = reader
         .records()
@@ -222,7 +305,7 @@ fn load_csv(path: &str) -> Result<(Vec<String>, Vec<Vec<String>>), csv::Error> {
 /// The three sections of content passed to `Table::construct`.
 pub struct TableSections<'a> {
     pub header: Vec<Element<'a, Message, Theme, Renderer>>,
-    pub body:   Vec<Element<'a, Message, Theme, Renderer>>,
+    pub body: Vec<Element<'a, Message, Theme, Renderer>>,
     pub footer: Vec<Element<'a, Message, Theme, Renderer>>,
 }
 
@@ -251,8 +334,9 @@ impl Table {
         sections: TableSections<'a>,
         widgets: &'a HashMap<usize, Widgets>,
     ) -> Option<Element<'a, Message, Theme, Renderer>> {
-
-        if !self.show { return None }
+        if !self.show {
+            return None;
+        }
 
         let id = self.id;
         let sizes = self.col_widths.clone();
@@ -263,32 +347,56 @@ impl Table {
 
         let header_height = if let Some(hh) = self.header_height {
             hh
-        } else { self.row_height };
+        } else {
+            self.row_height
+        };
 
         if !sections.header.is_empty() {
-            parts.push(adv_header(id, sections.header, sizes.clone(), header_height, sash_size, min_size));
+            parts.push(adv_header(
+                id,
+                sections.header,
+                sizes.clone(),
+                header_height,
+                sash_size,
+                min_size,
+            ));
         }
-        parts.push(container(rule::horizontal(6.0))
-                    .width(Length::Fixed(sizes.iter().sum()
-                    )).boxed());
+        parts.push(
+            container(rule::horizontal(6.0))
+                .width(Length::Fixed(sizes.iter().sum()))
+                .boxed(),
+        );
 
         if !sections.body.is_empty() {
-            parts.push(adv_body(id, sections.body, sizes.clone(), self.row_height, sash_size, min_size));
+            parts.push(adv_body(
+                id,
+                sections.body,
+                sizes.clone(),
+                self.row_height,
+                sash_size,
+                min_size,
+            ));
         }
 
         let footer_height = if let Some(fh) = self.footer_height {
             fh
-        } else { self.row_height };
+        } else {
+            self.row_height
+        };
 
         if !sections.footer.is_empty() {
-            parts.push(adv_footer(id, sections.footer, sizes.clone(), footer_height, sash_size, min_size));
+            parts.push(adv_footer(
+                id,
+                sections.footer,
+                sizes.clone(),
+                footer_height,
+                sash_size,
+                min_size,
+            ));
         }
 
-        Some(container(column(parts))
-            .style(container::rounded_box)
-            .boxed())
+        Some(container(column(parts)).style(container::rounded_box).boxed())
     }
-
 }
 
 /// Renders the header: cells are chunked by col count, each chunk becomes a SashH row.
@@ -307,27 +415,20 @@ fn adv_header<'a>(
     let mut header_rows: Vec<Element<'a, Message, Theme, Renderer>> = vec![];
     loop {
         let cells: Vec<Element<'a, Message, Theme, Renderer>> = iter.by_ref().take(n_cols).collect();
-        if cells.is_empty() { break; }
-        let sash: Element<'a, Message, Theme, Renderer> = 
-            SashH::new(
-                cells, 
-                sizes.clone(), 
-                height, 
-                sash_size,
-                Some(min_size),
-                None,
-            )
-            .on_resize(move |s_id, idx, val| Message::Table(id, TableBasicMessage::ResizeH(s_id, idx, val)))
-            .sync_sashes(sizes.clone())
-            .style(ipg_sash::sash::subtle)
-            .clip(true)
-            .boxed();
+        if cells.is_empty() {
+            break;
+        }
+        let sash: Element<'a, Message, Theme, Renderer> =
+            SashH::new(cells, sizes.clone(), height, sash_size, Some(min_size), None)
+                .on_resize(move |s_id, idx, val| Message::Table(id, TableBasicMessage::ResizeH(s_id, idx, val)))
+                .sync_sashes(sizes.clone())
+                .style(ipg_sash::sash::subtle)
+                .clip(true)
+                .boxed();
         header_rows.push(sash);
     }
     header_rows.push(container(rule::horizontal(1)).width(Length::Fixed(total_width)).boxed());
-    container(column(header_rows))
-    .style(container::rounded_box)
-    .boxed()
+    container(column(header_rows)).style(container::rounded_box).boxed()
 }
 
 /// Renders the body: flat cells chunked by col count, each chunk becomes a SashH row.
@@ -346,35 +447,35 @@ fn adv_body<'a>(
     let mut row_idx = 0usize;
     loop {
         let cells: Vec<Element<'a, Message, Theme, Renderer>> = iter.by_ref().take(n_cols).collect();
-        if cells.is_empty() { break; }
-        let sash: Element<'a, Message, Theme, Renderer> = 
-            SashH::new(
-                cells, 
-                sizes.clone(), 
-                height, 
-                sash_size,
-                Some(min_size),
-                None,
-            )
-            .on_resize(move |s_id, idx, val| Message::Table(id, TableBasicMessage::ResizeH(s_id, idx, val)))
-            .sync_sashes(sizes.clone())
-            .style(ipg_sash::sash::subtle)
-            .clip(true)
-            .boxed();
+        if cells.is_empty() {
+            break;
+        }
+        let sash: Element<'a, Message, Theme, Renderer> =
+            SashH::new(cells, sizes.clone(), height, sash_size, Some(min_size), None)
+                .on_resize(move |s_id, idx, val| Message::Table(id, TableBasicMessage::ResizeH(s_id, idx, val)))
+                .sync_sashes(sizes.clone())
+                .style(ipg_sash::sash::subtle)
+                .clip(true)
+                .boxed();
         if row_idx % 2 == 1 {
-            rows.push(container(sash)
-                .style(|theme: &Theme| {
-                    let base = theme.palette().background.base.color;
-                    let weak = theme.palette().background.weak.color;
-                    let mid = iced::Color {
-                        r: (base.r + weak.r) / 2.0,
-                        g: (base.g + weak.g) / 2.0,
-                        b: (base.b + weak.b) / 2.0,
-                        a: 1.0,
-                    };
-                    container::Style { background: Some(mid.into()), ..Default::default() }
-                })
-                .boxed());
+            rows.push(
+                container(sash)
+                    .style(|theme: &Theme| {
+                        let base = theme.palette().background.base.color;
+                        let weak = theme.palette().background.weak.color;
+                        let mid = iced::Color {
+                            r: (base.r + weak.r) / 2.0,
+                            g: (base.g + weak.g) / 2.0,
+                            b: (base.b + weak.b) / 2.0,
+                            a: 1.0,
+                        };
+                        container::Style {
+                            background: Some(mid.into()),
+                            ..Default::default()
+                        }
+                    })
+                    .boxed(),
+            );
         } else {
             rows.push(sash);
         }
@@ -393,21 +494,13 @@ fn adv_footer<'a>(
     min_size: f32,
 ) -> Element<'a, Message, Theme, Renderer> {
     let total_width: f32 = sizes.iter().sum();
-    let sash: Element<'a, Message, Theme, Renderer> = 
-        SashH::new(
-            content, 
-            sizes.clone(), 
-            height, 
-            sash_size,
-            Some(min_size),
-            None,
-        )
-        .on_resize(move |s_id, idx, val| 
-            Message::Table(id, TableBasicMessage::ResizeH(s_id, idx, val)))
-        .sync_sashes(sizes)
-        .style(ipg_sash::sash::subtle)
-        .clip(true)
-        .boxed();
+    let sash: Element<'a, Message, Theme, Renderer> =
+        SashH::new(content, sizes.clone(), height, sash_size, Some(min_size), None)
+            .on_resize(move |s_id, idx, val| Message::Table(id, TableBasicMessage::ResizeH(s_id, idx, val)))
+            .sync_sashes(sizes)
+            .style(ipg_sash::sash::subtle)
+            .clip(true)
+            .boxed();
     container(column![
         container(rule::horizontal(1)).width(Length::Fixed(total_width)),
         sash,
@@ -425,7 +518,6 @@ pub struct TableHeader {
     pub show: bool,
 }
 
-
 impl TableHeader {
     fn lookup<'a>(&self, widgets: &'a HashMap<usize, Widgets>, id: Option<usize>) -> Option<&'a Widgets> {
         id.and_then(|id| widgets.get(&id))
@@ -436,10 +528,8 @@ impl TableHeader {
         mut content: Vec<Element<'a, Message, Theme, Renderer>>,
         widgets: &'a HashMap<usize, Widgets>,
     ) -> Option<Element<'a, Message, Theme, Renderer>> {
-
         None
     }
-
 }
 
 #[derive(Debug, Clone, Default)]
@@ -461,10 +551,8 @@ impl TableBody {
         mut content: Vec<Element<'a, Message, Theme, Renderer>>,
         widgets: &'a HashMap<usize, Widgets>,
     ) -> Option<Element<'a, Message, Theme, Renderer>> {
-
         None
     }
-
 }
 
 #[derive(Debug, Clone, Default)]
@@ -485,48 +573,42 @@ impl TableFooter {
         mut content: Vec<Element<'a, Message, Theme, Renderer>>,
         widgets: &'a HashMap<usize, Widgets>,
     ) -> Option<Element<'a, Message, Theme, Renderer>> {
-
         None
     }
-
 }
-
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum TableBasicMessage {
-    ResizeH(Id, usize, f32)
+    ResizeH(Id, usize, f32),
 }
 
-pub fn table_callback(
-        state: &mut IpgState,  
-        widget_id: usize,  
-        message: TableBasicMessage) 
-{
+pub fn table_callback(state: &mut IpgState, widget_id: usize, message: TableBasicMessage) {
     match message {
         TableBasicMessage::ResizeH(_id, idx, size) => {
-            if let Some(Containers::TableBasic(t)) = state.containers.get_mut(&widget_id) {
-                sash_resize(&mut t.col_widths, idx, size, t.min_size);
+            if let Some(Widgets::TableBasic(t)) = state.widgets.get_mut(&widget_id) {
+                sash_resize(&mut t.column_widths, idx, size, t.min_size);
             } else if let Some(Containers::Table(t)) = state.containers.get_mut(&widget_id) {
                 sash_resize(&mut t.col_widths, idx, size, t.min_size);
                 return;
             } else {
                 return;
             }
-            let table = match state.containers.get(&widget_id) {
-                Some(Containers::TableBasic(t)) => t,
+            let table = match state.widgets.get(&widget_id) {
+                Some(Widgets::TableBasic(t)) => t,
                 _ => return,
             };
 
             // Fire Python callback if registered: def cb(wid: int, data: tuple[int, float])
-            invoke_callback_with_args(widget_id, CallbackName::OnResize, "Table-SashH", (idx, size),
-                "def cb(wid: int, data: tuple[int, float])");
-        },
+            invoke_callback_with_args(
+                widget_id,
+                CallbackName::OnResize,
+                "Table-SashH",
+                (idx, size),
+                "def cb(wid: int, data: tuple[int, float])",
+            );
+        }
     }
 }
-
-
-const ROW_COLOR: iced::Color = iced::Color::from_rgba(0.04, 0.35, 0.35, 0.2);
-const ROW_CONTRAST_COLOR: iced::Color = iced::Color::from_rgba(0.25, 0.63, 0.67, 1.0);
 
 #[derive(Debug, Clone, Default)]
 pub struct TableStyle {
@@ -563,27 +645,20 @@ pub enum TableStyleParam {
 #[derive(Debug, Clone, PartialEq, Hash)]
 #[pyclass(eq, eq_int, hash, frozen)]
 pub enum TableBasicParam {
-    Headers,
     Body,
-    Footers,
+    BodyRowHeights,
     ColumnWidths,
-    Height,
-    Width,
-    SashSize,
-    HeaderEnabled,
-    HeaderHeight,
-    HeaderRowSpacing,
+    Footer,
     FooterHeight,
-    FooterSpacing,
-    RowSpacing,
-    RowHeight,
-    ResizeColumnsEnabled,
+    Header,
+    HeaderHeight,
     MinSize,
-    TextSize,
+    ResizeColumnsEnabled,
+    SashSize,
     Show,
     StyleId,
+    TextSize,
 }
-
 
 // ---------------------------------------------------------------------------
 // WidgetParamUpdate implementations
@@ -594,29 +669,28 @@ impl WidgetParamUpdate for TableBasic {
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
-            TableBasicParam::Headers => set_t_value(&mut self.headers, value, "TableParam::Headers"),
             TableBasicParam::Body => set_t_value(&mut self.body, value, "TableParam::Body"),
-            TableBasicParam::Footers => set_t_value(&mut self.footers, value, "TableParam::Footers"),
+            TableBasicParam::BodyRowHeights => {
+                set_t_value(&mut self.body_row_heights, value, "TableParam::BodyRowHeights")
+            }
             TableBasicParam::ColumnWidths => set_t_value(&mut self.column_widths, value, "TableParam::ColumnWidths"),
-            TableBasicParam::Height => set_t_value(&mut self.row_height, value, "TableParam::Height"),
-            TableBasicParam::Width => set_t_value(&mut self.col_widths, value, "TableParam::Width"),
-            TableBasicParam::SashSize => set_t_value(&mut self.sash_size, value, "TableParam::SashSize"),
-            TableBasicParam::HeaderEnabled => set_t_value(&mut self.header_enabled, value, "TableParam::HeaderEnabled"),
-            TableBasicParam::HeaderHeight => set_t_value(&mut self.header_row_height, value, "TableParam::HeaderHeight"),
-            TableBasicParam::HeaderRowSpacing => set_t_value(&mut self.header_row_spacing, value, "TableParam::HeaderRowSpacing"),
+            TableBasicParam::Footer => set_t_value(&mut self.footer, value, "TableParam::Footer"),
             TableBasicParam::FooterHeight => set_t_value(&mut self.footer_height, value, "TableParam::FooterHeight"),
-            TableBasicParam::FooterSpacing => set_t_value(&mut self.footer_spacing, value, "TableParam::FooterSpacing"),
-            TableBasicParam::RowSpacing => set_t_value(&mut self.row_spacing, value, "TableParam::RowSpacing"),
-            TableBasicParam::RowHeight => set_t_value(&mut self.row_height, value, "TableParam::RowHeight"),
-            TableBasicParam::ResizeColumnsEnabled => set_t_value(&mut self.resize_columns_enabled, value, "TableParam::ResizeColumnsEnabled"),
+            TableBasicParam::Header => set_t_value(&mut self.header, value, "TableParam::Header"),
+            TableBasicParam::HeaderHeight => set_t_value(&mut self.header_height, value, "TableParam::HeaderHeight"),
             TableBasicParam::MinSize => set_t_value(&mut self.min_size, value, "TableParam::MinSize"),
-            TableBasicParam::TextSize => set_t_value(&mut self.text_size, value, "TableParam::TextSize"),
+            TableBasicParam::SashSize => set_t_value(&mut self.sash_size, value, "TableParam::SashSize"),
             TableBasicParam::Show => set_t_value(&mut self.show, value, "TableParam::Show"),
             TableBasicParam::StyleId => set_t_value(&mut self.style_id, value, "TableParam::StyleId"),
+            TableBasicParam::ResizeColumnsEnabled => set_t_value(
+                &mut self.resize_columns_enabled,
+                value,
+                "TableParam::ResizeColumnsEnabled",
+            ),
+            TableBasicParam::TextSize => set_t_value(&mut self.text_size, value, "TableParam::TextSize"),
         }
     }
 }
-
 
 impl WidgetParamUpdate for TableStyle {
     type Param = TableStyleParam;

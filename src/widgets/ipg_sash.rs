@@ -264,15 +264,15 @@ impl SashStyle {
         }
 
         if let Some(bc) = bc_color {
-            style.border_color = bc;
+            style.border.color = bc;
         }
 
         if let Some(bw) = self.border_width {
-            style.border_width = bw;
+            style.border.width = bw;
         }
 
         if let Some(br) = self.border_radius {
-            style.border_radius = get_radius(&vec![br], "Sash".to_string())
+            style.border.radius = get_radius(&vec![br], "Sash".to_string())
         }
 
         style

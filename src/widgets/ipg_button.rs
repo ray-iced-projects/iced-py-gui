@@ -58,7 +58,10 @@ impl Button {
         id.and_then(|id| widgets.get(&id))
     }
 
-    pub fn construct<'a>(&'a self, widgets: &HashMap<usize, Widgets>) -> Option<Element<'a, Message>> {
+    pub fn construct<'a>(
+        &'a self, widgets: &HashMap<usize, Widgets>
+    ) -> Option<Element<'a, Message>> {
+        
         if !self.show {
             return None;
         }

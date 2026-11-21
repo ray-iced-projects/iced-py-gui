@@ -2363,62 +2363,38 @@ def add_stack(
     ...
 
 def add_table_basic(
-    *,
-    window_id: str,
-    container_id: str,
-    headers: list[str],
-    body: list[list[float]],
-    footers: list[str],
+    body: list[list[str]],
+    body_row_heights: float,
     column_widths: list[float],
-    height: float,
-    parent_id: str | None = None,
-    width: float | None = None,
-    resizer_width: float | None = None,
-    header_enabled: bool = True,
-    header_row_height: float | None = None,
-    header_scrollbar_height: float | None = None,
-    header_scrollbar_margin: float | None = None,
-    header_scroller_height: float | None = None,
-    header_scrollbar_spacing: float | None = None,
-    header_row_spacing: float | None = None,
-    footer_height: float | None = None,
-    footer_scrollbar_height: float | None = None,
-    footer_scrollbar_margin: float | None = None,
-    footer_scroller_height: float | None = None,
-    footer_scrollbar_spacing: float | None = None,
-    footer_spacing: float | None = None,
-    body_scrollbar_width: float | None = None,
-    body_scrollbar_margin: float | None = None,
-    body_scroller_width: float | None = None,
-    body_scrollbar_spacing: float | None = None,
-    body_row_highlight: bool = True,
-    custom_header_rows: int | None = None,
-    custom_footer_rows: int | None = None,
-    control_columns: list[int] | None = None,
-    column_proportional_resize: bool = True,
-    row_spacing: float | None = None,
-    row_height: float | None = None,
-    header_body_spacing: float | None = None,
-    body_footer_spacing: float | None = None,
-    resize_columns_enabled: bool = True,
-    min_column_width: float | None = None,
-    text_size: float | None = None,
-    table_width_fixed: bool = True,
+    *,
+    body_row_highlight: bool = False,
+    body_row_outline: bool = True,
+    file_path: str | None = None,
+    footer_height: float =30.0,
+    footer: list[str] | None = None,
     gen_id: int | None = None,
-    style_id: int | None = None,
-    scrollable_style_id: int | None = None,
-    show: bool,
-    on_column_resize: Any | None = None,
+    header_height: float | None = None,
+    header: list[str] | None = None,
+    min_size: float = 10.0,
     on_column_resize_release: Any | None = None,
+    on_column_resize: Any | None = None,
+    parent_id: str | None = None,
+    resize_columns_enabled: bool = True,
+    sash_size: float = 4.0,
+    sash_style_id: int | None = None,
+    scrollable_height: float | None = None,
+    show: bool = True,
+    style_id: int | None = None,
+    text_size: float | None = None,
     user_data: Any | None = None,
 ) -> int:
     """_summary_
 
     Args:
-        parent_id (str | None, optional): _description_. Defaults to None.
+
 
     Returns:
-        int: container id
+        int: widget id
     """
     ...
 def add_tool_tip(

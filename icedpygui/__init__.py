@@ -16,9 +16,6 @@ from .icedpygui import (
     clipboard_callback,
     add_button as _add_button,
     add_button_style,
-    # add_card_style,
-    # add_card as _add_card,
-    # add_card_class as _add_card_class,
     add_checkbox_style,
     add_checkbox as _add_checkbox,
     add_combobox as _add_combobox,
@@ -322,6 +319,8 @@ add_span = _wrap_widget(_add_span, "add_span")
 add_span.__doc__ = _add_span.__doc__
 add_svg = _wrap_widget(_add_svg, "add_svg")
 add_svg.__doc__ = _add_svg.__doc__
+add_table_basic = _wrap_widget(_add_table_basic, "add_table_basic")
+add_table_basic.__doc__ = _add_table_basic.__doc__
 add_text_input = _wrap_widget(_add_text_input, "add_text_input")
 add_text_input.__doc__ = _add_text_input.__doc__
 add_text = _wrap_widget(_add_text, "add_text")
@@ -400,8 +399,6 @@ add_scrollable = _wrap_container(_add_scrollable, "add_scrollable")
 add_scrollable.__doc__ = _add_scrollable.__doc__
 add_stack = _wrap_container(_add_stack, "add_stack")
 add_stack.__doc__ = _add_stack.__doc__
-add_table_basic = _wrap_container(_add_table_basic, "add_table_basic")
-add_table_basic.__doc__ = _add_table_basic.__doc__
 add_table = _wrap_container(_add_table, "add_table")
 add_table.__doc__ = _add_table.__doc__
 add_table_header = _wrap_container(_add_table_header, "_add_table_header")
@@ -1282,44 +1279,6 @@ class Scrollable:
         if pid is not None:
             pid = _resolve_parent_id(pid)
         self.numeric_id = _add_scrollable(
-            window_id=self.window_id,
-            container_id=self.container_id,
-            parent_id=pid,
-            **self.kwargs,
-        )
-        _register_container(self.numeric_id, self.container_id, self.window_id)
-        _parent_stack.append(self.container_id)
-        return self.numeric_id
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        _parent_stack.pop()
-        return False
-
-class TableBasic:
-    """Wrapper for add_table_basic"""
-    def __init__(self, *, container_id=None, window_id=None, parent_id=None, **kwargs):
-        self.window_id = (
-            _resolve_window_id(window_id)
-            if window_id is not None
-            else _current_window_or_parent(parent_id)
-        )
-        if self.window_id is None:
-            raise ValueError("TableBasic: window_id is required (either pass it\
-                or use a Window context manager)")
-        self.container_id = (
-            container_id
-            if container_id is not None
-            else str(generate_id())
-        )
-        self.parent_id = parent_id
-        self.kwargs = kwargs
-        self.numeric_id = 0
-
-    def __enter__(self):
-        pid = self.parent_id or _current_parent()
-        if pid is not None:
-            pid = _resolve_parent_id(pid)
-        self.numeric_id = _add_table_basic(
             window_id=self.window_id,
             container_id=self.container_id,
             parent_id=pid,

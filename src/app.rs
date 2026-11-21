@@ -1062,9 +1062,6 @@ fn get_container<'a>(state: &'a IpgState,
                 Containers::Stack(stk) => {
                     stk.construct(content)
                 }
-                Containers::TableBasic(tbl_basic) => {
-                    tbl_basic.construct(content, &state.widgets)
-                },
                 Containers::Table(_) => {
                     // Table children are consumed by get_table_sections;
                     // it should never reach get_container.
@@ -1112,9 +1109,6 @@ fn get_widget<'a>(state: &'a IpgState, id: &usize, theme: &Theme) -> Option<Elem
                 Widgets::Button(btn) => {
                     btn.construct(&state.widgets)
                 },
-                // Widgets::Card(card) => {
-                //     card.construct(&state.widgets)
-                // },
                 Widgets::CheckBox(chk) => {
                     chk.construct(&state.widgets)
                 },
@@ -1151,6 +1145,9 @@ fn get_widget<'a>(state: &'a IpgState, id: &usize, theme: &Theme) -> Option<Elem
                 Widgets::Svg(svg) => {
                     svg.construct()
                 },
+                Widgets::TableBasic(tb) => {
+                    tb.construct(&state.widgets)
+                }
                 Widgets::Text(txt) => {
                     txt.construct(&state.widgets)
                 },
@@ -1559,6 +1556,7 @@ fn process_shows(
             Widgets::Slider(w) => w.show = *val,
             Widgets::Space(w) => w.show = *val,
             Widgets::Svg(w) => w.show = *val,
+            Widgets::TableBasic(w) => w.show = *val,
             Widgets::Text(w) => w.show = *val,
             Widgets::TextInput(w) => w.show = *val,
             Widgets::Toggler(w) => w.show = *val,

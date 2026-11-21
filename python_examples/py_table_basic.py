@@ -12,7 +12,10 @@ from icedpygui import (
 column_widths = [100.0] * 4
 width = sum(column_widths)
 
-headers = ["str", "one", "two", "three"]
+header = ["zero", "one", "two", "three"]
+# The table basic only takes a str value but
+# these can easily be converted
+# using something like the to_str below.
 body = [
     [0.0, 1.0, 2.0, 3.0],
     [0.0, 2.0, 4.0, 6.0],
@@ -26,7 +29,7 @@ body = [
     [0.0, 10.0, 20.0, 30.0],
     [0.0, 11.0, 22.0, 33.0],
 ]
-footers = ["f", "f", "f", "f"]
+footer = ["f", "f", "f", "f"]
 
 
 def to_str(data: list[list[float]]) -> list[list[str]]:
@@ -45,11 +48,12 @@ with Window(
 
         # The table is added.
         add_table_basic(
-            headers=headers,
+            header=header,
             body=to_str(body),
-            footers=footers,
-            col_widths=column_widths,
-            row_height=30.0)
+            footer=footer,
+            column_widths=column_widths,
+            body_row_heights=30.0,
+            scrollable_height=300.0)
 
 
 # Required to be the last widget sent to Iced,  If you start the program

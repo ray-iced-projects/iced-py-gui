@@ -108,7 +108,8 @@ with Window(
         with Table(
             row_height=30.0,
             col_widths=column_widths,
-            sash_size=6,):
+            sash_size=6,
+            ):
 
             with TableHeader():
                 for h1 in header:
@@ -118,8 +119,6 @@ with Window(
                     pl_id = add_pick_list(
                         options=pick_list_options,
                         placeholder="Sort",
-                        handle_dynamic_closed_icon_id=icon_closed,
-                        handle_dynamic_open_icon_id=icon_open,
                         on_select=sort_books)
 
                     sort_dict[h2] = pl_id

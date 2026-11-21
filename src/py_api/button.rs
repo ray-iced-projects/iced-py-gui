@@ -146,6 +146,7 @@ pub fn add_button(
     show: bool,
     gen_id: Option<usize>,
 ) -> PyResult<usize> {
+    
     let id = get_id(gen_id);
 
     // Register widget with parent

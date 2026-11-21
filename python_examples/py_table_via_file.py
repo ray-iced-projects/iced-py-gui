@@ -2,7 +2,9 @@
 """
 Table demo
 """
-import os, sys
+
+import os
+import sys
 from pathlib import Path
 from icedpygui import (
     Window,

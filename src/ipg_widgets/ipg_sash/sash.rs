@@ -6,7 +6,7 @@ use iced::advanced::layout;
 use iced::advanced::renderer;
 use iced::advanced::widget::tree::{self, Tree};
 use iced::advanced::{Layout, Shell, mouse, overlay};
-use iced::border::{Border, Radius};
+use iced::border::Border;
 use iced::event::Event;
 use iced::touch;
 use iced::{self, Color, Length, Rectangle, Size, Theme};
@@ -230,11 +230,7 @@ pub struct Style {
     /// The [`Background`] of the handle.
     pub background: Background,
     /// The border width of the handle.
-    pub border_width: f32,
-    /// The border [`Color`] of the handle.
-    pub border_color: Color,
-    /// The border [`Radius`] of the handle.
-    pub border_radius: Radius,
+    pub border: Border,
 }
 
 /// The theme catalog of a [`Sash`].
@@ -277,9 +273,11 @@ pub fn primary(theme: &Theme, status: Status) -> Style {
 
     Style {
         background: color.into(),
-        border_color: Color::TRANSPARENT,
-        border_width: 0.0,
-        border_radius: 0.0.into(),
+        border: Border {
+            color: Color::TRANSPARENT,
+            width: 0.0,
+            radius: 0.0.into(),
+        }
     }
 }
 
@@ -295,9 +293,11 @@ pub fn transparent(theme: &Theme, status: Status) -> Style {
 
     Style {
         background: color.into(),
-        border_color: Color::TRANSPARENT,
-        border_width: 0.0,
-        border_radius: 0.0.into(),
+        border: Border {
+            color: Color::TRANSPARENT,
+            width: 0.0,
+            radius: 0.0.into(),
+        }
     }
 }
 
@@ -313,9 +313,11 @@ pub fn subtle(theme: &Theme, status: Status) -> Style {
 
     Style {
         background: color.into(),
-        border_color: Color::TRANSPARENT,
-        border_width: 0.0,
-        border_radius: 0.0.into(),
+        border: Border {
+            color: Color::TRANSPARENT,
+            width: 0.0,
+            radius: 0.0.into(),
+        },
     }
 }
 
@@ -873,11 +875,7 @@ where
             renderer.fill_quad(
                 renderer::Quad {
                     bounds: *hb,
-                    border: Border {
-                        radius: sty.border_radius,
-                        width: sty.border_width,
-                        color: sty.border_color,
-                    },
+                    border: sty.border,
                     ..renderer::Quad::default()
                 },
                 sty.background,
@@ -901,11 +899,7 @@ where
             renderer.fill_quad(
                 renderer::Quad {
                     bounds: outer_rect,
-                    border: Border {
-                        radius: sty.border_radius,
-                        width: sty.border_width,
-                        color: sty.border_color,
-                    },
+                    border: sty.border,
                     ..renderer::Quad::default()
                 },
                 sty.background,
@@ -930,11 +924,7 @@ where
             renderer.fill_quad(
                 renderer::Quad {
                     bounds: cross_rect,
-                    border: Border {
-                        radius: sty.border_radius,
-                        width: sty.border_width,
-                        color: sty.border_color,
-                    },
+                    border: sty.border,
                     ..renderer::Quad::default()
                 },
                 sty.background,

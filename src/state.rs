@@ -73,7 +73,6 @@ type PyObject = Py<PyAny>;
 #[derive(Debug, Clone)]
 pub enum Containers {
     CanvasDraw(Draw),
-    // CardClass(CardClass),
     ColorPicker(ColorPicker),
     Column(Column),
     Container(Container),
@@ -92,7 +91,6 @@ pub enum Containers {
     RichText(RichText),
     Sash(Sash),
     Stack(Stack),
-    TableBasic(TableBasic),
     Table(Table),
     TableHeader(TableHeader),
     TableBody(TableBody),
@@ -136,6 +134,7 @@ pub enum Widgets {
     SashStyle(SashStyle),
     ScrollableStyle(ScrollableStyle),
     Scroller(Scroller),
+    TableBasic(TableBasic),
     TableStyle(TableStyle),
     RailStyle(RailStyle),
     AutoScrollStyle(AutoScrollStyle),
@@ -187,7 +186,6 @@ macro_rules! ipg_widget_accessors {
 ipg_widget_accessors! {
     Button             => Button,              as_button,                as_button_mut;
     ButtonStyle        => ButtonStyle,         as_button_style,          as_button_style_mut;
-    // CardStyle          => CardStyle,           as_card_style,            as_card_style_mut;
     CheckBox           => CheckBox,            as_checkbox,              as_checkbox_mut;
     CheckboxStyle      => CheckboxStyle,       as_checkbox_style,        as_checkbox_style_mut;
     ComboBox           => ComboBox,            as_combobox,              as_combobox_mut;
@@ -222,6 +220,7 @@ ipg_widget_accessors! {
     Space              => Space,               as_space,                 as_space_mut;
     Span               => Span,                as_span,                  as_span_mut;
     Svg                => Svg,                 as_svg,                   as_svg_mut;
+    TableBasic         => TableBasic,          as_table_basic,           as_table_basic_mut;
     TableStyle         => TableStyle,          as_table_style,           as_table_style_mut;
     Text               => Text,                as_text,                  as_text_mut;
     TextStyle          => TextStyle,           as_text_style,            as_text_style_mut;

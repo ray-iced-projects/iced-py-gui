@@ -47,13 +47,16 @@ with Window(title="Checkbox Styling",
 
         with Row(spacing=20.0):
 
+            # border_rounded is used when you want all
+            # 4 corners the same.  Use border_radius, [float, 4],
+            # when you want unequal corner rounding.
             border_radius = add_checkbox_style(
                 border_width=2.0,
-                border_radius=8.0)
+                border_rounded=8.0)
 
             border_thick = add_checkbox_style(
                 border_width=4.0,
-                border_radius=4.0)
+                border_rounded=4.0)
 
             add_checkbox(
                 label="Border Radius",

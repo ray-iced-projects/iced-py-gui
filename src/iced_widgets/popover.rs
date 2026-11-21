@@ -10,10 +10,10 @@
 //! application decides to set the `popover` argument to `None` (i.e. to close
 //! it).
 //!
-//! By default, the popover overlay is opaque: mouse button presses inside its
-//! bounds are captured, and mouse events do not pass through it to the layers
-//! below. Use [`Popover::passthrough`] to make the popover overlay
-//! transparent.
+//! By default, the popover overlay is opaque: mouse button presses and wheel
+//! scrolling inside its bounds are captured, and mouse events do not pass
+//! through it to the layers below. Use [`Popover::passthrough`] to make the
+//! popover overlay transparent.
 //!
 //! [`tooltip`]: crate::tooltip::Tooltip
 //!
@@ -46,7 +46,6 @@
 //!     .into()
 //! }
 //! ```
-use super::opaque::Opaque;
 use iced::advanced::Widget as _;
 use iced::advanced::layout::{self, Layout};
 use iced::advanced::overlay;
@@ -54,8 +53,11 @@ use iced::advanced::renderer;
 use iced::advanced::widget::{self as adv_widget};
 use iced::mouse;
 use iced::touch;
-use iced::widget::Widget;
-use iced::{Alignment, Element, Event, Length, Pixels, Point, Rectangle, Size, Vector, advanced::Shell};
+use iced::widget::{Opaque, Widget};
+use iced::{
+    Alignment, Element, Event, Length, Pixels, Point, Rectangle, Size, Vector, advanced::Shell,
+};
+use std::time::{Duration, Instant};
 
 /// A floating piece of content that appears over another element.
 ///
@@ -66,10 +68,10 @@ use iced::{Alignment, Element, Event, Length, Pixels, Point, Rectangle, Size, Ve
 /// When the user clicks outside of the popover's bounds, the popover notifies
 /// the application through its `on_close` handler.
 ///
-/// By default, the popover overlay is opaque: mouse button presses inside its
-/// bounds are captured, and mouse events do not pass through it to the layers
-/// below. Use [`Popover::passthrough`] to make the popover overlay
-/// transparent.
+/// By default, the popover overlay is opaque: mouse button presses and wheel
+/// scrolling inside its bounds are captured, and mouse events do not pass
+/// through it to the layers below. Use [`Popover::passthrough`] to make the
+/// popover overlay transparent.
 ///
 /// # Example
 /// ```no_run
@@ -111,6 +113,7 @@ where
     gap: f32,
     snap_within_viewport: bool,
     on_close: Option<Message>,
+    outside_close_delay: Option<Duration>,
 }
 
 impl<'a, Message, Theme, Renderer> Popover<'a, Message, Theme, Renderer>
@@ -134,12 +137,13 @@ where
     ) -> Self {
         Popover {
             content: content.into(),
-            popup: popover.map(|popup| Popup::Opaque(Opaque::new(popup))),
+            popup: popover.map(|popup| Popup::Opaque(Opaque::new(popup.into()).capture_scroll(true))),
             position: Position::default(),
             align: Alignment::Start,
             gap: 0.0,
             snap_within_viewport: true,
             on_close: None,
+            outside_close_delay: Some(Duration::from_secs(2)),
         }
     }
 
@@ -150,6 +154,13 @@ where
     /// setting the `popover` argument to `None`.
     pub fn on_close(mut self, message: Message) -> Self {
         self.on_close = Some(message);
+        self
+    }
+
+    /// Sets how long the pointer must remain outside the popover before it
+    /// closes automatically. `None` disables the timeout.
+    pub fn outside_close_delay(mut self, delay: Duration) -> Self {
+        self.outside_close_delay = Some(delay);
         self
     }
 
@@ -192,7 +203,9 @@ where
     pub fn passthrough(mut self, passthrough: bool) -> Self {
         self.popup = self.popup.map(|popover| match popover {
             Popup::Opaque(opaque) if passthrough => Popup::Transparent(opaque.into_inner()),
-            Popup::Transparent(element) if !passthrough => Popup::Opaque(Opaque::new(element)),
+            Popup::Transparent(element) if !passthrough => {
+                Popup::Opaque(Opaque::new(element).capture_scroll(true))
+            }
             content => content,
         });
 
@@ -236,7 +249,12 @@ where
         self.content.size()
     }
 
-    fn layout(&mut self, tree: &mut adv_widget::Tree, renderer: &Renderer, limits: &layout::Limits) {
+    fn layout(
+        &mut self,
+        tree: &mut adv_widget::Tree,
+        renderer: &Renderer,
+        limits: &layout::Limits,
+    ) {
         self.content.layout(&mut tree.children[0], renderer, limits);
         tree.size = tree.children[0].size;
     }
@@ -251,8 +269,15 @@ where
         shell: &mut Shell<'_, Message>,
         viewport: &Rectangle,
     ) {
-        self.content
-            .update(&mut tree.children[0], event, layout, cursor, renderer, shell, viewport);
+        self.content.update(
+            &mut tree.children[0],
+            event,
+            layout,
+            cursor,
+            renderer,
+            shell,
+            viewport,
+        );
     }
 
     fn draw(
@@ -337,62 +362,26 @@ where
         let popup_size = popup_tree.size;
         let content_bounds = layout.bounds() + translation;
 
-        let popup_position = {
-            let vp = Rectangle::with_size(window);
-            
-            // Calculate horizontal alignment for vertical positions
-            let x_aligned = match self.align {
-                Alignment::Start => content_bounds.x,
-                Alignment::Center => content_bounds.x + (content_bounds.width - popup_size.width) / 2.0,
-                Alignment::End => content_bounds.x + content_bounds.width - popup_size.width,
-            };
-            
-            // Calculate vertical alignment for horizontal positions
-            let y_aligned = match self.align {
-                Alignment::Start => content_bounds.y,
-                Alignment::Center => content_bounds.y + (content_bounds.height - popup_size.height) / 2.0,
-                Alignment::End => content_bounds.y + content_bounds.height - popup_size.height,
-            };
-            
-            // For backward compatibility, keep centered positioning for Auto position
-            let x_center = content_bounds.x + (content_bounds.width - popup_size.width) / 2.0;
-            let y_center = content_bounds.y + (content_bounds.height - popup_size.height) / 2.0;
-            
-            let (x, y) = match self.position {
-                Position::Auto => {
-                    let space_below = (vp.y + vp.height) - (content_bounds.y + content_bounds.height);
-                    let space_above = content_bounds.y - vp.y;
-                    let space_right = (vp.x + vp.width) - (content_bounds.x + content_bounds.width);
-                    let space_left = content_bounds.x - vp.x;
-                    if space_below >= space_above && space_below >= space_right && space_below >= space_left {
-                        (x_center, content_bounds.y + content_bounds.height + self.gap)
-                    } else if space_above >= space_right && space_above >= space_left {
-                        (x_center, content_bounds.y - popup_size.height - self.gap)
-                    } else if space_right >= space_left {
-                        (content_bounds.x + content_bounds.width + self.gap, y_center)
-                    } else {
-                        (content_bounds.x - popup_size.width - self.gap, y_center)
-                    }
-                }
-                Position::Top => (x_aligned, content_bounds.y - popup_size.height - self.gap),
-                Position::Bottom => (x_aligned, content_bounds.y + content_bounds.height + self.gap),
-                Position::Left => (content_bounds.x - popup_size.width - self.gap, y_aligned),
-                Position::Right => (content_bounds.x + content_bounds.width + self.gap, y_aligned),
-            };
-            let mut pos = Point::new(x, y);
-            if self.snap_within_viewport {
-                let vp = Rectangle::with_size(window);
-                pos.x = pos.x.max(vp.x).min(vp.x + vp.width - popup_size.width);
-                pos.y = pos.y.max(vp.y).min(vp.y + vp.height - popup_size.height);
-            }
-            pos
-        };
+        let popup_position = resolve_popup_position(
+            content_bounds,
+            popup_size,
+            self.position,
+            self.align,
+            self.gap,
+            Rectangle::with_size(window),
+            self.snap_within_viewport,
+        );
 
         let popup_layout = Layout::new(popup_size).move_to(popup_position);
 
-        let mut overlays = self
-            .content
-            .overlay(&mut base[0], layout, renderer, viewport, translation, window);
+        let mut overlays = self.content.overlay(
+            &mut base[0],
+            layout,
+            renderer,
+            viewport,
+            translation,
+            window,
+        );
 
         overlays.push(overlay::Element::new(Box::new(Overlay {
             popup,
@@ -402,26 +391,95 @@ where
             on_close: self.on_close.clone(),
             viewport: *viewport,
             window,
+            outside_since: None,
+            outside_close_delay: self.outside_close_delay,
         })));
 
         overlays
     }
 }
 
-impl<'a, Message, Theme, Renderer> From<Popover<'a, Message, Theme, Renderer>> for Element<'a, Message, Theme, Renderer>
+impl<'a, Message, Theme, Renderer> From<Popover<'a, Message, Theme, Renderer>>
+    for Element<'a, Message, Theme, Renderer>
 where
     Message: 'a + Clone,
     Theme: 'a,
     Renderer: iced::advanced::Renderer + 'a,
 {
-    fn from(popover: Popover<'a, Message, Theme, Renderer>) -> Element<'a, Message, Theme, Renderer> {
+    fn from(
+        popover: Popover<'a, Message, Theme, Renderer>,
+    ) -> Element<'a, Message, Theme, Renderer> {
         popover.boxed()
     }
 }
 
 enum Popup<'a, Message, Theme, Renderer> {
-    Opaque(Opaque<'a, Message, Theme, Renderer>),
+    Opaque(Opaque<Element<'a, Message, Theme, Renderer>>),
     Transparent(Element<'a, Message, Theme, Renderer>),
+}
+
+fn resolve_popup_position(
+    content_bounds: Rectangle,
+    popup_size: Size,
+    position: Position,
+    align: Alignment,
+    gap: f32,
+    viewport: Rectangle,
+    snap_within_viewport: bool,
+) -> Point {
+    let x_aligned = match align {
+        Alignment::Start => content_bounds.x,
+        Alignment::Center => content_bounds.x + (content_bounds.width - popup_size.width) / 2.0,
+        Alignment::End => content_bounds.x + content_bounds.width - popup_size.width,
+    };
+
+    let y_aligned = match align {
+        Alignment::Start => content_bounds.y,
+        Alignment::Center => content_bounds.y + (content_bounds.height - popup_size.height) / 2.0,
+        Alignment::End => content_bounds.y + content_bounds.height - popup_size.height,
+    };
+
+    let x_center = content_bounds.x + (content_bounds.width - popup_size.width) / 2.0;
+    let y_center = content_bounds.y + (content_bounds.height - popup_size.height) / 2.0;
+
+    let mut position = match position {
+        Position::Auto => {
+            let space_below =
+                (viewport.y + viewport.height) - (content_bounds.y + content_bounds.height);
+            let space_above = content_bounds.y - viewport.y;
+            let space_right =
+                (viewport.x + viewport.width) - (content_bounds.x + content_bounds.width);
+            let space_left = content_bounds.x - viewport.x;
+
+            if space_below >= space_above && space_below >= space_right && space_below >= space_left
+            {
+                Point::new(x_center, content_bounds.y + content_bounds.height + gap)
+            } else if space_above >= space_right && space_above >= space_left {
+                Point::new(x_center, content_bounds.y - popup_size.height - gap)
+            } else if space_right >= space_left {
+                Point::new(content_bounds.x + content_bounds.width + gap, y_center)
+            } else {
+                Point::new(content_bounds.x - popup_size.width - gap, y_center)
+            }
+        }
+        Position::Top => Point::new(x_aligned, content_bounds.y - popup_size.height - gap),
+        Position::Bottom => Point::new(x_aligned, content_bounds.y + content_bounds.height + gap),
+        Position::Left => Point::new(content_bounds.x - popup_size.width - gap, y_aligned),
+        Position::Right => Point::new(content_bounds.x + content_bounds.width + gap, y_aligned),
+    };
+
+    if snap_within_viewport {
+        position.x = position
+            .x
+            .max(viewport.x)
+            .min(viewport.x + viewport.width - popup_size.width);
+        position.y = position
+            .y
+            .max(viewport.y)
+            .min(viewport.y + viewport.height - popup_size.height);
+    }
+
+    position
 }
 
 /// The position of the popover.
@@ -478,7 +536,12 @@ where
             Popup::Transparent(e) => e.diff(tree),
         }
     }
-    fn layout(&mut self, tree: &mut adv_widget::Tree, renderer: &Renderer, limits: &layout::Limits) {
+    fn layout(
+        &mut self,
+        tree: &mut adv_widget::Tree,
+        renderer: &Renderer,
+        limits: &layout::Limits,
+    ) {
         match self {
             Popup::Opaque(o) => o.layout(tree, renderer, limits),
             Popup::Transparent(e) => e.layout(tree, renderer, limits),
@@ -496,7 +559,9 @@ where
     ) {
         match self {
             Popup::Opaque(o) => o.update(tree, event, layout, cursor, renderer, shell, viewport),
-            Popup::Transparent(e) => e.update(tree, event, layout, cursor, renderer, shell, viewport),
+            Popup::Transparent(e) => {
+                e.update(tree, event, layout, cursor, renderer, shell, viewport)
+            }
         }
     }
     fn draw(
@@ -551,7 +616,9 @@ where
     ) -> Vec<overlay::Element<'b, Message, Theme, Renderer>> {
         match self {
             Popup::Opaque(o) => o.overlay(tree, layout, renderer, viewport, translation, window),
-            Popup::Transparent(e) => e.overlay(tree, layout, renderer, viewport, translation, window),
+            Popup::Transparent(e) => {
+                e.overlay(tree, layout, renderer, viewport, translation, window)
+            }
         }
     }
 }
@@ -567,6 +634,8 @@ where
     on_close: Option<Message>,
     viewport: Rectangle,
     window: Size,
+    outside_since: Option<Instant>,
+    outside_close_delay: Option<Duration>,
 }
 
 impl<Message, Theme, Renderer> iced::advanced::overlay::Overlay<Message, Theme, Renderer>
@@ -575,10 +644,40 @@ where
     Message: Clone,
     Renderer: iced::advanced::Renderer,
 {
-    fn update(&mut self, event: &Event, cursor: mouse::Cursor, renderer: &Renderer, shell: &mut Shell<'_, Message>) {
+    fn update(
+        &mut self,
+        event: &Event,
+        cursor: mouse::Cursor,
+        renderer: &Renderer,
+        shell: &mut Shell<'_, Message>,
+    ) {
         let cursor_position = cursor.position();
         let is_inside = cursor_position.is_some_and(|p| self.popup_layout.bounds().contains(p));
         let is_over_base = cursor_position.is_some_and(|p| self.content_bounds.contains(p));
+        let is_outside = cursor_position.is_some_and(|p| {
+            !self.popup_layout.bounds().contains(p) && !self.content_bounds.contains(p)
+        });
+
+        if let Some(delay) = self.outside_close_delay {
+            if is_outside {
+                let now = Instant::now();
+                if self.outside_since.is_none() {
+                    self.outside_since = Some(now);
+                }
+
+                if self
+                    .outside_since
+                    .is_some_and(|started| now.duration_since(started) >= delay)
+                {
+                    if let Some(on_close) = self.on_close.take() {
+                        shell.publish(on_close);
+                    }
+                    return;
+                }
+            } else {
+                self.outside_since = None;
+            }
+        }
 
         if matches!(
             event,
@@ -646,7 +745,10 @@ where
             .operate(self.tree, self.popup_layout, &viewport, renderer, operation);
     }
 
-    fn overlay<'a>(&'a mut self, renderer: &Renderer) -> Vec<overlay::Element<'a, Message, Theme, Renderer>> {
+    fn overlay<'a>(
+        &'a mut self,
+        renderer: &Renderer,
+    ) -> Vec<overlay::Element<'a, Message, Theme, Renderer>> {
         self.popup.overlay(
             self.tree,
             self.popup_layout,

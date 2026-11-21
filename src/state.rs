@@ -27,7 +27,6 @@ use crate::widgets::ipg_container::{Container, ContainerStyle};
 use crate::widgets::ipg_date_picker::DatePicker;
 use crate::widgets::ipg_draw::Draw;
 use crate::widgets::ipg_events::Events;
-use crate::widgets::ipg_file_system::FileSystemDialog;
 use crate::widgets::ipg_float::Float;
 use crate::widgets::ipg_font::Font;
 use crate::widgets::ipg_font::IpgIcon;
@@ -35,7 +34,8 @@ use crate::widgets::ipg_grid::Grid;
 use crate::widgets::ipg_image::Image;
 use crate::widgets::ipg_input_float::{InputFloat, InputFloatStyle};
 use crate::widgets::ipg_input_int::{InputInt, InputIntStyle};
-use crate::widgets::ipg_menu::{Menu, MenuBarItem, MenuSubItem};
+use crate::widgets::ipg_menu::{Menu, MenuBar, MenuItem, SubMenu};
+use crate::widgets::ipg_menu_button::{MenuButton, MenuButtonStyle};
 use crate::widgets::ipg_mouse_area::MouseArea;
 use crate::widgets::ipg_opaque::Opaque;
 use crate::widgets::ipg_pick_list::{PickList, PickListStyle};
@@ -73,7 +73,6 @@ type PyObject = Py<PyAny>;
 #[derive(Debug, Clone)]
 pub enum Containers {
     CanvasDraw(Draw),
-    // CardClass(CardClass),
     ColorPicker(ColorPicker),
     Column(Column),
     Container(Container),
@@ -82,15 +81,16 @@ pub enum Containers {
     Grid(Grid),
     InputFloat(InputFloat),
     Menu(Menu),
-    MenuBarItem(MenuBarItem),
-    MenuSubItem(MenuSubItem),
+    MenuBar(MenuBar),
+    MenuButton(MenuButton),
+    SubMenu(SubMenu),
+    MenuItem(MenuItem),
     MouseArea(MouseArea),
     Opaque(Opaque),
     PopOver(PopOver),
     RichText(RichText),
     Sash(Sash),
     Stack(Stack),
-    TableBasic(TableBasic),
     Table(Table),
     TableHeader(TableHeader),
     TableBody(TableBody),
@@ -115,13 +115,13 @@ pub enum Widgets {
     ComboBoxInputStyle(ComboBoxInputStyle),
     ComboBoxMenuStyle(ComboBoxMenuStyle),
     ContainerStyle(ContainerStyle),
-    FileSystemDialog(FileSystemDialog),
     Font(Font),
     Icon(IpgIcon),
     Image(Image),
     InputFloatStyle(InputFloatStyle),
     InputInt(InputInt),
     InputIntStyle(InputIntStyle),
+    MenuButtonStyle(MenuButtonStyle),
     Palette(CustomPalette),
     PickList(PickList),
     PickListStyle(PickListStyle),
@@ -134,6 +134,7 @@ pub enum Widgets {
     SashStyle(SashStyle),
     ScrollableStyle(ScrollableStyle),
     Scroller(Scroller),
+    TableBasic(TableBasic),
     TableStyle(TableStyle),
     RailStyle(RailStyle),
     AutoScrollStyle(AutoScrollStyle),
@@ -185,7 +186,6 @@ macro_rules! ipg_widget_accessors {
 ipg_widget_accessors! {
     Button             => Button,              as_button,                as_button_mut;
     ButtonStyle        => ButtonStyle,         as_button_style,          as_button_style_mut;
-    // CardStyle          => CardStyle,           as_card_style,            as_card_style_mut;
     CheckBox           => CheckBox,            as_checkbox,              as_checkbox_mut;
     CheckboxStyle      => CheckboxStyle,       as_checkbox_style,        as_checkbox_style_mut;
     ComboBox           => ComboBox,            as_combobox,              as_combobox_mut;
@@ -198,6 +198,7 @@ ipg_widget_accessors! {
     InputFloatStyle    => InputFloatStyle,     as_input_float_style,     as_input_float_style_mut;
     InputInt           => InputInt,            as_input_int,             as_input_int_mut;
     InputIntStyle      => InputIntStyle,       as_input_int_style,       as_input_int_style_mut;
+    MenuButtonStyle    => MenuButtonStyle,     as_menu_button_style,     as_menu_button_style_mut;
     Palette            => CustomPalette,       as_palette,               as_palette_mut;
     PickList           => PickList,            as_pick_list,             as_pick_list_mut;
     PickListStyle      => PickListStyle,       as_pick_list_style,       as_pick_list_style_mut;
@@ -219,6 +220,7 @@ ipg_widget_accessors! {
     Space              => Space,               as_space,                 as_space_mut;
     Span               => Span,                as_span,                  as_span_mut;
     Svg                => Svg,                 as_svg,                   as_svg_mut;
+    TableBasic         => TableBasic,          as_table_basic,           as_table_basic_mut;
     TableStyle         => TableStyle,          as_table_style,           as_table_style_mut;
     Text               => Text,                as_text,                  as_text_mut;
     TextStyle          => TextStyle,           as_text_style,            as_text_style_mut;
@@ -262,8 +264,8 @@ ipg_container_accessors! {
     Grid         => Grid,         as_grid,            as_grid_mut;
     InputFloat   => InputFloat,   as_input_float,     as_input_float_mut;
     Menu         => Menu,         as_menu,            as_menu_mut;
-    MenuBarItem  => MenuBarItem,  as_menu_bar_item,   as_menu_bar_item_mut;
-    MenuSubItem  => MenuSubItem,  as_menu_sub_item,   as_menu_sub_item_mut;
+    MenuBar      => MenuBar,      as_menu_bar,        as_menu_bar_mut;
+    SubMenu      => SubMenu,      as_sub_menu,        as_sub_menu_mut;
     // MouseArea    => MouseArea,    as_mouse_area,      as_mouse_area_mut;
     Opaque       => Opaque,       as_opaque,          as_opaque_mut;
     PopOver      => PopOver,      as_popover,         as_popover_mut;

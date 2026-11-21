@@ -16,15 +16,13 @@ from types import TracebackType
 # Re-export everything that is directly imported (not wrapped)
 
 from .icedpygui import (
-    add_button_style as add_button_style,
-    add_card_style as add_card_style,
-    add_checkbox_style as add_checkbox_style,
     add_combobox_input_style as add_combobox_input_style,
     add_combobox_menu_style as add_combobox_menu_style,
     add_container_style as add_container_style,
     add_font_style as add_font_style,
     add_input_int_style as add_input_int_style,
     # add_menu_style as add_menu_style,
+    add_menu_button_style as add_menu_button_style,
     add_opaque_style as add_opaque_style,
     add_progress_bar_style as add_progress_bar_style,
     add_radio_style as add_radio_style,
@@ -41,15 +39,6 @@ from .icedpygui import (
     add_toggler_style as add_toggler_style,
     Arrow as Arrow,
     arrow_variants as arrow_variants,
-    ButtonParam as ButtonParam,
-    ButtonStyleParam as ButtonStyleParam,
-    ButtonStyleStd as ButtonStyleStd,
-    # CardParam as CardParam,
-    # CardStyleParam as CardStyleParam,
-    # CardStyleStd as CardStyleStd,
-    CheckboxParam as CheckboxParam,
-    CheckboxStyleStd as CheckboxStyleStd,
-    CheckboxStyleParam as CheckboxStyleParam,
     ComboBoxParam as ComboBoxParam,
     ComboBoxMenuStyleParam as ComboBoxMenuStyleParam,
     Color as Color,
@@ -62,9 +51,6 @@ from .icedpygui import (
     DividerDirection as DividerDirection,
     DividerParam as DividerParam,
     DividerStyleParam as DividerStyleParam,
-    FileSystemDialogParam as FileSystemDialogParam,
-    FileSystemDialogCallbackType as FileSystemDialogCallbackType,
-    get_dialog_filters as get_dialog_filters,
     get_user_data as get_user_data,
     update_user_data as update_user_data,
     get_widget_parameters as get_widget_parameters,
@@ -212,19 +198,19 @@ def add_button(
     style_arrow : Arrow, optional
         Sets an arrow icon style for the button.
     palette_id : int, optional
-        Sets the ID of a custom color palette for the button.
+        Sets the ID of a custom color palette, see py_palette_create.py.
     user_data : Any, optional
         Sets arbitrary data forwarded to callbacks.
     show : bool, default True
         Whether the button is visible.
-    active: bool, Optional
-         Whether to set the button status as Active.
-     hovered: bool, Optional
-         Whether to set the button status as Hovered.
-     pressed: bool, Optional
-         Whether to set the button status as Pressed.
-     disabled: bool, Optional
-         Whether to set the button status as Disabled.
+    status_active: bool, Optional
+        Whether to set the button status as Active.
+    status_disabled: bool, Optional
+        Whether to set the button status as Disabled.
+    status_hovered: bool, Optional
+        Whether to set the button status as Hovered.
+    status_pressed: bool, Optional
+        Whether to set the button status as Pressed.
     gen_id : int, optional
         Obtains an ID for a widget that has not been created;
         used for the gen_id parameter.
@@ -234,111 +220,394 @@ def add_button(
     int
         The numeric widget ID of the newly created button.
 
-    Usage
-    -----
-    ::
-
-        from icedpygui import (
-            Window,
-            Column,
-            Container,
-            add_button,
-            start_session)
-
-        def btn_cb(btn_id: int):
-            print(btn_id)
-
-        def cb_with_data(btn_id: int, data: any):
-            print(btn_id, data)
-
-        with Window(title="My App", center=True):
-            with Container(align_center=True, fill=True):
-                with Column(spacing=20):
-                        add_button(label="Press Me", on_press=btn_cb)
-                        add_button(
-                            label="Press Me",
-                            on_press=cb_with_data,
-                            user_data="Some Data"
-                        )
-
-        start_session()
+    Examples
+    --------
+    >>> from icedpygui import (
+    ...     Window,
+    ...     Column,
+    ...     Container,
+    ...     add_button,
+    ...     start_session)
+    >>>
+    >>> def btn_cb(btn_id: int):
+    ...     print(btn_id)
+    >>>
+    >>> def cb_with_data(btn_id: int, data: any):
+    ...     print(btn_id, data)
+    >>>
+    >>> with Window(title="My App", center=True):
+    ...     with Container(align_center=True, fill=True):
+    ...         with Column(spacing=20):
+    ...             add_button(label="Press Me", on_press=btn_cb)
+    ...             add_button(
+    ...                 label="Press Me",
+    ...                 on_press=cb_with_data,
+    ...                 user_data="Some Data"
+    ...             )
+    >>>
+    >>> start_session()
 
     """
     ...
 
-# def add_card(
-#     window_id: str,
-#     container_id: str,
-#     *,
-#     parent_id: str | None = None,
-#     head: str | None = None,
-#     body: str | None = None,
-#     is_open: bool = True,
-#     min_max_id: int | None = None,
-#     foot: str | None = None,
-#     gen_id: int | None = None,
-#     close_size: float | None = None,
-#     on_close: Any | None = None,
-#     width: float | None = None,
-#     width_fill: bool = False,
-#     height: float | None = None,
-#     height_fill: bool = False,
-#     max_width: float | None = None,
-#     max_height: float | None = None,
-#     padding: list[float] | None = None,
-#     padding_head: list[float] | None = None,
-#     padding_body: list[float] | None = None,
-#     padding_foot: list[float] | None = None,
-#     style_id: int | None = None,
-#     style_std: CardStyleStd | None = None,
-#     style_button: int | None = None,
-#     show: bool = True,
-#     user_data: Any | None = None,
-# ) -> int:
-#     """Adds a card widget.
+class ButtonParam:
+    """
+    Button parameters
 
-#     A widget must go into a container type,
+    Parameters
+    ----------
+    Clip: bool
+        Whether the label is clipped or not
+    Fill : bool
+        Whether the button fills available width and height.
+    FontId : int
+        Sets the ID of a custom font created with ``add_font_style``.
+    Height: float
+        The height of the button.
+    HeightFill: bool
+        Whether the button height fills the available space of a container.
+    Label: str
+        The label of the button.
+    Padding: list[float], one or four items
+        The padding around the button, [all sides], [top, right, bottom, left].
+    PaletteId : int
+        Sets the ID of a custom color palette, see py_palette_create.py.
+    Show: bool
+        Whether to show the button
+    StatusActive: bool
+        Whether to set the button status as Active.
+    StatusDisabled: bool
+        Whether to set the button status as Disabled.
+    StatusHovered: bool
+        Whether to set the button status as Hovered.
+    StatusPressed: bool
+        Whether to set the button status as Pressed.
+    StyleArrow: ButtonArrow
+        A button becomes a type of arrow.
+    StyleId: int
+        The id of the add_button_style() function
+    StyleStd: ButtonStyleStd
+        The standard styles for a button
+    Width: float
+        The width of the button
+    WidthFill: bool
+         Whether the button width fills the available space of a container.
+    """
+    Clip = ...
+    Fill = ...
+    FontId = ...
+    Height = ...
+    HeightFill = ...
+    Label = ...
+    Padding = ...
+    PaletteId = ...
+    Show = ...
+    StatusActive = ...
+    StatusDisabled = ...
+    StatusHovered = ...
+    StatusPressed = ...
+    StyleArrow = ...
+    StyleId = ...
+    StyleStd = ...
+    Width = ...
+    WidthFill = ...
 
-#     i.e. Container, Column, Row, etc.
 
-#     Usage::
+def add_button_style(
+    text_top_left: bool | None = None,
+    text_top_center: bool | None = None,
+    text_top_right: bool | None = None,
+    text_center_left: bool | None = None,
+    text_center: bool | None = None,
+    text_center_right: bool | None = None,
+    text_bottom_left: bool | None = None,
+    text_bottom_center: bool | None = None,
+    text_bottom_right: bool | None = None,
+    text_size: float | None = None,
+    wrapping_none: bool | None = None,
+    wrapping_glyph: bool | None = None,
+    wrapping_word_glyph: bool | None = None,
+    gradient_color_stops: list[Color] | None = None,
+    gradient_color_alpha_stops: list[float] | None = None,
+    gradient_rgba_stops: list[float, 4] | None = None,
+    gradient_offset_stops: list[float] | None = None,
+    gradient_degrees: float | None = None,
+    gradient_radians: float | None = None,
+    border_color: Color | None = None,
+    border_color_alpha: float | None = None,
+    border_rgba: list[float, 4] | None = None,
+    border_radius: list[float] | list[float, 4] | None = None,
+    border_width: float | None = None,
+    shadow_color: Color | None = None,
+    shadow_color_alpha: float | None = None,
+    shadow_rgba: list[float, 4] | None = None,
+    shadow_offset_xy: list[float, 2] | None = None,
+    shadow_blur_radius: float | None = None,
+    snap: bool | None = None,
+    gen_id: int | None = None,
+    ) -> int:
+    """Adds styling to a button
 
-#         with Window(title="My App", pos_centered=True) as wnd_id: (if needed)
-#             with Container(align_center=True):
-#                 add_card(head="Card Header", body="Card Body")
-#         start_session()
-#     """
-#     ...
+    There are 4 ways to add styling to a widget.  Widgets vary a bit
+    because some have statues like checked, pressed, etc.
+    1. Do nothing and the widgets default to one of the standard styles
+       which is usually primary but varies some from widget to widget.
+    2. You select one of the available standard styles (see below)
+    3. You create your own palette (see the palette example which gives a full explanation)
+    4. You add styling that is not set by any of the standard styles like gradient,
+       shadow, text parameters, border width and color.  These are listed below.
+
+    The standard style colors will vary depending on the theme selected
+    for the window. This makes sure that there is enough contrast between the
+    colors and the theme background to be seen.
+
+    Standard styles are:
+    Background, Danger, Primary, Secondary,
+    Subtle, Success, Warning, Text,
+
+    Each widget has a status where the color changes based on the state of the widget.
+    The status type will vary among the widgets due of the actions they produce.
+    For example, a button has a status of pressed and a checkbox has a status of checked.
+
+    The statuses are:
+    Active, Hovered, Pressed, Disabled
+
+    gradient — applied to the background instead of a solid color:
+      gradient_color_stops: list[Color, ≤8]
+      gradient_color_alpha_stops: list[float]
+      gradient_rgba_stops: list[list[float, 4], ≤8]
+        Up to 8 stops total (color + rgba combined).
+      gradient_offset_stops: list[float]
+        Offset positions for each stop (0.0–1.0).
+      gradient_degrees: float — angle in degrees
+      gradient_radians: float — angle in radians (takes priority over degrees)
+
+    shadow:
+      shadow_color, shadow_color_alpha, shadow_rgba
+        Shadow color.
+      shadow_offset_xy: list[float, 2]
+        Shadow offset [x, y].
+      shadow_blur_radius: float
+        Shadow blur radius.
+
+    text alignment (default: center):
+      text_top_left, text_top_center, text_top_right: bool
+      text_center_left, text_center, text_center_right: bool
+      text_bottom_left, text_bottom_center, text_bottom_right: bool
+
+    text_size: float — font size for the label
+
+    text wrapping (default: Word):
+      wrapping_none: bool — no wrapping
+      wrapping_glyph: bool — wrap at glyph boundary
+      wrapping_word_glyph: bool — wrap at word, fall back to glyph
+
+    border_radius: list[float] — [all] or [top-left, top-right, bottom-right, bottom-left]
+    border_width: float
+        Sets the border line width.  Unless border width is set, no other parameters take effect.
+    border_rounded: float
+        Whether to round the button box. Rounded overrides any other border settings.
+
+    snap: bool
+        Whether to snap rendering to pixel grid
+    gen_id: int, Optional
+        Obtain an ID for a widget not yet created; use for the gen_id parameter.
+
+    Examples
+    --------
+    >>> from icedpygui import (
+    ...     Window, Column, Container,
+    ...     ButtonStyleStd,
+    ...     add_button, add_button_style,
+    ...     Color, start_session)
+    >>>
+    >>> style = add_button_style(
+    ...     border_color=Color.ALICE_BLUE,
+    ...     border_width=2.0,
+    ...     border_rounded=5.0)
+    >>>
+    >>> with Window(title="Button Styling", center=True):
+    ...     with Container(align_center=True, fill=True):
+    ...         with Column(spacing=20.0):
+    ...             add_button(
+    ...                 label="Border Color and Width",
+    ...                 padding=[5.0],
+    ...                 style_id=style)
+    ...
+    ...             add_button(
+    ...                 label="Style Standard-Danger",
+    ...                 padding=[5.0],
+    ...                 style_std=ButtonStyleStd.Danger)
+    ...
+    ...             add_button(
+    ...                 label="Style Standard-Text",
+    ...                 padding=[5.0],
+    ...                 style_std=ButtonStyleStd.Text)
+    >>>
+    >>> start_session()
+    """
+    ...
+
+class ButtonStyleParam:
+    """
+    Button style parameters
+
+    Parameters
+    ----------
+    BorderColor: Color
+        Border color in Color format
+    BorderColorAlpha: float
+        Modifies the BorderColor alpha
+    BorderRadius: list[float]
+        The border radius [float]=all, [float, 4]=each individual one
+    BorderRgba :list[float, 4]
+        Border color in rgba format
+    BorderRounded: bool
+        Whether to round the corners of the border.
+    BorderWidth: float
+        The width of the border line
+    GradientColorAlphaStops: list[float]
+        List of alpha values for each gradient color stop
+    GradientColorStops: list[Color]
+        List of color stops for the gradient
+    GradientDegrees: float
+        Gradient angle in degrees
+    GradientRadians: float
+        Gradient angle in radians
+    GradientRgbaStops: list[list[float, 4]]
+        List of RGBA color stops for the gradient
+    ShadowBlurRadius: float
+        How much to blur the shadow radius
+    ShadowColor: Color
+        Shadow color in Color format
+    ShadowColorAlpha: float
+        Modifies the ShadowColor alpha
+    ShadowOffsetXy: list[float, 2]
+        The offset of the shadow towards the x and y directions
+    ShadowRgba: list[float, 4]
+        Shadow color in rgba format
+    Snap: bool
+        Whether to snap the button rendering
+    TextAlignBottomCenter: bool
+        Whether to align the label bottom center
+    TextAlignBottomLeft: bool
+        Whether to align the label bottom left
+    TextAlignBottomRight: bool
+        Whether to align the label bottom right
+    TextAlignCenter: bool
+        Whether to align the label centered (default)
+    TextAlignCenterLeft: bool
+        Whether to align the label center left
+    TextAlignCenterRight: bool
+        Whether to align the label center right
+    TextAlignTopCenter: bool
+        Whether to align the label top center
+    TextAlignTopLeft: bool
+        Whether to align the label top left
+    TextAlignTopRight: bool
+        Whether to align the label top right
+    TextSize: float
+        The size of the text
+    WrappingGlyph: bool
+        Enable glyph-based text wrapping
+    WrappingNone: bool
+        Disable text wrapping
+    WrappingWordGlyph: bool
+        Enable word or glyph text wrapping
+    """
+    BorderColor: Color
+    BorderColorAlpha: float
+    BorderRadius: list[float]
+    BorderRgba: list[float]
+    BorderRounded: bool
+    BorderWidth: float
+    GradientColorAlphaStops: list[float]
+    GradientColorStops: list[Color]
+    GradientDegrees: float
+    GradientRadians: float
+    GradientRgbaStops: list[list[float, 4]]
+    ShadowBlurRadius: float
+    ShadowColor: Color
+    ShadowColorAlpha: float
+    ShadowOffsetXy: list[float, 2]
+    ShadowRgba: list[float, 4]
+    Snap: bool
+    TextAlignBottomCenter: bool
+    TextAlignBottomLeft: bool
+    TextAlignBottomRight: bool
+    TextAlignCenter: bool
+    TextAlignCenterLeft: bool
+    TextAlignCenterRight: bool
+    TextAlignTopCenter: bool
+    TextAlignTopLeft: bool
+    TextAlignTopRight: bool
+    TextSize: float
+    WrappingGlyph: bool
+    WrappingNone: bool
+    WrappingWordGlyph: bool
+
+class ButtonStyleStd:
+    """
+    Standard styles for Button widget
+
+    Parameters
+    ----------
+    Background: bool
+        Sets the bkg color to that of the background
+    Danger:
+        Sets the bkg color to taht of a Danger
+    Primary: bool
+        Sets the bkg color to that of the Primary Theme
+    Secondary: bool
+        Sets the bkg color to that of the Secondary Theme
+    Subtle: bool
+        Sets the bkg color to a more sublr color
+    Success: bool
+        Sets the bkg color to that of the Success Theme
+    Warning: bool
+        Sets the bkg color to that of the Warning Theme
+    Text: bool
+        Sets the bkg color to that of the bakg Theme
+    """
+    Background=...
+    Danger=...
+    Primary=...
+    Secondary=...
+    Subtle=...
+    Success=...
+    Warning=...
+    Text=...
 
 def add_checkbox(
     *,
     parent_id: str | None = None,
-    on_toggle: Callable | None = None,
-    is_checked: bool = False,
-    label: str | None = None,
-    width: float | None = None,
-    width_fill: bool = False,
-    size: float | None = None,
-    spacing: float | None = None,
-    text_size: float | None = None,
-    text_line_height: float | None = None,
-    text_shaping: bool | None = None,
-    text_wrapping: bool | None = None,
-    text_font_id: int | None = None,
+    gen_id: int | None = None,
     icon_font_id: int | None = None,
-    icon: Icon | None = None,
-    icon_size: float | None = None,
     icon_line_height: float | None = None,
     icon_shaping: bool | None = None,
-    user_data: Any | None = None,
-    show: bool = True,
-    active: bool | None = None,
-    hovered: bool | None = None,
-    disabled: bool | None = None,
+    icon_size: float | None = None,
+    icon: Icon | None = None,
+    is_checked: bool = False,
+    label: str | None = None,
     lock_is_checked: bool | None = None,
+    on_toggle: Callable | None = None,
+    palette_id: int | None = None,
+    show: bool = True,
+    size: float | None = None,
+    spacing: float | None = None,
+    status_active: bool | None = None,
+    status_disabled: bool | None = None,
+    status_hovered: bool | None = None,
     style_id: int | None = None,
     style_std: int | None = None,
-    gen_id: int | None = None,
+    text_font_id: int | None = None,
+    text_line_height: float | None = None,
+    text_shaping: bool | None = None,
+    text_size: float | None = None,
+    text_wrapping: bool | None = None,
+    user_data: Any | None = None,
+    width_fill: bool = False,
+    width: float | None = None,
 ) -> int:
     """Adds a checkbox widget.
 
@@ -350,32 +619,8 @@ def add_checkbox(
     ----------
     parent_id : str
         Sets the parent container ID that this checkbox belongs to.
-    on_toggle : callable,  Optional
-        Sets the Callback method to invoke when the checkbox is toggled.
-    is_checked : bool, default False
-        Whether the checkbox starts in the checked state.
-    label : str,  Optional
-        Sets the Text label displayed next to the checkbox.
-    width : float,  Optional
-        Sets the Fixed width in logical pixels.
-    width_fill : bool, default False
-        Whether the checkbox fills available width.
-    size : float,  Optional
-        Sets the size of the checkbox square in logical pixels.
-    spacing : float,  Optional
-        Sets the Spacing between the checkbox square and the label.
-    text_size : float,  Optional
-        Sets the Font size for the label text.
-    text_line_height : float,  Optional
-        Sets the Line height for the label text.
-    text_wrapping_none: Optional[bool]
-        Sets the wrapping mode of the label to no wrapping, default is on a word.
-    text_wrapping_glyph: Optional[bool]
-        Sets the wrapping mode of the label to wrap on a glyph.
-    text_wrapping_word_glyph: Optional[bool]
-        Sets the wrapping mode of the label to wrap on a glyph or glyph.
-    text_font_id : int,  Optional
-        Sets the Font ID for the label text.
+    gen_id : int,  Optional
+        Obtains an ID of a widget that have not been created, used for the gen_id parameter.
     icon_font_id : int,  Optional
         Sets the Font ID for the checkbox icon.
     icon : Icon,  Optional
@@ -384,38 +629,375 @@ def add_checkbox(
         Sets the Size of the checkbox icon.
     icon_line_height : float,  Optional
         Sets the Line height of the checkbox icon.
-    user_data : Any,  Optional
-        Sets the Arbitrary data forwarded to callbacks.
-    show : bool, default True
-        Whether the checkbox is visible.
-    active : bool, Optional
-        Sets the checkbox to the Active status.
-    hovered : bool, Optional
-        Sets the checkbox to the Hovered status.
-    disabled : bool, Optional
-        Sets the checkbox to the Disabled status.
+    is_checked : bool, default False
+        Whether the checkbox starts in the checked state.
+    label : str,  Optional
+        Sets the Text label displayed next to the checkbox.
     lock_is_checked: bool, Optional
         Keeps the check or unchecked value to True or False.
+    palette_id: int, Optional
+        Sets the ID of a custom color palette, see py_palette_create.py.
+    on_toggle : callable,  Optional
+        Sets the Callback method to invoke when the checkbox is toggled.
+    show : bool, default True
+        Whether the checkbox is visible.
+    size : float,  Optional
+        Sets the size of the checkbox square in logical pixels.
+    spacing : float,  Optional
+        Sets the Spacing between the checkbox square and the label.
+    status_active : bool, Optional
+        Sets the checkbox to the Active status.
+    status_hovered : bool, Optional
+        Sets the checkbox to the Hovered status.
+    status_disabled : bool, Optional
+        Sets the checkbox to the Disabled status.
     style_id : int,  Optional
         Sets the ID of a custom style created with ``add_checkbox_style``.
     style_std : CheckboxStyleStd,  Optional
         Sets the predefined standard style variant.
-    gen_id : int,  Optional
-        Obtains an ID of a widget that have not been created, used for the gen_id parameter.
+    text_font_id : int,  Optional
+        Sets the Font ID for the label text.
+    text_line_height : float,  Optional
+        Sets the Line height for the label text.
+    text_size : float,  Optional
+        Sets the Font size for the label text.
+    text_wrapping_glyph: Optional[bool]
+        Sets the wrapping mode of the label to wrap on a glyph.
+    text_wrapping_none: Optional[bool]
+        Sets the wrapping mode of the label to no wrapping, default is on a word.
+    text_wrapping_word_glyph: Optional[bool]
+        Sets the wrapping mode of the label to wrap on a glyph or glyph.
+    user_data : Any,  Optional
+        Sets the Arbitrary data forwarded to callbacks.
+    width : float,  Optional
+        Sets the Fixed width in logical pixels.
+    width_fill : bool, default False
+        Whether the checkbox fills available width.
 
-    Usage:
-        def checked(chk_id: int, is_checked: bool):
-            print(chk_id, is_checked)
+    Returns
+    -------
+    int
+        The numeric widget ID of the newly created button.
 
-        with Window(title="My App", pos_centered=True):
-            with Container(align_center=True):
-                add_checkbox(
-                    label="Check Me",
-                    on_toggle=checked)
-
-        start_session()
+    Examples
+    --------
+    >>> def checked(chk_id: int, is_checked: bool):
+    ...     print(chk_id, is_checked)
+    >>>
+    >>> with Window(title="My App", pos_centered=True):
+    ...     with Container(align_center=True):
+    ...         add_checkbox(
+    ...             label="Check Me",
+    ...             on_toggle=checked)
+    >>>
+    >>> start_session()
     """
     ...
+
+class CheckboxParam:
+    """
+    The Checkbox parameters.
+
+    Parameters
+    ----------
+    Fill: bool
+        Whether to fill the containing width.
+    Icon: Icon
+        Sets the override Icon to use instead of the checkmark, i.e. a X icon.
+    IconFontId: int
+        The id of the get_font() method
+    IconLineHeight: float
+        Sets the line height of the icon, defaults 1.3
+    IconSize: float
+        Sets the size of the icon.
+    IsChecked: bool
+        Whether the checkbox is checked or not.
+    Label: str
+        Sets the label of the checkbox.
+    LockIsChecked: bool
+        Whether to lock the checkmark so it can't be changed.
+    PaletteId : int
+        Sets the ID of a custom color palette, see py_palette_create.py.
+    Show: bool
+        Whether to show the checkbox.
+    Size: float
+        The size of the square.
+    Spacing: float
+        The spacing between the square and label.
+    StatusActive: bool
+        Sets and holds the active status of the checkbox.
+    StatusDisabled: bool
+        Sets and holds the disabled status of the checkbox.
+    StatusHovered: bool
+        Sets and holds the hovered status of the checkbox.
+    StyleId: int
+        The id of the add_checkbox_style() function.
+    StyleStd: StyleStd
+        One of the standard styles of CheckboxStyleStd enum.
+    TextFontId: int
+        Sets the ID of the label font from get_font().
+    TextLineHeight: float
+        The height of the text box holding the label.
+    TextSize: float
+        The size of the label text.
+    TextWrappingGlyph: bool
+        Whether the label wraps on a glyph.
+    TextWrappingNone: bool
+        Sets for no wrapping.
+    TextWrappingWordGlyph: bool
+        Whether to wrap on a word or glyph.
+    Width: float
+        The width of the entire checkbox.
+
+    Examples
+        --------
+        Given a widget id for a checkbox = wid
+        >>>
+        >>> update_widget(wid, CheckboxParam.Width, 100.0)
+        >>>
+    """
+    Fill: bool
+    Icon: Icon
+    IconFontId: int
+    IconLineHeight: float
+    IconSize: float
+    IsChecked: bool
+    Label: str
+    LockIsChecked: bool
+    PaletteId: int
+    Show: bool
+    Size: float
+    Spacing: float
+    StatusActive: bool
+    StatusDisabled: bool
+    StatusHovered: bool
+    StyleId: int
+    StyleStd: CheckboxStyleStd
+    TextFontId: int
+    TextLineHeight: float
+    TextSize: float
+    TextWrappingGlyph: bool
+    TextWrappingNone: bool
+    TextWrappingWordGlyph: bool
+    Width: float
+    ...
+
+def add_checkbox_style(
+    bkg_color_alpha: float | None = None,
+    bkg_color: Color | None = None,
+    bkg_rgba: list[float, 4] | None = None,
+    border_color_alpha: float | None = None,
+    border_color: Color | None = None,
+    border_radius_bottom_left: float | None = None,
+    border_radius_bottom_right: float | None = None,
+    border_radius_bottom: float | None = None,
+    border_radius_left: float | None = None,
+    border_radius_right: float | None = None,
+    border_radius_top_left: float | None = None,
+    border_radius_top_right: float | None = None,
+    border_radius_top: float | None = None,
+    border_radius: list[float, 4] | list[float, 4] | None = None,
+    border_rgba: list[float, 4] | None = None,
+    border_rounded: float | None = None,
+    border_width: float | None = None,
+    gen_id: int | None = None,
+    icon_color_alpha: float | None = None,
+    icon_color: Color | None = None,
+    icon_rgba: list[float, 4] | None = None,
+    text_color_alpha: float | None = None,
+    text_color: Color | None = None,
+    text_rgba: list[float, 4] | None = None,
+    ) -> int:
+    """Adds styling to a checkbox
+
+    Notes
+    --------
+    Two styles can be defined:
+
+    custom - defined by using an add_style method
+
+    First, define the style, this can be placed anywhere as long as the
+    add_checkbox can access the style value, type int.
+
+    Then, add your checkbox(es) as usual and use the style_id=your_style parameter.
+
+    standard - using the style_std parameter and the CheckboxStyleStd class
+
+    Just use the style_std=CheckboxStyleStd.Primary parameter in the add_checkbox method.
+
+    Additional style can be done by using the custom_palette.
+
+    Parameters
+    ----------
+    bkg_color: Color
+        Background color in Color format.
+    bkg_color_alpha: float
+        Sets the alpha value of the background Color.
+    bkg_rgba: list[float, 4]
+        Background color in rgba format.
+    icon_color: Color, Optional
+        Sets the icon color.
+    icon_color_alpha: float, Optional
+        Sets the alpha value of the icon Color.
+    icon_rgba: list[float, 4], Optional
+        The icon color in rgba format.
+    border_color: Color
+        Border color in Color format.
+    border_color_alpha: float
+        Sets the alpha of the border Color.
+    border_rgba: list[float, 4]
+        Border color in rgba format.
+    border_radius: list[float, 4], Optional
+        Sets the radius for all four corners as [top_left, top_right, bottom_right, bottom_left].
+    border_rounded: float, Optional
+        Sets the radius for all four corners to the same value.
+    border_radius_top: float, Optional
+        Sets the radius for top-left and top-right corners.
+    border_radius_top_left: float, Optional
+        Sets the radius for the top-left corner.
+    border_radius_top_right: float, Optional
+        Sets the radius for the top-right corner.
+    border_radius_bottom: float, Optional
+        Sets the radius for bottom-left and bottom-right corners.
+    border_radius_bottom_left: float, Optional
+        Sets the radius for the bottom-left corner.
+    border_radius_bottom_right: float, Optional
+        Sets the radius for the bottom-right corner.
+    border_radius_left: float, Optional
+        Sets the radius for top-left and bottom-left corners.
+    border_radius_right: float, Optional
+        Sets the radius for top-right and bottom-right corners.
+    border_width: float
+        The width of the border line.
+    text_color: Color
+        The label text color in Color format.
+    text_rgba: list[float, 4]
+        The label text color in rgba format.
+
+    Examples
+    --------
+    >>> from icedpygui import (Window, Column, Container, CheckboxStyleStd,
+    ...     add_checkbox, add_checkbox_style, Color, start_session)
+    >>>
+    >>> style = add_checkbox_style(
+    ...     border_color=Color.RED,
+    ...     border_width=3.0)
+    >>>
+    >>> with Window(title="Checkbox Styling", center=True):
+    ...     with Container(align_center=True, width_fill=True, height_fill=True):
+    ...         with Column(spacing=20.0):
+    ...             add_checkbox(
+    ...                 label="Border Color and Width",
+    ...                 style_id=style)
+    ...
+    ...             add_checkbox(
+    ...                 label="Secondary",
+    ...                 style_std=CheckboxStyleStd.Secondary)
+    >>>
+    >>> start_session()
+    """
+
+class CheckboxStyleParam:
+    """
+    Checkbox style parameters
+
+    Parameters
+    ----------
+    BkgColor: Color
+        Background color in Color format.
+    BkgColorAlpha: float
+        Sets the alpha value of the background Color.
+    BkgRgba: list[float, 4]
+        Background color in rgba format.
+    BorderColor: Color
+        Border color in Color format.
+    BorderColorAlpha: float
+        Sets the alpha of the border Color.
+    BorderRadius: list[float, 4], Optional
+        Sets the radius for all four corners as [top_left, top_right, bottom_right, bottom_left].
+    BorderRadiusBottom: float, Optional
+        Sets the radius for bottom-left and bottom-right corners.
+    BorderRadiusBottomLeft: float, Optional
+        Sets the radius for the bottom-left corner.
+    BorderRadiusBottomRight: float, Optional
+        Sets the radius for the bottom-right corner.
+    BorderRadiusLeft: float, Optional
+        Sets the radius for top-left and bottom-left corners.
+    BorderRadiusRight: float, Optional
+        Sets the radius for top-right and bottom-right corners.
+    BorderRadiusTop: float, Optional
+        Sets the radius for top-left and top-right corners.
+    BorderRadiusTopLeft: float, Optional
+        Sets the radius for the top-left corner.
+    BorderRadiusTopRight: float, Optional
+        Sets the radius for the top-right corner.
+    BorderRgba: list[float, 4]
+        Border color in rgba format.
+    BorderRounded: float, Optional
+        Sets the radius for all four corners to the same value.
+    BorderWidth: float
+        The width of the border line.
+    IconColor: Color, Optional
+        Sets the icon color.
+    IconColorAlpha: float, Optional
+        Sets the alpha value of the icon Color.
+    IconRgba: list[float, 4], Optional
+        The icon color in rgba format.
+    TextColor: Color
+        The label text color in Color format.
+    TextColorAlpha: float, Optional
+        Sets the alpha value of the text_color.
+    TextRgba: list[float, 4]
+        The label text color in rgba format.
+
+    Examples
+        --------
+        Given a checkbox style id = wid
+        >>> update_widget(wid, CheckboxStyleParam.TextColor, Color.WHITE)
+    """
+    BkgColor: Color
+    BkgColorAlpha: float
+    BkgRgba: list[float, 4]
+    BorderColor: Color
+    BorderColorAlpha: float
+    BorderRadius: list[float, 4]
+    BorderRadiusBottom: float
+    BorderRadiusBottomLeft: float
+    BorderRadiusBottomRight: float
+    BorderRadiusLeft: float
+    BorderRadiusRight: float
+    BorderRadiusTop: float
+    BorderRadiusTopLeft: float
+    BorderRadiusTopRight: float
+    BorderRgba: list[float, 4]
+    BorderRounded: float
+    BorderWidth: float
+    IconColor: Color
+    IconColorAlpha: float
+    IconRgba: list[float, 4]
+    TextColor: Color
+    TextColorAlpha: float
+    TextRgba: list[float, 4]
+
+class CheckboxStyleStd:
+    """
+    Standard styles for Checkbox widget
+
+    Parameters
+    ----------
+    Danger:
+        Sets the bkg color to taht of a Danger
+    Primary: bool
+        Sets the bkg color to that of the Primary Theme
+    Secondary: bool
+        Sets the bkg color to that of the Secondary Theme
+    Success: bool
+        Sets the bkg color to that of the Success Theme
+    """
+    Danger=...
+    Primary=...
+    Secondary=...
+    Success=...
 
 
 def add_combobox(
@@ -720,70 +1302,6 @@ def add_event_window(
     """
     ...
 
-def add_file_system_dialog(
-    select_file: bool | None = None,
-    select_files: bool | None = None,
-    select_folder: bool | None = None,
-    select_folders: bool | None = None,
-    load_file: bool | None = None,
-    load_file_for_editor: bool | None = None,
-    save_file: bool | None = None,
-    file_name: str | None = None,
-    file_content: str | None = None,
-    filters: list[str] | None = None,
-    default_directory: str | None = None,
-    title: str | None = None,
-    show_hidden_files: bool | None = None,
-    remember_last_directory: bool | None = None,
-    update_json_file: bool | None = None,
-    results_callback: callable | None = None,
-    ) -> int:
-    """Create a file system dialog for selecting folders or files.
-
-    Multiple modes are supported: selecting single/multiple files or folders,
-    loading file content, or saving files. Results are returned via callback.
-
-    Parameters
-    ----------
-    select_file : bool, optional
-        Whether to select a single file name
-    select_files : bool, optional
-        Whether to select multiple file names
-    select_folder : bool, optional
-        Whether to select a single folder name
-    select_folders : bool, optional
-        Whether to select multiple folder names
-    load_file : bool, optional
-        Whether to load a single file's content
-    load_file_for_editor : bool, optional
-        Whether to load a file for editing in a text editor
-    save_file : bool, optional
-        Whether to save/create a new file
-    file_name : str, optional
-        Default file name for save operations
-    file_content : str, optional
-        Initial file content or loaded file content
-    filters : list[str], optional
-        List of file type filters (e.g., ["*.txt", "*.yml", "*.py"]).
-        Default: ["*"] (all files)
-    default_directory : str, optional
-        Starting directory path for the dialog
-    title : str, optional
-        Custom title for the dialog window
-    show_hidden_files : bool, optional
-        Whether to show hidden files and folders
-    remember_last_directory : bool, optional
-        Whether to remember the last opened directory
-    update_json_file : bool, optional
-        Whether to update a JSON configuration file with the result
-    results_callback : callable, optional
-        Callback function to invoke when file/folder selection completes
-
-    Returns
-    -------
-    int
-        The numeric widget ID of the newly created file system dialog
-    """
 def add_float(
     window_id: str ,
     container_id: str,
@@ -1845,62 +2363,38 @@ def add_stack(
     ...
 
 def add_table_basic(
-    *,
-    window_id: str,
-    container_id: str,
-    headers: list[str],
-    body: list[list[float]],
-    footers: list[str],
+    body: list[list[str]],
+    body_row_heights: float,
     column_widths: list[float],
-    height: float,
-    parent_id: str | None = None,
-    width: float | None = None,
-    resizer_width: float | None = None,
-    header_enabled: bool = True,
-    header_row_height: float | None = None,
-    header_scrollbar_height: float | None = None,
-    header_scrollbar_margin: float | None = None,
-    header_scroller_height: float | None = None,
-    header_scrollbar_spacing: float | None = None,
-    header_row_spacing: float | None = None,
-    footer_height: float | None = None,
-    footer_scrollbar_height: float | None = None,
-    footer_scrollbar_margin: float | None = None,
-    footer_scroller_height: float | None = None,
-    footer_scrollbar_spacing: float | None = None,
-    footer_spacing: float | None = None,
-    body_scrollbar_width: float | None = None,
-    body_scrollbar_margin: float | None = None,
-    body_scroller_width: float | None = None,
-    body_scrollbar_spacing: float | None = None,
-    body_row_highlight: bool = True,
-    custom_header_rows: int | None = None,
-    custom_footer_rows: int | None = None,
-    control_columns: list[int] | None = None,
-    column_proportional_resize: bool = True,
-    row_spacing: float | None = None,
-    row_height: float | None = None,
-    header_body_spacing: float | None = None,
-    body_footer_spacing: float | None = None,
-    resize_columns_enabled: bool = True,
-    min_column_width: float | None = None,
-    text_size: float | None = None,
-    table_width_fixed: bool = True,
+    *,
+    body_row_highlight: bool = False,
+    body_row_outline: bool = True,
+    file_path: str | None = None,
+    footer_height: float =30.0,
+    footer: list[str] | None = None,
     gen_id: int | None = None,
-    style_id: int | None = None,
-    scrollable_style_id: int | None = None,
-    show: bool,
-    on_column_resize: Any | None = None,
+    header_height: float | None = None,
+    header: list[str] | None = None,
+    min_size: float = 10.0,
     on_column_resize_release: Any | None = None,
+    on_column_resize: Any | None = None,
+    parent_id: str | None = None,
+    resize_columns_enabled: bool = True,
+    sash_size: float = 4.0,
+    sash_style_id: int | None = None,
+    scrollable_height: float | None = None,
+    show: bool = True,
+    style_id: int | None = None,
+    text_size: float | None = None,
     user_data: Any | None = None,
 ) -> int:
     """_summary_
 
     Args:
-        parent_id (str | None, optional): _description_. Defaults to None.
+
 
     Returns:
-        int: container id
+        int: widget id
     """
     ...
 def add_tool_tip(

@@ -26,427 +26,6 @@ def clipboard_callback(
     ) -> int:
     """invoke callback(req_id, text) for clipboard."""
 
-def add_button_style(
-    text_top_left: bool | None = None,
-    text_top_center: bool | None = None,
-    text_top_right: bool | None = None,
-    text_center_left: bool | None = None,
-    text_center: bool | None = None,
-    text_center_right: bool | None = None,
-    text_bottom_left: bool | None = None,
-    text_bottom_center: bool | None = None,
-    text_bottom_right: bool | None = None,
-    text_size: float | None = None,
-
-    wrapping_none: bool | None = None,
-    wrapping_glyph: bool | None = None,
-    wrapping_word_glyph: bool | None = None,
-
-    gradient_color_stops: list[Color] | None = None,
-    gradient_color_alpha_stops: list[float] | None = None,
-    gradient_rgba_stops: list[float, 4] | None = None,
-    gradient_offset_stops: list[float] | None = None,
-
-    gradient_degrees: float | None = None,
-    gradient_radians: float | None = None,
-
-    border_color: Color | None = None,
-    border_color_alpha: float | None = None,
-    border_rgba: list[float, 4] | None = None,
-
-    border_radius: list[float] | list[float, 4] | None = None,
-    border_width: float | None = None,
-
-    shadow_color: Color | None = None,
-    shadow_color_alpha: float | None = None,
-    shadow_rgba: list[float, 4] | None = None,
-
-    shadow_offset_xy: list[float, 2] | None = None,
-    shadow_blur_radius: float | None = None,
-
-    snap: bool | None = None,
-    gen_id: int | None = None,
-    ) -> int:
-    """Adds styling to a button
-
-    Styles can be defined in 3 ways:
-    custom - Only defines using the class parameters (limited for colors)
-    palette - define a new palette, see palette example (range of colors and statuses)
-    standard - using the style_std parameter and the ButtonStyleStd class
-
-    Parameters
-    ----------
-
-
-    Usage
-    -----
-    ::
-        from icedpygui import (
-            Window,
-            Column,
-            Container,
-            ButtonStyleStd,
-            add_button,
-            add_button_style,
-            Color,
-            start_session)
-
-            style = add_button_style(
-                border_color=Color.ALICE_BLUE,
-                border_width=2.0,
-                border_radius=[5.0])
-
-        with Window(title="Button Styling", center=True):
-            with Container(align_center=True, fill=True):
-                with Column(spacing=20.0):
-                    add_button(
-                        label="Border Color and Width",
-                        padding=[5.0],
-                        style_id=style)
-
-                    add_button(
-                        label="Style Standard-Danger",
-                        padding=[5.0],
-                        style_std=ButtonStyleStd.Danger)
-
-                    add_button(
-                        label="Style Standard-Text",
-                        padding=[5.0],
-                        style_std=ButtonStyleStd.Text)
-
-        start_session()
-    """
-
-def add_card_style(
-        background_color: Color | None = None,
-        background_color_alpha: float | None = None,
-        background_rgba: list[float, 4] | None = None,
-        border_radius: float | None = None,
-        border_width: float | None = None,
-        border_color: Color | None = None,
-        border_color_alpha: float | None = None,
-        border_rgba: list[float] | list[float, 4] | None = None,
-        head_background_color: Color | None = None,
-        head_background_color_alpha: float | None = None,
-        head_background_rgba: list[float, 4] | None = None,
-        body_background_color: Color | None = None,
-        body_background_color_alpha: float | None = None,
-        body_background_rgba: list[float, 4] | None = None,
-        foot_background_color: Color | None = None,
-        foot_background_color_alpha: float | None = None,
-        foot_background_rgba: list[float, 4] | None = None,
-        gen_id: int | None = None,
-    ) -> int:
-    """
-    Adds styling to the Card
-
-    Run the doc_helper.py to see the individual parameter definitions.
-
-    Notes
-    --------
-    Two styles can be defined:
-
-    custom - defined by using an add_style method
-
-    First, define the style, this can be placed anywhere as long as the
-    add_card can access the style value, type int.
-
-    Then, add your card(s) as usual and use the style_id=your_style parameter.
-
-    standard - using the style_std parameter and the CardStyleStd class
-
-    Just use the style_std=CardStyleStd.Primary parameter in the add_card method.
-
-    Examples
-    --------
-    >>> from icedpygui import Window, Column, Container, CardStyleStd, \
-    >>>     add_card, add_card_style, Color, start_session
-    >>>
-    >>> style = add_card_style(
-    >>>             background_color=Color.LIGHT_BLUE,
-    >>>             border_color=Color.ALICE_BLUE,
-    >>>             border_width=2.0,
-    >>>             border_radius=[5.0])
-    >>>
-    >>> with Window(title="Card Styling", center=True):
-    >>>     with Container(align_center=True, width_fill=True, height_fill=True):
-    >>>         with Column(spacing=20.0):
-    >>>             add_card(
-    >>>                 label="Border Color and Width",
-    >>>                     padding=[5.0],
-    >>>                     style_id=style)
-    >>>
-    >>>             add_card(
-    >>>                 label="Style Standard-Danger",
-    >>>                     padding=[5.0],
-    >>>                     style_std=ButtonStyleStd.Danger)
-    >>>
-    >>> start_session()
-    >>>
-    """
-
-def add_checkbox_style(
-        background_color: Color | None = None,
-        background_color_alpha: float | None = None,
-        background_rgba: list[float, 4] | None = None,
-
-        border_color: Color | None = None,
-        border_color_alpha: float | None = None,
-        border_rgba: list[float, 4] | None = None,
-
-        border_radius: list[float, 4] | list[float, 4] | None = None,
-        border_rounded: float | None = None,
-
-        border_radius_top: float | None = None,
-        border_radius_top_left: float | None = None,
-        border_radius_top_right: float | None = None,
-
-        border_radius_bottom: float | None = None,
-        border_radius_bottom_left: float | None = None,
-        border_radius_bottom_right: float | None = None,
-
-        border_radius_left: float | None = None,
-        border_radius_right: float | None = None,
-
-        border_width: float | None = None,
-
-        icon_color: Color | None = None,
-        icon_color_alpha: float | None = None,
-        icon_rgba: list[float, 4] | None = None,
-
-        text_color: Color | None = None,
-        text_color_alpha: float | None = None,
-        text_rgba: list[float, 4] | None = None,
-        gen_id: int | None = None,
-    ) -> int:
-    """Adds styling to a checkbox
-
-    Notes
-    --------
-    Two styles can be defined:
-
-    custom - defined by using an add_style method
-
-    First, define the style, this can be placed anywhere as long as the
-    add_checkbox can access the style value, type int.
-
-    Then, add your checkbox(es) as usual and use the style_id=your_style parameter.
-
-    standard - using the style_std parameter and the CheckboxStyleStd class
-
-    Just use the style_std=CheckboxStyleStd.Primary parameter in the add_checkbox method.
-
-    Additional style can be done by using the custom_palette.
-
-    Parameters
-    ----------
-    bkg_color: Color
-        Background color in Color format.
-    bkg_color_alpha: float
-        Sets the alpha value of the background Color.
-    bkg_rgba: list[float, 4]
-        Background color in rgba format.
-    icon_color: Color, Optional
-        Sets the icon color.
-    icon_color_alpha: float, Optional
-        Sets the alpha value of the icon Color.
-    icon_rgba: list[float, 4], Optional
-        The icon color in rgba format.
-    border_color: Color
-        Border color in Color format.
-    border_color_alpha: float
-        Sets the alpha of the border Color.
-    border_rgba: list[float, 4]
-        Border color in rgba format.
-    border_radius: list[float, 4], Optional
-        Sets the radius for all four corners as [top_left, top_right, bottom_right, bottom_left].
-    border_rounded: float, Optional
-        Sets the radius for all four corners to the same value.
-    border_radius_top: float, Optional
-        Sets the radius for top-left and top-right corners.
-    border_radius_top_left: float, Optional
-        Sets the radius for the top-left corner.
-    border_radius_top_right: float, Optional
-        Sets the radius for the top-right corner.
-    border_radius_bottom: float, Optional
-        Sets the radius for bottom-left and bottom-right corners.
-    border_radius_bottom_left: float, Optional
-        Sets the radius for the bottom-left corner.
-    border_radius_bottom_right: float, Optional
-        Sets the radius for the bottom-right corner.
-    border_radius_left: float, Optional
-        Sets the radius for top-left and bottom-left corners.
-    border_radius_right: float, Optional
-        Sets the radius for top-right and bottom-right corners.
-    border_width: float
-        The width of the border line.
-    text_color: Color
-        The label text color in Color format.
-    text_rgba: list[float, 4]
-        The label text color in rgba format.
-
-    Examples
-    --------
-    >>> from icedpygui import Window, Column, Container, CheckboxStyleStd, \
-    >>>     add_checkbox, add_checkbox_style, Color, start_session
-    >>>
-    >>> style = add_checkbox_style(
-    >>>         border_color=Color.RED,
-    >>>         border_width=3.0)
-    >>>
-    >>> with Window(title="Checkbox Styling", center=True):
-    >>>     with Container(align_center=True, width_fill=True, height_fill=True):
-    >>>         with Column(spacing=20.0):
-    >>>             add_checkbox(
-    >>>                 label="Border Color and Width",
-    >>>                     style_id=style)
-    >>>
-    >>>             add_checkbox(
-    >>>                 label="Secondary",
-    >>>                 style_std=CheckboxStyleStd.Secondary)
-    >>>
-    >>> start_session()
-    >>>
-    """
-class CheckboxParam:
-    """
-    The Checkbox parameters
-
-    Parameters
-    ----------
-    IconSize: float
-        Size of the icon.
-    IconX: bool
-        Whether to use and x or the default check.
-    IsChecked: bool
-        Whether the checkbox is checked or not.
-    Label: str
-        THe label of the checkbox.
-    Show: bool
-        Whether to show the checkbox.
-    Size: float
-        The size of the square.
-    Spacing: float
-        The spacing between the square and label.
-    StyleId: int
-        The id of the add_checkbox_style() function.
-    StyleStandard: StyleStandard
-        One of the standard styles.
-    TextLineHeight: float
-        The height of the text box holding the label.
-    TextSize: float
-        The size of the label text.
-    Width: float
-        The width of the entire checkbox.
-    WidthFill: bool
-        Whether the checkbox width fills the available space of the container.
-
-    Examples
-        --------
-        Given a widget id for a checkbox = wid
-        >>> update_widget(wid, CheckboxParam.Width, 100.0)
-    """
-    IconSize: float
-    IconX: bool
-    IsChecked: bool
-    Label: str
-    Show: bool
-    Size: float
-    Spacing: float
-    StyleId: int
-    StyleStandard: ButtonStyleStd
-    TextLineHeight: float
-    TextSize: float
-    Width: float
-    WidthFill: bool
-
-class CheckboxStyleParam:
-    """
-    Checkbox style parameters
-
-    Parameters
-    ----------
-    BkgColor: Color
-        Background color in Color format.
-    BkgColorAlpha: float
-        Sets the alpha value of the background Color.
-    BkgRgba: list[float, 4]
-        Background color in rgba format.
-    IconColor: Color, Optional
-        Sets the icon color.
-    IconColor_alpha: float, Optional
-        Sets the alpha value of the icon Color.
-    IconRgba: list[float, 4], Optional
-        The icon color in rgba format.
-    BorderColor: Color
-        Border color in Color format.
-    BorderColorAlpha: float
-        Sets the alpha of the border Color.
-    BorderRgba: list[float, 4]
-        Border color in rgba format.
-    BorderRadius: list[float, 4], Optional
-        Sets the radius for all four corners as [top_left, top_right, bottom_right, bottom_left].
-    BorderRounded: float, Optional
-        Sets the radius for all four corners to the same value.
-    BorderRadiusTop: float, Optional
-        Sets the radius for top-left and top-right corners.
-    BorderRadiusTopLeft: float, Optional
-        Sets the radius for the top-left corner.
-    BorderRadiusTopRight: float, Optional
-        Sets the radius for the top-right corner.
-    BorderRadiusBottom: float, Optional
-        Sets the radius for bottom-left and bottom-right corners.
-    BorderRadiusBottomLeft: float, Optional
-        Sets the radius for the bottom-left corner.
-    BorderRadiusBottomRight: float, Optional
-        Sets the radius for the bottom-right corner.
-    BorderRadiusLeft: float, Optional
-        Sets the radius for top-left and bottom-left corners.
-    BorderRadiusRight: float, Optional
-        Sets the radius for top-right and bottom-right corners.
-    BorderWidth: float
-        The width of the border line.
-    TextColor: Color
-        The label text color in Color format.
-    TextRgba: list[float, 4]
-        The label text color in rgba format.
-
-    Examples
-        --------
-        Given a checkbox style id = wid
-        >>> update_widget(wid, CheckboxStyleParam.TextColor, Color.WHITE)
-    """
-    BkgColor: Color
-    BkgColorAlpha: float
-    BkgRgba: list[float, 4]
-
-    IconColor: Color
-    IconColorAlpha: float
-    IconRgba: list[float, 4]
-
-    BorderColor: Color
-    BorderColorAlpha: float
-    BorderRgbaColor: list[float, 4]
-
-    BorderRadius: list[float, 4]
-    BorderRounded: float
-
-    BorderRadius_top: float
-    BorderRadius_top_left: float
-    BorderRadius_top_right: float
-
-    BorderRadius_bottom: float
-    BorderRadius_bottom_left: float
-    BorderRadius_bottom_right: float
-
-    BorderRadius_left: float
-    BorderRadius_right: float
-
-    BorderWidth: float
-
-    TextColor: Color
-    TextRgba: list[float, 4]
-    TextRgba: list[float, 4]
 
 def add_color_picker_style(
         background_color: Color | None = None,
@@ -625,28 +204,26 @@ def add_container_style(
 
     Examples
     --------
-    >>> from icedpygui import Window, Column, Container, ContainerStyleStd, \
-    >>>     add_container_style, add_text, Color, start_session
+    >>> from icedpygui import (Window, Column, Container, ContainerStyleStd,
+    ...     add_container_style, add_text, Color, start_session)
     >>>
     >>> style = add_container_style(
-    >>>             bkg_color=Color.AQUA,
-    >>>             border_color=Color.BLUE,
-    >>>             border_radius=[10.0],
-    >>>             border_width=5.0,
-    >>>             shadow_color=Color.YELLOW)
+    ...     bkg_color=Color.AQUA,
+    ...     border_color=Color.BLUE,
+    ...     border_radius=[10.0],
+    ...     border_width=5.0,
+    ...     shadow_color=Color.YELLOW)
     >>>
     >>> with Window(title="Container Styling", center=True):
-    >>>     with Column(spacing=20.0, padding=[20.0], align_center=True, width_fill=True):
-    >>>
-    >>>         with Container(align_center=True, width=400.0, height=200.0, style_id=style):
-    >>>             add_text(content="Some Container Custom Styling")
-    >>>
-    >>>         with Container(align_center=True, width=400.0, height=200.0,
-    >>>                        style_std=ContainerStyleStd.BorderedBox):
-    >>>             add_text(content="Some Container Standard Styling\n BorderedBox")
+    ...     with Column(spacing=20.0, padding=[20.0], align_center=True, width_fill=True):
+    ...         with Container(align_center=True, width=400.0, height=200.0, style_id=style):
+    ...             add_text(content="Some Container Custom Styling")
+    ...
+    ...         with Container(align_center=True, width=400.0, height=200.0,
+    ...                        style_std=ContainerStyleStd.BorderedBox):
+    ...             add_text(content="Some Container Standard Styling\n BorderedBox")
     >>>
     >>> start_session()
-    >>>
     """
 
 def add_font_style(
@@ -713,23 +290,54 @@ class FontWeight:
     Semibold=''
     Thin=''
 
-def add_menu_bar_style(
-        base_color: Color | None = None,
-        base_rgba: list[float, 4] | None = None,
-        border_color: Color | None = None,
-        border_rgba: list[float, 4] | None = None,
-        border_radius: list[float] | list[float, 4] | None = None,
-        border_width: float | None = None,
-        shadow_color: Color | None = None,
-        shadow_rgba: list[float, 4] | None = None,
-        shadow_offset_xy: list[float, 2] | None = None,
-        shadow_blur_radius: float | None = None,
-        gen_id: int | None = None,
+
+def add_menu_button_style(
+    gradient_color_stops: list[Color] | None = None,
+    gradient_color_alpha_stops: list[float] | None = None,
+    gradient_rgba_stops: list[float, 4] | None = None,
+    gradient_offset_stops: list[float] | None = None,
+
+    gradient_degrees: float | None = None,
+    gradient_radians: float | None = None,
+
+    border_color: Color | None = None,
+    border_color_alpha: float | None = None,
+    border_rgba: list[float, 4] | None = None,
+
+    border_radius: list[float] | list[float, 4] | None = None,
+    border_width: float | None = None,
+
+    shadow_color: Color | None = None,
+    shadow_color_alpha: float | None = None,
+    shadow_rgba: list[float, 4] | None = None,
+
+    shadow_offset_xy: list[float, 2] | None = None,
+    shadow_blur_radius: float | None = None,
+
+    snap: bool | None = None,
+    gen_id: int | None = None,
     ) -> int:
-
     """
-    Adds style in the menu itself, not the menu items or bar items
+    Adds style to the MenuButton, not the contents of the button.
 
+    Examples
+    --------
+    >>> style_id = add_menu_button_style(border_color=Color.BLUE, border_width=2.0)
+    >>>
+    >>> def on_item_press(_mb_id: int, label: str):
+    ...     print(f"You pressed {label}")
+    >>>
+    >>> with Window(title="Simple Menu", center=True, size=[300, 300]):
+    ...     with Container(fill=True):
+    ...         with Menu():
+    ...             with MenuBar(label="File"):
+    ...                 with MenuItem():
+    ...                     with MenuButton(on_press=on_item_press,
+    ...                                     user_data="New File",
+    ...                                     style_id=style_id):
+    ...                         add_text(content="New File...")
+    >>>
+    >>> start_session()
     """
 
 def add_menu_style(
@@ -757,19 +365,8 @@ def add_menu_style(
 
     """
 
-class MenuSeparatorType:
-    """
-    The separator types id used.
-    """
-    Circle=''
-    Dot=''
-    Label=''
-    Line=''
-
-
 def add_menu_separator_style(
         style_id: str,
-        separator_type: MenuSeparatorType,
         *,
         height: float=20.0,
         height_fill: bool=False,
@@ -2174,218 +1771,6 @@ class Arrow:
     SendArrowUp = ...
     SendArrowUpFill = ...
 
-class ButtonParam:
-    """
-    Button parameters
-
-    Parameters
-    ----------
-    Clip: bool
-        Whether the label is clipped or not
-    Height: float
-        The height of the button.
-    HeightFill: bool
-        Whether the button height fills the available space of a container.
-    IfMenuBtn: bool
-        Whether the button is used in a mnau widget, effects alignment
-    Label: str
-        The label of the button.
-    Padding: list[float], one or four items
-        The padding around the button, [all sides], [top, right, bottom, left].
-    Show: bool
-        Whether to show the button
-    StyleArrow: ButtonArrow
-        A button becomes a type of arrow.
-    StyleId: int
-        The id of the add_button_style() function
-    StyleStd: ButtonStyleStd
-        The standard styles for a button
-    TextAlignBottomCenter: bool
-        Whether to align label botton center.
-    TextAlignBottomLeft: bool
-        Whether to align the label bottom left.
-    TextAlignBottomRight: bool
-        Whether to align the label bottom right.
-    TextAlignCenter: bool
-        Whether to align the label centered (default).
-    TextAlignCenterLeft: bool
-        Whether to align the label center left.
-    TextAlignCenterRight: bool
-        Whether to align the label center right
-    TextAlignTopCenter: bool
-        Whether to align the label top center.
-    TextAlignTopLeft: bool
-        Whether to align the label top left.
-    TextAlignTopRight: bool
-        Whether to align the label top right.
-    TextSize: float
-        The size of the text.
-    Width: float
-        The width of the button
-    WidthFill: bool
-         Whether the button width fills the available space of a container.
-    """
-    Clip = ...
-    Fill = ...
-    FontId = ...
-    Height = ...
-    HeightFill = ...
-    Label = ...
-    Padding = ...
-    Show = ...
-    StatusActive = ...
-    StatusDisabled = ...
-    StatusHovered = ...
-    StatusPressed = ...
-    StyleArrow = ...
-    StyleId = ...
-    StyleStd = ...
-    Width = ...
-    WidthFill = ...
-
-class ButtonStyleParam:
-    """
-    Button style parameters
-
-    Parameters
-    ----------
-    BkgColor: Color
-        Background color in Color format
-    BkgColorAlpha: float
-        Modifies the BkgColor alpha
-    BkgRgba :list[float, 4]
-        Background color in rgba format
-    TextColor: Color
-        The label text color in Color format
-    TextColorAlpha: float
-        Modifies the TextColor alpha
-    TextRgba: list[float, 4]
-        The label text color in rgba format
-    TextAlignBottomCenter: bool
-        Whether to align the label bottom center
-    TextAlignBottomLeft: bool
-        Whether to align the label bottom left
-    TextAlignBottomRight: bool
-        Whether to align the label bottom right
-    TextAlignCenter: bool
-        Whether to align the label centered (default)
-    TextAlignCenterLeft: bool
-        Whether to align the label center left
-    TextAlignCenterRight: bool
-        Whether to align the label center right
-    TextAlignTopCenter: bool
-        Whether to align the label top center
-    TextAlignTopLeft: bool
-        Whether to align the label top left
-    TextAlignTopRight: bool
-        Whether to align the label top right
-    TextSize: float
-        The size of the text
-    WrappingNone: bool
-        Disable text wrapping
-    WrappingGlyph: bool
-        Enable glyph-based text wrapping
-    WrappingWordGlyph: bool
-        Enable word or glyph text wrapping
-    GradientColorStops: list[Color]
-        List of color stops for the gradient
-    GradientColorAlphaStops: list[float]
-        List of alpha values for each gradient color stop
-    GradientRgbaStops: list[list[float, 4]]
-        List of RGBA color stops for the gradient
-    GradientDegrees: float
-        Gradient angle in degrees
-    GradientRadians: float
-        Gradient angle in radians
-    BorderColor: Color
-        Border color in Color format
-    BorderColorAlpha: float
-        Modifies the BorderColor alpha
-    BorderRgba :list[float, 4]
-        Border color in rgba format
-    BorderRadius: list[float]
-        The border radius [float]=all, [float, 4]=each individual one
-    BorderWidth: float
-        The width of the border line
-    ShadowColor: Color
-        Shadow color in Color format
-    ShadowColorAlpha: float
-        Modifies the ShadowColor alpha
-    ShadowRgba: list[float, 4]
-        Shadow color in rgba format
-    ShadowOffsetXy: list[float, 2]
-        The offset of the shadow towards the x and y directions
-    ShadowBlurRadius: float
-        How much to blur the shadow radius
-    Snap: bool
-        Whether to snap the button rendering
-    """
-    TextAlignBottomCenter: bool
-    TextAlignBottomLeft: bool
-    TextAlignBottomRight: bool
-    TextAlignCenter: bool
-    TextAlignCenterLeft: bool
-    TextAlignCenterRight: bool
-    TextAlignTopCenter: bool
-    TextAlignTopLeft: bool
-    TextAlignTopRight: bool
-    TextSize: float
-
-    WrappingNone: bool
-    WrappingGlyph: bool
-    WrappingWordGlyph: bool
-
-    GradientColorStops: list[Color]
-    GradientColorAlphaStops: list[float]
-    GradientRgbaStops: list[list[float, 4]]
-    GradientDegrees: float
-    GradientRadians: float
-
-    BorderColor: Color
-    BorderColorAlpha: float
-    BorderRgba: list[float]
-    BorderRadius: list[float]
-    BorderWidth: float
-
-    ShadowColor: Color
-    ShadowColorAlpha: float
-    ShadowRgba: list[float, 4]
-    ShadowOffsetXy: list[float, 2]
-    ShadowBlurRadius: float
-
-    Snap: bool
-
-class ButtonStyleStd:
-    """
-    Standard styles for Button widget
-
-    Parameters
-    ----------
-    Background: bool
-        Sets the bkg color to that of the background
-    Danger:
-        Sets the bkg color to taht of a Danger
-    Primary: bool
-        Sets the bkg color to that of the Primary Theme
-    Secondary: bool
-        Sets the bkg color to that of the Secondary Theme
-    Subtle: bool
-        Sets the bkg color to a more sublr color
-    Success: bool
-        Sets the bkg color to that of the Success Theme
-    Warning: bool
-        Sets the bkg color to that of the Warning Theme
-    Text: bool
-        Sets the bkg color to that of the bakg Theme
-    """
-    Background=...
-    Danger=...
-    Primary=...
-    Secondary=...
-    Subtle=...
-    Success=...
-    Warning=...
-    Text=...
 
 
 class DrawMode:
@@ -2543,7 +1928,6 @@ class ColorPickerParam:
     Clip: bool
     Show: bool
     StyleId: int
-    StyleStandard: ButtonStyleStd
     Width: float
     WidthFill: bool
 
@@ -2746,19 +2130,6 @@ class DividerStyleParam:
     BorderWidth: float
     BorderRadius: float
     Transparent: bool
-
-class FileSystemDialogParam:
-    """FileSystemDialogParams"""
-    SelectFile: bool
-    SelectFolder: bool
-    SelectFileForLoad: bool
-    SaveFile: bool
-    Filters: list[str]
-    InitialDirectory: bool
-    ShowHiddenFiles: bool
-    RememberLastDirectory: bool
-    UpdateJsonFile: bool
-
 
 class FloatParam:
     """FloatParam
@@ -3103,37 +2474,6 @@ class MenuParam:
 #     ShadowRgbaColor:list[float, 4]
 #     ShadowOffsetXY:list[float, 2]
 #     ShadowBlurRadius:float
-
-
-class MenuSeparatorStyleParam:
-    """Menu Separator style parameters"""
-    SeparatorType:MenuSeparatorType
-    Width:float
-    WidthFill:bool
-    Height:float
-    HeightFill:bool
-    QuadRatios:list[float, 2]
-    SeparatorColor:Color
-    SeparatorRgbaColor:list[float, 4]
-    SeparatorBorderColor:Color
-    SeparatorBorderRgbaColor:list[float, 4]
-    SeparatorBorderRadius:list[float]
-    SeparatorBorderWidth:float
-    SeparatorShadowColor:Color
-    SeparatorShadowRgbaColor:list[float, 4]
-    SeparatorShadowOffset:float
-    SeparatorShadowBlurRadius:float
-    BackgroundColor:Color
-    BackgroundRgbaColor:list[float, 4]
-    BackgroundBorderColor:Color
-    BackgroundBorderRbgaColor:list[float, 4]
-    BackgroundBorderWidth:float
-    BackgroundBorderRadius:list[float]
-    BackgroundShadowColor:Color
-    BackgroundShadowRbgaColor:list[float, 4]
-    BackgroundShadowOffset:float
-    BackgroundShadowBlurRadius:float
-
 
 class MenuType:
     """

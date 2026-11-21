@@ -1,7 +1,7 @@
 //! ipg_text
 use std::collections::HashMap;
 
-use iced::{Length, widget};
+use iced::widget;
 use iced::widget::text::{Style, Wrapping};
 use iced::{Element, Widget, alignment};
 
@@ -12,7 +12,6 @@ use crate::app::Message;
 use crate::graphics::colors::Color;
 use crate::py_api::helpers::get_len;
 use crate::state::Widgets;
-use crate::widgets::ipg_menu::MenuStyleOverrides;
 use crate::widgets::widget_param_update::{WidgetParamUpdate, set_t_value};
 
 #[derive(Debug, Clone)]
@@ -297,17 +296,10 @@ impl TextStyle {
         content: String,
         font_id: Option<usize>,
         widgets: &HashMap<usize, Widgets>,
-        menu_overrides: Option<MenuStyleOverrides>,
     ) -> Option<Element<'a, Message>> {
         let font_opt = self.lookup(widgets, font_id).and_then(Widgets::as_font).cloned();
 
-        let width = 
-            if menu_overrides.as_ref().and_then(|o| o.width_fill) == Some(true) 
-                    && (self.fill, self.width_fill, self.width ) == (None, None, None) {
-            Length::Fill
-        } else {
-            get_len(self.fill, self.width_fill, self.width)
-        };
+        let width = get_len(self.fill, self.width_fill, self.width);
 
         let txt = widget::Text::new(content.clone())
             .width(width)
@@ -377,14 +369,7 @@ impl TextStyle {
             (_, _, _, _, _, _, _, _, Some(true)) => txt
                 .align_x(alignment::Horizontal::Right)
                 .align_y(alignment::Vertical::Top),
-            _ => {
-                if menu_overrides.as_ref().and_then(|o| o.align_center) == Some(true) {
-                    txt.align_x(alignment::Horizontal::Center)
-                        .align_y(alignment::Vertical::Center)
-                } else {
-                    txt
-                }
-            }
+            _ => txt
         };
 
         // Set the font

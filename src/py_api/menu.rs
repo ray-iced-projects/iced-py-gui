@@ -1,89 +1,35 @@
 //! Menu module - provides add_menu pyfunction
 
-use std::collections::HashMap;
-
 use pyo3::prelude::*;
-use pyo3::{Py, PyAny, pyfunction};
-type PyObject = Py<PyAny>;
+use pyo3::pyfunction;
 
-use crate::widgets::callbacks::CallbackName;
-use crate::widgets::ipg_button::ButtonStyleStd;
+use crate::access_state;
 use crate::widgets::ipg_container::ContainerStyleStd;
-use crate::widgets::ipg_menu::{Menu, MenuBarItem, MenuSubItem, get_position};
-use crate::{access_state, add_callback_name_to_mutex, add_user_data_to_mutex};
+use crate::widgets::ipg_menu::get_alignment;
+use crate::widgets::ipg_menu::{Menu, MenuBar, MenuItem, SubMenu, get_position};
 use crate::state::{Containers, get_id, set_state_cont_wnd_ids, set_state_of_container};
-
 
 
 /// Add a menu widget.
 ///
-/// A horizontal menu bar with dropdown menus.  Each top-level bar
-/// widget and its dropdown items are grouped inside a ``MenuBarItem``
-/// context manager.  The first child of each ``MenuBarItem`` is
-/// rendered on the bar; the remaining children become dropdown items.
+/// Creates a root menu container that holds menu bars. Use ``add_menu_bar``
+/// within the menu's context to add top-level menu items (e.g., "File", "Edit").
 ///
-/// Per-dropdown settings (width, spacing, offset, padding,
-/// close_on_item_click, close_on_background_click) are now set on
-/// each ``MenuBarItem`` instead of as vectors here.
+/// Usage pattern:
+/// ```python
+/// with Menu():
+///     with MenuBar(label="File", ...):
+///         # Add menu items and widgets here
+/// ```
 ///
 /// Parameters
 /// ----------
 /// window_id : str
-///     Sets the window this menu belongs to.
+///     The window this menu belongs to.
 /// container_id : str
-///     Sets the unique string identifier for the menu.
+///     Unique identifier for this menu.
 /// parent_id : str, Optional
-///     Sets the parent container ID.  Defaults to the window itself.
-/// items_close_on_click_global : bool, Optional
-///     Global default for closing dropdowns on item click.  Used
-///     when neither the per-Item nor per-dropdown value is set.
-///     Defaults to ``False``.
-/// items_close_on_background_click_global : bool, Optional
-///     Global default for closing dropdowns on background click.
-///     Used when neither the per-Item nor per-dropdown value is
-///     set.  Defaults to ``False``.
-/// height : float, Optional
-///     Sets the fixed height of the menu bar in logical pixels.
-/// padding : list of float, Optional
-///     Sets the padding inside the menu bar as ``[all]``,
-///     ``[vertical, horizontal]``, or
-///     ``[top, right, bottom, left]``.
-/// spacing : float, Optional
-///     Sets the horizontal spacing between bar items.
-/// width : float, Optional
-///     Sets the fixed width of the menu bar in logical pixels.
-/// width_fill : bool, Optional
-///     Whether to fill the width of a container holding the menu bar.
-/// close_on_bar_item_click : bool, Optional
-///     Whether the dropdown closes when a menu bar item is clicked.
-/// close_on_bar_background_click : bool, Optional
-///     Whether the dropdown closes when clicking outside the menu bar.
-/// cursor_bounds_margin: float, Optional
-///     Sets the margin where, if the cursor moves outside this area,
-///     the menu will be closed.
-/// scroll_speed_line: float, Optional
-///     The speed of the scrolling when items are out of the screen or container.
-///     The default is 60 lines which is 1 notch of the mouse wheel.
-/// scroll_speed_pixel: float, Optional
-///     The scroll_speed_pixels is only for Trackpads and high-precision scroll
-///     wheels that report exact pixel deltas.
-///     Laptops with trackpads typically produce this. The pixel multiplier
-///     (default 1.0) is usually used but you can change if you want.
-/// on_select : callable, Optional
-///     Sets the callback method to invoke when a menu item is
-///     selected.
-/// style_id : int, Optional
-///     Sets the ID of a custom style created with
-///     ``add_menu_style``.
-/// style_std_primary : bool, Optional
-///     Whether to use the primary standard style.
-/// show : bool, default True
-///     Whether the menu is visible.
-/// user_data : Any, Optional
-///     Sets arbitrary data forwarded to callbacks.
-/// gen_id : int, Optional
-///     Obtains an ID of a widget that have not been created, used
-///     for the gen_id parameter.
+///     Parent container ID. Defaults to the window itself.
 ///
 /// Returns
 /// -------
@@ -94,89 +40,19 @@ use crate::state::{Containers, get_id, set_state_cont_wnd_ids, set_state_of_cont
 #[pyo3(signature = ( 
     window_id,
     container_id,
-    bar_labels,
-    bar_widths,
-    parent_id=None,
-    bar_container_style_id=None,
-    bar_container_style_std=None,
-    bar_container_palette_id=None,
-    bar_labels_text_style_id=None,
-    bar_labels_text_font_id=None,
-    bar_btn_style_id=None,
-    bar_btn_style_std=None,
-    bar_btn_palette_id=None,
-    bar_btn_font_id=None,
+    parent_id,
+    bar_item_spacing=None,
     padding=None,
-    spacing=None,
-    height=None,
-    dropdown_open_auto=None,
-    dropdown_open_top=None,
-    dropdown_open_bottom=None,
-    dropdown_open_left=None,
-    dropdown_open_right=None,
-    close_on_bar_item_click=None,
-    close_on_bar_background_click=None,
-    items_close_on_click_global=None,
-    items_close_on_background_click_global=None,
-    on_bar_item_press=None,
-    on_bar_item_enter=None,
-    on_bar_item_exit=None,
-    show=true, 
-    user_data=None, 
-    gen_id=None
     ))]
 pub fn add_menu(
     window_id: String,
     container_id: String,
-    bar_labels: Vec<String>,
-    bar_widths: Vec<f32>,
     parent_id: Option<String>,
-    bar_container_style_id: Option<usize>,
-    bar_container_style_std: Option<ContainerStyleStd>,
-    bar_container_palette_id: Option<usize>,
-    bar_labels_text_style_id: Option<usize>,
-    bar_labels_text_font_id: Option<usize>,
-    bar_btn_style_id: Option<usize>,
-    bar_btn_style_std: Option<ButtonStyleStd>,
-    bar_btn_palette_id: Option<usize>,
-    bar_btn_font_id: Option<usize>,
+    bar_item_spacing: Option<f32>,
     padding: Option<Vec<f32>>,
-    spacing: Option<f32>,
-    height: Option<f32>,
-    dropdown_open_auto: Option<bool>,
-    dropdown_open_top: Option<bool>,
-    dropdown_open_bottom: Option<bool>,
-    dropdown_open_left: Option<bool>,
-    dropdown_open_right: Option<bool>,
-    close_on_bar_item_click: Option<bool>,
-    close_on_bar_background_click: Option<bool>,
-    items_close_on_click_global: Option<bool>,
-    items_close_on_background_click_global: Option<bool>,
-    on_bar_item_press: Option<PyObject>,
-    on_bar_item_enter: Option<PyObject>,
-    on_bar_item_exit: Option<PyObject>,
-    show: bool,
-    user_data: Option<PyObject>,
-    gen_id: Option<usize>,
 ) -> PyResult<usize> 
 {
-    let id = get_id(gen_id);
-
-    if let Some(py) = on_bar_item_press {
-        add_callback_name_to_mutex(id, CallbackName::OnBarPress, py);
-    }
-
-    if let Some(py) = on_bar_item_enter {
-        add_callback_name_to_mutex(id, CallbackName::OnBarEnter, py);
-    }
-
-    if let Some(py) = on_bar_item_exit {
-        add_callback_name_to_mutex(id, CallbackName::OnBarExit, py);
-    }
-
-    if let Some(py) = user_data {
-        add_user_data_to_mutex(id, py);
-    }
+    let id = get_id(None);
 
     let prt_id = match parent_id {
         Some(id) => id,
@@ -189,37 +65,17 @@ pub fn add_menu(
 
     set_state_cont_wnd_ids(&mut state, &window_id, container_id, id, "add_menu".to_string());
 
-    let items = bar_labels.len();
-
     state.containers.insert(id, Containers::Menu(
         Menu {
             id,
-            bar_labels,
-            bar_widths,
-            bar_container_style_id,
-            bar_container_style_std,
-            bar_container_palette_id,
-            bar_labels_text_style_id,
-            bar_labels_text_font_id,
-            bar_btn_style_id,
-            bar_btn_style_std,
-            bar_btn_palette_id,
-            bar_btn_font_id,
+            bar_item_spacing,
             padding,
-            spacing,
-            height,
-            close_on_bar_item_click,
-            close_on_bar_background_click,
-            items_close_on_click_global,
-            items_close_on_background_click_global,
-            show,
-            is_open: vec![false; items],
-            dropdown_is_open: vec![HashMap::new(); items],
-            dropdown_open_auto,
-            dropdown_open_top,
-            dropdown_open_bottom,
-            dropdown_open_left,
-            dropdown_open_right,
+            is_open: vec![],
+            open_submenus: vec![],
+            pending_submenu: None,
+            pending_timer: None,
+            pending_close: None,
+            close_timer: None,
         }));
 
     drop(state);
@@ -227,15 +83,75 @@ pub fn add_menu(
 }
 
 
+/// Add a menu bar (top-level menu item).
+///
+/// Creates a top-level menu bar item with a label (e.g., "File", "Edit").
+/// The dropdown panel opens when the item is hovered. Add menu items and
+/// widgets within this menu bar's context.
+///
+/// Usage pattern:
+/// ```python
+/// with Menu():
+///     with MenuBar(label="File", width=60, dropdown_width=150):
+///         with MenuItem(...):
+///             with MenuButton(on_press=item_pressed):
+///                 ipg.add_text(...)
+/// ```
+///
+/// Parameters
+/// ----------
+/// window_id : str
+///     The window this menu bar belongs to.
+/// container_id : str
+///     Unique identifier for this menu bar.
+/// label : str
+///     Text displayed on the menu bar (e.g., "File", "Edit").
+/// width : float
+///     Width of the menu bar item in logical pixels.
+/// dropdown_width : float
+///     Width of the dropdown panel in logical pixels.
+/// str_id : str, Optional
+///     String ID for debugging/tracking.
+/// label_size : float, Optional
+///     Font size of the label text.
+/// parent_id : str, Optional
+///     Parent container ID. Defaults to the menu.
+/// spacing : float, Optional
+///     Vertical spacing between dropdown items.
+/// gap : float, Optional
+///     Gap between items.
+/// padding : list of float, Optional
+///     Padding inside the dropdown panel.
+/// dropdown_open_auto : bool, Optional
+///     Whether to auto-position the dropdown.
+/// dropdown_open_top : bool, Optional
+///     Open dropdown above the bar item.
+/// dropdown_open_bottom : bool, Optional
+///     Open dropdown below the bar item.
+/// dropdown_open_left : bool, Optional
+///     Align dropdown to the left.
+/// dropdown_open_right : bool, Optional
+///     Align dropdown to the right.
+/// container_style_id : int, Optional
+///     Custom container style ID.
+/// container_style_std : ContainerStyleStd, Optional
+///     Standard container styling.
+///
+/// Returns
+/// -------
+/// int
+///     The numeric widget ID of the newly created menu bar.
+///
 #[pyfunction]
 #[pyo3(signature = ( 
     window_id,
     container_id,
+    label,
+    width,
+    dropdown_width,
+    str_id=None,
+    label_size=None,
     parent_id=None,
-    width=None,
-    width_fill=None,
-    height=None,
-    height_fill=None,
     spacing=None,
     gap=None,
     padding=None,
@@ -244,17 +160,22 @@ pub fn add_menu(
     dropdown_open_bottom=None,
     dropdown_open_left=None,
     dropdown_open_right=None,
+    dropdown_align_start=None,
+    dropdown_align_center=None,
+    dropdown_align_end=None,
     container_style_id=None,
     container_style_std=None,
+    snap_within_viewport=None,
     ))]
-pub fn add_menu_bar_item(
+pub fn add_menu_bar(
     window_id: String,
     container_id: String,
+    label: String,
+    width: f32,
+    dropdown_width: f32,
+    str_id: Option<String>,
+    label_size: Option<f32>,
     parent_id: Option<String>,
-    width: Option<f32>,
-    width_fill: Option<bool>,
-    height: Option<f32>,
-    height_fill: Option<bool>,
     spacing: Option<f32>,
     gap: Option<f32>,
     padding: Option<Vec<f32>>,
@@ -263,8 +184,12 @@ pub fn add_menu_bar_item(
     dropdown_open_bottom: Option<bool>,
     dropdown_open_left: Option<bool>,
     dropdown_open_right: Option<bool>,
+    dropdown_align_start: Option<bool>,
+    dropdown_align_center: Option<bool>,
+    dropdown_align_end: Option<bool>,
     container_style_id: Option<usize>,
     container_style_std: Option<ContainerStyleStd>,
+    snap_within_viewport: Option<bool>,
 ) -> PyResult<usize> 
 {
     let id = get_id(None);
@@ -283,27 +208,38 @@ pub fn add_menu_bar_item(
             dropdown_open_right,
         ];
 
-    let position = get_position(positions);
+    let position = get_position(positions, true);
+
+    let alignments = [
+        dropdown_align_start,
+        dropdown_align_center,
+        dropdown_align_end,
+    ];
+
+    let alignment = get_alignment(alignments);
     
     set_state_of_container(id, window_id.clone(), Some(container_id.clone()), prt_id);
 
     let mut state = access_state();
 
-    set_state_cont_wnd_ids(&mut state, &window_id, container_id, id, "add_menu_bar_item".to_string());
+    set_state_cont_wnd_ids(&mut state, &window_id, container_id, id, "add_menu_bar".to_string());
 
-    state.containers.insert(id, Containers::MenuBarItem(
-        MenuBarItem {
+    state.containers.insert(id, Containers::MenuBar(
+        MenuBar {
             id,
-            position,
+            label,
+            label_size,
             width,
-            width_fill,
-            height,
-            height_fill,
+            dropdown_width,
+            str_id,
+            position,
+            alignment,
             spacing,
             gap,
             padding,
             container_style_id,
             container_style_std,
+            snap_within_viewport,
         }));
 
     drop(state);
@@ -311,84 +247,206 @@ pub fn add_menu_bar_item(
 }
 
 
-/// Add a menu sub-item container.
+/// Add a nested submenu.
 ///
-/// Used inside a ``MenuBarItem`` (or another ``MenuSubItem``) to create
-/// a nested sub-menu.  The first child added to ``MenuSubItem`` is the
-/// trigger widget shown in the parent dropdown; all subsequent children
-/// become the items of the child menu that opens on hover.
+/// Creates a submenu that opens within a parent menu item (on hover).
+/// Add menu items and widgets within this submenu's context to create
+/// nested dropdown levels.
+///
+/// Usage pattern:
+/// ```python
+/// with Menu():
+///     with MenuBar(label="File", width=50.0):
+///         # NOTE: The MenuItem before a SubMenu DOES NOT use MenuButton
+///         # This prevents the label reacting to being pressed versus opening
+///         # the submenu.
+///         with MenuItem():
+///             add_text(content="Open Recent")
+///             with SubMenu(width=200): # The SubMenu needs to be in the MenuItems 'with'
+///                 with MenuItem():
+///                     add_text(content="~/document/iced_menu")
+/// ```
 ///
 /// Parameters
 /// ----------
 /// window_id : str
-///     Sets the window this sub-item belongs to.
+///     The window this submenu belongs to.
 /// container_id : str
-///     Sets the unique string identifier for the sub-item.
+///     Unique identifier for this submenu.
+/// width : float
+///     Width of the submenu panel in logical pixels.
 /// parent_id : str, Optional
-///     Sets the parent container ID.  Defaults to the window itself.
-/// width : float, Optional
-///     Sets the width of this sub-menu panel in logical pixels.
+///     Parent container ID. Defaults to the window.
+/// str_id : str, Optional
+///     String ID for debugging/tracking.
 /// spacing : float, Optional
-///     Sets the vertical spacing between sub-menu items.
-/// offset : float, Optional
-///     Sets the offset of the sub-menu panel relative to its trigger.
+///     Vertical spacing between submenu items.
+/// gap : float, Optional
+///     Gap between items.
 /// padding : list of float, Optional
-///     Sets the padding inside the sub-menu panel.
-/// close_on_item_click : bool, Optional
-///     Whether the sub-menu closes when an item is clicked.
-/// close_on_background_click : bool, Optional
-///     Whether the sub-menu closes when the background is clicked.
-/// show : bool, default True
-///     Whether the sub-item is visible.
-/// gen_id : int, Optional
-///     Obtains an ID of a widget that has not been created.
+///     Padding inside the submenu panel.
+/// dropdown_open_auto : bool, Optional
+///     Whether to auto-position the submenu.
+/// dropdown_open_top : bool, Optional
+///     Open submenu above the trigger.
+/// dropdown_open_bottom : bool, Optional
+///     Open submenu below the trigger.
+/// dropdown_open_left : bool, Optional
+///     Align submenu to the left.
+/// dropdown_open_right : bool, Optional
+///     Align submenu to the right.
+/// container_style_id : int, Optional
+///     Custom container style ID.
+/// container_style_std : ContainerStyleStd, Optional
+///     Standard container styling.
 ///
 /// Returns
 /// -------
 /// int
-///     The numeric widget ID of the newly created menu sub-item.
+///     The numeric widget ID of the newly created submenu.
+///
 #[pyfunction]
-#[pyo3(signature = (
+#[pyo3(signature = ( 
     window_id,
     container_id,
-    label,
+    width,
     parent_id=None,
-    width=None,
+    str_id=None,
     spacing=None,
     gap=None,
     padding=None,
+    dropdown_open_auto=None,
+    dropdown_open_top=None,
+    dropdown_open_bottom=None,
+    dropdown_open_left=None,
+    dropdown_open_right=None,
+    dropdown_align_start=None,
+    dropdown_align_center=None,
+    dropdown_align_end=None,
     container_style_id=None,
     container_style_std=None,
-    btn_style_id=None,
-    btn_style_std=None,
-    btn_palette_id=None,
-    btn_font_id=None,
-    text_style_id=None,
-    text_font_id=None,
-    align_start=None,
-    align_center=None,
-    align_end=None,
+    snap_within_viewport=None,
     ))]
-pub fn add_menu_sub_item(
+pub fn add_sub_menu(
     window_id: String,
     container_id: String,
-    label: String,
+    width: f32,
     parent_id: Option<String>,
-    width: Option<f32>,
+    str_id: Option<String>,
     spacing: Option<f32>,
     gap: Option<f32>,
     padding: Option<Vec<f32>>,
+    dropdown_open_auto: Option<bool>,
+    dropdown_open_top: Option<bool>,
+    dropdown_open_bottom: Option<bool>,
+    dropdown_open_left: Option<bool>,
+    dropdown_open_right: Option<bool>,
+    dropdown_align_start: Option<bool>,
+    dropdown_align_center: Option<bool>,
+    dropdown_align_end: Option<bool>,
     container_style_id: Option<usize>,
     container_style_std: Option<ContainerStyleStd>,
-    btn_style_id: Option<usize>,
-    btn_style_std: Option<ButtonStyleStd>,
-    btn_palette_id: Option<usize>,
-    btn_font_id: Option<usize>,
-    text_style_id: Option<usize>,
-    text_font_id: Option<usize>,
-    align_start: Option<bool>,
-    align_center: Option<bool>,
-    align_end: Option<bool>,
+    snap_within_viewport: Option<bool>,
+) -> PyResult<usize> 
+{
+    let id = get_id(None);
+
+    let prt_id = match parent_id {
+        Some(id) => id,
+        None => window_id.clone(),
+    };
+
+    let positions = 
+        [
+            dropdown_open_auto,
+            dropdown_open_top,
+            dropdown_open_bottom,
+            dropdown_open_left,
+            dropdown_open_right,
+        ];
+
+    let position = get_position(positions, false);
+    
+    let alignments = [
+        dropdown_align_start,
+        dropdown_align_center,
+        dropdown_align_end,
+    ];
+
+    let alignment = get_alignment(alignments);
+
+    set_state_of_container(id, window_id.clone(), Some(container_id.clone()), prt_id);
+
+    let mut state = access_state();
+
+    set_state_cont_wnd_ids(&mut state, &window_id, container_id, id, "add_menu_bar".to_string());
+
+    state.containers.insert(id, Containers::SubMenu(
+        SubMenu {
+            id,
+            width,
+            position,
+            alignment,
+            str_id,
+            spacing,
+            gap,
+            padding,
+            container_style_id,
+            container_style_std,
+            snap_within_viewport,
+        }));
+
+    drop(state);
+    Ok(id)
+}
+
+/// Add a menu item container.
+///
+/// Creates a container for content within a menu bar or submenu. Add widgets
+/// (text, buttons, etc.) within this item's context to create individual
+/// menu entries. Optionally add a submenu for nested dropdowns.
+///
+/// Usage pattern:
+/// ```python
+/// with Menu():
+///     with MenuBar(label="File", width=50.0):
+///         with MenuItem():
+///             # A MenuItem must use the special MenuButton, 
+///             # which is a container that accepts a single widget.
+///             # If more than one widget is used, use column or row.
+///             # except in the case where a SubMenu follows.
+///             MenuButton(on_press=on_item_press):
+///                 add_text(content="Open Recent")
+/// ```
+///
+/// Parameters
+/// ----------
+/// window_id : str
+///     The window this menu item belongs to.
+/// container_id : str
+///     Unique identifier for this menu item.
+/// parent_id : str, Optional
+///     Parent container ID (menu bar or submenu). Defaults to the window.
+/// str_id : str, Optional
+///     String ID for debugging/tracking.
+///
+/// Returns
+/// -------
+/// int
+///     The numeric widget ID of the newly created menu item.
+///
+#[pyfunction]
+#[pyo3(signature = (
+    window_id, 
+    container_id,
+    parent_id=None,
+    str_id=None,
+    ))]
+pub fn add_menu_item(
+    window_id: String,
+    container_id: String,
+    parent_id: Option<String>,
+    str_id: Option<String>,
 ) -> PyResult<usize>
 {
     let id = get_id(None);
@@ -398,36 +456,16 @@ pub fn add_menu_sub_item(
         None => window_id.clone(),
     };
 
-    let align = match (align_start, align_center, align_end) {
-        (Some(true), None, None) => iced::Alignment::Start,
-        (None, Some(true), None) => iced::Alignment::Center,
-        (None, None, Some(true)) => iced::Alignment::End,
-        _ => iced::Alignment::Start,
-    };
-
     set_state_of_container(id, window_id.clone(), Some(container_id.clone()), prt_id);
 
     let mut state = access_state();
 
-    set_state_cont_wnd_ids(&mut state, &window_id, container_id, id, "add_menu_sub_item".to_string());
+    set_state_cont_wnd_ids(&mut state, &window_id, container_id, id, "add_menu_item".to_string());
 
-    state.containers.insert(id, Containers::MenuSubItem(
-        MenuSubItem {
+    state.containers.insert(id, Containers::MenuItem(
+        MenuItem {
             id,
-            label,
-            width,
-            spacing,
-            gap,
-            padding,
-            container_style_id,
-            container_style_std,
-            btn_style_id,
-            btn_style_std,
-            btn_palette_id,
-            btn_font_id,
-            text_style_id,
-            text_font_id,
-            align: Some(align),
+            str_id,
         }));
 
     drop(state);

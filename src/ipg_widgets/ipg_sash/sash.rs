@@ -1,17 +1,24 @@
 //! A sash for resizing containers.
 
-use iced::Point;
-use iced::advanced::Renderer as AdvancedRenderer;
-use iced::advanced::layout;
-use iced::advanced::renderer;
-use iced::advanced::widget::tree::{self, Tree};
-use iced::advanced::{Layout, Shell, mouse, overlay};
 use iced::border::{Border, Radius};
 use iced::event::Event;
-use iced::touch;
-use iced::{self, Color, Length, Rectangle, Size, Theme};
+use iced::advanced::layout;
 use iced::{Background, Element};
+use iced::advanced::renderer;
+use iced::touch;
+use iced::advanced::widget::tree::{self, Tree};
+use iced::advanced::widget::Operation;
+use iced::{
+    self, Color, Length,
+    Rectangle, Size, Theme, Vector,
+};
+use iced::advanced::{mouse, overlay, Layout, Shell, Widget};
+use iced::advanced::widget::Meta;
+use iced::advanced::Renderer as AdvancedRenderer;
+use iced::widget::Widget as _;
+use iced::Point;
 use std::sync::atomic::{AtomicU64, Ordering};
+
 
 pub struct SashH;
 
@@ -27,12 +34,10 @@ impl SashH {
         initial_sizes: Vec<f32>,
         height: f32,
         sash_size: f32,
-        min_size: Option<f32>,
-        max_size: Option<f32>,
     ) -> SashWidget<'a, Message, Theme>
     where
-        Message: Clone,
-        Theme: Catalog,
+        Message: Clone + 'a,
+        Theme: Catalog + 'a,
     {
         SashWidget {
             children,
@@ -41,8 +46,9 @@ impl SashH {
             sash_size,
             axis: Axis::Horizontal,
             id: Id::unique(),
-            max_size,
-            min_size,
+            max_size: None,
+            min_size: 0.0,
+            resize_mode: ResizeMode::Coupled,
             on_resize: None,
             on_release: None,
             sync_sizes: None,
@@ -51,15 +57,15 @@ impl SashH {
             outer_resize_mode: OuterResizeMode::LastOnly,
             on_outer_resize: None,
             cross_handle_size: None,
-            min_cross_size: None,
+            min_cross_size: 0.0,
             max_cross_size: None,
             on_cross_resize: None,
             sync_cross_size: None,
             clip: false,
-            disabled: false,
         }
     }
 }
+
 
 pub struct SashV;
 
@@ -75,8 +81,6 @@ impl SashV {
         initial_sizes: Vec<f32>,
         width: f32,
         sash_size: f32,
-        min_size: Option<f32>,
-        max_size: Option<f32>,
     ) -> SashWidget<'a, Message, Theme>
     where
         Message: Clone + 'a,
@@ -89,8 +93,9 @@ impl SashV {
             sash_size,
             axis: Axis::Vertical,
             id: Id::unique(),
-            max_size,
-            min_size,
+            max_size: None,
+            min_size: 0.0,
+            resize_mode: ResizeMode::Coupled,
             on_resize: None,
             on_release: None,
             sync_sizes: None,
@@ -99,12 +104,11 @@ impl SashV {
             outer_resize_mode: OuterResizeMode::LastOnly,
             on_outer_resize: None,
             cross_handle_size: None,
-            min_cross_size: None,
+            min_cross_size: 0.0,
             max_cross_size: None,
             on_cross_resize: None,
             sync_cross_size: None,
             clip: false,
-            disabled: false,
         }
     }
 }
@@ -117,41 +121,48 @@ fn get_handle_bounds(
     handle_offsets: &[f32],
     include_last_handle: bool,
     direction: Direction,
-) -> Vec<Rectangle> {
+    ) -> Vec<Rectangle> 
+{
     let mut handle_bounds = vec![];
     let mut start = match direction {
-        Direction::Horizontal => bounds.x,
-        Direction::Vertical => bounds.y,
-    };
-    for (i, width_height) in widths_heights.iter().enumerate() {
-        if i == widths_heights.len() - 1 {
-            if include_last_handle {
-                start += width_height;
-            } else {
-                break;
-            }
-        } else {
-            start += width_height;
-        }
-
-        let rect = match direction {
-            Direction::Horizontal => Rectangle {
-                x: start + handle_offsets[i],
-                y: bounds.y,
-                width: handle_width,
-                height: handle_height,
-            },
-            Direction::Vertical => Rectangle {
-                x: bounds.x,
-                y: start + handle_offsets[i],
-                width: handle_width,
-                height: handle_height,
-            },
+            Direction::Horizontal => bounds.x,
+            Direction::Vertical => bounds.y,
         };
+        for (i, width_height) in widths_heights.iter().enumerate() {
+            
+            if i == widths_heights.len()-1 {
+                if include_last_handle {
+                    start += width_height;
+                } else {
+                    break;
+                }
+            } else {
+                start += width_height;
+            }
 
-        handle_bounds.push(rect);
-    }
-    handle_bounds
+            let rect = match direction {
+                Direction::Horizontal => {
+                    Rectangle{ 
+                        x: start+handle_offsets[i], 
+                        y: bounds.y, 
+                        width: handle_width, 
+                        height: handle_height,
+                    }
+                },
+                Direction::Vertical => {
+                    Rectangle{
+                        x: bounds.x,
+                        y: start+handle_offsets[i],
+                        width: handle_width,
+                        height: handle_height,
+                    }
+                },
+            };
+                
+            handle_bounds.push(rect);
+
+        }
+        handle_bounds
 }
 
 fn get_width_height_bounds(
@@ -161,44 +172,52 @@ fn get_width_height_bounds(
     handle_height: f32,
     gap: f32,
     direction: Direction,
-) -> Vec<Rectangle> {
+    ) -> Vec<Rectangle> 
+{
     let mut w_h_bounds = vec![];
     let mut start = match direction {
-        Direction::Horizontal => bounds.x,
-        Direction::Vertical => bounds.y,
-    };
-    for (i, width_height) in widths_heights.iter().enumerate() {
-        let rect = match direction {
-            Direction::Horizontal => Rectangle {
-                x: start,
-                y: bounds.y,
-                width: *width_height,
-                height: handle_height,
-            },
-            Direction::Vertical => Rectangle {
-                x: bounds.x,
-                y: start,
-                width: handle_width,
-                height: *width_height,
-            },
+            Direction::Horizontal => bounds.x,
+            Direction::Vertical => bounds.y,
         };
-
-        w_h_bounds.push(rect);
-        start += width_height;
-        if i + 1 < widths_heights.len() {
-            start += gap;
+        for (i, width_height) in widths_heights.iter().enumerate() {
+            let rect = match direction {
+                Direction::Horizontal => {
+                    Rectangle{ 
+                        x: start, 
+                        y: bounds.y, 
+                        width: *width_height, 
+                        height: handle_height,
+                    }
+                },
+                Direction::Vertical => {
+                    Rectangle{
+                        x: bounds.x,
+                        y: start,
+                        width: handle_width,
+                        height: *width_height,
+                    }
+                },
+            };
+                
+            w_h_bounds.push(rect);
+            start += width_height;
+            if i + 1 < widths_heights.len() {
+                start += gap;
+            }
         }
-    }
-    w_h_bounds
+        w_h_bounds
 }
 
-fn find_mouse_over_handle_bounds(handle_bounds: &[Rectangle], cursor: mouse::Cursor) -> Option<usize> {
-    for (index, bounds) in handle_bounds.iter().enumerate() {
-        if cursor.is_over(*bounds) {
-            return Some(index);
+fn find_mouse_over_handle_bounds(
+    handle_bounds: &[Rectangle],
+    cursor: mouse::Cursor) 
+    -> Option<usize> {
+        for (index, bounds) in handle_bounds.iter().enumerate() {
+            if cursor.is_over(*bounds) {
+                return Some(index)
+            }
         }
-    }
-    None
+        None
 }
 
 /// The direction of [`Sash`].
@@ -279,7 +298,7 @@ pub fn primary(theme: &Theme, status: Status) -> Style {
         background: color.into(),
         border_color: Color::TRANSPARENT,
         border_width: 0.0,
-        border_radius: 0.0.into(),
+        border_radius: 0.0.into()
     }
 }
 
@@ -297,13 +316,13 @@ pub fn transparent(theme: &Theme, status: Status) -> Style {
         background: color.into(),
         border_color: Color::TRANSPARENT,
         border_width: 0.0,
-        border_radius: 0.0.into(),
+        border_radius: 0.0.into()
     }
 }
 
 pub fn subtle(theme: &Theme, status: Status) -> Style {
     let palette = theme.palette();
-
+    
     let color = match status {
         Status::Active => palette.background.weak.color,
         Status::Hovered => palette.background.strong.color,
@@ -315,9 +334,10 @@ pub fn subtle(theme: &Theme, status: Status) -> Style {
         background: color.into(),
         border_color: Color::TRANSPARENT,
         border_width: 0.0,
-        border_radius: 0.0.into(),
+        border_radius: 0.0.into()
     }
 }
+
 
 static NEXT_SASH_ID: AtomicU64 = AtomicU64::new(0);
 
@@ -336,6 +356,7 @@ impl Id {
         Id(n)
     }
 }
+
 
 /// Applies resize math to a panel sizes vector.
 ///
@@ -359,20 +380,28 @@ pub fn resize(sizes: &mut Vec<f32>, index: usize, value: f32, min_size: f32) {
     }
 }
 
+/// Applies Excel-style resize math to a panel sizes vector.
+///
+/// The panel at `index` is set to `value` and no neighbouring panel is changed.
+/// `min_size` clamps the target panel — pass `0.0` for no minimum.
+pub fn resize_independent(sizes: &mut Vec<f32>, index: usize, value: f32, min_size: f32) {
+    if index >= sizes.len() {
+        return;
+    }
+    sizes[index] = value.max(min_size);
+}
+
+
 /// Applies an outer resize to `sizes` according to `mode`.
 /// `new_total` is the desired sum of all panel sizes after the drag.
 /// Call this in your `update()` to mirror outer-handle drags on a stored
 /// sizes vector, then pass that vector to `sync_sashes()` on the next frame.
 pub fn apply_outer_resize(sizes: &mut Vec<f32>, new_total: f32, mode: OuterResizeMode, min_size: f32) {
-    if sizes.is_empty() {
-        return;
-    }
+    if sizes.is_empty() { return; }
     let new_total = new_total.max(sizes.len() as f32 * min_size);
     let old_total: f32 = sizes.iter().sum();
     let delta = new_total - old_total;
-    if delta == 0.0 {
-        return;
-    }
+    if delta == 0.0 { return; }
     match mode {
         OuterResizeMode::LastOnly => {
             let last = sizes.len() - 1;
@@ -385,9 +414,7 @@ pub fn apply_outer_resize(sizes: &mut Vec<f32>, new_total: f32, mode: OuterResiz
             }
         }
         OuterResizeMode::Proportional => {
-            if old_total <= 0.0 {
-                return;
-            }
+            if old_total <= 0.0 { return; }
             let scale = new_total / old_total;
             for s in sizes.iter_mut() {
                 *s = (*s * scale).max(min_size);
@@ -400,7 +427,9 @@ pub fn apply_outer_resize(sizes: &mut Vec<f32>, new_total: f32, mode: OuterResiz
 fn apply_max_size(sizes: &[f32], max_size: Option<f32>) -> Vec<f32> {
     let total: f32 = sizes.iter().sum();
     match max_size {
-        Some(max) if total > max && total > 0.0 => sizes.iter().map(|s| s * max / total).collect(),
+        Some(max) if total > max && total > 0.0 => {
+            sizes.iter().map(|s| s * max / total).collect()
+        }
         _ => sizes.to_vec(),
     }
 }
@@ -413,6 +442,7 @@ fn max_size_scale(sizes: &[f32], max_size: Option<f32>) -> f32 {
     }
 }
 
+
 // Axis
 #[derive(Debug, Clone, Copy, PartialEq)]
 enum Axis {
@@ -422,83 +452,65 @@ enum Axis {
 
 impl Axis {
     fn cursor_coord(self, p: Point) -> f32 {
-        match self {
-            Axis::Horizontal => p.x,
-            Axis::Vertical => p.y,
-        }
+        match self { Axis::Horizontal => p.x, Axis::Vertical => p.y }
     }
     fn bounds_end(self, b: Rectangle) -> f32 {
-        match self {
-            Axis::Horizontal => b.x + b.width,
-            Axis::Vertical => b.y + b.height,
-        }
+        match self { Axis::Horizontal => b.x + b.width, Axis::Vertical => b.y + b.height }
     }
     fn bounds_start(self, b: Rectangle) -> f32 {
-        match self {
-            Axis::Horizontal => b.x,
-            Axis::Vertical => b.y,
-        }
+        match self { Axis::Horizontal => b.x, Axis::Vertical => b.y }
     }
     fn main_start(self, r: Rectangle) -> f32 {
-        match self {
-            Axis::Horizontal => r.x,
-            Axis::Vertical => r.y,
-        }
+        match self { Axis::Horizontal => r.x, Axis::Vertical => r.y }
     }
     fn handle_main_size(self, r: Rectangle) -> f32 {
-        match self {
-            Axis::Horizontal => r.width,
-            Axis::Vertical => r.height,
-        }
+        match self { Axis::Horizontal => r.width, Axis::Vertical => r.height }
     }
     // Returns (handle_width, handle_height) for get_handle_bounds / get_width_height_bounds.
     fn handle_dims(self, sash_size: f32, cross_size: f32) -> (f32, f32) {
         match self {
             Axis::Horizontal => (sash_size, cross_size),
-            Axis::Vertical => (cross_size, sash_size),
+            Axis::Vertical   => (cross_size, sash_size),
         }
     }
     fn child_limit(self, panel_size: f32, cross_size: f32) -> Size {
         match self {
             Axis::Horizontal => Size::new(panel_size, cross_size),
-            Axis::Vertical => Size::new(cross_size, panel_size),
+            Axis::Vertical   => Size::new(cross_size, panel_size),
         }
     }
     fn child_offset(self, main: f32) -> Point {
         match self {
             Axis::Horizontal => Point::new(main, 0.0),
-            Axis::Vertical => Point::new(0.0, main),
+            Axis::Vertical   => Point::new(0.0, main),
         }
     }
     fn total_size(self, main: f32, cross_size: f32) -> Size {
         match self {
             Axis::Horizontal => Size::new(main, cross_size),
-            Axis::Vertical => Size::new(cross_size, main),
+            Axis::Vertical   => Size::new(cross_size, main),
         }
     }
     fn direction(self) -> Direction {
         match self {
             Axis::Horizontal => Direction::Horizontal,
-            Axis::Vertical => Direction::Vertical,
+            Axis::Vertical   => Direction::Vertical,
         }
     }
     fn resize_interaction(self) -> mouse::Interaction {
         match self {
             Axis::Horizontal => mouse::Interaction::ResizingHorizontally,
-            Axis::Vertical => mouse::Interaction::ResizingVertically,
+            Axis::Vertical   => mouse::Interaction::ResizingVertically,
         }
     }
     fn cross_interaction(self) -> mouse::Interaction {
         match self {
             Axis::Horizontal => mouse::Interaction::ResizingVertically,
-            Axis::Vertical => mouse::Interaction::ResizingHorizontally,
+            Axis::Vertical   => mouse::Interaction::ResizingHorizontally,
         }
     }
     fn cross_coord(self, p: Point) -> f32 {
-        match self {
-            Axis::Horizontal => p.y,
-            Axis::Vertical => p.x,
-        }
+        match self { Axis::Horizontal => p.y, Axis::Vertical => p.x }
     }
 
     fn cross_handle_rect(self, bounds: Rectangle, cross_size: f32, handle_size: f32, total_main: f32) -> Rectangle {
@@ -535,6 +547,7 @@ impl Axis {
     }
 }
 
+
 /// Controls how panels are resized when the outer trailing handle is dragged.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum OuterResizeMode {
@@ -545,6 +558,16 @@ pub enum OuterResizeMode {
     Uniform,
     /// Every panel scales proportionally to its current size.
     Proportional,
+}
+
+/// How inner sash-handle drags resize panels.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum ResizeMode {
+    /// Resize the panel on the left/top and its immediate neighbour inversely.
+    #[default]
+    Coupled,
+    /// Resize only the panel on the left/top; total size changes.
+    Independent,
 }
 
 // State
@@ -577,7 +600,8 @@ where
     axis: Axis,
     id: Id,
     max_size: Option<f32>,
-    min_size: Option<f32>,
+    min_size: f32,
+    resize_mode: ResizeMode,
     on_resize: Option<Box<dyn Fn(Id, usize, f32) -> Message + 'a>>,
     on_release: Option<Box<dyn Fn(Id, usize) -> Message + 'a>>,
     sync_sizes: Option<Vec<f32>>,
@@ -586,19 +610,30 @@ where
     outer_resize_mode: OuterResizeMode,
     on_outer_resize: Option<Box<dyn Fn(Id, f32) -> Message + 'a>>,
     cross_handle_size: Option<f32>,
-    min_cross_size: Option<f32>,
+    min_cross_size: f32,
     max_cross_size: Option<f32>,
     on_cross_resize: Option<Box<dyn Fn(Id, f32) -> Message + 'a>>,
     sync_cross_size: Option<f32>,
     clip: bool,
-    disabled: bool,
+}
+
+impl<'a, Message, Theme> Meta for SashWidget<'a, Message, Theme>
+where
+    Theme: Catalog,
+{
 }
 
 impl<'a, Message, Theme> SashWidget<'a, Message, Theme>
 where
-    Message: Clone,
-    Theme: Catalog,
+    Message: Clone + 'a,
+    Theme: Catalog + 'a,
 {
+    /// Overrides the auto-generated [`Id`]. Only needed for multi-sash routing.
+    pub fn id(mut self, id: Id) -> Self { self.id = id; self }
+
+    /// Maximum total size; panels scale proportionally when exceeded.
+    pub fn max_size(mut self, max: f32) -> Self { self.max_size = Some(max); self }
+
     /// Maximum total size; panels scale proportionally when exceeded.
     pub fn max_size_maybe(mut self, max: Option<f32>) -> Self {
         if let Some(v) = max {
@@ -608,23 +643,22 @@ where
     }
 
     /// Minimum panel size enforced while dragging. Default: `0.0`.
-    pub fn min_size_maybe(mut self, min: Option<f32>) -> Self {
-        if let Some(v) = min {
-            self.min_size = Some(v);
-        }
+    pub fn min_size(mut self, min: f32) -> Self { self.min_size = min; self }
+
+    /// Sets how inner handle drags resize panels. Default: [`ResizeMode::Coupled`].
+    pub fn resize_mode(mut self, mode: ResizeMode) -> Self {
+        self.resize_mode = mode;
         self
     }
 
     /// Optional notification fired on every drag tick: `(id, handle_index, new_size)`.
     pub fn on_resize(mut self, f: impl Fn(Id, usize, f32) -> Message + 'a) -> Self {
-        self.on_resize = Some(Box::new(f));
-        self
+        self.on_resize = Some(Box::new(f)); self
     }
 
     /// Optional notification fired on mouse release: `(id, handle_index)`.
     pub fn on_release(mut self, f: impl Fn(Id, usize) -> Message + 'a) -> Self {
-        self.on_release = Some(Box::new(f));
-        self
+        self.on_release = Some(Box::new(f)); self
     }
 
     /// Sets the visual style of the sash handles.
@@ -632,42 +666,46 @@ where
     where
         Theme::Class<'a>: From<StyleFn<'a, Theme>>,
     {
-        self.class = (Box::new(style) as StyleFn<'a, Theme>).into();
-        self
+        self.class = (Box::new(style) as StyleFn<'a, Theme>).into(); self
     }
 
     /// Pushes external sizes into tree state each layout pass.
     /// Use this to synchronise two or more sashes from `on_resize` callbacks.
     pub fn sync_sashes(mut self, sizes: Vec<f32>) -> Self {
-        self.sync_sizes = Some(sizes);
-        self
+        self.sync_sizes = Some(sizes); self
     }
 
     /// Enables an outer resize handle at the trailing edge (right for `SashH`, bottom for `SashV`).
     /// `size` sets the handle thickness in pixels.
     pub fn outer_handle(mut self, size: f32) -> Self {
-        self.outer_handle_size = Some(size);
-        self
+        self.outer_handle_size = Some(size); self
     }
 
     /// Sets how panels are resized when the outer handle is dragged. Default: [`OuterResizeMode::LastOnly`].
     pub fn outer_resize_mode(mut self, mode: OuterResizeMode) -> Self {
-        self.outer_resize_mode = mode;
-        self
+        self.outer_resize_mode = mode; self
     }
 
     /// Callback fired on every outer-handle drag tick: `(id, new_total_main_size)`.
     pub fn on_outer_resize(mut self, f: impl Fn(Id, f32) -> Message + 'a) -> Self {
-        self.on_outer_resize = Some(Box::new(f));
-        self
+        self.on_outer_resize = Some(Box::new(f)); self
     }
 
     /// Enables a cross-size handle at the far edge of the cross axis
     /// (bottom for `SashH`, right for `SashV`), spanning the full main-axis width.
     /// `size` sets the handle thickness in pixels.
     pub fn cross_handle(mut self, size: f32) -> Self {
-        self.cross_handle_size = Some(size);
-        self
+        self.cross_handle_size = Some(size); self
+    }
+
+    /// Minimum cross size enforced while dragging the cross handle. Default: `0.0`.
+    pub fn min_cross_size(mut self, min: f32) -> Self {
+        self.min_cross_size = min; self
+    }
+
+    /// Maximum cross size enforced while dragging the cross handle.
+    pub fn max_cross_size(mut self, max: f32) -> Self {
+        self.max_cross_size = Some(max); self
     }
 
     /// Maximum cross size enforced while dragging the cross handle.
@@ -678,45 +716,31 @@ where
         self
     }
 
-    /// Minimum cross size enforced while dragging the cross handle.
-    pub fn min_cross_size_maybe(mut self, min: Option<f32>) -> Self {
-        if let Some(v) = min {
-            self.min_cross_size = Some(v);
-        }
-        self
-    }
-
     /// Callback fired on every cross-handle drag tick: `(id, new_cross_size)`.
     pub fn on_cross_resize(mut self, f: impl Fn(Id, f32) -> Message + 'a) -> Self {
-        self.on_cross_resize = Some(Box::new(f));
-        self
+        self.on_cross_resize = Some(Box::new(f)); self
     }
 
     /// Pushes an external cross size into tree state each layout pass.
     /// Use this to synchronise cross sizes across sashes from `on_cross_resize` callbacks.
     pub fn sync_cross_sashes(mut self, size: f32) -> Self {
-        self.sync_cross_size = Some(size);
-        self
+        self.sync_cross_size = Some(size); self
     }
 
     /// Sets whether the contents of each panel should be clipped to its bounds.
     /// Prevents child content from overrunning adjacent panels when resized. Default: `false`.
     pub fn clip(mut self, clip: bool) -> Self {
-        self.clip = clip;
-        self
+        self.clip = clip; self
     }
 }
 
-impl<Message, Theme: Catalog> iced::advanced::widget::Meta for SashWidget<'_, Message, Theme> {}
-
-impl<Message, Theme> iced::advanced::Widget<Message, Theme, iced::Renderer> for SashWidget<'_, Message, Theme>
+impl<Message, Theme> Widget<Message, Theme, iced::Renderer>
+    for SashWidget<'_, Message, Theme>
 where
     Message: Clone,
     Theme: Catalog,
 {
-    fn tag(&self) -> tree::Tag {
-        tree::Tag::of::<SashState>()
-    }
+    fn tag(&self) -> tree::Tag { tree::Tag::of::<SashState>() }
 
     fn state(&self) -> tree::State {
         tree::State::new(SashState {
@@ -741,14 +765,35 @@ where
         tree.diff_children(&mut self.children);
     }
 
-    fn size(&self) -> Size<Length> {
-        Size {
-            width: Length::Shrink,
-            height: Length::Shrink,
-        }
+    fn operate(
+        &mut self,
+        tree: &mut Tree,
+        layout: Layout,
+        viewport: &Rectangle,
+        renderer: &iced::Renderer,
+        operation: &mut dyn Operation,
+    ) {
+        operation.container(None, layout.bounds(), viewport);
+        operation.traverse(&mut |operation| {
+            self.children
+                .iter_mut()
+                .zip(layout.iter_mut(&mut tree.children))
+                .for_each(|(child, (child_layout, child_tree))| {
+                    child.operate(child_tree, child_layout, viewport, renderer, operation);
+                });
+        });
     }
 
-    fn layout(&mut self, tree: &mut Tree, renderer: &iced::Renderer, limits: &layout::Limits) {
+    fn size(&self) -> Size<Length> {
+        Size { width: Length::Shrink, height: Length::Shrink }
+    }
+
+    fn layout(
+        &mut self,
+        tree: &mut Tree,
+        renderer: &iced::Renderer,
+        limits: &layout::Limits,
+    ) {
         if let Some(new) = &self.sync_sizes {
             let st = tree.state.downcast_mut::<SashState>();
             if !st.is_dragging && !st.is_outer_dragging && &st.sizes != new {
@@ -764,15 +809,9 @@ where
         let ax = self.axis;
         // Clamp stored sizes to whatever space the parent is offering.
         {
-            let bounds = limits.bounds();
-            let max_main = match ax {
-                Axis::Horizontal => bounds.width,
-                Axis::Vertical => bounds.height,
-            };
-            let max_cross = match ax {
-                Axis::Horizontal => bounds.height,
-                Axis::Vertical => bounds.width,
-            };
+            let max = limits.bounds();
+            let max_main  = match ax { Axis::Horizontal => max.width,  Axis::Vertical => max.height };
+            let max_cross = match ax { Axis::Horizontal => max.height, Axis::Vertical => max.width  };
             let st = tree.state.downcast_mut::<SashState>();
             st.limits_max_main = max_main;
             st.limits_max_cross = max_cross;
@@ -780,10 +819,9 @@ where
                 let avail = (max_cross - self.cross_handle_size.unwrap_or(0.0)).max(0.0);
                 st.cross_size = st.cross_size.min(avail);
             }
-            if max_main.is_finite() {
+            if max_main.is_finite() && self.resize_mode == ResizeMode::Coupled {
                 let n_sashes = st.sizes.len().saturating_sub(1);
-                let avail =
-                    (max_main - self.outer_handle_size.unwrap_or(0.0) - n_sashes as f32 * self.sash_size).max(0.0);
+                let avail = (max_main - self.outer_handle_size.unwrap_or(0.0) - n_sashes as f32 * self.sash_size).max(0.0);
                 let total: f32 = st.sizes.iter().sum();
                 if total > avail && total > 0.0 {
                     let scale = avail / total;
@@ -795,11 +833,7 @@ where
         }
         let (display, cross_size) = {
             let st = tree.state.downcast_ref::<SashState>();
-            let s = if st.sizes.is_empty() {
-                &self.initial_sizes
-            } else {
-                &st.sizes
-            };
+            let s = if st.sizes.is_empty() { &self.initial_sizes } else { &st.sizes };
             (apply_max_size(s, self.max_size), st.cross_size)
         };
 
@@ -810,7 +844,7 @@ where
             let lim = layout::Limits::new(Size::ZERO, ax.child_limit(panel_size, cross_size));
             child.layout(&mut tree.children[i], renderer, &lim);
             let offset = ax.child_offset(main);
-            tree.children[i].translation = iced::Vector::new(offset.x, offset.y);
+            tree.children[i].translation = Vector::new(offset.x, offset.y);
             main += panel_size;
             if i + 1 < n_panels {
                 main += self.sash_size;
@@ -831,19 +865,15 @@ where
         cursor: mouse::Cursor,
         viewport: &Rectangle,
     ) {
-        for (child, (child_layout, child_tree)) in self.children.iter().zip(layout.iter(&tree.children)) {
+        for (child, (child_layout, child_tree)) in self
+            .children
+            .iter()
+            .zip(layout.iter(&tree.children))
+        {
             if self.clip {
                 let child_bounds = child_layout.bounds();
                 if let Some(clipped_viewport) = child_bounds.intersection(viewport) {
-                    child.draw(
-                        child_tree,
-                        renderer,
-                        theme,
-                        style,
-                        child_layout,
-                        cursor,
-                        &clipped_viewport,
-                    );
+                    child.draw(child_tree, renderer, theme, style, child_layout, cursor, &clipped_viewport);
                 }
             } else {
                 child.draw(child_tree, renderer, theme, style, child_layout, cursor, viewport);
@@ -860,24 +890,14 @@ where
         let hbs = get_handle_bounds(bounds, &display, hw, hh, &offsets, false, ax.direction());
         let hover = st.hovered;
         for (i, hb) in hbs.iter().enumerate() {
-            let status = if self.disabled {
-                Status::Disabled
-            } else if st.is_dragging && i == st.drag_index {
-                Status::Dragged
-            } else if Some(i) == hover {
-                Status::Hovered
-            } else {
-                Status::Active
-            };
+            let status = if st.is_dragging && i == st.drag_index { Status::Dragged }
+                else if Some(i) == hover { Status::Hovered }
+                else { Status::Active };
             let sty = theme.style(&self.class, status);
             renderer.fill_quad(
                 renderer::Quad {
                     bounds: *hb,
-                    border: Border {
-                        radius: sty.border_radius,
-                        width: sty.border_width,
-                        color: sty.border_color,
-                    },
+                    border: Border { radius: sty.border_radius, width: sty.border_width, color: sty.border_color },
                     ..renderer::Quad::default()
                 },
                 sty.background,
@@ -888,24 +908,14 @@ where
             let n_sashes = display.len().saturating_sub(1);
             let panel_total: f32 = display.iter().sum::<f32>() + n_sashes as f32 * self.sash_size;
             let outer_rect = ax.outer_handle_rect(bounds, panel_total, ohs, cross_size);
-            let outer_status = if self.disabled {
-                Status::Disabled
-            } else if st.is_outer_dragging {
-                Status::Dragged
-            } else if st.outer_hovered {
-                Status::Hovered
-            } else {
-                Status::Active
-            };
+            let outer_status = if st.is_outer_dragging { Status::Dragged }
+                else if st.outer_hovered { Status::Hovered }
+                else { Status::Active };
             let sty = theme.style(&self.class, outer_status);
             renderer.fill_quad(
                 renderer::Quad {
                     bounds: outer_rect,
-                    border: Border {
-                        radius: sty.border_radius,
-                        width: sty.border_width,
-                        color: sty.border_color,
-                    },
+                    border: Border { radius: sty.border_radius, width: sty.border_width, color: sty.border_color },
                     ..renderer::Quad::default()
                 },
                 sty.background,
@@ -917,24 +927,14 @@ where
             let panel_total: f32 = display.iter().sum::<f32>() + n_sashes as f32 * self.sash_size;
             let total_main = panel_total + self.outer_handle_size.unwrap_or(0.0);
             let cross_rect = ax.cross_handle_rect(bounds, cross_size, chs, total_main);
-            let cross_status = if self.disabled {
-                Status::Disabled
-            } else if st.is_cross_dragging {
-                Status::Dragged
-            } else if st.cross_hovered {
-                Status::Hovered
-            } else {
-                Status::Active
-            };
+            let cross_status = if st.is_cross_dragging { Status::Dragged }
+                else if st.cross_hovered { Status::Hovered }
+                else { Status::Active };
             let sty = theme.style(&self.class, cross_status);
             renderer.fill_quad(
                 renderer::Quad {
                     bounds: cross_rect,
-                    border: Border {
-                        radius: sty.border_radius,
-                        width: sty.border_width,
-                        color: sty.border_color,
-                    },
+                    border: Border { radius: sty.border_radius, width: sty.border_width, color: sty.border_color },
                     ..renderer::Quad::default()
                 },
                 sty.background,
@@ -952,12 +952,12 @@ where
         shell: &mut Shell<'_, Message>,
         viewport: &Rectangle,
     ) {
-        for (child, (child_layout, child_tree)) in self.children.iter_mut().zip(layout.iter_mut(&mut tree.children)) {
+        for (child, (child_layout, child_tree)) in self
+            .children
+            .iter_mut()
+            .zip(layout.iter_mut(&mut tree.children))
+        {
             child.update(child_tree, event, child_layout, cursor, renderer, shell, viewport);
-        }
-
-        if self.disabled {
-            return;
         }
 
         let ax = self.axis;
@@ -1015,9 +1015,8 @@ where
             | Event::Touch(touch::Event::FingerLifted { .. })
             | Event::Touch(touch::Event::FingerLost { .. }) => {
                 if is_dragging {
-                    if let Some(f) = &self.on_release {
-                        shell.publish(f(st.id, st.drag_index));
-                    }
+                    let id = st.id;
+                    if let Some(f) = &self.on_release { shell.publish(f(id, st.drag_index)); }
                     st.is_dragging = false;
                     st.drag_index = 0;
                     shell.invalidate_layout();
@@ -1048,21 +1047,49 @@ where
                     let pb_start = ax.main_start(pb);
                     let hb_main = ax.handle_main_size(hb);
                     let ohs = self.outer_handle_size.unwrap_or(0.0);
-                    let v = if pos < pb_start && idx == 0 {
-                        0.0_f32
-                    } else if idx > 0 && pos < ax.main_start(hbs[idx - 1]) {
-                        0.0_f32
-                    } else if idx < hc - 1 && pos > ax.main_start(hbs[idx + 1]) {
-                        (ax.main_start(hbs[idx + 1]) - hb_main - pb_start).round()
-                    } else if hc < pc && pos > end - ohs - hb_main {
-                        (end - ohs - hb_main - pb_start).round()
-                    } else {
-                        (pos - pb_start).round()
+                    let v = match self.resize_mode {
+                        ResizeMode::Coupled => {
+                            if pos < pb_start && idx == 0 {
+                                0.0_f32
+                            } else if idx > 0 && pos < ax.main_start(hbs[idx - 1]) {
+                                0.0_f32
+                            } else if idx < hc - 1 && pos > ax.main_start(hbs[idx + 1]) {
+                                (ax.main_start(hbs[idx + 1]) - hb_main - pb_start).round()
+                            } else if hc < pc && pos > end - ohs - hb_main {
+                                (end - ohs - hb_main - pb_start).round()
+                            } else {
+                                (pos - pb_start).round()
+                            }
+                        }
+                        ResizeMode::Independent => {
+                            if pos < pb_start && idx == 0 {
+                                0.0_f32
+                            } else if idx > 0 && pos < ax.main_start(hbs[idx - 1]) {
+                                0.0_f32
+                            } else {
+                                (pos - pb_start).round()
+                            }
+                        }
                     };
-                    resize(&mut st.sizes, idx, v * scale, self.min_size.unwrap_or_default());
-                    if let Some(f) = &self.on_resize {
-                        shell.publish(f(id, idx, v * scale));
+                    let new_size = v * scale;
+                    match self.resize_mode {
+                        ResizeMode::Coupled => resize(&mut st.sizes, idx, new_size, self.min_size),
+                        ResizeMode::Independent => {
+                            let clamped = if let Some(max) = self.max_size {
+                                let others: f32 = st
+                                    .sizes
+                                    .iter()
+                                    .enumerate()
+                                    .filter_map(|(i, s)| if i == idx { None } else { Some(*s) })
+                                    .sum();
+                                new_size.min((max - others).max(self.min_size))
+                            } else {
+                                new_size
+                            };
+                            resize_independent(&mut st.sizes, idx, clamped, self.min_size)
+                        }
                     }
+                    if let Some(f) = &self.on_resize { shell.publish(f(id, idx, st.sizes[idx])); }
                     shell.capture_event();
                     shell.invalidate_layout();
                     shell.request_redraw();
@@ -1071,14 +1098,12 @@ where
                     let pos = ax.cursor_coord(*position);
                     let n_sashes = st.sizes.len().saturating_sub(1);
                     let sash_total = n_sashes as f32 * self.sash_size;
-                    let container_max =
-                        (st.limits_max_main - self.outer_handle_size.unwrap_or(0.0) - sash_total).max(0.0);
-                    let new_total = (pos - ax.bounds_start(bounds) - sash_total)
-                        .round()
+                    let container_max = (st.limits_max_main - self.outer_handle_size.unwrap_or(0.0) - sash_total).max(0.0);
+                    let new_total = (pos - ax.bounds_start(bounds) - sash_total).round()
                         .max(0.0)
                         .min(self.max_size.unwrap_or(f32::MAX))
                         .min(container_max);
-                    apply_outer_resize(&mut st.sizes, new_total, self.outer_resize_mode, self.min_size.unwrap_or_default());
+                    apply_outer_resize(&mut st.sizes, new_total, self.outer_resize_mode, self.min_size);
                     if let Some(f) = &self.on_outer_resize {
                         let total: f32 = st.sizes.iter().sum();
                         shell.publish(f(id, total));
@@ -1092,13 +1117,11 @@ where
                     let container_max_cross = (st.limits_max_cross - self.cross_handle_size.unwrap_or(0.0)).max(0.0);
                     let new_cross = (st.cross_drag_start_size + pos - st.cross_drag_start_cursor)
                         .round()
-                        .max(self.min_cross_size.unwrap_or_default())
+                        .max(self.min_cross_size)
                         .min(self.max_cross_size.unwrap_or(f32::MAX))
                         .min(container_max_cross);
                     st.cross_size = new_cross;
-                    if let Some(f) = &self.on_cross_resize {
-                        shell.publish(f(id, new_cross));
-                    }
+                    if let Some(f) = &self.on_cross_resize { shell.publish(f(id, new_cross)); }
                     shell.capture_event();
                     shell.invalidate_layout();
                     shell.request_redraw();
@@ -1145,12 +1168,8 @@ where
     ) -> mouse::Interaction {
         let ax = self.axis;
         let st = tree.state.downcast_ref::<SashState>();
-        if st.is_dragging || st.is_outer_dragging {
-            return ax.resize_interaction();
-        }
-        if st.is_cross_dragging {
-            return ax.cross_interaction();
-        }
+        if st.is_dragging || st.is_outer_dragging { return ax.resize_interaction(); }
+        if st.is_cross_dragging { return ax.cross_interaction(); }
         let display = apply_max_size(&st.sizes, self.max_size);
         let cross_size = st.cross_size;
         let bounds = layout.bounds();
@@ -1192,33 +1211,22 @@ where
         renderer: &iced::Renderer,
         viewport: &Rectangle,
         translation: iced::Vector,
-        window: iced::Size,
+        window: Size,
     ) -> Vec<overlay::Element<'b, Message, Theme, iced::Renderer>> {
-        overlay::from_children(
-            &mut self.children,
-            tree,
-            layout,
-            renderer,
-            viewport,
-            translation,
-            window,
-        )
+        overlay::from_children(&mut self.children, tree, layout, renderer, viewport, translation, window)
     }
 }
 
-// impl<'a, Message, Theme> From<SashWidget<'a, Message, Theme>> for Element<'a, Message, Theme>
-// where
-//     Message: Clone + 'a,
-//     Theme: Catalog + 'a,
-// {
-//     fn from(w: SashWidget<'a, Message, Theme>) -> Self {
-//         w._boxed()
-//     }
-// }
-
-// Type aliases preserve the existing public API.
-// pub type SashHWidget<'a, Message, Theme = iced::Theme> = SashWidget<'a, Message, Theme>;
-// pub type SashVWidget<'a, Message, Theme = iced::Theme> = SashWidget<'a, Message, Theme>;
+impl<'a, Message, Theme> From<SashWidget<'a, Message, Theme>>
+    for Element<'a, Message, Theme, iced::Renderer>
+where
+    Message: Clone + 'a,
+    Theme: Catalog + 'a,
+{
+    fn from(widget: SashWidget<'a, Message, Theme>) -> Self {
+        widget.boxed()
+    }
+}
 
 #[cfg(test)]
 mod tests {
@@ -1227,12 +1235,7 @@ mod tests {
     // ── helpers ──────────────────────────────────────────────────────────────
 
     fn rect(x: f32, y: f32, w: f32, h: f32) -> Rectangle {
-        Rectangle {
-            x,
-            y,
-            width: w,
-            height: h,
-        }
+        Rectangle { x, y, width: w, height: h }
     }
 
     fn approx_eq(a: f32, b: f32) -> bool {
@@ -1300,6 +1303,20 @@ mod tests {
         // Only the dragged panel and its right neighbour change; total of those two is preserved.
         let total_after: f32 = s.iter().sum();
         assert!(approx_eq(total_before, total_after));
+    }
+
+    #[test]
+    fn resize_independent_changes_only_target() {
+        let mut s = vec![120.0, 80.0, 60.0];
+        resize_independent(&mut s, 1, 140.0, 0.0);
+        assert!(sizes_approx_eq(&s, &[120.0, 140.0, 60.0]));
+    }
+
+    #[test]
+    fn resize_independent_respects_min_size() {
+        let mut s = vec![120.0, 80.0];
+        resize_independent(&mut s, 1, 10.0, 50.0);
+        assert!(sizes_approx_eq(&s, &[120.0, 50.0]));
     }
 
     // ── apply_outer_resize ───────────────────────────────────────────────────
@@ -1440,8 +1457,8 @@ mod tests {
         // gap = 4.0 (sash_size); each panel origin is offset by gap after every preceding panel.
         let wbs = get_width_height_bounds(bounds, &panels, 4.0, 100.0, 4.0, Direction::Horizontal);
         assert_eq!(wbs.len(), 3);
-        assert!(approx_eq(wbs[0].x, 10.0)); // bounds.x
-        assert!(approx_eq(wbs[1].x, 114.0)); // 10 + 100 + 4
-        assert!(approx_eq(wbs[2].x, 268.0)); // 10 + 100 + 4 + 150 + 4
+        assert!(approx_eq(wbs[0].x, 10.0));          // bounds.x
+        assert!(approx_eq(wbs[1].x, 114.0));         // 10 + 100 + 4
+        assert!(approx_eq(wbs[2].x, 268.0));         // 10 + 100 + 4 + 150 + 4
     }
 }

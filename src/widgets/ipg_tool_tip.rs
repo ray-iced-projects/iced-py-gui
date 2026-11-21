@@ -1,15 +1,12 @@
 //! ipg_tool_tip
 
-use std::collections::HashMap;
-
 use iced::{Element, Widget};
 use iced::time::seconds;
-use iced::widget::{self, container, text};
+use iced::widget::{self, text};
 use pyo3::{pyclass, Py, PyAny};
 type PyObject = Py<PyAny>;
 
 use crate::app::Message;
-use crate::state::Widgets;
 use crate::widgets::ipg_container::ContainerStyleStd;
 use crate::widgets::widget_param_update::{WidgetParamUpdate, set_t_value};
 
@@ -33,22 +30,13 @@ pub struct ToolTip {
 
 impl ToolTip {
 
-    fn lookup<'a>(&self, widgets: &'a HashMap<usize, Widgets>, id: Option<usize>) -> Option<&'a Widgets> {
-        id.and_then(|id| widgets.get(&id))
-    }
-    
     pub fn construct<'a>(
         &'a self, 
         mut content: Vec<Element<'a, Message>>,
-        widgets: &HashMap<usize, Widgets>,
         ) -> Option<Element<'a, Message>>
     {
         if !self.show { return None }
         
-        let style_opt = 
-            self.lookup(widgets, self.style_id)
-                .and_then(Widgets::as_container_style).cloned();
-
         let position: widget::tooltip::Position = 
         if self.position_follow_cursor == Some(true) {
             widget::tooltip::Position::FollowCursor
@@ -77,21 +65,11 @@ impl ToolTip {
         let tt = widget::tooltip::Tooltip::new(
                 content.remove(0),
                 tooltip,
-                position,
                 )
+                .position(position)
                 .gap(self.gap.unwrap_or(0))
                 .snap_within_viewport(self.snap_within_viewport.unwrap_or(false))
                 .delay(seconds(self.delay_sec.unwrap_or(0)))
-                .style(move|theme|
-                    if let Some(st) = &style_opt {
-                        st.to_iced(theme, &self.style_std)
-                    } else {
-                       match &self.style_std {
-                            Some(std) => std.to_iced(theme),
-                            None => container::transparent(theme),
-                        }
-                    }
-                )
                 .boxed();
         Some(tt)
     }

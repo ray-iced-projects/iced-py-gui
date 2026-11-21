@@ -1086,7 +1086,7 @@ fn get_container<'a>(state: &'a IpgState,
                     if content.len() > 2 {
                         eprintln!("[WARNING] A tooltip can have only 2 containers or widgets, place your multiple widgets into a column or row, otehr are ignored.")
                     }
-                    tool.construct(content, &state.widgets)
+                    tool.construct(content)
                 },
                 Containers::Window(_wnd) => {
                     Some(construct_window(content))

@@ -18,8 +18,8 @@ use crate::{access_state, add_callback_name_to_mutex, add_user_data_to_mutex, gr
 ///     Sets the Unique string identifier for the table.
 /// body : list of list of any
 ///     Sets the table body data as rows of any values.
-/// body_row_heights : float
-///     Sets the height of the body rows.
+/// body_row_heights : float, Optional
+///     Sets the height of the body rows, default 30.0.
 /// column_widths : list of float
 ///     Sets the initial width of each column in logical pixels.
 /// body_row_highlight : bool, default False
@@ -71,12 +71,11 @@ use crate::{access_state, add_callback_name_to_mutex, add_user_data_to_mutex, gr
 #[pyo3(signature = (
     parent_id,
     body,
-    body_row_heights,
     column_widths,
     // above required
+    body_row_heights=None,
     body_row_highlight=false,
     body_row_outline=true,
-    file_path=None,
     footer_height=None,
     footer=None,
     gen_id=None,
@@ -98,12 +97,11 @@ use crate::{access_state, add_callback_name_to_mutex, add_user_data_to_mutex, gr
 pub fn add_table_basic(
     parent_id: String,
     body: Vec<Vec<String>>,
-    body_row_heights: f32,
     column_widths: Vec<f32>,
     // above required
+    body_row_heights: Option<f32>,
     body_row_highlight: bool,
     body_row_outline: bool,
-    file_path: Option<String>,
     footer_height: Option<f32>,
     footer: Option<Vec<String>>,
     gen_id: Option<usize>,
@@ -157,7 +155,6 @@ pub fn add_table_basic(
             body_row_outline,
             body,
             column_widths,
-            file_path,
             footer_height,
             footer,
             header,

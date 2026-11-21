@@ -2364,9 +2364,9 @@ def add_stack(
 
 def add_table_basic(
     body: list[list[str]],
-    body_row_heights: float,
     column_widths: list[float],
     *,
+    body_row_heights: float | None = None,
     body_row_highlight: bool = False,
     body_row_outline: bool = True,
     file_path: str | None = None,

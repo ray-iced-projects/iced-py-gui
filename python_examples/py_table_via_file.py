@@ -20,12 +20,22 @@ def to_str(data: list[list[float]]) -> list[list[str]]:
 
 cwd = os.getcwd()
 FILE_PATH = f"{cwd}/python_examples/resources/table_data/google.csv"
+body = []
 
 fp = Path(FILE_PATH)
 if not fp.exists():
     print(f"File path does not eist {fp}")
     sys.exit()
+else:
+    # Load the CSV file
+    with open(fp, 'r', encoding='utf-8') as file:
+        lines = file.readlines()
+        # Parse CSV data
+        for line in lines:
+            row = line.strip().split(',')
+            body.append(row)
 
+header = body.pop(0)
 
 # Add the window
 with Window(
@@ -35,11 +45,11 @@ with Window(
 
     # Add the container for centering the table
     with Container(fill=True, align_center=True):
-        # file_path needs a string so the check above using Path() is used.
         add_table_basic(
-                file_path=FILE_PATH,
-                column_widths=column_widths,
-                scrollable_height=300.0)
+            header = header,
+            body=body,
+            column_widths=column_widths,
+            scrollable_height=300.0)
 
 
 # Required to be the last widget sent to Iced,  If you start the program

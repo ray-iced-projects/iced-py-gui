@@ -31,12 +31,11 @@ type PyObject = Py<PyAny>;
 #[derive(Debug, Clone, Default)]
 pub struct TableBasic {
     pub id: usize,
-    pub body_row_heights: f32,
+    pub body_row_heights: Option<f32>,
     pub body_row_highlight: bool,
     pub body_row_outline: bool,
     pub body: Vec<Vec<String>>,
     pub column_widths: Vec<f32>,
-    pub file_path: Option<String>,
     pub footer_height: Option<f32>,
     pub footer: Option<Vec<String>>,
     pub header_height: Option<f32>,
@@ -106,33 +105,7 @@ impl TableBasic {
         let text_color =
             Color::rgba_ipg_color_to_iced(tbl_style.text_rgba, &tbl_style.text_color, tbl_style.text_color_alpha);
 
-        let (header, body) = if let Some(fp) = &self.file_path {
-            let (header_data, body_data) = load_csv(fp).unwrap_or_default();
-
-            let header = 
-                header_footer(
-                    wid, 
-                    &header_data, 
-                    self.column_widths.clone(), 
-                    self.header_height,
-                    self.sash_size,
-                    Some(self.min_size),
-                );
-
-            let body = table_body(
-                wid,
-                &body_data,
-                self.column_widths.clone(),
-                self.body_row_heights,
-                self.body_row_highlight,
-                self.body_row_outline,
-                self.sash_size,
-                Some(self.min_size),
-            );
-
-            (header, body)
-        } else {
-            let header = header_footer(
+        let header = header_footer(
                 wid,
                 &self.header.clone().unwrap_or(vec![]),
                 self.column_widths.clone(),
@@ -141,19 +114,16 @@ impl TableBasic {
                 Some(self.min_size),
             );
 
-            let body = table_body(
+        let body = table_body(
                 wid,
                 &self.body.clone(),
                 self.column_widths.clone(),
-                self.body_row_heights,
+                self.body_row_heights.unwrap_or(30.0),
                 self.body_row_highlight,
                 self.body_row_outline,
                 self.sash_size,
                 Some(self.min_size),
             );
-
-            (header, body)
-        };
 
         let footer = header_footer(
             wid,

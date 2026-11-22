@@ -1,25 +1,21 @@
 //! ipg_table
 #![allow(clippy::unit_arg)]
-#![allow(unused)]
 use std::collections::HashMap;
-use std::num::NonZeroU16;
 
 use crate::app::Message;
 use crate::graphics::colors::Color;
 use crate::ipg_widgets::ipg_sash;
-use crate::py_api::helpers::get_radius;
 use crate::state::{Containers, Widgets};
 use crate::widgets::callbacks::{CallbackName, invoke_callback_with_args};
-use crate::widgets::styling::apply_background_color_overrides;
+use crate::widgets::ipg_sash::SashStyle;
+use crate::widgets::ipg_text::TextStyle;
 use crate::widgets::widget_param_update::{WidgetParamUpdate, set_t_value};
 
 use crate::IpgState;
 
 use iced::Length::Fill;
-use iced::border::Radius;
-use iced::widget::scrollable::Scrollbar;
-use iced::widget::{Space, center, column, container, row, rule, scrollable, stack, text};
-use iced::{Border, Length, Widget, alignment, widget};
+use iced::widget::{center, column, container, rule, scrollable, text};
+use iced::{Length, Widget};
 use iced::{Element, Renderer, Theme};
 
 use ipg_sash::sash::resize as sash_resize;
@@ -35,11 +31,17 @@ pub struct TableBasic {
     pub body_row_highlight: bool,
     pub body_row_outline: bool,
     pub body: Vec<Vec<String>>,
+    pub body_text_size: Option<f32>,
+    pub body_text_style_id: Option<usize>,
     pub column_widths: Vec<f32>,
     pub footer_height: Option<f32>,
     pub footer: Option<Vec<String>>,
+    pub footer_text_size: Option<f32>,
+    pub footer_text_style_id: Option<usize>,
     pub header_height: Option<f32>,
     pub header: Option<Vec<String>>,
+    pub header_text_size: Option<f32>,
+    pub header_text_style_id: Option<usize>,
     pub min_size: f32,
     pub released: bool,
     pub resize_columns_enabled: bool,
@@ -47,9 +49,8 @@ pub struct TableBasic {
     pub sash_size: f32,
     pub sash_style_id: Option<usize>,
     pub scrollable_height: Option<f32>,
+    pub scrollable_style_id: Option<usize>,
     pub show: bool,
-    pub style_id: Option<usize>,
-    pub text_size: Option<f32>,
 }
 
 impl TableBasic {
@@ -67,43 +68,30 @@ impl TableBasic {
 
         let wid = self.id;
 
-        let scroll_style_header_opt = self
-            .lookup(widgets, self.style_id)
-            .and_then(Widgets::as_scrollable_style)
-            .cloned();
-
         let scroll_style_body_opt = self
-            .lookup(widgets, self.style_id)
+            .lookup(widgets, self.scrollable_style_id)
             .and_then(Widgets::as_scrollable_style)
             .cloned();
 
-        let scroll_style_footer_opt = self
-            .lookup(widgets, self.style_id)
-            .and_then(Widgets::as_scrollable_style)
+        let header_text_style_opt = self
+            .lookup(widgets, self.header_text_style_id)
+            .and_then(Widgets::as_text_style)
             .cloned();
 
-        let table_style_opt = self
-            .lookup(widgets, self.style_id)
-            .and_then(Widgets::as_table_style)
+        let body_text_style_opt = self
+            .lookup(widgets, self.body_text_style_id)
+            .and_then(Widgets::as_text_style)
             .cloned();
 
-        let tbl_style = if let Some(tbl) = &table_style_opt {
-            tbl.clone()
-        } else {
-            TableStyle::default()
-        };
+        let footer_text_style_opt = self
+            .lookup(widgets, self.footer_text_style_id)
+            .and_then(Widgets::as_text_style)
+            .cloned();
 
-        let bkg_color =
-            Color::rgba_ipg_color_to_iced(tbl_style.bkg_rgba, &tbl_style.bkg_color, tbl_style.bkg_color_alpha);
-
-        let brd_color = Color::rgba_ipg_color_to_iced(
-            tbl_style.border_rgba,
-            &tbl_style.border_color,
-            tbl_style.border_color_alpha,
-        );
-
-        let text_color =
-            Color::rgba_ipg_color_to_iced(tbl_style.text_rgba, &tbl_style.text_color, tbl_style.text_color_alpha);
+        let sash_style_opt = self
+            .lookup(widgets, self.sash_style_id)
+            .and_then(Widgets::as_sash_style)
+            .cloned();
 
         let header = header_footer(
                 wid,
@@ -111,7 +99,9 @@ impl TableBasic {
                 self.column_widths.clone(),
                 self.header_height,
                 self.sash_size,
+                sash_style_opt,
                 Some(self.min_size),
+                header_text_style_opt,
             );
 
         let body = table_body(
@@ -122,7 +112,9 @@ impl TableBasic {
                 self.body_row_highlight,
                 self.body_row_outline,
                 self.sash_size,
+                sash_style_opt,
                 Some(self.min_size),
+                body_text_style_opt,
             );
 
         let footer = header_footer(
@@ -131,7 +123,9 @@ impl TableBasic {
             self.column_widths.clone(),
             self.footer_height,
             self.sash_size,
+            sash_style_opt,
             Some(self.min_size),
+            footer_text_style_opt,
         );
 
         let body = if let Some(sh) = self.scrollable_height {
@@ -160,19 +154,32 @@ impl TableBasic {
 }
 
 fn header_footer<'a>(
-    id: usize, hf: &[String], 
+    id: usize, 
+    hf: &[String], 
     sizes: Vec<f32>, 
     height: Option<f32>,
     sash_size: f32,
+    sash_style_opt: Option<SashStyle>,
     min_size: Option<f32>,
+    text_style_opt: Option<TextStyle>,
 ) -> Option<Element<'a, Message>> {
+    
     if hf.len() == 0 {
         return None;
     }
-    let sash: Element<'a, Message> = SashH::new(
+
+    let children = if let Some(st) = text_style_opt {
         hf.iter()
-            .map(|col| center(text(col.clone())).center(Fill).boxed())
-            .collect(),
+            .map(|h_str| center(text(h_str.clone()).style()).center(Fill).boxed())
+            .collect()
+    } else {
+        hf.iter()
+            .map(|h_str| center(text(h_str.clone())).center(Fill).boxed())
+            .collect()
+    };
+
+    let sash: Element<'a, Message> = SashH::new(
+        children,
         sizes.clone(),
         height.unwrap_or(30.0),
         sash_size,
@@ -197,7 +204,9 @@ fn table_body<'a>(
     highlight: bool,
     outline: bool,
     sash_size: f32,
+    sash_style_opt: Option<SashStyle>,
     min_size: Option<f32>,
+    text_style_opt: Option<TextStyle>,
 ) -> Element<'a, Message> {
 
     let rows: Vec<Element<'a, Message>> = body
@@ -287,7 +296,6 @@ pub struct Table {
     pub footer_height: Option<f32>,
     pub sash_size: f32,
     pub min_size: f32,
-    pub file_path: Option<String>,
     pub style_id: Option<usize>,
     pub sash_style_id: Option<usize>,
     pub show: bool,

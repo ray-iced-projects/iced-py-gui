@@ -1,9 +1,9 @@
 //! ipg_text
 use std::collections::HashMap;
 
-use iced::widget;
+use iced::widget::{self, text};
 use iced::widget::text::{Style, Wrapping};
-use iced::{Element, Widget, alignment};
+use iced::{Element, Length, Widget, alignment};
 
 use pyo3::{Py, PyAny, pyclass};
 type PyObject = Py<PyAny>;
@@ -223,16 +223,12 @@ impl WidgetParamUpdate for Text {
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
-            TextParam::AlignBottomCenter => {
-                set_t_value(&mut self.align_bottom_center, value, "TextParam::AlignBottomCenter")
-            }
+            TextParam::AlignBottomCenter => set_t_value(&mut self.align_bottom_center, value, "TextParam::AlignBottomCenter")
             TextParam::AlignBottomLeft => set_t_value(&mut self.align_bottom_left, value, "AlignBottomLeft"),
             TextParam::AlignBottomRight => set_t_value(&mut self.align_bottom_right, value, "AlignBottomRight"),
             TextParam::AlignCenter => set_t_value(&mut self.align_center, value, "TextParam::AlignCenter"),
             TextParam::AlignCenterLeft => set_t_value(&mut self.align_center_left, value, "TextParam::AlignCenterLeft"),
-            TextParam::AlignCenterRight => {
-                set_t_value(&mut self.align_center_right, value, "TextParam::AlignCenterRight")
-            }
+            TextParam::AlignCenterRight => set_t_value(&mut self.align_center_right, value, "TextParam::AlignCenterRight")
             TextParam::AlignTopCenter => set_t_value(&mut self.align_top_center, value, "TextParam::AlignTopCenter"),
             TextParam::AlignTopLeft => set_t_value(&mut self.align_top_left, value, "TextParam::AlignTopLeft"),
             TextParam::AlignTopRight => set_t_value(&mut self.align_top_right, value, "TextParam::AlignTopRight"),
@@ -251,10 +247,115 @@ impl WidgetParamUpdate for Text {
             TextParam::WidthFill => set_t_value(&mut self.width_fill, value, "TextParam::WidthFill"),
             TextParam::WrappingGlyph => set_t_value(&mut self.wrapping_glyph, value, "TextParam::WrappingGlyph"),
             TextParam::WrappingNone => set_t_value(&mut self.wrapping_none, value, "TextParam::WrappingNone"),
-            TextParam::WrappingWordGlyph => {
-                set_t_value(&mut self.wrapping_word_glyph, value, "TextParam::WrappingWordGlyph")
-            }
+            TextParam::WrappingWordGlyph => set_t_value(&mut self.wrapping_word_glyph, value, "TextParam::WrappingWordGlyph")
+            
         }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct TextFormat {
+    pub id: usize,
+    pub align_bottom_center: Option<bool>,
+    pub align_bottom_left: Option<bool>,
+    pub align_bottom_right: Option<bool>,
+    pub align_center_left: Option<bool>,
+    pub align_center_right: Option<bool>,
+    pub align_center: Option<bool>,
+    pub align_top_center: Option<bool>,
+    pub align_top_left: Option<bool>,
+    pub align_top_right: Option<bool>,
+    pub fill: Option<bool>,
+    pub height_fill: Option<bool>,
+    pub height: Option<f32>,
+    pub line_height: Option<f32>, // defaults 1.3 relative
+    pub size: Option<f32>,
+    pub width_fill: Option<bool>,
+    pub width: Option<f32>,
+    pub wrapping_glyph: Option<bool>,
+    pub wrapping_none: Option<bool>,
+    pub wrapping_word_glyph: Option<bool>,
+}
+
+impl TextFormat {
+    pub fn construct(&self) -> text::Format {
+
+        let width = match (self.fill, self.width_fill, self.width) {
+            (Some(_), None, None) => Length::Fill,
+            (None, Some(_), None) => Length::Fill,
+            (None, None, Some(_)) => Length::Fixed(self.width.unwrap()),
+            _ => Length::Shrink
+        };
+        
+        let fmt = match (
+            self.align_bottom_center,
+            self.align_bottom_left,
+            self.align_bottom_right,
+            self.align_center,
+            self.align_center_left,
+            self.align_center_right,
+            self.align_top_center,
+            self.align_top_left,
+            self.align_top_right,
+        ) {
+            (Some(true), ..) => 
+                text::Format {
+                align_x: text::Alignment::Center,
+                align_y: alignment::Vertical::Bottom,
+                ..Default::default()
+            },
+            (_, Some(true), ..) => 
+                text::Format {
+                align_x: text::Alignment::Left,
+                align_y: alignment::Vertical::Bottom,
+                ..Default::default()
+            },
+            (_, _, Some(true), ..) => 
+                text::Format {
+                align_x: text::Alignment::Right,
+                align_y: alignment::Vertical::Bottom,
+                ..Default::default()
+            },
+            (_, _, _, Some(true), ..) => 
+                text::Format {
+                align_x: text::Alignment::Center,
+                align_y: alignment::Vertical::Center,
+                ..Default::default()
+            },
+            (_, _, _, _, Some(true), ..) => 
+            text::Format {
+                align_x: text::Alignment::Left,
+                align_y: alignment::Vertical::Center,
+                ..Default::default()
+            },
+            (_, _, _, _, _, Some(true), ..) =>
+            text::Format {
+                align_x: text::Alignment::Right,
+                align_y: alignment::Vertical::Center,
+                ..Default::default()
+            },
+            (_, _, _, _, _, _, Some(true), ..) =>
+            text::Format {
+                align_x: text::Alignment::Center,
+                align_y: alignment::Vertical::Top,
+                ..Default::default()
+            },
+            (_, _, _, _, _, _, _, Some(true), _) =>
+            text::Format {
+                align_x: text::Alignment::Left,
+                align_y: alignment::Vertical::Top,
+                ..Default::default()
+            },
+            (_, _, _, _, _, _, _, _, Some(true)) =>
+            text::Format {
+                align_x: text::Alignment::Right,
+                align_y: alignment::Vertical::Top,
+                ..Default::default()
+            },
+            _ => text::Format::default()
+        };
+
+        fmt
     }
 }
 

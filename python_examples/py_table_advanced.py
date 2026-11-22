@@ -97,7 +97,7 @@ def filter_genre(_pick_id: int, genre: str):
 
 # Add the window
 with Window(
-        title="Table Demo",
+        title="Best Selling Books",
         size=(1000, 600),
         center=True):
 
@@ -113,12 +113,13 @@ with Window(
 
             with TableHeader():
                 for h1 in header:
-                    add_text(content=h1, align_center=True, fill=True, size=14)
+                    add_text(content=h1, align_center=True, fill=True, size=12)
 
                 for h2 in header:
                     pl_id = add_pick_list(
                         options=pick_list_options,
                         placeholder="Sort",
+                        text_size=12.0,
                         on_select=sort_books)
 
                     sort_dict[h2] = pl_id
@@ -129,10 +130,10 @@ with Window(
                         add_pick_list(
                             options=genres,
                             placeholder="Filter",
+                            text_size=12.0,
                             on_select=filter_genre)
                     else:
                         add_space(width=0)
-
 
             with TableBody():
                 for row in book_lines:

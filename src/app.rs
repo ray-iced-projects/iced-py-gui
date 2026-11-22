@@ -1181,7 +1181,6 @@ fn get_widget<'a>(state: &'a IpgState, id: &usize, theme: &Theme) -> Option<Elem
                     None
                 },
                 Widgets::ButtonStyle(_) |
-                // Widgets::CardStyle(_) |
                 Widgets::CheckboxStyle(_) |
                 Widgets::ComboBoxInputStyle(_) |
                 Widgets::ComboBoxMenuStyle(_) |
@@ -1196,6 +1195,7 @@ fn get_widget<'a>(state: &'a IpgState, id: &usize, theme: &Theme) -> Option<Elem
                 Widgets::SashStyle(_) |
                 Widgets::ScrollableStyle(_) |
                 Widgets::TableStyle(_) |
+                Widgets::TextFormat(_) |
                 Widgets::RailStyle(_) |
                 Widgets::AutoScrollStyle(_) |
                 Widgets::SeparatorStyle(_) |
@@ -1590,6 +1590,7 @@ fn process_shows(
             | Widgets::TextStyle(_)
             | Widgets::TextEditor(_)
             | Widgets::TextEditorStyle(_)
+            | Widgets::TextFormat(_)
             | Widgets::TextInputStyle(_)
             | Widgets::TogglerStyle(_) => {
                 eprintln!("Widget {:?} does not support the show parameter", widget)

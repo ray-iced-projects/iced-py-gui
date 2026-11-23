@@ -48,8 +48,6 @@ pub fn param_update(widget: &mut Widgets, item: &PyObject, value: &PyObject) {
     match widget {
         Widgets::Button(w) => apply_update(w, item, value),
         Widgets::ButtonStyle(w) => apply_update(w, item, value),
-        // Widgets::Card(w) => apply_update(w, item, value),
-        // Widgets::CardStyle(w) => apply_update(w, item, value),
         Widgets::CheckBox(w) => apply_update(w, item, value),
         Widgets::CheckboxStyle(w) => apply_update(w, item, value),
         Widgets::ComboBox(w) => apply_update(w, item, value),
@@ -88,6 +86,7 @@ pub fn param_update(widget: &mut Widgets, item: &PyObject, value: &PyObject) {
         Widgets::TableBasic(w) => apply_update(w, item, value),
         Widgets::TableStyle(w) => apply_update(w, item, value),
         Widgets::Text(w) => apply_update(w, item, value),
+        Widgets::TextFormat(w) => apply_update(w, item, value),
         Widgets::TextStyle(w) => apply_update(w, item, value),
         Widgets::TextEditor(w) => apply_update(w, item, value),
         Widgets::TextEditorStyle(w) => apply_update(w, item, value),

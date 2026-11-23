@@ -224,6 +224,7 @@ ipg_widget_accessors! {
     TableBasic         => TableBasic,          as_table_basic,           as_table_basic_mut;
     TableStyle         => TableStyle,          as_table_style,           as_table_style_mut;
     Text               => Text,                as_text,                  as_text_mut;
+    TextFormat         => TextFormat,          as_text_format,           as_text_format_mut;
     TextStyle          => TextStyle,           as_text_style,            as_text_style_mut;
     TextEditor         => TextEditor,          as_text_editor,           as_text_editor_mut;
     TextEditorStyle    => TextEditorStyle,     as_text_editor_style,     as_text_editor_style_mut;

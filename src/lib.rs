@@ -53,7 +53,7 @@ use crate::py_api::grid::add_grid;
 use crate::py_api::image::add_image;
 use crate::py_api::input_float::{add_input_float, add_input_float_style};
 use crate::py_api::input_int::{add_input_int, add_input_int_style};
-use crate::py_api::menu::{add_menu, add_menu_bar, add_sub_menu, add_menu_item};
+use crate::py_api::menu::{add_menu, add_menu_bar, add_menu_item, add_sub_menu};
 use crate::py_api::menu_button::{add_menu_button, add_menu_button_style};
 use crate::py_api::mouse_area::add_mouse_area;
 use crate::py_api::opaque::add_opaque;
@@ -66,7 +66,8 @@ use crate::py_api::row::add_row;
 use crate::py_api::rule::{add_rule, add_rule_style};
 use crate::py_api::sash::{add_sash, add_sash_style};
 use crate::py_api::scrollable::{
-    add_autoscroll_style, add_rail_style, add_scrollable, add_scrollable_style, add_scroller};
+    add_autoscroll_style, add_rail_style, add_scrollable, add_scrollable_style, add_scroller,
+};
 use crate::py_api::separator::{add_separator, add_separator_style};
 use crate::py_api::session::{generate_id, start_session};
 use crate::py_api::slider::{add_slider, add_slider_style};
@@ -74,7 +75,8 @@ use crate::py_api::space::add_space;
 use crate::py_api::stack::add_stack;
 use crate::py_api::svg::add_svg;
 use crate::py_api::table::{
-    add_table, add_table_basic, add_table_body, add_table_footer, add_table_header, add_table_style};
+    add_table, add_table_basic, add_table_body, add_table_footer, add_table_header, add_table_style,
+};
 use crate::py_api::text::{add_text, add_text_style};
 use crate::py_api::text_editor::{add_text_editor, add_text_editor_style};
 use crate::py_api::text_input::{add_text_input, add_text_input_style};
@@ -122,7 +124,7 @@ use crate::widgets::ipg_slider::{SliderParam, SliderStyleParam};
 use crate::widgets::ipg_stack::StackParam;
 use crate::widgets::ipg_svg::SvgParam;
 use crate::widgets::ipg_table::{TableBasicParam, TableStyleParam};
-use crate::widgets::ipg_text::{TextColorStd, TextParam, TextStyleParam};
+use crate::widgets::ipg_text::{TextFormatParam, TextStyleParam, TextStyleStd};
 use crate::widgets::ipg_text_editor::TextEditorParam;
 use crate::widgets::ipg_text_input::{TextInputParam, TextInputStyleParam};
 use crate::widgets::ipg_text_rich::{RichTextParam, SpanParam};
@@ -318,11 +320,11 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<SvgParam>()?;
     m.add_class::<TableBasicParam>()?;
     m.add_class::<TableStyleParam>()?;
-    m.add_class::<TextColorStd>()?;
+    m.add_class::<TextStyleStd>()?;
     m.add_class::<TextEditorParam>()?;
     m.add_class::<TextInputParam>()?;
     m.add_class::<TextInputStyleParam>()?;
-    m.add_class::<TextParam>()?;
+    m.add_class::<TextFormatParam>()?;
     m.add_class::<TextStyleParam>()?;
     m.add_class::<TimerParam>()?;
     m.add_class::<TogglerParam>()?;

@@ -1,8 +1,8 @@
 //! ipg_text
 use std::collections::HashMap;
 
-use iced::widget::{self, text};
 use iced::widget::text::{LineHeight, Wrapping};
+use iced::widget::{self, text};
 use iced::{Element, Length, Pixels, Widget, alignment};
 
 use pyo3::{Py, PyAny, pyclass};
@@ -13,7 +13,7 @@ use crate::graphics::colors::Color;
 use crate::state::Widgets;
 use crate::widgets::widget_param_update::{WidgetParamUpdate, set_t_value};
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct Text {
     pub id: usize,
     pub content: String,
@@ -27,40 +27,48 @@ pub struct Text {
 }
 
 impl Text {
-    fn lookup<'a>(
-        &self, 
-        widgets: &'a HashMap<usize, Widgets>, 
-        id: Option<usize>
-    ) -> Option<&'a Widgets> {
-        
+    fn lookup<'a>(&self, widgets: &'a HashMap<usize, Widgets>, id: Option<usize>) -> Option<&'a Widgets> {
         id.and_then(|id| widgets.get(&id))
     }
 
-    pub fn construct<'a>(&'a self, widgets: &HashMap<usize, Widgets>) -> Option<Element<'a, Message>> {
+    pub fn construct<'a>(
+        &self, 
+        widgets: &HashMap<usize, Widgets>,
+    ) -> Option<Element<'a, Message>> {
+
         if !self.show {
             return None;
         }
 
         let font_opt = self.lookup(widgets, self.font_id).and_then(Widgets::as_font).cloned();
 
-        let format_opt = self.lookup(widgets, self.format_id).and_then(Widgets::as_text_format).cloned();
-
-        let style_opt = self.lookup(widgets, self.style_id).and_then(Widgets::as_text_style).cloned();
+        let format_opt = self
+            .lookup(widgets, self.format_id)
+            .and_then(Widgets::as_text_format)
+            .cloned();
         
+        let style_opt = self
+            .lookup(widgets, self.style_id)
+            .and_then(Widgets::as_text_style)
+            .cloned();
+
         let fmt = if let Some(f) = format_opt {
             f.construct()
-        } else { text::Format::default()};
+        } else {
+            text::Format::default()
+        };
 
-        let txt = 
-            widget::Text::new(self.content.clone())
+        let style_std = self.style_std.clone();
+        
+        let txt = widget::Text::new(self.content.clone())
             .width(fmt.width)
             .height(fmt.height)
             .align_x(fmt.align_x)
             .align_y(fmt.align_y)
-            .line_height(fmt.line_height.unwrap())
             .selectable(self.selectable)
+            .wrapping(fmt.wrapping)
             .style(move |theme| {
-                if let Some(tss) = &self.style_std {
+                if let Some(tss) = &style_std {
                     match tss {
                         TextStyleStd::Base => widget::text::base(theme),
                         TextStyleStd::Danger => widget::text::danger(theme),
@@ -72,12 +80,14 @@ impl Text {
                 } else {
                     if let Some(st) = style_opt.clone() {
                         st.construct()
-                    } else { text::Style::default() }
+                    } else {
+                        text::Style::default()
+                    }
                 }
             });
-            
-        let txt = if let Some(sz) = fmt.size {
-            txt.size(sz)
+
+        let txt = if let Some(sz) = fmt.size { 
+            txt.size(sz) 
         } else { txt };
 
         let txt = if let Some(lh) = fmt.line_height {
@@ -168,30 +178,33 @@ pub struct TextFormat {
 
 impl TextFormat {
     pub fn construct(&self) -> text::Format {
-
         let width = match (self.fill, self.width_fill, self.width) {
             (Some(_), None, None) => Length::Fill,
             (None, Some(_), None) => Length::Fill,
             (None, None, Some(_)) => Length::Fixed(self.width.unwrap()),
-            _ => Length::Shrink
+            _ => Length::Shrink,
         };
 
         let height = match (self.fill, self.height_fill, self.height) {
             (Some(_), None, None) => Length::Fill,
             (None, Some(_), None) => Length::Fill,
             (None, None, Some(_)) => Length::Fixed(self.height.unwrap()),
-            _ => Length::Shrink
+            _ => Length::Shrink,
         };
 
         let size = if let Some(sz) = self.size {
             Some(Pixels(sz))
-        } else { None };
+        } else {
+            None
+        };
 
         let line_height = if let Some(lh) = self.line_height {
             Some(LineHeight::Relative(lh))
-        } else { None };
-        
-        let( align_x, align_y) = match (
+        } else {
+            None
+        };
+
+        let (align_x, align_y) = match (
             self.align_bottom_center,
             self.align_bottom_left,
             self.align_bottom_right,
@@ -202,45 +215,30 @@ impl TextFormat {
             self.align_top_left,
             self.align_top_right,
         ) {
-            (Some(true), ..) => 
-                (text::Alignment::Center,
-                alignment::Vertical::Bottom),
-            (_, Some(true), ..) => 
-                (text::Alignment::Left,
-                alignment::Vertical::Bottom),
-            (_, _, Some(true), ..) => 
-                (text::Alignment::Right,
-                alignment::Vertical::Bottom),
-            (_, _, _, Some(true), ..) => 
-                (text::Alignment::Center,
-                alignment::Vertical::Center),
-            (_, _, _, _, Some(true), ..) => 
-                (text::Alignment::Left,
-                alignment::Vertical::Center),
-            (_, _, _, _, _, Some(true), ..) =>
-                (text::Alignment::Right,
-                alignment::Vertical::Center),
-            (_, _, _, _, _, _, Some(true), ..) =>
-                (text::Alignment::Center,
-                alignment::Vertical::Top),
-            (_, _, _, _, _, _, _, Some(true), _) =>
-                (text::Alignment::Left,
-                alignment::Vertical::Top),
-            (_, _, _, _, _, _, _, _, Some(true)) =>
-                (text::Alignment::Right,
-                alignment::Vertical::Top),
-            _ => (text::Alignment::Default,
-                alignment::Vertical::Top)
+            (Some(true), ..) => (text::Alignment::Center, alignment::Vertical::Bottom),
+            (_, Some(true), ..) => (text::Alignment::Left, alignment::Vertical::Bottom),
+            (_, _, Some(true), ..) => (text::Alignment::Right, alignment::Vertical::Bottom),
+            (_, _, _, Some(true), ..) => (text::Alignment::Center, alignment::Vertical::Center),
+            (_, _, _, _, Some(true), ..) => (text::Alignment::Left, alignment::Vertical::Center),
+            (_, _, _, _, _, Some(true), ..) => (text::Alignment::Right, alignment::Vertical::Center),
+            (_, _, _, _, _, _, Some(true), ..) => (text::Alignment::Center, alignment::Vertical::Top),
+            (_, _, _, _, _, _, _, Some(true), _) => (text::Alignment::Left, alignment::Vertical::Top),
+            (_, _, _, _, _, _, _, _, Some(true)) => (text::Alignment::Right, alignment::Vertical::Top),
+            _ => (text::Alignment::Default, alignment::Vertical::Top),
         };
 
-        let wrapping = 
-            match (self.wrapping_glyph, self.wrapping_none, self.wrapping_word, self.wrapping_word_glyph) {
-                (Some(true),_,_,_) => Wrapping::Glyph,
-                (_,Some(true),_,_) => Wrapping::None,
-                (_,_,Some(true),_) => Wrapping::Word,
-                (_,_,_,Some(true)) => Wrapping::WordOrGlyph,
-                _ => Wrapping::default()
-            };
+        let wrapping = match (
+            self.wrapping_glyph,
+            self.wrapping_none,
+            self.wrapping_word,
+            self.wrapping_word_glyph,
+        ) {
+            (Some(true), _, _, _) => Wrapping::Glyph,
+            (_, Some(true), _, _) => Wrapping::None,
+            (_, _, Some(true), _) => Wrapping::Word,
+            (_, _, _, Some(true)) => Wrapping::WordOrGlyph,
+            _ => Wrapping::default(),
+        };
 
         text::Format {
             width,
@@ -252,7 +250,6 @@ impl TextFormat {
             wrapping,
             ..Default::default()
         }
-
     }
 }
 
@@ -268,29 +265,12 @@ pub struct TextStyle {
 }
 
 impl TextStyle {
-    pub fn construct<'a>(
-        &'a self,
-    ) -> text::Style {
+    pub fn construct<'a>(&'a self) -> text::Style {
+        let color = Color::rgba_ipg_color_to_iced(self.color_rgba, &self.color, self.color_alpha);
 
-        let color = 
-            Color::rgba_ipg_color_to_iced(
-                self.color_rgba, 
-                &self.color, 
-                self.color_alpha
-            );
+        let selection = Color::rgba_ipg_color_to_iced(self.selection_color_rgba, &self.color, self.color_alpha);
 
-        let selection = 
-            Color::rgba_ipg_color_to_iced(
-                self.selection_color_rgba,
-                &self.color,
-                self.color_alpha,
-            );
-
-        text::Style {
-            color,
-            selection,
-        }
-
+        text::Style { color, selection }
     }
 }
 
@@ -320,7 +300,9 @@ impl WidgetParamUpdate for Text {
             TextParam::Selectable => set_t_value(&mut self.selectable, value, "TextParam::Selectable"),
             TextParam::StyleId => set_t_value(&mut self.style_id, value, "TextParam::StyleId"),
             TextParam::Show => set_t_value(&mut self.show, value, "TextParam::Show"),
-            TextParam::SelectionStyleId => set_t_value(&mut self.selection_style_id, value, "TextParam::SelectionStyleId"),
+            TextParam::SelectionStyleId => {
+                set_t_value(&mut self.selection_style_id, value, "TextParam::SelectionStyleId")
+            }
             TextParam::StyleStd => set_t_value(&mut self.style_std, value, "TextParam::StyleStd"),
         }
     }
@@ -331,13 +313,21 @@ impl WidgetParamUpdate for TextFormat {
 
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
-            TextFormatParam::AlignBottomCenter => set_t_value(&mut self.align_bottom_center, value, "TextParam::AlignBottomCenter"),
+            TextFormatParam::AlignBottomCenter => {
+                set_t_value(&mut self.align_bottom_center, value, "TextParam::AlignBottomCenter")
+            }
             TextFormatParam::AlignBottomLeft => set_t_value(&mut self.align_bottom_left, value, "AlignBottomLeft"),
             TextFormatParam::AlignBottomRight => set_t_value(&mut self.align_bottom_right, value, "AlignBottomRight"),
             TextFormatParam::AlignCenter => set_t_value(&mut self.align_center, value, "TextParam::AlignCenter"),
-            TextFormatParam::AlignCenterLeft => set_t_value(&mut self.align_center_left, value, "TextParam::AlignCenterLeft"),
-            TextFormatParam::AlignCenterRight => set_t_value(&mut self.align_center_right, value, "TextParam::AlignCenterRight"),
-            TextFormatParam::AlignTopCenter => set_t_value(&mut self.align_top_center, value, "TextParam::AlignTopCenter"),
+            TextFormatParam::AlignCenterLeft => {
+                set_t_value(&mut self.align_center_left, value, "TextParam::AlignCenterLeft")
+            }
+            TextFormatParam::AlignCenterRight => {
+                set_t_value(&mut self.align_center_right, value, "TextParam::AlignCenterRight")
+            }
+            TextFormatParam::AlignTopCenter => {
+                set_t_value(&mut self.align_top_center, value, "TextParam::AlignTopCenter")
+            }
             TextFormatParam::AlignTopLeft => set_t_value(&mut self.align_top_left, value, "TextParam::AlignTopLeft"),
             TextFormatParam::AlignTopRight => set_t_value(&mut self.align_top_right, value, "TextParam::AlignTopRight"),
             TextFormatParam::Fill => set_t_value(&mut self.fill, value, "TextParam::Fill"),
@@ -350,8 +340,9 @@ impl WidgetParamUpdate for TextFormat {
             TextFormatParam::WrappingGlyph => set_t_value(&mut self.wrapping_glyph, value, "TextParam::WrappingGlyph"),
             TextFormatParam::WrappingNone => set_t_value(&mut self.wrapping_none, value, "TextParam::WrappingNone"),
             TextFormatParam::WrappingWord => set_t_value(&mut self.wrapping_word, value, "TextParam::WrappingWord"),
-            TextFormatParam::WrappingWordGlyph => set_t_value(&mut self.wrapping_word_glyph, value, "TextParam::WrappingWordGlyph"),
-            
+            TextFormatParam::WrappingWordGlyph => {
+                set_t_value(&mut self.wrapping_word_glyph, value, "TextParam::WrappingWordGlyph")
+            }
         }
     }
 }
@@ -364,10 +355,19 @@ impl WidgetParamUpdate for TextStyle {
             TextStyleParam::Color => set_t_value(&mut self.color, value, "TextStyleParam::Color"),
             TextStyleParam::ColorAlpha => set_t_value(&mut self.color_alpha, value, "TextStyleParam::ColorAlpha"),
             TextStyleParam::ColorRgba => set_t_value(&mut self.color_rgba, value, "TextStyleParam::ColorRgba"),
-            TextStyleParam::SelectionColor => set_t_value(&mut self.selection_color, value, "TextStyleParam::SelectionColor"),
-            TextStyleParam::SelectionColorAlpha => set_t_value(&mut self.selection_color_alpha, value, "TextStyleParam::SlectionColorAlpha"),
-            TextStyleParam::SelectionColorRgba => set_t_value(&mut self.selection_color_rgba, value, "TextStyleParam::SelectionColorRgba"),
+            TextStyleParam::SelectionColor => {
+                set_t_value(&mut self.selection_color, value, "TextStyleParam::SelectionColor")
+            }
+            TextStyleParam::SelectionColorAlpha => set_t_value(
+                &mut self.selection_color_alpha,
+                value,
+                "TextStyleParam::SlectionColorAlpha",
+            ),
+            TextStyleParam::SelectionColorRgba => set_t_value(
+                &mut self.selection_color_rgba,
+                value,
+                "TextStyleParam::SelectionColorRgba",
+            ),
         }
     }
 }
-

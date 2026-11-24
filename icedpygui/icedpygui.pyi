@@ -4,6 +4,8 @@ IcedPyGui functions
 Type stubs for the Rust native module
 """
 
+from __future__ import annotations
+
 # pylint: disable=unused-argument
 # pylint: disable=too-many-arguments
 # pylint: disable=too-many-locals
@@ -17,7 +19,6 @@ Type stubs for the Rust native module
 
 def clipboard_write(text: str) -> None:
     """Write text to the system clipboard."""
-
 
 def clipboard_callback(
         callback: callable,
@@ -780,6 +781,78 @@ def add_text_input_style(
     -------
     int
         The numeric style ID to pass to a text input's ``style_id``.
+    """
+
+def add_text_format(
+    align_bottom_center: bool | None = None,
+    align_bottom_left: bool | None = None,
+    align_bottom_right: bool | None = None,
+    align_center_left: bool | None = None,
+    align_center_right: bool | None = None,
+    align_center: bool | None = None,
+    align_top_center: bool | None = None,
+    align_top_left: bool | None = None,
+    align_top_right: bool | None = None,
+    fill: bool | None = None,
+    height_fill: bool | None = None,
+    height: bool | None = None,
+    line_height: bool | None = None,
+    size: bool | None = None,
+    width_fill: bool | None = None,
+    width: bool | None = None,
+    wrapping_glyph: bool | None = None,
+    wrapping_none: bool | None = None,
+    wrapping_word: bool | None = None,
+    wrapping_word_glyph: bool | None = None,
+) -> int:
+    """
+    Add a text format.
+    A method for formatting a text widget.
+
+    Parameters
+    ----------
+    align_bottom_center : bool, Optional
+        Whether to Align the text to the bottom-centre.
+    align_bottom_left : bool, Optional
+        Whether to Align the text to the bottom-left.
+    align_bottom_right : bool, Optional
+        Whether to Align the text to the bottom-right.
+    align_center : bool, Optional
+        Whether to Align the text to the centre.
+    align_center_left : bool, Optional
+        Whether to Align the text to the centre-left.
+    align_center_right : bool, Optional
+        Whether to Align the text to the centre-right.
+    align_top_center : bool, Optional
+        Whether to Align the text to the top-centre.
+    align_top_left : bool, Optional
+        Whether to Align the text to the top-left.
+    align_top_right : bool, Optional
+        Whether to Align the text to the top-right.
+    font_id : int, Optional
+        Sets the Font ID for the text.
+    height : float, Optional
+        Sets the Fixed height in logical pixels.
+    height_fill : bool, default False
+        Whether the text fills available height.
+    line_height : float, Optional
+        Sets the line height for the text.
+    size : float, Optional
+        Sets the font size for the text.
+    width : float, Optional
+        Sets the Fixed width in logical pixels.
+    width_fill : bool, default False
+        Whether the text fills available width.
+    wrapping_glyph: bool, Optional
+        Whether to wrap on a glyph.
+    wrapping_none: Optional bool
+        Whether to have no text wrapping, default=word wrap.
+    wrapping_word_glyph: bool, Optional
+        Whether to wrap on a word, then glyph
+    Returns
+    -------
+    int
+        The numeric widget ID of the newly created text.
     """
 
 def add_tooltip_style(
@@ -3211,19 +3284,6 @@ class TextInputParam:
     IconSpacing: float
     IconLeftSide: bool
 
-
-class TextColorStd:
-    """
-    The standard colors for the text
-    """
-    Base=''
-    Danger=''
-    Primary=''
-    Secondary=''
-    Success=''
-    Warning=''
-
-
 class TextParam:
     """
     Text parameters
@@ -3232,6 +3292,36 @@ class TextParam:
     ----------
     Content: str
         The text.
+    FormatId: int
+        Id via add_text_format() method.
+    FontId: int
+        Id via the add_font() method.
+    Selectable: bool
+        Whether to be able to select the text.
+    StyleId: int
+        Id via the add_text_style() method.
+    SelectionStyleId: int
+        Id via the add_text_style() method.
+    StyleStd: TextStyleStd
+        The TextStyleStd colors.
+    Show: bool=True
+        Whether to show or hide the widget.
+    """
+    Content: str
+    FormatId: int
+    FontId: int
+    Selectable: bool
+    StyleId: int
+    SelectionStyleId: int
+    StyleStd: TextStyleStd
+    Show: bool
+
+class TextFormatParam:
+    """
+    Text format parameters
+
+    Parameters
+    ----------
     AlignBottomCenter: bool | None
         Whether to align the text to bottom center.
     AlignBottomLeft: bool | None
@@ -3258,14 +3348,6 @@ class TextParam:
         The height of the text box.
     Size: float | None
         The size of the text.
-    Color: Color | None
-        The color of the text, default depends on theme.
-    ColorAlpha: float | None
-        The alpha value of the Color.
-    ColorRgba: list[float, 4] | None
-        The color of the text in rgba format.
-    ColorStd: TextColorStd | None
-        Some standard colors for the text.
     Width: float | None
         The width of the widget, default width shrinks to text width.
     WidthFill: bool
@@ -3276,8 +3358,6 @@ class TextParam:
         Whether to have no wrapping, default is word.
     WrappingWordGlyph: bool | None
         Whether to wrap on a glyph or word.
-    Show: bool=True
-        Whether to show or hide the widget.
     """
     AlignBottomCenter: bool
     AlignBottomLeft: bool
@@ -3288,16 +3368,10 @@ class TextParam:
     AlignTopCenter: bool
     AlignTopLeft: bool
     AlignTopRight: bool
-    Content: str
     Height: float
     HeightFill: bool
     LineHeight: float
-    Show: bool
     Size: float
-    Color: Color
-    ColorAlpha: bool
-    ColorRgba: list[float, 4]
-    ColorStd: TextColorStd
     WrappingGlyph: bool
     WrappingNone: bool
     WrappingWordGlyph: bool
@@ -3307,80 +3381,41 @@ class TextParam:
 class TextStyleParam:
     """
     Text Style parameters
-    Not used to style a Text widget but used in more complex widgets
-    that use a text widget to add styling such as Menu, Table, Button...
 
     Parameters
     ----------
-    AlignBottomCenter: bool | None
-        Whether to align the text to bottom center.
-    AlignBottomLeft: bool | None
-        Whether to align the text bottom left,
-    AlignBottomRight: bool | None
-        Whether to align the text bottom right.
-    AlignCenter: bool | None
-        Whether to align the text centered.
-    AlignCenterLeft: bool | None
-        Whether to align the text center left.
-    AlignCenterRight: bool | None
-        Whether to align the text center right.
-    AlignTopCenter: bool | None
-        Whether to align the text top center.
-    AlignTopLeft: bool | None
-        Whether to align the text top left.
-    AlignTopRight: bool | None
-        Whether to align the text top right.
-    Height: float | None
-        The height of the widget, default height shrinks to text height.
-    HeightFill: bool | None
-        Whether to fill the height of the container with the widget.
-    LineHeight: float | None
-        The height of the text box.
-    Size: float | None
-        The size of the text.
     Color: Color | None
         The color of the text, default depends on theme.
     ColorAlpha: float | None
         The alpha value of the Color.
     ColorRgba: list[float, 4] | None
         The color of the text in rgba format.
-    ColorStd: TextColorStd | None
-        Some standard colors for the text.
-    Width: float | None
-        The width of the widget, default width shrinks to text width.
-    WidthFill: bool
-        Whether to fill the width of the container with the widget.
-    WrappingGlyph: bool | None
-        Whether to wrap at a glyph.
-    WrappingNone: bool | None
-        Whether to have no wrapping, default is word.
-    WrappingWordGlyph: bool | None
-        Whether to wrap on a glyph or word.
+    SelectionColor: Color | None
+        The color of the selected text, default depends on theme.
+    SelectionColorAlpha: float | None
+        The alpha value of the Color.
+    SelectionColorRgba: list[float, 4] | None
+        The color of the selected text in rgba format.
+
     """
-    AlignBottomCenter: bool
-    AlignBottomLeft: bool
-    AlignBottomRight: bool
-    AlignCenter: bool
-    AlignCenterLeft: bool
-    AlignCenterRight: bool
-    AlignTopCenter: bool
-    AlignTopLeft: bool
-    AlignTopRight: bool
-    Height: float
-    HeightFill: bool
-    LineHeight: float
-    Show: bool
-    Size: float
     Color: Color
     ColorAlpha: bool
     ColorRgba: list[float, 4]
-    ColorStd: TextColorStd
-    WrappingGlyph: bool
-    WrappingNone: bool
-    WrappingWordGlyph: bool
-    Width: float
-    WidthFill: bool
+    SelectionColor: Color # pylint: disable=used-before-assignment
+    SelectionColorAlpha: bool
+    SelectionColorRgba: list[float, 4]
 
+
+class TextStyleStd:
+    """
+    The standard color style for the text widget.
+    """
+    Base=...
+    Danger=...
+    Primary=...
+    Secondary=...
+    Success=...
+    Warning=...
 
 class RichTextParam:
     """

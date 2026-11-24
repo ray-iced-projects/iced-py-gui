@@ -77,7 +77,7 @@ use crate::py_api::svg::add_svg;
 use crate::py_api::table::{
     add_table, add_table_basic, add_table_body, add_table_footer, add_table_header, add_table_style,
 };
-use crate::py_api::text::{add_text, add_text_style};
+use crate::py_api::text::{add_text, add_text_format, add_text_style};
 use crate::py_api::text_editor::{add_text_editor, add_text_editor_style};
 use crate::py_api::text_input::{add_text_input, add_text_input_style};
 use crate::py_api::text_rich::{add_rich_text, add_span};
@@ -124,7 +124,7 @@ use crate::widgets::ipg_slider::{SliderParam, SliderStyleParam};
 use crate::widgets::ipg_stack::StackParam;
 use crate::widgets::ipg_svg::SvgParam;
 use crate::widgets::ipg_table::{TableBasicParam, TableStyleParam};
-use crate::widgets::ipg_text::{TextFormatParam, TextStyleParam, TextStyleStd};
+use crate::widgets::ipg_text::{TextFormatParam, TextParam, TextStyleParam, TextStyleStd};
 use crate::widgets::ipg_text_editor::TextEditorParam;
 use crate::widgets::ipg_text_input::{TextInputParam, TextInputStyleParam};
 use crate::widgets::ipg_text_rich::{RichTextParam, SpanParam};
@@ -221,6 +221,7 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(add_table_body, m)?)?;
     m.add_function(wrap_pyfunction!(add_table_footer, m)?)?;
     m.add_function(wrap_pyfunction!(add_text, m)?)?;
+    m.add_function(wrap_pyfunction!(add_text_format, m)?)?;
     m.add_function(wrap_pyfunction!(add_text_style, m)?)?;
     m.add_function(wrap_pyfunction!(add_text_editor, m)?)?;
     m.add_function(wrap_pyfunction!(add_text_editor_style, m)?)?;
@@ -263,9 +264,6 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<ButtonParam>()?;
     m.add_class::<ButtonStyleParam>()?;
     m.add_class::<ButtonStyleStd>()?;
-    // m.add_class::<CardParam>()?;
-    // m.add_class::<CardStyleParam>()?;
-    // m.add_class::<CardStyleStd>()?;
     m.add_class::<CheckboxParam>()?;
     m.add_class::<CheckboxStyleParam>()?;
     m.add_class::<CheckboxStyleParam>()?;
@@ -325,7 +323,9 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<TextInputParam>()?;
     m.add_class::<TextInputStyleParam>()?;
     m.add_class::<TextFormatParam>()?;
+    m.add_class::<TextParam>()?;
     m.add_class::<TextStyleParam>()?;
+    m.add_class::<TextStyleStd>()?;
     m.add_class::<TimerParam>()?;
     m.add_class::<TogglerParam>()?;
     m.add_class::<TogglerStyleParam>()?;

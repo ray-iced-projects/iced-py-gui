@@ -162,7 +162,7 @@ pub fn add_text_style(
 
 }
 
-/// Add a text formatting.
+/// Add a text format.
 ///
 /// A method for formatting a text widget.
 ///

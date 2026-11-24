@@ -4,9 +4,9 @@ Text use demo
 """
 
 from icedpygui import (Window, Column, Container, Row, start_session,
-    update_widget_params, TextParam, TextColorStd, Color,
-    ContainerStyleStd, add_radio, add_text, update_widget,
-    add_font_style, FontWeight, FontStyle, load_font)
+    TextParam, TextStyleStd, Color,
+    ContainerStyleStd, add_radio, add_text, add_text_format, update_widget,
+    add_font_style, add_text_style, FontWeight, FontStyle, load_font)
 
 state = {"value": 0}
 align_labels = [
@@ -38,108 +38,87 @@ std_colors = [
 def wrapping_selected(_radio_id: int, index: int):
     """When radio selected, the coresponding text has it's wrapping set"""
     match index:
-        case 0: state["value"] = {
-            update_widget_params(txt_id, {
-                # reset all for default word
-                TextParam.WrappingGlyph: None,
-                TextParam.WrappingNone: None,
-                TextParam.WrappingWordGlyph: None})
-        }
-        case 1: state["value"] = update_widget_params(txt_id, {
-                # reset any ones that might be set
-                TextParam.WrappingNone: None,
-                TextParam.WrappingWordGlyph: None,
-                # set the selected
-                TextParam.WrappingGlyph: True,})
-        case 2: state["value"] = update_widget_params(txt_id, {
-                # reset any ones that might be set
-                TextParam.WrappingGlyph: None,
-                TextParam.WrappingWordGlyph: None,
-                # set the selected
-                TextParam.WrappingNone: True,})
-        case 3: state["value"] = update_widget_params(txt_id, {
-                # reset any that might be set
-                TextParam.WrappingGlyph: None,
-                TextParam.WrappingNone: None,
-                # set the selected
-                TextParam.WrappingWordGlyph: True})
+        case 0:
+            fmt_id_ = add_text_format()
+            update_widget(txt_id, TextParam.FormatId, fmt_id_)
+        case 1:
+            fmt_id_ = add_text_format(wrapping_glyph=True)
+            update_widget(txt_id, TextParam.FormatId, fmt_id_)
+        case 2:
+            fmt_id_ = add_text_format(wrapping_none=True)
+            update_widget(txt_id, TextParam.FormatId, fmt_id_)
+        case 3:
+            fmt_id_ = add_text_format(wrapping_word_glyph=True)
+            update_widget(txt_id, TextParam.FormatId, fmt_id_)
 
 
 def set_widths(_radio_id: int, data: int):
     """Callback sets the width of the text"""
     match data:
         case 0:  # shrink (default)
-            update_widget_params(set_txt_id, {
-                # reset all for default
-                TextParam.Width: None,
-                TextParam.WidthFill: None})
+            fmt_id_ = add_text_format()
+            update_widget(set_txt_id, TextParam.FormatId, fmt_id_)
         case 1:  # fill
-            update_widget_params(set_txt_id, {
-                # reset any ones that might be set
-                TextParam.Width: None,
-                # set the selected
-                TextParam.WidthFill: True})
+            fmt_id_ = add_text_format(fill=True)
+            update_widget(set_txt_id, TextParam.FormatId, fmt_id_)
         case 2:  # fixed
-            update_widget_params(set_txt_id, {
-                # reset any ones that might be set
-                TextParam.WidthFill: None,
-                # set the selected
-                TextParam.Width: 150.0})
+            fmt_id_ = add_text_format(width=100.0)
+            update_widget(set_txt_id, TextParam.FormatId, fmt_id_)
 
 
 def text_alignment(_radio_id: int, align_index: int):
     """Callback sets the alignment of the text"""
-    # reset all values to false
-    update_widget_params(align_txt_id, {
-        TextParam.AlignBottomLeft: False,
-        TextParam.AlignBottomCenter: False,
-        TextParam.AlignBottomRight: False,
-        TextParam.AlignCenterLeft: False,
-        TextParam.AlignCenter: False,
-        TextParam.AlignCenterRight: False,
-        TextParam.AlignTopLeft: False,
-        TextParam.AlignTopCenter: False,
-        TextParam.AlignTopRight: False})
 
     align_type = align_labels[align_index]
+    # to see the alignment, the text box size must be large than the text content,
+    # so fill is used in this case to fill the container with the text box.
     match align_type:
         case "AlignBottomLeft":
-            update_widget(align_txt_id, TextParam.AlignBottomLeft, True)
+            fmt_id_ = add_text_format(align_bottom_left=True, fill=True)
+            update_widget(align_txt_id, TextParam.FormatId, fmt_id_)
         case "AlignBottomCenter":
-            update_widget(align_txt_id, TextParam.AlignBottomCenter, True)
+            fmt_id_ = add_text_format(align_bottom_center=True, fill=True)
+            update_widget(align_txt_id, TextParam.FormatId, fmt_id_)
         case "AlignBottomRight":
-            update_widget(align_txt_id, TextParam.AlignBottomRight, True)
+            fmt_id_ = add_text_format(align_bottom_right=True, fill=True)
+            update_widget(align_txt_id, TextParam.FormatId, fmt_id_)
         case "AlignCenterLeft":
-            update_widget(align_txt_id, TextParam.AlignCenterLeft, True)
+            fmt_id_ = add_text_format(align_center_left=True, fill=True)
+            update_widget(align_txt_id, TextParam.FormatId, fmt_id_)
         case "AlignCenter":
-            update_widget(align_txt_id, TextParam.AlignCenter, True)
+            fmt_id_ = add_text_format(align_center=True, fill=True)
+            update_widget(align_txt_id, TextParam.FormatId, fmt_id_)
         case "AlignCenterRight":
-            update_widget(align_txt_id, TextParam.AlignCenterRight, True)
+            fmt_id_ = add_text_format(align_center_right=True, fill=True)
+            update_widget(align_txt_id, TextParam.FormatId, fmt_id_)
         case "AlignTopLeft - default":
-            update_widget(align_txt_id, TextParam.AlignTopLeft, True)
+            fmt_id_ = add_text_format(align_top_left=True, fill=True)
+            update_widget(align_txt_id, TextParam.FormatId, fmt_id_)
         case "AlignTopCenter":
-            update_widget(align_txt_id, TextParam.AlignTopCenter, True)
+            fmt_id_ = add_text_format(align_top_center=True, fill=True)
+            update_widget(align_txt_id, TextParam.FormatId, fmt_id_)
         case "AlignTopRight":
-            update_widget(align_txt_id, TextParam.AlignTopRight, True)
+            fmt_id_ = add_text_format(align_top_right=True, fill=True)
+            update_widget(align_txt_id, TextParam.FormatId, fmt_id_)
 
 
 def color_selected(_radio_id: int, index: int):
     """Callback set the color of the text"""
     match std_colors[index]:
         case "None — default":
-            update_widget(color_txt, TextParam.ColorStd, None)
+            update_widget(color_txt, TextParam.StyleStd, None)
         case "Base":
-            update_widget(color_txt, TextParam.ColorStd, TextColorStd.Base)
+            update_widget(color_txt, TextParam.StyleStd, TextStyleStd.Base)
         case "Danger":
-            update_widget(color_txt, TextParam.ColorStd, TextColorStd.Danger)
+            update_widget(color_txt, TextParam.StyleStd, TextStyleStd.Danger)
         case "Primary":
-            update_widget(color_txt, TextParam.ColorStd, TextColorStd.Primary)
+            update_widget(color_txt, TextParam.StyleStd, TextStyleStd.Primary)
         case "Secondary":
-            update_widget(color_txt, TextParam.ColorStd, TextColorStd.Secondary)
+            update_widget(color_txt, TextParam.StyleStd, TextStyleStd.Secondary)
         case "Success":
-            update_widget(color_txt, TextParam.ColorStd, TextColorStd.Success)
+            update_widget(color_txt, TextParam.StyleStd, TextStyleStd.Success)
         case "Warning":
-            update_widget(color_txt, TextParam.ColorStd, TextColorStd.Warning)
+            update_widget(color_txt, TextParam.StyleStd, TextStyleStd.Warning)
 
 
 black_id = add_font_style(family_name="Roboto", weight=FontWeight.Black)
@@ -176,9 +155,9 @@ with Window(title="Text Demo", size=[1000, 850], center=True):
                         style_std=ContainerStyleStd.BorderedBox):
                 # add the row to hold the togglers
                 with Column(spacing=10.0, padding=[10.0], fill=True):
-                    add_text(content="Text Size (default)")
-                    add_text(content="Text Size: 20", size=20.0)
-                    add_text(content="Text Size: 10", size=10.0)
+                    add_text(content="Text Size (default=14.0)")
+                    fmt_id = add_text_format(size=20.0)
+                    add_text(content="Text Size: 20", format_id=fmt_id)
 
             with Column(width_fill=True, spacing=10.0):
 
@@ -196,9 +175,8 @@ with Window(title="Text Demo", size=[1000, 850], center=True):
                         with Container(style_std=ContainerStyleStd.RoundedBox):
                             add_text(content="Text Line Height (default=1.3)")
                         with Container(style_std=ContainerStyleStd.RoundedBox):
-                            add_text(content="Text Line Height 5", line_height=5.0)
-                        with Container(style_std=ContainerStyleStd.RoundedBox):
-                            add_text(content="Text Line Height 2", line_height=2.0)
+                            fmt_id = add_text_format(line_height=5.0)
+                            add_text(content="Text Line Height 5", format_id=fmt_id)
 
                 add_text(content="This text is black weight", font_id=black_id)
                 add_text(content="This text is bold weight", font_id=bold_id)
@@ -226,13 +204,14 @@ with Window(title="Text Demo", size=[1000, 850], center=True):
                 add_text(content="Width types")
                 add_radio(labels=["shrink (default)",
                                   "fill-for text same as shrink unless using aligh right",
-                                  "fixed=100.0"],
+                                  "fixed=100.0 - Causes a wrap since smaller"],
                     on_selected=set_widths,
                     radio_spacing=10.0,
                     selected_index=0)
 
                 with Container(width_fill=True, style_std=ContainerStyleStd.RoundedBox):
-                    set_txt_id = add_text(content="Select radio to set my width.", width_fill=True)
+                    fmt_id = add_text_format(width_fill=True)
+                    set_txt_id = add_text(content="Select radio to set my width.", format_id=fmt_id)
 
                 add_text(content="Alignment")
                 add_radio(labels=align_labels,
@@ -246,7 +225,8 @@ with Window(title="Text Demo", size=[1000, 850], center=True):
                     # for the alignment to work, it's content box must be bigger than
                     # the text, so use fill=True to have the text box fill the container
                     # or some height and width.
-                    align_txt_id = add_text(content="Select radio to set alignment.", fill=True)
+                    fmt_id = add_text_format(fill=True)
+                    align_txt_id = add_text(content="Select radio to set alignment.", format_id=fmt_id)
 
         # right column
         with Column(spacing=20.0, padding=[10.0], fill=True):
@@ -273,8 +253,8 @@ with Window(title="Text Demo", size=[1000, 850], center=True):
                 color_txt = add_text(content="This will change color when radio selected")
 
                 # The color parameter will override the color_std parameter.
-                add_text(content="This text was set by the color parameter",
-                         color=Color.LIGHT_GREEN)
+                style_id = add_text_style(color=Color.LIGHT_GREEN)
+                add_text(content="This text was set by add_text_style() method", style_id=style_id)
 
 # Required to be the last widget sent to Iced,  If you start the program
 # and nothing happens, it might mean you forgot to add this command.

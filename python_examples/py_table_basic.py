@@ -7,7 +7,8 @@ from icedpygui import (
     Window,
     Container,
     start_session,
-    add_table_basic)
+    add_table_basic,
+    add_text_format)
 
 column_widths = [100.0] * 4
 width = sum(column_widths)
@@ -36,7 +37,7 @@ def to_str(data: list[list[float]]) -> list[list[str]]:
     """Convert float data to str"""
     return [[str(cell) for cell in row] for row in data]
 
-
+header_text_format = add_text_format(align_center=True, fill=True)
 # Add the window
 with Window(
         title="Table Basic Demo",
@@ -49,10 +50,10 @@ with Window(
         # The table is added.
         add_table_basic(
             header=header,
+            header_text_format=header_text_format,
             body=to_str(body),
             footer=footer,
             column_widths=column_widths,
-            body_row_heights=30.0,
             scrollable_height=300.0)
 
 

@@ -2372,39 +2372,106 @@ def add_table_basic(
     body_row_heights: float | None = None,
     body_row_highlight: bool | None = None,
     body_row_outline: bool | None = None,
-    body_text_format_id: Option<usize>,
-    body_text_style_id: Option<usize>,
+    body_text_format_id: int | None = None,
+    body_text_style_id: int | None = None,
     footer_height: float | None = None,
-    footer: Option<Vec<String>>,
-    footer_text_format_id: Option<usize>,
-    footer_text_style_id: Option<usize>,
-    gen_id: Option<usize>,
+    footer: list[str] | None = None,
+    footer_text_format_id: int | None = None,
+    footer_text_style_id: int | None = None,
+    gen_id: int | None = None,
     header_height: float | None = None,
-    header: Option<Vec<String>>,
-    header_text_format_id: Option<usize>,
-    header_text_style_id: Option<usize>,
-    min_size: f32,
-    on_column_resize_release: Option<PyObject>,
-    on_column_resize: Option<PyObject>,
+    header: list[str] | None = None,
+    header_text_format_id: int | None = None,
+    header_text_style_id: int | None = None,
+    min_size: float = 0.0,
+    on_column_resize_release: Any | None = None,
+    on_column_resize: Any | None = None,
     resize_columns_enabled: bool | None = None,
     resize_table_enabled: bool | None = None,
-    sash_size: f32,
-    sash_style_id: Option<usize>,
+    sash_size: float = 2.0,
+    sash_style_id: int | None = None,
     scrollable_height: float | None = None,
-    scrollable_style_id: Option<usize>,
-    show: bool,
-    user_data: Option<PyObject>,
+    scrollable_style_id: int | None = None,
+    show: bool = True,
+    user_data: Any | None = None,
 ) -> int:
-    """_summary_
+    """
+    Add a table basic widget.
 
-    Args:
+    A basic table with headers, body rows, footers, and resizable columns.
 
+    Parameters
+    ----------
+    window_id : str
+        Sets the window this table belongs to.
+    container_id : str
+        Sets the Unique string identifier for the table.
+    body : list of list of str
+        Sets the table body data as rows of any values.
+    column_widths : list of float
+        Sets the initial width of each column in logical pixels.
+    body_row_heights : float, Optional
+        Sets the height of the body rows, default 30.0.
+    body_row_highlight : bool, default False
+        Whether to highlight alternating body rows.
+    body_text_format_id: int, Optional
+        Sets the id via the add_text_format() method.
+    body_text_style_id: int, Optional
+        Sets the id via the add_text_style() method.
+    body_row_outline : bool, default True
+        Whether to show an outline on body rows.
+    footer : list of str, Optional
+        Sets the column footer labels.
+    footer_height : float, Optional
+        Sets the height of the footer row.
+    footer_text_format_id: int, Optional
+        Sets the id via the add_text_format() method.
+    footer_text_style_id: int, Optional
+        Sets the id via the add_text_style() method.
+    header : list of str, Optional
+        Sets the column header labels.
+    header_height : float, Optional
+        Sets the height of the header row.
+    header_text_format_id: int, Optional
+        Sets the id via the add_text_format() method.
+    header_text_style_id: int, Optional
+        Sets the id via the add_text_style() method.
+    min_size : float, default 0.0
+        Sets the minimum column width in logical pixels.
+    resize_columns_enabled : bool, default True
+        Whether column resizing is enabled.
+    resize_table_enabled : bool, default False
+        Whether table resizing is enabled.
+    sash_size : float, default 4.0
+        Sets the width of the column sash (drag handle).
+    sash_style_id : int, Optional
+        Sets the ID of a custom style for the sash.
+    scrollable_height : float, Optional
+        Sets the height of the scrollable area.
+    style_id : int, Optional
+        Sets the ID of a custom style.
+    parent_id : str, Optional
+        Sets the parent container ID. Defaults to the window itself.
+    show : bool, default True
+        Whether the table is visible.
+    on_column_resize : callable, Optional
+        Sets the callback method to invoke when a column is being resized.
+    on_column_resize_release : callable, Optional
+        Sets the callback method to invoke when a column resize is released.
+    gen_id : int, Optional
+        Obtains an ID of a widget that has not been created; used for the gen_id parameter.
+    user_data : Any, Optional
+        Sets arbitrary data forwarded to callbacks.
 
-    Returns:
-        int: widget id
+    Returns
+    -------
+    int
+        The numeric widget ID of the newly created table.
     """
     ...
+
 def add_tool_tip(
+    *,
     window_id: str | None = None,
     container_id: str | None = None,
     parent_id: str | None = None,

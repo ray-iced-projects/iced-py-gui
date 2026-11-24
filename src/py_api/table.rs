@@ -16,38 +16,48 @@ use crate::{access_state, add_callback_name_to_mutex, add_user_data_to_mutex, gr
 ///     Sets the window this table belongs to.
 /// container_id : str
 ///     Sets the Unique string identifier for the table.
-/// body : list of list of any
+/// body : list of list of str
 ///     Sets the table body data as rows of any values.
-/// body_row_heights : float, Optional
-///     Sets the height of the body rows, default 30.0.
 /// column_widths : list of float
 ///     Sets the initial width of each column in logical pixels.
+/// body_row_heights : float, Optional
+///     Sets the height of the body rows, default 30.0.
 /// body_row_highlight : bool, default False
 ///     Whether to highlight alternating body rows.
+/// body_text_format_id: int, Optional
+///     Sets the id via the add_text_format() method.
+/// body_text_style_id: int, Optional
+///     Sets the id via the add_text_style() method.
 /// body_row_outline : bool, default True
 ///     Whether to show an outline on body rows.
-/// file_path : str, Optional
-///     Sets the path to load table data from a CSV file.
 /// footer : list of str, Optional
 ///     Sets the column footer labels.
 /// footer_height : float, Optional
 ///     Sets the height of the footer row.
+/// footer_text_format_id: int, Optional
+///     Sets the id via the add_text_format() method.
+/// footer_text_style_id: int, Optional
+///     Sets the id via the add_text_style() method.
 /// header : list of str, Optional
 ///     Sets the column header labels.
 /// header_height : float, Optional
 ///     Sets the height of the header row.
+/// header_text_format_id: int, Optional
+///     Sets the id via the add_text_format() method.
+/// header_text_style_id: int, Optional
+///     Sets the id via the add_text_style() method.
 /// min_size : float, default 0.0
 ///     Sets the minimum column width in logical pixels.
 /// resize_columns_enabled : bool, default True
 ///     Whether column resizing is enabled.
+/// resize_table_enabled : bool, default False
+///     Whether table resizing is enabled.
 /// sash_size : float, default 4.0
 ///     Sets the width of the column sash (drag handle).
 /// sash_style_id : int, Optional
 ///     Sets the ID of a custom style for the sash.
 /// scrollable_height : float, Optional
 ///     Sets the height of the scrollable area.
-/// text_size : float, Optional
-///     Sets the font size for table text.
 /// style_id : int, Optional
 ///     Sets the ID of a custom style.
 /// parent_id : str, Optional

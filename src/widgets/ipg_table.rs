@@ -151,7 +151,13 @@ impl TableBasic {
 
         Some(
             container(table)
-                .style(move |theme| container::bordered_box(theme))
+                .style(move |theme| {
+                    if self.body_row_outline {
+                    container::bordered_box(theme)
+                    } else {
+                        container::transparent(theme)
+                    }
+                })
                 .boxed(),
         )
     }

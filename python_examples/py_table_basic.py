@@ -37,7 +37,8 @@ def to_str(data: list[list[float]]) -> list[list[str]]:
     """Convert float data to str"""
     return [[str(cell) for cell in row] for row in data]
 
-header_text_format = add_text_format(align_center=True, fill=True)
+text_format = add_text_format(align_center=True, fill=True, size=14.0)
+
 # Add the window
 with Window(
         title="Table Basic Demo",
@@ -50,9 +51,10 @@ with Window(
         # The table is added.
         add_table_basic(
             header=header,
-            header_text_format=header_text_format,
+            header_text_format_id=text_format,
             body=to_str(body),
             footer=footer,
+            footer_text_format_id=text_format,
             column_widths=column_widths,
             scrollable_height=300.0)
 

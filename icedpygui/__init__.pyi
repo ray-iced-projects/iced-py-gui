@@ -2383,6 +2383,9 @@ def add_table_basic(
     header: list[str] | None = None,
     header_text_format_id: int | None = None,
     header_text_style_id: int | None = None,
+    header_body_divider_rule_height: float = 3.0,
+    body_footer_divider_rule_height: float = 0.0,
+    rule_style_id: int | None = None,
     min_size: float = 0.0,
     on_column_resize_release: Any | None = None,
     on_column_resize: Any | None = None,
@@ -2391,7 +2394,6 @@ def add_table_basic(
     sash_size: float = 2.0,
     sash_style_id: int | None = None,
     scrollable_height: float | None = None,
-    scrollable_style_id: int | None = None,
     show: bool = True,
     user_data: Any | None = None,
 ) -> int:
@@ -2436,6 +2438,12 @@ def add_table_basic(
         Sets the id via the add_text_format() method.
     header_text_style_id: int, Optional
         Sets the id via the add_text_style() method.
+    header_body_divider_rule_height: float = 3.0,
+        Sets the height of the rule divider.
+    body_footer_divider_rule_height: float = 0.0,
+        Sets the height of the rule divider.
+    rule_style_id: int | None = None,
+        Style of the dividing rules.
     min_size : float, default 0.0
         Sets the minimum column width in logical pixels.
     resize_columns_enabled : bool, default True
@@ -2448,8 +2456,6 @@ def add_table_basic(
         Sets the ID of a custom style for the sash.
     scrollable_height : float, Optional
         Sets the height of the scrollable area.
-    style_id : int, Optional
-        Sets the ID of a custom style.
     parent_id : str, Optional
         Sets the parent container ID. Defaults to the window itself.
     show : bool, default True

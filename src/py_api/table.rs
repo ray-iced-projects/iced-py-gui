@@ -46,6 +46,12 @@ use crate::{access_state, add_callback_name_to_mutex, add_user_data_to_mutex, gr
 ///     Sets the id via the add_text_format() method.
 /// header_text_style_id: int, Optional
 ///     Sets the id via the add_text_style() method.
+/// header_body_divider_rule_height: float = 3.0
+///     The dividing rule between header and body.
+/// body_footer_divider_rule_height: float = 0.0
+///     The dividing rule between body and footer.
+/// rule_style_id: int, Optional
+///     Style of the dividing rules.
 /// min_size : float, default 0.0
 ///     Sets the minimum column width in logical pixels.
 /// resize_columns_enabled : bool, default True
@@ -58,8 +64,6 @@ use crate::{access_state, add_callback_name_to_mutex, add_user_data_to_mutex, gr
 ///     Sets the ID of a custom style for the sash.
 /// scrollable_height : float, Optional
 ///     Sets the height of the scrollable area.
-/// style_id : int, Optional
-///     Sets the ID of a custom style.
 /// parent_id : str, Optional
 ///     Sets the parent container ID. Defaults to the window itself.
 /// show : bool, default True
@@ -97,6 +101,9 @@ use crate::{access_state, add_callback_name_to_mutex, add_user_data_to_mutex, gr
     header=None,
     header_text_format_id=None,
     header_text_style_id=None,
+    header_body_divider_rule_height=3.0,
+    body_footer_divider_rule_height=0.0,
+    rule_style_id=None,
     min_size=0.0,
     on_column_resize_release=None,
     on_column_resize=None,
@@ -105,7 +112,6 @@ use crate::{access_state, add_callback_name_to_mutex, add_user_data_to_mutex, gr
     sash_size=4.0,
     sash_style_id=None,
     scrollable_height=None,  
-    scrollable_style_id=None,
     show=true,
     user_data=None,
     ))]
@@ -128,6 +134,9 @@ pub fn add_table_basic(
     header: Option<Vec<String>>,
     header_text_format_id: Option<usize>,
     header_text_style_id: Option<usize>,
+    header_body_divider_rule_height: f32,
+    body_footer_divider_rule_height: f32,
+    rule_style_id: Option<usize>,
     min_size: f32,
     on_column_resize_release: Option<PyObject>,
     on_column_resize: Option<PyObject>,
@@ -136,7 +145,6 @@ pub fn add_table_basic(
     sash_size: f32,
     sash_style_id: Option<usize>,
     scrollable_height: Option<f32>,
-    scrollable_style_id: Option<usize>,
     show: bool,
     user_data: Option<PyObject>,
     ) -> PyResult<usize> 
@@ -155,7 +163,7 @@ pub fn add_table_basic(
         add_callback_name_to_mutex(id, CallbackName::OnResize, py);
     }
 
-    let released = if let Some(py) = on_column_resize_release {
+    if let Some(py) = on_column_resize_release {
         add_callback_name_to_mutex(id, CallbackName::OnReleased, py);
         true
     } else {
@@ -183,13 +191,15 @@ pub fn add_table_basic(
             header,
             header_text_format_id,
             header_text_style_id,
+            header_body_divider_rule_height,
+            body_footer_divider_rule_height,
+            rule_style_id,
             min_size,
             resize_columns_enabled,
             resize_table_enabled,
             sash_size,
             sash_style_id,
             scrollable_height,
-            scrollable_style_id,
             show,
         }));
 

@@ -83,7 +83,7 @@ pub struct RuleStyle {
 }
 
 impl RuleStyle {
-    fn to_iced(
+    pub fn to_iced(
         &self,
         theme: &Theme,
     ) -> Style {

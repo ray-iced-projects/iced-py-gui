@@ -56,7 +56,8 @@ with Window(
             footer=footer,
             footer_text_format_id=text_format,
             column_widths=column_widths,
-            scrollable_height=300.0)
+            scrollable_height=300.0,
+            )
 
 
 # Required to be the last widget sent to Iced,  If you start the program

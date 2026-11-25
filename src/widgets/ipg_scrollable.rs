@@ -38,7 +38,11 @@ pub struct Scrollable {
 
 impl Scrollable {
 
-    fn lookup<'a>(&self, widgets: &'a HashMap<usize, Widgets>, id: Option<usize>) -> Option<&'a Widgets> {
+    fn lookup<'a>(
+        &self, 
+        widgets: &'a HashMap<usize, Widgets>, 
+        id: Option<usize>
+    ) -> Option<&'a Widgets> {
         id.and_then(|id| widgets.get(&id))
     }
 

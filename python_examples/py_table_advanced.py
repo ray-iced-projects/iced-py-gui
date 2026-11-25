@@ -16,6 +16,7 @@ from icedpygui import (
     add_pick_list,
     add_space,
     add_text,
+    add_text_format,
     TextParam,
     PickListParam,
     Arrow,
@@ -36,8 +37,8 @@ try:
 except FileNotFoundError:
     print(f"The file does not exist using {FILE_PATH}.")
 
-
-column_widths = [200.0] * len(header)
+# Title,Author(s),Original\nlanguage,First\npublished,Sales\n(10^6),Genre
+column_widths = [300.0, 200.0, 200.0, 100.0, 100.0, 100.0, 200.0]
 width = sum(column_widths)
 
 footers = ["footer", "footer", "footer", "footer"]
@@ -94,6 +95,7 @@ def filter_genre(_pick_id: int, genre: str):
             for _j in range(num_cols):
                 update_widget(body_text_ids[_i * num_cols + _j], TextParam.Content, "")
 
+text_format = add_text_format(align_center=True, fill=True, size=12)
 
 # Add the window
 with Window(
@@ -106,14 +108,13 @@ with Window(
 
         # The table is added.
         with Table(
-            row_height=30.0,
             col_widths=column_widths,
             sash_size=6,
             ):
 
             with TableHeader():
                 for h1 in header:
-                    add_text(content=h1, align_center=True, fill=True, size=12)
+                    add_text(content=h1)
 
                 for h2 in header:
                     pl_id = add_pick_list(
@@ -139,11 +140,11 @@ with Window(
                 for row in book_lines:
                     for cell in row:
                         body_text_ids.append(
-                            add_text(content=cell, align_center=True, fill=True, size=12))
+                            add_text(content=cell))
 
             with TableFooter():
                 for f in footers:
-                    add_text(content=f, align_center=True, fill=True, size=12)
+                    add_text(content=f)
 
 # Required to be the last widget sent to Iced,  If you start the program
 # and nothing happens, it might mean you forgot to add this command.

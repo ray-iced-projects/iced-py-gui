@@ -235,7 +235,7 @@ pub struct SashStyle {
 }
 
 impl SashStyle {
-    fn to_iced(
+    pub fn to_iced(
         &self,
         theme: &Theme,
         status: Status,

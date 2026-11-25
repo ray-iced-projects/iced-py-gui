@@ -37,6 +37,7 @@ def to_str(data: list[list[float]]) -> list[list[str]]:
     """Convert float data to str"""
     return [[str(cell) for cell in row] for row in data]
 
+# fill has to be true if any alignment is used
 text_format = add_text_format(align_center=True, fill=True, size=14.0)
 
 # Add the window

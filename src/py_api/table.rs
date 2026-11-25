@@ -3,7 +3,7 @@
 use pyo3::{Py, PyAny, PyResult, pyfunction};
 type PyObject = Py<PyAny>;
 
-use crate::{access_state, add_callback_name_to_mutex, add_user_data_to_mutex, graphics::colors::Color, state::{Containers, Widgets, get_id, set_state_cont_wnd_ids, set_state_of_container, set_state_of_widget}, widgets::{callbacks::CallbackName, ipg_table::{Table, TableBasic, TableBody, TableFooter, TableHeader, TableStyle}}};
+use crate::{access_state, add_callback_name_to_mutex, add_user_data_to_mutex, graphics::colors::Color, state::{Containers, Widgets, get_id, set_state_cont_wnd_ids, set_state_of_container, set_state_of_widget}, widgets::{callbacks::CallbackName, ipg_sash::SashStyleStd, ipg_table::{Table, TableBasic, TableBody, TableFooter, TableHeader, TableStyle}}};
 
 
 /// Add a table basic widget.
@@ -109,8 +109,15 @@ use crate::{access_state, add_callback_name_to_mutex, add_user_data_to_mutex, gr
     on_column_resize=None,
     resize_columns_enabled=true,
     resize_table_enabled=false,
-    sash_size=4.0,
-    sash_style_id=None,
+    header_sash_size=4.0,
+    body_sash_size=4.0,
+    footer_sash_size=4.0,
+    header_sash_style_id=None,
+    body_sash_style_id=None,
+    footer_sash_style_id=None,
+    header_sash_style_std=None, 
+    body_sash_style_std=None, 
+    footer_sash_style_std=None, 
     scrollable_height=None,  
     show=true,
     user_data=None,
@@ -142,8 +149,15 @@ pub fn add_table_basic(
     on_column_resize: Option<PyObject>,
     resize_columns_enabled: bool,
     resize_table_enabled: bool,
-    sash_size: f32,
-    sash_style_id: Option<usize>,
+    header_sash_size: f32,
+    body_sash_size: f32,
+    footer_sash_size: f32,
+    header_sash_style_id: Option<usize>,
+    body_sash_style_id: Option<usize>,
+    footer_sash_style_id: Option<usize>,
+    header_sash_style_std: Option<SashStyleStd>, 
+    body_sash_style_std: Option<SashStyleStd>, 
+    footer_sash_style_std: Option<SashStyleStd>, 
     scrollable_height: Option<f32>,
     show: bool,
     user_data: Option<PyObject>,
@@ -193,14 +207,20 @@ pub fn add_table_basic(
             header_text_style_id,
             header_body_divider_rule_height,
             body_footer_divider_rule_height,
-            rule_style_id,
-            min_size,
+            rule_style_id,min_size,
             resize_columns_enabled,
             resize_table_enabled,
-            sash_size,
-            sash_style_id,
+            header_sash_size,
+            body_sash_size,
+            footer_sash_size,
+            header_sash_style_id,
+            body_sash_style_id,
+            footer_sash_style_id,
             scrollable_height,
-            show,
+            show, 
+            header_sash_style_std, 
+            body_sash_style_std, 
+            footer_sash_style_std, 
         }));
 
     drop(state);
@@ -214,14 +234,9 @@ pub fn add_table_basic(
     window_id,
     container_id,
     col_widths,
-    row_height,
-    header_height=None,
-    footer_height=None,
     parent_id=None,
     sash_size=4.0,
     min_size=10.0,
-    style_id=None,
-    sash_style_id=None,
     on_column_resize=None,
     on_column_resize_release=None,
     user_data=None,
@@ -231,14 +246,9 @@ pub fn add_table(
         window_id: String,
         container_id: String,
         col_widths: Vec<f32>,
-        row_height: f32,
-        header_height: Option<f32>,
-        footer_height: Option<f32>,
         parent_id: Option<String>,
         sash_size: f32,
         min_size: f32,
-        style_id: Option<usize>,
-        sash_style_id: Option<usize>,
         on_column_resize: Option<PyObject>,
         on_column_resize_release: Option<PyObject>,
         user_data: Option<PyObject>,
@@ -278,13 +288,8 @@ pub fn add_table(
         Table { 
             id, 
             col_widths, 
-            row_height, 
-            header_height, 
-            footer_height, 
             sash_size, 
             min_size, 
-            style_id, 
-            sash_style_id, 
             show }));
 
     drop(state);
@@ -300,10 +305,8 @@ pub fn add_table(
     height=None,
     style_id=None,
     sash_style_id=None,
-    on_column_resize=None,
-    on_column_resize_release=None,
-    user_data=None,
-    show=true,
+    sash_style_std=None,
+    text_format_id=None,
     ))]
 pub fn add_table_header(
         window_id: String,
@@ -312,10 +315,8 @@ pub fn add_table_header(
         height: Option<f32>,
         style_id: Option<usize>,
         sash_style_id: Option<usize>,
-        on_column_resize: Option<PyObject>,
-        on_column_resize_release: Option<PyObject>,
-        user_data: Option<PyObject>,
-        show: bool,
+        sash_style_std: Option<SashStyleStd>,
+        text_format_id: Option<usize>,
     ) -> PyResult<usize> 
 {
 
@@ -324,21 +325,6 @@ pub fn add_table_header(
     let prt_id = match parent_id {
         Some(id) => id,
         None => window_id.clone(),
-    };
-
-    if let Some(py) = user_data {
-        add_user_data_to_mutex(id, py);
-    }
-
-    if let Some(py) = on_column_resize {
-        add_callback_name_to_mutex(id, CallbackName::OnResize, py);
-    }
-
-    let _released = if let Some(py) = on_column_resize_release {
-        add_callback_name_to_mutex(id, CallbackName::OnReleased, py);
-        true
-    } else {
-        false
     };
 
     set_state_of_container(id, window_id.clone(), Some(container_id.clone()), prt_id);
@@ -353,8 +339,8 @@ pub fn add_table_header(
             height,
             style_id,
             sash_style_id,
-            show,
-            ..Default::default()
+            sash_style_std,
+            text_format_id,
         }));
 
     drop(state);
@@ -370,10 +356,8 @@ pub fn add_table_header(
     row_height=None,
     style_id=None,
     sash_style_id=None,
-    on_column_resize=None,
-    on_column_resize_release=None,
-    user_data=None,
-    show=true,
+    sash_style_std=None,
+    text_format_id=None,
     ))]
 pub fn add_table_body(
         window_id: String,
@@ -382,10 +366,8 @@ pub fn add_table_body(
         row_height: Option<f32>,
         style_id: Option<usize>,
         sash_style_id: Option<usize>,
-        on_column_resize: Option<PyObject>,
-        on_column_resize_release: Option<PyObject>,
-        user_data: Option<PyObject>,
-        show: bool,
+        sash_style_std: Option<SashStyleStd>,
+        text_format_id: Option<usize>,
     ) -> PyResult<usize> 
 {
 
@@ -394,21 +376,6 @@ pub fn add_table_body(
     let prt_id = match parent_id {
         Some(id) => id,
         None => window_id.clone(),
-    };
-
-    if let Some(py) = user_data {
-        add_user_data_to_mutex(id, py);
-    }
-
-    if let Some(py) = on_column_resize {
-        add_callback_name_to_mutex(id, CallbackName::OnResize, py);
-    }
-
-    let _released = if let Some(py) = on_column_resize_release {
-        add_callback_name_to_mutex(id, CallbackName::OnReleased, py);
-        true
-    } else {
-        false
     };
 
     set_state_of_container(id, window_id.clone(), Some(container_id.clone()), prt_id);
@@ -423,8 +390,8 @@ pub fn add_table_body(
             row_height,
             style_id,
             sash_style_id,
-            show,
-            ..Default::default()
+            sash_style_std,
+            text_format_id,
         }));
 
     drop(state);

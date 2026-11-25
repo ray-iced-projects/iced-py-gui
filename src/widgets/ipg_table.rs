@@ -8,14 +8,13 @@ use crate::ipg_widgets::ipg_sash;
 use crate::state::{Containers, Widgets};
 use crate::widgets::callbacks::{CallbackName, invoke_callback_with_args};
 use crate::widgets::ipg_rule::RuleStyle;
-use crate::widgets::ipg_sash::SashStyle;
-use crate::widgets::ipg_text::{self, TextFormat, TextStyle};
+use crate::widgets::ipg_sash::{SashStyle, SashStyleStd};
+use crate::widgets::ipg_text;
 use crate::widgets::widget_param_update::{WidgetParamUpdate, set_t_value};
 
 use crate::IpgState;
 
-use iced::Length::Fill;
-use iced::widget::{center, column, container, rule, scrollable, text};
+use iced::widget::{center, column, container, rule, scrollable};
 use iced::{Element, Renderer, Theme};
 use iced::{Length, Widget};
 
@@ -49,8 +48,15 @@ pub struct TableBasic {
     pub min_size: f32,
     pub resize_columns_enabled: bool,
     pub resize_table_enabled: bool,
-    pub sash_size: f32,
-    pub sash_style_id: Option<usize>,
+    pub header_sash_size: f32,
+    pub body_sash_size: f32,
+    pub footer_sash_size: f32,
+    pub header_sash_style_id: Option<usize>,
+    pub body_sash_style_id: Option<usize>,
+    pub footer_sash_style_id: Option<usize>,
+    pub header_sash_style_std: Option<SashStyleStd>,
+    pub body_sash_style_std: Option<SashStyleStd>,
+    pub footer_sash_style_std: Option<SashStyleStd>,
     pub scrollable_height: Option<f32>,
     pub show: bool,
 }
@@ -70,18 +76,18 @@ impl TableBasic {
 
         let wid = self.id;
 
-        let body_text_style_opt = self
-            .lookup(widgets, self.body_text_style_id)
-            .and_then(Widgets::as_text_style)
+        let header_sash_style_opt = self
+            .lookup(widgets, self.header_sash_style_id)
+            .and_then(Widgets::as_sash_style)
             .cloned();
 
-        let body_text_format_opt = self
-            .lookup(widgets, self.body_text_format_id)
-            .and_then(Widgets::as_text_format)
+        let body_sash_style_opt = self
+            .lookup(widgets, self.body_sash_style_id)
+            .and_then(Widgets::as_sash_style)
             .cloned();
 
-        let sash_style_opt = self
-            .lookup(widgets, self.sash_style_id)
+        let footer_sash_style_opt = self
+            .lookup(widgets, self.footer_sash_style_id)
             .and_then(Widgets::as_sash_style)
             .cloned();
 
@@ -97,28 +103,31 @@ impl TableBasic {
             &self.header.clone().unwrap_or(vec![]),
             self.column_widths.clone(),
             self.header_height,
-            self.sash_size,
-            sash_style_opt.clone(),
+            self.header_sash_size,
+            header_sash_style_opt,
+            &self.header_sash_style_std,
             Some(self.min_size),
             self.header_text_style_id,
             self.header_text_format_id,
             self.header_body_divider_rule_height,
             rule_style_opt.clone(),
-            if self.scrollable_height.is_some() { 10.0 } else { 0.0 }
+            if self.scrollable_height.is_some() { 10.0 } else { 0.0 },
         );
 
         let body = table_body(
             wid,
             &self.body.clone(),
+            widgets,
             self.column_widths.clone(),
             self.body_row_heights.unwrap_or(30.0),
             self.body_row_highlight,
             self.body_row_outline,
-            self.sash_size,
-            sash_style_opt.clone(),
+            self.body_sash_size,
+            body_sash_style_opt,
+            &self.body_sash_style_std,
             Some(self.min_size),
-            body_text_style_opt,
-            body_text_format_opt,
+            self.body_text_style_id,
+            self.body_text_format_id,
         );
 
         let footer = header_footer(
@@ -128,14 +137,15 @@ impl TableBasic {
             &self.footer.clone().unwrap_or(vec![]),
             self.column_widths.clone(),
             self.footer_height,
-            self.sash_size,
-            sash_style_opt,
+            self.footer_sash_size,
+            footer_sash_style_opt,
+            &self.footer_sash_style_std,
             Some(self.min_size),
             self.footer_text_style_id,
             self.footer_text_format_id,
             self.body_footer_divider_rule_height,
             rule_style_opt,
-            if self.scrollable_height.is_some() { 10.0 } else { 0.0 }
+            if self.scrollable_height.is_some() { 10.0 } else { 0.0 },
         );
 
         let body = if let Some(sh) = self.scrollable_height {
@@ -178,6 +188,7 @@ fn header_footer<'a>(
     height: Option<f32>,
     sash_size: f32,
     sash_style_opt: Option<SashStyle>,
+    sash_style_std: &'a Option<SashStyleStd>,
     min_size: Option<f32>,
     text_style_id: Option<usize>,
     text_format_id: Option<usize>,
@@ -207,48 +218,78 @@ fn header_footer<'a>(
         }
     }
 
-    let sash: Element<'a, Message> = SashH::new(children, sizes.clone(), height.unwrap_or(30.0), sash_size)
+    let sash = SashH::new(children, sizes.clone(), height.unwrap_or(30.0), sash_size)
         .min_size(min_size.unwrap_or_default())
         .on_resize(move |s_id, idx, val| Message::Table(id, TableBasicMessage::ResizeH(s_id, idx, val)))
         .sync_sashes(sizes.clone())
-        .style(ipg_sash::sash::subtle)
+        .style(move |theme, status| {
+            if let Some(st) = sash_style_opt.clone() {
+                st.to_iced(theme, status, sash_style_std)
+            } else {
+                ipg_sash::sash::subtle(theme, status)
+            }
+        })
         .clip(true)
         .boxed();
 
     let rl = rule::horizontal(line_height);
     let rl = if let Some(st) = rule_style_opt {
-        rl.style(move|theme|st.to_iced(theme)).boxed()
-    } else { rl.boxed() };
+        rl.style(move |theme| st.to_iced(theme)).boxed()
+    } else {
+        rl.boxed()
+    };
 
     let width: f32 = sizes.into_iter().sum();
 
     if header {
-        Some(container(column![sash, rl]).width(width+bar_width).style(container::rounded_box).boxed())
+        Some(
+            container(column![sash, rl])
+                .width(width + bar_width)
+                .style(container::rounded_box)
+                .boxed(),
+        )
     } else {
-        Some(container(column![rl, sash]).width(width+bar_width).style(container::rounded_box).boxed())
+        Some(
+            container(column![rl, sash])
+                .width(width + bar_width)
+                .style(container::rounded_box)
+                .boxed(),
+        )
     }
 }
 
 fn table_body<'a>(
     id: usize,
     body: &[Vec<String>],
+    widgets: &HashMap<usize, Widgets>,
     sizes: Vec<f32>,
     height: f32,
     highlight: bool,
     outline: bool,
     sash_size: f32,
     sash_style_opt: Option<SashStyle>,
+    sash_style_std: &'a Option<SashStyleStd>,
     min_size: Option<f32>,
-    text_style_opt: Option<TextStyle>,
-    text_format_opt: Option<TextFormat>,
+    text_style_id: Option<usize>,
+    text_format_id: Option<usize>,
 ) -> Element<'a, Message> {
+    let mut txt = ipg_text::Text::default();
+
+    txt.style_id = text_style_id;
+    txt.format_id = text_format_id;
+    txt.show = true;
+
     let rows: Vec<Element<'a, Message>> = body
         .iter()
         .enumerate()
         .map(|(i, row)| {
             let sash: Element<'a, Message> = SashH::new(
                 row.iter()
-                    .map(|cell| center(text(cell.clone()).size(14.0)).center(Fill).boxed())
+                    .map(|cell| {
+                        txt.content = cell.clone();
+                        let txt_element = txt.construct(widgets);
+                        center(txt_element.unwrap().boxed()).boxed()
+                    })
                     .collect(),
                 sizes.clone(),
                 height,
@@ -257,7 +298,16 @@ fn table_body<'a>(
             .min_size(min_size.unwrap_or_default())
             .on_resize(move |s_id, idx, val| Message::Table(id, TableBasicMessage::ResizeH(s_id, idx, val)))
             .sync_sashes(sizes.clone())
-            .style(move |theme, status| ipg_sash::sash::subtle(theme, status))
+            .style({
+                let sash_opt = sash_style_opt.clone();
+                move |theme, status| {
+                    if let Some(st) = sash_opt.clone() {
+                        st.to_iced(theme, status, &sash_style_std)
+                    } else {
+                        ipg_sash::sash::subtle(theme, status)
+                    }
+                }
+            })
             .clip(true)
             .boxed();
 
@@ -308,13 +358,8 @@ pub struct TableSections<'a> {
 pub struct Table {
     pub id: usize,
     pub col_widths: Vec<f32>,
-    pub row_height: f32,
-    pub header_height: Option<f32>,
-    pub footer_height: Option<f32>,
     pub sash_size: f32,
     pub min_size: f32,
-    pub style_id: Option<usize>,
-    pub sash_style_id: Option<usize>,
     pub show: bool,
 }
 
@@ -339,18 +384,12 @@ impl Table {
 
         let mut parts: Vec<Element<'a, Message, Theme, Renderer>> = vec![];
 
-        let header_height = if let Some(hh) = self.header_height {
-            hh
-        } else {
-            self.row_height
-        };
-
         if !sections.header.is_empty() {
             parts.push(adv_header(
                 id,
                 sections.header,
                 sizes.clone(),
-                header_height,
+                30.0,
                 sash_size,
                 min_size,
             ));
@@ -366,24 +405,18 @@ impl Table {
                 id,
                 sections.body,
                 sizes.clone(),
-                self.row_height,
+                30.0,
                 sash_size,
                 min_size,
             ));
         }
-
-        let footer_height = if let Some(fh) = self.footer_height {
-            fh
-        } else {
-            self.row_height
-        };
 
         if !sections.footer.is_empty() {
             parts.push(adv_footer(
                 id,
                 sections.footer,
                 sizes.clone(),
-                footer_height,
+                30.0,
                 sash_size,
                 min_size,
             ));
@@ -509,18 +542,15 @@ pub struct TableHeader {
     pub height: Option<f32>,
     pub style_id: Option<usize>,
     pub sash_style_id: Option<usize>,
-    pub show: bool,
+    pub sash_style_std: Option<SashStyleStd>,
+    pub text_format_id: Option<usize>,
 }
 
 impl TableHeader {
-    fn lookup<'a>(&self, widgets: &'a HashMap<usize, Widgets>, id: Option<usize>) -> Option<&'a Widgets> {
-        id.and_then(|id| widgets.get(&id))
-    }
-
     pub fn construct<'a>(
         &'a self,
-        mut content: Vec<Element<'a, Message, Theme, Renderer>>,
-        widgets: &'a HashMap<usize, Widgets>,
+        _content: Vec<Element<'a, Message, Theme, Renderer>>,
+        _widgets: &'a HashMap<usize, Widgets>,
     ) -> Option<Element<'a, Message, Theme, Renderer>> {
         None
     }
@@ -532,18 +562,15 @@ pub struct TableBody {
     pub row_height: Option<f32>,
     pub style_id: Option<usize>,
     pub sash_style_id: Option<usize>,
-    pub show: bool,
+    pub sash_style_std: Option<SashStyleStd>,
+    pub text_format_id: Option<usize>,
 }
 
 impl TableBody {
-    fn lookup<'a>(&self, widgets: &'a HashMap<usize, Widgets>, id: Option<usize>) -> Option<&'a Widgets> {
-        id.and_then(|id| widgets.get(&id))
-    }
-
     pub fn construct<'a>(
         &'a self,
-        mut content: Vec<Element<'a, Message, Theme, Renderer>>,
-        widgets: &'a HashMap<usize, Widgets>,
+        _content: Vec<Element<'a, Message, Theme, Renderer>>,
+        _widgets: &'a HashMap<usize, Widgets>,
     ) -> Option<Element<'a, Message, Theme, Renderer>> {
         None
     }
@@ -558,14 +585,10 @@ pub struct TableFooter {
 }
 
 impl TableFooter {
-    fn lookup<'a>(&self, widgets: &'a HashMap<usize, Widgets>, id: Option<usize>) -> Option<&'a Widgets> {
-        id.and_then(|id| widgets.get(&id))
-    }
-
     pub fn construct<'a>(
         &'a self,
-        mut content: Vec<Element<'a, Message, Theme, Renderer>>,
-        widgets: &'a HashMap<usize, Widgets>,
+        _content: Vec<Element<'a, Message, Theme, Renderer>>,
+        _widgets: &'a HashMap<usize, Widgets>,
     ) -> Option<Element<'a, Message, Theme, Renderer>> {
         None
     }
@@ -639,29 +662,36 @@ pub enum TableStyleParam {
 #[derive(Debug, Clone, PartialEq, Hash)]
 #[pyclass(eq, eq_int, hash, frozen)]
 pub enum TableBasicParam {
+    Body,
+    BodyFooterDividerRuleHeight,
     BodyRowHeights,
     BodyRowHighlight,
     BodyRowOutline,
-    Body,
+    BodySashSize,
+    BodySashStyleId,
+    BodySashStyleStd,
     BodyTextFormatId,
     BodyTextStyleId,
     ColumnWidths,
-    FooterHeight,
     Footer,
+    FooterHeight,
+    FooterSashSize,
+    FooterSashStyleId,
+    FooterSashStyleStd,
     FooterTextFormatId,
     FooterTextStyleId,
-    HeaderHeight,
     Header,
+    HeaderBodyDividerRuleHeight,
+    HeaderHeight,
+    HeaderSashSize,
+    HeaderSashStyleId,
+    HeaderSashStyleStd,
     HeaderTextFormatId,
     HeaderTextStyleId,
-    HeaderBodyDividerRuleHeight,
-    BodyFooterDividerRuleHeight,
     MinSize,
     ResizeColumnsEnabled,
     ResizeTableEnabled,
     RuleStyleId,
-    SashSize,
-    SashStyleId,
     ScrollableHeight,
     Show,
 }
@@ -676,30 +706,111 @@ impl WidgetParamUpdate for TableBasic {
     fn param_update(&mut self, param: Self::Param, value: &PyObject) {
         match param {
             TableBasicParam::Body => set_t_value(&mut self.body, value, "TableParam::Body"),
-            TableBasicParam::BodyRowHeights => set_t_value(&mut self.body_row_heights, value, "TableParam::BodyRowHeights"),
-            TableBasicParam::BodyRowHighlight => set_t_value(&mut self.body_row_highlight, value, "TableBasicParam::BodyRowHighlight"),
-            TableBasicParam::BodyRowOutline => set_t_value(&mut self.body_row_outline, value, "TableBasicParam::BodyRowOutline"),
-            TableBasicParam::BodyTextFormatId => set_t_value(&mut self.body_text_format_id, value,"TableBasicParam::BodyTextFormatId"),
-            TableBasicParam::BodyTextStyleId => set_t_value(&mut self.body_text_style_id, value,"naTableBasicParam::BodyTextStyleIdme"),
+            TableBasicParam::BodyFooterDividerRuleHeight => set_t_value(
+                &mut self.body_footer_divider_rule_height,
+                value,
+                "TableBasicParam::BodyFooterDividerRuleHeight",
+            ),
+            TableBasicParam::BodyRowHeights => {
+                set_t_value(&mut self.body_row_heights, value, "TableParam::BodyRowHeights")
+            }
+            TableBasicParam::BodyRowHighlight => {
+                set_t_value(&mut self.body_row_highlight, value, "TableBasicParam::BodyRowHighlight")
+            }
+            TableBasicParam::BodyRowOutline => {
+                set_t_value(&mut self.body_row_outline, value, "TableBasicParam::BodyRowOutline")
+            }
+            TableBasicParam::BodySashSize => {
+                set_t_value(&mut self.body_sash_size, value, "TableBasicParam::BodySashSize")
+            }
+            TableBasicParam::BodySashStyleId => {
+                set_t_value(&mut self.body_sash_style_id, value, "TableBasicParam::BodySashStyleId")
+            }
+            TableBasicParam::BodySashStyleStd => set_t_value(
+                &mut self.body_sash_style_std,
+                value,
+                "TableBasicParam::BodySashStyleStd",
+            ),
+            TableBasicParam::BodyTextFormatId => set_t_value(
+                &mut self.body_text_format_id,
+                value,
+                "TableBasicParam::BodyTextFormatId",
+            ),
+            TableBasicParam::BodyTextStyleId => {
+                set_t_value(&mut self.body_text_style_id, value, "TableBasicParam::BodyTextStyleId")
+            }
             TableBasicParam::ColumnWidths => set_t_value(&mut self.column_widths, value, "TableParam::ColumnWidths"),
             TableBasicParam::Footer => set_t_value(&mut self.footer, value, "TableParam::Footer"),
             TableBasicParam::FooterHeight => set_t_value(&mut self.footer_height, value, "TableParam::FooterHeight"),
-            TableBasicParam::FooterTextFormatId => set_t_value(&mut self.footer_text_format_id, value,"TableBasicParam::FooterTextFormatId",),
-            TableBasicParam::FooterTextStyleId => set_t_value(&mut self.footer_text_style_id, value,"TableBasicParam::FooterTextStyleId"),
+            TableBasicParam::FooterSashSize => {
+                set_t_value(&mut self.footer_sash_size, value, "TableBasicParam::FooterSashSize")
+            }
+            TableBasicParam::FooterSashStyleId => set_t_value(
+                &mut self.footer_sash_style_id,
+                value,
+                "TableBasicParam::FooterSashStyleId",
+            ),
+            TableBasicParam::FooterSashStyleStd => set_t_value(
+                &mut self.footer_sash_style_std,
+                value,
+                "TableBasicParam::FooterSashStyleStd",
+            ),
+            TableBasicParam::FooterTextFormatId => set_t_value(
+                &mut self.footer_text_format_id,
+                value,
+                "TableBasicParam::FooterTextFormatId",
+            ),
+            TableBasicParam::FooterTextStyleId => set_t_value(
+                &mut self.footer_text_style_id,
+                value,
+                "TableBasicParam::FooterTextStyleId",
+            ),
             TableBasicParam::Header => set_t_value(&mut self.header, value, "TableParam::Header"),
+            TableBasicParam::HeaderBodyDividerRuleHeight => set_t_value(
+                &mut self.header_body_divider_rule_height,
+                value,
+                "TableBasicParam::HeaderBodyDividerRuleHeight",
+            ),
             TableBasicParam::HeaderHeight => set_t_value(&mut self.header_height, value, "TableParam::HeaderHeight"),
-            TableBasicParam::HeaderTextFormatId => set_t_value(&mut self.header_text_format_id, value,"TableBasicParam::HeaderTextFormatId"),
-            TableBasicParam::HeaderTextStyleId => set_t_value(&mut self.header_text_style_id, value,"TableBasicParam::HeaderTextStyleId"),
+            TableBasicParam::HeaderSashSize => {
+                set_t_value(&mut self.header_sash_size, value, "TableBasicParam::HeaderSashSize")
+            }
+            TableBasicParam::HeaderSashStyleId => set_t_value(
+                &mut self.header_sash_style_id,
+                value,
+                "TableBasicParam::HeaderSashStyleId",
+            ),
+            TableBasicParam::HeaderSashStyleStd => set_t_value(
+                &mut self.header_sash_style_std,
+                value,
+                "TableBasicParam::HeaderSashStyleStd",
+            ),
+            TableBasicParam::HeaderTextFormatId => set_t_value(
+                &mut self.header_text_format_id,
+                value,
+                "TableBasicParam::HeaderTextFormatId",
+            ),
+            TableBasicParam::HeaderTextStyleId => set_t_value(
+                &mut self.header_text_style_id,
+                value,
+                "TableBasicParam::HeaderTextStyleId",
+            ),
             TableBasicParam::MinSize => set_t_value(&mut self.min_size, value, "TableParam::MinSize"),
-            TableBasicParam::ResizeColumnsEnabled => set_t_value(&mut self.resize_columns_enabled, value,"TableBasicParam::ResizeColumnsEnabled"),
-            TableBasicParam::ResizeTableEnabled => set_t_value(&mut self.resize_columns_enabled, value,"TableParam::ResizeTableEnabled"),
-            TableBasicParam::SashSize => set_t_value(&mut self.sash_size, value, "TableParam::SashSize"),
-            TableBasicParam::SashStyleId => set_t_value(&mut self.sash_style_id, value, "TableBasicParam::SashStyleId"),
-            TableBasicParam::ScrollableHeight => set_t_value(&mut self.scrollable_height, value, "TableBasicParam::ScrollableHeight"),
-            TableBasicParam::Show => set_t_value(&mut self.show, value, "TableParam::Show"),
-            TableBasicParam::HeaderBodyDividerRuleHeight => set_t_value(&mut self.header_body_divider_rule_height, value, "TableBasicParam::HeaderBodyDividerRuleHeight"),
-            TableBasicParam::BodyFooterDividerRuleHeight => set_t_value(&mut self.body_footer_divider_rule_height, value, "TableBasicParam::BodyFooterDividerRuleHeight"),
+            TableBasicParam::ResizeColumnsEnabled => set_t_value(
+                &mut self.resize_columns_enabled,
+                value,
+                "TableBasicParam::ResizeColumnsEnabled",
+            ),
+            TableBasicParam::ResizeTableEnabled => set_t_value(
+                &mut self.resize_table_enabled,
+                value,
+                "TableBasicParam::ResizeTableEnabled",
+            ),
             TableBasicParam::RuleStyleId => set_t_value(&mut self.rule_style_id, value, "TableBasicParam::RuleStyleId"),
+            TableBasicParam::ScrollableHeight => {
+                set_t_value(&mut self.scrollable_height, value, "TableBasicParam::ScrollableHeight")
+            }
+            TableBasicParam::Show => set_t_value(&mut self.show, value, "TableParam::Show"),
         }
     }
 }

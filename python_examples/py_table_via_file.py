@@ -10,7 +10,8 @@ from icedpygui import (
     Window,
     Container,
     start_session,
-    add_table_basic)
+    add_table_basic,
+    add_text_format)
 
 column_widths = [100.0] * 7
 
@@ -37,6 +38,9 @@ else:
 
 header = body.pop(0)
 
+# fill has to be true if any alignment is used
+text_format = add_text_format(size=14.0, align_center=True, fill=True)
+
 # Add the window
 with Window(
         title="Table Demo",
@@ -47,7 +51,9 @@ with Window(
     with Container(fill=True, align_center=True):
         add_table_basic(
             header = header,
+            header_text_format_id=text_format,
             body=body,
+            body_text_format_id=text_format,
             column_widths=column_widths,
             scrollable_height=300.0)
 

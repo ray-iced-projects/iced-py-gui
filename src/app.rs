@@ -35,7 +35,7 @@ use crate::widgets::ipg_pick_list::{PLMessage, pick_list_callback};
 use crate::widgets::ipg_radio::{RDMessage, radio_callback};
 use crate::widgets::ipg_scrollable::scrollable_callback;
 use crate::widgets::ipg_slider::{SldMessage, slider_callback};
-use crate::widgets::ipg_table::{TableBasicMessage, TableSections, table_callback};
+use crate::widgets::ipg_table::{TableBasicMessage, TableSections, TableHeader, TableBody, TableFooter, table_callback};
 use crate::widgets::ipg_text_rich::rich_text_callback;
 use crate::widgets::ipg_text_editor::{TxtEdMessage, text_ed_callback};
 use crate::widgets::ipg_text_input::{TIMessage, text_input_callback};
@@ -926,34 +926,81 @@ fn get_table_sections<'a>(
     theme: &Theme,
 ) -> TableSections<'a> {
     let mut header = vec![];
+    let mut header_child_ids = vec![];
+    let mut header_params: Vec<Option<&'a TableHeader>> = vec![];
+    
     let mut body   = vec![];
+    let mut body_child_ids = vec![];
+    let mut body_params: Option<&'a TableBody> = None;
+    
     let mut footer = vec![];
+    let mut footer_child_ids = vec![];
+    let mut footer_params: Option<&'a TableFooter> = None;
 
     for child_id in parents[*table_index].child_ids.iter() {
         if !parent_ids.contains(child_id) {
             continue; // widgets directly in Table are ignored — use a section
         }
         let section_index = parents.iter().position(|r| &r.parent_id == child_id).unwrap();
-        let target = match state.containers.get(child_id) {
-            Some(Containers::TableHeader(_)) => &mut header,
-            Some(Containers::TableBody(_))   => &mut body,
-            Some(Containers::TableFooter(_)) => &mut footer,
+        
+        match state.containers.get(child_id) {
+            Some(Containers::TableHeader(header_cont)) => {
+                header_params.push(Some(header_cont));
+                header_child_ids = parents[section_index].child_ids.clone();
+                for gc in parents[section_index].child_ids.iter() {
+                    if parent_ids.contains(gc) {
+                        let idx = parents.iter().position(|r| &r.parent_id == gc).unwrap();
+                        if let Some(el) = get_children(parents, &idx, parent_ids, state, theme) {
+                            header.push(el);
+                        }
+                    } else if let Some(el) = get_widget(state, gc, theme) {
+                        header.push(el);
+                    }
+                }
+            },
+            Some(Containers::TableBody(body_cont)) => {
+                body_params = Some(body_cont);
+                body_child_ids = parents[section_index].child_ids.clone();
+                for gc in parents[section_index].child_ids.iter() {
+                    if parent_ids.contains(gc) {
+                        let idx = parents.iter().position(|r| &r.parent_id == gc).unwrap();
+                        if let Some(el) = get_children(parents, &idx, parent_ids, state, theme) {
+                            body.push(el);
+                        }
+                    } else if let Some(el) = get_widget(state, gc, theme) {
+                        body.push(el);
+                    }
+                }
+            },
+            Some(Containers::TableFooter(footer_cont)) => {
+                footer_params = Some(footer_cont);
+                footer_child_ids = parents[section_index].child_ids.clone();
+                for gc in parents[section_index].child_ids.iter() {
+                    if parent_ids.contains(gc) {
+                        let idx = parents.iter().position(|r| &r.parent_id == gc).unwrap();
+                        if let Some(el) = get_children(parents, &idx, parent_ids, state, theme) {
+                            footer.push(el);
+                        }
+                    } else if let Some(el) = get_widget(state, gc, theme) {
+                        footer.push(el);
+                    }
+                }
+            },
             _ => continue,
         };
-
-        for gc in parents[section_index].child_ids.iter() {
-            if parent_ids.contains(gc) {
-                let idx = parents.iter().position(|r| &r.parent_id == gc).unwrap();
-                if let Some(el) = get_children(parents, &idx, parent_ids, state, theme) {
-                    target.push(el);
-                }
-            } else if let Some(el) = get_widget(state, gc, theme) {
-                target.push(el);
-            }
-        }
     }
 
-    TableSections { header, body, footer }
+    TableSections {
+        header,
+        header_child_ids,
+        header_params,
+        body,
+        body_child_ids,
+        body_params,
+        footer,
+        footer_child_ids,
+        footer_params,
+    }
 }
 
 

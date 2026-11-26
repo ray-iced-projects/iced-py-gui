@@ -37,8 +37,8 @@ try:
 except FileNotFoundError:
     print(f"The file does not exist using {FILE_PATH}.")
 
-# Title,Author(s),Original\nlanguage,First\npublished,Sales\n(10^6),Genre
-column_widths = [300.0, 200.0, 200.0, 100.0, 100.0, 100.0, 200.0]
+# Title,Author(s),Originallanguage,First published,Sales(10^6),Genre
+column_widths = [300.0, 200.0, 100.0, 75.0, 100.0, 100.0]
 width = sum(column_widths)
 
 footers = ["footer", "footer", "footer", "footer"]
@@ -95,7 +95,7 @@ def filter_genre(_pick_id: int, genre: str):
             for _j in range(num_cols):
                 update_widget(body_text_ids[_i * num_cols + _j], TextParam.Content, "")
 
-text_format = add_text_format(align_center=True, fill=True, size=12)
+hd_text_format = add_text_format(align_center=True, fill=True, size=14)
 
 # Add the window
 with Window(
@@ -112,10 +112,11 @@ with Window(
             sash_size=6,
             ):
 
-            with TableHeader():
+            with TableHeader(height=30.0):
                 for h1 in header:
-                    add_text(content=h1)
+                    add_text(content=h1, format_id=hd_text_format)
 
+            with TableHeader(height=60.0):
                 for h2 in header:
                     pl_id = add_pick_list(
                         options=pick_list_options,

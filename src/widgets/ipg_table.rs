@@ -350,8 +350,16 @@ fn table_body<'a>(
 // The three sections of content passed to `Table::construct`.
 pub struct TableSections<'a> {
     pub header: Vec<Element<'a, Message, Theme, Renderer>>,
+    pub header_child_ids: Vec<usize>,
+    pub header_params: Vec<Option<&'a TableHeader>>,
+    
     pub body: Vec<Element<'a, Message, Theme, Renderer>>,
+    pub body_child_ids: Vec<usize>,
+    pub body_params: Option<&'a TableBody>,
+    
     pub footer: Vec<Element<'a, Message, Theme, Renderer>>,
+    pub footer_child_ids: Vec<usize>,
+    pub footer_params: Option<&'a TableFooter>,
 }
 
 #[derive(Debug, Clone, Default)]
@@ -373,9 +381,12 @@ impl Table {
         sections: TableSections<'a>,
         widgets: &'a HashMap<usize, Widgets>,
     ) -> Option<Element<'a, Message, Theme, Renderer>> {
+        
         if !self.show {
             return None;
         }
+
+        dbg!(&sections.header_params);
 
         let id = self.id;
         let sizes = self.col_widths.clone();
@@ -546,16 +557,6 @@ pub struct TableHeader {
     pub text_format_id: Option<usize>,
 }
 
-impl TableHeader {
-    pub fn construct<'a>(
-        &'a self,
-        _content: Vec<Element<'a, Message, Theme, Renderer>>,
-        _widgets: &'a HashMap<usize, Widgets>,
-    ) -> Option<Element<'a, Message, Theme, Renderer>> {
-        None
-    }
-}
-
 #[derive(Debug, Clone, Default)]
 pub struct TableBody {
     pub id: usize,
@@ -566,32 +567,12 @@ pub struct TableBody {
     pub text_format_id: Option<usize>,
 }
 
-impl TableBody {
-    pub fn construct<'a>(
-        &'a self,
-        _content: Vec<Element<'a, Message, Theme, Renderer>>,
-        _widgets: &'a HashMap<usize, Widgets>,
-    ) -> Option<Element<'a, Message, Theme, Renderer>> {
-        None
-    }
-}
-
 #[derive(Debug, Clone, Default)]
 pub struct TableFooter {
     pub id: usize,
     pub style_id: Option<usize>,
     pub sash_style_id: Option<usize>,
     pub show: bool,
-}
-
-impl TableFooter {
-    pub fn construct<'a>(
-        &'a self,
-        _content: Vec<Element<'a, Message, Theme, Renderer>>,
-        _widgets: &'a HashMap<usize, Widgets>,
-    ) -> Option<Element<'a, Message, Theme, Renderer>> {
-        None
-    }
 }
 
 #[derive(Clone, Debug, PartialEq)]

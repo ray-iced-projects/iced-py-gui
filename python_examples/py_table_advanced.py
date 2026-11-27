@@ -41,7 +41,7 @@ except FileNotFoundError:
 column_widths = [300.0, 200.0, 100.0, 75.0, 100.0, 150.0]
 width = sum(column_widths)
 
-footers = ["footer", "footer", "footer", "footer"]
+footers = ["footer"] * 6
 
 pick_list_options = ["Ascending", "Descending"]
 
@@ -113,7 +113,7 @@ with Window(
             sash_size=6,
             ):
 
-            with TableHeader(height=50.0):
+            with TableHeader(row_height=50.0):
                 for h1 in header:
                     if "Sales" in h1:
                         h = h1.split(" ")
@@ -143,7 +143,7 @@ with Window(
                     else:
                         add_space(width=0)
 
-            with TableBody():
+            with TableBody(body_height=400.0):
                 for row in book_lines:
                     for idx, cell in enumerate(row):
                         if idx > 1:
@@ -155,7 +155,7 @@ with Window(
 
             with TableFooter():
                 for f in footers:
-                    add_text(content=f)
+                    add_text(content=f, format_id=text_center_align)
 
 # Required to be the last widget sent to Iced,  If you start the program
 # and nothing happens, it might mean you forgot to add this command.

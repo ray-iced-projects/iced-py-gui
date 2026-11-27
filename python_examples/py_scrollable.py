@@ -5,7 +5,7 @@ Scrollable demo
 
 from icedpygui import (Window, Container, Column, start_session,
         Scrollable, add_scroller, add_rail_style, add_scrollable_style,
-        add_text, Color, ContainerStyleStd, add_space)
+        add_text, add_text_format, Color, ContainerStyleStd, add_space)
 
 # The rail id is used in the add_scrollable_style
 rail_x = add_rail_style (
@@ -73,8 +73,9 @@ with Window(title="Scrollable Demo", center=True):
                 for _ in range(100):
                     add_text(content="A lot of text")
 
+                text_format = add_text_format(wrapping_none=True)
                 add_text(content=("Some styling added, ")*10,
-                        wrapping_none=True)
+                        format_id=text_format)
                 add_space(height=10)
 
 start_session()

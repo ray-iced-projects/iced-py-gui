@@ -933,9 +933,9 @@ fn get_table_sections<'a>(
     let mut body_child_ids = vec![];
     let mut body_params: Option<&'a TableBody> = None;
     
-    let mut footer_content = vec![];
-    let mut footer_child_ids = vec![];
-    let mut footer_params: Option<&'a TableFooter> = None;
+    let mut footer_content: HashMap<usize, Vec<Element<'a, Message>>> = HashMap::new();
+    let mut footer_child_ids: HashMap<usize, Vec<usize>> = HashMap::new();
+    let mut footer_params: Vec<(usize, &'a TableFooter)> = vec![];
 
     for child_id in parents[*table_index].child_ids.iter() {
         if !parent_ids.contains(child_id) {
@@ -978,18 +978,23 @@ fn get_table_sections<'a>(
                 }
             },
             Some(Containers::TableFooter(tf)) => {
-                footer_params = Some(tf);
-                footer_child_ids = parents[section_index].child_ids.clone();
+                let mut this_footer_content = vec![];
+                let footer_child_id_list = parents[section_index].child_ids.clone();
+                
                 for gc in parents[section_index].child_ids.iter() {
                     if parent_ids.contains(gc) {
                         let idx = parents.iter().position(|r| &r.parent_id == gc).unwrap();
                         if let Some(el) = get_children(parents, &idx, parent_ids, state, theme) {
-                            footer_content.push(el);
+                            this_footer_content.push(el);
                         }
                     } else if let Some(el) = get_widget(state, gc, theme) {
-                        footer_content.push(el);
+                        this_footer_content.push(el);
                     }
                 }
+                
+                footer_content.insert(*child_id, this_footer_content);
+                footer_child_ids.insert(*child_id, footer_child_id_list);
+                footer_params.push((*child_id, tf));
             },
             _ => continue,
         };
@@ -1246,7 +1251,6 @@ fn get_widget<'a>(state: &'a IpgState, id: &usize, theme: &Theme) -> Option<Elem
                 Widgets::RuleStyle(_) |
                 Widgets::SashStyle(_) |
                 Widgets::ScrollableStyle(_) |
-                Widgets::TableStyle(_) |
                 Widgets::TextFormat(_) |
                 Widgets::RailStyle(_) |
                 Widgets::AutoScrollStyle(_) |
@@ -1638,7 +1642,6 @@ fn process_shows(
             | Widgets::SeparatorStyle(_)
             | Widgets::SliderStyle(_)
             | Widgets::Span(_)
-            | Widgets::TableStyle(_)
             | Widgets::TextStyle(_)
             | Widgets::TextEditor(_)
             | Widgets::TextEditorStyle(_)

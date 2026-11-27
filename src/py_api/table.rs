@@ -3,7 +3,10 @@
 use pyo3::{Py, PyAny, PyResult, pyfunction};
 type PyObject = Py<PyAny>;
 
-use crate::{access_state, add_callback_name_to_mutex, add_user_data_to_mutex, graphics::colors::Color, state::{Containers, Widgets, get_id, set_state_cont_wnd_ids, set_state_of_container, set_state_of_widget}, widgets::{callbacks::CallbackName, ipg_sash::SashStyleStd, ipg_table::{Table, TableBasic, TableBody, TableFooter, TableHeader, TableStyle}}};
+use crate::{access_state, add_callback_name_to_mutex, add_user_data_to_mutex, 
+    state::{Containers, Widgets, get_id, set_state_cont_wnd_ids, set_state_of_container, 
+        set_state_of_widget}, widgets::{callbacks::CallbackName, ipg_sash::SashStyleStd, 
+            ipg_table::{Table, TableBasic, TableBody, TableFooter, TableHeader}}};
 
 
 /// Add a table basic widget.
@@ -70,8 +73,6 @@ use crate::{access_state, add_callback_name_to_mutex, add_user_data_to_mutex, gr
 ///     Whether the table is visible.
 /// on_column_resize : callable, Optional
 ///     Sets the callback method to invoke when a column is being resized.
-/// on_column_resize_release : callable, Optional
-///     Sets the callback method to invoke when a column resize is released.
 /// gen_id : int, Optional
 ///     Obtains an ID of a widget that has not been created; used for the gen_id parameter.
 /// user_data : Any, Optional
@@ -105,7 +106,6 @@ use crate::{access_state, add_callback_name_to_mutex, add_user_data_to_mutex, gr
     body_footer_divider_rule_height=0.0,
     rule_style_id=None,
     min_size=0.0,
-    on_column_resize_release=None,
     on_column_resize=None,
     resize_columns_enabled=true,
     resize_table_enabled=false,
@@ -145,7 +145,6 @@ pub fn add_table_basic(
     body_footer_divider_rule_height: f32,
     rule_style_id: Option<usize>,
     min_size: f32,
-    on_column_resize_release: Option<PyObject>,
     on_column_resize: Option<PyObject>,
     resize_columns_enabled: bool,
     resize_table_enabled: bool,
@@ -176,13 +175,6 @@ pub fn add_table_basic(
     if let Some(py) = on_column_resize {
         add_callback_name_to_mutex(id, CallbackName::OnResize, py);
     }
-
-    if let Some(py) = on_column_resize_release {
-        add_callback_name_to_mutex(id, CallbackName::OnReleased, py);
-        true
-    } else {
-        false
-    };
 
     let mut state = access_state();
     state.widgets.insert(
@@ -228,7 +220,36 @@ pub fn add_table_basic(
 
 }
 
-
+/// Add a Table widget.
+///
+/// An advanced table with that allow one to add widgets
+/// to construct the header, body, and footer.
+///
+/// Parameters
+/// ----------
+/// window_id: str
+///     Sets the window this column belongs to.
+/// container_id: str
+///     Sets the Unique string identifier for the column.
+/// parent_id: str,  Optional
+///     Sets the parent container ID.  Defaults to the window itself.
+/// col_widths: list[float]
+///     Sets the number, length of the list, and sizes of the columns.
+/// sash_size: float = 4.0
+///     Sets the sizes of the column divider (sash).
+/// min_size: float = 0.0
+///     Sets the min_size of the column when resizing.
+/// on_column_resize : callable, Optional
+///     Sets the callback method to invoke when a column is being resized.
+/// user_data : Any, Optional
+///     Sets arbitrary data forwarded to callbacks.
+/// show: bool = True
+///     Whether to show the Table or not.
+/// 
+/// Returns
+/// -------
+/// int
+///     The numeric widget ID of the newly created table.
 #[pyfunction]
 #[pyo3(signature = (
     window_id,
@@ -236,9 +257,8 @@ pub fn add_table_basic(
     col_widths,
     parent_id=None,
     sash_size=4.0,
-    min_size=10.0,
+    min_size=0.0,
     on_column_resize=None,
-    on_column_resize_release=None,
     user_data=None,
     show=true,
     ))]
@@ -250,7 +270,6 @@ pub fn add_table(
         sash_size: f32,
         min_size: f32,
         on_column_resize: Option<PyObject>,
-        on_column_resize_release: Option<PyObject>,
         user_data: Option<PyObject>,
         show: bool,
     ) -> PyResult<usize> 
@@ -271,13 +290,6 @@ pub fn add_table(
         add_callback_name_to_mutex(id, CallbackName::OnResize, py);
     }
 
-    let _released = if let Some(py) = on_column_resize_release {
-        add_callback_name_to_mutex(id, CallbackName::OnReleased, py);
-        true
-    } else {
-        false
-    };
-
     set_state_of_container(id, window_id.clone(), Some(container_id.clone()), prt_id);
 
     let mut state = access_state();
@@ -290,33 +302,63 @@ pub fn add_table(
             col_widths, 
             sash_size, 
             min_size, 
-            show }));
+            show 
+        }));
 
     drop(state);
     Ok(id)
 
 }
 
+/// Add a TableHeader widget.
+///
+/// An advanced table with that allow one to add widgets
+/// to construct the header.  If the row parameters are different,
+/// like row_height, one can add multiple headers and therefore
+/// have different row hieghts, for example.
+/// If the parameters are not different, then only one header is needed,
+/// as long as the len of the list of widgets are in multiples of the needed
+/// rows, i.e. 2 rows of 8 = 16 widgets. if a header column is not needed,
+/// add an empty widget like add_text("") or add_space().  
+///
+/// Parameters
+/// ----------
+/// window_id: str
+///     Sets the window this column belongs to.
+/// container_id: str
+///     Sets the Unique string identifier for the column.
+/// parent_id: str,  Optional
+///     Sets the parent container ID.  Defaults to the window itself.
+/// row_height: float = 30.0
+///     Sets the height of the header row(s).
+/// style_id: int, Optional,
+///     Sets the id of the header style via add_table_style() method.
+/// sash_style_id: int, Optional
+///     Sets the id of the sash, divider, via add_sash_style() method.
+/// sash_style_std: int, Optional
+///     Sets the standard style method the the sash via SashStdStyle class,
+/// Returns
+/// -------
+/// int
+///     The numeric widget ID of the newly created table.
 #[pyfunction]
 #[pyo3(signature = (
     window_id,
     container_id,
     parent_id=None,
-    height=None,
+    row_height=None,
     style_id=None,
     sash_style_id=None,
     sash_style_std=None,
-    text_format_id=None,
     ))]
 pub fn add_table_header(
         window_id: String,
         container_id: String,
         parent_id: Option<String>,
-        height: Option<f32>,
+        row_height: Option<f32>,
         style_id: Option<usize>,
         sash_style_id: Option<usize>,
         sash_style_std: Option<SashStyleStd>,
-        text_format_id: Option<usize>,
     ) -> PyResult<usize> 
 {
 
@@ -336,11 +378,10 @@ pub fn add_table_header(
     state.containers.insert(id, Containers::TableHeader(
         TableHeader{
             id,
-            height,
+            row_height,
             style_id,
             sash_style_id,
             sash_style_std,
-            text_format_id,
         }));
 
     drop(state);
@@ -348,26 +389,74 @@ pub fn add_table_header(
 
 }
 
+/// Add a TableBody widget.
+///
+/// An advanced table with that allow one to add widgets
+/// to construct the body.
+/// The len of the list of widgets are in multiples of the needed
+/// rows and columns, i.e. 10 rows of 8 = 80 widgets. if a row item is blank,
+/// add an empty widget like add_text("") or add_space().  
+///
+/// Parameters
+/// ----------
+/// window_id: str
+///     Sets the window this column belongs to.
+/// container_id: str
+///     Sets the Unique string identifier for the column.
+/// parent_id: str,  Optional
+///     Sets the parent container ID.  Defaults to the window itself.
+/// row_height: float = 30.0
+///     Sets the height of the header row(s).
+/// body_width: float, Optional
+///     If the body_width is set, a scrollable widget
+///     is added and will show if the width exceeds the body_width value.
+/// body_body_height: float, Optional
+///     If the body_height is set, a scrollable widget
+///     is added and will show if the height exceeds the body_height value.
+/// style_id: int, Optional,
+///     Sets the id of the header style via add_table_style() method.
+/// sash_style_id: int, Optional
+///     Sets the id of the sash, divider, via add_sash_style() method.
+/// sash_style_std: int, Optional
+///     Sets the standard style method the the sash via SashStdStyle class,
+/// scroller_x_id: int, Optional
+///     If set via add_scroller() method, allows one to modify the scroller parameters.
+/// scroller_y_id: int, Optional
+///     If set via add_scroller() method, allows one to modify the scroller parameters.
+/// scroller_style_id=None,
+///     If set via add_scroller_style() method, allows one to modify the scroller style.
+/// Returns
+/// -------
+/// int
+///     The numeric widget ID of the newly created table.
 #[pyfunction]
 #[pyo3(signature = (
     window_id,
     container_id,
     parent_id=None,
     row_height=None,
+    body_width=None,
+    body_height=None,
     style_id=None,
     sash_style_id=None,
     sash_style_std=None,
-    text_format_id=None,
+    scroller_x_id=None,
+    scroller_y_id=None,
+    scroller_style_id=None,
     ))]
 pub fn add_table_body(
         window_id: String,
         container_id: String,
         parent_id: Option<String>,
         row_height: Option<f32>,
+        body_width: Option<f32>,
+        body_height: Option<f32>,
         style_id: Option<usize>,
         sash_style_id: Option<usize>,
         sash_style_std: Option<SashStyleStd>,
-        text_format_id: Option<usize>,
+        scroller_x_id: Option<usize>,
+        scroller_y_id: Option<usize>,
+        scroller_style_id: Option<usize>,
     ) -> PyResult<usize> 
 {
 
@@ -388,10 +477,14 @@ pub fn add_table_body(
         TableBody {
             id,
             row_height,
+            body_width,
+            body_height,
             style_id,
             sash_style_id,
             sash_style_std,
-            text_format_id,
+            scroller_x_id,
+            scroller_y_id,
+            scroller_style_id,
         }));
 
     drop(state);
@@ -399,28 +492,57 @@ pub fn add_table_body(
 
 }
 
+
+/// Add a TableFooter widget.
+///
+/// An advanced table with that allow one to add widgets
+/// to construct the footer.  If the row parameters are different,
+/// like row_height, one can add multiple footers and therefore
+/// have different row hieghts, for example.
+/// If the parameters are not different, then only one footer is needed,
+/// as long as the len of the list of widgets are in multiples of the needed
+/// rows, i.e. 2 rows of 8 = 16 widgets. if a footer column is not needed,
+/// add an empty widget like add_text("") or add_space().  
+///
+/// Parameters
+/// ----------
+/// window_id: str
+///     Sets the window this column belongs to.
+/// container_id: str
+///     Sets the Unique string identifier for the column.
+/// parent_id: str,  Optional
+///     Sets the parent container ID.  Defaults to the window itself.
+/// row_height: float = 30.0
+///     Sets the height of the footer row(s).
+/// style_id: int, Optional,
+///     Sets the id of the footer style via add_table_style() method.
+/// sash_style_id: int, Optional
+///     Sets the id of the sash, divider, via add_sash_style() method.
+/// sash_style_std: int, Optional
+///     Sets the standard style method the the sash via SashStdStyle class,
+/// 
+/// Returns
+/// -------
+/// int
+///     The numeric widget ID of the newly created table.
 #[pyfunction]
 #[pyo3(signature = (
     window_id,
     container_id,
     parent_id=None,
+    height=None,
     style_id=None,
     sash_style_id=None,
-    on_column_resize=None,
-    on_column_resize_release=None,
-    user_data=None,
-    show=true,
+    sash_style_std=None, 
     ))]
 pub fn add_table_footer(
         window_id: String,
         container_id: String,
         parent_id: Option<String>,
+        height: Option<f32>,
         style_id: Option<usize>,
         sash_style_id: Option<usize>,
-        on_column_resize: Option<PyObject>,
-        on_column_resize_release: Option<PyObject>,
-        user_data: Option<PyObject>,
-        show: bool,
+        sash_style_std: Option<SashStyleStd>,
     ) -> PyResult<usize> 
 {
 
@@ -431,21 +553,6 @@ pub fn add_table_footer(
         None => window_id.clone(),
     };
 
-    if let Some(py) = user_data {
-        add_user_data_to_mutex(id, py);
-    }
-
-    if let Some(py) = on_column_resize {
-        add_callback_name_to_mutex(id, CallbackName::OnResize, py);
-    }
-
-    let _released = if let Some(py) = on_column_resize_release {
-        add_callback_name_to_mutex(id, CallbackName::OnReleased, py);
-        true
-    } else {
-        false
-    };
-
     set_state_of_container(id, window_id.clone(), Some(container_id.clone()), prt_id);
 
     let mut state = access_state();
@@ -454,70 +561,13 @@ pub fn add_table_footer(
 
     state.containers.insert(id, Containers::TableFooter(
         TableFooter {
-            id,
+            id,height,
             style_id,
-            sash_style_id,
-            show,
-            ..Default::default()
+            sash_style_id, 
+            sash_style_std, 
         }));
 
     drop(state);
     Ok(id)
 
-}
-
-
-
-#[pyfunction]
-#[pyo3(signature = (
-    bkg_color=None,
-    bkg_color_alpha=None, 
-    bkg_rgba=None,
-    border_color=None,
-    border_color_alpha=None, 
-    border_rgba=None,
-    border_radius=None, 
-    border_width=None,
-    text_color=None,
-    text_color_alpha=None, 
-    text_rgba=None,
-    gen_id=None
-    ))]
-pub fn add_table_style(
-    bkg_color: Option<Color>,
-    bkg_color_alpha: Option<f32>,
-    bkg_rgba: Option<[f32; 4]>,
-    border_color: Option<Color>,
-    border_color_alpha: Option<f32>,
-    border_rgba: Option<[f32; 4]>,
-    border_radius: Option<Vec<f32>>,
-    border_width: Option<f32>,
-    text_color: Option<Color>,
-    text_color_alpha: Option<f32>,
-    text_rgba: Option<[f32; 4]>,
-    gen_id: Option<usize>,
-    ) -> PyResult<usize>
-{
-    let id = get_id(gen_id);
-
-    let mut state = access_state();
-
-    state.widgets.insert(id, Widgets::TableStyle(
-        TableStyle {
-            id,
-            bkg_color,
-            bkg_color_alpha, 
-            bkg_rgba,
-            border_color,
-            border_color_alpha, 
-            border_rgba,
-            border_radius, 
-            border_width,
-            text_color,
-            text_color_alpha, 
-            text_rgba,
-        }));
-
-    drop(state);
-    Ok(id)
 }

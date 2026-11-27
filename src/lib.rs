@@ -75,8 +75,7 @@ use crate::py_api::space::add_space;
 use crate::py_api::stack::add_stack;
 use crate::py_api::svg::add_svg;
 use crate::py_api::table::{
-    add_table, add_table_basic, add_table_body, add_table_footer, add_table_header, add_table_style,
-};
+    add_table, add_table_basic, add_table_body, add_table_footer, add_table_header};
 use crate::py_api::text::{add_text, add_text_format, add_text_style};
 use crate::py_api::text_editor::{add_text_editor, add_text_editor_style};
 use crate::py_api::text_input::{add_text_input, add_text_input_style};
@@ -123,7 +122,7 @@ use crate::widgets::ipg_separator::{SeparatorParam, SeparatorStyleParam};
 use crate::widgets::ipg_slider::{SliderParam, SliderStyleParam};
 use crate::widgets::ipg_stack::StackParam;
 use crate::widgets::ipg_svg::SvgParam;
-use crate::widgets::ipg_table::{TableBasicParam, TableStyleParam};
+use crate::widgets::ipg_table::TableBasicParam;
 use crate::widgets::ipg_text::{TextFormatParam, TextParam, TextStyleParam, TextStyleStd};
 use crate::widgets::ipg_text_editor::TextEditorParam;
 use crate::widgets::ipg_text_input::{TextInputParam, TextInputStyleParam};
@@ -215,7 +214,6 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(add_svg, m)?)?;
     m.add_function(wrap_pyfunction!(add_svg, m)?)?;
     m.add_function(wrap_pyfunction!(add_table_basic, m)?)?;
-    m.add_function(wrap_pyfunction!(add_table_style, m)?)?;
     m.add_function(wrap_pyfunction!(add_table, m)?)?;
     m.add_function(wrap_pyfunction!(add_table_header, m)?)?;
     m.add_function(wrap_pyfunction!(add_table_body, m)?)?;
@@ -317,7 +315,6 @@ fn icedpygui(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<StyleStandard>()?;
     m.add_class::<SvgParam>()?;
     m.add_class::<TableBasicParam>()?;
-    m.add_class::<TableStyleParam>()?;
     m.add_class::<TextStyleStd>()?;
     m.add_class::<TextEditorParam>()?;
     m.add_class::<TextInputParam>()?;

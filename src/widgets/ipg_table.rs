@@ -349,15 +349,15 @@ fn table_body<'a>(
 
 // The three sections of content passed to `Table::construct`.
 pub struct TableSections<'a> {
-    pub header: Vec<Element<'a, Message, Theme, Renderer>>,
-    pub header_child_ids: Vec<usize>,
-    pub header_params: Vec<Option<&'a TableHeader>>,
-    
-    pub body: Vec<Element<'a, Message, Theme, Renderer>>,
+    pub header_content: HashMap<usize, Vec<Element<'a, Message>>>,
+    pub header_child_ids: HashMap<usize, Vec<usize>>,
+    pub header_params: Vec<(usize, &'a TableHeader)>,
+
+    pub body_content: Vec<Element<'a, Message, Theme, Renderer>>,
     pub body_child_ids: Vec<usize>,
     pub body_params: Option<&'a TableBody>,
-    
-    pub footer: Vec<Element<'a, Message, Theme, Renderer>>,
+
+    pub footer_content: Vec<Element<'a, Message, Theme, Renderer>>,
     pub footer_child_ids: Vec<usize>,
     pub footer_params: Option<&'a TableFooter>,
 }
@@ -372,49 +372,43 @@ pub struct Table {
 }
 
 impl Table {
-    fn lookup<'a>(&self, widgets: &'a HashMap<usize, Widgets>, id: Option<usize>) -> Option<&'a Widgets> {
-        id.and_then(|id| widgets.get(&id))
-    }
+    // fn lookup<'a>(&self, widgets: &'a HashMap<usize, Widgets>, id: Option<usize>) -> Option<&'a Widgets> {
+    //     id.and_then(|id| widgets.get(&id))
+    // }
 
     pub fn construct<'a>(
         &'a self,
-        sections: TableSections<'a>,
-        widgets: &'a HashMap<usize, Widgets>,
+        mut sections: TableSections<'a>,
+        _widgets: &'a HashMap<usize, Widgets>,
     ) -> Option<Element<'a, Message, Theme, Renderer>> {
-        
         if !self.show {
             return None;
         }
 
-        dbg!(&sections.header_params);
-
-        let id = self.id;
+        let table_id = self.id;
         let sizes = self.col_widths.clone();
         let sash_size = self.sash_size;
         let min_size = self.min_size;
 
         let mut parts: Vec<Element<'a, Message, Theme, Renderer>> = vec![];
 
-        if !sections.header.is_empty() {
-            parts.push(adv_header(
-                id,
-                sections.header,
-                sizes.clone(),
-                30.0,
-                sash_size,
-                min_size,
-            ));
+        for (id, th) in sections.header_params {
+            if let Some(content) = sections.header_content.remove(&id) {
+                let header_element = th.construct(table_id, content, &sizes, min_size, self.sash_size);
+                parts.push(header_element);
+            }
         }
+
         parts.push(
             container(rule::horizontal(6.0))
                 .width(Length::Fixed(sizes.iter().sum()))
                 .boxed(),
         );
 
-        if !sections.body.is_empty() {
+        if !sections.body_content.is_empty() {
             parts.push(adv_body(
-                id,
-                sections.body,
+                table_id,
+                sections.body_content,
                 sizes.clone(),
                 30.0,
                 sash_size,
@@ -422,10 +416,10 @@ impl Table {
             ));
         }
 
-        if !sections.footer.is_empty() {
+        if !sections.footer_content.is_empty() {
             parts.push(adv_footer(
-                id,
-                sections.footer,
+                table_id,
+                sections.footer_content,
                 sizes.clone(),
                 30.0,
                 sash_size,
@@ -437,42 +431,10 @@ impl Table {
     }
 }
 
-// Renders the header: cells are chunked by col count, each chunk becomes a SashH row.
-// Adding 2×n_cols cells gives two header rows, etc.
-fn adv_header<'a>(
-    id: usize,
-    content: Vec<Element<'a, Message, Theme, Renderer>>,
-    sizes: Vec<f32>,
-    height: f32,
-    sash_size: f32,
-    min_size: f32,
-) -> Element<'a, Message, Theme, Renderer> {
-    let total_width: f32 = sizes.iter().sum();
-    let n_cols = sizes.len().max(1);
-    let mut iter = content.into_iter();
-    let mut header_rows: Vec<Element<'a, Message, Theme, Renderer>> = vec![];
-    loop {
-        let cells: Vec<Element<'a, Message, Theme, Renderer>> = iter.by_ref().take(n_cols).collect();
-        if cells.is_empty() {
-            break;
-        }
-        let sash: Element<'a, Message, Theme, Renderer> = SashH::new(cells, sizes.clone(), height, sash_size)
-            .min_size(min_size)
-            .on_resize(move |s_id, idx, val| Message::Table(id, TableBasicMessage::ResizeH(s_id, idx, val)))
-            .sync_sashes(sizes.clone())
-            .style(ipg_sash::sash::subtle)
-            .clip(true)
-            .boxed();
-        header_rows.push(sash);
-    }
-    header_rows.push(container(rule::horizontal(1)).width(Length::Fixed(total_width)).boxed());
-    container(column(header_rows)).style(container::rounded_box).boxed()
-}
-
 // Renders the body: flat cells chunked by col count, each chunk becomes a SashH row.
 // The Python side must add cells flat (no Row wrapper) inside TableBody.
 fn adv_body<'a>(
-    id: usize,
+    table_id: usize,
     content: Vec<Element<'a, Message, Theme, Renderer>>,
     sizes: Vec<f32>,
     height: f32,
@@ -489,7 +451,7 @@ fn adv_body<'a>(
             break;
         }
         let sash: Element<'a, Message, Theme, Renderer> = SashH::new(cells, sizes.clone(), height, sash_size)
-            .on_resize(move |s_id, idx, val| Message::Table(id, TableBasicMessage::ResizeH(s_id, idx, val)))
+            .on_resize(move |s_id, idx, val| Message::Table(table_id, TableBasicMessage::ResizeH(s_id, idx, val)))
             .min_size(min_size)
             .sync_sashes(sizes.clone())
             .style(ipg_sash::sash::subtle)
@@ -524,7 +486,7 @@ fn adv_body<'a>(
 
 // Renders the footer as a single SashH row with a dividing rule above.
 fn adv_footer<'a>(
-    id: usize,
+    table_id: usize,
     content: Vec<Element<'a, Message, Theme, Renderer>>,
     sizes: Vec<f32>,
     height: f32,
@@ -533,7 +495,7 @@ fn adv_footer<'a>(
 ) -> Element<'a, Message, Theme, Renderer> {
     let total_width: f32 = sizes.iter().sum();
     let sash: Element<'a, Message, Theme, Renderer> = SashH::new(content, sizes.clone(), height, sash_size)
-        .on_resize(move |s_id, idx, val| Message::Table(id, TableBasicMessage::ResizeH(s_id, idx, val)))
+        .on_resize(move |s_id, idx, val| Message::Table(table_id, TableBasicMessage::ResizeH(s_id, idx, val)))
         .min_size(min_size)
         .sync_sashes(sizes)
         .style(ipg_sash::sash::subtle)
@@ -557,6 +519,43 @@ pub struct TableHeader {
     pub text_format_id: Option<usize>,
 }
 
+// Renders the header: cells are chunked by col count, each chunk becomes a SashH row.
+// Adding 2×n_cols cells gives two header rows, etc.
+impl TableHeader {
+    fn construct<'a>(
+        &self,
+        table_id: usize,
+        content: Vec<Element<'a, Message, Theme, Renderer>>,
+        sizes: &Vec<f32>,
+        min_size: f32,
+        sash_size: f32,
+    ) -> Element<'a, Message, Theme, Renderer> {
+        
+        let total_width: f32 = sizes.iter().sum();
+        let n_cols = sizes.len().max(1);
+        let mut iter = content.into_iter();
+        let mut header_rows: Vec<Element<'a, Message, Theme, Renderer>> = vec![];
+        loop {
+            let cells: Vec<Element<'a, Message, Theme, Renderer>> = iter.by_ref().take(n_cols).collect();
+            if cells.is_empty() {
+                break;
+            }
+            let sash: Element<'a, Message, Theme, Renderer> =
+                SashH::new(cells, sizes.clone(), self.height.unwrap_or(30.0), sash_size)
+                    .min_size(min_size)
+                    .on_resize(move |s_id, idx, val| {
+                        Message::Table(table_id, TableBasicMessage::ResizeH(s_id, idx, val))
+                    })
+                    .sync_sashes(sizes.clone())
+                    .style(ipg_sash::sash::subtle)
+                    .clip(true)
+                    .boxed();
+            header_rows.push(sash);
+        }
+        header_rows.push(container(rule::horizontal(1)).width(Length::Fixed(total_width)).boxed());
+        container(column(header_rows)).style(container::rounded_box).boxed()
+    }
+}
 #[derive(Debug, Clone, Default)]
 pub struct TableBody {
     pub id: usize,
@@ -591,7 +590,7 @@ pub fn table_callback(state: &mut IpgState, widget_id: usize, message: TableBasi
             } else {
                 return;
             }
-            let table = match state.widgets.get(&widget_id) {
+            match state.widgets.get(&widget_id) {
                 Some(Widgets::TableBasic(t)) => t,
                 _ => return,
             };

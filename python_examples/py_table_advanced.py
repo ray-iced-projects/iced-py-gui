@@ -38,7 +38,7 @@ except FileNotFoundError:
     print(f"The file does not exist using {FILE_PATH}.")
 
 # Title,Author(s),Originallanguage,First published,Sales(10^6),Genre
-column_widths = [300.0, 200.0, 100.0, 75.0, 100.0, 100.0]
+column_widths = [300.0, 200.0, 100.0, 75.0, 100.0, 150.0]
 width = sum(column_widths)
 
 footers = ["footer", "footer", "footer", "footer"]
@@ -95,7 +95,8 @@ def filter_genre(_pick_id: int, genre: str):
             for _j in range(num_cols):
                 update_widget(body_text_ids[_i * num_cols + _j], TextParam.Content, "")
 
-hd_text_format = add_text_format(align_center=True, fill=True, size=14)
+text_center_align = add_text_format(align_center=True, fill=True, size=14)
+text_left_align = add_text_format(align_center_left=True, fill=True, size=14)
 
 # Add the window
 with Window(
@@ -112,16 +113,21 @@ with Window(
             sash_size=6,
             ):
 
-            with TableHeader(height=30.0):
+            with TableHeader(height=50.0):
                 for h1 in header:
-                    add_text(content=h1, format_id=hd_text_format)
+                    if "Sales" in h1:
+                        h = h1.split(" ")
+                        add_text(content=f"{h[0]}\n{h[1]}", format_id=text_center_align)
+                    else:
+                        add_text(content=h1, format_id=text_center_align)
 
-            with TableHeader(height=60.0):
+            with TableHeader():
                 for h2 in header:
                     pl_id = add_pick_list(
                         options=pick_list_options,
                         placeholder="Sort",
                         text_size=12.0,
+                        width_fill=True,
                         on_select=sort_books)
 
                     sort_dict[h2] = pl_id
@@ -139,9 +145,13 @@ with Window(
 
             with TableBody():
                 for row in book_lines:
-                    for cell in row:
-                        body_text_ids.append(
-                            add_text(content=cell))
+                    for idx, cell in enumerate(row):
+                        if idx > 1:
+                            body_text_ids.append(
+                                add_text(content=cell, format_id=text_center_align))
+                        else:
+                            body_text_ids.append(
+                                add_text(content=cell, format_id=text_left_align))
 
             with TableFooter():
                 for f in footers:

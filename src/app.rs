@@ -920,69 +920,74 @@ fn collect_sub_items<'a>(
 /// The widgets nested inside each section are collected into the matching vec.
 fn get_table_sections<'a>(
     parents: &Vec<ParentChildIds>,
-    table_index: &usize,
+    table_index: &usize, // position in the parents vector
     parent_ids: &Vec<usize>,
     state: &'a IpgState,
     theme: &Theme,
 ) -> TableSections<'a> {
-    let mut header = vec![];
-    let mut header_child_ids = vec![];
-    let mut header_params: Vec<Option<&'a TableHeader>> = vec![];
+    let mut header_content: HashMap<usize, Vec<Element<'a, Message>>> = HashMap::new();
+    let mut header_child_ids: HashMap<usize, Vec<usize>> = HashMap::new();
+    let mut header_params: Vec<(usize, &'a TableHeader)> = vec![];
     
-    let mut body   = vec![];
+    let mut body_content   = vec![];
     let mut body_child_ids = vec![];
     let mut body_params: Option<&'a TableBody> = None;
     
-    let mut footer = vec![];
+    let mut footer_content = vec![];
     let mut footer_child_ids = vec![];
     let mut footer_params: Option<&'a TableFooter> = None;
 
     for child_id in parents[*table_index].child_ids.iter() {
         if !parent_ids.contains(child_id) {
-            continue; // widgets directly in Table are ignored — use a section
+            continue; // widgets directly in Table are ignored
         }
         let section_index = parents.iter().position(|r| &r.parent_id == child_id).unwrap();
         
         match state.containers.get(child_id) {
-            Some(Containers::TableHeader(header_cont)) => {
-                header_params.push(Some(header_cont));
-                header_child_ids = parents[section_index].child_ids.clone();
+            Some(Containers::TableHeader(th)) => {
+                let mut this_header_content = vec![];
+                let header_child_id_list = parents[section_index].child_ids.clone();
+                
                 for gc in parents[section_index].child_ids.iter() {
                     if parent_ids.contains(gc) {
                         let idx = parents.iter().position(|r| &r.parent_id == gc).unwrap();
                         if let Some(el) = get_children(parents, &idx, parent_ids, state, theme) {
-                            header.push(el);
+                            this_header_content.push(el);
                         }
                     } else if let Some(el) = get_widget(state, gc, theme) {
-                        header.push(el);
+                        this_header_content.push(el);
                     }
                 }
+                
+                header_content.insert(*child_id, this_header_content);
+                header_child_ids.insert(*child_id, header_child_id_list);
+                header_params.push((*child_id, th));
             },
-            Some(Containers::TableBody(body_cont)) => {
-                body_params = Some(body_cont);
+            Some(Containers::TableBody(tb)) => {
+                body_params = Some(tb);
                 body_child_ids = parents[section_index].child_ids.clone();
                 for gc in parents[section_index].child_ids.iter() {
                     if parent_ids.contains(gc) {
                         let idx = parents.iter().position(|r| &r.parent_id == gc).unwrap();
                         if let Some(el) = get_children(parents, &idx, parent_ids, state, theme) {
-                            body.push(el);
+                            body_content.push(el);
                         }
                     } else if let Some(el) = get_widget(state, gc, theme) {
-                        body.push(el);
+                        body_content.push(el);
                     }
                 }
             },
-            Some(Containers::TableFooter(footer_cont)) => {
-                footer_params = Some(footer_cont);
+            Some(Containers::TableFooter(tf)) => {
+                footer_params = Some(tf);
                 footer_child_ids = parents[section_index].child_ids.clone();
                 for gc in parents[section_index].child_ids.iter() {
                     if parent_ids.contains(gc) {
                         let idx = parents.iter().position(|r| &r.parent_id == gc).unwrap();
                         if let Some(el) = get_children(parents, &idx, parent_ids, state, theme) {
-                            footer.push(el);
+                            footer_content.push(el);
                         }
                     } else if let Some(el) = get_widget(state, gc, theme) {
-                        footer.push(el);
+                        footer_content.push(el);
                     }
                 }
             },
@@ -991,13 +996,13 @@ fn get_table_sections<'a>(
     }
 
     TableSections {
-        header,
+        header_content,
         header_child_ids,
         header_params,
-        body,
+        body_content,
         body_child_ids,
         body_params,
-        footer,
+        footer_content,
         footer_child_ids,
         footer_params,
     }
